@@ -43,7 +43,7 @@ class Cell;
 class UnitRangeCellsLookupItem {
 public:
 
-	int UnitRangeCellsLookupItemCacheTimerCountIndex;
+	//int UnitRangeCellsLookupItemCacheTimerCountIndex;
 	std::vector<Cell *> rangeCellList;
 
 	static time_t lastDebug;
@@ -82,7 +82,7 @@ private:
 
 	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 	//std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
-	int UnitRangeCellsLookupItemCacheTimerCount;
+	//int UnitRangeCellsLookupItemCacheTimerCount;
 
 	bool findCachedCellsEnemies(Vec2i center, int range,
 								int size, vector<Unit*> &enemies,
@@ -113,6 +113,8 @@ public:
 	void updateMorph(Unit *unit, int frameIndex);
 
 	void clearUnitPrecache(Unit *unit);
+
+	unsigned int getAttackWarningCount() const { return attackWarnings.size(); }
 
 private:
     //attack

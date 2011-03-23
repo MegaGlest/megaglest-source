@@ -1790,8 +1790,10 @@ void Game::render2d(){
 		str+= "Cached surfacedata: " +  intToStr(renderer.getCachedSurfaceDataSize())+"\n";
 		str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),2)+"\n";
 		if(SystemFlags::getThreadedLoggerRunning() == true) {
-            str+= "Log buffer count: "  + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
+            str+= "Log buffer count: " + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
 		}
+
+		str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";
 
 		str+= "Map: " + gameSettings.getMap() +"\n";
 		str+= "Tileset: " + gameSettings.getTileset() +"\n";

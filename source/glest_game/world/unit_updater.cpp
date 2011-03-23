@@ -290,16 +290,16 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 		return;
 	}
 
-	Chrono chrono;
-	chrono.start();
+	//Chrono chrono;
+	//chrono.start();
 
 	Command *command= unit->getCurrCommand();
     const StopCommandType *sct = static_cast<const StopCommandType*>(command->getCommandType());
-    Unit *sighted;
+    Unit *sighted=NULL;
 
     unit->setCurrSkill(sct->getStopSkillType());
 
-    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    //if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//we can attack any unit => attack it
    	if(unit->getType()->hasSkillClass(scAttack)) {
@@ -310,44 +310,40 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 
 			//look for an attack skill
 			const AttackSkillType *ast= NULL;
-			if(ct->getClass()==ccAttack) {
+			if(ct->getClass() == ccAttack) {
 				ast= static_cast<const AttackCommandType*>(ct)->getAttackSkillType();
 			}
-			else if(ct->getClass()==ccAttackStopped) {
+			else if(ct->getClass() == ccAttackStopped) {
 				ast= static_cast<const AttackStoppedCommandType*>(ct)->getAttackSkillType();
 			}
 
 			//use it to attack
 			if(ast != NULL) {
 				if(attackableOnSight(unit, &sighted, ast)) {
-
 				    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					unit->giveCommand(new Command(ct, sighted->getPos()));
-
 					break;
 				}
 			}
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 	//see any unit and cant attack it => run
 	else if(unit->getType()->hasCommandClass(ccMove)) {
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		if(attackerOnSight(unit, &sighted)) {
-
-			if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-			Vec2i escapePos= unit->getPos()*2-sighted->getPos();
-			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+			Vec2i escapePos = unit->getPos() * 2 - sighted->getPos();
+			//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccMove), escapePos));
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 
-   	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+   	//if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 
@@ -1899,7 +1895,6 @@ void UnitUpdater::findEnemiesForCell(const AttackSkillType *ast, Cell *cell, con
 
 			//check enemy
 			if(possibleEnemy != NULL && possibleEnemy->isAlive()) {
-
 				if((unit->isAlly(possibleEnemy) == false && commandTarget == NULL) ||
 					commandTarget == possibleEnemy) {
 
@@ -1912,9 +1907,8 @@ void UnitUpdater::findEnemiesForCell(const AttackSkillType *ast, Cell *cell, con
 
 //if the unit has any enemy on range
 bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
-							  const AttackSkillType *ast){
+							  const AttackSkillType *ast) {
     vector<Unit*> enemies;
-    Unit* enemySeen = NULL;
 	bool result=false;
 	//we check command target
 	const Unit *commandTarget = NULL;
@@ -1934,12 +1928,10 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
 							  unit,commandTarget) == false) {
 		foundInCache = false;
-
 		//nearby cells
 		UnitRangeCellsLookupItem cacheItem;
-		for(int i=center.x-range; i<center.x+range+size; ++i){
-			for(int j=center.y-range; j<center.y+range+size; ++j){
-
+		for(int i = center.x - range; i < center.x + range + size; ++i) {
+			for(int j = center.y - range; j < center.y + range + size; ++j) {
 				//cells inside map and in range
 #ifdef USE_STREFLOP
 				if(map->isInside(i, j) && streflop::floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
@@ -1956,24 +1948,47 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 		// Ok update our caches with the latest info
 		if(cacheItem.rangeCellList.size() > 0) {
-			cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
+			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
 			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
 		}
 	}
 
 	//attack enemies that can attack first
+	Unit* enemySeen = NULL;
     for(int i = 0; i< enemies.size(); ++i) {
-		if(enemies[i]->getType()->hasSkillClass(scAttack) && enemies[i]->isAlive() == true ) {
+    	if(enemies[i]->isAlive() == true) {
+    		// Here we default to first enemy if no attackers found
+    		if(enemySeen == NULL) {
+                *rangedPtr 	= enemies[i];
+    			enemySeen 	= enemies[i];
+                result		= true;
+    		}
+    		// Attackers get first priority
+    		if(enemies[i]->getType()->hasSkillClass(scAttack) == true) {
+                *rangedPtr	= enemies[i];
+    			enemySeen	= enemies[i];
+                result		= true;
+    			break;
+    		}
+    	}
+    }
+
+
+/*
+		if(enemies[i]->getType()->hasSkillClass(scAttack) &&
+			enemies[i]->isAlive() == true ) {
             *rangedPtr= enemies[i];
 			enemySeen=enemies[i];
             result=true;
             break;
         }
     }
-    if(!result){
+
+/*
+    if(result == false) {
 		//any enemy
-		for(int i= 0; i < enemies.size(); ++i){
-			if(enemies[i]->isAlive() == true){
+		for(int i= 0; i < enemies.size(); ++i) {
+			if(enemies[i]->isAlive() == true) {
 				*rangedPtr= enemies[i];
 				enemySeen= enemies[i];
 				result= true;
@@ -1981,36 +1996,35 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 			}
 		}
 	}
+*/
 
+	if(result == true) {
+		const Unit* teamUnit	= NULL;
+		const Unit* enemyUnit	= NULL;
+		bool onlyEnemyUnits		= true;
 
-	if(result)
-	{
-		const Unit* teamUnit;
-		const Unit* enemyUnit;
-		bool onlyEnemyUnits=true;
-		if(unit->getTeam()==world->getThisTeamIndex())
-		{
-			teamUnit=unit;
-			enemyUnit=enemySeen;
-			onlyEnemyUnits=false;
+		if(unit->getTeam() == world->getThisTeamIndex()) {
+			teamUnit		= unit;
+			enemyUnit		= enemySeen;
+			onlyEnemyUnits	= false;
 		}
-		else if(enemySeen->getTeam()==world->getThisTeamIndex() )
-		{
-			teamUnit=enemySeen;
-			enemyUnit=unit;
-			onlyEnemyUnits=false;
+		else if(enemySeen->getTeam() == world->getThisTeamIndex()) {
+			teamUnit		= enemySeen;
+			enemyUnit		= unit;
+			onlyEnemyUnits	= false;
 		}
 
-		if(!onlyEnemyUnits && enemyUnit->getTeam()!=world->getThisTeamIndex())
-		{
+		if(onlyEnemyUnits == false &&
+			enemyUnit->getTeam() != world->getThisTeamIndex()) {
 			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
 			// find nearest Attack and cleanup old dates
-			AttackWarningData *nearest=NULL;
-			float currentDistance;
-			float nearestDistance;
-			for(int i = attackWarnings.size()-1; i>-1; --i) {
-				if(world->getFrameCount()-attackWarnings[i]->lastFrameCount>200) { //after 200 frames attack break we warn again
-					AttackWarningData *toDelete=attackWarnings[i];
+			AttackWarningData *nearest	= NULL;
+			float currentDistance		= 0.f;
+			float nearestDistance		= 0.f;
+
+			for(int i = attackWarnings.size() - 1; i >= 0; --i) {
+				if(world->getFrameCount() - attackWarnings[i]->lastFrameCount > 200) { //after 200 frames attack break we warn again
+					AttackWarningData *toDelete =attackWarnings[i];
 					attackWarnings.erase(attackWarnings.begin()+i);
 					delete toDelete; // old one
 				}
@@ -2021,36 +2035,35 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 					currentDistance = floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
 #endif
 
-					if( nearest==NULL ){
-						nearest=attackWarnings[i];
-						nearestDistance=currentDistance;
+					if(nearest == NULL) {
+						nearest = attackWarnings[i];
+						nearestDistance = currentDistance;
 					}
 					else {
-
-							if(  currentDistance< nearestDistance ){
-								nearest=attackWarnings[i];
-								nearestDistance=currentDistance;
-							}
+						if(currentDistance < nearestDistance) {
+							nearest = attackWarnings[i];
+							nearestDistance = currentDistance;
 						}
+					}
 				}
 	    	}
 
-	    	if(nearest!=NULL)
-	    	{    	// does it fit?
-	    		if(nearestDistance<attackWarnRange)
-	    		{// update entry with current values
-	    				nearest->lastFrameCount=world->getFrameCount();
-	    				nearest->attackPosition.x=enemyFloatCenter.x;
-	    				nearest->attackPosition.y=enemyFloatCenter.y;
+	    	if(nearest != NULL) {
+	    		// does it fit?
+	    		if(nearestDistance < attackWarnRange) {
+	    			// update entry with current values
+					nearest->lastFrameCount=world->getFrameCount();
+					nearest->attackPosition.x=enemyFloatCenter.x;
+					nearest->attackPosition.y=enemyFloatCenter.y;
 	    		}
-	    		else
-	    		{//Must be a different Attack!
+	    		else {
+	    			//Must be a different Attack!
 	    			nearest=NULL;  //set to null to force a new entry in next step
 	    		}
 	    	}
 	    	// add new attack
-	    	if(nearest==NULL) // no else!
-	    	{
+	    	if(nearest == NULL) {
+	    		// no else!
 	    		AttackWarningData* awd= new AttackWarningData();
 	    		awd->lastFrameCount=world->getFrameCount();
 	    		awd->attackPosition.x=enemyFloatCenter.x;
