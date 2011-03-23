@@ -267,15 +267,15 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 		if(unit->anyCommand() == false && unit->isOperative()) {
 			SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			const SkillType *currSkill= unit->getCurrSkill();
-			if(currSkill == NULL || currSkill->getClass() != scStop) {
+			//const SkillType *currSkill= unit->getCurrSkill();
+			//if(currSkill == NULL || currSkill->getClass() != scStop) {
 				unit->setCurrSkill(scStop);
 
 				if(unit->getType()->hasCommandClass(ccStop)) {
 					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
 				}
-			}
+			//}
 		}
     }
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
