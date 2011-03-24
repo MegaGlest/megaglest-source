@@ -426,6 +426,7 @@ void World::update(){
 	//tick
 	bool needToTick = canTickWorld();
 	if(needToTick == true) {
+		//printf("=========== World is about to be updated, current frameCount = %d\n",frameCount);
 		tick();
 	}
 }
