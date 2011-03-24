@@ -36,6 +36,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 const int UnitPathBasic::maxBlockCount= GameConstants::updateFps / 2;
+const int updateUnitForStopCommandFrameCount = 80;
 
 UnitPathBasic::UnitPathBasic() {
 	this->blockCount = 0;
@@ -211,6 +212,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 		throw runtime_error("#2 Invalid path position = " + pos.getString());
 	}
 
+	this->lastStopCommandCheckFrame = 0;
     this->unitPath = unitpath;
     this->unitPath->setMap(map);
 	this->pos=pos;
@@ -1143,12 +1145,25 @@ bool Unit::needToUpdate() {
 		}
 
 		//update progresses
-		float newProgress = progress;
 		const Game *game = Renderer::getInstance().getGame();
-		newProgress += (speed * diagonalFactor * heightFactor) / (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		float newProgress = progress;
+		newProgress += (speed * diagonalFactor * heightFactor) / speedDenominator;
 
 		if(newProgress >= 1.f) {
 			return_value = true;
+
+			if(currSkill->getClass() != scDie) {
+				if(currSkill->getClass() == scStop) {
+					return_value = false;
+					uint32 framesSinceLastCheck = (game->getWorld()->getFrameCount() - this->getLastStopCommandCheckFrame());
+					if(this->getLastStopCommandCheckFrame() <= 0 ||
+						framesSinceLastCheck >= updateUnitForStopCommandFrameCount) {
+						return_value = true;
+					}
+				}
+			}
+
 		}
 	}
 	return return_value;
@@ -1190,8 +1205,11 @@ bool Unit::update() {
 	//update progresses
 	lastAnimProgress= animProgress;
 	const Game *game = Renderer::getInstance().getGame();
-	progress += (speed * diagonalFactor * heightFactor) / (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
-	animProgress += (currSkill->getAnimSpeed() * heightFactor) / (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+
+	float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+	progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
+
+	animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
 
 	//update target
 	updateTarget();
@@ -1226,6 +1244,7 @@ bool Unit::update() {
 		(*it)->setPos(getCurrVector());
 		(*it)->setRotation(getRotation());
 	}
+
 	//checks
 	if(animProgress > 1.f) {
 		animProgress = currSkill->getClass() == scDie? 1.f: 0.f;
@@ -1238,6 +1257,18 @@ bool Unit::update() {
 		if(currSkill->getClass() != scDie) {
 			progress     = 0.f;
 			return_value = true;
+			if(currSkill->getClass() == scStop) {
+				return_value = false;
+				uint32 framesSinceLastCheck = (game->getWorld()->getFrameCount() - this->getLastStopCommandCheckFrame());
+				if(this->getLastStopCommandCheckFrame() <= 0 ||
+					framesSinceLastCheck >= updateUnitForStopCommandFrameCount) {
+					this->setLastStopCommandCheckFrame(game->getWorld()->getFrameCount());
+					return_value = true;
+				}
+			}
+			//if(return_value == true) {
+			//	printf("\n\n\n@@@@@@@@@@@@@@@ Unit [%s - %d] current skill [%s]\n",this->getFullName().c_str(),this->getId(),currSkill->getName().c_str());
+			//}
 		}
 		else {
 			progress= 1.f;

@@ -331,6 +331,7 @@ private:
 	static Game *game;
 
 	bool ignoreCheckCommand;
+	uint32 lastStopCommandCheckFrame;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
@@ -345,7 +346,7 @@ public:
 	Field getCurrField() const					{return currField;}
 	int getLoadCount() const					{return loadCount;}
 	float getLastAnimProgress() const			{return lastAnimProgress;}
-	float getProgress() const					{return progress;}
+	//float getProgress() const					{return progress;}
 	float getAnimProgress() const				{return animProgress;}
 	float getHightlight() const					{return highlight;}
 	int getProgress2() const					{return progress2;}
@@ -495,6 +496,9 @@ public:
 	void logSynchData(string file,int line,string source="");
 	std::string toString() const;
 	bool needToUpdate();
+
+	uint32 getLastStopCommandCheckFrame() const {return lastStopCommandCheckFrame; }
+	void setLastStopCommandCheckFrame(uint32 value) { lastStopCommandCheckFrame = value; }
 
 private:
 	float computeHeight(const Vec2i &pos) const;
