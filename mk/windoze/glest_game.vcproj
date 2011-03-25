@@ -696,6 +696,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_mods.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_mods.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\menu\menu_state_new_game.cpp"
 				>
 			</File>

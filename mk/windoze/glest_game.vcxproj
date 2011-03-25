@@ -223,6 +223,7 @@
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_join_game.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_keysetup.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_masterserver.cpp" />
+    <ClCompile Include="..\..\source\glest_game\menu\menu_state_mods.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_new_game.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_options.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_root.cpp" />
@@ -311,6 +312,7 @@
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_graphic_info.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_join_game.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_masterserver.h" />
+    <ClInclude Include="..\..\source\glest_game\menu\menu_state_mods.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_new_game.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_options.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_root.h" />
