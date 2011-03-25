@@ -1122,7 +1122,7 @@ void MenuStateMods::render() {
             for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
                 iterMap != fileFTPProgressList.end(); ++iterMap) {
 
-                string progressLabelPrefix = lang.get("Downloading") + " " + iterMap->first + " ";
+                string progressLabelPrefix = lang.get("ModDownloading") + " " + iterMap->first + " ";
                 //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nRendering file progress with the following prefix [%s]\n",progressLabelPrefix.c_str());
 
                 renderer.renderProgressBar(
