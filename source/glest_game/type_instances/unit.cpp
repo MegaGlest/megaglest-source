@@ -1257,7 +1257,7 @@ bool Unit::update() {
 		if(currSkill->getClass() != scDie) {
 			progress     = 0.f;
 			return_value = true;
-			if(currSkill->getClass() == scStop) {
+			if(currSkill->getClass() == scStop && this->anyCommand() == false) {
 				return_value = false;
 				uint32 framesSinceLastCheck = (game->getWorld()->getFrameCount() - this->getLastStopCommandCheckFrame());
 				if(this->getLastStopCommandCheckFrame() <= 0 ||
