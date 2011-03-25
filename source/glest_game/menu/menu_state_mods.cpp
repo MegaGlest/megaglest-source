@@ -368,6 +368,12 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 }
 
 void MenuStateMods::simpleTask(BaseThread *callingThread) {
+
+    MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+        return;
+    }
+
 	std::string techsMetaData = "";
 	std::string tilesetsMetaData = "";
 	std::string mapsMetaData = "";
@@ -385,6 +391,10 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
 		SystemFlags::cleanupHTTP(&handle);
 	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+        return;
+    }
 
 	tilesetListRemote.clear();
 	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
@@ -428,6 +438,10 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			keyTilesetButtons.push_back(button);
 		}
 	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+        return;
+    }
 
 	techListRemote.clear();
 	Tokenize(techsMetaData,techListRemote,"\n");
@@ -489,6 +503,10 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 		}
 	}
 
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+        return;
+    }
+
 	mapListRemote.clear();
 	Tokenize(mapsMetaData,mapListRemote,"\n");
 
@@ -545,6 +563,10 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			labelsMap.push_back(label);
 		}
 	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+        return;
+    }
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -741,8 +763,7 @@ MenuStateMods::~MenuStateMods() {
 		modHttpServerThread->setThreadOwnerValid(false);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if( modHttpServerThread->canShutdown(true) == true &&
-			modHttpServerThread->shutdownAndWait() == true) {
+		if( modHttpServerThread->shutdownAndWait() == true) {
 			delete modHttpServerThread;
 		}
 		modHttpServerThread = NULL;
