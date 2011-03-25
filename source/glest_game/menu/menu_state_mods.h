@@ -37,13 +37,19 @@ typedef vector<GraphicLabel*> GraphicLabels;
 // 	class MenuStateMods
 // ===============================
 
-class MenuStateMods: public MenuState, public FTPClientCallbackInterface {
+class MenuStateMods: public MenuState, public FTPClientCallbackInterface, public SimpleTaskCallbackInterface {
 private:
 
 	GraphicButton buttonReturn;
 
 	GraphicMessageBox mainMessageBox;
 	FTPMessageType mainMessageBoxState;
+
+	int techInfoXPos;
+	int mapInfoXPos;
+	int tilesetInfoXPos;
+	int labelWidth;
+	int scrollListsYPos;
 
 	GraphicButton buttonInstallTech;
 	GraphicButton buttonRemoveTech;
@@ -98,6 +104,8 @@ private:
 	FTPClientThread *ftpClientThread;
 	std::map<string,pair<int,string> > fileFTPProgressList;
 
+	SimpleTaskThread *modHttpServerThread;
+
 	void getTechsLocalList();
 	void refreshTechs();
 
@@ -120,6 +128,8 @@ public:
     virtual void keyDown(char key);
     virtual void keyPress(char c);
     virtual void keyUp(char key);
+
+    virtual void simpleTask(BaseThread *callingThread);
 
 private:
 

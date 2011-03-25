@@ -53,14 +53,14 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyButtonsLineHeight	= 20;
 	keyButtonsHeight		= 20;
 	keyButtonsWidth			= 200;
-	int scrollListsYPos 	= 700;
+	scrollListsYPos 	= 700;
 	//keyButtonsYBase			= scrollListsYPos - keyButtonsLineHeight;
 	keyButtonsYBase			= scrollListsYPos;
 	keyButtonsToRender		= 400 / keyButtonsLineHeight;
-	int labelWidth			= 5;
+	labelWidth			= 5;
 
 	//create
-	int techInfoXPos = 10;
+	techInfoXPos = 10;
 	keyTechScrollBarTitle1.registerGraphicComponent(containerName,"keyTechScrollBarTitle1");
 	keyTechScrollBarTitle1.init(techInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTechScrollBarTitle1.setText(lang.get("TechTitle1"));
@@ -70,7 +70,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyTechScrollBarTitle2.setText(lang.get("TechTitle2"));
 	keyTechScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontBig());
 
-	int mapInfoXPos = 270;
+	mapInfoXPos = 270;
 	keyMapScrollBarTitle1.registerGraphicComponent(containerName,"keyMapScrollBarTitle1");
 	keyMapScrollBarTitle1.init(mapInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyMapScrollBarTitle1.setText(lang.get("MapTitle1"));
@@ -80,7 +80,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyMapScrollBarTitle2.setText(lang.get("MapTitle2"));
 	keyMapScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontBig());
 
-	int tilesetInfoXPos = 530;
+	tilesetInfoXPos = 530;
 	keyTilesetScrollBarTitle1.registerGraphicComponent(containerName,"keyTilesetScrollBarTitle1");
 	keyTilesetScrollBarTitle1.init(tilesetInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTilesetScrollBarTitle1.setText(lang.get("TilesetTitle1"));
@@ -119,11 +119,262 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+//	std::string techsMetaData = "";
+//	std::string tilesetsMetaData = "";
+//	std::string mapsMetaData = "";
+//	if(Config::getInstance().getString("Masterserver","") != "") {
+//		string baseURL = Config::getInstance().getString("Masterserver");
+//
+//		CURL *handle = SystemFlags::initHTTP();
+//		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php",handle);
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s]\n",techsMetaData.c_str());
+//		tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php",handle);
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
+//		mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php",handle);
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
+//		SystemFlags::cleanupHTTP(&handle);
+//	}
+//
+//	tilesetListRemote.clear();
+//	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
+//
+//	getTilesetsLocalList();
+//	for(unsigned int i=0; i < tilesetListRemote.size(); i++) {
+//		string tilesetInfo = tilesetListRemote[i];
+//		std::vector<std::string> tilesetInfoList;
+//		Tokenize(tilesetInfo,tilesetInfoList,"|");
+//
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetInfoList.size() [%d]\n",(int)tilesetInfoList.size());
+//		if(tilesetInfoList.size() >= 4) {
+//			string tilesetName = tilesetInfoList[0];
+//			string tilesetCRC = tilesetInfoList[1];
+//			string tilesetDescription = tilesetInfoList[2];
+//			string tilesetURL = tilesetInfoList[3];
+//			//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),tilesetName) != tilesetFiles.end());
+//			tilesetCacheList[tilesetName] = tilesetURL;
+//
+//			GraphicButton *button=new GraphicButton();
+//			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(tilesetName);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//
+//			//if(alreadyHasTileset == true) {
+//			//	button->setEnabled(false);
+//			//}
+//			keyTilesetButtons.push_back(button);
+//		}
+//	}
+//	for(unsigned int i=0; i < tilesetFilesUserData.size(); i++) {
+//		string tilesetName = tilesetFilesUserData[i];
+//		bool alreadyHasTileset = (tilesetCacheList.find(tilesetName) != tilesetCacheList.end());
+//		if(alreadyHasTileset == false) {
+//			GraphicButton *button=new GraphicButton();
+//			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(tilesetName);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//			keyTilesetButtons.push_back(button);
+//		}
+//	}
+//
+//	techListRemote.clear();
+//	Tokenize(techsMetaData,techListRemote,"\n");
+//
+//	getTechsLocalList();
+//	for(unsigned int i=0; i < techListRemote.size(); i++) {
+//		string techInfo = techListRemote[i];
+//		std::vector<std::string> techInfoList;
+//		Tokenize(techInfo,techInfoList,"|");
+//
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techInfoList.size() [%d]\n",(int)techInfoList.size());
+//		if(techInfoList.size() >= 5) {
+//			string techName = techInfoList[0];
+//			string techFactionCount = techInfoList[1];
+//			string techCRC = techInfoList[2];
+//			string techDescription = techInfoList[3];
+//			string techURL = techInfoList[4];
+//			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
+//			techCacheList[techName] = techURL;
+//
+//			GraphicButton *button=new GraphicButton();
+//			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(techName);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//
+//			//if(alreadyHasTech == true) {
+//			//	button->setEnabled(false);
+//			//}
+//			keyTechButtons.push_back(button);
+//			GraphicLabel *label=new GraphicLabel();
+//			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
+//			label->setText(techFactionCount);
+//			labelsTech.push_back(label);
+//		}
+//	}
+//	for(unsigned int i=0; i < techTreeFilesUserData.size(); i++) {
+//		string techName = techTreeFilesUserData[i];
+//		bool alreadyHasTech = (techCacheList.find(techName) != techCacheList.end());
+//		if(alreadyHasTech == false) {
+//			vector<string> techPaths = config.getPathListForType(ptTechs);
+//	        string &techPath = techPaths[1];
+//	        endPathWithSlash(techPath);
+//	        vector<string> factions;
+//	        findAll(techPath + techName + "/factions/*.", factions, false, false);
+//
+//			GraphicButton *button=new GraphicButton();
+//			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(techName);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//			keyTechButtons.push_back(button);
+//
+//			int techFactionCount = factions.size();
+//			GraphicLabel *label=new GraphicLabel();
+//			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
+//			label->setText(intToStr(techFactionCount));
+//			labelsTech.push_back(label);
+//		}
+//	}
+//
+//	mapListRemote.clear();
+//	Tokenize(mapsMetaData,mapListRemote,"\n");
+//
+//	getMapsLocalList();
+//	for(unsigned int i=0; i < mapListRemote.size(); i++) {
+//		string mapInfo = mapListRemote[i];
+//		std::vector<std::string> mapInfoList;
+//		Tokenize(mapInfo,mapInfoList,"|");
+//
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapInfoList.size() [%d]\n",(int)mapInfoList.size());
+//		if(mapInfoList.size() >= 5) {
+//			string mapName = mapInfoList[0];
+//			string mapPlayerCount = mapInfoList[1];
+//			string mapCRC = mapInfoList[2];
+//			string mapDescription = mapInfoList[3];
+//			string mapURL = mapInfoList[4];
+//			//bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),mapName) != mapFiles.end());
+//			mapCacheList[mapName] = mapURL;
+//
+//			GraphicButton *button=new GraphicButton();
+//			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(mapName);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//			keyMapButtons.push_back(button);
+//
+//			GraphicLabel *label=new GraphicLabel();
+//			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
+//			label->setText(mapPlayerCount);
+//			labelsMap.push_back(label);
+//		}
+//	}
+//	for(unsigned int i=0; i < mapFilesUserData.size(); i++) {
+//		string mapName = mapFilesUserData[i];
+//		bool alreadyHasMap = (mapCacheList.find(mapName) != mapCacheList.end());
+//		if(alreadyHasMap == false) {
+//			vector<string> mapPaths = config.getPathListForType(ptMaps);
+//	        string &mapPath = mapPaths[1];
+//	        endPathWithSlash(mapPath);
+//	        mapPath += mapName;
+//	        MapInfo mapInfo = loadMapInfo(mapPath);
+//
+//			GraphicButton *button=new GraphicButton();
+//			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(mapName);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//			keyMapButtons.push_back(button);
+//
+//			int mapPlayerCount = mapInfo.players;
+//			GraphicLabel *label=new GraphicLabel();
+//			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
+//			label->setText(intToStr(mapPlayerCount));
+//			labelsMap.push_back(label);
+//		}
+//	}
+//
+//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//
+	int listBoxLength = 400;
+	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyTilesetScrollBar.setLength(listBoxLength);
+	//keyTilesetScrollBar.setElementCount(keyTilesetButtons.size());
+	keyTilesetScrollBar.setElementCount(0);
+	keyTilesetScrollBar.setVisibleSize(keyButtonsToRender);
+	keyTilesetScrollBar.setVisibleStart(0);
+
+	keyTechScrollBar.init(techInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyTechScrollBar.setLength(listBoxLength);
+	//keyTechScrollBar.setElementCount(keyTechButtons.size());
+	keyTechScrollBar.setElementCount(0);
+	keyTechScrollBar.setVisibleSize(keyButtonsToRender);
+	keyTechScrollBar.setVisibleStart(0);
+
+	keyMapScrollBar.init(mapInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyMapScrollBar.setLength(listBoxLength);
+	//keyMapScrollBar.setElementCount(keyMapButtons.size());
+	keyMapScrollBar.setElementCount(0);
+	keyMapScrollBar.setVisibleSize(keyButtonsToRender);
+	keyMapScrollBar.setVisibleStart(0);
+
+	GraphicComponent::applyAllCustomProperties(containerName);
+
+	modHttpServerThread = new SimpleTaskThread(this,0,200);
+	modHttpServerThread->setUniqueID(__FILE__);
+	modHttpServerThread->start();
+
+    findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
+    findDirs(config.getPathListForType(ptTechs), techTreeFiles);
+
+	vector<string> mapPathList = config.getPathListForType(ptMaps);
+	std::pair<string,string> mapsPath;
+	if(mapPathList.size() > 0) {
+		mapsPath.first = mapPathList[0];
+	}
+	if(mapPathList.size() > 1) {
+		mapsPath.second = mapPathList[1];
+	}
+	std::pair<string,string> tilesetsPath;
+	vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
+	if(tilesetsList.size() > 0) {
+		tilesetsPath.first = tilesetsList[0];
+		if(tilesetsList.size() > 1) {
+			tilesetsPath.second = tilesetsList[1];
+		}
+	}
+
+	std::pair<string,string> techtreesPath;
+	vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
+	if(techtreesList.size() > 0) {
+		techtreesPath.first = techtreesList[0];
+		if(techtreesList.size() > 1) {
+			techtreesPath.second = techtreesList[1];
+		}
+	}
+
+	string fileArchiveExtension = config.getString("FileArchiveExtension","");
+	string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
+	string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
+
+	ftpClientThread = new FTPClientThread(-1,"",
+			mapsPath,tilesetsPath,techtreesPath,
+			this,fileArchiveExtension,fileArchiveExtractCommand,
+			fileArchiveExtractCommandParameters);
+	ftpClientThread->start();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	std::string techsMetaData = "";
 	std::string tilesetsMetaData = "";
 	std::string mapsMetaData = "";
-	if(Config::getInstance().getString("Masterserver","") != "") {
-		string baseURL = Config::getInstance().getString("Masterserver");
+
+	Config &config = Config::getInstance();
+	if(config.getString("Masterserver","") != "") {
+		string baseURL = config.getString("Masterserver");
 
 		CURL *handle = SystemFlags::initHTTP();
 		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php",handle);
@@ -316,48 +567,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyMapScrollBar.setVisibleSize(keyButtonsToRender);
 	keyMapScrollBar.setVisibleStart(0);
 
-	GraphicComponent::applyAllCustomProperties(containerName);
-
-    findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
-    findDirs(config.getPathListForType(ptTechs), techTreeFiles);
-
-	vector<string> mapPathList = config.getPathListForType(ptMaps);
-	std::pair<string,string> mapsPath;
-	if(mapPathList.size() > 0) {
-		mapsPath.first = mapPathList[0];
-	}
-	if(mapPathList.size() > 1) {
-		mapsPath.second = mapPathList[1];
-	}
-	std::pair<string,string> tilesetsPath;
-	vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
-	if(tilesetsList.size() > 0) {
-		tilesetsPath.first = tilesetsList[0];
-		if(tilesetsList.size() > 1) {
-			tilesetsPath.second = tilesetsList[1];
-		}
-	}
-
-	std::pair<string,string> techtreesPath;
-	vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
-	if(techtreesList.size() > 0) {
-		techtreesPath.first = techtreesList[0];
-		if(techtreesList.size() > 1) {
-			techtreesPath.second = techtreesList[1];
-		}
-	}
-
-	string fileArchiveExtension = config.getString("FileArchiveExtension","");
-	string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
-	string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
-
-	ftpClientThread = new FTPClientThread(-1,"",
-			mapsPath,tilesetsPath,techtreesPath,
-			this,fileArchiveExtension,fileArchiveExtractCommand,
-			fileArchiveExtractCommandParameters);
-	ftpClientThread->start();
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	modHttpServerThread->signalQuit();
 }
 
 MapInfo MenuStateMods::loadMapInfo(string file) {
@@ -524,6 +734,19 @@ void MenuStateMods::refreshMaps() {
 
 MenuStateMods::~MenuStateMods() {
 	clearUserButtons();
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(modHttpServerThread != NULL) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		modHttpServerThread->setThreadOwnerValid(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if( modHttpServerThread->canShutdown(true) == true &&
+			modHttpServerThread->shutdownAndWait() == true) {
+			delete modHttpServerThread;
+		}
+		modHttpServerThread = NULL;
+	}
 
 	if(ftpClientThread != NULL) {
 	    ftpClientThread->setCallBackObject(NULL);
