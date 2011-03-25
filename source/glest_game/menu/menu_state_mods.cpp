@@ -116,14 +116,21 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    CURL *handle = SystemFlags::initHTTP();
-    std::string techsMetaData = SystemFlags::getHTTP("http://localhost/glest/showTechsForGlest.php",handle);
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s]\n",techsMetaData.c_str());
-    std::string tilesetsMetaData = SystemFlags::getHTTP("http://localhost/glest/showTilesetsForGlest.php",handle);
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
-	std::string mapsMetaData = SystemFlags::getHTTP("http://localhost/glest/showMapsForGlest.php",handle);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
-	SystemFlags::cleanupHTTP(&handle);
+	std::string techsMetaData = "";
+	std::string tilesetsMetaData = "";
+	std::string mapsMetaData = "";
+	if(Config::getInstance().getString("Masterserver","") != "") {
+		string baseURL = Config::getInstance().getString("Masterserver");
+
+		CURL *handle = SystemFlags::initHTTP();
+		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php",handle);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s]\n",techsMetaData.c_str());
+		tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php",handle);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
+		mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php",handle);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
+		SystemFlags::cleanupHTTP(&handle);
+	}
 
 	tilesetListRemote.clear();
 	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
