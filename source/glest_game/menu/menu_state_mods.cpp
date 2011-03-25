@@ -26,8 +26,6 @@
 
 namespace Glest{ namespace Game{
 
-static const string ITEM_MISSING = "***missing***";
-
 using namespace Shared::Util;
 
 struct FormatString {
@@ -66,22 +64,27 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyTechScrollBarTitle1.registerGraphicComponent(containerName,"keyTechScrollBarTitle1");
 	keyTechScrollBarTitle1.init(techInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTechScrollBarTitle1.setText(lang.get("TechTitle1"));
+	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTechScrollBarTitle2.registerGraphicComponent(containerName,"keyTechScrollBarTitle2");
 	keyTechScrollBarTitle2.init(techInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
 	keyTechScrollBarTitle2.setText(lang.get("TechTitle2"));
+	keyTechScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontBig());
 
 	int mapInfoXPos = 270;
 	keyMapScrollBarTitle1.registerGraphicComponent(containerName,"keyMapScrollBarTitle1");
 	keyMapScrollBarTitle1.init(mapInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyMapScrollBarTitle1.setText(lang.get("MapTitle1"));
+	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyMapScrollBarTitle2.registerGraphicComponent(containerName,"keyMapScrollBarTitle2");
 	keyMapScrollBarTitle2.init(mapInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
 	keyMapScrollBarTitle2.setText(lang.get("MapTitle2"));
+	keyMapScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontBig());
 
 	int tilesetInfoXPos = 530;
 	keyTilesetScrollBarTitle1.registerGraphicComponent(containerName,"keyTilesetScrollBarTitle1");
 	keyTilesetScrollBarTitle1.init(tilesetInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTilesetScrollBarTitle1.setText(lang.get("TilesetTitle1"));
+	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 
 	mainMessageBoxState = ftpmsg_None;
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
@@ -136,7 +139,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
 
 	getTilesetsLocalList();
-	for(int i=0; i < tilesetListRemote.size(); i++) {
+	for(unsigned int i=0; i < tilesetListRemote.size(); i++) {
 		string tilesetInfo = tilesetListRemote[i];
 		std::vector<std::string> tilesetInfoList;
 		Tokenize(tilesetInfo,tilesetInfoList,"|");
@@ -162,12 +165,24 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 			keyTilesetButtons.push_back(button);
 		}
 	}
+	for(unsigned int i=0; i < tilesetFilesUserData.size(); i++) {
+		string tilesetName = tilesetFilesUserData[i];
+		bool alreadyHasTileset = (tilesetCacheList.find(tilesetName) != tilesetCacheList.end());
+		if(alreadyHasTileset == false) {
+			GraphicButton *button=new GraphicButton();
+			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->setText(tilesetName);
+			button->setUseCustomTexture(true);
+			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+			keyTilesetButtons.push_back(button);
+		}
+	}
 
 	techListRemote.clear();
 	Tokenize(techsMetaData,techListRemote,"\n");
 
 	getTechsLocalList();
-	for(int i=0; i < techListRemote.size(); i++) {
+	for(unsigned int i=0; i < techListRemote.size(); i++) {
 		string techInfo = techListRemote[i];
 		std::vector<std::string> techInfoList;
 		Tokenize(techInfo,techInfoList,"|");
@@ -198,12 +213,36 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 			labelsTech.push_back(label);
 		}
 	}
+	for(unsigned int i=0; i < techTreeFilesUserData.size(); i++) {
+		string techName = techTreeFilesUserData[i];
+		bool alreadyHasTech = (techCacheList.find(techName) != techCacheList.end());
+		if(alreadyHasTech == false) {
+			vector<string> techPaths = config.getPathListForType(ptTechs);
+	        string &techPath = techPaths[1];
+	        endPathWithSlash(techPath);
+	        vector<string> factions;
+	        findAll(techPath + techName + "/factions/*.", factions, false, false);
+
+			GraphicButton *button=new GraphicButton();
+			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->setText(techName);
+			button->setUseCustomTexture(true);
+			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+			keyTechButtons.push_back(button);
+
+			int techFactionCount = factions.size();
+			GraphicLabel *label=new GraphicLabel();
+			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
+			label->setText(intToStr(techFactionCount));
+			labelsTech.push_back(label);
+		}
+	}
 
 	mapListRemote.clear();
 	Tokenize(mapsMetaData,mapListRemote,"\n");
 
 	getMapsLocalList();
-	for(int i=0; i < mapListRemote.size(); i++) {
+	for(unsigned int i=0; i < mapListRemote.size(); i++) {
 		string mapInfo = mapListRemote[i];
 		std::vector<std::string> mapInfoList;
 		Tokenize(mapInfo,mapInfoList,"|");
@@ -223,14 +262,35 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 			button->setText(mapName);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-
-			//if(alreadyHasMap == true) {
-			//	button->setEnabled(false);
-			//}
 			keyMapButtons.push_back(button);
+
 			GraphicLabel *label=new GraphicLabel();
 			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
 			label->setText(mapPlayerCount);
+			labelsMap.push_back(label);
+		}
+	}
+	for(unsigned int i=0; i < mapFilesUserData.size(); i++) {
+		string mapName = mapFilesUserData[i];
+		bool alreadyHasMap = (mapCacheList.find(mapName) != mapCacheList.end());
+		if(alreadyHasMap == false) {
+			vector<string> mapPaths = config.getPathListForType(ptMaps);
+	        string &mapPath = mapPaths[1];
+	        endPathWithSlash(mapPath);
+	        mapPath += mapName;
+	        MapInfo mapInfo = loadMapInfo(mapPath);
+
+			GraphicButton *button=new GraphicButton();
+			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->setText(mapName);
+			button->setUseCustomTexture(true);
+			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+			keyMapButtons.push_back(button);
+
+			int mapPlayerCount = mapInfo.players;
+			GraphicLabel *label=new GraphicLabel();
+			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
+			label->setText(intToStr(mapPlayerCount));
 			labelsMap.push_back(label);
 		}
 	}
@@ -300,11 +360,48 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+MapInfo MenuStateMods::loadMapInfo(string file) {
+	Lang &lang= Lang::getInstance();
+
+	MapInfo mapInfo;
+	//memset(&mapInfo,0,sizeof(mapInfo));
+	try{
+		FILE *f= fopen(file.c_str(), "rb");
+		if(f != NULL) {
+
+			MapFileHeader header;
+			size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
+
+			mapInfo.size.x= header.width;
+			mapInfo.size.y= header.height;
+			mapInfo.players= header.maxFactions;
+
+			mapInfo.desc= lang.get("MaxPlayers")+": "+intToStr(mapInfo.players)+"\n";
+			mapInfo.desc+=lang.get("Size")+": "+intToStr(mapInfo.size.x) + " x " + intToStr(mapInfo.size.y);
+
+			fclose(f);
+		}
+	}
+	catch(exception &e) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
+		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
+	}
+
+	return mapInfo;
+}
+
 void MenuStateMods::getTechsLocalList() {
 	Config &config = Config::getInstance();
 	vector<string> results;
 	findDirs(config.getPathListForType(ptTechs), results);
 	techTreeFiles = results;
+
+	techTreeFilesUserData.clear();
+	if(config.getPathListForType(ptTechs).size() > 1) {
+		string path = config.getPathListForType(ptTechs)[1];
+		endPathWithSlash(path);
+		findDirs(path, techTreeFilesUserData, false, false);
+	}
 }
 
 void MenuStateMods::refreshTechs() {
@@ -335,6 +432,13 @@ void MenuStateMods::getTilesetsLocalList() {
 	vector<string> results;
 	findDirs(config.getPathListForType(ptTilesets), results);
 	tilesetFiles = results;
+
+	tilesetFilesUserData.clear();
+	if(config.getPathListForType(ptTilesets).size() > 1) {
+		string path = config.getPathListForType(ptTilesets)[1];
+		endPathWithSlash(path);
+		findDirs(path, tilesetFilesUserData, false, false);
+	}
 }
 
 void MenuStateMods::refreshTilesets() {
@@ -372,6 +476,28 @@ void MenuStateMods::getMapsLocalList() {
 
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
 	mapFiles = results;
+
+	mapFilesUserData.clear();
+	if(config.getPathListForType(ptMaps).size() > 1) {
+		string path = config.getPathListForType(ptMaps)[1];
+		endPathWithSlash(path);
+
+		vector<string> results2;
+		set<string> allMaps2;
+	    findAll(path + "*.gbm", results2, false, false);
+		copy(results2.begin(), results2.end(), std::inserter(allMaps2, allMaps2.begin()));
+
+		results2.clear();
+	    findAll(path + "*.mgm", results2, false, false);
+		copy(results2.begin(), results2.end(), std::inserter(allMaps2, allMaps2.begin()));
+
+		results2.clear();
+		copy(allMaps2.begin(), allMaps2.end(), std::back_inserter(results2));
+		mapFilesUserData = results2;
+
+		printf("\n\nMap path [%s] mapFilesUserData.size() = %d\n\n\n",path.c_str(),mapFilesUserData.size());
+	}
+
 }
 
 void MenuStateMods::refreshMaps() {
@@ -482,6 +608,21 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 			    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Removing Map [%s]\n",removeMap.c_str());
 			    		removeFile(removeMap);
+
+			    		bool remoteHasMap = (mapCacheList.find(selectedMapName) != mapCacheList.end());
+			    		if(remoteHasMap == false) {
+							for(unsigned int i = 0; i < keyMapButtons.size(); ++i) {
+								GraphicButton *button = keyMapButtons[i];
+								if(button != NULL && button->getText() == selectedMapName) {
+									delete button;
+									keyMapButtons.erase(keyMapButtons.begin() + i);
+									labelsMap.erase(labelsMap.begin() + i);
+									keyMapScrollBar.setElementCount(keyMapButtons.size());
+									break;
+								}
+							}
+			    		}
+
 			    		selectedMapName = "";
 			    		refreshMaps();
 			    		Checksum::clearFileCache();
@@ -500,6 +641,18 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Removing Tileset [%s]\n",removeTileset.c_str());
 			    		removeFolder(removeTileset);
 
+			    		bool remoteHasTileset = (tilesetCacheList.find(selectedTilesetName) != tilesetCacheList.end());
+			    		if(remoteHasTileset == false) {
+							for(unsigned int i = 0; i < keyTilesetButtons.size(); ++i) {
+								GraphicButton *button = keyTilesetButtons[i];
+								if(button != NULL && button->getText() == selectedTilesetName) {
+									delete button;
+									keyTilesetButtons.erase(keyTilesetButtons.begin() + i);
+									keyTilesetScrollBar.setElementCount(keyTilesetButtons.size());
+									break;
+								}
+							}
+			    		}
 			    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 			            safeMutexFTPProgress.Lock();
 			            Checksum::clearFileCache();
@@ -526,6 +679,20 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 			    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Removing Techtree [%s]\n",removeTech.c_str());
 			    		removeFolder(removeTech);
+
+			    		bool remoteHasTech = (techCacheList.find(selectedTechName) != techCacheList.end());
+			    		if(remoteHasTech == false) {
+							for(unsigned int i = 0; i < keyTechButtons.size(); ++i) {
+								GraphicButton *button = keyTechButtons[i];
+								if(button != NULL && button->getText() == selectedTechName) {
+									delete button;
+									keyTechButtons.erase(keyTechButtons.begin() + i);
+									labelsTech.erase(labelsTech.begin() + i);
+									keyTechScrollBar.setElementCount(keyTechButtons.size());
+									break;
+								}
+							}
+			    		}
 
 			    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 			            // Clear the CRC file Cache
@@ -697,63 +864,36 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 	}
     else {
     	if(keyMapScrollBar.getElementCount() != 0) {
-			for (int i = keyMapScrollBar.getVisibleStart(); i
-					<= keyMapScrollBar.getVisibleEnd(); ++i) {
+			for (int i = keyMapScrollBar.getVisibleStart();
+					i <= keyMapScrollBar.getVisibleEnd(); ++i) {
 				if(keyMapButtons[i]->mouseClick(x, y) && keyMapButtons[i]->getEnabled()) {
 					string mapName = keyMapButtons[i]->getText();
 					if(mapName != "") {
-						//string mapURL = mapCacheList[mapName];
-						//ftpClientThread->addMapToRequests(mapName,mapURL);
-						//MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-						//fileFTPProgressList[mapName] = pair<int,string>(0,"");
-						//safeMutexFTPProgress.ReleaseLock();
 						selectedMapName = mapName;
-						//bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),selectedMapName) != mapFiles.end());
-						//buttonInstallMap.setEnabled(alreadyHasMap == false);
-						//buttonRemoveMap.setEnabled(alreadyHasMap);
 					}
-
 					break;
 				}
 			}
 		}
     	if(keyTechScrollBar.getElementCount() != 0) {
-			for (int i = keyTechScrollBar.getVisibleStart(); i
-					<= keyTechScrollBar.getVisibleEnd(); ++i) {
+			for (int i = keyTechScrollBar.getVisibleStart();
+					i <= keyTechScrollBar.getVisibleEnd(); ++i) {
 				if(keyTechButtons[i]->mouseClick(x, y) && keyTechButtons[i]->getEnabled()) {
 					string techName = keyTechButtons[i]->getText();
 					if(techName != "") {
-						//string techURL = techCacheList[techName];
-						//ftpClientThread->addTechtreeToRequests(techName,techURL);
-						//MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-						//fileFTPProgressList[techName] = pair<int,string>(0,"");
-						//safeMutexFTPProgress.ReleaseLock();
 						selectedTechName = techName;
-
-						//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),selectedTechName) != techTreeFiles.end());
-						//buttonInstallTech.setEnabled(alreadyHasTech == false);
-						//buttonRemoveTech.setEnabled(alreadyHasTech);
 					}
-
 					break;
 				}
 			}
 		}
     	if(keyTilesetScrollBar.getElementCount() != 0) {
-			for (int i = keyTilesetScrollBar.getVisibleStart(); i
-					<= keyTilesetScrollBar.getVisibleEnd(); ++i) {
+			for (int i = keyTilesetScrollBar.getVisibleStart();
+					i <= keyTilesetScrollBar.getVisibleEnd(); ++i) {
 				if(keyTilesetButtons[i]->mouseClick(x, y) && keyTilesetButtons[i]->getEnabled()) {
 					string tilesetName = keyTilesetButtons[i]->getText();
 					if(tilesetName != "") {
-						//string tilesetURL = tilesetCacheList[tilesetName];
-						//ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
-						//MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-						//fileFTPProgressList[tilesetName] = pair<int,string>(0,"");
-						//safeMutexFTPProgress.ReleaseLock();
 						selectedTilesetName = tilesetName;
-						//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),selectedTilesetName) != tilesetFiles.end());
-						//buttonInstallTileset.setEnabled(alreadyHasTileset == false);
-						//buttonRemoveTileset.setEnabled(alreadyHasTileset);
 					}
 					break;
 				}
@@ -809,8 +949,6 @@ void MenuStateMods::mouseMove(int x, int y, const MouseState *ms) {
 
 void MenuStateMods::render() {
 	try {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		Renderer &renderer= Renderer::getInstance();
 
 		renderer.renderButton(&buttonReturn);
@@ -821,8 +959,6 @@ void MenuStateMods::render() {
 		renderer.renderButton(&buttonInstallMap);
 		renderer.renderButton(&buttonRemoveMap);
 
-		//renderer.renderTextureQuad(300,200,200,400,NULL,0.5);
-
 		// Render Tech List
 		renderer.renderLabel(&keyTechScrollBarTitle1);
 		renderer.renderLabel(&keyTechScrollBarTitle2);
@@ -830,16 +966,17 @@ void MenuStateMods::render() {
 			for(int i = keyTechScrollBar.getVisibleStart();
 					i <= keyTechScrollBar.getVisibleEnd(); ++i) {
 				bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),keyTechButtons[i]->getText()) != techTreeFiles.end());
-				if(alreadyHasTech == true) {
-					Vec4f buttonColor = CYAN;
-					buttonColor.w = 0.7f;
+				if(keyTechButtons[i]->getText() == selectedTechName) {
+					bool lightedOverride = true;
+					renderer.renderButton(keyTechButtons[i],&WHITE,&lightedOverride);
+				}
+				else if(alreadyHasTech == true) {
+					Vec4f buttonColor = WHITE;
+					buttonColor.w = 0.75f;
 					renderer.renderButton(keyTechButtons[i],&buttonColor);
 				}
-				else if(keyTechButtons[i]->getText() == selectedTechName) {
-					renderer.renderButton(keyTechButtons[i],&YELLOW);
-				}
 				else {
-					Vec4f fontColor=Vec4f(1.f, 1.f, 1.f, 0.7f);
+					Vec4f fontColor=Vec4f(200.0f/255.0f, 187.0f/255.0f, 190.0f/255.0f, 0.75f);
 					renderer.renderButton(keyTechButtons[i],&fontColor);
 				}
 				renderer.renderLabel(labelsTech[i]);
@@ -853,16 +990,17 @@ void MenuStateMods::render() {
 			for(int i = keyTilesetScrollBar.getVisibleStart();
 					i <= keyTilesetScrollBar.getVisibleEnd(); ++i) {
 				bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),keyTilesetButtons[i]->getText()) != tilesetFiles.end());
-				if(alreadyHasTileset == true) {
-					Vec4f buttonColor = CYAN;
-					buttonColor.w = 0.7f;
+				if(keyTilesetButtons[i]->getText() == selectedTilesetName) {
+					bool lightedOverride = true;
+					renderer.renderButton(keyTilesetButtons[i],&WHITE,&lightedOverride);
+				}
+				else if(alreadyHasTileset == true) {
+					Vec4f buttonColor = WHITE;
+					buttonColor.w = 0.75f;
 					renderer.renderButton(keyTilesetButtons[i],&buttonColor);
 				}
-				else if(keyTilesetButtons[i]->getText() == selectedTilesetName) {
-					renderer.renderButton(keyTilesetButtons[i],&YELLOW);
-				}
 				else {
-					Vec4f fontColor=Vec4f(1.f, 1.f, 1.f, 0.7f);
+					Vec4f fontColor=Vec4f(200.0f/255.0f, 187.0f/255.0f, 190.0f/255.0f, 0.75f);
 					renderer.renderButton(keyTilesetButtons[i],&fontColor);
 				}
 			}
@@ -876,16 +1014,17 @@ void MenuStateMods::render() {
 			for(int i = keyMapScrollBar.getVisibleStart();
 					i <= keyMapScrollBar.getVisibleEnd(); ++i) {
 				bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),keyMapButtons[i]->getText()) != mapFiles.end());
-				if(alreadyHasMap == true) {
-					Vec4f buttonColor = CYAN;
-					buttonColor.w = 0.7f;
+				if(keyMapButtons[i]->getText() == selectedMapName) {
+					bool lightedOverride = true;
+					renderer.renderButton(keyMapButtons[i],&WHITE,&lightedOverride);
+				}
+				else if(alreadyHasMap == true) {
+					Vec4f buttonColor = WHITE;
+					buttonColor.w = 0.75f;
 					renderer.renderButton(keyMapButtons[i],&buttonColor);
 				}
-				else if(keyMapButtons[i]->getText() == selectedMapName) {
-					renderer.renderButton(keyMapButtons[i],&YELLOW);
-				}
 				else {
-					Vec4f fontColor=Vec4f(1.f, 1.f, 1.f, 0.7f);
+					Vec4f fontColor=Vec4f(200.0f/255.0f, 187.0f/255.0f, 190.0f/255.0f, 0.75f);
 					renderer.renderButton(keyMapButtons[i],&fontColor);
 				}
 				renderer.renderLabel(labelsMap[i]);
@@ -936,8 +1075,14 @@ void MenuStateMods::update() {
 
 	// Tech List
 	if (keyTechScrollBar.getElementCount() != 0) {
-		for (int i = keyTechScrollBar.getVisibleStart(); i
-				<= keyTechScrollBar.getVisibleEnd(); ++i) {
+		for (int i = keyTechScrollBar.getVisibleStart();
+				i <= keyTechScrollBar.getVisibleEnd(); ++i) {
+			if(i >= keyTechButtons.size()) {
+				char szBuf[1024]="";
+				sprintf(szBuf,"i >= keyTechButtons.size(), i = %d, keyTechButtons.size() = %d",i,(int)keyTechButtons.size());
+				throw runtime_error(szBuf);
+			}
+
 			keyTechButtons[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
 					- keyTechScrollBar.getVisibleStart()));
 			labelsTech[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
@@ -947,19 +1092,30 @@ void MenuStateMods::update() {
 
 	// Tech List
 	if (keyTilesetScrollBar.getElementCount() != 0) {
-		for (int i = keyTilesetScrollBar.getVisibleStart(); i
-				<= keyTilesetScrollBar.getVisibleEnd(); ++i) {
-			keyTilesetButtons[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
-					- keyTilesetScrollBar.getVisibleStart()));
-			labelsTech[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
-					- keyTilesetScrollBar.getVisibleStart()));
+		for (int i = keyTilesetScrollBar.getVisibleStart();
+				i <= keyTilesetScrollBar.getVisibleEnd(); ++i) {
+			if(i >= keyTilesetButtons.size()) {
+				char szBuf[1024]="";
+				sprintf(szBuf,"i >= keyTilesetButtons.size(), i = %d, keyTilesetButtons.size() = %d",i,(int)keyTilesetButtons.size());
+				throw runtime_error(szBuf);
+			}
+
+			int yPos = keyButtonsYBase - keyButtonsLineHeight *
+						(i - keyTilesetScrollBar.getVisibleStart());
+			keyTilesetButtons[i]->setY(yPos);
 		}
 	}
 
 	// Map List
 	if (keyMapScrollBar.getElementCount() != 0) {
-		for (int i = keyMapScrollBar.getVisibleStart(); i
-				<= keyMapScrollBar.getVisibleEnd(); ++i) {
+		for (int i = keyMapScrollBar.getVisibleStart();
+				i <= keyMapScrollBar.getVisibleEnd(); ++i) {
+			if(i >= keyMapButtons.size()) {
+				char szBuf[1024]="";
+				sprintf(szBuf,"i >= keyMapButtons.size(), i = %d, keyMapButtons.size() = %d",i,(int)keyMapButtons.size());
+				throw runtime_error(szBuf);
+			}
+
 			keyMapButtons[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
 					- keyMapScrollBar.getVisibleStart()));
 			labelsMap[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
