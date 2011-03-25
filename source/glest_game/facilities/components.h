@@ -17,12 +17,14 @@
 #include <map>
 #include <typeinfo>
 #include "font.h"
+#include "texture.h"
 #include "leak_dumper.h"
 
 using std::string;
 using std::vector;
 
 using Shared::Graphics::Font2D;
+using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
@@ -131,9 +133,19 @@ public:
 	
 private:
 	bool lighted;
+
+	bool useCustomTexture;
+	Texture *customTexture;
 		
 public:
+	GraphicButton(std::string containerName="", std::string objName="");
 	void init(int x, int y, int w=defW, int h=defH);
+
+	bool getUseCustomTexture() const { return useCustomTexture; }
+	Texture *getCustomTexture() const { return customTexture; }
+
+	void setUseCustomTexture(bool value) { useCustomTexture=value; }
+	void setCustomTexture(Texture *value) { customTexture=value; }
 
 	bool getLighted() const			{return lighted;}
 	

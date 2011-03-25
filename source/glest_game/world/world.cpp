@@ -1259,9 +1259,10 @@ void World::initUnits() {
 					unit->born();
 				}
 				else {
+					string unitName = unit->getType()->getName();
 					delete unit;
 					unit = NULL;
-					throw runtime_error("Unit cant be placed, this error is caused because there is no enough place to put the units near its start location, make a better map: "+unit->getType()->getName() + " Faction: "+intToStr(i));
+					throw runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
 				}
 				if (unit->getType()->hasSkillClass(scBeBuilt)) {
 					map.flatternTerrain(unit);

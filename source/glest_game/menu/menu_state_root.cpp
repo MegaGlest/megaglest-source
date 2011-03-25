@@ -20,6 +20,7 @@
 #include "menu_state_options.h"
 #include "menu_state_about.h"
 #include "menu_state_masterserver.h"
+#include "menu_state_mods.h"
 #include "metrics.h"
 #include "network_manager.h"
 #include "network_message.h"
@@ -62,6 +63,11 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
     buttonMasterserverGame.registerGraphicComponent(containerName,"buttonMasterserverGame");
     buttonMasterserverGame.init(425, yPos, 150);
     yPos-=40;
+
+    buttonMods.registerGraphicComponent(containerName,"buttonMods");
+    buttonMods.init(425, yPos, 150);
+    yPos-=40;
+
     buttonOptions.registerGraphicComponent(containerName,"buttonOptions");
     buttonOptions.init(425, yPos, 150);
     yPos-=40;
@@ -74,6 +80,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	buttonNewGame.setText(lang.get("NewGame"));
 	buttonJoinGame.setText(lang.get("JoinGame"));
 	buttonMasterserverGame.setText(lang.get("JoinInternetGame"));
+	buttonMods.setText(lang.get("Mods"));
 	buttonOptions.setText(lang.get("Options"));
 	buttonAbout.setText(lang.get("About"));
 	buttonExit.setText(lang.get("Exit"));
@@ -102,6 +109,10 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonMasterserverGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
+    }
+	else if(buttonMods.mouseClick(x, y)){
+		soundRenderer.playFx(coreData.getClickSoundB());
+		mainMenu->setState(new MenuStateMods(program, mainMenu));
     }
     else if(buttonOptions.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
@@ -137,6 +148,7 @@ void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 	buttonNewGame.mouseMove(x, y);
     buttonJoinGame.mouseMove(x, y);
     buttonMasterserverGame.mouseMove(x, y);
+    buttonMods.mouseMove(x, y);
     buttonOptions.mouseMove(x, y);
     buttonAbout.mouseMove(x, y);
     buttonExit.mouseMove(x,y);
@@ -180,6 +192,7 @@ void MenuStateRoot::render() {
 	renderer.renderButton(&buttonNewGame);
 	renderer.renderButton(&buttonJoinGame);
 	renderer.renderButton(&buttonMasterserverGame);
+	renderer.renderButton(&buttonMods);
 	renderer.renderButton(&buttonOptions);
 	renderer.renderButton(&buttonAbout);
 	renderer.renderButton(&buttonExit);

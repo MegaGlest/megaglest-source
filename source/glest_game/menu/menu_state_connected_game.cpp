@@ -2077,7 +2077,8 @@ int32 MenuStateConnectedGame::getNetworkPlayerStatus() {
 	return result;
 }
 
-void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result, void *userdata) {
+void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
+		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result, void *userdata) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     Lang &lang= Lang::getInstance();
@@ -2108,7 +2109,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
     }
     else if(type == ftp_cct_Map) {
         getMissingMapFromFTPServerInProgress = false;
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         fileFTPProgressList.erase(itemName);
@@ -2118,7 +2119,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         ClientInterface* clientInterface= networkManager.getClientInterface();
         const GameSettings *gameSettings = clientInterface->getGameSettings();
 
-        if(result == ftp_crt_SUCCESS) {
+        if(result.first == ftp_crt_SUCCESS) {
             // Clear the CRC file Cache
             Checksum::clearFileCache();
             //lastCheckedCRCMapValue = -1;
@@ -2148,11 +2149,13 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             	sprintf(szMsg,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getMap().c_str(),curlVersion->version);
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
+
+            console.addLine(result.second,true);
         }
     }
     else if(type == ftp_cct_Tileset) {
         getMissingTilesetFromFTPServerInProgress = false;
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         fileFTPProgressList.erase(itemName);
@@ -2162,7 +2165,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         ClientInterface* clientInterface= networkManager.getClientInterface();
         const GameSettings *gameSettings = clientInterface->getGameSettings();
 
-        if(result == ftp_crt_SUCCESS) {
+        if(result.first == ftp_crt_SUCCESS) {
             char szMsg[1024]="";
             if(lang.hasString("DataMissingTilesetSuccessDownload") == true) {
             	sprintf(szMsg,lang.get("DataMissingTilesetSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
@@ -2206,11 +2209,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             	sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str(),curlVersion->version);
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
+            console.addLine(result.second,true);
         }
     }
     else if(type == ftp_cct_Techtree) {
         getMissingTechtreeFromFTPServerInProgress = false;
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d\n",itemName.c_str(),result);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         fileFTPProgressList.erase(itemName);
@@ -2220,7 +2224,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
         ClientInterface* clientInterface= networkManager.getClientInterface();
         const GameSettings *gameSettings = clientInterface->getGameSettings();
 
-        if(result == ftp_crt_SUCCESS) {
+        if(result.first == ftp_crt_SUCCESS) {
             char szMsg[1024]="";
             if(lang.hasString("DataMissingTechtreeSuccessDownload") == true) {
             	sprintf(szMsg,lang.get("DataMissingTechtreeSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
@@ -2264,6 +2268,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName, FTP_Client
             	sprintf(szMsg,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getTech().c_str(),curlVersion->version);
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
+            console.addLine(result.second,true);
         }
     }
 }

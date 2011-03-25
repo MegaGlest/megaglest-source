@@ -28,6 +28,7 @@ private:
 	GraphicButton buttonNewGame;
 	GraphicButton buttonJoinGame;
 	GraphicButton buttonMasterserverGame;
+	GraphicButton buttonMods;
 	GraphicButton buttonOptions;
 	GraphicButton buttonAbout;
 	GraphicButton buttonExit;
