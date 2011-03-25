@@ -157,8 +157,8 @@ void FileCRCPreCacheThread::execute() {
 					// Clear existing CRC to force a CRC refresh
 					string pathSearchString     = string("/") + techName + string("/*");
 					const string filterFileExt  = ".xml";
-					clearFolderTreeContentsCheckSum(techDataPaths, pathSearchString, filterFileExt);
-					clearFolderTreeContentsCheckSumList(techDataPaths, pathSearchString, filterFileExt);
+					//clearFolderTreeContentsCheckSum(techDataPaths, pathSearchString, filterFileExt);
+					//clearFolderTreeContentsCheckSumList(techDataPaths, pathSearchString, filterFileExt);
 
 					if(getQuitStatus() == true) {
 						break;
@@ -166,7 +166,7 @@ void FileCRCPreCacheThread::execute() {
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread running for tech [%s] ---------------------------\n",techName.c_str());
 					if(getQuitStatus() == false) {
-						int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL);
+						int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL, true);
 
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
