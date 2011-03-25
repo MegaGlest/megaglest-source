@@ -30,6 +30,7 @@ Command::Command(const CommandType *ct, const Vec2i &pos){
 
     this->commandType= ct;
     this->pos= pos;
+    this->originalPos = this->pos;
     this->unitRef= NULL;
 	unitType= NULL;
 	stateType			= cst_None;
@@ -39,6 +40,7 @@ Command::Command(const CommandType *ct, const Vec2i &pos){
 Command::Command(const CommandType *ct, Unit* unit) {
     this->commandType= ct;
     this->pos= Vec2i(0);
+    this->originalPos = this->pos;
     this->unitRef= unit;
 	unitType= NULL;
 	if(unit!=NULL) {
@@ -52,6 +54,7 @@ Command::Command(const CommandType *ct, Unit* unit) {
 Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing) {
     this->commandType= ct;
     this->pos= pos;
+    this->originalPos = this->pos;
     this->unitRef= NULL;
 	this->unitType= unitType;
 	this->facing = facing;
@@ -71,12 +74,20 @@ int Command::getPriority(){
 }
 // =============== set ===============
 
-void Command::setCommandType(const CommandType *commandType){
+void Command::setCommandType(const CommandType *commandType) {
     this->commandType= commandType;
 }
 
 void Command::setPos(const Vec2i &pos){
      this->pos= pos;
+}
+
+void Command::setOriginalPos(const Vec2i &pos) {
+     this->originalPos= pos;
+}
+
+void Command::setPosToOriginalPos() {
+	this->pos= this->originalPos;
 }
 
 void Command::setUnit(Unit *unit){
@@ -88,12 +99,14 @@ std::string Command::toString() const {
 
 	std::string result = "";
 	if(commandType != NULL) {
-		result = "commandType id = " + intToStr(commandType->getId()) + ", desc = " + commandType->toString() + ", pos = " + pos.getString() + ", facing = " + intToStr(facing.asInt());
+		result = "commandType id = " + intToStr(commandType->getId()) + ", desc = " + commandType->toString();
 	}
 	else {
 		result = "commandType = NULL";
 	}
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+
+	result += ", pos = " + pos.getString() + ", originalPos = " + originalPos.getString() + ", facing = " + intToStr(facing.asInt());
 
 	//if(unitRef.getUnit() != NULL) {
 	if(unitRef.getUnitId() >= 0) {

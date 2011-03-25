@@ -39,6 +39,7 @@ enum CommandStateType {
 class Command {
 private:
     const CommandType *commandType;
+    Vec2i originalPos;
     Vec2i pos;
 	UnitReference unitRef;		//target unit, used to move and attack optionally
 	CardinalDir facing;			// facing, for build command
@@ -56,6 +57,7 @@ public:
     //get
 	const CommandType *getCommandType() const	{return commandType;}
 	Vec2i getPos() const						{return pos;}
+	Vec2i getOriginalPos() const				{return originalPos;}
 	Unit* getUnit() const						{return unitRef.getUnit();}
 	const UnitType* getUnitType() const			{return unitType;}
 	CardinalDir getFacing() const				{return facing;}
@@ -66,6 +68,9 @@ public:
     //set 
     void setCommandType(const CommandType *commandType);
     void setPos(const Vec2i &pos);
+    void setOriginalPos(const Vec2i &pos);
+    void setPosToOriginalPos();
+
     void setUnit(Unit *unit);
 
 	void setStateType(CommandStateType value) 	{ stateType = value; }
