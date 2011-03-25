@@ -1042,6 +1042,8 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 						unit->getPath()->clear();
 						unit->setCurrSkill(scStop);
 						unit->setLoadCount(0);
+
+						command->setPosToOriginalPos();
 					}
 	    		}
 				if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
