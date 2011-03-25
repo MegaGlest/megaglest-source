@@ -80,19 +80,20 @@ private:
 	string selectedTechName;
 	std::vector<std::string> techListRemote;
 	std::map<string, string> techCacheList;
+	vector<string> techTreeFiles;
+	vector<string> techTreeFilesUserData;
 
 	string selectedTilesetName;
 	std::vector<std::string> tilesetListRemote;
 	std::map<string, string> tilesetCacheList;
+	vector<string> tilesetFiles;
+	vector<string> tilesetFilesUserData;
 
 	string selectedMapName;
 	std::vector<std::string> mapListRemote;
 	std::map<string, string> mapCacheList;
-
 	vector<string> mapFiles;
-	vector<string> techTreeFiles;
-	vector<string> tilesetFiles;
-	vector<string> factionFiles;
+	vector<string> mapFilesUserData;
 
 	FTPClientThread *ftpClientThread;
 	std::map<string,pair<int,string> > fileFTPProgressList;
@@ -122,6 +123,7 @@ public:
 
 private:
 
+    MapInfo loadMapInfo(string file);
     void showMessageBox(const string &text, const string &header, bool toggle);
     void clearUserButtons();
     virtual void FTPClient_CallbackEvent(string itemName,
