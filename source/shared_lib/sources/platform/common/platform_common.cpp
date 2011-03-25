@@ -896,7 +896,13 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 
 	int globFlags = 0;
 	if(EndsWith(mypath,"{,.}*") == true) {
+#ifndef WIN32
 		globFlags = GLOB_BRACE;
+#else
+		// Windows glob source cannot handle GLOB_BRACE
+		// but that should be ok for win32 platform
+		replaceAll(mypath,"{,.}*","*");
+#endif
 	}
 
 	int res = glob(mypath.c_str(), globFlags, 0, &globbuf);
