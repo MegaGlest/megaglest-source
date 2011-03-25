@@ -259,6 +259,12 @@ void GraphicLabel::init(int x, int y, int w, int h, bool centered){
 const int GraphicButton::defH= 22;
 const int GraphicButton::defW= 90;
 
+GraphicButton::GraphicButton(std::string containerName, std::string objName) : GraphicComponent(containerName,objName) {
+	lighted = false;
+	useCustomTexture = false;;
+	customTexture = NULL;
+}
+
 void GraphicButton::init(int x, int y, int w, int h){
 	GraphicComponent::init(x, y, w, h);
     lighted= false;

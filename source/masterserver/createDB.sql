@@ -27,3 +27,39 @@ CREATE TABLE IF NOT EXISTS `glestserver` (
 
 INSERT INTO `glestserver` (`lasttime`, `glestVersion`, `platform`, `binaryCompileDate`, `serverTitle`, `ip`, `tech`, `map`, `tileset`, `activeSlots`, `networkSlots`, `connectedClients` ,`externalServerPort`, `country`) VALUES
 ('2010-05-12 01:41:43', '', '', '', '', '', '', '', '', 0, 0, 0, 0, 'DE');
+
+
+CREATE TABLE IF NOT EXISTS `glestmaps` (
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `glestversion` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `mapname` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `playercount` int(11) NOT NULL,
+  `crc` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`mapname`),
+  KEY `mapname` (`mapname`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+
+CREATE TABLE IF NOT EXISTS `glesttilesets` (
+  `updatetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `glestversion` varchar(30) collate utf8_unicode_ci NOT NULL,
+  `tilesetname` varchar(100) collate utf8_unicode_ci NOT NULL,
+  `crc` varchar(100) collate utf8_unicode_ci,
+  `description` varchar(255) collate utf8_unicode_ci,
+  `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`tilesetname`),
+  KEY `tilesetname` (`tilesetname`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `glesttechs` (
+  `updatetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `glestversion` varchar(30) collate utf8_unicode_ci NOT NULL,
+  `techname` varchar(100) collate utf8_unicode_ci NOT NULL,
+  `factioncount` int(11) NOT NULL,
+  `crc` varchar(100) collate utf8_unicode_ci,
+  `description` varchar(255) collate utf8_unicode_ci,
+  `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`techname`),
+  KEY `techname` (`techname`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

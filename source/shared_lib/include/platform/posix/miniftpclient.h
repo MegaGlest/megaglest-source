@@ -51,7 +51,8 @@ public:
       string currentFilename;
     };
 
-    virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, FTP_Client_ResultType result, void *userdata) = 0;
+    virtual void FTPClient_CallbackEvent(string itemName,
+    		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result, void *userdata) = 0;
 };
 
 class FTPClientThread : public BaseThread
@@ -65,22 +66,22 @@ protected:
     std::pair<string,string> techtreesPath;
 
     Mutex mutexMapFileList;
-    vector<string> mapFileList;
+    vector<pair<string,string> > mapFileList;
 
     Mutex mutexTilesetList;
-    vector<string> tilesetList;
+    vector<pair<string,string> > tilesetList;
 
     Mutex mutexTechtreeList;
-    vector<string> techtreeList;
+    vector<pair<string,string> > techtreeList;
 
-    void getMapFromServer(string mapFilename);
-    FTP_Client_ResultType getMapFromServer(string mapFileName, string ftpUser, string ftpUserPassword);
+    void getMapFromServer(pair<string,string> mapFilename);
+    pair<FTP_Client_ResultType,string> getMapFromServer(pair<string,string> mapFileName, string ftpUser, string ftpUserPassword);
 
-    void getTilesetFromServer(string tileSetName);
-    FTP_Client_ResultType getTilesetFromServer(string tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword, bool findArchive);
+    void getTilesetFromServer(pair<string,string> tileSetName);
+    pair<FTP_Client_ResultType,string> getTilesetFromServer(pair<string,string> tileSetName, string tileSetNameSubfolder, string ftpUser, string ftpUserPassword, bool findArchive);
 
-    void getTechtreeFromServer(string techtreeName);
-    FTP_Client_ResultType getTechtreeFromServer(string techtreeName, string ftpUser, string ftpUserPassword);
+    void getTechtreeFromServer(pair<string,string> techtreeName);
+    pair<FTP_Client_ResultType,string> getTechtreeFromServer(pair<string,string> techtreeName, string ftpUser, string ftpUserPassword);
 
     Mutex mutexProgressMutex;
 
@@ -88,7 +89,7 @@ protected:
     string fileArchiveExtractCommand;
     string fileArchiveExtractCommandParameters;
 
-    FTP_Client_ResultType getFileFromServer(string fileNameTitle,
+    pair<FTP_Client_ResultType,string> getFileFromServer(pair<string,string> fileNameTitle,
     		string remotePath, string destFileSaveAs, string ftpUser,
     		string ftpUserPassword, vector <string> *wantDirListOnly=NULL);
 
@@ -106,9 +107,9 @@ public:
     virtual void signalQuit();
     virtual bool shutdownAndWait();
 
-    void addMapToRequests(string mapFilename);
-    void addTilesetToRequests(string tileSetName);
-    void addTechtreeToRequests(string techtreeName);
+    void addMapToRequests(string mapFilename,string URL="");
+    void addTilesetToRequests(string tileSetName,string URL="");
+    void addTechtreeToRequests(string techtreeName,string URL="");
 
     FTPClientCallbackInterface * getCallBackObject();
     void setCallBackObject(FTPClientCallbackInterface *value);

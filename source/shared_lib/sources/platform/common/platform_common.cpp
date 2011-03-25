@@ -194,6 +194,8 @@ int64 Chrono::getCurTicks() {
 // =====================================
 
 void Tokenize(const string& str,vector<string>& tokens,const string& delimiters) {
+
+/*
     // Skip delimiters at beginning.
     string::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
@@ -207,6 +209,22 @@ void Tokenize(const string& str,vector<string>& tokens,const string& delimiters)
         // Find next "non-delimiter"
         pos = str.find_first_of(delimiters, lastPos);
     }
+*/
+
+	// Assume textLine contains the line of text to parse.
+	string textLine = str;
+
+	size_t pos = 0;
+	while( true ) {
+		size_t nextPos = textLine.find( delimiters, pos );
+		if( nextPos == textLine.npos ) {
+			tokens.push_back(textLine.substr(pos, textLine.length( )));
+			break;
+		}
+		tokens.push_back( string( textLine.substr( pos, nextPos - pos ) ) );
+		pos = nextPos + 1;
+	}
+
 }
 
 void findDirs(string path, vector<string> &results, bool errorOnNotFound,bool keepDuplicates) {
@@ -372,7 +390,9 @@ bool isdir(const char *path)
 void removeFolder(const string path) {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
-    string deletePath = path + "*";
+    string deletePath = path;
+    endPathWithSlash(deletePath);
+    deletePath += "{,.}*";
     vector<string> results = getFolderTreeContentsListRecursively(deletePath, "", true);
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] results.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),results.size());
 
@@ -381,6 +401,11 @@ void removeFolder(const string path) {
 
     for(int i = results.size() -1; i >= 0; --i) {
         string item = results[i];
+
+        if(item.find(".svn") != string::npos) {
+        	printf("!!!!!!!!!!!!!!!!!! FOUND SPECIAL FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
+        }
+
         if(isdir(item.c_str()) == false) {
             //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] file item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
 
@@ -395,6 +420,9 @@ void removeFolder(const string path) {
         string item = results[i];
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] isdir(item.c_str()) = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(), isdir(item.c_str()));
         if(isdir(item.c_str()) == true) {
+
+        	printf("~~~~~ REMOVE FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
+
             //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
 #ifdef WIN32
             int result = _rmdir(item.c_str());
@@ -402,6 +430,11 @@ void removeFolder(const string path) {
             int result = rmdir(item.c_str());
 #endif
             SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
+
+            if(result != 0 && item != path) {
+            	printf("CANNOT REMOVE FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
+            	removeFolder(item);
+            }
         }
     }
 
@@ -861,7 +894,12 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 
 	glob_t globbuf;
 
-	int res = glob(mypath.c_str(), 0, 0, &globbuf);
+	int globFlags = 0;
+	if(EndsWith(mypath,"{,.}*") == true) {
+		globFlags = GLOB_BRACE;
+	}
+
+	int res = glob(mypath.c_str(), globFlags, 0, &globbuf);
 #if !defined(__APPLE__) && !defined(__FreeBSD__)
 	if(res < 0) {
 		std::stringstream msg;
@@ -872,25 +910,25 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 
-		if(isdir(p) == false) {
-            bool addFile = true;
-            //if(EndsWith(p, ".") == true || EndsWith(p, "..") == true || EndsWith(p, ".svn") == true) {
-            //	addFile = false;
-            //}
-            //else
-            if(filterFileExt != "") {
-                addFile = EndsWith(p, filterFileExt);
-            }
+		bool skipItem = (EndsWith(p, ".") == true || EndsWith(p, "..") == true);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("~~~~~~~~~~~ Glob file [%s] skipItem = %d\n",p,skipItem);
 
-            if(addFile) {
-                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
-                resultFiles.push_back(p);
-            }
-		}
-		else if(includeFolders == true) {
-			resultFiles.push_back(p);
-		}
+		if(skipItem == false) {
+			if(isdir(p) == false) {
+				bool addFile = true;
+				if(filterFileExt != "") {
+					addFile = EndsWith(p, filterFileExt);
+				}
 
+				if(addFile) {
+					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
+					resultFiles.push_back(p);
+				}
+			}
+			else if(includeFolders == true) {
+				resultFiles.push_back(p);
+			}
+		}
 	}
 
 	globfree(&globbuf);
@@ -899,7 +937,8 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 #if defined(__APPLE__) || defined(__FreeBSD__)
 	res = glob(mypath.c_str(), 0, 0, &globbuf);
 #else //APPLE doesn't have the GLOB_ONLYDIR definition..
-	res = glob(mypath.c_str(), GLOB_ONLYDIR, 0, &globbuf);
+	globFlags |= GLOB_ONLYDIR;
+	res = glob(mypath.c_str(), globFlags, 0, &globbuf);
 #endif
 
 #if !defined(__APPLE__) && !defined(__FreeBSD__)
@@ -919,14 +958,26 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 			continue;
 #endif
 		const char* p = globbuf.gl_pathv[i];
-		if(includeFolders == true) {
-			resultFiles.push_back(p);
+
+		bool skipItem = (EndsWith(p, ".") == true || EndsWith(p, "..") == true);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("~~~~~~~~~~~ Glob folder [%s] skipItem = %d\n",p,skipItem);
+
+		if(skipItem == false) {
+			if(includeFolders == true) {
+				resultFiles.push_back(p);
+			}
+
+			string currentPath = p;
+			endPathWithSlash(currentPath);
+
+			if(EndsWith(mypath,"{,.}*") == true) {
+				currentPath += "{,.}*";
+			}
+			else {
+				currentPath += "*";
+			}
+			resultFiles = getFolderTreeContentsListRecursively(currentPath, filterFileExt, includeFolders,&resultFiles);
 		}
-
-    	string currentPath = p;
-    	endPathWithSlash(currentPath);
-
-		resultFiles = getFolderTreeContentsListRecursively(currentPath + "*", filterFileExt, includeFolders,&resultFiles);
 	}
 
 	globfree(&globbuf);

@@ -43,6 +43,8 @@ static const char *IRC_CHANNEL  = "#megaglest-lobby";
 MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "masterserver")
 {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n\n\n******************** ENTERING MASTERSERVER MENU\n\n\n\n\n");
+
 	containerName = "MasterServer";
 	updateFromMasterserverThread = NULL;
 	ircClient = NULL;
@@ -839,6 +841,9 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 			Tokenize(serverInfo,serverList,"\n");
 			for(int i=0; i < serverList.size(); i++) {
 				string &server = serverList[i];
+				if(trim(server) == "") {
+					continue;
+				}
 				std::vector<std::string> serverEntities;
 				Tokenize(server,serverEntities,"|");
 				const int MIN_FIELDS_EXPECTED = 14;

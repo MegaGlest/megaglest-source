@@ -1813,9 +1813,15 @@ void Game::render2d(){
 		str+= "\n";
 		str+= "Visible quad area: " + floatToStr(visibleQuad.area()) +"\n";
 
+		int totalUnitcount = 0;
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			Faction *faction= world.getFaction(i);
+			totalUnitcount += faction->getUnitCount();
+		}
+
 		VisibleQuadContainerCache &qCache =renderer.getQuadCache();
 		int visibleUnitCount = qCache.visibleQuadUnitList.size();
-		str+= "Visible unit count: " + intToStr(visibleUnitCount) +"\n";
+		str+= "Visible unit count: " + intToStr(visibleUnitCount) + " total: " + intToStr(totalUnitcount) + "\n";
 
 		int visibleObjectCount = qCache.visibleObjectList.size();
 		str+= "Visible object count: " + intToStr(visibleObjectCount) +"\n";

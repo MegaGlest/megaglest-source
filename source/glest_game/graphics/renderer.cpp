@@ -1305,12 +1305,24 @@ void Renderer::renderButton(const GraphicButton *button, const Vec4f *fontColorO
 
 	//background
 	CoreData &coreData= CoreData::getInstance();
-	Texture2D *backTexture= w>3*h/2? coreData.getButtonBigTexture(): coreData.getButtonSmallTexture();
+	Texture2D *backTexture = NULL;
+
+	if(button->getUseCustomTexture() == true) {
+		backTexture = dynamic_cast<Texture2D *>(button->getCustomTexture());
+	}
+	else {
+		backTexture = w > 3 * h / 2 ? coreData.getButtonBigTexture(): coreData.getButtonSmallTexture();
+	}
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 
-	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
+	if(backTexture != NULL) {
+		glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
+	}
+	else {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 
 	//button
 	Vec4f fontColor;
@@ -1381,8 +1393,7 @@ void Renderer::renderButton(const GraphicButton *button, const Vec4f *fontColorO
 
 	Vec2i textPos= Vec2i(x+w/2, y+h/2);
 
-	if(button->getEditable()){
-
+	if(button->getEditable()) {
 		renderText(
 			button->getText(), button->getFont(), color,
 			x+w/2, y+h/2, true);
@@ -4535,7 +4546,9 @@ void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) 
 		h = texture->getPixmapConst()->getH();
 	}
 
-	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
+	if(texture != NULL) {
+		glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
+	}
 
 	Vec2i texCoords[4];
 	Vec2i vertices[4];
