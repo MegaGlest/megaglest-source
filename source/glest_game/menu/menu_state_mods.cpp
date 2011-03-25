@@ -53,11 +53,10 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyButtonsLineHeight	= 20;
 	keyButtonsHeight		= 20;
 	keyButtonsWidth			= 200;
-	scrollListsYPos 	= 700;
-	//keyButtonsYBase			= scrollListsYPos - keyButtonsLineHeight;
+	scrollListsYPos 		= 700;
 	keyButtonsYBase			= scrollListsYPos;
 	keyButtonsToRender		= 400 / keyButtonsLineHeight;
-	labelWidth			= 5;
+	labelWidth				= 5;
 
 	//create
 	techInfoXPos = 10;
@@ -119,212 +118,33 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-//	std::string techsMetaData = "";
-//	std::string tilesetsMetaData = "";
-//	std::string mapsMetaData = "";
-//	if(Config::getInstance().getString("Masterserver","") != "") {
-//		string baseURL = Config::getInstance().getString("Masterserver");
-//
-//		CURL *handle = SystemFlags::initHTTP();
-//		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php",handle);
-//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s]\n",techsMetaData.c_str());
-//		tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php",handle);
-//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
-//		mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php",handle);
-//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
-//		SystemFlags::cleanupHTTP(&handle);
-//	}
-//
-//	tilesetListRemote.clear();
-//	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
-//
-//	getTilesetsLocalList();
-//	for(unsigned int i=0; i < tilesetListRemote.size(); i++) {
-//		string tilesetInfo = tilesetListRemote[i];
-//		std::vector<std::string> tilesetInfoList;
-//		Tokenize(tilesetInfo,tilesetInfoList,"|");
-//
-//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetInfoList.size() [%d]\n",(int)tilesetInfoList.size());
-//		if(tilesetInfoList.size() >= 4) {
-//			string tilesetName = tilesetInfoList[0];
-//			string tilesetCRC = tilesetInfoList[1];
-//			string tilesetDescription = tilesetInfoList[2];
-//			string tilesetURL = tilesetInfoList[3];
-//			//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),tilesetName) != tilesetFiles.end());
-//			tilesetCacheList[tilesetName] = tilesetURL;
-//
-//			GraphicButton *button=new GraphicButton();
-//			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(tilesetName);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//
-//			//if(alreadyHasTileset == true) {
-//			//	button->setEnabled(false);
-//			//}
-//			keyTilesetButtons.push_back(button);
-//		}
-//	}
-//	for(unsigned int i=0; i < tilesetFilesUserData.size(); i++) {
-//		string tilesetName = tilesetFilesUserData[i];
-//		bool alreadyHasTileset = (tilesetCacheList.find(tilesetName) != tilesetCacheList.end());
-//		if(alreadyHasTileset == false) {
-//			GraphicButton *button=new GraphicButton();
-//			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(tilesetName);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//			keyTilesetButtons.push_back(button);
-//		}
-//	}
-//
-//	techListRemote.clear();
-//	Tokenize(techsMetaData,techListRemote,"\n");
-//
-//	getTechsLocalList();
-//	for(unsigned int i=0; i < techListRemote.size(); i++) {
-//		string techInfo = techListRemote[i];
-//		std::vector<std::string> techInfoList;
-//		Tokenize(techInfo,techInfoList,"|");
-//
-//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techInfoList.size() [%d]\n",(int)techInfoList.size());
-//		if(techInfoList.size() >= 5) {
-//			string techName = techInfoList[0];
-//			string techFactionCount = techInfoList[1];
-//			string techCRC = techInfoList[2];
-//			string techDescription = techInfoList[3];
-//			string techURL = techInfoList[4];
-//			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
-//			techCacheList[techName] = techURL;
-//
-//			GraphicButton *button=new GraphicButton();
-//			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(techName);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//
-//			//if(alreadyHasTech == true) {
-//			//	button->setEnabled(false);
-//			//}
-//			keyTechButtons.push_back(button);
-//			GraphicLabel *label=new GraphicLabel();
-//			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
-//			label->setText(techFactionCount);
-//			labelsTech.push_back(label);
-//		}
-//	}
-//	for(unsigned int i=0; i < techTreeFilesUserData.size(); i++) {
-//		string techName = techTreeFilesUserData[i];
-//		bool alreadyHasTech = (techCacheList.find(techName) != techCacheList.end());
-//		if(alreadyHasTech == false) {
-//			vector<string> techPaths = config.getPathListForType(ptTechs);
-//	        string &techPath = techPaths[1];
-//	        endPathWithSlash(techPath);
-//	        vector<string> factions;
-//	        findAll(techPath + techName + "/factions/*.", factions, false, false);
-//
-//			GraphicButton *button=new GraphicButton();
-//			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(techName);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//			keyTechButtons.push_back(button);
-//
-//			int techFactionCount = factions.size();
-//			GraphicLabel *label=new GraphicLabel();
-//			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
-//			label->setText(intToStr(techFactionCount));
-//			labelsTech.push_back(label);
-//		}
-//	}
-//
-//	mapListRemote.clear();
-//	Tokenize(mapsMetaData,mapListRemote,"\n");
-//
-//	getMapsLocalList();
-//	for(unsigned int i=0; i < mapListRemote.size(); i++) {
-//		string mapInfo = mapListRemote[i];
-//		std::vector<std::string> mapInfoList;
-//		Tokenize(mapInfo,mapInfoList,"|");
-//
-//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapInfoList.size() [%d]\n",(int)mapInfoList.size());
-//		if(mapInfoList.size() >= 5) {
-//			string mapName = mapInfoList[0];
-//			string mapPlayerCount = mapInfoList[1];
-//			string mapCRC = mapInfoList[2];
-//			string mapDescription = mapInfoList[3];
-//			string mapURL = mapInfoList[4];
-//			//bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),mapName) != mapFiles.end());
-//			mapCacheList[mapName] = mapURL;
-//
-//			GraphicButton *button=new GraphicButton();
-//			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(mapName);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//			keyMapButtons.push_back(button);
-//
-//			GraphicLabel *label=new GraphicLabel();
-//			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
-//			label->setText(mapPlayerCount);
-//			labelsMap.push_back(label);
-//		}
-//	}
-//	for(unsigned int i=0; i < mapFilesUserData.size(); i++) {
-//		string mapName = mapFilesUserData[i];
-//		bool alreadyHasMap = (mapCacheList.find(mapName) != mapCacheList.end());
-//		if(alreadyHasMap == false) {
-//			vector<string> mapPaths = config.getPathListForType(ptMaps);
-//	        string &mapPath = mapPaths[1];
-//	        endPathWithSlash(mapPath);
-//	        mapPath += mapName;
-//	        MapInfo mapInfo = loadMapInfo(mapPath);
-//
-//			GraphicButton *button=new GraphicButton();
-//			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(mapName);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//			keyMapButtons.push_back(button);
-//
-//			int mapPlayerCount = mapInfo.players;
-//			GraphicLabel *label=new GraphicLabel();
-//			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
-//			label->setText(intToStr(mapPlayerCount));
-//			labelsMap.push_back(label);
-//		}
-//	}
-//
-//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-//
 	int listBoxLength = 400;
 	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTilesetScrollBar.setLength(listBoxLength);
-	//keyTilesetScrollBar.setElementCount(keyTilesetButtons.size());
 	keyTilesetScrollBar.setElementCount(0);
 	keyTilesetScrollBar.setVisibleSize(keyButtonsToRender);
 	keyTilesetScrollBar.setVisibleStart(0);
 
 	keyTechScrollBar.init(techInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTechScrollBar.setLength(listBoxLength);
-	//keyTechScrollBar.setElementCount(keyTechButtons.size());
 	keyTechScrollBar.setElementCount(0);
 	keyTechScrollBar.setVisibleSize(keyButtonsToRender);
 	keyTechScrollBar.setVisibleStart(0);
 
 	keyMapScrollBar.init(mapInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyMapScrollBar.setLength(listBoxLength);
-	//keyMapScrollBar.setElementCount(keyMapButtons.size());
 	keyMapScrollBar.setElementCount(0);
 	keyMapScrollBar.setVisibleSize(keyButtonsToRender);
 	keyMapScrollBar.setVisibleStart(0);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
+	// Start http meta data thread
 	modHttpServerThread = new SimpleTaskThread(this,0,200);
 	modHttpServerThread->setUniqueID(__FILE__);
 	modHttpServerThread->start();
 
+	// Setup File Transfer thread
     findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
     findDirs(config.getPathListForType(ptTechs), techTreeFiles);
 
@@ -374,11 +194,20 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
         return;
     }
 
+    Lang &lang= Lang::getInstance();
+    Config &config = Config::getInstance();
+    string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
+	bool findArchive = executeShellCommand(fileArchiveExtractCommand);
+	if(findArchive == false) {
+		mainMessageBoxState = ftpmsg_None;
+		mainMessageBox.init(lang.get("Ok"));
+		showMessageBox(lang.get("ModRequires7z"), lang.get("Notice"), true);
+	}
+
 	std::string techsMetaData = "";
 	std::string tilesetsMetaData = "";
 	std::string mapsMetaData = "";
 
-	Config &config = Config::getInstance();
 	if(config.getString("Masterserver","") != "") {
 		string baseURL = config.getString("Masterserver");
 
@@ -648,13 +477,7 @@ void MenuStateMods::refreshTechs() {
 			string techCRC = techInfoList[2];
 			string techDescription = techInfoList[3];
 			string techURL = techInfoList[4];
-			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
 			techCacheList[techName] = techURL;
-
-			//GraphicButton *button= keyTechButtons[i];
-			//if(alreadyHasTech == true) {
-			//	button->setEnabled(false);
-			//}
 		}
 	}
 }
@@ -684,13 +507,7 @@ void MenuStateMods::refreshTilesets() {
 			string tilesetCRC = tilesetInfoList[1];
 			string tilesetDescription = tilesetInfoList[2];
 			string tilesetURL = tilesetInfoList[3];
-			//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),tilesetName) != tilesetFiles.end());
 			tilesetCacheList[tilesetName] = tilesetURL;
-
-			//GraphicButton *button= keyTilesetButtons[i];
-			//if(alreadyHasTileset == true) {
-			//	button->setEnabled(false);
-			//}
 		}
 	}
 }
@@ -728,7 +545,6 @@ void MenuStateMods::getMapsLocalList() {
 		mapFilesUserData = results2;
 		//printf("\n\nMap path [%s] mapFilesUserData.size() = %d\n\n\n",path.c_str(),mapFilesUserData.size());
 	}
-
 }
 
 void MenuStateMods::refreshMaps() {
@@ -743,13 +559,7 @@ void MenuStateMods::refreshMaps() {
 			string mapCRC = mapInfoList[2];
 			string mapDescription = mapInfoList[3];
 			string mapURL = mapInfoList[4];
-			//bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),mapName) != mapFiles.end());
 			mapCacheList[mapName] = mapURL;
-
-			//GraphicButton *button= keyMapButtons[i];
-			//if(alreadyHasMap == true) {
-			//	button->setEnabled(false);
-			//}
 		}
 	}
 }
@@ -820,7 +630,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(fileFTPProgressList.size() > 0) {
 			mainMessageBoxState = ftpmsg_Quit;
 			mainMessageBox.init(lang.get("Yes"),lang.get("No"));
-			showMessageBox("You currently have: " + intToStr(fileFTPProgressList.size()) + " files downloading, exit and abort these file(s)?", "Question?", true);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModDownloadInProgressCancelQuestion").c_str(),fileFTPProgressList.size());
+			showMessageBox(szBuf, lang.get("Question"), true);
 		}
 		else {
 			mainMenu->setState(new MenuStateRoot(program, mainMenu));
@@ -970,6 +782,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			soundRenderer.playFx(coreData.getClickSoundB());
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
+
 	else if(buttonInstallTech.mouseClick(x, y) && buttonInstallTech.getEnabled()) {
 		soundRenderer.playFx(coreData.getClickSoundB());
 		if(selectedTechName != "") {
@@ -977,7 +790,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			if(alreadyHasTech == true) {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"));
-				showMessageBox("You already have the tech: " + selectedTechName + " installed.", "Notice", true);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
+				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 			else {
 				string techName = selectedTechName;
@@ -992,7 +807,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		else {
 			mainMessageBoxState = ftpmsg_None;
 			mainMessageBox.init(lang.get("Ok"));
-			showMessageBox("You must first select a tech to install.", "Notice", true);
+			showMessageBox(lang.get("ModSelectTechToInstall"), lang.get("Notice"), true);
 		}
 	}
 	else if(buttonRemoveTech.mouseClick(x, y) && buttonRemoveTech.getEnabled()) {
@@ -1001,20 +816,28 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),selectedTechName) != techTreeFiles.end());
 			if(alreadyHasTech == true) {
 				mainMessageBoxState = ftpmsg_GetTechtree;
-				showMessageBox("Are you sure you want to remove the tech: " + selectedTechName, "Question?", true);
+
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModRemoveTechConfirm").c_str(),selectedTechName.c_str());
+				showMessageBox(szBuf, lang.get("Question"), true);
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"));
-				showMessageBox("You do not have the tech: " + selectedTechName + " installed.", "Notice", true);
+
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModCannotRemoveTechNotInstalled").c_str(),selectedTechName.c_str());
+				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
 			mainMessageBox.init(lang.get("Ok"));
-			showMessageBox("You must first select a tech to remove.", "Notice", true);
+
+			showMessageBox(lang.get("ModSelectTechToRemove"), lang.get("Notice"), true);
 		}
 	}
+
 	else if(buttonInstallTileset.mouseClick(x, y) && buttonInstallTileset.getEnabled()) {
 		soundRenderer.playFx(coreData.getClickSoundB());
 		if(selectedTilesetName != "") {
@@ -1022,7 +845,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			if(alreadyHasTileset == true) {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"));
-				showMessageBox("You already have the tileset: " + selectedTilesetName + " installed.", "Notice", true);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModTilesetAlreadyInstalled").c_str(),selectedTilesetName.c_str());
+				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 			else {
 				string tilesetName = selectedTilesetName;
@@ -1037,7 +862,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		else {
 			mainMessageBoxState = ftpmsg_None;
 			mainMessageBox.init(lang.get("Ok"));
-			showMessageBox("You must first select a tileset to install.", "Notice", true);
+			showMessageBox(lang.get("ModSelectTilesetToInstall"), lang.get("Notice"), true);
 		}
 	}
 	else if(buttonRemoveTileset.mouseClick(x, y) && buttonRemoveTileset.getEnabled()) {
@@ -1046,20 +871,27 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),selectedTilesetName) != tilesetFiles.end());
 			if(alreadyHasTileset == true) {
 				mainMessageBoxState = ftpmsg_GetTileset;
-				showMessageBox("Are you sure you want to remove the tileset: " + selectedTilesetName, "Question?", true);
+
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModRemoveTilesetConfirm").c_str(),selectedTilesetName.c_str());
+				showMessageBox(szBuf, lang.get("Question"), true);
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"));
-				showMessageBox("You do not have the tileset: " + selectedTilesetName + " installed.", "Notice", true);
+
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModCannotRemoveTilesetNotInstalled").c_str(),selectedTilesetName.c_str());
+				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
 			mainMessageBox.init(lang.get("Ok"));
-			showMessageBox("You must first select a tileset to remove.", "Notice", true);
+			showMessageBox(lang.get("ModSelectTilesetToRemove"), lang.get("Notice"), true);
 		}
 	}
+
 	else if(buttonInstallMap.mouseClick(x, y) && buttonInstallMap.getEnabled()) {
 		soundRenderer.playFx(coreData.getClickSoundB());
 		if(selectedMapName != "") {
@@ -1067,7 +899,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			if(alreadyHasMap == true) {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"));
-				showMessageBox("You already have the map: " + selectedMapName + " installed.", "Notice", true);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModMapAlreadyInstalled").c_str(),selectedMapName.c_str());
+				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 			else {
 				string mapName = selectedMapName;
@@ -1082,7 +916,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		else {
 			mainMessageBoxState = ftpmsg_None;
 			mainMessageBox.init(lang.get("Ok"));
-			showMessageBox("You must first select a map to install.", "Notice", true);
+			showMessageBox(lang.get("ModSelectMapToInstall"), lang.get("Notice"), true);
 		}
 	}
 	else if(buttonRemoveMap.mouseClick(x, y) && buttonRemoveMap.getEnabled()) {
@@ -1091,18 +925,24 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),selectedMapName) != mapFiles.end());
 			if(alreadyHasMap == true) {
 				mainMessageBoxState = ftpmsg_GetMap;
-				showMessageBox("Are you sure you want to remove the map: " + selectedMapName, "Question?", true);
+
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModRemoveMapConfirm").c_str(),selectedMapName.c_str());
+				showMessageBox(szBuf, lang.get("Question"), true);
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"));
-				showMessageBox("You do not have the map: " + selectedMapName + " installed.", "Notice", true);
+
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModCannotRemoveMapNotInstalled").c_str(),selectedMapName.c_str());
+				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
 			mainMessageBox.init(lang.get("Ok"));
-			showMessageBox("You must first select a map to remove.", "Notice", true);
+			showMessageBox(lang.get("ModSelectMapToRemove"), lang.get("Notice"), true);
 		}
 	}
     else {
@@ -1277,11 +1117,12 @@ void MenuStateMods::render() {
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         if(fileFTPProgressList.size() > 0) {
+        	Lang &lang= Lang::getInstance();
             int yLocation = buttonReturn.getY();
             for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
                 iterMap != fileFTPProgressList.end(); ++iterMap) {
 
-                string progressLabelPrefix = "Downloading " + iterMap->first + " [" + iterMap->second.second + "] ";
+                string progressLabelPrefix = lang.get("Downloading") + " " + iterMap->first + " ";
                 //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nRendering file progress with the following prefix [%s]\n",progressLabelPrefix.c_str());
 
                 renderer.renderProgressBar(
@@ -1435,35 +1276,21 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             // Clear the CRC file Cache
             Checksum::clearFileCache();
-            //lastCheckedCRCMapValue = -1;
     		Checksum checksum;
     		string file = Map::getMapPath(itemName,"",false);
-    		//console.addLine("Checking map CRC [" + file + "]");
     		checksum.addFile(file);
     		uint32 CRCMapValue = checksum.getSum();
 
-            char szMsg[1024]="";
-//            if(lang.hasString("DataMissingMapSuccessDownload") == true) {
-//            	sprintf(szMsg,lang.get("DataMissingMapSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
-//            }
-//            else {
-            	sprintf(szMsg,"SUCCESSFULLY downloaded the map: %s",itemName.c_str());
-//            }
-            //clientInterface->sendTextMessage(szMsg,-1, true);
-            console.addLine(szMsg,true);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModDownloadMapSuccess").c_str(),itemName.c_str());
+            console.addLine(szBuf,true);
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-            char szMsg[1024]="";
-//            if(lang.hasString("DataMissingMapFailDownload") == true) {
-//            	sprintf(szMsg,lang.get("DataMissingMapFailDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str(),curlVersion->version);
-//            }
-//            else {
-            	sprintf(szMsg,"FAILED to download the map: [%s] using CURL version [%s] [%s]",itemName.c_str(),curlVersion->version,result.second.c_str());
-//            }
-            //clientInterface->sendTextMessage(szMsg,-1, true);
-            console.addLine(szMsg,true);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModDownloadMapFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
+            console.addLine(szBuf,true);
         }
     }
     else if(type == ftp_cct_Tileset) {
@@ -1479,14 +1306,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         if(result.first == ftp_crt_SUCCESS) {
         	refreshTilesets();
 
-            char szMsg[1024]="";
-//            if(lang.hasString("DataMissingTilesetSuccessDownload") == true) {
-//            	sprintf(szMsg,lang.get("DataMissingTilesetSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
-//            }
-//            else {
-           	sprintf(szMsg,"SUCCESSFULLY downloaded the tileset: %s",itemName.c_str());
-//            }
-           	console.addLine(szMsg,true);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModDownloadTilesetSuccess").c_str(),itemName.c_str());
+           	console.addLine(szBuf,true);
 
             // START
             // Clear the CRC Cache if it is populated
@@ -1507,21 +1329,13 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             safeMutexFTPProgress.ReleaseLock();
             // END
-
-            // Reload tilesets for the UI
-            //findDirs(Config::getInstance().getPathListForType(ptTilesets), tilesetFiles);
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-            char szMsg[1024]="";
-//            if(lang.hasString("DataMissingTilesetFailDownload") == true) {
-//            	sprintf(szMsg,lang.get("DataMissingTilesetFailDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str(),curlVersion->version);
-//            }
-//            else {
-           	sprintf(szMsg,"FAILED to download the tileset: [%s] using CURL version [%s] [%s]",itemName.c_str(),curlVersion->version,result.second.c_str());
-//            }
-           	console.addLine(szMsg,true);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModDownloadTilesetFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
+           	console.addLine(szBuf,true);
         }
     }
     else if(type == ftp_cct_Techtree) {
@@ -1537,19 +1351,12 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         if(result.first == ftp_crt_SUCCESS) {
         	refreshTechs();
 
-            char szMsg[1024]="";
-//            if(lang.hasString("DataMissingTechtreeSuccessDownload") == true) {
-//            	sprintf(szMsg,lang.get("DataMissingTechtreeSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
-//            }
-//            else {
-           	sprintf(szMsg,"SUCCESSFULLY downloaded the techtree: %s",itemName.c_str());
-//            }
-           	console.addLine(szMsg,true);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModDownloadTechSuccess").c_str(),itemName.c_str());
+           	console.addLine(szBuf,true);
 
             // START
             // Clear the CRC Cache if it is populated
-            //
-            // Clear the CRC file Cache
             safeMutexFTPProgress.Lock();
             Checksum::clearFileCache();
 
@@ -1565,21 +1372,13 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             safeMutexFTPProgress.ReleaseLock();
             // END
-
-            // Reload tilesets for the UI
-            //findDirs(Config::getInstance().getPathListForType(ptTechs), techTreeFiles);
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-            char szMsg[1024]="";
-//            if(lang.hasString("DataMissingTechtreeFailDownload") == true) {
-//            	sprintf(szMsg,lang.get("DataMissingTechtreeFailDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str(),curlVersion->version);
-//            }
-//            else {
-           	sprintf(szMsg,"FAILED to download the techtree: [%s] using CURL version [%s] [%s]",itemName.c_str(),curlVersion->version,result.second.c_str());
-//            }
-           	console.addLine(szMsg,true);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModDownloadTechFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
+           	console.addLine(szBuf,true);
         }
     }
 }
