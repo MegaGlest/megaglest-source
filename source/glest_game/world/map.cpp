@@ -363,8 +363,7 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 		}
 	}
 
-	if(fallbackToPeersHarvestingSameResource == true && unit != NULL &&
-		unit->getFaction()->getControlType() != ctHuman &&unit->getFaction()->getControlType() != ctNetwork) {
+	if(fallbackToPeersHarvestingSameResource == true && unit != NULL) {
 		// Look for another unit that is currently harvesting the same resource
 		// type right now
 
