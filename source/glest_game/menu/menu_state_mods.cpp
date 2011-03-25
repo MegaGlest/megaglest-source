@@ -494,8 +494,7 @@ void MenuStateMods::getMapsLocalList() {
 		results2.clear();
 		copy(allMaps2.begin(), allMaps2.end(), std::back_inserter(results2));
 		mapFilesUserData = results2;
-
-		printf("\n\nMap path [%s] mapFilesUserData.size() = %d\n\n\n",path.c_str(),mapFilesUserData.size());
+		//printf("\n\nMap path [%s] mapFilesUserData.size() = %d\n\n\n",path.c_str(),mapFilesUserData.size());
 	}
 
 }

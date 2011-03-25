@@ -176,6 +176,7 @@ CURL *SystemFlags::initHTTP() {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] ERROR handle = NULL\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
+	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
 	return handle;
 }
 
