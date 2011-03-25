@@ -2119,8 +2119,9 @@ int glestMain(int argc, char** argv) {
 
 		if(preCacheThread.get() != NULL) {
 			time_t elapsed = time(NULL);
-			for(;preCacheThread->shutdownAndWait() == false &&
-				difftime(time(NULL),elapsed) <= 5;) {
+			preCacheThread->signalQuit();
+			for(;preCacheThread->canShutdown(false) == false &&
+				difftime(time(NULL),elapsed) <= 15;) {
 				sleep(50);
 			}
 		}

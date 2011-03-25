@@ -137,7 +137,7 @@ void FileCRCPreCacheThread::execute() {
 
 						if(	getQuitStatus() == false &&
 							hasRunningWorkerThread == true) {
-							sleep(20);
+							sleep(10);
 						}
 					}
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("********************** CRC Controller thread took %.2f seconds END **********************\n",difftime(time(NULL),elapsedTime));
