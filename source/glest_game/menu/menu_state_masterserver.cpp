@@ -740,7 +740,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                         size_t lastIndex=0;
 
                         //announcementLabel.setText(announcementTxt);
-                        consoleIRC.addLine(announcementTxt);
+                        consoleIRC.addLine(announcementTxt, true, Vec3f(1.0f,1.0f,0.0f));
 
                         while(true) {
                             lastIndex=announcementTxt.find("\n",lastIndex+1);
@@ -775,7 +775,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                         size_t lastIndex=0;
 
                         //versionInfoLabel.setText(versionTxt);
-                        consoleIRC.addLine(versionTxt);
+                        consoleIRC.addLine(versionTxt, true, Vec3f(1.0f,0.0f,0.0f));
 
                         while(true) {
                             lastIndex=versionTxt.find("\n",lastIndex+1);

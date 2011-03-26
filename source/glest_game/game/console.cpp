@@ -46,35 +46,16 @@ void Console::addStdMessage(const string &s) {
 	addLine(Lang::getInstance().get(s));
 }
 
-void Console::addLine(string line, bool playSound, int playerIndex) {
+void Console::addLine(string line, bool playSound,int playerIndex, Vec3f textColor) {
 	try {
-		if(playSound == true) {
-			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());
-		}
-		ConsoleLineInfo info;
-		info.text               = line;
-		info.timeStamp          = timeElapsed;
-		info.PlayerIndex        = playerIndex;
-		info.originalPlayerName	= "";
+		string playername="";
 		if(playerIndex >= 0) {
 			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 			if(gameNetworkInterface != NULL) {
-				info.originalPlayerName	= gameNetworkInterface->getGameSettings()->getNetworkPlayerNameByPlayerIndex(playerIndex);
-				//for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-				//	printf("i = %d, playerName = [%s]\n",i,gameNetworkInterface->getGameSettings()->getNetworkPlayerName(i).c_str());
-				//}
+				playername=gameNetworkInterface->getGameSettings()->getNetworkPlayerNameByPlayerIndex(playerIndex);
 			}
 		}
-		//printf("info.PlayerIndex = %d, line [%s]\n",info.PlayerIndex,info.originalPlayerName.c_str());
-
-		lines.insert(lines.begin(), info);
-		if(lines.size() > maxLines) {
-			lines.pop_back();
-		}
-		storedLines.insert(storedLines.begin(), info);
-		if(storedLines.size() > maxStoredLines) {
-			storedLines.pop_back();
-		}
+		addLine(line, playSound,playername, textColor);
 	}
 	catch(const exception &ex) {
 		char szBuf[1024]="";
@@ -84,7 +65,7 @@ void Console::addLine(string line, bool playSound, int playerIndex) {
 	}
 }
 
-void Console::addLine(string line, bool playSound, string playerName) {
+void Console::addLine(string line, bool playSound, string playerName, Vec3f textColor) {
 	try {
 		if(playSound == true) {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());
@@ -94,6 +75,7 @@ void Console::addLine(string line, bool playSound, string playerName) {
 		info.timeStamp          = timeElapsed;
 		info.PlayerIndex        = -1;
 		info.originalPlayerName	= "";
+		info.color				= textColor;
 		if(playerName != "") {
 			info.originalPlayerName	= playerName;
 		}

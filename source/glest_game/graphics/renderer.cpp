@@ -908,7 +908,8 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 	}
 	else {
 		// white shadowed is default ( in the menu for example )
-		fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
+		//fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
+		fontColor=Vec4f(lineInfo->color.x,lineInfo->color.y,lineInfo->color.z, 0.0f);
 	}
 
 	Vec4f defaultFontColor = fontColor;

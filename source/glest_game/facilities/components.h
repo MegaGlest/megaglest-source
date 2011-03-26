@@ -19,12 +19,14 @@
 #include "font.h"
 #include "texture.h"
 #include "leak_dumper.h"
+#include "vec.h"
 
 using std::string;
 using std::vector;
 
 using Shared::Graphics::Font2D;
 using namespace Shared::Graphics;
+using Shared::Graphics::Vec3f;
 
 namespace Glest{ namespace Game{
 
