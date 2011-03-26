@@ -96,6 +96,20 @@ void FileCRCPreCacheThread::execute() {
 
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %d, currentWorkerMax = %d, endConsumerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);
 
+						// Pause before launching this worker thread
+						//sleep(100);
+						const double PAUSE_SECONDS_BETWEEN_WORKERS = 10;
+						time_t pauseTime = time(NULL);
+						while(getQuitStatus() == false &&
+								difftime(time(NULL),pauseTime) <= PAUSE_SECONDS_BETWEEN_WORKERS) {
+							sleep(25);
+						}
+						if(getQuitStatus() == true) {
+							SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							break;
+						}
+
+
 						FileCRCPreCacheThread *workerThread =
 								new FileCRCPreCacheThread(techDataPaths,
 										workerTechList,
@@ -103,7 +117,6 @@ void FileCRCPreCacheThread::execute() {
 						workerThread->setUniqueID(__FILE__);
 						preCacheWorkerThreadList.push_back(workerThread);
 						workerThread->start();
-						sleep(100);
 
 						consumedWorkers += currentWorkerMax;
 						if(consumedWorkers >= techPaths.size()) {
