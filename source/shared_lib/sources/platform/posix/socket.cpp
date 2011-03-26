@@ -1404,6 +1404,7 @@ bool Socket::isReadable() {
 	{
     	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
     	if(this->inSocketDestructor == true) {
+    		SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     		return false;
     	}
     	safeMutexSocketDestructorFlag.ReleaseLock();
@@ -1414,7 +1415,13 @@ bool Socket::isReadable() {
 	if(i < 0) {
          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
 	}
-	return (i == 1);
+
+	bool result = (i == 1);
+	//if(result == false) {
+	//	SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] i = %d sock = %d\n",__FILE__,__FUNCTION__,__LINE__,i,sock);
+	//}
+
+	return result;
 }
 
 bool Socket::isWritable() {
@@ -1433,6 +1440,7 @@ bool Socket::isWritable() {
 	{
     	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
     	if(this->inSocketDestructor == true) {
+    		SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     		return false;
     	}
     	safeMutexSocketDestructorFlag.ReleaseLock();
@@ -1443,9 +1451,13 @@ bool Socket::isWritable() {
 	bool result = false;
 	if(i < 0 ) {
 		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
 	}
 	else if(i == 0) {
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] TIMEOUT while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
+		// Assume we are still connected, write buffer could be very busy
+		result = true;
+		SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET WRITE TIMEOUT In [%s::%s Line: %d] i = %d sock = %d\n",__FILE__,__FUNCTION__,__LINE__,i,sock);
 	}
 	else {
 		result = true;
@@ -1469,6 +1481,7 @@ bool Socket::isConnected() {
 		int err = peek(&tmp, 1, false);
 		if(err <= 0 && err != PLATFORM_SOCKET_TRY_AGAIN) {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR Peek failed, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] ERROR Peek failed, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
 			return false;
 		}
 	}
