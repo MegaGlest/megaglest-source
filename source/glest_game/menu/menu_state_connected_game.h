@@ -41,7 +41,6 @@ enum FTPMessageType {
 class MenuStateConnectedGame: public MenuState, public FTPClientCallbackInterface {
 private:
 	GraphicButton buttonDisconnect;
-	GraphicButton buttonPlayNow;
 	GraphicLabel labelControl;
 	GraphicLabel labelRMultiplier;
 	GraphicLabel labelFaction;

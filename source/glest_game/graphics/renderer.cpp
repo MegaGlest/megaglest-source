@@ -1243,8 +1243,9 @@ void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec
 // ============= COMPONENTS =============================
 
 void Renderer::renderLabel(const GraphicLabel *label) {
-	Vec4f *colorWithAlpha = NULL;
-	renderLabel(label,colorWithAlpha);
+	Vec3f labelColor=label->getTextColor();
+	Vec4f colorWithAlpha = Vec4f(labelColor.x,labelColor.y,labelColor.z,GraphicComponent::getFade());
+	renderLabel(label,&colorWithAlpha);
 }
 
 void Renderer::renderLabel(const GraphicLabel *label,const Vec3f *color) {

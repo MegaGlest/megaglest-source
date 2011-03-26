@@ -527,6 +527,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
 	playerStatuses.push_back(lang.get("PlayerStatusReady"));
 	listBoxPlayerStatus.setItems(playerStatuses);
+	listBoxPlayerStatus.setSelectedItemIndex(2,true);
+	listBoxPlayerStatus.setVisible(false);
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -1559,12 +1561,15 @@ void MenuStateCustomGame::update() {
 						switch(gameSettings.getNetworkPlayerStatuses(slotIndex)) {
 							case npst_BeRightBack:
 								labelPlayerStatus[i].setText(lang.get("PlayerStatusBeRightBack"));
+								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.8f, 0.f));
 								break;
 							case npst_Ready:
 								labelPlayerStatus[i].setText(lang.get("PlayerStatusReady"));
+								labelPlayerStatus[i].setTextColor(Vec3f(0.f, 1.f, 0.f));
 								break;
 							case npst_PickSettings:
 								labelPlayerStatus[i].setText(lang.get("PlayerStatusSetup"));
+								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.f, 0.f));
 								break;
 							default:
 								labelPlayerStatus[i].setText("");
@@ -1595,13 +1600,16 @@ void MenuStateCustomGame::update() {
 						switch(serverInterface->getSlot(i)->getNetworkPlayerStatus()) {
 							case npst_BeRightBack:
 								labelPlayerStatus[i].setText(lang.get("PlayerStatusBeRightBack"));
+								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.8f, 0.f));
 								break;
 							case npst_Ready:
 								labelPlayerStatus[i].setText(lang.get("PlayerStatusReady"));
+								labelPlayerStatus[i].setTextColor(Vec3f(0.f, 1.f, 0.f));
 								break;
 							case npst_PickSettings:
 							default:
 								labelPlayerStatus[i].setText(lang.get("PlayerStatusSetup"));
+								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.f, 0.f));
 								break;
 						}
 					}

@@ -113,13 +113,15 @@ public:
 
 private:
 	bool centered;
+	Vec3f textColor;
 
 public:
-	void init(int x, int y, int w=defW, int h=defH, bool centered= false);
+	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=Vec3f(1.f, 1.f, 1.f));
 
 	bool getCentered() const	{return centered;}
-
 	void setCentered(bool centered)	{this->centered= centered;}
+	Vec3f getTextColor() const	{return textColor;}
+	void setTextColor(Vec3f color)	{this->textColor= color;}
 };
 
 // ===========================================================
