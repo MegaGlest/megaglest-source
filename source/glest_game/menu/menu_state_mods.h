@@ -41,6 +41,7 @@ class MenuStateMods: public MenuState, public FTPClientCallbackInterface, public
 private:
 
 	GraphicButton buttonReturn;
+	GraphicLine lineReturn;
 
 	GraphicMessageBox mainMessageBox;
 	FTPMessageType mainMessageBoxState;
