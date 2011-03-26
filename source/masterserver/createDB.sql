@@ -63,3 +63,15 @@ CREATE TABLE IF NOT EXISTS `glesttechs` (
   PRIMARY KEY (`techname`),
   KEY `techname` (`techname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+CREATE TABLE IF NOT EXISTS `glestscenarios` (
+  `updatetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `glestversion` varchar(30) collate utf8_unicode_ci NOT NULL,
+  `scenarioname` varchar(100) collate utf8_unicode_ci NOT NULL,
+  `crc` varchar(100) collate utf8_unicode_ci,
+  `description` varchar(255) collate utf8_unicode_ci,
+  `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`scenarioname`),
+  KEY `scenarioname` (`scenarioname`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

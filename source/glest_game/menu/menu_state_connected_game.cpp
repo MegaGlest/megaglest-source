@@ -444,12 +444,21 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
             }
         }
 
+        std::pair<string,string> scenariosPath;
+        vector<string> scenariosList = Config::getInstance().getPathListForType(ptScenarios);
+        if(scenariosList.size() > 0) {
+        	scenariosPath.first = scenariosList[0];
+            if(scenariosList.size() > 1) {
+            	scenariosPath.second = scenariosList[1];
+            }
+        }
+
         string fileArchiveExtension = config.getString("FileArchiveExtension","");
         string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
         string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
 
         ftpClientThread = new FTPClientThread(portNumber,serverUrl,
-        		mapsPath,tilesetsPath,techtreesPath,
+        		mapsPath,tilesetsPath,techtreesPath,scenariosPath,
         		this,fileArchiveExtension,fileArchiveExtractCommand,
         		fileArchiveExtractCommandParameters);
         ftpClientThread->start();

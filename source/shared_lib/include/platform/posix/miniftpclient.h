@@ -37,7 +37,8 @@ enum FTP_Client_CallbackType {
     ftp_cct_Map                 = 0,
     ftp_cct_Tileset             = 1,
     ftp_cct_Techtree            = 2,
-    ftp_cct_DownloadProgress    = 3
+    ftp_cct_Scenario           	= 3,
+    ftp_cct_DownloadProgress    = 4
 };
 
 class FTPClientCallbackInterface {
@@ -64,6 +65,7 @@ protected:
     std::pair<string,string> mapsPath;
     std::pair<string,string> tilesetsPath;
     std::pair<string,string> techtreesPath;
+    std::pair<string,string> scenariosPath;
 
     Mutex mutexMapFileList;
     vector<pair<string,string> > mapFileList;
@@ -74,6 +76,9 @@ protected:
     Mutex mutexTechtreeList;
     vector<pair<string,string> > techtreeList;
 
+    Mutex mutexScenarioList;
+    vector<pair<string,string> > scenarioList;
+
     void getMapFromServer(pair<string,string> mapFilename);
     pair<FTP_Client_ResultType,string> getMapFromServer(pair<string,string> mapFileName, string ftpUser, string ftpUserPassword);
 
@@ -82,6 +87,9 @@ protected:
 
     void getTechtreeFromServer(pair<string,string> techtreeName);
     pair<FTP_Client_ResultType,string> getTechtreeFromServer(pair<string,string> techtreeName, string ftpUser, string ftpUserPassword);
+
+    void getScenarioFromServer(pair<string,string> fileName);
+    pair<FTP_Client_ResultType,string> getScenarioInternalFromServer(pair<string,string> fileName);
 
     Mutex mutexProgressMutex;
 
@@ -99,6 +107,7 @@ public:
     				std::pair<string,string> mapsPath,
     				std::pair<string,string> tilesetsPath,
     				std::pair<string,string> techtreesPath,
+    				std::pair<string,string> scenariosPath,
     				FTPClientCallbackInterface *pCBObject,
     				string fileArchiveExtension,
     				string fileArchiveExtractCommand,
@@ -110,6 +119,7 @@ public:
     void addMapToRequests(string mapFilename,string URL="");
     void addTilesetToRequests(string tileSetName,string URL="");
     void addTechtreeToRequests(string techtreeName,string URL="");
+    void addScenarioToRequests(string fileName,string URL="");
 
     FTPClientCallbackInterface * getCallBackObject();
     void setCallBackObject(FTPClientCallbackInterface *value);

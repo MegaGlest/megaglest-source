@@ -203,6 +203,7 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
 		std::pair<string,string> mapsPath,
 		std::pair<string,string> tilesetsPath,
 		std::pair<string,string> techtreesPath,
+		std::pair<string,string> scenariosPath,
 		FTPClientCallbackInterface *pCBObject,
 		string fileArchiveExtension,
 		string fileArchiveExtractCommand,
@@ -212,6 +213,7 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
     this->mapsPath      = mapsPath;
     this->tilesetsPath  = tilesetsPath;
     this->techtreesPath = techtreesPath;
+    this->scenariosPath	= scenariosPath;
     this->pCBObject     = pCBObject;
 
     this->fileArchiveExtension = fileArchiveExtension;
@@ -378,6 +380,14 @@ void FTPClientThread::addTechtreeToRequests(string techtreeName,string URL) {
     MutexSafeWrapper safeMutex(&mutexTechtreeList,string(__FILE__) + "_" + intToStr(__LINE__));
     if(std::find(techtreeList.begin(),techtreeList.end(),item) == techtreeList.end()) {
     	techtreeList.push_back(item);
+    }
+}
+
+void FTPClientThread::addScenarioToRequests(string fileName,string URL) {
+	std::pair<string,string> item = make_pair(fileName,URL);
+    MutexSafeWrapper safeMutex(&mutexScenarioList,string(__FILE__) + "_" + intToStr(__LINE__));
+    if(std::find(scenarioList.begin(),scenarioList.end(),item) == scenarioList.end()) {
+    	scenarioList.push_back(item);
     }
 }
 
@@ -883,6 +893,56 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getTechtreeFromServer(pair<
 
 }
 
+void FTPClientThread::getScenarioFromServer(pair<string,string> fileName) {
+	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
+	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand);
+	if(findArchive == true) {
+		result = getScenarioInternalFromServer(fileName);
+	}
+
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+    if(this->pCBObject != NULL) {
+        this->pCBObject->FTPClient_CallbackEvent(fileName.first,ftp_cct_Scenario,result,NULL);
+    }
+}
+
+pair<FTP_Client_ResultType,string>  FTPClientThread::getScenarioInternalFromServer(pair<string,string> fileName) {
+    // Root folder for the techtree
+    string destRootFolder = this->scenariosPath.second;
+	endPathWithSlash(destRootFolder);
+	string destRootArchiveFolder = destRootFolder;
+	destRootFolder += fileName.first;
+	endPathWithSlash(destRootFolder);
+
+	string destFile = this->scenariosPath.second;
+	endPathWithSlash(destFile);
+    destFile += fileName.first;
+    string destFileSaveAs = destFile + this->fileArchiveExtension;
+    endPathWithSlash(destFile);
+
+    string remotePath = fileName.first + this->fileArchiveExtension;
+    if(fileName.second != "") {
+    	remotePath = fileName.second;
+    }
+
+    pair<FTP_Client_ResultType,string> result = getFileFromServer(fileName,
+	    		remotePath, destFileSaveAs, "", "");
+
+    // Extract the archive
+    if(result.first == ftp_crt_SUCCESS) {
+        string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
+        		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+        		destRootArchiveFolder + fileName.first + this->fileArchiveExtension);
+
+        if(executeShellCommand(extractCmd) == false) {
+        	result.first = ftp_crt_FAIL;
+        	result.second = "failed to extract archive!";
+        }
+    }
+
+    return result;
+
+}
 
 pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(pair<string,string> fileNameTitle,
 		string remotePath, string destFileSaveAs,
@@ -1080,6 +1140,18 @@ void FTPClientThread::execute() {
                 }
                 else {
                     safeMutex3.ReleaseLock();
+                }
+
+                MutexSafeWrapper safeMutex4(&mutexScenarioList,string(__FILE__) + "_" + intToStr(__LINE__));
+                if(scenarioList.size() > 0) {
+                	pair<string,string> file = scenarioList[0];
+                	scenarioList.erase(scenarioList.begin() + 0);
+                    safeMutex4.ReleaseLock();
+
+                    getScenarioFromServer(file);
+                }
+                else {
+                    safeMutex4.ReleaseLock();
                 }
 
                 if(this->getQuitStatus() == false) {
