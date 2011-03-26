@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include "font.h"
 #include "leak_dumper.h"
+#include "vec.h"
 
 using std::string;
 using std::vector;
@@ -27,7 +28,7 @@ using namespace std;
 namespace Glest { namespace Game {
 
 using Shared::Graphics::Font2D;
-
+using Shared::Graphics::Vec3f;
 // =====================================================
 // 	class Console
 //
@@ -40,6 +41,7 @@ public:
 	float timeStamp;
 	int PlayerIndex;
 	string originalPlayerName;
+	Vec3f color;
 };
 
 class Console {
@@ -91,8 +93,9 @@ public:
 
 	void clearStoredLines();
 	void addStdMessage(const string &s);
-	void addLine(string line, bool playSound= false,int playerIndex=-1);
-	void addLine(string line, bool playSound,string playerName);
+	void addLine(string line, bool playSound= false,int playerIndex=-1,Vec3f textColor=Vec3f(1.f, 1.f, 1.f));
+	void addLine(string line, bool playSound,string playerName, Vec3f textColor=Vec3f(1.f, 1.f, 1.f));
+	void addLine(string line, bool playSound, Vec3f textColor){addLine(line,playSound,"",textColor);}
 	void update();
 	bool isEmpty();
 };
