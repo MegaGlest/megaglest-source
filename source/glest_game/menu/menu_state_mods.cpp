@@ -90,8 +90,11 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	mainMessageBox.init(lang.get("Yes"),lang.get("No"));
 	mainMessageBox.setEnabled(false);
 
+	int returnLineY = 240;
+	lineReturn.init(0, returnLineY);
+
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-	buttonReturn.init(450, 140, 125);
+	buttonReturn.init(450, returnLineY - 40, 125);
 	buttonReturn.setText(lang.get("Return"));
 
 	int installButtonYPos = 280;
@@ -1108,7 +1111,9 @@ void MenuStateMods::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
 
+		renderer.renderLine(&lineReturn);
 		renderer.renderButton(&buttonReturn);
+
 		renderer.renderButton(&buttonInstallTech);
 		renderer.renderButton(&buttonRemoveTech);
 		renderer.renderButton(&buttonInstallTileset);
