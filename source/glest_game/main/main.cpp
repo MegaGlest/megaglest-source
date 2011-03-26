@@ -2122,7 +2122,7 @@ int glestMain(int argc, char** argv) {
 			preCacheThread->signalQuit();
 			for(;preCacheThread->canShutdown(false) == false &&
 				difftime(time(NULL),elapsed) <= 15;) {
-				sleep(50);
+				//sleep(150);
 			}
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
