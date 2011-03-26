@@ -138,10 +138,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	//create
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
-	buttonDisconnect.init(450, 180, 125);
+	buttonDisconnect.init(350, 180, 125);
 
-	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(525, 180, 125);
+
 
 
 	xoffset=170;
@@ -281,7 +280,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	listBoxPlayerStatus.init(10, 600, 150);
+	//listBoxPlayerStatus.init(10, 600, 150);
+	listBoxPlayerStatus.init(525, 180, 125);
 	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
 	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
 	playerStatuses.push_back(lang.get("PlayerStatusReady"));
@@ -348,7 +348,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	//texts
 	buttonDisconnect.setText(lang.get("Return"));
-	buttonPlayNow.setText(lang.get("PlayNow"));
 
     controlItems.push_back(lang.get("Closed"));
 	controlItems.push_back(lang.get("CpuEasy"));
@@ -576,84 +575,66 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	if (initialSettingsReceivedFromServer == false) return;
 
 	// Only allow changes after we get game settings from the server
-	if(clientInterface->isConnected() == true) {
-		if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			soundRenderer.playFx(coreData.getClickSoundC());
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		}
-		else {
-			int myCurrentIndex=-1;
-			for(int i=0; i<GameConstants::maxPlayers; ++i)
-			{// find my current index by looking at editable listBoxes
-				if(listBoxFactions[i].getEditable()){
-					myCurrentIndex=i;
-				}
+	if(clientInterface->isConnected() == true){
+		int myCurrentIndex= -1;
+		for(int i= 0; i < GameConstants::maxPlayers; ++i){// find my current index by looking at editable listBoxes
+			if(listBoxFactions[i].getEditable()){
+				myCurrentIndex= i;
 			}
-			if (myCurrentIndex!=-1)
-			for(int i=0; i<GameConstants::maxPlayers; ++i)
-			{
-				if(listBoxFactions[i].getEditable()) {
-					if(listBoxFactions[i].mouseClick(x, y)) {
+		}
+		if(myCurrentIndex != -1)
+			for(int i= 0; i < GameConstants::maxPlayers; ++i){
+				if(listBoxFactions[i].getEditable()){
+					if(listBoxFactions[i].mouseClick(x, y)){
 						soundRenderer.playFx(coreData.getClickSoundA());
 						ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
-						if(clientInterface->isConnected()) {
+						if(clientInterface->isConnected()){
 							clientInterface->setGameSettingsReceived(false);
-							clientInterface->sendSwitchSetupRequest(
-									listBoxFactions[i].getSelectedItem(),i,-1,
-									listBoxTeams[i].getSelectedItemIndex(),
-									getHumanPlayerName(),
-									getNetworkPlayerStatus(),
-									switchSetupRequestFlagType);
-							switchSetupRequestFlagType=ssrft_None;
+							clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(), i, -1,
+							        listBoxTeams[i].getSelectedItemIndex(), getHumanPlayerName(),
+							        getNetworkPlayerStatus(), switchSetupRequestFlagType);
+							switchSetupRequestFlagType= ssrft_None;
 						}
 						break;
 					}
 				}
-				if(listBoxTeams[i].getEditable()) {
-					if(listBoxTeams[i].mouseClick(x, y)) {
+				if(listBoxTeams[i].getEditable()){
+					if(listBoxTeams[i].mouseClick(x, y)){
 						soundRenderer.playFx(coreData.getClickSoundA());
-						if(clientInterface->isConnected()) {
+						if(clientInterface->isConnected()){
 							clientInterface->setGameSettingsReceived(false);
-							clientInterface->sendSwitchSetupRequest(
-									listBoxFactions[i].getSelectedItem(),i,-1,
-									listBoxTeams[i].getSelectedItemIndex(),
-									getHumanPlayerName(),
-									getNetworkPlayerStatus(),
-									switchSetupRequestFlagType);
-							switchSetupRequestFlagType=ssrft_None;
+							clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(), i, -1,
+							        listBoxTeams[i].getSelectedItemIndex(), getHumanPlayerName(),
+							        getNetworkPlayerStatus(), switchSetupRequestFlagType);
+							switchSetupRequestFlagType= ssrft_None;
 						}
 						break;
 					}
 				}
-				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) &&
-				   (labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)) {
-					if(grabSlotButton[i].mouseClick(x, y) ) {
+				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) && (labelNetStatus[i].getText()
+				        == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)){
+					if(grabSlotButton[i].mouseClick(x, y)){
 						soundRenderer.playFx(coreData.getClickSoundA());
 						clientInterface->setGameSettingsReceived(false);
-						settingsReceivedFromServer=false;
+						settingsReceivedFromServer= false;
 						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] sending a switchSlot request from %d to %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getGameSettings()->getThisFactionIndex(),i);
-						clientInterface->sendSwitchSetupRequest(
-								listBoxFactions[myCurrentIndex].getSelectedItem(),
-								myCurrentIndex,i,
-								listBoxTeams[myCurrentIndex].getSelectedItemIndex(),
-								labelPlayerNames[myCurrentIndex].getText(),
-								getNetworkPlayerStatus(),
-								switchSetupRequestFlagType);
+						clientInterface->sendSwitchSetupRequest(listBoxFactions[myCurrentIndex].getSelectedItem(),
+						        myCurrentIndex, i, listBoxTeams[myCurrentIndex].getSelectedItemIndex(),
+						        labelPlayerNames[myCurrentIndex].getText(), getNetworkPlayerStatus(),
+						        switchSetupRequestFlagType);
 						labelPlayerNames[myCurrentIndex].setText("");
 						labelPlayerNames[i].setText("");
-						switchSetupRequestFlagType=ssrft_None;
+						switchSetupRequestFlagType= ssrft_None;
 						break;
 					}
 				}
 
-				if(labelPlayerNames[i].mouseClick(x, y) && ( activeInputLabel != &labelPlayerNames[i] )){
-					if(i == clientInterface->getPlayerIndex()) {
+				if(labelPlayerNames[i].mouseClick(x, y) && (activeInputLabel != &labelPlayerNames[i])){
+					if(i == clientInterface->getPlayerIndex()){
 						setActiveInputLabel(&labelPlayerNames[i]);
 					}
 				}
 			}
-		}
 
 		if(listBoxPlayerStatus.mouseClick(x,y)) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -708,7 +689,6 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	}
 
 	buttonDisconnect.mouseMove(x, y);
-	buttonPlayNow.mouseMove(x, y);
 
 	bool editingPlayerName = false;
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
@@ -731,6 +711,7 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	listBoxAllowObservers.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
+	listBoxPlayerStatus.mouseMove(x,y);
 }
 
 void MenuStateConnectedGame::render() {
@@ -755,7 +736,6 @@ void MenuStateConnectedGame::render() {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		renderer.renderButton(&buttonDisconnect);
-		//renderer.renderButton(&buttonPlayNow);
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1512,12 +1492,15 @@ void MenuStateConnectedGame::update() {
 								switch(gameSettings->getNetworkPlayerStatuses(i)) {
 									case npst_BeRightBack:
 										labelPlayerStatus[slot].setText(lang.get("PlayerStatusBeRightBack"));
+										labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.8f, 0.f));
 										break;
 									case npst_Ready:
 										labelPlayerStatus[slot].setText(lang.get("PlayerStatusReady"));
+										labelPlayerStatus[slot].setTextColor(Vec3f(0.f, 1.f, 0.f));
 										break;
 									case npst_PickSettings:
 										labelPlayerStatus[slot].setText(lang.get("PlayerStatusSetup"));
+										labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.f, 0.f));
 										break;
 									default:
 										labelPlayerStatus[slot].setText("");
