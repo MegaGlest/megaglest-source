@@ -139,10 +139,13 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	// Start http meta data thread
 	modHttpServerThread = new SimpleTaskThread(this,0,200);
 	modHttpServerThread->setUniqueID(__FILE__);
 	modHttpServerThread->start();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// Setup File Transfer thread
     findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
@@ -178,21 +181,30 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
 	string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	ftpClientThread = new FTPClientThread(-1,"",
 			mapsPath,tilesetsPath,techtreesPath,
 			this,fileArchiveExtension,fileArchiveExtractCommand,
 			fileArchiveExtractCommandParameters);
 	ftpClientThread->start();
 
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateMods::simpleTask(BaseThread *callingThread) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
         return;
     }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     Lang &lang= Lang::getInstance();
     Config &config = Config::getInstance();
@@ -208,23 +220,49 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	std::string tilesetsMetaData = "";
 	std::string mapsMetaData = "";
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(config.getString("Masterserver","") != "") {
 		string baseURL = config.getString("Masterserver");
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] About to call first http url..\n",__FILE__,__FUNCTION__,__LINE__);
+
 		CURL *handle = SystemFlags::initHTTP();
-		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php",handle);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s]\n",techsMetaData.c_str());
-		tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php",handle);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
-		mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php",handle);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
+		CURLcode curlResult = CURLE_OK;
+		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php",handle,-1,&curlResult);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s] curlResult = %d\n",techsMetaData.c_str(),curlResult);
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
+		if(curlResult == CURLE_OK ||
+			(curlResult != CURLE_COULDNT_RESOLVE_HOST &&
+			 curlResult != CURLE_COULDNT_CONNECT)) {
+
+			tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php",handle);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
+
+		    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+		    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		        return;
+		    }
+
+			mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php",handle);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
+		}
 		SystemFlags::cleanupHTTP(&handle);
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
         return;
     }
 
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	tilesetListRemote.clear();
 	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
 
@@ -268,9 +306,14 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 		}
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
         return;
     }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	techListRemote.clear();
 	Tokenize(techsMetaData,techListRemote,"\n");
@@ -332,9 +375,14 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 		}
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
         return;
     }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	mapListRemote.clear();
 	Tokenize(mapsMetaData,mapListRemote,"\n");
@@ -394,9 +442,11 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	}
 
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
         return;
     }
 
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	int listBoxLength = 400;
@@ -418,7 +468,13 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	keyMapScrollBar.setVisibleSize(keyButtonsToRender);
 	keyMapScrollBar.setVisibleStart(0);
 
-	modHttpServerThread->signalQuit();
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(modHttpServerThread != NULL) {
+		modHttpServerThread->signalQuit();
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 MapInfo MenuStateMods::loadMapInfo(string file) {
@@ -564,20 +620,28 @@ void MenuStateMods::refreshMaps() {
 	}
 }
 
-MenuStateMods::~MenuStateMods() {
+void MenuStateMods::cleanUp() {
 	clearUserButtons();
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(modHttpServerThread != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		modHttpServerThread->setThreadOwnerValid(false);
+		modHttpServerThread->signalQuit();
+		//modHttpServerThread->setThreadOwnerValid(false);
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if( modHttpServerThread->shutdownAndWait() == true) {
+		if( modHttpServerThread->canShutdown(true) == true &&
+			modHttpServerThread->shutdownAndWait() == true) {
 			delete modHttpServerThread;
 		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		modHttpServerThread = NULL;
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(ftpClientThread != NULL) {
 	    ftpClientThread->setCallBackObject(NULL);
@@ -585,7 +649,16 @@ MenuStateMods::~MenuStateMods() {
             delete ftpClientThread;
             ftpClientThread = NULL;
 	    }
+	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+}
+
+MenuStateMods::~MenuStateMods() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	cleanUp();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateMods::clearUserButtons() {
@@ -635,6 +708,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			showMessageBox(szBuf, lang.get("Question"), true);
 		}
 		else {
+			cleanUp();
 			mainMenu->setState(new MenuStateRoot(program, mainMenu));
 			return;
 		}
