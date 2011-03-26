@@ -995,11 +995,16 @@ bool SwitchSetupRequest::receive(Socket* socket) {
 	data.selectedFactionName.nullTerminate();
 	data.networkPlayerName.nullTerminate();
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
+
 	return result;
 }
 
 void SwitchSetupRequest::send(Socket* socket) const {
 	assert(data.messageType==nmtSwitchSetupRequest);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
+
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 

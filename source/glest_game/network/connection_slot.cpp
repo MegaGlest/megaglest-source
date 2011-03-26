@@ -737,6 +737,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									*(serverInterface->getSwitchSetupRequests()[factionIdx]) = switchSetupRequest;
 
 									this->playerStatus = switchSetupRequest.getNetworkPlayerStatus();
+									this->name = switchSetupRequest.getNetworkPlayerName();
+
+									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[factionIdx]->getNetworkPlayerName().c_str());
 
 									SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getNetworkPlayerStatus() = %d, switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getNetworkPlayerStatus(),switchSetupRequest.getSwitchFlags());
 								}
