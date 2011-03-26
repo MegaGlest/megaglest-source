@@ -27,6 +27,7 @@ enum FTPMessageType {
 	ftpmsg_GetMap,
 	ftpmsg_GetTileset,
 	ftpmsg_GetTechtree,
+	ftpmsg_GetScenario,
 	ftpmsg_Quit
 };
 
@@ -49,6 +50,7 @@ private:
 	int techInfoXPos;
 	int mapInfoXPos;
 	int tilesetInfoXPos;
+	int scenarioInfoXPos;
 	int labelWidth;
 	int scrollListsYPos;
 
@@ -73,6 +75,13 @@ private:
 	GraphicScrollBar keyMapScrollBar;
 	UserButtons keyMapButtons;
 	GraphicLabels labelsMap;
+
+	GraphicButton buttonInstallScenario;
+	GraphicButton buttonRemoveScenario;
+	GraphicLabel keyScenarioScrollBarTitle1;
+	GraphicLabel keyScenarioScrollBarTitle2;
+	GraphicScrollBar keyScenarioScrollBar;
+	UserButtons keyScenarioButtons;
 
 	int keyButtonsToRender;
 	int keyButtonsYBase;
@@ -102,6 +111,12 @@ private:
 	vector<string> mapFiles;
 	vector<string> mapFilesUserData;
 
+	string selectedScenarioName;
+	std::vector<std::string> scenarioListRemote;
+	std::map<string, string> scenarioCacheList;
+	vector<string> scenarioFiles;
+	vector<string> scenarioFilesUserData;
+
 	FTPClientThread *ftpClientThread;
 	std::map<string,pair<int,string> > fileFTPProgressList;
 
@@ -115,6 +130,9 @@ private:
 
 	void getMapsLocalList();
 	void refreshMaps();
+
+	void getScenariosLocalList();
+	void refreshScenarios();
 
 public:
 
