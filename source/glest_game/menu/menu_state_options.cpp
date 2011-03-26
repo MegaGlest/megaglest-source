@@ -39,11 +39,12 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos);
 	activeInputLabel=NULL;
 
-	int leftLabelStart=150;
+	int leftLabelStart=130;
 	int leftColumnStart=leftLabelStart+150;
-	int rightLabelStart=550;
-	int rightColumnStart=rightLabelStart+150;
+	int rightLabelStart=530;
+	int rightColumnStart=rightLabelStart+200;
 	int buttonRowPos=80;
+	int buttonStartPos=170;
 	int captionOffset=75;
 	int currentLabelStart=leftLabelStart;
 	int currentColumnStart=leftColumnStart;
@@ -273,6 +274,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelPlayerName.registerGraphicComponent(containerName,"labelPlayerName");
 	labelPlayerName.init(currentColumnStart,currentLine);
 	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
+	labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
 	currentLine-=30;
 
 	//FontSizeAdjustment
@@ -414,24 +416,24 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	// buttons
 	buttonOk.registerGraphicComponent(containerName,"buttonOk");
-	buttonOk.init(200, buttonRowPos, 100);
+	buttonOk.init(buttonStartPos, buttonRowPos, 100);
 	buttonOk.setText(lang.get("Ok"));
 	buttonAbort.setText(lang.get("Abort"));
 
 	buttonAbort.registerGraphicComponent(containerName,"buttonAbort");
-	buttonAbort.init(310, buttonRowPos, 100);
+	buttonAbort.init(buttonStartPos+110, buttonRowPos, 100);
 	buttonAutoConfig.setText(lang.get("AutoConfig"));
 
 	buttonAutoConfig.registerGraphicComponent(containerName,"buttonAutoConfig");
-	buttonAutoConfig.init(450, buttonRowPos, 125);
+	buttonAutoConfig.init(buttonStartPos+250, buttonRowPos, 125);
 
 	buttonVideoInfo.setText(lang.get("VideoInfo"));
 	buttonVideoInfo.registerGraphicComponent(containerName,"buttonVideoInfo");
-	buttonVideoInfo.init(585, buttonRowPos, 125); // was 620
+	buttonVideoInfo.init(buttonStartPos+385, buttonRowPos, 125); // was 620
 
 	buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
 	buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
-	buttonKeyboardSetup.init(720, buttonRowPos, 125);
+	buttonKeyboardSetup.init(buttonStartPos+520, buttonRowPos, 125);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
