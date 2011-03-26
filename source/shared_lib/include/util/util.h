@@ -128,7 +128,7 @@ public:
 	static void init(bool haveSpecialOutputCommandLineOption);
 	static SystemFlagsType & getSystemSettingType(DebugType type) { return (*debugLogFileList)[type]; }
 	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
-	static std::string getHTTP(std::string URL,CURL *handle=NULL, int timeOut=-1);
+	static std::string getHTTP(std::string URL,CURL *handle=NULL, int timeOut=-1, CURLcode *savedResult=NULL);
 	static std::string escapeURL(std::string URL, CURL *handle=NULL);
 
 	static CURL *initHTTP();

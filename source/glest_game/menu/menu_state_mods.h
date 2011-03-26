@@ -133,6 +133,7 @@ public:
 
 private:
 
+    void cleanUp();
     MapInfo loadMapInfo(string file);
     void showMessageBox(const string &text, const string &header, bool toggle);
     void clearUserButtons();

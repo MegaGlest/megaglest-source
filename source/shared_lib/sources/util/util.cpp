@@ -103,7 +103,7 @@ std::string SystemFlags::escapeURL(std::string URL, CURL *handle) {
 	return result;
 }
 
-std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
+std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLcode *savedResult) {
 	if(handle == NULL) {
 		handle = SystemFlags::curl_handle;
 	}
@@ -155,9 +155,14 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut) {
 	if(chunk.memory) {
 		free(chunk.memory);
 	}
+
+	if(savedResult != NULL) {
+		*savedResult = result;
+	}
 	if(result != CURLE_OK) {
 		serverResponse = errbuf;
 	}
+
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] serverResponse [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverResponse.c_str());
 
