@@ -2124,6 +2124,7 @@ int glestMain(int argc, char** argv) {
 				difftime(time(NULL),elapsed) <= 15;) {
 				//sleep(150);
 			}
+			sleep(25);
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
