@@ -18,6 +18,12 @@
 #include "conversion.h"
 #include "util.h"
 #include "platform_common.h"
+
+#ifdef WIN32
+#include <shlwapi.h>
+#include <Shlobj.h>
+#endif
+
 #include "leak_dumper.h"
 
 using namespace std;
@@ -92,11 +98,25 @@ bool Properties::applyTagsToValue(string &value) {
 #else
 	homeDir = getenv("HOME");
 #endif
+
 	replaceAll(value, "~/", 			(homeDir != NULL ? homeDir : ""));
 	replaceAll(value, "$HOME", 			(homeDir != NULL ? homeDir : ""));
 	replaceAll(value, "%%HOME%%", 		(homeDir != NULL ? homeDir : ""));
 	replaceAll(value, "%%USERPROFILE%%",(homeDir != NULL ? homeDir : ""));
 	replaceAll(value, "%%HOMEPATH%%",	(homeDir != NULL ? homeDir : ""));
+
+	// For win32 we allow use of the appdata variable since that is the recommended
+	// place for application data in windows platform
+#ifdef WIN32
+	TCHAR szPath[MAX_PATH]="";
+   // Get path for each computer, non-user specific and non-roaming data.
+   if ( SUCCEEDED( SHGetFolderPath( NULL, CSIDL_COMMON_APPDATA, 
+                                    NULL, 0, szPath))) {
+	   string appPath = szPath;
+       replaceAll(value, "$APPDATA", appPath);
+	   replaceAll(value, "%%APPDATA%%", appPath);
+   }
+#endif
 
 	char *username = NULL;
 	username = getenv("USERNAME");
