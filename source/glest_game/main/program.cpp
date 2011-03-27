@@ -41,6 +41,7 @@ namespace Glest{ namespace Game{
 
 const int Program::maxTimes= 10;
 Program *Program::singleton = NULL;
+const int SOUND_THREAD_UPDATE_MILLISECONDS = 25;
 
 // =====================================================
 // 	class Program::CrashProgramState
@@ -178,9 +179,11 @@ Program::~Program(){
 	restoreDisplaySettings();
 	singleton = NULL;
 
-	BaseThread::shutdownAndWait(soundThreadManager);
-	delete soundThreadManager;
-	soundThreadManager = NULL;
+	if(soundThreadManager != NULL) {
+		BaseThread::shutdownAndWait(soundThreadManager);
+		delete soundThreadManager;
+		soundThreadManager = NULL;
+	}
 }
 
 void Program::keyDown(char key){
@@ -556,7 +559,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 			if(BaseThread::shutdownAndWait(soundThreadManager) == true) {
 				delete soundThreadManager;
 			}
-			soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,10);
+			soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,SOUND_THREAD_UPDATE_MILLISECONDS);
 			soundThreadManager->setUniqueID(__FILE__);
 			soundThreadManager->start();
 		}
@@ -666,6 +669,27 @@ void Program::showMessage(const char *msg) {
 */
 
     //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Program::stopSoundSystem() {
+	if(soundThreadManager != NULL) {
+		BaseThread::shutdownAndWait(soundThreadManager);
+		delete soundThreadManager;
+		soundThreadManager = NULL;
+	}
+}
+
+void Program::startSoundSystem() {
+	stopSoundSystem();
+	if(SoundRenderer::getInstance().runningThreaded() == true) {
+		soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,SOUND_THREAD_UPDATE_MILLISECONDS);
+		soundThreadManager->setUniqueID(__FILE__);
+		soundThreadManager->start();
+	}
+}
+
+void Program::resetSoundSystem() {
+	startSoundSystem();
 }
 
 void Program::reInitGl() {
