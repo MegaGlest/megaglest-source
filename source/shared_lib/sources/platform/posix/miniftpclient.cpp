@@ -96,6 +96,7 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
     return fwrite(buffer, size, nmemb, out->stream);
 }
 
+/*
 static long file_is_comming(struct curl_fileinfo *finfo,void *data,int remains) {
     struct FtpFile *out=(struct FtpFile *)data;
 
@@ -171,6 +172,7 @@ static long file_is_downloaded(void *data) {
     }
     return CURL_CHUNK_END_FUNC_OK;
 }
+*/
 
 int file_progress(struct FtpFile *out,double download_total, double download_now, double upload_total,double upload_now) {
   //if(SystemFlags::VERBOSE_MODE_ENABLED) printf(" download progress [%f][%f][%f][%f] ",download_total,download_now,upload_total,upload_now);
