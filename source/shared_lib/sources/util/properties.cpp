@@ -110,7 +110,7 @@ bool Properties::applyTagsToValue(string &value) {
 #ifdef WIN32
 	TCHAR szPath[MAX_PATH]="";
    // Get path for each computer, non-user specific and non-roaming data.
-   if ( SUCCEEDED( SHGetFolderPath( NULL, CSIDL_COMMON_APPDATA, 
+   if ( SUCCEEDED( SHGetFolderPath( NULL, CSIDL_APPDATA, 
                                     NULL, 0, szPath))) {
 	   string appPath = szPath;
        replaceAll(value, "$APPDATA", appPath);
