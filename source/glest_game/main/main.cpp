@@ -83,6 +83,8 @@ bool disableBacktrace = false;
 bool gameInitialized = false;
 static char *application_binary=NULL;
 
+FileCRCPreCacheThread *preCacheThread=NULL;
+
 const char  *GAME_ARGS[] = {
 	"--help",
 	"--autostart-lastgame",
@@ -137,6 +139,22 @@ string runtimeErrorMsg = "";
 static void cleanupProcessObjects() {
     showCursor(true);
     restoreVideoMode(true);
+
+	if(preCacheThread != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		time_t elapsed = time(NULL);
+		preCacheThread->signalQuit();
+		for(;preCacheThread->canShutdown(false) == false &&
+			difftime(time(NULL),elapsed) <= 15;) {
+			//sleep(150);
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		sleep(25);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     Renderer::getInstance().end();
 	SystemFlags::Close();
 	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
@@ -1627,8 +1645,8 @@ int glestMain(int argc, char** argv) {
 
     SystemFlags::ENABLE_THREADED_LOGGING = false;
     disableBacktrace = false;
-
 	bool foundInvalidArgs = false;
+	preCacheThread=NULL;
 
 	Properties::setApplicationPath(extractDirectoryPathFromFile(argv[0]));
 
@@ -1820,8 +1838,6 @@ int glestMain(int argc, char** argv) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Disabling VBO's\n");
         }
 
-        // Setup the file crc thread
-		std::auto_ptr<FileCRCPreCacheThread> preCacheThread;
 		//Game preCacheThreadGame;
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
@@ -2082,7 +2098,7 @@ int glestMain(int argc, char** argv) {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] precache thread enabled = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread);
 		if(startCRCPrecacheThread == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
-			preCacheThread.reset(new FileCRCPreCacheThread());
+			preCacheThread = new FileCRCPreCacheThread();
 			preCacheThread->setUniqueID(__FILE__);
 			preCacheThread->setTechDataPaths(techDataPaths);
 			//preCacheThread->setFileCRCPreCacheThreadCallbackInterface(&preCacheThreadGame);
@@ -2117,19 +2133,24 @@ int glestMain(int argc, char** argv) {
 //			}
 		}
 
-		if(preCacheThread.get() != NULL) {
+		if(preCacheThread != NULL) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			time_t elapsed = time(NULL);
 			preCacheThread->signalQuit();
 			for(;preCacheThread->canShutdown(false) == false &&
 				difftime(time(NULL),elapsed) <= 15;) {
 				//sleep(150);
 			}
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			sleep(25);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    showCursor(true);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &e){
 		ExceptionHandler::handleRuntimeError(e.what());
@@ -2144,6 +2165,7 @@ int glestMain(int argc, char** argv) {
 		ExceptionHandler::handleRuntimeError("Unknown error!");
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete mainWindow;
