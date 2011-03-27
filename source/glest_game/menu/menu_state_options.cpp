@@ -790,9 +790,12 @@ void MenuStateOptions::saveConfig(){
 
     SoundRenderer &soundRenderer= SoundRenderer::getInstance();
     soundRenderer.stopAllSounds();
+    program->stopSoundSystem();
     bool initOk = soundRenderer.init(program->getWindow());
     soundRenderer.loadConfig();
     soundRenderer.setMusicVolume(CoreData::getInstance().getMenuMusic());
+    program->startSoundSystem();
+
 	soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
 
 	Renderer::getInstance().loadConfig();

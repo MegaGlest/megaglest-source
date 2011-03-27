@@ -53,6 +53,7 @@ bool SoundRenderer::init(Window *window) {
 	Config &config= Config::getInstance();
 	si.setFactory(fr.getSoundFactory(config.getString("FactorySound")));
 
+	cleanup();
 	stopAllSounds();
 
     MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
@@ -74,6 +75,23 @@ bool SoundRenderer::init(Window *window) {
 	return wasInitOk();
 }
 
+void SoundRenderer::cleanup() {
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    stopAllSounds();
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
+	if(runThreadSafe == true) {
+	    safeMutex.setMutex(&mutex);
+	}
+	delete soundPlayer;
+	soundPlayer = NULL;
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 bool SoundRenderer::wasInitOk() const {
 	bool result = false;
 	if(soundPlayer != NULL) {
@@ -92,16 +110,7 @@ bool SoundRenderer::wasInitOk() const {
 SoundRenderer::~SoundRenderer() {
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    stopAllSounds();
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
-	if(runThreadSafe == true) {
-	    safeMutex.setMutex(&mutex);
-	}
-	delete soundPlayer;
-	soundPlayer = NULL;
+    cleanup();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

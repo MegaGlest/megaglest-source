@@ -52,6 +52,8 @@ private:
 private:
 	SoundRenderer();
 
+	void cleanup();
+
 public:
 	//misc
 	~SoundRenderer();
