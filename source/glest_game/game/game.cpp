@@ -43,6 +43,7 @@ Game *thisGamePtr = NULL;
 const float PHOTO_MODE_MAXHEIGHT = 500.0;
 
 Game::Game() : ProgramState(NULL) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	originalDisplayMsgCallback = NULL;
 	aiInterfaces.clear();
 }
@@ -50,6 +51,7 @@ Game::Game() : ProgramState(NULL) {
 Game::Game(Program *program, const GameSettings *gameSettings):
 	ProgramState(program), lastMousePos(0), isFirstRender(true)
 {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->program = program;
@@ -102,6 +104,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 }
 
 Game::~Game() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Object::setStateCallback(NULL);
@@ -156,6 +159,7 @@ Game::~Game() {
 
 	//this->program->reInitGl();
 	//renderer.reinitAll();
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 bool Game::quitTriggered() {
@@ -2170,6 +2174,10 @@ void Game::endPerformanceTimer() {
 Vec2i Game::getPerformanceTimerResults() {
 	Vec2i results(this->updateFpsAvgTest,this->renderFpsAvgTest);
 	return results;
+}
+
+void Game::consoleAddLine(string line) {
+	console.addLine(line);
 }
 
 }}//end namespace

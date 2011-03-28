@@ -49,6 +49,7 @@ struct FormatString {
 MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver, bool autostart) :
 		MenuState(program, mainMenu, "new-game")
 {
+	forceWaitForShutdown = true;
 	this->autostart = autostart;
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] autostart = %d\n",__FILE__,__FUNCTION__,__LINE__,autostart);
 
@@ -561,8 +562,22 @@ void MenuStateCustomGame::cleanup() {
         publishToMasterserverThread->setThreadOwnerValid(false);
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        if(publishToMasterserverThread->canShutdown(true) == true &&
-           publishToMasterserverThread->shutdownAndWait() == true) {
+
+        if(forceWaitForShutdown == true) {
+    		time_t elapsed = time(NULL);
+    		publishToMasterserverThread->signalQuit();
+    		for(;publishToMasterserverThread->canShutdown(false) == false &&
+    			difftime(time(NULL),elapsed) <= 15;) {
+    			//sleep(150);
+    		}
+    		if(publishToMasterserverThread->canShutdown(true)) {
+    			delete publishToMasterserverThread;
+    			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    		}
+    		publishToMasterserverThread = NULL;
+        }
+        else if(publishToMasterserverThread->canShutdown(true) == true &&
+        		publishToMasterserverThread->shutdownAndWait() == true) {
             //printf("IN MenuStateCustomGame cleanup - C\n");
             delete publishToMasterserverThread;
         }
@@ -577,15 +592,20 @@ void MenuStateCustomGame::cleanup() {
 
 	cleanupMapPreviewTexture();
 
+	if(forceWaitForShutdown == true) {
+		NetworkManager::getInstance().end();
+	}
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 MenuStateCustomGame::~MenuStateCustomGame() {
-    //printf("IN MenuStateCustomGame Destructor - A\n");
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     cleanup();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::returnToParentMenu() {
@@ -608,6 +628,7 @@ void MenuStateCustomGame::returnToParentMenu() {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	forceWaitForShutdown = false;
 	if(returnToMasterServerMenu) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		cleanup();
@@ -1033,6 +1054,7 @@ void MenuStateCustomGame::PlayNow() {
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 	saveGameSettingsToFile("lastCustomGamSettings.mgg");
 
+	forceWaitForShutdown = false;
 	closeUnusedSlots();
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -1176,6 +1198,7 @@ void MenuStateCustomGame::PlayNow() {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			cleanup();
 			Game *newGame = new Game(program, &gameSettings);
+			forceWaitForShutdown = false;
 			program->setState(newGame);
 			return;
 		}

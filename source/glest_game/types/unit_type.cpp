@@ -537,14 +537,44 @@ const HarvestCommandType *UnitType::getFirstHarvestCommand(const ResourceType *r
 }
 
 const AttackCommandType *UnitType::getFirstAttackCommand(Field field) const{
-	for(int i=0; i<commandTypes.size(); ++i){
+	//printf("$$$ Unit [%s] commandTypes.size() = %d\n",this->getName().c_str(),(int)commandTypes.size());
+
+	for(int i = 0; i < commandTypes.size(); ++i){
+		if(commandTypes[i] == NULL) {
+			throw runtime_error("commandTypes[i] == NULL");
+		}
+
+		//printf("$$$ Unit [%s] i = %d, commandTypes[i] [%s]\n",this->getName().c_str(),(int)i, commandTypes[i]->toString().c_str());
 		if(commandTypes[i]->getClass()== ccAttack){
-			const AttackCommandType *act= static_cast<const AttackCommandType*>(commandTypes[i]);
-			if(act->getAttackSkillType()->getAttackField(field)){
+			const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(commandTypes[i]);
+			if(act->getAttackSkillType()->getAttackField(field)) {
+				//printf("## Unit [%s] i = %d, is found\n",this->getName().c_str(),(int)i);
 				return act;
 			}
 		}
 	}
+
+	return NULL;
+}
+
+const AttackStoppedCommandType *UnitType::getFirstAttackStoppedCommand(Field field) const{
+	//printf("$$$ Unit [%s] commandTypes.size() = %d\n",this->getName().c_str(),(int)commandTypes.size());
+
+	for(int i = 0; i < commandTypes.size(); ++i){
+		if(commandTypes[i] == NULL) {
+			throw runtime_error("commandTypes[i] == NULL");
+		}
+
+		//printf("$$$ Unit [%s] i = %d, commandTypes[i] [%s]\n",this->getName().c_str(),(int)i, commandTypes[i]->toString().c_str());
+		if(commandTypes[i]->getClass()== ccAttackStopped){
+			const AttackStoppedCommandType *act= dynamic_cast<const AttackStoppedCommandType*>(commandTypes[i]);
+			if(act->getAttackSkillType()->getAttackField(field)) {
+				//printf("## Unit [%s] i = %d, is found\n",this->getName().c_str(),(int)i);
+				return act;
+			}
+		}
+	}
+
 	return NULL;
 }
 

@@ -153,6 +153,8 @@ private:
     int32 lastCheckedCRCMapValue;
     vector<pair<string,int32> > factionCRCList;
 
+    bool forceWaitForShutdown;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);
 	virtual ~MenuStateCustomGame();
