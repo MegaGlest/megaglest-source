@@ -36,8 +36,6 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 const int UnitPathBasic::maxBlockCount= GameConstants::updateFps / 2;
-const int updateUnitForStopCommandFrameCount = 40;
-const bool updateUnitForStopCommandFrameCountEnabled = false;
 
 UnitPathBasic::UnitPathBasic() {
 	this->blockCount = 0;
@@ -205,7 +203,6 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 		throw runtime_error("#2 Invalid path position = " + pos.getString());
 	}
 
-	this->lastStopCommandCheckFrame = 0;
     this->unitPath = unitpath;
     this->unitPath->setMap(map);
 	this->pos=pos;
@@ -1106,19 +1103,6 @@ bool Unit::needToUpdate() {
 
 		if(newProgress >= 1.f) {
 			return_value = true;
-
-			if(updateUnitForStopCommandFrameCountEnabled == true) {
-				if(currSkill->getClass() != scDie) {
-					if(currSkill->getClass() == scStop) {
-						return_value = false;
-						uint32 framesSinceLastCheck = (game->getWorld()->getFrameCount() - this->getLastStopCommandCheckFrame());
-						if(this->getLastStopCommandCheckFrame() <= 0 ||
-							framesSinceLastCheck >= updateUnitForStopCommandFrameCount) {
-							return_value = true;
-						}
-					}
-				}
-			}
 		}
 	}
 	return return_value;
@@ -1212,17 +1196,6 @@ bool Unit::update() {
 		if(currSkill->getClass() != scDie) {
 			progress     = 0.f;
 			return_value = true;
-			if(updateUnitForStopCommandFrameCountEnabled == true) {
-				if(currSkill->getClass() == scStop && this->anyCommand() == false) {
-					return_value = false;
-					uint32 framesSinceLastCheck = (game->getWorld()->getFrameCount() - this->getLastStopCommandCheckFrame());
-					if(this->getLastStopCommandCheckFrame() <= 0 ||
-						framesSinceLastCheck >= updateUnitForStopCommandFrameCount) {
-						this->setLastStopCommandCheckFrame(game->getWorld()->getFrameCount());
-						return_value = true;
-					}
-				}
-			}
 		}
 		else {
 			progress= 1.f;
