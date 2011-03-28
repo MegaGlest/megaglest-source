@@ -269,16 +269,12 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 		if(unit->anyCommand() == false && unit->isOperative()) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(unit->getType()->hasSkillClass(scAttack) || unit->getType()->hasCommandClass(ccMove)) {
-				//printf("\n\n\n$$$$$$$$$ Unit [%s - %d] unitFrame [%d] WorldFrame [%d]\n",unit->getFullName().c_str(),unit->getId(),unit->getLastStopCommandCheckFrame(),world->getFrameCount());
-				if(unit->getType()->hasSkillClass(scStop)) {
-					unit->setCurrSkill(scStop);
-				}
+			if(unit->getType()->hasSkillClass(scStop)) {
+				unit->setCurrSkill(scStop);
+			}
 
-				if(unit->getType()->hasCommandClass(ccStop)) {
-					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
-				}
+			if(unit->getType()->hasCommandClass(ccStop)) {
+				unit->giveCommand(new Command(unit->getType()->getFirstCtOfClass(ccStop)));
 			}
 		}
     }
@@ -346,9 +342,6 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
-//	else {
-//		printf("\n\n\n################ Unit [%s - %d] unitFrame [%d] WorldFrame [%d]\n",unit->getFullName().c_str(),unit->getId(),unit->getLastStopCommandCheckFrame(),world->getFrameCount());
-//	}
 
    	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
