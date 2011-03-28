@@ -174,14 +174,9 @@ void UnitReference::operator=(const Unit *unit){
 }
 
 Unit *UnitReference::getUnit() const{
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
-
 	if(faction!=NULL){
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
-
 		return faction->findUnit(id);
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 	return NULL;
 }
 
@@ -202,10 +197,7 @@ set<Unit*> Unit::livingUnitsp;
 Game *Unit::game = NULL;
 
 Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	modelFacing = CardinalDir::NORTH;
-
     RandomGen random;
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
@@ -279,11 +271,6 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
 	//starting skill
 	this->currSkill = getType()->getFirstStOfClass(scStop);
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 	livingUnits.insert(id);
 	livingUnitsp.insert(this);
 
@@ -291,32 +278,27 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	addItemToVault(&this->ep,this->ep);
 
 	logSynchData(__FILE__,__LINE__);
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 Unit::~Unit() {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete unitid = %d\n",__FILE__,__FUNCTION__,__LINE__,id);
-
 	badHarvestPosList.clear();
 
 	//Just to be sure, should already be removed
 	if (livingUnits.erase(id)) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//Only an error if not called at end
 	}
 
 	//Just to be sure, should already be removed
 	if (livingUnitsp.erase(this)) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//remove commands
 	while(commands.empty() == false) {
 		delete commands.back();
 		commands.pop_back();
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// If the unit is not visible we better make sure we cleanup associated particles
 	if(this->getVisible() == false) {
@@ -335,19 +317,13 @@ Unit::~Unit() {
 		unitParticleSystems.back()->fade();
 		unitParticleSystems.pop_back();
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	stopDamageParticles();
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete this->unitPath;
 	this->unitPath = NULL;
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	Renderer &renderer= Renderer::getInstance();
 	renderer.removeUnitFromQuadCache(this);
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Unit::setModelFacing(CardinalDir value) {
@@ -584,8 +560,6 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: this->currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw runtime_error(szBuf);
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(), this->getFullName().c_str(), this->currSkill->toString().c_str(),currSkill->toString().c_str());
 
 	if(currSkill->getClass() != this->currSkill->getClass()) {
 		animProgress= 0;
@@ -837,28 +811,26 @@ int Unit::getCountOfProducedUnits(const UnitType *ut) const{
 
 //give one command (clear, and push back)
 CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
-
-    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"\n======================\nUnit Command tryQueue = %d\nUnit Info:\n%s\nCommand Info:\n%s\n",tryQueue,this->toString().c_str(),command->toString().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"\n======================\nUnit Command tryQueue = %d\nUnit Info:\n%s\nCommand Info:\n%s\n",tryQueue,this->toString().c_str(),command->toString().c_str());
 
 	Chrono chrono;
-	chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
     assert(command != NULL);
     assert(command->getCommandType() != NULL);
 
     const int command_priority = command->getPriority();
 
-    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	if(command->getCommandType()->isQueuable(tryQueue)) {
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-        SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//Delete all lower-prioirty commands
 		for (list<Command*>::iterator i = commands.begin(); i != commands.end();) {
 			if ((*i)->getPriority() < command_priority) {
-			    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",__FILE__,__FUNCTION__,__LINE__,(*i)->toString().c_str());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",__FILE__,__FUNCTION__,__LINE__,(*i)->toString().c_str());
 
 				deleteQueuedCommand(*i);
 				i = commands.erase(i);
@@ -868,65 +840,51 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 			}
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//cancel current command if it is not queuable
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		if(commands.empty() == false &&
           commands.back()->getCommandType()->isQueueAppendable() == false) {
-		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		    SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",__FILE__,__FUNCTION__,__LINE__,commands.back()->toString().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",__FILE__,__FUNCTION__,__LINE__,commands.back()->toString().c_str());
 
 		    cancelCommand();
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 	else {
 		//empty command queue
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",__FILE__,__FUNCTION__,__LINE__);
 
 		clearCommands();
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] A\n",__FILE__,__FUNCTION__);
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//check command
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	CommandResult result= checkCommand(command);
-	SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	if(result == crSuccess) {
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		applyCommand(command);
 	}
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] B\n",__FILE__,__FUNCTION__);
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//push back command
 	if(result == crSuccess) {
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		commands.push_back(command);
 	}
 	else {
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		delete command;
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	return result;
 }
@@ -938,7 +896,7 @@ CommandResult Unit::finishCommand() {
 	this->setCurrentUnitTitle("");
 	//is empty?
 	if(commands.empty()) {
-		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		return crFailUndefined;
 	}
 
@@ -967,7 +925,7 @@ CommandResult Unit::cancelCommand() {
 
 	//is empty?
 	if(commands.empty()){
-		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		return crFailUndefined;
 	}
 
@@ -1001,8 +959,6 @@ void Unit::born() {
 		throw runtime_error(szBuf);
 	}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
-
 	faction->addStore(type);
 	faction->applyStaticProduction(type);
 	setCurrSkill(scStop);
@@ -1013,8 +969,6 @@ void Unit::born() {
 }
 
 void Unit::kill() {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Unit ID = %d [%s], this->currSkill = %s\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getFullName().c_str(), (this->currSkill == NULL ? "" : this->currSkill->toString().c_str()));
-
 	//no longer needs static resources
 	if(isBeingBuilt()) {
 		faction->deApplyStaticConsumption(type);
@@ -1040,8 +994,7 @@ void Unit::kill() {
 }
 
 void Unit::undertake() {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",
-			__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
 
 	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
 	unitUpdater->clearUnitPrecache(this);
@@ -1697,8 +1650,6 @@ void Unit::deleteQueuedCommand(Command *command) {
 
 
 CommandResult Unit::checkCommand(Command *command) const {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	if(command == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
@@ -1710,19 +1661,15 @@ CommandResult Unit::checkCommand(Command *command) const {
        command->getUnit() == this ||
        getType()->hasCommandType(command->getCommandType()) == false ||
        (ignoreCheckCommand == false && this->getFaction()->reqsOk(command->getCommandType()) == false)) {
-		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] isOperative() = %d, command->getUnit() = %p, getType()->hasCommandType(command->getCommandType()) = %d, this->getFaction()->reqsOk(command->getCommandType()) = %d\n",__FILE__,__FUNCTION__, __LINE__,isOperative(),command->getUnit(),getType()->hasCommandType(command->getCommandType()),this->getFaction()->reqsOk(command->getCommandType()));
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] isOperative() = %d, command->getUnit() = %p, getType()->hasCommandType(command->getCommandType()) = %d, this->getFaction()->reqsOk(command->getCommandType()) = %d\n",__FILE__,__FUNCTION__, __LINE__,isOperative(),command->getUnit(),getType()->hasCommandType(command->getCommandType()),this->getFaction()->reqsOk(command->getCommandType()));
         return crFailUndefined;
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
 	if(map->isInside(command->getPos()) == false) {
-		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
         return crFailUndefined;
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//check produced
 	if(command->getCommandType() == NULL) {
@@ -1741,8 +1688,6 @@ CommandResult Unit::checkCommand(Command *command) const {
 			return crFailRes;
 		}
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //build command specific, check resources and requirements for building
     if(command->getCommandType()->getClass() == ccBuild) {
@@ -1772,12 +1717,10 @@ CommandResult Unit::checkCommand(Command *command) const {
 		}
 
 		if(faction->getUpgradeManager()->isUpgradingOrUpgraded(uct->getProducedUpgrade())){
-			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
             return crFailUndefined;
 		}
 	}
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     return crSuccess;
 }
@@ -1871,10 +1814,8 @@ void Unit::stopDamageParticles() {
 
 	// stop fire
 	if(fire != NULL) {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		fire->fade();
 		fire = NULL;
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	// stop additional particles
 	while(damageParticleSystems.empty() == false) {
@@ -2154,8 +2095,6 @@ void Unit::addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell) 
 std::string Unit::toString() const {
 	std::string result = "";
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	result += "id = " + intToStr(this->id);
 	if(this->type != NULL) {
 		result += " name [" + this->type->getName() + "][" + intToStr(this->type->getId()) + "]";
@@ -2171,7 +2110,6 @@ std::string Unit::toString() const {
 	    	result += "factionName = " + this->faction->getType()->getName() + "\n";
 	    }
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	result += " hp = " + intToStr(this->hp);
 	result += " ep = " + intToStr(this->ep);
@@ -2185,7 +2123,6 @@ std::string Unit::toString() const {
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
 	result += "\n";
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	// WARNING!!! Don't access the Unit pointer in this->targetRef in this method or it causes
 	// a stack overflow
@@ -2193,8 +2130,6 @@ std::string Unit::toString() const {
 		//result += " targetRef = " + this->targetRef.getUnit()->toString();
 		result += " targetRef = " + intToStr(this->targetRef.getUnitId()) + " - factionIndex = " + intToStr(this->targetRef.getUnitFaction()->getIndex());
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	result += " currField = " + intToStr(this->currField);
 	result += " targetField = " + intToStr(this->targetField);
@@ -2214,8 +2149,6 @@ std::string Unit::toString() const {
 	result += " targetRotation = " + floatToStr(this->targetRotation);
 	result += " rotation = " + floatToStr(this->rotation);
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
     if(loadType != NULL) {
     	result += " loadType = " + loadType->getName();
     }
@@ -2229,17 +2162,11 @@ std::string Unit::toString() const {
     result += " alive = " + intToStr(this->alive);
     result += " showUnitParticles = " + intToStr(this->showUnitParticles);
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
     result += " totalUpgrade = " + totalUpgrade.toString();
     result += " " + this->unitPath->toString() + "\n";
     result += "\n";
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
     result += "Command count = " + intToStr(commands.size()) + "\n";
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     int cmdIdx = 0;
     for(Commands::const_iterator iterList = commands.begin(); iterList != commands.end(); ++iterList) {
@@ -2252,8 +2179,6 @@ std::string Unit::toString() const {
     }
     result += "\n";
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
     result += "modelFacing = " + intToStr(modelFacing.asInt()) + "\n";
 
     result += "retryCurrCommandCount = " + intToStr(retryCurrCommandCount) + "\n";
@@ -2263,8 +2188,6 @@ std::string Unit::toString() const {
     result += "currentUnitTitle = " + currentUnitTitle + "\n";
 
     result += "inBailOutAttempt = " + intToStr(inBailOutAttempt) + "\n";
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return result;
 }

@@ -186,7 +186,7 @@ bool Checksum::addFileToSum(const string &path) {
 
 int32 Checksum::getSum() {
 	if(fileList.size() > 0) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,fileList.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,fileList.size());
 
 		Checksum newResult;
 		for(std::map<string,int32>::iterator iterMap = fileList.begin();
@@ -197,8 +197,6 @@ int32 Checksum::getSum() {
 				Checksum fileResult;
 				fileResult.addFileToSum(iterMap->first);
 				Checksum::fileListCache[iterMap->first] = fileResult.getSum();
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] iterMap->first [%s] has CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,iterMap->first.c_str(),Checksum::fileListCache[iterMap->first]);
 			}
 			newResult.addSum(Checksum::fileListCache[iterMap->first]);
 		}

@@ -135,7 +135,7 @@ Map::~Map() {
 }
 
 void Map::end(){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     Logger::getInstance().add("Map", true);
 	//read heightmap
 	for(int j = 0; j < surfaceH; ++j) {
@@ -143,7 +143,7 @@ void Map::end(){
 			getSurfaceCell(i, j)->end();
 		}
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 int Map::getSurfaceCellArraySize() const {
@@ -469,9 +469,6 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 		for(int j=pos.y; j<pos.y+size; ++j) {
 			Vec2i testPos(i,j);
 			if(isFreeCell(testPos, field) == false) {
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] isFreeCell will return false, testPos = %s, field = %d, getCell(testPos)->isFree(field) = %d, getSurfaceCell(toSurfCoords(testPos))->isFree() = %d, getDeepSubmerged(getCell(testPos)) = %d\n",__FILE__,__FUNCTION__,__LINE__,testPos.getString().c_str(),field,getCell(testPos)->isFree(field),getSurfaceCell(toSurfCoords(testPos))->isFree(),getDeepSubmerged(getCell(testPos)));
-
-				//printf("Could not build at [%s] isInside(testPos) = %d isInsideSurface(toSurfCoords(testPos)) = %d isFreeCell(testPos, field) = %d\n",testPos.getString().c_str(),isInside(testPos),isInsideSurface(toSurfCoords(testPos)),isFreeCell(testPos, field));
 				return false;
 			}
 		}
@@ -935,7 +932,6 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
                 if(canPutInCell == true) {
                     getCell(currPos)->setUnit(unit->getCurrField(), unit);
                 }
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
 			}
 			else if(ut->hasCellMap() == true &&
 					ut->getAllowEmptyCellMap() == true &&
@@ -989,8 +985,6 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
                 if(getCell(currPos)->getUnit(unit->getCurrField()) == unit) {
                     getCell(currPos)->setUnit(unit->getCurrField(), NULL);
                 }
-
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",__FILE__,__FUNCTION__,__LINE__,currPos.getString().c_str(),unit->toString().c_str());
 			}
 			else if(ut->hasCellMap() == true &&
 					ut->getAllowEmptyCellMap() == true &&
@@ -1058,19 +1052,19 @@ void Map::clampPos(Vec2i &pos) const{
 
 void Map::prepareTerrain(const Unit *unit) {
 	Chrono chrono;
-	chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	flatternTerrain(unit);
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
     computeNormals();
 
-    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	computeInterpolatedHeights();
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 // ==================== PRIVATE ====================

@@ -129,7 +129,7 @@ void CoreData::load() {
 	displayFont->setType(displayFontName);
 	displayFont->setSize(displayFontSize);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontName = [%s] displayFontSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontName.c_str(),displayFontSize);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontName = [%s] displayFontSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontName.c_str(),displayFontSize);
 
 	//menu fonts
 	string displayFontNameSmallPrefix= config.getString("FontDisplayPrefix");
@@ -140,7 +140,7 @@ void CoreData::load() {
 	displayFontSmall->setType(displayFontNameSmall);
 	displayFontSmall->setSize(displayFontNameSmallSize);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontSmallName = [%s] displayFontSmallNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontNameSmall.c_str(),displayFontNameSmallSize);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontSmallName = [%s] displayFontSmallNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontNameSmall.c_str(),displayFontNameSmallSize);
 
 	string menuFontNameNormalPrefix= config.getString("FontMenuNormalPrefix");
 	string menuFontNameNormalPostfix= config.getString("FontMenuNormalPostfix");
@@ -151,7 +151,7 @@ void CoreData::load() {
 	menuFontNormal->setSize(menuFontNameNormalSize);
 	menuFontNormal->setWidth(Font::wBold);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNormalName = [%s] menuFontNormalNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameNormal.c_str(),menuFontNameNormalSize);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNormalName = [%s] menuFontNormalNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameNormal.c_str(),menuFontNameNormalSize);
 
 	string menuFontNameBigPrefix= config.getString("FontMenuBigPrefix");
 	string menuFontNameBigPostfix= config.getString("FontMenuBigPostfix");
@@ -161,7 +161,7 @@ void CoreData::load() {
 	menuFontBig->setType(menuFontNameBig);
 	menuFontBig->setSize(menuFontNameBigSize);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameBig = [%s] menuFontNameBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameBig.c_str(),menuFontNameBigSize);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameBig = [%s] menuFontNameBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameBig.c_str(),menuFontNameBigSize);
 
 	string menuFontNameVeryBigPrefix= config.getString("FontMenuBigPrefix");
 	string menuFontNameVeryBigPostfix= config.getString("FontMenuBigPostfix");
@@ -171,7 +171,7 @@ void CoreData::load() {
 	menuFontVeryBig->setType(menuFontNameVeryBig);
 	menuFontVeryBig->setSize(menuFontNameVeryBigSize);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameVeryBig = [%s] menuFontNameVeryBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameVeryBig.c_str(),menuFontNameVeryBigSize);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameVeryBig = [%s] menuFontNameVeryBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameVeryBig.c_str(),menuFontNameVeryBigSize);
 
 	//console font
 	string consoleFontNamePrefix= config.getString("FontConsolePrefix");
@@ -182,7 +182,7 @@ void CoreData::load() {
 	consoleFont->setType(consoleFontName);
 	consoleFont->setSize(consoleFontNameSize);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consoleFontName = [%s] consoleFontNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,consoleFontName.c_str(),consoleFontNameSize);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consoleFontName = [%s] consoleFontNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,consoleFontName.c_str(),consoleFontNameSize);
 
 	//sounds
     clickSoundA.load(dir+"/menu/sound/click_a.wav");
@@ -211,7 +211,7 @@ int CoreData::computeFontSize(int size){
 	if(rs<10){
 		rs= 10;
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize orginal %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize orginal %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
 	return rs;
 }
 

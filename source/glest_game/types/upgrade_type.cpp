@@ -50,7 +50,7 @@ void UpgradeType::preLoad(const string &dir){
 void UpgradeType::load(const string &dir, const TechTree *techTree,
 		const FactionType *factionType, Checksum* checksum,
 		Checksum* techtreeChecksum, std::map<string,int> &loadedFileList) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Logger::getInstance().add("Upgrade type: "+ formatString(name), true);
 
@@ -157,7 +157,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		throw runtime_error("Error loading UpgradeType: "+ dir + "\n" +e.what());
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string UpgradeType::getReqDesc() const{

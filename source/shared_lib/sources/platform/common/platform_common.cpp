@@ -313,7 +313,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 		mypath += "*";
 	}
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,mypath.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,mypath.c_str());
 
 	glob_t globbuf;
 
@@ -340,7 +340,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 				results.push_back(begin);
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SKIPPED SPECIAL FILENAME [%s]\n",__FILE__,__FUNCTION__,__LINE__,begin);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SKIPPED SPECIAL FILENAME [%s]\n",__FILE__,__FUNCTION__,__LINE__,begin);
 			}
 		}
 
@@ -388,48 +388,45 @@ bool isdir(const char *path)
 }
 
 void removeFolder(const string path) {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
     string deletePath = path;
     endPathWithSlash(deletePath);
     deletePath += "{,.}*";
     vector<string> results = getFolderTreeContentsListRecursively(deletePath, "", true);
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] results.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),results.size());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] results.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),results.size());
 
     // First delete files
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DELETE FILES\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DELETE FILES\n",__FILE__,__FUNCTION__,__LINE__);
 
     for(int i = results.size() -1; i >= 0; --i) {
         string item = results[i];
 
-        if(item.find(".svn") != string::npos) {
-        	printf("!!!!!!!!!!!!!!!!!! FOUND SPECIAL FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
-        }
+        //if(item.find(".svn") != string::npos) {
+        //	printf("!!!!!!!!!!!!!!!!!! FOUND SPECIAL FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
+        //}
 
         if(isdir(item.c_str()) == false) {
-            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] file item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
-
         	bool result = removeFile(item);
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
         }
     }
     // Now delete folders
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DELETE FOLDERS\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DELETE FOLDERS\n",__FILE__,__FUNCTION__,__LINE__);
 
     for(int i = results.size() -1; i >= 0; --i) {
         string item = results[i];
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] isdir(item.c_str()) = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(), isdir(item.c_str()));
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] isdir(item.c_str()) = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(), isdir(item.c_str()));
         if(isdir(item.c_str()) == true) {
 
-        	printf("~~~~~ REMOVE FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
+        	//printf("~~~~~ REMOVE FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
 
-            //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s]\n",__FILE__,__FUNCTION__,__LINE__,item.c_str());
 #ifdef WIN32
             int result = _rmdir(item.c_str());
 #else
             int result = rmdir(item.c_str());
 #endif
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(),result);
 
             if(result != 0 && item != path) {
             	printf("CANNOT REMOVE FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
@@ -444,7 +441,7 @@ void removeFolder(const string path) {
     int result = rmdir(path.c_str());
 #endif
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),result);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),result);
 }
 
 bool StartsWith(const std::string &str, const std::string &key) {
@@ -458,7 +455,6 @@ bool EndsWith(const string &str, const string& key)
     	result = (0 == str.compare (str.length() - key.length(), key.length(), key));
     }
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] result [%d] str = [%s] key = [%s]\n",__FILE__,__FUNCTION__,result,str.c_str(),key.c_str());
     return result;
 }
 
@@ -601,13 +597,12 @@ void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchStri
 	if(fileExists(crcCacheFile) == true) {
 
 		bool result = removeFile(crcCacheFile);
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
 	}
 }
 
 //finds all filenames like path and gets their checksum of all files combined
 int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum, bool forceNoCache) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
@@ -616,7 +611,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 
 	string cacheKey = cacheKeys.second;
 	if(forceNoCache == false && crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
 
@@ -625,7 +620,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	int32 crcValue = 0;
 	if(forceNoCache == false && hasCachedFileCRCValue(crcCacheFile, crcValue)) {
 		crcTreeCache[cacheKey] = crcValue;
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED FILE checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED FILE checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
 
@@ -633,19 +628,14 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	for(unsigned int idx = 0; idx < paths.size(); ++idx) {
 		string path = paths[idx] + pathSearchString;
 
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s], filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
-
 		getFolderTreeContentsCheckSumRecursively(path, filterFileExt, &checksum, forceNoCache);
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getSum());
 
 	if(recursiveChecksum != NULL) {
 		*recursiveChecksum = checksum;
 	}
 
-	//printf("In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
 
 	int32 result = checksum.getFinalFileListSum();
 	if(forceNoCache == false) {
@@ -674,13 +664,12 @@ void clearFolderTreeContentsCheckSum(const string &path, const string filterFile
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	if(fileExists(crcCacheFile) == true) {
 		bool result = removeFile(crcCacheFile.c_str());
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
 	}
 }
 
 //finds all filenames like path and gets their checksum of all files combined
 int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum, bool forceNoCache) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(path, filterFileExt);
 
 	string cacheLookupId =  cacheKeys.first;
@@ -688,7 +677,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 
 	string cacheKey = cacheKeys.second;
 	if(forceNoCache == false && crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
 
@@ -697,14 +686,12 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	int32 crcValue = 0;
 	if(forceNoCache == false && hasCachedFileCRCValue(crcCacheFile, crcValue)) {
 		crcTreeCache[cacheKey] = crcValue;
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED FILE checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED FILE checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
 
 	bool topLevelCaller = (recursiveChecksum == NULL);
     Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] starting checksum = %d\n",__FILE__,__FUNCTION__,path.c_str(),checksum.getSum());
 
 	std::string mypath = path;
 	/** Stupid win32 is searching for all files without extension when *. is
@@ -730,7 +717,6 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	int fileMatchCount = 0;
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] examining file [%s]\n",__FILE__,__FUNCTION__,p);
 
 		if(isdir(p) == false) {
             bool addFile = true;
@@ -742,8 +728,6 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
             }
 
             if(addFile) {
-                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
-
                 checksum.addFile(p);
                 fileMatchCount++;
             }
@@ -786,20 +770,18 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 
 	globfree(&globbuf);
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d\n",__FILE__,__FUNCTION__,path.c_str(),checksum.getSum());
-
 	if(recursiveChecksum != NULL) {
 		*recursiveChecksum = checksum;
 	}
 
 	if(topLevelCaller == true) {
 		//printf("In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
 
 		int32 result = checksum.getFinalFileListSum();
 		if(forceNoCache == false) {
 			crcTreeCache[cacheKey] = result;
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s] fileMatchCount = %d, fileLoopCount = %d\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str(),fileMatchCount,fileLoopCount);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s] fileMatchCount = %d, fileLoopCount = %d\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str(),fileMatchCount,fileLoopCount);
 			writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey]);
 		}
 
@@ -838,23 +820,22 @@ void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearch
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	if(fileExists(crcCacheFile) == true) {
 		bool result = removeFile(crcCacheFile.c_str());
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
 	}
 }
 
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, string filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumListCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,vector<std::pair<string,int32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,int32> > > >(cacheLookupId);
 
 	string cacheKey = cacheKeys.second;
 	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED result for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED result for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
 	else {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders, NO CACHE found result for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders, NO CACHE found result for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
 	}
 
 	bool topLevelCaller = (recursiveMap == NULL);
@@ -865,10 +846,10 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 		checksumFiles = getFolderTreeContentsCheckSumListRecursively(path, filterFileExt, &checksumFiles);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
 
 	if(topLevelCaller == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION, checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION, checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
 	}
 
 	crcTreeCache[cacheKey] = checksumFiles;
@@ -877,11 +858,8 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(ve
 
 //finds all filenames like path and gets the checksum of each file
 vector<string> getFolderTreeContentsListRecursively(const string &path, const string &filterFileExt, bool includeFolders, vector<string> *recursiveMap) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
 	bool topLevelCaller = (recursiveMap == NULL);
     vector<string> resultFiles = (recursiveMap == NULL ? vector<string>() : *recursiveMap);
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
 
 	std::string mypath = path;
 	/** Stupid win32 is searching for all files without extension when *. is
@@ -927,7 +905,6 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 				}
 
 				if(addFile) {
-					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
 					resultFiles.push_back(p);
 				}
 			}
@@ -988,10 +965,10 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 
 	globfree(&globbuf);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
 
 	if(topLevelCaller == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
     return resultFiles;
@@ -1016,27 +993,24 @@ void clearFolderTreeContentsCheckSumList(const string &path, const string filter
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	if(fileExists(crcCacheFile) == true) {
 		bool result = removeFile(crcCacheFile.c_str());
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
 	}
 }
 
 //finds all filenames like path and gets the checksum of each file
 vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] filterFileExt = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),filterFileExt.c_str());
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumListCacheKey(path, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,vector<std::pair<string,int32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,int32> > > >(cacheLookupId);
 
 	string cacheKey = cacheKeys.second;
 	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] FOUND CACHED result for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] FOUND CACHED result for cacheKey [%s]\n",__FILE__,__FUNCTION__,path.c_str(),cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
 
 	bool topLevelCaller = (recursiveMap == NULL);
     vector<std::pair<string,int32> > checksumFiles = (recursiveMap == NULL ? vector<std::pair<string,int32> >() : *recursiveMap);
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s]\n",__FILE__,__FUNCTION__,path.c_str());
 
 	std::string mypath = path;
 	/** Stupid win32 is searching for all files without extension when *. is
@@ -1072,8 +1046,6 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
             }
 
             if(addFile) {
-                //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] adding file [%s]\n",__FILE__,__FUNCTION__,p);
-
                 Checksum checksum;
                 checksum.addFile(p);
 
@@ -1119,10 +1091,10 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 
 	crcTreeCache[cacheKey] = checksumFiles;
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] cacheKey [%s] checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,path.c_str(),cacheKey.c_str(),checksumFiles.size());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] cacheKey [%s] checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,path.c_str(),cacheKey.c_str(),checksumFiles.size());
 
 	if(topLevelCaller == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION, checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] EXITING TOP LEVEL RECURSION, checksumFiles.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,checksumFiles.size());
 	}
 
     return crcTreeCache[cacheKey];
@@ -1193,7 +1165,7 @@ void createDirectoryPaths(string Path) {
 #else
 	#error "Your compiler needs to support mkdir!"
 #endif
-		 SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DirName [%s] result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,DirName,result,errno);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DirName [%s] result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,DirName,result,errno);
    }
    *dirName++ = *path++;
    *dirName = '\0';
@@ -1214,41 +1186,41 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
     //screenWidth    = vidInfo->current_w;
     //screenHeight   = vidInfo->current_h;
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     /* Get available fullscreen/hardware modes */
     SDL_Rect**modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
 
     /* Check if there are any modes available */
     if (modes == (SDL_Rect**)0) {
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
 
        const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
        colorBits      = vidInfo->vfmt->BitsPerPixel;
        screenWidth    = vidInfo->current_w;
        screenHeight   = vidInfo->current_h;
 
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
    }
    /* Check if our resolution is restricted */
    else if (modes == (SDL_Rect**)-1) {
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
 
        const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
        colorBits      = vidInfo->vfmt->BitsPerPixel;
        screenWidth    = vidInfo->current_w;
        screenHeight   = vidInfo->current_h;
 
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
    }
    else{
        /* Print valid modes */
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
 
        int bestW = -1;
        int bestH = -1;
        for(int i=0; modes[i]; ++i) {
-           SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h);
+    	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h);
 
            if(bestW < modes[i]->w) {
                bestW = modes[i]->w;
@@ -1261,7 +1233,7 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
            screenHeight = bestH;
        }
 
-       SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
   }
 }
 
@@ -1273,7 +1245,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
     //screenWidth    = vidInfo->current_w;
     //screenHeight   = vidInfo->current_h;
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     SDL_PixelFormat format;
   	//SDL_Rect **modes;
@@ -1306,7 +1278,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 
 			/* Check if there are any modes available */
 			if (modes == (SDL_Rect**)0) {
-			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
 
 			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
   		       string lookupKey = intToStr(vidInfo->current_w) + "_" + intToStr(vidInfo->current_h) + "_" + intToStr(vidInfo->vfmt->BitsPerPixel);
@@ -1314,11 +1286,11 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 		    	   uniqueResList[lookupKey] = true;
 		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
 		       }
-			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
+		       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
 		   }
 		   /* Check if our resolution is restricted */
 		   else if (modes == (SDL_Rect**)-1) {
-			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+			   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
 
 			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
   		       string lookupKey = intToStr(vidInfo->current_w) + "_" + intToStr(vidInfo->current_h) + "_" + intToStr(vidInfo->vfmt->BitsPerPixel);
@@ -1326,26 +1298,26 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 		    	   uniqueResList[lookupKey] = true;
 		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
 		       }
-			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
+		       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
 		   }
 		   else{
 			   /* Print valid modes */
-			   SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+			   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
 
 			   for(int i=0; modes[i]; ++i) {
-				   SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,bpp);
+				   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,bpp);
 				    string lookupKey = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(bpp);
 				    if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
 				    	uniqueResList[lookupKey] = true;
 				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,bpp));
-				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,bpp);
+				    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,bpp);
 				    }
 				    // fake the missing 16 bit resolutions
 				    string lookupKey16 = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(16);
 				    if(uniqueResList.find(lookupKey16) == uniqueResList.end()) {
 				    	uniqueResList[lookupKey16] = true;
 				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,16));
-				    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,16);
+				    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,16);
 				    }
 			   }
 		  }
@@ -1392,11 +1364,11 @@ bool isKeyDown(int virtualKey) {
 	char key = static_cast<char> (virtualKey);
 	const Uint8* keystate = SDL_GetKeyState(0);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
 	// kinda hack and wrong...
 	if(key >= 0) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate[key] = %d\n",__FILE__,__FUNCTION__,__LINE__,keystate[key]);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate[key] = %d\n",__FILE__,__FUNCTION__,__LINE__,keystate[key]);
 
 		return (keystate[key] != 0);
 	}
@@ -1435,7 +1407,7 @@ bool isKeyDown(int virtualKey) {
 			std::cerr << "isKeyDown called with unknown key.\n";
 			break;
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning false\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning false\n",__FILE__,__FUNCTION__,__LINE__);
 	return false;
 }
 

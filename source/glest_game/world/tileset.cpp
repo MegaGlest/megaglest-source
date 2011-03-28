@@ -122,11 +122,11 @@ Checksum Tileset::loadTileset(const vector<string> pathList, const string &tiles
 
 void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum,
 		std::map<string,int> &loadedFileList) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	random.init(time(NULL));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string name= lastDir(dir);
 	string currentPath = dir;
@@ -141,18 +141,18 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		Logger::getInstance().add("Tileset: "+formatString(name), true);
 		Renderer &renderer= Renderer::getInstance();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//parse xml
 		XmlTree xmlTree;
 		xmlTree.load(path);
 		loadedFileList[path]++;
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		const XmlNode *tilesetNode= xmlTree.getRootNode();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//surfaces
 		const XmlNode *surfacesNode= tilesetNode->getChild("surfaces");
@@ -180,7 +180,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			}
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//object models
 		const XmlNode *objectsNode= tilesetNode->getChild("objects");
@@ -228,7 +228,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			objectTypes[i].deletePixels();
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//ambient sounds
 		ambientSounds.load(dir, tilesetNode->getChild("ambient-sounds"), loadedFileList);
@@ -243,7 +243,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		waterTex->setWrapMode(Texture::wmRepeat);
 		waterEffects= waterNode->getAttribute("effects")->getBoolValue();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		int waterFrameCount= waterNode->getChildCount();
 		waterTex->getPixmap()->init(waterFrameCount, 4);
@@ -253,7 +253,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			loadedFileList[currentPath + waterFrameNode->getAttribute("path")->getRestrictedValue()]++;
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//fog
 		const XmlNode *fogNode= parametersNode->getChild("fog");
@@ -266,7 +266,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			fogColor.z= fogNode->getAttribute("color-blue")->getFloatValue(0.f, 1.f);
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//sun and moon light colors
 		const XmlNode *sunLightColorNode= parametersNode->getChild("sun-light");
@@ -279,14 +279,14 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		moonLightColor.y= moonLightColorNode->getAttribute("green")->getFloatValue();
 		moonLightColor.z= moonLightColorNode->getAttribute("blue")->getFloatValue();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//weather
 		const XmlNode *weatherNode= parametersNode->getChild("weather");
 		float sunnyProb= weatherNode->getAttribute("sun")->getFloatValue(0.f, 1.f);
 		float rainyProb= weatherNode->getAttribute("rain")->getFloatValue(0.f, 1.f) + sunnyProb;
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 #ifdef USE_STREFLOP
 		float rnd= streflop::fabs(random.randRange(-1.f, 1.f));
@@ -294,7 +294,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		float rnd= fabs(random.randRange(-1.f, 1.f));
 #endif
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(rnd < sunnyProb) {
 			weather= wSunny;
@@ -306,7 +306,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			weather= wSnowy;
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	}
 	//Exception handling (conversions and so on);

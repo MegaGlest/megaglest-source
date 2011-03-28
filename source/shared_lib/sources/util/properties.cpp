@@ -46,15 +46,11 @@ void Properties::load(const string &path){
 
 	this->path= path;
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
-
 	fileStream.open(path.c_str(), ios_base::in);
 	if(fileStream.fail()){
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 		throw runtime_error("Can't open propertyMap file: " + path);
 	}
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
 	propertyMap.clear();
 	while(!fileStream.eof()){

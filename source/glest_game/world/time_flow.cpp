@@ -36,13 +36,10 @@ void TimeFlow::init(Tileset *tileset){
 	Config &config= Config::getInstance();
 	timeInc= 24.f * (1.f / config.getFloat("DayTime")) / GameConstants::updateFps;
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] timeInc = %f\n",__FILE__,__FUNCTION__,__LINE__,timeInc);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] timeInc = %f\n",__FILE__,__FUNCTION__,__LINE__,timeInc);
 }
 
 void TimeFlow::update() {
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] timeInc = %f, time = %f\n",__FILE__,__FUNCTION__,__LINE__,timeInc,time);
-	
 	//update time
 	time += isDay()? timeInc: timeInc*2;
 	if(time > 24.f){

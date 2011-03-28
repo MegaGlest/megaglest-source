@@ -32,9 +32,7 @@ ContextGl::ContextGl() : Context() {
 }
 
 void ContextGl::init(){
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	pcgl.init(colorBits, depthBits, stencilBits, (hardware_acceleration != 0), (fullscreen_anti_aliasing  != 0));
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ContextGl::end(){
@@ -42,9 +40,7 @@ void ContextGl::end(){
 }
 
 void ContextGl::makeCurrent(){
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	pcgl.makeCurrent();
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ContextGl::swapBuffers(){

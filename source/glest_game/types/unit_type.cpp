@@ -121,7 +121,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		const FactionType *factionType, Checksum* checksum,
 		Checksum* techtreeChecksum, std::map<string,int> &loadedFileList) {
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
@@ -479,14 +479,14 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		throw runtime_error("Error loading UnitType: " + path + "\n" + e.what());
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== get ====================
 
 const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 	if(firstCommandTypeOfClass[commandClass] == NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandClass = %d\n",__FILE__,__FUNCTION__,__LINE__,commandClass);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandClass = %d\n",__FILE__,__FUNCTION__,__LINE__,commandClass);
 
 		/*
 	    for(int j=0; j<ccCount; ++j){
@@ -498,7 +498,7 @@ const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 	    }
 	    */
 
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
     return firstCommandTypeOfClass[commandClass];
 }

@@ -161,7 +161,7 @@ void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 
 	uint32 samples = static_cast<uint32>(ov_pcm_total(vf, -1));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s Line: %d] path = [%s] vi->version = %d, vi->channels = %d, vi->rate = %ld, vi->bitrate_upper = %ld, vi->bitrate_nominal = %ld, vi->bitrate_lower = %ld, vi->bitrate_window = %ld, samples = %lu\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),vi->version,vi->channels,vi->rate,vi->bitrate_upper,vi->bitrate_nominal,vi->bitrate_lower,vi->bitrate_window,samples);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s Line: %d] path = [%s] vi->version = %d, vi->channels = %d, vi->rate = %ld, vi->bitrate_upper = %ld, vi->bitrate_nominal = %ld, vi->bitrate_lower = %ld, vi->bitrate_window = %ld, samples = %lu\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),vi->version,vi->channels,vi->rate,vi->bitrate_upper,vi->bitrate_nominal,vi->bitrate_lower,vi->bitrate_window,samples);
 
 	soundInfo->setChannels(vi->channels);
 	soundInfo->setsamplesPerSecond(vi->rate);

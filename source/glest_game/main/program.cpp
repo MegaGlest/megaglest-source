@@ -49,12 +49,8 @@ const int SOUND_THREAD_UPDATE_MILLISECONDS = 25;
 
 Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, const char *msg) :
 		ProgramState(program) {
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
     userWantsExit = false;
 	msgBox.init("Ok");
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(msg) {
 		fprintf(stderr, "%s\n", msg);
@@ -62,12 +58,9 @@ Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, cons
 	} else {
 		msgBox.setText("Mega-Glest has crashed.");
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	mouse2dAnim = mouseY = mouseX = 0;
 	this->msg = (msg ? msg : "");
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::ShowMessageProgramState::render() {
@@ -80,21 +73,15 @@ void Program::ShowMessageProgramState::render() {
 }
 
 void Program::ShowMessageProgramState::mouseDownLeft(int x, int y) {
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	int button= 1;
 	if(msgBox.mouseClick(x,y,button)) {
-
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		program->exit();
 		userWantsExit = true;
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::ShowMessageProgramState::keyPress(char c){
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
 
     // if user pressed return we exit
 	if(c == 13) {
@@ -131,15 +118,15 @@ Program::Program() {
 }
 
 void Program::initNormal(WindowGl *window){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	init(window);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	setState(new Intro(this));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots) {
@@ -189,9 +176,9 @@ Program::~Program(){
 void Program::keyDown(char key){
 
 	if(msgBox.getEnabled()) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(key == vkEscape  || key == SDLK_ESCAPE || key == vkReturn || key == SDLK_RETURN || key == SDLK_KP_ENTER) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			msgBox.setEnabled(false);
 
 		}
@@ -212,7 +199,7 @@ void Program::mouseDownLeft(int x, int y) {
 	if(msgBox.getEnabled()) {
 		int button= 1;
 		if(msgBox.mouseClick(x, y, button)) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//close message box
 			msgBox.setEnabled(false);
 		}
@@ -234,27 +221,27 @@ void Program::loop() {
 }
 
 void Program::loopWorker() {
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ================================= MAIN LOOP START ================================= \n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ================================= MAIN LOOP START ================================= \n",__FILE__,__FUNCTION__,__LINE__);
 
 	Chrono chronoLoop;
-	chronoLoop.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chronoLoop.start();
 
 	Chrono chrono;
-	chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled || SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) chrono.start();
 
 	//render
     assert(programState != NULL);
 
     if(this->programState->quitTriggered() == true) {
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     	Stats endStats = this->programState->quitAndToggleState();
 
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     	Game::exitGameState(this, endStats);
 
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     	return;
     }
@@ -262,78 +249,68 @@ void Program::loopWorker() {
 
     programState->render();
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP RENDERING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP RENDERING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//update camera
-	chrono.start();
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled || SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) chrono.start();
 	while(updateCameraTimer.isTime()){
 		programState->updateCamera();
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP CAMERA UPDATING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-	if(chrono.getMillis() > 0) chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP CAMERA UPDATING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//update world
-	chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled || SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) chrono.start();
 	int updateCount = 0;
 	while(prevState == this->programState && updateTimer.isTime()) {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		Chrono chronoUpdateLoop;
-		chronoUpdateLoop.start();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chronoUpdateLoop.start();
 
 		GraphicComponent::update();
 		programState->update();
-		if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] programState->update took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
-		if(chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] programState->update took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 
 		if(prevState == this->programState) {
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 			if(soundThreadManager == NULL || soundThreadManager->isThreadExecutionLagging()) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ERROR / WARNING soundThreadManager->isThreadExecutionLagging is TRUE\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ERROR / WARNING soundThreadManager->isThreadExecutionLagging is TRUE\n",__FILE__,__FUNCTION__,__LINE__);
 				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] ERROR / WARNING soundThreadManager->isThreadExecutionLagging is TRUE\n",__FILE__,__FUNCTION__,__LINE__);
 
 				SoundRenderer::getInstance().update();
-				if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] SoundRenderer::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
-				if(chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] SoundRenderer::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 			}
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 			NetworkManager::getInstance().update();
-			if(chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] NetworkManager::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
-			if(chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
-
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] NetworkManager::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 		}
 		updateCount++;
 	}
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
-	if(chrono.getMillis() > 0) chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
-	if(chrono.getMillis() > 0) chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	if(prevState == this->programState) {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		//fps timer
 		chrono.start();
 		while(fpsTimer.isTime()) {
 			programState->tick();
 		}
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-		if(chrono.getMillis() > 0) chrono.start();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-		if(chrono.getMillis() > 0) chrono.start();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ------------------------------- MAIN LOOP END, stats: loop took msecs: %lld -------------------------------\n",__FILE__,__FUNCTION__,__LINE__,chronoLoop.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ------------------------------- MAIN LOOP END, stats: loop took msecs: %lld -------------------------------\n",__FILE__,__FUNCTION__,__LINE__,chronoLoop.getMillis());
 }
 
 void Program::resize(SizeState sizeState){
@@ -362,13 +339,13 @@ void Program::renderProgramMsgBox() {
 void Program::setState(ProgramState *programState, bool cleanupOldState)
 {
 	try {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		bool msgBoxEnabled = msgBox.getEnabled();
 
 		bool showingOSCursor = isCursorShowing();
 		if(dynamic_cast<Game *>(programState) != NULL) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			int X = 0;
 			int Y = 0;
@@ -383,24 +360,24 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 			showCursor(true);
 			SDL_PumpEvents();
 			sleep(0);
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 
 		if(cleanupOldState == true) {
 			if(this->programState != programState) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				delete this->programState;
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				this->programState = NULL;
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//mesage box
 		Lang &lang= Lang::getInstance();
@@ -414,11 +391,11 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		this->programState= programState;
 		programState->load();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		programState->init();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		updateTimer.reset();
 		updateCameraTimer.reset();
@@ -436,42 +413,36 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 			}
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		this->showMessage(e.what());
 		setState(new Intro(this));
 	}
 }
 
 void Program::exit() {
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	window->destroy();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ==================== PRIVATE ====================
 
 void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->window= window;
 	Config &config= Config::getInstance();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //set video mode
 	if(toggleFullScreen == false) {
 		setDisplaySettings();
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//window
 	window->setText("MegaGlest");
@@ -480,14 +451,14 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	window->setSize(config.getInt("ScreenWidth"), config.getInt("ScreenHeight"));
 	window->create();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//timers
 	fpsTimer.init(1, maxTimes);
 	updateTimer.init(GameConstants::updateFps, maxTimes);
 	updateCameraTimer.init(GameConstants::cameraFps, maxTimes);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //log start
 	Logger &logger= Logger::getInstance();
@@ -506,44 +477,43 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	logger.setFile(logFile);
 	logger.clear();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//lang
 	Lang &lang= Lang::getInstance();
-	//lang.loadStrings(config.getString("Lang"));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//render
 	Renderer &renderer= Renderer::getInstance();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	window->initGl(config.getInt("ColorBits"), config.getInt("DepthBits"), config.getInt("StencilBits"),config.getBool("HardwareAcceleration","false"),config.getBool("FullScreenAntiAliasing","false"));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	window->makeCurrentGl();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//coreData, needs renderer, but must load before renderer init
 	CoreData &coreData= CoreData::getInstance();
     coreData.load();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//init renderer (load global textures)
 	renderer.init();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//sound
 	if(initSound == true && toggleFullScreen == false) {
         SoundRenderer &soundRenderer= SoundRenderer::getInstance();
         bool initOk = soundRenderer.init(window);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initOk = %d\n",__FILE__,__FUNCTION__,__LINE__,initOk);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initOk = %d\n",__FILE__,__FUNCTION__,__LINE__,initOk);
 
         // Test sound system failed
         //initOk = false;
@@ -568,7 +538,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	NetworkInterface::setAllowGameDataSynchCheck(Config::getInstance().getBool("AllowGameDataSynchCheck","false"));
 	NetworkInterface::setAllowDownloadDataSynch(Config::getInstance().getBool("AllowDownloadDataSynch","false"));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::setDisplaySettings(){
@@ -612,63 +582,10 @@ bool Program::isMessageShowing() {
 }
 
 void Program::showMessage(const char *msg) {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg);
 
 	msgBox.setText(msg);
-	//msgBox.setHeader(header);
 	msgBox.setEnabled(true);
-
-
-/*
-    int showMouseState = SDL_ShowCursor(SDL_QUERY);
-
-    ProgramState *originalState = NULL;
-    if(this->programState) {
-        //delete programState;
-        originalState = this->programState;
-    }
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    ShowMessageProgramState *showMsg = new ShowMessageProgramState(this, msg);
-
-    this->programState = NULL;
-    setState(showMsg);
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    showCursor(true);
-
-    while(Window::handleEvent() && showMsg->wantExit() == false) {
-        loop();
-    }
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    delete this->programState;
-	this->programState = NULL;
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	Config &config = Config::getInstance();
-	//if(config.getBool("No2DMouseRendering","false") == false) {
-	showCursor((showMouseState == SDL_ENABLE));
-	//}
-
-	init(this->window,false);
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
-
-	delete this->programState;
-
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	this->programState= originalState;
-
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] %d\n",__FILE__,__FUNCTION__,__LINE__);
-*/
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::stopSoundSystem() {

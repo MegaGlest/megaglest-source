@@ -844,7 +844,6 @@ void Pixmap2D::init(int w, int h, int components) {
 	this->h= h;
 	this->components= components;
 	deletePixels();
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] w = %d, h = %d, components = %d, getPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,w,h,components,(long long unsigned)getPixelByteCount());
 
 	if(getPixelByteCount() <= 0 || (h <= 0 || w <= 0 || components <= 0)) {
 		char szBuf[1024];
@@ -852,7 +851,6 @@ void Pixmap2D::init(int w, int h, int components) {
 		throw runtime_error(szBuf);
 	}
 	pixels= new uint8[(std::size_t)getPixelByteCount()];
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 uint64 Pixmap2D::getPixelByteCount() const {
@@ -861,10 +859,8 @@ uint64 Pixmap2D::getPixelByteCount() const {
 
 void Pixmap2D::deletePixels() {
 	if(pixels) {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		delete [] pixels;
 		pixels = NULL;
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 }
 

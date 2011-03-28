@@ -48,70 +48,56 @@ CommanderNetworkThread::CommanderNetworkThread(CommanderNetworkCallbackInterface
 }
 
 void CommanderNetworkThread::setQuitStatus(bool value) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
 
 	BaseThread::setQuitStatus(value);
 	if(value == true) {
 		signalUpdate(-1);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void CommanderNetworkThread::signalUpdate(int id) {
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
-
 	MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 	this->idStatus.first = id;
 	this->idStatus.second = false;
 	safeMutex.ReleaseLock();
 
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	semTaskSignalled.signal();
 }
 
 void CommanderNetworkThread::setTaskCompleted(int id) {
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
     MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
     this->idStatus.second = true;
     safeMutex.ReleaseLock();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 bool CommanderNetworkThread::isSignalCompleted(int id) {
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 	MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 	bool result = this->idStatus.second;
 	safeMutex.ReleaseLock();
-	//if(result == false) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
 	return result;
 }
 
 void CommanderNetworkThread::execute() {
     RunningStatusSafeWrapper runningStatus(this);
 	try {
-		//setRunningStatus(true);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		unsigned int idx = 0;
 		for(;this->commanderInterface != NULL;) {
 			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			semTaskSignalled.waitTillSignalled();
-			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
-
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
             if(idStatus.first > 0) {
@@ -124,27 +110,21 @@ void CommanderNetworkThread::execute() {
             else {
                 safeMutex.ReleaseLock();
             }
-			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
 			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
-			//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &ex) {
-		//setRunningStatus(false);
-
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		throw runtime_error(ex.what());
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	//setRunningStatus(false);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // =====================================================
@@ -193,7 +173,7 @@ bool Commander::canSubmitCommandType(const Unit *unit, const CommandType *comman
 CommandResult Commander::tryGiveCommand(const Selection *selection, const CommandType *commandType,
 									const Vec2i &pos, const UnitType* unitType,
 									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(!selection->isEmpty() && commandType != NULL) {
 		Vec2i refPos;
@@ -268,19 +248,17 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType,
 									const Vec2i &pos, const UnitType* unitType,
 									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Chrono chrono;
-	chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	assert(this->world != NULL);
 	assert(unit != NULL);
 	assert(commandType != NULL);
 	assert(unitType != NULL);
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	CommandResult result = crFailUndefined;
 	bool canSubmitCommand=canSubmitCommandType(unit, commandType);
@@ -290,14 +268,12 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 									(targetUnit != NULL ? targetUnit->getId() : -1),
 									facing, tryQueue);
 
-		if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		result = pushNetworkCommand(&networkCommand);
 	}
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	return result;
 }
@@ -377,14 +353,11 @@ CommandResult Commander::tryGiveCommand(const Selection *selection,
 
 //auto command
 CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CommandResult result = crFailUndefined;
 
 	if(selection->isEmpty() == false){
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
 
@@ -400,12 +373,8 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 			//get command type
 			const CommandType *commandType= unit->computeCommandType(pos, targetUnit);
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit = [%s] commandType = %p\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(), commandType);
-
 			//give commands
 			if(commandType != NULL) {
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandType->toString() [%s]\n",__FILE__,__FUNCTION__,__LINE__,commandType->toString().c_str());
-
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
 
@@ -424,15 +393,13 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 				results.push_back(result);
 			}
 			else {
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 				results.push_back(crFailUndefined);
 			}
 		}
 		result = computeResult(results);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
 
 	return result;
 }
@@ -526,27 +493,26 @@ void Commander::updateNetwork(Game *game) {
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
 	//check that this is a keyframe
-	//GameSettings *gameSettings = this->world->getGame()->getGameSettings();
 	if(game != NULL) {
         GameSettings *gameSettings = game->getGameSettings();
         if( networkManager.isNetworkGame() == false ||
             (world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
 
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
             GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
-            perfTimer.start();
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
             //update the keyframe
             gameNetworkInterface->updateKeyframe(world->getFrameCount());
-            if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
 
-            perfTimer.start();
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
             //give pending commands
             for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
                 giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
             }
-            if(perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
             gameNetworkInterface->clearPendingCommands();
         }
 	}
@@ -594,13 +560,13 @@ void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) 
 void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
 	Chrono chrono;
-	chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
     networkCommand->preprocessNetworkCommand(this->world);
 
-    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after networkCommand->preprocessNetworkCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after networkCommand->preprocessNetworkCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
     /*
     if(networkCommand->getNetworkCommandType() == nctNetworkCommand) {
@@ -611,7 +577,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     {
         Unit* unit= world->findUnitById(networkCommand->getUnitId());
 
-        if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after world->findUnitById]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after world->findUnitById]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
         //execute command, if unit is still alive
         if(unit != NULL) {
@@ -619,39 +585,39 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                 case nctGiveCommand:{
                     assert(networkCommand->getCommandTypeId() != CommandType::invalidId);
 
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 
                     Command* command= buildCommand(networkCommand);
 
-                    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after buildCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after buildCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] command = %p\n",__FILE__,__FUNCTION__,__LINE__,command);
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] command = %p\n",__FILE__,__FUNCTION__,__LINE__,command);
 
                     unit->giveCommand(command, (networkCommand->getWantQueue() != 0));
 
-                    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->giveCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->giveCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctGiveCommand networkCommand->getUnitId() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
                     }
                     break;
                 case nctCancelCommand: {
-                	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
 
                 	unit->cancelCommand();
 
-                	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->cancelCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->cancelCommand]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",__FILE__,__FUNCTION__,__LINE__);
                 }
                     break;
                 case nctSetMeetingPoint: {
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
 
                     unit->setMeetingPos(networkCommand->getPosition());
 
-                    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
                 }
                     break;
                 default:
@@ -659,17 +625,17 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
             }
         }
         else {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NULL Unit for id = %d, networkCommand->getNetworkCommandType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId(),networkCommand->getNetworkCommandType());
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] NULL Unit for id = %d, networkCommand->getNetworkCommandType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId(),networkCommand->getNetworkCommandType());
         }
     }
 
-    if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [END]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [END]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	assert(networkCommand->getNetworkCommandType()==nctGiveCommand);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkCommand [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkCommand [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str());
 
 	if(world == NULL) {
 	    char szBuf[1024]="";
@@ -680,8 +646,6 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	Unit* target= NULL;
 	const CommandType* ct= NULL;
 	const Unit* unit= world->findUnitById(networkCommand->getUnitId());
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//validate unit
 	if(unit == NULL) {
@@ -705,7 +669,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
 
 	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 	    std::string worldLog = world->DumpWorldToLog();
 
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
@@ -779,8 +743,6 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 		throw runtime_error(sError);
 	}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	CardinalDir facing;
 	// get facing/target ... the target might be dead due to lag, cope with it
 	if (ct->getClass() == ccBuild) {
@@ -790,8 +752,6 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	else if (networkCommand->getTargetId() != Unit::invalidId ) {
 		target= world->findUnitById(networkCommand->getTargetId());
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//create command
 	Command *command= NULL;
@@ -812,7 +772,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	command->setStateType(commandStateType);
 	command->setStateValue(commandStateValue);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//issue command
 	return command;

@@ -39,7 +39,7 @@ FactionType::FactionType() {
 void FactionType::load(const string &dir, const TechTree *techTree, Checksum* checksum,
 		Checksum *techtreeChecksum, std::map<string,int> &loadedFileList) {
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
@@ -156,7 +156,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 			loadedFileList[currentPath + musicNode->getAttribute("path")->getRestrictedValue()]++;
 		}
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 FactionType::~FactionType(){
@@ -532,9 +532,9 @@ const UnitType *FactionType::getUnitType(const string &name) const{
 		}
     }
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
     }
 
 	throw runtime_error("Unit not found: [" + name + "]");
@@ -547,9 +547,9 @@ const UpgradeType *FactionType::getUpgradeType(const string &name) const{
 		}
     }
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<upgradeTypes.size();i++){
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
     }
 
 	throw runtime_error("Upgrade not found: "+name);

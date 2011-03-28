@@ -101,18 +101,13 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     	string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
     	fileName.first = currentpath + fileName.first;
     }
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
-
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= About to load fileName.first = [%s]\n",fileName.first.c_str());
 
     if(fileMustExist.first == true ||
     	(fileMustExist.first == false && fileExists(fileName.first) == true)) {
     	properties.first.load(fileName.first);
     	fileLoaded.first = true;
-
-    	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
     }
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.first = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.first.c_str());
 
     if(cfgType.first == cfgMainGame) {
         if( properties.first.getString("UserData_Root", defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
@@ -150,14 +145,10 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= About to load fileName.second = [%s]\n",fileName.second.c_str());
 
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
-
     if(fileMustExist.second == true ||
     	(fileMustExist.second == false && fileExists(fileName.second) == true)) {
     	properties.second.load(fileName.second);
     	fileLoaded.second = true;
-
-    	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
     }
 
     try {
@@ -174,23 +165,21 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     }
     catch(const exception &ex) {
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ERROR trying to auto-create cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ERROR trying to auto-create cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
     }
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
 }
 
 Config &Config::getInstance(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
 	if(configList.find(type.first) == configList.end()) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Config config(type, file, fileMustExist);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		configList.insert(map<ConfigType,Config>::value_type(type.first,config));
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return configList.find(type.first)->second;
@@ -206,17 +195,17 @@ void Config::CopyAll(Config *src, Config *dest) {
 }
 
 void Config::reload() {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	std::pair<ConfigType,ConfigType> type = std::make_pair(cfgType.first,cfgType.second);
 	Config newconfig(type, std::make_pair(fileNameParameter.first,fileNameParameter.second), std::make_pair(true,false));
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Config &oldconfig = configList.find(type.first)->second;
 	CopyAll(&newconfig, &oldconfig);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Config::save(const string &path){

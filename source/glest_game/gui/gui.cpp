@@ -94,7 +94,7 @@ void SelectionQuad::disable(){
 
 //constructor
 Gui::Gui(){
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
     posObjWorld= Vec2i(54, 14);
 	validPosObjWorld= false;
@@ -110,7 +110,7 @@ Gui::Gui(){
 	minQuadSize=20;
 	selectedResourceObject=NULL;
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
 void Gui::init(Game *game){
@@ -172,28 +172,23 @@ void Gui::tick(){
 }
 
 //in display coords
-bool Gui::mouseValid(int x, int y){
+bool Gui::mouseValid(int x, int y) {
 	return computePosDisplay(x, y) != invalidPos;
 }
 
-void Gui::mouseDownLeftDisplay(int x, int y){
-	if(!selectingPos && !selectingMeetingPoint){
+void Gui::mouseDownLeftDisplay(int x, int y) {
+	if(!selectingPos && !selectingMeetingPoint) {
 		int posDisplay= computePosDisplay(x, y);
-		if(posDisplay!= invalidPos){
-			if(selection.isCommandable()){
-				if(selectingBuilding){
-
-				    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingBuilding == true\n",__FILE__,__FUNCTION__);
-
+		if(posDisplay!= invalidPos) {
+			if(selection.isCommandable()) {
+				if(selectingBuilding) {
 					mouseDownDisplayUnitBuild(posDisplay);
 				}
-				else{
-				    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingBuilding == false\n",__FILE__,__FUNCTION__);
-
+				else {
 					mouseDownDisplayUnitSkills(posDisplay);
 				}
 			}
-			else{
+			else {
 				resetState();
 			}
 		}
@@ -201,76 +196,50 @@ void Gui::mouseDownLeftDisplay(int x, int y){
 	}
 }
 
-void Gui::mouseMoveDisplay(int x, int y){
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
-
+void Gui::mouseMoveDisplay(int x, int y) {
 	computeInfoString(computePosDisplay(x, y));
 }
 
-void Gui::mouseDownLeftGraphics(int x, int y, bool prepared){
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
-
-	if(selectingPos){
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingPos == true\n",__FILE__,__FUNCTION__);
-
+void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
+	if(selectingPos) {
 		//give standard orders
 		giveTwoClickOrders(x, y, prepared);
 		resetState();
 	}
 	//set meeting point
-	else if(selectingMeetingPoint){
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectingMeetingPoint == true\n",__FILE__,__FUNCTION__);
-
-		if(selection.isCommandable()){
-
-		    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selection.isComandable() == true\n",__FILE__,__FUNCTION__);
-
+	else if(selectingMeetingPoint) {
+		if(selection.isCommandable()) {
 			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos)){
-
-			    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] computePosition() == true\n",__FILE__,__FUNCTION__);
-
+			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos)) {
 				commander->trySetMeetingPoint(selection.getFrontUnit(), targetPos);
 			}
 		}
 		resetState();
 	}
-	else{
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] selectionQuad()\n",__FILE__,__FUNCTION__);
-
+	else {
 		selectionQuad.setPosDown(Vec2i(x, y));
 		computeSelected(false,false);
 	}
 	computeDisplay();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void Gui::mouseDownRightGraphics(int x, int y , bool prepared){
-
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
-
-	if(selectingPos || selectingMeetingPoint){
+void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
+	if(selectingPos || selectingMeetingPoint) {
 		resetState();
 	}
-	else if(selection.isCommandable()){
-		if(prepared){
+	else if(selection.isCommandable()) {
+		if(prepared) {
 			givePreparedDefaultOrders(x, y);
 		}
-		else{
+		else {
 			giveDefaultOrders(x, y);
 		}
 	}
 	computeDisplay();
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void Gui::mouseUpLeftGraphics(int x, int y){
-    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
-
-	if(!selectingPos && !selectingMeetingPoint){
+void Gui::mouseUpLeftGraphics(int x, int y) {
+	if(!selectingPos && !selectingMeetingPoint) {
 		if(selectionQuad.isEnabled()){
 			selectionQuad.setPosUp(Vec2i(x, y));
 			if(selectionQuad.getPosUp().dist(selectionQuad.getPosDown())>minQuadSize)
@@ -286,12 +255,9 @@ void Gui::mouseUpLeftGraphics(int x, int y){
 			selectionQuad.disable();
 		}
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void Gui::mouseMoveGraphics(int x, int y){
-
+void Gui::mouseMoveGraphics(int x, int y) {
 	//compute selection
 	if(selectionQuad.isEnabled()){
 		selectionQuad.setPosUp(Vec2i(x, y));
@@ -300,8 +266,6 @@ void Gui::mouseMoveGraphics(int x, int y){
 
 	//compute position for building
 	if(isPlacingBuilding()){
-	    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] isPlacingBuilding() == true\n",__FILE__,__FUNCTION__);
-
 		validPosObjWorld= Renderer::getInstance().computePosition(Vec2i(x,y), posObjWorld);
 	}
 
@@ -316,23 +280,21 @@ void Gui::mouseDoubleClickLeftGraphics(int x, int y){
 	}
 }
 
-void Gui::groupKey(int groupIndex){
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
-
+void Gui::groupKey(int groupIndex) {
 	if(isKeyDown(vkControl)){
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
 
 		selection.assignGroup(groupIndex);
 	}
 	else{
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
 
 		selection.recallGroup(groupIndex);
 	}
 }
 
 void Gui::hotKey(char key) {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] key = [%c][%d]\n",__FILE__,__FUNCTION__,key,key);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] key = [%c][%d]\n",__FILE__,__FUNCTION__,key,key);
 
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
@@ -347,7 +309,7 @@ void Gui::hotKey(char key) {
 	}
 	else if(key == configKeys.getCharKey("HotKeyDumpWorldToLog")) {
 		std::string worldLog = world->DumpWorldToLog();
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] worldLog dumped to [%s]\n",__FILE__,__FUNCTION__,__LINE__,worldLog.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] worldLog dumped to [%s]\n",__FILE__,__FUNCTION__,__LINE__,worldLog.c_str());
 	}
 	else if(key == configKeys.getCharKey("HotKeyRotateUnitDuringPlacement")){
 	    // Here the user triggers a unit rotation while placing a unit
@@ -945,19 +907,19 @@ void Gui::computeSelected(bool doubleClick, bool force){
 		bool controlDown= isKeyDown(vkControl);
 
 		if(!shiftDown && !controlDown){
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.clear()\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.clear()\n",__FILE__,__FUNCTION__,__LINE__);
 			selection.clear();
 		}
 
 		if(!controlDown){
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.select(units)\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.select(units)\n",__FILE__,__FUNCTION__,__LINE__);
 			selection.select(units);
 			if(!selection.isEmpty()){
 				selectedResourceObject=NULL;
 			}
 		}
 		else{
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] selection.unSelect(units)\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] selection.unSelect(units)\n",__FILE__,__FUNCTION__,__LINE__);
 			selection.unSelect(units);
 		}
 	}

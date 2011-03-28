@@ -43,7 +43,7 @@ void Lang::loadStrings(const string &language){
 }
 
 void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenarioName){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scenarioDir = [%s] scenarioName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scenarioDir = [%s] scenarioName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());
 
 	string currentPath = scenarioDir;
 	endPathWithSlash(currentPath);
@@ -53,7 +53,7 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 		scenarioFolder = extractDirectoryPathFromFile(scenarioDir);
 		path = scenarioFolder + scenarioName + "_" + language + ".lng";
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 	}
 
 	scenarioStrings.clear();
@@ -63,11 +63,11 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 		scenarioStrings.load(path);
 	}
 	else{
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path not found [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path not found [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
 		//try english otherwise
 		path = scenarioFolder + scenarioName + "_english.lng";
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
 		if(fileExists(path)){
 			scenarioStrings.load(path);

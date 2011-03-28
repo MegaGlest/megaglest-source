@@ -57,12 +57,12 @@ NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
         //peek message type
         int dataSize = socket->getDataToRead();
         if(dataSize >= sizeof(messageType)){
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
             int iPeek = socket->peek(&messageType, sizeof(messageType));
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
         }
 		else {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d, checkHasDataFirst = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize,checkHasDataFirst);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d, checkHasDataFirst = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize,checkHasDataFirst);
 		}
 
         //sanity check new message type
@@ -71,7 +71,7 @@ NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
         		throw runtime_error("Invalid message type: " + intToStr(messageType));
         	}
         	else {
-        		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Invalid message type = %d (no packet handshake yet so ignored)\n",__FILE__,__FUNCTION__,__LINE__,messageType);
+        		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Invalid message type = %d (no packet handshake yet so ignored)\n",__FILE__,__FUNCTION__,__LINE__,messageType);
         	}
         }
     }
@@ -81,7 +81,7 @@ NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
 
 bool NetworkInterface::receiveMessage(NetworkMessage* networkMessage){
 
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",__FILE__,__FUNCTION__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",__FILE__,__FUNCTION__);
 
 	Socket* socket= getSocket();
 
@@ -94,7 +94,7 @@ bool NetworkInterface::isConnected(){
 }
 
 void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
-	SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sErr [%s]\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sErr [%s]\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 
     if(closeSocket == true && getSocket() != NULL)
     {
@@ -110,10 +110,8 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
 }
 
 void NetworkInterface::clearChatInfo() {
-	//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
-
 	if(chatTextList.size() > 0) {
-		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
 		chatTextList.clear();
 	}
 }

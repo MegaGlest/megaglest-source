@@ -77,8 +77,7 @@ void LuaScript::loadCode(const string &code, const string &name){
 		throw runtime_error("Error loading lua code: " + errorToString(errorCode));
 	}
 
-	//SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d,\ncode [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode,code.c_str());
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
 
 	//run code
 	errorCode= lua_pcall(luaState, 0, 0, 0);
@@ -90,8 +89,7 @@ void LuaScript::loadCode(const string &code, const string &name){
 
 	//printf("END of call to Name [%s]\n",name.c_str());
 
-	//SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d,\ncode [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode,code.c_str());
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
 }
 
 void LuaScript::beginCall(const string& functionName) {
@@ -99,8 +97,8 @@ void LuaScript::beginCall(const string& functionName) {
 
 	currentLuaFunction = functionName;
 
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
-	SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
 
 	lua_getglobal(luaState, functionName.c_str());
 	currentLuaFunctionIsValid = lua_isfunction(luaState,lua_gettop(luaState));
@@ -110,7 +108,7 @@ void LuaScript::beginCall(const string& functionName) {
 void LuaScript::endCall() {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] currentLuaFunction [%s], currentLuaFunctionIsValid = %d\n",__FILE__,__FUNCTION__,__LINE__,currentLuaFunction.c_str(),currentLuaFunctionIsValid);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] currentLuaFunction [%s], currentLuaFunctionIsValid = %d\n",__FILE__,__FUNCTION__,__LINE__,currentLuaFunction.c_str(),currentLuaFunctionIsValid);
 
 	if(currentLuaFunctionIsValid == true) {
 		int errorCode= lua_pcall(luaState, argumentCount, 0, 0);
@@ -127,7 +125,7 @@ void LuaScript::endCall() {
 void LuaScript::registerFunction(LuaFunction luaFunction, const string &functionName) {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
-	SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
 
 	lua_pushcfunction(luaState, luaFunction);
 	lua_setglobal(luaState, functionName.c_str());

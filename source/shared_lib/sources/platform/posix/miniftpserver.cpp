@@ -33,7 +33,7 @@ ip_t FindExternalFTPServerIp(ip_t clientIp) {
     ip_t result = clientToFTPServerList[clientIp];
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Server thread clientIp = %u, result = %u\n",clientIp,result);
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server thread clientIp = %u, result = %u\n",clientIp,result);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server thread clientIp = %u, result = %u\n",clientIp,result);
 
     return result;
 }
@@ -77,7 +77,7 @@ FTPServerThread::~FTPServerThread() {
 
 void FTPServerThread::signalQuit() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server: signalQuit\n");
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server: signalQuit\n");
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server: signalQuit\n");
     ftpShutdown();
 
     BaseThread::signalQuit();
@@ -85,7 +85,7 @@ void FTPServerThread::signalQuit() {
 
 bool FTPServerThread::shutdownAndWait() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Server: shutdownAndWait\n");
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server: shutdownAndWait\n");
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server: shutdownAndWait\n");
 
     signalQuit();
     bool ret = BaseThread::shutdownAndWait();
@@ -96,7 +96,7 @@ bool FTPServerThread::shutdownAndWait() {
 void FTPServerThread::addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp) {
      clientToFTPServerList[clientIp] = ServerIp;
      if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Server thread clientIp = %u, ServerIp = %u\n",clientIp,ServerIp);
-     SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server thread clientIp = %u, ServerIp = %u\n",clientIp,ServerIp);
+     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server thread clientIp = %u, ServerIp = %u\n",clientIp,ServerIp);
 }
 
 void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
@@ -108,11 +108,11 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 			// Setup FTP Users and permissions for tilesets
 			if(this->allowInternetTilesetFileTransfers == true) {
 				if(tilesetsPath.first != "") {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.first.c_str());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.first.c_str());
 					ftpCreateAccount("tilesets", "mg_ftp_server", tilesetsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 				}
 				if(tilesetsPath.second != "") {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.second.c_str());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.second.c_str());
 					ftpCreateAccount("tilesets_custom", "mg_ftp_server", tilesetsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 				}
 
@@ -128,11 +128,11 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 			if(this->allowInternetTechtreeFileTransfers == true) {
 				// Setup FTP Users and permissions for tilesets
 				if(techtreesPath.first != "") {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.first.c_str());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.first.c_str());
 					ftpCreateAccount("techtrees", "mg_ftp_server", techtreesPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 				}
 				if(techtreesPath.second != "") {
-					SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.second.c_str());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.second.c_str());
 					ftpCreateAccount("techtrees_custom", "mg_ftp_server", techtreesPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 				}
 
@@ -147,11 +147,11 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 		}
 		else {
 			if(tilesetsPath.first != "") {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.first.c_str());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.first.c_str());
 				ftpCreateAccount("tilesets", "mg_ftp_server", tilesetsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 			}
 			if(tilesetsPath.second != "") {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.second.c_str());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.second.c_str());
 				ftpCreateAccount("tilesets_custom", "mg_ftp_server", tilesetsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 			}
 
@@ -159,11 +159,11 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 
 			// Setup FTP Users and permissions for tilesets
 			if(techtreesPath.first != "") {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.first.c_str());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.first.c_str());
 				ftpCreateAccount("techtrees", "mg_ftp_server", techtreesPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 			}
 			if(techtreesPath.second != "") {
-				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.second.c_str());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.second.c_str());
 				ftpCreateAccount("techtrees_custom", "mg_ftp_server", techtreesPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 			}
 
@@ -175,25 +175,25 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 void FTPServerThread::execute() {
     {
         RunningStatusSafeWrapper runningStatus(this);
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         if(getQuitStatus() == true) {
             return;
         }
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread is running\n");
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FTP Server thread is running\n");
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FTP Server thread is running\n");
 
         try	{
             //ftpCreateAccount("anonymous", "", mapsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 
             // Setup FTP Users and permissions for maps
             if(mapsPath.first != "") {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapsPath.first.c_str());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapsPath.first.c_str());
                 ftpCreateAccount("maps", "mg_ftp_server", mapsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
             }
             if(mapsPath.second != "") {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapsPath.second.c_str());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapsPath.second.c_str());
                 ftpCreateAccount("maps_custom", "mg_ftp_server", mapsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
             }
 
@@ -215,18 +215,18 @@ void FTPServerThread::execute() {
             ftpShutdown();
 
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Server exiting!\n");
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server exiting!\n");
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Server exiting!\n");
         }
         catch(const exception &ex) {
             SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
         }
         catch(...) {
             SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
         }
 
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FTP Server thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FTP Server thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
     }
 }
 

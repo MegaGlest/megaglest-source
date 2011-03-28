@@ -999,7 +999,7 @@ bool ParticleManager::hasActiveParticleSystem(ParticleSystem::ParticleSystemType
 
 void ParticleManager::update(int renderFps){
 	Chrono chrono;
-	chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	size_t particleSystemCount= particleSystems.size();
 	int currentParticleCount= 0;
@@ -1027,7 +1027,7 @@ void ParticleManager::update(int renderFps){
 	//particleSystems.remove(NULL);
 	cleanupParticleSystems(cleanupParticleSystemsList);
 
-	if(chrono.getMillis() > 0)
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0)
 		SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld, particleSystemCount = %d, currentParticleCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),particleSystemCount,currentParticleCount);
 }
 

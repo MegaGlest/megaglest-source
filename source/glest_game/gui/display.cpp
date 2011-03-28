@@ -26,7 +26,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Display::Display(){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	colors[0]= Vec4f(1.f, 1.f, 1.f, 0.0f);
 	colors[1]= Vec4f(1.f, 0.5f, 0.5f, 0.0f);
@@ -41,7 +41,7 @@ Display::Display(){
 	currentColor= 0;
 	clear();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Display::calculateUpDimensions(int index) {
@@ -55,11 +55,9 @@ void Display::calculateUpDimensions(int index) {
 }
 
 Vec4f Display::getColor() const {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currentColor = %d\n",__FILE__,__FUNCTION__,__LINE__,currentColor);
 	if(currentColor < 0 || currentColor >= colorCount) {
 		throw runtime_error("currentColor >= colorCount");
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currentColor = %d\n",__FILE__,__FUNCTION__,__LINE__,currentColor);
 	return colors[currentColor];
 }
 
