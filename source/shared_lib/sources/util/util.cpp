@@ -108,7 +108,7 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 		handle = SystemFlags::curl_handle;
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	curl_easy_setopt(handle, CURLOPT_URL, URL.c_str());
 
@@ -130,13 +130,13 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(handle, CURLOPT_MAXREDIRS, 20);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] handle = %p\n",__FILE__,__FUNCTION__,__LINE__,handle);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] handle = %p\n",__FILE__,__FUNCTION__,__LINE__,handle);
 
 	if(getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 		curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	char errbuf[CURL_ERROR_SIZE]="";
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errbuf);
@@ -149,7 +149,7 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 
 	/* get contents from the URL */
 	CURLcode result = curl_easy_perform(handle);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,errbuf);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,errbuf);
 
 	std::string serverResponse = (chunk.memory != NULL ? chunk.memory : "");
 	if(chunk.memory) {
@@ -164,7 +164,7 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 	}
 
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] serverResponse [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverResponse.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] serverResponse [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverResponse.c_str());
 
 	return serverResponse;
 }
@@ -173,12 +173,12 @@ CURL *SystemFlags::initHTTP() {
 	if(SystemFlags::curl_global_init_called == false) {
 		SystemFlags::curl_global_init_called = true;
 		CURLcode result = curl_global_init(CURL_GLOBAL_ALL);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
 		//printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
 	}
 	CURL *handle = curl_easy_init();
 	if(handle == NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] ERROR handle = NULL\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] ERROR handle = NULL\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
@@ -186,8 +186,6 @@ CURL *SystemFlags::initHTTP() {
 }
 
 void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
-    //printf("SystemFlags::init CALLED, SystemFlags::debugLogFileList.size() = %d\n",SystemFlags::debugLogFileList.size());
-
 	SystemFlags::haveSpecialOutputCommandLineOption = haveSpecialOutputCommandLineOption;
 	//if(SystemFlags::debugLogFileList.size() == 0) {
 	if(SystemFlags::debugLogFileList == NULL) {
@@ -210,15 +208,15 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
         sleep(1);
     }
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(curl_handle == NULL) {
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		curl_handle = SystemFlags::initHTTP();
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_handle = %p\n",__FILE__,__FUNCTION__,__LINE__,curl_handle);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_handle = %p\n",__FILE__,__FUNCTION__,__LINE__,curl_handle);
 	}
 }
 
@@ -658,7 +656,7 @@ bool fileExists(const string &path){
 bool checkVersionComptability(string clientVersionString, string serverVersionString) {
 	bool compatible = (clientVersionString == serverVersionString);
 	if(compatible == false) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s]\n",__FILE__,__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s]\n",__FILE__,__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str());
 
 		vector<string> tokens;
 		vector<string> tokensServer;
@@ -668,13 +666,13 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 		// only check the first 3 sections with . to compare makor versions #'s
 		compatible = (tokens.size() >= 3 && tokensServer.size() >= 3);
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s] compatible [%d]\n",__FILE__,__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str(),compatible);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s] compatible [%d]\n",__FILE__,__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str(),compatible);
 
 		for(int i = 0; compatible == true && i < 3; ++i) {
 			if(tokens[i] != tokensServer[i]) {
 				compatible = false;
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",__FILE__,__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",__FILE__,__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
 			}
 		}
 	}

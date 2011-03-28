@@ -57,14 +57,14 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
             //const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), this->unitTypeId);
             const CommandType *ct   = unit->getType()->findCommandTypeById(this->commandTypeId);
             if(ct != NULL && ct->getClass() == ccBuild) {
-                SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
                 CardinalDir::assertDirValid(facing);
                 assert(targetId == -1);
             }
         }
     }
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Created NetworkCommand as follows:\n%s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Created NetworkCommand as follows:\n%s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
 }
 
 void NetworkCommand::preprocessNetworkCommand(World *world) {
@@ -80,7 +80,7 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
             }
         }
         else {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (unit == NULL) %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] (unit == NULL) %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
         }
     }
 }

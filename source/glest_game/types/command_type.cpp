@@ -45,7 +45,7 @@ CommandClass CommandType::getClass() const{
 void CommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
 		std::map<string,int> &loadedFileList) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->id= id;
 	name= n->getChild("name")->getAttribute("value")->getRestrictedValue();
@@ -75,7 +75,7 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 		upgradeReqs.push_back(ft->getUpgradeType(name));
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // =====================================================
@@ -366,7 +366,6 @@ void BuildCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameInd
 void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
 		std::map<string,int> &loadedFileList) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
@@ -423,7 +422,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 		}
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string BuildCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
@@ -562,7 +561,7 @@ void RepairCommandType::load(int id, const XmlNode *n, const string &dir,
 		repairableUnits.push_back(ft->getUnitType(unitNode->getAttribute("name")->getRestrictedValue()));
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
@@ -592,12 +591,8 @@ string RepairCommandType::toString() const{
 
 //get
 bool RepairCommandType::isRepairableUnitType(const UnitType *unitType) const {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitType [%s] repairableUnits.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,unitType->toString().c_str(),repairableUnits.size());
-
 	for(int i = 0; i < repairableUnits.size(); ++i) {
 		const UnitType *curUnitType = static_cast<const UnitType*>(repairableUnits[i]);
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] curUnitType [%s] i = %d\n",__FILE__,__FUNCTION__,__LINE__,curUnitType->toString().c_str(),i);
-
 		if(curUnitType == unitType) {
             return true;
 		}
@@ -631,7 +626,7 @@ void ProduceCommandType::load(int id, const XmlNode *n, const string &dir,
     string producedUnitName= n->getChild("produced-unit")->getAttribute("name")->getRestrictedValue();
 	producedUnit= ft->getUnitType(producedUnitName);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
@@ -757,7 +752,7 @@ void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
     //discount
 	discount= n->getChild("discount")->getAttribute("value")->getIntValue();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{

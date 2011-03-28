@@ -110,35 +110,12 @@ void AiRuleRepair::execute() {
 	const Unit *damagedUnit= aiInterface->getMyUnit(damagedUnitIndex);
 
 	//find a repairer and issue command
-/*
-	if(damagedUnit != NULL) {
-		static std::vector<SkillClass> skillClassList;
-		if(skillClassList.size() == 0) {
-			skillClassList.push_back(scStop);
-			skillClassList.push_back(scMove);
-		}
-		Faction *faction = aiInterface->getMyFaction();
-		Unit *repairer = faction->findClosestUnitWithSkillClass( damagedUnit->getPos(),
-														ccRepair,
-														skillClassList,
-														damagedUnit->getType());
-		if(repairer != NULL) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			const RepairCommandType *rct= static_cast<const RepairCommandType *>(repairer->getType()->getFirstCtOfClass(ccRepair));
-			aiInterface->giveCommand(repairer, rct, damagedUnit->getPos());
-			aiInterface->printLog(3, "Repairing order issued");
-			return;
-		}
-	}
-*/
-
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 		const Unit *u= aiInterface->getMyUnit(i);
 		const RepairCommandType *rct= static_cast<const RepairCommandType *>(u->getType()->getFirstCtOfClass(ccRepair));
 		if(rct!=NULL && (u->getCurrSkill()->getClass()==scStop || u->getCurrSkill()->getClass()==scMove)){
 			if(rct->isRepairableUnitType(damagedUnit->getType())){
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				aiInterface->giveCommand(i, rct, damagedUnit->getPos());
 				aiInterface->printLog(3, "Repairing order issued");
@@ -677,18 +654,18 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							}
 						}
 						int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, productionCommandIndexes.size()-1)];
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
 					}
 					else
 					{// do it like normal CPU
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						defCt = NULL;
 						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
 							int bestCommandTypeCount = producersDefaultCommandType[bestIndex].size();
 							int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
-							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
 
 							defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 						}
@@ -699,27 +676,27 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				{
 					if(currentCommandCount==0)
 					{
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						defCt = NULL;
 						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
 							//defCt = producersDefaultCommandType[bestIndex];
 							int bestCommandTypeCount = producersDefaultCommandType[bestIndex].size();
 							int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
-							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
 
 							defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 						}
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					defCt = NULL;
 					if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
 						//defCt = producersDefaultCommandType[bestIndex];
 						int bestCommandTypeCount = producersDefaultCommandType[bestIndex].size();
 						int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
 
 						defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 					}
@@ -736,12 +713,12 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					int bestCommandTypeCount = producersDefaultCommandType[producerIndex].size();
 					int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
 
 					defCt = producersDefaultCommandType[producerIndex][bestCommandTypeIndex];
 				}
 
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] producers.size() = %d, producerIndex = %d, pIndex = %d, producersDefaultCommandType.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,producers.size(),producerIndex,pIndex,producersDefaultCommandType.size());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] producers.size() = %d, producerIndex = %d, pIndex = %d, producersDefaultCommandType.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,producers.size(),producerIndex,pIndex,producersDefaultCommandType.size());
 				aiInterface->giveCommand(producerIndex, defCt);
 			}
 		}
@@ -948,11 +925,11 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 					int bestCommandTypeCount = buildersDefaultCommandType[builderIndex].size();
 					int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
 
 					defBct = buildersDefaultCommandType[builderIndex][bestCommandTypeIndex];
 				}
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builderIndex = %d, bIndex = %d, defBct = %p\n",__FILE__,__FUNCTION__,__LINE__,builderIndex,bIndex,defBct);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builderIndex = %d, bIndex = %d, defBct = %p\n",__FILE__,__FUNCTION__,__LINE__,builderIndex,bIndex,defBct);
 
 				aiInterface->giveCommand(builderIndex, defBct, pos, bt->getUnitType());
 			}
@@ -1089,7 +1066,7 @@ void AiRuleUpgrade::upgradeSpecific(const UpgradeTask *upgt){
 					//if upgrades match
 					if(producedUpgrade == upgt->getUpgradeType()){
 						if(aiInterface->reqsOk(uct)){
-							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 							aiInterface->giveCommand(i, uct);
 						}
 					}

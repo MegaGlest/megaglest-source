@@ -32,7 +32,7 @@ using namespace Shared::Graphics;
 namespace Glest{ namespace Game{
 
 AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->world= game.getWorld();
 	this->commander= game.getCommander();
@@ -59,11 +59,11 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 		fprintf(f, "%s", "MegaGlest AI log file\n\n");
 		fclose(f);
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 AiInterface::~AiInterface() {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI factionIndex = %d, teamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,this->factionIndex,this->teamIndex);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI factionIndex = %d, teamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,this->factionIndex,this->teamIndex);
     cacheUnitHarvestResourceLookup.clear();
 }
 // ==================== main ====================
@@ -113,20 +113,16 @@ CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass,
 
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandClass = [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandClass);
-
 		CommandResult result = commander->tryGiveCommand(unit, unit->getType()->getFirstCtOfClass(commandClass), pos, unit->getType(),CardinalDir::NORTH);
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		return result;
 	}
 	else {
 		Command *c= new Command (world->getFaction(factionIndex)->getUnit(unitIndex)->getType()->getFirstCtOfClass(commandClass), pos);
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(c);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		return result;
 	}
@@ -159,7 +155,7 @@ CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *comm
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
             unit->getFaction()->getIndex());
 
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
 	    std::string worldLog = world->DumpWorldToLog();
 	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
@@ -167,21 +163,17 @@ CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *comm
 	}
 
 	if(executeCommandOverNetwork() == true) {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit id = %d\nunit = [%s]\ncommandType = %d - [%s]\nCommand Type List:\n%s\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(),unit->toString().c_str(),commandType->getId(),commandType->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str());
-
 		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
 	}
 	else {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Faction *faction = world->getFaction(unit->getFactionIndex());
 		Unit *unitToCommand = faction->findUnit(unit->getId());
 		CommandResult result = unitToCommand->giveCommand(new Command(commandType, pos));
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
 	}
 }
@@ -209,7 +201,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
             unit->getFaction()->getIndex());
 
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
 	    std::string worldLog = world->DumpWorldToLog();
 	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
@@ -218,19 +210,15 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nCommand Type List:\n%s\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandType->getId(),commandType->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str());
-
 		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
 	}
 	else {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos));
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
 	}
 }
@@ -258,7 +246,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
             unit->getFaction()->getIndex());
 
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
 	    std::string worldLog = world->DumpWorldToLog();
 	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
@@ -267,20 +255,15 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nut = %p\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),commandType->getId(),commandType->toString().c_str(),ut);
-
 		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, ut,CardinalDir::NORTH);
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		return result;
 	}
 	else {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos, ut, CardinalDir::NORTH));
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		return result;
 	}
@@ -310,7 +293,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
             unit->getFaction()->getIndex());
 
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
 	    std::string worldLog = world->DumpWorldToLog();
 	    std::string sError = "worldLog = " + worldLog + " " + string(szBuf);
@@ -320,20 +303,17 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	if(executeCommandOverNetwork() == true) {
 		Unit *targetUnit = u;
 		const Unit *unit = getMyUnit(unitIndex);
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitIndex = %d\nunit = [%s]\ncommandType = %d - [%s]\nTarget Unit Id= %d\nUnit Commands:\n%s\n",__FILE__,__FUNCTION__,__LINE__,unitIndex,unit->toString().c_str(),(commandType != NULL ? commandType->getId() : -1),(commandType != NULL ? commandType->toString().c_str() : "null"),(targetUnit != NULL ? targetUnit->getId() : -1),unit->getType()->getCommandTypeListDesc().c_str());
 
 		CommandResult result = commander->tryGiveCommand(unit, commandType, Vec2i(0), unit->getType(),CardinalDir::NORTH,false,targetUnit);
-
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		return result;
 	}
 	else {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, u));
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		return result;
 	}

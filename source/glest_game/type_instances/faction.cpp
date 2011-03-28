@@ -39,21 +39,17 @@ FactionThread::FactionThread(Faction *faction) : BaseThread() {
 }
 
 void FactionThread::setQuitStatus(bool value) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
 
 	BaseThread::setQuitStatus(value);
 	if(value == true) {
 		signalPathfinder(-1);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void FactionThread::signalPathfinder(int frameIndex) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] event = %p\n",__FILE__,__FUNCTION__,__LINE__,event);
-
-	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p\n",__FILE__,__FUNCTION__,__LINE__,frameIndex, this);
-
 	if(frameIndex >= 0) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
@@ -61,15 +57,10 @@ void FactionThread::signalPathfinder(int frameIndex) {
 		this->frameIndex.second = false;
 		safeMutex.ReleaseLock();
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	semTaskSignalled.signal();
 }
 
 void FactionThread::setTaskCompleted(int frameIndex) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p\n",__FILE__,__FUNCTION__,__LINE__,frameIndex, this);
-
 	if(frameIndex >= 0) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
@@ -78,8 +69,6 @@ void FactionThread::setTaskCompleted(int frameIndex) {
 		}
 		safeMutex.ReleaseLock();
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 bool FactionThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
@@ -93,7 +82,6 @@ bool FactionThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 bool FactionThread::isSignalPathfinderCompleted(int frameIndex) {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] slotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex);
 	if(getRunningStatus() == false) {
 		return true;
 	}
@@ -105,7 +93,6 @@ bool FactionThread::isSignalPathfinderCompleted(int frameIndex) {
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] worker thread this = %p, this->frameIndex.first = %d, this->frameIndex.second = %d\n",__FILE__,__FUNCTION__,__LINE__,this,this->frameIndex.first,this->frameIndex.second);
 
 	safeMutex.ReleaseLock();
-	//if(result == false) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] slotIndex = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,result);
 	return result;
 }
 
@@ -113,26 +100,23 @@ void FactionThread::execute() {
     RunningStatusSafeWrapper runningStatus(this);
 	try {
 		//setRunningStatus(true);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
 		unsigned int idx = 0;
 		for(;this->faction != NULL;) {
 			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			semTaskSignalled.waitTillSignalled();
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
             MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
             bool executeTask = (frameIndex.first >= 0);
@@ -153,6 +137,7 @@ void FactionThread::execute() {
 					}
 
 					bool update = unit->needToUpdate();
+					//update = true;
 					if(update == true) {
 						world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
 					}
@@ -161,28 +146,24 @@ void FactionThread::execute() {
 				setTaskCompleted(frameIndex.first);
             }
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
 			if(getQuitStatus() == true) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** ENDING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 	}
 	catch(const exception &ex) {
 		//setRunningStatus(false);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		throw runtime_error(ex.what());
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	//setRunningStatus(false);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 
@@ -199,15 +180,15 @@ Faction::Faction() {
 }
 
 Faction::~Faction() {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Renderer &renderer= Renderer::getInstance();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//renderer.endTexture(rsGame,texture);
 	//texture->end();
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(workerThread != NULL) {
 		workerThread->signalQuit();
@@ -219,7 +200,7 @@ Faction::~Faction() {
 
 	//delete texture;
 	texture = NULL;
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Faction::signalWorkerThread(int frameIndex) {
@@ -240,7 +221,7 @@ void Faction::init(
 	FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
 	int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources)
 {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->control= control;
 	this->factionType= factionType;
@@ -278,11 +259,11 @@ void Faction::init(
 		this->workerThread->start();
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Faction::end() {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(workerThread != NULL) {
 		workerThread->signalQuit();
@@ -293,7 +274,7 @@ void Faction::end() {
 	}
 
 	deleteValues(units.begin(), units.end());
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ================== get ==================
@@ -376,7 +357,7 @@ bool Faction::reqsOk(const RequirableType *rt) const {
             }
         }
 		if(found == false) {
-			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
             return false;
 		}
     }
@@ -384,7 +365,7 @@ bool Faction::reqsOk(const RequirableType *rt) const {
 	//required upgrades
     for(int i = 0; i < rt->getUpgradeReqCount(); ++i) {
 		if(upgradeManager.isUpgraded(rt->getUpgradeReq(i)) == false) {
-			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 			return false;
 		}
     }
@@ -393,7 +374,7 @@ bool Faction::reqsOk(const RequirableType *rt) const {
     	const UnitType *producedUnitType=(UnitType *) rt;
    		if(producedUnitType != NULL && producedUnitType->getMaxUnitCount() > 0) {
 			if(producedUnitType->getMaxUnitCount() <= getCountForMaxUnitCount(producedUnitType)) {
-				SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		        return false;
 			}
    		}
@@ -425,14 +406,14 @@ bool Faction::reqsOk(const CommandType *ct) const {
 	}
 
 	if(ct->getProduced() != NULL && reqsOk(ct->getProduced()) == false) {
-		SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] reqsOk FAILED\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] reqsOk FAILED\n",__FILE__,__FUNCTION__,__LINE__);
 		return false;
 	}
 
 	if(ct->getClass() == ccUpgrade) {
 		const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
 		if(upgradeManager.isUpgradingOrUpgraded(uct->getProducedUpgrade())) {
-			SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] upgrade check FAILED\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] upgrade check FAILED\n",__FILE__,__FUNCTION__,__LINE__);
 			return false;
 		}
 	}
@@ -593,8 +574,6 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 			for(int k = 0; k < unit->getType()->getCostCount(); ++k) {
 				const Resource *resource = unit->getType()->getCost(k);
 				if(resource->getType() == rtApply && resource->getType()->getClass() == rcConsumable && resource->getAmount() != 0) {
-					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resource->getType() [%s] store = %d, unit cost = %d\n",__FILE__,__FUNCTION__,__LINE__,resource->getType()->getName().c_str(), getResource(resource->getType())->getAmount(),resource->getAmount());
-
 					if(resourceIntervalUsage.find(resource->getType()) == resourceIntervalUsage.end()) {
 						resourceIntervalUsage[resource->getType()] = make_pair<int, std::vector<Unit *> >(0,std::vector<Unit *>());
 					}
@@ -605,8 +584,6 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 					if(resource->getAmount() > 0) {
 						resourceIntervalUsage[resource->getType()].second.push_back(unit);
 					}
-
-					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceIntervalUsage[resource->getType()].first = %d, consumerCount = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceIntervalUsage[resource->getType()].first,resourceIntervalUsage[resource->getType()].second.size());
 				}
 			}
 		}
@@ -614,8 +591,6 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 
 	// Apply consumable resource usage
 	if(resourceIntervalUsage.size() > 0) {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceIntervalUsage.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceIntervalUsage.size());
-
 		for(std::map<const ResourceType *, std::pair<int, std::vector<Unit *> > >::iterator iter = resourceIntervalUsage.begin();
 																							iter != resourceIntervalUsage.end();
 																							++iter) {
@@ -624,8 +599,6 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 			int resourceTypeUsage = iter->second.first;
 			incResourceAmount(rt, resourceTypeUsage);
 
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] rt [%s] resourceTypeUsage = %d store = %d\n",__FILE__,__FUNCTION__,__LINE__,rt->getName().c_str(), resourceTypeUsage,getResource(rt)->getAmount());
-
 			// Check if we have any unit consumers
 			if(getResource(rt)->getAmount() < 0) {
 				resetResourceAmount(rt);
@@ -633,25 +606,13 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 				// Apply consequences to consumer units of this resource type
 				std::vector<Unit *> &resourceConsumers = iter->second.second;
 
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] resourceConsumers.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,resourceConsumers.size());
-
 				for(int i = 0; i < resourceConsumers.size(); ++i) {
 					Unit *unit = resourceConsumers[i];
 
-					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getResource(resource->getType())->getAmount() = %d\n",__FILE__,__FUNCTION__,__LINE__,getResource(rt)->getAmount());
-					//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consume setting for faction index = %d, consume = %d, getResource(resource->getType())->getAmount() = %d, Unit = [%s] - [%d]\n",__FILE__,__FUNCTION__,__LINE__,this->index,scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled(),getResource(rt)->getAmount(),unit->getFullName().c_str(),unit->getId());
-
 					//decrease unit hp
 					if(scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled() == true) {
-						//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 						bool decHpResult = unit->decHp(unit->getType()->getMaxHp() / 3);
-
-						//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] decHpResult = %d, unit->getType()->getMaxHp() = %d, hp = %d\n",__FILE__,__FUNCTION__,__LINE__,decHpResult,unit->getType()->getMaxHp(),unit->getHp());
-
 						if(decHpResult) {
-							//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 							world->getStats()->die(unit->getFactionIndex());
 							scriptManager->onUnitDied(unit);
 						}
@@ -719,39 +680,19 @@ void Faction::setResourceBalance(const ResourceType *rt, int balance){
 }
 
 Unit *Faction::findUnit(int id) const {
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,id);
-
 	UnitMap::const_iterator itFound = unitMap.find(id);
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
-
 	if(itFound == unitMap.end()) {
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		return NULL;
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second = %p\n",__FILE__,__FUNCTION__, __LINE__,it->second);
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second->id = %d\n",__FILE__,__FUNCTION__, __LINE__,it->second->getId());
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second = %s\n",__FILE__,__FUNCTION__, __LINE__,it->second->toString().c_str());
 	return itFound->second;
 }
 
 void Faction::addUnit(Unit *unit){
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unit->getId());
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second = %p\n",__FILE__,__FUNCTION__, __LINE__,unit);
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second->id = %d\n",__FILE__,__FUNCTION__, __LINE__,unit->getId());
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] it->second->str = %s\n",__FILE__,__FUNCTION__, __LINE__,unit->toString().c_str());
-
 	units.push_back(unit);
-	//unitMap.insert(make_pair(unit->getId(), unit));
 	unitMap[unit->getId()] = unit;
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unit->getId());
 }
 
 void Faction::removeUnit(Unit *unit){
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unit->getId());
-
 	assert(units.size()==unitMap.size());
 
 	int unitId = unit->getId();
@@ -760,13 +701,9 @@ void Faction::removeUnit(Unit *unit){
 			units.erase(units.begin()+i);
 			unitMap.erase(unitId);
 			assert(units.size() == unitMap.size());
-
-			//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unitId);
-
 			return;
 		}
 	}
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] id = %d\n",__FILE__,__FUNCTION__, __LINE__,unitId);
 
 	throw runtime_error("Could not remove unit from faction!");
 	assert(false);

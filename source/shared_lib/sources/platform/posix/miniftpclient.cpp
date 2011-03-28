@@ -72,7 +72,7 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
         }
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread CANCELLED, deleting file for writing [%s]\n",fullFilePath.c_str());
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread CANCELLED, deleting file for writing [%s]\n",fullFilePath.c_str());
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread CANCELLED, deleting file for writing [%s]\n",fullFilePath.c_str());
 
 
         removeFile(fullFilePath);
@@ -81,13 +81,13 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
 
     if(out && out->stream == NULL) {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread opening file for writing [%s]\n",fullFilePath.c_str());
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread opening file for writing [%s]\n",fullFilePath.c_str());
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread opening file for writing [%s]\n",fullFilePath.c_str());
 
         /* open file for writing */
         out->stream = fopen(fullFilePath.c_str(), "wb");
         if(out->stream == NULL) {
           if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
-          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
+          if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
           return -1; /* failure, can't open file to write */
         }
 
@@ -176,14 +176,14 @@ static long file_is_downloaded(void *data) {
 
 int file_progress(struct FtpFile *out,double download_total, double download_now, double upload_total,double upload_now) {
   //if(SystemFlags::VERBOSE_MODE_ENABLED) printf(" download progress [%f][%f][%f][%f] ",download_total,download_now,upload_total,upload_now);
-  SystemFlags::OutputDebug(SystemFlags::debugNetwork," download progress [%f][%f][%f][%f] ",download_total,download_now,upload_total,upload_now);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork," download progress [%f][%f][%f][%f] ",download_total,download_now,upload_total,upload_now);
 
   if(out != NULL &&
      out->ftpServer != NULL &&
      out->ftpServer->getCallBackObject() != NULL) {
          if(out->ftpServer->getQuitStatus() == true) {
              if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread CANCELLED\n");
-             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread CANCELLED\n");
+             if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread CANCELLED\n");
 
              return -1;
          }
@@ -222,18 +222,18 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
     this->fileArchiveExtractCommand = fileArchiveExtractCommand;
     this->fileArchiveExtractCommandParameters = fileArchiveExtractCommandParameters;
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Using FTP port #: %d, serverUrl [%s]\n",__FILE__,__FUNCTION__,__LINE__,portNumber,serverUrl.c_str());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] Using FTP port #: %d, serverUrl [%s]\n",__FILE__,__FUNCTION__,__LINE__,portNumber,serverUrl.c_str());
 }
 
 void FTPClientThread::signalQuit() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Client: signalQuit\n");
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client: signalQuit\n");
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client: signalQuit\n");
     BaseThread::signalQuit();
 }
 
 bool FTPClientThread::shutdownAndWait() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Client: shutdownAndWait\n");
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client: shutdownAndWait\n");
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client: shutdownAndWait\n");
 
     signalQuit();
     return BaseThread::shutdownAndWait();
@@ -257,7 +257,7 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getMapFromServer(pair<string
     }
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s]\n",destFile.c_str());
 
     struct FtpFile ftpfile = {
         NULL,
@@ -304,7 +304,7 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getMapFromServer(pair<string
           result.second = curl_easy_strerror(res);
           // we failed
           printf("curl FAILED with: %d [%s] szBuf [%s]\n", res,curl_easy_strerror(res),szBuf);
-          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] szBuf [%s]\n", res,curl_easy_strerror(res),szBuf);
+          if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] szBuf [%s]\n", res,curl_easy_strerror(res),szBuf);
 
           if(res == CURLE_PARTIAL_FILE) {
         	  result.first = ftp_crt_PARTIALFAIL;
@@ -963,7 +963,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(pair<stri
     bool wantDirList = (wantDirListOnly != NULL);
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s] wantDirList = %d\n",destFileSaveAs.c_str(),wantDirList);
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s] wantDirList = %d\n",destFileSaveAs.c_str(),wantDirList);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s] wantDirList = %d\n",destFileSaveAs.c_str(),wantDirList);
 
     struct FtpFile ftpfile = {
     	fileNameTitle.first.c_str(),
@@ -1026,7 +1026,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(pair<stri
         	result.second = curl_easy_strerror(res);
             // we failed
             printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d, pathCreated = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer,pathCreated);
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d, pathCreated = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer,pathCreated);
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d, pathCreated = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer,pathCreated);
 
             if(res == CURLE_PARTIAL_FILE || ftpfile.isValidXfer == true) {
         	    result.first = ftp_crt_PARTIALFAIL;
@@ -1093,14 +1093,14 @@ void FTPClientThread::setCallBackObject(FTPClientCallbackInterface *value) {
 void FTPClientThread::execute() {
     {
         RunningStatusSafeWrapper runningStatus(this);
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         if(getQuitStatus() == true) {
             return;
         }
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread is running\n");
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FTP Client thread is running\n");
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"FTP Client thread is running\n");
 
         try	{
             while(this->getQuitStatus() == false) {
@@ -1162,18 +1162,18 @@ void FTPClientThread::execute() {
             }
 
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Client exiting!\n");
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client exiting!\n");
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client exiting!\n");
         }
         catch(const exception &ex) {
             SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
         }
         catch(...) {
             SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
         }
 
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FTP Client thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FTP Client thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
     }
 
     // Delete ourself when the thread is done (no other actions can happen after this

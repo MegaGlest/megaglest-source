@@ -39,25 +39,25 @@ Minimap::Minimap() {
 }
 
 void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	int scaledW= w/Map::cellScale;
 	int scaledH= h/Map::cellScale;
 	int potW = next2Power(scaledW);
 	int potH = next2Power(scaledH);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scaledW = %d, scaledH = %d, potW = %d, potH = %d\n",__FILE__,__FUNCTION__,__LINE__,scaledW,scaledH,potW,potH);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scaledW = %d, scaledH = %d, potW = %d, potH = %d\n",__FILE__,__FUNCTION__,__LINE__,scaledW,scaledH,potW,potH);
 
 	this->fogOfWar = fogOfWar;
 	this->gameSettings = world->getGameSettings();
 	Renderer &renderer= Renderer::getInstance();
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//fow pixmaps
 	float f= 0.f;
 	fowPixmap0= new Pixmap2D(potW, potH, 1);
 	fowPixmap1= new Pixmap2D(potW, potH, 1);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	fowPixmap0->setPixels(&f);
 	if((this->gameSettings->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources) {
@@ -74,7 +74,7 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
         fowPixmap1->setPixels(&f);
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//fow tex
 	fowTex= renderer.newTexture2D(rsGame);
@@ -82,19 +82,19 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
 	fowTex->setPixmapInit(false);
 	fowTex->setFormat(Texture::fAlpha);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scaledW = %d, scaledH = %d, potW = %d, potH = %d\n",__FILE__,__FUNCTION__,__LINE__,scaledW,scaledH,potW,potH);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scaledW = %d, scaledH = %d, potW = %d, potH = %d\n",__FILE__,__FUNCTION__,__LINE__,scaledW,scaledH,potW,potH);
 
 	fowTex->getPixmap()->init(potW, potH, 1);
 	fowTex->getPixmap()->setPixels(&f);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//tex
 	tex= renderer.newTexture2D(rsGame);
 	tex->getPixmap()->init(scaledW, scaledH, 3);
 	tex->setMipmap(false);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	computeTexture(world);
 }
