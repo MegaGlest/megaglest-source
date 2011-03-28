@@ -55,9 +55,14 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyButtonsHeight		= 20;
 	keyButtonsWidth			= 200;
 	scrollListsYPos 		= 700;
+	listBoxLength 			= 200;
 	keyButtonsYBase			= scrollListsYPos;
-	keyButtonsToRender		= 400 / keyButtonsLineHeight;
+	keyButtonsToRender		= listBoxLength / keyButtonsLineHeight;
 	labelWidth				= 5;
+
+	int installButtonYPos = scrollListsYPos-listBoxLength-20;
+
+	int returnLineY = 80;
 
 	//create
 	techInfoXPos = 10;
@@ -97,14 +102,17 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	mainMessageBox.init(lang.get("Yes"),lang.get("No"));
 	mainMessageBox.setEnabled(false);
 
-	int returnLineY = 240;
+
+	lineHorizontal.init(0,installButtonYPos-60);
+	lineVertical.init(500,returnLineY, 5,  installButtonYPos-60-returnLineY);
+	lineVertical.setHorizontal(false);
 	lineReturn.init(0, returnLineY);
+
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(450, returnLineY - 40, 125);
 	buttonReturn.setText(lang.get("Return"));
 
-	int installButtonYPos = 280;
 	buttonInstallTech.registerGraphicComponent(containerName,"buttonInstallTech");
 	buttonInstallTech.init(techInfoXPos + 40, installButtonYPos, 125);
 	buttonInstallTech.setText(lang.get("Install"));
@@ -135,7 +143,6 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	int listBoxLength = 400;
 	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTilesetScrollBar.setLength(listBoxLength);
 	keyTilesetScrollBar.setElementCount(0);
@@ -543,8 +550,6 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-
-	int listBoxLength = 400;
 	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTilesetScrollBar.setLength(listBoxLength);
 	keyTilesetScrollBar.setElementCount(keyTilesetButtons.size());
@@ -1265,6 +1270,10 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					i <= keyMapScrollBar.getVisibleEnd(); ++i) {
 				if(keyMapButtons[i]->mouseClick(x, y) && keyMapButtons[i]->getEnabled()) {
 					string mapName = keyMapButtons[i]->getText();
+					selectedTechName		= "";
+					selectedTilesetName		= "";
+					selectedMapName 		= "";
+					selectedScenarioName	= "";
 					if(mapName != "") {
 						selectedMapName = mapName;
 					}
@@ -1277,6 +1286,10 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					i <= keyTechScrollBar.getVisibleEnd(); ++i) {
 				if(keyTechButtons[i]->mouseClick(x, y) && keyTechButtons[i]->getEnabled()) {
 					string techName = keyTechButtons[i]->getText();
+					selectedTechName		= "";
+					selectedTilesetName		= "";
+					selectedMapName 		= "";
+					selectedScenarioName	= "";
 					if(techName != "") {
 						selectedTechName = techName;
 					}
@@ -1289,6 +1302,10 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					i <= keyTilesetScrollBar.getVisibleEnd(); ++i) {
 				if(keyTilesetButtons[i]->mouseClick(x, y) && keyTilesetButtons[i]->getEnabled()) {
 					string tilesetName = keyTilesetButtons[i]->getText();
+					selectedTechName		= "";
+					selectedTilesetName		= "";
+					selectedMapName 		= "";
+					selectedScenarioName	= "";
 					if(tilesetName != "") {
 						selectedTilesetName = tilesetName;
 					}
@@ -1301,6 +1318,10 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					i <= keyScenarioScrollBar.getVisibleEnd(); ++i) {
 				if(keyScenarioButtons[i]->mouseClick(x, y) && keyScenarioButtons[i]->getEnabled()) {
 					string scenarioName = keyScenarioButtons[i]->getText();
+					selectedTechName		= "";
+					selectedTilesetName		= "";
+					selectedMapName 		= "";
+					selectedScenarioName	= "";
 					if(scenarioName != "") {
 						selectedScenarioName = scenarioName;
 					}
@@ -1370,6 +1391,8 @@ void MenuStateMods::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
 
+		renderer.renderLine(&lineHorizontal);
+		renderer.renderLine(&lineVertical);
 		renderer.renderLine(&lineReturn);
 		renderer.renderButton(&buttonReturn);
 
@@ -1400,6 +1423,7 @@ void MenuStateMods::render() {
 				}
 				else {
 					Vec4f fontColor=Vec4f(200.0f/255.0f, 187.0f/255.0f, 190.0f/255.0f, 0.75f);
+					//Vec4f fontColor=Vec4f(1.0f, 0.0f, 0.0f, 0.75f);
 					renderer.renderButton(keyTechButtons[i],&fontColor);
 				}
 				renderer.renderLabel(labelsTech[i]);

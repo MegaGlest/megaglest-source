@@ -42,6 +42,8 @@ class MenuStateMods: public MenuState, public FTPClientCallbackInterface, public
 private:
 
 	GraphicButton buttonReturn;
+	GraphicLine lineHorizontal;
+	GraphicLine lineVertical;
 	GraphicLine lineReturn;
 
 	GraphicMessageBox mainMessageBox;
@@ -53,6 +55,7 @@ private:
 	int scenarioInfoXPos;
 	int labelWidth;
 	int scrollListsYPos;
+	int listBoxLength;
 
 	GraphicButton buttonInstallTech;
 	GraphicButton buttonRemoveTech;
