@@ -278,13 +278,14 @@ private:
 	VisibleQuadContainerVBOCache * GetSurfaceVBOs(SurfaceData *cellData);
 	void ReleaseSurfaceVBOs();
 	std::map<string,std::pair<Chrono, std::vector<SurfaceData> > > mapSurfaceData;
-
+	static bool rendererEnded;
 private:
 	Renderer();
 	~Renderer();
 
 public:
 	static Renderer &getInstance();
+	static bool isEnded();
 
 	void reinitAll();
 

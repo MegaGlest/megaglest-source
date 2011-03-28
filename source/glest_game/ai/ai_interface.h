@@ -95,6 +95,7 @@ public:
 	bool isFreeCells(const Vec2i &pos, int size, Field field);
 	const Unit *getFirstOnSightEnemyUnit(Vec2i &pos, Field &field, int radius);
 	Map * getMap();
+	World * getWorld() { return world; }
 
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}

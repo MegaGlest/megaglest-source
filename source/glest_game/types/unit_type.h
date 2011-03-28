@@ -180,6 +180,7 @@ public:
     const CommandType *getFirstCtOfClass(CommandClass commandClass) const;
     const HarvestCommandType *getFirstHarvestCommand(const ResourceType *resourceType,const Faction *faction) const;
 	const AttackCommandType *getFirstAttackCommand(Field field) const;
+	const AttackStoppedCommandType *getFirstAttackStoppedCommand(Field field) const;
 	const RepairCommandType *getFirstRepairCommand(const UnitType *repaired) const;
 
 	//get totals

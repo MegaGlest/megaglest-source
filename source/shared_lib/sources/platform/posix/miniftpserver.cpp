@@ -67,12 +67,16 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
 }
 
 FTPServerThread::~FTPServerThread() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ftpShutdown();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	// Remove any UPNP port forwarded ports
     UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort());
     for(int clientIndex = 1; clientIndex <= maxPlayers; ++clientIndex) {
         UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort() + clientIndex);
     }
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void FTPServerThread::signalQuit() {
@@ -227,6 +231,7 @@ void FTPServerThread::execute() {
         }
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] FTP Server thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] FTP Server thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
     }
 }
 

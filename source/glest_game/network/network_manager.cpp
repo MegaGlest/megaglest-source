@@ -27,6 +27,7 @@ NetworkManager &NetworkManager::getInstance(){
 }
 
 NetworkManager::NetworkManager() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 
 	gameNetworkInterface= NULL;
@@ -36,6 +37,7 @@ NetworkManager::NetworkManager() {
 }
 
 void NetworkManager::init(NetworkRole networkRole, bool publishEnabled) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
 
 	assert(gameNetworkInterface==NULL);
@@ -57,6 +59,7 @@ void NetworkManager::init(NetworkRole networkRole, bool publishEnabled) {
 }
 
 void NetworkManager::end() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 
     //printf("==========] DELETING gameNetworkInterface [%p]\n",gameNetworkInterface);
@@ -65,6 +68,7 @@ void NetworkManager::end() {
 	gameNetworkInterface= NULL;
 	networkRole= nrIdle;
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 }
 
@@ -75,7 +79,7 @@ void NetworkManager::update() {
 }
 
 bool NetworkManager::isNetworkGame() {
-	return networkRole==nrClient || getServerInterface()->getConnectedSlotCount()>0;
+	return networkRole==nrClient || (networkRole==nrServer && getServerInterface()->getConnectedSlotCount()>0);
 }
 
 GameNetworkInterface* NetworkManager::getGameNetworkInterface(bool throwErrorOnNull) {

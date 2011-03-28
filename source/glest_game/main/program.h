@@ -86,6 +86,7 @@ public:
 	virtual Stats quitAndToggleState() { return Stats(); };
 	virtual Program * getProgram() { return program; }
 	virtual void setForceMouseRender(bool value) { forceMouseRender=value;}
+	virtual void consoleAddLine(string line) { };
 };
 
 // ===============================
@@ -171,6 +172,8 @@ public:
 	void resetSoundSystem();
 	void stopSoundSystem();
 	void startSoundSystem();
+
+	virtual void consoleAddLine(string line);
 
 private:
 

@@ -119,12 +119,16 @@ void FileCRCPreCacheThread::execute() {
 						workerThread->start();
 
 						consumedWorkers += currentWorkerMax;
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Spawning CRC thread, preCacheWorkerThreadList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)preCacheWorkerThreadList.size());
+
 						if(consumedWorkers >= techPaths.size()) {
 							break;
 						}
 					}
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Waiting for Spawned CRC threads to complete = preCacheWorkerThreadList.size()\n",__FILE__,__FUNCTION__,__LINE__,(int)preCacheWorkerThreadList.size());
+					sleep(0);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Waiting for Spawned CRC threads to complete, preCacheWorkerThreadList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)preCacheWorkerThreadList.size());
 					bool hasRunningWorkerThread = true;
 					for(;hasRunningWorkerThread == true;) {
 						hasRunningWorkerThread = false;
@@ -137,11 +141,13 @@ void FileCRCPreCacheThread::execute() {
 
 								if(workerThread->getRunningStatus() == true) {
 									hasRunningWorkerThread = true;
-									if(getQuitStatus() == true) {
+									if(getQuitStatus() == true &&
+										workerThread->getQuitStatus() == false) {
 										workerThread->signalQuit();
 									}
 								}
 								else if(workerThread->getRunningStatus() == false) {
+									sleep(10);
 									delete workerThread;
 									preCacheWorkerThreadList[idx] = NULL;
 								}
@@ -211,7 +217,8 @@ void FileCRCPreCacheThread::execute() {
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
         }
 
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting, getDeleteSelfOnExecutionDone() = %d\n",__FILE__,__FUNCTION__,__LINE__,getDeleteSelfOnExecutionDone());
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] FILE CRC PreCache thread is exiting, getDeleteSelfOnExecutionDone() = %d\n",__FILE__,__FUNCTION__,__LINE__,getDeleteSelfOnExecutionDone());
     }
 	deleteSelfIfRequired();
 }
@@ -378,11 +385,18 @@ bool SimpleTaskThread::getTaskSignalled() {
 LogFileThread::LogFileThread() : BaseThread() {
     logList.clear();
     lastSaveToDisk = time(NULL);
+    static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    mutexLogList.setOwnerId(mutexOwnerId);
+}
+
+LogFileThread::~LogFileThread() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 In [%s::%s Line: %d] LogFile thread is deleting\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
     MutexSafeWrapper safeMutex(&mutexLogList,mutexOwnerId);
+    mutexLogList.setOwnerId(mutexOwnerId);
 	LogFileEntry entry;
 	entry.type = type;
 	entry.entry = logEntry;
@@ -398,7 +412,6 @@ bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
     bool ret = false;
     if(difftime(time(NULL),lastSaveToDisk) >= 5 ||
        LogFileThread::getLogEntryBufferCount() >= 1000000) {
-    	//LogFileThread::getLogEntryBufferCount() >= 10000) {
         lastSaveToDisk = time(NULL);
         ret = true;
     }
@@ -409,6 +422,7 @@ void LogFileThread::execute() {
     bool mustDeleteSelf = false;
     {
         RunningStatusSafeWrapper runningStatus(this);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         if(getQuitStatus() == true) {
@@ -416,9 +430,11 @@ void LogFileThread::execute() {
             return;
         }
 
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"LogFile thread is running\n");
 
         try	{
+        	ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
             for(;this->getQuitStatus() == false;) {
                 while(this->getQuitStatus() == false &&
                 	  checkSaveCurrentLogBufferToDisk() == true) {
@@ -430,7 +446,9 @@ void LogFileThread::execute() {
             }
 
             // Ensure remaining entryies are logged to disk on shutdown
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
             saveToDisk(true,false);
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         }
         catch(const exception &ex) {
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -439,21 +457,35 @@ void LogFileThread::execute() {
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
         }
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is starting to exit\n",__FILE__,__FUNCTION__,__LINE__);
 
         mustDeleteSelf = getDeleteSelfOnExecutionDone();
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is exiting, mustDeleteSelf = %d\n",__FILE__,__FUNCTION__,__LINE__,mustDeleteSelf);
     }
     if(mustDeleteSelf == true) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is deleting self\n",__FILE__,__FUNCTION__,__LINE__);
         delete this;
+        return;
     }
 }
 
 std::size_t LogFileThread::getLogEntryBufferCount() {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
     MutexSafeWrapper safeMutex(&mutexLogList,mutexOwnerId);
+    mutexLogList.setOwnerId(mutexOwnerId);
     std::size_t logCount = logList.size();
     safeMutex.ReleaseLock();
     return logCount;
+}
+
+bool LogFileThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+	bool ret = (getExecutingTask() == false);
+	if(ret == false && deleteSelfIfShutdownDelayed == true) {
+	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    signalQuit();
+	}
+
+	return ret;
 }
 
 void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
@@ -461,6 +493,7 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
     MutexSafeWrapper safeMutex(NULL,mutexOwnerId);
     if(logListAlreadyLocked == false) {
         safeMutex.setMutex(&mutexLogList);
+        mutexLogList.setOwnerId(mutexOwnerId);
     }
 
     std::size_t logCount = logList.size();
@@ -480,7 +513,14 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
             }
 
             safeMutex.Lock();
-            logList.erase(logList.begin(),logList.begin() + logCount);
+            if(logList.size() > 0) {
+				if(logList.size() <= logCount) {
+					char szBuf[1024]="";
+					sprintf(szBuf,"logList.size() <= logCount [%lld][%lld]",(long long int)logList.size(),(long long int)logCount);
+					throw runtime_error(szBuf);
+				}
+				logList.erase(logList.begin(),logList.begin() + logCount);
+            }
             safeMutex.ReleaseLock();
         }
     }

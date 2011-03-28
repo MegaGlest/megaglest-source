@@ -472,7 +472,40 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 		}
 
 		bool alreadyAttacking= (unit->getCurrSkill()->getClass() == scAttack);
-		if(!alreadyAttacking && act!=NULL && (ultraAttack || isWarrior)) {
+
+		bool unitSignalledToAttack = false;
+		if( alreadyAttacking == false &&
+			unit->getType()->hasSkillClass(scAttack) &&
+			(aiInterface->getControlType() == ctCpuUltra ||
+			aiInterface->getControlType() == ctCpuMega ||
+			aiInterface->getControlType() == ctNetworkCpuUltra ||
+			aiInterface->getControlType() == ctNetworkCpuMega)) {
+			//printf("~~~~~~~~ Unit [%s - %d] checking if unit is being attacked\n",unit->getFullName().c_str(),unit->getId());
+
+			std::pair<bool,Unit *> beingAttacked = aiInterface->getWorld()->getUnitUpdater()->unitBeingAttacked(unit);
+			if(beingAttacked.first == true) {
+				Unit *enemy = beingAttacked.second;
+				const AttackCommandType *act_forenemy = unit->getType()->getFirstAttackCommand(enemy->getCurrField());
+				//printf("~~~~~~~~ Unit [%s - %d] found enemy [%s - %d] act_forenemy [%p] enemy->getCurrField() = %d\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId(),act_forenemy,enemy->getCurrField());
+
+				if(act_forenemy != NULL) {
+					//printf("~~~~~~~~ Unit [%s - %d] WILL ATTACK [%s - %d]\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId());
+					aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
+					unitSignalledToAttack = true;
+				}
+				else {
+					const AttackStoppedCommandType *asct_forenemy = unit->getType()->getFirstAttackStoppedCommand(enemy->getCurrField());
+					//printf("~~~~~~~~ Unit [%s - %d] found enemy [%s - %d] asct_forenemy [%p] enemy->getCurrField() = %d\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId(),asct_forenemy,enemy->getCurrField());
+					if(asct_forenemy != NULL) {
+						//printf("~~~~~~~~ Unit [%s - %d] WILL ATTACK [%s - %d]\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId());
+						aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
+						unitSignalledToAttack = true;
+					}
+				}
+			}
+		}
+		if(alreadyAttacking == false && act!=NULL && (ultraAttack || isWarrior) &&
+			unitSignalledToAttack == false) {
 			aiInterface->giveCommand(i, act, pos);
 		}
     }

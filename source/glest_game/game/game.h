@@ -180,6 +180,7 @@ public:
 	bool getGameOver() { return gameOver; }
 	bool hasGameStarted() { return gameStarted;}
 	virtual vector<Texture2D *> processTech(string techName);
+	virtual void consoleAddLine(string line);
 
 private:
 	//render

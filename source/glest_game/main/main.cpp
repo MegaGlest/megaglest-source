@@ -82,6 +82,9 @@ namespace Glest{ namespace Game{
 bool disableBacktrace = false;
 bool gameInitialized = false;
 static char *application_binary=NULL;
+static string mg_app_name = "";
+static string mailStringSupport = "";
+static bool sdl_quitCalled = false;
 
 FileCRCPreCacheThread *preCacheThread=NULL;
 
@@ -136,27 +139,45 @@ enum GAME_ARG_TYPE {
 
 string runtimeErrorMsg = "";
 
-static void cleanupProcessObjects() {
-    showCursor(true);
-    restoreVideoMode(true);
-
+void cleanupCRCThread() {
 	if(preCacheThread != NULL) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		time_t elapsed = time(NULL);
 		preCacheThread->signalQuit();
 		for(;preCacheThread->canShutdown(false) == false &&
-			difftime(time(NULL),elapsed) <= 15;) {
+			difftime(time(NULL),elapsed) <= 45;) {
 			//sleep(150);
 		}
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		sleep(25);
+		if(preCacheThread->canShutdown(true)) {
+			delete preCacheThread;
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		preCacheThread = NULL;
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//sleep(25);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
 
-    Renderer::getInstance().end();
+static void cleanupProcessObjects() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    showCursor(true);
+    restoreVideoMode(true);
+
+    cleanupCRCThread();
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(Renderer::isEnded() == false) Renderer::getInstance().end();
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	SystemFlags::Close();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
 }
 
@@ -170,7 +191,7 @@ void fatal(const char *s, ...)    // failure exit
         defvformatstring(msg,s,s);
 		string errText = string(msg) + " [" + runtimeErrorMsg + "]";
         //puts(msg);
-	    string sErr = string(GameConstants::application_name) + " fatal error";
+	    string sErr = string(mg_app_name) + " fatal error";
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",errText.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",errText.c_str());
 
@@ -193,7 +214,10 @@ void fatal(const char *s, ...)    // failure exit
     program = NULL;
     // END
 
-    SDL_Quit();
+    if(sdl_quitCalled == false) {
+    	sdl_quitCalled = true;
+    	SDL_Quit();
+    }
     exit(EXIT_FAILURE);
 }
 
@@ -202,7 +226,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
     EXCEPTION_RECORD *er = ep->ExceptionRecord;
     CONTEXT *context = ep->ContextRecord;
     stringType out, t;
-    formatstring(out)("%s Exception: 0x%x [0x%x]\n\n", GameConstants::application_name, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
+    formatstring(out)("%s Exception: 0x%x [0x%x]\n\n", mg_app_name, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
     STACKFRAME sf = {{context->Eip, 0, AddrModeFlat}, {}, {context->Ebp, 0, AddrModeFlat}, {context->Esp, 0, AddrModeFlat}, 0};
     SymInitialize(GetCurrentProcess(), NULL, TRUE);
 
@@ -230,7 +254,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
 class ExceptionHandler: public PlatformExceptionHandler{
 public:
 	virtual void handle() {
-		string msg = "#1 An error occurred and " + string(GameConstants::application_name) + " will close.\nPlease report this bug to "+mailString;
+		string msg = "#1 An error occurred and " + string(mg_app_name) + " will close.\nPlease report this bug to "+mailString;
 #ifdef WIN32
 		msg += ", attaching the generated " + getCrashDumpFileName()+ " file.";
 #endif
@@ -294,19 +318,19 @@ public:
 #endif
 
 	static void handleRuntimeError(const char *msg) {
-	    //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
-
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		Program *program = Program::getInstance();
 
-        //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
-
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] program = %p gameInitialized = %d msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,program,gameInitialized,msg);
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
 
         string errMsg = (msg != NULL ? msg : "null");
 
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
         #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
-        if(disableBacktrace == false) {
+        if(disableBacktrace == false && sdl_quitCalled == false) {
         errMsg += "\nStack Trace:\n";
         //errMsg += "To find line #'s use:\n";
         //errMsg += "readelf --debug-dump=decodedline %s | egrep 0xaddress-of-stack\n";
@@ -319,7 +343,7 @@ public:
         //    errMsg += string(stack_strings[i]) + "\n";
         //}
 
-        //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         char szBuf[4096]="";
         for(size_t i = 1; i < stack_depth; i++) {
@@ -387,10 +411,12 @@ public:
         }
         #endif
 
-        //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         if(program && gameInitialized == true) {
 			//printf("\nprogram->getState() [%p]\n",program->getState());
@@ -412,21 +438,32 @@ public:
 			}
         }
         else {
-            string err = "#2 An error occurred and " +
-                        string(GameConstants::application_name) +
-                        " will close.\nError msg = [" +
-                        errMsg +
-                        "]\n\nPlease report this bug to "+mailString;
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+            string err = "#2 An error occurred and ";
+            if(sdl_quitCalled == false) {
+            	err += mg_app_name;
+            }
+            err += " will close.\nError msg = [" + errMsg + "]\n\nPlease report this bug to ";
+            if(sdl_quitCalled == false) {
+            	err += mailStringSupport;
+            }
 #ifdef WIN32
             err += string(", attaching the generated ") + getCrashDumpFileName() + string(" file.");
 #endif
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			message(err);
         }
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         // Now try to shutdown threads if possible
         delete program;
         program = NULL;
         // END
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 #ifdef WIN32
 
@@ -438,21 +475,40 @@ public:
 #endif
 		//printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		cleanupProcessObjects();
-		SDL_Quit();
-        exit(-1);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	    if(sdl_quitCalled == false) {
+	    	sdl_quitCalled = true;
+	    	SDL_Quit();
+	    }
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+        abort();
 	}
 
 	static int DisplayMessage(const char *msg, bool exitApp) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
         Program *program = Program::getInstance();
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
+
         if(program && gameInitialized == true) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
             program->showMessage(msg);
         }
         else {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
             message(msg);
         }
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
         if(exitApp == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
@@ -463,11 +519,17 @@ public:
 		    program = NULL;
 		    // END
 
+		    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 		    cleanupProcessObjects();
-		    SDL_Quit();
+
+		    if(sdl_quitCalled == false) {
+		    	sdl_quitCalled = true;
+		    	SDL_Quit();
+		    }
 		    exit(-1);
         }
 
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 	    return 0;
 	}
 };
@@ -492,8 +554,10 @@ MainWindow::MainWindow(Program *program){
 }
 
 MainWindow::~MainWindow(){
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	delete program;
 	program = NULL;
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
@@ -734,6 +798,16 @@ void MainWindow::eventKeyDown(char key){
 					path += string("screen") + intToStr(i + queueSize) + string(".") + fileFormat;
 					FILE *f= fopen(path.c_str(), "rb");
 					if(f == NULL) {
+						Lang &lang= Lang::getInstance();
+						char szBuf[1024]="";
+						if(lang.get("ScreenshotSavedTo").length() > 0 && lang.get("ScreenshotSavedTo")[0] != '?') {
+							sprintf(szBuf,lang.get("ScreenshotSavedTo").c_str(),path.c_str());
+						}
+						else {
+							sprintf(szBuf,"Screenshot will be saved to: %s",path.c_str());
+						}
+						program->consoleAddLine(szBuf);
+
 						Renderer::getInstance().saveScreen(path);
 						break;
 					}
@@ -1643,6 +1717,8 @@ int glestMain(int argc, char** argv) {
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
 
+	mg_app_name = GameConstants::application_name;
+	mailStringSupport = mailString;
     SystemFlags::ENABLE_THREADED_LOGGING = false;
     disableBacktrace = false;
 	bool foundInvalidArgs = false;
@@ -2133,19 +2209,9 @@ int glestMain(int argc, char** argv) {
 //			}
 		}
 
-		if(preCacheThread != NULL) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] starting normal application shutdown\n",__FILE__,__FUNCTION__,__LINE__);
 
-			time_t elapsed = time(NULL);
-			preCacheThread->signalQuit();
-			for(;preCacheThread->canShutdown(false) == false &&
-				difftime(time(NULL),elapsed) <= 15;) {
-				//sleep(150);
-			}
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			sleep(25);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		}
+		cleanupCRCThread();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    showCursor(true);
@@ -2165,21 +2231,24 @@ int glestMain(int argc, char** argv) {
 		ExceptionHandler::handleRuntimeError("Unknown error!");
 	}
 
+	cleanupCRCThread();
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete mainWindow;
 	mainWindow = NULL;
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //showCursor(true);
     //restoreVideoMode(true);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	GraphicComponent::clearRegisteredComponents();
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return 0;
@@ -2199,8 +2268,18 @@ __try {
 #endif
 
 	int result = glestMain(argc, argv);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	cleanupProcessObjects();
-	SDL_Quit();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(sdl_quitCalled == false) {
+    	sdl_quitCalled = true;
+    	SDL_Quit();
+    }
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	return result;
 
 #ifdef WIN32_STACK_TRACE

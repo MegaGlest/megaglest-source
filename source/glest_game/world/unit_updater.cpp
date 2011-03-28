@@ -518,7 +518,7 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
 
 	Command *command= unit->getCurrCommand();
     const AttackStoppedCommandType *asct= static_cast<const AttackStoppedCommandType*>(command->getCommandType());
-    Unit *enemy;
+    Unit *enemy=NULL;
 
     if(unit->getCommandSize() > 1)
     {
@@ -526,7 +526,14 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
     	return;
     }
 
-    if(attackableOnRange(unit, &enemy, asct->getAttackSkillType())){
+    float distToUnit=-1;
+    std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
+    unitBeingAttacked(result, unit, asct->getAttackSkillType(), &distToUnit);
+	if(result.first == true) {
+        unit->setCurrSkill(asct->getAttackSkillType());
+		unit->setTarget(result.second);
+	}
+	else if(attackableOnRange(unit, &enemy, asct->getAttackSkillType())) {
         unit->setCurrSkill(asct->getAttackSkillType());
 		unit->setTarget(enemy);
     }
@@ -537,6 +544,53 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
+void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast, float *currentDistToUnit) {
+	//std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
+
+	float distToUnit = -1;
+	if(currentDistToUnit != NULL) {
+		distToUnit = *currentDistToUnit;
+	}
+	if(ast != NULL) {
+		vector<Unit*> enemies = enemyUnitsOnRange(unit,ast);
+		for(unsigned j = 0; j < enemies.size(); ++j) {
+			Unit *enemy = enemies[j];
+
+			//printf("~~~~~~~~ Unit [%s - %d] enemy # %d found enemy [%s - %d] distToUnit = %f\n",unit->getFullName().c_str(),unit->getId(),j,enemy->getFullName().c_str(),enemy->getId(),unit->getCenteredPos().dist(enemy->getCenteredPos()));
+
+			if(distToUnit < 0 || unit->getCenteredPos().dist(enemy->getCenteredPos()) < distToUnit) {
+				distToUnit = unit->getCenteredPos().dist(enemy->getCenteredPos());
+				result.first = true;
+				result.second = enemy;
+			}
+		}
+	}
+
+	if(currentDistToUnit != NULL) {
+		*currentDistToUnit = distToUnit;
+	}
+
+//	if(result.first == true) {
+//		printf("~~~~~~~~ Unit [%s - %d] found enemy [%s - %d] distToUnit = %f\n",unit->getFullName().c_str(),unit->getId(),result.second->getFullName().c_str(),result.second->getId(),distToUnit);
+//	}
+    //return result;
+}
+
+std::pair<bool,Unit *> UnitUpdater::unitBeingAttacked(const Unit *unit) {
+	std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
+
+	float distToUnit = -1;
+	for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		const SkillType *st = unit->getType()->getSkillType(i);
+		const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(st);
+		unitBeingAttacked(result, unit, ast, &distToUnit);
+	}
+
+//	if(result.first == true) {
+//		printf("~~~~~~~~ Unit [%s - %d] found enemy [%s - %d] distToUnit = %f\n",unit->getFullName().c_str(),unit->getId(),result.second->getFullName().c_str(),result.second->getId(),distToUnit);
+//	}
+    return result;
+}
 
 // ==================== updateBuild ====================
 
@@ -1957,21 +2011,28 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	}
 
 	//attack enemies that can attack first
+	float distToUnit=-1;
 	Unit* enemySeen = NULL;
     for(int i = 0; i< enemies.size(); ++i) {
-    	if(enemies[i]->isAlive() == true) {
+    	Unit *enemy = enemies[i];
+
+    	if(enemy->isAlive() == true) {
     		// Here we default to first enemy if no attackers found
     		if(enemySeen == NULL) {
-                *rangedPtr 	= enemies[i];
-    			enemySeen 	= enemies[i];
+                *rangedPtr 	= enemy;
+    			enemySeen 	= enemy;
                 result		= true;
     		}
     		// Attackers get first priority
-    		if(enemies[i]->getType()->hasSkillClass(scAttack) == true) {
-                *rangedPtr	= enemies[i];
-    			enemySeen	= enemies[i];
-                result		= true;
-    			break;
+    		if(enemy->getType()->hasSkillClass(scAttack) == true) {
+    			// Select closest attacking unit
+    			if(distToUnit < 0 || unit->getCenteredPos().dist(enemy->getCenteredPos()) < distToUnit) {
+    				distToUnit = unit->getCenteredPos().dist(enemy->getCenteredPos());
+					*rangedPtr	= enemies[i];
+					enemySeen	= enemies[i];
+					result		= true;
+    			}
+    			//break;
     		}
     	}
     }
@@ -2078,6 +2139,60 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 		}
 	}
     return result;
+}
+
+
+//if the unit has any enemy on range
+vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillType *ast) {
+	int range = unit->getType()->getSight();
+	if(ast != NULL) {
+		range = ast->getTotalAttackRange(unit->getTotalUpgrade());
+	}
+	vector<Unit*> enemies;
+	//we check command target
+	const Unit *commandTarget = NULL;
+//	if(unit->anyCommand()) {
+//		commandTarget = static_cast<const Unit*>(unit->getCurrCommand()->getUnit());
+//	}
+//	if(commandTarget != NULL && commandTarget->isDead()) {
+//		commandTarget = NULL;
+//	}
+
+	//aux vars
+	int size 			= unit->getType()->getSize();
+	Vec2i center 		= unit->getPos();
+	Vec2f floatCenter	= unit->getFloatCenteredPos();
+
+	bool foundInCache = true;
+	if(findCachedCellsEnemies(center,range,size,enemies,ast,
+							  unit,commandTarget) == false) {
+		foundInCache = false;
+		//nearby cells
+		UnitRangeCellsLookupItem cacheItem;
+		for(int i = center.x - range; i < center.x + range + size; ++i) {
+			for(int j = center.y - range; j < center.y + range + size; ++j) {
+				//cells inside map and in range
+#ifdef USE_STREFLOP
+				if(map->isInside(i, j) && streflop::floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+#else
+				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+#endif
+					Cell *cell = map->getCell(i,j);
+					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
+
+					cacheItem.rangeCellList.push_back(cell);
+				}
+			}
+		}
+
+		// Ok update our caches with the latest info
+		if(cacheItem.rangeCellList.size() > 0) {
+			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
+			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
+		}
+	}
+
+	return enemies;
 }
 
 // =====================================================

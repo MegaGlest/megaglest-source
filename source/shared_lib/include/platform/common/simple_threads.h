@@ -125,12 +125,12 @@ protected:
 
 public:
 	LogFileThread();
+	virtual ~LogFileThread();
     virtual void execute();
     void addLogEntry(SystemFlags::DebugType type, string logEntry);
     std::size_t getLogEntryBufferCount();
+    virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 };
-
-
 
 }}//end namespace
 

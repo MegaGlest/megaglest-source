@@ -140,6 +140,8 @@ const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 //const float Renderer::maxLightDist= 100.f;
 const float Renderer::maxLightDist= 1000.f;
 
+bool Renderer::rendererEnded = true;
+
 const int MIN_FPS_NORMAL_RENDERING = 15;
 const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 25;
 
@@ -148,6 +150,7 @@ const int OBJECT_SELECT_OFFSET=100000000;
 // ==================== constructor and destructor ====================
 
 Renderer::Renderer() {
+	Renderer::rendererEnded = false;
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
 	this->game = NULL;
@@ -277,7 +280,11 @@ void Renderer::simpleTask(BaseThread *callingThread) {
 	}
 }
 
-Renderer &Renderer::getInstance(){
+bool Renderer::isEnded() {
+	return Renderer::rendererEnded;
+}
+
+Renderer &Renderer::getInstance() {
 	static Renderer renderer;
 	return renderer;
 }
@@ -438,6 +445,9 @@ void Renderer::reset3dMenu() {
 // ==================== end ====================
 
 void Renderer::end() {
+	if(Renderer::rendererEnded == true) {
+		return;
+	}
 	std::map<string,Texture2D *> &crcFactionPreviewTextureCache = CacheManager::getCachedItem< std::map<string,Texture2D *> >(GameConstants::factionPreviewTextureCacheLookupKey);
 	crcFactionPreviewTextureCache.clear();
 
@@ -465,6 +475,8 @@ void Renderer::end() {
 		glDeleteLists(list2d, 1);
 		list2d = 0;
 	}
+
+	Renderer::rendererEnded = true;
 }
 
 void Renderer::endGame() {

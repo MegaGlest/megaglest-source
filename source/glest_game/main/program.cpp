@@ -157,20 +157,29 @@ void Program::initScenario(WindowGl *window, string autoloadScenarioName) {
 }
 
 Program::~Program(){
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	delete programState;
 	programState = NULL;
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	Renderer::getInstance().end();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//restore video mode
 	restoreDisplaySettings();
 	singleton = NULL;
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(soundThreadManager != NULL) {
 		BaseThread::shutdownAndWait(soundThreadManager);
 		delete soundThreadManager;
 		soundThreadManager = NULL;
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Program::keyDown(char key){
@@ -615,4 +624,11 @@ void Program::reInitGl() {
 		window->initGl(config.getInt("ColorBits"), config.getInt("DepthBits"), config.getInt("StencilBits"),config.getBool("HardwareAcceleration","false"),config.getBool("FullScreenAntiAliasing","false"));
 	}
 }
+
+void Program::consoleAddLine(string line) {
+	if(programState != NULL) {
+		programState->consoleAddLine(line);
+	}
+}
+
 }}//end namespace

@@ -69,7 +69,7 @@ bool SystemFlags::getThreadedLoggerRunning() {
 
 std::size_t SystemFlags::getLogEntryBufferCount() {
     std::size_t ret = 0;
-    if(threadLogger != NULL) {
+    if(threadLogger != NULL && threadLogger->getRunningStatus() == true) {
         ret = threadLogger->getLogEntryBufferCount();
     }
     return ret;
@@ -187,7 +187,18 @@ CURL *SystemFlags::initHTTP() {
 
 SystemFlags::SystemFlagsType & SystemFlags::getSystemSettingType(DebugType type) {
 	if(SystemFlags::debugLogFileList == NULL) {
-		SystemFlags::init(false);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
+			//throw runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
+			static SystemFlagsType *result = new SystemFlagsType();
+			result->enabled = SystemFlags::VERBOSE_MODE_ENABLED;
+			return *result;
+		}
+		else {
+			SystemFlags::init(false);
+		}
 	}
 
 	return (*debugLogFileList)[type];
@@ -195,8 +206,15 @@ SystemFlags::SystemFlagsType & SystemFlags::getSystemSettingType(DebugType type)
 
 void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 	SystemFlags::haveSpecialOutputCommandLineOption = haveSpecialOutputCommandLineOption;
-	//if(SystemFlags::debugLogFileList.size() == 0) {
 	if(SystemFlags::debugLogFileList == NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
+			//throw runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
+			return;
+		}
+
 		SystemFlags::debugLogFileList = new std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>();
 
 		(*SystemFlags::debugLogFileList)[SystemFlags::debugSystem] 	 		= SystemFlags::SystemFlagsType(SystemFlags::debugSystem);
@@ -211,6 +229,7 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 	}
 
     if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         threadLogger = new LogFileThread();
         threadLogger->start();
         sleep(1);
@@ -219,7 +238,7 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(curl_handle == NULL) {
-
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		curl_handle = SystemFlags::initHTTP();
@@ -265,20 +284,40 @@ void SystemFlags::cleanupHTTP(CURL **handle, bool globalCleanup) {
 SystemFlags::~SystemFlags() {
 	SystemFlags::Close();
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(curl_handle != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		SystemFlags::cleanupHTTP(&curl_handle, true);
 		curl_handle = NULL;
 	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void SystemFlags::Close() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
     if(threadLogger != NULL) {
         SystemFlags::ENABLE_THREADED_LOGGING = false;
         //SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
+        time_t elapsed = time(NULL);
         threadLogger->signalQuit();
-        threadLogger->shutdownAndWait();
-        delete threadLogger;
-        threadLogger = NULL;
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        //threadLogger->shutdownAndWait();
+		for(;threadLogger->canShutdown(false) == false &&
+			difftime(time(NULL),elapsed) <= 15;) {
+			//sleep(150);
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(threadLogger->canShutdown(true)) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			delete threadLogger;
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		threadLogger = NULL;
+        //delete threadLogger;
+        //threadLogger = NULL;
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 
 	if(SystemFlags::debugLogFileList != NULL) {
@@ -295,6 +334,8 @@ void SystemFlags::Close() {
 		delete SystemFlags::debugLogFileList;
 		SystemFlags::debugLogFileList = NULL;
 	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(SystemFlags::lockFile != -1) {
 #ifndef WIN32
 		close(SystemFlags::lockFile);
@@ -310,18 +351,31 @@ void SystemFlags::Close() {
 		}
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(SystemFlags::debugLogFileList != NULL) {
 		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("END Closing logfiles\n");
 		}
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 	if(SystemFlags::debugLogFileList == NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
+			//throw runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
+			//return;
+		}
+
 		SystemFlags::init(false);
 	}
-	SystemFlags::SystemFlagsType &currentDebugLog = (*SystemFlags::debugLogFileList)[type];
+	//SystemFlags::SystemFlagsType &currentDebugLog = (*SystemFlags::debugLogFileList)[type];
+	SystemFlags::SystemFlagsType &currentDebugLog =getSystemSettingType(type);
     if(currentDebugLog.enabled == false) {
         return;
     }
@@ -355,9 +409,11 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
 void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugTime) {
 	if(SystemFlags::debugLogFileList == NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		SystemFlags::init(false);
 	}
-	SystemFlags::SystemFlagsType &currentDebugLog = (*SystemFlags::debugLogFileList)[type];
+	//SystemFlags::SystemFlagsType &currentDebugLog = (*SystemFlags::debugLogFileList)[type];
+	SystemFlags::SystemFlagsType &currentDebugLog =getSystemSettingType(type);
     if(currentDebugLog.enabled == false) {
         return;
     }
