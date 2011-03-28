@@ -185,6 +185,14 @@ CURL *SystemFlags::initHTTP() {
 	return handle;
 }
 
+SystemFlags::SystemFlagsType & SystemFlags::getSystemSettingType(DebugType type) {
+	if(SystemFlags::debugLogFileList == NULL) {
+		SystemFlags::init(false);
+	}
+
+	return (*debugLogFileList)[type];
+}
+
 void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 	SystemFlags::haveSpecialOutputCommandLineOption = haveSpecialOutputCommandLineOption;
 	//if(SystemFlags::debugLogFileList.size() == 0) {
