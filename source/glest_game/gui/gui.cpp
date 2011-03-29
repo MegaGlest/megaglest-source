@@ -925,31 +925,118 @@ void Gui::computeSelected(bool doubleClick, bool force){
 	}
 }
 
-bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&targetUnit) {
+bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&targetUnit){
 	Selection::UnitContainer uc;
 	Renderer &renderer= Renderer::getInstance();
-	const Object* obj=NULL;
+	const Object* obj= NULL;
 	renderer.computeSelected(uc, obj, true, screenPos, screenPos);
 	validPosObjWorld= false;
 
-	if(uc.empty() == false) {
-		targetUnit=getRelevantObjectFromSelection(&uc);
+	if(uc.empty() == false){
+		targetUnit= getRelevantObjectFromSelection(&uc);
 		targetPos= targetUnit->getPos();
 		return true;
 	}
-	else if(obj!=NULL) {
+	else if(obj != NULL){
 		targetUnit= NULL;
+
+		// get real click pos
+		renderer.computePosition(screenPos, targetPos);
+
+		printf("c.x=%d c.y=%d  o.x=%d o.y=%d\n", targetPos.x, targetPos.y, obj->getMapPos().x, obj->getMapPos().y);
+		validPosObjWorld= true;
+		//posObjWorld = targetPos;
+
+		int tx= targetPos.x;
+		int ty= targetPos.y;
+
+		int ox= obj->getMapPos().x;
+		int oy= obj->getMapPos().y;
+
+		Resource* clickedRecource= world->getMap()->getSurfaceCell(Map::toSurfCoords(obj->getMapPos()))->getResource();
+
+		// lets see if the click had the same Resource
+		if(clickedRecource == world->getMap()->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()){
+			// same ressource is meant, so use the user selected position
+			return true;
+		}
+		else{// calculate a valid resource position which is as near as possible to the selected position
+			Vec2i testIt= Vec2i(obj->getMapPos());
+			///////////////
+			// test both //
+			///////////////
+			if(ty < oy){
+				testIt.y--;
+			}
+			else if(ty > oy){
+				testIt.y++;
+			}
+			if(tx < ox){
+				testIt.x--;
+			}
+			else if(tx > ox){
+				testIt.x++;
+			}
+
+			if(clickedRecource == world->getMap()->getSurfaceCell(Map::toSurfCoords(testIt))->getResource()){
+				// same ressource is meant, so use this position
+				targetPos= testIt;
+				//posObjWorld= targetPos;
+				return true;
+			}
+			else{
+				testIt= Vec2i(obj->getMapPos());
+			}
+
+			/////////////////
+			// test y-only //
+			/////////////////
+			if(ty < oy){
+				testIt.y--;
+			}
+			else if(ty > oy){
+				testIt.y++;
+			}
+			if(clickedRecource == world->getMap()->getSurfaceCell(Map::toSurfCoords(testIt))->getResource()){
+				// same ressource is meant, so use this position
+				targetPos= testIt;
+				//posObjWorld= targetPos;
+				return true;
+			}
+			else{
+				testIt= Vec2i(obj->getMapPos());
+			}
+
+			/////////////////
+			// test x-only //
+			/////////////////
+			if(tx < ox){
+				testIt.x--;
+			}
+			else if(tx > ox){
+				testIt.x++;
+			}
+			if(clickedRecource == world->getMap()->getSurfaceCell(Map::toSurfCoords(testIt))->getResource()){
+				// same ressource is meant, so use this position
+				targetPos= testIt;
+				//posObjWorld= targetPos;
+				return true;
+			}
+		}
+		// give up and use the object position;
 		targetPos= obj->getMapPos();
+		posObjWorld= targetPos;
 		return true;
+
 	}
-	else {
+	else{
 		targetUnit= NULL;
-		if(renderer.computePosition(screenPos, targetPos)) {
+		if(renderer.computePosition(screenPos, targetPos)){
 			validPosObjWorld= true;
 			posObjWorld= targetPos;
 			return true;
 		}
-		else {
+		else{
 			return false;
 		}
 	}
