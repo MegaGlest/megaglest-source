@@ -2116,17 +2116,17 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             Checksum::clearFileCache();
             //lastCheckedCRCMapValue = -1;
     		Checksum checksum;
-    		string file = Map::getMapPath(gameSettings->getMap(),"",false);
+    		string file = Map::getMapPath(itemName,"",false);
     		//console.addLine("Checking map CRC [" + file + "]");
     		checksum.addFile(file);
     		lastCheckedCRCMapValue = checksum.getSum();
 
             char szMsg[1024]="";
             if(lang.hasString("DataMissingMapSuccessDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingMapSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+            	sprintf(szMsg,lang.get("DataMissingMapSuccessDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str());
             }
             else {
-            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),itemName.c_str());
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
         }
@@ -2135,10 +2135,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             char szMsg[1024]="";
             if(lang.hasString("DataMissingMapFailDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingMapFailDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str(),curlVersion->version);
+            	sprintf(szMsg,lang.get("DataMissingMapFailDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
             }
             else {
-            	sprintf(szMsg,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getMap().c_str(),curlVersion->version);
+            	sprintf(szMsg,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
 
@@ -2160,10 +2160,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         if(result.first == ftp_crt_SUCCESS) {
             char szMsg[1024]="";
             if(lang.hasString("DataMissingTilesetSuccessDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTilesetSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+            	sprintf(szMsg,lang.get("DataMissingTilesetSuccessDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str());
             }
             else {
-            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),itemName.c_str());
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
 
@@ -2182,7 +2182,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+            lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL);
 
             safeMutexFTPProgress.ReleaseLock();
             // END
@@ -2195,10 +2195,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             char szMsg[1024]="";
             if(lang.hasString("DataMissingTilesetFailDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTilesetFailDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str(),curlVersion->version);
+            	sprintf(szMsg,lang.get("DataMissingTilesetFailDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
             }
             else {
-            	sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str(),curlVersion->version);
+            	sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
             console.addLine(result.second,true);
@@ -2219,10 +2219,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         if(result.first == ftp_crt_SUCCESS) {
             char szMsg[1024]="";
             if(lang.hasString("DataMissingTechtreeSuccessDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTechtreeSuccessDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+            	sprintf(szMsg,lang.get("DataMissingTechtreeSuccessDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str());
             }
             else {
-            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the techtree: %s",getHumanPlayerName().c_str(),itemName.c_str());
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
 
@@ -2241,7 +2241,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
+            lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL);
 
             safeMutexFTPProgress.ReleaseLock();
             // END
@@ -2254,10 +2254,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             char szMsg[1024]="";
             if(lang.hasString("DataMissingTechtreeFailDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTechtreeFailDownload").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str(),curlVersion->version);
+            	sprintf(szMsg,lang.get("DataMissingTechtreeFailDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
             }
             else {
-            	sprintf(szMsg,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),gameSettings->getTech().c_str(),curlVersion->version);
+            	sprintf(szMsg,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
             }
             clientInterface->sendTextMessage(szMsg,-1, true);
             console.addLine(result.second,true);
