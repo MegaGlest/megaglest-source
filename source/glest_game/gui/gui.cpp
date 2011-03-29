@@ -943,8 +943,7 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 		// get real click pos
 		renderer.computePosition(screenPos, targetPos);
 
-		printf("c.x=%d c.y=%d  o.x=%d o.y=%d\n", targetPos.x, targetPos.y, obj->getMapPos().x, obj->getMapPos().y);
-		validPosObjWorld= true;
+		//validPosObjWorld= true;
 		//posObjWorld = targetPos;
 
 		int tx= targetPos.x;
