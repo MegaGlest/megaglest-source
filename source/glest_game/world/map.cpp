@@ -849,17 +849,18 @@ Vec2i Map::computeRefPos(const Selection *selection) const {
 Vec2i Map::computeDestPos(	const Vec2i &refUnitPos, const Vec2i &unitPos,
 							const Vec2i &commandPos) const {
     Vec2i pos;
-	Vec2i posDiff = unitPos - refUnitPos;
+// no more random needed
+//	Vec2i posDiff = unitPos - refUnitPos;
+//
+//	if(abs(posDiff.x) >= 3){
+//		posDiff.x = posDiff.x % 3;
+//	}
+//
+//	if(abs(posDiff.y) >= 3){
+//		posDiff.y = posDiff.y % 3;
+//	}
 
-	if(abs(posDiff.x) >= 3){
-		posDiff.x = posDiff.x % 3;
-	}
-
-	if(abs(posDiff.y) >= 3){
-		posDiff.y = posDiff.y % 3;
-	}
-
-	pos = commandPos + posDiff;
+	pos = commandPos; //+ posDiff;
     clampPos(pos);
     return pos;
 }
