@@ -838,7 +838,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
 	    				{
-	    					const bool newHarvestPath = true;
+	    					const bool newHarvestPath = false;
 	    					bool isNearResource = false;
 	    					Vec2i clickPos = command->getOriginalPos();
 	    					if(newHarvestPath == true) {
