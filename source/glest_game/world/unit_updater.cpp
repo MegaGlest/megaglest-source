@@ -89,6 +89,12 @@ void UnitUpdater::clearUnitPrecache(Unit *unit) {
 	}
 }
 
+void UnitUpdater::removeUnitPrecache(Unit *unit) {
+	if(pathFinder != NULL) {
+		pathFinder->removeUnitPrecache(unit);
+	}
+}
+
 UnitUpdater::~UnitUpdater() {
 	//UnitRangeCellsLookupItemCache.clear();
 

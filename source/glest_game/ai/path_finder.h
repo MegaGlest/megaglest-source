@@ -101,6 +101,7 @@ public:
 	void init(const Map *map);
 	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL,int frameIndex=-1);
 	void clearUnitPrecache(Unit *unit);
+	void removeUnitPrecache(Unit *unit);
 
 private:
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex);

@@ -988,14 +988,16 @@ void Unit::kill() {
 	clearCommands();
 
 	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
-	unitUpdater->clearUnitPrecache(this);
+	//unitUpdater->clearUnitPrecache(this);
+	unitUpdater->removeUnitPrecache(this);
 }
 
 void Unit::undertake() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
 
 	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
-	unitUpdater->clearUnitPrecache(this);
+	//unitUpdater->clearUnitPrecache(this);
+	unitUpdater->removeUnitPrecache(this);
 
 	livingUnits.erase(id);
 	livingUnitsp.erase(this);
