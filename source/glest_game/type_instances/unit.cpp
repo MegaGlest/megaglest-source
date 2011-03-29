@@ -2058,15 +2058,13 @@ void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
 	}
 }
 
-void Unit::addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell) {
-/*
-	if(currentTargetPathTaken.first != target) {
-		currentTargetPathTaken.second.clear();
-	}
-	currentTargetPathTaken.first = target;
-	currentTargetPathTaken.second.push_back(cell);
-*/
-}
+//void Unit::addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell) {
+//	if(currentTargetPathTaken.first != target) {
+//		currentTargetPathTaken.second.clear();
+//	}
+//	currentTargetPathTaken.first = target;
+//	currentTargetPathTaken.second.push_back(cell);
+//}
 
 std::string Unit::toString() const {
 	std::string result = "";

@@ -49,14 +49,6 @@ class Faction;
 ///	Each of the game players
 // =====================================================
 
-class FactionPathSuccessCache {
-public:
-	// The unit Size for the path findings
-	int unitSize;
-	// a List of paths with their # success counts
-	vector<std::pair<vector<Vec2i>, int> > pathQueue;
-};
-
 class FactionThread : public BaseThread {
 protected:
 
@@ -109,16 +101,8 @@ private:
 	bool factionDisconnectHandled;
 
 	bool cachingDisabled;
-	std::map<Vec2i, std::vector<FactionPathSuccessCache> > successfulPathFinderTargetList;
 	std::map<Vec2i,int> cacheResourceTargetList;
 	std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
-	//time_t lastResourceTargettListPurge;
-	//int lastResourceTargettListPurge;
-
-	//std::map<CommandClass,std::map<int,int> > cacheUnitCommandClassList;
-	// This cache stores the units free cell movement calcs during a world
-	// update of the faction
-	//std::map<int,std::map<Field, std::map<Vec2i,std::map<Vec2i, > > > localCacheForUnitCellMovement;
 
 	RandomGen random;
 	FactionThread *workerThread;
@@ -176,7 +160,6 @@ public:
 	bool reqsOk(const CommandType *ct) const;
     int getCountForMaxUnitCount(const UnitType *unitType) const;
 
-
 	//diplomacy
 	bool isAlly(const Faction *faction);
 
@@ -192,9 +175,6 @@ public:
 	void setResourceBalance(const ResourceType *rt, int balance);
 
 	void setControlType(ControlType value) { control = value; }
-
-	std::vector<Vec2i> findCachedPath(const Vec2i &target, Unit *unit);
-	void addCachedPath(const Vec2i &target, Unit *unit);
 
 	bool isResourceTargetInCache(const Vec2i &pos,bool incrementUseCounter=false);
 	void addResourceTargetToCache(const Vec2i &pos,bool incrementUseCounter=true);
