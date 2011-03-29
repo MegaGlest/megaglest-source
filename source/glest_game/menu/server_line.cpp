@@ -74,7 +74,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	endPathWithSlash(countryLogoPath);
 
 	string logoFile= countryLogoPath + toLower(masterServerInfo.getCountry()) + ".png";
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFile.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFile.c_str());
 
 	if(fileExists(logoFile) == true){
 		countryTexture= GraphicsInterface::getInstance().getFactory()->newTexture2D();
@@ -83,7 +83,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 		//loadingTexture->getPixmap()->load(filepath);
 		countryTexture->load(logoFile);
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Renderer &renderer= Renderer::getInstance();
 		renderer.initTexture(rsGlobal, countryTexture);
@@ -137,12 +137,12 @@ ServerLine::~ServerLine(){
 	//delete masterServerInfo;
 
 	if(countryTexture != NULL){
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		countryTexture->end();
 		delete countryTexture;
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//delete loadingTexture;
 		countryTexture= NULL;

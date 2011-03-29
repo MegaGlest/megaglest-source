@@ -131,12 +131,12 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 		int button= 1;
 		if(mainMessageBox.mouseClick(x, y, button)) {
 			if(button==1) {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				soundRenderer.playFx(coreData.getClickSoundA());
 				program->exit();
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				//close message box
 				mainMessageBox.setEnabled(false);
 			}
@@ -213,7 +213,7 @@ void MenuStateRoot::update(){
 
 void MenuStateRoot::keyDown(char key) {
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] key = [%d - %c]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -223,7 +223,7 @@ void MenuStateRoot::keyDown(char key) {
 		showMessageBox(lang.get("ExitGame?"), "", true);
 	}
 	else if(mainMessageBox.getEnabled() == true && key == vkReturn) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		program->exit();
 	}
 	else if(key == configKeys.getCharKey("SaveGUILayout")) {

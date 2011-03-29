@@ -141,7 +141,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	buttonRemoveScenario.init(scenarioInfoXPos + 20, installButtonYPos-30, 125);
 	buttonRemoveScenario.setText(lang.get("Remove"));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTilesetScrollBar.setLength(listBoxLength);
@@ -231,7 +231,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateMods::simpleTask(BaseThread *callingThread) {
@@ -496,7 +496,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     }
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 
 	scenarioListRemote.clear();
@@ -548,7 +548,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     }
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTilesetScrollBar.setLength(listBoxLength);
@@ -762,15 +762,15 @@ void MenuStateMods::cleanUp() {
 	clearUserButtons();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(modHttpServerThread != NULL) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		modHttpServerThread->signalQuit();
 		//modHttpServerThread->setThreadOwnerValid(false);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if( modHttpServerThread->canShutdown(true) == true &&
 			modHttpServerThread->shutdownAndWait() == true) {
 			delete modHttpServerThread;
@@ -840,7 +840,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 	Lang &lang= Lang::getInstance();
 
 	if(buttonReturn.mouseClick(x,y)) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		soundRenderer.playFx(coreData.getClickSoundA());
 
@@ -1025,24 +1025,24 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 	}
 	else if(keyTechScrollBar.mouseClick(x, y)) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			soundRenderer.playFx(coreData.getClickSoundB());
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		soundRenderer.playFx(coreData.getClickSoundB());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else if(keyTilesetScrollBar.mouseClick(x, y)) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			soundRenderer.playFx(coreData.getClickSoundB());
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		soundRenderer.playFx(coreData.getClickSoundB());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else if(keyMapScrollBar.mouseClick(x, y)) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			soundRenderer.playFx(coreData.getClickSoundB());
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		soundRenderer.playFx(coreData.getClickSoundB());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else if(keyScenarioScrollBar.mouseClick(x, y)) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			soundRenderer.playFx(coreData.getClickSoundB());
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		soundRenderer.playFx(coreData.getClickSoundB());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 
 	else if(buttonInstallTech.mouseClick(x, y) && buttonInstallTech.getEnabled()) {
@@ -1333,7 +1333,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
     }
 
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateMods::mouseMove(int x, int y, const MouseState *ms) {
@@ -1652,7 +1652,7 @@ void MenuStateMods::showMessageBox(const string &text, const string &header, boo
 
 void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result,void *userdata) {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     Lang &lang= Lang::getInstance();
     if(type == ftp_cct_DownloadProgress) {
