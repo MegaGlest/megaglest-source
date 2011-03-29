@@ -343,10 +343,18 @@ bool Map::isInsideSurface(const Vec2i &sPos) const {
 	return isInsideSurface(sPos.x, sPos.y);
 }
 
+class FindBestPos  {
+public:
+	float distanceFromUnitNoAdjustment;
+	float distanceFromClickNoAdjustment;
+	Vec2i resourcePosNoAdjustment;
+};
+
 //returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
 bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos,
 		int size, Unit *unit, bool fallbackToPeersHarvestingSameResource,
 		Vec2i *resourceClickPos) const {
+
 	bool resourceNear = false;
 	float distanceFromUnit=-1;
 	float distanceFromClick=-1;
@@ -440,6 +448,8 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 	}
 
 	if(resourceNear == false && resourceClickPos != NULL) {
+		std::vector<FindBestPos> bestPosList;
+
 		if(resourceClickPos) {
 			//printf("^^^^^ unit [%s - %d]\n",unit->getFullName().c_str(),unit->getId());
 		}
@@ -455,9 +465,21 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 						if(r->getType() == rt) {
 							//printf("^^^^^^ unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
 
-							//if(distanceFromClick < 0 || resourceClickPos->dist(resPos) <= distanceFromClick) {
-								if(unit == NULL ||
-									(distanceFromUnit < 0 || unit->getCenteredPos().dist(resPos) <= distanceFromUnit)) {
+							if(unit == NULL ||
+								(distanceFromUnit < 0 || unit->getCenteredPos().dist(resPos) <= (distanceFromUnit + 2.0))) {
+
+								if(resourceClickPos->dist(resPos) <= 1.0) {
+									FindBestPos bestPosItem;
+
+									bestPosItem.distanceFromUnitNoAdjustment = unit->getCenteredPos().dist(resPos);
+									bestPosItem.distanceFromClickNoAdjustment =distanceFromClick = resourceClickPos->dist(resPos);
+									bestPosItem.resourcePosNoAdjustment = resPos;
+
+									bestPosList.push_back(bestPosItem);
+								}
+
+								//printf("!!!! unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
+								if(distanceFromClick < 0 || resourceClickPos->dist(resPos) <= distanceFromClick) {
 									if(resourceClickPos != NULL) {
 										distanceFromClick = resourceClickPos->dist(resPos);
 									}
@@ -473,9 +495,23 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 										//printf("%%----------- unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
 									}
 								}
-							//}
+							}
 						}
 					}
+				}
+			}
+		}
+
+		float bestUnitDist = distanceFromUnit;
+		for(unsigned int i = 0; i < bestPosList.size(); ++i) {
+			FindBestPos &bestPosItem = bestPosList[i];
+
+			if(bestPosItem.distanceFromUnitNoAdjustment < bestUnitDist) {
+				bestUnitDist = bestPosItem.distanceFromUnitNoAdjustment;
+				*resourceClickPos = bestPosItem.resourcePosNoAdjustment;
+
+				if(unit == NULL || unit->isBadHarvestPos(*resourceClickPos) == false) {
+					//printf("%%----------- unit [%s - %d] resourceClickPos [%s] bestUnitDist [%f]\n",unit->getFullName().c_str(),unit->getId(),resourceClickPos->getString().c_str(),bestUnitDist);
 				}
 			}
 		}
