@@ -561,6 +561,10 @@ void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *
 				distToUnit = unit->getCenteredPos().dist(enemy->getCenteredPos());
 				result.first = true;
 				result.second = enemy;
+				if( ast->getAttackRange()>=distToUnit)
+				{
+					break;
+				}
 			}
 		}
 	}
