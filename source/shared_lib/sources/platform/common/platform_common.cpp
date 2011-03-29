@@ -638,10 +638,10 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Final CRC file count: %d\n",__FILE__,__FUNCTION__,__LINE__,checksum.getFileCount());
 
 	int32 result = checksum.getFinalFileListSum();
-	if(forceNoCache == false) {
-		crcTreeCache[cacheKey] = result;
-		writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey]);
-	}
+	//if(forceNoCache == false) {
+	crcTreeCache[cacheKey] = result;
+	writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey]);
+	//}
 	return result;
 }
 
@@ -779,11 +779,11 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Final CRC file count for [%s]: %d\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),checksum.getFileCount());
 
 		int32 result = checksum.getFinalFileListSum();
-		if(forceNoCache == false) {
-			crcTreeCache[cacheKey] = result;
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s] fileMatchCount = %d, fileLoopCount = %d\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str(),fileMatchCount,fileLoopCount);
-			writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey]);
-		}
+		//if(forceNoCache == false) {
+		crcTreeCache[cacheKey] = result;
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s] fileMatchCount = %d, fileLoopCount = %d\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str(),fileMatchCount,fileLoopCount);
+		writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey]);
+		//}
 
 		return result;
 	}
