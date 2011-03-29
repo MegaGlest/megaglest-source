@@ -344,18 +344,65 @@ bool Map::isInsideSurface(const Vec2i &sPos) const {
 }
 
 //returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
-bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit, bool fallbackToPeersHarvestingSameResource) const {
+bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos,
+		int size, Unit *unit, bool fallbackToPeersHarvestingSameResource,
+		Vec2i *resourceClickPos) const {
+	bool resourceNear = false;
+	float distanceFromUnit=-1;
+	float distanceFromClick=-1;
+
+	if(resourceClickPos) {
+		//printf("+++++++++ unit [%s - %d] pos = [%s] resourceClickPos [%s]\n",unit->getFullName().c_str(),unit->getId(),pos.getString().c_str(),resourceClickPos->getString().c_str());
+	}
 	for(int i = -1; i <= size; ++i) {
 		for(int j = -1; j <= size; ++j) {
 			Vec2i resPos = Vec2i(pos.x + i, pos.y + j);
-			if(isInside(resPos) && isInsideSurface(toSurfCoords(resPos))) {
-				Resource *r= getSurfaceCell(toSurfCoords(Vec2i(pos.x + i, pos.y + j)))->getResource();
+			if(resourceClickPos) {
+				resPos = Vec2i(resourceClickPos->x + i, resourceClickPos->y + j);
+			}
+			Vec2i surfCoords = toSurfCoords(resPos);
+
+			if(isInside(resPos) && isInsideSurface(surfCoords)) {
+				Resource *r= getSurfaceCell(surfCoords)->getResource();
 				if(r != NULL) {
 					if(r->getType() == rt) {
-						resourcePos= pos + Vec2i(i,j);
+						if(resourceClickPos) {
+							//printf("****** unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
+						}
+						if(resourceClickPos == NULL ||
+							(distanceFromClick < 0 || resourceClickPos->dist(resPos) <= distanceFromClick)) {
+							if(unit == NULL ||
+								(distanceFromUnit < 0 || unit->getCenteredPos().dist(resPos) <= distanceFromUnit)) {
 
-						if(unit == NULL || unit->isBadHarvestPos(resourcePos) == false) {
-							return true;
+								bool isResourceNextToUnit = (resourceClickPos == NULL);
+								for(int i1 = -1; isResourceNextToUnit == false && i1 <= size; ++i1) {
+									for(int j1 = -1; j1 <= size; ++j1) {
+										Vec2i resPos1 = Vec2i(pos.x + i1, pos.y + j1);
+										if(resPos == resPos1) {
+											isResourceNextToUnit = true;
+											break;
+										}
+									}
+								}
+								if(isResourceNextToUnit == true) {
+									if(resourceClickPos != NULL) {
+										distanceFromClick = resourceClickPos->dist(resPos);
+									}
+									if(unit != NULL) {
+										distanceFromUnit = unit->getCenteredPos().dist(resPos);
+									}
+
+									resourcePos= pos + Vec2i(i,j);
+
+									if(unit == NULL || unit->isBadHarvestPos(resourcePos) == false) {
+										resourceNear = true;
+
+										if(resourceClickPos) {
+											//printf("@@@@@@@@ unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -363,30 +410,78 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 		}
 	}
 
-	if(fallbackToPeersHarvestingSameResource == true && unit != NULL) {
-		// Look for another unit that is currently harvesting the same resource
-		// type right now
+	if(resourceNear == false) {
+		if(fallbackToPeersHarvestingSameResource == true && unit != NULL) {
+			// Look for another unit that is currently harvesting the same resource
+			// type right now
 
-		// Check the faction cache for a known position where we can harvest
-		// this resource type
-		Vec2i result = unit->getFaction()->getClosestResourceTypeTargetFromCache(unit, rt);
-		if(result.x >= 0) {
-			resourcePos = result;
+			// Check the faction cache for a known position where we can harvest
+			// this resource type
+			Vec2i result = unit->getFaction()->getClosestResourceTypeTargetFromCache(unit, rt);
+			if(result.x >= 0) {
+				resourcePos = result;
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-				char szBuf[4096]="";
-							sprintf(szBuf,"[found peer harvest pos] pos [%s] resourcePos [%s] unit->getFaction()->getCacheResourceTargetListSize() [%d]",
-									pos.getString().c_str(),resourcePos.getString().c_str(),unit->getFaction()->getCacheResourceTargetListSize());
-				unit->logSynchData(__FILE__,__LINE__,szBuf);
-			}
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+					char szBuf[4096]="";
+								sprintf(szBuf,"[found peer harvest pos] pos [%s] resourcePos [%s] unit->getFaction()->getCacheResourceTargetListSize() [%d]",
+										pos.getString().c_str(),resourcePos.getString().c_str(),unit->getFaction()->getCacheResourceTargetListSize());
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
 
-			if(unit->getPos().dist(resourcePos) <= size) {
-				return true;
+				if(unit->getPos().dist(resourcePos) <= size) {
+					resourceNear = true;
+
+					if(resourceClickPos) {
+						//printf("###### unit [%s - %d]\n",unit->getFullName().c_str(),unit->getId());
+					}
+				}
 			}
 		}
 	}
 
-	return false;
+	if(resourceNear == false && resourceClickPos != NULL) {
+		if(resourceClickPos) {
+			//printf("^^^^^ unit [%s - %d]\n",unit->getFullName().c_str(),unit->getId());
+		}
+
+		for(int i = -1; i <= 1; ++i) {
+			for(int j = -1; j <= 1; ++j) {
+				Vec2i resPos = Vec2i(resourceClickPos->x + i, resourceClickPos->y + j);
+				Vec2i surfCoords = toSurfCoords(resPos);
+
+				if(isInside(resPos) && isInsideSurface(surfCoords)) {
+					Resource *r= getSurfaceCell(surfCoords)->getResource();
+					if(r != NULL) {
+						if(r->getType() == rt) {
+							//printf("^^^^^^ unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
+
+							//if(distanceFromClick < 0 || resourceClickPos->dist(resPos) <= distanceFromClick) {
+								if(unit == NULL ||
+									(distanceFromUnit < 0 || unit->getCenteredPos().dist(resPos) <= distanceFromUnit)) {
+									if(resourceClickPos != NULL) {
+										distanceFromClick = resourceClickPos->dist(resPos);
+									}
+									if(unit != NULL) {
+										distanceFromUnit = unit->getCenteredPos().dist(resPos);
+									}
+
+									*resourceClickPos = resPos;
+
+									if(unit == NULL || unit->isBadHarvestPos(*resourceClickPos) == false) {
+										//resourceNear = true;
+
+										//printf("%%----------- unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
+									}
+								}
+							//}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return resourceNear;
 }
 
 //returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
