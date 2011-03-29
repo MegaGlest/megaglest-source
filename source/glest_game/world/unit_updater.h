@@ -113,6 +113,7 @@ public:
 	void updateMorph(Unit *unit, int frameIndex);
 
 	void clearUnitPrecache(Unit *unit);
+	void removeUnitPrecache(Unit *unit);
 
 	unsigned int getAttackWarningCount() const { return attackWarnings.size(); }
 	std::pair<bool,Unit *> unitBeingAttacked(const Unit *unit);

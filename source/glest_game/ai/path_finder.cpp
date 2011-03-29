@@ -85,6 +85,17 @@ void PathFinder::clearUnitPrecache(Unit *unit) {
 	factions[unit->getFactionIndex()].precachedPath[unit->getId()].clear();
 }
 
+void PathFinder::removeUnitPrecache(Unit *unit) {
+	if(factions.size() > unit->getFactionIndex()) {
+		if(factions[unit->getFactionIndex()].precachedTravelState.find(unit->getId()) != factions[unit->getFactionIndex()].precachedTravelState.end()) {
+			factions[unit->getFactionIndex()].precachedTravelState.erase(unit->getId());
+		}
+		if(factions[unit->getFactionIndex()].precachedPath.find(unit->getId()) != factions[unit->getFactionIndex()].precachedPath.end()) {
+			factions[unit->getFactionIndex()].precachedPath.erase(unit->getId());
+		}
+	}
+}
+
 TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck, int frameIndex) {
 	//printf("PathFinder::findPath...\n");
 
