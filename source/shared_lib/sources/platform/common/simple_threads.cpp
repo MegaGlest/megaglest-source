@@ -23,7 +23,8 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
-const static int MAX_FileCRCPreCacheThread_WORKER_THREADS = 3;
+const static int MAX_FileCRCPreCacheThread_WORKER_THREADS 	= 3;
+const static double PAUSE_SECONDS_BETWEEN_WORKERS 			= 15;
 
 FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 	techDataPaths.clear();
@@ -97,8 +98,6 @@ void FileCRCPreCacheThread::execute() {
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %d, currentWorkerMax = %d, endConsumerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);
 
 						// Pause before launching this worker thread
-						//sleep(100);
-						const double PAUSE_SECONDS_BETWEEN_WORKERS = 10;
 						time_t pauseTime = time(NULL);
 						while(getQuitStatus() == false &&
 								difftime(time(NULL),pauseTime) <= PAUSE_SECONDS_BETWEEN_WORKERS) {

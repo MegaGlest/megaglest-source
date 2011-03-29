@@ -92,7 +92,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
         mainMessageBoxState=1;
         showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
@@ -132,7 +132,7 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton){
             char szBuf[4096]="";
             sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
             SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
             mainMessageBoxState=1;
             showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
