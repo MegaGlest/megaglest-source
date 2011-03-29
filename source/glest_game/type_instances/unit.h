@@ -326,7 +326,7 @@ private:
 	//time_t lastBadHarvestListPurge;
 	std::pair<Vec2i,int> lastHarvestResourceTarget;
 
-	std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken;
+	//std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken;
 
 	static Game *game;
 
@@ -489,8 +489,8 @@ public:
 	void setLastHarvestResourceTarget(const Vec2i *pos);
 	std::pair<Vec2i,int> getLastHarvestResourceTarget() const { return lastHarvestResourceTarget;}
 
-	std::pair<Vec2i,std::vector<Vec2i> > getCurrentTargetPathTaken() const { return currentTargetPathTaken; }
-	void addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell);
+	//std::pair<Vec2i,std::vector<Vec2i> > getCurrentTargetPathTaken() const { return currentTargetPathTaken; }
+	//void addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell);
 
 	void logSynchData(string file,int line,string source="");
 	std::string toString() const;
