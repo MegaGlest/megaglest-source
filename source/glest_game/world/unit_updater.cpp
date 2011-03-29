@@ -832,10 +832,19 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
 	    				{
-	    					bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
+	    					Vec2i clickPos = command->getOriginalPos();
+	    					bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit, false,&clickPos);
+	    					//bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
 	    					if(isNearResource == true) {
 	    						if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
 	    							canHarvestDestPos = true;
+	    						}
+	    					}
+	    					else {
+	    						if(clickPos != command->getOriginalPos()) {
+	    							//printf("%%----------- unit [%s - %d] CHANGING RESOURCE POS from [%s] to [%s]\n",unit->getFullName().c_str(),unit->getId(),command->getOriginalPos().getString().c_str(),clickPos.getString().c_str());
+
+	    							command->setPos(clickPos);
 	    						}
 	    					}
 	    				}
