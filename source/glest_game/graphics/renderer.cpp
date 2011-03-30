@@ -2869,15 +2869,48 @@ void Renderer::renderMinimap(){
 //	glDisable(GL_TEXTURE_2D);
 
 
+	// render minimap border
 	Vec4f col= game->getGui()->getDisplay()->getColor();
-	glBegin(GL_QUADS);
 	glColor4f(col.x*0.5f,col.y*0.5f,col.z*0.5f,1.0 );
-	glVertex2i(mx-4, my-4);
-	glVertex2i(mx-4, my+mh+4);
-	glVertex2i(mx+mw+4, my+mh+4);
-	glVertex2i(mx+mw+4, my-4);
 
+	glBegin(GL_QUADS);
+	glVertex2i(mx-4, my-4);
+	glVertex2i(mx-4, my);
+	glVertex2i(mx+mw+4, my);
+	glVertex2i(mx+mw+4, my-4);
 	glEnd();
+
+	glBegin(GL_QUADS);
+	glVertex2i(mx-4, my+mh+4);
+	glVertex2i(mx-4, my+mh);
+	glVertex2i(mx+mw+4, my+mh);
+	glVertex2i(mx+mw+4, my+mh+4);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glVertex2i(mx-4, my);
+	glVertex2i(mx-4, my+mh);
+	glVertex2i(mx, my+mh);
+	glVertex2i(mx, my);
+	glEnd();
+
+	glBegin(GL_QUADS);
+	glVertex2i(mx+mw, my);
+	glVertex2i(mx+mw, my+mh);
+	glVertex2i(mx+mw+4, my+mh);
+	glVertex2i(mx+mw+4, my);
+	glEnd();
+
+
+//	Vec4f col= game->getGui()->getDisplay()->getColor();
+//	glBegin(GL_QUADS);
+//	glColor4f(col.x*0.5f,col.y*0.5f,col.z*0.5f,1.0 );
+//	glVertex2i(mx-4, my-4);
+//	glVertex2i(mx-4, my+mh+4);
+//	glVertex2i(mx+mw+4, my+mh+4);
+//	glVertex2i(mx+mw+4, my-4);
+//
+//	glEnd();
 
 
 	assertGl();
@@ -2948,7 +2981,9 @@ void Renderer::renderMinimap(){
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 */
 
-	glColor4f(0.3f, 0.3f, 0.3f, 0.90f);
+	//glColor4f(0.3f, 0.3f, 0.3f, 0.90f);
+	glColor4f(0.5f, 0.5f, 0.5f, 0.1f);
+
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0.0f, 1.0f);
 		glMultiTexCoord2f(fowTexUnit, 0.0f, 1.0f);
