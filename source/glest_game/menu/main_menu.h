@@ -58,6 +58,7 @@ struct ScenarioInfo
     string desc;
 
     bool fogOfWar;
+    bool fogOfWar_exploredFlag;
 };
 
 class MenuState;

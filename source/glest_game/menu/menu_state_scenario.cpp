@@ -308,11 +308,19 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 	scenarioInfo->desc+= lang.get("TechTree") + ": " + formatString(scenarioInfo->techTreeName) + "\n";
 
 	if(scenarioNode->hasChild("fog-of-war") == true) {
-		scenarioInfo->fogOfWar = scenarioNode->getChild("fog-of-war")->getAttribute("value")->getBoolValue();
+		if(scenarioNode->getChild("fog-of-war")->getAttribute("value")->getValue() == "explored") {
+			scenarioInfo->fogOfWar 				= true;
+			scenarioInfo->fogOfWar_exploredFlag = true;
+		}
+		else {
+			scenarioInfo->fogOfWar = scenarioNode->getChild("fog-of-war")->getAttribute("value")->getBoolValue();
+			scenarioInfo->fogOfWar_exploredFlag = false;
+		}
 		//printf("\nFOG OF WAR is set to [%d]\n",scenarioInfo->fogOfWar);
 	}
 	else {
-		scenarioInfo->fogOfWar = true;
+		scenarioInfo->fogOfWar 				= true;
+		scenarioInfo->fogOfWar_exploredFlag = false;
 	}
 
 	enableScenarioTexturePreview = true;
@@ -366,7 +374,7 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
 	gameSettings->setFactionCount(factionCount);
 	gameSettings->setFogOfWar(scenarioInfo->fogOfWar);
 	uint32 valueFlags1 = gameSettings->getFlagTypes1();
-	if(scenarioInfo->fogOfWar == false) {
+	if(scenarioInfo->fogOfWar == false || scenarioInfo->fogOfWar_exploredFlag) {
         valueFlags1 |= ft1_show_map_resources;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
