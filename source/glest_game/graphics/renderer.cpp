@@ -2846,7 +2846,43 @@ void Renderer::renderMinimap(){
 
 	assertGl();
 
-    glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_TEXTURE_BIT);
+//	CoreData &coreData= CoreData::getInstance();
+//	Texture2D *backTexture =coreData.getButtonBigTexture();
+//	glEnable(GL_TEXTURE_2D);
+//	glEnable(GL_BLEND);
+//	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
+//
+//	glBegin(GL_TRIANGLE_STRIP);
+//			glTexCoord2f(0.f, 0.f);
+//			glVertex2f(mx-8, my-8);
+//
+//			glTexCoord2f(0.f, 1.f);
+//			glVertex2f(mx-8, my+mh+8);
+//
+//			glTexCoord2f(1.f, 0.f);
+//			glVertex2f(mx+mw+8, my-8);
+//
+//			glTexCoord2f(1.f, 1.f);
+//			glVertex2f(mx+mw+8, my+mh+8);
+//	glEnd();
+//
+//	glDisable(GL_TEXTURE_2D);
+
+
+	Vec4f col= game->getGui()->getDisplay()->getColor();
+	glBegin(GL_QUADS);
+	glColor4f(col.x*0.5f,col.y*0.5f,col.z*0.5f,1.0 );
+	glVertex2i(mx-4, my-4);
+	glVertex2i(mx-4, my+mh+4);
+	glVertex2i(mx+mw+4, my+mh+4);
+	glVertex2i(mx+mw+4, my-4);
+
+	glEnd();
+
+
+	assertGl();
+
+	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_TEXTURE_BIT);
 
     //draw map
 	glEnable(GL_TEXTURE_2D);
@@ -2912,7 +2948,7 @@ void Renderer::renderMinimap(){
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 */
 
-	glColor4f(0.5f, 0.5f, 0.5f, 0.1f);
+	glColor4f(0.3f, 0.3f, 0.3f, 0.90f);
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0.0f, 1.0f);
 		glMultiTexCoord2f(fowTexUnit, 0.0f, 1.0f);
