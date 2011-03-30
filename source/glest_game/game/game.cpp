@@ -120,7 +120,8 @@ Game::~Game() {
 
 	logger.loadLoadingScreen("");
 	logger.setState(Lang::getInstance().get("Deleting"));
-	logger.add("Game", true);
+	//logger.add("Game", true);
+	logger.add("Game", false);
 	logger.hideProgress();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
