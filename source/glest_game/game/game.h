@@ -170,11 +170,11 @@ public:
 	void endPerformanceTimer();
 	Vec2i getPerformanceTimerResults();
 
-	static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger,string factionLogoFilter="loading_screen.*", bool useTechDefaultIfFilterNotFound=true);
-	static string findFactionLogoFile(const GameSettings *settings, Logger *logger, string factionLogoFilter="loading_screen.*");
-	static string extractScenarioLogoFile(const GameSettings *settings, string factionLogoFilter,string &result, Logger *logger, bool &loadingImageUsed);
-	static string extractFactionLogoFile(bool &loadingImageUsed, string factionName, Logger *logger,string scenarioDir, string techName, string factionLogoFilter);
-	static string extractTechLogoFile(string scenarioDir, string techName,string factionLogoFilter, Logger *logger, bool &loadingImageUsed);
+	static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger=NULL,string factionLogoFilter="loading_screen.*", bool useTechDefaultIfFilterNotFound=true);
+	static string findFactionLogoFile(const GameSettings *settings, Logger *logger=NULL, string factionLogoFilter="loading_screen.*");
+	static string extractScenarioLogoFile(const GameSettings *settings, string &result, bool &loadingImageUsed, Logger *logger=NULL, string factionLogoFilter="loading_screen.*");
+	static string extractFactionLogoFile(bool &loadingImageUsed, string factionName, string scenarioDir, string techName, Logger *logger=NULL, string factionLogoFilter="loading_screen.*");
+	static string extractTechLogoFile(string scenarioDir, string techName, bool &loadingImageUsed, Logger *logger=NULL,string factionLogoFilter="loading_screen.*");
 
 
 	bool getGameOver() { return gameOver; }

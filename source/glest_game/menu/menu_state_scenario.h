@@ -49,6 +49,9 @@ private:
 
 	string autoloadScenarioName;
 
+	bool enableScenarioTexturePreview;
+	Texture2D *scenarioLogoTexture;
+
 public:
 	MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList, string autoloadScenarioName="");
 
