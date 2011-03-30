@@ -962,8 +962,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
-	printf("\n%s\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
-	printf("\n%s\t\tdisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
+	printf("\n%s\t\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
+	printf("\n%s\t\t\tdisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
 
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 
