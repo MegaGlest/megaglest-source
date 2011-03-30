@@ -696,6 +696,18 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 				GL_TEXTURE_1D, glCompressionFormat, pixmap.getW(),
 				glFormat, GL_UNSIGNED_BYTE, pixels);
 
+			// Now try without compression if we tried compression
+			if(error != 0 && glCompressionFormat != glInternalFormat) {
+				int error2= gluBuild1DMipmaps(
+					GL_TEXTURE_1D, glInternalFormat, pixmap.getW(),
+					glFormat, GL_UNSIGNED_BYTE, pixels);
+
+				if(error2 == 0) {
+					error = 0;
+				}
+			}
+			//
+
 			if(error != 0) {
 				//throw runtime_error("Error building texture 1D mipmaps");
 				char szBuf[1024]="";
@@ -713,7 +725,22 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 				0, glFormat, GL_UNSIGNED_BYTE, pixels);
 
 			GLint error= glGetError();
-			if(error!=GL_NO_ERROR){
+
+			// Now try without compression if we tried compression
+			if(error != GL_NO_ERROR && glCompressionFormat != glInternalFormat) {
+				glTexImage1D(
+					GL_TEXTURE_1D, 0, glInternalFormat, pixmap.getW(),
+					0, glFormat, GL_UNSIGNED_BYTE, pixels);
+
+				GLint error2= glGetError();
+
+				if(error2 == GL_NO_ERROR) {
+					error = GL_NO_ERROR;
+				}
+			}
+			//
+
+			if(error != GL_NO_ERROR) {
 				//throw runtime_error("Error creating texture 1D");
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error creating texture 1D, returned: %d (%X) [%s] w = %d, glCompressionFormat = %d",error,error,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
@@ -800,7 +827,22 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 							glFormat, GL_UNSIGNED_BYTE, pixels);
 
 			GLint error= glGetError();
-			if(error != 0) {
+
+			// Now try without compression if we tried compression
+			if(error != GL_NO_ERROR && glCompressionFormat != glInternalFormat) {
+				glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat,
+								pixmap.getW(), pixmap.getH(), 0,
+								glFormat, GL_UNSIGNED_BYTE, pixels);
+
+				GLint error2= glGetError();
+
+				if(error2 == GL_NO_ERROR) {
+					error = GL_NO_ERROR;
+				}
+			}
+			//
+
+			if(error != GL_NO_ERROR) {
 				//throw runtime_error("Error building texture 2D mipmaps");
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error building texture 2D mipmaps, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH(),glCompressionFormat);
@@ -817,6 +859,20 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 					     pixmap.getH(),0, glFormat, GL_UNSIGNED_BYTE, pixels);
 
 			GLint error= glGetError();
+
+			// Now try without compression if we tried compression
+			if(error != GL_NO_ERROR && glCompressionFormat != glInternalFormat) {
+				glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat,pixmap.getW(),
+						     pixmap.getH(),0, glFormat, GL_UNSIGNED_BYTE, pixels);
+
+				GLint error2= glGetError();
+
+				if(error2 == GL_NO_ERROR) {
+					error = GL_NO_ERROR;
+				}
+			}
+			//
+
 			//throw runtime_error("TEST!");
 
 			if(error != GL_NO_ERROR) {
@@ -894,6 +950,22 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 			0, glFormat, GL_UNSIGNED_BYTE, pixels);
 
 		GLint error= glGetError();
+
+		// Now try without compression if we tried compression
+		if(error != GL_NO_ERROR && glCompressionFormat != glInternalFormat) {
+			glTexImage3D(
+				GL_TEXTURE_3D, 0, glInternalFormat,
+				pixmap.getW(), pixmap.getH(), pixmap.getD(),
+				0, glFormat, GL_UNSIGNED_BYTE, pixels);
+
+			GLint error2= glGetError();
+
+			if(error2 == GL_NO_ERROR) {
+				error = GL_NO_ERROR;
+			}
+		}
+		//
+
 		if(error != GL_NO_ERROR) {
 			//throw runtime_error("Error creating texture 3D");
 			char szBuf[1024]="";
@@ -988,7 +1060,22 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 							 glFormat, GL_UNSIGNED_BYTE, pixels);
 
 				int error = glGetError();
-				if(error != 0) {
+
+				// Now try without compression if we tried compression
+				if(error != GL_NO_ERROR && glCompressionFormat != glInternalFormat) {
+					glTexImage2D(target, 0, glInternalFormat,
+								 currentPixmap->getW(), currentPixmap->getH(), 0,
+								 glFormat, GL_UNSIGNED_BYTE, pixels);
+
+					GLint error2= glGetError();
+
+					if(error2 == GL_NO_ERROR) {
+						error = GL_NO_ERROR;
+					}
+				}
+				//
+
+				if(error != GL_NO_ERROR) {
 					//throw runtime_error("Error building texture cube mipmaps");
 					char szBuf[1024]="";
 					sprintf(szBuf,"Error building texture cube mipmaps, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
@@ -1001,14 +1088,30 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 					target, 0, glCompressionFormat,
 					currentPixmap->getW(), currentPixmap->getH(),
 					0, glFormat, GL_UNSIGNED_BYTE, pixels);
-			}
 
-			int error = glGetError();
-			if(error != GL_NO_ERROR) {
-				//throw runtime_error("Error creating texture cube");
-				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture cube, returned: %d (%X) [%s] w = %d, h = %d, glCompressionFormat = %d",error,error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
-				throw runtime_error(szBuf);
+				int error = glGetError();
+
+				// Now try without compression if we tried compression
+				if(error != GL_NO_ERROR && glCompressionFormat != glInternalFormat) {
+					glTexImage2D(
+						target, 0, glInternalFormat,
+						currentPixmap->getW(), currentPixmap->getH(),
+						0, glFormat, GL_UNSIGNED_BYTE, pixels);
+
+					GLint error2= glGetError();
+
+					if(error2 == GL_NO_ERROR) {
+						error = GL_NO_ERROR;
+					}
+				}
+				//
+
+				if(error != GL_NO_ERROR) {
+					//throw runtime_error("Error creating texture cube");
+					char szBuf[1024]="";
+					sprintf(szBuf,"Error creating texture cube, returned: %d (%X) [%s] w = %d, h = %d, glCompressionFormat = %d",error,error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
+					throw runtime_error(szBuf);
+				}
 			}
 
 			OutputTextureDebugInfo(format, currentPixmap->getComponents(),getPath(),currentPixmap->getPixelByteCount(),target);
