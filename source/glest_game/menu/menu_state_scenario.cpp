@@ -35,6 +35,9 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
     MenuState(program, mainMenu, "scenario")
 {
 	containerName = "Scenario";
+	enableScenarioTexturePreview=false;
+	scenarioLogoTexture=NULL;
+
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
@@ -156,6 +159,10 @@ void MenuStateScenario::render(){
 
 	Renderer &renderer= Renderer::getInstance();
 
+	if(scenarioLogoTexture != NULL) {
+		renderer.renderBackground(scenarioLogoTexture);
+	}
+
 	if(mainMessageBox.getEnabled()){
 		renderer.renderMessageBox(&mainMessageBox);
 	}
@@ -206,7 +213,6 @@ void MenuStateScenario::setScenario(int i){
 }
 
 void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo){
-
     Lang &lang= Lang::getInstance();
 
     XmlTree xmlTree;
@@ -308,6 +314,24 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 	else {
 		scenarioInfo->fogOfWar = true;
 	}
+
+	enableScenarioTexturePreview = true;
+	if(enableScenarioTexturePreview == true) {
+		GameSettings gameSettings;
+	    loadGameSettings(scenarioInfo, &gameSettings);
+
+	    string scenarioLogo 	= "";
+	    bool loadingImageUsed 	= false;
+
+	    Game::extractScenarioLogoFile(&gameSettings, scenarioLogo, loadingImageUsed);
+		if(scenarioLogo != "") {
+			scenarioLogoTexture = Renderer::findFactionLogoTexture(scenarioLogo);
+		}
+		else {
+			scenarioLogoTexture = NULL;
+		}
+	}
+
 }
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){

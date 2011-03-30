@@ -1821,7 +1821,6 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		if(enableFactionTexturePreview == true) {
-
 			if( currentTechName_factionPreview != gameSettings.getTech() ||
 				currentFactionName_factionPreview != gameSettings.getFactionTypeName(gameSettings.getThisFactionIndex())) {
 
