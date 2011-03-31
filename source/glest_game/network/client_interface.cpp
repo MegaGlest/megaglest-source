@@ -653,7 +653,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 	//send ready message
 	NetworkMessageReady networkMessageReady;
-	//sendMessage(&networkMessageReady);
+	sendMessage(&networkMessageReady);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -747,7 +747,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 								if(waitForHosts != "") {
 									waitForHosts += ", ";
 								}
-								waitForHosts += gameSettings.getNetworkPlayerName(0);
+								waitForHosts += gameSettings.getNetworkPlayerNameByPlayerIndex(0);
 							}
 						}
 						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER2_CONNECTED) == nmls_PLAYER2_CONNECTED) {
@@ -755,7 +755,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 								if(waitForHosts != "") {
 									waitForHosts += ", ";
 								}
-								waitForHosts += gameSettings.getNetworkPlayerName(1);
+								waitForHosts += gameSettings.getNetworkPlayerNameByPlayerIndex(1);
 							}
 						}
 						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER3_CONNECTED) == nmls_PLAYER3_CONNECTED) {
@@ -763,7 +763,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 								if(waitForHosts != "") {
 									waitForHosts += ", ";
 								}
-								waitForHosts += gameSettings.getNetworkPlayerName(2);
+								waitForHosts += gameSettings.getNetworkPlayerNameByPlayerIndex(2);
 							}
 						}
 						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER4_CONNECTED) == nmls_PLAYER4_CONNECTED) {
@@ -771,7 +771,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 								if(waitForHosts != "") {
 									waitForHosts += ", ";
 								}
-								waitForHosts += gameSettings.getNetworkPlayerName(3);
+								waitForHosts += gameSettings.getNetworkPlayerNameByPlayerIndex(3);
 							}
 						}
 						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER5_CONNECTED) == nmls_PLAYER5_CONNECTED) {
@@ -779,7 +779,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 								if(waitForHosts != "") {
 									waitForHosts += ", ";
 								}
-								waitForHosts += gameSettings.getNetworkPlayerName(4);
+								waitForHosts += gameSettings.getNetworkPlayerNameByPlayerIndex(4);
 							}
 						}
 						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER6_CONNECTED) == nmls_PLAYER6_CONNECTED) {
@@ -787,7 +787,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 								if(waitForHosts != "") {
 									waitForHosts += ", ";
 								}
-								waitForHosts += gameSettings.getNetworkPlayerName(5);
+								waitForHosts += gameSettings.getNetworkPlayerNameByPlayerIndex(5);
 							}
 						}
 						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER7_CONNECTED) == nmls_PLAYER7_CONNECTED) {
@@ -795,7 +795,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 								if(waitForHosts != "") {
 									waitForHosts += ", ";
 								}
-								waitForHosts += gameSettings.getNetworkPlayerName(6);
+								waitForHosts += gameSettings.getNetworkPlayerNameByPlayerIndex(6);
 							}
 						}
 						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER8_CONNECTED) == nmls_PLAYER8_CONNECTED) {
@@ -803,7 +803,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 								if(waitForHosts != "") {
 									waitForHosts += ", ";
 								}
-								waitForHosts += gameSettings.getNetworkPlayerName(7);
+								waitForHosts += gameSettings.getNetworkPlayerNameByPlayerIndex(7);
 							}
 						}
 

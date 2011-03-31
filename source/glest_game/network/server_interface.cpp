@@ -1009,7 +1009,9 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 
 	bool allReady = false;
 
-	logger.setCancelLoadingEnabled(true);
+	if(Config::getInstance().getBool("EnableGameServerLoadCancel","false") == true) {
+		logger.setCancelLoadingEnabled(true);
+	}
 
 	Lang &lang= Lang::getInstance();
 	while(exitServer == false && allReady == false && logger.getCancelLoading() == false) {
