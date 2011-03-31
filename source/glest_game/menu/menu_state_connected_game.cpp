@@ -968,7 +968,7 @@ void MenuStateConnectedGame::update() {
                 if(lastCheckedCRCTilesetName != gameSettings->getTileset() &&
                 	gameSettings->getTileset() != "") {
 					//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
-					tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+					tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
 					// Test data synch
 					//tilesetCRC++;
 					lastCheckedCRCTilesetValue = tilesetCRC;
@@ -2148,7 +2148,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL);
+            lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
 
             safeMutexFTPProgress.ReleaseLock();
             // END
@@ -2207,7 +2207,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL);
+            lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
 
             safeMutexFTPProgress.ReleaseLock();
             // END
