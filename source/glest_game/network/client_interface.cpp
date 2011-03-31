@@ -617,7 +617,10 @@ void ClientInterface::updateKeyframe(int frameCount) {
         		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			break;
-            case nmtInvalid:
+            case nmtLoadingStatusMessage:
+                break;
+
+			case nmtInvalid:
                 break;
 
 			default:
@@ -650,13 +653,18 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 	//send ready message
 	NetworkMessageReady networkMessageReady;
-	sendMessage(&networkMessageReady);
+	//sendMessage(&networkMessageReady);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+	NetworkMessageLoadingStatus networkMessageLoadingStatus(nmls_NONE);
+
+	Lang &lang= Lang::getInstance();
     int64 lastMillisCheck = 0;
 	//wait until we get a ready message from the server
 	while(true)	{
+		// FOR TESTING ONLY - delay to see the client count up while waiting
+		//sleep(2000);
 
 		if(isConnected() == false) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -683,6 +691,28 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 					break;
 				}
 			}
+			else if(networkMessageType == nmtLoadingStatusMessage) {
+				if(receiveMessage(&networkMessageLoadingStatus)) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+				}
+			}
+			else if(networkMessageType == nmtQuit) {
+				NetworkMessageQuit networkMessageQuit;
+				if(receiveMessage(&networkMessageQuit)) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+					DisplayErrorMessage(lang.get("GameCancelledByUser"));
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+					quit= true;
+					close();
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+					return;
+
+				}
+			}
 			else if(networkMessageType == nmtInvalid) {
 				if(chrono.getMillis() > readyWaitTimeout) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -706,8 +736,87 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 						lastMillisCheck = (chrono.getMillis() / 1000);
 
 						char szBuf[1024]="";
-						sprintf(szBuf,"Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)",(long long int)lastMillisCheck,int(readyWaitTimeout / 1000));
-						logger.add(szBuf, true);
+						string updateTextFormat = lang.get("NetworkGameClientLoadStatus");
+						if(updateTextFormat == "" || updateTextFormat[0] == '?') {
+							updateTextFormat =  "Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)";
+						}
+
+						string waitForHosts = "";
+						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER1_CONNECTED) == nmls_PLAYER1_CONNECTED) {
+							if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER1_READY) != nmls_PLAYER1_READY) {
+								if(waitForHosts != "") {
+									waitForHosts += ", ";
+								}
+								waitForHosts += gameSettings.getNetworkPlayerName(0);
+							}
+						}
+						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER2_CONNECTED) == nmls_PLAYER2_CONNECTED) {
+							if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER2_READY) != nmls_PLAYER2_READY) {
+								if(waitForHosts != "") {
+									waitForHosts += ", ";
+								}
+								waitForHosts += gameSettings.getNetworkPlayerName(1);
+							}
+						}
+						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER3_CONNECTED) == nmls_PLAYER3_CONNECTED) {
+							if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER3_READY) != nmls_PLAYER3_READY) {
+								if(waitForHosts != "") {
+									waitForHosts += ", ";
+								}
+								waitForHosts += gameSettings.getNetworkPlayerName(2);
+							}
+						}
+						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER4_CONNECTED) == nmls_PLAYER4_CONNECTED) {
+							if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER4_READY) != nmls_PLAYER4_READY) {
+								if(waitForHosts != "") {
+									waitForHosts += ", ";
+								}
+								waitForHosts += gameSettings.getNetworkPlayerName(3);
+							}
+						}
+						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER5_CONNECTED) == nmls_PLAYER5_CONNECTED) {
+							if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER5_READY) != nmls_PLAYER5_READY) {
+								if(waitForHosts != "") {
+									waitForHosts += ", ";
+								}
+								waitForHosts += gameSettings.getNetworkPlayerName(4);
+							}
+						}
+						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER6_CONNECTED) == nmls_PLAYER6_CONNECTED) {
+							if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER6_READY) != nmls_PLAYER6_READY) {
+								if(waitForHosts != "") {
+									waitForHosts += ", ";
+								}
+								waitForHosts += gameSettings.getNetworkPlayerName(5);
+							}
+						}
+						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER7_CONNECTED) == nmls_PLAYER7_CONNECTED) {
+							if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER7_READY) != nmls_PLAYER7_READY) {
+								if(waitForHosts != "") {
+									waitForHosts += ", ";
+								}
+								waitForHosts += gameSettings.getNetworkPlayerName(6);
+							}
+						}
+						if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER8_CONNECTED) == nmls_PLAYER8_CONNECTED) {
+							if((networkMessageLoadingStatus.getStatus() & nmls_PLAYER8_READY) != nmls_PLAYER8_READY) {
+								if(waitForHosts != "") {
+									waitForHosts += ", ";
+								}
+								waitForHosts += gameSettings.getNetworkPlayerName(7);
+							}
+						}
+
+						sprintf(szBuf,updateTextFormat.c_str(),(long long int)lastMillisCheck,int(readyWaitTimeout / 1000));
+
+						char szBuf1[1024]="";
+						string statusTextFormat = lang.get("NetworkGameStatusWaiting");
+						if(statusTextFormat == "" || statusTextFormat[0] == '?') {
+							statusTextFormat =  "Waiting for players: %s";
+						}
+						sprintf(szBuf1,statusTextFormat.c_str(),waitForHosts.c_str());
+
+						logger.add(szBuf, true, szBuf1);
 					}
 				}
 			}

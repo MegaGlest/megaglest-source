@@ -1009,7 +1009,10 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 
 	bool allReady = false;
 
-	while(exitServer == false && allReady == false) {
+	logger.setCancelLoadingEnabled(true);
+
+	Lang &lang= Lang::getInstance();
+	while(exitServer == false && allReady == false && logger.getCancelLoading() == false) {
 		vector<string> waitingForHosts;
 		allReady= true;
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i)	{
@@ -1033,6 +1036,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 							string sErr = "Unexpected network message: " + intToStr(networkMessageType);
 							sendTextMessage(sErr,-1, true,i);
 							DisplayErrorMessage(sErr);
+							logger.setCancelLoading(false);
 							return;
 						}
 					}
@@ -1049,6 +1053,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 				string sErr = "Timeout waiting for clients.";
 				sendTextMessage(sErr,-1, true);
 				DisplayErrorMessage(sErr);
+				logger.setCancelLoading(false);
 				return;
 			}
 			else {
@@ -1062,14 +1067,107 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 					}
 
 					char szBuf[1024]="";
-					sprintf(szBuf,"Waiting for network: %d of %d max seconds (waiting for: %s)",int(chrono.getMillis() / 1000),int(readyWaitTimeout / 1000),waitForHosts.c_str());
-					logger.add(szBuf, true);
+					string updateTextFormat = lang.get("NetworkGameServerLoadStatus");
+					if(updateTextFormat == "" || updateTextFormat[0] == '?') {
+						updateTextFormat =  "Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)";
+					}
+					sprintf(szBuf,updateTextFormat.c_str(),(long long int)(chrono.getMillis() / 1000),int(readyWaitTimeout / 1000));
+
+					char szBuf1[1024]="";
+					string statusTextFormat = lang.get("NetworkGameStatusWaiting");
+					if(statusTextFormat == "" || statusTextFormat[0] == '?') {
+						statusTextFormat =  "Waiting for players: %s";
+					}
+					sprintf(szBuf1,statusTextFormat.c_str(),waitForHosts.c_str());
+
+					logger.add(szBuf, true, szBuf1);
+
+					uint32 loadingStatus = nmls_NONE;
+					//send ready message after, so clients start delayed
+					for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+						MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
+						ConnectionSlot* connectionSlot= slots[i];
+						if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+							switch(i) {
+								case 0:
+									loadingStatus |= nmls_PLAYER1_CONNECTED;
+									if(connectionSlot->isReady()) {
+										loadingStatus |= nmls_PLAYER1_READY;
+									}
+									break;
+								case 1:
+									loadingStatus |= nmls_PLAYER2_CONNECTED;
+									if(connectionSlot->isReady()) {
+										loadingStatus |= nmls_PLAYER2_READY;
+									}
+									break;
+								case 2:
+									loadingStatus |= nmls_PLAYER3_CONNECTED;
+									if(connectionSlot->isReady()) {
+										loadingStatus |= nmls_PLAYER3_READY;
+									}
+									break;
+								case 3:
+									loadingStatus |= nmls_PLAYER4_CONNECTED;
+									if(connectionSlot->isReady()) {
+										loadingStatus |= nmls_PLAYER4_READY;
+									}
+									break;
+								case 4:
+									loadingStatus |= nmls_PLAYER5_CONNECTED;
+									if(connectionSlot->isReady()) {
+										loadingStatus |= nmls_PLAYER5_READY;
+									}
+									break;
+								case 5:
+									loadingStatus |= nmls_PLAYER6_CONNECTED;
+									if(connectionSlot->isReady()) {
+										loadingStatus |= nmls_PLAYER6_READY;
+									}
+									break;
+								case 6:
+									loadingStatus |= nmls_PLAYER7_CONNECTED;
+									if(connectionSlot->isReady()) {
+										loadingStatus |= nmls_PLAYER7_READY;
+									}
+									break;
+								case 7:
+									loadingStatus |= nmls_PLAYER8_CONNECTED;
+									if(connectionSlot->isReady()) {
+										loadingStatus |= nmls_PLAYER8_READY;
+									}
+									break;
+							}
+						}
+					}
+
+					// send loading status message
+					for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+						MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
+						ConnectionSlot* connectionSlot= slots[i];
+						if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+							NetworkMessageLoadingStatus networkMessageLoadingStatus(loadingStatus);
+							connectionSlot->sendMessage(&networkMessageLoadingStatus);
+						}
+					}
 				}
 			}
 		}
 
 		Window::handleEvent();
 	}
+
+	if(logger.getCancelLoading() == true) {
+		string sErr = lang.get("GameCancelledByUser");
+		sendTextMessage(sErr,-1, true);
+
+		quitGame(true);
+
+		DisplayErrorMessage(sErr);
+		logger.setCancelLoading(false);
+		return;
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] PART B (telling client we are ready!\n",__FUNCTION__);
 	try {
 		//send ready message after, so clients start delayed

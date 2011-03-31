@@ -16,6 +16,7 @@
 #include <deque>
 
 #include "texture.h"
+#include "components.h"
 #include "leak_dumper.h"
 
 using std::string;
@@ -30,7 +31,7 @@ namespace Glest{ namespace Game{
 /// Interface to write log files
 // =====================================================
 
-class Logger{
+class Logger {
 private:
 	static const int logLineCount;
 
@@ -45,6 +46,10 @@ private:
 	Texture2D *loadingTexture;
 	int progress;
 	bool showProgressBar;
+
+	string statusText;
+	bool cancelSelected;
+	GraphicButton buttonCancel;
 
 private:
 	Logger();
@@ -61,9 +66,14 @@ public:
     void showProgress() { showProgressBar = true;}
     void hideProgress() { showProgressBar = false;}
 
-	void add(const string &str, bool renderScreen= false);
+	void add(const string str, bool renderScreen= false, const string statusText="");
 	void loadLoadingScreen(string filepath);
 	void renderLoadingScreen();
+
+	void setCancelLoadingEnabled(bool value);
+	bool getCancelLoading() const { return cancelSelected; }
+	void setCancelLoading(bool value) { cancelSelected = value; }
+	void handleMouseClick(int x, int y);
 
 	void clear();
 

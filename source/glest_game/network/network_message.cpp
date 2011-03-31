@@ -1001,8 +1001,6 @@ void SwitchSetupRequest::send(Socket* socket) const {
 // =====================================================
 //	class PlayerIndexMessage
 // =====================================================
-
-
 PlayerIndexMessage::PlayerIndexMessage(int16 playerIndex)
 {
 	data.messageType= nmtPlayerIndexMessage;
@@ -1020,5 +1018,24 @@ void PlayerIndexMessage::send(Socket* socket) const
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
+// =====================================================
+//	class NetworkMessageLoadingStatus
+// =====================================================
+NetworkMessageLoadingStatus::NetworkMessageLoadingStatus(uint32 status)
+{
+	data.messageType= nmtLoadingStatusMessage;
+	data.status=status;
+}
+
+bool NetworkMessageLoadingStatus::receive(Socket* socket)
+{
+	return NetworkMessage::receive(socket, &data, sizeof(data));
+}
+
+void NetworkMessageLoadingStatus::send(Socket* socket) const
+{
+	assert(data.messageType==nmtLoadingStatusMessage);
+	NetworkMessage::send(socket, &data, sizeof(data));
+}
 
 }}//end namespace
