@@ -35,7 +35,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
     MenuState(program, mainMenu, "scenario")
 {
 	containerName = "Scenario";
-	enableScenarioTexturePreview=false;
+	enableScenarioTexturePreview = Config::getInstance().getBool("EnableScenarioTexturePreview","true");
 	scenarioLogoTexture=NULL;
 	previewLoadDelayTimer=time(NULL);
 	needToLoadTextures=true;
@@ -107,8 +107,20 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 	}
 }
 
-void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton){
+MenuStateScenario::~MenuStateScenario() {
+	cleanupPreviewTexture();
+}
 
+void MenuStateScenario::cleanupPreviewTexture() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogoTexture [%p]\n",__FILE__,__FUNCTION__,__LINE__,scenarioLogoTexture);
+
+	if(scenarioLogoTexture != NULL) {
+		Renderer::getInstance().endTexture(rsGlobal, scenarioLogoTexture, false);
+	}
+	scenarioLogoTexture = NULL;
+}
+
+void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
@@ -117,8 +129,7 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton){
 		if(mainMessageBox.mouseClick(x, y, button))
 		{
 			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==1)
-			{
+			if(button==1) {
 				mainMessageBox.setEnabled(false);
 			}
 		}
@@ -169,7 +180,7 @@ void MenuStateScenario::render(){
 		//renderer.renderBackground(scenarioLogoTexture);
 	}
 
-	if(mainMessageBox.getEnabled()){
+	if(mainMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
 	else {
@@ -183,7 +194,7 @@ void MenuStateScenario::render(){
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
-void MenuStateScenario::update(){
+void MenuStateScenario::update() {
 	if(Config::getInstance().getBool("AutoTest")) {
 		AutoTest::getInstance().updateScenario(this);
 	}
@@ -206,7 +217,7 @@ void MenuStateScenario::update(){
 		}
 	}
 
-	if(needToLoadTextures){
+	if(needToLoadTextures) {
 		// this delay is done to make it possible to switch faster
 		if(difftime(time(NULL), previewLoadDelayTimer) >= 2){
 			loadScenarioPreviewTexture();
@@ -215,18 +226,18 @@ void MenuStateScenario::update(){
 	}
 }
 
-void MenuStateScenario::launchGame(){
+void MenuStateScenario::launchGame() {
 	GameSettings gameSettings;
     loadGameSettings(&scenarioInfo, &gameSettings);
 	program->setState(new Game(program, &gameSettings));
 }
 
-void MenuStateScenario::setScenario(int i){
+void MenuStateScenario::setScenario(int i) {
 	listBoxScenario.setSelectedItemIndex(i);
 	loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
 }
 
-void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo){
+void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
     Lang &lang= Lang::getInstance();
 
     XmlTree xmlTree;
@@ -243,38 +254,35 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 
 	const XmlNode *playersNode= scenarioNode->getChild("players");
 
-    for(int i= 0; i<GameConstants::maxPlayers; ++i){
-    	XmlNode* playerNode;
-    	string factionTypeName;
+    for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+    	XmlNode* playerNode=NULL;
+    	string factionTypeName="";
     	ControlType factionControl;
 
     	if(playersNode->hasChildAtIndex("player",i)){
         	playerNode = playersNode->getChild("player", i);
         	factionControl = strToControllerType( playerNode->getAttribute("control")->getValue() );
 
-        	if(playerNode->getAttribute("resource_multiplier",false)!=NULL)
-			{// if a multiplier exists use it
+        	if(playerNode->getAttribute("resource_multiplier",false)!=NULL) {
+        		// if a multiplier exists use it
 				scenarioInfo->resourceMultipliers[i]=playerNode->getAttribute("resource_multiplier")->getFloatValue();
 			}
-			else
-			{// if no multiplier exists use defaults
+			else {
+				// if no multiplier exists use defaults
 				scenarioInfo->resourceMultipliers[i]=GameConstants::normalMultiplier;
-				if(factionControl==ctCpuEasy)
-				{
+				if(factionControl==ctCpuEasy) {
 					scenarioInfo->resourceMultipliers[i]=GameConstants::easyMultiplier;
 				}
-				if(factionControl==ctCpuUltra)
-				{
+				if(factionControl==ctCpuUltra) {
 					scenarioInfo->resourceMultipliers[i]=GameConstants::ultraMultiplier;
 				}
-				else if(factionControl==ctCpuMega)
-				{
+				else if(factionControl==ctCpuMega) {
 					scenarioInfo->resourceMultipliers[i]=GameConstants::megaMultiplier;
 				}
 			}
 
     	}
-        else{
+        else {
         	factionControl=ctClosed;
         }
 
@@ -303,10 +311,8 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 
 	//add player info
     scenarioInfo->desc= lang.get("Player") + ": ";
-	for(int i=0; i<GameConstants::maxPlayers; ++i )
-	{
-		if(scenarioInfo->factionControls[i] == ctHuman )
-		{
+	for(int i=0; i<GameConstants::maxPlayers; ++i) {
+		if(scenarioInfo->factionControls[i] == ctHuman) {
 			scenarioInfo->desc+= formatString(scenarioInfo->factionTypeNames[i]);
 			break;
 		}
@@ -336,28 +342,33 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 		scenarioInfo->fogOfWar 				= true;
 		scenarioInfo->fogOfWar_exploredFlag = false;
 	}
-	scenarioLogoTexture = NULL;
+	//scenarioLogoTexture = NULL;
+	cleanupPreviewTexture();
 	previewLoadDelayTimer=time(NULL);
 	needToLoadTextures=true;
 }
 
 void MenuStateScenario::loadScenarioPreviewTexture(){
-	enableScenarioTexturePreview = true;
-		if(enableScenarioTexturePreview == true) {
-			GameSettings gameSettings;
-		    loadGameSettings(&scenarioInfo, &gameSettings);
+	if(enableScenarioTexturePreview == true) {
+		GameSettings gameSettings;
+		loadGameSettings(&scenarioInfo, &gameSettings);
 
-		    string scenarioLogo 	= "";
-		    bool loadingImageUsed 	= false;
+		string scenarioLogo 	= "";
+		bool loadingImageUsed 	= false;
 
-		    Game::extractScenarioLogoFile(&gameSettings, scenarioLogo, loadingImageUsed);
-			if(scenarioLogo != "") {
-				scenarioLogoTexture = Renderer::findFactionLogoTexture(scenarioLogo);
-			}
-			else {
-				scenarioLogoTexture = NULL;
-			}
+		Game::extractScenarioLogoFile(&gameSettings, scenarioLogo, loadingImageUsed);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogo [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioLogo.c_str());
+
+		if(scenarioLogo != "") {
+			cleanupPreviewTexture();
+			scenarioLogoTexture = Renderer::findFactionLogoTexture(scenarioLogo);
 		}
+		else {
+			cleanupPreviewTexture();
+			scenarioLogoTexture = NULL;
+		}
+	}
 }
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){

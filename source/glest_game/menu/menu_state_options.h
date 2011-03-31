@@ -105,6 +105,9 @@ private:
 	GraphicLabel labelEnablePrivacy;
 	GraphicCheckBox checkBoxEnablePrivacy;
 
+	GraphicLabel labelEnableTextureCompression;
+	GraphicCheckBox checkBoxEnableTextureCompression;
+
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
 

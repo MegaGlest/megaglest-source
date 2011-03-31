@@ -232,6 +232,17 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxMapPreview.setValue(config.getBool("MapPreview","true"));
 	currentLine-=30;
 
+	// Texture Compression flag
+	labelEnableTextureCompression.registerGraphicComponent(containerName,"labelEnableTextureCompression");
+	labelEnableTextureCompression.init(currentLabelStart ,currentLine);
+	labelEnableTextureCompression.setText(lang.get("EnableTextureCompression"));
+
+	checkBoxEnableTextureCompression.registerGraphicComponent(containerName,"checkBoxEnableTextureCompression");
+	checkBoxEnableTextureCompression.init(currentColumnStart ,currentLine );
+	checkBoxEnableTextureCompression.setValue(config.getBool("EnableTextureCompression","false"));
+	currentLine-=30;
+	// end
+
 	//////////////////////////////////////////////////////////////////
 	///////// RIGHT SIDE
 	//////////////////////////////////////////////////////////////////
@@ -413,7 +424,6 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	currentLine-=30;
 	// end
 
-
 	// buttons
 	buttonOk.registerGraphicComponent(containerName,"buttonOk");
 	buttonOk.init(buttonStartPos, buttonRowPos, 100);
@@ -574,6 +584,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         checkBoxEnableFTPServerInternetTechtreeXfer.mouseClick(x, y);
 
         checkBoxEnablePrivacy.mouseClick(x, y);
+
+        checkBoxEnableTextureCompression.mouseClick(x, y);
 	}
 }
 
@@ -611,6 +623,8 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
     checkBoxEnableFTPServerInternetTechtreeXfer.mouseMove(x, y);
 
 	checkBoxEnablePrivacy.mouseMove(x, y);
+
+	checkBoxEnableTextureCompression.mouseMove(x, y);
 }
 
 void MenuStateOptions::keyDown(char key){
@@ -729,6 +743,9 @@ void MenuStateOptions::render(){
 
         renderer.renderLabel(&labelEnablePrivacy);
         renderer.renderCheckBox(&checkBoxEnablePrivacy);
+
+        renderer.renderLabel(&labelEnableTextureCompression);
+        renderer.renderCheckBox(&checkBoxEnableTextureCompression);
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();
@@ -772,6 +789,8 @@ void MenuStateOptions::saveConfig(){
     config.setBool("EnableFTPServerInternetTechtreeXfer", checkBoxEnableFTPServerInternetTechtreeXfer.getValue());
 
     config.setBool("PrivacyPlease", checkBoxEnablePrivacy.getValue());
+
+    config.setBool("EnableTextureCompression", checkBoxEnableTextureCompression.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
