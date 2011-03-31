@@ -1046,6 +1046,7 @@ void Game::tick() {
 void Game::mouseDownLeft(int x, int y) {
 	try {
 		if(gameStarted == false) {
+			Logger::getInstance().handleMouseClick(x, y);
 			return;
 		}
 
@@ -1143,6 +1144,7 @@ void Game::mouseDownLeft(int x, int y) {
 void Game::mouseDownRight(int x, int y) {
 	try {
 		if(gameStarted == false) {
+			Logger::getInstance().handleMouseClick(x, y);
 			return;
 		}
 

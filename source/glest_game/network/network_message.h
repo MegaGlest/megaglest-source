@@ -42,6 +42,7 @@ enum NetworkMessageType {
 	nmtBroadCastSetup,
 	nmtSwitchSetupRequest,
 	nmtPlayerIndexMessage,
+	nmtLoadingStatusMessage,
 
 	nmtCount
 };
@@ -660,6 +661,57 @@ public:
 	virtual void send(Socket* socket) const;
 };
 #pragma pack(pop)
+
+// =====================================================
+//	class NetworkMessageLoadingStatus
+//
+//	Message sent during game loading
+// =====================================================
+
+enum NetworkMessageLoadingStatusType {
+	nmls_NONE = 0x00,
+
+	nmls_PLAYER1_CONNECTED = 0x01,
+	nmls_PLAYER2_CONNECTED = 0x02,
+	nmls_PLAYER3_CONNECTED = 0x04,
+	nmls_PLAYER4_CONNECTED = 0x08,
+	nmls_PLAYER5_CONNECTED = 0x10,
+	nmls_PLAYER6_CONNECTED = 0x20,
+	nmls_PLAYER7_CONNECTED = 0x40,
+	nmls_PLAYER8_CONNECTED = 0x80,
+
+	nmls_PLAYER1_READY = 0x100,
+	nmls_PLAYER2_READY = 0x200,
+	nmls_PLAYER3_READY = 0x400,
+	nmls_PLAYER4_READY = 0x1000,
+	nmls_PLAYER5_READY = 0x2000,
+	nmls_PLAYER6_READY = 0x4000,
+	nmls_PLAYER7_READY = 0x8000,
+	nmls_PLAYER8_READY = 0x10000
+};
+
+#pragma pack(push, 1)
+class NetworkMessageLoadingStatus : public NetworkMessage {
+private:
+	struct Data{
+		int8 messageType;
+		uint32 status;
+	};
+
+private:
+	Data data;
+
+public:
+	NetworkMessageLoadingStatus();
+	NetworkMessageLoadingStatus(uint32 status);
+
+	uint32 getStatus() const	{return data.status;}
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+};
+#pragma pack(pop)
+
 
 }}//end namespace
 

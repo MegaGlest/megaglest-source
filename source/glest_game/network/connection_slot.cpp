@@ -731,6 +731,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							// its simply ignored here. Probably we are starting a game
 							break;
 						}
+			            case nmtLoadingStatusMessage:
+			                break;
+
 						default:
 							{
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);

@@ -49,6 +49,9 @@ Logger::Logger() {
 	}
 	loadingTexture=NULL;
 	showProgressBar = false;
+
+	cancelSelected = false;
+	buttonCancel.setEnabled(false);
 }
 
 Logger::~Logger() {
@@ -59,24 +62,26 @@ Logger & Logger::getInstance() {
 	return logger;
 }
 
-void Logger::add(const string &str,  bool renderScreen) {
-	FILE *f=fopen(fileName.c_str(), "at+");
-	if(f!=NULL){
+void Logger::add(const string str,  bool renderScreen, const string statusText) {
+	FILE *f = fopen(fileName.c_str(), "at+");
+	if(f != NULL){
 		fprintf(f, "%s\n", str.c_str());
 		fclose(f);
 	}
-	current= str;
-	if(renderScreen){
+	this->current= str;
+	this->statusText = statusText;
+
+	if(renderScreen == true) {
 		renderLoadingScreen();
 	}
 }
 
 void Logger::clear() {
-    string s="Log file\n";
+    string s = "Log file\n";
 
 	FILE *f= fopen(fileName.c_str(), "wt+");
-	if(f==NULL){
-		throw runtime_error("Error opening log file"+ fileName);
+	if(f == NULL){
+		throw runtime_error("Error opening log file" + fileName);
 	}
 
     fprintf(f, "%s", s.c_str());
@@ -86,18 +91,23 @@ void Logger::clear() {
 }
 
 void Logger::loadLoadingScreen(string filepath) {
-
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(filepath=="")
-	{
-		loadingTexture=NULL;
+	if(filepath == "") {
+		loadingTexture = NULL;
 	}
-	else
-	{
+	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
 		loadingTexture = Renderer::findFactionLogoTexture(filepath);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
+void Logger::handleMouseClick(int x, int y) {
+	if(buttonCancel.getEnabled() == true) {
+		if(buttonCancel.mouseClick(x, y)) {
+			cancelSelected = true;
+		}
 	}
 }
 
@@ -114,7 +124,7 @@ void Logger::renderLoadingScreen() {
 	if(loadingTexture == NULL) {
 		renderer.renderBackground(CoreData::getInstance().getBackgroundTexture());
 	}
-	else{
+	else {
 		renderer.renderBackground(loadingTexture);
 	}
 	renderer.renderText(
@@ -123,19 +133,41 @@ void Logger::renderLoadingScreen() {
 
 	renderer.renderText(
 		current, coreData.getMenuFontNormal(), 1.0f,
-		metrics.getVirtualW()/4,
-		62*metrics.getVirtualH()/100, false);
+		metrics.getVirtualW() / 4,
+		62 * metrics.getVirtualH() / 100, false);
 
     if(showProgressBar == true) {
         renderer.renderProgressBar(
             progress,
-            metrics.getVirtualW()/4,
-            59*metrics.getVirtualH()/100,
+            metrics.getVirtualW() / 4,
+            59 * metrics.getVirtualH() / 100,
             coreData.getDisplayFontSmall(),
             350,""); // no string here, because it has to be language specific and does not give much information
     }
 
+    if(this->statusText != "") {
+    	renderer.renderText(
+    		this->statusText, coreData.getMenuFontNormal(), 1.0f,
+    		metrics.getVirtualW() / 4,
+    		56 * metrics.getVirtualH() / 100, false);
+    }
+
+    if(buttonCancel.getEnabled() == true) {
+    	renderer.renderButton(&buttonCancel);
+    }
+
 	renderer.swapBuffers();
+}
+
+void Logger::setCancelLoadingEnabled(bool value) {
+	Lang &lang= Lang::getInstance();
+	const Metrics &metrics= Metrics::getInstance();
+	string containerName = "logger";
+	//buttonCancel.registerGraphicComponent(containerName,"buttonCancel");
+	buttonCancel.init((metrics.getVirtualW() / 2) - (125 / 2), 50 * metrics.getVirtualH() / 100, 125);
+	buttonCancel.setText(lang.get("Cancel"));
+	buttonCancel.setEnabled(value);
+	//GraphicComponent::applyAllCustomProperties(containerName);
 }
 
 }}//end namespace
