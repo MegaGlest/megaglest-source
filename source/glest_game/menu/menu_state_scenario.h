@@ -49,6 +49,9 @@ private:
 
 	string autoloadScenarioName;
 
+	time_t previewLoadDelayTimer;
+	bool needToLoadTextures;
+
 	bool enableScenarioTexturePreview;
 	Texture2D *scenarioLogoTexture;
 
@@ -70,6 +73,7 @@ private:
 
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
     void loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings);
+    void loadScenarioPreviewTexture();
 	Difficulty computeDifficulty(const ScenarioInfo *scenarioInfo);
     ControlType strToControllerType(const string &str);
     void showMessageBox(const string &text, const string &header, bool toggle);
