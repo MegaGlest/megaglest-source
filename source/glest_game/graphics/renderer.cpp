@@ -531,7 +531,21 @@ void Renderer::initTexture(ResourceScope rs, Texture *texture) {
 }
 
 void Renderer::endTexture(ResourceScope rs, Texture *texture, bool mustExistInList) {
+	string textureFilename = texture->getPath();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] free texture from manager [%s]\n",__FILE__,__FUNCTION__,__LINE__,textureFilename.c_str());
+
 	textureManager[rs]->endTexture(texture,mustExistInList);
+
+	if(rs == rsGlobal) {
+		std::map<string,Texture2D *> &crcFactionPreviewTextureCache = CacheManager::getCachedItem< std::map<string,Texture2D *> >(GameConstants::factionPreviewTextureCacheLookupKey);
+		if(crcFactionPreviewTextureCache.find(textureFilename) != crcFactionPreviewTextureCache.end()) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] textureFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,textureFilename.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] free texture from cache [%s]\n",__FILE__,__FUNCTION__,__LINE__,textureFilename.c_str());
+
+			crcFactionPreviewTextureCache.erase(textureFilename);
+		}
+	}
 }
 void Renderer::endLastTexture(ResourceScope rs, bool mustExistInList) {
 	textureManager[rs]->endLastTexture(mustExistInList);
@@ -5269,6 +5283,9 @@ Texture2D * Renderer::preloadTexture(string logoFilename) {
 
 		if(crcFactionPreviewTextureCache.find(logoFilename) != crcFactionPreviewTextureCache.end()) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] load texture from cache [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+
 			result = crcFactionPreviewTextureCache[logoFilename];
 		}
 		else {
@@ -5278,6 +5295,9 @@ Texture2D * Renderer::preloadTexture(string logoFilename) {
 			result->setMipmap(true);
 			result->load(logoFilename);
 			//renderer.initTexture(rsGlobal,result);
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] add texture to manager and cache [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+
 			crcFactionPreviewTextureCache[logoFilename] = result;
 		}
 	}

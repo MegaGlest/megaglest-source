@@ -57,6 +57,7 @@ private:
 
 public:
 	MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList, string autoloadScenarioName="");
+	virtual ~MenuStateScenario();
 
     void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
@@ -77,6 +78,8 @@ private:
 	Difficulty computeDifficulty(const ScenarioInfo *scenarioInfo);
     ControlType strToControllerType(const string &str);
     void showMessageBox(const string &text, const string &header, bool toggle);
+
+    void cleanupPreviewTexture();
 };
 
 
