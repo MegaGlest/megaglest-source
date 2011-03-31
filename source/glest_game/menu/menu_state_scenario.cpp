@@ -37,6 +37,8 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 	containerName = "Scenario";
 	enableScenarioTexturePreview=false;
 	scenarioLogoTexture=NULL;
+	previewLoadDelayTimer=time(NULL);
+	needToLoadTextures=true;
 
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -51,21 +53,24 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 
 	this->dirList = dirList;
 
+	int startY=100;
+	int startX=350;
+
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
-    labelInfo.init(350, 350);
+    labelInfo.init(startX, startY+130);
 	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-    buttonReturn.init(350, 200, 125);
+    buttonReturn.init(startX, startY, 125);
 
     buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(525, 200, 125);
+	buttonPlayNow.init(startX+175, startY, 125);
 
 	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(350, 400, 190);
+    listBoxScenario.init(startX, startY+160, 190);
 
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
-	labelScenario.init(350, 430);
+	labelScenario.init(startX, startY+190);
 
 	buttonReturn.setText(lang.get("Return"));
 	buttonPlayNow.setText(lang.get("PlayNow"));
@@ -160,7 +165,8 @@ void MenuStateScenario::render(){
 	Renderer &renderer= Renderer::getInstance();
 
 	if(scenarioLogoTexture != NULL) {
-		renderer.renderBackground(scenarioLogoTexture);
+		renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
+		//renderer.renderBackground(scenarioLogoTexture);
 	}
 
 	if(mainMessageBox.getEnabled()){
@@ -197,6 +203,14 @@ void MenuStateScenario::update(){
 			CoreData &coreData= CoreData::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundC());
 			launchGame();
+		}
+	}
+
+	if(needToLoadTextures){
+		// this delay is done to make it possible to switch faster
+		if(difftime(time(NULL), previewLoadDelayTimer) >= 2){
+			loadScenarioPreviewTexture();
+			needToLoadTextures= false;
 		}
 	}
 }
@@ -322,24 +336,28 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 		scenarioInfo->fogOfWar 				= true;
 		scenarioInfo->fogOfWar_exploredFlag = false;
 	}
+	scenarioLogoTexture = NULL;
+	previewLoadDelayTimer=time(NULL);
+	needToLoadTextures=true;
+}
 
+void MenuStateScenario::loadScenarioPreviewTexture(){
 	enableScenarioTexturePreview = true;
-	if(enableScenarioTexturePreview == true) {
-		GameSettings gameSettings;
-	    loadGameSettings(scenarioInfo, &gameSettings);
+		if(enableScenarioTexturePreview == true) {
+			GameSettings gameSettings;
+		    loadGameSettings(&scenarioInfo, &gameSettings);
 
-	    string scenarioLogo 	= "";
-	    bool loadingImageUsed 	= false;
+		    string scenarioLogo 	= "";
+		    bool loadingImageUsed 	= false;
 
-	    Game::extractScenarioLogoFile(&gameSettings, scenarioLogo, loadingImageUsed);
-		if(scenarioLogo != "") {
-			scenarioLogoTexture = Renderer::findFactionLogoTexture(scenarioLogo);
+		    Game::extractScenarioLogoFile(&gameSettings, scenarioLogo, loadingImageUsed);
+			if(scenarioLogo != "") {
+				scenarioLogoTexture = Renderer::findFactionLogoTexture(scenarioLogo);
+			}
+			else {
+				scenarioLogoTexture = NULL;
+			}
 		}
-		else {
-			scenarioLogoTexture = NULL;
-		}
-	}
-
 }
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){
