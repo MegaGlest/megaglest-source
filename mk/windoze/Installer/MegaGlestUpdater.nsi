@@ -2,10 +2,10 @@
 ; General Attributes
 
 !define APNAME MegaGlest
-!define APVER 3.4.0
+!define APVER 3.5.0-beta
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.3.7.2
-!define APVER_UPDATE 3.4.0
+!define APVER_OLD 3.4.0
+!define APVER_UPDATE 3.5.0-beta1
 
 Name "${APNAME} ${APVER_UPDATE}"
 SetCompressor /FINAL /SOLID lzma
@@ -166,6 +166,7 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\glest_editor.exe"
   File "..\..\..\data\glest_game\glest_configurator.exe"
   File "..\..\..\data\glest_game\g3d_viewer.exe"
+  File "..\..\..\data\glest_game\7z.exe"
   File "..\..\..\data\glest_game\*.ini"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\*.lng"
   #File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
