@@ -42,6 +42,7 @@ ParseNameValue(const char * buffer, int bufsize,
                     struct NameValueParserData * data)
 {
     struct xmlparser parser;
+    memset(&parser,0,sizeof(parser));
     LIST_INIT(&(data->head));
     /* init xmlparser object */
     parser.xmlstart = buffer;

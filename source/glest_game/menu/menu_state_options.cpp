@@ -243,6 +243,22 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	currentLine-=30;
 	// end
 
+	// Screenshot type flag
+	labelScreenShotType.registerGraphicComponent(containerName,"labelScreenShotType");
+	labelScreenShotType.init(currentLabelStart ,currentLine);
+	labelScreenShotType.setText(lang.get("ScreenShotFileType"));
+
+	listBoxScreenShotType.registerGraphicComponent(containerName,"listBoxScreenShotType");
+	listBoxScreenShotType.init(currentColumnStart ,currentLine, 80 );
+	listBoxScreenShotType.pushBackItem("bmp");
+	listBoxScreenShotType.pushBackItem("jpg");
+	listBoxScreenShotType.pushBackItem("png");
+	listBoxScreenShotType.pushBackItem("tga");
+	listBoxScreenShotType.setSelectedItem(config.getString("ScreenShotFileType","png"));
+
+	currentLine-=30;
+	// end
+
 	//////////////////////////////////////////////////////////////////
 	///////// RIGHT SIDE
 	//////////////////////////////////////////////////////////////////
@@ -586,6 +602,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         checkBoxEnablePrivacy.mouseClick(x, y);
 
         checkBoxEnableTextureCompression.mouseClick(x, y);
+
+        listBoxScreenShotType.mouseClick(x, y);
 	}
 }
 
@@ -625,6 +643,8 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxEnablePrivacy.mouseMove(x, y);
 
 	checkBoxEnableTextureCompression.mouseMove(x, y);
+
+	listBoxScreenShotType.mouseMove(x, y);
 }
 
 void MenuStateOptions::keyDown(char key){
@@ -746,6 +766,9 @@ void MenuStateOptions::render(){
 
         renderer.renderLabel(&labelEnableTextureCompression);
         renderer.renderCheckBox(&checkBoxEnableTextureCompression);
+
+        renderer.renderLabel(&labelScreenShotType);
+        renderer.renderListBox(&listBoxScreenShotType);
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();
@@ -791,6 +814,8 @@ void MenuStateOptions::saveConfig(){
     config.setBool("PrivacyPlease", checkBoxEnablePrivacy.getValue());
 
     config.setBool("EnableTextureCompression", checkBoxEnableTextureCompression.getValue());
+
+    config.setString("ScreenShotFileType", listBoxScreenShotType.getSelectedItem());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();

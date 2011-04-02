@@ -41,6 +41,9 @@
 
 // For gcc backtrace on crash!
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+
+//#include <mcheck.h>
+
 #include <execinfo.h>
 #include <cxxabi.h>
 #include <signal.h>
@@ -2253,6 +2256,14 @@ int glestMain(int argc, char** argv) {
 }
 
 int glestMainWrapper(int argc, char** argv) {
+
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+//#ifdef DEBUG
+	  //printf("MTRACE will be called...\n");
+      //mtrace ();
+//#endif
+#endif
+
 #ifdef WIN32_STACK_TRACE
 __try {
 #endif

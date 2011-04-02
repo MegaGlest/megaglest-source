@@ -291,6 +291,12 @@ SystemFlags::~SystemFlags() {
 		SystemFlags::cleanupHTTP(&curl_handle, true);
 		curl_handle = NULL;
 	}
+	if(SystemFlags::curl_global_init_called == true) {
+		SystemFlags::curl_global_init_called = false;
+		curl_global_cleanup();
+		//printf("In [%s::%s Line %d] curl_global_cleanup called\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
