@@ -108,6 +108,10 @@ private:
 	GraphicLabel labelEnableTextureCompression;
 	GraphicCheckBox checkBoxEnableTextureCompression;
 
+	GraphicLabel labelScreenShotType;
+	GraphicListBox listBoxScreenShotType;
+
+
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
 

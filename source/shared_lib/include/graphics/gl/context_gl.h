@@ -30,7 +30,7 @@ protected:
 
 public:
 	ContextGl();
-	virtual ~ContextGl(){}
+	virtual ~ContextGl();
 
 	virtual void init();
 	virtual void end();

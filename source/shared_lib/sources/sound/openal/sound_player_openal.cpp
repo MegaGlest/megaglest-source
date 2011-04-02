@@ -322,7 +322,10 @@ bool SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
 	this->params = *params;
 
 	try {
-		device = alcOpenDevice(0);
+		// Allows platforms to specify which sound device to use
+		// using the environment variable: MEGAGLEST_SOUND_DEVICE
+		char *deviceName = getenv("MEGAGLEST_SOUND_DEVICE");
+		device = alcOpenDevice(deviceName);
 		if(device == 0) {
 			printOpenALInfo();
 			throw std::runtime_error("Couldn't open audio device.");

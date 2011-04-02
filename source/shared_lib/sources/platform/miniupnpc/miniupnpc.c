@@ -78,6 +78,8 @@
 LIBSPEC void parserootdesc(const char * buffer, int bufsize, struct IGDdatas * data)
 {
 	struct xmlparser parser;
+	memset(&parser,0,sizeof(parser));
+
 	/* xmlparser object */
 	parser.xmlstart = buffer;
 	parser.xmlsize = bufsize;

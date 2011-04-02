@@ -31,19 +31,23 @@ ContextGl::ContextGl() : Context() {
 
 }
 
-void ContextGl::init(){
+void ContextGl::init() {
 	pcgl.init(colorBits, depthBits, stencilBits, (hardware_acceleration != 0), (fullscreen_anti_aliasing  != 0));
 }
 
-void ContextGl::end(){
+ContextGl::~ContextGl() {
+	end();
+}
+
+void ContextGl::end() {
 	pcgl.end();
 }
 
-void ContextGl::makeCurrent(){
+void ContextGl::makeCurrent() {
 	pcgl.makeCurrent();
 }
 
-void ContextGl::swapBuffers(){
+void ContextGl::swapBuffers() {
 	pcgl.swapBuffers();
 }
 
