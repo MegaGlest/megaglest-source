@@ -547,8 +547,10 @@ void MenuStateJoinGame::connectToServer() {
 	labelInfo.setText("");
 
 	//save server ip
-	config.setString("ServerIp", serverIp.getString());
-	config.save();
+	if(config.getString("ServerIp") != serverIp.getString()) {
+		config.setString("ServerIp", serverIp.getString());
+		config.save();
+	}
 
 	for(time_t elapsedWait = time(NULL);
 		clientInterface->getIntroDone() == false &&
