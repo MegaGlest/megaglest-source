@@ -101,7 +101,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		clearUnitPrecache(unit);
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"[findPath] unit->getPos() [%s] finalPos [%s]",
 				unit->getPos().getString().c_str(),finalPos.getString().c_str());
@@ -174,7 +174,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		if( ts == tsBlocked && unit->getInBailOutAttempt() == false &&
 			path->isStuck() == true) {
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 				char szBuf[4096]="";
 				sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] ts [%d]",
 						finalPos.getString().c_str(),ts);
@@ -197,7 +197,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 							const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
 							bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
 
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 								char szBuf[4096]="";
 								sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
 										finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
@@ -216,7 +216,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 							const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
 							bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
 
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 								char szBuf[4096]="";
 								sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
 										finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
@@ -459,7 +459,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 										char szBuf[4096]="";
 										sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 												factions[unit->getFactionIndex()].openNodesList.size(),factions[unit->getFactionIndex()].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
@@ -513,7 +513,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 										char szBuf[4096]="";
 										sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 												factions[unit->getFactionIndex()].openNodesList.size(),factions[unit->getFactionIndex()].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
@@ -748,7 +748,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			path->incBlockCount();
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"[path for unit BLOCKED] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					factions[unit->getFactionIndex()].openNodesList.size(),factions[unit->getFactionIndex()].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
@@ -803,7 +803,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					factions[unit->getFactionIndex()].openNodesList.size(),factions[unit->getFactionIndex()].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
