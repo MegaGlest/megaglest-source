@@ -2019,6 +2019,13 @@ int glestMain(int argc, char** argv) {
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		//vector<string> techPaths;
+		//vector<string> techDataPaths = config.getPathListForType(ptTechs);
+		//findDirs(techDataPaths, techPaths);
+
+        //int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + "megapack" + string("/*"), ".xml", NULL, true);
+        //return -1;
+
         //
         //removeFolder("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/tilesets/mother_board");
         //return -1;

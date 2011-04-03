@@ -51,6 +51,7 @@ Mutex * BaseThread::getMutexThreadOwnerValid() {
 void BaseThread::setThreadOwnerValid(bool value) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,mutexOwnerId);
+	mutexThreadOwnerValid.setOwnerId(mutexOwnerId);
 	threadOwnerValid = value;
 	safeMutex.ReleaseLock();
 }
@@ -59,6 +60,7 @@ bool BaseThread::getThreadOwnerValid() {
 	bool ret = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,mutexOwnerId);
+	//mutexThreadOwnerValid.setOwnerId(mutexOwnerId);
 	ret = threadOwnerValid;
 	safeMutex.ReleaseLock();
 
@@ -74,6 +76,7 @@ void BaseThread::setQuitStatus(bool value) {
 
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexQuit,mutexOwnerId);
+	mutexQuit.setOwnerId(mutexOwnerId);
 	quit = value;
 	safeMutex.ReleaseLock();
 
@@ -84,6 +87,7 @@ bool BaseThread::getQuitStatus() {
 	bool retval = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexQuit,mutexOwnerId);
+	//mutexQuit.setOwnerId(mutexOwnerId);
 	retval = quit;
 	safeMutex.ReleaseLock();
 
@@ -94,6 +98,7 @@ bool BaseThread::getHasBeginExecution() {
 	bool retval = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexBeginExecution,mutexOwnerId);
+	//mutexBeginExecution.setOwnerId(mutexOwnerId);
 	retval = hasBeginExecution;
 	safeMutex.ReleaseLock();
 
@@ -105,6 +110,7 @@ void BaseThread::setHasBeginExecution(bool value) {
 
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexBeginExecution,mutexOwnerId);
+	mutexBeginExecution.setOwnerId(mutexOwnerId);
 	hasBeginExecution = value;
 	safeMutex.ReleaseLock();
 
@@ -129,6 +135,7 @@ bool BaseThread::getRunningStatus() {
 void BaseThread::setRunningStatus(bool value) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexRunning,mutexOwnerId);
+	mutexRunning.setOwnerId(mutexOwnerId);
 	running = value;
 	if(value == true) {
 		setHasBeginExecution(true);
@@ -139,6 +146,7 @@ void BaseThread::setRunningStatus(bool value) {
 void BaseThread::setExecutingTask(bool value) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexExecutingTask,mutexOwnerId);
+	mutexExecutingTask.setOwnerId(mutexOwnerId);
 	executingTask = value;
 	safeMutex.ReleaseLock();
 }
@@ -166,6 +174,7 @@ bool BaseThread::getDeleteSelfOnExecutionDone() {
 void BaseThread::setDeleteSelfOnExecutionDone(bool value) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
     MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone,mutexOwnerId);
+    mutexDeleteSelfOnExecutionDone.setOwnerId(mutexOwnerId);
     deleteSelfOnExecutionDone = value;
 }
 
