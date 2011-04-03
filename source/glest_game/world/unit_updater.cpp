@@ -363,7 +363,7 @@ void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 
 	Vec2i pos= command->getUnit()!=NULL? command->getUnit()->getCenteredPos(): command->getPos();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"[updateMove] pos [%s] unit [%d - %s] cmd [%s]",pos.getString().c_str(),unit->getId(),unit->getFullName().c_str(),command->toString().c_str());
 		unit->logSynchData(__FILE__,__LINE__,szBuf);
@@ -452,7 +452,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 			pos= command->getPos();
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"[updateAttack] pos [%s] unit->getPos() [%s]",
 					pos.getString().c_str(),unit->getPos().getString().c_str());
@@ -625,7 +625,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 				Vec2i buildPos = map->findBestBuildApproach(unit, command->getPos(), ut);
 				//Vec2i buildPos = (command->getPos() + Vec2i(ut->getSize() / 2));
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 					char szBuf[4096]="";
 					sprintf(szBuf,"[updateBuild] unit->getPos() [%s] command->getPos() [%s] buildPos [%s]",
 							unit->getPos().getString().c_str(),command->getPos().getString().c_str(),buildPos.getString().c_str());
@@ -911,7 +911,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 						char szBuf[4096]="";
 						sprintf(szBuf,"[updateHarvest] unit->getPos() [%s] command->getPos() [%s]",
 								unit->getPos().getString().c_str(),command->getPos().getString().c_str());
@@ -1000,7 +1000,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 							if(targetPos.x >= 0) {
 								//if not continue walking
 
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 									char szBuf[4096]="";
 									sprintf(szBuf,"[updateHarvest #2] unit->getPos() [%s] command->getPos() [%s] targetPos [%s]",
 											unit->getPos().getString().c_str(),command->getPos().getString().c_str(),targetPos.getString().c_str());
@@ -1061,7 +1061,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 			//if loaded, return to store
 			Unit *store= world->nearestStore(unit->getPos(), unit->getFaction()->getIndex(), unit->getLoadType());
 			if(store != NULL) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 					char szBuf[4096]="";
 					sprintf(szBuf,"[updateHarvest #3] unit->getPos() [%s] store->getCenteredPos() [%s]",
 							unit->getPos().getString().c_str(),store->getCenteredPos().getString().c_str());
@@ -1476,7 +1476,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 			else {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 					char szBuf[4096]="";
 					sprintf(szBuf,"[updateRepair] unit->getPos() [%s] command->getPos()() [%s] repairPos [%s]",unit->getPos().getString().c_str(),command->getPos().getString().c_str(),repairPos.getString().c_str());
 					unit->logSynchData(__FILE__,__LINE__,szBuf);
