@@ -141,6 +141,7 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 	else if(buttonPlayNow.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundC());
 		launchGame();
+		return;
 	}
     else if(listBoxScenario.mouseClick(x, y)){
         try {
@@ -214,6 +215,7 @@ void MenuStateScenario::update() {
 			CoreData &coreData= CoreData::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundC());
 			launchGame();
+			return;
 		}
 	}
 
@@ -372,8 +374,20 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 }
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){
+	if(listBoxScenario.getSelectedItemIndex() < 0) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"listBoxScenario.getSelectedItemIndex() < 0, = %d",listBoxScenario.getSelectedItemIndex());
+		throw runtime_error(szBuf);
+	}
+	else if(listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size()) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
+		throw runtime_error(szBuf);
+	}
 
 	int factionCount= 0;
+
+	//printf("\n\n\n$$$$$$$$$$$$$ [%s]\n\n\n",scenarioFiles[listBoxScenario.getSelectedItemIndex()].c_str());
 
 	gameSettings->setDescription(formatString(scenarioFiles[listBoxScenario.getSelectedItemIndex()]));
 	gameSettings->setMap(scenarioInfo->mapName);
