@@ -993,7 +993,8 @@ void MenuStateConnectedGame::update() {
 	    				if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
 	    					factionName != GameConstants::OBSERVER_SLOTNAME &&
 	    					factionName != ITEM_MISSING) {
-	    					factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+	    					//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+	    					factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
 	    				}
 	    				factionCRCList.push_back(make_pair(factionName,factionCRC));
 	    			}
