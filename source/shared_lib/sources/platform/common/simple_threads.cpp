@@ -186,6 +186,27 @@ void FileCRCPreCacheThread::execute() {
 					if(getQuitStatus() == false) {
 						int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL, true);
 
+						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+						//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+
+						vector<string> results;
+					    for(int idx = 0; idx < techDataPaths.size(); idx++) {
+					        string &techPath = techDataPaths[idx];
+					        endPathWithSlash(techPath);
+					        findAll(techPath + techName + "/factions/*.", results, false, false);
+					        if(results.size() > 0) {
+					            break;
+					        }
+					    }
+
+					    if(results.size() == 0) {
+							for(unsigned int factionIdx = 0; factionIdx < results.size(); ++factionIdx) {
+								string factionName = results[factionIdx];
+								int32 factionCRC   = 0;
+								factionCRC   = getFolderTreeContentsCheckSumRecursively(techDataPaths, "/" + techName + "/factions/" + factionName + "/*", ".xml", NULL, true);
+							}
+					    }
+
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 					}
