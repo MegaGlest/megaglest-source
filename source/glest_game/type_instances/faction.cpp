@@ -246,7 +246,8 @@ void Faction::init(
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	texture->load(data_path + "data/core/faction_textures/faction"+intToStr(startLocationIndex)+".tga");
 
-	if(Config::getInstance().getBool("EnableFactionWorkerThreads","true") == true) {
+	if( game->getGameSettings()->getPathFinderType() == pfBasic &&
+		Config::getInstance().getBool("EnableFactionWorkerThreads","true") == true) {
 		if(workerThread != NULL) {
 			workerThread->signalQuit();
 			if(workerThread->shutdownAndWait() == true) {
