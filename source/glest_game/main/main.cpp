@@ -1595,6 +1595,9 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
 void CheckForDuplicateData() {
     Config &config = Config::getInstance();
 
+    string duplicateWarnings="";
+
+    {
   	vector<string> maps;
   	std::vector<std::string> results;
   	vector<string> mapPaths = config.getPathListForType(ptMaps);
@@ -1654,14 +1657,17 @@ void CheckForDuplicateData() {
 			}
 			errorMsg += szBuf;
 		}
-        //throw runtime_error(szBuf);
-        Program *program = Program::getInstance();
-        if(program) {
-        	program->getState()->setForceMouseRender(true);
-        }
-        ExceptionHandler::DisplayMessage(errorMsg.c_str(), false);
-	}
+		duplicateWarnings += errorMsg;
 
+//        Program *program = Program::getInstance();
+//        if(program) {
+//        	program->getState()->setForceMouseRender(true);
+//        }
+//        ExceptionHandler::DisplayMessage(errorMsg.c_str(), false);
+	}
+    }
+
+    {
 	//tilesets
 	std::vector<std::string> tileSets;
     vector<string> tilesetPaths = config.getPathListForType(ptTilesets);
@@ -1671,21 +1677,61 @@ void CheckForDuplicateData() {
         throw runtime_error("No tilesets were found!");
     }
 
+	vector<string> duplicateTilesetsToRename;
 	for(int i = 0; i < tileSets.size(); ++i) {
-	    string tileset1 = tileSets[i];
+	    string tileSet1 = tileSets[i];
 	    for(int j = 0; j < tileSets.size(); ++j) {
 	        if(i != j) {
-                string tileset2 = tileSets[j];
-                if(tileset1 == tileset2) {
-                    char szBuf[4096]="";
-                    sprintf(szBuf,"You have duplicate tilesets for tileset [%s] in [%s] and [%s]",tileset1.c_str(),tilesetPaths[0].c_str(),tilesetPaths[1].c_str());
-                    throw runtime_error(szBuf);
-
+                string tileSet2= tileSets[j];
+                if(tileSet1 == tileSet2) {
+                	if(std::find(duplicateTilesetsToRename.begin(),duplicateTilesetsToRename.end(),tileSet1) == duplicateTilesetsToRename.end()) {
+                		duplicateTilesetsToRename.push_back(tileSet1);
+                	}
                 }
 	        }
 	    }
 	}
+	if(duplicateTilesetsToRename.size() > 0) {
+		string errorMsg = "Warning duplicate tilesets were detected and renamed:\n";
 
+		for(int i = 0; i < duplicateTilesetsToRename.size(); ++i) {
+			string currentPath = tilesetPaths[1];
+			endPathWithSlash(currentPath);
+
+			string oldFile = currentPath + duplicateTilesetsToRename[i];
+			string newFile = currentPath + duplicateTilesetsToRename[i];
+			newFile = newFile + "_custom";
+
+			char szBuf[4096]="";
+			int result = rename(oldFile.c_str(),newFile.c_str());
+			if(result != 0) {
+				char *errmsg = strerror(errno);
+				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
+				throw runtime_error(szBuf);
+			}
+			else {
+				sprintf(szBuf,"tileset [%s] in [%s]\nwas renamed to [%s]",duplicateTilesetsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
+
+				string tilesetName = extractFileFromDirectoryPath(oldFile);
+				oldFile = newFile + "/" + tilesetName + ".xml";
+				newFile = newFile + "/" + tilesetName + "_custom.xml";
+
+				//printf("\n\n\n###### RENAME [%s] to [%s]\n\n",oldFile.c_str(),newFile.c_str());
+				int result2 = rename(oldFile.c_str(),newFile.c_str());
+			}
+			errorMsg += szBuf;
+		}
+		duplicateWarnings += errorMsg;
+
+//        Program *program = Program::getInstance();
+//        if(program) {
+//        	program->getState()->setForceMouseRender(true);
+//        }
+//        ExceptionHandler::DisplayMessage(errorMsg.c_str(), false);
+	}
+    }
+
+    {
     vector<string> techPaths = config.getPathListForType(ptTechs);
     vector<string> techTrees;
     findDirs(techPaths, techTrees, false, true);
@@ -1693,20 +1739,67 @@ void CheckForDuplicateData() {
         throw runtime_error("No tech-trees were found!");
 	}
 
+	vector<string> duplicateTechtreesToRename;
 	for(int i = 0; i < techTrees.size(); ++i) {
 	    string techtree1 = techTrees[i];
 	    for(int j = 0; j < techTrees.size(); ++j) {
 	        if(i != j) {
                 string techtree2 = techTrees[j];
                 if(techtree1 == techtree2) {
-                    char szBuf[4096]="";
-                    sprintf(szBuf,"You have duplicate techtrees for techtree [%s] in [%s] and [%s]",techtree1.c_str(),techTrees[0].c_str(),techTrees[1].c_str());
-                    throw runtime_error(szBuf);
-
+                	if(std::find(duplicateTechtreesToRename.begin(),duplicateTechtreesToRename.end(),techtree1) == duplicateTechtreesToRename.end()) {
+                		duplicateTechtreesToRename.push_back(techtree1);
+                	}
                 }
 	        }
 	    }
 	}
+	if(duplicateTechtreesToRename.size() > 0) {
+		string errorMsg = "Warning duplicate techtrees were detected and renamed:\n";
+
+		for(int i = 0; i < duplicateTechtreesToRename.size(); ++i) {
+			string currentPath = techPaths[1];
+			endPathWithSlash(currentPath);
+
+			string oldFile = currentPath + duplicateTechtreesToRename[i];
+			string newFile = currentPath + duplicateTechtreesToRename[i];
+			newFile = newFile + "_custom";
+
+			char szBuf[4096]="";
+			int result = rename(oldFile.c_str(),newFile.c_str());
+			if(result != 0) {
+				char *errmsg = strerror(errno);
+				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
+				throw runtime_error(szBuf);
+			}
+			else {
+				sprintf(szBuf,"techtree [%s] in [%s]\nwas renamed to [%s]",duplicateTechtreesToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
+
+				string tilesetName = extractFileFromDirectoryPath(oldFile);
+				oldFile = newFile + "/" + tilesetName + ".xml";
+				newFile = newFile + "/" + tilesetName + "_custom.xml";
+
+				//printf("\n\n\n###### RENAME [%s] to [%s]\n\n",oldFile.c_str(),newFile.c_str());
+				int result2 = rename(oldFile.c_str(),newFile.c_str());
+			}
+			errorMsg += szBuf;
+		}
+		duplicateWarnings += errorMsg;
+
+//        Program *program = Program::getInstance();
+//        if(program) {
+//        	program->getState()->setForceMouseRender(true);
+//        }
+//        ExceptionHandler::DisplayMessage(errorMsg.c_str(), false);
+	}
+    }
+
+    if(duplicateWarnings != "") {
+		Program *program = Program::getInstance();
+		if(program) {
+			program->getState()->setForceMouseRender(true);
+		}
+		ExceptionHandler::DisplayMessage(duplicateWarnings.c_str(), false);
+    }
 }
 
 int glestMain(int argc, char** argv) {
