@@ -234,6 +234,7 @@ void FileCRCPreCacheThread::addPendingTexture(Texture2D *texture) {
 	}
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
+	mutexPendingTextureList.setOwnerId(mutexOwnerId);
 	pendingTextureList.push_back(texture);
 	safeMutex.ReleaseLock();
 }
@@ -242,6 +243,7 @@ vector<Texture2D *> FileCRCPreCacheThread::getPendingTextureList(int maxTextures
 	vector<Texture2D *> result;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
+	mutexPendingTextureList.setOwnerId(mutexOwnerId);
 	unsigned int listCount = pendingTextureList.size();
 	if(listCount > 0) {
 		if(maxTexturesToGet >= 0) {
@@ -269,6 +271,7 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
+	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	lastExecuteTimestamp = time(NULL);
 }
 
@@ -276,6 +279,7 @@ bool SimpleTaskThread::isThreadExecutionLagging() {
 	bool result = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
+	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
 	safeMutex.ReleaseLock();
 
@@ -325,6 +329,7 @@ void SimpleTaskThread::execute() {
 
                         static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
                         MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
+                        mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
                     	lastExecuteTimestamp = time(NULL);
                     	safeMutex.ReleaseLock();
                     }
@@ -365,6 +370,7 @@ void SimpleTaskThread::execute() {
 void SimpleTaskThread::setTaskSignalled(bool value) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
+	mutexTaskSignaller.setOwnerId(mutexOwnerId);
 	taskSignalled = value;
 	safeMutex.ReleaseLock();
 }
@@ -373,6 +379,7 @@ bool SimpleTaskThread::getTaskSignalled() {
 	bool retval = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
+	mutexTaskSignaller.setOwnerId(mutexOwnerId);
 	retval = taskSignalled;
 	safeMutex.ReleaseLock();
 

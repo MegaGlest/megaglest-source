@@ -617,11 +617,22 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for CRC Cache file [%s]\n",crcCacheFile.c_str());
+
+	if(recursiveChecksum == NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] looking for cached CRC file [%s] for [%s] forceNoCache = %d -----------\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),pathSearchString.c_str(),forceNoCache);
+	}
+
 	int32 crcValue = 0;
 	if(forceNoCache == false && hasCachedFileCRCValue(crcCacheFile, crcValue)) {
 		crcTreeCache[cacheKey] = crcValue;
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED FILE checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED FILE checksum = %d for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str(),forceNoCache);
 		return crcTreeCache[cacheKey];
+	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
+		if(recursiveChecksum == NULL) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
+		}
 	}
 
 	Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
@@ -683,11 +694,22 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for CRC Cache file [%s]\n",crcCacheFile.c_str());
+
+	if(recursiveChecksum == NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] looking for cached CRC file [%s] for [%s] forceNoCache = %d -----------\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),path.c_str(),forceNoCache);
+	}
+
 	int32 crcValue = 0;
 	if(forceNoCache == false && hasCachedFileCRCValue(crcCacheFile, crcValue)) {
 		crcTreeCache[cacheKey] = crcValue;
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED FILE checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders found CACHED FILE checksum = %d for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,crcTreeCache[cacheKey],cacheKey.c_str(),forceNoCache);
 		return crcTreeCache[cacheKey];
+	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
+		if(recursiveChecksum == NULL) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
+		}
 	}
 
 	bool topLevelCaller = (recursiveChecksum == NULL);
@@ -717,6 +739,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	int fileMatchCount = 0;
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
+		//printf("Line: %d p [%s]\n",__LINE__,p);
 
 		if(isdir(p) == false) {
             bool addFile = true;
@@ -761,6 +784,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 			continue;
 #endif
 		const char *p = globbuf.gl_pathv[i];
+		//printf("Line: %d p [%s]\n",__LINE__,p);
 
     	string currentPath = p;
     	endPathWithSlash(currentPath);
