@@ -789,7 +789,7 @@ void MainWindow::eventKeyDown(char key){
 			string path = userData + GameConstants::folder_path_screenshots;
 			if(isdir(path.c_str()) == true) {
 				Config &config= Config::getInstance();
-				string fileFormat = config.getString("ScreenShotFileType","png");
+				string fileFormat = config.getString("ScreenShotFileType","jpg");
 
 				unsigned int queueSize = Renderer::getInstance().getSaveScreenQueueSize();
 

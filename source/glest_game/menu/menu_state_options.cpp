@@ -254,7 +254,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxScreenShotType.pushBackItem("jpg");
 	listBoxScreenShotType.pushBackItem("png");
 	listBoxScreenShotType.pushBackItem("tga");
-	listBoxScreenShotType.setSelectedItem(config.getString("ScreenShotFileType","png"));
+	listBoxScreenShotType.setSelectedItem(config.getString("ScreenShotFileType","jpg"));
 
 	currentLine-=30;
 	// end

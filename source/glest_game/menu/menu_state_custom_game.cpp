@@ -144,6 +144,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	int networkPos=networkHeadPos-labelOffset;
 	int xoffset=10;
 
+	int initialMapSelection=0;
+	int initialTechSelection=0;
+
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
@@ -165,11 +168,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
 	std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
 
-	for ( int i = 0 ; i<mapFiles.size(); i++ )
-	{// fetch info and put map in right list
-		loadMapInfo(Map::getMapPath(mapFiles.at(i),"",false), &mapInfo, false);
+	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+		loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false);
 		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
 		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
+		if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
+			initialMapSelection= i;
+		}
 	}
 
 	labelLocalIP.registerGraphicComponent(containerName,"labelLocalIP");
@@ -201,6 +206,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
 	listBoxMap.init(xoffset+100, mapPos, 200);
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+    listBoxMap.setSelectedItemIndex(initialMapSelection);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
 	labelMapInfo.init(xoffset+100, mapPos-labelOffset, 200, 40);
@@ -243,11 +249,17 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
         throw runtime_error("No tech-trees were found!");
 	}
     techTreeFiles= results;
-	std::for_each(results.begin(), results.end(), FormatString());
-
+	//std::for_each(results.begin(), results.end(), FormatString());
+	for(int i= 0; i < results.size(); i++){
+		results.at(i)= formatString(results.at(i));
+		if(config.getString("InitialTechTree", "Megapack") == results.at(i)){
+			initialTechSelection= i;
+		}
+	}
 	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
 	listBoxTechTree.init(xoffset+650, mapPos, 150);
     listBoxTechTree.setItems(results);
+    listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
     labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
 	labelTechTree.init(xoffset+650, mapHeadPos);
