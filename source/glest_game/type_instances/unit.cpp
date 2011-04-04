@@ -197,6 +197,8 @@ Game *Unit::game = NULL;
 
 Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
 	modelFacing = CardinalDir::NORTH;
+	lastStuckFrame = 0;
+	lastStuckPos = Vec2i(0,0);
     RandomGen random;
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
@@ -1872,7 +1874,7 @@ bool Unit::isMeetingPointSettable() const {
 	return (type != NULL ? type->getMeetingPoint() : false);
 }
 
-int Unit::getFrameCount() {
+int Unit::getFrameCount() const {
 	int frameCount = 0;
 	const Game *game = Renderer::getInstance().getGame();
 	if(game != NULL && game->getWorld() != NULL) {
@@ -2065,6 +2067,15 @@ void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
 //	currentTargetPathTaken.first = target;
 //	currentTargetPathTaken.second.push_back(cell);
 //}
+
+void Unit::setLastStuckFrameToCurrentFrame() {
+	lastStuckFrame = getFrameCount();
+}
+
+bool Unit::isLastStuckFrameWithinCurrentFrameTolerance() const {
+	bool result (getFrameCount() - lastStuckFrame <= 300);
+	return result;
+}
 
 std::string Unit::toString() const {
 	std::string result = "";

@@ -332,6 +332,9 @@ private:
 
 	bool ignoreCheckCommand;
 
+	uint32 lastStuckFrame;
+	Vec2i lastStuckPos;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -496,6 +499,14 @@ public:
 	std::string toString() const;
 	bool needToUpdate();
 
+	bool isLastStuckFrameWithinCurrentFrameTolerance() const;
+	uint32 getLastStuckFrame() const { return lastStuckFrame; }
+	void setLastStuckFrame(uint32 value) { lastStuckFrame = value; }
+	void setLastStuckFrameToCurrentFrame();
+
+	Vec2i getLastStuckPos() const { return lastStuckPos; }
+	void setLastStuckPos(Vec2i pos) { lastStuckPos = pos; }
+
 private:
 	float computeHeight(const Vec2i &pos) const;
 	void updateTarget();
@@ -505,7 +516,7 @@ private:
 	void stopDamageParticles();
 	void startDamageParticles();
 
-	int getFrameCount();
+	int getFrameCount() const;
 };
 
 }}// end namespace
