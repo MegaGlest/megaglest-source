@@ -277,11 +277,18 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	        return;
 	    }
 
+	    if(curlResult != CURLE_OK) {
+			string curlError = curl_easy_strerror(curlResult);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+			console.addLine(string("#1 ") + szBuf,true);
+	    }
+
 		if(curlResult == CURLE_OK ||
 			(curlResult != CURLE_COULDNT_RESOLVE_HOST &&
 			 curlResult != CURLE_COULDNT_CONNECT)) {
 
-			tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php",handle);
+			tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php",handle,-1,&curlResult);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
 
 		    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -289,7 +296,14 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 		        return;
 		    }
 
-			mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php",handle);
+		    if(curlResult != CURLE_OK) {
+				string curlError = curl_easy_strerror(curlResult);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				console.addLine(string("#2 ") + szBuf,true);
+		    }
+
+			mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php",handle,-1,&curlResult);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
 
 		    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -297,11 +311,27 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 		        return;
 		    }
 
-			scenariosMetaData = SystemFlags::getHTTP(baseURL + "showScenariosForGlest.php",handle);
+		    if(curlResult != CURLE_OK) {
+				string curlError = curl_easy_strerror(curlResult);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				console.addLine(string("#3 ") + szBuf,true);
+		    }
+
+			scenariosMetaData = SystemFlags::getHTTP(baseURL + "showScenariosForGlest.php",handle,-1,&curlResult);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("scenariosMetaData [%s]\n",scenariosMetaData.c_str());
 
+		    if(curlResult != CURLE_OK) {
+				string curlError = curl_easy_strerror(curlResult);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				console.addLine(string("#4 ") + szBuf,true);
+		    }
 		}
 		SystemFlags::cleanupHTTP(&handle);
+	}
+	else {
+        console.addLine(lang.get("MasterServerMissing"),true);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
