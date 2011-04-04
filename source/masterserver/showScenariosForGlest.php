@@ -6,7 +6,7 @@
 
 	define( 'DB_LINK', db_connect() );
 
-	$scenarios_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glestscenarios ORDER BY scenarioname;' );
+	$scenarios_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glestscenarios WHERE disabled=0 ORDER BY scenarioname;' );
 	$all_scenarios = array();
 	while ( $scenario = mysql_fetch_array( $scenarios_in_db ) )
 	{

@@ -6,7 +6,7 @@
 
 	define( 'DB_LINK', db_connect() );
 
-	$techs_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glesttechs ORDER BY techname;' );
+	$techs_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glesttechs WHERE disabled=0 ORDER BY techname;' );
 	$all_techs = array();
 	while ( $tech = mysql_fetch_array( $techs_in_db ) )
 	{

@@ -6,7 +6,7 @@
 
 	define( 'DB_LINK', db_connect() );
 
-	$maps_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glestmaps ORDER BY mapname;' );
+	$maps_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glestmaps WHERE disabled=0 ORDER BY mapname;' );
 	$all_maps = array();
 	while ( $map = mysql_fetch_array( $maps_in_db ) )
 	{
