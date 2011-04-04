@@ -159,7 +159,13 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		}
 	}
 
-		
+	if(path->isStuck() == true && unit->getLastStuckPos() == finalPos &&
+		unit->isLastStuckFrameWithinCurrentFrameTolerance() == true) {
+
+		//printf("$$$$ Unit STILL BLOCKED for [%d - %s]\n",unit->getId(),unit->getFullName().c_str());
+		return tsBlocked;
+	}
+
 	TravelState ts = tsImpossible;
 	//route cache miss
 	ts = aStar(unit, finalPos, false, frameIndex);
@@ -173,6 +179,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		// We will try to bail out of the immediate area
 		if( ts == tsBlocked && unit->getInBailOutAttempt() == false &&
 			path->isStuck() == true) {
+
+			//printf("$$$$ Unit START BAILOUT ATTEMPT for [%d - %s]\n",unit->getId(),unit->getFullName().c_str());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 				char szBuf[4096]="";
@@ -205,6 +213,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 							}
 
 							if(canUnitMove) {
+								//printf("$$$$ Unit BAILOUT(1) ASTAR ATTEMPT for [%d - %s] newFinalPos = [%s]\n",unit->getId(),unit->getFullName().c_str(),newFinalPos.getString().c_str());
+
 								ts= aStar(unit, newFinalPos, true, frameIndex);
 							}
 						}
@@ -224,6 +234,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 							}
 
 							if(canUnitMove) {
+								//printf("$$$$ Unit BAILOUT(1) ASTAR ATTEMPT for [%d - %s] newFinalPos = [%s]\n",unit->getId(),unit->getFullName().c_str(),newFinalPos.getString().c_str());
 								ts= aStar(unit, newFinalPos, true, frameIndex);
 							}
 						}
@@ -231,6 +242,13 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				}
 			}
 			unit->setInBailOutAttempt(false);
+
+			//printf("$$$$ Unit END BAILOUT ATTEMPT for [%d - %s] ts = %d\n",unit->getId(),unit->getFullName().c_str(),ts);
+
+			if(ts == tsBlocked) {
+				unit->setLastStuckFrameToCurrentFrame();
+				unit->setLastStuckPos(finalPos);
+			}
 		}
 		if(ts == tsArrived || ts == tsBlocked) {
 			if(frameIndex < 0) {
@@ -294,7 +312,7 @@ bool PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i,
 	bool result = false;
 	Vec2i sucPos= node->pos + Vec2i(i, j);
 	bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
-	if(openPos(sucPos, factions[unit->getFactionIndex()]) == false && canUnitMoveToCell == true) {
+	if(canUnitMoveToCell == true && openPos(sucPos, factions[unit->getFactionIndex()]) == false) {
 		//if node is not open and canMove then generate another node
 		Node *sucNode= newNode(factions[unit->getFactionIndex()]);
 		if(sucNode != NULL) {
@@ -631,13 +649,14 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	//
 
 	// START
-	// Do the a-start base pathfind work if required
+	// Do the a-star base pathfind work if required
 	int whileLoopCount = 0;
 	while(nodeLimitReached == false) {
 		whileLoopCount++;
 		
 		//b1) is open nodes is empty => failed to find the path
 		if(factions[unit->getFactionIndex()].openNodesList.empty() == true) {
+			//printf("$$$$ Path for Unit [%d - %s] inBailout = %d BLOCKED\n",unit->getId(),unit->getFullName().c_str(),inBailout);
 			pathFound= false;
 			break;
 		}
@@ -651,6 +670,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			pathFound= true;
 			break;
 		}
+
+		//printf("$$$$ Path for Unit [%d - %s] node [%s] whileLoopCount = %d nodePoolCount = %d inBailout = %d\n",unit->getId(),unit->getFullName().c_str(), node->pos.getString().c_str(), whileLoopCount,factions[unit->getFactionIndex()].nodePoolCount,inBailout);
 
 		//b4) move this node from closedNodes to openNodes
 		//add all succesors that are not in closedNodes or openNodes to openNodes
@@ -848,6 +869,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	else {
 		if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 5) printf("In [%s::%s Line: %d] astar took [%lld] msecs, ts = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),ts);
 	}
+
+	//printf("$$$$ Path for Unit [%d - %s] return value = %d inBailout = %d\n",unit->getId(),unit->getFullName().c_str(),ts,inBailout);
+
 	return ts;
 }
 
