@@ -6,7 +6,7 @@
 
 	define( 'DB_LINK', db_connect() );
 
-	$tilesets_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glesttilesets ORDER BY tilesetname;' );
+	$tilesets_in_db = mysql_db_query( MYSQL_DATABASE, 'SELECT * FROM glesttilesets WHERE disabled=0 ORDER BY tilesetname;' );
 	$all_tilesets = array();
 	while ( $tileset = mysql_fetch_array( $tilesets_in_db ) )
 	{

@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `glestmaps` (
   `crc` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL,
+  `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`mapname`),
   KEY `mapname` (`mapname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS `glesttilesets` (
   `crc` varchar(100) collate utf8_unicode_ci,
   `description` varchar(255) collate utf8_unicode_ci,
   `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`tilesetname`),
   KEY `tilesetname` (`tilesetname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -60,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `glesttechs` (
   `crc` varchar(100) collate utf8_unicode_ci,
   `description` varchar(255) collate utf8_unicode_ci,
   `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`techname`),
   KEY `techname` (`techname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -72,6 +75,7 @@ CREATE TABLE IF NOT EXISTS `glestscenarios` (
   `crc` varchar(100) collate utf8_unicode_ci,
   `description` varchar(255) collate utf8_unicode_ci,
   `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`scenarioname`),
   KEY `scenarioname` (`scenarioname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
