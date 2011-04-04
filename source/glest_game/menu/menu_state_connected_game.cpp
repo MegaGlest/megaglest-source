@@ -762,7 +762,9 @@ void MenuStateConnectedGame::render() {
 	    renderer.renderListBox(&listBoxPlayerStatus);
 
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-			renderer.renderLabel(&labelPlayerStatus[i]);
+			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
+				renderer.renderLabel(&labelPlayerStatus[i]);
+			}
 
 			if(crcPlayerTextureCache[i] != NULL) {
 				// Render the player # label the player's color
