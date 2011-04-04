@@ -1283,7 +1283,8 @@ void MenuStateCustomGame::render() {
 		    }
 
 			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-				if(hasNetworkGameSettings() == true) {
+				if( hasNetworkGameSettings() == true &&
+					listBoxControls[i].getSelectedItemIndex() != ctClosed) {
 					renderer.renderLabel(&labelPlayerStatus[i]);
 				}
 
