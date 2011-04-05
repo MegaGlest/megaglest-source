@@ -14,17 +14,34 @@
 #include "conversion.h"
 #include "icons.h"
 #include "platform_common.h"
+#include "config.h"
 #include <iostream>
+#include <wx/stdpaths.h>
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
+using namespace Glest::Game;
 using namespace std;
+
+namespace Glest { namespace Game {
+string getGameReadWritePath(string lookupKey) {
+	string path = "";
+    if(path == "" && getenv("GLESTHOME") != NULL) {
+        path = getenv("GLESTHOME");
+        if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
+            path += "/";
+        }
+
+        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for read/write files [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+    }
+
+    return path;
+}
+}}
 
 namespace MapEditor {
 
-
-
-const string mapeditorVersionString = "v1.5.1";
+const string mapeditorVersionString = "v1.6.0";
 const string MainWindow::winHeader = "MegaGlest Map Editor " + mapeditorVersionString;
 
 // ===============================================
@@ -43,7 +60,7 @@ wxString ToUnicode(const string& str) {
 // class MainWindow
 // ===============================================
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(string appPath)
 		: wxFrame(NULL, -1,  ToUnicode(winHeader), wxPoint(0,0), wxSize(1024, 768))
 		, lastX(0), lastY(0)
 		, currentBrush(btHeight)
@@ -59,6 +76,9 @@ MainWindow::MainWindow()
 		, panel(NULL)
         , glCanvas(NULL)
         , program(NULL), boxsizer(NULL), startupSettingsInited(false) {
+
+	this->appPath = appPath;
+	Properties::setApplicationPath(extractDirectoryPathFromFile(appPath));
 
 	this->panel = new wxPanel(this, wxID_ANY);
 
@@ -340,6 +360,16 @@ void MainWindow::init(string fname) {
 	//std::cout << "C" << std::endl;
 	SetIcon(icon);
 	fileDialog = new wxFileDialog(this);
+	Config &config = Config::getInstance();
+    string userData = config.getString("UserData_Root","");
+    if(userData != "") {
+    	endPathWithSlash(userData);
+    }
+    string defaultPath = userData + "maps/";
+    fileDialog->SetDirectory(wxString(defaultPath.c_str()));
+
+	//printf("Default Path [%s]\n",defaultPath.c_str());
+
 	lastPaintEvent.start();
 
 	boxsizer = new wxBoxSizer(wxVERTICAL);
@@ -580,7 +610,19 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxSAVE);
 #endif
 
-	fd.SetPath(fileDialog->GetPath());
+	if(fileDialog->GetPath() != "") {
+		fd.SetPath(fileDialog->GetPath());
+	}
+	else {
+		Config &config = Config::getInstance();
+		string userData = config.getString("UserData_Root","");
+		if(userData != "") {
+			endPathWithSlash(userData);
+		}
+		string defaultPath = userData + "maps/";
+		fd.SetDirectory(wxString(defaultPath.c_str()));
+	}
+
 	fd.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));
 	if (fd.ShowModal() == wxID_OK) {
 		currentFile = fd.GetPath().ToAscii();
@@ -1368,7 +1410,20 @@ bool App::OnInit() {
 #endif
 	}
 
-	mainWindow = new MainWindow();
+	wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
+    //wxString path_separator = wxFileName::GetPathSeparator();
+    //exe_path = exe_path.BeforeLast(path_separator[0]);
+    //exe_path += path_separator;
+
+	string appPath = "";
+#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
+		appPath = tmp_buf;
+#else
+		appPath = wxFNCONV(exe_path);
+#endif
+
+	mainWindow = new MainWindow(appPath);
 	mainWindow->Show();
 	mainWindow->init(fileparam);
 	mainWindow->Update();

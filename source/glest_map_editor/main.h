@@ -184,9 +184,10 @@ private:
 	wxBoxSizer *boxsizer;
 
 	bool startupSettingsInited;
+	string appPath;
 
 public:
-	MainWindow();
+	MainWindow(string appPath);
 	~MainWindow();
 
 	void init(string fname);
