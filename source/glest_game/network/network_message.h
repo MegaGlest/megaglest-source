@@ -55,6 +55,8 @@ enum NetworkGameStateType {
 	nmgstCount
 };
 
+static const int maxLanguageStringSize= 60;
+
 // =====================================================
 //	class NetworkMessage
 // =====================================================
@@ -94,6 +96,7 @@ private:
 		int8 gameState;
 		uint32 externalIp;
 		uint32 ftpPort;
+		NetworkString<maxLanguageStringSize> language;
 	};
 
 private:
@@ -101,7 +104,9 @@ private:
 
 public:
 	NetworkMessageIntro();
-	NetworkMessageIntro(int32 sessionId, const string &versionString, const string &name, int playerIndex, NetworkGameStateType gameState, uint32 externalIp, uint32 ftpPort);
+	NetworkMessageIntro(int32 sessionId, const string &versionString,
+			const string &name, int playerIndex, NetworkGameStateType gameState,
+			uint32 externalIp, uint32 ftpPort, const string &playerLanguage);
 
 	int32 getSessionId() const 					{ return data.sessionId;}
 	string getVersionString() const				{ return data.versionString.getString(); }
@@ -110,6 +115,7 @@ public:
 	NetworkGameStateType getGameState() const 	{ return static_cast<NetworkGameStateType>(data.gameState); }
 	uint32 getExternalIp() const                { return data.externalIp;}
 	uint32 getFtpPort() const					{ return data.ftpPort; }
+	string getPlayerLanguage() const			{ return data.language.getString(); }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
@@ -200,6 +206,8 @@ private:
 		NetworkString<maxSmallStringSize> factionTypeNames[GameConstants::maxPlayers]; //faction names
 		NetworkString<maxSmallStringSize> networkPlayerNames[GameConstants::maxPlayers]; //networkPlayerNames
 		int32 networkPlayerStatuses[GameConstants::maxPlayers]; //networkPlayerStatuses
+		NetworkString<maxSmallStringSize> networkPlayerLanguages[GameConstants::maxPlayers];
+
 		int32 mapCRC;
 		int32 tilesetCRC;
 		int32 techCRC;
@@ -300,16 +308,15 @@ public:
 #pragma pack(push, 1)
 class NetworkMessageText: public NetworkMessage {
 private:
-	static const int maxTextStringSize= 340;
-	//static const int maxSenderStringSize= 60;
+	static const int maxTextStringSize= 500;
 
 private:
 	struct Data{
 		int8 messageType;
 		NetworkString<maxTextStringSize> text;
-		//NetworkString<maxSenderStringSize> sender;
 		int8 teamIndex;
 		int8 playerIndex;
+		NetworkString<maxLanguageStringSize> targetLanguage;
 	};
 
 private:
@@ -317,13 +324,13 @@ private:
 
 public:
 	NetworkMessageText(){}
-	//NetworkMessageText(const string &text, const string &sender, int teamIndex, int playerIndex);
-	NetworkMessageText(const string &text, int teamIndex, int playerIndex);
+	NetworkMessageText(const string &text, int teamIndex, int playerIndex,
+			const string targetLanguage);
 
 	string getText() const		{return data.text.getString();}
-	//string getSender() const	{return data.sender.getString();}
 	int getTeamIndex() const	{return data.teamIndex;}
 	int getPlayerIndex() const  {return data.playerIndex;}
+	string getTargetLanguage() const  {return data.targetLanguage.getString();}
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
@@ -334,7 +341,7 @@ public:
 // =====================================================
 //	class NetworkMessageQuit
 //
-//	Message sent at the beggining of the game
+//	Message sent at the beginning of the game
 // =====================================================
 
 #pragma pack(push, 1)
@@ -358,7 +365,7 @@ public:
 // =====================================================
 //	class NetworkMessageSynchNetworkGameData
 //
-//	Message sent at the beggining of a network game
+//	Message sent at the beginning of a network game
 // =====================================================
 
 #pragma pack(push, 1)
@@ -494,7 +501,7 @@ public:
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataFileCRCCheck
 //
-//	Message sent at the beggining of a network game
+//	Message sent at the beginning of a network game
 // =====================================================
 
 #pragma pack(push, 1)
@@ -534,7 +541,7 @@ public:
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataFileGet
 //
-//	Message sent at the beggining of a network game
+//	Message sent at the beginning of a network game
 // =====================================================
 
 #pragma pack(push, 1)
@@ -606,6 +613,7 @@ private:
 		NetworkString<maxPlayernameStringSize> networkPlayerName;
 		int8 networkPlayerStatus;
 		int8 switchFlags;
+		NetworkString<maxLanguageStringSize> language;
 	};
 
 private:
@@ -615,7 +623,8 @@ public:
 	SwitchSetupRequest();
 	SwitchSetupRequest( string selectedFactionName, int8 currentFactionIndex,
 						int8 toFactionIndex,int8 toTeam,string networkPlayerName,
-						int8 networkPlayerStatus, int8 flags);
+						int8 networkPlayerStatus, int8 flags,
+						string language);
 
 	string getSelectedFactionName() const	{return data.selectedFactionName.getString();}
 	int getCurrentFactionIndex() const		{return data.currentFactionIndex;}
@@ -627,6 +636,7 @@ public:
 	void clearSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags &= ~flag;}
 
 	int getNetworkPlayerStatus()			{ return data.networkPlayerStatus; }
+	string getNetworkPlayerLanguage() const	{ return data.language.getString(); }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

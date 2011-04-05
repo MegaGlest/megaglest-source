@@ -14,6 +14,7 @@
 
 #include "game_constants.h"
 #include "conversion.h"
+#include <algorithm>
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -45,6 +46,7 @@ private:
 	string factionTypeNames[GameConstants::maxPlayers]; //faction names
 	string networkPlayerNames[GameConstants::maxPlayers];
 	int    networkPlayerStatuses[GameConstants::maxPlayers];
+	string networkPlayerLanguages[GameConstants::maxPlayers];
 
 	ControlType factionControls[GameConstants::maxPlayers];
 	int resourceMultiplierIndex[GameConstants::maxPlayers];
@@ -91,6 +93,7 @@ public:
     		factionTypeNames[i] = "";
     		networkPlayerNames[i] = "";
     		networkPlayerStatuses[i] = 0;
+    		networkPlayerLanguages[i] = "english";
     		factionControls[i] = ctClosed;
     		resourceMultiplierIndex[i] = 1.0f;
     		teams[i] = 0;
@@ -117,6 +120,22 @@ public:
 	const string &getFactionTypeName(int factionIndex) const	{return factionTypeNames[factionIndex];}
 	const string &getNetworkPlayerName(int factionIndex) const  {return networkPlayerNames[factionIndex];}
 	const int    getNetworkPlayerStatuses(int factionIndex) const { return networkPlayerStatuses[factionIndex];}
+	const string getNetworkPlayerLanguages(int factionIndex) const { return networkPlayerLanguages[factionIndex];}
+
+	const vector<string> getUniqueNetworkPlayerLanguages() const {
+		vector<string> languageList;
+		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			if(networkPlayerLanguages[i] != "") {
+				if(std::find(languageList.begin(),languageList.end(),networkPlayerLanguages[i]) == languageList.end()) {
+					languageList.push_back(networkPlayerLanguages[i]);
+				}
+			}
+		}
+		if(languageList.size() == 0) {
+			languageList.push_back("");
+		}
+		return languageList;
+	}
 
 	const string getNetworkPlayerNameByPlayerIndex(int playerIndex) const  {
 		string result = "";
@@ -176,6 +195,8 @@ public:
 	void setFactionTypeName(int factionIndex, const string& factionTypeName)	{this->factionTypeNames[factionIndex]= factionTypeName;}
 	void setNetworkPlayerName(int factionIndex,const string& playername)    {this->networkPlayerNames[factionIndex]= playername;}
 	void setNetworkPlayerStatuses(int factionIndex,int status)    			{this->networkPlayerStatuses[factionIndex]= status;}
+	void setNetworkPlayerLanguages(int factionIndex, string language) 		{this->networkPlayerLanguages[factionIndex]=language;}
+
 	void setFactionControl(int factionIndex, ControlType controller)		{this->factionControls[factionIndex]= controller;}
 	void setResourceMultiplierIndex(int factionIndex, int multiplierIndex)	{this->resourceMultiplierIndex[factionIndex]= multiplierIndex;}
 
@@ -220,6 +241,7 @@ public:
 			result += "player index = " + intToStr(idx) + "\n";
 			result += "factionTypeName = " + factionTypeNames[idx] + "\n";
 			result += "networkPlayerName = " + networkPlayerNames[idx] + "\n";
+			result += "networkPlayerLanguage = " + networkPlayerLanguages[idx] + "\n";
 
 			result += "factionControl = " + intToStr(factionControls[idx]) + "\n";
 			result += "resourceMultiplierIndex = " + intToStr(resourceMultiplierIndex[idx]) + "\n";

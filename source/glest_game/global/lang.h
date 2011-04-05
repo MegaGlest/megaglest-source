@@ -25,22 +25,27 @@ using Shared::Util::Properties;
 //	String table
 // =====================================================
 
-class Lang{
+class Lang {
 private:
 	string language;
 	Properties strings;
 	Properties scenarioStrings;
 
+	std::map<string,Properties> otherLanguageStrings;
+
 private:
 	Lang(){};
+	void loadStrings(const string &language, Properties &properties, bool fileMustExist);
 
 public:
 	static Lang &getInstance();    
 	void loadStrings(const string &language);
 	void loadScenarioStrings(const string &scenarioDir, const string &scenarioName);
-	string get(const string &s);
-	bool hasString(const string &s);
+	string get(const string &s,string language="");
+	bool hasString(const string &s, string language="");
 	string getScenarioString(const string &s);
+	string getLanguage() const { return language; }
+	bool isLanguageLocal(string compareLanguage) const;
 };
 
 }}//end namespace

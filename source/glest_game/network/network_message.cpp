@@ -119,7 +119,8 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 										const string &name, int playerIndex,
 										NetworkGameStateType gameState,
 										uint32 externalIp,
-										uint32 ftpPort) {
+										uint32 ftpPort,
+										const string &playerLanguage) {
 	data.messageType	= nmtIntro;
 	data.sessionId		= sessionId;
 	data.versionString	= versionString;
@@ -128,12 +129,15 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 	data.gameState		= static_cast<int8>(gameState);
 	data.externalIp     = externalIp;
 	data.ftpPort		= ftpPort;
+	data.language		= playerLanguage;
 }
 
 bool NetworkMessageIntro::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 	data.name.nullTerminate();
 	data.versionString.nullTerminate();
+	data.language.nullTerminate();
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] get nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	return result;
 }
@@ -246,6 +250,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
 		data.networkPlayerNames[i]= gameSettings->getNetworkPlayerName(i);
 		data.networkPlayerStatuses[i] = gameSettings->getNetworkPlayerStatuses(i);
+		data.networkPlayerLanguages[i] = gameSettings->getNetworkPlayerLanguages(i);
 		data.factionControls[i]= gameSettings->getFactionControl(i);
 		data.resourceMultiplierIndex[i]= gameSettings->getResourceMultiplierIndex(i);
 		data.teams[i]= gameSettings->getTeam(i);
@@ -289,6 +294,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());
 		gameSettings->setNetworkPlayerName(i,data.networkPlayerNames[i].getString());
 		gameSettings->setNetworkPlayerStatuses(i, data.networkPlayerStatuses[i]);
+		gameSettings->setNetworkPlayerLanguages(i, data.networkPlayerLanguages[i].getString());
 		gameSettings->setFactionControl(i, static_cast<ControlType>(data.factionControls[i]));
 		gameSettings->setResourceMultiplierIndex(i,data.resourceMultiplierIndex[i]);
 		gameSettings->setTeam(i, data.teams[i]);
@@ -316,6 +322,7 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	for(int i= 0; i < GameConstants::maxPlayers; ++i){
 		data.factionTypeNames[i].nullTerminate();
 		data.networkPlayerNames[i].nullTerminate();
+		data.networkPlayerLanguages[i].nullTerminate();
 	}
 	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
 		data.factionNameList[i].nullTerminate();
@@ -439,17 +446,17 @@ void NetworkMessageCommandList::send(Socket* socket) const {
 //	class NetworkMessageText
 // =====================================================
 
-//NetworkMessageText::NetworkMessageText(const string &text, const string &sender, int teamIndex, int playerIndex) {
-NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int playerIndex) {
+NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int playerIndex,
+										const string targetLanguage) {
 	if(text.length() >= maxTextStringSize) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 	}
 
 	data.messageType	= nmtText;
 	data.text			= text;
-	//data.sender			= sender;
 	data.teamIndex		= teamIndex;
 	data.playerIndex 	= playerIndex;
+	data.targetLanguage = targetLanguage;
 }
 
 NetworkMessageText * NetworkMessageText::getCopy() const {
@@ -462,7 +469,7 @@ bool NetworkMessageText::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
 
 	data.text.nullTerminate();
-	//data.sender.nullTerminate();
+	data.targetLanguage.nullTerminate();
 
 	return result;
 }
@@ -964,11 +971,13 @@ SwitchSetupRequest::SwitchSetupRequest() {
     data.networkPlayerName="";
     data.networkPlayerStatus = npst_None;
     data.switchFlags = ssrft_None;
+    data.language = "";
 }
 
 SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
 										int8 toFactionIndex,int8 toTeam,string networkPlayerName,
-										int8 networkPlayerStatus, int8 flags) {
+										int8 networkPlayerStatus, int8 flags,
+										string language) {
 	data.messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName=selectedFactionName;
 	data.currentFactionIndex=currentFactionIndex;
@@ -977,6 +986,7 @@ SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentF
     data.networkPlayerName=networkPlayerName;
     data.networkPlayerStatus=networkPlayerStatus;
     data.switchFlags = flags;
+    data.language = language;
 }
 
 bool SwitchSetupRequest::receive(Socket* socket) {
@@ -984,6 +994,7 @@ bool SwitchSetupRequest::receive(Socket* socket) {
 
 	data.selectedFactionName.nullTerminate();
 	data.networkPlayerName.nullTerminate();
+	data.language.nullTerminate();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
 

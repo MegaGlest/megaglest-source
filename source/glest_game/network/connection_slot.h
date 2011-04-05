@@ -123,6 +123,7 @@ private:
 	int sessionKey;
 	uint32 connectedRemoteIPAddress;
 	int playerStatus;
+	string playerLanguage;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
@@ -177,6 +178,8 @@ public:
 	virtual int getHumanPlayerIndex() const {return playerIndex;}
 
 	int getNetworkPlayerStatus() const { return playerStatus;}
+
+	string getNetworkPlayerLanguage() const { return playerLanguage; }
 
 protected:
 

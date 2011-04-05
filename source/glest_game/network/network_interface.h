@@ -48,6 +48,7 @@ protected:
 		this->chatText			= obj.chatText.c_str();
 		this->chatTeamIndex		= obj.chatTeamIndex;
 		this->chatPlayerIndex 	= obj.chatPlayerIndex;
+		this->targetLanguage	= obj.targetLanguage;
 	}
 public:
 
@@ -55,11 +56,14 @@ public:
 		this->chatText			= "";
 		this->chatTeamIndex		= -1;
 		this->chatPlayerIndex	= -1;
+		this->targetLanguage	= "";
 	}
-	ChatMsgInfo(string chatText, int chatTeamIndex, int chatPlayerIndex) {
+	ChatMsgInfo(string chatText, int chatTeamIndex, int chatPlayerIndex,
+			string targetLanguage) {
 		this->chatText		= chatText;
 		this->chatTeamIndex	= chatTeamIndex;
 		this->chatPlayerIndex = chatPlayerIndex;
+		this->targetLanguage = targetLanguage;
 	}
 	ChatMsgInfo(const ChatMsgInfo& obj) {
 		copyAll(obj);
@@ -72,6 +76,7 @@ public:
 	string chatText;
 	int chatTeamIndex;
 	int chatPlayerIndex;
+	string targetLanguage;
 
 };
 
@@ -165,7 +170,7 @@ public:
 // but not connection slots
 // =====================================================
 
-class GameNetworkInterface: public NetworkInterface{
+class GameNetworkInterface: public NetworkInterface {
 private:
 	typedef vector<NetworkCommand> Commands;
 
@@ -184,7 +189,8 @@ public:
 	virtual void waitUntilReady(Checksum* checksum)= 0;
 
 	//message sending
-	virtual void sendTextMessage(const string &text, int teamIndex,bool echoLocal=false)= 0;
+	virtual void sendTextMessage(const string &text, int teamIndex,bool echoLocal,
+			string targetLanguage)= 0;
 	virtual void quitGame(bool userManuallyQuit)=0;
 
 	//misc

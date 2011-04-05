@@ -502,14 +502,19 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			    if(ftpMissingDataType == ftpmsg_MissingMap) {
                     getMissingMapFromFTPServerInProgress = true;
 
-                    char szMsg[1024]="";
-                    if(lang.hasString("DataMissingMapNowDownloading") == true) {
-                    	sprintf(szMsg,lang.get("DataMissingMapNowDownloading").c_str(),getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
-                    }
-                    else {
-                    	sprintf(szMsg,"Player: %s is attempting to download the map: %s",getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
-                    }
-                    clientInterface->sendTextMessage(szMsg,-1, true);
+    		    	Lang &lang= Lang::getInstance();
+    		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+						char szMsg[1024]="";
+						if(lang.hasString("DataMissingMapNowDownloading",languageList[i]) == true) {
+							sprintf(szMsg,lang.get("DataMissingMapNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
+						}
+						else {
+							sprintf(szMsg,"Player: %s is attempting to download the map: %s",getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
+						}
+						bool localEcho = lang.isLanguageLocal(languageList[i]);
+						clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+    		    	}
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
@@ -521,14 +526,19 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			    else if(ftpMissingDataType == ftpmsg_MissingTileset) {
                     getMissingTilesetFromFTPServerInProgress = true;
 
-                    char szMsg[1024]="";
-                    if(lang.hasString("DataMissingTilesetNowDownloading") == true) {
-                    	sprintf(szMsg,lang.get("DataMissingTilesetNowDownloading").c_str(),getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
-                    }
-                    else {
-                    	sprintf(szMsg,"Player: %s is attempting to download the tileset: %s",getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
-                    }
-                    clientInterface->sendTextMessage(szMsg,-1, true);
+    		    	Lang &lang= Lang::getInstance();
+    		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+						char szMsg[1024]="";
+						if(lang.hasString("DataMissingTilesetNowDownloading",languageList[i]) == true) {
+							sprintf(szMsg,lang.get("DataMissingTilesetNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
+						}
+						else {
+							sprintf(szMsg,"Player: %s is attempting to download the tileset: %s",getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
+						}
+						bool localEcho = lang.isLanguageLocal(languageList[i]);
+						clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+    		    	}
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
@@ -540,14 +550,19 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			    else if(ftpMissingDataType == ftpmsg_MissingTechtree) {
                     getMissingTechtreeFromFTPServerInProgress = true;
 
-                    char szMsg[1024]="";
-                    if(lang.hasString("DataMissingTechtreeNowDownloading") == true) {
-                    	sprintf(szMsg,lang.get("DataMissingTechtreeNowDownloading").c_str(),getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
-                    }
-                    else {
-                    	sprintf(szMsg,"Player: %s is attempting to download the techtree: %s",getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
-                    }
-                    clientInterface->sendTextMessage(szMsg,-1, true);
+    		    	Lang &lang= Lang::getInstance();
+    		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+						char szMsg[1024]="";
+						if(lang.hasString("DataMissingTechtreeNowDownloading",languageList[i]) == true) {
+							sprintf(szMsg,lang.get("DataMissingTechtreeNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
+						}
+						else {
+							sprintf(szMsg,"Player: %s is attempting to download the techtree: %s",getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
+						}
+						bool localEcho = lang.isLanguageLocal(languageList[i]);
+						clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+    		    	}
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->addTechtreeToRequests(getMissingTechtreeFromFTPServer);
@@ -565,8 +580,12 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		if(clientInterface->getSocket() != NULL) {
 		    if(clientInterface->isConnected() == true) {
-                string sQuitText = lang.get("QuitGame");
-                clientInterface->sendTextMessage(sQuitText,-1);
+		    	Lang &lang= Lang::getInstance();
+		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+		    		string sQuitText = lang.get("QuitGame",languageList[i]);
+		    		clientInterface->sendTextMessage(sQuitText,-1,false,languageList[i]);
+		    	}
                 sleep(1);
 		    }
 		    clientInterface->close();
@@ -604,7 +623,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 							        listBoxTeams[i].getSelectedItemIndex(),
 							        getHumanPlayerName(),
 							        getNetworkPlayerStatus(),
-							        switchSetupRequestFlagType);
+							        switchSetupRequestFlagType,
+							        lang.getLanguage());
 							switchSetupRequestFlagType= ssrft_None;
 						}
 						break;
@@ -622,7 +642,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 							        listBoxTeams[i].getSelectedItemIndex(),
 							        getHumanPlayerName(),
 							        getNetworkPlayerStatus(),
-							        switchSetupRequestFlagType);
+							        switchSetupRequestFlagType,
+							        lang.getLanguage());
 							switchSetupRequestFlagType= ssrft_None;
 						}
 						break;
@@ -645,7 +666,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						        //labelPlayerNames[myCurrentIndex].getText(),
 						        getHumanPlayerName(),
 						        getNetworkPlayerStatus(),
-						        switchSetupRequestFlagType);
+						        switchSetupRequestFlagType,
+						        lang.getLanguage());
 						labelPlayerNames[myCurrentIndex].setText("");
 						labelPlayerNames[i].setText("");
 						switchSetupRequestFlagType= ssrft_None;
@@ -674,7 +696,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						listBoxTeams[clientInterface->getPlayerIndex()].getSelectedItemIndex(),
 						getHumanPlayerName(),
 						getNetworkPlayerStatus(),
-						switchSetupRequestFlagType);
+						switchSetupRequestFlagType,
+						lang.getLanguage());
 				switchSetupRequestFlagType=ssrft_None;
 			}
 		}
@@ -949,9 +972,14 @@ void MenuStateConnectedGame::update() {
 				pingCount >= 3 && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 3)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				string playerNameStr = getHumanPlayerName();
-				clientInterface->sendTextMessage(lang.get("ConnectionTimedOut"),-1);
-				clientInterface->close();
+		    	Lang &lang= Lang::getInstance();
+		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+					//string playerNameStr = getHumanPlayerName();
+					clientInterface->sendTextMessage(lang.get("ConnectionTimedOut",languageList[i]),-1,false,languageList[i]);
+					sleep(1);
+					clientInterface->close();
+		    	}
 			}
 
 			pingCount++;
@@ -1054,7 +1082,14 @@ void MenuStateConnectedGame::update() {
                         if(updateDataSynchDetailText == true &&
                             lastMapDataSynchError != lang.get("DataNotSynchedMap") + " " + listBoxMap.getSelectedItem()) {
                             lastMapDataSynchError = lang.get("DataNotSynchedMap") + " " + listBoxMap.getSelectedItem();
-                            clientInterface->sendTextMessage(lastMapDataSynchError,-1,true);
+
+            		    	Lang &lang= Lang::getInstance();
+            		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+            		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+            		    		string msg = lang.get("DataNotSynchedMap",languageList[i]) + " " + listBoxMap.getSelectedItem();
+            		    		bool localEcho = lang.isLanguageLocal(languageList[i]);
+            		    		clientInterface->sendTextMessage(msg,-1,localEcho,languageList[i]);
+            		    	}
                         }
                     }
 
@@ -1065,7 +1100,14 @@ void MenuStateConnectedGame::update() {
                         if(updateDataSynchDetailText == true &&
                             lastTileDataSynchError != lang.get("DataNotSynchedTileset") + " " + listBoxTileset.getSelectedItem()) {
                             lastTileDataSynchError = lang.get("DataNotSynchedTileset") + " " + listBoxTileset.getSelectedItem();
-                            clientInterface->sendTextMessage(lastTileDataSynchError,-1,true);
+
+            		    	Lang &lang= Lang::getInstance();
+            		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+            		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+            		    		string msg = lang.get("DataNotSynchedTileset",languageList[i]) + " " + listBoxTileset.getSelectedItem();
+            		    		bool localEcho = lang.isLanguageLocal(languageList[i]);
+            		    		clientInterface->sendTextMessage(msg,-1,localEcho,languageList[i]);
+            		    	}
                         }
                     }
 
@@ -1076,62 +1118,99 @@ void MenuStateConnectedGame::update() {
                         if(updateDataSynchDetailText == true &&
                         	lastTechtreeDataSynchError != lang.get("DataNotSynchedTechtree") + " " + listBoxTechTree.getSelectedItem()) {
                         	lastTechtreeDataSynchError = lang.get("DataNotSynchedTechtree") + " " + listBoxTechTree.getSelectedItem();
-                            clientInterface->sendTextMessage(lastTechtreeDataSynchError,-1,true);
 
-                            string mismatchedFactionText = "";
-                            vector<pair<string,int32> > serverFactionCRCList = gameSettings->getFactionCRCList();
+            		    	Lang &lang= Lang::getInstance();
+            		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+            		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+            		    		string msg = lang.get("DataNotSynchedTechtree",languageList[i]) + " " + listBoxTechTree.getSelectedItem();
+            		    		bool localEcho = lang.isLanguageLocal(languageList[i]);
+            		    		clientInterface->sendTextMessage(msg,-1,localEcho,languageList[i]);
+            		    	}
 
-                            for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
-                            	pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx];
+            		    	//const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+            		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+            		    		bool localEcho = lang.isLanguageLocal(languageList[i]);
 
-                            	bool foundFaction = false;
-                                for(unsigned int clientFactionIdx = 0; clientFactionIdx < factionCRCList.size(); ++clientFactionIdx) {
-                                	pair<string,int32> &clientFaction = factionCRCList[clientFactionIdx];
+								string mismatchedFactionText = "";
+								vector<pair<string,int32> > serverFactionCRCList = gameSettings->getFactionCRCList();
 
-                                	if(serverFaction.first == clientFaction.first) {
-                                		foundFaction = true;
-                                		if(serverFaction.second != clientFaction.second) {
-                                			if(mismatchedFactionText == "") {
-                                				mismatchedFactionText = "The following factions are mismatched: [" + intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
-                                			}
-                                			mismatchedFactionText += serverFaction.first + ", ";
-                                		}
-                                		break;
-                                	}
-                                }
-
-                                if(foundFaction == false) {
-                        			if(mismatchedFactionText == "") {
-                        				mismatchedFactionText = "The following factions are mismatched: [" + intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
-                        			}
-                        			mismatchedFactionText += serverFaction.first + " (missing), ";
-                                }
-                            }
-
-							for(unsigned int clientFactionIdx = 0; clientFactionIdx < factionCRCList.size(); ++clientFactionIdx) {
-								pair<string,int32> &clientFaction = factionCRCList[clientFactionIdx];
-
-								bool foundFaction = false;
-	                            for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
+								for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
 									pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx];
 
-									if(serverFaction.first == clientFaction.first) {
-										foundFaction = true;
-										break;
+									bool foundFaction = false;
+									for(unsigned int clientFactionIdx = 0; clientFactionIdx < factionCRCList.size(); ++clientFactionIdx) {
+										pair<string,int32> &clientFaction = factionCRCList[clientFactionIdx];
+
+										if(serverFaction.first == clientFaction.first) {
+											foundFaction = true;
+											if(serverFaction.second != clientFaction.second) {
+												if(mismatchedFactionText == "") {
+													mismatchedFactionText = "The following factions are mismatched: ";
+													if(lang.hasString("MismatchedFactions",languageList[i]) == true) {
+														mismatchedFactionText = lang.get("MismatchedFactions",languageList[i]);
+													}
+
+													mismatchedFactionText += " ["+ intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
+												}
+												mismatchedFactionText += serverFaction.first + ", ";
+											}
+											break;
+										}
+									}
+
+									if(foundFaction == false) {
+										if(mismatchedFactionText == "") {
+											mismatchedFactionText = "The following factions are mismatched: ";
+											if(lang.hasString("MismatchedFactions",languageList[i]) == true) {
+												mismatchedFactionText = lang.get("MismatchedFactions",languageList[i]);
+											}
+
+											mismatchedFactionText += " ["+ intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
+										}
+										if(lang.hasString("MismatchedFactionsMissing",languageList[i]) == true) {
+											mismatchedFactionText += serverFaction.first + " " + lang.get("MismatchedFactionsMissing",languageList[i]) + ", ";
+										}
+										else {
+											mismatchedFactionText += serverFaction.first + " (missing), ";
+										}
 									}
 								}
 
-								if(foundFaction == false) {
-									if(mismatchedFactionText == "") {
-										mismatchedFactionText = "The following factions are mismatched: [" + intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
-									}
-									mismatchedFactionText += clientFaction.first + " (extra), ";
-								}
-							}
+								for(unsigned int clientFactionIdx = 0; clientFactionIdx < factionCRCList.size(); ++clientFactionIdx) {
+									pair<string,int32> &clientFaction = factionCRCList[clientFactionIdx];
 
-							if(mismatchedFactionText != "") {
-								clientInterface->sendTextMessage(mismatchedFactionText,-1,true);
-							}
+									bool foundFaction = false;
+									for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
+										pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx];
+
+										if(serverFaction.first == clientFaction.first) {
+											foundFaction = true;
+											break;
+										}
+									}
+
+									if(foundFaction == false) {
+										if(mismatchedFactionText == "") {
+											mismatchedFactionText = "The following factions are mismatched: ";
+											if(lang.hasString("MismatchedFactions",languageList[i]) == true) {
+												mismatchedFactionText = lang.get("MismatchedFactions",languageList[i]);
+											}
+
+											mismatchedFactionText += " ["+ intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
+										}
+										if(lang.hasString("MismatchedFactionsExtra",languageList[i]) == true) {
+											mismatchedFactionText += clientFaction.first + " " + lang.get("MismatchedFactionsExtra",languageList[i]) + ", ";
+										}
+										else {
+											mismatchedFactionText += clientFaction.first + " (extra), ";
+										}
+									}
+								}
+
+								if(mismatchedFactionText != "") {
+									clientInterface->sendTextMessage(mismatchedFactionText,-1,localEcho,languageList[i]);
+								}
+            		    	}
                         }
                     }
 
@@ -1157,7 +1236,7 @@ void MenuStateConnectedGame::update() {
                     	clientInterface->getReceivedDataSynchCheck() &&
                     	lastMapDataSynchError != "map CRC mismatch, " + listBoxMap.getSelectedItem()) {
                     	lastMapDataSynchError = "map CRC mismatch, " + listBoxMap.getSelectedItem();
-                    	clientInterface->sendTextMessage(lastMapDataSynchError,-1,true);
+                    	clientInterface->sendTextMessage(lastMapDataSynchError,-1,true, "");
                     }
                 }
 
@@ -1167,7 +1246,7 @@ void MenuStateConnectedGame::update() {
                     	clientInterface->getReceivedDataSynchCheck() &&
                     	lastTileDataSynchError != "tile CRC mismatch, " + listBoxTileset.getSelectedItem()) {
                     	lastTileDataSynchError = "tile CRC mismatch, " + listBoxTileset.getSelectedItem();
-                    	clientInterface->sendTextMessage(lastTileDataSynchError,-1,true);
+                    	clientInterface->sendTextMessage(lastTileDataSynchError,-1,true,"");
                     }
                 }
 
@@ -1183,11 +1262,11 @@ void MenuStateConnectedGame::update() {
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] report: %s\n",__FILE__,__FUNCTION__,__LINE__,report.c_str());
 
-							clientInterface->sendTextMessage("techtree CRC mismatch",-1,true);
+							clientInterface->sendTextMessage("techtree CRC mismatch",-1,true,"");
 							vector<string> reportLineTokens;
 							Tokenize(report,reportLineTokens,"\n");
 							for(int reportLine = 0; reportLine < reportLineTokens.size(); ++reportLine) {
-								clientInterface->sendTextMessage(reportLineTokens[reportLine],-1,true);
+								clientInterface->sendTextMessage(reportLineTokens[reportLine],-1,true,"");
 							}
 						}
                     }
@@ -1328,14 +1407,19 @@ void MenuStateConnectedGame::update() {
 
                             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-                            char szMsg[1024]="";
-                            if(lang.hasString("DataMissingTileset") == true) {
-                            	sprintf(szMsg,lang.get("DataMissingTileset").c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
-                            }
-                            else {
-                            	sprintf(szMsg,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
-                            }
-                            clientInterface->sendTextMessage(szMsg,-1, true);
+            		    	Lang &lang= Lang::getInstance();
+            		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+            		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+
+								char szMsg[1024]="";
+								if(lang.hasString("DataMissingTileset",languageList[i]) == true) {
+									sprintf(szMsg,lang.get("DataMissingTileset",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+								}
+								else {
+									sprintf(szMsg,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+								}
+								clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+            		    	}
                         }
                     }
                     listBoxTileset.setItems(tilesets);
@@ -1375,14 +1459,19 @@ void MenuStateConnectedGame::update() {
 
                             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-                            char szMsg[1024]="";
-                            if(lang.hasString("DataMissingTechtree") == true) {
-                            	sprintf(szMsg,lang.get("DataMissingTechtree").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
-                            }
-                            else {
-                            	sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
-                            }
-                            clientInterface->sendTextMessage(szMsg,-1, true);
+            		    	Lang &lang= Lang::getInstance();
+            		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+            		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+
+								char szMsg[1024]="";
+	                            if(lang.hasString("DataMissingTechtree",languageList[i]) == true) {
+	                            	sprintf(szMsg,lang.get("DataMissingTechtree",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+	                            }
+	                            else {
+	                            	sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+	                            }
+								clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+            		    	}
                         }
                     }
                     listBoxTechTree.setItems(techtree);
@@ -1616,7 +1705,8 @@ void MenuStateConnectedGame::update() {
 							-1,
 							getHumanPlayerName(),
 							getNetworkPlayerStatus(),
-							switchSetupRequestFlagType);
+							switchSetupRequestFlagType,
+							lang.getLanguage());
 
 					switchSetupRequestFlagType=ssrft_None;
 				}
@@ -1717,14 +1807,19 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 				gameSettings->getTech() != "") {
 				lastMissingTechtree = gameSettings->getTech();
 
-				char szMsg[1024]="";
-				if(lang.hasString("DataMissingTechtree") == true) {
-					sprintf(szMsg,lang.get("DataMissingTechtree").c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
-				}
-				else {
-					sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
-				}
-				clientInterface->sendTextMessage(szMsg,-1, true);
+		    	Lang &lang= Lang::getInstance();
+		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+
+					char szMsg[1024]="";
+					if(lang.hasString("DataMissingTechtree",languageList[i]) == true) {
+						sprintf(szMsg,lang.get("DataMissingTechtree",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+					}
+					else {
+						sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+					}
+					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		    	}
 			}
 
 			foundFactions = false;
@@ -1991,14 +2086,19 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 
 				lastMissingMap = gameSettings->getMap();
 
-				char szMsg[1024]="";
-	            if(lang.hasString("DataMissingMap") == true) {
-	            	sprintf(szMsg,lang.get("DataMissingMap").c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
-	            }
-	            else {
-	            	sprintf(szMsg,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
-	            }
-				clientInterface->sendTextMessage(szMsg,-1, true);
+		    	Lang &lang= Lang::getInstance();
+		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+
+					char szMsg[1024]="";
+		            if(lang.hasString("DataMissingMap",languageList[i]) == true) {
+		            	sprintf(szMsg,lang.get("DataMissingMap",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+		            }
+		            else {
+		            	sprintf(szMsg,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+		            }
+					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		    	}
 			}
 		}
 	}
@@ -2079,13 +2179,22 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             safeMutexFTPProgress.ReleaseLock();
 
             if(itemName != "" && (lastProgress.first / 25) < (fileProgress / 25)) {
-				char szMsg[1024]="";
-				sprintf(szMsg,"Player: %s download progress for [%s] is %d %%",getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] szMsg [%s] lastProgress.first = %d, fileProgress = %d\n",__FILE__,__FUNCTION__,__LINE__,szMsg,lastProgress.first,fileProgress);
-
 		        NetworkManager &networkManager= NetworkManager::getInstance();
 		        ClientInterface* clientInterface= networkManager.getClientInterface();
-				clientInterface->sendTextMessage(szMsg,-1, true);
+
+		    	Lang &lang= Lang::getInstance();
+		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+					char szMsg[1024]="";
+		            if(lang.hasString("FileDownloadProgress",languageList[i]) == true) {
+		            	sprintf(szMsg,lang.get("FileDownloadProgress",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
+		            }
+		            else {
+		            	sprintf(szMsg,"Player: %s download progress for [%s] is %d %%",getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
+		            }
+		            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] szMsg [%s] lastProgress.first = %d, fileProgress = %d\n",__FILE__,__FUNCTION__,__LINE__,szMsg,lastProgress.first,fileProgress);
+		            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		    	}
             }
         }
     }
@@ -2111,26 +2220,34 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
     		checksum.addFile(file);
     		lastCheckedCRCMapValue = checksum.getSum();
 
-            char szMsg[1024]="";
-            if(lang.hasString("DataMissingMapSuccessDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingMapSuccessDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str());
-            }
-            else {
-            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),itemName.c_str());
-            }
-            clientInterface->sendTextMessage(szMsg,-1, true);
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[1024]="";
+	            if(lang.hasString("DataMissingMapSuccessDownload",languageList[i]) == true) {
+	            	sprintf(szMsg,lang.get("DataMissingMapSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+	            }
+	            else {
+	            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),itemName.c_str());
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+	    	}
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-            char szMsg[1024]="";
-            if(lang.hasString("DataMissingMapFailDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingMapFailDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
-            }
-            else {
-            	sprintf(szMsg,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
-            }
-            clientInterface->sendTextMessage(szMsg,-1, true);
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[1024]="";
+	            if(lang.hasString("DataMissingMapFailDownload",languageList[i]) == true) {
+	            	sprintf(szMsg,lang.get("DataMissingMapFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            }
+	            else {
+	            	sprintf(szMsg,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+	    	}
 
             console.addLine(result.second,true);
         }
@@ -2148,14 +2265,19 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         const GameSettings *gameSettings = clientInterface->getGameSettings();
 
         if(result.first == ftp_crt_SUCCESS) {
-            char szMsg[1024]="";
-            if(lang.hasString("DataMissingTilesetSuccessDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTilesetSuccessDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str());
-            }
-            else {
-            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),itemName.c_str());
-            }
-            clientInterface->sendTextMessage(szMsg,-1, true);
+
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[1024]="";
+	            if(lang.hasString("DataMissingTilesetSuccessDownload",languageList[i]) == true) {
+	            	sprintf(szMsg,lang.get("DataMissingTilesetSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+	            }
+	            else {
+	            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),itemName.c_str());
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+	    	}
 
             // START
             // Clear the CRC Cache if it is populated
@@ -2183,14 +2305,19 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-            char szMsg[1024]="";
-            if(lang.hasString("DataMissingTilesetFailDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTilesetFailDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
-            }
-            else {
-            	sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
-            }
-            clientInterface->sendTextMessage(szMsg,-1, true);
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[1024]="";
+	            if(lang.hasString("DataMissingTilesetFailDownload",languageList[i]) == true) {
+	            	sprintf(szMsg,lang.get("DataMissingTilesetFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            }
+	            else {
+	            	sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+	    	}
+
             console.addLine(result.second,true);
         }
     }
@@ -2207,14 +2334,19 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         const GameSettings *gameSettings = clientInterface->getGameSettings();
 
         if(result.first == ftp_crt_SUCCESS) {
-            char szMsg[1024]="";
-            if(lang.hasString("DataMissingTechtreeSuccessDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTechtreeSuccessDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str());
-            }
-            else {
-            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the techtree: %s",getHumanPlayerName().c_str(),itemName.c_str());
-            }
-            clientInterface->sendTextMessage(szMsg,-1, true);
+
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[1024]="";
+	            if(lang.hasString("DataMissingTechtreeSuccessDownload",languageList[i]) == true) {
+	            	sprintf(szMsg,lang.get("DataMissingTechtreeSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+	            }
+	            else {
+	            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the techtree: %s",getHumanPlayerName().c_str(),itemName.c_str());
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+	    	}
 
             // START
             // Clear the CRC Cache if it is populated
@@ -2242,14 +2374,19 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-            char szMsg[1024]="";
-            if(lang.hasString("DataMissingTechtreeFailDownload") == true) {
-            	sprintf(szMsg,lang.get("DataMissingTechtreeFailDownload").c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
-            }
-            else {
-            	sprintf(szMsg,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
-            }
-            clientInterface->sendTextMessage(szMsg,-1, true);
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[1024]="";
+	            if(lang.hasString("DataMissingTechtreeFailDownload",languageList[i]) == true) {
+	            	sprintf(szMsg,lang.get("DataMissingTechtreeFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            }
+	            else {
+	            	sprintf(szMsg,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+	    	}
+
             console.addLine(result.second,true);
         }
     }

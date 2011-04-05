@@ -133,7 +133,7 @@ void ChatManager::keyDown(char key) {
                             console->addLine(text,false,playerIndex);
 						}
 
-						gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1);
+						gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1, false, "");
 						if(inMenu == false) {
 							editEnabled= false;
 						}

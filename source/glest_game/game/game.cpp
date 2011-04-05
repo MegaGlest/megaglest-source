@@ -958,7 +958,13 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						}
 						sprintf(szBuf,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 					}
-					server->sendTextMessage(szBuf,-1,true);
+
+					Lang &lang= Lang::getInstance();
+					const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+					for(unsigned int j = 0; j < languageList.size(); ++j) {
+						bool localEcho = (languageList[j] == lang.getLanguage());
+						server->sendTextMessage(szBuf,-1,localEcho,languageList[j]);
+					}
 				}
 			}
 		}

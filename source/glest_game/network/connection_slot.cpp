@@ -228,6 +228,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->serverInterface	= serverInterface;
 	this->playerIndex		= playerIndex;
 	this->playerStatus		= 0;
+	this->playerLanguage	= "";
 	this->currentFrameCount = 0;
 	this->currentLagCount	= 0;
 	this->gotLagCountWarning = false;
@@ -318,6 +319,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						this->clearChatInfo();
 						this->name = "";
 						this->playerStatus = npst_PickSettings;
+						this->playerLanguage = "";
 						this->ready = false;
 						this->vctFileList.clear();
 						this->receivedNetworkGameStatus = false;
@@ -366,7 +368,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots, 0, ServerSocket::getFTPServerPort());
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots, 0, ServerSocket::getFTPServerPort(),"");
 							sendMessage(&networkMessageIntro);
 						}
 
@@ -378,7 +380,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort());
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort(),"");
 							sendMessage(&networkMessageIntro);
 
 							//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
@@ -438,7 +440,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							if(gotIntro == true) {
 								NetworkMessageText networkMessageText;
 								if(receiveMessage(&networkMessageText)) {
-									ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
+									ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
 									this->addChatInfo(msg);
 									gotTextMsg = true;
 								}
@@ -479,9 +481,10 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							NetworkMessageIntro networkMessageIntro;
 							if(receiveMessage(&networkMessageIntro)) {
 								int msgSessionId = networkMessageIntro.getSessionId();
-								name= networkMessageIntro.getName();
-								versionString = networkMessageIntro.getVersionString();
+								this->name= networkMessageIntro.getName();
+								this->versionString = networkMessageIntro.getVersionString();
 								this->connectedRemoteIPAddress = networkMessageIntro.getExternalIp();
+								this->playerLanguage = networkMessageIntro.getPlayerLanguage();
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s], msgSessionId = %d\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str(),msgSessionId);
 
@@ -510,10 +513,10 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 										printf("%s\n",sErr.c_str());
 
-										serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true,lockedSlotIndex);
-										serverInterface->sendTextMessage(" Server:" + getNetworkVersionString(),-1, true,lockedSlotIndex);
-										serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true,lockedSlotIndex);
-										serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,lockedSlotIndex);
+										serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true,"",lockedSlotIndex);
+										serverInterface->sendTextMessage(" Server:" + getNetworkVersionString(),-1, true,"",lockedSlotIndex);
+										serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true,"",lockedSlotIndex);
+										serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,"",lockedSlotIndex);
 									}
 									else {
 										versionMatched = true;
@@ -718,6 +721,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 									this->playerStatus = switchSetupRequest.getNetworkPlayerStatus();
 									this->name = switchSetupRequest.getNetworkPlayerName();
+									this->playerLanguage = switchSetupRequest.getNetworkPlayerLanguage();
 
 									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[factionIdx]->getNetworkPlayerName().c_str());
 
