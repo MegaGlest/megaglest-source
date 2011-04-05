@@ -831,6 +831,9 @@ void Gui::addOrdersResultToConsole(CommandClass cc, CommandResult result){
         case ccProduce:
             console->addStdMessage("UnitNoReqs");
             break;
+        case ccMorph:
+            console->addStdMessage("MorphNoReqs");
+            break;
         case ccUpgrade:
             console->addStdMessage("UpgradeNoReqs");
             break;
@@ -845,6 +848,9 @@ void Gui::addOrdersResultToConsole(CommandClass cc, CommandResult result){
 		    break;
         case ccProduce:
             console->addStdMessage("UnitNoRes");
+            break;
+        case ccMorph:
+            console->addStdMessage("MorphNoRes");
             break;
         case ccUpgrade:
             console->addStdMessage("UpgradeNoRes");
