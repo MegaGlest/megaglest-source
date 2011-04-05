@@ -594,9 +594,14 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 						if(clientInterface->isConnected()){
 							clientInterface->setGameSettingsReceived(false);
-							clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(), i, -1,
-							        listBoxTeams[i].getSelectedItemIndex(), getHumanPlayerName(),
-							        getNetworkPlayerStatus(), switchSetupRequestFlagType);
+							clientInterface->sendSwitchSetupRequest(
+									listBoxFactions[i].getSelectedItem(),
+									i,
+									-1,
+							        listBoxTeams[i].getSelectedItemIndex(),
+							        getHumanPlayerName(),
+							        getNetworkPlayerStatus(),
+							        switchSetupRequestFlagType);
 							switchSetupRequestFlagType= ssrft_None;
 						}
 						break;
@@ -607,9 +612,14 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						soundRenderer.playFx(coreData.getClickSoundA());
 						if(clientInterface->isConnected()){
 							clientInterface->setGameSettingsReceived(false);
-							clientInterface->sendSwitchSetupRequest(listBoxFactions[i].getSelectedItem(), i, -1,
-							        listBoxTeams[i].getSelectedItemIndex(), getHumanPlayerName(),
-							        getNetworkPlayerStatus(), switchSetupRequestFlagType);
+							clientInterface->sendSwitchSetupRequest(
+									listBoxFactions[i].getSelectedItem(),
+									i,
+									-1,
+							        listBoxTeams[i].getSelectedItemIndex(),
+							        getHumanPlayerName(),
+							        getNetworkPlayerStatus(),
+							        switchSetupRequestFlagType);
 							switchSetupRequestFlagType= ssrft_None;
 						}
 						break;
@@ -624,9 +634,14 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] sending a switchSlot request from %d to %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getGameSettings()->getThisFactionIndex(),i);
 
-						clientInterface->sendSwitchSetupRequest(listBoxFactions[myCurrentIndex].getSelectedItem(),
-						        myCurrentIndex, i, listBoxTeams[myCurrentIndex].getSelectedItemIndex(),
-						        labelPlayerNames[myCurrentIndex].getText(), getNetworkPlayerStatus(),
+						clientInterface->sendSwitchSetupRequest(
+								listBoxFactions[myCurrentIndex].getSelectedItem(),
+						        myCurrentIndex,
+						        i,
+						        listBoxTeams[myCurrentIndex].getSelectedItemIndex(),
+						        //labelPlayerNames[myCurrentIndex].getText(),
+						        getHumanPlayerName(),
+						        getNetworkPlayerStatus(),
 						        switchSetupRequestFlagType);
 						labelPlayerNames[myCurrentIndex].setText("");
 						labelPlayerNames[i].setText("");
@@ -1591,8 +1606,11 @@ void MenuStateConnectedGame::update() {
 					clientInterface->getIntroDone() == true &&
 					(switchSetupRequestFlagType & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] getHumanPlayerName() = [%s], clientInterface->getGameSettings()->getThisFactionIndex() = %d\n",__FILE__,__FUNCTION__,__LINE__,getHumanPlayerName().c_str(),clientInterface->getGameSettings()->getThisFactionIndex());
-					clientInterface->sendSwitchSetupRequest("",
-							clientInterface->getPlayerIndex(),-1,-1,
+					clientInterface->sendSwitchSetupRequest(
+							"",
+							clientInterface->getPlayerIndex(),
+							-1,
+							-1,
 							getHumanPlayerName(),
 							getNetworkPlayerStatus(),
 							switchSetupRequestFlagType);
