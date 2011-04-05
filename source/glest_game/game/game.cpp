@@ -65,6 +65,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	captureAvgTestStatus = false;
 	lastRenderLog2d		 = 0;
 	totalRenderFps       = 0;
+	lastMaxUnitCalcTime  = 0;
 
 	mouseMoved= false;
 	quitTriggeredIndicator = false;
@@ -1748,6 +1749,23 @@ void Game::render2d(){
 
     string str="";
     std::map<int,string> factionDebugInfo;
+
+    world.getStats()->setWorldTimeElapsed(world.getTimeFlow()->getTime());
+
+    if(difftime(time(NULL),lastMaxUnitCalcTime) >= 1) {
+    	lastMaxUnitCalcTime = time(NULL);
+
+		int totalUnitcount = 0;
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			Faction *faction= world.getFaction(i);
+			totalUnitcount += faction->getUnitCount();
+		}
+
+		if(world.getStats()->getMaxConcurrentUnitCount() < totalUnitcount) {
+			world.getStats()->setMaxConcurrentUnitCount(totalUnitcount);
+		}
+		world.getStats()->setTotalEndGameConcurrentUnitCount(totalUnitcount);
+    }
 
 	if( renderer.getShowDebugUI() == true ||
 		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {

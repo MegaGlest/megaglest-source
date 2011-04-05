@@ -29,9 +29,12 @@ void Stats::setVictorious(int playerIndex){
 	playerStats[playerIndex].victory= true;
 }
 
-void Stats::kill(int killerFactionIndex, int killedFactionIndex){
+void Stats::kill(int killerFactionIndex, int killedFactionIndex, bool isEnemy) {
 	playerStats[killerFactionIndex].kills++;
 	playerStats[killedFactionIndex].deaths++;
+	if(isEnemy == true) {
+		playerStats[killerFactionIndex].enemykills++;
+	}
 }
 
 void Stats::die(int diedFactionIndex){

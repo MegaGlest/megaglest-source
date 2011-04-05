@@ -89,11 +89,12 @@ void BattleEnd::render(){
 		int textX= lm+160+i*100;
 		int team= stats.getTeam(i) + 1;
 		int kills= stats.getKills(i);
+		int enemykills= stats.getEnemyKills(i);
 		int deaths= stats.getDeaths(i);
 		int unitsProduced= stats.getUnitsProduced(i);
 		int resourcesHarvested= stats.getResourcesHarvested(i);
 
-		int score= kills*100 + unitsProduced*50 + resourcesHarvested/10;
+		int score= enemykills*100 + unitsProduced*50 + resourcesHarvested/10;
 		string controlString;
 
 		if(stats.getPersonalityType(i) == fpt_Observer) {
@@ -161,6 +162,7 @@ void BattleEnd::render(){
 		textRenderer->render(stats.getFactionTypeName(i), textX, bm+280);
 		textRenderer->render(intToStr(team).c_str(), textX, bm+240);
 		textRenderer->render(intToStr(kills).c_str(), textX, bm+200);
+		textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180);
 		textRenderer->render(intToStr(deaths).c_str(), textX, bm+160);
 		textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120);
 		textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80);
@@ -172,6 +174,7 @@ void BattleEnd::render(){
 	textRenderer->render(lang.get("Faction"), lm, bm+280);
 	textRenderer->render(lang.get("Team"), lm, bm+240);
 	textRenderer->render(lang.get("Kills"), lm, bm+200);
+	textRenderer->render(lang.get("EnemyKills"), lm, bm+180);
 	textRenderer->render(lang.get("Deaths"), lm, bm+160);
 	textRenderer->render(lang.get("UnitsProduced"), lm, bm+120);
 	textRenderer->render(lang.get("ResourcesHarvested"), lm, bm+80);
@@ -191,6 +194,15 @@ void BattleEnd::render(){
 	}
 
 	textRenderer->render(header, lm+250, bm+550);
+
+	string header2 = lang.get("GameDuration") + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
+	textRenderer->render(header2, lm+250, bm+530);
+
+	header2 = lang.get("GameMaxConcurrentUnitCount") + " " + intToStr(stats.getMaxConcurrentUnitCount());
+	textRenderer->render(header2, lm+250, bm+510);
+
+	header2 = lang.get("GameTotalEndGameConcurrentUnitCount") + " " + intToStr(stats.getTotalEndGameConcurrentUnitCount());
+	textRenderer->render(header2, lm+250, bm+490);
 
 	textRenderer->end();
 
