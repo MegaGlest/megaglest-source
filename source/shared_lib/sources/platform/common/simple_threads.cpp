@@ -190,7 +190,7 @@ void FileCRCPreCacheThread::execute() {
 						//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 
 						vector<string> results;
-					    for(int idx = 0; idx < techDataPaths.size(); idx++) {
+					    for(unsigned int idx = 0; idx < techDataPaths.size(); idx++) {
 					        string &techPath = techDataPaths[idx];
 					        endPathWithSlash(techPath);
 					        findAll(techPath + techName + "/factions/*.", results, false, false);
