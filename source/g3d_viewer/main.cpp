@@ -305,8 +305,6 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	menuMode->Check(miModeGrid, true);
 	menuCustomColor->Check(miColorRed, true);
 
-    //!!!
-
 	SetMenuBar(menu);
 
 	//misc
@@ -344,6 +342,13 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	if(modelPath != "") {
 		fileDialog->SetPath(ToUnicode(modelPath));
 	}
+    string userData = Config::getInstance().getString("UserData_Root","");
+    if(userData != "") {
+    	endPathWithSlash(userData);
+    }
+    string defaultPath = userData + "techs/";
+    fileDialog->SetDirectory(wxString(defaultPath.c_str()));
+
 
 	glCanvas->SetFocus();
 
