@@ -55,15 +55,24 @@ ENDIF (NOT  ${XERCESC_WAS_STATIC} STREQUAL ${XERCESC_STATIC})
 
 SET(XERCESC_WAS_STATIC ${XERCESC_STATIC} CACHE INTERNAL "" )
 
-FIND_PATH(XERCESC_INCLUDE NAMES xercesc/util/XercesVersion.hpp
-PATHS 
-$ENV{XERCESC_INCLUDE_DIR}
-${XERCESC_INCLUDE_DIR}
- /usr/local/include
- /usr/include
-)
+IF (XERCESC_INCLUDE_DIR)
+    SET(XERCESC_INCLUDE ${XERCESC_INCLUDE_DIR})
+ENDIF()
+
+IF (NOT XERCESC_INCLUDE)
+	FIND_PATH(XERCESC_INCLUDE NAMES xercesc/util/XercesVersion.hpp
+	PATHS 
+	$ENV{XERCESC_INCLUDE_DIR}
+	${XERCESC_INCLUDE_DIR}
+	 /usr/local/include
+	 /usr/include
+	)
+ENDIF()
+
+#MESSAGE(STATUS "Current Xerces-C lib [${XERCESC_LIBRARY}] XERCESC_INCLUDE [${XERCESC_INCLUDE}")
 
 IF (XERCESC_STATIC AND NOT XERCESC_LIBRARY)
+        MESSAGE(STATUS "Looking for static Xerces-C lib...")
 	FIND_LIBRARY(XERCESC_LIBRARY NAMES xerces-c_static_3 libxerces-c.a libxerces-c_3.a libxerces-c2_8_0.a libxerces-c_2.a libXerces.a
 	 PATHS
 	 $ENV{XERCESC_LIBRARY_DIR}
@@ -83,7 +92,8 @@ IF (XERCESC_STATIC AND NOT XERCESC_LIBRARY)
 ENDIF()
 
 IF (NOT XERCESC_LIBRARY)
-	FIND_LIBRARY(XERCESC_LIBRARY NAMES xerces-c_3 xerces-c xerces-c_3 xerces-c2_8_0 xerces-c_2 Xerces
+        MESSAGE(STATUS "Looking for dynamic Xerces-C lib...")
+	FIND_LIBRARY(XERCESC_LIBRARY NAMES xerces-c_3 xerces-c xerces-c_3 xerces-c2_8_0 xerces-c_2 Xerces libxerces-c.dll libxerces-c_3.dll libxerces-c2_8_0.dll libxerces-c_2.dll libXerces.dll
 	 PATHS
 	 $ENV{XERCESC_LIBRARY_DIR}
 	 ${XERCESC_LIBRARY_DIR}
