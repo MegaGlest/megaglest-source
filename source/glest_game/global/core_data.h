@@ -58,6 +58,7 @@ private:
 	Texture2D *verticalLineTexture;
 	Texture2D *checkBoxTexture;
 	Texture2D *checkedCheckBoxTexture;
+	Texture2D *gameWinnerTexture;
 
     Font2D *displayFont;
 	Font2D *menuFontNormal;
@@ -84,6 +85,8 @@ public:
 	Texture2D *getVerticalLineTexture() const	{return verticalLineTexture;}
 	Texture2D *getCheckBoxTexture() const		{return checkBoxTexture;}
 	Texture2D *getCheckedCheckBoxTexture() const	{return checkedCheckBoxTexture;}
+
+	Texture2D *getGameWinnerTexture() const		{return gameWinnerTexture;}
 
 	size_t getLogoTextureExtraCount() const {return logoTextureList.size();}
 	Texture2D *getLogoTextureExtra(int idx) const {return logoTextureList[idx];}
