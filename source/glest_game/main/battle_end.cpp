@@ -79,15 +79,50 @@ void BattleEnd::render(){
 	renderer.reset2d();
 	renderer.renderBackground(CoreData::getInstance().getBackgroundTexture());
 	
-	int winnerIndex = -1;
-	int bestScore 	= -1;
+	int winnerIndex 	= -1;
+	int bestScore 		= -1;
+	int mostKillsIndex 	= -1;
+	int bestKills 		= -1;
+	int mostEnemyKillsIndex = -1;
+	int bestEnemyKills 		= -1;
+	int leastDeathsIndex 	= -1;
+	int leastDeaths			= -1;
+	int mostUnitsProducedIndex 	= -1;
+	int bestUnitsProduced 		= -1;
+	int mostResourcesHarvestedIndex 	= -1;
+	int bestResourcesHarvested 			= -1;
+
 	for(int i=0; i<stats.getFactionCount(); ++i){
 		int team= stats.getTeam(i) + 1;
 		int kills= stats.getKills(i);
+		if(kills > bestKills) {
+			bestKills 	= kills;
+			mostKillsIndex = i;
+		}
+
 		int enemykills= stats.getEnemyKills(i);
+		if(enemykills > bestEnemyKills) {
+			bestEnemyKills 	= enemykills;
+			mostEnemyKillsIndex = i;
+		}
+
 		int deaths= stats.getDeaths(i);
+		if(deaths < leastDeaths || leastDeaths < 0) {
+			leastDeaths 	 = deaths;
+			leastDeathsIndex = i;
+		}
+
 		int unitsProduced= stats.getUnitsProduced(i);
-		int resourcesHarvested= stats.getResourcesHarvested(i);
+		if(unitsProduced > bestUnitsProduced) {
+			bestUnitsProduced 	   = unitsProduced;
+			mostUnitsProducedIndex = i;
+		}
+
+		int resourcesHarvested = stats.getResourcesHarvested(i);
+		if(resourcesHarvested > bestResourcesHarvested) {
+			bestResourcesHarvested 	   = resourcesHarvested;
+			mostResourcesHarvestedIndex = i;
+		}
 
 		int score= enemykills*100 + unitsProduced*50 + resourcesHarvested/10;
 
@@ -160,7 +195,7 @@ void BattleEnd::render(){
 			controlString += " x " + floatToStr(stats.getResourceMultiplier(i),1);
 		}
 
-		if(i == winnerIndex) {
+		if(score == bestScore && stats.getVictory(i)) {
 			if(CoreData::getInstance().getGameWinnerTexture() != NULL) {
 				renderer.renderTextureQuad(textX, bm+380,-1,-1,CoreData::getInstance().getGameWinnerTexture(),0.7f);
 			}
@@ -183,12 +218,46 @@ void BattleEnd::render(){
 		textRenderer->render(controlString, textX, bm+320);
 		textRenderer->render(stats.getFactionTypeName(i), textX, bm+280);
 		textRenderer->render(intToStr(team).c_str(), textX, bm+240);
-		textRenderer->render(intToStr(kills).c_str(), textX, bm+200);
-		textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180);
-		textRenderer->render(intToStr(deaths).c_str(), textX, bm+160);
-		textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120);
-		textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80);
-		textRenderer->render(intToStr(score).c_str(), textX, bm+20);
+
+		color.x = 0.2;
+		color.y = 1;
+		color.z = 0.2;
+		if(kills == bestKills) {
+			textRenderer->render(intToStr(kills).c_str(), textX, bm+200, false,&color);
+		}
+		else {
+			textRenderer->render(intToStr(kills).c_str(), textX, bm+200);
+		}
+		if(enemykills == bestEnemyKills) {
+			textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180, false , &color);
+		}
+		else {
+			textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180);
+		}
+		if(deaths == leastDeaths) {
+			textRenderer->render(intToStr(deaths).c_str(), textX, bm+160,false,&color);
+		}
+		else {
+			textRenderer->render(intToStr(deaths).c_str(), textX, bm+160);
+		}
+		if(unitsProduced == bestUnitsProduced) {
+			textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120,false,&color);
+		}
+		else {
+			textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120);
+		}
+		if(resourcesHarvested == bestResourcesHarvested) {
+			textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80,false,&color);
+		}
+		else {
+			textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80);
+		}
+		if(score == bestScore) {
+			textRenderer->render(intToStr(score).c_str(), textX, bm+20,false,&color);
+		}
+		else {
+			textRenderer->render(intToStr(score).c_str(), textX, bm+20);
+		}
 	}
 
 	textRenderer->render(lang.get("Result"), lm, bm+360);
