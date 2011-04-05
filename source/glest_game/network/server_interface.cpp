@@ -792,7 +792,7 @@ void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsg
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
 
 						if(newChatLanguage == "" || newChatLanguage == connectionSlot->getNetworkPlayerLanguage()) {
-							NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex,"");
+							NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex,newChatLanguage);
 							broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex(),i);
 						}
 

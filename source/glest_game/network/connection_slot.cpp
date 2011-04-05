@@ -486,6 +486,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								this->connectedRemoteIPAddress = networkMessageIntro.getExternalIp();
 								this->playerLanguage = networkMessageIntro.getPlayerLanguage();
 
+								//printf("\n\n\n ##### GOT this->playerLanguage [%s]\n\n\n",this->playerLanguage.c_str());
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s], msgSessionId = %d\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str(),msgSessionId);
 
 								if(msgSessionId != sessionKey) {
@@ -850,6 +851,18 @@ bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&socketSynchAccessor,mutexOwnerId);
+
+	// Skip text messages not intended for the players preferred language
+	const NetworkMessageText *textMsg = dynamic_cast<const NetworkMessageText *>(networkMessage);
+	if(textMsg != NULL) {
+		//printf("\n\n\n~~~ SERVER HAS NetworkMessageText target [%s] player [%s] msg[%s]\n\n\n",textMsg->getTargetLanguage().c_str(),this->getNetworkPlayerLanguage().c_str(), textMsg->getText().c_str());
+
+		if(textMsg->getTargetLanguage() != "" &&
+			textMsg->getTargetLanguage() != this->getNetworkPlayerLanguage()) {
+			return;
+		}
+	}
+
 	NetworkInterface::sendMessage(networkMessage);
 }
 

@@ -109,6 +109,7 @@ const char  *GAME_ARGS[] = {
 	"--log-path",
 	"--show-ini-settings",
 	"--convert-models",
+	"--use-language",
 	"--disable-backtrace",
 	"--disable-vbo",
 	"--disable-sound",
@@ -134,6 +135,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_LOG_PATH,
 	GAME_ARG_SHOW_INI_SETTINGS,
 	GAME_ARG_CONVERT_MODELS,
+	GAME_ARG_USE_LANGUAGE,
 	GAME_ARG_DISABLE_BACKTRACE,
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_DISABLE_SOUND,
@@ -963,6 +965,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere textureformat is an optional supported texture format to convert to (tga,bmp,jpg,png).");
 	printf("\n                     \t\tWhere keepsmallest is an optional flag indicating to keep original texture if its filesize is smaller than the converted format.");
 	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+
+	printf("\n%s=x\t\tforce the language to be the language specified by x.",GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
+	printf("\n                     \t\tWhere x is a supported language (such as english).");
+	printf("\n                     \t\texample: %s %s=english",argv0,GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
 
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 	printf("\n%s\t\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
@@ -2015,7 +2021,23 @@ int glestMain(int argc, char** argv) {
 
         // Load the language strings
         Lang &lang= Lang::getInstance();
-        lang.loadStrings(config.getString("Lang"));
+        string language = config.getString("Lang");
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_LANGUAGE]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_LANGUAGE]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_LANGUAGE]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				language = paramPartTokens[1];
+				printf("Forcing language [%s]\n",language.c_str());
+			}
+    	}
+
+        lang.loadStrings(language);
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -2213,13 +2235,6 @@ int glestMain(int argc, char** argv) {
 				return -1;
 			}
     	}
-
-//		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CONVERT_TEXTURES]) == true) {
-//			//!!!
-//			printf("\nComing soon (not yet implemented)\n\n");
-//			delete mainWindow;
-//			return -1;
-//		}
 
 		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true) {

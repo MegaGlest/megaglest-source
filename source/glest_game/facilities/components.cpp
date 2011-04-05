@@ -19,6 +19,7 @@
 #include "platform_util.h"
 #include "util.h"
 #include "conversion.h"
+#include "lang.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -113,7 +114,8 @@ void GraphicComponent::applyCustomProperties(std::string containerName) {
 			if(iterFind2 != iterFind1->second.end()) {
 				Config &config = Config::getInstance();
 
-				string languageToken = config.getString("Lang");
+				//string languageToken = config.getString("Lang");
+				string languageToken = Lang::getInstance().getLanguage();
 
 				//if(dynamic_cast<GraphicButton *>(iterFind2->second) != NULL) {
 				GraphicComponent *ctl = dynamic_cast<GraphicComponent *>(iterFind2->second);

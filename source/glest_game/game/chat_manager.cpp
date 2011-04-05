@@ -202,6 +202,7 @@ void ChatManager::updateNetwork() {
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
 
 		if(gameNetworkInterface != NULL && gameNetworkInterface->getChatTextList().empty() == false) {
+			Lang &lang= Lang::getInstance();
 			for(int idx = 0; idx < gameNetworkInterface->getChatTextList().size(); idx++) {
 				const ChatMsgInfo &msg = gameNetworkInterface->getChatTextList()[idx];
 				int teamIndex= msg.chatTeamIndex;
@@ -210,7 +211,10 @@ void ChatManager::updateNetwork() {
 
 				if(teamIndex == -1 || teamIndex == thisTeamIndex) {
 					//console->addLine(msg.chatSender + ": " + msg.chatText, true, msg.chatPlayerIndex);
-					console->addLine(msg.chatText, true, msg.chatPlayerIndex);
+
+					if(msg.targetLanguage == "" || lang.isLanguageLocal(msg.targetLanguage) == true) {
+						console->addLine(msg.chatText, true, msg.chatPlayerIndex);
+					}
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
 				}
