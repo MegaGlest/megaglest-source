@@ -191,7 +191,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
 	listBoxPathFinderType.init(xoffset+450, aPos, 150);
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
-	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
+	if(config.getBool("EnableRoutePlannerPathfinder","false") == true) {
+		listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
+	}
+
 	listBoxPathFinderType.setSelectedItemIndex(0);
 	listBoxPathFinderType.setEditable(false);
 
