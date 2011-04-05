@@ -209,19 +209,26 @@ void BattleEnd::render(){
 			textRenderer->render((lang.get("Player") + " " + intToStr(i+1)).c_str(), textX, bm+400,false, &color);
 		}
 
+		color.x = 0.2;
+		color.y = 1;
+		color.z = 0.2;
+
 		if(stats.getPersonalityType(i) == fpt_Observer) {
 			textRenderer->render(lang.get("GameOver").c_str(), textX, bm+360);
 		}
 		else {
-			textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360);
+			if(stats.getVictory(i)) {
+				textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360, false, &color);
+			}
+			else {
+				textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360);
+			}
 		}
+
 		textRenderer->render(controlString, textX, bm+320);
 		textRenderer->render(stats.getFactionTypeName(i), textX, bm+280);
 		textRenderer->render(intToStr(team).c_str(), textX, bm+240);
 
-		color.x = 0.2;
-		color.y = 1;
-		color.z = 0.2;
 		if(kills == bestKills) {
 			textRenderer->render(intToStr(kills).c_str(), textX, bm+200, false,&color);
 		}
