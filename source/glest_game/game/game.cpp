@@ -943,10 +943,20 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 						logger.add("Creating AI for faction " + intToStr(i), true);
 
-						sprintf(szBuf,"Player #%d [%s] has disconnected, switching player to AI mode!",i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						Lang &lang= Lang::getInstance();
+						string msg = "Player #%d [%s] has disconnected, switching player to AI mode!";
+						if(lang.hasString("GameSwitchPlayerToAI")) {
+							msg = lang.get("GameSwitchPlayerToAI");
+						}
+						sprintf(szBuf,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 					}
 					else {
-						sprintf(szBuf,"Player #%d [%s] has disconnected, but player was only an observer!",i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						Lang &lang= Lang::getInstance();
+						string msg = "Player #%d [%s] has disconnected, but player was only an observer!";
+						if(lang.hasString("GameSwitchPlayerObserverToAI")) {
+							msg = lang.get("GameSwitchPlayerObserverToAI");
+						}
+						sprintf(szBuf,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 					}
 					server->sendTextMessage(szBuf,-1,true);
 				}

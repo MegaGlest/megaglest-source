@@ -950,7 +950,7 @@ void MenuStateConnectedGame::update() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				string playerNameStr = getHumanPlayerName();
-				clientInterface->sendTextMessage("connection timed out communicating with server.",-1);
+				clientInterface->sendTextMessage(lang.get("ConnectionTimedOut"),-1);
 				clientInterface->close();
 			}
 
