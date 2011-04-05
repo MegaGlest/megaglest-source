@@ -366,7 +366,7 @@ void MainWindow::init(string fname) {
     	endPathWithSlash(userData);
     }
     string defaultPath = userData + "maps/";
-    fileDialog->SetDirectory(wxString(defaultPath.c_str()));
+    fileDialog->SetDirectory(ToUnicode(defaultPath));
 
 	//printf("Default Path [%s]\n",defaultPath.c_str());
 
@@ -610,7 +610,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxSAVE);
 #endif
 
-	if(fileDialog->GetPath() != "") {
+	if(fileDialog->GetPath() != ToUnicode("")) {
 		fd.SetPath(fileDialog->GetPath());
 	}
 	else {
@@ -620,7 +620,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 			endPathWithSlash(userData);
 		}
 		string defaultPath = userData + "maps/";
-		fd.SetDirectory(wxString(defaultPath.c_str()));
+		fd.SetDirectory(ToUnicode(defaultPath));
 	}
 
 	fd.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));

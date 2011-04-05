@@ -21,7 +21,7 @@
 
 #ifdef WIN32
 #include <shlwapi.h>
-#include <Shlobj.h>
+#include <shlobj.h>
 #endif
 
 #include "leak_dumper.h"
