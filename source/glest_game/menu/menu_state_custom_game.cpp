@@ -307,7 +307,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
 	listBoxPathFinderType.init(xoffset+650, aPos, 150);
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
-	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
+	if(config.getBool("EnableRoutePlannerPathfinder","false") == true) {
+		listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
+	}
 	listBoxPathFinderType.setSelectedItemIndex(0);
 
 	// Advanced Options
