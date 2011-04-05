@@ -356,7 +356,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	//timer->Start(100);
 
 	// For windows register g3d file extension to launch this app
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	// example from: http://stackoverflow.com/questions/1387769/create-registry-entry-to-associate-file-extension-with-application-in-c
 	//[HKEY_CURRENT_USER\Software\Classes\blergcorp.blergapp.v1\shell\open\command]
 	//@="c:\path\to\app.exe \"%1\""
