@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <curl/curl.h>
 #include "cache_manager.h"
+// Need the include below for vc++ 2010 because Microsoft messed up their STL!
+#include <iterator>
 #include "leak_dumper.h"
 
 
