@@ -79,13 +79,30 @@ void BattleEnd::render(){
 	renderer.reset2d();
 	renderer.renderBackground(CoreData::getInstance().getBackgroundTexture());
 	
+	int winnerIndex = -1;
+	int bestScore 	= -1;
+	for(int i=0; i<stats.getFactionCount(); ++i){
+		int team= stats.getTeam(i) + 1;
+		int kills= stats.getKills(i);
+		int enemykills= stats.getEnemyKills(i);
+		int deaths= stats.getDeaths(i);
+		int unitsProduced= stats.getUnitsProduced(i);
+		int resourcesHarvested= stats.getResourcesHarvested(i);
+
+		int score= enemykills*100 + unitsProduced*50 + resourcesHarvested/10;
+
+		if(score > bestScore) {
+			bestScore 	= score;
+			winnerIndex = i;
+		}
+	}
+
 	textRenderer->begin(CoreData::getInstance().getMenuFontNormal());
 
 	int lm= 20;
 	int bm= 100;
 
-	for(int i=0; i<stats.getFactionCount(); ++i){
-
+	for(int i = 0; i < stats.getFactionCount(); ++i) {
 		int textX= lm+160+i*100;
 		int team= stats.getTeam(i) + 1;
 		int kills= stats.getKills(i);
@@ -139,17 +156,22 @@ void BattleEnd::render(){
 			};
 		}
 		
-		if(stats.getControl(i)!=ctHuman && stats.getControl(i)!=ctNetwork ){
-			controlString+=" x "+floatToStr(stats.getResourceMultiplier(i),1);
+		if(stats.getControl(i) != ctHuman && stats.getControl(i) != ctNetwork ) {
+			controlString += " x " + floatToStr(stats.getResourceMultiplier(i),1);
+		}
+
+		if(i == winnerIndex) {
+			if(CoreData::getInstance().getGameWinnerTexture() != NULL) {
+				renderer.renderTextureQuad(textX, bm+380,-1,-1,CoreData::getInstance().getGameWinnerTexture(),0.7f);
+			}
 		}
 
 		Vec3f color = stats.getPlayerColor(i);
-
 		if(stats.getPlayerName(i) != "") {
 			textRenderer->render(stats.getPlayerName(i).c_str(), textX, bm+400, false, &color);
 		}
 		else {
-			textRenderer->render((lang.get("Player")+" "+intToStr(i+1)).c_str(), textX, bm+400,false, &color);
+			textRenderer->render((lang.get("Player") + " " + intToStr(i+1)).c_str(), textX, bm+400,false, &color);
 		}
 
 		if(stats.getPersonalityType(i) == fpt_Observer) {

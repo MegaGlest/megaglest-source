@@ -119,6 +119,10 @@ void CoreData::load() {
 	checkedCheckBoxTexture->setForceCompressionDisabled(true);
 	checkedCheckBoxTexture->getPixmap()->load(dir+"/menu/textures/checkbox_checked.tga");
 
+	gameWinnerTexture= renderer.newTexture2D(rsGlobal);
+	gameWinnerTexture->setForceCompressionDisabled(true);
+	gameWinnerTexture->getPixmap()->load(dir+"/misc_textures/game_winner.png");
+
 	//display font
 	Config &config= Config::getInstance();
 	string displayFontNamePrefix=config.getString("FontDisplayPrefix");
