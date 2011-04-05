@@ -347,7 +347,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
     	endPathWithSlash(userData);
     }
     string defaultPath = userData + "techs/";
-    fileDialog->SetDirectory(wxString(defaultPath.c_str()));
+    fileDialog->SetDirectory(ToUnicode(defaultPath.c_str()));
 
 
 	glCanvas->SetFocus();
