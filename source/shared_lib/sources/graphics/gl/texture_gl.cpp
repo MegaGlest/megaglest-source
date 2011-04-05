@@ -737,19 +737,6 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 				if(error2 == GL_NO_ERROR) {
 					error = GL_NO_ERROR;
 				}
-				else {
-					glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-					glTexImage1D(
-						GL_TEXTURE_1D, 0, glCompressionFormat, pixmap.getW(),
-						0, glFormat, GL_UNSIGNED_BYTE, pixels);
-
-					GLint error3= glGetError();
-					if(error3 == GL_NO_ERROR) {
-						error = GL_NO_ERROR;
-					}
-				}
 			}
 			//
 
@@ -892,18 +879,6 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 
 				if(error2 == GL_NO_ERROR) {
 					error = GL_NO_ERROR;
-				}
-				else {
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-					glTexImage2D(GL_TEXTURE_2D, 0, glCompressionFormat,pixmap.getW(),
-							     pixmap.getH(),0, glFormat, GL_UNSIGNED_BYTE, pixels);
-
-					GLint error3= glGetError();
-					if(error3 == GL_NO_ERROR) {
-						error = GL_NO_ERROR;
-					}
 				}
 			}
 			//
@@ -1149,16 +1124,6 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 
 					if(error2 == GL_NO_ERROR) {
 						error = GL_NO_ERROR;
-					}
-					else {
-						glTexImage2D(target, 0, glCompressionFormat,
-									currentPixmap->getW(), currentPixmap->getH(),
-									0, glFormat, GL_UNSIGNED_BYTE, pixels);
-
-						int error3 = glGetError();
-						if(error3 == GL_NO_ERROR) {
-							error = GL_NO_ERROR;
-						}
 					}
 				}
 				//
