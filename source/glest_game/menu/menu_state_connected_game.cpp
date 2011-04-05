@@ -585,6 +585,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 		    		string sQuitText = lang.get("QuitGame",languageList[i]);
 		    		clientInterface->sendTextMessage(sQuitText,-1,false,languageList[i]);
+
+		    		//printf("~~~ langList[%s] localLang[%s] msg[%s]\n",languageList[i].c_str(),lang.getLanguage().c_str(), sQuitText.c_str());
 		    	}
                 sleep(1);
 		    }
