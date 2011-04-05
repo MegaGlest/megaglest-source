@@ -71,7 +71,8 @@ public:
 	virtual void waitUntilReady(Checksum* checksum);
 
 	// message sending
-	virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal=false);
+	virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal,
+			string targetLanguage);
 	virtual void quitGame(bool userManuallyQuit);
 
 	//misc
@@ -94,7 +95,8 @@ public:
 	
 	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
 								int8 toFactionIndex, int8 toTeam,string networkPlayerName,
-								int8 networkPlayerStatus, int8 flags);
+								int8 networkPlayerStatus, int8 flags,
+								string language);
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
 	std::string getServerIpAddress();
 

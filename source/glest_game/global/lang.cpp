@@ -35,11 +35,19 @@ Lang &Lang::getInstance(){
 	return lang;
 }
 
-void Lang::loadStrings(const string &language){
+void Lang::loadStrings(const string &language) {
 	this->language= language;
-	strings.clear();
+	loadStrings(language, strings, true);
+}
+
+void Lang::loadStrings(const string &language, Properties &properties, bool fileMustExist) {
+	properties.clear();
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	strings.load(data_path + "data/lang/"+language+".lng");
+	string languageFile = data_path + "data/lang/" + language + ".lng";
+	if(fileMustExist == false && fileExists(languageFile) == false) {
+		return;
+	}
+	properties.load(languageFile);
 }
 
 void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenarioName){
@@ -75,11 +83,20 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 	}
 }
 
-bool Lang::hasString(const string &s) {
+bool Lang::hasString(const string &s, string language) {
 	bool hasString = false;
 	try {
-		string result = strings.getString(s);
-		hasString = true;
+		if(language != "") {
+			if(otherLanguageStrings.find(language) == otherLanguageStrings.end()) {
+				loadStrings(language, otherLanguageStrings[language], false);
+			}
+			string result = otherLanguageStrings[language].getString(s);
+			hasString = true;
+		}
+		else {
+			string result = strings.getString(s);
+			hasString = true;
+		}
 	}
 	catch(exception &ex) {
 		if(strings.getpath() != "") {
@@ -89,10 +106,24 @@ bool Lang::hasString(const string &s) {
 	return hasString;
 }
 
-string Lang::get(const string &s) {
-	try{
-		string result = strings.getString(s);
-		replaceAll(result, "\\n", "\n");
+bool Lang::isLanguageLocal(string compareLanguage) const {
+	return (compareLanguage == language);
+}
+
+string Lang::get(const string &s, string language) {
+	try {
+		string result = "";
+		if(language != "") {
+			if(otherLanguageStrings.find(language) == otherLanguageStrings.end()) {
+				loadStrings(language, otherLanguageStrings[language], false);
+			}
+			result = otherLanguageStrings[language].getString(s);
+			replaceAll(result, "\\n", "\n");
+		}
+		else {
+			result = strings.getString(s);
+			replaceAll(result, "\\n", "\n");
+		}
 		return result;
 	}
 	catch(exception &ex) {

@@ -33,13 +33,17 @@ namespace Glest{ namespace Game{
 //	class ServerInterface
 // =====================================================
 
-class ServerInterface: public GameNetworkInterface, public ConnectionSlotCallbackInterface, public SimpleTaskCallbackInterface, public FTPClientValidationInterface {
+class ServerInterface: public GameNetworkInterface,
+                       public ConnectionSlotCallbackInterface,
+                       public SimpleTaskCallbackInterface,
+                       public FTPClientValidationInterface {
 
 class TextMessageQueue {
 public:
     string text;
     int teamIndex;
     bool echoLocal;
+    string targetLanguage;
 };
 
 private:
@@ -89,9 +93,9 @@ public:
     virtual void updateLobby()  { };
     virtual void updateKeyframe(int frameCount);
     virtual void waitUntilReady(Checksum *checksum);
-    virtual void sendTextMessage(const string & text, int teamIndex, bool echoLocal = false);
-    void sendTextMessage(const string & text, int teamIndex, bool echoLocal, int lockedSlotIndex);
-    void queueTextMessage(const string & text, int teamIndex, bool echoLocal = false);
+    virtual void sendTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage);
+    void sendTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage, int lockedSlotIndex);
+    void queueTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage);
     virtual void quitGame(bool userManuallyQuit);
     virtual string getNetworkStatus();
     ServerSocket *getServerSocket()

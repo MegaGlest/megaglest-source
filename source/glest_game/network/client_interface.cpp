@@ -72,8 +72,15 @@ ClientInterface::~ClientInterface() {
     if(clientSocket != NULL && clientSocket->isConnected() == true) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        string sQuitText = "has chosen to leave the game!";
-        sendTextMessage(sQuitText,-1);
+    	Lang &lang= Lang::getInstance();
+    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			string sQuitText = "has chosen to leave the game!";
+			if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
+				sQuitText = lang.get("PlayerLeftGame",languageList[i]);
+			}
+			sendTextMessage(sQuitText,-1,false,languageList[i]);
+    	}
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -105,8 +112,15 @@ void ClientInterface::connect(const Ip &ip, int port) {
 
 void ClientInterface::reset() {
     if(getSocket() != NULL) {
-        string sQuitText = "has chosen to leave the game!";
-        sendTextMessage(sQuitText,-1);
+    	Lang &lang= Lang::getInstance();
+    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			string sQuitText = "has chosen to leave the game!";
+			if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
+				sQuitText = lang.get("PlayerLeftGame",languageList[i]);
+			}
+			sendTextMessage(sQuitText,-1,false,languageList[i]);
+    	}
         close();
     }
 }
@@ -146,7 +160,7 @@ void ClientInterface::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
         string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
-        sendTextMessage(sMsg,-1, true);
+        sendTextMessage(sMsg,-1, true,"");
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
@@ -194,10 +208,10 @@ void ClientInterface::updateLobby() {
     							"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
                         printf("%s\n",sErr.c_str());
 
-                        sendTextMessage("Server and client binary mismatch!!",-1, true);
-                        sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
-                        sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
-						sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
+                        sendTextMessage("Server and client binary mismatch!!",-1, true,"");
+                        sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true,"");
+                        sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true,"");
+						sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,"");
                 	}
                 	else {
                 		versionMatched = true;
@@ -206,11 +220,6 @@ void ClientInterface::updateLobby() {
 						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() +
 								"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
 						printf("%s\n",sErr.c_str());
-
-						//sendTextMessage("Server and client have different platform mismatch.",-1, true);
-						//sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true);
-						//sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true);
-						//sendTextMessage(" Client player [" + playerNameStr + "]",-1, true);
                 	}
 
 					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
@@ -228,7 +237,8 @@ void ClientInterface::updateLobby() {
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 					//send intro message
-					NetworkMessageIntro sendNetworkMessageIntro(sessionKey,getNetworkVersionString(), getHumanPlayerName(), -1, nmgstOk, this->getSocket()->getConnectedIPAddress(),serverFTPPort);
+                	Lang &lang= Lang::getInstance();
+					NetworkMessageIntro sendNetworkMessageIntro(sessionKey,getNetworkVersionString(), getHumanPlayerName(), -1, nmgstOk, this->getSocket()->getConnectedIPAddress(),serverFTPPort,lang.getLanguage());
 					sendMessage(&sendNetworkMessageIntro);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -425,7 +435,7 @@ void ClientInterface::updateLobby() {
             {
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",__FILE__,__FUNCTION__);
 
-        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
+        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
         		this->addChatInfo(msg);
             }
         }
@@ -490,7 +500,7 @@ void ClientInterface::updateLobby() {
             {
             string sErr = string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType);
             //throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
-            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true);
+            sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true,"");
             DisplayErrorMessage(sErr);
             quit= true;
             close();
@@ -554,8 +564,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 				    		      " got a Network synchronization error, frame counts do not match, server frameCount = " +
 				    		      intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " +
 				    		      intToStr(frameCount);
-					//throw runtime_error("Network synchronization error, frame counts do not match");
-                    sendTextMessage(sErr,-1, true);
+                    sendTextMessage(sErr,-1, true,"");
                     DisplayErrorMessage(sErr);
                     quit= true;
                     close();
@@ -611,7 +620,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
+        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
         		this->addChatInfo(msg);
 
         		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -625,7 +634,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 
 			default:
                 {
-                sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1, true);
+                sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1, true,"");
                 DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
 				quit= true;
 				close();
@@ -716,12 +725,21 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 			else if(networkMessageType == nmtInvalid) {
 				if(chrono.getMillis() > readyWaitTimeout) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-					string sErr = "Timeout waiting for server";
-					sendTextMessage(sErr,-1, true);
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			    	Lang &lang= Lang::getInstance();
+			    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+			    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			    		string sErr = "Timeout waiting for server";
+						if(lang.hasString("TimeoutWaitingForServer",languageList[i]) == true) {
+							sErr = lang.get("TimeoutWaitingForServer",languageList[i]);
+						}
+						bool echoLocal = lang.isLanguageLocal(lang.getLanguage());
+						sendTextMessage(sErr,-1,echoLocal,languageList[i]);
 
-					DisplayErrorMessage(sErr);
+						if(echoLocal) {
+							DisplayErrorMessage(sErr);
+						}
+			    	}
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -822,7 +840,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 			}
 			else {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-				sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true);
+				sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true,"");
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -849,26 +867,69 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(networkMessageReady.getChecksum() != checksum->getSum()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-		string sErr = "Checksum error, you don't have the same data as the server";
-        sendTextMessage(sErr,-1, true);
+    	Lang &lang= Lang::getInstance();
+    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+    		string sErr = "Checksum error, you don't have the same data as the server";
+			if(lang.hasString("CheckSumGameLoadError",languageList[i]) == true) {
+				sErr = lang.get("CheckSumGameLoadError",languageList[i]);
+			}
+			bool echoLocal = lang.isLanguageLocal(lang.getLanguage());
+			sendTextMessage(sErr,-1,echoLocal,languageList[i]);
 
-		string playerNameStr = "Player with error is [" + getHumanPlayerName() + "]";
-		sendTextMessage(playerNameStr,-1, true);
+			string playerNameStr = "Player with error is: " + getHumanPlayerName();
+			if(lang.hasString("CheckSumGameLoadPlayer",languageList[i]) == true) {
+				playerNameStr = lang.get("CheckSumGameLoadPlayer",languageList[i]) + " " + getHumanPlayerName();
+			}
+			sendTextMessage(playerNameStr,-1,echoLocal,languageList[i]);
 
-		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
-        sendTextMessage(sErr1,-1, true);
+    		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
+			if(lang.hasString("CheckSumGameLoadClient",languageList[i]) == true) {
+				sErr1 = lang.get("CheckSumGameLoadClient",languageList[i]) + " " + intToStr(checksum->getSum());
+			}
 
-		string sErr2 = "Server Checksum: " + intToStr(networkMessageReady.getChecksum());
-        sendTextMessage(sErr2,-1, true);
+			sendTextMessage(sErr1,-1,echoLocal,languageList[i]);
 
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d %s %s %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str(),sErr1.c_str(),sErr2.c_str());
+    		string sErr2 = "Server Checksum: " + intToStr(networkMessageReady.getChecksum());
+			if(lang.hasString("CheckSumGameLoadServer",languageList[i]) == true) {
+				sErr2 = lang.get("CheckSumGameLoadServer",languageList[i]) + " " + intToStr(networkMessageReady.getChecksum());
+			}
+			sendTextMessage(sErr2,-1,echoLocal,languageList[i]);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d %s %s %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str(),sErr1.c_str(),sErr2.c_str());
+
+			if(echoLocal == true) {
+				if(Config::getInstance().getBool("NetworkConsistencyChecks")) {
+					// error message and disconnect only if checked
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+					string niceError = sErr + string("\n") + sErr1 + string("\n") + sErr2;
+					DisplayErrorMessage(niceError);
+				}
+			}
+    	}
+
+//		string sErr = "Checksum error, you don't have the same data as the server";
+//		CheckSumGameLoadError
+//        sendTextMessage(sErr,-1, true);
+//
+//		string playerNameStr = "Player with error is [" + getHumanPlayerName() + "]";
+//		sendTextMessage(playerNameStr,-1, true);
+//
+//		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
+//        sendTextMessage(sErr1,-1, true);
+//
+//		string sErr2 = "Server Checksum: " + intToStr(networkMessageReady.getChecksum());
+//        sendTextMessage(sErr2,-1, true);
+
+//        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d %s %s %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str(),sErr1.c_str(),sErr2.c_str());
 
 		if(Config::getInstance().getBool("NetworkConsistencyChecks")) {
 			// error message and disconnect only if checked
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-			string niceError = sErr + string("\n") + sErr1 + string("\n") + sErr2;
-			DisplayErrorMessage(niceError);
+			//string niceError = sErr + string("\n") + sErr1 + string("\n") + sErr2;
+			//DisplayErrorMessage(niceError);
 
 			quit= true;
 
@@ -888,19 +949,19 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal) {
+void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal,
+		string targetLanguage) {
 
 	string humanPlayerName = getHumanPlayerName();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] humanPlayerName = [%s] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,humanPlayerName.c_str(),playerIndex);
 
-	NetworkMessageText networkMessageText(text, teamIndex,playerIndex);
+	NetworkMessageText networkMessageText(text, teamIndex,playerIndex,targetLanguage);
 	sendMessage(&networkMessageText);
 
 	if(echoLocal == true) {
-		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex());
+		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),targetLanguage);
 		this->addChatInfo(msg);
 	}
-
 }
 
 void ClientInterface::sendPingMessage(int32 pingFrequency, int64 pingTime) {
@@ -954,8 +1015,19 @@ NetworkMessageType ClientInterface::waitForMessage()
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				sendTextMessage("Timeout waiting for message",-1, true);
-				DisplayErrorMessage("Timeout waiting for message");
+				Lang &lang= Lang::getInstance();
+		    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+		    		string msg = "Timeout waiting for message.";
+		    		if(lang.hasString("TimeoutWaitingForMessage",languageList[i]) == true) {
+		    			msg = lang.get("TimeoutWaitingForMessage",languageList[i]);
+		    		}
+
+					sendTextMessage(msg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+					if(lang.isLanguageLocal(languageList[i]) == true) {
+						DisplayErrorMessage(msg);
+					}
+		    	}
 				quit= true;
 				close();
 				return msg;
@@ -982,8 +1054,18 @@ void ClientInterface::quitGame(bool userManuallyQuit)
     if(clientSocket != NULL && userManuallyQuit == true)
     {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        string sQuitText = "has chosen to leave the game!";
-        sendTextMessage(sQuitText,-1);
+
+		Lang &lang= Lang::getInstance();
+    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+    		string msg = "has chosen to leave the game!";
+    		if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
+    			msg = lang.get("PlayerLeftGame",languageList[i]);
+    		}
+
+			sendTextMessage(msg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+    	}
+    	sleep(1);
         close();
     }
 
@@ -1020,11 +1102,12 @@ void ClientInterface::stopServerDiscovery() {
 
 void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
 											int8 toFactionIndex,int8 toTeam, string networkPlayerName,
-											int8 networkPlayerStatus, int8 flags) {
+											int8 networkPlayerStatus, int8 flags,
+											string language) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkPlayerName [%s] flags = %d\n",__FILE__,__FUNCTION__,__LINE__,networkPlayerName.c_str(),flags);
 	SwitchSetupRequest message=SwitchSetupRequest(selectedFactionName,
 			currentFactionIndex, toFactionIndex,toTeam,networkPlayerName,
-			networkPlayerStatus, flags);
+			networkPlayerStatus, flags,language);
 	sendMessage(&message);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1062,7 +1145,7 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 			NetworkMessageText netMsg = NetworkMessageText();
 			this->receiveMessage(&netMsg);
 
-    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getTeamIndex(),netMsg.getPlayerIndex());
+    		ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getTeamIndex(),netMsg.getPlayerIndex(),netMsg.getTargetLanguage());
     		this->addChatInfo(msg);
 			}
 			break;

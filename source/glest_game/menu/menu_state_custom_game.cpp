@@ -1661,7 +1661,7 @@ void MenuStateCustomGame::update() {
 									lastMapDataSynchError != "map CRC mismatch, " + listBoxMap.getSelectedItem()) {
 									lastMapDataSynchError = "map CRC mismatch, " + listBoxMap.getSelectedItem();
 									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-									serverInterface->sendTextMessage(lastMapDataSynchError,-1, true);
+									serverInterface->sendTextMessage(lastMapDataSynchError,-1, true,"");
 								}
 							}
 
@@ -1673,7 +1673,7 @@ void MenuStateCustomGame::update() {
 									lastTileDataSynchError != "tile CRC mismatch, " + listBoxTileset.getSelectedItem()) {
 									lastTileDataSynchError = "tile CRC mismatch, " + listBoxTileset.getSelectedItem();
 									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-									serverInterface->sendTextMessage(lastTileDataSynchError,-1,true);
+									serverInterface->sendTextMessage(lastTileDataSynchError,-1,true,"");
 								}
 							}
 
@@ -1690,11 +1690,11 @@ void MenuStateCustomGame::update() {
 
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] report: %s\n",__FILE__,__FUNCTION__,__LINE__,report.c_str());
 
-										serverInterface->sendTextMessage("techtree CRC mismatch",-1,true);
+										serverInterface->sendTextMessage("techtree CRC mismatch",-1,true,"");
 										vector<string> reportLineTokens;
 										Tokenize(report,reportLineTokens,"\n");
 										for(int reportLine = 0; reportLine < reportLineTokens.size(); ++reportLine) {
-											serverInterface->sendTextMessage(reportLineTokens[reportLine],-1,true);
+											serverInterface->sendTextMessage(reportLineTokens[reportLine],-1,true,"");
 										}
 									}
 								}
@@ -2142,6 +2142,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				gameSettings->setThisFactionIndex(slotIndex);
 				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
 				gameSettings->setNetworkPlayerStatuses(slotIndex, getNetworkPlayerStatus());
+				Lang &lang= Lang::getInstance();
+				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());
 			}
 			gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
 

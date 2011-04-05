@@ -234,10 +234,10 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 		clientInterface->stopServerDiscovery();
 
 		if(clientInterface->getSocket() != NULL) {
-		    if(clientInterface->isConnected() == true) {
-                string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
-                clientInterface->sendTextMessage(sQuitText,-1);
-		    }
+		    //if(clientInterface->isConnected() == true) {
+            //    string sQuitText = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()) + " has chosen to leave the game!";
+            //    clientInterface->sendTextMessage(sQuitText,-1);
+		    //}
 		    clientInterface->close();
 		}
 		abortAutoFind = true;

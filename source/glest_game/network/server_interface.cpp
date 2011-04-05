@@ -245,6 +245,7 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 }
 
 void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
+	Lang &lang= Lang::getInstance();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	MutexSafeWrapper safeMutexSlot(NULL,string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(playerIndex));
@@ -254,18 +255,28 @@ void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
 	}
 	ConnectionSlot *slot = slots[playerIndex];
 	bool notifyDisconnect = false;
-	char szBuf[4096] = "";
+	vector<string> msgList;
+	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
 	if(slot != NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 
 		if(slot->getLastReceiveCommandListTime() > 0) {
-			const char* msgTemplate = "Player %s, disconnected from the game.";
+			char szBuf[4096] = "";
+
+			for(unsigned int i = 0; i < languageList.size(); ++i) {
+				string msgTemplate = "Player %s, disconnected from the game.";
+				if(lang.hasString("PlayerDisconnected",languageList[i]) == true) {
+					msgTemplate = lang.get("PlayerDisconnected",languageList[i]);
+				}
 #ifdef WIN32
-			_snprintf(szBuf,4095,msgTemplate,slot->getName().c_str());
+				_snprintf(szBuf,4095,msgTemplate.c_str(),slot->getName().c_str());
 #else
-			snprintf(szBuf,4095,msgTemplate,slot->getName().c_str());
+				snprintf(szBuf,4095,msgTemplate.c_str(),slot->getName().c_str());
 #endif
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
+				msgList.push_back(szBuf);
+			}
 
 			notifyDisconnect = true;
 		}
@@ -282,9 +293,13 @@ void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 	if(notifyDisconnect == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-		string sMsg = szBuf;
+		//string sMsg = szBuf;
 		//sendTextMessage(sMsg,-1, true, lockedSlotIndex);
-		queueTextMessage(sMsg,-1, true);
+		//const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+		for(unsigned int j = 0; j < languageList.size(); ++j) {
+			bool localEcho = lang.isLanguageLocal(languageList[j]);
+			queueTextMessage(msgList[j],-1, localEcho, languageList[j]);
+		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 }
@@ -443,26 +458,38 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 					(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed) ||
 					(maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver)) {
 					clientLagExceededOrWarned.first = true;
-					char szBuf[4096]="";
 
-					const char* msgTemplate = "DROPPING %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], disconnecting client.";
-					if(gameSettings.getNetworkPauseGameForLaggedClients() == true &&
-						(maxFrameCountLagAllowedEver <= 0 || clientLagCount <= maxFrameCountLagAllowedEver)) {
-						msgTemplate = "PAUSING GAME TEMPORARILY for %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], waiting for client to catch up...";
-					}
+			    	Lang &lang= Lang::getInstance();
+			    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+			    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+						char szBuf[4096]="";
+
+						string msgTemplate = "DROPPING %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], disconnecting client.";
+						if(lang.hasString("ClientLagDropping") == true) {
+							msgTemplate = lang.get("ClientLagDropping",languageList[i]);
+						}
+						if(gameSettings.getNetworkPauseGameForLaggedClients() == true &&
+							(maxFrameCountLagAllowedEver <= 0 || clientLagCount <= maxFrameCountLagAllowedEver)) {
+							msgTemplate = "PAUSING GAME TEMPORARILY for %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], waiting for client to catch up...";
+							if(lang.hasString("ClientLagPausing") == true) {
+								msgTemplate = lang.get("ClientLagPausing",languageList[i]);
+							}
+						}
 #ifdef WIN32
-					_snprintf(szBuf,4095,msgTemplate,connectionSlot->getName().c_str() ,maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
+						_snprintf(szBuf,4095,msgTemplate.c_str(),connectionSlot->getName().c_str() ,maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
 #else
-					snprintf(szBuf,4095,msgTemplate,connectionSlot->getName().c_str(),maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
+						snprintf(szBuf,4095,msgTemplate.c_str(),connectionSlot->getName().c_str(),maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
 #endif
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-					if(skipNetworkBroadCast == false) {
-						string sMsg = szBuf;
-						sendTextMessage(sMsg,-1, true, connectionSlot->getPlayerIndex());
-					}
+						if(skipNetworkBroadCast == false) {
+							string sMsg = szBuf;
+							bool echoLocal = lang.isLanguageLocal(languageList[i]);
+							sendTextMessage(sMsg,-1, echoLocal, languageList[i], connectionSlot->getPlayerIndex());
+						}
+			    	}
 
 					if(gameSettings.getNetworkPauseGameForLaggedClients() == false ||
 						(maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver)) {
@@ -481,22 +508,31 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 					if(connectionSlot->getLagCountWarning() == false) {
 						connectionSlot->setLagCountWarning(true);
 
-						char szBuf[4096]="";
+				    	Lang &lang= Lang::getInstance();
+				    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+				    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				    		char szBuf[4096]="";
 
-						const char* msgTemplate = "LAG WARNING for %s, may exceed max allowed LAG count of %f [time = %f], clientLag = %f [%f], WARNING...";
+				    		string msgTemplate = "LAG WARNING for %s, may exceed max allowed LAG count of %f [time = %f], clientLag = %f [%f], WARNING...";
+							if(lang.hasString("ClientLagWarning") == true) {
+								msgTemplate = lang.get("ClientLagWarning",languageList[i]);
+							}
+
 		#ifdef WIN32
-						_snprintf(szBuf,4095,msgTemplate,connectionSlot->getName().c_str(),maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
+				    		_snprintf(szBuf,4095,msgTemplate.c_str(),connectionSlot->getName().c_str(),maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
 		#else
-						snprintf(szBuf,4095,msgTemplate,connectionSlot->getName().c_str(),maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
+				    		snprintf(szBuf,4095,msgTemplate.c_str(),connectionSlot->getName().c_str(),maxFrameCountLagAllowed,maxClientLagTimeAllowed,clientLagCount,clientLagTime);
 		#endif
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+				    		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-						if(skipNetworkBroadCast == false) {
-							string sMsg = szBuf;
-							sendTextMessage(sMsg,-1, true, connectionSlot->getPlayerIndex());
-						}
+							if(skipNetworkBroadCast == false) {
+								string sMsg = szBuf;
+								bool echoLocal = lang.isLanguageLocal(languageList[i]);
+								sendTextMessage(sMsg,-1, echoLocal, languageList[i], connectionSlot->getPlayerIndex());
+							}
+				    	}
 					}
 				}
 				else if(connectionSlot->getLagCountWarning() == true) {
@@ -751,11 +787,14 @@ void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsg
 						string newChatText     = msg.chatText.c_str();
 						int newChatTeamIndex   = msg.chatTeamIndex;
 						int newChatPlayerIndex = msg.chatPlayerIndex;
+						string newChatLanguage = msg.targetLanguage;
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
 
-						NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
-						broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex(),i);
+						if(newChatLanguage == "" || newChatLanguage == connectionSlot->getNetworkPlayerLanguage()) {
+							NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex,"");
+							broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex(),i);
+						}
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
 					}
@@ -887,7 +926,7 @@ void ServerInterface::updateKeyframe(int frameCount) {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
 			string sMsg = "may go out of synch: server requestedCommands.size() = " + intToStr(requestedCommands.size());
-			sendTextMessage(sMsg,-1, true);
+			sendTextMessage(sMsg,-1, true,"");
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] build command list took %lld msecs, networkMessageCommandList.getCommandCount() = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),networkMessageCommandList.getCommandCount(),frameCount);
@@ -936,17 +975,18 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 				NetworkMessageText netMsg = NetworkMessageText();
 				connectionSlot->receiveMessage(&netMsg);
 
-				ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getTeamIndex(),netMsg.getPlayerIndex());
+				ChatMsgInfo msg(netMsg.getText().c_str(),netMsg.getTeamIndex(),netMsg.getPlayerIndex(),netMsg.getTargetLanguage());
 				this->addChatInfo(msg);
 
 				string newChatText     = msg.chatText.c_str();
 				//string newChatSender   = msg.chatSender.c_str();
 				int newChatTeamIndex   = msg.chatTeamIndex;
 				int newChatPlayerIndex = msg.chatPlayerIndex;
+				string newChatLanguage = msg.targetLanguage.c_str();
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
 
-				NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
+				NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex,newChatLanguage);
 				broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
@@ -1036,7 +1076,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 						}
 						else if(networkMessageType != nmtInvalid) {
 							string sErr = "Unexpected network message: " + intToStr(networkMessageType);
-							sendTextMessage(sErr,-1, true,i);
+							sendTextMessage(sErr,-1, true,"",i);
 							DisplayErrorMessage(sErr);
 							logger.setCancelLoading(false);
 							return;
@@ -1052,9 +1092,19 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 		//check for timeout
 		if(allReady == false) {
 			if(chrono.getMillis() > readyWaitTimeout) {
-				string sErr = "Timeout waiting for clients.";
-				sendTextMessage(sErr,-1, true);
-				DisplayErrorMessage(sErr);
+		    	Lang &lang= Lang::getInstance();
+		    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+					string sErr = "Timeout waiting for clients.";
+					if(lang.hasString("TimeoutWaitingForClients") == true) {
+						sErr = lang.get("TimeoutWaitingForClients",languageList[i]);
+					}
+					bool localEcho = lang.isLanguageLocal(languageList[i]);
+					sendTextMessage(sErr,-1, localEcho, languageList[i]);
+					if(localEcho == true) {
+						DisplayErrorMessage(sErr);
+					}
+		    	}
 				logger.setCancelLoading(false);
 				return;
 			}
@@ -1160,12 +1210,19 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 	}
 
 	if(logger.getCancelLoading() == true) {
-		string sErr = lang.get("GameCancelledByUser");
-		sendTextMessage(sErr,-1, true);
-
+    	Lang &lang= Lang::getInstance();
+    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			string sErr = lang.get("GameCancelledByUser",languageList[i]);
+			bool localEcho = lang.isLanguageLocal(languageList[i]);
+			sendTextMessage(sErr,-1, localEcho,languageList[i]);
+			if(localEcho == true) {
+				DisplayErrorMessage(sErr);
+			}
+    	}
 		quitGame(true);
 
-		DisplayErrorMessage(sErr);
+		//DisplayErrorMessage(sErr);
 		logger.setCancelLoading(false);
 		return;
 	}
@@ -1222,34 +1279,38 @@ void ServerInterface::processTextMessageQueue() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] textMessageQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,textMessageQueue.size());
 		for(int i = 0; i < textMessageQueue.size(); ++i) {
 			TextMessageQueue &item = textMessageQueue[i];
-			sendTextMessage(item.text, item.teamIndex, item.echoLocal);
+			sendTextMessage(item.text, item.teamIndex, item.echoLocal, item.targetLanguage);
 		}
 		textMessageQueue.clear();
 	}
 }
 
-void ServerInterface::queueTextMessage(const string & text, int teamIndex, bool echoLocal) {
+void ServerInterface::queueTextMessage(const string & text, int teamIndex,
+		bool echoLocal, string targetLanguage) {
 	MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	TextMessageQueue item;
 	item.text = text;
 	item.teamIndex = teamIndex;
 	item.echoLocal = echoLocal;
+	item.targetLanguage = targetLanguage;
 	textMessageQueue.push_back(item);
 }
 
-void ServerInterface::sendTextMessage(const string & text, int teamIndex, bool echoLocal) {
-	sendTextMessage(text, teamIndex, echoLocal, -1);
+void ServerInterface::sendTextMessage(const string & text, int teamIndex,
+		bool echoLocal,string targetLanguage) {
+	sendTextMessage(text, teamIndex, echoLocal, targetLanguage, -1);
 }
 
-void ServerInterface::sendTextMessage(const string & text, int teamIndex, bool echoLocal, int lockedSlotIndex) {
+void ServerInterface::sendTextMessage(const string& text, int teamIndex, bool echoLocal,
+		string targetLanguage, int lockedSlotIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] text [%s] teamIndex = %d, echoLocal = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),teamIndex,echoLocal,lockedSlotIndex);
-	NetworkMessageText networkMessageText(text, teamIndex, getHumanPlayerIndex());
+	NetworkMessageText networkMessageText(text, teamIndex, getHumanPlayerIndex(), targetLanguage);
 	broadcastMessage(&networkMessageText, -1, lockedSlotIndex);
 	if(echoLocal == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//ChatMsgInfo msg(text.c_str(),networkMessageText.getSender().c_str(),teamIndex,networkMessageText.getPlayerIndex());
-		ChatMsgInfo msg(text.c_str(),teamIndex,networkMessageText.getPlayerIndex());
+		ChatMsgInfo msg(text.c_str(),teamIndex,networkMessageText.getPlayerIndex(), targetLanguage);
 		this->addChatInfo(msg);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1433,7 +1494,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage *networkMessage, int
 	    safeMutexSlotBroadCastAccessor.ReleaseLock();
 
 		string sMsg = ex.what();
-		sendTextMessage(sMsg,-1, true, lockedSlotIndex);
+		sendTextMessage(sMsg,-1, true, "", lockedSlotIndex);
 	}
 }
 
