@@ -1819,7 +1819,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 
 	//damage the unit
 	if(attacked->decHp(static_cast<int>(damage))){
-		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex());
+		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex(), attacker->getTeam() != attacked->getTeam());
 		attacker->incKills();
 
 		switch(this->game->getGameSettings()->getPathFinderType()) {

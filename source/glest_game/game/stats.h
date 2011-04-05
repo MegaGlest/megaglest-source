@@ -35,6 +35,7 @@ public:
 		teamIndex = 0;
 		victory = false;
 		kills = 0;
+		enemykills = 0;
 		deaths = 0;
 		unitsProduced = 0;
 		resourcesHarvested = 0;
@@ -49,6 +50,7 @@ public:
 	int teamIndex;
 	bool victory;
 	int kills;
+	int enemykills;
 	int deaths;
 	int unitsProduced;
 	int resourcesHarvested;
@@ -70,25 +72,40 @@ private:
 	int factionCount;
 	int thisFactionIndex;
 
+	float worldTimeElapsed;
+	int maxConcurrentUnitCount;
+	int totalEndGameConcurrentUnitCount;
+
 public:
 
 	Stats() {
-		description = "";
-		factionCount = 0;
-		thisFactionIndex = 0;
+		description 		= "";
+		factionCount 		= 0;
+		thisFactionIndex 	= 0;
+
+		worldTimeElapsed				= 0.0;
+		maxConcurrentUnitCount			= 0;
+		totalEndGameConcurrentUnitCount	= 0;
 	}
+
 	void init(int factionCount, int thisFactionIndex, const string &description);
 
 	string getDescription() const	{return description;}
 	int getThisFactionIndex() const	{return thisFactionIndex;}
 	int getFactionCount() const		{return factionCount;}
+
+	float getWorldTimeElapsed() const 				{return worldTimeElapsed;}
+	int getMaxConcurrentUnitCount() const 			{return maxConcurrentUnitCount; }
+	int getTotalEndGameConcurrentUnitCount() const 	{return totalEndGameConcurrentUnitCount; }
+
 	const string &getFactionTypeName(int factionIndex) const	{return playerStats[factionIndex].factionTypeName;}
 	FactionPersonalityType getPersonalityType(int factionIndex) const { return playerStats[factionIndex].personalityType;}
 	ControlType getControl(int factionIndex) const				{return playerStats[factionIndex].control;}
-	float getResourceMultiplier(int factionIndex) const				{return playerStats[factionIndex].resourceMultiplier;}
+	float getResourceMultiplier(int factionIndex) const			{return playerStats[factionIndex].resourceMultiplier;}
 	bool getVictory(int factionIndex) const						{return playerStats[factionIndex].victory;}
 	int getTeam(int factionIndex) const							{return playerStats[factionIndex].teamIndex;}
 	int getKills(int factionIndex) const						{return playerStats[factionIndex].kills;}
+	int getEnemyKills(int factionIndex) const					{return playerStats[factionIndex].enemykills;}
 	int getDeaths(int factionIndex) const						{return playerStats[factionIndex].deaths;}
 	int getUnitsProduced(int factionIndex) const				{return playerStats[factionIndex].unitsProduced;}
 	int getResourcesHarvested(int factionIndex) const			{return playerStats[factionIndex].resourcesHarvested;}
@@ -96,13 +113,17 @@ public:
 	Vec3f getPlayerColor(int factionIndex) const				{ return playerStats[factionIndex].playerColor;}
 
 	void setDescription(const string& description)							{this->description = description;}
+	void setWorldTimeElapsed(float value)  				{this->worldTimeElapsed = value;}
+	void setMaxConcurrentUnitCount(int value)  			{this->maxConcurrentUnitCount = value; }
+	void setTotalEndGameConcurrentUnitCount(int value) 	{this->totalEndGameConcurrentUnitCount = value; }
+
 	void setFactionTypeName(int playerIndex, const string& factionTypeName)	{playerStats[playerIndex].factionTypeName= factionTypeName;}
-	void setPersonalityType(int playerIndex, FactionPersonalityType value)  { playerStats[playerIndex].personalityType = value;}
+	void setPersonalityType(int playerIndex, FactionPersonalityType value)  {playerStats[playerIndex].personalityType = value;}
 	void setControl(int playerIndex, ControlType control)					{playerStats[playerIndex].control= control;}
 	void setResourceMultiplier(int playerIndex, float resourceMultiplier)	{playerStats[playerIndex].resourceMultiplier= resourceMultiplier;}
 	void setTeam(int playerIndex, int teamIndex)							{playerStats[playerIndex].teamIndex= teamIndex;}
 	void setVictorious(int playerIndex);
-	void kill(int killerFactionIndex, int killedFactionIndex);
+	void kill(int killerFactionIndex, int killedFactionIndex, bool isEnemy);
 	void die(int diedFactionIndex);
 	void produce(int producerFactionIndex);
 	void harvest(int harvesterFactionIndex, int amount);

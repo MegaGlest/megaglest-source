@@ -114,6 +114,8 @@ private:
 
 	bool gameStarted;
 
+	time_t lastMaxUnitCalcTime;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings);
