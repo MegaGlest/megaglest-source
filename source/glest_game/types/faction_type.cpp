@@ -395,7 +395,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<ResourceType> &resourceTypes) {
 	std::vector<std::string> results;
 
-    for(int i=0; i<unitTypes.size(); ++i){
+    for(int i=0; i<unitTypes.size(); ++i) {
     	UnitType &unitType = unitTypes[i];
 
 		// Check every unit's required resources to validate that for every resource-requirements
@@ -572,6 +572,42 @@ void FactionType::deletePixels() {
 			texture->deletePixels();
 		}
 	}
+}
+
+bool FactionType::factionUsesResourceType(const ResourceType *rt) const {
+	bool factionUsesResourceType = false;
+	for(unsigned int j = 0; factionUsesResourceType == false && j < this->getUnitTypeCount(); ++j) {
+		const UnitType *ut= this->getUnitType(j);
+		for(int k = 0; factionUsesResourceType == false && k < ut->getCostCount(); ++k) {
+			const Resource *costResource = ut->getCost(k);
+			//printf("#1 factionUsesResourceType, unit [%s] resource [%s] cost [%s]\n",ut->getName().c_str(),rt->getName().c_str(),costResource->getType()->getName().c_str());
+
+			if(costResource != NULL && costResource->getType()->getName() == rt->getName()) {
+				factionUsesResourceType = true;
+				break;
+			}
+		}
+		if(factionUsesResourceType == false) {
+			for(unsigned int k = 0; factionUsesResourceType == false && k < ut->getCommandTypeCount(); ++k) {
+				const CommandType *commandType = ut->getCommandType(k);
+				if(commandType != NULL && commandType->getClass() == ccHarvest) {
+					const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType *>(commandType);
+					if(hct != NULL && hct->getHarvestedResourceCount() > 0) {
+						for(unsigned int l = 0; factionUsesResourceType == false && l < hct->getHarvestedResourceCount(); ++l) {
+							//printf("#2 factionUsesResourceType, unit [%s] resource [%s] harvest [%s]\n",ut->getName().c_str(),rt->getName().c_str(),hct->getHarvestedResource(l)->getName().c_str());
+
+							if(hct->getHarvestedResource(l)->getName() == rt->getName()) {
+								factionUsesResourceType = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return factionUsesResourceType;
 }
 
 std::string FactionType::toString() const {

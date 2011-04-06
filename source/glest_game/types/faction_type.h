@@ -75,6 +75,7 @@ public:
 	std::vector<std::string> validateFactionTypeUpgradeTypes();
 
 	void deletePixels();
+	bool factionUsesResourceType(const ResourceType *rt) const;
 };
 
 }}//end namespace

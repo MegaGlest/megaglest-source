@@ -500,7 +500,7 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt){
 	//add specific produce task
 	if(!ableUnits.empty()){
 
-		if(ai->outputAIBehaviourToConsole()) printf("produceGeneric !ableUnits.empty(), ableUnits.size() = [%d] Testing AI RULE Name[%s]\n",ableUnits.size(), this->getName().c_str());
+		if(ai->outputAIBehaviourToConsole()) printf("produceGeneric !ableUnits.empty(), ableUnits.size() = [%d] Testing AI RULE Name[%s]\n",(int)ableUnits.size(), this->getName().c_str());
 
 		//priority for non produced units
 		for(unsigned int i=0; i<ableUnits.size(); ++i){
