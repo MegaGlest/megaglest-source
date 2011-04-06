@@ -132,6 +132,7 @@ void BattleEnd::render(){
 		}
 	}
 
+	bool disableStatsColorCoding = Config::getInstance().getBool("DisableBattleEndColorCoding","false");
 	textRenderer->begin(CoreData::getInstance().getMenuFontNormal());
 
 	int lm= 20;
@@ -209,9 +210,16 @@ void BattleEnd::render(){
 			textRenderer->render((lang.get("Player") + " " + intToStr(i+1)).c_str(), textX, bm+400,false, &color);
 		}
 
-		color.x = 0.2;
-		color.y = 1;
-		color.z = 0.2;
+		if(disableStatsColorCoding == false) {
+			color.x = 0.2;
+			color.y = 1;
+			color.z = 0.2;
+		}
+		else {
+			color.x = WHITE.x;
+			color.y = WHITE.y;
+			color.z = WHITE.z;
+		}
 
 		if(stats.getPersonalityType(i) == fpt_Observer) {
 			textRenderer->render(lang.get("GameOver").c_str(), textX, bm+360);
