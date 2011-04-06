@@ -606,34 +606,7 @@ Map * AiInterface::getMap() {
 }
 
 bool AiInterface::factionUsesResourceType(const FactionType *factionType, const ResourceType *rt) {
-	bool factionUsesResourceType = false;
-	for(int j = 0; factionUsesResourceType == false && j < factionType->getUnitTypeCount(); ++j) {
-		const UnitType *ut= factionType->getUnitType(j);
-		for(int k = 0; factionUsesResourceType == false && k < ut->getCostCount(); ++k) {
-			const Resource *costResource = ut->getCost(k);
-			if(costResource != NULL && costResource->getType() == rt) {
-				factionUsesResourceType = true;
-				break;
-			}
-		}
-		if(factionUsesResourceType == false) {
-			for(int k = 0; factionUsesResourceType == false && k < ut->getCommandTypeCount(); ++k) {
-				const CommandType *commandType = ut->getCommandType(k);
-				if(commandType != NULL && commandType->getClass() == ccHarvest) {
-					const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType *>(commandType);
-					if(hct != NULL && hct->getHarvestedResourceCount() > 0) {
-						for(int l = 0; factionUsesResourceType == false && l < hct->getHarvestedResourceCount(); ++l) {
-							if(hct->getHarvestedResource(l) == rt) {
-								factionUsesResourceType = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
+	bool factionUsesResourceType = factionType->factionUsesResourceType(rt);
 	return factionUsesResourceType;
 }
 

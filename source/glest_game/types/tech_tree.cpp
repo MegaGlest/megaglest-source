@@ -215,9 +215,37 @@ std::vector<std::string> TechTree::validateFactionTypes() {
 
 std::vector<std::string> TechTree::validateResourceTypes() {
 	std::vector<std::string> results;
-	for (int i = 0; i < factionTypes.size(); ++i) {
+	ResourceTypes resourceTypesNotUsed = resourceTypes;
+	for (unsigned int i = 0; i < factionTypes.size(); ++i) {
+		//printf("Validating [%d / %d] faction [%s]\n",i,(int)factionTypes.size(),factionTypes[i].getName().c_str());
+
 		std::vector<std::string> factionResults = factionTypes[i].validateFactionTypeResourceTypes(resourceTypes);
-		results.insert(results.end(), factionResults.begin(), factionResults.end());
+		if(factionResults.size() > 0) {
+			results.insert(results.end(), factionResults.begin(), factionResults.end());
+		}
+
+		// Check if the faction uses the resources in this techtree
+		// Now lets find a matching faction resource type for the unit
+		for(int j = resourceTypesNotUsed.size() -1; j >= 0; --j) {
+			const ResourceType &rt = resourceTypesNotUsed[j];
+			//printf("Validating [%d / %d] resourcetype [%s]\n",j,(int)resourceTypesNotUsed.size(),rt.getName().c_str());
+
+			if(factionTypes[i].factionUsesResourceType(&rt) == true) {
+				//printf("FOUND FACTION CONSUMER FOR RESOURCE - [%d / %d] faction [%s] resource [%d / %d] resourcetype [%s]\n",i,(int)factionTypes.size(),factionTypes[i].getName().c_str(),j,(int)resourceTypesNotUsed.size(),rt.getName().c_str());
+				resourceTypesNotUsed.erase(resourceTypesNotUsed.begin() + j);
+			}
+		}
+	}
+
+	if(resourceTypesNotUsed.size() > 0) {
+		//printf("FOUND unused resource Types [%d]\n",(int)resourceTypesNotUsed.size());
+
+		for (unsigned int i = 0; i < resourceTypesNotUsed.size(); ++i) {
+			const ResourceType &rt = resourceTypesNotUsed[i];
+			char szBuf[4096]="";
+			sprintf(szBuf,"The Resource type [%s] is not used by any units in this techtree!",rt.getName().c_str());
+			results.push_back(szBuf);
+		}
 	}
     return results;
 }

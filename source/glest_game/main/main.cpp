@@ -2014,8 +2014,6 @@ int glestMain(int argc, char** argv) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Disabling VBO's\n");
         }
 
-		//Game preCacheThreadGame;
-
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
 
