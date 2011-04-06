@@ -97,6 +97,8 @@ public:
 	Map * getMap();
 	World * getWorld() { return world; }
 
+	bool factionUsesResourceType(const FactionType *factionType, const ResourceType *rt);
+
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}
 	bool executeCommandOverNetwork();
