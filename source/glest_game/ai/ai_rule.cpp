@@ -191,15 +191,20 @@ void AiRuleAddTasks::execute(){
 	float workerRatio= ai->getRatioOfClass(ucWorker);
 
 	//standard tasks
+	if(ai->outputAIBehaviourToConsole()) printf("Add a TASK - AiRuleAddTasks adding ProduceTask(ucWorker) workerCount = %d, RULE Name[%s]\n",workerCount,this->getName().c_str());
 
 	//emergency workers
-	if(workerCount<4){
+	if(workerCount < 4){
+		if(ai->outputAIBehaviourToConsole()) printf("AAA AiRuleAddTasks adding ProduceTask(ucWorker) workerCount = %d, RULE Name[%s]\n",workerCount,this->getName().c_str());
 		ai->addPriorityTask(new ProduceTask(ucWorker));
 	}
 	else{
 		if(	ai->getAiInterface()->getControlType() == ctCpuMega ||
 			ai->getAiInterface()->getControlType() == ctNetworkCpuMega)
 		{
+			if(ai->outputAIBehaviourToConsole()) printf("AAA AiRuleAddTasks adding #1 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]\n",
+					workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
+
 			//workers
 			if(workerCount<5) ai->addTask(new ProduceTask(ucWorker));
 			if(workerCount<10) ai->addTask(new ProduceTask(ucWorker));
@@ -239,6 +244,10 @@ void AiRuleAddTasks::execute(){
 		else if(ai->getAiInterface()->getControlType() == ctCpuEasy ||
 				ai->getAiInterface()->getControlType() == ctNetworkCpuEasy)
 		{// Easy CPU
+
+			if(ai->outputAIBehaviourToConsole()) printf("AAA AiRuleAddTasks adding #2 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]\n",
+					workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
+
 			//workers
 			if(workerCount<buildingCount+2) ai->addTask(new ProduceTask(ucWorker));
 			if(workerCount>5 && workerRatio<0.20) ai->addTask(new ProduceTask(ucWorker));
@@ -262,6 +271,9 @@ void AiRuleAddTasks::execute(){
 		}
 		else
 		{// normal CPU / UltraCPU ...
+			if(ai->outputAIBehaviourToConsole()) printf("AAA AiRuleAddTasks adding #3 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]\n",
+					workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
+
 			//workers
 			if(workerCount<5) ai->addTask(new ProduceTask(ucWorker));
 			if(workerCount<10) ai->addTask(new ProduceTask(ucWorker));
@@ -317,6 +329,8 @@ bool AiRuleBuildOneFarm::test(){
 					//find a food producer in the farm produced units
 					if(r->getAmount()<0 && r->getType()->getClass()==rcConsumable && ai->getCountOfType(ut)==0){
 						farm= ut;
+
+						if(ai->outputAIBehaviourToConsole()) printf("AiRuleBuildOneFarm returning true, RULE Name[%s]\n",this->getName().c_str());
 						return true;
 					}
 				}
@@ -348,7 +362,12 @@ bool AiRuleProduceResourceProducer::test(){
 	for(int i=0; i<aiInterface->getTechTree()->getResourceTypeCount(); ++i){
         rt= aiInterface->getTechTree()->getResourceType(i);
 		const Resource *r= aiInterface->getResource(rt);
-		if(rt->getClass()==rcConsumable && r->getBalance()<0){
+
+		if(ai->outputAIBehaviourToConsole()) printf("CONSUMABLE [%s][%d] Testing AI RULE Name[%s]\n",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
+
+		bool factionUsesResourceType = aiInterface->factionUsesResourceType(aiInterface->getMyFactionType(), rt);
+		//if(rt->getClass()==rcConsumable && r->getBalance()<0){
+		if(factionUsesResourceType == true && rt->getClass() == rcConsumable && r->getBalance() < 0) {
 			interval= longInterval;
 			return true;
 
@@ -356,15 +375,22 @@ bool AiRuleProduceResourceProducer::test(){
     }
 
 	//statics second
-	for(int i=0; i<aiInterface->getTechTree()->getResourceTypeCount(); ++i){
+	for(int i=0; i < aiInterface->getTechTree()->getResourceTypeCount(); ++i) {
         rt= aiInterface->getTechTree()->getResourceType(i);
 		const Resource *r= aiInterface->getResource(rt);
-		if(rt->getClass()==rcStatic && r->getAmount()<minStaticResources){
-			interval= longInterval;
-			return true;
 
+		if(ai->outputAIBehaviourToConsole()) printf("STATIC [%s][%d] [min %d] Testing AI RULE Name[%s]\n",rt->getName().c_str(), r->getAmount(), minStaticResources, this->getName().c_str());
+
+		if(rt->getClass() == rcStatic && r->getAmount() < minStaticResources) {
+			bool factionUsesResourceType = aiInterface->factionUsesResourceType(aiInterface->getMyFactionType(), rt);
+			if(factionUsesResourceType == true) {
+				interval= longInterval;
+				return true;
+			}
         }
     }
+
+	if(ai->outputAIBehaviourToConsole()) printf("STATIC returning FALSE\n");
 
 	interval= shortInterval;
 	return false;
@@ -398,6 +424,8 @@ bool AiRuleProduce::test(){
 
 void AiRuleProduce::execute(){
 	if(produceTask!=NULL){
+
+		if(ai->outputAIBehaviourToConsole()) printf("AiRuleProduce producing [%s]\n",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
 
 		//generic produce task, produce random unit that has the skill or produces the resource
 		if(produceTask->getUnitType()==NULL){
@@ -433,9 +461,16 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt){
 				const UnitType *producedUnit= static_cast<const UnitType*>(ct->getProduced());
 				bool produceIt= false;
 
+				if(ai->outputAIBehaviourToConsole()) printf("produceGeneric [%p] Testing AI RULE Name[%s]\n",pt->getResourceType(), this->getName().c_str());
+
 				//if the unit produces the resource
 				if(pt->getResourceType()!=NULL){
 					const Resource *r= producedUnit->getCost(pt->getResourceType());
+
+					if(r != NULL) {
+						if(ai->outputAIBehaviourToConsole()) printf("produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription().c_str(),r->getAmount(), this->getName().c_str());
+					}
+
 					if(r!=NULL && r->getAmount()<0){
 						produceIt= true;
 					}
@@ -443,6 +478,8 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt){
 
 				else{
 					//if the unit is from the right class
+					if(ai->outputAIBehaviourToConsole()) printf("produceGeneric right class = [%d] Testing AI RULE Name[%s]\n",producedUnit->isOfClass(pt->getUnitClass()), this->getName().c_str());
+
 					if(producedUnit->isOfClass(pt->getUnitClass())){
 						if(aiInterface->reqsOk(ct) && aiInterface->reqsOk(producedUnit)){
 							produceIt= true;
@@ -463,6 +500,8 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt){
 	//add specific produce task
 	if(!ableUnits.empty()){
 
+		if(ai->outputAIBehaviourToConsole()) printf("produceGeneric !ableUnits.empty(), ableUnits.size() = [%d] Testing AI RULE Name[%s]\n",ableUnits.size(), this->getName().c_str());
+
 		//priority for non produced units
 		for(unsigned int i=0; i<ableUnits.size(); ++i){
 			if(ai->getCountOfType(ableUnits[i])==0){
@@ -482,8 +521,12 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 	AiInterface *aiInterface= ai->getAiInterface();
 
+	if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]\n",aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
+
 	//if unit meets requirements
 	if(aiInterface->reqsOk(pt->getUnitType())){
+
+		if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]\n",aiInterface->checkCosts(pt->getUnitType()), this->getName().c_str());
 
 		//if unit doesnt meet resources retry
 		if(!aiInterface->checkCosts(pt->getUnitType())){
@@ -512,6 +555,9 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 					//if units match
 					if(producedUnit == pt->getUnitType()){
+
+						if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(ct) = [%d] Testing AI RULE Name[%s]\n",aiInterface->reqsOk(ct), this->getName().c_str());
+
 						if(aiInterface->reqsOk(ct)){
 							defCt= ct;
 							producers.push_back(i);
@@ -524,6 +570,9 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 		//produce from random producer
 		if(!producers.empty()){
+
+			if(ai->outputAIBehaviourToConsole()) printf("produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]\n",producers.empty(), this->getName().c_str());
+
 			if(	aiInterface->getControlType() == ctCpuMega ||
 				aiInterface->getControlType() == ctNetworkCpuMega)
 			{// mega cpu trys to balance the commands to the producers
@@ -533,8 +582,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				int bestIndex=-1;
 				int besti=0;
 				int currentCommandCount=0;
-				for(unsigned int i=randomstart; i<producers.size()+randomstart; i++)
-				{
+				for(unsigned int i=randomstart; i<producers.size()+randomstart; i++) {
 					int prIndex = i;
 					if(i >= producers.size()) {
 						prIndex = (i - producers.size());
@@ -567,11 +615,9 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						besti=i%(producers.size());
 					}
 				}
-				if(	aiInterface->getMyUnit(bestIndex)->getCommandSize()>2)
-				{
+				if(	aiInterface->getMyUnit(bestIndex)->getCommandSize() > 2) {
 					// maybe we need another producer of this kind if possible!
-					if(aiInterface->reqsOk(aiInterface->getMyUnit(bestIndex)->getType()))
-					{
+					if(aiInterface->reqsOk(aiInterface->getMyUnit(bestIndex)->getType())) {
 						if(ai->getCountOfClass(ucBuilding)>5)
 							ai->addTask(new BuildTask(aiInterface->getMyUnit(bestIndex)->getType()));
 					}
@@ -585,8 +631,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						for(int j=0; j<ut->getCommandTypeCount(); ++j){
 							const CommandType *ct= ut->getCommandType(j);
 							//if the command is produce
-							if(ct->getClass()==ccProduce)
-							{
+							if(ct->getClass() == ccProduce) {
 								const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());
 								if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
 								{//this can produce a warrior
@@ -595,15 +640,13 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							}
 						}
 					}
-					if(!backupProducers.empty())
-					{
+					if(!backupProducers.empty()) {
 						int randomstart=ai->getRandom()->randRange(0, backupProducers.size()-1);
 						int lowestCommandCount=1000000;
 						int currentProducerIndex=backupProducers[randomstart];
 						int bestIndex=-1;
 						int currentCommandCount=0;
-						for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++)
-						{
+						for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++) {
 							int prIndex = i;
 							if(i >= backupProducers.size()) {
 								prIndex = (i - backupProducers.size());
@@ -630,8 +673,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							{// special for non buildings
 								currentCommandCount=0;
 							}
-						    if(lowestCommandCount>currentCommandCount)
-							{
+						    if(lowestCommandCount>currentCommandCount) {
 								lowestCommandCount=currentCommandCount;
 								bestIndex=currentProducerIndex;
 								if(lowestCommandCount==0) break;
@@ -644,17 +686,18 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							const CommandType *ct= ut->getCommandType(j);
 
 							//if the command is produce
-							if(ct->getClass()==ccProduce)
-							{
+							if(ct->getClass()==ccProduce) {
 								const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());
 								if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
 								{//this can produce a warrior
-										productionCommandIndexes.push_back(j);
+									productionCommandIndexes.push_back(j);
 								}
 							}
 						}
 						int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, productionCommandIndexes.size()-1)];
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+						if(ai->outputAIBehaviourToConsole()) printf("mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
 						aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
 					}
 					else
@@ -669,13 +712,14 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 							defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 						}
+
+						if(ai->outputAIBehaviourToConsole()) printf("mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
 				}
 				else
 				{
-					if(currentCommandCount==0)
-					{
+					if(currentCommandCount==0) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						defCt = NULL;
 						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
@@ -687,6 +731,8 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 							defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 						}
+
+						if(ai->outputAIBehaviourToConsole()) printf("mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -700,11 +746,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 						defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 					}
+					if(ai->outputAIBehaviourToConsole()) printf("mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 					aiInterface->giveCommand(bestIndex, defCt);
 				}
 			}
-			else
-			{
+			else {
 				int pIndex = ai->getRandom()->randRange(0, producers.size()-1);
 				int producerIndex= producers[pIndex];
 				defCt = NULL;
@@ -719,6 +765,8 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				}
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] producers.size() = %d, producerIndex = %d, pIndex = %d, producersDefaultCommandType.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,producers.size(),producerIndex,pIndex,producersDefaultCommandType.size());
+
+				if(ai->outputAIBehaviourToConsole()) printf("produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 				aiInterface->giveCommand(producerIndex, defCt);
 			}
 		}
@@ -747,16 +795,16 @@ bool AiRuleBuild::test(){
 }
 
 
-void AiRuleBuild::execute(){
-
-	if(buildTask!=NULL){
+void AiRuleBuild::execute() {
+	if(buildTask!=NULL) {
+		if(ai->outputAIBehaviourToConsole()) printf("BUILD AiRuleBuild Unit Name[%s]\n",(buildTask->getUnitType() != NULL ? buildTask->getUnitType()->getName().c_str() : "null"));
 
 		//generic build task, build random building that can be built
-		if(buildTask->getUnitType()==NULL){
+		if(buildTask->getUnitType() == NULL) {
 			buildGeneric(buildTask);
 		}
 		//specific building task, build if possible, retry if not enough resources or not position
-		else{
+		else {
 			buildSpecific(buildTask);
 		}
 
@@ -942,15 +990,19 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 }
 
 bool AiRuleBuild::isDefensive(const UnitType *building){
+	if(ai->outputAIBehaviourToConsole()) printf("BUILD isDefensive check for Unit Name[%s] result = %d\n",building->getName().c_str(),building->hasSkillClass(scAttack));
+
 	return building->hasSkillClass(scAttack);
 }
 
 bool AiRuleBuild::isResourceProducer(const UnitType *building){
 	for(int i= 0; i<building->getCostCount(); i++){
 		if(building->getCost(i)->getAmount()<0){
+			if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = true\n",building->getName().c_str());
 			return true;
 		}
 	}
+	if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = false\n",building->getName().c_str());
 	return false;
 }
 
@@ -961,10 +1013,12 @@ bool AiRuleBuild::isWarriorProducer(const UnitType *building){
 			const UnitType *ut= static_cast<const ProduceCommandType*>(ct)->getProducedUnit();
 
 			if(ut->isOfClass(ucWarrior)){
+				if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = true\n",building->getName().c_str());
 				return true;
 			}
 		}
 	}
+	if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = false\n",building->getName().c_str());
 	return false;
 }
 
@@ -1094,33 +1148,36 @@ bool AiRuleExpand::test() {
 	for(int i = 0; i < aiInterface->getTechTree()->getResourceTypeCount(); ++i) {
 		const ResourceType *rt = aiInterface->getTechTree()->getResourceType(i);
 		if(rt->getClass() == rcTech) {
-			// If any resource sighted
-			if(aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), expandPos, true)) {
-				int minDistance= INT_MAX;
-				storeType= NULL;
+			bool factionUsesResourceType = aiInterface->factionUsesResourceType(aiInterface->getMyFactionType(), rt);
+			if(factionUsesResourceType == true) {
+				// If any resource sighted
+				if(aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), expandPos, true)) {
+					int minDistance= INT_MAX;
+					storeType= NULL;
 
-				//If there is no close store
-				for(int j=0; j < unitCount; ++j) {
-					const Unit *u= aiInterface->getMyUnit(j);
-					const UnitType *ut= u->getType();
+					//If there is no close store
+					for(int j=0; j < unitCount; ++j) {
+						const Unit *u= aiInterface->getMyUnit(j);
+						const UnitType *ut= u->getType();
 
-					// If this building is a store
-					if(ut->getStore(rt) > 0) {
-						storeType = ut;
-						int distance= static_cast<int> (u->getPos().dist(expandPos));
-						if(distance < minDistance) {
-							minDistance = distance;
+						// If this building is a store
+						if(ut->getStore(rt) > 0) {
+							storeType = ut;
+							int distance= static_cast<int> (u->getPos().dist(expandPos));
+							if(distance < minDistance) {
+								minDistance = distance;
+							}
 						}
 					}
-				}
 
-				if(minDistance > expandDistance) {
-					return true;
+					if(minDistance > expandDistance) {
+						return true;
+					}
 				}
-			}
-			else {
-				// send patrol to look for resource
-				ai->sendScoutPatrol();
+				else {
+					// send patrol to look for resource
+					ai->sendScoutPatrol();
+				}
 			}
 		}
 	}

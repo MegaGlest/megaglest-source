@@ -187,6 +187,8 @@ public:
     void harvest(int unitIndex);
     bool haveBlockedUnits();
     void unblockUnits();
+
+    bool outputAIBehaviourToConsole();
 };
 
 }}//end namespace
