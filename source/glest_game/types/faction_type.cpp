@@ -387,6 +387,25 @@ std::vector<std::string> FactionType::validateFactionType() {
             }
         }
         // end
+
+        // Check if the unit has both be_built and harvest skills, this may cause issues
+        // with the AI
+        if(unitType.hasSkillClass(scBeBuilt) == true && unitType.hasSkillClass(scHarvest) == true) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"The Unit [%s] in Faction [%s] has both a bebuilt and harvest skill which will cause AI problems for CPU players!",unitType.getName().c_str(),this->getName().c_str());
+			results.push_back(szBuf);
+        }
+        // end
+
+        // Check if the unit has harvest skills but not move, meaning they cannot
+        // harvest the resource
+        if(unitType.hasSkillClass(scHarvest) == true && unitType.hasSkillClass(scMove) == false) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"The Unit [%s] in Faction [%s] has a harvest skill but no move skill so it cannot harvest!",unitType.getName().c_str(),this->getName().c_str());
+			results.push_back(szBuf);
+        }
+        // end
+
     }
 
     return results;
