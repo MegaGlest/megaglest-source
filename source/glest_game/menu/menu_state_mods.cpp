@@ -42,13 +42,14 @@ struct FormatString {
 // 	class ModInfo
 // ===============================
 
-ModInfo::ModInfo(){
-	name= "";
-	url= "";
-	imageUrl= "";
-	description= "";
-	count= "";
-	crc= "";
+ModInfo::ModInfo() {
+	name		= "";
+	url			= "";
+	imageUrl	= "";
+	description	= "";
+	count		= "";
+	crc			= "";
+	type 		= mt_None;
 }
 
 
@@ -63,6 +64,9 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	containerName = "Mods";
 	Lang &lang= Lang::getInstance();
 	Config &config = Config::getInstance();
+
+	modPreviewImage			= NULL;
+	displayModPreviewImage	= false;
 
 	ftpClientThread 		= NULL;
 	selectedTechName		= "";
@@ -381,6 +385,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			modinfo.description = tilesetInfoList[2];
 			modinfo.url = tilesetInfoList[3];
 			modinfo.imageUrl = tilesetInfoList[4];
+			modinfo.type = mt_Tileset;
 
 			//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),tilesetName) != tilesetFiles.end());
 			tilesetCacheList[modinfo.name] = modinfo;
@@ -437,6 +442,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			modinfo.description = techInfoList[3];
 			modinfo.url = techInfoList[4];
 			modinfo.imageUrl = techInfoList[5];
+			modinfo.type = mt_Techtree;
 
 			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
 			techCacheList[modinfo.name] = modinfo;
@@ -509,6 +515,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			modinfo.description = mapInfoList[3];
 			modinfo.url = mapInfoList[4];
 			modinfo.imageUrl = mapInfoList[5];
+			modinfo.type = mt_Map;
 
 			//bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),mapName) != mapFiles.end());
 			mapCacheList[modinfo.name] = modinfo;
@@ -577,7 +584,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			modinfo.description = scenarioInfoList[2];
 			modinfo.url = scenarioInfoList[3];
 			modinfo.imageUrl = scenarioInfoList[4];
-
+			modinfo.type = mt_Scenario;
 
 			scenarioCacheList[modinfo.name] = modinfo;
 
@@ -706,6 +713,7 @@ void MenuStateMods::refreshTechs() {
 			modinfo.description = techInfoList[3];
 			modinfo.url = techInfoList[4];
 			modinfo.imageUrl = techInfoList[5];
+			modinfo.type = mt_Techtree;
 			techCacheList[modinfo.name] = modinfo;
 		}
 	}
@@ -738,6 +746,7 @@ void MenuStateMods::refreshTilesets() {
 			modinfo.description = tilesetInfoList[2];
 			modinfo.url = tilesetInfoList[3];
 			modinfo.imageUrl = tilesetInfoList[4];
+			modinfo.type = mt_Tileset;
 			tilesetCacheList[modinfo.name] = modinfo;
 
 		}
@@ -793,6 +802,7 @@ void MenuStateMods::refreshMaps() {
 			modinfo.description = mapInfoList[3];
 			modinfo.url = mapInfoList[4];
 			modinfo.imageUrl = mapInfoList[5];
+			modinfo.type = mt_Map;
 			mapCacheList[modinfo.name] = modinfo;
 		}
 	}
@@ -826,6 +836,7 @@ void MenuStateMods::refreshScenarios() {
 			modinfo.description = scenarioInfoList[2];
 			modinfo.url = scenarioInfoList[3];
 			modinfo.imageUrl = scenarioInfoList[4];
+			modinfo.type = mt_Scenario;
 		}
 	}
 }
@@ -862,6 +873,8 @@ void MenuStateMods::cleanUp() {
 	    }
 	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+
+	cleanupPreviewTexture();
 }
 
 MenuStateMods::~MenuStateMods() {
@@ -1413,8 +1426,53 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+string MenuStateMods::getPreviewImageFileForMod(const ModInfo *modInfo) {
+	string fileName = "";
+	if(modInfo->imageUrl != "") {
+		Config &config = Config::getInstance();
+	    string userData = config.getString("UserData_Root","");
+	    if(userData != "") {
+	    	endPathWithSlash(userData);
+	    }
+	    string tempPath = userData + "temp/";
+        if(isdir(tempPath.c_str()) == true) {
+			fileName = tempPath;
+			switch(modInfo->type) {
+				case mt_Map:
+					fileName += "map_";
+					break;
+				case mt_Tileset:
+					fileName += "tileset_";
+					break;
+				case mt_Techtree:
+					fileName += "tech_";
+					break;
+				case mt_Scenario:
+					fileName += "scenario_";
+					break;
+			}
+			fileName += extractFileFromDirectoryPath(modInfo->imageUrl);
+        }
+	}
+	return fileName;
+}
+
 void MenuStateMods::showDesription(const ModInfo *modInfo) {
+	displayModPreviewImage = false;
+	modInfoSelected = *modInfo;
 	modDescrLabel.setText(modInfo->description);
+
+	//printf("### modInfo->imageUrl [%s]\n",modInfo->imageUrl.c_str());
+
+	if(modInfo->imageUrl != "") {
+	    string tempImage  = getPreviewImageFileForMod(modInfo);
+	    if(tempImage != "" && fileExists(tempImage) == false) {
+	    	ftpClientThread->addFileToRequests(tempImage,modInfo->imageUrl);
+	    }
+	    else {
+	    	displayModPreviewImage = true;
+	    }
+	}
 }
 
 void MenuStateMods::mouseMove(int x, int y, const MouseState *ms) {
@@ -1468,6 +1526,16 @@ void MenuStateMods::mouseMove(int x, int y, const MouseState *ms) {
     }
 }
 
+void MenuStateMods::cleanupPreviewTexture() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogoTexture [%p]\n",__FILE__,__FUNCTION__,__LINE__,modPreviewImage);
+
+	if(modPreviewImage != NULL) {
+		Renderer::getInstance().endTexture(rsGlobal, modPreviewImage, false);
+	}
+	modPreviewImage = NULL;
+}
+
+
 void MenuStateMods::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
@@ -1487,6 +1555,21 @@ void MenuStateMods::render() {
 		renderer.renderButton(&buttonRemoveScenario);
 
 		renderer.renderLabel(&modDescrLabel);
+		if(displayModPreviewImage == true) {
+			if(modPreviewImage == NULL) {
+				string tempImage = getPreviewImageFileForMod(&modInfoSelected);
+
+				//printf("### Render tempImage [%s] fileExists(tempImage) = %d\n",tempImage.c_str(),fileExists(tempImage));
+
+				if(tempImage != "" && fileExists(tempImage) == true) {
+					cleanupPreviewTexture();
+					modPreviewImage = Renderer::findFactionLogoTexture(tempImage);
+				}
+			}
+			if(modPreviewImage != NULL) {
+				renderer.renderTextureQuad(508,90,485,325,modPreviewImage,1.0f);
+			}
+		}
 
 		// Render Tech List
 		renderer.renderLabel(&keyTechScrollBarTitle1);
@@ -1753,6 +1836,27 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
             safeMutexFTPProgress.ReleaseLock();
         }
     }
+    else if(type == ftp_cct_File) {
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
+
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+        fileFTPProgressList.erase(itemName);
+        safeMutexFTPProgress.ReleaseLock();
+
+        //printf("### downloaded file [%s] result = %d\n",itemName.c_str(),result.first);
+
+        if(result.first == ftp_crt_SUCCESS) {
+        	displayModPreviewImage = true;
+        }
+//        else {
+//            curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
+//
+//			char szBuf[1024]="";
+//			sprintf(szBuf,lang.get("ModDownloadMapFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
+//            console.addLine(szBuf,true);
+//        }
+    }
+
     else if(type == ftp_cct_Map) {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 

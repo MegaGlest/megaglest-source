@@ -38,7 +38,8 @@ enum FTP_Client_CallbackType {
     ftp_cct_Tileset             = 1,
     ftp_cct_Techtree            = 2,
     ftp_cct_Scenario           	= 3,
-    ftp_cct_DownloadProgress    = 4
+    ftp_cct_File           		= 4,
+    ftp_cct_DownloadProgress    = 5
 };
 
 class FTPClientCallbackInterface {
@@ -50,6 +51,7 @@ public:
       double upload_total;
       double upload_now;
       string currentFilename;
+      FTP_Client_CallbackType downloadType;
     };
 
     virtual void FTPClient_CallbackEvent(string itemName,
@@ -79,6 +81,9 @@ protected:
     Mutex mutexScenarioList;
     vector<pair<string,string> > scenarioList;
 
+    Mutex mutexFileList;
+    vector<pair<string,string> > fileList;
+
     void getMapFromServer(pair<string,string> mapFilename);
     pair<FTP_Client_ResultType,string> getMapFromServer(pair<string,string> mapFileName, string ftpUser, string ftpUserPassword);
 
@@ -91,13 +96,17 @@ protected:
     void getScenarioFromServer(pair<string,string> fileName);
     pair<FTP_Client_ResultType,string> getScenarioInternalFromServer(pair<string,string> fileName);
 
+    void getFileFromServer(pair<string,string> fileName);
+    pair<FTP_Client_ResultType,string> getFileInternalFromServer(pair<string,string> fileName);
+
     Mutex mutexProgressMutex;
 
     string fileArchiveExtension;
     string fileArchiveExtractCommand;
     string fileArchiveExtractCommandParameters;
 
-    pair<FTP_Client_ResultType,string> getFileFromServer(pair<string,string> fileNameTitle,
+    pair<FTP_Client_ResultType,string> getFileFromServer(FTP_Client_CallbackType downloadType,
+    		pair<string,string> fileNameTitle,
     		string remotePath, string destFileSaveAs, string ftpUser,
     		string ftpUserPassword, vector <string> *wantDirListOnly=NULL);
 
@@ -120,6 +129,7 @@ public:
     void addTilesetToRequests(string tileSetName,string URL="");
     void addTechtreeToRequests(string techtreeName,string URL="");
     void addScenarioToRequests(string fileName,string URL="");
+    void addFileToRequests(string fileName,string URL="");
 
     FTPClientCallbackInterface * getCallBackObject();
     void setCallBackObject(FTPClientCallbackInterface *value);

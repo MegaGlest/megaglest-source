@@ -49,6 +49,7 @@ struct FtpFile {
   FTPClientThread *ftpServer;
   string currentFilename;
   bool isValidXfer;
+  FTP_Client_CallbackType downloadType;
 };
 
 static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
@@ -201,6 +202,7 @@ int file_progress(struct FtpFile *out,double download_total, double download_now
          stats.upload_total     = upload_total;
          stats.upload_now       = upload_now;
          stats.currentFilename  = out->currentFilename;
+         stats.downloadType		= out->downloadType;
 
          MutexSafeWrapper safeMutex(out->ftpServer->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
          out->ftpServer->getCallBackObject()->FTPClient_CallbackEvent(out->itemName, ftp_cct_DownloadProgress, make_pair(ftp_crt_SUCCESS,""), &stats);
@@ -274,7 +276,8 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getMapFromServer(pair<string
         NULL,
         this,
         "",
-        false
+        false,
+        ftp_cct_Map
     };
 
     //curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -398,6 +401,14 @@ void FTPClientThread::addScenarioToRequests(string fileName,string URL) {
     MutexSafeWrapper safeMutex(&mutexScenarioList,string(__FILE__) + "_" + intToStr(__LINE__));
     if(std::find(scenarioList.begin(),scenarioList.end(),item) == scenarioList.end()) {
     	scenarioList.push_back(item);
+    }
+}
+
+void FTPClientThread::addFileToRequests(string fileName,string URL) {
+	std::pair<string,string> item = make_pair(fileName,URL);
+    MutexSafeWrapper safeMutex(&mutexFileList,string(__FILE__) + "_" + intToStr(__LINE__));
+    if(std::find(fileList.begin(),fileList.end(),item) == fileList.end()) {
+    	fileList.push_back(item);
     }
 }
 
@@ -652,8 +663,8 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<st
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FTPClientThread::getTilesetFromServer [%s] remotePath [%s] destFileSaveAs [%s] getFolderContents = %d\n",tileSetName.first.c_str(),remotePath.c_str(),destFileSaveAs.c_str(),getFolderContents);
 
-    pair<FTP_Client_ResultType,string> result = getFileFromServer(tileSetName,
-			remotePath, destFileSaveAs,ftpUser, ftpUserPassword, pWantDirListOnly);
+    pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_Tileset,
+    		tileSetName, remotePath, destFileSaveAs,ftpUser, ftpUserPassword, pWantDirListOnly);
 
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {
@@ -683,7 +694,8 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<st
 
     				if( fileFromList != "models" && fileFromList != "textures" &&
     					fileFromList != "sounds") {
-						result = getFileFromServer(tileSetName,
+						result = getFileFromServer(ftp_cct_Tileset,
+								tileSetName,
 								remotePath + fileFromList,
 								destFileSaveAsNewFile + fileFromList,
 								ftpUser, ftpUserPassword);
@@ -884,8 +896,8 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getTechtreeFromServer(pair<
     	remotePath = techtreeName.second;
     }
 
-    pair<FTP_Client_ResultType,string> result = getFileFromServer(techtreeName,
-	    		remotePath, destFileSaveAs, ftpUser, ftpUserPassword);
+    pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_Techtree,
+    		techtreeName, remotePath, destFileSaveAs, ftpUser, ftpUserPassword);
 
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {
@@ -935,8 +947,8 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getScenarioInternalFromServ
     	remotePath = fileName.second;
     }
 
-    pair<FTP_Client_ResultType,string> result = getFileFromServer(fileName,
-	    		remotePath, destFileSaveAs, "", "");
+    pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_Scenario,
+    		fileName, remotePath, destFileSaveAs, "", "");
 
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {
@@ -954,7 +966,72 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getScenarioInternalFromServ
 
 }
 
-pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(pair<string,string> fileNameTitle,
+void FTPClientThread::getFileFromServer(pair<string,string> fileName) {
+	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
+
+	bool findArchive = true;
+	string ext = extractExtension(fileName.first);
+	if(ext == "7z") {
+		findArchive = executeShellCommand(this->fileArchiveExtractCommand);
+	}
+	if(findArchive == true) {
+		result = getFileInternalFromServer(fileName);
+	}
+
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+    if(this->pCBObject != NULL) {
+        this->pCBObject->FTPClient_CallbackEvent(fileName.first,ftp_cct_File,result,NULL);
+    }
+}
+
+pair<FTP_Client_ResultType,string>  FTPClientThread::getFileInternalFromServer(pair<string,string> fileName) {
+    // Root folder for the techtree
+    //string destRootFolder = this->scenariosPath.second;
+	//endPathWithSlash(destRootFolder);
+	//string destRootArchiveFolder = destRootFolder;
+	//destRootFolder += fileName.first;
+	//endPathWithSlash(destRootFolder);
+
+	//string destFile = this->scenariosPath.second;
+	//endPathWithSlash(destFile);
+    //destFile += fileName.first;
+    //string destFileSaveAs = destFile + this->fileArchiveExtension;
+    //endPathWithSlash(destFile);
+
+	string destFile = fileName.first;
+	string destFileSaveAs = fileName.first;
+
+    //string remotePath = fileName.first + this->fileArchiveExtension;
+    //if(fileName.second != "") {
+    //	remotePath = fileName.second;
+    //}
+
+	string remotePath = fileName.second;
+
+    pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_File,
+    		fileName,remotePath, destFileSaveAs, "", "");
+
+    // Extract the archive
+    if(result.first == ftp_crt_SUCCESS) {
+    	string ext = extractExtension(destFileSaveAs);
+    	if(ext == "7z") {
+    		string destRootArchiveFolder = extractDirectoryPathFromFile(destFileSaveAs);
+			string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
+					this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+					destFileSaveAs);
+
+			if(executeShellCommand(extractCmd) == false) {
+				result.first = ftp_crt_FAIL;
+				result.second = "failed to extract archive!";
+			}
+    	}
+    }
+
+    return result;
+}
+
+pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Client_CallbackType downloadType,
+		pair<string,string> fileNameTitle,
 		string remotePath, string destFileSaveAs,
 		string ftpUser, string ftpUserPassword, vector <string> *wantDirListOnly) {
 	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
@@ -980,7 +1057,8 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(pair<stri
         NULL,
         this,
         "",
-        false
+        false,
+        downloadType
     };
 
     CURL *curl = SystemFlags::initHTTP();
@@ -1162,6 +1240,18 @@ void FTPClientThread::execute() {
                 }
                 else {
                     safeMutex4.ReleaseLock();
+                }
+
+                MutexSafeWrapper safeMutex5(&mutexFileList,string(__FILE__) + "_" + intToStr(__LINE__));
+                if(fileList.size() > 0) {
+                	pair<string,string> file = fileList[0];
+                	fileList.erase(fileList.begin() + 0);
+                    safeMutex5.ReleaseLock();
+
+                    getFileFromServer(file);
+                }
+                else {
+                    safeMutex5.ReleaseLock();
                 }
 
                 if(this->getQuitStatus() == false) {
