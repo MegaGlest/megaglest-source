@@ -36,6 +36,23 @@ struct FormatString {
 	}
 };
 
+
+
+// ===============================
+// 	class ModInfo
+// ===============================
+
+ModInfo::ModInfo(){
+	name= "";
+	url= "";
+	imageUrl= "";
+	description= "";
+	count= "";
+	crc= "";
+}
+
+
+
 // =====================================================
 // 	class MenuStateConnectedGame
 // =====================================================
@@ -71,33 +88,33 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyTechScrollBarTitle1.registerGraphicComponent(containerName,"keyTechScrollBarTitle1");
 	keyTechScrollBarTitle1.init(techInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTechScrollBarTitle1.setText(lang.get("TechTitle1"));
-	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
+	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
 	keyTechScrollBarTitle2.registerGraphicComponent(containerName,"keyTechScrollBarTitle2");
 	keyTechScrollBarTitle2.init(techInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
 	keyTechScrollBarTitle2.setText(lang.get("TechTitle2"));
-	keyTechScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontBig());
+	keyTechScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
 
 	mapInfoXPos = 270;
 	keyMapScrollBarTitle1.registerGraphicComponent(containerName,"keyMapScrollBarTitle1");
 	keyMapScrollBarTitle1.init(mapInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyMapScrollBarTitle1.setText(lang.get("MapTitle1"));
-	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
+	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
 	keyMapScrollBarTitle2.registerGraphicComponent(containerName,"keyMapScrollBarTitle2");
 	keyMapScrollBarTitle2.init(mapInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
 	keyMapScrollBarTitle2.setText(lang.get("MapTitle2"));
-	keyMapScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontBig());
+	keyMapScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
 
 	tilesetInfoXPos = 530;
 	keyTilesetScrollBarTitle1.registerGraphicComponent(containerName,"keyTilesetScrollBarTitle1");
 	keyTilesetScrollBarTitle1.init(tilesetInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTilesetScrollBarTitle1.setText(lang.get("TilesetTitle1"));
-	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
+	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
 
 	scenarioInfoXPos = 760;
 	keyScenarioScrollBarTitle1.registerGraphicComponent(containerName,"keyScenarioScrollBarTitle1");
 	keyScenarioScrollBarTitle1.init(scenarioInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyScenarioScrollBarTitle1.setText(lang.get("ScenarioTitle1"));
-	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
+	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
 
 	mainMessageBoxState = ftpmsg_None;
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
@@ -110,6 +127,9 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	lineVertical.setHorizontal(false);
 	lineReturn.init(0, returnLineY);
 
+	modDescrLabel.registerGraphicComponent(containerName,"modDescrLabel");
+	modDescrLabel.init(50,installButtonYPos-60 - 20,450,20);
+	modDescrLabel.setText("description is empty");
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(450, returnLineY - 40, 125);
@@ -355,16 +375,19 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetInfoList.size() [%d]\n",(int)tilesetInfoList.size());
 		if(tilesetInfoList.size() >= 4) {
-			string tilesetName = tilesetInfoList[0];
-			string tilesetCRC = tilesetInfoList[1];
-			string tilesetDescription = tilesetInfoList[2];
-			string tilesetURL = tilesetInfoList[3];
+			ModInfo modinfo;
+			modinfo.name = tilesetInfoList[0];
+			modinfo.crc = tilesetInfoList[1];
+			modinfo.description = tilesetInfoList[2];
+			modinfo.url = tilesetInfoList[3];
+
+
 			//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),tilesetName) != tilesetFiles.end());
-			tilesetCacheList[tilesetName] = tilesetURL;
+			tilesetCacheList[modinfo.name] = modinfo;
 
 			GraphicButton *button=new GraphicButton();
 			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-			button->setText(tilesetName);
+			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
 
@@ -407,17 +430,19 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techInfoList.size() [%d]\n",(int)techInfoList.size());
 		if(techInfoList.size() >= 5) {
-			string techName = techInfoList[0];
-			string techFactionCount = techInfoList[1];
-			string techCRC = techInfoList[2];
-			string techDescription = techInfoList[3];
-			string techURL = techInfoList[4];
+			ModInfo modinfo;
+			modinfo.name = techInfoList[0];
+			modinfo.count = techInfoList[1];
+			modinfo.crc = techInfoList[2];
+			modinfo.description = techInfoList[3];
+			modinfo.url = techInfoList[4];
+
 			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
-			techCacheList[techName] = techURL;
+			techCacheList[modinfo.name] = modinfo;
 
 			GraphicButton *button=new GraphicButton();
 			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-			button->setText(techName);
+			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
 
@@ -427,7 +452,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			keyTechButtons.push_back(button);
 			GraphicLabel *label=new GraphicLabel();
 			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
-			label->setText(techFactionCount);
+			label->setText(modinfo.count);
 			labelsTech.push_back(label);
 		}
 	}
@@ -476,24 +501,26 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapInfoList.size() [%d]\n",(int)mapInfoList.size());
 		if(mapInfoList.size() >= 5) {
-			string mapName = mapInfoList[0];
-			string mapPlayerCount = mapInfoList[1];
-			string mapCRC = mapInfoList[2];
-			string mapDescription = mapInfoList[3];
-			string mapURL = mapInfoList[4];
+			ModInfo modinfo;
+			modinfo.name = mapInfoList[0];
+			modinfo.count = mapInfoList[1];
+			modinfo.crc = mapInfoList[2];
+			modinfo.description = mapInfoList[3];
+			modinfo.url = mapInfoList[4];
+
 			//bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),mapName) != mapFiles.end());
-			mapCacheList[mapName] = mapURL;
+			mapCacheList[modinfo.name] = modinfo;
 
 			GraphicButton *button=new GraphicButton();
 			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-			button->setText(mapName);
+			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
 			keyMapButtons.push_back(button);
 
 			GraphicLabel *label=new GraphicLabel();
 			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
-			label->setText(mapPlayerCount);
+			label->setText(modinfo.count);
 			labelsMap.push_back(label);
 		}
 	}
@@ -542,15 +569,18 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("scenarioInfoList.size() [%d]\n",(int)scenarioInfoList.size());
 		if(scenarioInfoList.size() >= 4) {
-			string scenarioName = scenarioInfoList[0];
-			string scenarioCRC = scenarioInfoList[1];
-			string scenarioDescription = scenarioInfoList[2];
-			string scenarioURL = scenarioInfoList[3];
-			scenarioCacheList[scenarioName] = scenarioURL;
+			ModInfo modinfo;
+			modinfo.name = scenarioInfoList[0];
+			modinfo.crc = scenarioInfoList[1];
+			modinfo.description = scenarioInfoList[2];
+			modinfo.url = scenarioInfoList[3];
+
+
+			scenarioCacheList[modinfo.name] = modinfo;
 
 			GraphicButton *button=new GraphicButton();
 			button->init(scenarioInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-			button->setText(scenarioName);
+			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
 			keyScenarioButtons.push_back(button);
@@ -666,12 +696,13 @@ void MenuStateMods::refreshTechs() {
 		std::vector<std::string> techInfoList;
 		Tokenize(techInfo,techInfoList,"|");
 		if(techInfoList.size() >= 5) {
-			string techName = techInfoList[0];
-			string techFactionCount = techInfoList[1];
-			string techCRC = techInfoList[2];
-			string techDescription = techInfoList[3];
-			string techURL = techInfoList[4];
-			techCacheList[techName] = techURL;
+			ModInfo modinfo;
+			modinfo.name = techInfoList[0];
+			modinfo.count = techInfoList[1];
+			modinfo.crc = techInfoList[2];
+			modinfo.description = techInfoList[3];
+			modinfo.url = techInfoList[4];
+			techCacheList[modinfo.name] = modinfo;
 		}
 	}
 }
@@ -697,11 +728,13 @@ void MenuStateMods::refreshTilesets() {
 		std::vector<std::string> tilesetInfoList;
 		Tokenize(tilesetInfo,tilesetInfoList,"|");
 		if(tilesetInfoList.size() >= 4) {
-			string tilesetName = tilesetInfoList[0];
-			string tilesetCRC = tilesetInfoList[1];
-			string tilesetDescription = tilesetInfoList[2];
-			string tilesetURL = tilesetInfoList[3];
-			tilesetCacheList[tilesetName] = tilesetURL;
+			ModInfo modinfo;
+			modinfo.name = tilesetInfoList[0];
+			modinfo.crc = tilesetInfoList[1];
+			modinfo.description = tilesetInfoList[2];
+			modinfo.url = tilesetInfoList[3];
+			tilesetCacheList[modinfo.name] = modinfo;
+
 		}
 	}
 }
@@ -748,12 +781,13 @@ void MenuStateMods::refreshMaps() {
 		std::vector<std::string> mapInfoList;
 		Tokenize(mapInfo,mapInfoList,"|");
 		if(mapInfoList.size() >= 5) {
-			string mapName = mapInfoList[0];
-			string mapPlayerCount = mapInfoList[1];
-			string mapCRC = mapInfoList[2];
-			string mapDescription = mapInfoList[3];
-			string mapURL = mapInfoList[4];
-			mapCacheList[mapName] = mapURL;
+			ModInfo modinfo;
+			modinfo.name = mapInfoList[0];
+			modinfo.count = mapInfoList[1];
+			modinfo.crc = mapInfoList[2];
+			modinfo.description = mapInfoList[3];
+			modinfo.url = mapInfoList[4];
+			mapCacheList[modinfo.name] = modinfo;
 		}
 	}
 }
@@ -780,11 +814,11 @@ void MenuStateMods::refreshScenarios() {
 		std::vector<std::string> scenarioInfoList;
 		Tokenize(scenarioInfo,scenarioInfoList,"|");
 		if(scenarioInfoList.size() >= 4) {
-			string scenarioName = scenarioInfoList[0];
-			string scenarioCRC = scenarioInfoList[1];
-			string scenarioDescription = scenarioInfoList[2];
-			string scenarioURL = scenarioInfoList[3];
-			scenarioCacheList[scenarioName] = scenarioURL;
+			ModInfo modinfo;
+			modinfo.name = scenarioInfoList[0];
+			modinfo.crc = scenarioInfoList[1];
+			modinfo.description = scenarioInfoList[2];
+			modinfo.url = scenarioInfoList[3];
 		}
 	}
 }
@@ -1090,7 +1124,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else {
 				string techName = selectedTechName;
-				string techURL = techCacheList[techName];
+				string techURL = techCacheList[techName].url;
 				ftpClientThread->addTechtreeToRequests(techName,techURL);
 				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				fileFTPProgressList[techName] = pair<int,string>(0,"");
@@ -1145,7 +1179,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else {
 				string tilesetName = selectedTilesetName;
-				string tilesetURL = tilesetCacheList[tilesetName];
+				string tilesetURL = tilesetCacheList[tilesetName].url;
 				ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
 				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				fileFTPProgressList[tilesetName] = pair<int,string>(0,"");
@@ -1199,7 +1233,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else {
 				string mapName = selectedMapName;
-				string mapURL = mapCacheList[mapName];
+				string mapURL = mapCacheList[mapName].url;
 				ftpClientThread->addMapToRequests(mapName,mapURL);
 				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				fileFTPProgressList[mapName] = pair<int,string>(0,"");
@@ -1253,7 +1287,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else {
 				string scenarioName = selectedScenarioName;
-				string scenarioURL = scenarioCacheList[scenarioName];
+				string scenarioURL = scenarioCacheList[scenarioName].url;
 
 				//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] adding file to download [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioURL.c_str());
 				ftpClientThread->addScenarioToRequests(scenarioName,scenarioURL);
@@ -1308,6 +1342,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					selectedScenarioName	= "";
 					if(mapName != "") {
 						selectedMapName = mapName;
+						showDesription(&mapCacheList[selectedMapName]);
 					}
 					break;
 				}
@@ -1324,6 +1359,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					selectedScenarioName	= "";
 					if(techName != "") {
 						selectedTechName = techName;
+						showDesription(&techCacheList[selectedTechName]);
 					}
 					break;
 				}
@@ -1340,6 +1376,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					selectedScenarioName	= "";
 					if(tilesetName != "") {
 						selectedTilesetName = tilesetName;
+						showDesription(&tilesetCacheList[selectedTilesetName]);
 					}
 					break;
 				}
@@ -1356,6 +1393,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					selectedScenarioName	= "";
 					if(scenarioName != "") {
 						selectedScenarioName = scenarioName;
+						showDesription(&scenarioCacheList[selectedScenarioName]);
 					}
 					break;
 				}
@@ -1366,6 +1404,10 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateMods::showDesription(const ModInfo *modInfo) {
+	modDescrLabel.setText(modInfo->description);
 }
 
 void MenuStateMods::mouseMove(int x, int y, const MouseState *ms) {
@@ -1436,6 +1478,8 @@ void MenuStateMods::render() {
 		renderer.renderButton(&buttonRemoveMap);
 		renderer.renderButton(&buttonInstallScenario);
 		renderer.renderButton(&buttonRemoveScenario);
+
+		renderer.renderLabel(&modDescrLabel);
 
 		// Render Tech List
 		renderer.renderLabel(&keyTechScrollBarTitle1);

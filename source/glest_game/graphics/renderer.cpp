@@ -2887,23 +2887,24 @@ void Renderer::renderMinimap(){
 	Vec4f col= game->getGui()->getDisplay()->getColor();
 	glColor4f(col.x*0.5f,col.y*0.5f,col.z*0.5f,1.0 );
 
+	int borderWidth=2;
 	glBegin(GL_QUADS);
-	glVertex2i(mx-4, my-4);
-	glVertex2i(mx-4, my);
-	glVertex2i(mx+mw+4, my);
-	glVertex2i(mx+mw+4, my-4);
+	glVertex2i(mx-borderWidth, my-borderWidth);
+	glVertex2i(mx-borderWidth, my);
+	glVertex2i(mx+mw+borderWidth, my);
+	glVertex2i(mx+mw+borderWidth, my-borderWidth);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex2i(mx-4, my+mh+4);
-	glVertex2i(mx-4, my+mh);
-	glVertex2i(mx+mw+4, my+mh);
-	glVertex2i(mx+mw+4, my+mh+4);
+	glVertex2i(mx-borderWidth, my+mh+borderWidth);
+	glVertex2i(mx-borderWidth, my+mh);
+	glVertex2i(mx+mw+borderWidth, my+mh);
+	glVertex2i(mx+mw+borderWidth, my+mh+borderWidth);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex2i(mx-4, my);
-	glVertex2i(mx-4, my+mh);
+	glVertex2i(mx-borderWidth, my);
+	glVertex2i(mx-borderWidth, my+mh);
 	glVertex2i(mx, my+mh);
 	glVertex2i(mx, my);
 	glEnd();
@@ -2911,8 +2912,8 @@ void Renderer::renderMinimap(){
 	glBegin(GL_QUADS);
 	glVertex2i(mx+mw, my);
 	glVertex2i(mx+mw, my+mh);
-	glVertex2i(mx+mw+4, my+mh);
-	glVertex2i(mx+mw+4, my);
+	glVertex2i(mx+mw+borderWidth, my+mh);
+	glVertex2i(mx+mw+borderWidth, my);
 	glEnd();
 
 
@@ -2996,7 +2997,7 @@ void Renderer::renderMinimap(){
 */
 
 	//glColor4f(0.3f, 0.3f, 0.3f, 0.90f);
-	glColor4f(0.5f, 0.5f, 0.5f, 0.1f);
+	glColor4f(0.5f, 0.5f, 0.5f, 0.2f);
 
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0.0f, 1.0f);
