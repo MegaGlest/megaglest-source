@@ -29,10 +29,13 @@ public:
 
 private:
 	GraphicButton buttonReturn;
+	GraphicLabel labelAdditionalCredits;
 	GraphicLabel labelAbout1[aboutStringCount1];
 	GraphicLabel labelAbout2[aboutStringCount2];
 	GraphicLabel labelTeammateName[teammateCount];
 	GraphicLabel labelTeammateRole[teammateCount];
+
+	string loadAdditionalCredits();
 
 public:
 	MenuStateAbout(Program *program, MainMenu *mainMenu);
