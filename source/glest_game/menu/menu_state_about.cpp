@@ -47,7 +47,7 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 	labelAdditionalCredits.init(500, 700);
 	labelAdditionalCredits.setText(additionalCredits);
 
-	if(additionalCredits == NULL){
+	if(additionalCredits == ""){
 		for(int i= 0; i < aboutStringCount1; ++i){
 			labelAbout1[i].registerGraphicComponent(containerName, "labelAbout1" + intToStr(i));
 			labelAbout1[i].init(100, 750 - i * 20);
@@ -103,14 +103,16 @@ string MenuStateAbout::loadAdditionalCredits(){
 	}
 	string result= "";
 	const string dir= data_path + "data/core/menu/credits.txt";
-	ifstream file(dir.c_str());
-	std::string buffer;
-	while(!file.eof()){
-		getline(file, buffer);
-		result+= buffer + "\n";
+	if(fileExists(dir) == true) {
+		ifstream file(dir.c_str());
+		std::string buffer;
+		while(!file.eof()){
+			getline(file, buffer);
+			result+= buffer + "\n";
+		}
+		std::cout << buffer << std::endl;
+		file.close();
 	}
-	std::cout << buffer << std::endl;
-	file.close();
 	return result;
 }
 
