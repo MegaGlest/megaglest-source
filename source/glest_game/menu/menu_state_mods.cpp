@@ -380,7 +380,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			modinfo.crc = tilesetInfoList[1];
 			modinfo.description = tilesetInfoList[2];
 			modinfo.url = tilesetInfoList[3];
-
+			modinfo.imageUrl = tilesetInfoList[4];
 
 			//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),tilesetName) != tilesetFiles.end());
 			tilesetCacheList[modinfo.name] = modinfo;
@@ -436,6 +436,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			modinfo.crc = techInfoList[2];
 			modinfo.description = techInfoList[3];
 			modinfo.url = techInfoList[4];
+			modinfo.imageUrl = techInfoList[5];
 
 			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
 			techCacheList[modinfo.name] = modinfo;
@@ -507,6 +508,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			modinfo.crc = mapInfoList[2];
 			modinfo.description = mapInfoList[3];
 			modinfo.url = mapInfoList[4];
+			modinfo.imageUrl = mapInfoList[5];
 
 			//bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),mapName) != mapFiles.end());
 			mapCacheList[modinfo.name] = modinfo;
@@ -574,6 +576,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			modinfo.crc = scenarioInfoList[1];
 			modinfo.description = scenarioInfoList[2];
 			modinfo.url = scenarioInfoList[3];
+			modinfo.imageUrl = scenarioInfoList[4];
 
 
 			scenarioCacheList[modinfo.name] = modinfo;
@@ -702,6 +705,7 @@ void MenuStateMods::refreshTechs() {
 			modinfo.crc = techInfoList[2];
 			modinfo.description = techInfoList[3];
 			modinfo.url = techInfoList[4];
+			modinfo.imageUrl = techInfoList[5];
 			techCacheList[modinfo.name] = modinfo;
 		}
 	}
@@ -733,6 +737,7 @@ void MenuStateMods::refreshTilesets() {
 			modinfo.crc = tilesetInfoList[1];
 			modinfo.description = tilesetInfoList[2];
 			modinfo.url = tilesetInfoList[3];
+			modinfo.imageUrl = tilesetInfoList[4];
 			tilesetCacheList[modinfo.name] = modinfo;
 
 		}
@@ -787,6 +792,7 @@ void MenuStateMods::refreshMaps() {
 			modinfo.crc = mapInfoList[2];
 			modinfo.description = mapInfoList[3];
 			modinfo.url = mapInfoList[4];
+			modinfo.imageUrl = mapInfoList[5];
 			mapCacheList[modinfo.name] = modinfo;
 		}
 	}
@@ -819,6 +825,7 @@ void MenuStateMods::refreshScenarios() {
 			modinfo.crc = scenarioInfoList[1];
 			modinfo.description = scenarioInfoList[2];
 			modinfo.url = scenarioInfoList[3];
+			modinfo.imageUrl = scenarioInfoList[4];
 		}
 	}
 }
