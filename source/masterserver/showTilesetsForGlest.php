@@ -22,7 +22,7 @@
 	foreach( $all_tilesets as &$tileset )
 	{
 		$outString =
-			"${tileset['tilesetname']}|${tileset['crc']}|${tileset['description']}|${tileset['url']}|";
+			"${tileset['tilesetname']}|${tileset['crc']}|${tileset['description']}|${tileset['url']}|${map['imageUrl']}|";
 		$outString = $outString . "\n";
 		
 		echo ($outString);
