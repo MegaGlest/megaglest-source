@@ -35,9 +35,24 @@ typedef vector<GraphicButton*> UserButtons;
 typedef vector<GraphicLabel*> GraphicLabels;
 
 // ===============================
-// 	class MenuStateMods
+// 	class ModInfo
 // ===============================
 
+class ModInfo{
+public:
+	string name;
+	string url;
+	string imageUrl;
+	string description;
+	string count; // used for faction count for example
+	string crc;
+public:
+	ModInfo();
+};
+
+// ===============================
+// 	class MenuStateMods
+// ===============================
 class MenuStateMods: public MenuState, public FTPClientCallbackInterface, public SimpleTaskCallbackInterface {
 private:
 
@@ -86,6 +101,8 @@ private:
 	GraphicScrollBar keyScenarioScrollBar;
 	UserButtons keyScenarioButtons;
 
+	GraphicLabel modDescrLabel;
+
 	int keyButtonsToRender;
 	int keyButtonsYBase;
 	int keyButtonsXBase;
@@ -98,25 +115,25 @@ private:
 
 	string selectedTechName;
 	std::vector<std::string> techListRemote;
-	std::map<string, string> techCacheList;
+	std::map<string, ModInfo> techCacheList;
 	vector<string> techTreeFiles;
 	vector<string> techTreeFilesUserData;
 
 	string selectedTilesetName;
 	std::vector<std::string> tilesetListRemote;
-	std::map<string, string> tilesetCacheList;
+	std::map<string, ModInfo> tilesetCacheList;
 	vector<string> tilesetFiles;
 	vector<string> tilesetFilesUserData;
 
 	string selectedMapName;
 	std::vector<std::string> mapListRemote;
-	std::map<string, string> mapCacheList;
+	std::map<string, ModInfo> mapCacheList;
 	vector<string> mapFiles;
 	vector<string> mapFilesUserData;
 
 	string selectedScenarioName;
 	std::vector<std::string> scenarioListRemote;
-	std::map<string, string> scenarioCacheList;
+	std::map<string, ModInfo> scenarioCacheList;
 	vector<string> scenarioFiles;
 	vector<string> scenarioFilesUserData;
 
@@ -136,6 +153,8 @@ private:
 
 	void getScenariosLocalList();
 	void refreshScenarios();
+
+	void showDesription(const ModInfo *modInfo);
 
 public:
 

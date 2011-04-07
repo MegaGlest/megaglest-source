@@ -211,9 +211,9 @@ void BattleEnd::render(){
 		}
 
 		if(disableStatsColorCoding == false) {
-			color.x = 0.2;
-			color.y = 1;
-			color.z = 0.2;
+			color.x = 0.85;
+			color.y = 0.8;
+			color.z = 0.07;
 		}
 		else {
 			color.x = WHITE.x;
