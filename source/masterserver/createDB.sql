@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `glestmaps` (
   `crc` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL,
+  `imageUrl` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
   `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`mapname`),
   KEY `mapname` (`mapname`)
@@ -49,6 +50,7 @@ CREATE TABLE IF NOT EXISTS `glesttilesets` (
   `crc` varchar(100) collate utf8_unicode_ci,
   `description` varchar(255) collate utf8_unicode_ci,
   `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `imageUrl` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
   `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`tilesetname`),
   KEY `tilesetname` (`tilesetname`)
@@ -62,6 +64,7 @@ CREATE TABLE IF NOT EXISTS `glesttechs` (
   `crc` varchar(100) collate utf8_unicode_ci,
   `description` varchar(255) collate utf8_unicode_ci,
   `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `imageUrl` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
   `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`techname`),
   KEY `techname` (`techname`)
@@ -75,6 +78,7 @@ CREATE TABLE IF NOT EXISTS `glestscenarios` (
   `crc` varchar(100) collate utf8_unicode_ci,
   `description` varchar(255) collate utf8_unicode_ci,
   `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `imageUrl` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
   `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`scenarioname`),
   KEY `scenarioname` (`scenarioname`)

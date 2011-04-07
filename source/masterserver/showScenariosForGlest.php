@@ -22,7 +22,7 @@
 	foreach( $all_scenarios as &$scenario )
 	{
 		$outString =
-			"${scenario['scenarioname']}|${scenario['crc']}|${scenario['description']}|${scenario['url']}|";
+			"${scenario['scenarioname']}|${scenario['crc']}|${scenario['description']}|${scenario['url']}|${map['imageUrl']}|";
 		$outString = $outString . "\n";
 		
 		echo ($outString);

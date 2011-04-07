@@ -22,7 +22,7 @@
 	foreach( $all_maps as &$map )
 	{
 		$outString =
-			"${map['mapname']}|${map['playercount']}|${map['crc']}|${map['description']}|${map['url']}|";
+			"${map['mapname']}|${map['playercount']}|${map['crc']}|${map['description']}|${map['url']}|${map['imageUrl']}|";
 		$outString = $outString . "\n";
 		
 		echo ($outString);
