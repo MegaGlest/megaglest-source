@@ -2047,6 +2047,12 @@ int glestMain(int argc, char** argv) {
         }
 	    setCRCCacheFilePath(crcCachePath);
 
+	    string tempDataPath = userData + "temp/";
+        if(isdir(tempDataPath.c_str()) == true) {
+        	removeFolder(tempDataPath);
+        }
+        createDirectoryPaths(tempDataPath);
+
 	    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_SOUND]) == true) {
 	    	config.setString("FactorySound","None");
 	    }

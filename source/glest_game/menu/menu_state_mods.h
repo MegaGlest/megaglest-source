@@ -31,6 +31,14 @@ enum FTPMessageType {
 	ftpmsg_Quit
 };
 
+enum ModType {
+    mt_None,
+    mt_Map,
+    mt_Tileset,
+    mt_Techtree,
+    mt_Scenario
+};
+
 typedef vector<GraphicButton*> UserButtons;
 typedef vector<GraphicLabel*> GraphicLabels;
 
@@ -38,7 +46,7 @@ typedef vector<GraphicLabel*> GraphicLabels;
 // 	class ModInfo
 // ===============================
 
-class ModInfo{
+class ModInfo {
 public:
 	string name;
 	string url;
@@ -46,6 +54,7 @@ public:
 	string description;
 	string count; // used for faction count for example
 	string crc;
+	ModType type;
 public:
 	ModInfo();
 };
@@ -102,6 +111,9 @@ private:
 	UserButtons keyScenarioButtons;
 
 	GraphicLabel modDescrLabel;
+	Texture2D *modPreviewImage;
+	ModInfo modInfoSelected;
+	bool displayModPreviewImage;
 
 	int keyButtonsToRender;
 	int keyButtonsYBase;
@@ -180,6 +192,9 @@ private:
     void clearUserButtons();
     virtual void FTPClient_CallbackEvent(string itemName,
     		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result,void *userdata);
+
+    string getPreviewImageFileForMod(const ModInfo *modInfo);
+    void cleanupPreviewTexture();
 };
 
 }}//end namespace
