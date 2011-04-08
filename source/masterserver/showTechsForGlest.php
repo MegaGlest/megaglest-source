@@ -22,7 +22,7 @@
 	foreach( $all_techs as &$tech )
 	{
 		$outString =
-			"${tech['techname']}|${tech['factioncount']}|${tech['crc']}|${tech['description']}|${tech['url']}|${map['imageUrl']}|";
+			"${tech['techname']}|${tech['factioncount']}|${tech['crc']}|${tech['description']}|${tech['url']}|${tech['imageUrl']}|";
 		$outString = $outString . "\n";
 		
 		echo ($outString);

@@ -2015,8 +2015,8 @@ int glestMain(int argc, char** argv) {
 	}
 
 	SystemFlags::init(haveSpecialOutputCommandLineOption);
-	SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled  = true;
-	SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled = true;
+	//SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled  = true;
+	//SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled = true;
 
 	MainWindow *mainWindow= NULL;
 	Program *program= NULL;
