@@ -1295,7 +1295,8 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		}
 		else {
 			//main window
-			if(Window::isKeyDown() == false) {
+			//if(Window::isKeyDown() == false)
+			{
 				if (y < 10) {
 					gameCamera.setMoveZ(-scrollSpeed);
 				}
