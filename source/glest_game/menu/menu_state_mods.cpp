@@ -1462,7 +1462,7 @@ void MenuStateMods::showDesription(const ModInfo *modInfo) {
 	modInfoSelected = *modInfo;
 	modDescrLabel.setText(modInfo->description);
 
-	//printf("### modInfo->imageUrl [%s]\n",modInfo->imageUrl.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### modInfo->imageUrl [%s]\n",modInfo->imageUrl.c_str());
 
 	if(modInfo->imageUrl != "") {
 	    string tempImage  = getPreviewImageFileForMod(modInfo);
@@ -1559,7 +1559,7 @@ void MenuStateMods::render() {
 			if(modPreviewImage == NULL) {
 				string tempImage = getPreviewImageFileForMod(&modInfoSelected);
 
-				//printf("### Render tempImage [%s] fileExists(tempImage) = %d\n",tempImage.c_str(),fileExists(tempImage));
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### Render tempImage [%s] fileExists(tempImage) = %d\n",tempImage.c_str(),fileExists(tempImage));
 
 				if(tempImage != "" && fileExists(tempImage) == true) {
 					cleanupPreviewTexture();

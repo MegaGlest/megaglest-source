@@ -1192,14 +1192,16 @@ void createDirectoryPaths(string Path) {
  while(*path) {
    //if (('\\' == *path) || ('/' == *path))
    if ('/' == *path) {
+	   if(isdir(DirName) == false) {
 #ifdef WIN32
-    	int result = _mkdir(DirName);
+		   int result = _mkdir(DirName);
 #elif defined(__GNUC__)
-        int result = mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
+		   int result = mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
 #else
-	#error "Your compiler needs to support mkdir!"
+		   #error "Your compiler needs to support mkdir!"
 #endif
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DirName [%s] result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,DirName,result,errno);
+	   }
    }
    *dirName++ = *path++;
    *dirName = '\0';
