@@ -827,19 +827,27 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//Delete all lower-prioirty commands
-		for (list<Command*>::iterator i = commands.begin(); i != commands.end();) {
-			if ((*i)->getPriority() < command_priority) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",__FILE__,__FUNCTION__,__LINE__,(*i)->toString().c_str());
+		if(command->getCommandType()->isQueuable() == qAlways && tryQueue){
+			// Its a produce or upgrade command called without queued key
+			// in this case we must NOT delete lower priority commands!
+			// we just queue it!
 
-				deleteQueuedCommand(*i);
-				i = commands.erase(i);
-			}
-			else {
-				++i;
+		}
+		else{
+			//Delete all lower-prioirty commands
+			for(list<Command*>::iterator i= commands.begin(); i != commands.end();){
+				if((*i)->getPriority() < command_priority){
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled)
+						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",__FILE__,__FUNCTION__,__LINE__,(*i)->toString().c_str());
+
+					deleteQueuedCommand(*i);
+					i= commands.erase(i);
+				}
+				else{
+					++i;
+				}
 			}
 		}
-
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//cancel current command if it is not queuable

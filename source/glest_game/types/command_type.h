@@ -317,6 +317,7 @@ public:
 	virtual string toString() const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
+	virtual int getTypePriority() const {return 15;}
 
     //get
 	const ProduceSkillType *getProduceSkillType() const	{return produceSkillType;}
@@ -344,6 +345,7 @@ public:
 	virtual string getReqDesc() const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
+	virtual int getTypePriority() const {return 15;}
 
     //get
 	const UpgradeSkillType *getUpgradeSkillType() const		{return upgradeSkillType;}
