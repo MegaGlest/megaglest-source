@@ -1465,6 +1465,7 @@ void MenuStateMods::showDesription(const ModInfo *modInfo) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### modInfo->imageUrl [%s]\n",modInfo->imageUrl.c_str());
 
 	if(modInfo->imageUrl != "") {
+		cleanupPreviewTexture();
 	    string tempImage  = getPreviewImageFileForMod(modInfo);
 	    if(tempImage != "" && fileExists(tempImage) == false) {
 	    	ftpClientThread->addFileToRequests(tempImage,modInfo->imageUrl);
