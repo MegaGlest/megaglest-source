@@ -986,7 +986,7 @@ void World::togglePauseGame(bool pauseStatus) {
 }
 
 void World::addConsoleText(const string &text) {
-	game->getConsole()->addStdMessage(text);
+	game->getConsole()->addStdScenarioMessage(text);
 }
 
 void World::giveUpgradeCommand(int unitId, const string &upgradeName) {

@@ -112,6 +112,11 @@ const char  *GAME_ARGS[] = {
 	"--show-ini-settings",
 	"--convert-models",
 	"--use-language",
+	"--show-map-crc",
+	"--show-tileset-crc",
+	"--show-techtree-crc",
+	"--show-scenario-crc",
+	"--show-path-crc",
 	"--disable-backtrace",
 	"--disable-vbo",
 	"--disable-sound",
@@ -139,6 +144,13 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_SHOW_INI_SETTINGS,
 	GAME_ARG_CONVERT_MODELS,
 	GAME_ARG_USE_LANGUAGE,
+
+	GAME_ARG_SHOW_MAP_CRC,
+	GAME_ARG_SHOW_TILESET_CRC,
+	GAME_ARG_SHOW_TECHTREE_CRC,
+	GAME_ARG_SHOW_SCENARIO_CRC,
+	GAME_ARG_SHOW_PATH_CRC,
+
 	GAME_ARG_DISABLE_BACKTRACE,
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_DISABLE_SOUND,
@@ -988,6 +1000,28 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\tforce the language to be the language specified by x.",GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
 	printf("\n                     \t\tWhere x is a supported language (such as english).");
 	printf("\n                     \t\texample: %s %s=english",argv0,GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
+
+
+	printf("\n%s=x\t\tshow the calculated CRC for the map named x.",GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
+	printf("\n                     \t\tWhere x is a map name.");
+	printf("\n                     \t\texample: %s %s=four_rivers",argv0,GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
+
+	printf("\n%s=x\t\tshow the calculated CRC for the tileset named x.",GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
+	printf("\n                     \t\tWhere x is a tileset name.");
+	printf("\n                     \t\texample: %s %s=forest",argv0,GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
+
+	printf("\n%s=x\t\tshow the calculated CRC for the techtree named x.",GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
+	printf("\n                     \t\tWhere x is a techtree name.");
+	printf("\n                     \t\texample: %s %s=megapack",argv0,GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
+
+	printf("\n%s=x\t\tshow the calculated CRC for the scenario named x.",GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
+	printf("\n                     \t\tWhere x is a scenario name.");
+	printf("\n                     \t\texample: %s %s=storming",argv0,GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
+
+	printf("\n%s=x=y\t\tshow the calculated CRC for files in the path located in x using file filter y.",GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
+	printf("\n                     \t\tWhere x is a path name.");
+	printf("\n                     \t\tand y is file(s) filter.");
+	printf("\n                     \t\texample: %s %s=techs/=megapack.7z",argv0,GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
 
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 	printf("\n%s\t\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
@@ -2150,11 +2184,161 @@ int glestMain(int argc, char** argv) {
 				language = paramPartTokens[1];
 				printf("Forcing language [%s]\n",language.c_str());
 			}
+	        else {
+	            printf("\nInvalid missing language specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
     	}
 
         lang.loadStrings(language);
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string itemName = paramPartTokens[1];
+
+				string file = Map::getMapPath(itemName,"",false);
+				if(file != "") {
+					Checksum checksum;
+					checksum.addFile(file);
+					int32 crcValue = checksum.getSum();
+
+					printf("CRC value for map [%s] file [%s] is [%d]\n",itemName.c_str(),file.c_str(),crcValue);
+				}
+				else {
+					printf("Map [%s] was NOT FOUND\n",itemName.c_str());
+				}
+				return -1;
+			}
+	        else {
+	            printf("\nInvalid missing map specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string itemName = paramPartTokens[1];
+				int32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+				if(crcValue != 0) {
+					printf("CRC value for tileset [%s] is [%d]\n",itemName.c_str(),crcValue);
+				}
+				else {
+					printf("Tileset [%s] was NOT FOUND\n",itemName.c_str());
+				}
+				return -1;
+			}
+	        else {
+	            printf("\nInvalid missing tileset specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string itemName = paramPartTokens[1];
+				int32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + itemName + "/*", ".xml", NULL, true);
+				if(crcValue != 0) {
+					printf("CRC value for techtree [%s] is [%d]\n",itemName.c_str(),crcValue);
+				}
+				else {
+					printf("Techtree [%s] was NOT FOUND\n",itemName.c_str());
+				}
+
+				return -1;
+			}
+	        else {
+	            printf("\nInvalid missing techtree specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string itemName = paramPartTokens[1];
+				int32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), "/" + itemName + "/*", ".xml", NULL, true);
+				if(crcValue != 0) {
+					printf("CRC value for scenario [%s] is [%d]\n",itemName.c_str(),crcValue);
+				}
+				else {
+					printf("Scenario [%s] was NOT FOUND\n",itemName.c_str());
+				}
+
+				return -1;
+			}
+	        else {
+	            printf("\nInvalid missing scenario specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 3 && paramPartTokens[1].length() > 0 && paramPartTokens[2].length() > 0) {
+				string itemName = paramPartTokens[1];
+				string itemNameFilter = paramPartTokens[2];
+				int32 crcValue = getFolderTreeContentsCheckSumRecursively(itemName, itemNameFilter, NULL, true);
+
+				printf("CRC value for path [%s] filter [%s] is [%d]\n",itemName.c_str(),itemNameFilter.c_str(),crcValue);
+				return -1;
+			}
+	        else {
+	        	if(paramPartTokens.size() < 2) {
+	        		printf("\nInvalid missing path and filter specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	        	}
+	        	if(paramPartTokens.size() < 3) {
+	        		printf("\nInvalid missing filter specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 3 ? paramPartTokens[2].c_str() : NULL));
+	        	}
+
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+    	}
 
 		//vector<string> techPaths;
 		//vector<string> techDataPaths = config.getPathListForType(ptTechs);

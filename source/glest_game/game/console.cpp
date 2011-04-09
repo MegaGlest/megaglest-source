@@ -46,6 +46,10 @@ void Console::addStdMessage(const string &s) {
 	addLine(Lang::getInstance().get(s));
 }
 
+void Console::addStdScenarioMessage(const string &s) {
+	addLine(Lang::getInstance().getScenarioString(s));
+}
+
 void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textColor) {
 	try {
 		if(playSound == true) {
