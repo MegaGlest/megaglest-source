@@ -219,7 +219,8 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
 		FTPClientCallbackInterface *pCBObject,
 		string fileArchiveExtension,
 		string fileArchiveExtractCommand,
-		string fileArchiveExtractCommandParameters) : BaseThread() {
+		string fileArchiveExtractCommandParameters,
+		int fileArchiveExtractCommandSuccessResult) : BaseThread() {
     this->portNumber    = portNumber;
     this->serverUrl     = serverUrl;
     this->mapsPath      = mapsPath;
@@ -231,6 +232,7 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
     this->fileArchiveExtension = fileArchiveExtension;
     this->fileArchiveExtractCommand = fileArchiveExtractCommand;
     this->fileArchiveExtractCommandParameters = fileArchiveExtractCommandParameters;
+    this->fileArchiveExtractCommandSuccessResult = fileArchiveExtractCommandSuccessResult;
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] Using FTP port #: %d, serverUrl [%s]\n",__FILE__,__FUNCTION__,__LINE__,portNumber,serverUrl.c_str());
 }
@@ -413,7 +415,7 @@ void FTPClientThread::addFileToRequests(string fileName,string URL) {
 }
 
 void FTPClientThread::getTilesetFromServer(pair<string,string> tileSetName) {
-	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand);
+	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
 
 	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
 	if(tileSetName.second != "") {
@@ -676,7 +678,7 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<st
 					this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
 					destRootArchiveFolder + tileSetName.first + this->fileArchiveExtension);
 
-			if(executeShellCommand(extractCmd) == false) {
+			if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
 				result.first = ftp_crt_FAIL;
 				result.second = "failed to extract arhcive!";
 			}
@@ -730,7 +732,7 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<st
 
 void FTPClientThread::getTechtreeFromServer(pair<string,string> techtreeName) {
 	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
-	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand);
+	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
 	if(findArchive == true) {
 		if(techtreeName.second != "") {
 			result = getTechtreeFromServer(techtreeName, "", "");
@@ -905,7 +907,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getTechtreeFromServer(pair<
         		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
         		destRootArchiveFolder + techtreeName.first + this->fileArchiveExtension);
 
-        if(executeShellCommand(extractCmd) == false) {
+        if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
         	result.first = ftp_crt_FAIL;
         	result.second = "failed to extract archive!";
         }
@@ -917,7 +919,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getTechtreeFromServer(pair<
 
 void FTPClientThread::getScenarioFromServer(pair<string,string> fileName) {
 	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
-	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand);
+	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
 	if(findArchive == true) {
 		result = getScenarioInternalFromServer(fileName);
 	}
@@ -956,7 +958,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getScenarioInternalFromServ
         		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
         		destRootArchiveFolder + fileName.first + this->fileArchiveExtension);
 
-        if(executeShellCommand(extractCmd) == false) {
+        if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
         	result.first = ftp_crt_FAIL;
         	result.second = "failed to extract archive!";
         }
@@ -972,7 +974,7 @@ void FTPClientThread::getFileFromServer(pair<string,string> fileName) {
 	bool findArchive = true;
 	string ext = extractExtension(fileName.first);
 	if(ext == "7z") {
-		findArchive = executeShellCommand(this->fileArchiveExtractCommand);
+		findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
 	}
 	if(findArchive == true) {
 		result = getFileInternalFromServer(fileName);
@@ -1020,7 +1022,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileInternalFromServer(p
 					this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
 					destFileSaveAs);
 
-			if(executeShellCommand(extractCmd) == false) {
+			if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
 				result.first = ftp_crt_FAIL;
 				result.second = "failed to extract archive!";
 			}

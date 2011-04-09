@@ -455,11 +455,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         string fileArchiveExtension = config.getString("FileArchiveExtension","");
         string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
         string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
+        int32 fileArchiveExtractCommandSuccessResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
 
         ftpClientThread = new FTPClientThread(portNumber,serverUrl,
         		mapsPath,tilesetsPath,techtreesPath,scenariosPath,
         		this,fileArchiveExtension,fileArchiveExtractCommand,
-        		fileArchiveExtractCommandParameters);
+        		fileArchiveExtractCommandParameters,fileArchiveExtractCommandSuccessResult);
         ftpClientThread->start();
     }
 

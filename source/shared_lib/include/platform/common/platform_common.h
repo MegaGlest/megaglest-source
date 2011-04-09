@@ -39,6 +39,7 @@ using Shared::Util::Checksum;
 
 namespace Shared { namespace PlatformCommon {
 
+static const int IGNORE_CMD_RESULT_VALUE = -999999;
 // =====================================================
 //	class PerformanceTimer
 // =====================================================
@@ -191,7 +192,7 @@ inline string trim (const string & s, const string & t = SPACES) {
 
 string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 		string fileArchiveExtractCommandParameters, string outputpath, string archivename);
-bool executeShellCommand(string cmd);
+bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE);
 
 class ValueCheckerVault {
 
