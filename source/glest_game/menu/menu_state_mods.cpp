@@ -966,7 +966,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					mainMenu->setState(new MenuStateRoot(program, mainMenu));
 					return;
 			    }
-			    else if(mainMessageBoxState == ftpmsg_GetMap) {
+			    else if(mainMessageBoxState == ftpmsg_GetMap ||
+			    		mainMessageBoxState == ftpmsg_ReplaceMap) {
+			    	bool getItemAfterRemoval = (mainMessageBoxState == ftpmsg_ReplaceMap);
 			    	mainMessageBoxState = ftpmsg_None;
 
 			    	Config &config = Config::getInstance();
@@ -993,12 +995,26 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 							}
 			    		}
 
-			    		selectedMapName = "";
+			    		if(getItemAfterRemoval == false) {
+			    			selectedMapName = "";
+			    		}
 			    		refreshMaps();
 			    		Checksum::clearFileCache();
+
+				    	if(getItemAfterRemoval == true) {
+							string mapName = selectedMapName;
+							string mapURL = mapCacheList[mapName].url;
+							ftpClientThread->addMapToRequests(mapName,mapURL);
+							MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+							fileFTPProgressList[mapName] = pair<int,string>(0,"");
+							safeMutexFTPProgress.ReleaseLock();
+							buttonInstallMap.setEnabled(false);
+				    	}
 			    	}
 			    }
-			    else if(mainMessageBoxState == ftpmsg_GetTileset) {
+			    else if(mainMessageBoxState == ftpmsg_GetTileset ||
+			    		mainMessageBoxState == ftpmsg_ReplaceTileset) {
+			    	bool getItemAfterRemoval = (mainMessageBoxState == ftpmsg_ReplaceTileset);
 			    	mainMessageBoxState = ftpmsg_None;
 
 			    	Config &config = Config::getInstance();
@@ -1033,9 +1049,22 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			            clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
 			            safeMutexFTPProgress.ReleaseLock();
 
-			    		selectedTilesetName = "";
+			            if(getItemAfterRemoval == false) {
+			            	selectedTilesetName = "";
+			            }
 			    		refreshTilesets();
 			    	}
+
+			    	if(getItemAfterRemoval == true) {
+						string tilesetName = selectedTilesetName;
+						string tilesetURL = tilesetCacheList[tilesetName].url;
+						ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
+						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+						fileFTPProgressList[tilesetName] = pair<int,string>(0,"");
+						safeMutexFTPProgress.ReleaseLock();
+						buttonInstallTileset.setEnabled(false);
+			    	}
+
 			    }
 			    else if(mainMessageBoxState == ftpmsg_GetTechtree ||
 			    		mainMessageBoxState == ftpmsg_ReplaceTechtree) {
@@ -1093,7 +1122,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 						buttonInstallTech.setEnabled(false);
 			    	}
 			    }
-			    else if(mainMessageBoxState == ftpmsg_GetScenario) {
+			    else if(mainMessageBoxState == ftpmsg_GetScenario ||
+			    		mainMessageBoxState == ftpmsg_ReplaceScenario) {
+			    	bool getItemAfterRemoval = (mainMessageBoxState == ftpmsg_ReplaceScenario);
 			    	mainMessageBoxState = ftpmsg_None;
 
 			    	Config &config = Config::getInstance();
@@ -1128,8 +1159,20 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			            clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
 			            safeMutexFTPProgress.ReleaseLock();
 
-			    		selectedScenarioName = "";
+			            if(getItemAfterRemoval == false) {
+			            	selectedScenarioName = "";
+			            }
 			    		refreshScenarios();
+			    	}
+
+			    	if(getItemAfterRemoval == true) {
+						string scenarioName = selectedScenarioName;
+						string scenarioURL = scenarioCacheList[scenarioName].url;
+						ftpClientThread->addScenarioToRequests(scenarioName,scenarioURL);
+						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+						fileFTPProgressList[scenarioName] = pair<int,string>(0,"");
+						safeMutexFTPProgress.ReleaseLock();
+						buttonInstallScenario.setEnabled(false);
 			    	}
 			    }
 			}
@@ -1237,11 +1280,30 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(selectedTilesetName != "") {
 			bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),selectedTilesetName) != tilesetFiles.end());
 			if(alreadyHasTileset == true) {
-				mainMessageBoxState = ftpmsg_None;
-				mainMessageBox.init(lang.get("Ok"));
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModTilesetAlreadyInstalled").c_str(),selectedTilesetName.c_str());
-				showMessageBox(szBuf, lang.get("Notice"), true);
+				ModInfo &modInfo = tilesetCacheList[selectedTilesetName];
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
+
+				Config &config = Config::getInstance();
+				string itemPath = config.getPathListForType(ptTilesets,"")[1] + "/" + selectedTilesetName + string("/*");
+				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+
+				if( strToInt(modInfo.crc) != 0 &&
+					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
+
+					mainMessageBoxState = ftpmsg_ReplaceTileset;
+					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+					char szBuf[1024]="";
+					sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTilesetName.c_str());
+					showMessageBox(szBuf, lang.get("Notice"), true);
+				}
+				else {
+					mainMessageBoxState = ftpmsg_None;
+					mainMessageBox.init(lang.get("Ok"));
+					char szBuf[1024]="";
+					sprintf(szBuf,lang.get("ModTilesetAlreadyInstalled").c_str(),selectedTilesetName.c_str());
+					showMessageBox(szBuf, lang.get("Notice"), true);
+				}
 			}
 			else {
 				string tilesetName = selectedTilesetName;
@@ -1291,11 +1353,31 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(selectedMapName != "") {
 			bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),selectedMapName) != mapFiles.end());
 			if(alreadyHasMap == true) {
-				mainMessageBoxState = ftpmsg_None;
-				mainMessageBox.init(lang.get("Ok"));
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModMapAlreadyInstalled").c_str(),selectedMapName.c_str());
-				showMessageBox(szBuf, lang.get("Notice"), true);
+				ModInfo &modInfo = mapCacheList[selectedMapName];
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
+
+				Config &config = Config::getInstance();
+				Checksum checksum;
+				string file = Map::getMapPath(selectedMapName,"",false);
+				checksum.addFile(file);
+
+				if( strToInt(modInfo.crc) != 0 &&
+					strToInt(modInfo.crc) != checksum.getSum()) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,checksum.getSum());
+
+					mainMessageBoxState = ftpmsg_ReplaceMap;
+					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+					char szBuf[1024]="";
+					sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedMapName.c_str());
+					showMessageBox(szBuf, lang.get("Notice"), true);
+				}
+				else {
+					mainMessageBoxState = ftpmsg_None;
+					mainMessageBox.init(lang.get("Ok"));
+					char szBuf[1024]="";
+					sprintf(szBuf,lang.get("ModMapAlreadyInstalled").c_str(),selectedMapName.c_str());
+					showMessageBox(szBuf, lang.get("Notice"), true);
+				}
 			}
 			else {
 				string mapName = selectedMapName;
@@ -1345,11 +1427,30 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(selectedScenarioName != "") {
 			bool alreadyHasScenario = (std::find(scenarioFiles.begin(),scenarioFiles.end(),selectedScenarioName) != scenarioFiles.end());
 			if(alreadyHasScenario == true) {
-				mainMessageBoxState = ftpmsg_None;
-				mainMessageBox.init(lang.get("Ok"));
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModScenarioAlreadyInstalled").c_str(),selectedScenarioName.c_str());
-				showMessageBox(szBuf, lang.get("Notice"), true);
+				ModInfo &modInfo = scenarioCacheList[selectedScenarioName];
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
+
+				Config &config = Config::getInstance();
+				string itemPath = config.getPathListForType(ptScenarios,"")[1] + "/" + selectedScenarioName + string("/*");
+				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+
+				if( strToInt(modInfo.crc) != 0 &&
+					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
+
+					mainMessageBoxState = ftpmsg_ReplaceScenario;
+					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+					char szBuf[1024]="";
+					sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedScenarioName.c_str());
+					showMessageBox(szBuf, lang.get("Notice"), true);
+				}
+				else {
+					mainMessageBoxState = ftpmsg_None;
+					mainMessageBox.init(lang.get("Ok"));
+					char szBuf[1024]="";
+					sprintf(szBuf,lang.get("ModScenarioAlreadyInstalled").c_str(),selectedScenarioName.c_str());
+					showMessageBox(szBuf, lang.get("Notice"), true);
+				}
 			}
 			else {
 				string scenarioName = selectedScenarioName;
