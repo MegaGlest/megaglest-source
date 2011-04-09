@@ -28,6 +28,12 @@ enum FTPMessageType {
 	ftpmsg_GetTileset,
 	ftpmsg_GetTechtree,
 	ftpmsg_GetScenario,
+
+	ftpmsg_ReplaceMap,
+	ftpmsg_ReplaceTileset,
+	ftpmsg_ReplaceTechtree,
+	ftpmsg_ReplaceScenario,
+
 	ftpmsg_Quit
 };
 

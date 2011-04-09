@@ -125,7 +125,7 @@ IF(UNIX)
 ENDIF()
 
 #########################################################################################
-# glest lib
+# megaglest lib
 
 SET(DIRS_WITH_SRC
 	feathery_ftp	
@@ -234,25 +234,25 @@ SET_SOURCE_FILES_PROPERTIES(${MG_SOURCE_FILES} PROPERTIES COMPILE_FLAGS
 SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
 IF(NOT WIN32)
-	ADD_LIBRARY(libglest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+	ADD_LIBRARY(libmegaglest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 	MESSAGE(STATUS "Building shared game library as a STATIC library and saving to [${LIBRARY_OUTPUT_PATH}]")
 ELSE()
 	SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game)
-	ADD_LIBRARY(glest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+	ADD_LIBRARY(megaglest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 	MESSAGE(STATUS "Building shared game library as a SHARED library and saving to [${LIBRARY_OUTPUT_PATH}]")
 ENDIF()
 
-#ADD_LIBRARY(libglest SHARED ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
-#ADD_LIBRARY(libglest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+#ADD_LIBRARY(libmegaglest SHARED ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+#ADD_LIBRARY(libmegaglest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 IF(WIN32)
-  TARGET_LINK_LIBRARIES(glest stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop stdc++ moldname mingwex msvcrt user32 kernel32)
+  TARGET_LINK_LIBRARIES(megaglest stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop stdc++ moldname mingwex msvcrt user32 kernel32)
 
-  TARGET_LINK_LIBRARIES(glest streflop)
-  TARGET_LINK_LIBRARIES(glest ${EXTERNAL_LIBS})
+  TARGET_LINK_LIBRARIES(megaglest streflop)
+  TARGET_LINK_LIBRARIES(megaglest ${EXTERNAL_LIBS})
 
 ELSE()
 
-  TARGET_LINK_LIBRARIES(libglest streflop)
-  TARGET_LINK_LIBRARIES(libglest ${EXTERNAL_LIBS})
+  TARGET_LINK_LIBRARIES(libmegaglest streflop)
+  TARGET_LINK_LIBRARIES(libmegaglest ${EXTERNAL_LIBS})
 
 ENDIF()

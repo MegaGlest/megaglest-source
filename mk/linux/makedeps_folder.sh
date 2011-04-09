@@ -6,7 +6,7 @@ set -e
 # (c) 2006 nixCraft under GNU GPL v2.0+
 # Last updated on: Apr/06/2010 by Vivek Gite
 # ----------------------------------------------------------------------------
-# + Modified for glest deployment - Softcoder
+# + Modified for megaglest deployment - Softcoder
 # + Added ld-linux support
 # + Added error checking support
 # + Added for loop so that we can process all files on cmd
@@ -86,8 +86,8 @@ sync_support_libs(){
 }
  
 usage(){
-	echo "Syntax : $0 glest.bin
-	echo "Example: $0 glest.bin
+	echo "Syntax : $0 megaglest.bin
+	echo "Example: $0 megaglest.bin
 	exit 1
 }
  

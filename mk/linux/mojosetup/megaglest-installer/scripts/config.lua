@@ -58,7 +58,7 @@ Setup.Package
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "megaglest.ico",
-            commandline = "%0/glest",
+            commandline = "%0/megaglest",
             category = "Game;StrategyGame"
         },
 
@@ -70,7 +70,7 @@ Setup.Package
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "editor.ico",
-            commandline = "%0/editor",
+            commandline = "%0/start_megaglest_editor",
             category = "Game;StrategyGame"
         },
 
@@ -82,7 +82,7 @@ Setup.Package
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "g3dviewer.ico",
-            commandline = "%0/g3dviewer",
+            commandline = "%0/start_megaglest_g3dviewer",
             category = "Game;StrategyGame"
         },
 

@@ -178,5 +178,6 @@ findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${ICUUC_LINKEDLIBNAME}" "$ICUUC_LIBL
 #	rm -r techs/megapack/factions/norsemen/upgrades/training_field
 #fi
 
-./bin/glest.bin $@
-# ./bin/glest.bin $@ 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
+./bin/megaglest.bin $@
+# ./bin/megaglest.bin $@ 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
+

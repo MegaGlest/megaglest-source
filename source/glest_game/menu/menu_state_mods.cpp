@@ -1026,7 +1026,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			    		refreshTilesets();
 			    	}
 			    }
-			    else if(mainMessageBoxState == ftpmsg_GetTechtree) {
+			    else if(mainMessageBoxState == ftpmsg_GetTechtree ||
+			    		mainMessageBoxState == ftpmsg_ReplaceTechtree) {
+			    	bool getItemAfterRemoval = (mainMessageBoxState == ftpmsg_ReplaceTechtree);
 			    	mainMessageBoxState = ftpmsg_None;
 
 			    	Config &config = Config::getInstance();
@@ -1064,8 +1066,20 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			            clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
 			            safeMutexFTPProgress.ReleaseLock();
 
-			    		selectedTechName = "";
+			            if(getItemAfterRemoval == false) {
+			            	selectedTechName = "";
+			            }
 			    		refreshTechs();
+			    	}
+
+			    	if(getItemAfterRemoval == true) {
+						string techName = selectedTechName;
+						string techURL = techCacheList[techName].url;
+						ftpClientThread->addTechtreeToRequests(techName,techURL);
+						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+						fileFTPProgressList[techName] = pair<int,string>(0,"");
+						safeMutexFTPProgress.ReleaseLock();
+						buttonInstallTech.setEnabled(false);
 			    	}
 			    }
 			    else if(mainMessageBoxState == ftpmsg_GetScenario) {
@@ -1136,11 +1150,24 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(selectedTechName != "") {
 			bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),selectedTechName) != techTreeFiles.end());
 			if(alreadyHasTech == true) {
-				mainMessageBoxState = ftpmsg_None;
-				mainMessageBox.init(lang.get("Ok"));
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
-				showMessageBox(szBuf, lang.get("Notice"), true);
+				ModInfo &modInfo = techCacheList[selectedTechName];
+
+				Config &config = Config::getInstance();
+				if( strToInt(modInfo.crc) != 0 &&
+					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + selectedTechName + string("/*"), ".xml", NULL)) {
+					mainMessageBoxState = ftpmsg_ReplaceTechtree;
+					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+					char szBuf[1024]="";
+					sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTechName.c_str());
+					showMessageBox(szBuf, lang.get("Notice"), true);
+				}
+				else {
+					mainMessageBoxState = ftpmsg_None;
+					mainMessageBox.init(lang.get("Ok"));
+					char szBuf[1024]="";
+					sprintf(szBuf,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
+					showMessageBox(szBuf, lang.get("Notice"), true);
+				}
 			}
 			else {
 				string techName = selectedTechName;
