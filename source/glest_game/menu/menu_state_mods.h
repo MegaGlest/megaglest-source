@@ -174,6 +174,7 @@ private:
 
 	void showDesription(const ModInfo *modInfo);
 
+	std::map<string,int32> mapCRCUpdateList;
 public:
 
 	MenuStateMods(Program *program, MainMenu *mainMenu);
