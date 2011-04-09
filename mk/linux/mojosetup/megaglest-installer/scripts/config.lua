@@ -70,7 +70,7 @@ Setup.Package
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
             icon = "editor.ico",
-            commandline = "%0/start_megaglest_editor",
+            commandline = "%0/start_megaglest_mapeditor",
             category = "Game;StrategyGame"
         },
 
