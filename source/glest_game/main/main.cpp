@@ -423,10 +423,16 @@ public:
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		//abort();
+
         if(program && gameInitialized == true) {
 			//printf("\nprogram->getState() [%p]\n",program->getState());
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			if(program->getState() != NULL) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 program->showMessage(errMsg.c_str());
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 for(;program->isMessageShowing();) {
                     //program->getState()->render();
                     Window::handleEvent();
@@ -434,13 +440,16 @@ public:
                 }
 			}
 			else {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 program->showMessage(errMsg.c_str());
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 for(;program->isMessageShowing();) {
                     //program->renderProgramMsgBox();
                     Window::handleEvent();
                     program->loop();
                 }
 			}
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         }
         else {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

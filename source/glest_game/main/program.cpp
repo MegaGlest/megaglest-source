@@ -47,6 +47,25 @@ const int SOUND_THREAD_UPDATE_MILLISECONDS = 25;
 // 	class Program::CrashProgramState
 // =====================================================
 
+void ProgramState::render() {
+	Renderer &renderer= Renderer::getInstance();
+	renderer.clearBuffers();
+	renderer.reset2d();
+	renderer.renderMessageBox(program->getMsgBox());
+	renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+	renderer.swapBuffers();
+}
+
+void ProgramState::update() {
+	mouse2dAnim = (mouse2dAnim +1) % Renderer::maxMouse2dAnim;
+}
+
+void ProgramState::mouseMove(int x, int y, const MouseState *mouseState) {
+	mouseX = x;
+	mouseY = y;
+	program->getMsgBox()->mouseMove(x, y);
+}
+
 Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, const char *msg) :
 		ProgramState(program) {
     userWantsExit = false;
@@ -256,6 +275,7 @@ void Program::loopWorker() {
     }
     ProgramState *prevState = this->programState;
 
+    assert(programState != NULL);
     programState->render();
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP RENDERING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -284,9 +304,10 @@ void Program::loopWorker() {
 
 		if(prevState == this->programState) {
 			if(soundThreadManager == NULL || soundThreadManager->isThreadExecutionLagging()) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ERROR / WARNING soundThreadManager->isThreadExecutionLagging is TRUE\n",__FILE__,__FUNCTION__,__LINE__);
-				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] ERROR / WARNING soundThreadManager->isThreadExecutionLagging is TRUE\n",__FILE__,__FUNCTION__,__LINE__);
-
+				if(soundThreadManager != NULL) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ERROR / WARNING soundThreadManager->isThreadExecutionLagging is TRUE\n",__FILE__,__FUNCTION__,__LINE__);
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] ERROR / WARNING soundThreadManager->isThreadExecutionLagging is TRUE\n",__FILE__,__FUNCTION__,__LINE__);
+				}
 				SoundRenderer::getInstance().update();
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] SoundRenderer::getInstance().update() took msecs: %lld, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
@@ -398,6 +419,7 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		updateCameraTimer.init(GameConstants::cameraFps, maxTimes);
 
 		this->programState= programState;
+		assert(programState != NULL);
 		programState->load();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

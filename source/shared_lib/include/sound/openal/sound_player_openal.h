@@ -112,8 +112,8 @@ private:
 
 	StaticSoundSource* findStaticSoundSource();
 	StreamSoundSource* findStreamSoundSource();
-	void checkAlcError(const char* message);
-	static void checkAlError(const char* message);
+	void checkAlcError(string message);
+	static void checkAlError(string message);
 
 	ALCdevice* device;
 	ALCcontext* context;
