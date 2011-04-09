@@ -104,6 +104,7 @@ protected:
     string fileArchiveExtension;
     string fileArchiveExtractCommand;
     string fileArchiveExtractCommandParameters;
+    int fileArchiveExtractCommandSuccessResult;
 
     pair<FTP_Client_ResultType,string> getFileFromServer(FTP_Client_CallbackType downloadType,
     		pair<string,string> fileNameTitle,
@@ -120,7 +121,8 @@ public:
     				FTPClientCallbackInterface *pCBObject,
     				string fileArchiveExtension,
     				string fileArchiveExtractCommand,
-    				string fileArchiveExtractCommandParameters);
+    				string fileArchiveExtractCommandParameters,
+    				int fileArchiveExtractCommandSuccessResult);
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();

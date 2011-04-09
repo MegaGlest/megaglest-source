@@ -245,13 +245,15 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	string fileArchiveExtension = config.getString("FileArchiveExtension","");
 	string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
 	string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
+	int32 fileArchiveExtractCommandSuccessResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	ftpClientThread = new FTPClientThread(-1,"",
 			mapsPath,tilesetsPath,techtreesPath,scenariosPath,
 			this,fileArchiveExtension,fileArchiveExtractCommand,
-			fileArchiveExtractCommandParameters);
+			fileArchiveExtractCommandParameters,
+			fileArchiveExtractCommandSuccessResult);
 	ftpClientThread->start();
 
 
@@ -274,7 +276,8 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     Lang &lang= Lang::getInstance();
     Config &config = Config::getInstance();
     string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
-	bool findArchive = executeShellCommand(fileArchiveExtractCommand);
+    int expectedResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
+	bool findArchive = executeShellCommand(fileArchiveExtractCommand,expectedResult);
 	if(findArchive == false) {
 		mainMessageBoxState = ftpmsg_None;
 		mainMessageBox.init(lang.get("Ok"));

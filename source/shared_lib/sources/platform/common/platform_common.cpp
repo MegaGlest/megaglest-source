@@ -1475,7 +1475,7 @@ string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 	return result;
 }
 
-bool executeShellCommand(string cmd) {
+bool executeShellCommand(string cmd, int expectedResult) {
 	bool result = false;
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nAbout to run [%s]", cmd.c_str());
 
@@ -1501,8 +1501,8 @@ bool executeShellCommand(string cmd) {
 #endif
 
 		/* Close pipe and print return value. */
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nProcess returned %d",  cmdRet);
-		result = true;
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nProcess returned %d\n",  cmdRet);
+		result = (expectedResult == IGNORE_CMD_RESULT_VALUE || expectedResult == cmdRet);
 	}
 	return result;
 }
