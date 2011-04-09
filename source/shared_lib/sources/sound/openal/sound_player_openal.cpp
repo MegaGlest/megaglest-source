@@ -14,6 +14,7 @@
 
 #include "platform_util.h"
 #include "util.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 namespace Shared{ namespace Sound{ namespace OpenAL{
@@ -38,40 +39,66 @@ SoundSource::~SoundSource()
 
 bool SoundSource::playing()
 {
-	ALint state = AL_PLAYING;
+	ALint state = AL_STOPPED;
 	alGetSourcei(source, AL_SOURCE_STATE, &state);
-	return state != AL_STOPPED;
+	return(state == AL_PLAYING || state == AL_PAUSED);
 }
 
 void SoundSource::unQueueBuffers() {
-    int processed;
-    alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
-    SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers (alGetSourcei AL_BUFFERS_PROCESSED) in audio source: ");
+	SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers START OF METHOD: ");
 
-	int queued;
+    ALint queued=0;
     alGetSourcei(source, AL_BUFFERS_QUEUED, &queued);
-    SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers (alGetSourcei AL_BUFFERS_QUEUED) in audio source: ");
+    SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 
-    //if(processed < queued) {
-		while(queued--) {
-			ALuint buffer;
-			alSourceUnqueueBuffers(source, 1, &buffer);
-			SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers (alSourceUnqueueBuffers) in audio source: ");
-		}
-    //}
+	ALint processed=0;
+    alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
+    SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+
+	while(processed--) {
+		ALuint buffer=0;
+		alSourceUnqueueBuffers(source, 1, &buffer);
+		SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+	}
+
+//	ALint queued=0;
+//	alGetSourcei(source, AL_BUFFERS_QUEUED, &queued);
+//	while(queued--) {
+//		ALuint buffer=0;
+//		alSourceUnqueueBuffers(source, 1, &buffer);
+//		SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers (alSourceUnqueueBuffers) in audio source: ");
+//	}
+//
+//	SoundPlayerOpenAL::checkAlError("Problem unqueuing buffers (alGetSourcei AL_BUFFERS_QUEUED) in audio source: ");
+
 }
 
-void SoundSource::stop()
-{
+void SoundSource::stop() {
 	alSourceStop(source);
-
-    SoundPlayerOpenAL::checkAlError("Problem stopping audio source (alSourceStop): ");
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 
     unQueueBuffers();
 
 	alSourcei(source, AL_BUFFER, AL_NONE);
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 
-	SoundPlayerOpenAL::checkAlError("Problem stopping audio source: ");
+	//unQueueBuffers();
+
+	alSourceRewind(source);    // stops the source
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+
+	while(playing() == true) {
+		//alSourceStop(source);
+		//SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+		ALint state = AL_STOPPED;
+		alGetSourcei(source, AL_SOURCE_STATE, &state);
+		SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+
+		sleep(1);
+		printf("$$$ WAITING FOR OPENAL TO STOP state = %d!\n",state);
+	}
+	//unQueueBuffers();
+	//SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 }
 
 ALenum SoundSource::getFormat(Sound* sound)
@@ -134,20 +161,22 @@ void StaticSoundSource::play(StaticSound* sound) {
 			static_cast<ALsizei> (sound->getInfo()->getSize()),
 			static_cast<ALsizei> (sound->getInfo()->getSamplesPerSecond()));
 
-	SoundPlayerOpenAL::checkAlError("Couldn't fill audio buffer: ");
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 
 	alSourcei(source, AL_BUFFER, buffer);
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 	alSourcef(source, AL_GAIN, sound->getVolume());
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 
 	alSourcePlay(source);
-	SoundPlayerOpenAL::checkAlError("Couldn't start audio source: ");
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 }
 
 StreamSoundSource::StreamSoundSource()
 {
 	sound = 0;
 	alGenBuffers(STREAMFRAGMENTS, buffers);
-	SoundPlayerOpenAL::checkAlError("Couldn't allocate audio buffers: ");
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 }
 
 StreamSoundSource::~StreamSoundSource()
@@ -186,14 +215,18 @@ void StreamSoundSource::play(StrSound* sound, int64 fadeon)
 	}
 	if(fadeon > 0) {
 		alSourcef(source, AL_GAIN, 0);
+		SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+
 		fadeState = FadingOn;
 		fade = fadeon;
 		chrono.start();
 	} else {
 		fadeState = NoFading;
 		alSourcef(source, AL_GAIN, sound->getVolume());
+		SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 	}
 	alSourcePlay(source);
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 }
 
 void StreamSoundSource::update()
@@ -204,16 +237,18 @@ void StreamSoundSource::update()
 
 	if(fadeState == NoFading){
 		alSourcef(source, AL_GAIN, sound->getVolume());
+		SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 	}
 
 	ALint processed = 0;
 	alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
+	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 	while(processed > 0) {
 		processed--;
 
 		ALuint buffer;
 		alSourceUnqueueBuffers(source, 1, &buffer);
-		SoundPlayerOpenAL::checkAlError("Couldn't unqueue audio buffer: ");
+		SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 
 		if(!fillBufferAndQueue(buffer))
 			break;
@@ -225,7 +260,7 @@ void StreamSoundSource::update()
 
 		std::cerr << "Restarting audio source because of buffer underrun.\n";
 		alSourcePlay(source);
-		SoundPlayerOpenAL::checkAlError("Couldn't restart audio source: ");
+		SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
   	}
 
 	// handle fading
@@ -233,10 +268,13 @@ void StreamSoundSource::update()
 		case FadingOn:
 			if(chrono.getMillis() > fade) {
 				alSourcef(source, AL_GAIN, sound->getVolume());
+				SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+
 				fadeState = NoFading;
 			} else {
 				alSourcef(source, AL_GAIN, sound->getVolume() *
 						static_cast<float> (chrono.getMillis())/fade);
+				SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 			}
 			break;
 		case FadingOff:
@@ -245,6 +283,7 @@ void StreamSoundSource::update()
 			} else {
 				alSourcef(source, AL_GAIN, sound->getVolume() *
 						(1.0f - static_cast<float>(chrono.getMillis())/fade));
+				SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 			}
 			break;
 		default:
@@ -387,6 +426,7 @@ void SoundPlayerOpenAL::end() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     alcMakeContextCurrent( NULL );
+    SoundPlayerOpenAL::checkAlcError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -558,20 +598,22 @@ StreamSoundSource* SoundPlayerOpenAL::findStreamSoundSource() {
 	return source;
 }
 
-void SoundPlayerOpenAL::checkAlcError(const char* message) {
+void SoundPlayerOpenAL::checkAlcError(string message) {
 	int err = alcGetError(device);
 	if(err != ALC_NO_ERROR) {
 		std::stringstream msg;
-		msg << message << alcGetString(device, err);
+		msg << message.c_str() << alcGetString(device, err);
+		printf("openalc error [%s]\n",message.c_str());
 		throw std::runtime_error(msg.str());
 	}
 }
 
-void SoundPlayerOpenAL::checkAlError(const char* message) {
+void SoundPlayerOpenAL::checkAlError(string message) {
 	int err = alGetError();
 	if(err != AL_NO_ERROR) {
 		std::stringstream msg;
-		msg << message << alGetString(err);
+		msg << message.c_str() << alGetString(err);
+		printf("openal error [%s]\n",message.c_str());
 		throw std::runtime_error(msg.str());
 	}
 }

@@ -47,6 +47,10 @@ class ProgramState{
 protected:
 	Program *program;
 
+	int mouseX;
+	int mouseY;
+	int mouse2dAnim;
+
 	int startX;
     int startY;
     bool forceMouseRender;
@@ -55,11 +59,16 @@ public:
 	ProgramState(Program *program) {
 		this->program= program;
 		this->forceMouseRender = false;
+		this->mouseX = 0;
+		this->mouseY = 0;
+		this->mouse2dAnim = 0;
+
 	}
 	virtual ~ProgramState(){};
 
-	virtual void render()=0;
-	virtual void update(){};
+	//virtual void render()=0;
+	virtual void render();
+	virtual void update();
 	virtual void updateCamera(){};
 	virtual void tick(){};
 	virtual void init(){};
@@ -75,7 +84,7 @@ public:
 	virtual void mouseDoubleClickRight(int x, int y){}
 	virtual void mouseDoubleClickCenter(int x, int y){}
 	virtual void eventMouseWheel(int x, int y, int zDelta){}
-	virtual void mouseMove(int x, int y, const MouseState *mouseState) {};
+	virtual void mouseMove(int x, int y, const MouseState *mouseState);
 	virtual void keyDown(char key){};
 	virtual void keyUp(char key){};
 	virtual void keyPress(char c){};
@@ -137,6 +146,7 @@ public:
 
     static Program *getInstance()	{return singleton;}
 
+    GraphicMessageBox * getMsgBox() { return &msgBox; }
 	void initNormal(WindowGl *window);
 	void initServer(WindowGl *window,bool autostart=false,bool openNetworkSlots=false);
 	void initClient(WindowGl *window, const Ip &serverIp);
