@@ -833,6 +833,10 @@ void Game::update() {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after ReplaceDisconnectedNetworkPlayersWithAI]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+		if(updateLoops>0){
+			// update the frame based timer in the stats with at least one step
+			world.getStats()->addFramesToCalculatePlaytime();
+		}
 		//update
 		for(int i = 0; i < updateLoops; ++i) {
 			chrono.start();
@@ -1782,6 +1786,7 @@ void Game::render2d(){
 			world.getStats()->setMaxConcurrentUnitCount(totalUnitcount);
 		}
 		world.getStats()->setTotalEndGameConcurrentUnitCount(totalUnitcount);
+		world.getStats()->setFramesPlayed(world.getFrameCount());
     }
 
 	if( renderer.getShowDebugUI() == true ||

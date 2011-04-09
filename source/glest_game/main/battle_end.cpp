@@ -210,15 +210,11 @@ void BattleEnd::render(){
 			textRenderer->render((lang.get("Player") + " " + intToStr(i+1)).c_str(), textX, bm+400,false, &color);
 		}
 
+		Vec3f highliteColor = Vec3f(WHITE.x,WHITE.y,WHITE.z);
 		if(disableStatsColorCoding == false) {
-			color.x = 0.85;
-			color.y = 0.8;
-			color.z = 0.07;
-		}
-		else {
-			color.x = WHITE.x;
-			color.y = WHITE.y;
-			color.z = WHITE.z;
+			highliteColor.x = 0.85;
+			highliteColor.y = 0.8;
+			highliteColor.z = 0.07;
 		}
 
 		if(stats.getPersonalityType(i) == fpt_Observer) {
@@ -226,7 +222,7 @@ void BattleEnd::render(){
 		}
 		else {
 			if(stats.getVictory(i)) {
-				textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360, false, &color);
+				textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360, false, &highliteColor);
 			}
 			else {
 				textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360);
@@ -238,37 +234,37 @@ void BattleEnd::render(){
 		textRenderer->render(intToStr(team).c_str(), textX, bm+240);
 
 		if(kills == bestKills) {
-			textRenderer->render(intToStr(kills).c_str(), textX, bm+200, false,&color);
+			textRenderer->render(intToStr(kills).c_str(), textX, bm+200, false,&highliteColor);
 		}
 		else {
 			textRenderer->render(intToStr(kills).c_str(), textX, bm+200);
 		}
 		if(enemykills == bestEnemyKills) {
-			textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180, false , &color);
+			textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180, false , &highliteColor);
 		}
 		else {
 			textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180);
 		}
 		if(deaths == leastDeaths) {
-			textRenderer->render(intToStr(deaths).c_str(), textX, bm+160,false,&color);
+			textRenderer->render(intToStr(deaths).c_str(), textX, bm+160,false,&highliteColor);
 		}
 		else {
 			textRenderer->render(intToStr(deaths).c_str(), textX, bm+160);
 		}
 		if(unitsProduced == bestUnitsProduced) {
-			textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120,false,&color);
+			textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120,false,&highliteColor);
 		}
 		else {
 			textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120);
 		}
 		if(resourcesHarvested == bestResourcesHarvested) {
-			textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80,false,&color);
+			textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80,false,&highliteColor);
 		}
 		else {
 			textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80);
 		}
 		if(score == bestScore) {
-			textRenderer->render(intToStr(score).c_str(), textX, bm+20,false,&color);
+			textRenderer->render(intToStr(score).c_str(), textX, bm+20,false,&highliteColor);
 		}
 		else {
 			textRenderer->render(intToStr(score).c_str(), textX, bm+20);
@@ -301,13 +297,16 @@ void BattleEnd::render(){
 
 	textRenderer->render(header, lm+250, bm+550);
 
-	string header2 = lang.get("GameDuration") + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
+	//GameConstants::updateFps
+	//string header2 = lang.get("GameDuration") + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
+
+	string header2 = lang.get("GameDuration") + ": " + intToStr(stats.getFramesToCalculatePlaytime()/GameConstants::updateFps/60);
 	textRenderer->render(header2, lm+250, bm+530);
 
-	header2 = lang.get("GameMaxConcurrentUnitCount") + " " + intToStr(stats.getMaxConcurrentUnitCount());
+	header2 = lang.get("GameMaxConcurrentUnitCount") + ": " + intToStr(stats.getMaxConcurrentUnitCount());
 	textRenderer->render(header2, lm+250, bm+510);
 
-	header2 = lang.get("GameTotalEndGameConcurrentUnitCount") + " " + intToStr(stats.getTotalEndGameConcurrentUnitCount());
+	header2 = lang.get("GameTotalEndGameConcurrentUnitCount") + ": " + intToStr(stats.getTotalEndGameConcurrentUnitCount());
 	textRenderer->render(header2, lm+250, bm+490);
 
 	textRenderer->end();
