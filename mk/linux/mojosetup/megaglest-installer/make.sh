@@ -138,22 +138,22 @@ if [ $REPACKONLY -eq 0 ]; then
 	INSTALL_ROOTDIR="`pwd`/"
 	INSTALLDATADIR="${INSTALL_ROOTDIR}data/"
 
-	# Now copy all glest binaries
+	# Now copy all megaglest binaries
 	echo Copying live Mega Glest binary files...
 
 	pushd "`pwd`/$megaglest_linux_path"
 
-	find glest -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find glest.bin -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
+	find megaglest -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find megaglest.bin -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
 	find glest.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find megaglest.bmp -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find glestkeys.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-        find start_configurator -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find glest_configurator -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
-        find editor -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find glest_editor -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
-        find g3dviewer -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find glest_g3dviewer -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
+        find start_megaglest_configurator -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
+	find megaglest_configurator -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
+        find start_megaglest_mapeditor -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
+	find megaglest_editor -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
+        find start_megaglest_g3dviewer -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
+	find megaglest_g3dviewer -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
 	find servers.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find makedeps_folder.sh -exec cp -p --parents "{}" $INSTALL_ROOTDIR ';'
 
@@ -179,7 +179,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	find tutorials/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	popd
 
-	# Now copy all glest data
+	# Now copy all megaglest data
 	echo Copying live Mega Glest country logo files...
 
 	pushd "`pwd`/$megaglest_linux_masterserverpath"
@@ -197,9 +197,9 @@ if [ $REPACKONLY -eq 0 ]; then
 	find data/ -name "*~" -exec rm -rf {} \;
         find data/ -name "*.bak" -exec rm -rf {} \;
 
-	# Copy shared lib dependencies for glest.bin
+	# Copy shared lib dependencies for megaglest.bin
 	cd data
-	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh bin/glest.bin"
+	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh bin/megaglest.bin"
 	$copyGlestDeptsCmd
 	cd ..
 fi
