@@ -174,6 +174,9 @@ public:
 	StaticSound *getSelectionSound() const				{return selectionSounds.getRandSound();}
 	StaticSound *getCommandSound() const				{return commandSounds.getRandSound();}
 
+    const SoundContainer & getSelectionSounds() const { return selectionSounds; }
+    const SoundContainer & getCommandSounds() const   { return commandSounds; }
+
 	int getStore(const ResourceType *rt) const;
 	const SkillType *getSkillType(const string &skillName, SkillClass skillClass) const;
 	const SkillType *getFirstStOfClass(SkillClass skillClass) const;

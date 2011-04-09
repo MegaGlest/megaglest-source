@@ -91,6 +91,8 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
     f.read((char*) &size16, 2);
 	soundInfo->setBitsPerSample(size16);
 
+	soundInfo->setBitRate(soundInfo->getSamplesPerSecond() * soundInfo->getChannels() * soundInfo->getBitsPerSample() / 8);
+
 	if (soundInfo->getBitsPerSample() != 8 && soundInfo->getBitsPerSample()!=16){
 		throw runtime_error("Bits per sample must be 8 or 16: " + path);
 	}
@@ -167,6 +169,7 @@ void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	soundInfo->setsamplesPerSecond(vi->rate);
 	soundInfo->setBitsPerSample(16);
 	soundInfo->setSize(samples * 2 * vi->channels);
+	soundInfo->setBitRate(vi->bitrate_nominal);
 }
 
 uint32 OggSoundFileLoader::read(int8 *samples, uint32 size){

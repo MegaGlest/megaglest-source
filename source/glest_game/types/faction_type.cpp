@@ -167,8 +167,36 @@ FactionType::~FactionType(){
 std::vector<std::string> FactionType::validateFactionType() {
 	std::vector<std::string> results;
 
+	const uint32 MAX_BITRATE_WARNING = 200000;
+	StrSound *factionMusic = getMusic();
+	if(factionMusic != NULL && factionMusic->getInfo()->getBitRate() > MAX_BITRATE_WARNING) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"The Faction [%s] has the music [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",this->getName().c_str(),factionMusic->getFileName().c_str(),factionMusic->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
+		results.push_back(szBuf);
+	}
+
     for(int i=0; i<unitTypes.size(); ++i){
     	UnitType &unitType = unitTypes[i];
+
+    	for(int i = 0; i < unitType.getSelectionSounds().getSounds().size(); ++i) {
+    		StaticSound *sound = unitType.getSelectionSounds().getSounds()[i];
+    		if(sound != NULL && sound->getInfo()->getBitRate() > MAX_BITRATE_WARNING) {
+				char szBuf[4096]="";
+				sprintf(szBuf,"The Unit [%s] in Faction [%s] has the sound [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",unitType.getName().c_str(),this->getName().c_str(),sound->getFileName().c_str(),sound->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
+				results.push_back(szBuf);
+    		}
+    	}
+    	for(int i = 0; i < unitType.getCommandSounds().getSounds().size(); ++i) {
+    		StaticSound *sound = unitType.getCommandSounds().getSounds()[i];
+    		if(sound != NULL && sound->getInfo()->getBitRate() > MAX_BITRATE_WARNING) {
+				char szBuf[4096]="";
+				sprintf(szBuf,"The Unit [%s] in Faction [%s] has the sound [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",unitType.getName().c_str(),this->getName().c_str(),sound->getFileName().c_str(),sound->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
+				results.push_back(szBuf);
+    		}
+    	}
+
+    //const SoundContainer & getCommandSounds() const   { return commandSounds; }
+
 
     	for(int j = 0; j < unitType.getCommandTypeCount(); ++j) {
     		const CommandType *cmdType = unitType.getCommandType(j);
