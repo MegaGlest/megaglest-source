@@ -696,6 +696,14 @@ void MenuStateMods::getTechsLocalList() {
 		string path = config.getPathListForType(ptTechs)[1];
 		endPathWithSlash(path);
 		findDirs(path, techTreeFilesUserData, false, false);
+
+		//for(unsigned int i = 0; i < techTreeFilesUserData.size(); ++i) {
+			//string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + techTreeFilesUserData[i] + string("/*");
+			//bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+			//mapCRCUpdateList[itemPath] = getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh);
+			//mapCRCUpdateList[itemPath] = getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,false);
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC for techtree [%s] is [%d]\n",__FILE__,__FUNCTION__,__LINE__,itemPath.c_str(),mapCRCUpdateList[itemPath]);
+		//}
 	}
 }
 
@@ -1152,9 +1160,16 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			if(alreadyHasTech == true) {
 				ModInfo &modInfo = techCacheList[selectedTechName];
 
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
+
 				Config &config = Config::getInstance();
+				string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + selectedTechName + string("/*");
+				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+
 				if( strToInt(modInfo.crc) != 0 &&
-					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + selectedTechName + string("/*"), ".xml", NULL)) {
+					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
+
 					mainMessageBoxState = ftpmsg_ReplaceTechtree;
 					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
 					char szBuf[1024]="";
@@ -1168,6 +1183,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					sprintf(szBuf,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
 					showMessageBox(szBuf, lang.get("Notice"), true);
 				}
+				mapCRCUpdateList[itemPath] = true;
 			}
 			else {
 				string techName = selectedTechName;

@@ -2319,7 +2319,7 @@ int glestMain(int argc, char** argv) {
 			string paramValue = argv[foundParamIndIndex];
 			vector<string> paramPartTokens;
 			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 3 && paramPartTokens[1].length() > 0 && paramPartTokens[2].length() > 0) {
+			if(paramPartTokens.size() >= 3 && paramPartTokens[1].length() > 0) {
 				string itemName = paramPartTokens[1];
 				string itemNameFilter = paramPartTokens[2];
 				int32 crcValue = getFolderTreeContentsCheckSumRecursively(itemName, itemNameFilter, NULL, true);
