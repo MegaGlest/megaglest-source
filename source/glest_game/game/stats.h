@@ -73,6 +73,9 @@ private:
 	int thisFactionIndex;
 
 	float worldTimeElapsed;
+	int framesPlayed;
+	int framesToCalculatePlaytime;
+	time_t timePlayed;
 	int maxConcurrentUnitCount;
 	int totalEndGameConcurrentUnitCount;
 
@@ -84,6 +87,8 @@ public:
 		thisFactionIndex 	= 0;
 
 		worldTimeElapsed				= 0.0;
+		framesPlayed					= 0;
+		framesToCalculatePlaytime		= 0;
 		maxConcurrentUnitCount			= 0;
 		totalEndGameConcurrentUnitCount	= 0;
 	}
@@ -95,6 +100,8 @@ public:
 	int getFactionCount() const		{return factionCount;}
 
 	float getWorldTimeElapsed() const 				{return worldTimeElapsed;}
+	int getFramesPlayed() const 					{return framesPlayed; }
+	int getFramesToCalculatePlaytime() const 		{return framesToCalculatePlaytime; }
 	int getMaxConcurrentUnitCount() const 			{return maxConcurrentUnitCount; }
 	int getTotalEndGameConcurrentUnitCount() const 	{return totalEndGameConcurrentUnitCount; }
 
@@ -114,6 +121,7 @@ public:
 
 	void setDescription(const string& description)							{this->description = description;}
 	void setWorldTimeElapsed(float value)  				{this->worldTimeElapsed = value;}
+	void setFramesPlayed(int value)  					{this->framesPlayed = value; }
 	void setMaxConcurrentUnitCount(int value)  			{this->maxConcurrentUnitCount = value; }
 	void setTotalEndGameConcurrentUnitCount(int value) 	{this->totalEndGameConcurrentUnitCount = value; }
 
@@ -129,6 +137,8 @@ public:
 	void harvest(int harvesterFactionIndex, int amount);
 	void setPlayerName(int playerIndex, string value) 	{playerStats[playerIndex].playerName = value; }
 	void setPlayerColor(int playerIndex, Vec3f value)	{playerStats[playerIndex].playerColor = value; }
+
+	void addFramesToCalculatePlaytime()  		{this->framesToCalculatePlaytime++; }
 
 };
 
