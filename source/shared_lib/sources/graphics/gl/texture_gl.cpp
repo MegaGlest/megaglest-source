@@ -96,6 +96,15 @@ static void setupGLExtensionMethods() {
 #endif
 }
 
+/* gets next power of two */
+int pot(int x) {
+	int val = 1;
+	while (val < x) {
+			val *= 2;
+	}
+	return val;
+}
+
 const uint64 MIN_BYTES_TO_COMPRESS = 12;
 
 static std::string getSupportCompressedTextureFormatString(int format) {
@@ -515,15 +524,6 @@ void TextureGl::setup_FBO_RBO() {
 		GLint height=0;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&height);
 
-		//RGBA8 2D texture, 24 bit depth texture, 256x256
-		//glGenTextures(1, &color_tex);
-		//glBindTexture(GL_TEXTURE_2D, color_tex);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		//NULL means reserve texture memory, but texels are undefined
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 		//-------------------------
 		glGenFramebuffersEXT(1, &frameBufferId);
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBufferId);
@@ -855,7 +855,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			if(error != GL_NO_ERROR) {
 				//throw runtime_error("Error building texture 2D mipmaps");
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error building texture 2D mipmaps, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH(),glCompressionFormat);
+				sprintf(szBuf,"Error building texture 2D mipmaps [%s], returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",this->path.c_str(),error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 
@@ -880,6 +880,19 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 				if(error2 == GL_NO_ERROR) {
 					error = GL_NO_ERROR;
 				}
+				else {
+					glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, pot(pixmap.getW()),
+							pot(pixmap.getH()), 0, glFormat, GL_UNSIGNED_BYTE, NULL);
+
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pixmap.getW(), pixmap.getH(),
+							glFormat, GL_UNSIGNED_BYTE, pixels);
+
+					GLint error3= glGetError();
+
+					if(error3 == GL_NO_ERROR) {
+						error = GL_NO_ERROR;
+					}
+				}
 			}
 			//
 
@@ -887,7 +900,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 
 			if(error != GL_NO_ERROR) {
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture 2D, returned: %d (%X) [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",error,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
+				sprintf(szBuf,"Error creating texture 2D [%s], returned: %d (%X) [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",this->path.c_str(),error,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -1124,6 +1137,19 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 
 					if(error2 == GL_NO_ERROR) {
 						error = GL_NO_ERROR;
+					}
+					else {
+						glTexImage2D(target, 0, glInternalFormat, pot(currentPixmap->getW()),
+								pot(currentPixmap->getH()), 0, glFormat, GL_UNSIGNED_BYTE, NULL);
+
+						glTexSubImage2D(target, 0, 0, 0, currentPixmap->getW(), currentPixmap->getH(),
+								glFormat, GL_UNSIGNED_BYTE, pixels);
+
+						GLint error3= glGetError();
+
+						if(error3 == GL_NO_ERROR) {
+							error = GL_NO_ERROR;
+						}
 					}
 				}
 				//
