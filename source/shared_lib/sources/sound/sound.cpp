@@ -26,6 +26,7 @@ SoundInfo::SoundInfo(){
 	samplesPerSecond= 0;
 	bitsPerSample= 0;
 	size= 0;
+	bitRate=0;
 }
 
 // =====================================================

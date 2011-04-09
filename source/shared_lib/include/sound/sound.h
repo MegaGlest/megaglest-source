@@ -31,6 +31,7 @@ private:
 	uint32 samplesPerSecond;
 	uint32 bitsPerSample;
 	uint32 size;
+	uint32 bitRate;
 
 public:
 	SoundInfo();
@@ -40,11 +41,13 @@ public:
 	uint32 getSamplesPerSecond() const	{return samplesPerSecond;}
 	uint32 getBitsPerSample() const		{return bitsPerSample;}
 	uint32 getSize() const				{return size;}
+	uint32 getBitRate() const			{return bitRate;}
 
 	void setChannels(uint32 channels)					{this->channels= channels;}
 	void setsamplesPerSecond(uint32 samplesPerSecond)	{this->samplesPerSecond= samplesPerSecond;}
 	void setBitsPerSample(uint32 bitsPerSample)			{this->bitsPerSample= bitsPerSample;}
 	void setSize(uint32 size)							{this->size= size;}
+	void setBitRate(uint32 value) 						{this->bitRate = value;}
 };
 
 // =====================================================
