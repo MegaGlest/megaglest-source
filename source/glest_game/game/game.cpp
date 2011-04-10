@@ -95,6 +95,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	renderNetworkStatus= false;
 	speed= sNormal;
 	showFullConsole= false;
+	cameraKeyboardDirection=camNone;
 
 	Object::setStateCallback(&gui);
 
@@ -1300,6 +1301,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		else {
 			//main window
 			//if(Window::isKeyDown() == false)
+			if(cameraKeyboardDirection == camNone)
 			{
 				if (y < 10) {
 					gameCamera.setMoveZ(-scrollSpeed);
@@ -1434,18 +1436,22 @@ void Game::keyDown(char key) {
 			//move camera left
 			else if(key == configKeys.getCharKey("CameraModeLeft")) {
 				gameCamera.setMoveX(-1);
+				cameraKeyboardDirection=camLeft;
 			}
 			//move camera right
 			else if(key == configKeys.getCharKey("CameraModeRight")) {
 				gameCamera.setMoveX(1);
+				cameraKeyboardDirection=camRight;
 			}
 			//move camera up
 			else if(key == configKeys.getCharKey("CameraModeUp")) {
 				gameCamera.setMoveZ(1);
+				cameraKeyboardDirection=camUp;
 			}
 			//move camera down
 			else if(key == configKeys.getCharKey("CameraModeDown")) {
 				gameCamera.setMoveZ(-1);
+				cameraKeyboardDirection=camDown;
 			}
 			//change camera mode
 			else if(key == configKeys.getCharKey("FreeCameraMode")) {
@@ -1568,13 +1574,22 @@ void Game::keyUp(char key){
 					key == configKeys.getCharKey("CameraRotateUp")) {
 				gameCamera.setMoveY(0);
 			}
-			else if(key == configKeys.getCharKey("CameraModeUp") ||
-					key == configKeys.getCharKey("CameraModeDown")) {
+			else if(key == configKeys.getCharKey("CameraModeUp") && cameraKeyboardDirection == camUp){
 				gameCamera.setMoveZ(0);
+				cameraKeyboardDirection= camNone;
 			}
-			else if(key == configKeys.getCharKey("CameraModeLeft") ||
-					key == configKeys.getCharKey("CameraModeRight")) {
+			else if(key == configKeys.getCharKey("CameraModeDown") && cameraKeyboardDirection == camDown){
+				gameCamera.setMoveZ(0);
+				cameraKeyboardDirection= camNone;
+			}
+
+			else if(key == configKeys.getCharKey("CameraModeLeft") && cameraKeyboardDirection == camLeft){
 				gameCamera.setMoveX(0);
+				cameraKeyboardDirection= camNone;
+			}
+			else if(key == configKeys.getCharKey("CameraModeRight") && cameraKeyboardDirection == camRight){
+				gameCamera.setMoveX(0);
+				cameraKeyboardDirection= camNone;
 			}
 		}
 	}

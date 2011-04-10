@@ -63,6 +63,14 @@ private:
 	typedef vector<Ai*> Ais;
 	typedef vector<AiInterface*> AiInterfaces;
 
+	enum CameraKeyboardDirection{
+		camNone,
+		camLeft,
+		camRight,
+		camUp,
+		camDown
+	};
+
 private:
 	//main data
 	World world;
@@ -88,6 +96,7 @@ private:
 	bool showFullConsole;
 	bool mouseMoved;
 	float scrollSpeed;
+	CameraKeyboardDirection cameraKeyboardDirection;
 	Speed speed;
 	GraphicMessageBox mainMessageBox;
 	GraphicMessageBox errorMessageBox;
