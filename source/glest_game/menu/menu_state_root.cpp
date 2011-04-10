@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2005 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -16,10 +16,8 @@
 #include "core_data.h"
 #include "config.h"
 #include "menu_state_new_game.h"
-#include "menu_state_join_game.h"
 #include "menu_state_options.h"
 #include "menu_state_about.h"
-#include "menu_state_masterserver.h"
 #include "menu_state_mods.h"
 #include "metrics.h"
 #include "network_manager.h"
@@ -56,18 +54,10 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	yPos-=55;
 	buttonNewGame.registerGraphicComponent(containerName,"buttonNewGame");
 	buttonNewGame.init(425, yPos, 150);
-	yPos-=40;
-	buttonJoinGame.registerGraphicComponent(containerName,"buttonJoinGame");
-    buttonJoinGame.init(425, yPos, 150);
     yPos-=40;
-    buttonMasterserverGame.registerGraphicComponent(containerName,"buttonMasterserverGame");
-    buttonMasterserverGame.init(425, yPos, 150);
-    yPos-=40;
-
     buttonMods.registerGraphicComponent(containerName,"buttonMods");
     buttonMods.init(425, yPos, 150);
     yPos-=40;
-
     buttonOptions.registerGraphicComponent(containerName,"buttonOptions");
     buttonOptions.init(425, yPos, 150);
     yPos-=40;
@@ -78,8 +68,6 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
     buttonExit.init(425, yPos, 150);
 
 	buttonNewGame.setText(lang.get("NewGame"));
-	buttonJoinGame.setText(lang.get("JoinGame"));
-	buttonMasterserverGame.setText(lang.get("JoinInternetGame"));
 	buttonMods.setText(lang.get("Mods"));
 	buttonOptions.setText(lang.get("Options"));
 	buttonAbout.setText(lang.get("About"));
@@ -101,14 +89,6 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 	if(buttonNewGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
-    }
-	else if(buttonJoinGame.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
-    }
-	else if(buttonMasterserverGame.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
     }
 	else if(buttonMods.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
@@ -146,8 +126,6 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 
 void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 	buttonNewGame.mouseMove(x, y);
-    buttonJoinGame.mouseMove(x, y);
-    buttonMasterserverGame.mouseMove(x, y);
     buttonMods.mouseMove(x, y);
     buttonOptions.mouseMove(x, y);
     buttonAbout.mouseMove(x, y);
@@ -190,8 +168,6 @@ void MenuStateRoot::render() {
 		currentX += extraLogo->getPixmap()->getW();
 	}
 	renderer.renderButton(&buttonNewGame);
-	renderer.renderButton(&buttonJoinGame);
-	renderer.renderButton(&buttonMasterserverGame);
 	renderer.renderButton(&buttonMods);
 	renderer.renderButton(&buttonOptions);
 	renderer.renderButton(&buttonAbout);

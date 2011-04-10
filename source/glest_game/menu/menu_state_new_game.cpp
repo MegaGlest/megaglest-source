@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2005 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -17,6 +17,8 @@
 #include "config.h"
 #include "menu_state_custom_game.h"
 #include "menu_state_scenario.h"
+#include "menu_state_join_game.h"
+#include "menu_state_masterserver.h"
 #include "menu_state_root.h"
 #include "metrics.h"
 #include "network_manager.h"
@@ -38,17 +40,30 @@ MenuStateNewGame::MenuStateNewGame(Program *program, MainMenu *mainMenu):
 	containerName = "NewGame";
 	Lang &lang= Lang::getInstance();
 
+	int yPos=385;
+
 	buttonCustomGame.registerGraphicComponent(containerName,"buttonCustomGame");
-	buttonCustomGame.init(425, 350, 150);
+	buttonCustomGame.init(425, yPos, 150);
+	yPos-=40;
 	buttonScenario.registerGraphicComponent(containerName,"buttonScenario");
-    buttonScenario.init(425, 310, 150);
+    buttonScenario.init(425, yPos, 150);
+    yPos-=40;
+    buttonMasterserverGame.registerGraphicComponent(containerName,"buttonMasterserverGame");
+    buttonMasterserverGame.init(425, yPos, 150);
+    yPos-=40;
+	buttonJoinGame.registerGraphicComponent(containerName,"buttonJoinGame");
+    buttonJoinGame.init(425, yPos, 150);
+	yPos-=40;
     buttonTutorial.registerGraphicComponent(containerName,"buttonTutorial");
-    buttonTutorial.init(425, 270, 150);
+    buttonTutorial.init(425, yPos, 150);
+    yPos-=40;
     buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-    buttonReturn.init(425, 230, 150);
+    buttonReturn.init(425, yPos, 150);
 
 	buttonCustomGame.setText(lang.get("CustomGame"));
 	buttonScenario.setText(lang.get("Scenario"));
+	buttonJoinGame.setText(lang.get("JoinGame"));
+	buttonMasterserverGame.setText(lang.get("JoinInternetGame"));
 	buttonTutorial.setText(lang.get("Tutorial"));
 	buttonReturn.setText(lang.get("Return"));
 
@@ -70,6 +85,14 @@ void MenuStateNewGame::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateScenario(program, mainMenu, Config::getInstance().getPathListForType(ptScenarios)));
     }
+	else if(buttonJoinGame.mouseClick(x, y)){
+		soundRenderer.playFx(coreData.getClickSoundB());
+		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
+    }
+	else if(buttonMasterserverGame.mouseClick(x, y)){
+		soundRenderer.playFx(coreData.getClickSoundB());
+		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
+    }
 	else if(buttonTutorial.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateScenario(program, mainMenu, Config::getInstance().getPathListForType(ptTutorials)));
@@ -83,6 +106,8 @@ void MenuStateNewGame::mouseClick(int x, int y, MouseButton mouseButton){
 void MenuStateNewGame::mouseMove(int x, int y, const MouseState *ms){
 	buttonCustomGame.mouseMove(x, y);
     buttonScenario.mouseMove(x, y);
+    buttonJoinGame.mouseMove(x, y);
+    buttonMasterserverGame.mouseMove(x, y);
     buttonTutorial.mouseMove(x, y);
     buttonReturn.mouseMove(x, y);
 }
@@ -92,6 +117,8 @@ void MenuStateNewGame::render(){
 
 	renderer.renderButton(&buttonCustomGame);
 	renderer.renderButton(&buttonScenario);
+	renderer.renderButton(&buttonJoinGame);
+	renderer.renderButton(&buttonMasterserverGame);
 	renderer.renderButton(&buttonTutorial);
 	renderer.renderButton(&buttonReturn);
 

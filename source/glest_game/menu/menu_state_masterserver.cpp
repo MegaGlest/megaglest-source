@@ -18,7 +18,7 @@
 #include "config.h"
 #include "menu_state_connected_game.h"
 #include "menu_state_custom_game.h"
-#include "menu_state_root.h"
+#include "menu_state_new_game.h"
 #include "metrics.h"
 #include "network_manager.h"
 #include "network_message.h"
@@ -414,7 +414,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }

@@ -16,7 +16,7 @@
 #include "sound_renderer.h"
 #include "core_data.h"
 #include "config.h"
-#include "menu_state_root.h"
+#include "menu_state_new_game.h"
 #include "metrics.h"
 #include "network_manager.h"
 #include "network_message.h"
@@ -241,7 +241,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 		    clientInterface->close();
 		}
 		abortAutoFind = true;
-		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
     }
 
 	//connect
