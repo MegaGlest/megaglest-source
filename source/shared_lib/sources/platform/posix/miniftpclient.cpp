@@ -993,7 +993,7 @@ void FTPClientThread::getFileFromServer(pair<string,string> fileName) {
 
 	bool findArchive = true;
 	string ext = extractExtension(fileName.first);
-	if(ext == "7z") {
+	if(("." + ext) == this->fileArchiveExtension) {
 		findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
 	}
 	if(findArchive == true) {
@@ -1038,7 +1038,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileInternalFromServer(p
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {
     	string ext = extractExtension(destFileSaveAs);
-    	if(ext == "7z") {
+    	if(("." + ext) == fileArchiveExtension) {
     		string destRootArchiveFolder = extractDirectoryPathFromFile(destFileSaveAs);
 			string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
 					this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
