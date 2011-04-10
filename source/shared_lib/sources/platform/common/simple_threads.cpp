@@ -66,7 +66,15 @@ void FileCRCPreCacheThread::execute() {
 				vector<string> techPaths;
 				findDirs(techDataPaths, techPaths);
 				if(techPaths.empty() == false) {
+					// Always calc megapack first so its up to date sooner
+					const string megapackTechtreeName = "megapack";
+					vector<string>::iterator iterFindMegaPack = std::find(techPaths.begin(),techPaths.end(),megapackTechtreeName);
+					if(iterFindMegaPack != techPaths.end()) {
+						techPaths.erase(iterFindMegaPack);
+						techPaths.insert(techPaths.begin(),megapackTechtreeName);
 
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Found megapack techtree and placing it at the TOP of the list\n",__FILE__,__FUNCTION__,__LINE__);
+					}
 					unsigned int techsPerWorker = (techPaths.size() / MAX_FileCRCPreCacheThread_WORKER_THREADS);
 					if(techPaths.size() % MAX_FileCRCPreCacheThread_WORKER_THREADS != 0) {
 						techsPerWorker++;
