@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
+//	Copyright (C) 2001-2005 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -26,8 +26,6 @@ class GraphicMessageBox;
 class MenuStateRoot: public MenuState{
 private:
 	GraphicButton buttonNewGame;
-	GraphicButton buttonJoinGame;
-	GraphicButton buttonMasterserverGame;
 	GraphicButton buttonMods;
 	GraphicButton buttonOptions;
 	GraphicButton buttonAbout;
