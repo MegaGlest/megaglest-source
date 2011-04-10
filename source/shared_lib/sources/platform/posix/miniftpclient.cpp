@@ -204,7 +204,9 @@ int file_progress(struct FtpFile *out,double download_total, double download_now
          stats.currentFilename  = out->currentFilename;
          stats.downloadType		= out->downloadType;
 
-         MutexSafeWrapper safeMutex(out->ftpServer->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+         static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+         MutexSafeWrapper safeMutex(out->ftpServer->getProgressMutex(),mutexOwnerId);
+         out->ftpServer->getProgressMutex()->setOwnerId(mutexOwnerId);
          out->ftpServer->getCallBackObject()->FTPClient_CallbackEvent(out->itemName, ftp_cct_DownloadProgress, make_pair(ftp_crt_SUCCESS,""), &stats);
   }
 
@@ -368,7 +370,9 @@ void FTPClientThread::getMapFromServer(pair<string,string> mapFileName) {
 		}
 	}
 
-    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+    this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
         this->pCBObject->FTPClient_CallbackEvent(mapFileName.first,ftp_cct_Map,result,NULL);
     }
@@ -376,7 +380,9 @@ void FTPClientThread::getMapFromServer(pair<string,string> mapFileName) {
 
 void FTPClientThread::addMapToRequests(string mapFilename,string URL) {
 	std::pair<string,string> item = make_pair(mapFilename,URL);
-    MutexSafeWrapper safeMutex(&mutexMapFileList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexMapFileList,mutexOwnerId);
+    mutexMapFileList.setOwnerId(mutexOwnerId);
     if(std::find(mapFileList.begin(),mapFileList.end(),item) == mapFileList.end()) {
         mapFileList.push_back(item);
     }
@@ -384,7 +390,9 @@ void FTPClientThread::addMapToRequests(string mapFilename,string URL) {
 
 void FTPClientThread::addTilesetToRequests(string tileSetName,string URL) {
 	std::pair<string,string> item = make_pair(tileSetName,URL);
-    MutexSafeWrapper safeMutex(&mutexTilesetList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexTilesetList,mutexOwnerId);
+    mutexTilesetList.setOwnerId(mutexOwnerId);
     if(std::find(tilesetList.begin(),tilesetList.end(),item) == tilesetList.end()) {
         tilesetList.push_back(item);
     }
@@ -392,7 +400,9 @@ void FTPClientThread::addTilesetToRequests(string tileSetName,string URL) {
 
 void FTPClientThread::addTechtreeToRequests(string techtreeName,string URL) {
 	std::pair<string,string> item = make_pair(techtreeName,URL);
-    MutexSafeWrapper safeMutex(&mutexTechtreeList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexTechtreeList,mutexOwnerId);
+    mutexTechtreeList.setOwnerId(mutexOwnerId);
     if(std::find(techtreeList.begin(),techtreeList.end(),item) == techtreeList.end()) {
     	techtreeList.push_back(item);
     }
@@ -400,7 +410,9 @@ void FTPClientThread::addTechtreeToRequests(string techtreeName,string URL) {
 
 void FTPClientThread::addScenarioToRequests(string fileName,string URL) {
 	std::pair<string,string> item = make_pair(fileName,URL);
-    MutexSafeWrapper safeMutex(&mutexScenarioList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexScenarioList,mutexOwnerId);
+    mutexScenarioList.setOwnerId(mutexOwnerId);
     if(std::find(scenarioList.begin(),scenarioList.end(),item) == scenarioList.end()) {
     	scenarioList.push_back(item);
     }
@@ -408,7 +420,9 @@ void FTPClientThread::addScenarioToRequests(string fileName,string URL) {
 
 void FTPClientThread::addFileToRequests(string fileName,string URL) {
 	std::pair<string,string> item = make_pair(fileName,URL);
-    MutexSafeWrapper safeMutex(&mutexFileList,string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexFileList,mutexOwnerId);
+    mutexFileList.setOwnerId(mutexOwnerId);
     if(std::find(fileList.begin(),fileList.end(),item) == fileList.end()) {
     	fileList.push_back(item);
     }
@@ -437,7 +451,9 @@ void FTPClientThread::getTilesetFromServer(pair<string,string> tileSetName) {
 		}
 	}
 
-    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+    this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
         this->pCBObject->FTPClient_CallbackEvent(tileSetName.first,ftp_cct_Tileset,result,NULL);
     }
@@ -745,7 +761,9 @@ void FTPClientThread::getTechtreeFromServer(pair<string,string> techtreeName) {
 		}
 	}
 
-    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+    this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
         this->pCBObject->FTPClient_CallbackEvent(techtreeName.first,ftp_cct_Techtree,result,NULL);
     }
@@ -924,7 +942,9 @@ void FTPClientThread::getScenarioFromServer(pair<string,string> fileName) {
 		result = getScenarioInternalFromServer(fileName);
 	}
 
-    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+    this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
         this->pCBObject->FTPClient_CallbackEvent(fileName.first,ftp_cct_Scenario,result,NULL);
     }
@@ -980,7 +1000,9 @@ void FTPClientThread::getFileFromServer(pair<string,string> fileName) {
 		result = getFileInternalFromServer(fileName);
 	}
 
-    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+    this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
         this->pCBObject->FTPClient_CallbackEvent(fileName.first,ftp_cct_File,result,NULL);
     }
@@ -1169,12 +1191,16 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
 
 
 FTPClientCallbackInterface * FTPClientThread::getCallBackObject() {
-    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+    this->getProgressMutex()->setOwnerId(mutexOwnerId);
     return pCBObject;
 }
 
 void FTPClientThread::setCallBackObject(FTPClientCallbackInterface *value) {
-    MutexSafeWrapper safeMutex(this->getProgressMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+    this->getProgressMutex()->setOwnerId(mutexOwnerId);
     pCBObject = value;
 }
 
@@ -1192,7 +1218,9 @@ void FTPClientThread::execute() {
 
         try	{
             while(this->getQuitStatus() == false) {
-                MutexSafeWrapper safeMutex(&mutexMapFileList,string(__FILE__) + "_" + intToStr(__LINE__));
+            	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+                MutexSafeWrapper safeMutex(&mutexMapFileList,mutexOwnerId);
+                mutexMapFileList.setOwnerId(mutexOwnerId);
                 if(mapFileList.size() > 0) {
                     pair<string,string> mapFilename = mapFileList[0];
                     mapFileList.erase(mapFileList.begin() + 0);
@@ -1208,7 +1236,9 @@ void FTPClientThread::execute() {
                     break;
                 }
 
-                MutexSafeWrapper safeMutex2(&mutexTilesetList,string(__FILE__) + "_" + intToStr(__LINE__));
+                static string mutexOwnerId2 = string(__FILE__) + string("_") + intToStr(__LINE__);
+                MutexSafeWrapper safeMutex2(&mutexTilesetList,mutexOwnerId2);
+                mutexTilesetList.setOwnerId(mutexOwnerId2);
                 if(tilesetList.size() > 0) {
                 	pair<string,string> tileset = tilesetList[0];
                     tilesetList.erase(tilesetList.begin() + 0);
@@ -1220,7 +1250,9 @@ void FTPClientThread::execute() {
                     safeMutex2.ReleaseLock();
                 }
 
-                MutexSafeWrapper safeMutex3(&mutexTechtreeList,string(__FILE__) + "_" + intToStr(__LINE__));
+                static string mutexOwnerId3 = string(__FILE__) + string("_") + intToStr(__LINE__);
+                MutexSafeWrapper safeMutex3(&mutexTechtreeList,mutexOwnerId3);
+                mutexTechtreeList.setOwnerId(mutexOwnerId3);
                 if(techtreeList.size() > 0) {
                 	pair<string,string> techtree = techtreeList[0];
                     techtreeList.erase(techtreeList.begin() + 0);
@@ -1232,7 +1264,9 @@ void FTPClientThread::execute() {
                     safeMutex3.ReleaseLock();
                 }
 
-                MutexSafeWrapper safeMutex4(&mutexScenarioList,string(__FILE__) + "_" + intToStr(__LINE__));
+                static string mutexOwnerId4 = string(__FILE__) + string("_") + intToStr(__LINE__);
+                MutexSafeWrapper safeMutex4(&mutexScenarioList,mutexOwnerId4);
+                mutexScenarioList.setOwnerId(mutexOwnerId4);
                 if(scenarioList.size() > 0) {
                 	pair<string,string> file = scenarioList[0];
                 	scenarioList.erase(scenarioList.begin() + 0);
@@ -1244,7 +1278,9 @@ void FTPClientThread::execute() {
                     safeMutex4.ReleaseLock();
                 }
 
-                MutexSafeWrapper safeMutex5(&mutexFileList,string(__FILE__) + "_" + intToStr(__LINE__));
+                static string mutexOwnerId5 = string(__FILE__) + string("_") + intToStr(__LINE__);
+                MutexSafeWrapper safeMutex5(&mutexFileList,mutexOwnerId5);
+                mutexFileList.setOwnerId(mutexOwnerId5);
                 if(fileList.size() > 0) {
                 	pair<string,string> file = fileList[0];
                 	fileList.erase(fileList.begin() + 0);
@@ -1279,6 +1315,7 @@ void FTPClientThread::execute() {
     // Delete ourself when the thread is done (no other actions can happen after this
     // such as the mutex which modifies the running status of this method
 	//delete this;
+    deleteSelfIfRequired();
 }
 
 }}//end namespace

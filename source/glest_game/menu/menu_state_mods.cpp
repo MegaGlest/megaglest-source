@@ -265,12 +265,14 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid(),mutexOwnerId);
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
         return;
     }
 
+    callingThread->getMutexThreadOwnerValid()->setOwnerId(mutexOwnerId);
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     Lang &lang= Lang::getInstance();
@@ -854,8 +856,6 @@ void MenuStateMods::refreshScenarios() {
 
 
 void MenuStateMods::cleanUp() {
-	clearUserButtons();
-
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(modHttpServerThread != NULL) {
@@ -877,15 +877,24 @@ void MenuStateMods::cleanUp() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(ftpClientThread != NULL) {
+	    ftpClientThread->signalQuit();
 	    ftpClientThread->setCallBackObject(NULL);
-	    if(ftpClientThread->shutdownAndWait() == true) {
+	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	    if( ftpClientThread->shutdownAndWait() == true) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
             delete ftpClientThread;
-            ftpClientThread = NULL;
 	    }
+	    ftpClientThread = NULL;
 	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	clearUserButtons();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	cleanupPreviewTexture();
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 MenuStateMods::~MenuStateMods() {
@@ -902,6 +911,8 @@ void MenuStateMods::clearUserButtons() {
 		delete keyTechButtons.back();
 		keyTechButtons.pop_back();
 	}
+	keyTechScrollBar.setElementCount(0);
+
 	while(!labelsTech.empty()) {
 		delete labelsTech.back();
 		labelsTech.pop_back();
@@ -912,6 +923,7 @@ void MenuStateMods::clearUserButtons() {
 		delete keyTilesetButtons.back();
 		keyTilesetButtons.pop_back();
 	}
+	keyTilesetScrollBar.setElementCount(0);
 
 	// Maps
 	while(!keyMapButtons.empty()) {
@@ -922,12 +934,14 @@ void MenuStateMods::clearUserButtons() {
 		delete labelsMap.back();
 		labelsMap.pop_back();
 	}
+	keyMapScrollBar.setElementCount(0);
 
 	// Scenarios
 	while(!keyScenarioButtons.empty()) {
 		delete keyScenarioButtons.back();
 		keyScenarioButtons.pop_back();
 	}
+	keyScenarioScrollBar.setElementCount(0);
 }
 
 void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
@@ -1004,8 +1018,10 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 				    	if(getItemAfterRemoval == true) {
 							string mapName = selectedMapName;
 							string mapURL = mapCacheList[mapName].url;
-							ftpClientThread->addMapToRequests(mapName,mapURL);
-							MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+							if(ftpClientThread != NULL) ftpClientThread->addMapToRequests(mapName,mapURL);
+							static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+							MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+							if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 							fileFTPProgressList[mapName] = pair<int,string>(0,"");
 							safeMutexFTPProgress.ReleaseLock();
 							buttonInstallMap.setEnabled(false);
@@ -1029,6 +1045,8 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 			    		bool remoteHasTileset = (tilesetCacheList.find(selectedTilesetName) != tilesetCacheList.end());
 			    		if(remoteHasTileset == false) {
+			    			//printf("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ remote DOES NOT have removed tileset [%s]\n\n\n",selectedTilesetName.c_str());
+
 							for(unsigned int i = 0; i < keyTilesetButtons.size(); ++i) {
 								GraphicButton *button = keyTilesetButtons[i];
 								if(button != NULL && button->getText() == selectedTilesetName) {
@@ -1039,8 +1057,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 								}
 							}
 			    		}
-			    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-			            safeMutexFTPProgress.Lock();
+			    		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+			    		if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 			            Checksum::clearFileCache();
 			            vector<string> paths        = Config::getInstance().getPathListForType(ptTilesets);
 			            string pathSearchString     = string("/") + selectedTilesetName + string("/*");
@@ -1058,13 +1077,15 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			    	if(getItemAfterRemoval == true) {
 						string tilesetName = selectedTilesetName;
 						string tilesetURL = tilesetCacheList[tilesetName].url;
-						ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
-						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+						if(ftpClientThread != NULL) ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
+
+						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+						if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 						fileFTPProgressList[tilesetName] = pair<int,string>(0,"");
 						safeMutexFTPProgress.ReleaseLock();
 						buttonInstallTileset.setEnabled(false);
 			    	}
-
 			    }
 			    else if(mainMessageBoxState == ftpmsg_GetTechtree ||
 			    		mainMessageBoxState == ftpmsg_ReplaceTechtree) {
@@ -1095,9 +1116,10 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 							}
 			    		}
 
-			    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			    		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+			    		if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 			            // Clear the CRC file Cache
-			            safeMutexFTPProgress.Lock();
 			            Checksum::clearFileCache();
 			            vector<string> paths        = Config::getInstance().getPathListForType(ptTechs);
 			            string pathSearchString     = string("/") + selectedTechName + string("/*");
@@ -1115,8 +1137,11 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			    	if(getItemAfterRemoval == true) {
 						string techName = selectedTechName;
 						string techURL = techCacheList[techName].url;
-						ftpClientThread->addTechtreeToRequests(techName,techURL);
-						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+						if(ftpClientThread != NULL) ftpClientThread->addTechtreeToRequests(techName,techURL);
+
+						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+						if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 						fileFTPProgressList[techName] = pair<int,string>(0,"");
 						safeMutexFTPProgress.ReleaseLock();
 						buttonInstallTech.setEnabled(false);
@@ -1149,8 +1174,10 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 								}
 							}
 			    		}
-			    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-			            safeMutexFTPProgress.Lock();
+
+			    		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+			    		if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 			            Checksum::clearFileCache();
 			            vector<string> paths        = Config::getInstance().getPathListForType(ptScenarios);
 			            string pathSearchString     = string("/") + selectedScenarioName + string("/*");
@@ -1168,8 +1195,11 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			    	if(getItemAfterRemoval == true) {
 						string scenarioName = selectedScenarioName;
 						string scenarioURL = scenarioCacheList[scenarioName].url;
-						ftpClientThread->addScenarioToRequests(scenarioName,scenarioURL);
-						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+						if(ftpClientThread != NULL) ftpClientThread->addScenarioToRequests(scenarioName,scenarioURL);
+
+						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+						MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+						if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 						fileFTPProgressList[scenarioName] = pair<int,string>(0,"");
 						safeMutexFTPProgress.ReleaseLock();
 						buttonInstallScenario.setEnabled(false);
@@ -1234,8 +1264,11 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			else {
 				string techName = selectedTechName;
 				string techURL = techCacheList[techName].url;
-				ftpClientThread->addTechtreeToRequests(techName,techURL);
-				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				if(ftpClientThread != NULL) ftpClientThread->addTechtreeToRequests(techName,techURL);
+
+				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+				if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 				fileFTPProgressList[techName] = pair<int,string>(0,"");
 				safeMutexFTPProgress.ReleaseLock();
 				buttonInstallTech.setEnabled(false);
@@ -1308,8 +1341,11 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			else {
 				string tilesetName = selectedTilesetName;
 				string tilesetURL = tilesetCacheList[tilesetName].url;
-				ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
-				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				if(ftpClientThread != NULL) ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
+
+				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+				if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 				fileFTPProgressList[tilesetName] = pair<int,string>(0,"");
 				safeMutexFTPProgress.ReleaseLock();
 				buttonInstallTileset.setEnabled(false);
@@ -1382,8 +1418,11 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			else {
 				string mapName = selectedMapName;
 				string mapURL = mapCacheList[mapName].url;
-				ftpClientThread->addMapToRequests(mapName,mapURL);
-				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				if(ftpClientThread != NULL) ftpClientThread->addMapToRequests(mapName,mapURL);
+
+				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+				if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 				fileFTPProgressList[mapName] = pair<int,string>(0,"");
 				safeMutexFTPProgress.ReleaseLock();
 				buttonInstallMap.setEnabled(false);
@@ -1457,8 +1496,11 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 				string scenarioURL = scenarioCacheList[scenarioName].url;
 
 				//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] adding file to download [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioURL.c_str());
-				ftpClientThread->addScenarioToRequests(scenarioName,scenarioURL);
-				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				if(ftpClientThread != NULL) ftpClientThread->addScenarioToRequests(scenarioName,scenarioURL);
+
+				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+				if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 				fileFTPProgressList[scenarioName] = pair<int,string>(0,"");
 				safeMutexFTPProgress.ReleaseLock();
 				buttonInstallScenario.setEnabled(false);
@@ -1615,7 +1657,7 @@ void MenuStateMods::showDesription(const ModInfo *modInfo) {
 		cleanupPreviewTexture();
 	    string tempImage  = getPreviewImageFileForMod(modInfo);
 	    if(tempImage != "" && fileExists(tempImage) == false) {
-	    	ftpClientThread->addFileToRequests(tempImage,modInfo->imageUrl);
+	    	if(ftpClientThread != NULL) ftpClientThread->addFileToRequests(tempImage,modInfo->imageUrl);
 	    }
 	    else {
 	    	displayModPreviewImage = true;
@@ -1821,7 +1863,9 @@ void MenuStateMods::render() {
 		}
 		renderer.renderScrollBar(&keyScenarioScrollBar);
 
-        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+		if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
         if(fileFTPProgressList.size() > 0) {
         	Lang &lang= Lang::getInstance();
             int yLocation = buttonReturn.getY();
@@ -1978,7 +2022,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
             }
             //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
 
-            MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+            static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+            MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+            if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
             pair<int,string> lastProgress = fileFTPProgressList[itemName];
             fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
             safeMutexFTPProgress.ReleaseLock();
@@ -1987,7 +2033,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
     else if(type == ftp_cct_File) {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
-        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+        static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+        if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock();
 
@@ -2008,7 +2056,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
     else if(type == ftp_cct_Map) {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
-        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+        static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+        if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock();
         selectedMapName = "";
@@ -2039,7 +2089,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
     else if(type == ftp_cct_Tileset) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
-        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+    	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    	MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+    	if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock(true);
 
@@ -2084,7 +2136,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
     else if(type == ftp_cct_Techtree) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
-        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+    	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    	MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+    	if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock(true);
 
@@ -2127,7 +2181,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
     else if(type == ftp_cct_Scenario) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
-        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+    	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+        if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock(true);
 
