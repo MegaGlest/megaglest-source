@@ -4,7 +4,7 @@
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
 !define APVER_OLD 3.4.0
-!define APVER 3.5.0-beta1
+!define APVER 3.5.0-beta2
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
@@ -163,6 +163,16 @@ Section "${APNAME} (required)"
 #  File "..\..\..\data\glest_game\dsound.dll"
   File "..\..\..\data\glest_game\openal32.dll"
   File "..\..\..\data\glest_game\xerces-c_3_0.dll"
+  
+  SetOutPath "$INSTDIR\blender\"
+  File "..\..\..\data\glest_game\xml2g.exe"
+  File "..\..\..\data\glest_game\g2xml.exe"
+  File "..\..\..\source\tools\glexemel\g3d_support.py"
+  File "..\..\..\source\tools\glexemel\g3d_xml_exporter.py"
+  File "..\..\..\source\tools\glexemel\g3d.dtd"
+  File "..\..\..\source\tools\glexemel\g3d_logo.png"
+  SetOutPath $INSTDIR
+
   File /r /x .svn /x mydata "..\..\..\data\glest_game\data"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
@@ -174,7 +184,7 @@ Section "${APNAME} (required)"
   SetOutPath "$INSTDIR\data\core\misc_textures\"
   File /r /x .svn /x mydata "..\..\..\source\masterserver\flags"
   SetOutPath $INSTDIR
-  
+
   ; Write the installation path into the registry
   WriteRegStr HKLM Software\${APNAME} "Install_Dir" "$INSTDIR"
   WriteRegStr HKLM Software\${APNAME} "Version" "${APVER}"
@@ -194,6 +204,7 @@ Section "${APNAME} (required)"
   CreateDirectory $INSTDIR\tilesets
   CreateDirectory $INSTDIR\tutorials
   CreateDirectory $INSTDIR\screens
+  CreateDirectory $INSTDIR\blender
 
   AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
 
