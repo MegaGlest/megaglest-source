@@ -13,7 +13,7 @@ if [ $pth ]; then
 else
 	GAMEDIR="`dirname $0`"
 fi
-
+ 
 # Change to the game dir, and go!
 cd $GAMEDIR
 # export game library directory
