@@ -13,6 +13,7 @@ megaglest_project_root=../../../../../
 megaglest_data_path=${megaglest_project_root}${megaglest_release_folder}/data/glest_game/
 megaglest_linux_path=${megaglest_project_root}${megaglest_release_folder}/mk/linux/
 megaglest_linux_masterserverpath=${megaglest_project_root}${megaglest_release_folder}/source/masterserver/
+megaglest_linux_toolspath=${megaglest_project_root}${megaglest_release_folder}/source/tools/
 
 # Below is the name of the archive to create and tack onto the installer.
 # *NOTE: The filename's extension is of critical importance as the installer
@@ -134,6 +135,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	rm -rf data
 	mkdir data
 	mkdir data/bin
+	mkdir data/blender
 
 	INSTALL_ROOTDIR="`pwd`/"
 	INSTALLDATADIR="${INSTALL_ROOTDIR}data/"
@@ -156,6 +158,19 @@ if [ $REPACKONLY -eq 0 ]; then
 	find megaglest_g3dviewer -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
 	find servers.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find makedeps_folder.sh -exec cp -p --parents "{}" $INSTALL_ROOTDIR ';'
+
+	popd
+
+	# Now copy all blender related files
+	echo Copying blender modelling Mega Glest files...
+
+	pushd "`pwd`/${megaglest_linux_toolspath}glexemel/"
+
+	find xml2g -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	find g2xml -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+        find "*.py" -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	find "*.dtd" -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	find "*.png" -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
 
 	popd
 
