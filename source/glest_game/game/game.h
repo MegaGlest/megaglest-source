@@ -63,14 +63,6 @@ private:
 	typedef vector<Ai*> Ais;
 	typedef vector<AiInterface*> AiInterfaces;
 
-	enum CameraKeyboardDirection{
-		camNone,
-		camLeft,
-		camRight,
-		camUp,
-		camDown
-	};
-
 private:
 	//main data
 	World world;
@@ -96,7 +88,11 @@ private:
 	bool showFullConsole;
 	bool mouseMoved;
 	float scrollSpeed;
-	CameraKeyboardDirection cameraKeyboardDirection;
+	bool camLeftButtonDown;
+	bool camRightButtonDown;
+	bool camUpButtonDown;
+	bool camDownButtonDown;
+
 	Speed speed;
 	GraphicMessageBox mainMessageBox;
 	GraphicMessageBox errorMessageBox;
@@ -216,6 +212,8 @@ private:
 	static int ErrorDisplayMessage(const char *msg, bool exitApp);
 
 	void ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role);
+	void calcCameraMoveX();
+	void calcCameraMoveZ();
 };
 
 }}//end namespace
