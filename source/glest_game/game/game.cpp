@@ -95,7 +95,11 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	renderNetworkStatus= false;
 	speed= sNormal;
 	showFullConsole= false;
-	cameraKeyboardDirection=camNone;
+
+	 camLeftButtonDown=false;
+	 camRightButtonDown=false;
+	 camUpButtonDown=false;
+	 camDownButtonDown=false;
 
 	Object::setStateCallback(&gui);
 
@@ -1301,7 +1305,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		else {
 			//main window
 			//if(Window::isKeyDown() == false)
-			if(cameraKeyboardDirection == camNone)
+			if(!camLeftButtonDown && !camRightButtonDown && !camUpButtonDown && !camDownButtonDown)
 			{
 				if (y < 10) {
 					gameCamera.setMoveZ(-scrollSpeed);
@@ -1436,22 +1440,22 @@ void Game::keyDown(char key) {
 			//move camera left
 			else if(key == configKeys.getCharKey("CameraModeLeft")) {
 				gameCamera.setMoveX(-1);
-				cameraKeyboardDirection=camLeft;
+				camLeftButtonDown=true;
 			}
 			//move camera right
 			else if(key == configKeys.getCharKey("CameraModeRight")) {
 				gameCamera.setMoveX(1);
-				cameraKeyboardDirection=camRight;
+				camRightButtonDown=true;
 			}
 			//move camera up
 			else if(key == configKeys.getCharKey("CameraModeUp")) {
 				gameCamera.setMoveZ(1);
-				cameraKeyboardDirection=camUp;
+				camUpButtonDown=true;
 			}
 			//move camera down
 			else if(key == configKeys.getCharKey("CameraModeDown")) {
 				gameCamera.setMoveZ(-1);
-				cameraKeyboardDirection=camDown;
+				camDownButtonDown=true;
 			}
 			//change camera mode
 			else if(key == configKeys.getCharKey("FreeCameraMode")) {
@@ -1574,22 +1578,26 @@ void Game::keyUp(char key){
 					key == configKeys.getCharKey("CameraRotateUp")) {
 				gameCamera.setMoveY(0);
 			}
-			else if(key == configKeys.getCharKey("CameraModeUp") && cameraKeyboardDirection == camUp){
+			else if(key == configKeys.getCharKey("CameraModeUp")){
 				gameCamera.setMoveZ(0);
-				cameraKeyboardDirection= camNone;
+				camUpButtonDown= false;
+				calcCameraMoveZ();
 			}
-			else if(key == configKeys.getCharKey("CameraModeDown") && cameraKeyboardDirection == camDown){
+			else if(key == configKeys.getCharKey("CameraModeDown")){
 				gameCamera.setMoveZ(0);
-				cameraKeyboardDirection= camNone;
+				camDownButtonDown= false;
+				calcCameraMoveZ();
 			}
 
-			else if(key == configKeys.getCharKey("CameraModeLeft") && cameraKeyboardDirection == camLeft){
+			else if(key == configKeys.getCharKey("CameraModeLeft")){
 				gameCamera.setMoveX(0);
-				cameraKeyboardDirection= camNone;
+				camLeftButtonDown= false;
+				calcCameraMoveX();
 			}
-			else if(key == configKeys.getCharKey("CameraModeRight") && cameraKeyboardDirection == camRight){
+			else if(key == configKeys.getCharKey("CameraModeRight")){
 				gameCamera.setMoveX(0);
-				cameraKeyboardDirection= camNone;
+				camRightButtonDown= false;
+				calcCameraMoveX();
 			}
 		}
 	}
@@ -1602,6 +1610,28 @@ void Game::keyUp(char key){
 		}
 		ErrorDisplayMessage(ex.what(),true);
 	}
+}
+
+void Game::calcCameraMoveX(){
+	//move camera left
+	if(camLeftButtonDown == true){
+		gameCamera.setMoveX(-1);
+	}
+	//move camera right
+	else if(camRightButtonDown == true){
+		gameCamera.setMoveX(1);
+	}
+}
+void Game::calcCameraMoveZ(){
+	//move camera up
+	if(camUpButtonDown == true){
+		gameCamera.setMoveZ(1);
+	}
+	//move camera down
+	else if(camDownButtonDown == true){
+		gameCamera.setMoveZ(-1);
+	}
+
 }
 
 void Game::keyPress(char c){
