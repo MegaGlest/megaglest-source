@@ -20,4 +20,3 @@ cd $GAMEDIR
 test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
 
 ./bin/megaglest_configurator
-
