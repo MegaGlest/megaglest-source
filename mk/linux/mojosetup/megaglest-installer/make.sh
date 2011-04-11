@@ -168,9 +168,9 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	find xml2g -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
 	find g2xml -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
-        find "*.py" -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
-	find "*.dtd" -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
-	find "*.png" -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+        find \( -name "*.py" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	find \( -name "*.dtd" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	find \( -name "*.png" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
 
 	popd
 
