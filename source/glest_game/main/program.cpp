@@ -227,7 +227,7 @@ void Program::mouseDownLeft(int x, int y) {
 	if(msgBox.getEnabled()) {
 		int button= 1;
 		if(msgBox.mouseClick(x, y, button)) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//close message box
 			msgBox.setEnabled(false);
 		}
@@ -255,7 +255,7 @@ void Program::loopWorker() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chronoLoop.start();
 
 	Chrono chrono;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled || SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	//render
     assert(programState != NULL);
@@ -282,7 +282,7 @@ void Program::loopWorker() {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//update camera
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled || SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) chrono.start();
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 	while(updateCameraTimer.isTime()){
 		programState->updateCamera();
 	}
@@ -291,7 +291,7 @@ void Program::loopWorker() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//update world
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled || SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 	int updateCount = 0;
 	while(prevState == this->programState && updateTimer.isTime()) {
 		Chrono chronoUpdateLoop;
@@ -322,7 +322,6 @@ void Program::loopWorker() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d AFTER programState->update took msecs: %lld ==============> MAIN LOOP BODY LOGIC, updateCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),updateCount);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	if(prevState == this->programState) {
@@ -335,7 +334,7 @@ void Program::loopWorker() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d programState->render took msecs: %lld ==============> MAIN LOOP TICKING\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	}

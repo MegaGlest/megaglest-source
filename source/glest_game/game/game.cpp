@@ -1287,14 +1287,14 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 				float ymult = 0.2f;
 				float xmult = 0.2f;
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
 				mouseX=lastMousePos.x;
 				mouseY=lastMousePos.y;
 				Window::revertMousePos();
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				return;
 			}
 		}
@@ -1364,7 +1364,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 
 void Game::eventMouseWheel(int x, int y, int zDelta) {
 	try {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//gameCamera.transitionXYZ(0.0f, -(float)zDelta / 30.0f, 0.0f);
 		gameCamera.zoom((float)zDelta / 60.0f);
 		//gameCamera.setMoveY(1);
