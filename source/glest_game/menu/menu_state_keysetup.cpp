@@ -46,6 +46,16 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 		labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTitle.setText(lang.get("Keyboardsetup"));
 
+		labelTestTitle.registerGraphicComponent(containerName,"labelTestTitle");
+		labelTestTitle.init(50,700);
+		labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
+		labelTestTitle.setText(lang.get("KeyboardsetupTest"));
+
+		labelTestValue.registerGraphicComponent(containerName,"labelTestValue");
+		labelTestValue.init(50,670);
+		labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
+		labelTestValue.setText("");
+
 		// mainMassegeBox
 		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 		mainMessageBox.init(lang.get("Ok"));
@@ -273,6 +283,8 @@ void MenuStateKeysetup::render(){
 		renderer.renderButton(&buttonDefaults);
 		renderer.renderButton(&buttonOk);
 		renderer.renderLabel(&labelTitle);
+		renderer.renderLabel(&labelTestTitle);
+		renderer.renderLabel(&labelTestValue);
 
 		if(keyScrollBar.getElementCount()!=0 ) {
 			for(int i = keyScrollBar.getVisibleStart(); i <= keyScrollBar.getVisibleEnd(); ++i) {
@@ -322,6 +334,36 @@ void MenuStateKeysetup::showMessageBox(const string &text, const string &header,
 
 void MenuStateKeysetup::keyDown(char key) {
 	hotkeyChar = key;
+
+	string keyName = "";
+	if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDLK_LAST) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key);
+		keyName = SDL_GetKeyName(static_cast<SDLKey>(hotkeyChar));
+	}
+	//key = hotkeyChar;
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key);
+
+	SDLKey keysym = SDLK_UNKNOWN;
+	if(keyName == "unknown key" || keyName == "") {
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keysym [%d]\n",__FILE__,__FUNCTION__,__LINE__,keysym);
+
+		// SDL skips capital letters
+		if(keysym >= 65 && keysym <= 90) {
+			keysym = (SDLKey)((int)keysym + 32);
+		}
+		//if(keysym < 255) {
+		//	key = keysym;
+		//}
+		keyName = SDL_GetKeyName(keysym);
+	}
+
+	char szBuf[1024] = "";
+	sprintf(szBuf,"%s [%d][%d]",keyName.c_str(),key,keysym);
+	labelTestValue.setText(szBuf);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] hotkeyChar [%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar);
 }
