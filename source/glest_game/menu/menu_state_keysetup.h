@@ -53,6 +53,9 @@ private:
 	int hotkeyIndex;
 	char hotkeyChar;
 
+	GraphicLabel labelTestTitle;
+	GraphicLabel labelTestValue;
+
 public:
 	MenuStateKeysetup(Program *program, MainMenu *mainMenu);
 	virtual ~MenuStateKeysetup();
