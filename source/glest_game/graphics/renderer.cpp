@@ -1717,10 +1717,56 @@ void Renderer::renderListBox(const GraphicListBox *listBox) {
 	glEnable(GL_BLEND);
 
 	GraphicLabel label;
-	label.init(listBox->getX(), listBox->getY(), listBox->getW(), listBox->getH(), true);
+	label.init(listBox->getX(), listBox->getY(), listBox->getW(), listBox->getH(), true,listBox->getTextColor());
 	label.setText(listBox->getText());
 	label.setFont(listBox->getFont());
 	renderLabel(&label);
+
+
+	//lighting
+
+		bool renderLighted= (listBox->getLighted());
+
+
+		if(renderLighted) {
+			float anim= GraphicComponent::getAnim();
+			if(anim>0.5f) anim= 1.f-anim;
+
+			Vec3f color=listBox->getTextColor();
+		    int x= listBox->getX()+listBox->getButton1()->getW();
+		    int y= listBox->getY();
+		    int h= listBox->getH();
+		    int w= listBox->getW()-listBox->getButton1()->getW()-listBox->getButton2()->getW();
+
+			const int lightSize= 0;
+			const Vec4f color1= Vec4f(color.x, color.y, color.z, 0.1f+anim*0.5f);
+			const Vec4f color2= Vec4f(color.x, color.y, color.z, 0.3f+anim);
+
+			glBegin(GL_TRIANGLE_FAN);
+
+			glColor4fv(color2.ptr());
+			glVertex2f(x+w/2, y+h/2);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x-lightSize, y-lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x+w+lightSize, y-lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x+w+lightSize, y+h+lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x+w+lightSize, y+h+lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x-lightSize, y+h+lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x-lightSize, y-lightSize);
+
+			glEnd();
+		}
 
 	glPopAttrib();
 }

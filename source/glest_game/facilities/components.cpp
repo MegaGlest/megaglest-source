@@ -290,14 +290,16 @@ bool GraphicButton::mouseMove(int x, int y){
 const int GraphicListBox::defH= 22;
 const int GraphicListBox::defW= 140;
 
-void GraphicListBox::init(int x, int y, int w, int h){
+void GraphicListBox::init(int x, int y, int w, int h, Vec3f textColor){
 	GraphicComponent::init(x, y, w, h);
 
+	this->textColor=textColor;
 	graphButton1.init(x, y, 22, h);
     graphButton2.init(x+w-22, y, 22, h);
     graphButton1.setText("<");
     graphButton2.setText(">");
     selectedItemIndex=-1;
+    lighted=false;
 }
 
 //queryes

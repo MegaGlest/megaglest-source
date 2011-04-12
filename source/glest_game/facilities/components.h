@@ -170,9 +170,11 @@ private:
     GraphicButton graphButton1, graphButton2;
     vector<string> items;
     int selectedItemIndex;
+    bool lighted;
+	Vec3f textColor;
 	
 public:       
-    void init(int x, int y, int w=defW, int h=defH);
+    void init(int x, int y, int w=defW, int h=defH, Vec3f textColor=Vec3f(1.f, 1.f, 1.f));
     
 	int getItemCount() const				{return items.size();}
 	string getItem(int index) const			{return items[index];}
@@ -180,12 +182,17 @@ public:
 	string getSelectedItem() const			{return items[selectedItemIndex];}
 	const GraphicButton *getButton1() const	{return &graphButton1;}
 	const GraphicButton *getButton2() const	{return &graphButton2;}
+	bool getLighted() const					{return lighted;}
+    void setLighted(bool lighted)			{this->lighted= lighted;}
+	Vec3f getTextColor() const				{return textColor;}
+    void setTextColor(Vec3f color)			{this->textColor= color;}
 
     void pushBackItem(string item);
     void setItems(const vector<string> &items);
 	void setSelectedItemIndex(int index, bool errorOnMissing=true);
     void setSelectedItem(string item, bool errorOnMissing=true);
     void setEditable(bool editable);
+
 	virtual void setY(int y);
     
     virtual bool mouseMove(int x, int y);

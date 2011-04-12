@@ -285,6 +285,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
 	//listBoxPlayerStatus.init(10, 600, 150);
 	listBoxPlayerStatus.init(525, 180, 125);
+	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
+	listBoxPlayerStatus.setLighted(true);
 	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
 	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
 	playerStatuses.push_back(lang.get("PlayerStatusReady"));
@@ -689,6 +691,22 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			soundRenderer.playFx(coreData.getClickSoundC());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(getNetworkPlayerStatus()==npst_PickSettings)
+			{
+				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.0f,0.0f));
+				listBoxPlayerStatus.setLighted(true);
+			}
+			else if(getNetworkPlayerStatus()==npst_BeRightBack)
+			{
+				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,1.0f,0.0f));
+				listBoxPlayerStatus.setLighted(true);
+			}
+			else if(getNetworkPlayerStatus()==npst_Ready)
+			{
+				listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+				listBoxPlayerStatus.setLighted(false);
+			}
 
 			ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 			if(clientInterface->isConnected()) {
