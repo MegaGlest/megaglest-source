@@ -1058,6 +1058,21 @@ void MenuStateConnectedGame::update() {
                 	gameSettings->getTech() != "") {
 					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
 					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
+
+                    if(techCRC != 0 && techCRC != gameSettings->getTechCRC() &&
+                    	listBoxTechTree.getSelectedItemIndex() >= 0 &&
+                    	listBoxTechTree.getSelectedItem() != ITEM_MISSING) {
+
+                    	time_t now = time(NULL);
+                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml");
+
+                    	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
+            			if(	lastUpdateDate <= 0 ||
+            				difftime(time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS) {
+            				techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL, true);
+            			}
+                    }
+
 					// Test data synch
 					//techCRC++;
 					lastCheckedCRCTechtreeValue = techCRC;
