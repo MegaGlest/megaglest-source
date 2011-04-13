@@ -1979,7 +1979,14 @@ Socket *ServerSocket::accept() {
 	if(isIPAddressBlocked(client_host) == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BLOCKING connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
 
-		close(newSock);
+#ifndef WIN32
+        ::close(newSock);
+        newSock = INVALID_SOCKET;
+#else
+        ::closesocket(newSock);
+        newSock = -1;
+#endif
+
 		return NULL;
 	}
 
