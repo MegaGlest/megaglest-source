@@ -28,6 +28,7 @@ namespace Shared { namespace Map {
 // ================== PUBLIC =====================
 
 MapPreview::MapPreview() {
+	mapFileLoaded = "";
 	fileLoaded = false;
 	heightFactor 	= DEFAULT_MAP_CELL_HEIGHT_FACTOR;
 	waterLevel 	= DEFAULT_MAP_WATER_DEPTH;
@@ -741,6 +742,7 @@ void MapPreview::loadFromFile(const string &path) {
 		fclose(f1);
 
 		fileLoaded = true;
+		mapFileLoaded = path;
 	}
 	else {
 		throw runtime_error("error opening map file: " + path);
