@@ -230,6 +230,7 @@ protected:
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();
 	bool isBroadCastThreadRunning();
+	vector<string> blockIPList;
 
 public:
 	ServerSocket();
@@ -238,6 +239,12 @@ public:
 	void listen(int connectionQueueSize= SOMAXCONN);
 	Socket *accept();
 	void stopBroadCastThread();
+
+	void addIPAddressToBlockedList(string value);
+	bool isIPAddressBlocked(string value) const;
+	void removeBlockedIPAddress(string value);
+	void clearBlockedIPAddress();
+	bool hasBlockedIPAddresses() const;
 
 	void setBindPort(int port) { boundPort = port; }
 	int getBindPort() const { return boundPort; }

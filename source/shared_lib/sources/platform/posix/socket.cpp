@@ -1949,7 +1949,6 @@ void ServerSocket::listen(int connectionQueueSize) {
 }
 
 Socket *ServerSocket::accept() {
-
 	if(isSocketValid() == false) {
 		throwException("socket is invalid!");
 	}
@@ -1977,6 +1976,13 @@ Socket *ServerSocket::accept() {
 		sprintf(client_host, "%s",inet_ntoa(cli_addr.sin_addr));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
 	}
+	if(isIPAddressBlocked(client_host) == true) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BLOCKING connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
+
+		close(newSock);
+		return NULL;
+	}
+
 	Socket *result = new Socket(newSock);
 	result->setIpAddress(client_host);
 	return result;
@@ -2452,6 +2458,31 @@ double Socket::getAveragePingMS(std::string host, int pingCount) {
 
 std::string Socket::getIpAddress() {
 	return ipAddress;
+}
+
+void ServerSocket::addIPAddressToBlockedList(string value) {
+	if(isIPAddressBlocked(value) == false) {
+		blockIPList.push_back(value);
+	}
+}
+bool ServerSocket::isIPAddressBlocked(string value) const {
+	bool result = (std::find(blockIPList.begin(),blockIPList.end(),value) != blockIPList.end());
+	return result;
+}
+
+void ServerSocket::removeBlockedIPAddress(string value) {
+	vector<string>::iterator iterFind = std::find(blockIPList.begin(),blockIPList.end(),value);
+	if(iterFind != blockIPList.end()) {
+		blockIPList.erase(iterFind);
+	}
+}
+
+void ServerSocket::clearBlockedIPAddress() {
+	blockIPList.clear();
+}
+
+bool ServerSocket::hasBlockedIPAddresses() const {
+	return(blockIPList.size() > 0);
 }
 
 }}//end namespace
