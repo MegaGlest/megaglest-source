@@ -124,6 +124,7 @@ private:
 	int refAlt;
 
 	bool fileLoaded;
+	string mapFileLoaded;
 
 public:
 	MapPreview();
@@ -186,6 +187,7 @@ public:
 	void applyNewHeight(float newHeight, int x, int y, int strenght);
 
 	bool hasFileLoaded() const {return fileLoaded;}
+	string getMapFileLoaded() const { return mapFileLoaded; }
 };
 
 }}// end namespace

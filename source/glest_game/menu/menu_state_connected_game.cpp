@@ -73,6 +73,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     lastCheckedCRCTechtreeValue					= -1;
     lastCheckedCRCMapValue						= -1;
 
+    mapPreviewTexture=NULL;
 	currentFactionLogo = "";
 	factionTexture=NULL;
 	lastMissingMap="";
@@ -477,6 +478,8 @@ MenuStateConnectedGame::~MenuStateConnectedGame() {
             ftpClientThread = NULL;
 	    }
 	}
+
+	cleanupMapPreviewTexture();
 }
 
 void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
@@ -796,6 +799,10 @@ void MenuStateConnectedGame::render() {
 			//renderer.renderTextureQuad(60+575+80,365,200,225,factionTexture,1);
 			renderer.renderTextureQuad(800,600,200,150,factionTexture,1);
 		}
+		if(mapPreviewTexture != NULL) {
+			renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
+			//printf("=================> Rendering map preview texture\n");
+		}
 
 		renderer.renderButton(&buttonDisconnect);
 
@@ -951,9 +958,11 @@ void MenuStateConnectedGame::render() {
 			int mouseY = mainMenu->getMouseY();
 			int mouse2dAnim = mainMenu->getMouse2dAnim();
 
-		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
-		    bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);
-		    renderer.renderMapPreview(&mapPreview, renderAll, 10, 350);
+			if(mapPreviewTexture == NULL) {
+				renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+				bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);
+				renderer.renderMapPreview(&mapPreview, renderAll, 10, 350, &mapPreviewTexture);
+			}
 		}
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
@@ -2090,12 +2099,16 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 			// Not painting properly so this is on hold
 			if(loadMapPreview == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	    		mapPreview.loadFromFile(file.c_str());
+				if(mapPreview.getMapFileLoaded() != file) {
+					mapPreview.loadFromFile(file.c_str());
+					cleanupMapPreviewTexture();
+				}
 			}
 
 			mapLoaded = true;
 		}
 		else {
+			cleanupMapPreviewTexture();
 			mapInfo->desc = ITEM_MISSING;
 
 			NetworkManager &networkManager= NetworkManager::getInstance();
@@ -2178,6 +2191,23 @@ int32 MenuStateConnectedGame::getNetworkPlayerStatus() {
 	}
 
 	return result;
+}
+
+void MenuStateConnectedGame::cleanupMapPreviewTexture() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//printf("CLEANUP map preview texture\n");
+
+	if(mapPreviewTexture != NULL) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		mapPreviewTexture->end();
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		delete mapPreviewTexture;
+		mapPreviewTexture = NULL;
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,

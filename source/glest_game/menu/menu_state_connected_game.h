@@ -98,6 +98,7 @@ private:
     GraphicLabel labelDataSynchInfo;
 
 	MapInfo mapInfo;
+	Texture2D *mapPreviewTexture;
 
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
@@ -200,6 +201,7 @@ private:
     		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result,void *userdata);
 
     int32 getNetworkPlayerStatus();
+    void cleanupMapPreviewTexture();
 };
 
 }}//end namespace
