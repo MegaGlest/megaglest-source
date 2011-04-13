@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -145,8 +145,17 @@ void MenuStateRoot::render() {
 	int h= 150;
 	int yPos=495;
 
+	int logoMainX = (metrics.getVirtualW()-w)/2;
+	int logoMainY = yPos-h/2;
+	int logoMainW = w;
+	int logoMainH = h;
+	logoMainX = Config::getInstance().getInt(string(containerName) + "_MainLogo_x",intToStr(logoMainX).c_str());
+	logoMainY = Config::getInstance().getInt(string(containerName) + "_MainLogo_y",intToStr(logoMainY).c_str());
+	logoMainW = Config::getInstance().getInt(string(containerName) + "_MainLogo_w",intToStr(logoMainW).c_str());
+	logoMainH = Config::getInstance().getInt(string(containerName) + "_MainLogo_h",intToStr(logoMainH).c_str());
+
 	renderer.renderTextureQuad(
-		(metrics.getVirtualW()-w)/2, yPos-h/2, w, h,
+			logoMainX, logoMainY, logoMainW, logoMainH,
 		coreData.getLogoTexture(), GraphicComponent::getFade());
 
 	int maxLogoWidth=0;
@@ -160,9 +169,20 @@ void MenuStateRoot::render() {
 	for(int idx = 0; idx < coreData.getLogoTextureExtraCount(); ++idx) {
 		Texture2D *extraLogo = coreData.getLogoTextureExtra(idx);
 
+		logoMainX = currentX;
+		logoMainY = currentY;
+		logoMainW = extraLogo->getPixmap()->getW();
+		logoMainH = extraLogo->getPixmap()->getH();
+
+		string logoTagName = string(containerName) + "_ExtraLogo" + intToStr(idx+1) + "_";
+		logoMainX = Config::getInstance().getInt(logoTagName + "x",intToStr(logoMainX).c_str());
+		logoMainY = Config::getInstance().getInt(logoTagName + "y",intToStr(logoMainY).c_str());
+		logoMainW = Config::getInstance().getInt(logoTagName + "w",intToStr(logoMainW).c_str());
+		logoMainH = Config::getInstance().getInt(logoTagName + "h",intToStr(logoMainH).c_str());
+
 		renderer.renderTextureQuad(
-				currentX, currentY,
-				extraLogo->getPixmap()->getW(), extraLogo->getPixmap()->getH(),
+				logoMainX, logoMainY,
+				logoMainW, logoMainH,
 				extraLogo, GraphicComponent::getFade());
 
 		currentX += extraLogo->getPixmap()->getW();
