@@ -551,7 +551,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 		        char szBuf2[100]="";
 		        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
 
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %d\n",crcCacheFile.c_str(),now, szBuf1, refreshDate, szBuf2, crcValue);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %d\n",crcCacheFile.c_str(),now, szBuf1, refreshDate, szBuf2, crcValue);
 			}
 		}
 	}
@@ -579,7 +579,7 @@ void writeCachedFileCRCValue(string crcCacheFile, int32 &crcValue) {
 		fprintf(fp,"%ld,%d,%ld",refreshDate,crcValue,now);
 		fclose(fp);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %d, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %d, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());
 	}
 }
 
@@ -606,7 +606,7 @@ void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchStri
 }
 
 time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> paths, string pathSearchString, const string filterFileExt) {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
@@ -614,7 +614,7 @@ time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> path
 
 	string cacheKey = cacheKeys.second;
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] looking for cached CRC file [%s] for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),pathSearchString.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] looking for cached CRC file [%s] for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),pathSearchString.c_str());
 
 	int32 crcValue = 0;
 	pair<bool,time_t> crcResult = hasCachedFileCRCValue(crcCacheFile, crcValue);
@@ -624,13 +624,13 @@ time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> path
         strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning folders found CACHED FILE for cacheKey [%s] last updated [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str(),szBuf1);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning folders found CACHED FILE for cacheKey [%s] last updated [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str(),szBuf1);
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning folders found CACHED FILE for cacheKey [%s] last updated [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str(),szBuf1);
 
 		return crcResult.second;
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s]\n",__FILE__,__FUNCTION__,cacheKey.c_str());
 	}
 
 	return 0;
@@ -638,7 +638,7 @@ time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> path
 
 //finds all filenames like path and gets their checksum of all files combined
 int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum, bool forceNoCache) {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
@@ -647,7 +647,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	string cacheKey = cacheKeys.second;
 	if(forceNoCache == false && crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning folders found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str());
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning folders found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str());
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning folders found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
 
@@ -655,7 +655,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for CRC Cache file [%s]\n",crcCacheFile.c_str());
 
 	if(recursiveChecksum == NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] looking for cached CRC file [%s] for [%s] forceNoCache = %d -----------\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),pathSearchString.c_str(),forceNoCache);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] looking for cached CRC file [%s] for [%s] forceNoCache = %d -----------\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),pathSearchString.c_str(),forceNoCache);
 	}
 
 	int32 crcValue = 0;
@@ -663,7 +663,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 		crcTreeCache[cacheKey] = crcValue;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning folders found CACHED FILE checksum = %d for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str(),forceNoCache);
 		if(recursiveChecksum == NULL) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning folders found CACHED FILE checksum = %d for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str(),forceNoCache);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] scanning folders found CACHED FILE checksum = %d for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str(),forceNoCache);
 		}
 
 		return crcTreeCache[cacheKey];
@@ -671,7 +671,7 @@ int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string path
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
 		if(recursiveChecksum == NULL) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
 		}
 	}
 
@@ -729,7 +729,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	string cacheKey = cacheKeys.second;
 	if(forceNoCache == false && crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning [%s] found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning [%s] found CACHED checksum = %d for cacheKey [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str());
 		return crcTreeCache[cacheKey];
 	}
 
@@ -737,7 +737,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for CRC Cache file [%s]\n",crcCacheFile.c_str());
 
 	if(recursiveChecksum == NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] looking for cached CRC file [%s] for [%s] forceNoCache = %d -----------\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),path.c_str(),forceNoCache);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] looking for cached CRC file [%s] for [%s] forceNoCache = %d -----------\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),path.c_str(),forceNoCache);
 	}
 
 	int32 crcValue = 0;
@@ -745,7 +745,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 		crcTreeCache[cacheKey] = crcValue;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning folders found CACHED FILE checksum = %d for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str(),forceNoCache);
 		if(recursiveChecksum == NULL) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning folders found CACHED FILE checksum = %d for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str(),forceNoCache);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] scanning folders found CACHED FILE checksum = %d for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,__LINE__,crcTreeCache[cacheKey],cacheKey.c_str(),forceNoCache);
 		}
 
 		return crcTreeCache[cacheKey];
@@ -753,7 +753,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
 		if(recursiveChecksum == NULL) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s] scanning folders DID NOT FIND CACHED FILE checksum for cacheKey [%s] forceNoCache = %d\n",__FILE__,__FUNCTION__,cacheKey.c_str(),forceNoCache);
 		}
 	}
 
@@ -964,7 +964,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 		const char* p = globbuf.gl_pathv[i];
 
 		bool skipItem = (EndsWith(p, ".") == true || EndsWith(p, "..") == true);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("~~~~~~~~~~~ Glob file [%s] skipItem = %d\n",p,skipItem);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"~~~~~~~~~~~ Glob file [%s] skipItem = %d\n",p,skipItem);
 
 		if(skipItem == false) {
 			if(isdir(p) == false) {
@@ -1012,7 +1012,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 		const char* p = globbuf.gl_pathv[i];
 
 		bool skipItem = (EndsWith(p, ".") == true || EndsWith(p, "..") == true);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("~~~~~~~~~~~ Glob folder [%s] skipItem = %d\n",p,skipItem);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"~~~~~~~~~~~ Glob folder [%s] skipItem = %d\n",p,skipItem);
 
 		if(skipItem == false) {
 			if(includeFolders == true) {
@@ -1512,7 +1512,7 @@ string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 
 bool executeShellCommand(string cmd, int expectedResult) {
 	bool result = false;
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nAbout to run [%s]", cmd.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"About to run [%s]", cmd.c_str());
 
 #ifdef WIN32
 	FILE *file = _popen(cmd.c_str(),"r");
@@ -1520,13 +1520,13 @@ bool executeShellCommand(string cmd, int expectedResult) {
 	FILE *file = popen(cmd.c_str(),"r");
 #endif
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nfile = [%p]", file);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"file = [%p]", file);
 
 	if(file != NULL) {
 		char szBuf[4096]="";
 		while(feof(file) == false) {
 			if(fgets( szBuf, 4095, file) != NULL) {
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 			}
 		}
 #ifdef WIN32
@@ -1536,7 +1536,7 @@ bool executeShellCommand(string cmd, int expectedResult) {
 #endif
 
 		/* Close pipe and print return value. */
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nProcess returned %d\n",  cmdRet);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Process returned %d\n",  cmdRet);
 		result = (expectedResult == IGNORE_CMD_RESULT_VALUE || expectedResult == cmdRet);
 	}
 	return result;
