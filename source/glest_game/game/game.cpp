@@ -1841,13 +1841,13 @@ void Game::render2d(){
 		str+= "Render FPS: "     + intToStr(lastRenderFps) + "[" + intToStr(avgRenderFps) + "]\n";
 		str+= "Update FPS: "     + intToStr(lastUpdateFps) + "[" + intToStr(avgUpdateFps) + "]\n";
 		str+= "GameCamera pos: " + floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
-		str+= "Cached surfacedata: " +  intToStr(renderer.getCachedSurfaceDataSize())+"\n";
+		//str+= "Cached surfacedata: " +  intToStr(renderer.getCachedSurfaceDataSize())+"\n";
 		str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),2)+"\n";
 		if(SystemFlags::getThreadedLoggerRunning() == true) {
             str+= "Log buffer count: " + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
 		}
 
-		str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";
+		//str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";
 
 		str+= "Map: " + gameSettings.getMap() +"\n";
 		str+= "Tileset: " + gameSettings.getTileset() +"\n";

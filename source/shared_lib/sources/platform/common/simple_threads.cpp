@@ -175,8 +175,8 @@ void FileCRCPreCacheThread::execute() {
 					if(getQuitStatus() == true) {
 						break;
 					}
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread START for tech [%s] ---------------------------\n",techName.c_str());
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
+					//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread START for tech [%s] ---------------------------\n",techName.c_str());
+					//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
 
 					time_t elapsedTime = time(NULL);
@@ -190,12 +190,12 @@ void FileCRCPreCacheThread::execute() {
 						break;
 					}
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread running for tech [%s] ---------------------------\n",techName.c_str());
+					//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread running for tech [%s] ---------------------------\n",techName.c_str());
 					if(getQuitStatus() == false) {
 						int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL, true);
 
 						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
-						//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 
 						vector<string> results;
 					    for(unsigned int idx = 0; idx < techDataPaths.size(); idx++) {
@@ -215,7 +215,7 @@ void FileCRCPreCacheThread::execute() {
 							}
 					    }
 
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 					}
 
