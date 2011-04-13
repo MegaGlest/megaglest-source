@@ -756,9 +756,9 @@ Socket::Socket(PLATFORM_SOCKET sock) {
 	pingThreadAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	dataSynchAccessorRead.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	dataSynchAccessorWrite.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
-	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 
 	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	this->inSocketDestructor = false;
 	safeMutexSocketDestructorFlag.ReleaseLock();
 
@@ -771,6 +771,7 @@ Socket::Socket() {
 
 	//this->pingThread = NULL;
 	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	this->inSocketDestructor = false;
 	safeMutexSocketDestructorFlag.ReleaseLock();
 
@@ -837,6 +838,7 @@ Socket::~Socket()
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
 	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	this->inSocketDestructor = true;
 	safeMutexSocketDestructorFlag.ReleaseLock();
 
@@ -847,7 +849,7 @@ Socket::~Socket()
 		(dataSynchAccessorRead.getRefCount() > 0 ||
 		 dataSynchAccessorWrite.getRefCount() > 0) &&
 		 difftime(time(NULL),elapsed) <= 5;) {
-		sleep(0);
+		//sleep(0);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
@@ -1053,6 +1055,7 @@ int Socket::send(const void *data, int dataSize) {
 		errno = 0;
 
     	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
     	if(this->inSocketDestructor == true) {
     		return -1;
     	}
@@ -1089,6 +1092,7 @@ int Socket::send(const void *data, int dataSize) {
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
 	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	        	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	        	if(this->inSocketDestructor == true) {
 	        		return -1;
 	        	}
@@ -1136,6 +1140,7 @@ int Socket::send(const void *data, int dataSize) {
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
 
 	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	        	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	        	if(this->inSocketDestructor == true) {
 	        		return -1;
 	        	}
@@ -1199,6 +1204,7 @@ int Socket::receive(void *data, int dataSize) {
 
 	if(isSocketValid() == true)	{
     	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
     	if(this->inSocketDestructor == true) {
     		return -1;
     	}
@@ -1226,6 +1232,7 @@ int Socket::receive(void *data, int dataSize) {
 	        }
 	        else if(Socket::isReadable() == true) {
 	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	        	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	        	if(this->inSocketDestructor == true) {
 	        		return -1;
 	        	}
@@ -1260,6 +1267,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
     	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
     	if(this->inSocketDestructor == true) {
     		return -1;
     	}
@@ -1298,6 +1306,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 	        if(Socket::isReadable() == true) {
 
 	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	        	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	        	if(this->inSocketDestructor == true) {
 	        		return -1;
 	        	}
@@ -1367,6 +1376,7 @@ bool Socket::isReadable() {
 	int i = 0;
 	{
     	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
     	if(this->inSocketDestructor == true) {
     		SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     		return false;
@@ -1403,6 +1413,7 @@ bool Socket::isWritable() {
 	int i = 0;
 	{
     	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+    	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
     	if(this->inSocketDestructor == true) {
     		SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     		return false;
