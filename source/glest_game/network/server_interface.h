@@ -83,8 +83,7 @@ public:
 
 	virtual Socket* getSocket()				{return &serverSocket;}
 
-    const virtual Socket *getSocket() const
-    {
+    const virtual Socket *getSocket() const {
         return &serverSocket;
     }
 

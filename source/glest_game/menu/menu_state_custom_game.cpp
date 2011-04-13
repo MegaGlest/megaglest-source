@@ -128,6 +128,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(250, 180, 125);
 
+	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
+	buttonClearBlockedPlayers.init(427, 590, 125);
+
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
 	buttonRestoreLastSettings.init(250+130, 180, 200);
 
@@ -366,7 +369,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
 	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("Yes"));
 
-
 	// Enable Server Controlled AI
 	//labelEnableServerControlledAI.registerGraphicComponent(containerName,"labelEnableServerControlledAI");
 	//labelEnableServerControlledAI.init(xoffset+550, networkHeadPos, 80);
@@ -394,6 +396,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
         listBoxControls[i].init(xoffset+210, setupPos-30-i*rowHeight);
+
+        buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
+        buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
+        buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
 
         listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
         listBoxRMultiplier[i].init(xoffset+350, setupPos-30-i*rowHeight,70);
@@ -430,6 +436,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
 
 	//texts
+	buttonClearBlockedPlayers.setText(lang.get("BlockPlayerClear"));
 	buttonReturn.setText(lang.get("Return"));
 	buttonPlayNow.setText(lang.get("PlayNow"));
 	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
@@ -898,6 +905,44 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
                     }
                     updateResourceMultiplier(i);
                 }
+                else if(buttonClearBlockedPlayers.mouseClick(x, y)) {
+                	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+                	if(serverInterface != NULL) {
+						ServerSocket *serverSocket = serverInterface->getServerSocket();
+						if(serverSocket != NULL) {
+							serverSocket->clearBlockedIPAddress();
+						}
+                	}
+                }
+                else if(buttonBlockPlayers[i].mouseClick(x, y)) {
+                	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+                	if(serverInterface != NULL) {
+						if(serverInterface->getSlot(i) != NULL &&
+		                   serverInterface->getSlot(i)->isConnected()) {
+
+							ServerSocket *serverSocket = serverInterface->getServerSocket();
+							if(serverSocket != NULL) {
+								serverSocket->addIPAddressToBlockedList(serverInterface->getSlot(i)->getIpAddress());
+
+						    	Lang &lang= Lang::getInstance();
+						    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+						    	for(unsigned int j = 0; j < languageList.size(); ++j) {
+									char szMsg[1024]="";
+									if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
+										sprintf(szMsg,lang.get("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i)->getIpAddress().c_str());
+									}
+									else {
+										sprintf(szMsg,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i)->getIpAddress().c_str());
+									}
+
+									serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
+						    	}
+						    	sleep(1);
+						    	serverInterface->getSlot(i)->close();
+							}
+						}
+                	}
+                }
                 else if(listBoxFactions[i].mouseClick(x, y)) {
                     // Disallow CPU players to be observers
         			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
@@ -1211,11 +1256,13 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	buttonReturn.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
 	buttonRestoreLastSettings.mouseMove(x, y);
+	buttonClearBlockedPlayers.mouseMove(x, y);
 
 	bool editingPlayerName = false;
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		listBoxRMultiplier[i].mouseMove(x, y);
         listBoxControls[i].mouseMove(x, y);
+        buttonBlockPlayers[i].mouseMove(x, y);
         listBoxFactions[i].mouseMove(x, y);
 		listBoxTeams[i].mouseMove(x, y);
 
@@ -1296,10 +1343,25 @@ void MenuStateCustomGame::render() {
 		    	renderer.renderListBox(&listBoxPlayerStatus);
 		    }
 
+			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+			if( serverInterface != NULL &&
+				serverInterface->getServerSocket() != NULL &&
+				serverInterface->getServerSocket()->hasBlockedIPAddresses() == true) {
+				renderer.renderButton(&buttonClearBlockedPlayers);
+			}
 			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 				if( hasNetworkGameSettings() == true &&
 					listBoxControls[i].getSelectedItemIndex() != ctClosed) {
 					renderer.renderLabel(&labelPlayerStatus[i]);
+
+					if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
+						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+						if( serverInterface != NULL &&
+							serverInterface->getSlot(i) != NULL &&
+		                    serverInterface->getSlot(i)->isConnected()) {
+							renderer.renderButton(&buttonBlockPlayers[i]);
+						}
+					}
 				}
 
 				if(crcPlayerTextureCache[i] != NULL) {
