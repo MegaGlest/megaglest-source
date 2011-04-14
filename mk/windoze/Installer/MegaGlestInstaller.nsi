@@ -120,8 +120,14 @@ uninstInit:
   IfFileExists "$R0\mydata\" 0 +2
   CreateDirectory "$APPDATA\megaglest\"
   Rename "$R0\mydata\*.*" "$APPDATA\megaglest\"
+
   ClearErrors
-  
+  IfFileExists "$R0\glestuser.ini" 0 +2
+  CreateDirectory "$APPDATA\megaglest\"
+  Rename "$R0\glestuser.ini" "$APPDATA\megaglest\glestuser.ini"
+
+  ClearErrors
+
   ExecWait '$R1 _?=$R0' ;Do not copy the uninstaller to a temp file
   Exec $R0\uninst.exe ; instead of the ExecWait line
 
@@ -131,6 +137,11 @@ doneInit:
   Rename "$R0\mydata\*.*" "$APPDATA\megaglest\"
   ClearErrors
 
+  IfFileExists "$R0\glestuser.ini" 0 +2
+  CreateDirectory "$APPDATA\megaglest\"
+  Rename "$R0\glestuser.ini" "$APPDATA\megaglest\glestuser.ini"
+  ClearErrors
+  
 FunctionEnd
 
 
