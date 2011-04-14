@@ -133,6 +133,7 @@ private:
     static bool isKeyPressedDown;
 	static bool isFullScreen;
 	static SDL_keysym keystate;
+	static bool tryVSynch;
 
     static void setLastMouseEvent(int64 lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
     static int64 getLastMouseEvent() 				    {return Window::lastMouseEvent;}
@@ -163,6 +164,9 @@ public:
 
 	Window();
 	virtual ~Window();
+
+	static bool getTryVSynch() { return tryVSynch; }
+	static void setTryVSynch(bool value) { tryVSynch = value; }
 
 	WindowHandle getHandle()	{return 0;}
 	string getText();

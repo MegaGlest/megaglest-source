@@ -58,6 +58,8 @@ bool Window::allowAltEnterFullscreenToggle = true;
 #endif
 int Window::lastShowMouseState = 0;
 
+bool Window::tryVSynch = false;
+
 // ========== PUBLIC ==========
 
 Window::Window()  {
@@ -359,6 +361,14 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, newStencilBits);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, newDepthBits);
+
+	const SDL_VideoInfo *info = SDL_GetVideoInfo();
+#ifdef SDL_GL_SWAP_CONTROL
+    if(Window::tryVSynch == true) {
+    	/* we want vsync for smooth scrolling */
+    	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+    }
+#endif
 
 	// setup LOD bias factor
 	//const float lodBias = std::max(std::min( configHandler->Get("TextureLODBias", 0.0f) , 4.0f), -4.0f);

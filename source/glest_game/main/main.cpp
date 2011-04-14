@@ -2165,6 +2165,11 @@ int glestMain(int argc, char** argv) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Disabling VBO's\n");
         }
 
+        if(config.getBool("EnableVSynch","false") == true) {
+        	Window::setTryVSynch(true);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**ENABLED OPENGL VSYNCH**\n");
+        }
+
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
 
