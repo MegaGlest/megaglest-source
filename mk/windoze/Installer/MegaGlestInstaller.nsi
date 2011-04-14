@@ -65,6 +65,8 @@ Function MUIGUIInit
 
   FindWindow $0 '_Nb'
   EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
+  #BgImage::SetBg /NOUNLOAD /FILLSCREEN "$PLUGINSDIR\megaglestinstallscreen.jpg"
+  #BgImage::Redraw /NOUNLOAD
 
 #  FindWindow $0 "#32770" "" $HWNDPARENT
 #  GetDlgItem $0 $0 1006
@@ -98,7 +100,9 @@ Function MUIGUIInit
 
 foundInst:
 
-MessageBox MB_YESNO|MB_ICONEXCLAMATION \
+  #MessageBox MB_OK|MB_ICONEXCLAMATION "Looking for mods in [$R0\\mydata\\]"
+
+  MessageBox MB_YESNO|MB_ICONEXCLAMATION \
   "${APNAME} v$R2 is already installed in [$R0]. $\n$\nClick `Yes` to remove the \
   previous installation (including all your MODS) or `No` to over-write or install to a different location." \
   IDYES uninstInit
@@ -113,11 +117,19 @@ MessageBox MB_YESNO|MB_ICONEXCLAMATION \
 ;Run the uninstaller
 uninstInit:
   ClearErrors
+  IfFileExists "$R0\mydata\" 0 +2
+  CreateDirectory "$APPDATA\megaglest\"
+  Rename "$R0\mydata\*.*" "$APPDATA\megaglest\"
+  ClearErrors
+  
   ExecWait '$R1 _?=$R0' ;Do not copy the uninstaller to a temp file
-
   Exec $R0\uninst.exe ; instead of the ExecWait line
 
 doneInit:
+  IfFileExists "$R0\mydata\" 0 +2
+  CreateDirectory "$APPDATA\megaglest\"
+  Rename "$R0\mydata\*.*" "$APPDATA\megaglest\"
+  ClearErrors
 
 FunctionEnd
 
