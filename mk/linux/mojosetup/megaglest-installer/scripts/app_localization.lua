@@ -30,6 +30,15 @@ MojoSetup.applocalization = {
         it = "Licenza di Megaglest",
     };
 
+    ["Megaglest Uninstall Prompt"] = {
+        en_GB = "We have detected a previous installation of Megaglest, should we remove it?",
+        en_CA = "We have detected a previous installation of Megaglest, should we remove it?",
+        de = "We have detected a previous installation of Megaglest, should we remove it?",
+        es = "We have detected a previous installation of Megaglest, should we remove it?",
+        pl = "We have detected a previous installation of Megaglest, should we remove it?",
+        it = "We have detected a previous installation of Megaglest, should we remove it?",
+    };
+
 	["docs/LICENSE"] = {
     };
 

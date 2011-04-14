@@ -20,6 +20,25 @@ Setup.Package
         "/usr/local/games"
     },
 
+    precheck = function(package)
+	-- MojoSetup.msgbox('Test#1', MojoSetup.info.homedir .. '/megaglest/uninstall-megaglest.sh')
+
+	local previousPath = ''
+        if MojoSetup.platform.exists(MojoSetup.info.homedir .. '/megaglest/uninstall-megaglest.sh') then
+		previousPath = MojoSetup.info.homedir .. '/megaglest/'
+	elseif MojoSetup.platform.exists('/opt/games/megaglest/uninstall-megaglest.sh') then
+		previousPath = '/opt/games/megaglest/'
+	elseif MojoSetup.platform.exists('/usr/local/games/megaglest/uninstall-megaglest.sh') then
+		previousPath = '/usr/local/games/megaglest/'
+	end
+
+	if previousPath ~= '' then
+		if MojoSetup.promptyn('Remove previous version', _("Megaglest Uninstall Prompt") .. '\n\n[' .. previousPath .. ']') then
+			os.execute(previousPath .. 'uninstall-megaglest.sh')
+		end
+	end
+    end,
+
     postinstall = function(package)
         MojoSetup.launchbrowser("http://www.megaglest.org")
     end,
@@ -71,7 +90,8 @@ Setup.Package
             builtin_icon = false,
             icon = "editor.ico",
             commandline = "%0/start_megaglest_mapeditor",
-            category = "Game;StrategyGame"
+            category = "Game;StrategyGame",
+            --mimetype = {"application/x-gbm", "application/mgm"}
         },
 
         Setup.DesktopMenuItem
@@ -83,7 +103,8 @@ Setup.Package
             builtin_icon = false,
             icon = "g3dviewer.ico",
             commandline = "%0/start_megaglest_g3dviewer",
-            category = "Game;StrategyGame"
+            category = "Game;StrategyGame",
+            --mimetype = {"application/x-g3d"}
         },
 
         Setup.DesktopMenuItem
