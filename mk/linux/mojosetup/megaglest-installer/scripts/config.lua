@@ -43,11 +43,11 @@ Setup.Package
     preinstall = function(package)
 	local previousPath = ''
         if MojoSetup.platform.exists(MojoSetup.info.homedir .. '/megaglest/mydata/') then
-		previousPath = MojoSetup.info.homedir .. '/megaglest/mydata/'
+		previousPath = MojoSetup.info.homedir .. '/megaglest/'
 	elseif MojoSetup.platform.exists('/opt/games/megaglest/mydata/') then
-		previousPath = '/opt/games/megaglest/mydata/'
+		previousPath = '/opt/games/megaglest/'
 	elseif MojoSetup.platform.exists('/usr/local/games/megaglest/mydata/') then
-		previousPath = '/usr/local/games/megaglest/mydata/'
+		previousPath = '/usr/local/games/megaglest/'
 	end
 
 	-- Move mod data folder to new location if we find it
@@ -57,12 +57,13 @@ Setup.Package
 		-- MojoSetup.msgbox('Moving mod folder','About to move mod folder from [' .. previousPath .. '] to [' .. instPath .. ']')
 
 		os.execute('mkdir ' .. instPathData)
-		os.execute('mv ' .. previousPath .. '* ' .. instPath)
+		os.execute('mv ' .. previousPath .. 'mydata/* ' .. instPath)
+		os.execute('mv ' .. previousPath .. 'glestuser.ini ' .. instPath .. 'glestuser.ini')
 	end
     end,
 
     postinstall = function(package)
-        MojoSetup.launchbrowser("http://www.megaglest.org")
+        MojoSetup.launchbrowser("http://megaglest.org/get-started.html")
     end,
 
     Setup.Eula
