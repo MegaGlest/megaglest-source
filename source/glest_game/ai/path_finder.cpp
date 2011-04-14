@@ -40,8 +40,8 @@ namespace Glest{ namespace Game{
 const int PathFinder::maxFreeSearchRadius	= 10;
 //const int PathFinder::pathFindNodesMax= 400;
 
-int PathFinder::pathFindNodesAbsoluteMax	= 1200;
-int PathFinder::pathFindNodesMax			= 300;
+int PathFinder::pathFindNodesAbsoluteMax	= 800;
+int PathFinder::pathFindNodesMax			= 400;
 const int PathFinder::pathFindRefresh		= 10;
 const int PathFinder::pathFindBailoutRadius	= 20;
 

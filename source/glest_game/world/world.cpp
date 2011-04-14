@@ -286,7 +286,8 @@ void World::updateAllFactionUnits() {
 	Chrono chrono;
 	chrono.start();
 
-	for(;chrono.getMillis() < 10000;) {
+	const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
+	for(;chrono.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
 		workThreadsFinished = true;
 		for(int i = 0; i < factionCount; ++i) {
 			Faction *faction = getFaction(i);
