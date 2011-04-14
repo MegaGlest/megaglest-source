@@ -1887,7 +1887,7 @@ void MenuStateMods::render() {
         }
         safeMutexFTPProgress.ReleaseLock();
 
-        renderer.renderConsole(&console,showFullConsole,true);
+        renderer.renderConsole(&console,showFullConsole,true,3);
 
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);

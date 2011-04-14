@@ -1007,7 +1007,8 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
         xPosition, (lineIndex * lineHeight) + yPosition);
 }
 
-void Renderer::renderConsole(const Console *console,const bool showFullConsole,const bool showMenuConsole){
+void Renderer::renderConsole(const Console *console,const bool showFullConsole,
+		const bool showMenuConsole, int overrideMaxConsoleLines){
 	if(console == NULL) {
 		throw runtime_error("console == NULL");
 	}
@@ -1023,7 +1024,8 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,c
 		}
 	}
 	else if(showMenuConsole) {
-		for(int i = 0; i < console->getStoredLineCount() && i < maxConsoleLines; ++i) {
+		int allowedMaxLines = (overrideMaxConsoleLines >= 0 ? overrideMaxConsoleLines : maxConsoleLines);
+		for(int i = 0; i < console->getStoredLineCount() && i < allowedMaxLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
 			renderConsoleLine(i, console->getXPos(), console->getYPos(),
 			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
