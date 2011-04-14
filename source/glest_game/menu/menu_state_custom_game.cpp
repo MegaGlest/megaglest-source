@@ -2730,21 +2730,23 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
     }
 }
 
-void MenuStateCustomGame::updateControlers(){
+void MenuStateCustomGame::updateControlers() {
 	try {
 		bool humanPlayer= false;
 
-		for(int i= 0; i<mapInfo.players; ++i){
-			if(listBoxControls[i].getSelectedItemIndex() == ctHuman){
+		for(int i = 0; i < mapInfo.players; ++i) {
+			if(listBoxControls[i].getSelectedItemIndex() == ctHuman) {
 				humanPlayer= true;
 			}
 		}
 
-		if(!humanPlayer){
+		if(humanPlayer == false) {
 			listBoxControls[0].setSelectedItemIndex(ctHuman);
+			labelPlayerNames[0].setText("");
+			labelPlayerNames[0].setText(getHumanPlayerName());
 		}
 
-		for(int i= mapInfo.players; i<GameConstants::maxPlayers; ++i){
+		for(int i= mapInfo.players; i < GameConstants::maxPlayers; ++i) {
 			listBoxControls[i].setSelectedItemIndex(ctClosed);
 		}
 	}
