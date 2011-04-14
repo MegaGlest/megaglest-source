@@ -199,6 +199,10 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	modelFacing = CardinalDir::NORTH;
 	lastStuckFrame = 0;
 	lastStuckPos = Vec2i(0,0);
+	lastPathfindFailedFrame = 0;
+	lastPathfindFailedPos = Vec2i(0,0);
+	usePathfinderExtendedMaxNodes = false;
+
     RandomGen random;
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
@@ -2076,12 +2080,27 @@ void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
 //	currentTargetPathTaken.second.push_back(cell);
 //}
 
+void Unit::setLastPathfindFailedFrameToCurrentFrame() {
+	lastPathfindFailedFrame = getFrameCount();
+}
+
+bool Unit::isLastPathfindFailedFrameWithinCurrentFrameTolerance() const {
+	static const bool enablePathfinderEnlargeMaxNodes = Config::getInstance().getBool("EnablePathfinderEnlargeMaxNodes","false");
+	bool result = !enablePathfinderEnlargeMaxNodes;
+	if(enablePathfinderEnlargeMaxNodes) {
+		const int MIN_FRAME_ELAPSED_RETRY = 960;
+		result = (getFrameCount() - lastPathfindFailedFrame >= MIN_FRAME_ELAPSED_RETRY);
+	}
+	return result;
+}
+
 void Unit::setLastStuckFrameToCurrentFrame() {
 	lastStuckFrame = getFrameCount();
 }
 
 bool Unit::isLastStuckFrameWithinCurrentFrameTolerance() const {
-	bool result (getFrameCount() - lastStuckFrame <= 300);
+	const int MIN_FRAME_ELAPSED_RETRY = 300;
+	bool result (getFrameCount() - lastStuckFrame <= MIN_FRAME_ELAPSED_RETRY);
 	return result;
 }
 

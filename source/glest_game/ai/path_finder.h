@@ -90,6 +90,7 @@ public:
 private:
 
 	static int pathFindNodesMax;
+	static int pathFindNodesAbsoluteMax;
 
 	FactionStateList factions;
 	const Map *map;
@@ -104,15 +105,15 @@ public:
 	void removeUnitPrecache(Unit *unit);
 
 private:
-	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex);
-	Node *newNode(FactionState &faction);
+	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1);
+	Node *newNode(FactionState &faction,int maxNodeCount);
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
 	float heuristic(const Vec2i &pos, const Vec2i &finalPos);
 	bool openPos(const Vec2i &sucPos,FactionState &faction);
 
 	Node * minHeuristicFastLookup(FactionState &faction);
 
-	bool processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached);
+	bool processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached, int maxNodeCount);
 	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
 };
 
