@@ -335,6 +335,10 @@ private:
 	uint32 lastStuckFrame;
 	Vec2i lastStuckPos;
 
+	uint32 lastPathfindFailedFrame;
+	Vec2i lastPathfindFailedPos;
+	bool usePathfinderExtendedMaxNodes;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -506,6 +510,17 @@ public:
 
 	Vec2i getLastStuckPos() const { return lastStuckPos; }
 	void setLastStuckPos(Vec2i pos) { lastStuckPos = pos; }
+
+	bool isLastPathfindFailedFrameWithinCurrentFrameTolerance() const;
+	uint32 getLastPathfindFailedFrame() const { return lastPathfindFailedFrame; }
+	void setLastPathfindFailedFrame(uint32 value) { lastPathfindFailedFrame = value; }
+	void setLastPathfindFailedFrameToCurrentFrame();
+
+	Vec2i getLastPathfindFailedPos() const { return lastPathfindFailedPos; }
+	void setLastPathfindFailedPos(Vec2i pos) { lastPathfindFailedPos = pos; }
+
+	bool getUsePathfinderExtendedMaxNodes() const { return usePathfinderExtendedMaxNodes; }
+	void setUsePathfinderExtendedMaxNodes(bool value) { usePathfinderExtendedMaxNodes = value; }
 
 private:
 	float computeHeight(const Vec2i &pos) const;
