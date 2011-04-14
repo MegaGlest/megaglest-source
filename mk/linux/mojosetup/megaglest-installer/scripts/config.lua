@@ -33,9 +33,31 @@ Setup.Package
 	end
 
 	if previousPath ~= '' then
-		if MojoSetup.promptyn('Remove previous version', _("Megaglest Uninstall Prompt") .. '\n\n[' .. previousPath .. ']') then
+		if MojoSetup.promptyn(_("Megaglest Uninstall Title"), _("Megaglest Uninstall Prompt") .. '\n\n[' .. previousPath .. ']') then
 			os.execute(previousPath .. 'uninstall-megaglest.sh')
 		end
+
+	end
+    end,
+
+    preinstall = function(package)
+	local previousPath = ''
+        if MojoSetup.platform.exists(MojoSetup.info.homedir .. '/megaglest/mydata/') then
+		previousPath = MojoSetup.info.homedir .. '/megaglest/mydata/'
+	elseif MojoSetup.platform.exists('/opt/games/megaglest/mydata/') then
+		previousPath = '/opt/games/megaglest/mydata/'
+	elseif MojoSetup.platform.exists('/usr/local/games/megaglest/mydata/') then
+		previousPath = '/usr/local/games/megaglest/mydata/'
+	end
+
+	-- Move mod data folder to new location if we find it
+	if previousPath ~= '' then
+		local instPathData =  MojoSetup.info.homedir .. '/.megaglest/'
+		local instPath =  instPathData
+		-- MojoSetup.msgbox('Moving mod folder','About to move mod folder from [' .. previousPath .. '] to [' .. instPath .. ']')
+
+		os.execute('mkdir ' .. instPathData)
+		os.execute('mv ' .. previousPath .. '* ' .. instPath)
 	end
     end,
 
