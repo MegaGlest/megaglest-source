@@ -679,10 +679,12 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<st
     	pWantDirListOnly = &wantDirListOnly;
     }
 
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FTPClientThread::getTilesetFromServer [%s] remotePath [%s] destFileSaveAs [%s] getFolderContents = %d\n",tileSetName.first.c_str(),remotePath.c_str(),destFileSaveAs.c_str(),getFolderContents);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FTPClientThread::getTilesetFromServer [%s] remotePath [%s] destFileSaveAs [%s] getFolderContents = %d findArchive = %d\n",tileSetName.first.c_str(),remotePath.c_str(),destFileSaveAs.c_str(),getFolderContents,findArchive);
 
     pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_Tileset,
     		tileSetName, remotePath, destFileSaveAs,ftpUser, ftpUserPassword, pWantDirListOnly);
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FTPClientThread::getTilesetFromServer [%s] remotePath [%s] destFileSaveAs [%s] getFolderContents = %d result.first = %d [%s] findArchive = %d\n",tileSetName.first.c_str(),remotePath.c_str(),destFileSaveAs.c_str(),getFolderContents,result.first,result.second.c_str(),findArchive);
 
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {
@@ -1154,6 +1156,8 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
         else {
             result.first = ftp_crt_SUCCESS;
 
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] result.first = %d wantDirListOnly = %p\n",__FILE__,__FUNCTION__,__LINE__,result.first,wantDirListOnly);
+
             if(wantDirListOnly) {
                 if(ftpfile.stream) {
                     fclose(ftpfile.stream);
@@ -1184,6 +1188,8 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
         fclose(ftpfile.stream);
         ftpfile.stream = NULL;
     }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] result.first = %d\n",__FILE__,__FUNCTION__,__LINE__,result.first);
 
     return result;
 }

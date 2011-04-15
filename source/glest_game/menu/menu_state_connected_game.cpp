@@ -141,8 +141,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
 	buttonDisconnect.init(350, 180, 125);
 
-
-
+	buttonCancelDownloads.registerGraphicComponent(containerName,"buttonCancelDownloads");
+	buttonCancelDownloads.init(10, 150, 125);
+	buttonCancelDownloads.setText(lang.get("CancelDownloads"));
 
 	xoffset=170;
 	// fog - o - war
@@ -580,6 +581,76 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 		}
 	}
+	else if(buttonCancelDownloads.mouseClick(x,y)) {
+        if(ftpClientThread != NULL && fileFTPProgressList.size() > 0) {
+    	    ftpClientThread->setCallBackObject(NULL);
+    	    if(ftpClientThread->shutdownAndWait() == true) {
+                delete ftpClientThread;
+    	    }
+
+            fileFTPProgressList.clear();
+            getMissingMapFromFTPServerInProgress 		= false;
+            getMissingTilesetFromFTPServerInProgress 	= false;
+            getMissingTechtreeFromFTPServerInProgress 	= false;
+            getMissingMapFromFTPServer					= "";
+            getMissingTilesetFromFTPServer				= "";
+            getMissingTechtreeFromFTPServer				= "";
+
+            ClientInterface *clientInterface = networkManager.getClientInterface();
+            string serverUrl = clientInterface->getServerIpAddress();
+            //int portNumber   = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
+            int portNumber   = clientInterface->getServerFTPPort();
+
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Using FTP port #: %d\n",__FILE__,__FUNCTION__,__LINE__,portNumber);
+
+            Config &config = Config::getInstance();
+            vector<string> mapPathList = config.getPathListForType(ptMaps);
+            std::pair<string,string> mapsPath;
+            if(mapPathList.size() > 0) {
+                mapsPath.first = mapPathList[0];
+            }
+            if(mapPathList.size() > 1) {
+                mapsPath.second = mapPathList[1];
+            }
+            std::pair<string,string> tilesetsPath;
+            vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
+            if(tilesetsList.size() > 0) {
+                tilesetsPath.first = tilesetsList[0];
+                if(tilesetsList.size() > 1) {
+                    tilesetsPath.second = tilesetsList[1];
+                }
+            }
+
+            std::pair<string,string> techtreesPath;
+            vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
+            if(techtreesList.size() > 0) {
+            	techtreesPath.first = techtreesList[0];
+                if(techtreesList.size() > 1) {
+                	techtreesPath.second = techtreesList[1];
+                }
+            }
+
+            std::pair<string,string> scenariosPath;
+            vector<string> scenariosList = Config::getInstance().getPathListForType(ptScenarios);
+            if(scenariosList.size() > 0) {
+            	scenariosPath.first = scenariosList[0];
+                if(scenariosList.size() > 1) {
+                	scenariosPath.second = scenariosList[1];
+                }
+            }
+
+            string fileArchiveExtension = config.getString("FileArchiveExtension","");
+            string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
+            string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
+            int32 fileArchiveExtractCommandSuccessResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
+
+            ftpClientThread = new FTPClientThread(portNumber,serverUrl,
+            		mapsPath,tilesetsPath,techtreesPath,scenariosPath,
+            		this,fileArchiveExtension,fileArchiveExtractCommand,
+            		fileArchiveExtractCommandParameters,fileArchiveExtractCommandSuccessResult);
+            ftpClientThread->start();
+        }
+	}
 	else if(buttonDisconnect.mouseClick(x,y)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -759,6 +830,7 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 		ftpMessageBox.mouseMove(x, y);
 	}
 
+	buttonCancelDownloads.mouseMove(x, y);
 	buttonDisconnect.mouseMove(x, y);
 
 	bool editingPlayerName = false;
@@ -925,7 +997,8 @@ void MenuStateConnectedGame::render() {
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         if(fileFTPProgressList.size() > 0) {
         	Lang &lang= Lang::getInstance();
-            int yLocation = buttonDisconnect.getY();
+        	renderer.renderButton(&buttonCancelDownloads);
+            int yLocation = buttonCancelDownloads.getY() - 20;
             for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
                 iterMap != fileFTPProgressList.end(); ++iterMap) {
                 string progressLabelPrefix = lang.get("ModDownloading") + " " + iterMap->first + " ";
