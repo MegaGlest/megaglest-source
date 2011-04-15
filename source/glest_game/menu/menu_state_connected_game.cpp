@@ -1144,11 +1144,11 @@ void MenuStateConnectedGame::update() {
                 	gameSettings->getTech() != "") {
 					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
 					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
-					clientInterface->sendTextMessage("#1 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
+					//clientInterface->sendTextMessage("#1 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
 
 					if(techCRC == 0) {
 						techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL, true);
-						clientInterface->sendTextMessage("#2 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
+						//clientInterface->sendTextMessage("#2 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
 					}
 
 
@@ -1163,8 +1163,7 @@ void MenuStateConnectedGame::update() {
             			if(	lastUpdateDate <= 0 ||
             				difftime(time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS) {
             				techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL, true);
-
-            				clientInterface->sendTextMessage("#3 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
+            				//clientInterface->sendTextMessage("#3 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
             			}
                     }
 
@@ -1194,6 +1193,23 @@ void MenuStateConnectedGame::update() {
 	            			else {
 	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
 	            			}
+	            			if(factionCRC == 0) {
+	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+	            			}
+
+	            			if(factionCRC != 0) {
+								vector<pair<string,int32> > serverFactionCRCList = gameSettings->getFactionCRCList();
+								for(unsigned int factionIdx1 = 0; factionIdx1 < serverFactionCRCList.size(); ++factionIdx1) {
+									pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx1];
+									if(serverFaction.first == factionName) {
+										if(serverFaction.second != factionCRC) {
+											factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+										}
+										break;
+									}
+								}
+	            			}
+
 	    				}
 	    				factionCRCList.push_back(make_pair(factionName,factionCRC));
 	    			}
