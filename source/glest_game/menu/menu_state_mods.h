@@ -128,7 +128,7 @@ private:
 	int	keyButtonsHeight;
 	int keyButtonsWidth;
 
-	Console console;
+	//Console console;
 	bool showFullConsole;
 
 	string selectedTechName;

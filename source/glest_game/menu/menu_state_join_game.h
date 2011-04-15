@@ -56,7 +56,7 @@ private:
 	int playerIndex;
 	Properties servers;
 
-	Console console;
+	//Console console;
 	ChatManager chatManager;
 
 	string serversSavedFile;

@@ -832,7 +832,12 @@ void MainWindow::eventKeyDown(char key){
 						else {
 							sprintf(szBuf,"Screenshot will be saved to: %s",path.c_str());
 						}
-						program->consoleAddLine(szBuf);
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
+						if(Config::getInstance().getBool("DisableScreenshotConsoleText","false") == false) {
+							program->consoleAddLine(szBuf);
+						}
 
 						Renderer::getInstance().saveScreen(path);
 						break;

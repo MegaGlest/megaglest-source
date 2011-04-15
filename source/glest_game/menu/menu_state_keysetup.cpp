@@ -299,6 +299,8 @@ void MenuStateKeysetup::render(){
 		}
 		renderer.renderScrollBar(&keyScrollBar);
 	}
+
+	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
@@ -312,6 +314,8 @@ void MenuStateKeysetup::update() {
 					- keyScrollBar.getVisibleStart()));
 		}
 	}
+
+	console.update();
 }
 
 

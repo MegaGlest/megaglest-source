@@ -194,6 +194,8 @@ void MenuStateRoot::render() {
 	renderer.renderButton(&buttonExit);
 	renderer.renderLabel(&labelVersion);
 
+	renderer.renderConsole(&console,false,true);
+
 	//exit message box
 	if(mainMessageBox.getEnabled()){
 		renderer.renderMessageBox(&mainMessageBox);
@@ -205,6 +207,7 @@ void MenuStateRoot::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateRoot(program, mainMenu);
 	}
+	console.update();
 }
 
 void MenuStateRoot::keyDown(char key) {

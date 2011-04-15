@@ -121,7 +121,7 @@ private:
 	string generalErrorToShow;
 	bool serverInitError;
 
-	Console console;
+	//Console console;
 	ChatManager chatManager;
 	bool showFullConsole;
 

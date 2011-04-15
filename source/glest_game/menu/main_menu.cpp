@@ -194,6 +194,12 @@ bool MainMenu::isInSpecialKeyCaptureEvent() {
 	return state->isInSpecialKeyCaptureEvent();
 }
 
+void MainMenu::consoleAddLine(string line) {
+	if(state != NULL) {
+		state->consoleAddLine(line);
+	}
+}
+
 // =====================================================
 // 	class MenuState
 // =====================================================
@@ -251,6 +257,8 @@ MenuState::~MenuState() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-
+void MenuState::consoleAddLine(string line) {
+	console.addLine(line);
+}
 
 }}//end namespace
