@@ -1172,8 +1172,18 @@ void MenuStateConnectedGame::update() {
 	    				if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
 	    					factionName != GameConstants::OBSERVER_SLOTNAME &&
 	    					factionName != ITEM_MISSING) {
-	    					//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
-	    					factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
+
+	                    	time_t now = time(NULL);
+	                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml");
+
+	                    	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
+	            			if(	lastUpdateDate <= 0 ||
+	            				difftime(time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS) {
+	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+	            			}
+	            			else {
+	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
+	            			}
 	    				}
 	    				factionCRCList.push_back(make_pair(factionName,factionCRC));
 	    			}
