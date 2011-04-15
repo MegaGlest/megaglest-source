@@ -649,6 +649,19 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
             		this,fileArchiveExtension,fileArchiveExtractCommand,
             		fileArchiveExtractCommandParameters,fileArchiveExtractCommandSuccessResult);
             ftpClientThread->start();
+
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[1024]="";
+	            if(lang.hasString("CancelDownloadsMsg",languageList[i]) == true) {
+	            	sprintf(szMsg,lang.get("CancelDownloadsMsg",languageList[i]).c_str(),getHumanPlayerName().c_str());
+	            }
+	            else {
+	            	sprintf(szMsg,"Player: %s cancelled all file downloads.",getHumanPlayerName().c_str());
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+	    	}
         }
 	}
 	else if(buttonDisconnect.mouseClick(x,y)){
