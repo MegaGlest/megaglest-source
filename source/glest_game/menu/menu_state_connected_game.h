@@ -167,6 +167,7 @@ private:
     vector<pair<string,int32> > factionCRCList;
 
     std::map<string,pair<int,string> > fileFTPProgressList;
+    GraphicButton buttonCancelDownloads;
 
 public:
 

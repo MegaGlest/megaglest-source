@@ -1513,6 +1513,7 @@ string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 bool executeShellCommand(string cmd, int expectedResult) {
 	bool result = false;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"About to run [%s]", cmd.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("About to run [%s]", cmd.c_str());
 
 #ifdef WIN32
 	FILE *file = _popen(cmd.c_str(),"r");
@@ -1521,12 +1522,14 @@ bool executeShellCommand(string cmd, int expectedResult) {
 #endif
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"file = [%p]", file);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("file = [%p]", file);
 
 	if(file != NULL) {
 		char szBuf[4096]="";
 		while(feof(file) == false) {
 			if(fgets( szBuf, 4095, file) != NULL) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
 			}
 		}
 #ifdef WIN32
@@ -1537,6 +1540,7 @@ bool executeShellCommand(string cmd, int expectedResult) {
 
 		/* Close pipe and print return value. */
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Process returned %d\n",  cmdRet);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Process returned %d\n",  cmdRet);
 		result = (expectedResult == IGNORE_CMD_RESULT_VALUE || expectedResult == cmdRet);
 	}
 	return result;
