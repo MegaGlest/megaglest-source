@@ -1178,7 +1178,8 @@ void MenuStateConnectedGame::update() {
 
 	                    	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
 	            			if(	lastUpdateDate <= 0 ||
-	            				difftime(time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS) {
+	            				difftime(time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS ||
+	            				(techCRC != 0 && techCRC != gameSettings->getTechCRC())) {
 	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 	            			}
 	            			else {
