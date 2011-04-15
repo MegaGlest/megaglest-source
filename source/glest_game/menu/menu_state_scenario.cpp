@@ -192,6 +192,7 @@ void MenuStateScenario::render(){
 		renderer.renderButton(&buttonReturn);
 		renderer.renderButton(&buttonPlayNow);
 	}
+	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
@@ -226,6 +227,7 @@ void MenuStateScenario::update() {
 			needToLoadTextures= false;
 		}
 	}
+	console.update();
 }
 
 void MenuStateScenario::launchGame() {

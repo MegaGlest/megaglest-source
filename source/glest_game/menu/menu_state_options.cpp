@@ -771,6 +771,7 @@ void MenuStateOptions::render(){
         renderer.renderListBox(&listBoxScreenShotType);
 	}
 
+	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

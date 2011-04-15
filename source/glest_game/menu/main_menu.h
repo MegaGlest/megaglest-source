@@ -111,6 +111,7 @@ public:
     int getMouseX() const {return mouseX;}
     int getMouseY() const {return mouseY;}
     int getMouse2dAnim() const {return mouse2dAnim;}
+    virtual void consoleAddLine(string line);
 
 };
 
@@ -127,6 +128,7 @@ protected:
 	Camera camera;
 
 	const char *containerName;
+	Console console;
 
 public:
 	MenuState(Program *program, MainMenu *mainMenu, const string &stateName);
@@ -142,6 +144,7 @@ public:
 	const Camera *getCamera() const			{return &camera;}
 
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
+	virtual void consoleAddLine(string line);
 };
 
 }}//end namespace

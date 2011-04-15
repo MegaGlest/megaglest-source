@@ -104,7 +104,7 @@ private:
 	time_t lastSetChangedGameSettings;
 	bool updateDataSynchDetailText;
 
-	Console console;
+	//Console console;
 	ChatManager chatManager;
 	bool showFullConsole;
 

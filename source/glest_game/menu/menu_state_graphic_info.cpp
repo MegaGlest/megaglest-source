@@ -71,6 +71,8 @@ void MenuStateGraphicInfo::render(){
 	renderer.renderButton(&buttonReturn);
 	renderer.renderLabel(&labelInfo);
 	renderer.renderLabel(&labelMoreInfo);
+
+	renderer.renderConsole(&console,false,true);
 }
 
 void MenuStateGraphicInfo::keyDown(char key) {

@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -122,6 +122,7 @@ void MenuStateNewGame::render(){
 	renderer.renderButton(&buttonTutorial);
 	renderer.renderButton(&buttonReturn);
 
+	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
@@ -129,6 +130,7 @@ void MenuStateNewGame::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateNewGame(program, mainMenu);
 	}
+	console.update();
 }
 
 void MenuStateNewGame::keyDown(char key) {
