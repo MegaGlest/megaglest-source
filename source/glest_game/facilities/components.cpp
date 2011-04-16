@@ -249,10 +249,11 @@ void GraphicComponent::resetFade(){
 const int GraphicLabel::defH= 20;
 const int GraphicLabel::defW= 70;
 
-void GraphicLabel::init(int x, int y, int w, int h, bool centered, Vec3f textColor){
+void GraphicLabel::init(int x, int y, int w, int h, bool centered, Vec3f textColor, bool wordWrap) {
 	GraphicComponent::init(x, y, w, h);
 	this->centered= centered;
 	this->textColor=textColor;
+	this->wordWrap = wordWrap;
 }
 
 // =====================================================
@@ -264,7 +265,7 @@ const int GraphicButton::defW= 90;
 
 GraphicButton::GraphicButton(std::string containerName, std::string objName) : GraphicComponent(containerName,objName) {
 	lighted = false;
-	useCustomTexture = false;;
+	useCustomTexture = false;
 	customTexture = NULL;
 }
 

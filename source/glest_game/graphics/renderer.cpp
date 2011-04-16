@@ -1295,26 +1295,36 @@ void Renderer::renderLabel(const GraphicLabel *label,const Vec4f *color) {
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
-	Vec2i textPos;
-	int x= label->getX();
-    int y= label->getY();
-    int h= label->getH();
-    int w= label->getW();
-
-	if(label->getCentered()){
-		textPos= Vec2i(x+w/2, y+h/2);
-	}
-	else{
-		textPos= Vec2i(x, y+h/4);
-	}
-
-	if(color != NULL) {
-		renderText(label->getText(), label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
+	vector<string> lines;
+	if(label->getWordWrap() == true) {
+		Tokenize(label->getText(),lines,"\n");
 	}
 	else {
-		renderText(label->getText(), label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+		lines.push_back(label->getText());
 	}
 
+	for(unsigned int i = 0; i < lines.size(); ++i) {
+		Vec2i textPos;
+		int x= label->getX();
+		int y= label->getY() - (i * label->getH());
+		int h= label->getH();
+		int w= label->getW();
+		//if(label->getInstanceName() == "modDescrLabel") printf("~~~ lines.size() [%u] i = %d lines[i] [%s] y = %d\n",lines.size(),i,lines[i].c_str(),y);
+
+		if(label->getCentered()){
+			textPos= Vec2i(x+w/2, y+h/2);
+		}
+		else{
+			textPos= Vec2i(x, y+h/4);
+		}
+
+		if(color != NULL) {
+			renderText(lines[i], label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
+		}
+		else {
+			renderText(lines[i], label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+		}
+	}
 	glPopAttrib();
 }
 

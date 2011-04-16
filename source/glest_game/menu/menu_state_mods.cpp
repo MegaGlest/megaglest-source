@@ -133,6 +133,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	modDescrLabel.registerGraphicComponent(containerName,"modDescrLabel");
 	modDescrLabel.init(50,installButtonYPos-60 - 20,450,20);
+	modDescrLabel.setWordWrap(true);
 	modDescrLabel.setText("description is empty");
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
@@ -1649,7 +1650,10 @@ string MenuStateMods::getPreviewImageFileForMod(const ModInfo *modInfo) {
 void MenuStateMods::showDesription(const ModInfo *modInfo) {
 	displayModPreviewImage = false;
 	modInfoSelected = *modInfo;
-	modDescrLabel.setText(modInfo->description);
+
+	string modText = modInfo->description;
+	replaceAll(modText, "\\n", "\n");
+	modDescrLabel.setText(modText);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### modInfo->imageUrl [%s]\n",modInfo->imageUrl.c_str());
 

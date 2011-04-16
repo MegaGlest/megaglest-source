@@ -75,6 +75,9 @@ public:
 
 	virtual void init(int x, int y, int w, int h);
 
+	string getInstanceName() const { return instanceName; }
+	void setInstanceName(string value) { instanceName = value; }
+
     virtual int getX() const				{return x;}
 	virtual int getY() const				{return y;}
 	virtual int getW() const				{return w;}
@@ -116,14 +119,19 @@ public:
 private:
 	bool centered;
 	Vec3f textColor;
+	bool wordWrap;
 
 public:
-	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=Vec3f(1.f, 1.f, 1.f));
+	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=Vec3f(1.f, 1.f, 1.f), bool wordWrap=false);
 
 	bool getCentered() const	{return centered;}
 	void setCentered(bool centered)	{this->centered= centered;}
 	Vec3f getTextColor() const	{return textColor;}
 	void setTextColor(Vec3f color)	{this->textColor= color;}
+
+	bool getWordWrap() const { return wordWrap; }
+	void setWordWrap(bool value) { wordWrap = value; }
+
 };
 
 // ===========================================================
