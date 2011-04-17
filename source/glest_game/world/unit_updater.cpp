@@ -1085,7 +1085,23 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    		if(frameIndex < 0) {
 					switch(tsValue) {
 					case tsMoving:
-						unit->setCurrSkill(hct->getMoveLoadedSkillType());
+						{
+						if (hct->canHarvest(unit->getLoadType()) == false) {
+							// hct has changed to a different harvest command.
+							const HarvestCommandType *previousHarvestCmd = unit->getType()->getFirstHarvestCommand(unit->getLoadType(),unit->getFaction());
+							if(previousHarvestCmd != NULL) {
+								//printf("\n\n#1\n\n");
+								unit->setCurrSkill(previousHarvestCmd->getMoveLoadedSkillType()); // make sure we use the right harvest animation
+							}
+							else {
+								//printf("\n\n#2\n\n");
+								unit->setCurrSkill(hct->getMoveLoadedSkillType());
+							}
+						}
+						else {
+							unit->setCurrSkill(hct->getMoveLoadedSkillType());
+						}
+						}
 						break;
 					default:
 						break;
@@ -1134,9 +1150,35 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 			Resource *r= sc->getResource();
 
 			if (r != NULL) {
-				if (!hct->canHarvest(r->getType()) || r->getType() != unit->getLoadType()) {
+				if (hct->canHarvest(r->getType()) == false ||
+					r->getType()->getName() != unit->getLoadType()->getName()) {
 					// hct has changed to a different harvest command.
-					unit->setCurrSkill(hct->getStopLoadedSkillType()); // this is actually the wrong animation
+					if(r->getType()->getName() != unit->getLoadType()->getName()) {
+						const HarvestCommandType *previousHarvestCmd = unit->getType()->getFirstHarvestCommand(unit->getLoadType(),unit->getFaction());
+						if(previousHarvestCmd != NULL) {
+							//printf("\n\n#1\n\n");
+							unit->setCurrSkill(previousHarvestCmd->getStopLoadedSkillType()); // make sure we use the right harvest animation
+						}
+						else {
+							//printf("\n\n#2\n\n");
+							unit->setCurrSkill(hct->getStopLoadedSkillType());
+						}
+					}
+					else if(hct->canHarvest(r->getType()) == false) {
+						const HarvestCommandType *previousHarvestCmd = unit->getType()->getFirstHarvestCommand(unit->getLoadType(),unit->getFaction());
+						if(previousHarvestCmd != NULL) {
+							//printf("\n\n#3\n\n");
+							unit->setCurrSkill(previousHarvestCmd->getStopLoadedSkillType()); // make sure we use the right harvest animation
+						}
+						else {
+							//printf("\n\n#4\n\n");
+							unit->setCurrSkill(hct->getStopLoadedSkillType());
+						}
+					}
+					else {
+						//printf("\n\n#5 [%s] [%s]\n\n",r->getType()->getName().c_str(),unit->getLoadType()->getName().c_str());
+						unit->setCurrSkill(hct->getStopLoadedSkillType()); // this is actually the wrong animation
+					}
 					unit->getPath()->clear();
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1167,11 +1209,13 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 										throw runtime_error("detected unsupported pathfinder type!");
 								}
 
+								//printf("\n\n#6\n\n");
 								unit->setCurrSkill(hct->getStopLoadedSkillType());
 							}
 						}
 
 						if (unit->getLoadCount() >= hct->getMaxLoad()) {
+							//printf("\n\n#7\n\n");
 							unit->setCurrSkill(hct->getStopLoadedSkillType());
 							unit->getPath()->clear();
 						}
@@ -1182,6 +1226,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 			}
 			else {
 				//if there is no resource, just stop
+				//printf("\n\n#8\n\n");
 				unit->setCurrSkill(hct->getStopLoadedSkillType());
 			}
 		}
