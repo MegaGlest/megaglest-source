@@ -37,7 +37,7 @@ string Properties::applicationPath = "";
 //	class Properties
 // =====================================================
 
-void Properties::load(const string &path){
+void Properties::load(const string &path, bool clearCurrentProperties) {
 
 	ifstream fileStream;
 	char lineBuffer[maxLine]="";
@@ -52,7 +52,9 @@ void Properties::load(const string &path){
 		throw runtime_error("Can't open propertyMap file: " + path);
 	}
 
-	propertyMap.clear();
+	if(clearCurrentProperties == true) {
+		propertyMap.clear();
+	}
 	while(!fileStream.eof()){
 		fileStream.getline(lineBuffer, maxLine);
 		lineBuffer[maxLine-1]='\0';
@@ -76,8 +78,25 @@ void Properties::load(const string &path){
 				if(applyTagsToValue(value) == true) {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Property key [%s] now has value [%s]\n",key.c_str(),value.c_str());
 				}
-				propertyMap.insert(PropertyPair(key, value));
-				propertyVector.push_back(PropertyPair(key, value));
+
+				bool replaceExisting = false;
+				if(propertyMap.find(key) != propertyMap.end()) {
+					replaceExisting = true;
+				}
+				propertyMap[key] = value;
+
+				if(replaceExisting == false) {
+					propertyVector.push_back(PropertyPair(key, value));
+				}
+				else {
+					for(unsigned int i = 0; i < propertyVector.size(); ++i) {
+						PropertyPair &currentPair = propertyVector[i];
+						if(currentPair.first == key) {
+							currentPair.second = value;
+							break;
+						}
+					}
+				}
 			}
 		}
 	}

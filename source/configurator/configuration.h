@@ -3,15 +3,15 @@
 
 #include <string>
 #include <vector>
-
 #include <wx/wx.h>
-
+#include "properties.h"
 #include "xml_parser.h"
 
 using std::string;
 using std::vector;
 
 using Shared::Xml::XmlNode;
+using namespace Shared::Util;
 
 namespace Configurator{
 
@@ -32,10 +32,12 @@ public:
 
 private:
 	string title;
+	string fileNameMain;
 	string fileName;
 	bool icon;
 	string iconPath;
 	FieldGroups fieldGroups;
+	Properties properties;
 
 public:
 	~Configuration();
@@ -43,7 +45,7 @@ public:
 	void load(const string &path);
 
 	void loadStructure(const string &path);
-	void loadValues(const string &path);
+	void loadValues(const string &path,bool clearCurrentProperties=true);
 
 	void save();
 

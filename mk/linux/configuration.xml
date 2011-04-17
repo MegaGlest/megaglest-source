@@ -1,8 +1,9 @@
 <?xml version="1.0" standalone="yes"?>
 <configuration>
 	<title value="Mega Glest"/>
-	<file-name value="glest.ini"/>
-	<icon value="true" path="megaglest.ico"/>
+        <file-name-main value="glest.ini"/>
+	<file-name value="$HOME/.megaglest/glestuser.ini"/>
+	<icon value="true" path="glest.ico"/>
 	<field-groups>
 		<field-group name="General">
 			<field type="Int">
@@ -61,16 +62,6 @@
 				<default value="2"/>
 				<min value="0"/>
 				<max value="20"/>
-			</field>
-			<field type="Enum">
-				<name value="Fog of war enabled"/>
-				<variable-name value="FogOfWar"/>
-				<description value=""/>
-				<default value="true"/>
-				<enums>
-					<enum value="true"/>
-					<enum value="false"/>
-				</enums>
 			</field>
 		</field-group>
 
