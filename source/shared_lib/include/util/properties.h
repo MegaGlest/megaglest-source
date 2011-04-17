@@ -30,7 +30,7 @@ namespace Shared{ namespace Util{
 ///	ini-like file loader
 // =====================================================
 
-class Properties{
+class Properties {
 private:
 	static const int maxLine= 4096;
 
@@ -45,13 +45,12 @@ private:
 	string path;
 	static string applicationPath;
 
-	bool applyTagsToValue(string &value);
 public:
 	static void setApplicationPath(string value) { applicationPath=value; }
 	static string getApplicationPath() { return applicationPath; }
 
 	void clear();
-	void load(const string &path);
+	void load(const string &path,bool clearCurrentProperties=true);
 	void save(const string &path);
 
 	int getPropertyCount() const	{return (int)propertyVector.size();}
@@ -75,6 +74,8 @@ public:
 	void setBool(const string &key, bool value);
 	void setFloat(const string &key, float value);
 	void setString(const string &key, const string &value);
+
+	static bool applyTagsToValue(string &value);
 
 	string getpath() const { return path;}
 

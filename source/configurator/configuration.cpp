@@ -4,12 +4,10 @@
 
 #include "xml_parser.h"
 #include "util.h"
-#include "properties.h"
 #include "conversion.h"
 
 using namespace std;
 using namespace Shared::Xml;
-using namespace Shared::Util;
 
 namespace Configurator{
 
@@ -30,10 +28,16 @@ void Configuration::load(const string &path){
             throw runtime_error("Cannot find file: " + path);
     }
 	loadStructure(path);
-    if(fileExists(fileName) == false) {
-        throw runtime_error("Cannot find file: " + fileName);
+
+    if(fileExists(fileNameMain) == false) {
+        throw runtime_error("Cannot find file: " + fileNameMain);
     }
-	loadValues(fileName);
+    loadValues(fileNameMain);
+
+    if(fileExists(fileName) == true) {
+    //    throw runtime_error("Cannot find file: " + fileName);
+    	loadValues(fileName,false);
+    }
 }
 
 void Configuration::loadStructure(const string &path){
@@ -46,14 +50,20 @@ void Configuration::loadStructure(const string &path){
 	//title
 	title= configurationNode->getChild("title")->getAttribute("value")->getValue();
 
+	//fileNameMain
+	fileNameMain= configurationNode->getChild("file-name-main")->getAttribute("value")->getValue();
+	Properties::applyTagsToValue(fileNameMain);
+
 	//fileName
 	fileName= configurationNode->getChild("file-name")->getAttribute("value")->getValue();
+	Properties::applyTagsToValue(fileName);
 
 	//icon
 	XmlNode *iconNode= configurationNode->getChild("icon");
 	icon= iconNode->getAttribute("value")->getBoolValue();
 	if(icon){
 		iconPath= iconNode->getAttribute("path")->getValue();
+		Properties::applyTagsToValue(iconPath);
 	}
 
 	const XmlNode *fieldGroupsNode= configurationNode->getChild("field-groups");
@@ -68,10 +78,11 @@ void Configuration::loadStructure(const string &path){
 	}
 }
 
-void Configuration::loadValues(const string &path){
-	Properties properties;
+void Configuration::loadValues(const string &path,bool clearCurrentProperties) {
+	//printf("\nLoading [%s] clearCurrentProperties = %d\n",path.c_str(),clearCurrentProperties);
 
-	properties.load(path);
+	//Properties properties;
+	properties.load(path,clearCurrentProperties);
 
 	for(unsigned int i=0; i<fieldGroups.size(); ++i){
 		FieldGroup *fg= fieldGroups[i];
@@ -82,10 +93,13 @@ void Configuration::loadValues(const string &path){
 	}
 }
 
-void Configuration::save(){
-	Properties properties;
+void Configuration::save() {
+	//Properties properties;
 
-	properties.load(fileName);
+	//properties.load(fileNameMain);
+	//if(fileExists(fileName) == true) {
+	//	properties.load(fileName,false);
+	//}
 
 	for(unsigned int i=0; i<fieldGroups.size(); ++i){
 		FieldGroup *fg= fieldGroups[i];
