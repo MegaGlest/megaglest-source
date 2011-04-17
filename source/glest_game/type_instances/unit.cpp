@@ -1652,7 +1652,16 @@ CommandResult Unit::checkCommand(Command *command) const {
        getType()->hasCommandType(command->getCommandType()) == false ||
        (ignoreCheckCommand == false && this->getFaction()->reqsOk(command->getCommandType()) == false)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] isOperative() = %d, command->getUnit() = %p, getType()->hasCommandType(command->getCommandType()) = %d, this->getFaction()->reqsOk(command->getCommandType()) = %d\n",__FILE__,__FUNCTION__, __LINE__,isOperative(),command->getUnit(),getType()->hasCommandType(command->getCommandType()),this->getFaction()->reqsOk(command->getCommandType()));
-        return crFailUndefined;
+
+		// Allow self healing if able to heal own unit type
+		if(	command->getUnit() == this &&
+			command->getCommandType()->getClass() == ccRepair &&
+			this->getType()->getFirstRepairCommand(this->getType()) != NULL) {
+
+		}
+		else {
+			return crFailUndefined;
+		}
 	}
 
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
