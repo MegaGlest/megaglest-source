@@ -181,6 +181,14 @@ bool Window::handleEvent() {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",__FILE__,__FUNCTION__,__LINE__);
 						toggleFullscreen();
 					}
+#ifdef WIN32
+					/* handle ALT+f4 */
+					if((keyName == "f4" || keyName == "F4")
+							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ALT-F4 pressed.\n",__FILE__,__FUNCTION__,__LINE__);
+						return false;
+					}
+#endif
 					if(global_window) {
 						char key = getKey(event.key.keysym,true);
 						key = tolower(key);
