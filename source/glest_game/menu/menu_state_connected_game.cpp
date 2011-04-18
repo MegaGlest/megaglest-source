@@ -1391,6 +1391,9 @@ void MenuStateConnectedGame::update() {
 
 								if(mismatchedFactionText != "") {
 									if(mismatchedFactionTextList.size() > 0) {
+										if(mismatchedFactionText != "") {
+											mismatchedFactionTextList.push_back(mismatchedFactionText);
+										}
 										for(unsigned int splitIdx = 0; splitIdx < mismatchedFactionTextList.size(); ++splitIdx) {
 											clientInterface->sendTextMessage(mismatchedFactionTextList[splitIdx],-1,localEcho,languageList[i]);
 										}
