@@ -1792,7 +1792,7 @@ void Renderer::renderMessageBox(const GraphicMessageBox *messageBox) {
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 
-	glColor4f(0.0f, 0.0f, 0.0f, 0.5f) ;
+	glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
 	glBegin(GL_TRIANGLE_STRIP);
 		glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
 		glVertex2i(messageBox->getX(), messageBox->getY());
