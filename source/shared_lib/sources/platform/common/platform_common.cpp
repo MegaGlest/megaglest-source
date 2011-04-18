@@ -1250,7 +1250,7 @@ void createDirectoryPaths(string Path) {
 #endif
 }
 
-void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
+void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bool isFullscreen) {
     // Get the current video hardware information
     //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
     //colorBits      = vidInfo->vfmt->BitsPerPixel;
@@ -1260,7 +1260,12 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     /* Get available fullscreen/hardware modes */
-    SDL_Rect**modes = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
+    int flags = SDL_RESIZABLE;
+    #if defined(WIN32) || defined(__APPLE__)
+    flags = 0;
+    #endif
+    if(isFullscreen) flags = SDL_FULLSCREEN;
+    SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|flags);
 
     /* Check if there are any modes available */
     if (modes == (SDL_Rect**)0) {
@@ -1309,7 +1314,7 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight) {
 }
 
 
-void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
+void getFullscreenVideoModes(list<ModeInfo> *modeinfos, bool isFullscreen) {
     // Get the current video hardware information
     //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
     //colorBits      = vidInfo->vfmt->BitsPerPixel;
@@ -1341,14 +1346,26 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 					format.BitsPerPixel = 16;
 					bpp = 16;
 					break;
+				case 3://8 bpp
+					format.BitsPerPixel = 8;
+					bpp = 8;
+					break;
 			}
 
 			/* Get available fullscreen/hardware modes */
 			//SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|SDL_RESIZABLE);
-			SDL_Rect**modes = SDL_ListModes(&format, SDL_FULLSCREEN);
+
+		    int flags = SDL_RESIZABLE;
+		    #if defined(WIN32) || defined(__APPLE__)
+		    flags = 0;
+		    #endif
+		    if(isFullscreen) flags = SDL_FULLSCREEN;
+			SDL_Rect**modes = SDL_ListModes(&format, SDL_OPENGL|flags);
 
 			/* Check if there are any modes available */
 			if (modes == (SDL_Rect**)0) {
+				//printf("NO resolutions are usable for format = %d\n",format.BitsPerPixel);
+
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
 
 			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
@@ -1361,6 +1378,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 		   }
 		   /* Check if our resolution is restricted */
 		   else if (modes == (SDL_Rect**)-1) {
+			   //printf("ALL resolutions are usable for format = %d\n",format.BitsPerPixel);
 			   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
 
 			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
@@ -1370,8 +1388,96 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
 		       }
 		       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
+
+		       // Lets add these resolutions since sdl said all are supported
+		       /*
+		       240x160	 4:3		 GameboyAdvanced
+		       256x192	 4:3		 NintendoDS
+		       320x240	 4:3		 GP2x
+		       480x272	 ~16:9		 PSP
+		       480x320	 3:2		 iPhone
+		       640x480	 4:3		 numerous PDA use this resolution
+		       800x480	 5:3		 ASUS Eee PC, Nokia N800
+		       1024x600	 ~16:9		 ASUS Eee PC 1000
+		       1024x768	 4:3		 common LCD format
+		       1200x900	 4:3		 OLPC
+		       1280x1024	 5:4		 common LCD format
+		       1440x900	 16:10		 common LCD format
+		       1680x1050	 16:10		 common LCD format
+		       1600x1200	 4:3		 common LCD format
+		       1366x768	 ~16:9		 common resolution of HD-TVs, even so its not actually an official HD-TV resolution
+		       1368x768	 ~16:9		 common resolution of HD-TVs, even so its not actually an official HD-TV resolution
+		       1920x1200	 16:10		 common LCD format
+		       2560x1600	 16:10		 30" LCD
+		       1280x720	 16:9		 HD-TV (720p)
+		       1920x1080	 16:9		 HD-TV (1080p)
+		       2560x1440	 16:9		 Apple iMac
+		       2560x1600	 16:10		 Largest Available Consumer Monitor
+		       */
+
+		       vector<pair<int,int> > allResoltuions;
+		       if(SDL_VideoModeOK(640, 480, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(640, 480));
+		       }
+		       if(SDL_VideoModeOK(800, 480, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(800, 480));
+		       }
+		       if(SDL_VideoModeOK(800, 600, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(800, 600));
+		       }
+		       if(SDL_VideoModeOK(1024, 600, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1024, 600));
+		       }
+		       if(SDL_VideoModeOK(1024, 768, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1024, 768));
+		       }
+		       if(SDL_VideoModeOK(1280, 720, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1280, 720));
+		       }
+		       if(SDL_VideoModeOK(1200, 900, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1200, 900));
+		       }
+		       if(SDL_VideoModeOK(1280, 1024, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1280, 1024));
+		       }
+		       if(SDL_VideoModeOK(1440, 900, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1440, 900));
+		       }
+		       if(SDL_VideoModeOK(1680, 1050, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1680, 1050));
+		       }
+		       if(SDL_VideoModeOK(1600, 1200, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1600, 1200));
+		       }
+		       if(SDL_VideoModeOK(1366, 768, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1366, 768));
+		       }
+		       if(SDL_VideoModeOK(1920, 1080, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1920, 1080));
+		       }
+		       if(SDL_VideoModeOK(1920, 1200, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(1920, 1200));
+		       }
+		       if(SDL_VideoModeOK(2560, 1600, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(2560, 1600));
+		       }
+		       if(SDL_VideoModeOK(2560, 1440, bpp, SDL_OPENGL|flags) == bpp) {
+		    	   allResoltuions.push_back(make_pair(2560, 1440));
+		       }
+
+			   for(unsigned int i=0; i < allResoltuions.size(); ++i) {
+				   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",allResoltuions[i].first, allResoltuions[i].second,bpp);
+				    string lookupKey = intToStr(allResoltuions[i].first) + "_" + intToStr(allResoltuions[i].second) + "_" + intToStr(bpp);
+				    if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
+				    	uniqueResList[lookupKey] = true;
+				    	modeinfos->push_back(ModeInfo(allResoltuions[i].first, allResoltuions[i].second,bpp));
+				    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,allResoltuions[i].first, allResoltuions[i].second,bpp);
+				    }
+			   }
 		   }
-		   else{
+		   else {
+			   //printf("SOME resolutions are usable for format = %d\n",format.BitsPerPixel);
+
 			   /* Print valid modes */
 			   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1392,7 +1498,7 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos) {
 				    }
 			   }
 		  }
-	} while(++loops != 3);
+	} while(++loops != 4);
 }
 
 

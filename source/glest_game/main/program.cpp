@@ -575,7 +575,7 @@ void Program::setDisplaySettings(){
 
 	Config &config= Config::getInstance();
 
-	if(!config.getBool("Windowed")){
+	if(!config.getBool("Windowed")) {
 
 		int freq= config.getInt("RefreshFrequency");
 		int colorBits= config.getInt("ColorBits");
@@ -583,7 +583,7 @@ void Program::setDisplaySettings(){
 		int screenHeight= config.getInt("ScreenHeight");
 
         if(config.getBool("AutoMaxFullScreen","false") == true) {
-            getFullscreenVideoInfo(colorBits,screenWidth,screenHeight);
+            getFullscreenVideoInfo(colorBits,screenWidth,screenHeight,!config.getBool("Windowed"));
             config.setInt("ColorBits",colorBits);
             config.setInt("ScreenWidth",screenWidth);
             config.setInt("ScreenHeight",screenHeight);

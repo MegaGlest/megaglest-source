@@ -36,7 +36,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	Lang &lang= Lang::getInstance();
 	Config &config= Config::getInstance();
 	//modeinfos=list<ModeInfo> ();
-	Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos);
+	Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos,!config.getBool("Windowed"));
 	activeInputLabel=NULL;
 
 	int leftLabelStart=130;

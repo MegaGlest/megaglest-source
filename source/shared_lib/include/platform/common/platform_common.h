@@ -142,8 +142,8 @@ string extractDirectoryPathFromFile(string filename);
 string extractLastDirectoryFromPath(string Path);
 string extractExtension(const string& filename);
 
-void getFullscreenVideoModes(list<ModeInfo> *modeinfos);
-void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight);
+void getFullscreenVideoModes(list<ModeInfo> *modeinfos,bool isFullscreen);
+void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bool isFullscreen);
 bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);
 void restoreVideoMode(bool exitingApp=false);
 
