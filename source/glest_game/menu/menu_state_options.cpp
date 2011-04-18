@@ -130,7 +130,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 							  config.getString("ScreenHeight") + "-" +
 							  intToStr(config.getInt("ColorBits"));
 	bool currentResolutionFound = false;
-	for(list<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
+	for(vector<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
 		if((*it).getString() == currentResString) {
 			currentResolutionFound = true;
 		}
@@ -821,7 +821,7 @@ void MenuStateOptions::saveConfig(){
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
 	if(currentResolution!=selectedResolution){
-		for(list<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
+		for(vector<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it){
 			if((*it).getString()==selectedResolution)
 			{
 				config.setInt("ScreenWidth",(*it).width);

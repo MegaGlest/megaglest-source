@@ -55,6 +55,7 @@
 #include <algorithm>
 #include <map>
 #include "randomgen.h"
+#include <algorithm>
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -1314,7 +1315,7 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bo
 }
 
 
-void getFullscreenVideoModes(list<ModeInfo> *modeinfos, bool isFullscreen) {
+void getFullscreenVideoModes(vector<ModeInfo> *modeinfos, bool isFullscreen) {
     // Get the current video hardware information
     //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
     //colorBits      = vidInfo->vfmt->BitsPerPixel;
@@ -1499,6 +1500,8 @@ void getFullscreenVideoModes(list<ModeInfo> *modeinfos, bool isFullscreen) {
 			   }
 		  }
 	} while(++loops != 4);
+
+	std::sort(modeinfos->begin(),modeinfos->end());
 }
 
 

@@ -61,7 +61,7 @@ private:
 
 	GraphicLabel labelScreenModes;
 	GraphicListBox listBoxScreenModes;
-	list<ModeInfo> modeInfos;
+	vector<ModeInfo> modeInfos;
 
 	GraphicLabel labelFullscreenWindowed;
 	GraphicCheckBox checkBoxFullscreenWindowed;
