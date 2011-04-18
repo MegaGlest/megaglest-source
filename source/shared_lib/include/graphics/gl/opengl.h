@@ -48,23 +48,24 @@ int getGlModelviewMatrixStackDepth();
 int getGlProjectionMatrixStackDepth();
 void checkGlExtension(const char *extensionName);
 
-void inline _assertGl(const char *file, int line){
-
-	GLenum error= glGetError();
-
-	if(error != GL_NO_ERROR){
+void inline _assertGl(const char *file, int line, GLenum *forceErrorNumber = NULL) {
+	GLenum error = (forceErrorNumber != NULL ? *forceErrorNumber : glGetError());
+	if(error != GL_NO_ERROR) {
 		const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
-		throw runtime_error("OpenGL error: "+string(errorString)+" at file: "+string(file)+", line "+intToStr(line));
+		throw runtime_error("OpenGL error #" + intToStr(error) + " : " + string(errorString) + " at file: " + string(file) + ", line " + intToStr(line));
 	}
 
 }
 
 #ifdef NDEBUG
+
 #define assertGl() ((void) 0);
+#define assertGlWithErrorNumber(forceErrorNumber) ((void) 0);
 
 #else
 
 #define assertGl() _assertGl(__FILE__, __LINE__);
+#define assertGlWithErrorNumber(forceErrorNumber) _assertGl(__FILE__, __LINE__, &forceErrorNumber);
 	
 #endif
 

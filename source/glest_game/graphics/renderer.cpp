@@ -3685,7 +3685,7 @@ void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&
 // ==================== shadows ====================
 
 void Renderer::renderShadowsToTexture(const int renderFps){
-	if(!shadowsOffDueToMinRender &&
+	if(shadowsOffDueToMinRender == false &&
 		(shadows == sProjected || shadows == sShadowMapping)) {
 
 		shadowMapFrame= (shadowMapFrame + 1) % (shadowFrameSkip + 1);
@@ -3695,10 +3695,10 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 
 			glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT | GL_POLYGON_BIT);
 
-			if(shadows==sShadowMapping){
+			if(shadows == sShadowMapping) {
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}
-			else{
+			else {
 				float color= 1.0f-shadowAlpha;
 				glColor3f(color, color, color);
 				glClearColor(1.f, 1.f, 1.f, 1.f);
@@ -3706,12 +3706,16 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				glClear(GL_COLOR_BUFFER_BIT);
 			}
 
+			//assertGl();
+
 			//clear color buffer
 			//
 			//set viewport, we leave one texel always in white to avoid problems
 			glViewport(1, 1, shadowTextureSize-2, shadowTextureSize-2);
 
-			if(nearestLightPos.w==0.f){
+			//assertGl();
+
+			if(nearestLightPos.w == 0.f) {
 				//directional light
 
 				//light pos
@@ -3726,6 +3730,9 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				glMatrixMode(GL_PROJECTION);
 				glPushMatrix();
 				glLoadIdentity();
+
+				//assertGl();
+
 				if(game->getGameCamera()->getState()==GameCamera::sGame){
 					//glOrtho(-35, 5, -15, 15, -1000, 1000);
 					//glOrtho(-30, 30, -20, 20, -1000, 1000);
@@ -3734,6 +3741,8 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				else{
 					glOrtho(-30, 30, -20, 20, -1000, 1000);
 				}
+
+				//assertGl();
 
 				//push and set modelview
 				glMatrixMode(GL_MODELVIEW);
@@ -3747,18 +3756,25 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				const Vec3f &pos= game->getGameCamera()->getPos();
 
 				glTranslatef(static_cast<int>(-pos.x), 0, static_cast<int>(-pos.z));
+
+				//assertGl();
 			}
-			else{
+			else {
 				//non directional light
 
 				//push projection
 				glMatrixMode(GL_PROJECTION);
 				glPushMatrix();
 				glLoadIdentity();
+
+				//assertGl();
+
 				gluPerspective(perspFov, 1.f, perspNearPlane, perspFarPlane);
 				//const Metrics &metrics= Metrics::getInstance();
 				//gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
 
+
+				assertGl();
 
 				//push modelview
 				glMatrixMode(GL_MODELVIEW);
@@ -3766,20 +3782,33 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				glLoadIdentity();
 				glRotatef(-90, -1, 0, 0);
 				glTranslatef(-nearestLightPos.x, -nearestLightPos.y-2, -nearestLightPos.z);
+
+				//assertGl();
 			}
 
 			if(shadows == sShadowMapping) {
 				glEnable(GL_POLYGON_OFFSET_FILL);
 				glPolygonOffset(1.0f, 16.0f);
+
+				//assertGl();
 			}
 
 			//render 3d
 			renderUnitsFast(true);
 			renderObjectsFast(true,false);
 
+			//assertGl();
+
 			//read color buffer
 			glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
+			assertGl();
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, shadowTextureSize, shadowTextureSize);
+			GLenum error = glGetError();
+			// This error can happen when a Linux user switches from an X session
+			// back to a running game, and 'seems' to be safe to ignore it
+			if(error != GL_INVALID_OPERATION) {
+				assertGlWithErrorNumber(error);
+			}
 
 			//get elemental matrices
 			static Matrix4f matrix1;
@@ -3794,6 +3823,8 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 			Matrix4f matrix2;
 			glGetFloatv(GL_PROJECTION_MATRIX, matrix2.ptr());
 
+			//assertGl();
+
 			Matrix4f matrix3;
 			glGetFloatv(GL_MODELVIEW_MATRIX, matrix3.ptr());
 
@@ -3805,11 +3836,15 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 			glMatrixMode(GL_PROJECTION);
 			glPushMatrix();
 
+			//assertGl();
+
 			//compute texture matrix
 			glLoadMatrixf(matrix1.ptr());
 			glMultMatrixf(matrix2.ptr());
 			glMultMatrixf(matrix3.ptr());
 			glGetFloatv(GL_TRANSPOSE_PROJECTION_MATRIX_ARB, shadowMapMatrix.ptr());
+
+			//assertGl();
 
 			//if(shadows == sShadowMapping) {
 			//	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -3818,6 +3853,8 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 
 			//pop
 			glPopMatrix();
+
+			//assertGl();
 
 			glPopAttrib();
 
