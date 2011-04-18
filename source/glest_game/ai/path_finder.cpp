@@ -472,11 +472,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						if(i < pathFindRefresh) {
 							path->add(nodePos);
 						}
-						else if(tryLastPathCache == false) {
-							break;
-						}
+						//else if(tryLastPathCache == false) {
+						//	break;
+						//}
 
-						if(tryLastPathCache == true && basicPathFinder) {
+						//if(tryLastPathCache == true && basicPathFinder) {
+						if(basicPathFinder) {
 							basicPathFinder->addToLastPathCache(nodePos);
 						}
 					}
@@ -923,11 +924,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				if(i < pathFindRefresh) {
 					path->add(nodePos);
 				}
-				else if(tryLastPathCache == false) {
-					break;
-				}
+				//else if(tryLastPathCache == false) {
+				//	break;
+				//}
 
-				if(tryLastPathCache == true && basicPathFinder) {
+				//if(tryLastPathCache == true && basicPathFinder) {
+				if(basicPathFinder) {
 					basicPathFinder->addToLastPathCache(nodePos);
 				}
 			}

@@ -80,6 +80,12 @@ GameCamera::~GameCamera() {
 	cacheVisibleQuad.clear();
 }
 
+std::string GameCamera::getCameraMovementKey() const {
+	char szBuf[1024]="";
+	sprintf(szBuf,"%s_%f_%f_%f_%s,%f",pos.getString().c_str(),hAng,vAng,rotate,move.getString().c_str(),fov);
+	return szBuf;
+}
+
 void GameCamera::setMaxHeight(float value) {
 	if(value < 0) {
 		maxHeight = Config::getInstance().getFloat("CameraMaxDistance","20");
@@ -177,6 +183,8 @@ void GameCamera::update(){
 }
 
 Quad2i GameCamera::computeVisibleQuad() const {
+	//printf("\n@@@ hAng [%f] vAng [%f] fov [%f]\n",hAng,vAng,fov);
+
 	if(MaxVisibleQuadItemCache != 0) {
 		std::map<float, std::map<float, std::map<Vec3f, Quad2i> > >::const_iterator iterFind = cacheVisibleQuad.find(fov);
 		if(iterFind != cacheVisibleQuad.end()) {
@@ -189,6 +197,11 @@ Quad2i GameCamera::computeVisibleQuad() const {
 			}
 		}
 	}
+
+	//const float nearDist= 20.f;
+	//const float farDist= 90.f;
+	//const float dist= 20.f;
+
 	float nearDist = 20.f;
 	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
 	float farDist = 90.f * (pos.y > 20.f ? pos.y / 15.f : 1.f);
@@ -213,8 +226,19 @@ Quad2i GameCamera::computeVisibleQuad() const {
 	Vec2i p3(static_cast<int>(p.x + v2.x * nearDist), static_cast<int>(p.y + v2.y * nearDist));
 	Vec2i p4(static_cast<int>(p.x + v2.x * farDist), static_cast<int>(p.y + v2.y * farDist));
 
+	const int adjustPerfectSquareX = 15;
+	const bool adjustQuadToPerfectSquare = true;
 	Quad2i result;
 	if (hAng >= 135 && hAng <= 225) {
+		if(adjustQuadToPerfectSquare) {
+			//p1.y -= 10;
+			//p3.y -= 10;
+			//p2.y += 10;
+			//p4.y += 10;
+
+			//p3.x = p4.x + adjustPerfectSquareX;
+			//p3.x -= adjustPerfectSquareX;
+		}
 		result = Quad2i(p1, p2, p3, p4);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
@@ -222,6 +246,16 @@ Quad2i GameCamera::computeVisibleQuad() const {
 		}
 	}
 	else if (hAng >= 45 && hAng <= 135) {
+		if(adjustQuadToPerfectSquare) {
+			//p3.y -= 10;
+			//p4.y -= 10;
+			//p1.y += 10;
+			//p2.y += 10;
+
+			//p4.x = p2.x + adjustPerfectSquareX;
+			//p4.x -= adjustPerfectSquareX;
+		}
+
 		result = Quad2i(p3, p1, p4, p2);
 
 		if(MaxVisibleQuadItemCache != 0 &&
@@ -230,6 +264,16 @@ Quad2i GameCamera::computeVisibleQuad() const {
 		}
 	}
 	else if (hAng >= 225 && hAng <= 315) {
+		if(adjustQuadToPerfectSquare) {
+			//p2.y -= 10;
+			//p1.y -= 10;
+			//p4.y += 10;
+			//p3.y += 10;
+
+			//p1.x = p3.x + adjustPerfectSquareX;
+			//p1.x -= adjustPerfectSquareX;
+		}
+
 		result = Quad2i(p2, p4, p1, p3);
 
 		if(MaxVisibleQuadItemCache != 0 &&
@@ -238,6 +282,16 @@ Quad2i GameCamera::computeVisibleQuad() const {
 		}
 	}
 	else {
+		if(adjustQuadToPerfectSquare && hAng == 0) {
+			//p4.y -= 10;
+			//p2.y -= 10;
+			//p1.y += 10;
+			//p3.y += 10;
+
+			//p2.x = p1.x + adjustPerfectSquareX;
+			p2.x -= adjustPerfectSquareX;
+		}
+
 		result = Quad2i(p4, p3, p2, p1);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
@@ -245,9 +299,6 @@ Quad2i GameCamera::computeVisibleQuad() const {
 		}
 	}
 
-	if(result.p[0].x < -1000) {
-		int ii = 0;
-	}
 	return result;
 }
 
