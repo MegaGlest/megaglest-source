@@ -746,7 +746,12 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	CardinalDir facing;
 	// get facing/target ... the target might be dead due to lag, cope with it
 	if (ct->getClass() == ccBuild) {
-		assert(networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4);
+		//assert(networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4);
+		if(networkCommand->getTargetId() < 0 || networkCommand->getTargetId() >= 4) {
+			char szBuf[1024]="";
+			sprintf(szBuf,"networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4, [%s]",networkCommand->toString().c_str());
+			throw runtime_error(szBuf);
+		}
 		facing = CardinalDir(networkCommand->getTargetId());
 	}
 	else if (networkCommand->getTargetId() != Unit::invalidId ) {
