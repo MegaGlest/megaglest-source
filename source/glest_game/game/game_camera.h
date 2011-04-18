@@ -113,6 +113,8 @@ public:
 		destAng.y = hAng;
 	}
 
+	std::string getCameraMovementKey() const;
+
     //other
     void update();
     Quad2i computeVisibleQuad() const;

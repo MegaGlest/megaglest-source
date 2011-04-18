@@ -245,6 +245,7 @@ private:
 	bool allowRenderUnitTitles;
 	//std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
 	std::vector<Unit *> visibleFrameUnitList;
+	string visibleFrameUnitListCameraKey;
 
 	bool no2DMouseRendering;
 	bool showDebugUI;
@@ -258,7 +259,7 @@ private:
 	Mutex saveScreenShotThreadAccessor;
 	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
 
-	std::map<Vec3f,Vec3f> worldToScreenPosCache;
+	//std::map<Vec3f,Vec3f> worldToScreenPosCache;
 
 	std::map<uint32,VisibleQuadContainerVBOCache > mapSurfaceVBOCache;
 

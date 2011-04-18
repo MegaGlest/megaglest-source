@@ -162,6 +162,8 @@ Renderer::Renderer() {
 	particleRenderer = NULL;
 	saveScreenShotThread = NULL;
 	mapSurfaceData.clear();
+	visibleFrameUnitList.clear();
+	visibleFrameUnitListCameraKey = "";
 
 	lastRenderFps=MIN_FPS_NORMAL_RENDERING;
 	shadowsOffDueToMinRender=false;
@@ -337,7 +339,7 @@ void Renderer::initGame(const Game *game){
 	SurfaceData::nextUniqueId = 1;
 	mapSurfaceData.clear();
 	this->game= game;
-	worldToScreenPosCache.clear();
+	//worldToScreenPosCache.clear();
 
 	//check gl caps
 	checkGlOptionalCaps();
@@ -494,7 +496,7 @@ void Renderer::endGame() {
 
 	glDeleteLists(list3d, 1);
 
-	worldToScreenPosCache.clear();
+	//worldToScreenPosCache.clear();
 	ReleaseSurfaceVBOs();
 	mapSurfaceData.clear();
 }
@@ -2553,7 +2555,13 @@ void Renderer::renderUnits(const int renderFps) {
 	//assert
 	assertGl();
 
-	visibleFrameUnitList.clear();
+	if(visibleFrameUnitList.empty() == false) {
+		visibleFrameUnitList.clear();
+		//visibleFrameUnitListCameraKey = "";
+		//if(visibleFrameUnitListCameraKey != game->getGameCamera()->getCameraMovementKey()) {
+		//	worldToScreenPosCache.clear();
+		//}
+	}
 
 	bool modelRenderStarted = false;
 
@@ -2621,8 +2629,13 @@ void Renderer::renderUnits(const int renderFps) {
 
 			glPopMatrix();
 			unit->setVisible(true);
-			unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
-			visibleFrameUnitList.push_back(unit);
+			if(	showDebugUI == true &&
+				(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
+				//unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
+				unit->setScreenPos(computeScreenPosition(unit->getCurrVector()));
+				visibleFrameUnitList.push_back(unit);
+				visibleFrameUnitListCameraKey = game->getGameCamera()->getCameraMovementKey();
+			}
 
 			//if(allowRenderUnitTitles == true) {
 				// Add to the pending render unit title list
@@ -3571,9 +3584,9 @@ bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos){
 
 // This method takes world co-ordinates and translates them to screen co-ords
 Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
-	if(worldToScreenPosCache.find(worldPos) != worldToScreenPosCache.end()) {
-		return worldToScreenPosCache[worldPos];
-	}
+	//if(worldToScreenPosCache.find(worldPos) != worldToScreenPosCache.end()) {
+	//	return worldToScreenPosCache[worldPos];
+	//}
 	assertGl();
 
 	const Metrics &metrics= Metrics::getInstance();
@@ -3601,7 +3614,7 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 		&screenX, &screenY, &screenZ);
 
 	Vec3f screenPos(screenX,screenY,screenZ);
-	worldToScreenPosCache[worldPos]=screenPos;
+	//worldToScreenPosCache[worldPos]=screenPos;
 
 	return screenPos;
 }
@@ -4801,7 +4814,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 				unitRenderedList[unit->getId()] = true;
 			}
 			else {
-				string str = unit->getFullName() + " - " + intToStr(unit->getId());
+				string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
 				Vec3f screenPos = unit->getScreenPos();
 #ifdef USE_STREFLOP
 				renderText(str, font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
