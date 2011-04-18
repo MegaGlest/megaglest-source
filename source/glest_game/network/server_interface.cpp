@@ -34,7 +34,7 @@ namespace Glest { namespace Game {
 
 double maxFrameCountLagAllowed 							= 25;
 double maxClientLagTimeAllowed 							= 30;
-double maxFrameCountLagAllowedEver 						= 65;
+double maxFrameCountLagAllowedEver 						= 35;
 double warnFrameCountLagPercent 						= 0.65;
 double LAG_CHECK_GRACE_PERIOD 							= 15;
 double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE 				= 2;

@@ -1372,6 +1372,9 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
             Vec2i currPos= newSurfPos + currRelPos;
             if(map.isInsideSurface(currPos)){
 				SurfaceCell *sc= map.getSurfaceCell(currPos);
+				if(sc == NULL) {
+					throw runtime_error("sc == NULL");
+				}
 
 				//explore
 				//if(Vec2i(0).dist(currRelPos) < surfSightRange + indirectSightRange + 1) {
