@@ -114,13 +114,15 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg.str().c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg.str().c_str());
 
-		// try to revert to 800x600
-		screen = SDL_SetVideoMode(800, 600, 16, flags);
-		if(screen == 0) {
-			// try to revert to 640x480
-			screen = SDL_SetVideoMode(640, 480, 8, flags);
+		for(int i = 32; i >= 8; i-=8) {
+			// try to revert to 800x600
+			screen = SDL_SetVideoMode(800, 600, i, flags);
 			if(screen == 0) {
-				throw std::runtime_error(msg.str());
+				// try to revert to 640x480
+				screen = SDL_SetVideoMode(640, 480, i, flags);
+				if(screen == 0) {
+					throw std::runtime_error(msg.str());
+				}
 			}
 		}
 		//throw std::runtime_error(msg.str());
