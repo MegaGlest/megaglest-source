@@ -473,7 +473,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
         endPathWithSlash(techPath);
-        findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+        //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+        findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
 
         if(results.size() > 0) {
             break;
@@ -2673,7 +2674,9 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
         endPathWithSlash(techPath);
-        findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+        //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+        findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
+
         if(results.size() > 0) {
             break;
         }

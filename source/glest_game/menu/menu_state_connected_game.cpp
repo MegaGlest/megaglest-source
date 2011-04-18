@@ -1299,6 +1299,7 @@ void MenuStateConnectedGame::update() {
             		    		bool localEcho = lang.isLanguageLocal(languageList[i]);
 
 								string mismatchedFactionText = "";
+								vector<string> mismatchedFactionTextList;
 								vector<pair<string,int32> > serverFactionCRCList = gameSettings->getFactionCRCList();
 
 								for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
@@ -1311,6 +1312,10 @@ void MenuStateConnectedGame::update() {
 										if(serverFaction.first == clientFaction.first) {
 											foundFaction = true;
 											if(serverFaction.second != clientFaction.second) {
+												if(mismatchedFactionText.length() >= 150) {
+													mismatchedFactionTextList.push_back(mismatchedFactionText);
+													mismatchedFactionText = "";
+												}
 												if(mismatchedFactionText == "") {
 													mismatchedFactionText = "The following factions are mismatched: ";
 													if(lang.hasString("MismatchedFactions",languageList[i]) == true) {
@@ -1326,6 +1331,11 @@ void MenuStateConnectedGame::update() {
 									}
 
 									if(foundFaction == false) {
+										if(mismatchedFactionText.length() >= 150) {
+											mismatchedFactionTextList.push_back(mismatchedFactionText);
+											mismatchedFactionText = "";
+										}
+
 										if(mismatchedFactionText == "") {
 											mismatchedFactionText = "The following factions are mismatched: ";
 											if(lang.hasString("MismatchedFactions",languageList[i]) == true) {
@@ -1357,6 +1367,11 @@ void MenuStateConnectedGame::update() {
 									}
 
 									if(foundFaction == false) {
+										if(mismatchedFactionText.length() >= 150) {
+											mismatchedFactionTextList.push_back(mismatchedFactionText);
+											mismatchedFactionText = "";
+										}
+
 										if(mismatchedFactionText == "") {
 											mismatchedFactionText = "The following factions are mismatched: ";
 											if(lang.hasString("MismatchedFactions",languageList[i]) == true) {
@@ -1375,7 +1390,14 @@ void MenuStateConnectedGame::update() {
 								}
 
 								if(mismatchedFactionText != "") {
-									clientInterface->sendTextMessage(mismatchedFactionText,-1,localEcho,languageList[i]);
+									if(mismatchedFactionTextList.size() > 0) {
+										for(unsigned int splitIdx = 0; splitIdx < mismatchedFactionTextList.size(); ++splitIdx) {
+											clientInterface->sendTextMessage(mismatchedFactionTextList[splitIdx],-1,localEcho,languageList[i]);
+										}
+									}
+									else {
+										clientInterface->sendTextMessage(mismatchedFactionText,-1,localEcho,languageList[i]);
+									}
 								}
             		    	}
                         }
@@ -1947,7 +1969,8 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		for(int idx = 0; idx < techPaths.size(); idx++) {
 			string &techPath = techPaths[idx];
 			endPathWithSlash(techPath);
-			findAll(techPath + gameSettings->getTech() + "/factions/*.", results, false, false);
+			//findAll(techPath + gameSettings->getTech() + "/factions/*.", results, false, false);
+			findDirs(techPath + gameSettings->getTech() + "/factions/", results, false, false);
 			if(results.size() > 0) {
 				break;
 			}
