@@ -2317,6 +2317,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 				if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
 					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
 					lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+					if(lastCheckedCRCTechtreeValue == 0) {
+						lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
+					}
 
 					reloadFactions(true);
 					factionCRCList.clear();
@@ -2327,6 +2330,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 							factionName != GameConstants::OBSERVER_SLOTNAME) {
 							//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 							factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
+							if(factionCRC == 0) {
+								factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+							}
 						}
 						factionCRCList.push_back(make_pair(factionName,factionCRC));
 					}
