@@ -110,7 +110,20 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 			<< resW << "x" << resH << " (" << colorBits
 			<< "bpp " << stencilBits << " stencil "
 			<< depthBits << " depth-buffer). SDL Error is: " << SDL_GetError();
-		throw std::runtime_error(msg.str());
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg.str().c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg.str().c_str());
+
+		// try to revert to 800x600
+		screen = SDL_SetVideoMode(800, 600, 16, flags);
+		if(screen == 0) {
+			// try to revert to 640x480
+			screen = SDL_SetVideoMode(640, 480, 8, flags);
+			if(screen == 0) {
+				throw std::runtime_error(msg.str());
+			}
+		}
+		//throw std::runtime_error(msg.str());
 	}
 
 	SDL_WM_GrabInput(SDL_GRAB_OFF);
