@@ -1324,7 +1324,10 @@ void MenuStateConnectedGame::update() {
 
 													mismatchedFactionText += " ["+ intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
 												}
-												mismatchedFactionText += serverFaction.first + ", ";
+												else {
+													mismatchedFactionText += ", ";
+												}
+												mismatchedFactionText += serverFaction.first;
 											}
 											break;
 										}
@@ -1344,11 +1347,15 @@ void MenuStateConnectedGame::update() {
 
 											mismatchedFactionText += " ["+ intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
 										}
+										else {
+											mismatchedFactionText += ", ";
+										}
+
 										if(lang.hasString("MismatchedFactionsMissing",languageList[i]) == true) {
-											mismatchedFactionText += serverFaction.first + " " + lang.get("MismatchedFactionsMissing",languageList[i]) + ", ";
+											mismatchedFactionText += serverFaction.first + " " + lang.get("MismatchedFactionsMissing",languageList[i]);
 										}
 										else {
-											mismatchedFactionText += serverFaction.first + " (missing), ";
+											mismatchedFactionText += serverFaction.first + " (missing)";
 										}
 									}
 								}
@@ -1380,11 +1387,15 @@ void MenuStateConnectedGame::update() {
 
 											mismatchedFactionText += " ["+ intToStr(factionCRCList.size()) + "][" + intToStr(serverFactionCRCList.size()) + "] - ";
 										}
+										else {
+											mismatchedFactionText += ", ";
+										}
+
 										if(lang.hasString("MismatchedFactionsExtra",languageList[i]) == true) {
-											mismatchedFactionText += clientFaction.first + " " + lang.get("MismatchedFactionsExtra",languageList[i]) + ", ";
+											mismatchedFactionText += clientFaction.first + " " + lang.get("MismatchedFactionsExtra",languageList[i]);
 										}
 										else {
-											mismatchedFactionText += clientFaction.first + " (extra), ";
+											mismatchedFactionText += clientFaction.first + " (extra)";
 										}
 									}
 								}
@@ -1392,6 +1403,7 @@ void MenuStateConnectedGame::update() {
 								if(mismatchedFactionText != "") {
 									if(mismatchedFactionTextList.size() > 0) {
 										if(mismatchedFactionText != "") {
+											mismatchedFactionText += ".";
 											mismatchedFactionTextList.push_back(mismatchedFactionText);
 										}
 										for(unsigned int splitIdx = 0; splitIdx < mismatchedFactionTextList.size(); ++splitIdx) {
@@ -1399,6 +1411,7 @@ void MenuStateConnectedGame::update() {
 										}
 									}
 									else {
+										mismatchedFactionText += ".";
 										clientInterface->sendTextMessage(mismatchedFactionText,-1,localEcho,languageList[i]);
 									}
 								}
