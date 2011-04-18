@@ -84,8 +84,24 @@ void UpgradeManager::startUpgrade(const UpgradeType *upgradeType, int factionInd
 void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
 	map<const UpgradeType *,int>::iterator iterFind = upgradesLookup.find(upgradeType);
 	if(iterFind != upgradesLookup.end()) {
-		upgrades.erase(upgrades.begin() + iterFind->second);
+		if(iterFind->second >= upgrades.size()) {
+			char szBuf[1024]="";
+			sprintf(szBuf,"Error canceling upgrade, iterFind->second >= upgrades.size() - [%d] : [%d]",iterFind->second,(int)upgrades.size());
+			throw runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
+		}
+		int eraseIndex = iterFind->second;
+		upgrades.erase(upgrades.begin() + eraseIndex);
 		upgradesLookup.erase(upgradeType);
+
+		for(map<const UpgradeType *,int>::iterator iterMap = upgradesLookup.begin();
+			iterMap != upgradesLookup.end(); iterMap++) {
+			if(iterMap->second >= upgrades.size()) {
+				iterMap->second--;
+			}
+			if(iterMap->second < 0) {
+				upgradesLookup.erase(iterMap->first);
+			}
+		}
 	}
 	else {
 		throw runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
