@@ -48,7 +48,25 @@ MojoSetup.applocalization = {
         it = "We have detected a previous installation of Megaglest, should we remove it?",
     };
 
-	["docs/LICENSE"] = {
+    ["Megaglest Visit Website Title"] = {
+        en_GB = "Visit megaglest.org",
+        en_CA = "Visit megaglest.org",
+        de = "Visit megaglest.org",
+        es = "Visit megaglest.org",
+        pl = "Visit megaglest.org",
+        it = "Visit megaglest.org",
+    };
+
+    ["Megaglest Visit Website Prompt"] = {
+        en_GB = "Would you like to view our getting started page on megaglest.org?",
+        en_CA = "Would you like to view our getting started page on megaglest.org?",
+        de = "Would you like to view our getting started page on megaglest.org?",
+        es = "Would you like to view our getting started page on megaglest.org?",
+        pl = "Would you like to view our getting started page on megaglest.org?",
+        it = "Would you like to view our getting started page on megaglest.org?",
+    };
+
+    ["docs/LICENSE"] = {
     };
 
 };

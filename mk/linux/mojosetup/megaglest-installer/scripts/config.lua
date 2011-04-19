@@ -1,5 +1,5 @@
 local GAME_INSTALL_SIZE = 680000000;
-local GAME_VERSION = "3.5.0-beta2";
+local GAME_VERSION = "3.5.0";
 
 local _ = MojoSetup.translate
 
@@ -63,7 +63,9 @@ Setup.Package
     end,
 
     postinstall = function(package)
-        MojoSetup.launchbrowser("http://megaglest.org/get-started.html")
+	if MojoSetup.promptyn(_("Megaglest Visit Website Title"), _("Megaglest Visit Website Prompt")) then
+        	MojoSetup.launchbrowser("http://megaglest.org/get-started.html")
+	end
     end,
 
     Setup.Eula
