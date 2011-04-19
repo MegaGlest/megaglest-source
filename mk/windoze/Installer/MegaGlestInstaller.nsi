@@ -152,6 +152,7 @@ Function .onGUIEnd
 FunctionEnd
 
 Function .onInstSuccess
+    ExecShell open 'http://megaglest.org/get-started.html'
 
     MessageBox MB_YESNO "${APNAME} v${APVER} installed successfully, \
     click Yes to launch the game now$\nor 'No' to exit." IDNO noLaunch
