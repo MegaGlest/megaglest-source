@@ -138,7 +138,7 @@ const Vec4f Renderer::defAmbientColor= Vec4f(1.f * ambFactor, 1.f * ambFactor, 1
 const Vec4f Renderer::defColor= Vec4f(1.f, 1.f, 1.f, 1.f);
 
 //const float Renderer::maxLightDist= 100.f;
-const float Renderer::maxLightDist= 1000.f;
+const float Renderer::maxLightDist= 100.f;
 
 bool Renderer::rendererEnded = true;
 
@@ -644,12 +644,13 @@ void Renderer::setupLighting() {
 
     //unit lights (not projectiles)
 	if(timeFlow->isTotalNight()) {
-        for(int i=0; i<world->getFactionCount() && lightCount<maxLights; ++i){
-            for(int j=0; j<world->getFaction(i)->getUnitCount() && lightCount<maxLights; ++j){
+        for(int i = 0; i < world->getFactionCount() && lightCount < maxLights; ++i) {
+            for(int j = 0; j < world->getFaction(i)->getUnitCount() && lightCount < maxLights; ++j) {
                 Unit *unit= world->getFaction(i)->getUnit(j);
 				if(world->toRenderUnit(unit) &&
-					unit->getCurrVector().dist(gameCamera->getPos())<maxLightDist &&
+					unit->getCurrVector().dist(gameCamera->getPos()) < maxLightDist &&
                     unit->getType()->getLight() && unit->isOperative()){
+					//printf("$$$ Show light # %d / %d for Unit [%d - %s]\n",lightCount,maxLights,unit->getId(),unit->getFullName().c_str());
 
 					Vec4f pos= Vec4f(unit->getCurrVector());
                     pos.y+=4.f;
