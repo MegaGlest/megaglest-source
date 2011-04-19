@@ -1294,6 +1294,7 @@ void MenuStateConnectedGame::update() {
             		    		clientInterface->sendTextMessage(msg,-1,localEcho,languageList[i]);
             		    	}
 
+            		    	const int MAX_CHAT_TEXT_LINE_LENGTH = 110;
             		    	//const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
             		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
             		    		bool localEcho = lang.isLanguageLocal(languageList[i]);
@@ -1312,7 +1313,7 @@ void MenuStateConnectedGame::update() {
 										if(serverFaction.first == clientFaction.first) {
 											foundFaction = true;
 											if(serverFaction.second != clientFaction.second) {
-												if(mismatchedFactionText.length() >= 150) {
+												if(mismatchedFactionText.length() >= 10) {
 													mismatchedFactionTextList.push_back(mismatchedFactionText);
 													mismatchedFactionText = "";
 												}
@@ -1334,7 +1335,7 @@ void MenuStateConnectedGame::update() {
 									}
 
 									if(foundFaction == false) {
-										if(mismatchedFactionText.length() >= 150) {
+										if(mismatchedFactionText.length() > MAX_CHAT_TEXT_LINE_LENGTH) {
 											mismatchedFactionTextList.push_back(mismatchedFactionText);
 											mismatchedFactionText = "";
 										}
@@ -1374,7 +1375,7 @@ void MenuStateConnectedGame::update() {
 									}
 
 									if(foundFaction == false) {
-										if(mismatchedFactionText.length() >= 150) {
+										if(mismatchedFactionText.length() > MAX_CHAT_TEXT_LINE_LENGTH) {
 											mismatchedFactionTextList.push_back(mismatchedFactionText);
 											mismatchedFactionText = "";
 										}
