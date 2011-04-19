@@ -1085,8 +1085,7 @@ void MenuStateCustomGame::RestoreLastGameSettings() {
 		needToRepublishToMasterserver = true;
 	}
 
-	if(hasNetworkGameSettings() == true)
-	{
+	if(hasNetworkGameSettings() == true) {
 		needToSetChangedGameSettings = true;
 		lastSetChangedGameSettings   = time(NULL);
 	}
@@ -2426,6 +2425,9 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
     GameSettings gameSettings;
 
+    GameSettings originalGameSettings;
+	loadGameSettings(&originalGameSettings);
+
     Config &config = Config::getInstance();
     string userData = config.getString("UserData_Root","");
     if(userData != "") {
@@ -2491,105 +2493,15 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-		listBoxMapFilter.setSelectedItemIndex(gameSettings.getMapFilterIndex());
-		listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
-
-		string mapFile = gameSettings.getMap();
-		mapFile = formatString(mapFile);
-		listBoxMap.setSelectedItem(mapFile);
-
-		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
-		labelMapInfo.setText(mapInfo.desc);
-
-		string tilesetFile = gameSettings.getTileset();
-		tilesetFile = formatString(tilesetFile);
-
-		listBoxTileset.setSelectedItem(tilesetFile);
-
-		string techtreeFile = gameSettings.getTech();
-		techtreeFile = formatString(techtreeFile);
-
-		listBoxTechTree.setSelectedItem(techtreeFile);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-		//gameSettings->setDefaultUnits(true);
-		//gameSettings->setDefaultResources(true);
-		//gameSettings->setDefaultVictoryConditions(true);
-
-		Lang &lang= Lang::getInstance();
-
-		//FogOfWar
-		listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
-		if(gameSettings.getFogOfWar() == false){
-			listBoxFogOfWar.setSelectedItemIndex(2);
-		}
-		if((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
-			if(gameSettings.getFogOfWar() == true){
-        		listBoxFogOfWar.setSelectedItemIndex(1);
-			}
-		}
-
-		listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
-		listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
-		listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
-
-		//listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
-
-		//labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
-
-		//listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-		listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(gameSettings.getNetworkPauseGameForLaggedClients());
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-		reloadFactions(false);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getFactionCount());
-
-		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
-			updateResourceMultiplier(i);
-			listBoxRMultiplier[i].setSelectedItemIndex(gameSettings.getResourceMultiplierIndex(i));
-			listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
-			lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
-
-			string factionName = gameSettings.getFactionTypeName(i);
-			factionName = formatString(factionName);
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,factionName.c_str());
-
-			listBoxFactions[i].setSelectedItem(factionName);
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, gameSettings.getNetworkPlayerName(i) [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,gameSettings.getNetworkPlayerName(i).c_str());
-
-			labelPlayerNames[i].setText(gameSettings.getNetworkPlayerName(i));
-		}
-
-		//SetActivePlayerNameEditor();
-
-		updateControlers();
-		updateNetworkSlots();
-
-		//if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-		//	needToRepublishToMasterserver = true;
-		//}
-
-        if(hasNetworkGameSettings() == true)
-        {
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
-        }
-    }
+		setupUIFromGameSettings(gameSettings);
+	}
     catch(const exception &ex) {
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ERROR = [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
     	showMessageBox( ex.what(), "Error", false);
 
-    	gameSettings = GameSettings();
+    	setupUIFromGameSettings(originalGameSettings);
+    	gameSettings = originalGameSettings;
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2597,6 +2509,100 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 	return gameSettings;
 }
 
+void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettings) {
+	listBoxMapFilter.setSelectedItemIndex(gameSettings.getMapFilterIndex());
+	listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
+
+	string mapFile = gameSettings.getMap();
+	mapFile = formatString(mapFile);
+	listBoxMap.setSelectedItem(mapFile);
+
+	loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+	labelMapInfo.setText(mapInfo.desc);
+
+	string tilesetFile = gameSettings.getTileset();
+	tilesetFile = formatString(tilesetFile);
+
+	listBoxTileset.setSelectedItem(tilesetFile);
+
+	string techtreeFile = gameSettings.getTech();
+	techtreeFile = formatString(techtreeFile);
+
+	listBoxTechTree.setSelectedItem(techtreeFile);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//gameSettings->setDefaultUnits(true);
+	//gameSettings->setDefaultResources(true);
+	//gameSettings->setDefaultVictoryConditions(true);
+
+	Lang &lang= Lang::getInstance();
+
+	//FogOfWar
+	listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
+	if(gameSettings.getFogOfWar() == false){
+		listBoxFogOfWar.setSelectedItemIndex(2);
+	}
+	if((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
+		if(gameSettings.getFogOfWar() == true){
+			listBoxFogOfWar.setSelectedItemIndex(1);
+		}
+	}
+
+	listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
+	listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
+	listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
+
+	//listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
+
+	//labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
+
+	//listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(gameSettings.getNetworkPauseGameForLaggedClients());
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	reloadFactions(false);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getFactionCount());
+
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
+		updateResourceMultiplier(i);
+		listBoxRMultiplier[i].setSelectedItemIndex(gameSettings.getResourceMultiplierIndex(i));
+		listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
+		lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+
+		string factionName = gameSettings.getFactionTypeName(i);
+		factionName = formatString(factionName);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,factionName.c_str());
+
+		listBoxFactions[i].setSelectedItem(factionName);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, gameSettings.getNetworkPlayerName(i) [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,gameSettings.getNetworkPlayerName(i).c_str());
+
+		labelPlayerNames[i].setText(gameSettings.getNetworkPlayerName(i));
+	}
+
+	//SetActivePlayerNameEditor();
+
+	updateControlers();
+	updateNetworkSlots();
+
+	//if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+	//	needToRepublishToMasterserver = true;
+	//}
+
+	if(hasNetworkGameSettings() == true)
+	{
+		needToSetChangedGameSettings = true;
+		lastSetChangedGameSettings   = time(NULL);
+	}
+}
 // ============ PRIVATE ===========================
 
 bool MenuStateCustomGame::hasNetworkGameSettings() {
