@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="yes"?>
 <configuration>
-	<title value="Mega Glest"/>
-        <file-name-main value="glest.ini"/>
+	<title value="MegaGlest"/>
+	<file-name-main value="glest.ini"/>
 	<file-name value="$HOME/.megaglest/glestuser.ini"/>
 	<icon value="true" path="glest.ico"/>
 	<field-groups>
@@ -10,19 +10,19 @@
 				<name value="Screen width"/>
 				<variable-name value="ScreenWidth"/>
 				<description value=""/>
-				<default value="1024"/>
+				<default value="800"/>
 			</field>
 			<field type="Int">
 				<name value="Screen height"/>
 				<variable-name value="ScreenHeight"/>
 				<description value=""/>
-				<default value="768"/>
+				<default value="600"/>
 			</field>
 			<field type="Int">
 				<name value="Refresh frequency"/>
 				<variable-name value="RefreshFrequency"/>
 				<description value=""/>
-				<default value="75"/>
+				<default value="60"/>
 			</field>
 			<field type="Enum">
 				<name value="Color bits"/>
@@ -100,7 +100,7 @@
 				<name value="Depth bits"/>
 				<variable-name value="DepthBits"/>
 				<description value="Z buffer precision"/>
-				<default value="32"/>
+				<default value="16"/>
 				<enums>
 					<enum value="16"/>
 					<enum value="24"/>
@@ -140,7 +140,7 @@ over everything shadows, but are slow and look aliased in some cards"/>
 				<description value="Size of the texture used for projected 
 
 shadows and shadow mapping, bigger sizes result in less pixelized shadows but are much slower"/>
-				<default value="512"/>
+				<default value="256"/>
 				<enums>
 					<enum value="256"/>
 					<enum value="512"/>			
@@ -316,6 +316,19 @@ when they are issued a command"/>
 				<min value="1"/>
 				<max value="50"/>
 			</field>
+
+			<field type="Enum">
+				<name value="Disable 3D mouse pointer"/>
+				<variable-name value="No2DMouseRendering"/>
+				<description value="Use the mouse pointer provided by the operating 
+
+system instead of a styled 3D mouse pointer."/>
+				<default value="false"/>
+				<enums>
+					<enum value="true"/>
+					<enum value="false"/>
+				</enums>
+			</field>
 		</field-group>
 
 		<field-group name="Network">
@@ -323,7 +336,7 @@ when they are issued a command"/>
 				<name value="Network player name"/>
 				<variable-name value="NetPlayerName"/>
 				<description value="Your player name for network games"/>
-				<default value="192.168.1.1"/>
+				<default value="newbie"/>
 			</field>
 			<field type="Enum">
 				<name value="Client data consistency checks"/>
@@ -393,7 +406,7 @@ when they are issued a command"/>
 				<name value="Debug LogFile"/>
 				<variable-name value="DebugLogFile"/>
 				<description value="Debug LogFile to save debug output"/>
-				<default value=""/>
+				<default value="debug.log"/>
 			</field>
 			<field type="IntRange">
 				<name value="AI log"/>
@@ -417,7 +430,7 @@ when they are issued a command"/>
 				<name value="Allow players to rotate Units when building new Units"/>
 				<variable-name value="AllowRotateUnits"/>
 				<description value=""/>
-				<default value="false"/>
+				<default value="true"/>
 				<enums>
 					<enum value="true"/>
 					<enum value="false"/>
