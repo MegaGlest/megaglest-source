@@ -104,7 +104,7 @@ foundInst:
 
   MessageBox MB_YESNO|MB_ICONEXCLAMATION \
   "${APNAME} v$R2 is already installed in [$R0]. $\n$\nClick `Yes` to remove the \
-  previous installation (including all your MODS) or `No` to over-write or install to a different location." \
+  previous installation or `No` to over-write (not recommended) or install to a different location." \
   IDYES uninstInit
 
   # change install folder to a version specific name to avoid over-writing
