@@ -111,6 +111,9 @@ private:
 	GraphicLabel labelScreenShotType;
 	GraphicListBox listBoxScreenShotType;
 
+	GraphicLabel labelDisableScreenshotConsoleText;
+	GraphicCheckBox checkBoxDisableScreenshotConsoleText;
+
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
