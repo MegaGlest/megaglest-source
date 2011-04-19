@@ -208,6 +208,7 @@ private:
 	void cleanup();
 
 	int32 getNetworkPlayerStatus();
+	void setupUIFromGameSettings(const GameSettings &gameSettings);
 };
 
 }}//end namespace
