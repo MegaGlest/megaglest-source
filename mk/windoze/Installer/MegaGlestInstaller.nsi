@@ -4,7 +4,7 @@
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
 !define APVER_OLD 3.4.0
-!define APVER 3.5.0-beta2
+!define APVER 3.5.0
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
@@ -152,7 +152,11 @@ Function .onGUIEnd
 FunctionEnd
 
 Function .onInstSuccess
+
+    MessageBox MB_YESNO "Would you like to view our getting started page on megaglest.org?" IDNO noLaunchWebsite
     ExecShell open 'http://megaglest.org/get-started.html'
+    
+noLaunchWebsite:
 
     MessageBox MB_YESNO "${APNAME} v${APVER} installed successfully, \
     click Yes to launch the game now$\nor 'No' to exit." IDNO noLaunch
