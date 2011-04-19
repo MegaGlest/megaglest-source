@@ -257,6 +257,16 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxScreenShotType.setSelectedItem(config.getString("ScreenShotFileType","jpg"));
 
 	currentLine-=30;
+
+	labelDisableScreenshotConsoleText.registerGraphicComponent(containerName,"lavelDisableScreenshotConsoleText");
+	labelDisableScreenshotConsoleText.init(currentLabelStart ,currentLine);
+	labelDisableScreenshotConsoleText.setText(lang.get("ScreenShotConsoleText"));
+
+	checkBoxDisableScreenshotConsoleText.registerGraphicComponent(containerName,"checkBoxDisableScreenshotConsoleText");
+	checkBoxDisableScreenshotConsoleText.init(currentColumnStart ,currentLine );
+	checkBoxDisableScreenshotConsoleText.setValue(!config.getBool("DisableScreenshotConsoleText","false"));
+	currentLine-=30;
+
 	// end
 
 	//////////////////////////////////////////////////////////////////
@@ -604,6 +614,9 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         checkBoxEnableTextureCompression.mouseClick(x, y);
 
         listBoxScreenShotType.mouseClick(x, y);
+
+        labelDisableScreenshotConsoleText.mouseClick(x, y);
+        checkBoxDisableScreenshotConsoleText.mouseClick(x, y);
 	}
 }
 
@@ -645,6 +658,9 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxEnableTextureCompression.mouseMove(x, y);
 
 	listBoxScreenShotType.mouseMove(x, y);
+
+    labelDisableScreenshotConsoleText.mouseMove(x, y);
+    checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
 }
 
 void MenuStateOptions::keyDown(char key){
@@ -769,6 +785,9 @@ void MenuStateOptions::render(){
 
         renderer.renderLabel(&labelScreenShotType);
         renderer.renderListBox(&listBoxScreenShotType);
+
+        renderer.renderLabel(&labelDisableScreenshotConsoleText);
+        renderer.renderCheckBox(&checkBoxDisableScreenshotConsoleText);
 	}
 
 	renderer.renderConsole(&console,false,true);
@@ -817,6 +836,8 @@ void MenuStateOptions::saveConfig(){
     config.setBool("EnableTextureCompression", checkBoxEnableTextureCompression.getValue());
 
     config.setString("ScreenShotFileType", listBoxScreenShotType.getSelectedItem());
+
+    config.setBool("DisableScreenshotConsoleText", !checkBoxDisableScreenshotConsoleText.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
