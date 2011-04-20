@@ -75,6 +75,7 @@ private:
 	GraphicLine lineHorizontal;
 	GraphicLine lineVertical;
 	GraphicLine lineReturn;
+	GraphicLine lineVerticalReturn;
 
 	GraphicMessageBox mainMessageBox;
 	FTPMessageType mainMessageBoxState;

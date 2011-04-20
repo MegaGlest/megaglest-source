@@ -137,8 +137,11 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	modDescrLabel.setText("description is empty");
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-	buttonReturn.init(450, returnLineY - 40, 125);
+	buttonReturn.init(800, returnLineY - 30, 125);
 	buttonReturn.setText(lang.get("Return"));
+
+	lineVerticalReturn.init(buttonReturn.getX() - 10, returnLineY-80, 5, 81);
+	lineVerticalReturn.setHorizontal(false);
 
 	buttonInstallTech.registerGraphicComponent(containerName,"buttonInstallTech");
 	buttonInstallTech.init(techInfoXPos + 40, installButtonYPos, 125);
@@ -1753,6 +1756,7 @@ void MenuStateMods::render() {
 		renderer.renderLine(&lineHorizontal);
 		renderer.renderLine(&lineVertical);
 		renderer.renderLine(&lineReturn);
+		renderer.renderLine(&lineVerticalReturn);
 		renderer.renderButton(&buttonReturn);
 
 		renderer.renderButton(&buttonInstallTech);
@@ -1888,12 +1892,12 @@ void MenuStateMods::render() {
 		if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
         if(fileFTPProgressList.size() > 0) {
         	Lang &lang= Lang::getInstance();
-        	int xLocation = buttonReturn.getX() + buttonReturn.getW() + 20;
-            int yLocation = buttonReturn.getY();
+        	int xLocation = buttonReturn.getX();
+            int yLocation = buttonReturn.getY() - 12;
             for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
                 iterMap != fileFTPProgressList.end(); ++iterMap) {
 
-                string progressLabelPrefix = lang.get("ModDownloading") + " " + iterMap->first + " ";
+                string progressLabelPrefix = lang.get("ModDownloading") + " " + extractFileFromDirectoryPath(iterMap->first) + " ";
                 //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nRendering file progress with the following prefix [%s]\n",progressLabelPrefix.c_str());
 
                 renderer.renderProgressBar(
@@ -1903,7 +1907,7 @@ void MenuStateMods::render() {
                     xLocation,
                     yLocation,
                     CoreData::getInstance().getDisplayFontSmall(),
-                    350,progressLabelPrefix,false);
+                    185,progressLabelPrefix,false);
 
                 yLocation -= 10;
             }
