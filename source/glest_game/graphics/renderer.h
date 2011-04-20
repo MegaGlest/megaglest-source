@@ -433,7 +433,7 @@ public:
 
 	Texture2D *saveScreenToTexture(int x, int y, int width, int height);
 
-	void renderProgressBar(int size, int x, int y, Font2D *font,int customWidth=-1, string prefixLabel="");
+	void renderProgressBar(int size, int x, int y, Font2D *font,int customWidth=-1, string prefixLabel="", bool centeredText=true);
 
 	static Texture2D * findFactionLogoTexture(string logoFilename);
 	static Texture2D * preloadTexture(string logoFilename);

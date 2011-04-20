@@ -4648,7 +4648,8 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 	glEnd();
 }
 
-void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int customWidth, string prefixLabel) {
+void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int customWidth,
+		string prefixLabel,bool centeredText) {
 
     int currentSize     = size;
     int maxSize         = maxProgressBar;
@@ -4658,6 +4659,9 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
             currentSize     = (int)((double)customWidth * ((double)size / 100.0));
         }
         maxSize         = customWidth;
+        if(maxSize <= 0) {
+        	maxSize = maxProgressBar;
+        }
     }
     if(prefixLabel != "") {
         renderText = prefixLabel + renderText;
@@ -4688,7 +4692,12 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
 	//text
 	glColor3fv(defColor.ptr());
 	textRenderer->begin(font);
-	textRenderer->render(renderText.c_str(), x + maxSize / 2, y, true);
+	if(centeredText == true) {
+		textRenderer->render(renderText.c_str(), x + maxSize / 2, y, centeredText);
+	}
+	else {
+		textRenderer->render(renderText.c_str(), x, y, centeredText);
+	}
 	textRenderer->end();
 }
 
