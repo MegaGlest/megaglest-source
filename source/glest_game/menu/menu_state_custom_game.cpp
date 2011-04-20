@@ -3108,4 +3108,9 @@ int32 MenuStateCustomGame::getNetworkPlayerStatus() {
 	return result;
 }
 
+bool MenuStateCustomGame::isInSpecialKeyCaptureEvent() {
+	bool result = (chatManager.getEditEnabled() || activeInputLabel != NULL);
+	return result;
+}
+
 }}//end namespace

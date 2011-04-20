@@ -663,12 +663,15 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
     checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
 }
 
+bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
+	return (activeInputLabel != NULL);
+}
+
 void MenuStateOptions::keyDown(char key){
-	if(activeInputLabel!=NULL)
-	{
-		if(key==vkBack){
+	if(activeInputLabel != NULL) {
+		if(key == vkBack) {
 			string text= activeInputLabel->getText();
-			if(text.size()>1){
+			if(text.size() > 1) {
 				text.erase(text.end()-2);
 			}
 			activeInputLabel->setText(text);

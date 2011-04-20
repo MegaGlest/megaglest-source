@@ -183,7 +183,7 @@ public:
     virtual void keyPress(char c);
     virtual void keyUp(char key);
 
-    virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
+    virtual bool isInSpecialKeyCaptureEvent();
 
 private:
 
