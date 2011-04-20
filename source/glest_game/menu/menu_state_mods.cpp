@@ -1662,9 +1662,22 @@ void MenuStateMods::showDesription(const ModInfo *modInfo) {
 	    string tempImage  = getPreviewImageFileForMod(modInfo);
 	    if(tempImage != "" && fileExists(tempImage) == false) {
 	    	if(ftpClientThread != NULL) ftpClientThread->addFileToRequests(tempImage,modInfo->imageUrl);
+
+	    	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+			if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
+			fileFTPProgressList[tempImage] = pair<int,string>(0,"");
+			safeMutexFTPProgress.ReleaseLock();
+
 	    }
 	    else {
-	    	displayModPreviewImage = true;
+	    	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+			if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
+			if(fileFTPProgressList.find(tempImage) == fileFTPProgressList.end()) {
+				displayModPreviewImage = true;
+			}
+			safeMutexFTPProgress.ReleaseLock();
 	    }
 	}
 }
