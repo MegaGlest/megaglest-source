@@ -262,6 +262,7 @@ private:
 	float highlight;
 	int progress2;
 	int kills;
+	int enemyKills;
 
 	UnitReference targetRef;
 
@@ -376,7 +377,8 @@ public:
 	float getRotation() const					{return rotation;}
 	float getVerticalRotation() const;
 	ParticleSystem *getFire() const				{return fire;}
-	int getKills()								{return kills;}
+	int getKills() const						{return kills;}
+	int getEnemyKills() const					{return enemyKills;}
 	const Level *getLevel() const				{return level;}
 	const Level *getNextLevel() const;
 	string getFullName() const;
@@ -459,7 +461,7 @@ public:
 	void tick();
 	void applyUpgrade(const UpgradeType *upgradeType);
 	void computeTotalUpgrade();
-	void incKills();
+	void incKills(int team);
 	bool morph(const MorphCommandType *mct);
 	CommandResult checkCommand(Command *command) const;
 	void applyCommand(Command *command);
