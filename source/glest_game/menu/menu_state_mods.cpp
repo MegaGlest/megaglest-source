@@ -1660,6 +1660,9 @@ void MenuStateMods::showDesription(const ModInfo *modInfo) {
 	if(modInfo->imageUrl != "") {
 		cleanupPreviewTexture();
 	    string tempImage  = getPreviewImageFileForMod(modInfo);
+
+	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### tempImage [%s] exists [%d]\n",tempImage.c_str(),fileExists(tempImage));
+
 	    if(tempImage != "" && fileExists(tempImage) == false) {
 	    	if(ftpClientThread != NULL) ftpClientThread->addFileToRequests(tempImage,modInfo->imageUrl);
 
@@ -1885,6 +1888,7 @@ void MenuStateMods::render() {
 		if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
         if(fileFTPProgressList.size() > 0) {
         	Lang &lang= Lang::getInstance();
+        	int xLocation = buttonReturn.getX() + buttonReturn.getW() + 20;
             int yLocation = buttonReturn.getY();
             for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
                 iterMap != fileFTPProgressList.end(); ++iterMap) {
@@ -1894,10 +1898,12 @@ void MenuStateMods::render() {
 
                 renderer.renderProgressBar(
                     iterMap->second.first,
-                    10,
+                    //10,
+                    //yLocation,
+                    xLocation,
                     yLocation,
                     CoreData::getInstance().getDisplayFontSmall(),
-                    350,progressLabelPrefix);
+                    350,progressLabelPrefix,false);
 
                 yLocation -= 10;
             }
