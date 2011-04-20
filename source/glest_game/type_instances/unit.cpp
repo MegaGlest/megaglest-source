@@ -242,6 +242,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
     animProgress= 0;
     progress2= 0;
 	kills= 0;
+	enemyKills = 0;
 	loadCount= 0;
     ep= 0;
 	deadCount= 0;
@@ -1444,9 +1445,9 @@ string Unit::getDesc() const {
 
 	//kills
 	const Level *nextLevel= getNextLevel();
-	if(kills>0 || nextLevel!=NULL){
-		str+= "\n" + lang.get("Kills") +": " + intToStr(kills);
-		if(nextLevel!=NULL){
+	if(enemyKills > 0 || nextLevel != NULL) {
+		str+= "\n" + lang.get("Kills") +": " + intToStr(enemyKills);
+		if(nextLevel != NULL) {
 			str+= " (" + nextLevel->getName() + ": " + intToStr(nextLevel->getKills()) + ")";
 		}
 	}
@@ -1509,17 +1510,20 @@ void Unit::computeTotalUpgrade(){
 	faction->getUpgradeManager()->computeTotalUpgrade(this, &totalUpgrade);
 }
 
-void Unit::incKills(){
+void Unit::incKills(int team) {
 	++kills;
+	if(team != this->getTeam()) {
+		++enemyKills;
+	}
 
 	const Level *nextLevel= getNextLevel();
-	if(nextLevel!=NULL && kills>= nextLevel->getKills()){
+	if(nextLevel != NULL && enemyKills >= nextLevel->getKills()) {
 		level= nextLevel;
 		int maxHp= totalUpgrade.getMaxHp();
 		totalUpgrade.incLevel(type);
 
 		checkItemInVault(&this->hp,this->hp);
-		hp += totalUpgrade.getMaxHp()-maxHp;
+		hp += totalUpgrade.getMaxHp() - maxHp;
 		addItemToVault(&this->hp,this->hp);
 	}
 }
@@ -2143,6 +2147,7 @@ std::string Unit::toString() const {
 	result += " highlight = " + floatToStr(this->highlight);
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
+	result += " enemyKills = " + intToStr(this->enemyKills);
 	result += "\n";
 
 	// WARNING!!! Don't access the Unit pointer in this->targetRef in this method or it causes
