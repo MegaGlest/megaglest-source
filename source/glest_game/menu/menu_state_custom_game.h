@@ -173,7 +173,7 @@ public:
 
 
     virtual void simpleTask(BaseThread *callingThread);
-    virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
+    virtual bool isInSpecialKeyCaptureEvent();
 
 private:
 

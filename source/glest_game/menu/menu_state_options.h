@@ -123,7 +123,7 @@ public:
 	void render();
 	virtual void keyDown(char key);
     virtual void keyPress(char c);
-
+    virtual bool isInSpecialKeyCaptureEvent();
 
 private:
 	void saveConfig();

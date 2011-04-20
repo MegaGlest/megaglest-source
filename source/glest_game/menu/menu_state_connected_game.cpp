@@ -2387,6 +2387,11 @@ void MenuStateConnectedGame::cleanupMapPreviewTexture() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+bool MenuStateConnectedGame::isInSpecialKeyCaptureEvent() {
+	bool result = (chatManager.getEditEnabled() || activeInputLabel != NULL);
+	return result;
+}
+
 void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result, void *userdata) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
