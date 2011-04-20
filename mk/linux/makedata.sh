@@ -37,5 +37,5 @@ PACKAGE="$RELEASENAME-$VERSION.7z"
 echo "creating $PACKAGE"
 
 pushd $RELEASEDIR
-7za a "../$PACKAGE" *
+7za a -mx=9 -ms=on -mhc=on "../$PACKAGE" *
 popd

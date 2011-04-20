@@ -81,7 +81,7 @@ if [ -e ../$RELEASENAME.7z ]; then
 fi
 
 #echo 7za a "../$RELEASENAME.7z" $files_list
-7za a "../$RELEASENAME.7z" $files_list
+7za a -mx=9 -ms=on -mhc=on "../$RELEASENAME.7z" $files_list
 
 cd ..
 
