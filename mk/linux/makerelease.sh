@@ -31,7 +31,12 @@ cp -p glest.ini $RELEASEDIR
 cp -p glestkeys.ini $RELEASEDIR
 cp -p servers.ini $RELEASEDIR
 cp -p glest.ico $RELEASEDIR
-cp -p glest.ico $RELEASEDIR
+cp -p megaglest.png $RELEASEDIR
+cp -p megaglest.desktop $RELEASEDIR
+cp -p megaglest $RELEASEDIR
+cp -p start_megaglest_configurator $RELEASEDIR
+cp -p start_megaglest_mapeditor $RELEASEDIR
+cp -p start_megaglest_g3dviewer $RELEASEDIR
 cp -p ../../CMake* $RELEASEDIR
 
 pushd $RELEASEDIR
