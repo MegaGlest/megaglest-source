@@ -51,6 +51,9 @@ void SoundSource::unQueueBuffers() {
     alGetSourcei(source, AL_BUFFERS_QUEUED, &queued);
     SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 
+    alSourcei(source, AL_LOOPING, AL_FALSE);
+    SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+
 	ALint processed=0;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
     SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
@@ -148,6 +151,7 @@ void StaticSoundSource::play(StaticSound* sound) {
 	if(bufferAllocated) {
 		stop();
 		alDeleteBuffers(1, &buffer);
+		SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 	}
 	ALenum format = getFormat(sound);
 
@@ -548,13 +552,19 @@ StaticSoundSource* SoundPlayerOpenAL::findStaticSoundSource() {
 	if(initOk == false) return NULL;
 
 	// try to find a stopped source
+	int playingCount = 0;
 	for(StaticSoundSources::iterator i = staticSources.begin();
 			i != staticSources.end(); ++i) {
 		StaticSoundSource* source = *i;
 		if(! source->playing()) {
 			return source;
 		}
+		else {
+			playingCount++;
+		}
 	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d] playingCount = %d, staticSources.size() = %lu, params.staticBufferCount = %u\n",__FILE__,__FUNCTION__,__LINE__,playingCount,(unsigned long)staticSources.size(),params.staticBufferCount);
 
 	// create a new source
 	if(staticSources.size() >= params.staticBufferCount) {
