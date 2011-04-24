@@ -2332,8 +2332,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 							if(factionCRC == 0) {
 								factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 							}
+							factionCRCList.push_back(make_pair(factionName,factionCRC));
 						}
-						factionCRCList.push_back(make_pair(factionName,factionCRC));
 					}
 					//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
 					lastCheckedCRCTechtreeName = gameSettings->getTech();
