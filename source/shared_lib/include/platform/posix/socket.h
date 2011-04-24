@@ -145,7 +145,7 @@ public:
 
 	int getDataToRead(bool wantImmediateReply=false);
 	int send(const void *data, int dataSize);
-	int receive(void *data, int dataSize);
+	int receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet);
 	int peek(void *data, int dataSize, bool mustGetData=true);
 
 	void setBlock(bool block);

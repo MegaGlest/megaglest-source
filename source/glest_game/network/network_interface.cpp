@@ -184,7 +184,7 @@ void FileTransferSocketThread::execute()
         char data[513]="";
         memset(data, 0, 256);
 
-        clientSocket->receive(data,256);
+        clientSocket->receive(data,256, true);
         if(*data == SEND_FILE)
         {
             FileInfo file;
@@ -209,7 +209,7 @@ void FileTransferSocketThread::execute()
                 memcpy(data+1,&file,sizeof(file));
 
                 clientSocket->send(data,256);
-                clientSocket->receive(data,256);
+                clientSocket->receive(data,256, true);
                 if(*data != ACK) {
                    //transfer error
                 }
@@ -225,7 +225,7 @@ void FileTransferSocketThread::execute()
                     //if(written!=pack)
                     //    ; //read error
                     clientSocket->send(data,512);
-                    clientSocket->receive(data,256);
+                    clientSocket->receive(data,256, true);
                     if(*data!=ACK) {
                            //transfer error
                     }
@@ -238,7 +238,7 @@ void FileTransferSocketThread::execute()
                 //   ; //read error
 
                 clientSocket->send(data,remain);
-                clientSocket->receive(data,256);
+                clientSocket->receive(data,256, true);
                 if(*data!=ACK) {
                    //transfer error
                 }
@@ -274,12 +274,12 @@ void FileTransferSocketThread::execute()
                 memcpy(data+1,&file,sizeof(file));
 
                 clientSocket.send(data,256);
-                clientSocket.receive(data,256);
+                clientSocket.receive(data,256, true);
                 if(*data!=ACK) {
                   //transfer error
                 }
 
-                clientSocket.receive(data,256);
+                clientSocket.receive(data,256,true);
                 if(*data == SEND_FILE)
                 {
                    memcpy(&file, data+1, sizeof(file));
@@ -291,7 +291,7 @@ void FileTransferSocketThread::execute()
 
                    while(packs--)
                    {
-                      clientSocket.receive(data,512);
+                      clientSocket.receive(data,512,true);
 
                       outFile.write(data, 512);
                       if(outFile.bad())
@@ -305,7 +305,7 @@ void FileTransferSocketThread::execute()
                       *data=ACK;
                       clientSocket.send(data,256);
                     }
-                    clientSocket.receive(data,remain);
+                    clientSocket.receive(data,remain,true);
 
                     outFile.write(data, remain);
                     if(outFile.bad())

@@ -37,6 +37,7 @@ namespace Glest{ namespace Game{
 //	class NetworkMessage
 // =====================================================
 
+/*
 bool NetworkMessage::peek(Socket* socket, void* data, int dataSize) {
 	if(socket != NULL) {
 		int ipeekdatalen = socket->getDataToRead();
@@ -60,8 +61,10 @@ bool NetworkMessage::peek(Socket* socket, void* data, int dataSize) {
 	}
 	return false;
 }
+*/
 
-bool NetworkMessage::receive(Socket* socket, void* data, int dataSize) {
+bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryReceiveUntilDataSizeMet) {
+/*
 	if(socket != NULL) {
 		int ipeekdatalen = socket->getDataToRead();
 		if(ipeekdatalen >= dataSize) {
@@ -83,6 +86,25 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize) {
 		}
 	}
 	return false;
+*/
+
+	if(socket != NULL) {
+		int dataReceived = socket->receive(data, dataSize, tryReceiveUntilDataSizeMet);
+		if(dataReceived != dataSize) {
+			if(socket != NULL && socket->getSocketId() > 0) {
+				throw runtime_error("Error receiving NetworkMessage, dataReceived = " + intToStr(dataReceived) + ", dataSize = " + intToStr(dataSize));
+			}
+			else {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
+			}
+		}
+		else {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] dataSize = %d, dataReceived = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize,dataReceived);
+			return true;
+		}
+	}
+	return false;
+
 }
 
 void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const {
@@ -133,7 +155,7 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 }
 
 bool NetworkMessageIntro::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
 	data.name.nullTerminate();
 	data.versionString.nullTerminate();
 	data.language.nullTerminate();
@@ -164,7 +186,7 @@ NetworkMessagePing::NetworkMessagePing(int32 pingFrequency, int64 pingTime){
 }
 
 bool NetworkMessagePing::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
 	pingReceivedLocalTime = time(NULL);
 	return result;
 }
@@ -189,7 +211,7 @@ NetworkMessageReady::NetworkMessageReady(int32 checksum) {
 }
 
 bool NetworkMessageReady::receive(Socket* socket){
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+	return NetworkMessage::receive(socket, &data, sizeof(data), true);
 }
 
 void NetworkMessageReady::send(Socket* socket) const {
@@ -314,7 +336,7 @@ vector<pair<string,int32> > NetworkMessageLaunch::getFactionCRCList() const {
 }
 
 bool NetworkMessageLaunch::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
 	data.description.nullTerminate();
 	data.map.nullTerminate();
 	data.tileset.nullTerminate();
@@ -367,8 +389,9 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 bool NetworkMessageCommandList::receive(Socket* socket) {
     // _peek_ type, commandCount & frame num first.
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    const double MAX_MSG_WAIT_SECONDS = 3;
 
+/*
+	const double MAX_MSG_WAIT_SECONDS = 3;
     // Wait a max of x seconds for this message
 	for(time_t elapsedWait = time(NULL); difftime(time(NULL),elapsedWait) <= MAX_MSG_WAIT_SECONDS;) {
 		if (NetworkMessage::peek(socket, &data, commandListHeaderSize) == true) {
@@ -416,6 +439,38 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
         }
 	}
 	return result;
+*/
+
+	bool result = NetworkMessage::receive(socket, &data.header, commandListHeaderSize, true);
+	if(result == true) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got header, messageType = %d, commandCount = %u, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.commandCount,data.header.frameCount);
+		// read header + data.commandCount commands.
+		//int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
+
+		if(data.header.commandCount > 0) {
+			int totalMsgSize = (sizeof(NetworkCommand) * data.header.commandCount);
+			result = NetworkMessage::receive(socket, &data.commands, totalMsgSize, true);
+			if(result == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
+					for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
+						const NetworkCommand &cmd = data.commands[idx];
+
+						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] index = %d, received networkCommand [%s]\n",
+								__FILE__,__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
+					}
+				}
+			}
+			else {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR Failed to get command data, totalMsgSize = %d.\n",__FILE__,__FUNCTION__,__LINE__,totalMsgSize);
+			}
+		}
+	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR header not received as expected\n",__FILE__,__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR header not received as expected\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	return result;
+
 }
 
 void NetworkMessageCommandList::send(Socket* socket) const {
@@ -466,7 +521,7 @@ NetworkMessageText * NetworkMessageText::getCopy() const {
 }
 
 bool NetworkMessageText::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
 
 	data.text.nullTerminate();
 	data.targetLanguage.nullTerminate();
@@ -490,7 +545,7 @@ NetworkMessageQuit::NetworkMessageQuit(){
 }
 
 bool NetworkMessageQuit::receive(Socket* socket){
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+	return NetworkMessage::receive(socket, &data, sizeof(data),true);
 }
 
 void NetworkMessageQuit::send(Socket* socket) const{
@@ -618,6 +673,7 @@ string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<s
 bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
 
+/*
 	data.header.techCRCFileCount = 0;
 
     const double MAX_MSG_WAIT_SECONDS = 10;
@@ -640,7 +696,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.techCRCFileCount);
 
-	bool result = NetworkMessage::receive(socket, &data, HeaderSize);
+	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
 	if(result == true && data.header.techCRCFileCount > 0) {
 
 		// Here we loop possibly multiple times
@@ -671,7 +727,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 				}
 			}
 
-			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], packetDetail1DataSize);
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], packetDetail1DataSize, true);
 			if(result == true) {
 				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
 					data.detail.techCRCFileList[i].nullTerminate();
@@ -684,12 +740,60 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 					}
 				}
 
-				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], packetDetail2DataSize);
+				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], packetDetail2DataSize, true);
 			}
 		}
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+	return result;
+
+*/
+
+	data.header.techCRCFileCount = 0;
+	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
+	if(result == true && data.header.techCRCFileCount > 0) {
+		data.header.map.nullTerminate();
+		data.header.tileset.nullTerminate();
+		data.header.tech.nullTerminate();
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.techCRCFileCount);
+
+
+
+		// Here we loop possibly multiple times
+		int packetLoopCount = 1;
+		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount > 0) {
+				packetLoopCount++;
+			}
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+
+		for(int iPacketLoop = 0; result == true && iPacketLoop < packetLoopCount; ++iPacketLoop) {
+
+			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount;
+			int maxFileCountPerPacket = maxFileCRCPacketCount;
+			int packetFileCount = min(maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
+			int packetDetail1DataSize = (DetailSize1 * packetFileCount);
+			int packetDetail2DataSize = (DetailSize2 * packetFileCount);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, maxFileCountPerPacket = %d, packetFileCount = %d, packetDetail1DataSize = %d, packetDetail2DataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,maxFileCountPerPacket,packetFileCount,packetDetail1DataSize,packetDetail2DataSize);
+
+            // Wait a max of x seconds for this message
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], packetDetail1DataSize, true);
+			if(result == true) {
+				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+					data.detail.techCRCFileList[i].nullTerminate();
+				}
+
+				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], packetDetail2DataSize, true);
+			}
+		}
+	}
+
 	return result;
 }
 
@@ -801,6 +905,8 @@ string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(st
 
 bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__,__LINE__);
+
+/*
 	data.header.techCRCFileCount = 0;
 
     const double MAX_MSG_WAIT_SECONDS = 3;
@@ -819,7 +925,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.techCRCFileCount);
 
-	bool result = NetworkMessage::receive(socket, &data, HeaderSize);
+	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
 	if(result == true && data.header.techCRCFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
@@ -847,7 +953,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 				}
 			}
 
-			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount),true);
 			if(result == true) {
 				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
 					data.detail.techCRCFileList[i].nullTerminate();
@@ -860,7 +966,47 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 					}
 				}
 
-				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
+				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount),true);
+			}
+		}
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+
+	return result;
+*/
+
+	data.header.techCRCFileCount = 0;
+
+	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
+	if(result == true && data.header.techCRCFileCount > 0) {
+		// Here we loop possibly multiple times
+		int packetLoopCount = 1;
+		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
+				packetLoopCount++;
+			}
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+
+		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
+
+			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount;
+			int maxFileCountPerPacket = maxFileCRCPacketCount;
+			int packetFileCount = min(maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
+
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount),true);
+			if(result == true) {
+				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+					data.detail.techCRCFileList[i].nullTerminate();
+				}
+
+                // Wait a max of x seconds for this message
+				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount),true);
 			}
 		}
 	}
@@ -916,7 +1062,7 @@ NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDa
 }
 
 bool NetworkMessageSynchNetworkGameDataFileCRCCheck::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
 
 	data.fileName.nullTerminate();
 
@@ -942,7 +1088,7 @@ NetworkMessageSynchNetworkGameDataFileGet::NetworkMessageSynchNetworkGameDataFil
 }
 
 bool NetworkMessageSynchNetworkGameDataFileGet::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
 
 	data.fileName.nullTerminate();
 
@@ -990,7 +1136,7 @@ SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentF
 }
 
 bool SwitchSetupRequest::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data));
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
 
 	data.selectedFactionName.nullTerminate();
 	data.networkPlayerName.nullTerminate();
@@ -1018,13 +1164,11 @@ PlayerIndexMessage::PlayerIndexMessage(int16 playerIndex)
 	data.playerIndex=playerIndex;
 }
 
-bool PlayerIndexMessage::receive(Socket* socket)
-{
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+bool PlayerIndexMessage::receive(Socket* socket) {
+	return NetworkMessage::receive(socket, &data, sizeof(data), true);
 }
 
-void PlayerIndexMessage::send(Socket* socket) const
-{
+void PlayerIndexMessage::send(Socket* socket) const {
 	assert(data.messageType==nmtPlayerIndexMessage);
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
@@ -1038,9 +1182,8 @@ NetworkMessageLoadingStatus::NetworkMessageLoadingStatus(uint32 status)
 	data.status=status;
 }
 
-bool NetworkMessageLoadingStatus::receive(Socket* socket)
-{
-	return NetworkMessage::receive(socket, &data, sizeof(data));
+bool NetworkMessageLoadingStatus::receive(Socket* socket) {
+	return NetworkMessage::receive(socket, &data, sizeof(data), true);
 }
 
 void NetworkMessageLoadingStatus::send(Socket* socket) const

@@ -68,8 +68,8 @@ public:
 	virtual void send(Socket* socket) const = 0;
 
 protected:
-	bool peek(Socket* socket, void* data, int dataSize);
-	bool receive(Socket* socket, void* data, int dataSize);
+	//bool peek(Socket* socket, void* data, int dataSize);
+	bool receive(Socket* socket, void* data, int dataSize,bool tryReceiveUntilDataSizeMet);
 	void send(Socket* socket, const void* data, int dataSize) const;
 };
 

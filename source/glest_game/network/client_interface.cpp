@@ -660,6 +660,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	// FOR TESTING ONLY - delay to see the client count up while waiting
 	//sleep(5000);
 
+	//clientSocket->setBlock(true);
 	//send ready message
 	NetworkMessageReady networkMessageReady;
 	sendMessage(&networkMessageReady);
