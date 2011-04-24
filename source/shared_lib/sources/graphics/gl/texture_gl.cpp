@@ -633,6 +633,13 @@ void TextureGl::dettachFrameBufferFromTexture() {
 	}
 }
 
+void TextureGl::dettachRenderBufferFromTexture() {
+	// Need some work to get extensions properly working in Windows (use Glew lib)
+	if(glGenFramebuffersEXT) {
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	}
+}
+
 TextureGl::~TextureGl() {
 	// Need some work to get extensions properly working in Windows (use Glew lib)
 	if(glGenFramebuffersEXT) {

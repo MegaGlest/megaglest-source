@@ -5345,12 +5345,12 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 	assertGl();
 
+	glLineWidth(1);
+
 	glPopMatrix();
 	glPopAttrib();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-
-	assertGl();
 
 	if(supportFBOs == true && renderToTexture != NULL) {
 		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);

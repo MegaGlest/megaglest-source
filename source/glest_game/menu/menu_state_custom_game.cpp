@@ -1308,11 +1308,10 @@ void MenuStateCustomGame::render() {
 			//printf("=================> Rendering map preview texture\n");
 		}
 
-		if(mainMessageBox.getEnabled()){
+		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
-		else
-		{
+		else {
 			renderer.renderButton(&buttonReturn);
 			renderer.renderButton(&buttonPlayNow);
 			renderer.renderButton(&buttonRestoreLastSettings);
@@ -1448,11 +1447,11 @@ void MenuStateCustomGame::render() {
 		if( enableMapPreview == true &&
 			mapPreview.hasFileLoaded() == true) {
 
-			int mouseX = mainMenu->getMouseX();
-			int mouseY = mainMenu->getMouseY();
-			int mouse2dAnim = mainMenu->getMouse2dAnim();
+			//int mouseX = mainMenu->getMouseX();
+			//int mouseY = mainMenu->getMouseY();
+			//int mouse2dAnim = mainMenu->getMouse2dAnim();
 
-		    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+		    //renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 
 		    if(mapPreviewTexture == NULL) {
 		    	bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);

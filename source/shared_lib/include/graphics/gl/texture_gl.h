@@ -44,6 +44,7 @@ public:
 	void setup_FBO_RBO();
 	void attachFrameBufferToTexture();
 	void dettachFrameBufferFromTexture();
+	void dettachRenderBufferFromTexture();
 	bool checkFrameBufferStatus();
 	void teardown_FBO_RBO();
 

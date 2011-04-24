@@ -86,19 +86,19 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 	CoreData &coreData=  CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	if(buttonNewGame.mouseClick(x, y)){
+	if(mainMessageBox.getEnabled() == false && buttonNewGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
     }
-	else if(buttonMods.mouseClick(x, y)){
+	else if(mainMessageBox.getEnabled() == false && buttonMods.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateMods(program, mainMenu));
     }
-    else if(buttonOptions.mouseClick(x, y)){
+    else if(mainMessageBox.getEnabled() == false && buttonOptions.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
     }
-    else if(buttonAbout.mouseClick(x, y)){
+    else if(mainMessageBox.getEnabled() == false && buttonAbout.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateAbout(program, mainMenu));
     }
@@ -197,7 +197,7 @@ void MenuStateRoot::render() {
 	renderer.renderConsole(&console,false,true);
 
 	//exit message box
-	if(mainMessageBox.getEnabled()){
+	if(mainMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
 	if(program != NULL) program->renderProgramMsgBox();
