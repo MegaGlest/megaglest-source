@@ -66,7 +66,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	Config &config = Config::getInstance();
 
 	modPreviewImage			= NULL;
-	displayModPreviewImage	= false;
+	displayModPreviewImage.clear();
 
 	ftpClientThread 		= NULL;
 	selectedTechName		= "";
@@ -1651,7 +1651,7 @@ string MenuStateMods::getPreviewImageFileForMod(const ModInfo *modInfo) {
 }
 
 void MenuStateMods::showDesription(const ModInfo *modInfo) {
-	displayModPreviewImage = false;
+	//displayModPreviewImage = false;
 	modInfoSelected = *modInfo;
 
 	string modText = modInfo->description;
@@ -1681,7 +1681,8 @@ void MenuStateMods::showDesription(const ModInfo *modInfo) {
 			MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
 			if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
 			if(fileFTPProgressList.find(tempImage) == fileFTPProgressList.end()) {
-				displayModPreviewImage = true;
+				//displayModPreviewImage = true;
+				displayModPreviewImage[tempImage] = true;
 			}
 			safeMutexFTPProgress.ReleaseLock();
 	    }
@@ -1769,7 +1770,9 @@ void MenuStateMods::render() {
 		renderer.renderButton(&buttonRemoveScenario);
 
 		renderer.renderLabel(&modDescrLabel);
-		if(displayModPreviewImage == true) {
+		string tempImage = getPreviewImageFileForMod(&modInfoSelected);
+		if(displayModPreviewImage.find(tempImage) != displayModPreviewImage.end() &&
+			displayModPreviewImage[tempImage] == true) {
 			if(modPreviewImage == NULL) {
 				string tempImage = getPreviewImageFileForMod(&modInfoSelected);
 
@@ -1909,7 +1912,7 @@ void MenuStateMods::render() {
                     CoreData::getInstance().getDisplayFontSmall(),
                     185,progressLabelPrefix,false);
 
-                yLocation -= 10;
+                yLocation -= 14;
             }
         }
         safeMutexFTPProgress.ReleaseLock();
@@ -2069,7 +2072,8 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         //printf("### downloaded file [%s] result = %d\n",itemName.c_str(),result.first);
 
         if(result.first == ftp_crt_SUCCESS) {
-        	displayModPreviewImage = true;
+        	//displayModPreviewImage = true;
+        	displayModPreviewImage[itemName] = true;
         }
 //        else {
 //            curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
