@@ -120,7 +120,7 @@ private:
 	GraphicLabel modDescrLabel;
 	Texture2D *modPreviewImage;
 	ModInfo modInfoSelected;
-	bool displayModPreviewImage;
+	map<string,bool> displayModPreviewImage;
 
 	int keyButtonsToRender;
 	int keyButtonsYBase;
