@@ -1209,9 +1209,8 @@ void MenuStateConnectedGame::update() {
 									}
 								}
 	            			}
-
+	            			factionCRCList.push_back(make_pair(factionName,factionCRC));
 	    				}
-	    				factionCRCList.push_back(make_pair(factionName,factionCRC));
 	    			}
 	    			//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
                 }
