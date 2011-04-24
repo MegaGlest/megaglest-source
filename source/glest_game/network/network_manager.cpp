@@ -109,7 +109,7 @@ ServerInterface* NetworkManager::getServerInterface(bool throwErrorOnNull) {
 }
 
 ClientInterface* NetworkManager::getClientInterface(bool throwErrorOnNull) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 
     if(throwErrorOnNull) {
         assert(gameNetworkInterface!=NULL);
