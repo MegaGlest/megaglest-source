@@ -195,11 +195,11 @@ public:
 	int getFrameCount();
 	void signalWorkerThread(int frameIndex);
 	bool isWorkerThreadSignalCompleted(int frameIndex);
+	void limitResourcesToStore();
 
 	std::string toString() const;
 
 private:
-	void limitResourcesToStore();
 	void resetResourceAmount(const ResourceType *rt);
 };
 

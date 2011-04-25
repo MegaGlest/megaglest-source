@@ -737,14 +737,11 @@ void Faction::removeStore(const UnitType *unitType){
 	limitResourcesToStore();
 }
 
-void Faction::limitResourcesToStore()
-{
-	for(int i=0; i<resources.size(); ++i)
-	{
+void Faction::limitResourcesToStore() {
+	for(int i=0; i<resources.size(); ++i) {
 		Resource *r= &resources[i];
 		Resource *s= &store[i];
-		if(r->getType()->getClass() != rcStatic && r->getAmount()>s->getAmount())
-		{
+		if(r->getType()->getClass() != rcStatic && r->getAmount()>s->getAmount()) {
 			r->setAmount(s->getAmount());
 		}
 	}
