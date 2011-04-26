@@ -470,9 +470,9 @@ void Faction::applyStaticCosts(const ProducibleType *p) {
 	//decrease static resources
     for(int i=0; i<p->getCostCount(); ++i) {
 		const ResourceType *rt= p->getCost(i)->getType();
-		assert(rt != NULL);
+		//assert(rt != NULL);
 		if(rt == NULL) {
-			throw runtime_error("rt == NULL");
+			throw runtime_error("rt == NULL - " + p->getName());
 		}
         if(rt->getClass() == rcStatic) {
             int cost= p->getCost(i)->getAmount();
