@@ -309,8 +309,8 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 	/** Stupid win32 is searching for all files without extension when *. is
 	 * specified as wildcard
 	 */
-	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
-		mypath = mypath.substr(0, mypath.size() - 2);
+	if(mypath.size() >= 2 && mypath.compare(max((size_t)0,mypath.size() - 2), 2, "*.") == 0) {
+		mypath = mypath.substr(0, max((size_t)0,mypath.size() - 2));
 		mypath += "*";
 	}
 
@@ -453,7 +453,7 @@ bool EndsWith(const string &str, const string& key)
 {
     bool result = false;
     if (str.length() >= key.length()) {
-    	result = (0 == str.compare (str.length() - key.length(), key.length(), key));
+    	result = (0 == str.compare(max((size_t)0,str.length() - key.length()), key.length(), key));
     }
 
     return result;
@@ -762,11 +762,11 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
     Checksum checksum = (recursiveChecksum == NULL ? Checksum() : *recursiveChecksum);
 
 	std::string mypath = path;
-	/** Stupid win32 is searching for all files without extension when *. is
-	 * specified as wildcard
-	 */
-	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
-		mypath = mypath.substr(0, mypath.size() - 2);
+	// Stupid win32 is searching for all files without extension when *. is
+	// specified as wildcard
+	//
+	if(mypath.size() >= 2 && mypath.compare(max((size_t)0,mypath.size() - 2), 2, "*.") == 0) {
+		mypath = mypath.substr(0, max((size_t)0,mypath.size() - 2));
 		mypath += "*";
 	}
 
@@ -935,8 +935,8 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 	/** Stupid win32 is searching for all files without extension when *. is
 	 * specified as wildcard
 	 */
-	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
-		mypath = mypath.substr(0, mypath.size() - 2);
+	if(mypath.size() >= 2 && mypath.compare(max((size_t)0,mypath.size() - 2), 2, "*.") == 0) {
+		mypath = mypath.substr(0, max((size_t)0,mypath.size() - 2));
 		mypath += "*";
 	}
 
@@ -1086,8 +1086,8 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	/** Stupid win32 is searching for all files without extension when *. is
 	 * specified as wildcard
 	 */
-	if(mypath.compare(mypath.size() - 2, 2, "*.") == 0) {
-		mypath = mypath.substr(0, mypath.size() - 2);
+	if(mypath.size() >= 2 && mypath.compare(max((size_t)0,mypath.size() - 2), 2, "*.") == 0) {
+		mypath = mypath.substr(0, max((size_t)0,mypath.size() - 2));
 		mypath += "*";
 	}
 
