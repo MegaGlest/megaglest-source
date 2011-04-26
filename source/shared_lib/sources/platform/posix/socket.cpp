@@ -1257,7 +1257,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, attempting to receive MORE data, bytesReceived = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,dataSize);
 
 		char *dataAsCharPointer = reinterpret_cast<char *>(data);
-		int additionalBytes = receive(&dataAsCharPointer[bytesReceived], dataSize, tryReceiveUntilDataSizeMet);
+		int additionalBytes = receive(&dataAsCharPointer[bytesReceived], (dataSize - bytesReceived), tryReceiveUntilDataSizeMet);
 		if(additionalBytes > 0) {
 			bytesReceived += additionalBytes;
 		}
