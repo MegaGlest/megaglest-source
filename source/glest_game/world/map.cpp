@@ -706,7 +706,19 @@ bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::m
 			}
 		}
 	}
-	if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+
+	bool isBadHarvestPos = false;
+	if(unit != NULL) {
+		Command *command= unit->getCurrCommand();
+		if(command != NULL) {
+			const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+			if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+				isBadHarvestPos = true;
+			}
+		}
+	}
+
+	if(unit == NULL || isBadHarvestPos == true) {
 		if(lookupCache != NULL) {
 			(*lookupCache)[pos1][pos2][size][field]=false;
 		}
@@ -777,7 +789,18 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 			}
 		}
 
-		if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+		bool isBadHarvestPos = false;
+		if(unit != NULL) {
+			Command *command= unit->getCurrCommand();
+			if(command != NULL) {
+				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+				if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+					isBadHarvestPos = true;
+				}
+			}
+		}
+
+		if(unit == NULL || isBadHarvestPos == true) {
 			if(lookupCache != NULL) {
 				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 			}
@@ -819,7 +842,18 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 			}
 		}
 
-		if(unit == NULL || unit->isBadHarvestPos(pos2) == true) {
+		bool isBadHarvestPos = false;
+		if(unit != NULL) {
+			Command *command= unit->getCurrCommand();
+			if(command != NULL) {
+				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+				if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+					isBadHarvestPos = true;
+				}
+			}
+		}
+
+		if(unit == NULL || isBadHarvestPos == true) {
 			if(lookupCache != NULL) {
 				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 			}

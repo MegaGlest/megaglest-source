@@ -38,6 +38,7 @@
 #include "cache_manager.h"
 #include <iterator>
 #include "core_data.h"
+//#include "unicode/uclean.h"
 
 // For gcc backtrace on crash!
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -1980,6 +1981,15 @@ int glestMain(int argc, char** argv) {
         disableBacktrace = true;
     }
 
+//    UErrorCode status = U_ZERO_ERROR;
+//	u_init(&status);
+//	if (U_SUCCESS(status)) {
+//		printf("everything is OK\n");
+//	}
+//	else {
+//		printf("error %s opening resource\n", u_errorName(status));
+//	}
+
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
 	for(int idx = 1; idx < argc; ++idx) {
 		if( hasCommandArgument(knownArgCount, (char **)&GAME_ARGS[0], argv[idx], NULL, 0, true) == false) {
@@ -2326,12 +2336,14 @@ int glestMain(int argc, char** argv) {
 			if(foundParamIndIndex < 0) {
 				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]),&foundParamIndIndex);
 			}
+
 			string paramValue = argv[foundParamIndIndex];
 			vector<string> paramPartTokens;
 			Tokenize(paramValue,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 3 && paramPartTokens[1].length() > 0) {
 				string itemName = paramPartTokens[1];
 				string itemNameFilter = paramPartTokens[2];
+				//printf("\n\nitemName [%s] itemNameFilter [%s]\n",itemName.c_str(),itemNameFilter.c_str());
 				int32 crcValue = getFolderTreeContentsCheckSumRecursively(itemName, itemNameFilter, NULL, true);
 
 				printf("CRC value for path [%s] filter [%s] is [%d]\n",itemName.c_str(),itemNameFilter.c_str(),crcValue);
