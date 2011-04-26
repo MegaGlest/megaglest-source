@@ -100,7 +100,7 @@ bool Lang::hasString(const string &s, string language) {
 	}
 	catch(exception &ex) {
 		if(strings.getpath() != "") {
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] for language [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),language.c_str());
 		}
 	}
 	return hasString;
@@ -128,7 +128,7 @@ string Lang::get(const string &s, string language) {
 	}
 	catch(exception &ex) {
 		if(strings.getpath() != "") {
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] language [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),language.c_str());
 		}
 		return "???" + s + "???";
 	}
