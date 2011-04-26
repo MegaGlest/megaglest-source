@@ -41,10 +41,11 @@ const int PathFinder::maxFreeSearchRadius	= 10;
 //const int PathFinder::pathFindNodesMax= 400;
 
 int PathFinder::pathFindNodesAbsoluteMax	= 900;
-int PathFinder::pathFindNodesMax			= 300;
+int PathFinder::pathFindNodesMax			= 2000;
 const int PathFinder::pathFindRefresh		= 10;
 const int PathFinder::pathFindBailoutRadius	= 20;
-
+const int PathFinder::pathFindExtendRefreshForNodeCount	= 25;
+const int PathFinder::pathFindExtendRefreshNodeCount	= 40;
 
 PathFinder::PathFinder() {
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
@@ -447,7 +448,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						throw runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 					}
 
-					if(i < pathFindRefresh) {
+					if(i < pathFindRefresh ||
+						(factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount && i < pathFindExtendRefreshNodeCount)) {
 						if(map->aproxCanMove(unit, lastPos, nodePos) == false) {
 							canMoveToCells = false;
 							break;
@@ -469,7 +471,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 							throw runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 						}
 
-						if(i < pathFindRefresh) {
+						if(i < pathFindRefresh ||
+								(factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount && i < pathFindExtendRefreshNodeCount)) {
 							path->add(nodePos);
 						}
 						//else if(tryLastPathCache == false) {
@@ -921,7 +924,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				factions[unit->getFactionIndex()].precachedPath[unit->getId()].push_back(nodePos);
 			}
 			else {
-				if(i < pathFindRefresh) {
+				if(i < pathFindRefresh ||
+					(whileLoopCount >= pathFindExtendRefreshForNodeCount && i < pathFindExtendRefreshNodeCount)) {
 					path->add(nodePos);
 				}
 				//else if(tryLastPathCache == false) {
