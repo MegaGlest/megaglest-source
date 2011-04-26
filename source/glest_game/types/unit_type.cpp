@@ -363,6 +363,9 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
 			sortedItems[name] = amount;
 		}
+		if(sortedItems.size() < costs.size()) {
+			costs.resize(sortedItems.size());
+		}
 		int index = 0;
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
 				iterMap != sortedItems.end(); ++iterMap) {
@@ -380,6 +383,10 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
 			sortedItems[name] = amount;
 		}
+		if(sortedItems.size() < storedResources.size()) {
+			storedResources.resize(sortedItems.size());
+		}
+
 		index = 0;
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
 				iterMap != sortedItems.end(); ++iterMap) {
