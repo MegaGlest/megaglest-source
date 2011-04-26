@@ -1254,10 +1254,12 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while receiving socket data, bytesReceived = %d, error = %s, dataSize = %d, tryReceiveUntilDataSizeMet = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText(&iErr).c_str(),dataSize,tryReceiveUntilDataSizeMet);
 	}
 	else if(tryReceiveUntilDataSizeMet == true && bytesReceived < dataSize) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, attempting to receive MORE data, bytesReceived = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,dataSize);
+		int newBufferSize = (dataSize - bytesReceived);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, attempting to receive MORE data, bytesReceived = %d, dataSize = %d, newBufferSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,dataSize,newBufferSize);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] WARNING, attempting to receive MORE data, bytesReceived = %d, dataSize = %d, newBufferSize = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)bytesReceived,dataSize,newBufferSize,newBufferSize);
 
 		char *dataAsCharPointer = reinterpret_cast<char *>(data);
-		int additionalBytes = receive(&dataAsCharPointer[bytesReceived], (dataSize - bytesReceived), tryReceiveUntilDataSizeMet);
+		int additionalBytes = receive(&dataAsCharPointer[bytesReceived], newBufferSize, tryReceiveUntilDataSizeMet);
 		if(additionalBytes > 0) {
 			bytesReceived += additionalBytes;
 		}
