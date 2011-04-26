@@ -468,11 +468,11 @@ void Faction::applyDiscount(const ProducibleType *p, int discount)
 void Faction::applyStaticCosts(const ProducibleType *p) {
 	assert(p != NULL);
 	//decrease static resources
-    for(int i=0; i<p->getCostCount(); ++i) {
+    for(int i=0; i < p->getCostCount(); ++i) {
 		const ResourceType *rt= p->getCost(i)->getType();
 		//assert(rt != NULL);
 		if(rt == NULL) {
-			throw runtime_error("rt == NULL - " + p->getName());
+			throw runtime_error(string(__FUNCTION__) + " rt == NULL for ProducibleType [" + p->getName() + "] index: " + intToStr(i));
 		}
         if(rt->getClass() == rcStatic) {
             int cost= p->getCost(i)->getAmount();
