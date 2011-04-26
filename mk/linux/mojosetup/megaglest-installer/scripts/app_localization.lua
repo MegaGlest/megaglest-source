@@ -22,8 +22,7 @@ MojoSetup.applocalization = {
     };
 
     ["Megaglest License"] = {
-        en_GB = "Megaglest Licence",
-        en_CA = "Megaglest Licence",
+        en = "Megaglest Licence",
         de = "Megaglest-Lizenz",
         es = "Licencia de uso de Megaglest",
         pl = "Licencja Megaglest",
@@ -31,8 +30,7 @@ MojoSetup.applocalization = {
     };
 
     ["Megaglest Uninstall Title"] = {
-        en_GB = "Remove previous version",
-        en_CA = "Remove previous version",
+        en = "Remove previous version",
         de = "Remove previous version",
         es = "Remove previous version",
         pl = "Remove previous version",
@@ -40,8 +38,7 @@ MojoSetup.applocalization = {
     };
 
     ["Megaglest Uninstall Prompt"] = {
-        en_GB = "We have detected a previous installation of Megaglest, should we remove it?",
-        en_CA = "We have detected a previous installation of Megaglest, should we remove it?",
+        en = "We have detected a previous installation of Megaglest, should we remove it?",
         de = "We have detected a previous installation of Megaglest, should we remove it?",
         es = "We have detected a previous installation of Megaglest, should we remove it?",
         pl = "We have detected a previous installation of Megaglest, should we remove it?",
@@ -49,8 +46,7 @@ MojoSetup.applocalization = {
     };
 
     ["Megaglest Visit Website Title"] = {
-        en_GB = "Visit megaglest.org",
-        en_CA = "Visit megaglest.org",
+        en = "Visit megaglest.org",
         de = "Visit megaglest.org",
         es = "Visit megaglest.org",
         pl = "Visit megaglest.org",
@@ -58,8 +54,7 @@ MojoSetup.applocalization = {
     };
 
     ["Megaglest Visit Website Prompt"] = {
-        en_GB = "Would you like to view our getting started page on megaglest.org?",
-        en_CA = "Would you like to view our getting started page on megaglest.org?",
+        en = "Would you like to view our getting started page on megaglest.org?",
         de = "Would you like to view our getting started page on megaglest.org?",
         es = "Would you like to view our getting started page on megaglest.org?",
         pl = "Would you like to view our getting started page on megaglest.org?",
