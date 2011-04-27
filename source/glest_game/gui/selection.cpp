@@ -61,12 +61,12 @@ void Selection::select(Unit *unit){
 	}
 
 	//check if enemy
-	if(unit->getFactionIndex()!=factionIndex && !isEmpty()){
+	if(unit->getFactionIndex() != factionIndex && !isEmpty()) {
 		return;
 	}
 
 	//check existing enemy
-	if(selectedUnits.size()==1 && selectedUnits.front()->getFactionIndex()!=factionIndex){
+	if(selectedUnits.size()==1 && selectedUnits.front()->getFactionIndex() != factionIndex) {
 		clear();
 	}
 
@@ -129,7 +129,9 @@ bool Selection::isUniform() const{
 }
 
 bool Selection::isEnemy() const{
-	return selectedUnits.size()==1 && selectedUnits.front()->getFactionIndex()!=factionIndex;
+	return selectedUnits.size() == 1 &&
+			(selectedUnits.front()->getFactionIndex() != factionIndex ||
+			 factionIndex == (GameConstants::maxPlayers -1 + fpt_Observer));
 }
 
 bool Selection::isCommandable() const{
