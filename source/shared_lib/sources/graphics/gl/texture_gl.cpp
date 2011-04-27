@@ -856,6 +856,15 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 					error = GL_NO_ERROR;
 				}
 			}
+			if(error != GL_NO_ERROR) {
+				int error4= gluBuild2DMipmaps(
+					GL_TEXTURE_2D, glInternalFormat,
+					pixmap.getW(), pixmap.getH(),
+					glFormat, GL_UNSIGNED_BYTE, pixels);
+				if(error4 == GL_NO_ERROR) {
+					error = GL_NO_ERROR;
+				}
+			}
 
 			//
 
@@ -1111,6 +1120,17 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 
 
 					if(error3 == GL_NO_ERROR) {
+						error = GL_NO_ERROR;
+					}
+				}
+				if(error != GL_NO_ERROR) {
+					int error4= gluBuild2DMipmaps(
+										target, glInternalFormat,
+										currentPixmap->getW(), currentPixmap->getH(),
+										glFormat, GL_UNSIGNED_BYTE, pixels);
+
+
+					if(error4 == GL_NO_ERROR) {
 						error = GL_NO_ERROR;
 					}
 				}
