@@ -1475,7 +1475,7 @@ string Unit::getDesc() const {
 		if(commands.size() > 1) {
 			str += "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
 			Commands::const_iterator it= commands.begin();
-			for(unsigned int i = 0; i < min((size_t)4,commands.size()); ++i) {
+			for(unsigned int i = 1; i < min((size_t)6,commands.size()); ++i) {
 				const CommandType *ct = (*it)->getCommandType();
 				//str += "\n" + ct->getDesc(this->getTotalUpgrade());
 				str += "\n#" + intToStr(i+1) + " " + ct->getName();

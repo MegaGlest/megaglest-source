@@ -157,7 +157,9 @@ SurfaceCell *Map::getSurfaceCell(const Vec2i &sPos) const {
 SurfaceCell *Map::getSurfaceCell(int sx, int sy) const {
 	int arrayIndex = sy * surfaceW + sx;
 	if(arrayIndex < 0 || arrayIndex >= getSurfaceCellArraySize()) {
-		throw runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " surfaceW = " + intToStr(surfaceW) + " surfaceH = " + intToStr(surfaceH));
+		throw runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) +
+				            " surfaceW = " + intToStr(surfaceW) + " surfaceH = " + intToStr(surfaceH) +
+				            " sx: " + intToStr(sx) + " sy: " + intToStr(sy));
 	}
 	else if(surfaceCells == NULL) {
 		throw runtime_error("surfaceCells == NULL");
