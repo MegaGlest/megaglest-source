@@ -1472,11 +1472,18 @@ string Unit::getDesc() const {
 	//command info
 	if(commands.empty() == false) {
 		str+= "\n" + commands.front()->getCommandType()->getName();
-		if(commands.size()>1){
-			str+="\n"+lang.get("OrdersOnQueue")+": "+intToStr(commands.size());
+		if(commands.size() > 1) {
+			str += "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
+			Commands::const_iterator it= commands.begin();
+			for(unsigned int i = 0; i < min((size_t)4,commands.size()); ++i) {
+				const CommandType *ct = (*it)->getCommandType();
+				//str += "\n" + ct->getDesc(this->getTotalUpgrade());
+				str += "\n#" + intToStr(i+1) + " " + ct->getName();
+				it++;
+			}
 		}
 	}
-	else{
+	else {
 		//can store
 		if(getType()->getStoredResourceCount()>0){
 			for(int i=0; i<getType()->getStoredResourceCount(); ++i){
