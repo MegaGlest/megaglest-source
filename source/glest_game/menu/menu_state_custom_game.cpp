@@ -1178,7 +1178,7 @@ void MenuStateCustomGame::PlayNow() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(	serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->isConnected() &&
-				serverInterface->getSlot(i)->getAllowGameDataSynchCheck() == true &&
+				(serverInterface->getSlot(i)->getAllowDownloadDataSynch() == true || serverInterface->getSlot(i)->getAllowGameDataSynchCheck() == true) &&
 				serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOk() == false) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				dataSynchCheckOk = false;

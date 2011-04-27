@@ -1359,9 +1359,12 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot *connectionSlot= slots[i];
 		if(connectionSlot != NULL &&
-		   connectionSlot->getAllowDownloadDataSynch() == true &&
+		   (connectionSlot->getAllowDownloadDataSynch() == true || connectionSlot->getAllowGameDataSynchCheck() == true) &&
 		   connectionSlot->isConnected()) {
 			if(connectionSlot->getNetworkGameDataSynchCheckOk() == false) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] map [%d] tile [%d] techtree [%d]\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getNetworkGameDataSynchCheckOkMap(),connectionSlot->getNetworkGameDataSynchCheckOkTile(),connectionSlot->getNetworkGameDataSynchCheckOkTech());
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] map [%d] tile [%d] techtree [%d]\n",__FILE__,__FUNCTION__,__LINE__,connectionSlot->getNetworkGameDataSynchCheckOkMap(),connectionSlot->getNetworkGameDataSynchCheckOkTile(),connectionSlot->getNetworkGameDataSynchCheckOkTech());
+
 				bOkToStart = false;
 				break;
 			}
