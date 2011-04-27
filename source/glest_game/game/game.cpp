@@ -916,11 +916,17 @@ void Game::update() {
 		}
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		if(errorMessageBox.getEnabled() == false) {
@@ -1112,21 +1118,19 @@ void Game::mouseDownLeft(int x, int y) {
 					}
 				}
 			}
-
 			//display panel
-			else if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()){
+			else if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()) {
 				int xd= x - metrics.getDisplayX();
 				int yd= y - metrics.getDisplayY();
-				if(gui.mouseValid(xd, yd)){
+				if(gui.mouseValid(xd, yd)) {
 					gui.mouseDownLeftDisplay(xd, yd);
 				}
-				else{
+				else {
 					gui.mouseDownLeftGraphics(x, y, false);
 				}
 			}
-
 			//graphics panel
-			else{
+			else {
 				gui.mouseDownLeftGraphics(x, y, false);
 			}
 		}
@@ -1159,10 +1163,17 @@ void Game::mouseDownLeft(int x, int y) {
 		}
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
@@ -1189,14 +1200,29 @@ void Game::mouseDownRight(int x, int y) {
 				gui.mouseDownRightGraphics(xCell, yCell,true);
 			}
 		}
-		else
-			gui.mouseDownRightGraphics(x, y,false);
+		else {
+			Vec2i targetPos;
+			Vec2i screenPos(x,y);
+			Renderer &renderer= Renderer::getInstance();
+			renderer.computePosition(screenPos, targetPos);
+			if(renderer.computePosition(screenPos, targetPos) == true &&
+				map->isInsideSurface(map->toSurfCoords(targetPos)) == true) {
+				gui.mouseDownRightGraphics(x, y,false);
+			}
+		}
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s] x = %d y = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),x,y);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
@@ -1225,10 +1251,17 @@ void Game::mouseUpLeft(int x, int y) {
 		gui.mouseUpLeftGraphics(x, y);
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
@@ -1256,10 +1289,17 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 		gui.mouseDoubleClickLeftGraphics(x, y);
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
@@ -1356,10 +1396,17 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		lastMousePos.y = mouseY;
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
@@ -1374,10 +1421,17 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 		//gameCamera.setMoveY(1);
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
@@ -1544,10 +1598,17 @@ void Game::keyDown(char key) {
 		//throw runtime_error("Test Error!");
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
@@ -1602,10 +1663,17 @@ void Game::keyUp(char key){
 		}
 	}
 	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
+			GameNetworkInterface *networkInterface = NetworkManager::getInstance().getGameNetworkInterface();
+			networkInterface->sendTextMessage(szBuf,-1,true,"");
+			sleep(10);
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);

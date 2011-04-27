@@ -203,14 +203,19 @@ void Gui::mouseMoveDisplay(int x, int y) {
 void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
 	if(selectingPos) {
 		//give standard orders
-		giveTwoClickOrders(x, y, prepared);
+		Vec2i targetPos;
+		if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+			world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
+			giveTwoClickOrders(x, y, prepared);
+		}
 		resetState();
 	}
 	//set meeting point
 	else if(selectingMeetingPoint) {
 		if(selection.isCommandable()) {
 			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos)) {
+			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				commander->trySetMeetingPoint(selection.getFrontUnit(), targetPos);
 			}
 		}
@@ -229,10 +234,18 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
 	}
 	else if(selection.isCommandable()) {
 		if(prepared) {
-			givePreparedDefaultOrders(x, y);
+			Vec2i targetPos;
+			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
+				givePreparedDefaultOrders(x, y);
+			}
 		}
 		else {
-			giveDefaultOrders(x, y);
+			Vec2i targetPos;
+			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
+				giveDefaultOrders(x, y);
+			}
 		}
 	}
 	computeDisplay();
@@ -242,8 +255,7 @@ void Gui::mouseUpLeftGraphics(int x, int y) {
 	if(!selectingPos && !selectingMeetingPoint) {
 		if(selectionQuad.isEnabled()){
 			selectionQuad.setPosUp(Vec2i(x, y));
-			if(selectionQuad.getPosUp().dist(selectionQuad.getPosDown())>minQuadSize)
-			{
+			if(selectionQuad.getPosUp().dist(selectionQuad.getPosDown()) > minQuadSize) {
 				computeSelected(false,true);
 			}
 			if(selection.isCommandable() && random.randRange(0, 1)==0){
