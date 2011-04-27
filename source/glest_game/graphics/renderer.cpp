@@ -710,6 +710,42 @@ void Renderer::computeVisibleQuad() {
 
 void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 	if(no2DMouseRendering == true) {
+			return;
+		}
+	float color1 = 0.0, color2 = 0.0;
+
+	float fadeFactor = fade + 1.f;
+
+	anim= anim * 2 - maxMouse2dAnim;
+
+	color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
+	color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
+
+	glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
+		glEnable(GL_BLEND);
+
+		//inside
+		glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
+		glBegin(GL_TRIANGLES);
+			glVertex2i(x, y);
+			glVertex2i(x+20, y-10);
+			glVertex2i(x+10, y-20);
+		glEnd();
+
+		//border
+		glLineWidth(2);
+		glBegin(GL_LINE_LOOP);
+			glColor4f(1.f, 0.2f, 0, color1);
+			glVertex2i(x, y);
+			glColor4f(1.f, 0.4f, 0, color2);
+			glVertex2i(x+20, y-10);
+			glColor4f(1.f, 0.4f, 0, color2);
+			glVertex2i(x+10, y-20);
+		glEnd();
+	glPopAttrib();
+
+/*
+	if(no2DMouseRendering == true) {
 		return;
 	}
     float color1 = 0.0, color2 = 0.0;
@@ -736,15 +772,6 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 	glDrawArrays(GL_TRIANGLES, 0, 3);
     glDisableClientState(GL_VERTEX_ARRAY);
 
-/*
-		glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
-        glBegin(GL_TRIANGLES);
-            glVertex2i(x, y);
-            glVertex2i(x+20, y-10);
-            glVertex2i(x+10, y-20);
-        glEnd();
-*/
-
 	//border
 	vertices[0] = Vec2i(x, y);
 	vertices[1] = Vec2i(x+20, y-10);
@@ -764,18 +791,8 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 
-/*
-        glLineWidth(2);
-        glBegin(GL_LINE_LOOP);
-            glColor4f(1.f, 0.2f, 0, color1);
-            glVertex2i(x, y);
-            glColor4f(1.f, 0.4f, 0, color2);
-            glVertex2i(x+20, y-10);
-            glColor4f(1.f, 0.4f, 0, color2);
-            glVertex2i(x+10, y-20);
-        glEnd();
-*/
     glPopAttrib();
+*/
 }
 
 void Renderer::renderMouse3d() {
