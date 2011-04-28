@@ -2115,6 +2115,12 @@ int glestMain(int argc, char** argv) {
 	    	config.setString("FactorySound","None");
 	    }
 
+	    bool enableATIHacks = config.getBool("EnableATIHacks","false");
+	    if(enableATIHacks == true) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Enabling ATI video card hacks\n");
+	    	TextureGl::setEnableATIHacks(enableATIHacks);
+	    }
+
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));

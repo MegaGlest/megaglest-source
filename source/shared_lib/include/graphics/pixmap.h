@@ -30,6 +30,51 @@ using Shared::Platform::float32;
 
 namespace Shared{ namespace Graphics{
 
+/**
+ * @brief Next power of 2
+ * @param x The number to be rounded
+ * @return the rounded number
+ *
+ * Rounds an unsigned integer up to the
+ * next power of 2; i.e. 2, 4, 8, 16, etc.
+ */
+static inline unsigned int next_power_of_2(unsigned int x)
+{
+	x--;
+	x |= (x >> 1);
+	x |= (x >> 2);
+	x |= (x >> 4);
+	x |= (x >> 8);
+	x |= (x >> 16);
+	return ++x;
+}
+
+/**
+ * @brief Count bits set
+ * @param w Number in which to count bits
+ * @return The number of bits set
+ *
+ * Counts the number of bits in an unsigned int
+ * that are set to 1.  So, for example, in the
+ * number 5, hich is 101 in binary, there are
+ * two bits set to 1.
+ */
+static inline unsigned int count_bits_set(unsigned int w)
+{
+	/*
+	 * This is faster, and runs in parallel
+	 */
+	const int S[] = {1, 2, 4, 8, 16};
+	const int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF, 0x0000FFFF};
+	int c = w;
+	c = ((c >> S[0]) & B[0]) + (c & B[0]);
+	c = ((c >> S[1]) & B[1]) + (c & B[1]);
+	c = ((c >> S[2]) & B[2]) + (c & B[2]);
+	c = ((c >> S[3]) & B[3]) + (c & B[3]);
+	c = ((c >> S[4]) & B[4]) + (c & B[4]);
+	return c;
+}
+
 // =====================================================
 //	class PixmapIo
 // =====================================================
@@ -187,6 +232,8 @@ public:
 	void init(int w, int h, int components);
 	~Pixmap2D();
 	
+	void Scale(int format, int newW, int newH);
+
 	//load & save
 	static Pixmap2D* loadPath(const string& path);
 	void load(const string &path);

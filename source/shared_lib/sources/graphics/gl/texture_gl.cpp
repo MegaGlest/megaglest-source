@@ -52,6 +52,8 @@ namespace Shared { namespace Graphics { namespace Gl {
 using namespace Platform;
 using namespace Shared::Util;
 
+bool TextureGl::enableATIHacks = false;
+
 static void setupGLExtensionMethods() {
 #ifdef WIN32
 
@@ -831,6 +833,16 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 				glFormat, GL_UNSIGNED_BYTE, pixels);
 */
 			glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+
+			//! Note: NPOTs + nearest filtering seems broken on ATIs
+			if ( !(count_bits_set(pixmap.getW()) == 1 && count_bits_set(pixmap.getH()) == 1) &&
+				TextureGl::enableATIHacks == true) {
+			//	&& (!GLEW_ARB_texture_non_power_of_two || (globalRendering->atiHacks && nearest)) ) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n\n**WARNING** Enabling ATI video card hacks, resizing texture to power of two [%d x %d] to [%d x %d] components [%d] path [%s]\n",pixmap.getW(),pixmap.getH(),next_power_of_2(pixmap.getW()),next_power_of_2(pixmap.getH()),pixmap.getComponents(),pixmap.getPath().c_str());
+
+				pixmap.Scale(glFormat,next_power_of_2(pixmap.getW()),next_power_of_2(pixmap.getH()));
+			}
+
 			glTexImage2D(GL_TEXTURE_2D, 0, glCompressionFormat,
 							pixmap.getW(), pixmap.getH(), 0,
 							glFormat, GL_UNSIGNED_BYTE, pixels);
@@ -882,6 +894,14 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			//build single texture
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			if ( !(count_bits_set(pixmap.getW()) == 1 && count_bits_set(pixmap.getH()) == 1) &&
+				TextureGl::enableATIHacks == true) {
+			//	&& (!GLEW_ARB_texture_non_power_of_two || (globalRendering->atiHacks && nearest)) ) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n\n**WARNING** Enabling ATI video card hacks, resizing texture to power of two [%d x %d] to [%d x %d] components [%d] path [%s]\n",pixmap.getW(),pixmap.getH(),next_power_of_2(pixmap.getW()),next_power_of_2(pixmap.getH()),pixmap.getComponents(),pixmap.getPath().c_str());
+
+				pixmap.Scale(glFormat,next_power_of_2(pixmap.getW()),next_power_of_2(pixmap.getH()));
+			}
 
 			glTexImage2D(GL_TEXTURE_2D, 0, glCompressionFormat,pixmap.getW(),
 					     pixmap.getH(),0, glFormat, GL_UNSIGNED_BYTE, pixels);
@@ -1072,7 +1092,7 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 
 		for(int i = 0; i < 6; ++i) {
 			//params
-			const Pixmap2D *currentPixmap= pixmap.getFace(i);
+			Pixmap2D *currentPixmap= pixmap.getFace(i);
 
 			GLint glFormat= toFormatGl(format, currentPixmap->getComponents());
 			GLint glInternalFormat= toInternalFormatGl(format, currentPixmap->getComponents());
@@ -1097,6 +1117,14 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 
 */
 				glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+
+				if ( !(count_bits_set(currentPixmap->getW()) == 1 && count_bits_set(currentPixmap->getH()) == 1) &&
+					TextureGl::enableATIHacks == true) {
+				//	&& (!GLEW_ARB_texture_non_power_of_two || (globalRendering->atiHacks && nearest)) ) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n\n**WARNING** Enabling ATI video card hacks, resizing texture to power of two [%d x %d] to [%d x %d] components [%d] path [%s]\n",currentPixmap->getW(),currentPixmap->getH(),next_power_of_2(currentPixmap->getW()),next_power_of_2(currentPixmap->getH()),currentPixmap->getComponents(),currentPixmap->getPath().c_str());
+
+					currentPixmap->Scale(glFormat,next_power_of_2(currentPixmap->getW()),next_power_of_2(currentPixmap->getH()));
+				}
 
 				glTexImage2D(target, 0, glCompressionFormat,
 							 currentPixmap->getW(), currentPixmap->getH(), 0,
@@ -1150,6 +1178,15 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 				}
 			}
 			else {
+
+				if ( !(count_bits_set(currentPixmap->getW()) == 1 && count_bits_set(currentPixmap->getH()) == 1) &&
+					TextureGl::enableATIHacks == true) {
+				//	&& (!GLEW_ARB_texture_non_power_of_two || (globalRendering->atiHacks && nearest)) ) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n\n**WARNING** Enabling ATI video card hacks, resizing texture to power of two [%d x %d] to [%d x %d] components [%d] path [%s]\n",currentPixmap->getW(),currentPixmap->getH(),next_power_of_2(currentPixmap->getW()),next_power_of_2(currentPixmap->getH()),currentPixmap->getComponents(),currentPixmap->getPath().c_str());
+
+					currentPixmap->Scale(glFormat,next_power_of_2(currentPixmap->getW()),next_power_of_2(currentPixmap->getH()));
+				}
+
 				glTexImage2D(
 					target, 0, glCompressionFormat,
 					currentPixmap->getW(), currentPixmap->getH(),

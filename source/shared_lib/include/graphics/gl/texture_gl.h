@@ -28,6 +28,8 @@ protected:
 	GLuint renderBufferId;
 	GLuint frameBufferId;
 
+	static bool enableATIHacks;
+
 	void initRenderBuffer();
 	void initFrameBuffer();
 	void attachRenderBuffer();
@@ -35,6 +37,9 @@ protected:
 public:
 	TextureGl();
 	virtual ~TextureGl();
+
+	static void setEnableATIHacks(bool value) 	{ enableATIHacks = value; }
+	static bool getEnableATIHacks() 			{ return enableATIHacks; }
 
 	GLuint getHandle() const				{return handle;}
 	GLuint getRenderBufferHandle() const	{return renderBufferId;}
