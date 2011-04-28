@@ -717,8 +717,9 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 
 			if(error != 0) {
 				//throw runtime_error("Error building texture 1D mipmaps");
+				const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error building texture 1D mipmaps, returned: %d [%s] w = %d, glCompressionFormat = %d",error,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
+				sprintf(szBuf,"Error building texture 1D mipmaps, returned: %d [%s] for [%s] w = %d, glCompressionFormat = %d",error,errorString,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -749,8 +750,9 @@ void Texture1DGl::init(Filter filter, int maxAnisotropy) {
 
 			if(error != GL_NO_ERROR) {
 				//throw runtime_error("Error creating texture 1D");
+				const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture 1D, returned: %d (%X) [%s] w = %d, glCompressionFormat = %d",error,error,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
+				sprintf(szBuf,"Error creating texture 1D, returned: %d [%s] (%X) [%s] w = %d, glCompressionFormat = %d",error,errorString,error,pixmap.getPath().c_str(),pixmap.getW(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -870,11 +872,11 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 
 			if(error != GL_NO_ERROR) {
 				//throw runtime_error("Error building texture 2D mipmaps");
+				const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error building texture 2D mipmaps [%s], returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",this->path.c_str(),error,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH(),glCompressionFormat);
+				sprintf(szBuf,"Error building texture 2D mipmaps [%s], returned: %d [%s] for [%s] w = %d, h = %d, glCompressionFormat = %d",this->path.c_str(),error,errorString,(pixmap.getPath() != "" ? pixmap.getPath().c_str() : this->path.c_str()),pixmap.getW(),pixmap.getH(),glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
-
 		}
 		else {
 			//build single texture
@@ -915,8 +917,9 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			//throw runtime_error("TEST!");
 
 			if(error != GL_NO_ERROR) {
+				const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 				char szBuf[1024]="";
-				sprintf(szBuf,"Error creating texture 2D [%s], returned: %d (%X) [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",this->path.c_str(),error,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
+				sprintf(szBuf,"Error creating texture 2D [%s], returned: %d [%s] (%X) [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",this->path.c_str(),error,errorString,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
 				throw runtime_error(szBuf);
 			}
 		}
@@ -1007,8 +1010,9 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 
 		if(error != GL_NO_ERROR) {
 			//throw runtime_error("Error creating texture 3D");
+			const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 			char szBuf[1024]="";
-			sprintf(szBuf,"Error creating texture 3D, returned: %d (%X) [%s] w = %d, h = %d, d = %d, glCompressionFormat = %d",error,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),pixmap.getD(),glCompressionFormat);
+			sprintf(szBuf,"Error creating texture 3D, returned: %d [%s] (%X) [%s] w = %d, h = %d, d = %d, glCompressionFormat = %d",error,errorString,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),pixmap.getD(),glCompressionFormat);
 			throw runtime_error(szBuf);
 		}
 		inited= true;
@@ -1139,11 +1143,11 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 
 				if(error != GL_NO_ERROR) {
 					//throw runtime_error("Error building texture cube mipmaps");
+					const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 					char szBuf[1024]="";
-					sprintf(szBuf,"Error building texture cube mipmaps, returned: %d [%s] w = %d, h = %d, glCompressionFormat = %d",error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
+					sprintf(szBuf,"Error building texture cube mipmaps, returned: %d [%s] for [%s] w = %d, h = %d, glCompressionFormat = %d",error,errorString,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
 					throw runtime_error(szBuf);
 				}
-
 			}
 			else {
 				glTexImage2D(
@@ -1183,8 +1187,9 @@ void TextureCubeGl::init(Filter filter, int maxAnisotropy) {
 
 				if(error != GL_NO_ERROR) {
 					//throw runtime_error("Error creating texture cube");
+					const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 					char szBuf[1024]="";
-					sprintf(szBuf,"Error creating texture cube, returned: %d (%X) [%s] w = %d, h = %d, glCompressionFormat = %d",error,error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
+					sprintf(szBuf,"Error creating texture cube, returned: %d [%s] (%X) [%s] w = %d, h = %d, glCompressionFormat = %d",error,errorString,error,currentPixmap->getPath().c_str(),currentPixmap->getW(),currentPixmap->getH(),glCompressionFormat);
 					throw runtime_error(szBuf);
 				}
 			}
