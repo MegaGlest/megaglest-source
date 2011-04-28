@@ -25,11 +25,12 @@
 #include <jpeglib.h>
 #include <setjmp.h>
 #include <memory>
-
+#include "opengl.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
 using namespace std;
+using namespace Shared::Graphics::Gl;
 
 namespace Shared{ namespace Graphics{
 
@@ -866,6 +867,24 @@ void Pixmap2D::deletePixels() {
 
 Pixmap2D::~Pixmap2D() {
 	deletePixels();
+}
+
+void Pixmap2D::Scale(int format, int newW, int newH) {
+	int useComponents = this->getComponents();
+	uint8 *newpixels= new uint8[newW * newH * useComponents];
+
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	int error = gluScaleImage(	format,
+				w, h, GL_UNSIGNED_BYTE, pixels,
+				newW, newH, GL_UNSIGNED_BYTE, newpixels);
+	if(error != GL_NO_ERROR) {
+		init(newW,newH,this->components);
+		pixels = newpixels;
+	}
+	else {
+		assertGl();
+	}
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }
 
 Pixmap2D* Pixmap2D::loadPath(const string& path) {
