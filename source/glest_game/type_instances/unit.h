@@ -339,6 +339,7 @@ private:
 	uint32 lastPathfindFailedFrame;
 	Vec2i lastPathfindFailedPos;
 	bool usePathfinderExtendedMaxNodes;
+	int maxQueuedCommandDisplayCount;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
