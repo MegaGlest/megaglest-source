@@ -234,7 +234,8 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
     setModelFacing(placeFacing);
 
     Config &config= Config::getInstance();
-	showUnitParticles= config.getBool("UnitParticles","true");
+	showUnitParticles				= config.getBool("UnitParticles","true");
+	maxQueuedCommandDisplayCount 	= config.getInt("MaxQueuedCommandDisplayCount","5");
 
 	lastPos= pos;
     progress= 0;
@@ -1460,35 +1461,32 @@ string Unit::getDesc() const {
 	}
 
 	//consumable production
-	for(int i=0; i<getType()->getCostCount(); ++i){
+	for(int i=0; i < getType()->getCostCount(); ++i) {
 		const Resource *r= getType()->getCost(i);
-		if(r->getType()->getClass()==rcConsumable){
+		if(r->getType()->getClass() == rcConsumable) {
 			str+= "\n";
-			str+= r->getAmount()<0? lang.get("Produce")+": ": lang.get("Consume")+": ";
+			str+= r->getAmount() < 0 ? lang.get("Produce")+": ": lang.get("Consume")+": ";
 			str+= intToStr(abs(r->getAmount())) + " " + r->getType()->getName();
 		}
 	}
 
 	//command info
 	if(commands.empty() == false) {
-		str+= "\n" + commands.front()->getCommandType()->getName();
-		if(commands.size() > 1) {
-			str += "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
-			Commands::const_iterator it= commands.begin();
-			for(unsigned int i = 1; i < min((size_t)6,commands.size()); ++i) {
-				const CommandType *ct = (*it)->getCommandType();
-				//str += "\n" + ct->getDesc(this->getTotalUpgrade());
-				str += "\n#" + intToStr(i+1) + " " + ct->getName();
-				it++;
-			}
+		str += "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
+		Commands::const_iterator it= commands.begin();
+		for(unsigned int i = 0; i < min((size_t)maxQueuedCommandDisplayCount,commands.size()); ++i) {
+			const CommandType *ct = (*it)->getCommandType();
+			//str += "\n" + ct->getDesc(this->getTotalUpgrade());
+			str += "\n#" + intToStr(i+1) + " " + ct->getName();
+			it++;
 		}
 	}
 	else {
 		//can store
-		if(getType()->getStoredResourceCount()>0){
-			for(int i=0; i<getType()->getStoredResourceCount(); ++i){
+		if(getType()->getStoredResourceCount() > 0) {
+			for(int i = 0; i < getType()->getStoredResourceCount(); ++i) {
 				const Resource *r= getType()->getStoredResource(i);
-				str+= "\n"+lang.get("Store")+": ";
+				str+= "\n" + lang.get("Store") + ": ";
 				str+= intToStr(r->getAmount()) + " " + r->getType()->getName();
 			}
 		}
