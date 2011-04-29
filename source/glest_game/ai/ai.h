@@ -158,8 +158,8 @@ public:
 	RandomGen* getRandom()					{return &random;}
     int getCountOfType(const UnitType *ut);
 	
-	int getCountOfClass(UnitClass uc);
-	float getRatioOfClass(UnitClass uc);
+	int getCountOfClass(UnitClass uc,UnitClass *additionalUnitClassToExcludeFromCount=NULL);
+	float getRatioOfClass(UnitClass uc,UnitClass *additionalUnitClassToExcludeFromCount=NULL);
 
 	const ResourceType *getNeededResource(int unitIndex);
 	bool isStableBase();

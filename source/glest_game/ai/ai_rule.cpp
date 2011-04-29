@@ -94,8 +94,69 @@ AiRuleRepair::AiRuleRepair(Ai *ai):
 bool AiRuleRepair::test(){
 	AiInterface *aiInterface= ai->getAiInterface();
 
-	//look for a damaged unit
-	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
+	const int minUnitsRepairingCastle = 7;
+	// look for a damaged unit and give priority to the factions bases
+	// (units that produce workers and store resources)
+	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
+		const Unit *u= aiInterface->getMyUnit(i);
+		//printf("\n\n\n\n!!!!!! Is damaged unit [%d - %s] u->getHpRatio() = %f, hp = %d, mapHp = %d\n",u->getId(),u->getType()->getName().c_str(),u->getHpRatio(),u->getHp(),u->getType()->getTotalMaxHp(u->getTotalUpgrade()));
+		if(u->getHpRatio() < 1.f) {
+
+			bool unitCanProduceWorker = false;
+			for(int j = 0; unitCanProduceWorker == false &&
+			               j < u->getType()->getCommandTypeCount(); ++j) {
+				const CommandType *ct= u->getType()->getCommandType(j);
+
+				//if the command is produce
+				if(ct->getClass() == ccProduce || ct->getClass() == ccMorph) {
+					const ProducibleType *pt = ct->getProduced();
+					if(pt != NULL) {
+						const UnitType *ut = dynamic_cast<const UnitType *>(pt);
+						if( ut != NULL && ut->hasCommandClass(ccHarvest) == true &&
+							ut->getStoredResourceCount() > 0) {
+							unitCanProduceWorker = true;
+						}
+					}
+				}
+			}
+
+			int candidatedamagedUnitIndex=-1;
+			if(unitCanProduceWorker == true) {
+				int unitCountAlreadyRepairingDamagedUnit = 0;
+				// Now check if any other unit is able to repair this unit
+				for(int i1 = 0; i1 < aiInterface->getMyUnitCount(); ++i1) {
+					const Unit *u1= aiInterface->getMyUnit(i1);
+					const RepairCommandType *rct= static_cast<const RepairCommandType *>(u1->getType()->getFirstCtOfClass(ccRepair));
+					//if(rct) printf("\n\n\n\n^^^^^^^^^^ possible repairer unit [%d - %s] current skill [%d] can reapir damaged unit [%d]\n",u1->getId(),u1->getType()->getName().c_str(),u->getCurrSkill()->getClass(),rct->isRepairableUnitType(u->getType()));
+
+					if(rct != NULL) {
+						if(u1->getCurrSkill()->getClass() == scStop || u1->getCurrSkill()->getClass() == scMove) {
+							if(rct->isRepairableUnitType(u->getType())) {
+								candidatedamagedUnitIndex= i;
+								//return true;
+							}
+						}
+						else if(u1->getCurrSkill()->getClass() == scRepair) {
+							Command *cmd = u1->getCurrCommand();
+							if(cmd != NULL && cmd->getCommandType()->getClass() == ccRepair) {
+								if(cmd->getUnit() != NULL && cmd->getUnit()->getId() == u->getId()) {
+									unitCountAlreadyRepairingDamagedUnit++;
+								}
+							}
+						}
+					}
+				}
+
+				if(candidatedamagedUnitIndex >= 0 && unitCountAlreadyRepairingDamagedUnit < minUnitsRepairingCastle) {
+					damagedUnitIndex = candidatedamagedUnitIndex;
+					return true;
+				}
+			}
+		}
+	}
+
+	// Normal Repair checking
+	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
 		const Unit *u= aiInterface->getMyUnit(i);
 		//printf("\n\n\n\n!!!!!! Is damaged unit [%d - %s] u->getHpRatio() = %f, hp = %d, mapHp = %d\n",u->getId(),u->getType()->getName().c_str(),u->getHpRatio(),u->getHp(),u->getType()->getTotalMaxHp(u->getTotalUpgrade()));
 		if(u->getHpRatio() < 1.f) {
@@ -191,12 +252,13 @@ AiRuleAddTasks::AiRuleAddTasks(Ai *ai):
 }
 
 bool AiRuleAddTasks::test(){
-	return !ai->anyTask() || ai->getCountOfClass(ucWorker)<4;
+	return !ai->anyTask() || ai->getCountOfClass(ucWorker) < 4;
 }
 
 void AiRuleAddTasks::execute(){
 	int buildingCount= ai->getCountOfClass(ucBuilding);
-	int warriorCount= ai->getCountOfClass(ucWarrior);
+	UnitClass ucWorkerType = ucWorker;
+	int warriorCount= ai->getCountOfClass(ucWarrior,&ucWorkerType);
 	int workerCount= ai->getCountOfClass(ucWorker);
 	int upgradeCount= ai->getAiInterface()->getMyUpgradeCount();
 
@@ -632,7 +694,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				if(	aiInterface->getMyUnit(bestIndex)->getCommandSize() > 2) {
 					// maybe we need another producer of this kind if possible!
 					if(aiInterface->reqsOk(aiInterface->getMyUnit(bestIndex)->getType())) {
-						if(ai->getCountOfClass(ucBuilding)>5)
+						if(ai->getCountOfClass(ucBuilding) > 5)
 							ai->addTask(new BuildTask(aiInterface->getMyUnit(bestIndex)->getType()));
 					}
 					// need to calculate another producer, maybe its better to produce another warrior with another producer

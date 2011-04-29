@@ -202,22 +202,28 @@ int Ai::getCountOfType(const UnitType *ut){
     return count;
 }
 
-int Ai::getCountOfClass(UnitClass uc){
+int Ai::getCountOfClass(UnitClass uc,UnitClass *additionalUnitClassToExcludeFromCount) {
     int count= 0;
-    for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
-		if(aiInterface->getMyUnit(i)->getType()->isOfClass(uc)){
+    for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
+		if(aiInterface->getMyUnit(i)->getType()->isOfClass(uc)) {
+			// Skip unit if it ALSO contains the exclusion unit class type
+			if(additionalUnitClassToExcludeFromCount != NULL) {
+				if(aiInterface->getMyUnit(i)->getType()->isOfClass(*additionalUnitClassToExcludeFromCount)) {
+					continue;
+				}
+			}
             ++count;
 		}
     }
     return count;
 }
 
-float Ai::getRatioOfClass(UnitClass uc){
-	if(aiInterface->getMyUnitCount()==0){
+float Ai::getRatioOfClass(UnitClass uc,UnitClass *additionalUnitClassToExcludeFromCount) {
+	if(aiInterface->getMyUnitCount() == 0) {
 		return 0;
 	}
-	else{
-		return static_cast<float>(getCountOfClass(uc))/aiInterface->getMyUnitCount();
+	else {
+		return static_cast<float>(getCountOfClass(uc,additionalUnitClassToExcludeFromCount)) / aiInterface->getMyUnitCount();
 	}
 }
 
@@ -272,9 +278,9 @@ bool Ai::beingAttacked(Vec2i &pos, Field &field, int radius){
 */
 }
 
-bool Ai::isStableBase(){
-
-    if(getCountOfClass(ucWarrior)>minWarriors){
+bool Ai::isStableBase() {
+	UnitClass ucWorkerType = ucWorker;
+    if(getCountOfClass(ucWarrior,&ucWorkerType) > minWarriors) {
         aiInterface->printLog(4, "Base is stable\n");
         return true;
     }
@@ -436,10 +442,13 @@ void Ai::sendScoutPatrol(){
 }
 
 void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
+	const int minWorkerAttackersHarvesting = 3;
+
 	int producerWarriorCount=0;
 	int maxProducerWarriors=random.randRange(1,11);
 	int unitCount = aiInterface->getMyUnitCount();
 
+	int attackerWorkersHarvestingCount = 0;
     for(int i = 0; i < unitCount; ++i) {
     	bool isWarrior=false;
         const Unit *unit= aiInterface->getMyUnit(i);
@@ -493,24 +502,51 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 				//printf("~~~~~~~~ Unit [%s - %d] found enemy [%s - %d] act_forenemy [%p] enemy->getCurrField() = %d\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId(),act_forenemy,enemy->getCurrField());
 
 				if(act_forenemy != NULL) {
-					//printf("~~~~~~~~ Unit [%s - %d] WILL ATTACK [%s - %d]\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId());
-					aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
-					unitSignalledToAttack = true;
+					bool shouldAttack = true;
+					if(unit->getType()->hasSkillClass(scHarvest)) {
+						shouldAttack = (attackerWorkersHarvestingCount > minWorkerAttackersHarvesting);
+						if(shouldAttack == false) {
+							attackerWorkersHarvestingCount++;
+						}
+					}
+					if(shouldAttack) {
+						//printf("~~~~~~~~ Unit [%s - %d] WILL ATTACK [%s - %d]\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId());
+						aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
+						unitSignalledToAttack = true;
+					}
 				}
 				else {
 					const AttackStoppedCommandType *asct_forenemy = unit->getType()->getFirstAttackStoppedCommand(enemy->getCurrField());
 					//printf("~~~~~~~~ Unit [%s - %d] found enemy [%s - %d] asct_forenemy [%p] enemy->getCurrField() = %d\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId(),asct_forenemy,enemy->getCurrField());
 					if(asct_forenemy != NULL) {
-						//printf("~~~~~~~~ Unit [%s - %d] WILL ATTACK [%s - %d]\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId());
-						aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
-						unitSignalledToAttack = true;
+						bool shouldAttack = true;
+						if(unit->getType()->hasSkillClass(scHarvest)) {
+							shouldAttack = (attackerWorkersHarvestingCount > minWorkerAttackersHarvesting);
+							if(shouldAttack == false) {
+								attackerWorkersHarvestingCount++;
+							}
+						}
+						if(shouldAttack) {
+							//printf("~~~~~~~~ Unit [%s - %d] WILL ATTACK [%s - %d]\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId());
+							aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
+							unitSignalledToAttack = true;
+						}
 					}
 				}
 			}
 		}
-		if(alreadyAttacking == false && act!=NULL && (ultraAttack || isWarrior) &&
+		if(alreadyAttacking == false && act != NULL && (ultraAttack || isWarrior) &&
 			unitSignalledToAttack == false) {
-			aiInterface->giveCommand(i, act, pos);
+			bool shouldAttack = true;
+			if(unit->getType()->hasSkillClass(scHarvest)) {
+				shouldAttack = (attackerWorkersHarvestingCount > minWorkerAttackersHarvesting);
+				if(shouldAttack == false) {
+					attackerWorkersHarvestingCount++;
+				}
+			}
+			if(shouldAttack) {
+				aiInterface->giveCommand(i, act, pos);
+			}
 		}
     }
 
