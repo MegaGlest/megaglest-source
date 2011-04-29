@@ -235,7 +235,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
     Config &config= Config::getInstance();
 	showUnitParticles				= config.getBool("UnitParticles","true");
-	maxQueuedCommandDisplayCount 	= config.getInt("MaxQueuedCommandDisplayCount","5");
+	maxQueuedCommandDisplayCount 	= config.getInt("MaxQueuedCommandDisplayCount","3");
 
 	lastPos= pos;
     progress= 0;
