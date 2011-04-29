@@ -4773,6 +4773,9 @@ void Renderer::renderTile(const Vec2i &pos) {
 
 void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) {
 
+/* Revert back to 3.4.0 render logic due to issues on some ATI cards
+ *
+
 	if(w < 0) {
 		w = texture->getPixmapConst()->getW();
 	}
@@ -4806,8 +4809,16 @@ void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) 
     glDisableClientState(GL_VERTEX_ARRAY);
     //glClientActiveTexture(GL_TEXTURE0);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+*/
 
-/*
+	if(w < 0) {
+		w = texture->getPixmapConst()->getW();
+	}
+	if(h < 0) {
+		h = texture->getPixmapConst()->getH();
+	}
+
+	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2i(0, 1);
 		glVertex2i(x, y+h);
@@ -4818,7 +4829,6 @@ void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) 
 		glTexCoord2i(1, 0);
 		glVertex2i(x+w, y);
 	glEnd();
-*/
 }
 
 Renderer::Shadows Renderer::strToShadows(const string &s){
