@@ -97,9 +97,21 @@ bool AiRuleRepair::test(){
 	//look for a damaged unit
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 		const Unit *u= aiInterface->getMyUnit(i);
-		if(u->getHpRatio()<1.f){
-			damagedUnitIndex= i;
-			return true;
+		//printf("\n\n\n\n!!!!!! Is damaged unit [%d - %s] u->getHpRatio() = %f, hp = %d, mapHp = %d\n",u->getId(),u->getType()->getName().c_str(),u->getHpRatio(),u->getHp(),u->getType()->getTotalMaxHp(u->getTotalUpgrade()));
+		if(u->getHpRatio() < 1.f) {
+			// Now check if any other unit is able to repair this unit
+			for(int i1 = 0; i1 < aiInterface->getMyUnitCount(); ++i1) {
+				const Unit *u1= aiInterface->getMyUnit(i1);
+				const RepairCommandType *rct= static_cast<const RepairCommandType *>(u1->getType()->getFirstCtOfClass(ccRepair));
+				//if(rct) printf("\n\n\n\n^^^^^^^^^^ possible repairer unit [%d - %s] current skill [%d] can reapir damaged unit [%d]\n",u1->getId(),u1->getType()->getName().c_str(),u->getCurrSkill()->getClass(),rct->isRepairableUnitType(u->getType()));
+
+				if(rct != NULL && (u1->getCurrSkill()->getClass() == scStop || u1->getCurrSkill()->getClass() == scMove)) {
+					if(rct->isRepairableUnitType(u->getType())) {
+						damagedUnitIndex= i;
+						return true;
+					}
+				}
+			}
 		}
 	}
 	return false;
@@ -108,15 +120,17 @@ bool AiRuleRepair::test(){
 void AiRuleRepair::execute() {
 	AiInterface *aiInterface= ai->getAiInterface();
 	const Unit *damagedUnit= aiInterface->getMyUnit(damagedUnitIndex);
+	//printf("\n\n\n\n###^^^^^^^^^^ Looking for repairer for damaged unit [%d - %s]\n",damagedUnit->getId(),damagedUnit->getType()->getName().c_str());
 
 	//find a repairer and issue command
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 		const Unit *u= aiInterface->getMyUnit(i);
 		const RepairCommandType *rct= static_cast<const RepairCommandType *>(u->getType()->getFirstCtOfClass(ccRepair));
-		if(rct!=NULL && (u->getCurrSkill()->getClass()==scStop || u->getCurrSkill()->getClass()==scMove)){
-			if(rct->isRepairableUnitType(damagedUnit->getType())){
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//if(rct) printf("\n\n\n\n^^^^^^^^^^ possible repairer unit [%d - %s] current skill [%d] can reapir damaged unit [%d]\n",u->getId(),u->getType()->getName().c_str(),u->getCurrSkill()->getClass(),rct->isRepairableUnitType(damagedUnit->getType()));
 
+		if(rct != NULL && (u->getCurrSkill()->getClass() == scStop || u->getCurrSkill()->getClass() == scMove)) {
+			if(rct->isRepairableUnitType(damagedUnit->getType())) {
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				aiInterface->giveCommand(i, rct, damagedUnit->getPos());
 				aiInterface->printLog(3, "Repairing order issued");
 				return;
