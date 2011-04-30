@@ -735,7 +735,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
         if(gameNetworkInterface != NULL) {
             char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Can not find command type for unitId: %d. Game out of synch.",networkCommand->getUnitId());
+            sprintf(szMsg,"Player detected an error: Can not find command type: %d for unitId: %d [%s]. Game out of synch.",networkCommand->getCommandTypeId(),networkCommand->getUnitId(),(unitType != NULL ? unitType->getName().c_str() : "null"));
             gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
         }
 
