@@ -118,6 +118,11 @@ string getNetworkVersionString() {
 	return version;
 }
 
+string getNetworkVersionSVNString() {
+	string version = glestVersionString + "-" + getCompilerNameString() + "-" + getSVNRevisionString();
+	return version;
+}
+
 string getCompileDateTime() {
 	return string(__DATE__) + " " + string(__TIME__);
 }

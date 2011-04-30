@@ -32,6 +32,7 @@ string getPlatformNameString();
 string getSVNRevisionString();
 string getCompilerNameString();
 string getNetworkVersionString();
+string getNetworkVersionSVNString();
 string getNetworkPlatformFreeVersionString();
 string getAboutString1(int i);
 string getAboutString2(int i);

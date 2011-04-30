@@ -37,15 +37,15 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	this->lineHeight= lineHeight;
 	int lineOffset= lineHeight * lineIndex;
 	masterServerInfo= *mServerInfo;
-	int i= 10;
+	int i= 7;
 	this->baseY= baseY;
 
 	//general info:
-	i+= 10;
+	//i+= 10;
 	glestVersionLabel.init(i, baseY - lineOffset);
 	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
 
-	i+= 80;
+	i+= 70;
 	platformLabel.init(i, baseY - lineOffset);
 	platformLabel.setText(masterServerInfo.getPlatform());
 
@@ -56,11 +56,11 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	//	binaryCompileDateLabel.setText(masterServerInfo.getBinaryCompileDate());
 
 	//game info:
-	i+= 80;
+	i+= 130;
 	serverTitleLabel.init(i, baseY - lineOffset);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 
-	i+= 140;
+	i+= 150;
 	country.init(i, baseY - lineOffset);
 	country.setText(masterServerInfo.getCountry());
 
@@ -89,7 +89,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 		renderer.initTexture(rsGlobal, countryTexture);
 	}
 
-	i+= 90;
+	i+= 65;
 	//	ipAddressLabel.init(i,baseY-lineOffset);
 	//	ipAddressLabel.setText(masterServerInfo.getIpAddress());
 	//	i+=100;
@@ -118,7 +118,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	externalConnectPort.init(i, baseY - lineOffset);
 	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
 
-	i+= 80;
+	i+= 60;
 	status.init(i, baseY - lineOffset);
 	status.setText(lang.get("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
 

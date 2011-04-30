@@ -368,7 +368,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstNoSlots, 0, ServerSocket::getFTPServerPort(),"");
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHostName(), playerIndex, nmgstNoSlots, 0, ServerSocket::getFTPServerPort(),"");
 							sendMessage(&networkMessageIntro);
 						}
 
@@ -380,7 +380,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(socket != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort(),"");
+							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort(),"");
 							sendMessage(&networkMessageIntro);
 
 							//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
@@ -500,7 +500,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								}
 
 								//check consistency
-								bool compatible = checkVersionComptability(getNetworkVersionString(), networkMessageIntro.getVersionString());
+								bool compatible = checkVersionComptability(getNetworkVersionSVNString(), networkMessageIntro.getVersionString());
 								if(compatible == false) {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -510,12 +510,12 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 									if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
 										string playerNameStr = name;
-										sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +  getNetworkVersionString() +
+										sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +  getNetworkVersionSVNString() +
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 										printf("%s\n",sErr.c_str());
 
 										serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true,"",lockedSlotIndex);
-										serverInterface->sendTextMessage(" Server:" + getNetworkVersionString(),-1, true,"",lockedSlotIndex);
+										serverInterface->sendTextMessage(" Server:" + getNetworkVersionSVNString(),-1, true,"",lockedSlotIndex);
 										serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true,"",lockedSlotIndex);
 										serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,"",lockedSlotIndex);
 									}
@@ -523,7 +523,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 										versionMatched = true;
 
 										string playerNameStr = name;
-										sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionString() +
+										sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionSVNString() +
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 										printf("%s\n",sErr.c_str());
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
