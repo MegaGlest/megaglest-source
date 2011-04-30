@@ -161,6 +161,7 @@ void ClientInterface::update() {
 
         string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
         sendTextMessage(sMsg,-1, true,"");
+        sleep(1);
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
@@ -225,6 +226,8 @@ void ClientInterface::updateLobby() {
 					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
 					   versionMatched == false) { // error message and disconnect only if checked
 						DisplayErrorMessage(sErr);
+						sleep(1);
+
                         quit= true;
                         close();
                     	return;
@@ -502,6 +505,8 @@ void ClientInterface::updateLobby() {
             //throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
             sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true,"");
             DisplayErrorMessage(sErr);
+            sleep(1);
+
             quit= true;
             close();
             }
@@ -549,15 +554,19 @@ void ClientInterface::updateKeyframe(int frameCount) {
 				//make sure we read the message
 				time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageCommandList networkMessageCommandList;
-				while(receiveMessage(&networkMessageCommandList) == false &&
-					  isConnected() == true &&
-					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
-					waitCount++;
+				bool gotCmd = receiveMessage(&networkMessageCommandList);
+				if(gotCmd == false) {
+					throw runtime_error("error retrieving nmtCommandList returned false!");
 				}
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+//				while(receiveMessage(&networkMessageCommandList) == false &&
+//					  isConnected() == true &&
+//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
+//					waitCount++;
+//				}
 
-				chrono.start();
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 				//check that we are in the right frame
 				if(networkMessageCommandList.getFrameCount() != frameCount) {
 				    string sErr = "Player: " + getHumanPlayerName() +
@@ -566,13 +575,15 @@ void ClientInterface::updateKeyframe(int frameCount) {
 				    		      intToStr(frameCount);
                     sendTextMessage(sErr,-1, true,"");
                     DisplayErrorMessage(sErr);
+                    sleep(1);
+
                     quit= true;
                     close();
                     return;
 				}
 
 				// give all commands
-				for(int i= 0; i<networkMessageCommandList.getCommandCount(); ++i) {
+				for(int i= 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
 				}
 
@@ -600,10 +611,15 @@ void ClientInterface::updateKeyframe(int frameCount) {
 			{
 				time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageQuit networkMessageQuit;
-				while(receiveMessage(&networkMessageQuit) == false &&
-					  isConnected() == true &&
-					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
+//				while(receiveMessage(&networkMessageQuit) == false &&
+//					  isConnected() == true &&
+//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
+//				}
+				bool gotCmd = receiveMessage(&networkMessageQuit);
+				if(gotCmd == false) {
+					throw runtime_error("error retrieving nmtQuit returned false!");
 				}
+
 				quit= true;
 				done= true;
 			}
@@ -613,9 +629,13 @@ void ClientInterface::updateKeyframe(int frameCount) {
 			{
 				time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageText networkMessageText;
-				while(receiveMessage(&networkMessageText) == false &&
-					  isConnected() == true &&
-					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
+//				while(receiveMessage(&networkMessageText) == false &&
+//					  isConnected() == true &&
+//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
+//				}
+				bool gotCmd = receiveMessage(&networkMessageText);
+				if(gotCmd == false) {
+					throw runtime_error("error retrieving nmtText returned false!");
 				}
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -636,6 +656,8 @@ void ClientInterface::updateKeyframe(int frameCount) {
                 {
                 sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1, true,"");
                 DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
+                sleep(1);
+
 				quit= true;
 				close();
 				done= true;
@@ -744,6 +766,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+					sleep(1);
 					quit= true;
 					close();
 
@@ -849,6 +872,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+				sleep(1);
 				quit= true;
 				close();
 
@@ -932,6 +956,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 			//string niceError = sErr + string("\n") + sErr1 + string("\n") + sErr2;
 			//DisplayErrorMessage(niceError);
 
+			sleep(1);
 			quit= true;
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1029,6 +1054,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 						DisplayErrorMessage(msg);
 					}
 		    	}
+		    	sleep(1);
 				quit= true;
 				close();
 				return msg;
