@@ -193,7 +193,7 @@ void ClientInterface::updateLobby() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s], sessionKey = %d, playerIndex = %d, serverFTPPort = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str(),sessionKey,playerIndex,serverFTPPort);
 
                 //check consistency
-				bool compatible = checkVersionComptability(networkMessageIntro.getVersionString(), getNetworkVersionString());
+				bool compatible = checkVersionComptability(networkMessageIntro.getVersionString(), getNetworkVersionSVNString());
 				if(compatible == false) {
                 //if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -205,12 +205,12 @@ void ClientInterface::updateLobby() {
                 	if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
 						string playerNameStr = getHumanPlayerName();
     					sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " + networkMessageIntro.getVersionString() +
-    							"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
+    							"\nClient: " + getNetworkVersionSVNString() + " player [" + playerNameStr + "]";
                         printf("%s\n",sErr.c_str());
 
                         sendTextMessage("Server and client binary mismatch!!",-1, true,"");
                         sendTextMessage(" Server:" + networkMessageIntro.getVersionString(),-1, true,"");
-                        sendTextMessage(" Client: "+ getNetworkVersionString(),-1, true,"");
+                        sendTextMessage(" Client: "+ getNetworkVersionSVNString(),-1, true,"");
 						sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,"");
                 	}
                 	else {
@@ -218,7 +218,7 @@ void ClientInterface::updateLobby() {
 
 						string playerNameStr = getHumanPlayerName();
 						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() +
-								"\nClient: " + getNetworkVersionString() + " player [" + playerNameStr + "]";
+								"\nClient: " + getNetworkVersionSVNString() + " player [" + playerNameStr + "]";
 						printf("%s\n",sErr.c_str());
                 	}
 
@@ -238,7 +238,7 @@ void ClientInterface::updateLobby() {
 
 					//send intro message
                 	Lang &lang= Lang::getInstance();
-					NetworkMessageIntro sendNetworkMessageIntro(sessionKey,getNetworkVersionString(), getHumanPlayerName(), -1, nmgstOk, this->getSocket()->getConnectedIPAddress(),serverFTPPort,lang.getLanguage());
+					NetworkMessageIntro sendNetworkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHumanPlayerName(), -1, nmgstOk, this->getSocket()->getConnectedIPAddress(),serverFTPPort,lang.getLanguage());
 					sendMessage(&sendNetworkMessageIntro);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

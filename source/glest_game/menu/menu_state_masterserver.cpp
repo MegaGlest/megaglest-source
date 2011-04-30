@@ -126,16 +126,16 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	// Titles for current games - START
 	int lineIndex = 0;
 	int lineOffset=25*lineIndex;
-	int i=10;
+	int i=7;
 	int startOffset=serverLinesYBase+23;
 
 	//general info:
-	i+=10;
+	//i+=10;
 	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel");
 	glestVersionLabel.init(i,startOffset-lineOffset);
 	glestVersionLabel.setText(lang.get("MGVersion"));
 
-	i+=80;
+	i+=70;
 	platformLabel.registerGraphicComponent(containerName,"platformLabel");
 	platformLabel.init(i,startOffset-lineOffset);
 	platformLabel.setText(lang.get("MGPlatform"));
@@ -146,17 +146,17 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 //	binaryCompileDateLabel.setText(lang.get("MGBuildDateTime"));
 
 	//game info:
-	i+=80;
+	i+=130;
 	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel");
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(lang.get("MGGameTitle"));
 
-	i+=140;
+	i+=150;
 	countryLabel.registerGraphicComponent(containerName,"countryLabel");
 	countryLabel.init(i,startOffset-lineOffset);
 	countryLabel.setText(lang.get("MGGameCountry"));
 
-	i+=90;
+	i+=65;
 
 //	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
 //	ipAddressLabel.init(i,startOffset-lineOffset);
@@ -188,7 +188,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	externalConnectPort.init(i,startOffset-lineOffset);
 	externalConnectPort.setText(lang.get("Port"));
 
-	i+=80;
+	i+=60;
 	statusLabel.registerGraphicComponent(containerName,"statusLabel");
 	statusLabel.init(i,startOffset-lineOffset);
 	statusLabel.setText(lang.get("MGGameStatus"));

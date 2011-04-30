@@ -1970,7 +1970,7 @@ void MenuStateCustomGame::publishToMasterserver() {
 
 	//?status=waiting&system=linux&info=titus
 	publishToServerInfo["glestVersion"] = glestVersionString;
-	publishToServerInfo["platform"] = getPlatformNameString();
+	publishToServerInfo["platform"] = getPlatformNameString() + "-" + getSVNRevisionString();
     publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
 
 	//game info:
