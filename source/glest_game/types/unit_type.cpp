@@ -617,17 +617,18 @@ Vec2i UnitType::getFirstOccupiedCellInCellMap(Vec2i currentPos) const {
 	//printf("\n\n\n\n^^^^^^^^^^ currentPos [%s] size [%d]\n",currentPos.getString().c_str(),size);
 
 	//checkItemInVault(&(this->size),this->size);
-	for(int i = 0; i < size; ++i) {
-		for(int j = 0; j < size; ++j){
-			if(cellMap[i*size+j] == true) {
-				cell.x += i;
-				cell.y += j;
-				//printf("\n^^^^^^^^^^ cell [%s] i [%d] j [%d]\n",cell.getString().c_str(),i,j);
-				return cell;
+	if(hasCellMap() == true) {
+		for(int i = 0; i < size; ++i) {
+			for(int j = 0; j < size; ++j){
+				if(cellMap[i*size+j] == true) {
+					cell.x += i;
+					cell.y += j;
+					//printf("\n^^^^^^^^^^ cell [%s] i [%d] j [%d]\n",cell.getString().c_str(),i,j);
+					return cell;
+				}
 			}
 		}
 	}
-
 	return cell;
 }
 
