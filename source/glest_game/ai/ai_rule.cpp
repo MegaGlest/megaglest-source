@@ -213,6 +213,28 @@ void AiRuleRepair::execute() {
 	int minUnitsRepairingCastle 	= getMinUnitsToRepairCastle();
 	const double minCastleHpRatio 	= getMinCastleHpRatio();
 
+	int unitCountAlreadyRepairingDamagedUnit = 0;
+	// Now check if any other unit is able to repair this unit
+	for(int i1 = 0; i1 < aiInterface->getMyUnitCount(); ++i1) {
+		const Unit *u1= aiInterface->getMyUnit(i1);
+		const RepairCommandType *rct= static_cast<const RepairCommandType *>(u1->getType()->getFirstCtOfClass(ccRepair));
+		//if(rct) printf("\n\n\n\n^^^^^^^^^^ possible repairer unit [%d - %s] current skill [%d] can reapir damaged unit [%d]\n",u1->getId(),u1->getType()->getName().c_str(),u->getCurrSkill()->getClass(),rct->isRepairableUnitType(u->getType()));
+
+		if(rct != NULL) {
+			//printf("\n\n\n\n^^^^^^^^^^ possible repairer unit [%d - %s] current skill [%d] can repair damaged unit [%d] Castles hp-ratio = %f\n",u1->getId(),u1->getType()->getName().c_str(),u1->getCurrSkill()->getClass(),rct->isRepairableUnitType(u->getType()),u->getHpRatio());
+
+			if(u1->getCurrSkill()->getClass() == scRepair) {
+				Command *cmd = u1->getCurrCommand();
+				if(cmd != NULL && cmd->getCommandType()->getClass() == ccRepair) {
+					if(cmd->getUnit() != NULL && cmd->getUnit()->getId() == damagedUnit->getId()) {
+						//printf("\n\n\n\n^^^^^^^^^^ unit is ALREADY repairer unit [%d - %s]\n",u1->getId(),u1->getType()->getName().c_str());
+						unitCountAlreadyRepairingDamagedUnit++;
+					}
+				}
+			}
+		}
+	}
+
 	//find a repairer and issue command
 	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
 		const Unit *u= aiInterface->getMyUnit(i);
@@ -243,7 +265,11 @@ void AiRuleRepair::execute() {
 					//aiInterface->giveCommand(i, rct, damagedUnit->getPos());
 					aiInterface->giveCommand(i, rct, damagedUnit->getPosWithCellMapSet());
 					aiInterface->printLog(3, "Repairing order issued");
-					return;
+					unitCountAlreadyRepairingDamagedUnit++;
+
+					if(unitCountAlreadyRepairingDamagedUnit >= minUnitsRepairingCastle) {
+						return;
+					}
 				}
 			}
 		}
