@@ -48,6 +48,10 @@ private:
     static const char *glest_ini_filename;
     static const char *glestuser_ini_filename;
 
+public:
+    static const char *glestkeys_ini_filename;
+    static const char *glestuserkeys_ini_filename;
+
 protected:
 	Config();
 	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist);
