@@ -1016,7 +1016,7 @@ void ParticleManager::update(int renderFps){
 			}
 			if(showParticle == true){
 				ps->update();
-				if(ps->isEmpty()){
+				if(ps->isEmpty() && ps->getState() == ParticleSystem::sFade){
 					//delete ps;
 					//*it= NULL;
 					cleanupParticleSystemsList.push_back(ps);
