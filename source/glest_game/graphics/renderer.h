@@ -173,7 +173,7 @@ public:
 	//perspective values
 	static const float perspFov;
 	static const float perspNearPlane;
-	static const float perspFarPlane;
+	static float perspFarPlane;
 
 	//default values
 	static const float ambFactor;

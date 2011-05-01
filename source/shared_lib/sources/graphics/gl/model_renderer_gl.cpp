@@ -59,8 +59,6 @@ void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool render
 	glEnable(GL_BLEND);
 
 	glEnable(GL_POLYGON_OFFSET_FILL);
-	//glEnable(GL_POLYGON_OFFSET_LINE);
-	//glEnable(GL_POLYGON_OFFSET_POINT);
 	glPolygonOffset(0.005f, 0.0f);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -96,8 +94,6 @@ void ModelRendererGl::end() {
 
 	glPolygonOffset( 0.0f, 0.0f );
 	glDisable(GL_POLYGON_OFFSET_FILL);
-	//glDisable(GL_POLYGON_OFFSET_LINE);
-	//glDisable(GL_POLYGON_OFFSET_POINT);
 
 	//pop
 	glPopAttrib();
@@ -147,7 +143,7 @@ void ModelRendererGl::renderMesh(Mesh *mesh) {
 	//assertions
 	assertGl();
 
-	glPolygonOffset(0.05f, 0.0f);
+	//glPolygonOffset(0.05f, 0.0f);
 	//set cull face
 	if(mesh->getTwoSided()) {
 		glDisable(GL_CULL_FACE);
