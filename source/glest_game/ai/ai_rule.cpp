@@ -113,7 +113,7 @@ bool AiRuleRepair::test(){
 					if(pt != NULL) {
 						const UnitType *ut = dynamic_cast<const UnitType *>(pt);
 						if( ut != NULL && ut->hasCommandClass(ccHarvest) == true &&
-							ut->getStoredResourceCount() > 0) {
+							u->getType()->getStoredResourceCount() > 0) {
 							unitCanProduceWorker = true;
 						}
 					}
