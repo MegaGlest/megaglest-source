@@ -92,7 +92,7 @@ AiRuleRepair::AiRuleRepair(Ai *ai):
 }
 
 double AiRuleRepair::getMinCastleHpRatio() {
-	return 0.8;
+	return 0.6;
 }
 
 int AiRuleRepair::getMinUnitsToRepairCastle() {
@@ -100,7 +100,7 @@ int AiRuleRepair::getMinUnitsToRepairCastle() {
 	if(ai->getCountOfClass(ucWorker) <= 4) {
 		minUnitsRepairingCastle 	= 1;
 	}
-	else if(ai->getCountOfClass(ucWorker) <= 6) {
+	else if(ai->getCountOfClass(ucWorker) <= 7) {
 		minUnitsRepairingCastle 	= 2;
 	}
 	else if(ai->getCountOfClass(ucWorker) <= 10) {
@@ -263,9 +263,11 @@ void AiRuleRepair::execute() {
 					*/
 
 					//aiInterface->giveCommand(i, rct, damagedUnit->getPos());
-					aiInterface->giveCommand(i, rct, damagedUnit->getPosWithCellMapSet());
-					aiInterface->printLog(3, "Repairing order issued");
-					unitCountAlreadyRepairingDamagedUnit++;
+					if(unitCountAlreadyRepairingDamagedUnit < minUnitsRepairingCastle) {
+						aiInterface->giveCommand(i, rct, damagedUnit->getPosWithCellMapSet());
+						aiInterface->printLog(3, "Repairing order issued");
+						unitCountAlreadyRepairingDamagedUnit++;
+					}
 
 					if(unitCountAlreadyRepairingDamagedUnit >= minUnitsRepairingCastle) {
 						return;
@@ -1115,7 +1117,44 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 			int bIndex = ai->getRandom()->randRange(0, builders.size()-1);
 			int builderIndex= builders[bIndex];
 			Vec2i pos;
-			Vec2i searchPos= bt->getForcePos()? bt->getPos(): ai->getRandomHomePosition();
+			Vec2i searchPos = bt->getForcePos()? bt->getPos(): ai->getRandomHomePosition();
+			if(bt->getForcePos() == false) {
+				const int enemySightDistanceToAvoid = 18;
+				vector<Unit*> enemies;
+				ai->getAiInterface()->getWorld()->getUnitUpdater()->findEnemiesForCell(searchPos,bt->getUnitType()->getSize(),enemySightDistanceToAvoid,ai->getAiInterface()->getMyFaction(),enemies,true);
+				if(enemies.size() > 0) {
+					for(int i1 = 0; i1 < 25 && enemies.size() > 0; ++i1) {
+						for(int j1 = 0; j1 < 25 && enemies.size() > 0; ++j1) {
+							Vec2i tryPos = searchPos + Vec2i(i1,j1);
+
+							const int spacing = 1;
+							if(ai->getAiInterface()->isFreeCells(tryPos - Vec2i(spacing), bt->getUnitType()->getSize() + spacing * 2, fLand)) {
+								enemies.clear();
+								ai->getAiInterface()->getWorld()->getUnitUpdater()->findEnemiesForCell(tryPos,bt->getUnitType()->getSize(),enemySightDistanceToAvoid,ai->getAiInterface()->getMyFaction(),enemies,true);
+								if(enemies.size() <= 0) {
+									searchPos = tryPos;
+								}
+							}
+						}
+					}
+				}
+				if(enemies.size() > 0) {
+					for(int i1 = -1; i1 >= -25 && enemies.size() > 0; --i1) {
+						for(int j1 = -1; j1 >= -25 && enemies.size() > 0; --j1) {
+							Vec2i tryPos = searchPos + Vec2i(i1,j1);
+
+							const int spacing = 1;
+							if(ai->getAiInterface()->isFreeCells(tryPos - Vec2i(spacing), bt->getUnitType()->getSize() + spacing * 2, fLand)) {
+								enemies.clear();
+								ai->getAiInterface()->getWorld()->getUnitUpdater()->findEnemiesForCell(tryPos,bt->getUnitType()->getSize(),enemySightDistanceToAvoid,ai->getAiInterface()->getMyFaction(),enemies,true);
+								if(enemies.size() <= 0) {
+									searchPos = tryPos;
+								}
+							}
+						}
+					}
+				}
+			}
 
 			//if free pos give command, else retry
 			if(ai->findPosForBuilding(bt->getUnitType(), searchPos, pos)) {

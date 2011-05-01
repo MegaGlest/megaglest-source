@@ -119,7 +119,7 @@ public:
 	std::pair<bool,Unit *> unitBeingAttacked(const Unit *unit);
 	void unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast,float *currentDistToUnit=NULL);
 	vector<Unit*> enemyUnitsOnRange(const Unit *unit,const AttackSkillType *ast);
-
+	void findEnemiesForCell(const Vec2i pos, int size, int sightRange, const Faction *faction, vector<Unit*> &enemies, bool attackersOnly) const;
 
 private:
     //attack

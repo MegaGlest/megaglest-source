@@ -338,12 +338,12 @@ bool Ai::findPosForBuilding(const UnitType* building, const Vec2i &searchPos, Ve
 
 	const int spacing= 1;
 
-    for(int currRadius=0; currRadius<maxBuildRadius; ++currRadius){
-        for(int i=searchPos.x-currRadius; i<searchPos.x+currRadius; ++i){
-            for(int j=searchPos.y-currRadius; j<searchPos.y+currRadius; ++j){
+    for(int currRadius = 0; currRadius < maxBuildRadius; ++currRadius) {
+        for(int i=searchPos.x - currRadius; i < searchPos.x + currRadius; ++i) {
+            for(int j=searchPos.y - currRadius; j < searchPos.y + currRadius; ++j) {
                 outPos= Vec2i(i, j);
-                if(aiInterface->isFreeCells(outPos-Vec2i(spacing), building->getSize()+spacing*2, fLand)){
-                    return true;
+                if(aiInterface->isFreeCells(outPos - Vec2i(spacing), building->getSize() + spacing * 2, fLand)) {
+               		return true;
                 }
             }
         }
