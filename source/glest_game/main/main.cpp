@@ -2169,7 +2169,7 @@ int glestMain(int argc, char** argv) {
         // Setup hotkeys from key ini files
 		Config &configKeys = Config::getInstance(
 				std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
-				std::pair<string,string>("glestkeys.ini","glestuserkeys.ini"),
+				std::pair<string,string>(Config::glestkeys_ini_filename,Config::glestuserkeys_ini_filename),
 				std::pair<bool,bool>(true,false));
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

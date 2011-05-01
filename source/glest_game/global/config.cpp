@@ -62,6 +62,8 @@ const char *GameConstants::path_logs_CacheLookupKey     = "logs";
 const char *Config::glest_ini_filename                  = "glest.ini";
 const char *Config::glestuser_ini_filename              = "glestuser.ini";
 
+const char *Config::glestkeys_ini_filename              = "glestkeys.ini";
+const char *Config::glestuserkeys_ini_filename          = "glestuserkeys.ini";
 
 // =====================================================
 // 	class Config
@@ -72,31 +74,62 @@ const string defaultNotFoundValue = "~~NOT FOUND~~";
 map<ConfigType,Config> Config::configList;
 
 Config::Config() {
-	fileLoaded.first = false;
-	fileLoaded.second = false;
-	cfgType.first = cfgMainGame;
-	cfgType.second = cfgUserGame;
-	fileName.first = "";
-	fileName.second = "";
-	fileNameParameter.first = "";
-	fileNameParameter.second = "";
-	fileLoaded.first = false;
-	fileLoaded.second = false;
+	fileLoaded.first 			= false;
+	fileLoaded.second 			= false;
+	cfgType.first 				= cfgMainGame;
+	cfgType.second 				= cfgUserGame;
+	fileName.first 				= "";
+	fileName.second 			= "";
+	fileNameParameter.first 	= "";
+	fileNameParameter.second 	= "";
+	fileLoaded.first 			= false;
+	fileLoaded.second 			= false;
 }
 
 Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
-	fileLoaded.first = false;
-	fileLoaded.second = false;
-	cfgType = type;
-
-	fileName = file;
-	fileNameParameter = file;
+	fileLoaded.first 			= false;
+	fileLoaded.second 			= false;
+	cfgType 					= type;
+	fileName 					= file;
+	fileNameParameter 			= file;
 
     if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
     	fileName.first = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.first;
     	fileName.second = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.second;
     }
-
+// Look in standard linux shared paths for ini files
+#if defined(__linux__)
+    else if(cfgType.first == cfgMainGame && cfgType.second == cfgUserGame &&
+    		fileName.first == glest_ini_filename && fileName.second == glestuser_ini_filename) {
+    	string linuxPath = "/usr/share/megaglest/";
+    	if(fileExists(linuxPath + fileName.first) == true) {
+        	fileName.first = linuxPath + fileName.first;
+        	fileName.second = linuxPath + fileName.second;
+    	}
+    	else {
+    		linuxPath = "/usr/local/share/megaglest/";
+			if(fileExists(linuxPath + fileName.first) == true) {
+	        	fileName.first = linuxPath + fileName.first;
+	        	fileName.second = linuxPath + fileName.second;
+			}
+    	}
+    }
+    else if(cfgType.first == cfgMainKeys && cfgType.second == cfgUserKeys &&
+    		fileName.first == glestkeys_ini_filename && fileName.second == glestuserkeys_ini_filename) {
+    	string linuxPath = "/usr/share/megaglest/";
+    	if(fileExists(linuxPath + fileName.first) == true) {
+        	fileName.first = linuxPath + fileName.first;
+        	fileName.second = linuxPath + fileName.second;
+    	}
+    	else {
+    		linuxPath = "/usr/local/share/megaglest/";
+			if(fileExists(linuxPath + fileName.first) == true) {
+	        	fileName.first = linuxPath + fileName.first;
+	        	fileName.second = linuxPath + fileName.second;
+			}
+    	}
+    }
+#endif
     if(fileMustExist.first == true && fileExists(fileName.first) == false) {
     	string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
     	fileName.first = currentpath + fileName.first;

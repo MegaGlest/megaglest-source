@@ -235,7 +235,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
     Config &config= Config::getInstance();
 	showUnitParticles				= config.getBool("UnitParticles","true");
-	maxQueuedCommandDisplayCount 	= config.getInt("MaxQueuedCommandDisplayCount","3");
+	maxQueuedCommandDisplayCount 	= config.getInt("MaxQueuedCommandDisplayCount","1");
 
 	lastPos= pos;
     progress= 0;
@@ -1472,15 +1472,25 @@ string Unit::getDesc() const {
 
 	//command info
 	if(commands.empty() == false) {
-		str += "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
 		Commands::const_iterator it= commands.begin();
 		for(unsigned int i = 0; i < min((size_t)maxQueuedCommandDisplayCount,commands.size()); ++i) {
 			const CommandType *ct = (*it)->getCommandType();
-			if(commands.size() == 1) {
-				str += "\n" + ct->getName();
+			if(maxQueuedCommandDisplayCount == 1) {
+				str+= "\n" + ct->getName();
+				if(commands.size()>1){
+					str+="\n"+lang.get("OrdersOnQueue")+": "+intToStr(commands.size());
+				}
 			}
 			else {
-				str += "\n#" + intToStr(i+1) + " " + ct->getName();
+				if(commands.size() == 1) {
+					str += "\n" + ct->getName();
+				}
+				else {
+					if(i == 0) {
+						str += "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
+					}
+					str += "\n#" + intToStr(i+1) + " " + ct->getName();
+				}
 			}
 			it++;
 		}
