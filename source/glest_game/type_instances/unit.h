@@ -389,6 +389,7 @@ public:
 
     //pos
 	Vec2i getPos() const				{return pos;}
+	Vec2i getPosWithCellMapSet() const;
 	Vec2i getLastPos() const			{return lastPos;}
 	Vec2i getCenteredPos() const;
     Vec2f getFloatCenteredPos() const;

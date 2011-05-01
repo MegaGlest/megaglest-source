@@ -91,16 +91,37 @@ AiRuleRepair::AiRuleRepair(Ai *ai):
 {
 }
 
+double AiRuleRepair::getMinCastleHpRatio() {
+	return 0.8;
+}
+
+int AiRuleRepair::getMinUnitsToRepairCastle() {
+	int minUnitsRepairingCastle 	= 7;
+	if(ai->getCountOfClass(ucWorker) <= 4) {
+		minUnitsRepairingCastle 	= 1;
+	}
+	else if(ai->getCountOfClass(ucWorker) <= 6) {
+		minUnitsRepairingCastle 	= 2;
+	}
+	else if(ai->getCountOfClass(ucWorker) <= 10) {
+		minUnitsRepairingCastle 	= 5;
+	}
+	return minUnitsRepairingCastle;
+}
+
 bool AiRuleRepair::test(){
 	AiInterface *aiInterface= ai->getAiInterface();
 
-	const int minUnitsRepairingCastle = 7;
+	int minUnitsRepairingCastle 	= getMinUnitsToRepairCastle();
+	const double minCastleHpRatio 	= getMinCastleHpRatio();
+
 	// look for a damaged unit and give priority to the factions bases
 	// (units that produce workers and store resources)
 	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
 		const Unit *u= aiInterface->getMyUnit(i);
 		//printf("\n\n\n\n!!!!!! Is damaged unit [%d - %s] u->getHpRatio() = %f, hp = %d, mapHp = %d\n",u->getId(),u->getType()->getName().c_str(),u->getHpRatio(),u->getHp(),u->getType()->getTotalMaxHp(u->getTotalUpgrade()));
 		if(u->getHpRatio() < 1.f) {
+			//printf("\n\n\n\n!!!!!! Is damaged unit [%d - %s] u->getHpRatio() = %f, hp = %d, mapHp = %d\n",u->getId(),u->getType()->getName().c_str(),u->getHpRatio(),u->getHp(),u->getType()->getTotalMaxHp(u->getTotalUpgrade()));
 
 			bool unitCanProduceWorker = false;
 			for(int j = 0; unitCanProduceWorker == false &&
@@ -114,6 +135,7 @@ bool AiRuleRepair::test(){
 						const UnitType *ut = dynamic_cast<const UnitType *>(pt);
 						if( ut != NULL && ut->hasCommandClass(ccHarvest) == true &&
 							u->getType()->getStoredResourceCount() > 0) {
+							//printf("\n\n\n\n!!!!!! found candidate castle unit to repair [%d - %s]\n",u->getId(),u->getType()->getName().c_str());
 							unitCanProduceWorker = true;
 						}
 					}
@@ -130,7 +152,10 @@ bool AiRuleRepair::test(){
 					//if(rct) printf("\n\n\n\n^^^^^^^^^^ possible repairer unit [%d - %s] current skill [%d] can reapir damaged unit [%d]\n",u1->getId(),u1->getType()->getName().c_str(),u->getCurrSkill()->getClass(),rct->isRepairableUnitType(u->getType()));
 
 					if(rct != NULL) {
-						if(u1->getCurrSkill()->getClass() == scStop || u1->getCurrSkill()->getClass() == scMove) {
+						//printf("\n\n\n\n^^^^^^^^^^ possible repairer unit [%d - %s] current skill [%d] can repair damaged unit [%d] Castles hp-ratio = %f\n",u1->getId(),u1->getType()->getName().c_str(),u1->getCurrSkill()->getClass(),rct->isRepairableUnitType(u->getType()),u->getHpRatio());
+
+						if(u1->getCurrSkill()->getClass() == scStop || u1->getCurrSkill()->getClass() == scMove ||
+							u->getHpRatio() <= minCastleHpRatio) {
 							if(rct->isRepairableUnitType(u->getType())) {
 								candidatedamagedUnitIndex= i;
 								//return true;
@@ -140,6 +165,7 @@ bool AiRuleRepair::test(){
 							Command *cmd = u1->getCurrCommand();
 							if(cmd != NULL && cmd->getCommandType()->getClass() == ccRepair) {
 								if(cmd->getUnit() != NULL && cmd->getUnit()->getId() == u->getId()) {
+									//printf("\n\n\n\n^^^^^^^^^^ unit is ALREADY repairer unit [%d - %s]\n",u1->getId(),u1->getType()->getName().c_str());
 									unitCountAlreadyRepairingDamagedUnit++;
 								}
 							}
@@ -148,6 +174,7 @@ bool AiRuleRepair::test(){
 				}
 
 				if(candidatedamagedUnitIndex >= 0 && unitCountAlreadyRepairingDamagedUnit < minUnitsRepairingCastle) {
+					//printf("\n\n\n\n^^^^^^^^^^ AI test will repair damaged unit [%d - %s]\n",u->getId(),u->getType()->getName().c_str());
 					damagedUnitIndex = candidatedamagedUnitIndex;
 					return true;
 				}
@@ -183,18 +210,41 @@ void AiRuleRepair::execute() {
 	const Unit *damagedUnit= aiInterface->getMyUnit(damagedUnitIndex);
 	//printf("\n\n\n\n###^^^^^^^^^^ Looking for repairer for damaged unit [%d - %s]\n",damagedUnit->getId(),damagedUnit->getType()->getName().c_str());
 
+	int minUnitsRepairingCastle 	= getMinUnitsToRepairCastle();
+	const double minCastleHpRatio 	= getMinCastleHpRatio();
+
 	//find a repairer and issue command
-	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
+	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
 		const Unit *u= aiInterface->getMyUnit(i);
 		const RepairCommandType *rct= static_cast<const RepairCommandType *>(u->getType()->getFirstCtOfClass(ccRepair));
 		//if(rct) printf("\n\n\n\n^^^^^^^^^^ possible repairer unit [%d - %s] current skill [%d] can reapir damaged unit [%d]\n",u->getId(),u->getType()->getName().c_str(),u->getCurrSkill()->getClass(),rct->isRepairableUnitType(damagedUnit->getType()));
 
-		if(rct != NULL && (u->getCurrSkill()->getClass() == scStop || u->getCurrSkill()->getClass() == scMove)) {
-			if(rct->isRepairableUnitType(damagedUnit->getType())) {
-				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				aiInterface->giveCommand(i, rct, damagedUnit->getPos());
-				aiInterface->printLog(3, "Repairing order issued");
-				return;
+		if(rct != NULL) {
+			//printf("\n\n\n\n^^^^^^^^^^ possible excute repairer unit [%d - %s] current skill [%d] can repair damaged unit [%d] Castles hp-ratio = %f\n",u->getId(),u->getType()->getName().c_str(),u->getCurrSkill()->getClass(),rct->isRepairableUnitType(damagedUnit->getType()),damagedUnit->getHpRatio());
+
+			if((u->getCurrSkill()->getClass() == scStop || u->getCurrSkill()->getClass() == scMove || damagedUnit->getHpRatio() <=  minCastleHpRatio)) {
+				if(rct->isRepairableUnitType(damagedUnit->getType())) {
+					//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					//printf("\n\n\n\n^^^^^^^^^^ AI execute will repair damaged unit [%d - %s] at pos [%s] cellmapPos [%s] using unit [%d -%s]\n",damagedUnit->getId(),damagedUnit->getType()->getName().c_str(),damagedUnit->getPos().getString().c_str(),damagedUnit->getPosWithCellMapSet().getString().c_str(),u->getId(),u->getType()->getName().c_str());
+
+					/*
+					Map *map= aiInterface->getWorld()->getMap();
+					Cell *cell = map->getCell(damagedUnit->getPosWithCellMapSet());
+					if(cell != NULL) {
+						printf("\n\n\n\n^^^^^^^^^^ cell is ok\n");
+
+						Unit *cellUnit = cell->getUnit(damagedUnit->getCurrField());
+						if(cellUnit != NULL) {
+							printf("\n\n\n\n^^^^^^^^^^ cell unit [%d - %s] at pos [%s]\n",cellUnit->getId(),cellUnit->getType()->getName().c_str(),cellUnit->getPos().getString().c_str());
+						}
+					}
+					*/
+
+					//aiInterface->giveCommand(i, rct, damagedUnit->getPos());
+					aiInterface->giveCommand(i, rct, damagedUnit->getPosWithCellMapSet());
+					aiInterface->printLog(3, "Repairing order issued");
+					return;
+				}
 			}
 		}
 	}

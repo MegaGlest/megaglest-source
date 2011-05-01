@@ -81,6 +81,7 @@ public:
     int onSightUnitCount();
     const Resource *getResource(const ResourceType *rt);
     const Unit *getMyUnit(int unitIndex);
+    Unit *getMyUnitPtr(int unitIndex);
     const Unit *getOnSightUnit(int unitIndex);
     const FactionType *getMyFactionType();
     Faction *getMyFaction();

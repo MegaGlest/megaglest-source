@@ -200,6 +200,7 @@ public:
 	bool hasCellMap() const										{return cellMap!=NULL;}
 	bool getAllowEmptyCellMap() const {return allowEmptyCellMap;}
 	bool hasEmptyCellMap() const;
+	Vec2i getFirstOccupiedCellInCellMap(Vec2i currentPos) const;
 
 	//is
 	bool isOfClass(UnitClass uc) const;

@@ -2136,6 +2136,11 @@ bool Unit::isLastStuckFrameWithinCurrentFrameTolerance() const {
 	return result;
 }
 
+Vec2i Unit::getPosWithCellMapSet() const {
+	Vec2i cellMapPos = this->getType()->getFirstOccupiedCellInCellMap(pos);
+	return cellMapPos;
+}
+
 std::string Unit::toString() const {
 	std::string result = "";
 
