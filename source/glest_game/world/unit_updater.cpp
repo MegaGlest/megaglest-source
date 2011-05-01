@@ -2033,20 +2033,23 @@ void UnitUpdater::findEnemiesForCell(const Vec2i pos, int size, int sightRange, 
 		for(int i = pos.x - sightRange; i < pos.x + size + sightRange; ++i) {
 			for(int j = pos.y - sightRange; j < pos.y + size + sightRange; ++j) {
 				Vec2i testPos(i,j);
-				Cell *cell = map->getCell(testPos);
-				//check field
-				Unit *possibleEnemy = cell->getUnit(f);
+				if( map->isInside(testPos) &&
+						map->isInsideSurface(map->toSurfCoords(testPos))) {
+					Cell *cell = map->getCell(testPos);
+					//check field
+					Unit *possibleEnemy = cell->getUnit(f);
 
-				//check enemy
-				if(possibleEnemy != NULL && possibleEnemy->isAlive()) {
-					if(faction->getTeam() != possibleEnemy->getTeam()) {
-						if(attackersOnly == true) {
-							if(possibleEnemy->getType()->hasCommandClass(ccAttack) || possibleEnemy->getType()->hasCommandClass(ccAttackStopped)) {
+					//check enemy
+					if(possibleEnemy != NULL && possibleEnemy->isAlive()) {
+						if(faction->getTeam() != possibleEnemy->getTeam()) {
+							if(attackersOnly == true) {
+								if(possibleEnemy->getType()->hasCommandClass(ccAttack) || possibleEnemy->getType()->hasCommandClass(ccAttackStopped)) {
+									enemies.push_back(possibleEnemy);
+								}
+							}
+							else {
 								enemies.push_back(possibleEnemy);
 							}
-						}
-						else {
-							enemies.push_back(possibleEnemy);
 						}
 					}
 				}
