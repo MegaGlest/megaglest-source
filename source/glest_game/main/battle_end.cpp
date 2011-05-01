@@ -92,7 +92,11 @@ void BattleEnd::render(){
 	int mostResourcesHarvestedIndex 	= -1;
 	int bestResourcesHarvested 			= -1;
 
-	for(int i=0; i<stats.getFactionCount(); ++i){
+	for(int i=0; i<stats.getFactionCount(); ++i) {
+		if(stats.getTeam(i) == GameConstants::maxPlayers -1 + fpt_Observer) {
+			continue;
+		}
+
 		int team= stats.getTeam(i) + 1;
 		int kills= stats.getKills(i);
 		if(kills > bestKills) {
@@ -139,6 +143,10 @@ void BattleEnd::render(){
 	int bm= 100;
 
 	for(int i = 0; i < stats.getFactionCount(); ++i) {
+		if(stats.getTeam(i) == GameConstants::maxPlayers -1 + fpt_Observer) {
+			continue;
+		}
+
 		int textX= lm+160+i*100;
 		int team= stats.getTeam(i) + 1;
 		int kills= stats.getKills(i);
@@ -288,13 +296,17 @@ void BattleEnd::render(){
 
 	string header = stats.getDescription() + " - ";
 
-	if(stats.getVictory(stats.getThisFactionIndex())){
-		header += lang.get("Victory");
+	if(stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
+		if(stats.getVictory(stats.getThisFactionIndex())){
+			header += lang.get("Victory");
+		}
+		else{
+			header += lang.get("Defeat");
+		}
 	}
-	else{
-		header += lang.get("Defeat");
+	else {
+		header += "Observer";
 	}
-
 	textRenderer->render(header, lm+250, bm+550);
 
 	//GameConstants::updateFps
