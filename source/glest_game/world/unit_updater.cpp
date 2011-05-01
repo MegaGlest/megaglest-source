@@ -2025,6 +2025,36 @@ void UnitUpdater::findEnemiesForCell(const AttackSkillType *ast, Cell *cell, con
 	}
 }
 
+void UnitUpdater::findEnemiesForCell(const Vec2i pos, int size, int sightRange, const Faction *faction, vector<Unit*> &enemies, bool attackersOnly) const {
+	//all fields
+	for(int k = 0; k < fieldCount; k++) {
+		Field f= static_cast<Field>(k);
+
+		for(int i = pos.x - sightRange; i < pos.x + size + sightRange; ++i) {
+			for(int j = pos.y - sightRange; j < pos.y + size + sightRange; ++j) {
+				Vec2i testPos(i,j);
+				Cell *cell = map->getCell(testPos);
+				//check field
+				Unit *possibleEnemy = cell->getUnit(f);
+
+				//check enemy
+				if(possibleEnemy != NULL && possibleEnemy->isAlive()) {
+					if(faction->getTeam() != possibleEnemy->getTeam()) {
+						if(attackersOnly == true) {
+							if(possibleEnemy->getType()->hasCommandClass(ccAttack) || possibleEnemy->getType()->hasCommandClass(ccAttackStopped)) {
+								enemies.push_back(possibleEnemy);
+							}
+						}
+						else {
+							enemies.push_back(possibleEnemy);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 //if the unit has any enemy on range
 bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 							  const AttackSkillType *ast) {
