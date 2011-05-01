@@ -615,7 +615,7 @@ string Gui::computeDefaultInfoString(){
 
 	string result="";
 
-	if((!selection.isEmpty()) && selection.isCommandable() && selection.isUniform()){
+	if(selection.isCommandable() && selection.isUniform()){
 		// default is the description extension
 		result=selection.getFrontUnit()->getDescExtension();
 	}
@@ -631,7 +631,7 @@ void Gui::computeInfoString(int posDisplay){
 
 	display.setInfoText(computeDefaultInfoString());
 
-	if((!selection.isEmpty()) && posDisplay!=invalidPos && selection.isCommandable()){
+	if(posDisplay!=invalidPos && selection.isCommandable()){
 		if(!selectingBuilding){
 			if(posDisplay==cancelPos){
 				display.setInfoText(lang.get("Cancel"));
@@ -808,8 +808,9 @@ void Gui::computeDisplay(){
 	}
 
 	// refresh other things
-	computeInfoString(lastPosDisplay);
-
+	if ( !isSelecting() && !isSelectingPos()) {
+		computeInfoString(lastPosDisplay);
+	}
 
 }
 
