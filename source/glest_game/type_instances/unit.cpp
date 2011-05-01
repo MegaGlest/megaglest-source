@@ -1476,8 +1476,12 @@ string Unit::getDesc() const {
 		Commands::const_iterator it= commands.begin();
 		for(unsigned int i = 0; i < min((size_t)maxQueuedCommandDisplayCount,commands.size()); ++i) {
 			const CommandType *ct = (*it)->getCommandType();
-			//str += "\n" + ct->getDesc(this->getTotalUpgrade());
-			str += "\n#" + intToStr(i+1) + " " + ct->getName();
+			if(commands.size() == 1) {
+				str += "\n" + ct->getName();
+			}
+			else {
+				str += "\n#" + intToStr(i+1) + " " + ct->getName();
+			}
 			it++;
 		}
 	}
