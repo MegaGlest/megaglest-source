@@ -367,7 +367,7 @@ const Resource *AiInterface::getResource(const ResourceType *rt){
 	return world->getFaction(factionIndex)->getResource(rt);
 }
 
-const Unit *AiInterface::getMyUnit(int unitIndex){
+Unit *AiInterface::getMyUnitPtr(int unitIndex) {
 	if(unitIndex >= world->getFaction(factionIndex)->getUnitCount()) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] unitIndex >= world->getFaction(factionIndex)->getUnitCount(), unitIndex = %d, world->getFaction(factionIndex)->getUnitCount() = %d",__FILE__,__FUNCTION__,__LINE__,unitIndex,world->getFaction(factionIndex)->getUnitCount());
@@ -375,6 +375,10 @@ const Unit *AiInterface::getMyUnit(int unitIndex){
 	}
 
 	return world->getFaction(factionIndex)->getUnit(unitIndex);
+}
+
+const Unit *AiInterface::getMyUnit(int unitIndex) {
+	return getMyUnitPtr(unitIndex);
 }
 
 const Unit *AiInterface::getOnSightUnit(int unitIndex) {

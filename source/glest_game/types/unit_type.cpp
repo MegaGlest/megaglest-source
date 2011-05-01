@@ -612,6 +612,25 @@ bool UnitType::hasEmptyCellMap() const {
 	return result;
 }
 
+Vec2i UnitType::getFirstOccupiedCellInCellMap(Vec2i currentPos) const {
+	Vec2i cell = currentPos;
+	//printf("\n\n\n\n^^^^^^^^^^ currentPos [%s] size [%d]\n",currentPos.getString().c_str(),size);
+
+	//checkItemInVault(&(this->size),this->size);
+	for(int i = 0; i < size; ++i) {
+		for(int j = 0; j < size; ++j){
+			if(cellMap[i*size+j] == true) {
+				cell.x += i;
+				cell.y += j;
+				//printf("\n^^^^^^^^^^ cell [%s] i [%d] j [%d]\n",cell.getString().c_str(),i,j);
+				return cell;
+			}
+		}
+	}
+
+	return cell;
+}
+
 bool UnitType::getCellMapCell(int x, int y, CardinalDir facing) const {
 	assert(cellMap);
 	if(cellMap == NULL) {

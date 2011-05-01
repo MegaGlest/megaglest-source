@@ -113,6 +113,9 @@ class AiRuleRepair: public AiRule{
 private:
 	int damagedUnitIndex;
 
+	int getMinUnitsToRepairCastle();
+	double getMinCastleHpRatio();
+
 public:
 	AiRuleRepair(Ai *ai);
 	
