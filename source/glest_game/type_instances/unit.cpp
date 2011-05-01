@@ -235,7 +235,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
     Config &config= Config::getInstance();
 	showUnitParticles				= config.getBool("UnitParticles","true");
-	maxQueuedCommandDisplayCount 	= config.getInt("MaxQueuedCommandDisplayCount","1");
+	maxQueuedCommandDisplayCount 	= config.getInt("MaxQueuedCommandDisplayCount","15");
 
 	lastPos= pos;
     progress= 0;
@@ -1403,6 +1403,25 @@ bool Unit::decHp(int i) {
     return false;
 }
 
+string Unit::getDescExtension() const{
+	Lang &lang= Lang::getInstance();
+	string str= "\n";
+
+	if(commands.empty() == false && commands.size() > 1 ){
+		Commands::const_iterator it= commands.begin();
+		for(unsigned int i= 0; i < min((size_t) maxQueuedCommandDisplayCount, commands.size()); ++i){
+			const CommandType *ct= (*it)->getCommandType();
+			if(i == 0){
+				str+= "\n" + lang.get("OrdersOnQueue") + ": ";
+			}
+			str+= "\n#" + intToStr(i + 1) + " " + ct->getName();
+			it++;
+		}
+	}
+
+	return str;
+}
+
 string Unit::getDesc() const {
 
     Lang &lang= Lang::getInstance();
@@ -1471,31 +1490,13 @@ string Unit::getDesc() const {
 	}
 
 	//command info
-	if(commands.empty() == false) {
-		Commands::const_iterator it= commands.begin();
-		for(unsigned int i = 0; i < min((size_t)maxQueuedCommandDisplayCount,commands.size()); ++i) {
-			const CommandType *ct = (*it)->getCommandType();
-			if(maxQueuedCommandDisplayCount == 1) {
-				str+= "\n" + ct->getName();
-				if(commands.size()>1){
-					str+="\n"+lang.get("OrdersOnQueue")+": "+intToStr(commands.size());
-				}
-			}
-			else {
-				if(commands.size() == 1) {
-					str += "\n" + ct->getName();
-				}
-				else {
-					if(i == 0) {
-						str += "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
-					}
-					str += "\n#" + intToStr(i+1) + " " + ct->getName();
-				}
-			}
-			it++;
+    if(commands.empty() == false) {
+		str+= "\n" + commands.front()->getCommandType()->getName();
+		if(commands.size() > 1) {
+			str+= "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
 		}
 	}
-	else {
+	else{
 		//can store
 		if(getType()->getStoredResourceCount() > 0) {
 			for(int i = 0; i < getType()->getStoredResourceCount(); ++i) {

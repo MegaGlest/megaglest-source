@@ -105,6 +105,7 @@ Gui::Gui(){
 	selectingPos= false;
 	selectingMeetingPoint= false;
 	activePos= invalidPos;
+	lastPosDisplay= invalidPos;
 	lastQuadCalcFrame=0;
 	selectionCalculationFrameSkip=10;
 	minQuadSize=20;
@@ -198,6 +199,10 @@ void Gui::mouseDownLeftDisplay(int x, int y) {
 
 void Gui::mouseMoveDisplay(int x, int y) {
 	computeInfoString(computePosDisplay(x, y));
+}
+
+void Gui::mouseMoveOutsideDisplay() {
+	computeInfoString(invalidPos);
 }
 
 void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
@@ -603,11 +608,29 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay){
 	}
 }
 
+
+string Gui::computeDefaultInfoString(){
+
+	Lang &lang= Lang::getInstance();
+
+	string result="";
+
+	if(selection.isCommandable() && selection.isUniform()){
+		// default is the description extension
+		result=selection.getFrontUnit()->getDescExtension();
+	}
+	return result;
+}
+
+
 void Gui::computeInfoString(int posDisplay){
 
 	Lang &lang= Lang::getInstance();
 
-	display.setInfoText("");
+	lastPosDisplay = posDisplay;
+
+	display.setInfoText(computeDefaultInfoString());
+
 	if(posDisplay!=invalidPos && selection.isCommandable()){
 		if(!selectingBuilding){
 			if(posDisplay==cancelPos){
@@ -621,6 +644,7 @@ void Gui::computeInfoString(int posDisplay){
 				if(selection.isUniform()){
 					const Unit *unit= selection.getFrontUnit();
 					const CommandType *ct= display.getCommandType(posDisplay);
+
 					if(ct!=NULL){
 						if(unit->getFaction()->reqsOk(ct)){
 							display.setInfoText(ct->getDesc(unit->getTotalUpgrade()));
@@ -782,6 +806,11 @@ void Gui::computeDisplay(){
 			}
 		}
 	}
+
+	// refresh other things
+	computeInfoString(lastPosDisplay);
+
+
 }
 
 int Gui::computePosDisplay(int x, int y){

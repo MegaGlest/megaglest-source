@@ -120,6 +120,7 @@ private:
 	const CommandType *activeCommandType;
 	CommandClass activeCommandClass;
 	int activePos;
+	int lastPosDisplay;
 
 	//composite
 	Display display;
@@ -174,6 +175,7 @@ public:
 	bool mouseValid(int x, int y);
 	void mouseDownLeftDisplay(int x, int y);
 	void mouseMoveDisplay(int x, int y);
+	void mouseMoveOutsideDisplay();
 	void mouseDownLeftGraphics(int x, int y, bool prepared);
 	void mouseDownRightGraphics(int x, int y, bool prepared);
 	void mouseUpLeftGraphics(int x, int y);
@@ -207,6 +209,7 @@ private:
 	void mouseDownDisplayUnitSkills(int posDisplay);
 	void mouseDownDisplayUnitBuild(int posDisplay);
 	void computeInfoString(int posDisplay);
+	string computeDefaultInfoString();
 	void addOrdersResultToConsole(CommandClass cc, CommandResult rr);
 	bool isSharedCommandClass(CommandClass commandClass);
 	void computeSelected(bool doubleCkick,bool force);

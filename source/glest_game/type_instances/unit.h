@@ -454,6 +454,7 @@ public:
 	void resetHighlight();
 	const CommandType *computeCommandType(const Vec2i &pos, const Unit *targetUnit= NULL) const;
 	string getDesc() const;
+	string getDescExtension() const;
     bool computeEp();
     bool computeHp();
     bool repair();

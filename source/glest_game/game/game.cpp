@@ -1386,9 +1386,14 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		}
 
 		//display
-		if (metrics.isInDisplay(x, y) && !gui.isSelecting() && !gui.isSelectingPos()) {
+		if ( !gui.isSelecting() && !gui.isSelectingPos()) {
 			if (!gui.isSelectingPos()) {
-				gui.mouseMoveDisplay(x - metrics.getDisplayX(), y - metrics.getDisplayY());
+				if(metrics.isInDisplay(x, y)){
+					gui.mouseMoveDisplay(x - metrics.getDisplayX(), y - metrics.getDisplayY());
+				}
+				else {
+					gui.mouseMoveOutsideDisplay();
+				}
 			}
 		}
 
