@@ -808,8 +808,10 @@ void Gui::computeDisplay(){
 	}
 
 	// refresh other things
-	if ( !isSelecting() && !isSelectingPos()) {
-		computeInfoString(lastPosDisplay);
+	if(!isSelecting() && !isSelectingPos()){
+		if(!isSelectingPos()){
+			computeInfoString(lastPosDisplay);
+		}
 	}
 
 }
