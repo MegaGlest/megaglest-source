@@ -809,7 +809,7 @@ void Gui::computeDisplay(){
 
 	// refresh other things
 	if(!isSelecting() && !isSelectingPos()){
-		if(!isSelectingPos()){
+		if(!isSelectingPos() && lastPosDisplay == invalidPos){
 			computeInfoString(lastPosDisplay);
 		}
 	}
