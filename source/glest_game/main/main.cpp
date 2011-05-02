@@ -1038,7 +1038,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n\n");
 }
 
-int setupGameItemPaths(int argc, char** argv) {
+int setupGameItemPaths(int argc, char** argv, Config *config) {
     // Setup path cache for files and folders used in the game
     std::map<string,string> &pathCache = CacheManager::getCachedItem< std::map<string,string> >(GameConstants::pathCacheLookupKey);
 
@@ -1063,6 +1063,12 @@ int setupGameItemPaths(int argc, char** argv) {
             printParameterHelp(argv[0],false);
             return -1;
         }
+    }
+    else if(config != NULL) {
+    	if(config->getString("DataPath","") != "") {
+            pathCache[GameConstants::path_data_CacheLookupKey] = config->getString("DataPath","");
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using ini specified data path [%s]\n",config->getString("DataPath","").c_str());
+    	}
     }
 
     //GAME_ARG_INI_PATH
@@ -1110,6 +1116,13 @@ int setupGameItemPaths(int argc, char** argv) {
             return -1;
         }
     }
+    else if(config != NULL) {
+    	if(config->getString("LogPath","") != "") {
+            pathCache[GameConstants::path_logs_CacheLookupKey] = config->getString("LogPath","");
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using ini specified logs path [%s]\n",config->getString("LogPath","").c_str());
+    	}
+    }
+
 
     return 0;
 }
@@ -2083,13 +2096,14 @@ int glestMain(int argc, char** argv) {
 
 	try {
         // Setup paths to game items (like data, logs, ini etc)
-        int setupResult = setupGameItemPaths(argc, argv);
+        int setupResult = setupGameItemPaths(argc, argv, NULL);
         if(setupResult != 0) {
             return setupResult;
         }
 
 		// Attempt to read ini files
 		Config &config = Config::getInstance();
+		setupGameItemPaths(argc, argv, &config);
 
 	    string userData = config.getString("UserData_Root","");
 	    if(userData != "") {
