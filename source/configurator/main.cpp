@@ -7,15 +7,38 @@
 #include <wx/image.h>
 #include <wx/bitmap.h>
 #include <wx/icon.h>
+#include "platform_common.h"
+#include "config.h"
+#include "game_constants.h"
+#include "util.h"
+#include <wx/stdpaths.h>
 
 using namespace std;
+using namespace Shared::PlatformCommon;
+using namespace Glest::Game;
+using namespace Shared::Util;
 
-namespace Configurator{
+namespace Glest { namespace Game {
+string getGameReadWritePath(string lookupKey) {
+	string path = "";
+    if(path == "" && getenv("GLESTHOME") != NULL) {
+        path = getenv("GLESTHOME");
+        if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
+            path += "/";
+        }
+
+        //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path to be used for read/write files [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+    }
+
+    return path;
+}
+}}
+
+namespace Configurator {
 
 // ===============================================
 // 	class MainWindow
 // ===============================================
-
 
 const int MainWindow::margin= 10;
 const int MainWindow::panelMargin= 20;
@@ -24,26 +47,30 @@ const int MainWindow::gridMarginHorizontal= 30;
 const string MainWindow::versionString= "v1.3.5";
 const string MainWindow::winHeader= "Mega-Glest config " + versionString + " - Built: " + __DATE__;
 
-MainWindow::MainWindow() :
+MainWindow::MainWindow(string appPath) :
     wxFrame(
 		NULL, -1, Configuration::ToUnicode(winHeader),
 		wxDefaultPosition, wxSize(800, 600)){
 
 	SetExtraStyle(wxFRAME_EX_CONTEXTHELP);
 
-	configuration.load("configuration.xml");
+	this->appPath = appPath;
+	Properties::setApplicationPath(executable_path(appPath));
+	Config &config = Config::getInstance();
+	string iniFilePath = extractDirectoryPathFromFile(config.getFileName(false));
+	configuration.load(iniFilePath + "configuration.xml");
 
 	//Create(NULL, -1, "", wxDefaultPosition,  wxDefaultSize, wxCAPTION | wxSYSTEM_MENU);
 
 	SetTitle(Configuration::ToUnicode(("Configurator - " + configuration.getTitle() + " - Editing " + configuration.getFileName()).c_str()));
 
-	if(configuration.getIcon()){
-
-	    printf("In [%s::%s] icon = [%s]\n",__FILE__,__FUNCTION__,configuration.getIconPath().c_str());
+	if(configuration.getIcon()) {
+		string iconPath = configuration.getIconPath();
+	    printf("In [%s::%s] icon = [%s]\n",__FILE__,__FUNCTION__,iconPath.c_str());
 
         wxInitAllImageHandlers();
 		wxIcon icon;
-		icon.LoadFile(Configuration::ToUnicode(configuration.getIconPath().c_str()), wxBITMAP_TYPE_ICO);
+		icon.LoadFile(Configuration::ToUnicode(iconPath.c_str()), wxBITMAP_TYPE_ICO);
 		SetIcon(icon);
 	}
 
@@ -180,8 +207,19 @@ END_EVENT_TABLE()
 // ===============================================
 
 bool App::OnInit(){
-	try{
-		mainWindow= new MainWindow();
+	try {
+		SystemFlags::VERBOSE_MODE_ENABLED  = true;
+		string appPath = "";
+		wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
+
+	#if defined(__MINGW32__)
+			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
+			appPath = tmp_buf;
+	#else
+			appPath = wxFNCONV(exe_path);
+	#endif
+
+		mainWindow= new MainWindow(appPath);
 		mainWindow->Show();
 	}
 	catch(const exception &e){

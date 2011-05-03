@@ -338,33 +338,36 @@ void MainWindow::init(string fname) {
 	toolbar2->AddTool(miRadius + 9, _("radius9"), wxBitmap(radius_9), _("9 (17x17)"));
 	toolbar2->Realize();
 
+	Config &config = Config::getInstance();
+	string iniFilePath = extractDirectoryPathFromFile(config.getFileName(false));
+    string userData = config.getString("UserData_Root","");
+    if(userData != "") {
+    	endPathWithSlash(userData);
+    }
+
 	//std::cout << "A" << std::endl;
 	wxInitAllImageHandlers();
 #ifdef WIN32
 	//std::cout << "B" << std::endl;
-#if defined(__MINGW32__)
-	wxIcon icon(ToUnicode("IDI_ICON1"));
-#else
-    wxIcon icon("IDI_ICON1");
-#endif
+	#if defined(__MINGW32__)
+		wxIcon icon(ToUnicode("IDI_ICON1"));
+	#else
+		wxIcon icon("IDI_ICON1");
+	#endif
 
 #else
 	//std::cout << "B" << std::endl;
 	wxIcon icon;
-	std::ifstream testFile("editor.ico");
+	string icon_file = iniFilePath + "editor.ico";
+	std::ifstream testFile(icon_file.c_str());
 	if(testFile.good())	{
 		testFile.close();
-		icon.LoadFile(wxT("editor.ico"),wxBITMAP_TYPE_ICO);
+		icon.LoadFile(ToUnicode(icon_file.c_str()),wxBITMAP_TYPE_ICO);
 	}
 #endif
 	//std::cout << "C" << std::endl;
 	SetIcon(icon);
 	fileDialog = new wxFileDialog(this);
-	Config &config = Config::getInstance();
-    string userData = config.getString("UserData_Root","");
-    if(userData != "") {
-    	endPathWithSlash(userData);
-    }
     string defaultPath = userData + "maps/";
     fileDialog->SetDirectory(ToUnicode(defaultPath));
 
@@ -1387,6 +1390,8 @@ bool SimpleDialog::show(const string &title, bool wide) {
 // ===============================================
 
 bool App::OnInit() {
+	SystemFlags::VERBOSE_MODE_ENABLED  = true;
+
 	string fileparam;
 	if(argc==2){
 		if(argv[1][0]=='-') {   // any flag gives help and exits program.

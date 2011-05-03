@@ -86,6 +86,24 @@ Config::Config() {
 	fileLoaded.second 			= false;
 }
 
+bool Config::tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path) {
+	bool wasFound = false;
+    if((type.first == cfgMainGame && type.second == cfgUserGame &&
+        file.first == glest_ini_filename && file.second == glestuser_ini_filename) ||
+       (type.first == cfgMainKeys && type.second == cfgUserKeys &&
+       	file.first == glestkeys_ini_filename && file.second == glestuserkeys_ini_filename)) {
+
+    	string linuxPath = custom_path;
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= looking for file in possible location  [%s]\n",linuxPath.c_str());
+    	if(fileExists(linuxPath + file.first) == true) {
+        	file.first = linuxPath + file.first;
+        	file.second = linuxPath + file.second;
+        	wasFound = true;
+    	}
+    }
+	return wasFound;
+}
+
 Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
 	fileLoaded.first 			= false;
 	fileLoaded.second 			= false;
@@ -97,39 +115,21 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     	fileName.first = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.first;
     	fileName.second = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.second;
     }
-// Look in standard linux shared paths for ini files
+
+    bool foundPath = false;
+#if defined(CUSTOM_DATA_INSTALL_PATH)
+    foundPath = tryCustomPath(cfgType, fileName, CUSTOM_DATA_INSTALL_PATH);
+#endif
+    // Look in standard linux shared paths for ini files
 #if defined(__linux__)
-    else if(cfgType.first == cfgMainGame && cfgType.second == cfgUserGame &&
-    		fileName.first == glest_ini_filename && fileName.second == glestuser_ini_filename) {
-    	string linuxPath = "/usr/share/megaglest/";
-    	if(fileExists(linuxPath + fileName.first) == true) {
-        	fileName.first = linuxPath + fileName.first;
-        	fileName.second = linuxPath + fileName.second;
-    	}
-    	else {
-    		linuxPath = "/usr/local/share/megaglest/";
-			if(fileExists(linuxPath + fileName.first) == true) {
-	        	fileName.first = linuxPath + fileName.first;
-	        	fileName.second = linuxPath + fileName.second;
-			}
-    	}
+    if(foundPath == false) {
+    	foundPath = tryCustomPath(cfgType, fileName, "/usr/share/megaglest/");
     }
-    else if(cfgType.first == cfgMainKeys && cfgType.second == cfgUserKeys &&
-    		fileName.first == glestkeys_ini_filename && fileName.second == glestuserkeys_ini_filename) {
-    	string linuxPath = "/usr/share/megaglest/";
-    	if(fileExists(linuxPath + fileName.first) == true) {
-        	fileName.first = linuxPath + fileName.first;
-        	fileName.second = linuxPath + fileName.second;
-    	}
-    	else {
-    		linuxPath = "/usr/local/share/megaglest/";
-			if(fileExists(linuxPath + fileName.first) == true) {
-	        	fileName.first = linuxPath + fileName.first;
-	        	fileName.second = linuxPath + fileName.second;
-			}
-    	}
+    if(foundPath == false) {
+    	foundPath = tryCustomPath(cfgType, fileName, "/usr/local/share/megaglest/");
     }
 #endif
+
     if(fileMustExist.first == true && fileExists(fileName.first) == false) {
     	string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
     	fileName.first = currentpath + fileName.first;

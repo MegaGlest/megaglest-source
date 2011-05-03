@@ -218,6 +218,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	Properties::setApplicationPath(executable_path(appPath));
 
 	Config &config = Config::getInstance();
+	string iniFilePath = extractDirectoryPathFromFile(config.getFileName(false));
     //getGlPlatformExtensions();
 
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
@@ -330,10 +331,11 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 
 #else
 	wxIcon icon;
-	std::ifstream testFile("g3dviewer.ico");
+	string icon_file = iniFilePath + "g3dviewer.ico";
+	std::ifstream testFile(icon_file.c_str());
 	if(testFile.good())	{
 		testFile.close();
-		icon.LoadFile(wxT("g3dviewer.ico"),wxBITMAP_TYPE_ICO);
+		icon.LoadFile(ToUnicode(icon_file.c_str()),wxBITMAP_TYPE_ICO);
 	}
 #endif
 	SetIcon(icon);
@@ -1797,7 +1799,9 @@ END_EVENT_TABLE()
 // 	class App
 // ===============================================
 
-bool App::OnInit(){
+bool App::OnInit() {
+	SystemFlags::VERBOSE_MODE_ENABLED  = true;
+
 	string modelPath="";
 	string particlePath="";
 	string projectileParticlePath="";
