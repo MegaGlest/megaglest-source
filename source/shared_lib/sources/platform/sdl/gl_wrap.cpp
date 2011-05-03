@@ -66,14 +66,24 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 	int resH = PlatformCommon::Private::ScreenHeight;
 
 #ifndef WIN32
-	if(fileExists("megaglest.bmp")) {
+	string mg_icon_file = "";
+#if defined(CUSTOM_DATA_INSTALL_PATH_VALUE)
+	if(fileExists(CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp")) {
+		mg_icon_file = CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp";
+	}
+#endif
+
+	if(mg_icon_file == "" && fileExists("megaglest.bmp")) {
+		mg_icon_file = "megaglest.bmp";
+	}
+	if(mg_icon_file != "") {
 
 		if(icon != NULL) {
 			SDL_FreeSurface(icon);
 			icon = NULL;
 		}
 
-		icon = SDL_LoadBMP("megaglest.bmp");
+		icon = SDL_LoadBMP(mg_icon_file.c_str());
 	//SDL_Surface *icon = IMG_Load("megaglest.ico");
 
 

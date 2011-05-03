@@ -1,9 +1,9 @@
 <?xml version="1.0" standalone="yes"?>
 <configuration>
 	<title value="MegaGlest"/>
-	<file-name-main value="glest.ini"/>
+	<file-name-main value="$APPLICATIONDATAPATH/glest.ini"/>
 	<file-name value="$HOME/.megaglest/glestuser.ini"/>
-	<icon value="true" path="glest.ico"/>
+	<icon value="true" path="$APPLICATIONDATAPATH/glest.ico"/>
 	<field-groups>
 		<field-group name="General">
 			<field type="Int">
@@ -351,16 +351,6 @@ system instead of a styled 3D mouse pointer."/>
 			<field type="Enum">
 				<name value="Client and Server data file synch check"/>
 				<variable-name value="AllowGameDataSynchCheck"/>
-				<description value=""/>
-				<default value="false"/>
-				<enums>
-					<enum value="true"/>
-					<enum value="false"/>
-				</enums>
-			</field>
-			<field type="Enum">
-				<name value="Client and Server data file transfer support"/>
-				<variable-name value="AllowDownloadDataSynch"/>
 				<description value=""/>
 				<default value="false"/>
 				<enums>

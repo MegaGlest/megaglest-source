@@ -61,7 +61,7 @@ void Configuration::loadStructure(const string &path){
 	//icon
 	XmlNode *iconNode= configurationNode->getChild("icon");
 	icon= iconNode->getAttribute("value")->getBoolValue();
-	if(icon){
+	if(icon) {
 		iconPath= iconNode->getAttribute("path")->getValue();
 		Properties::applyTagsToValue(iconPath);
 	}

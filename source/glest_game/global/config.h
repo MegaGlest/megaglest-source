@@ -55,7 +55,7 @@ public:
 protected:
 	Config();
 	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist);
-
+	bool tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path);
 	static void CopyAll(Config *src,Config *dest);
 	vector<pair<string,string> > getPropertiesFromContainer(const Properties &propertiesObj) const;
 

@@ -141,6 +141,14 @@ bool Properties::applyTagsToValue(string &value) {
 	replaceAll(value, "$APPLICATIONPATH", 		Properties::applicationPath);
 	replaceAll(value, "%%APPLICATIONPATH%%",	Properties::applicationPath);
 
+#if defined(CUSTOM_DATA_INSTALL_PATH)
+	replaceAll(value, "$APPLICATIONDATAPATH", 		CUSTOM_DATA_INSTALL_PATH);
+	replaceAll(value, "%%APPLICATIONDATAPATH%%",	CUSTOM_DATA_INSTALL_PATH);
+#else
+	replaceAll(value, "$APPLICATIONDATAPATH", 		Properties::applicationPath);
+	replaceAll(value, "%%APPLICATIONDATAPATH%%",	Properties::applicationPath);
+#endif
+
 	return (originalValue != value);
 }
 

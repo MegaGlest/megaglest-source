@@ -49,8 +49,10 @@ private:
 	wxNotebook *notebook;
 	wxTextCtrl *infoText;
 
+	string appPath;
+
 public:
-	MainWindow();
+	MainWindow(string appPath);
 	void init();
 	static const string versionString;
 	static const string winHeader;

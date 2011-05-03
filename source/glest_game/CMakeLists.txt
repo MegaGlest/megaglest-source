@@ -185,52 +185,39 @@ IF(WIN32)
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
 ENDIF()
 IF(NOT WIN32)
-TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
-TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
 ENDIF()
 TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
-# Installation of the program
-INSTALL(TARGETS 
-        ${TARGET_NAME} 
-        DESTINATION bin/megaglest)
+# Requires an install prefix for the items below to work
+IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
+	# Installation of the program
+	INSTALL(TARGETS 
+		${TARGET_NAME} 
+		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-# Installation of the program config and image files
-INSTALL(FILES 
-  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
-  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
-  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
-  "${PROJECT_SOURCE_DIR}/data/glest_game/megaglest.ico"
-  DESTINATION bin/megaglest)
+	# Installation of the program config and image files
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
+	  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
+	  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
+	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
-# Installation of the tools
-#INSTALL(TARGETS 
-#        "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_configurator"
-#        "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_editor"
-#        "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer"
-#        DESTINATION bin/megaglest)
+	# Installation of data files from outside normal data folder
+	INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
+	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}data/core/misc_textures
+	  OPTIONAL REGEX "/.svn" EXCLUDE)
 
-# Installation of the program config and image files
-#INSTALL(FILES 
-#  "${PROJECT_SOURCE_DIR}/mk/linux/g3dviewer.ico"
-#  "${PROJECT_SOURCE_DIR}/mk/linux/editor.ico"
-#  "${PROJECT_SOURCE_DIR}/mk/linux/configuration.xml"
-#  DESTINATION bin/megaglest)
-
-# Installation of data files from outside normal data folder
-INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
-  DESTINATION share/megaglest/data/core/misc_textures
-  OPTIONAL REGEX "/.svn" EXCLUDE)
-
-# Installation of the data
-install(
-  DIRECTORY "${PROJECT_SOURCE_DIR}/data/glest_game/data" 
-            "${PROJECT_SOURCE_DIR}/data/glest_game/docs" 
-            "${PROJECT_SOURCE_DIR}/data/glest_game/maps"
-            "${PROJECT_SOURCE_DIR}/data/glest_game/scenarios"
-            "${PROJECT_SOURCE_DIR}/data/glest_game/techs"
-            "${PROJECT_SOURCE_DIR}/data/glest_game/tilesets"
-            "${PROJECT_SOURCE_DIR}/data/glest_game/tutorials"
-  DESTINATION share/megaglest
-  OPTIONAL REGEX "/.svn" EXCLUDE)
-
+	# Installation of the data
+	install(
+	  DIRECTORY "${PROJECT_SOURCE_DIR}/data/glest_game/data" 
+		    "${PROJECT_SOURCE_DIR}/data/glest_game/docs" 
+		    "${PROJECT_SOURCE_DIR}/data/glest_game/maps"
+		    "${PROJECT_SOURCE_DIR}/data/glest_game/scenarios"
+		    "${PROJECT_SOURCE_DIR}/data/glest_game/techs"
+		    "${PROJECT_SOURCE_DIR}/data/glest_game/tilesets"
+		    "${PROJECT_SOURCE_DIR}/data/glest_game/tutorials"
+	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}
+	  OPTIONAL REGEX "/.svn" EXCLUDE)
+ENDIF()
