@@ -4,44 +4,15 @@
                      by Titus Tscharntke and Mark Vejvoda
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                           README file for Windows
+                        Build instructions for Windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. System requirements
+1. Architecture
 
 Developed on Windows with Microsoft Visual C++ 2008 Express (free version),
 little endian CPU. Compiling using the mingw32 toolset is now possible, which
 also allows for cross compiling.
 
-Hardware requirements:
-* 5th generation x86 CPU with 1.5 GHz or better
-  (modern CPU series with at least two cores of at least 1.5 Ghz recommended)
-* 1.0 GB RAM
-  (2.0 GB recommended)
-* Graphics chip supporting OpenGL 1.3 with GL_ARB_env_crossbar and shader
-  extensions (=OpenGL 1.4 or glUseProgramObjectARB etc.) or higher
-  (dedicated video card with hardware 3D acceleration recommended)
-* Audio chip supporting OpenAL
-
-Software requirements:
-* A supported (by its producer) operating system version
-* Graphics drivers which work well with this operating system version and
-  support the OpenGL requirements discussed above
-* Audio drivers supporting OpenAL
-* A file archiving utility which provides a command line interface and can
-  decompress 7-zip archives
-
-The Windows version runs on 32 and 64 bit variants of Windows and has been
-reported to run on Windows versions up to and including Windows 7.
-
-Current dedicated Nvidia and ATI hardware with vendor-supplied proprietary
-drivers installed will provide the best experience. However, MegaGlest also
-runs on most integrated Intel GMA, Nvidia and ATI GPUs, but you will feel an
-urge to reduce effects.
-
-Issues with proprietary drivers for 'legacy' ATI hardware have been and are
-continuously reported. On Windows, 'patched (current) drivers' can sometimes
-help there (and other times they make things worse).
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -67,6 +38,8 @@ These include:
   http://xerces.apache.org/xerces-c/
 * wxWidgets
   http://wxwidgets.org/
+* For a more verbose list, please inspect the archive contents and refer to the
+  Linux build instructions.
 
 
 2.2 Building
@@ -96,7 +69,39 @@ system-wide installation below Program Files and setup Desktop icons for
 simplified access. User specific configuration will be stored within the
 directory tree the %AppData% environment variable points to.
 
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+3. Troubleshooting
+
+Some hints for troubleshooting.
+
+In General:
+* Make sure both hard- and software of your system match the requirements
+* Sound is played through OpenAL - you might need to take a look at your
+  configuration: http://supertux.lethargik.org/wiki/OpenAL_Configuration
+
+Compiling:
+* If configure fails make sure you have read the Building section above
+
+Sound/Audio errors when starting:
+* If the game doesn't start because of audio/sound errors:
+  Make sure no other application is using your soundcard.
+* If this doesn't solve your sound problems try to get an updated OpenAL from
+  http://openal.org
+
+The game complains about OpenGL 1.3 not available, is missing OpenGL extensions
+or works very slowly:
+* Try to get updated graphics drivers.
+
+The game crashes:
+* Check the forums at http://forums.megaglest.org/
+* It would be nice if you could report any other crashes and freezes that are
+  not yet described on the forums, preferably with a backtrace from a
+  debugging enabled build
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 4. More information
 
@@ -109,6 +114,7 @@ directory tree the %AppData% environment variable points to.
 * Forums
   http://forums.megaglest.org/
 
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 5. Contact + Credits
@@ -120,6 +126,9 @@ MegaGlest is developed by:
 General contact:
   contact@megaglest.org
 
+Website:
+  http://megaglest.org
+
 MegaGlest is a fork of Glest:
   http://glest.org/
 
@@ -127,4 +136,4 @@ Linux port by:
   Matthias Braun <matze@braunis.de> with help from Karl Robillard
   <krobbillard@san.rr.com>
 
-Please also refer the copyright file.
+Please also refer to the copyright file.

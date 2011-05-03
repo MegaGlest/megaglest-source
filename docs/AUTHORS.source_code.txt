@@ -1,0 +1,63 @@
+MegaGlest Source Code Authors
+
+Titus Tscharntke (info@titusgames.de)
+Mark Vejvoda (www.soft-haus.com - mark_vejvoda@hotmail.com)
+
+
+* The MegaGlest Team *
+
+Programmers:       Titus Tscharntke (titi)
+                   Mark Vejvoda (SoftCoder)
+
+Website:           http://megaglest.org/
+E-mail:            contact@megaglest.org
+
+
+MegaGlest is a fork of Glest. Without the inspiring work by the original Glest
+developers and contributors, MegaGlest would not have been possible.
+
+
+* The Glest Team *
+
+Programmer:        Martiño Figueroa
+Sound artist:      Jose Luis González
+2D and 3D artist:  Tucho Fernández
+2D artist and web: José Zanni
+SDL port:          Matze Braun
+Animation:         Félix Menéndez
+3D artist:         Marcos Caruncho
+
+Website:           http://glest.org
+E-mail:            contact_game@glest.org
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ACKs
+
+This product includes the following 3rd party software:
+
+- Software developed by the
+  Apache Software Foundation (http://www.apache.org/).
+
+- Xiph.org's Vorbis software CODEC implementation.
+
+- modified version of Feathery FTP by Andreas Martin
+  (https://sourceforge.net/projects/feathery/)
+
+- libcurl (http://curl.haxx.se/libcurl/)
+
+- libpng (http://www.libpng.org/pub/png/libpng.html)
+
+- libjpeg (http://www.ijg.org/)
+
+- wxwidgets (http://www.wxwidgets.org/)
+
+- lua (http://www.lua.org/download.html)
+
+- openal (http://connect.creativelabs.com/openal/default.aspx)
+
+- zlib (http://www.zlib.net/)
+
+We would like to thank the developers of these softwares and libraries, their
+prior work makes developing MegaGlest fun.
