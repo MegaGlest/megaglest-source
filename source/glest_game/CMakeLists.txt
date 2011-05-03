@@ -190,3 +190,47 @@ TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
 ENDIF()
 TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
+# Installation of the program
+INSTALL(TARGETS 
+        ${TARGET_NAME} 
+        DESTINATION bin/megaglest)
+
+# Installation of the program config and image files
+INSTALL(FILES 
+  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
+  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
+  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
+  "${PROJECT_SOURCE_DIR}/data/glest_game/megaglest.ico"
+  DESTINATION bin/megaglest)
+
+# Installation of the tools
+#INSTALL(TARGETS 
+#        "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_configurator"
+#        "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_editor"
+#        "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer"
+#        DESTINATION bin/megaglest)
+
+# Installation of the program config and image files
+#INSTALL(FILES 
+#  "${PROJECT_SOURCE_DIR}/mk/linux/g3dviewer.ico"
+#  "${PROJECT_SOURCE_DIR}/mk/linux/editor.ico"
+#  "${PROJECT_SOURCE_DIR}/mk/linux/configuration.xml"
+#  DESTINATION bin/megaglest)
+
+# Installation of data files from outside normal data folder
+INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
+  DESTINATION share/megaglest/data/core/misc_textures
+  OPTIONAL REGEX "/.svn" EXCLUDE)
+
+# Installation of the data
+install(
+  DIRECTORY "${PROJECT_SOURCE_DIR}/data/glest_game/data" 
+            "${PROJECT_SOURCE_DIR}/data/glest_game/docs" 
+            "${PROJECT_SOURCE_DIR}/data/glest_game/maps"
+            "${PROJECT_SOURCE_DIR}/data/glest_game/scenarios"
+            "${PROJECT_SOURCE_DIR}/data/glest_game/techs"
+            "${PROJECT_SOURCE_DIR}/data/glest_game/tilesets"
+            "${PROJECT_SOURCE_DIR}/data/glest_game/tutorials"
+  DESTINATION share/megaglest
+  OPTIONAL REGEX "/.svn" EXCLUDE)
+

@@ -195,9 +195,6 @@ std::vector<std::string> FactionType::validateFactionType() {
     		}
     	}
 
-    //const SoundContainer & getCommandSounds() const   { return commandSounds; }
-
-
     	for(int j = 0; j < unitType.getCommandTypeCount(); ++j) {
     		const CommandType *cmdType = unitType.getCommandType(j);
     		if(cmdType != NULL) {
