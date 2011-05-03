@@ -1481,13 +1481,13 @@ exit 0;
  
 sub create_glestkey_page {
 	my $html_page = "glestkeys.html";
-	my $title = "Keyboard Assingment";
+	my $title = "Keyboard Assignment";
 	push @special_html_pages, "$html_page;$title";
 	my $outfile = "$out_path/$html_page";
 	open (HTML, "> $outfile") || die "can't write $outfile\n";
 
 	print HTML header($title);
-	print HTML "Note: Keyboard assingment can be changed in glestuserkeys.ini.<P>\n";
+	print HTML "Note: Keyboard assignment can be changed in glestuserkeys.ini.<P>\n";
 	
 	print HTML "<TABLE BORDER=1><TH>Name<TH>Key\n";
 
