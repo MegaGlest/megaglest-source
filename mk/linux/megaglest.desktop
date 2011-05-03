@@ -1,9 +1,8 @@
-Desktop Entry]
-Encoding=UTF-8
-Categories=Application;Game;
+[Desktop Entry]
+Categories=Game;StrategyGame;
 Comment=A real time strategy game.
 Name=MegaGlest
-Icon=megaglest.png
-Exec=/megaglest
+Icon=megaglest
+Exec=megaglest
 Terminal=false
 Type=Application
