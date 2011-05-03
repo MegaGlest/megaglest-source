@@ -215,7 +215,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 		        startupSettingsInited(false)
 {
 	this->appPath = appPath;
-	Properties::setApplicationPath(extractDirectoryPathFromFile(appPath));
+	Properties::setApplicationPath(executable_path(appPath));
 
 	Config &config = Config::getInstance();
     //getGlPlatformExtensions();
