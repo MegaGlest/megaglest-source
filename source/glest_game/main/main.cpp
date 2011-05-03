@@ -86,7 +86,7 @@ namespace Glest{ namespace Game{
 
 bool disableBacktrace = false;
 bool gameInitialized = false;
-static char *application_binary=NULL;
+static string application_binary="";
 static string mg_app_name = "";
 static string mailStringSupport = "";
 static bool sdl_quitCalled = false;
@@ -296,7 +296,7 @@ public:
         // prepare command to be executed
         // our program need to be passed after the -e parameter
         //sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
-        sprintf (buf, "addr2line -C -e %s -f -i %p",application_binary,address);
+        sprintf (buf, "addr2line -C -e %s -f -i %p",application_binary.c_str(),address);
 
         FILE* f = popen (buf, "r");
 
@@ -1982,7 +1982,7 @@ int glestMain(int argc, char** argv) {
 	bool foundInvalidArgs = false;
 	preCacheThread=NULL;
 
-	Properties::setApplicationPath(extractDirectoryPathFromFile(argv[0]));
+	Properties::setApplicationPath(executable_path(argv[0]));
 
     ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
     SystemFlags::VERBOSE_MODE_ENABLED  = false;
@@ -2724,7 +2724,8 @@ int glestMainWrapper(int argc, char** argv) {
 #ifdef WIN32_STACK_TRACE
 __try {
 #endif
-    application_binary=argv[0];
+    application_binary= executable_path(argv[0]);
+    //printf("\n\nargv0 [%s] application_binary [%s]\n\n",argv[0],application_binary.c_str());
 
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
     signal(SIGSEGV, handleSIGSEGV);

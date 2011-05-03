@@ -118,6 +118,7 @@ use Cwd;
 use File::Glob ':glob';
 #use Image::Resize;
 use Image::Magick;
+
 BEGIN {
     $ENV{APP_ROOT} = Cwd::realpath(File::Spec->rel2abs($FindBin::Bin)) ;
 }

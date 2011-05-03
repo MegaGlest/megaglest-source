@@ -78,7 +78,7 @@ MainWindow::MainWindow(string appPath)
         , program(NULL), boxsizer(NULL), startupSettingsInited(false) {
 
 	this->appPath = appPath;
-	Properties::setApplicationPath(extractDirectoryPathFromFile(appPath));
+	Properties::setApplicationPath(executable_path(appPath));
 
 	this->panel = new wxPanel(this, wxID_ANY);
 
