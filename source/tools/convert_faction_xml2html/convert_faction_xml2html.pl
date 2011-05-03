@@ -6,6 +6,9 @@
 
 our $version = "0.8 beta";
 
+# This tool requires jquery and the jquery dataTables plugin (run setupDeps.sh which uses curl to try to download these into the media folder). 
+# These are NOT required to run the script but are used to display the resulting html.
+
 # general comments for running:
 # - developed on ubuntu linux 10.04 and with modules from ubuntu (install with "apt-get install libgraphviz-perl libconfig-inifiles-perl libxml-xpath-perl perlmagick")
 # - on non-ubuntu systems install "graphviz" using your package manager and try to also find the right perl modules with it.

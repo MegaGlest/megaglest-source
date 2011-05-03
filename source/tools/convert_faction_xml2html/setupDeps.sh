@@ -3,6 +3,9 @@
 OSTYPE=`uname -m`
 echo "Detected distro: [$OSTYPE]"
 
+curl http://code.jquery.com/jquery-1.5.2.js > media/jquery-1.5.min.js
+curl http://www.datatables.net/download/build/jquery.dataTables.min.js > media/jquery.dataTables.min.js
+
 # This should actually use /etc/issue
 if [ -f /etc/fedora-release ]; then
   echo "Fedora..."
