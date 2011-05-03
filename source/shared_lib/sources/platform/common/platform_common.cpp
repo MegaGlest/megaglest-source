@@ -1678,24 +1678,44 @@ off_t getFileSize(string filename) {
   return 0;
 }
 
-string executable_path(string exeName) {
+string executable_path(string exeName, bool includeExeNameInPath) {
 	string value = "";
 #ifdef _WIN32
 	char path[MAX_PATH]="";
 	if( GetModuleFileName(NULL,path,MAX_PATH) == 0 ) {
-		value = extractDirectoryPathFromFile(exeName);
+		if(includeExeNameInPath == true) {
+			value = exeName;
+		}
+		else {
+			value = extractDirectoryPathFromFile(exeName);
+		}
 	}
 	else {
-		value = extractDirectoryPathFromFile(path);
+		if(includeExeNameInPath == true) {
+			value = path;
+		}
+		else {
+			value = extractDirectoryPathFromFile(path);
+		}
 	}
 #elif __APPLE__
 	char path[MAXPATHLEN+1]="";
 	uint32_t path_len = MAXPATHLEN;
 	if ( _NSGetExecutablePath(path, &path_len) ) {
-		value = extractDirectoryPathFromFile(exeName);
+		if(includeExeNameInPath == true) {
+			value = exeName;
+		}
+		else {
+			value = extractDirectoryPathFromFile(exeName);
+		}
 	}
 	else {
-		value = extractDirectoryPathFromFile(path);
+		if(includeExeNameInPath == true) {
+			value = path;
+		}
+		else {
+			value = extractDirectoryPathFromFile(path);
+		}
 	}
 #else
 	char exe_link_path[200]="";
@@ -1703,23 +1723,43 @@ string executable_path(string exeName) {
 	if(length < 0 || length >= 200 ) {
 		char *argv0_path = realpath(exeName.c_str(),NULL);
 		if(argv0_path != NULL) {
-			value = extractDirectoryPathFromFile(argv0_path);
+			if(includeExeNameInPath == true) {
+				value = argv0_path;
+			}
+			else {
+				value = extractDirectoryPathFromFile(argv0_path);
+			}
 			free(argv0_path);
 			argv0_path = NULL;
 		}
 		else {
 			const char *shell_path = getenv("_");
 			if(shell_path != NULL) {
-				value = extractDirectoryPathFromFile(shell_path);
+				if(includeExeNameInPath == true) {
+					value = shell_path;
+				}
+				else {
+					value = extractDirectoryPathFromFile(shell_path);
+				}
 			}
 			else {
-				value = extractDirectoryPathFromFile(exeName);
+				if(includeExeNameInPath == true) {
+					value = exeName;
+				}
+				else {
+					value = extractDirectoryPathFromFile(exeName);
+				}
 			}
 		}
 	}
 	else {
 		exe_link_path[length] = '\0';
-		value = extractDirectoryPathFromFile(exe_link_path);
+		if(includeExeNameInPath == true) {
+			value = exe_link_path;
+		}
+		else {
+			value = extractDirectoryPathFromFile(exe_link_path);
+		}
 	}
 #endif
     return value;

@@ -209,7 +209,7 @@ inline string trim (const string & s, const string & t = SPACES) {
 string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 		string fileArchiveExtractCommandParameters, string outputpath, string archivename);
 bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE);
-string executable_path(string exeName);
+string executable_path(string exeName,bool includeExeNameInPath=false);
 
 class ValueCheckerVault {
 

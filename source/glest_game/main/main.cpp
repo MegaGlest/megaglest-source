@@ -2724,7 +2724,7 @@ int glestMainWrapper(int argc, char** argv) {
 #ifdef WIN32_STACK_TRACE
 __try {
 #endif
-    application_binary= executable_path(argv[0]);
+    application_binary= executable_path(argv[0],true);
     //printf("\n\nargv0 [%s] application_binary [%s]\n\n",argv[0],application_binary.c_str());
 
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)

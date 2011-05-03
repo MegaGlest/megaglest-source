@@ -701,7 +701,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					builtUnit->create();
 
 					if(builtUnitType->hasSkillClass(scBeBuilt) == false) {
-						throw runtime_error("Unit [" + builtUnitType->getName() + "] has no be_built skill.");
+						throw runtime_error("Unit [" + builtUnitType->getName() + "] has no be_built skill, producer was [" + intToStr(unit->getId()) + " - " + unit->getType()->getName() + "].");
 					}
 
 					builtUnit->setCurrSkill(scBeBuilt);
