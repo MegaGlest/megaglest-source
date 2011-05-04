@@ -127,16 +127,16 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
 	# Installation of the program config and image files
-	INSTALL(FILES 
-	  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
-	  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
-          "${PROJECT_SOURCE_DIR}/mk/linux/configuration.xml"
-          "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
-	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+	#INSTALL(FILES 
+	#  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
+	#  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
+        #  "${PROJECT_SOURCE_DIR}/mk/linux/configuration.xml"
+        #  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
+	#  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
 	# Installation of the program desktop icon file
-	INSTALL(FILES 
-	  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
-	  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+	#INSTALL(FILES 
+	#  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
+	#  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 
 ENDIF()

@@ -16,6 +16,7 @@ echo '----In mk/linux'
 find megaglest.bmp \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find megaglest.desktop \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find megaglest.png \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find glest.ico \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 popd
 #ls $RELEASEDIR
 
@@ -29,6 +30,7 @@ find editor.ico \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find servers.ini \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find glest.ini \( -name "*" \) -exec cp -p "{}" $RELEASEDIR/glest_linux.ini ';'
 find glestkeys.ini \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+find configuration.xml \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 
 find data/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find docs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
@@ -38,7 +40,7 @@ find techs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -pru
 find tilesets/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find tutorials/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 
-cp -p ../../CMake* $RELEASEDIR
+cp -p CMakeLists.txt $RELEASEDIR
 popd
 
 pushd $RELEASEDIR
