@@ -2,7 +2,8 @@
 
 VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-source
-RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION"
+#RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION"
+RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
 
 echo "Creating source package in $RELEASEDIR"
 
@@ -26,7 +27,7 @@ popd
 
 popd
 
-cp -p ../../docs/readme*.txt ../../docs/*license*.txt $RELEASEDIR
+cp -p ../../docs/*.txt $RELEASEDIR
 cp -p glest.ini $RELEASEDIR
 cp -p glestkeys.ini $RELEASEDIR
 cp -p servers.ini $RELEASEDIR
@@ -39,13 +40,11 @@ cp -p start_megaglest_mapeditor $RELEASEDIR
 cp -p start_megaglest_g3dviewer $RELEASEDIR
 cp -p ../../CMake* $RELEASEDIR
 
-pushd $RELEASEDIR
-#./autogen.sh
-popd
-
 pushd release
 PACKAGE="$RELEASENAME-$VERSION.tar.bz2"
 echo "creating $PACKAGE"
+rm "$PACKAGE"
+
 tar -c --bzip2 -f "$PACKAGE" "$RELEASENAME-$VERSION"
 #7za a "$RELEASENAME-$VERSION.7z" "$RELEASENAME-$VERSION"
 popd
