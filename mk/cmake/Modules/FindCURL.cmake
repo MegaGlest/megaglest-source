@@ -30,13 +30,18 @@ IF(CURL_FOUND)
     FIND_PROGRAM( CMAKE_CURL_CONFIG curl-config)
 
     IF(CMAKE_CURL_CONFIG)
-      # run the curl-config program to get --static-libs
-      EXEC_PROGRAM(sh
-	ARGS "${CMAKE_CURL_CONFIG} --static-libs"
-        OUTPUT_VARIABLE CURL_STATIC_LIBS
-        RETURN_VALUE RET)
+      OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+      IF(WANT_STATIC_LIBS)
+	# run the curl-config program to get --static-libs
+	EXEC_PROGRAM(sh
+		ARGS "${CMAKE_CURL_CONFIG} --static-libs"
+	        OUTPUT_VARIABLE CURL_STATIC_LIBS
+	        RETURN_VALUE RET)
 
-      MESSAGE(STATUS "CURL RET = ${RET}")
+	MESSAGE(STATUS "CURL RET = ${RET}")
+      ELSE()
+      	SET(RET 1)
+      ENDIF()
 
       IF(${RET} EQUAL 0)
         MESSAGE(STATUS "USING CURL STATIC LIBS: ${CURL_STATIC_LIBS}")
@@ -48,7 +53,7 @@ IF(CURL_FOUND)
           OUTPUT_VARIABLE CURL_STATIC_LIBS
           RETURN_VALUE RET)
 
-        MESSAGE(STATUS "#2 CURL RET = ${RET} libs: ${CURL_STATIC_LIBS}")
+        MESSAGE(STATUS "#2 CURL RET = ${RET} using CURL dynamic libs: ${CURL_STATIC_LIBS}")
         SET(CURL_LIBRARIES "${CURL_STATIC_LIBS}")
 
       ENDIF()
