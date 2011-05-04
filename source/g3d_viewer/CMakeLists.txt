@@ -133,4 +133,10 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 	  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
 	  "${PROJECT_SOURCE_DIR}/data/glest_game/g3dviewer.ico"
 	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+
+	# Installation of the program desktop icon file
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/data/glest_game/g3dviewer.ico"
+	  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+
 ENDIF()

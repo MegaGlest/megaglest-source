@@ -133,4 +133,10 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
           "${PROJECT_SOURCE_DIR}/mk/linux/configuration.xml"
           "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
 	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+
+	# Installation of the program desktop icon file
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
+	  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+
 ENDIF()

@@ -192,6 +192,10 @@ TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
 # Requires an install prefix for the items below to work
 IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
+	IF(NOT WIN32)
+		set_target_properties(megaglest.bin PROPERTIES OUTPUT_NAME "megaglest")
+	ENDIF()
+
 	# Installation of the program
 	INSTALL(TARGETS 
 		${TARGET_NAME} 
@@ -203,6 +207,16 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 	  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
 	  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
 	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+
+	# Installation of the program desktop file
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop"
+	  DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+
+	# Installation of the program desktop icon file
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
+	  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 
 	# Installation of data files from outside normal data folder
 	INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
