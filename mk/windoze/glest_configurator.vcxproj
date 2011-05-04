@@ -57,7 +57,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\win32_deps\wxWidgets-2.8.10\include;..\..\source\shared_lib\include\xml;../../source/win32_deps/xerces-c-3.0.1/src;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;../../source/win32_deps/SDL-1.2.x/include;../../source/win32_deps/curl-7.21.3/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\win32_deps\wxWidgets-2.8.10\include;..\..\source\shared_lib\include\xml;../../source/win32_deps/xerces-c-3.0.1/src;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;../../source/win32_deps/SDL-1.2.x/include;../../source/win32_deps/curl-7.21.3/include;;..\..\source\glest_game\global;..\..\source\glest_game\facilities;..\..\source\glest_game\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MWIN;__WXMSW__;__WXDEBUG__;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -83,7 +83,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalOptions>/arch:SSE2 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\win32_deps\wxWidgets-2.8.10\include;..\..\source\shared_lib\include\xml;../../source/win32_deps/xerces-c-3.0.1/src;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;../../source/win32_deps/SDL-1.2.x/include;../../source/win32_deps/curl-7.21.3/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\win32_deps\wxWidgets-2.8.10\include;..\..\source\shared_lib\include\xml;../../source/win32_deps/xerces-c-3.0.1/src;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;../../source/win32_deps/SDL-1.2.x/include;../../source/win32_deps/curl-7.21.3/include;;..\..\source\glest_game\global;..\..\source\glest_game\facilities;..\..\source\glest_game\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -112,7 +112,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">
     <ClCompile>
       <AdditionalOptions>/arch:SSE2 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\win32_deps\wxWidgets-2.8.10\include;..\..\source\shared_lib\include\xml;../../source/win32_deps/xerces-c-3.0.1/src;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;../../source/win32_deps/SDL-1.2.x/include;../../source/win32_deps/curl-7.21.3/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\win32_deps\wxWidgets-2.8.10\include;..\..\source\shared_lib\include\xml;../../source/win32_deps/xerces-c-3.0.1/src;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;../../source/win32_deps/SDL-1.2.x/include;../../source/win32_deps/curl-7.21.3/include;;..\..\source\glest_game\global;..\..\source\glest_game\facilities;..\..\source\glest_game\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\source\configurator\configuration.cpp" />
     <ClCompile Include="..\..\source\configurator\main.cpp" />
+    <ClCompile Include="..\..\source\glest_game\global\config.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="shared_lib.vcxproj">
