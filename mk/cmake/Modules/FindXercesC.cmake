@@ -46,7 +46,10 @@ IF (XERCESC_INCLUDE AND XERCESC_LIBRARY)
         #MESSAGE(STATUS "Found cached Xerces-C lib [${XERCESC_LIBRARY}]")
 ENDIF (XERCESC_INCLUDE AND XERCESC_LIBRARY)
 
-OPTION(XERCESC_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
+OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+IF(WANT_STATIC_LIBS)
+	OPTION(XERCESC_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
+ENDIF()
 
 IF (NOT  ${XERCESC_WAS_STATIC} STREQUAL ${XERCESC_STATIC})
 	UNSET(XERCESC_LIBRARY CACHE)
