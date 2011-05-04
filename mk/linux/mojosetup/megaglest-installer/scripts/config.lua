@@ -1,5 +1,5 @@
 local GAME_INSTALL_SIZE = 680000000;
-local GAME_VERSION = "3.5.0";
+local GAME_VERSION = "3.5.1";
 
 local _ = MojoSetup.translate
 
@@ -71,13 +71,13 @@ Setup.Package
     Setup.Eula
     {
         description = _("Megaglest License"),
-        source = _("docs/LICENSE")
+        source = _("docs/README.data-license.txt")
     },
 
     Setup.Readme
     {
         description = _("Megaglest README"),
-        source = _("docs/README")
+        source = _("docs/README.txt")
     },
 
     Setup.Option
