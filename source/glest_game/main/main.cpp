@@ -86,6 +86,7 @@ namespace Glest{ namespace Game{
 
 bool disableBacktrace = false;
 bool gameInitialized = false;
+//static string application_binary="";
 static string application_binary="";
 static string mg_app_name = "";
 static string mailStringSupport = "";
@@ -1975,6 +1976,7 @@ int glestMain(int argc, char** argv) {
 	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 #endif
 
+	application_binary= executable_path(argv[0],true);
 	mg_app_name = GameConstants::application_name;
 	mailStringSupport = mailString;
     SystemFlags::ENABLE_THREADED_LOGGING = false;
@@ -2721,10 +2723,10 @@ int glestMainWrapper(int argc, char** argv) {
 //#endif
 #endif
 
-	application_binary= executable_path(argv[0],true);
 #ifdef WIN32_STACK_TRACE
 __try {
 #endif
+	
     //application_binary= executable_path(argv[0],true);
     //printf("\n\nargv0 [%s] application_binary [%s]\n\n",argv[0],application_binary.c_str());
 
