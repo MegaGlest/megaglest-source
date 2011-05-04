@@ -18,6 +18,28 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/mk/cmake/Modules)
 
 MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
 
+FUNCTION(Subversion_IS_WC FOLDER RESULT_VAR)
+    IF(Subversion_FOUND)
+    
+        # SVN info does not like .. as paths, so be sure that we use a full path
+        GET_FILENAME_COMPONENT(ABS_FOLDER ${FOLDER} ABSOLUTE)
+        EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} info ${ABS_FOLDER}
+                        RESULT_VARIABLE INFO_RESULT
+                        OUTPUT_VARIABLE IGNORED
+                        ERROR_VARIABLE IGNORED)
+        IF(INFO_RESULT EQUAL 0)
+            SET(${RESULT_VAR} TRUE PARENT_SCOPE)
+        ELSE()
+            SET(${RESULT_VAR} FALSE PARENT_SCOPE)
+        ENDIF()
+    
+    ELSE()
+        MESSAGE(STATUS "Cannot check whether folder ${FOLDER} is a svn working copy because svn was not found. Returning FALSE.")
+        SET(${RESULT_VAR} FALSE PARENT_SCOPE)
+    ENDIF()
+
+ENDFUNCTION()
+
 ## Compiler flags
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	IF(CMAKE_COMPILER_IS_GNUCXX)
@@ -61,9 +83,14 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		# The stuff below gets SVN Global Revision # but ONLY when calling cmake!
 		# the FindSubversion.cmake module is part of the standard distribution
 		include(FindSubversion)
-		# extract working copy information for SOURCE_DIR into MY_XXX variables
-		Subversion_WC_INFO(${PROJECT_SOURCE_DIR} MG)
-		#add_definitions(-DSVNVERSION="${MG_WC_REVISION}")
+	
+		Subversion_IS_WC(${PROJECT_SOURCE_DIR} HAS_SVN)
+		IF(${HAS_SVN} STREQUAL "TRUE")
+                        MESSAGE(STATUS "Found SVN and using SVN version stamping...")
+			# extract working copy information for SOURCE_DIR into MY_XXX variables
+			Subversion_WC_INFO(${PROJECT_SOURCE_DIR} MG)
+			#add_definitions(-DSVNVERSION="${MG_WC_REVISION}")
+		ENDIF()
 	ENDIF()
 
 	SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"${MG_WC_REVISION}\\\"'")
