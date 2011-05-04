@@ -193,45 +193,19 @@ TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 # Requires an install prefix for the items below to work
 IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 	IF(NOT WIN32)
-		set_target_properties(megaglest.bin PROPERTIES OUTPUT_NAME "megaglest")
+		#set_target_properties(megaglest.bin PROPERTIES OUTPUT_NAME "megaglest")
+		# rename the binary for installation
+		MESSAGE(STATUS "Copying [${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}] to [${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest]")
+		install(CODE 
+			"EXECUTE_PROCESS(COMMAND \"cmake\" \"-E\" \"copy\" \"${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}\" \"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest\")")
+
+		install(CODE 
+			"EXECUTE_PROCESS(COMMAND \"chmod\" \"+x\" \"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest\")")
+
+	ELSE()
+		# Installation of the program
+		INSTALL(TARGETS 
+			${TARGET_NAME} 
+			DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 	ENDIF()
-
-	# Installation of the program
-	INSTALL(TARGETS 
-		${TARGET_NAME} 
-		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
-
-	# Installation of the program config and image files
-#	INSTALL(FILES 
-#	  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
-#	  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
-#	  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
-#	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
-
-	# Installation of the program desktop file
-#	INSTALL(FILES 
-#	  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop"
-#	  DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
-
-	# Installation of the program desktop icon file
-#	INSTALL(FILES 
-#	  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
-#	  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-
-	# Installation of data files from outside normal data folder
-#	INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
-#	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}data/core/misc_textures
-#	  OPTIONAL REGEX "/.svn" EXCLUDE)
-
-	# Installation of the data
-#	install(
-#	  DIRECTORY "${PROJECT_SOURCE_DIR}/data/glest_game/data" 
-#		    "${PROJECT_SOURCE_DIR}/data/glest_game/docs" 
-#		    "${PROJECT_SOURCE_DIR}/data/glest_game/maps"
-#		    "${PROJECT_SOURCE_DIR}/data/glest_game/scenarios"
-#		    "${PROJECT_SOURCE_DIR}/data/glest_game/techs"
-#		    "${PROJECT_SOURCE_DIR}/data/glest_game/tilesets"
-#		    "${PROJECT_SOURCE_DIR}/data/glest_game/tutorials"
-#	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}
-#	  OPTIONAL REGEX "/.svn" EXCLUDE)
 ENDIF()
