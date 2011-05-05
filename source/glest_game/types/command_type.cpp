@@ -44,7 +44,7 @@ CommandClass CommandType::getClass() const{
 
 void CommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->id= id;
@@ -57,7 +57,7 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
 	image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
-	loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
+	loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
 
 	//unit requirements
 	const XmlNode *unitRequirementsNode= n->getChild("unit-requirements");
@@ -112,7 +112,7 @@ string StopCommandType::toString() const{
 
 void StopCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
 	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//stop
@@ -137,7 +137,7 @@ void MoveCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameInde
 
 void MoveCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
     CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
@@ -186,7 +186,7 @@ void AttackCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIn
 
 void AttackCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
     CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
     //move
@@ -278,7 +278,7 @@ void AttackStoppedCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int 
 
 void AttackStoppedCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
     CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//stop
@@ -365,7 +365,7 @@ void BuildCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameInd
 
 void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
     CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
@@ -397,7 +397,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 			StaticSound *sound= new StaticSound();
 
 			sound->load(path);
-			loadedFileList[path]++;
+			loadedFileList[path].push_back(currentPath);
 			startSounds[i]= sound;
 		}
 	}
@@ -415,7 +415,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 			StaticSound *sound= new StaticSound();
 
 			sound->load(path);
-			loadedFileList[path]++;
+			loadedFileList[path].push_back(currentPath);
 			builtSounds[i]= sound;
 		}
 	}
@@ -460,7 +460,7 @@ void HarvestCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameI
 
 void HarvestCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
 	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
@@ -541,7 +541,7 @@ void RepairCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIn
 
 void RepairCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
 	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//move
@@ -614,7 +614,7 @@ void ProduceCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameI
 
 void ProduceCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
 	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//produce
@@ -679,7 +679,7 @@ void UpgradeCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameI
 
 void UpgradeCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
 
 	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
@@ -736,7 +736,7 @@ void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameInd
 
 void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
 	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
 
 	//morph skill

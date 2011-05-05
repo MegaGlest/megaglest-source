@@ -1113,7 +1113,7 @@ void MainWindow::loadParticle(string path) {
 
                 // std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
-				std::map<string,int> loadedFileList;
+				std::map<string,vector<string> > loadedFileList;
                 UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
                 unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,
                 		renderer,loadedFileList);
@@ -1210,7 +1210,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
-			std::map<string,int> loadedFileList;
+			std::map<string,vector<string> > loadedFileList;
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(dir,
 					dir + folderDelimiter + particlePath,renderer, loadedFileList);
@@ -1312,7 +1312,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
-			std::map<string,int> loadedFileList;
+			std::map<string,vector<string> > loadedFileList;
 			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash();
 			splashParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer,
 					loadedFileList); // <---- only that must be splash...

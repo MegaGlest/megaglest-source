@@ -89,7 +89,7 @@ public:
 	StaticSound *getNightStart()	{return &nightStart;}
 
 	void load(const string &dir, const XmlNode *xmlNode,
-			std::map<string,int> &loadedFileList);
+			std::map<string,vector<string> > &loadedFileList);
 };
 
 // =====================================================
@@ -133,9 +133,9 @@ private:
 public:
     ~Tileset();
     Checksum loadTileset(const vector<string> pathList, const string &tilesetName,
-    		Checksum* checksum, std::map<string,int> &loadedFileList);
+    		Checksum* checksum, std::map<string,vector<string> > &loadedFileList);
 	void load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum,
-			std::map<string,int> &loadedFileList);
+			std::map<string,vector<string> > &loadedFileList);
 	Checksum * getChecksumValue() { return &checksumValue; }
 
     //get

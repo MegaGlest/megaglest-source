@@ -48,7 +48,7 @@ public:
 	//init
 	FactionType();
     void load(const string &dir, const TechTree *techTree, Checksum* checksum,
-    		Checksum *techtreeChecksum, std::map<string,int> &loadedFileList);
+    		Checksum *techtreeChecksum, std::map<string,vector<string> > &loadedFileList);
 	~FactionType();
 
     //get

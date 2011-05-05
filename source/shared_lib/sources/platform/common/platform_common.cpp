@@ -474,6 +474,33 @@ void trimPathWithStartingSlash(string &path) {
 
 void updatePathClimbingParts(string &path) {
 	// Update paths with ..
+	string::size_type pos = path.find("..");
+	if(pos != string::npos && pos != 0) {
+		string orig = path;
+		path.erase(pos,2);
+		pos--;
+		if(path[pos] == '/' || path[pos] == '\\') {
+			path.erase(pos,1);
+		}
+
+		for(int x = pos; x >= 0; --x) {
+			//printf("x [%d][%c] pos [%ld][%c] [%s]\n",x,path[x],(long int)pos,path[pos],path.substr(0,x+1).c_str());
+
+			if((path[x] == '/' || path[x] == '\\') && x != pos) {
+				path.erase(x,pos-x);
+				break;
+			}
+		}
+		pos = path.find("..");
+		if(pos != string::npos && pos != 0) {
+			updatePathClimbingParts(path);
+		}
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
+	}
+
+
+/*
 	string::size_type pos = path.rfind("..");
 	if(pos != string::npos && pos != 0) {
 		string orig = path;
@@ -492,8 +519,9 @@ void updatePathClimbingParts(string &path) {
 			}
 		}
 
-		//printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
+		printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
 	}
+*/
 }
 
 string getCRCCacheFilePath() {

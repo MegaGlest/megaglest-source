@@ -119,7 +119,7 @@ void UnitType::preLoad(const string &dir) {
 
 void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		const FactionType *factionType, Checksum* checksum,
-		Checksum* techtreeChecksum, std::map<string,int> &loadedFileList) {
+		Checksum* techtreeChecksum, std::map<string,vector<string> > &loadedFileList) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -139,7 +139,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 
 		XmlTree xmlTree;
 		xmlTree.load(path);
-		loadedFileList[path]++;
+		loadedFileList[path].push_back(dir);
 
 		const XmlNode *unitNode= xmlTree.getRootNode();
 
@@ -295,7 +295,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 
 					unitParticleSystemType->load(dir,  currentPath + path,
 							&Renderer::getInstance(),loadedFileList);
-					loadedFileList[currentPath + path]++;
+					loadedFileList[currentPath + path].push_back(dir);
 
 					//if(unitParticleSystemType->hasTexture() == false) {
 						//Renderer::getInstance().endLastTexture(rsGame,true);
@@ -399,21 +399,21 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		const XmlNode *imageNode= parametersNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
 		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
+		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
 
 		//image cancel
 		const XmlNode *imageCancelNode= parametersNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
 		cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
+		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
 
 		//meeting point
 		const XmlNode *meetingPointNode= parametersNode->getChild("meeting-point");
 		meetingPoint= meetingPointNode->getAttribute("value")->getBoolValue();
-		if(meetingPoint){
+		if(meetingPoint) {
 			meetingPointImage= Renderer::getInstance().newTexture2D(rsGame);
 			meetingPointImage->load(meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath));
-			loadedFileList[meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath)]++;
+			loadedFileList[meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath)].push_back(currentPath);
 		}
 
 		//selection sounds
@@ -425,7 +425,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
-				loadedFileList[path]++;
+				loadedFileList[path].push_back(currentPath);
 				selectionSounds[i]= sound;
 			}
 		}
@@ -439,7 +439,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
-				loadedFileList[path]++;
+				loadedFileList[path].push_back(currentPath);
 				commandSounds[i]= sound;
 			}
 		}

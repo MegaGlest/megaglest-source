@@ -49,7 +49,7 @@ void UpgradeType::preLoad(const string &dir){
 
 void UpgradeType::load(const string &dir, const TechTree *techTree,
 		const FactionType *factionType, Checksum* checksum,
-		Checksum* techtreeChecksum, std::map<string,int> &loadedFileList) {
+		Checksum* techtreeChecksum, std::map<string,vector<string> > &loadedFileList) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Logger::getInstance().add("Upgrade type: "+ formatString(name), true);
@@ -64,20 +64,28 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 
 		XmlTree xmlTree;
 		xmlTree.load(path);
-		loadedFileList[path]++;
+		loadedFileList[path].push_back(currentPath);
 		const XmlNode *upgradeNode= xmlTree.getRootNode();
 
 		//image
 		const XmlNode *imageNode= upgradeNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
-		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
+		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true));
+		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(currentPath);
+
+		//if(fileExists(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)) == false) {
+		//	printf("\n***ERROR MISSING FILE [%s]\n",imageNode->getAttribute("path")->getRestrictedValue(currentPath,true).c_str());
+		//}
 
 		//image cancel
 		const XmlNode *imageCancelNode= upgradeNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
-		cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
+		cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true));
+		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(currentPath);
+
+		//if(fileExists(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)) == false) {
+		//	printf("\n***ERROR MISSING FILE [%s]\n",imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true).c_str());
+		//}
 
 		//upgrade time
 		const XmlNode *upgradeTimeNode= upgradeNode->getChild("time");

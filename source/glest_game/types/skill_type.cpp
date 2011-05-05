@@ -42,7 +42,7 @@ SkillType::~SkillType() {
 }
 
 void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
-		const FactionType *ft, std::map<string,int> &loadedFileList) {
+		const FactionType *ft, std::map<string,vector<string> > &loadedFileList) {
 	//name
 	name= sn->getChild("name")->getAttribute("value")->getRestrictedValue();
 
@@ -67,8 +67,8 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 
 	string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue(currentPath);
 	animation= Renderer::getInstance().newModel(rsGame);
-	animation->load(path, false, &loadedFileList);
-	loadedFileList[path]++;
+	animation->load(path, false, &loadedFileList, &currentPath);
+	loadedFileList[path].push_back(currentPath);
 
 	//particles
 	if(sn->hasChild("particles")) {
@@ -81,7 +81,7 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
 				unitParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance(),
 						loadedFileList);
-				loadedFileList[currentPath + path]++;
+				loadedFileList[currentPath + path].push_back(currentPath);
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
 		}
@@ -98,7 +98,7 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 
 			StaticSound *sound= new StaticSound();
 			sound->load(path);
-			loadedFileList[path]++;
+			loadedFileList[path].push_back(currentPath);
 			sounds[i]= sound;
 		}
 	}
@@ -192,7 +192,7 @@ AttackSkillType::~AttackSkillType() {
 }
 
 void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
-		const FactionType *ft, std::map<string,int> &loadedFileList) {
+		const FactionType *ft, std::map<string,vector<string> > &loadedFileList) {
     SkillType::load(sn, dir, tt, ft, loadedFileList);
 
 	string currentPath = dir;
@@ -263,7 +263,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
-				loadedFileList[path]++;
+				loadedFileList[path].push_back(currentPath);
 				projSounds[i]= sound;
 			}
 		}
@@ -406,7 +406,7 @@ DieSkillType::DieSkillType(){
 }
 
 void DieSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
-		const FactionType *ft, std::map<string,int> &loadedFileList) {
+		const FactionType *ft, std::map<string,vector<string> > &loadedFileList) {
 	SkillType::load(sn, dir, tt, ft, loadedFileList);
 
 	fade= sn->getChild("fade")->getAttribute("value")->getBoolValue();

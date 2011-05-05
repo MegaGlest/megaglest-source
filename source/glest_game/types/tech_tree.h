@@ -46,9 +46,9 @@ private:
 
 public:
     Checksum loadTech(const vector<string> pathList, const string &techName,
-    		set<string> &factions, Checksum* checksum, std::map<string,int> &loadedFileList);
+    		set<string> &factions, Checksum* checksum, std::map<string,vector<string> > &loadedFileList);
     void load(const string &dir, set<string> &factions, Checksum* checksum,
-    		Checksum *techtreeChecksum, std::map<string,int> &loadedFileList);
+    		Checksum *techtreeChecksum, std::map<string,vector<string> > &loadedFileList);
     ~TechTree();
     Checksum * getChecksumValue() { return &checksumValue; }
 

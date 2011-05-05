@@ -79,7 +79,7 @@ public:
 	void preLoad(const string &dir);
     void load(const string &dir, const TechTree *techTree,
     		const FactionType *factionType, Checksum* checksum,
-    		Checksum* techtreeChecksum, std::map<string,int> &loadedFileList);
+    		Checksum* techtreeChecksum, std::map<string,vector<string> > &loadedFileList);
 
     //get all
 	int getEffectCount() const				{return effects.size();}
