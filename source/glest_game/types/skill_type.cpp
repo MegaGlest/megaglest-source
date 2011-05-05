@@ -62,12 +62,13 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 	animSpeed= sn->getChild("anim-speed")->getAttribute("value")->getIntValue();
 
 	//model
-	string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue();
-	animation= Renderer::getInstance().newModel(rsGame);
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
-	animation->load(currentPath + path, false, &loadedFileList);
-	loadedFileList[currentPath + path]++;
+
+	string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue(currentPath);
+	animation= Renderer::getInstance().newModel(rsGame);
+	animation->load(path, false, &loadedFileList);
+	loadedFileList[path]++;
 
 	//particles
 	if(sn->hasChild("particles")) {
@@ -93,12 +94,11 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 		sounds.resize(soundNode->getChildCount());
 		for(int i = 0; i < soundNode->getChildCount(); ++i) {
 			const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-			string path= soundFileNode->getAttribute("path")->getRestrictedValue();
-			trimPathWithStartingSlash(path);
+			string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
 
 			StaticSound *sound= new StaticSound();
-			sound->load(currentPath + path);
-			loadedFileList[currentPath + path]++;
+			sound->load(path);
+			loadedFileList[path]++;
 			sounds[i]= sound;
 		}
 	}
@@ -259,12 +259,11 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 			projSounds.resize(soundNode->getChildCount());
 			for(int i=0; i<soundNode->getChildCount(); ++i){
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-				string path= soundFileNode->getAttribute("path")->getRestrictedValue();
-				trimPathWithStartingSlash(path);
+				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
 
 				StaticSound *sound= new StaticSound();
-				sound->load(currentPath + path);
-				loadedFileList[currentPath + path]++;
+				sound->load(path);
+				loadedFileList[path]++;
 				projSounds[i]= sound;
 			}
 		}

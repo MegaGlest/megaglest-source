@@ -21,14 +21,16 @@
 #include "util.h"
 #include "types.h"
 #include "properties.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 
 XERCES_CPP_NAMESPACE_USE
 
 using namespace std;
+using namespace Shared::PlatformCommon;
 
-namespace Shared{ namespace Xml{
+namespace Shared { namespace Xml {
 
 using namespace Util;
 
@@ -428,15 +430,18 @@ float XmlAttribute::getFloatValue(float min, float max) const{
 	return f;
 }
 
-const string XmlAttribute::getValue(string prefixValue) const {
+const string XmlAttribute::getValue(string prefixValue, bool trimValueWithStartingSlash) const {
 	string result = value;
 	if(skipRestrictionCheck == false && usesCommondata == false) {
-		result = prefixValue + value;
+		if(trimValueWithStartingSlash == true) {
+			trimPathWithStartingSlash(result);
+		}
+		result = prefixValue + result;
 	}
 	return result;
 }
 
-const string XmlAttribute::getRestrictedValue(string prefixValue) const {
+const string XmlAttribute::getRestrictedValue(string prefixValue, bool trimValueWithStartingSlash) const {
 	if(skipRestrictionCheck == false && usesCommondata == false) {
 		const string allowedCharacters = "abcdefghijklmnopqrstuvwxyz1234567890._-/";
 
@@ -451,7 +456,10 @@ const string XmlAttribute::getRestrictedValue(string prefixValue) const {
 
 	string result = value;
 	if(skipRestrictionCheck == false && usesCommondata == false) {
-		result = prefixValue + value;
+		if(trimValueWithStartingSlash == true) {
+			trimPathWithStartingSlash(result);
+		}
+		result = prefixValue + result;
 	}
 	return result;
 }

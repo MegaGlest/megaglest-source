@@ -56,8 +56,8 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
-	image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
-	loadedFileList[currentPath + imageNode->getAttribute("path")->getRestrictedValue()]++;
+	image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
+	loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
 
 	//unit requirements
 	const XmlNode *unitRequirementsNode= n->getChild("unit-requirements");
@@ -390,15 +390,14 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 		startSounds.resize(startSoundNode->getChildCount());
 		for(int i=0; i<startSoundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= startSoundNode->getChild("sound-file", i);
-			string path= soundFileNode->getAttribute("path")->getRestrictedValue();
-			trimPathWithStartingSlash(path);
+			string currentPath = dir;
+			endPathWithSlash(currentPath);
+			string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath,true);
 
 			StaticSound *sound= new StaticSound();
 
-			string currentPath = dir;
-			endPathWithSlash(currentPath);
-			sound->load(currentPath + path);
-			loadedFileList[currentPath + path]++;
+			sound->load(path);
+			loadedFileList[path]++;
 			startSounds[i]= sound;
 		}
 	}
@@ -409,15 +408,14 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 		builtSounds.resize(builtSoundNode->getChildCount());
 		for(int i=0; i<builtSoundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= builtSoundNode->getChild("sound-file", i);
-			string path= soundFileNode->getAttribute("path")->getRestrictedValue();
-			trimPathWithStartingSlash(path);
+			string currentPath = dir;
+			endPathWithSlash(currentPath);
+			string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath,true);
 
 			StaticSound *sound= new StaticSound();
 
-			string currentPath = dir;
-			endPathWithSlash(currentPath);
-			sound->load(currentPath + path);
-			loadedFileList[currentPath + path]++;
+			sound->load(path);
+			loadedFileList[path]++;
 			builtSounds[i]= sound;
 		}
 	}

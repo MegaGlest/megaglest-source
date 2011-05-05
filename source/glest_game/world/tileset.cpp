@@ -39,64 +39,76 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode,
 	const XmlNode *dayNode= xmlNode->getChild("day-sound");
 	enabledDay= dayNode->getAttribute("enabled")->getBoolValue();
 	if(enabledDay) {
-		path= dayNode->getAttribute("path")->getRestrictedValue();
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
-		day.open(currentPath + path);
+
+		path= dayNode->getAttribute("path")->getRestrictedValue(currentPath);
+		day.open(path);
+		loadedFileList[path]++;
+
 		alwaysPlayDay= dayNode->getAttribute("play-always")->getBoolValue();
 	}
 
 	//night
 	const XmlNode *nightNode= xmlNode->getChild("night-sound");
 	enabledNight= nightNode->getAttribute("enabled")->getBoolValue();
-	if(enabledNight){
-		path= nightNode->getAttribute("path")->getRestrictedValue();
+	if(enabledNight) {
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
-		night.open(currentPath + path);
+
+		path= nightNode->getAttribute("path")->getRestrictedValue(currentPath);
+		night.open(path);
+		loadedFileList[path]++;
+
 		alwaysPlayNight= nightNode->getAttribute("play-always")->getBoolValue();
 	}
 
 	//rain
 	const XmlNode *rainNode= xmlNode->getChild("rain-sound");
 	enabledRain= rainNode->getAttribute("enabled")->getBoolValue();
-	if(enabledRain){
-		path= rainNode->getAttribute("path")->getRestrictedValue();
+	if(enabledRain) {
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
-		rain.open(currentPath + path);
+
+		path= rainNode->getAttribute("path")->getRestrictedValue(currentPath);
+		rain.open(path);
+		loadedFileList[path]++;
 	}
 
 	//snow
 	const XmlNode *snowNode= xmlNode->getChild("snow-sound");
 	enabledSnow= snowNode->getAttribute("enabled")->getBoolValue();
-	if(enabledSnow){
-		path= snowNode->getAttribute("path")->getRestrictedValue();
+	if(enabledSnow) {
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
-		snow.open(currentPath + path);
+
+		path= snowNode->getAttribute("path")->getRestrictedValue(currentPath);
+		snow.open(path);
+		loadedFileList[path]++;
 	}
 
 	//dayStart
 	const XmlNode *dayStartNode= xmlNode->getChild("day-start-sound");
 	enabledDayStart= dayStartNode->getAttribute("enabled")->getBoolValue();
-	if(enabledDayStart){
-		path= dayStartNode->getAttribute("path")->getRestrictedValue();
+	if(enabledDayStart) {
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
-		dayStart.load(currentPath + path);
-		loadedFileList[currentPath + path]++;
+
+		path= dayStartNode->getAttribute("path")->getRestrictedValue(currentPath);
+		dayStart.load(path);
+		loadedFileList[path]++;
 	}
 
 	//nightStart
 	const XmlNode *nightStartNode= xmlNode->getChild("night-start-sound");
 	enabledNightStart= nightStartNode->getAttribute("enabled")->getBoolValue();
-	if(enabledNightStart){
-		path= nightStartNode->getAttribute("path")->getRestrictedValue();
+	if(enabledNightStart) {
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
-		nightStart.load(currentPath + path);
-		loadedFileList[currentPath + path]++;
+
+		path= nightStartNode->getAttribute("path")->getRestrictedValue(currentPath);
+		nightStart.load(path);
+		loadedFileList[path]++;
 	}
 }
 
@@ -173,8 +185,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			for(int j=0; j<childCount; ++j){
 				const XmlNode *textureNode= surfaceNode->getChild("texture", j);
 				surfPixmaps[i][j].init(3);
-				surfPixmaps[i][j].load(currentPath + textureNode->getAttribute("path")->getRestrictedValue());
-				loadedFileList[currentPath + textureNode->getAttribute("path")->getRestrictedValue()]++;
+				surfPixmaps[i][j].load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+				loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
 
 				surfProbs[i][j]= textureNode->getAttribute("prob")->getFloatValue();
 			}
@@ -201,8 +213,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			for(int j=0; j<childCount; ++j) {
 				const XmlNode *modelNode= objectNode->getChild("model", j);
 				const XmlAttribute *pathAttribute= modelNode->getAttribute("path");
-				objectTypes[i].loadModel(currentPath + pathAttribute->getRestrictedValue(),&loadedFileList);
-				loadedFileList[currentPath + pathAttribute->getRestrictedValue()]++;
+				objectTypes[i].loadModel(pathAttribute->getRestrictedValue(currentPath),&loadedFileList);
+				loadedFileList[pathAttribute->getRestrictedValue(currentPath)]++;
 
 				if(modelNode->hasChild("particles")){
 					const XmlNode *particleNode= modelNode->getChild("particles");
@@ -249,8 +261,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		waterTex->getPixmap()->init(waterFrameCount, 4);
 		for(int i=0; i<waterFrameCount; ++i){
 			const XmlNode *waterFrameNode= waterNode->getChild("texture", i);
-			waterTex->getPixmap()->loadSlice(currentPath + waterFrameNode->getAttribute("path")->getRestrictedValue(), i);
-			loadedFileList[currentPath + waterFrameNode->getAttribute("path")->getRestrictedValue()]++;
+			waterTex->getPixmap()->loadSlice(waterFrameNode->getAttribute("path")->getRestrictedValue(currentPath), i);
+			loadedFileList[waterFrameNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

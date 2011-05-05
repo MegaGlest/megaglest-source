@@ -144,14 +144,14 @@ public:
 
 public:
 	const string getName() const	{return name;}
-	const string getValue(string prefixValue="") const;
+	const string getValue(string prefixValue="", bool trimValueWithStartingSlash=false) const;
 
 	bool getBoolValue() const;
 	int getIntValue() const;
 	int getIntValue(int min, int max) const;
 	float getFloatValue() const;
 	float getFloatValue(float min, float max) const;
-	const string getRestrictedValue(string prefixValue="") const;
+	const string getRestrictedValue(string prefixValue="", bool trimValueWithStartingSlash=false) const;
 };
 
 
