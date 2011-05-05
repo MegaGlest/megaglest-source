@@ -127,10 +127,12 @@ private:
 //	class XmlAttribute
 // =====================================================
 
-class XmlAttribute{
+class XmlAttribute {
 private:
 	string value;
 	string name;
+	bool skipRestrictionCheck;
+	bool usesCommondata;
 
 private:
 	XmlAttribute(XmlAttribute&);
@@ -141,15 +143,15 @@ public:
 	XmlAttribute(const string &name, const string &value);
 
 public:
-	const string &getName() const	{return name;}
-	const string &getValue() const	{return value;}
+	const string getName() const	{return name;}
+	const string getValue(string prefixValue="") const;
 
 	bool getBoolValue() const;
 	int getIntValue() const;
 	int getIntValue(int min, int max) const;
 	float getFloatValue() const;
 	float getFloatValue(float min, float max) const;
-	const string &getRestrictedValue() const;
+	const string getRestrictedValue(string prefixValue="") const;
 };
 
 

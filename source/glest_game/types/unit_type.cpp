@@ -398,22 +398,22 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		//image
 		const XmlNode *imageNode= parametersNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
-		image->load(currentPath + imageNode->getAttribute("path")->getRestrictedValue());
-		loadedFileList[currentPath + imageNode->getAttribute("path")->getRestrictedValue()]++;
+		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
+		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
 
 		//image cancel
 		const XmlNode *imageCancelNode= parametersNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
-		cancelImage->load(currentPath + imageCancelNode->getAttribute("path")->getRestrictedValue());
-		loadedFileList[currentPath + imageCancelNode->getAttribute("path")->getRestrictedValue()]++;
+		cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath));
+		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
 
 		//meeting point
 		const XmlNode *meetingPointNode= parametersNode->getChild("meeting-point");
 		meetingPoint= meetingPointNode->getAttribute("value")->getBoolValue();
 		if(meetingPoint){
 			meetingPointImage= Renderer::getInstance().newTexture2D(rsGame);
-			meetingPointImage->load(currentPath + meetingPointNode->getAttribute("image-path")->getRestrictedValue());
-			loadedFileList[currentPath + meetingPointNode->getAttribute("image-path")->getRestrictedValue()]++;
+			meetingPointImage->load(meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath));
+			loadedFileList[meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath)]++;
 		}
 
 		//selection sounds
@@ -422,10 +422,10 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			selectionSounds.resize(selectionSoundNode->getChildCount());
 			for(int i=0; i<selectionSounds.getSounds().size(); ++i){
 				const XmlNode *soundNode= selectionSoundNode->getChild("sound", i);
-				string path= soundNode->getAttribute("path")->getRestrictedValue();
+				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
 				StaticSound *sound= new StaticSound();
-				sound->load(currentPath + path);
-				loadedFileList[currentPath + path]++;
+				sound->load(path);
+				loadedFileList[path]++;
 				selectionSounds[i]= sound;
 			}
 		}
@@ -436,10 +436,10 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			commandSounds.resize(commandSoundNode->getChildCount());
 			for(int i=0; i<commandSoundNode->getChildCount(); ++i){
 				const XmlNode *soundNode= commandSoundNode->getChild("sound", i);
-				string path= soundNode->getAttribute("path")->getRestrictedValue();
+				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
 				StaticSound *sound= new StaticSound();
-				sound->load(currentPath + path);
-				loadedFileList[currentPath + path]++;
+				sound->load(path);
+				loadedFileList[path]++;
 				commandSounds[i]= sound;
 			}
 		}

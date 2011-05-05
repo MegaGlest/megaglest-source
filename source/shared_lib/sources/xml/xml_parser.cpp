@@ -20,6 +20,7 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include "util.h"
 #include "types.h"
+#include "properties.h"
 #include "leak_dumper.h"
 
 
@@ -180,8 +181,7 @@ XmlTree::~XmlTree(){
 //	class XmlNode
 // =====================================================
 
-XmlNode::XmlNode(DOMNode *node){
-
+XmlNode::XmlNode(DOMNode *node) {
     if(node == NULL || node->getNodeName() == NULL) {
         throw runtime_error("XML structure seems to be corrupt!");
     }
@@ -212,7 +212,7 @@ XmlNode::XmlNode(DOMNode *node){
 	if(domAttributes != NULL) {
 		for(unsigned int i = 0; i < domAttributes->getLength(); ++i) {
 			DOMNode *currentNode= domAttributes->item(i);
-			if(currentNode->getNodeType()==DOMNode::ATTRIBUTE_NODE){
+			if(currentNode->getNodeType() == DOMNode::ATTRIBUTE_NODE) {
 				XmlAttribute *xmlAttribute= new XmlAttribute(domAttributes->item(i));
 				attributes.push_back(xmlAttribute);
 			}
@@ -223,33 +223,34 @@ XmlNode::XmlNode(DOMNode *node){
 	if(node->getNodeType() == DOMNode::ELEMENT_NODE && children.size() == 0) {
 		char *textStr= XMLString::transcode(node->getTextContent());
 		text= textStr;
+		//Properties::applyTagsToValue(this->text);
 		XMLString::release(&textStr);
 	}
 }
 
-XmlNode::XmlNode(const string &name){
+XmlNode::XmlNode(const string &name) {
 	this->name= name;
 }
 
-XmlNode::~XmlNode(){
-	for(unsigned int i=0; i<children.size(); ++i){
+XmlNode::~XmlNode() {
+	for(unsigned int i=0; i<children.size(); ++i) {
 		delete children[i];
 	}
-	for(unsigned int i=0; i<attributes.size(); ++i){
+	for(unsigned int i=0; i<attributes.size(); ++i) {
 		delete attributes[i];
 	}
 }
 
-XmlAttribute *XmlNode::getAttribute(unsigned int i) const{
-	if(i>=attributes.size()){
+XmlAttribute *XmlNode::getAttribute(unsigned int i) const {
+	if(i >= attributes.size()) {
 		throw runtime_error(getName()+" node doesn't have "+intToStr(i)+" attributes");
 	}
 	return attributes[i];
 }
 
 XmlAttribute *XmlNode::getAttribute(const string &name,bool mustExist) const {
-	for(unsigned int i=0; i<attributes.size(); ++i){
-		if(attributes[i]->getName()==name){
+	for(unsigned int i = 0; i < attributes.size(); ++i) {
+		if(attributes[i]->getName() == name) {
 			return attributes[i];
 		}
 	}
@@ -261,8 +262,9 @@ XmlAttribute *XmlNode::getAttribute(const string &name,bool mustExist) const {
 }
 
 XmlNode *XmlNode::getChild(unsigned int i) const {
-	if(i>=children.size())
+	if(i >= children.size()) {
 		throw runtime_error("\"" + getName()+"\" node doesn't have "+intToStr(i+1)+" children");
+	}
 	return children[i];
 }
 
@@ -273,9 +275,9 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
 	}
 
 	int count= 0;
-	for(unsigned int j=0; j<children.size(); ++j){
-		if(children[j]->getName()==childName){
-			if(count==i){
+	for(unsigned int j = 0; j < children.size(); ++j) {
+		if(children[j]->getName() == childName) {
+			if(count == i) {
 				return children[j];
 			}
 			count++;
@@ -285,14 +287,11 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
 	throw runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(i+1)+" children named  \""+childName+"\"\n\nTree: "+getTreeString());
 }
 
-bool XmlNode::hasChildAtIndex(const string &childName, int i) const
-{
+bool XmlNode::hasChildAtIndex(const string &childName, int i) const {
 	int count= 0;
-	for(unsigned int j = 0; j < children.size(); ++j)
-	{
-		if(children[j]->getName()==childName)
-		{
-            if(count==i){
+	for(unsigned int j = 0; j < children.size(); ++j) {
+		if(children[j]->getName()==childName) {
+            if(count == i) {
 				return true;
 			}
 			count++;
@@ -303,13 +302,10 @@ bool XmlNode::hasChildAtIndex(const string &childName, int i) const
 }
 
 
-bool XmlNode::hasChild(const string &childName) const
-{
+bool XmlNode::hasChild(const string &childName) const {
 	int count= 0;
-	for(unsigned int j = 0; j < children.size(); ++j)
-	{
-		if(children[j]->getName()==childName)
-		{
+	for(unsigned int j = 0; j < children.size(); ++j) {
+		if(children[j]->getName() == childName) {
             return true;
 		}
 	}
@@ -323,7 +319,7 @@ XmlNode *XmlNode::addChild(const string &name){
 	return node;
 }
 
-XmlAttribute *XmlNode::addAttribute(const string &name, const string &value){
+XmlAttribute *XmlNode::addAttribute(const string &name, const string &value) {
 	XmlAttribute *attr= new XmlAttribute(name, value);
 	attributes.push_back(attr);
 	return attr;
@@ -352,14 +348,14 @@ DOMElement *XmlNode::buildElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *do
 	return node;
 }
 
-string XmlNode::getTreeString() const{
+string XmlNode::getTreeString() const {
 	string str;
 
 	str+= getName();
 
-	if(!children.empty()){
+	if(!children.empty()) {
 		str+= " (";
-		for(unsigned int i=0; i<children.size(); ++i){
+		for(unsigned int i=0; i<children.size(); ++i) {
 			str+= children[i]->getTreeString();
 			str+= " ";
 		}
@@ -373,38 +369,46 @@ string XmlNode::getTreeString() const{
 //	class XmlAttribute
 // =====================================================
 
-XmlAttribute::XmlAttribute(DOMNode *attribute){
-	char str[strSize];
+XmlAttribute::XmlAttribute(DOMNode *attribute) {
+	skipRestrictionCheck = false;
+	usesCommondata = false;
+	char str[strSize]="";
 
 	XMLString::transcode(attribute->getNodeValue(), str, strSize-1);
 	value= str;
+	usesCommondata = ((value.find("$COMMONDATAPATH") != string::npos) || (value.find("%%COMMONDATAPATH%%") != string::npos));
+	skipRestrictionCheck = Properties::applyTagsToValue(this->value);
 
 	XMLString::transcode(attribute->getNodeName(), str, strSize-1);
 	name= str;
 }
 
-XmlAttribute::XmlAttribute(const string &name, const string &value){
+XmlAttribute::XmlAttribute(const string &name, const string &value) {
+	skipRestrictionCheck = false;
+	usesCommondata = false;
 	this->name= name;
 	this->value= value;
+	usesCommondata = ((value.find("$COMMONDATAPATH") != string::npos) || (value.find("%%COMMONDATAPATH%%") != string::npos));
+	skipRestrictionCheck = Properties::applyTagsToValue(this->value);
 }
 
-bool XmlAttribute::getBoolValue() const{
-	if(value=="true"){
+bool XmlAttribute::getBoolValue() const {
+	if(value == "true") {
 		return true;
 	}
-	else if(value=="false"){
+	else if(value == "false") {
 		return false;
 	}
-	else{
+	else {
 		throw runtime_error("Not a valid bool value (true or false): " +getName()+": "+ value);
 	}
 }
 
-int XmlAttribute::getIntValue() const{
+int XmlAttribute::getIntValue() const {
 	return strToInt(value);
 }
 
-int XmlAttribute::getIntValue(int min, int max) const{
+int XmlAttribute::getIntValue(int min, int max) const {
 	int i= strToInt(value);
 	if(i<min || i>max){
 		throw runtime_error("Xml Attribute int out of range: " + getName() + ": " + value);
@@ -424,19 +428,32 @@ float XmlAttribute::getFloatValue(float min, float max) const{
 	return f;
 }
 
-const string &XmlAttribute::getRestrictedValue() const
-{
-	const string allowedCharacters = "abcdefghijklmnopqrstuvwxyz1234567890._-/";
+const string XmlAttribute::getValue(string prefixValue) const {
+	string result = value;
+	if(skipRestrictionCheck == false && usesCommondata == false) {
+		result = prefixValue + value;
+	}
+	return result;
+}
 
-	for(unsigned int i= 0; i<value.size(); ++i){
-		if(allowedCharacters.find(value[i])==string::npos){
-			throw runtime_error(
-				string("The string \"" + value + "\" contains a character that is not allowed: \"") + value[i] +
-				"\"\nFor portability reasons the only allowed characters in this field are: " + allowedCharacters);
+const string XmlAttribute::getRestrictedValue(string prefixValue) const {
+	if(skipRestrictionCheck == false && usesCommondata == false) {
+		const string allowedCharacters = "abcdefghijklmnopqrstuvwxyz1234567890._-/";
+
+		for(unsigned int i= 0; i<value.size(); ++i){
+			if(allowedCharacters.find(value[i])==string::npos){
+				throw runtime_error(
+					string("The string \"" + value + "\" contains a character that is not allowed: \"") + value[i] +
+					"\"\nFor portability reasons the only allowed characters in this field are: " + allowedCharacters);
+			}
 		}
 	}
 
-	return value;
+	string result = value;
+	if(skipRestrictionCheck == false && usesCommondata == false) {
+		result = prefixValue + value;
+	}
+	return result;
 }
 
 }}//end namespace

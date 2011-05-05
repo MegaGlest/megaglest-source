@@ -106,7 +106,6 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 
 bool Properties::applyTagsToValue(string &value) {
 	string originalValue = value;
-
 	char *homeDir = NULL;
 #ifdef WIN32
 	homeDir = getenv("USERPROFILE");
@@ -144,11 +143,19 @@ bool Properties::applyTagsToValue(string &value) {
 #if defined(CUSTOM_DATA_INSTALL_PATH)
 	replaceAll(value, "$APPLICATIONDATAPATH", 		CUSTOM_DATA_INSTALL_PATH);
 	replaceAll(value, "%%APPLICATIONDATAPATH%%",	CUSTOM_DATA_INSTALL_PATH);
+
+	replaceAll(value, "$COMMONDATAPATH", 	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
+	replaceAll(value, "%%COMMONDATAPATH%%",	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
+
 #else
 	replaceAll(value, "$APPLICATIONDATAPATH", 		Properties::applicationPath);
 	replaceAll(value, "%%APPLICATIONDATAPATH%%",	Properties::applicationPath);
+
+	replaceAll(value, "$COMMONDATAPATH", 	Properties::applicationPath + "/commondata/");
+	replaceAll(value, "%%COMMONDATAPATH%%",	Properties::applicationPath + "/commondata/");
 #endif
 
+	//printf("\nBEFORE SUBSTITUTE [%s] AFTER [%s]\n",originalValue.c_str(),value.c_str());
 	return (originalValue != value);
 }
 
