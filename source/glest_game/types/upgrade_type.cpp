@@ -57,6 +57,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
 	string path = currentPath + name + ".xml";
+	string sourceXMLFile = path;
 
 	try{
 		checksum->addFile(path);
@@ -71,7 +72,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		const XmlNode *imageNode= upgradeNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
 		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true));
-		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(currentPath);
+		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(sourceXMLFile);
 
 		//if(fileExists(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)) == false) {
 		//	printf("\n***ERROR MISSING FILE [%s]\n",imageNode->getAttribute("path")->getRestrictedValue(currentPath,true).c_str());
@@ -81,7 +82,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		const XmlNode *imageCancelNode= upgradeNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
 		cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true));
-		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(currentPath);
+		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(sourceXMLFile);
 
 		//if(fileExists(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)) == false) {
 		//	printf("\n***ERROR MISSING FILE [%s]\n",imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true).c_str());

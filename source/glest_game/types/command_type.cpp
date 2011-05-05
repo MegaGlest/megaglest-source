@@ -44,7 +44,8 @@ CommandClass CommandType::getClass() const{
 
 void CommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList,
+		string parentLoader) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->id= id;
@@ -57,7 +58,7 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
 	image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
-	loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
+	loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(parentLoader);
 
 	//unit requirements
 	const XmlNode *unitRequirementsNode= n->getChild("unit-requirements");
@@ -112,8 +113,8 @@ string StopCommandType::toString() const{
 
 void StopCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList,string parentLoader) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList,parentLoader);
 
 	//stop
    	string skillName= n->getChild("stop-skill")->getAttribute("value")->getRestrictedValue();
@@ -137,8 +138,9 @@ void MoveCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameInde
 
 void MoveCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList,
+		string parentLoader) {
+    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList,parentLoader);
 
 	//move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -186,8 +188,9 @@ void AttackCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIn
 
 void AttackCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList,
+		string parentLoader) {
+    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList,parentLoader);
 
     //move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -278,8 +281,8 @@ void AttackStoppedCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int 
 
 void AttackStoppedCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList,string parentLoader) {
+    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList,parentLoader);
 
 	//stop
    	string skillName= n->getChild("stop-skill")->getAttribute("value")->getRestrictedValue();
@@ -365,8 +368,8 @@ void BuildCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameInd
 
 void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList, string parentLoader) {
+    CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
 
 	//move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -397,7 +400,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 			StaticSound *sound= new StaticSound();
 
 			sound->load(path);
-			loadedFileList[path].push_back(currentPath);
+			loadedFileList[path].push_back(parentLoader);
 			startSounds[i]= sound;
 		}
 	}
@@ -415,7 +418,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 			StaticSound *sound= new StaticSound();
 
 			sound->load(path);
-			loadedFileList[path].push_back(currentPath);
+			loadedFileList[path].push_back(parentLoader);
 			builtSounds[i]= sound;
 		}
 	}
@@ -460,8 +463,8 @@ void HarvestCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameI
 
 void HarvestCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList, string parentLoader) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
 
 	//move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -541,8 +544,8 @@ void RepairCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIn
 
 void RepairCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList, string parentLoader) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
 
 	//move
    	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
@@ -614,8 +617,8 @@ void ProduceCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameI
 
 void ProduceCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList, string parentLoader) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
 
 	//produce
    	string skillName= n->getChild("produce-skill")->getAttribute("value")->getRestrictedValue();
@@ -679,9 +682,9 @@ void UpgradeCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameI
 
 void UpgradeCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList, string parentLoader) {
 
-	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
 
 	//upgrade
    	string skillName= n->getChild("upgrade-skill")->getAttribute("value")->getRestrictedValue();
@@ -736,8 +739,8 @@ void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameInd
 
 void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
 		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-		std::map<string,vector<string> > &loadedFileList) {
-	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList);
+		std::map<string,vector<string> > &loadedFileList, string parentLoader) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
 
 	//morph skill
    	string skillName= n->getChild("morph-skill")->getAttribute("value")->getRestrictedValue();

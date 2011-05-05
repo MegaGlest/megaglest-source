@@ -61,6 +61,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
 		path= currentPath + name + ".xml";
+		string sourceXMLFile = path;
 		checksum->addFile(path);
 		techtreeChecksum->addFile(path);
 
@@ -75,7 +76,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		const XmlNode *imageNode= resourceNode->getChild("image");
 		image= renderer.newTexture2D(rsGame);
 		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
+		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(sourceXMLFile);
 
 		//type
 		const XmlNode *typeNode= resourceNode->getChild("type");
@@ -90,8 +91,8 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
                 string modelPath= modelNode->getAttribute("path")->getRestrictedValue(currentPath);
 
                 model= renderer.newModel(rsGame);
-                model->load(modelPath, false, &loadedFileList, &currentPath);
-                loadedFileList[modelPath].push_back(currentPath);
+                model->load(modelPath, false, &loadedFileList, &sourceXMLFile);
+                loadedFileList[modelPath].push_back(sourceXMLFile);
 
                 if(modelNode->hasChild("particles")){
 					const XmlNode *particleNode= modelNode->getChild("particles");
@@ -103,8 +104,8 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
 							objectParticleSystemType->load(dir,  currentPath + particlePath,
-									&Renderer::getInstance(), loadedFileList);
-							loadedFileList[currentPath + particlePath].push_back(currentPath);
+									&Renderer::getInstance(), loadedFileList, sourceXMLFile);
+							loadedFileList[currentPath + particlePath].push_back(sourceXMLFile);
 
 							particleTypes.push_back(objectParticleSystemType);
 						}

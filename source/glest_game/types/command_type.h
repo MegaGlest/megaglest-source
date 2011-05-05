@@ -83,7 +83,7 @@ public:
     virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const= 0;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const= 0;
 	virtual string toString() const= 0;
 	virtual const ProducibleType *getProduced() const	{return NULL;}
@@ -117,7 +117,8 @@ public:
     StopCommandType();
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
-    		const FactionType *ft, const UnitType &ut, std::map<string,vector<string> > &loadedFileList);
+    		const FactionType *ft, const UnitType &ut, std::map<string,vector<string> > &loadedFileList,
+    		string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual Queueability isQueuable() const						{return qNever;}
@@ -140,7 +141,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -163,7 +164,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -187,7 +188,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -215,7 +216,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -248,7 +249,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual Queueability isQueuable() const						{return qOnRequest;}
@@ -282,7 +283,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 
@@ -311,7 +312,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
     virtual string getReqDesc() const;
 	virtual string toString() const;
@@ -339,7 +340,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual string getReqDesc() const;
@@ -367,7 +368,7 @@ public:
 	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<string> > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
 	virtual string getReqDesc() const;
