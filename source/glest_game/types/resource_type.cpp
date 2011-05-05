@@ -46,7 +46,7 @@ ResourceType::~ResourceType(){
 }
 
 void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtreeChecksum,
-		std::map<string,int> &loadedFileList) {
+		std::map<string,vector<string> > &loadedFileList) {
 
 	string path, str;
 	Renderer &renderer= Renderer::getInstance();
@@ -67,7 +67,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		//tree
 		XmlTree xmlTree;
 		xmlTree.load(path);
-		loadedFileList[path]++;
+		loadedFileList[path].push_back(currentPath);
 
 		const XmlNode *resourceNode= xmlTree.getRootNode();
 
@@ -75,7 +75,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		const XmlNode *imageNode= resourceNode->getChild("image");
 		image= renderer.newTexture2D(rsGame);
 		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
+		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
 
 		//type
 		const XmlNode *typeNode= resourceNode->getChild("type");
@@ -90,8 +90,8 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
                 string modelPath= modelNode->getAttribute("path")->getRestrictedValue(currentPath);
 
                 model= renderer.newModel(rsGame);
-                model->load(modelPath, false, &loadedFileList);
-                loadedFileList[modelPath]++;
+                model->load(modelPath, false, &loadedFileList, &currentPath);
+                loadedFileList[modelPath].push_back(currentPath);
 
                 if(modelNode->hasChild("particles")){
 					const XmlNode *particleNode= modelNode->getChild("particles");
@@ -104,7 +104,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
 							objectParticleSystemType->load(dir,  currentPath + particlePath,
 									&Renderer::getInstance(), loadedFileList);
-							loadedFileList[currentPath + particlePath]++;
+							loadedFileList[currentPath + particlePath].push_back(currentPath);
 
 							particleTypes.push_back(objectParticleSystemType);
 						}

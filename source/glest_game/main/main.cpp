@@ -1296,7 +1296,7 @@ void runTechValidationForPath(string techPath, string techName,
 		if(factions.size() > 0) {
 			bool techtree_errors = false;
 
-			std::map<string,int> loadedFileList;
+			std::map<string,vector<string>  > loadedFileList;
 			//vector<string> pathList = config.getPathListForType(ptTechs,"");
 			vector<string> pathList;
 			pathList.push_back(techPath);
@@ -1304,8 +1304,8 @@ void runTechValidationForPath(string techPath, string techName,
 
 			// Fixup paths with ..
 			{
-				std::map<string,int> newLoadedFileList;
-				for( std::map<string,int>::iterator iterMap = loadedFileList.begin();
+				std::map<string,vector<string> > newLoadedFileList;
+				for( std::map<string,vector<string> >::iterator iterMap = loadedFileList.begin();
 					iterMap != loadedFileList.end(); ++iterMap) {
 					string loadedFile = iterMap->first;
 
@@ -1358,7 +1358,7 @@ void runTechValidationForPath(string techPath, string techName,
 			}
 
 			// Now check for unused files in the techtree
-			std::map<string,int> foundFileList;
+			std::map<string,vector<string> > foundFileList;
 			for(unsigned int i = 0; i < pathList.size(); ++i) {
 				string path = pathList[i];
 				endPathWithSlash(path);
@@ -1388,13 +1388,13 @@ void runTechValidationForPath(string techPath, string techName,
 					replaceAll(file,"//","/");
 					replaceAll(file,"\\\\","\\");
 
-					foundFileList[file]++;
+					foundFileList[file].push_back(path);
 				}
 			}
 
 			printf("Found techtree filecount = %lu, used = %lu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
 
-//                        for( std::map<string,int>::iterator iterMap = loadedFileList.begin();
+//                        for( std::map<string,vector<string> >::iterator iterMap = loadedFileList.begin();
 //                        	iterMap != loadedFileList.end(); ++iterMap) {
 //                        	string foundFile = iterMap->first;
 //
@@ -1405,7 +1405,7 @@ void runTechValidationForPath(string techPath, string techName,
 
 			int purgeCount = 0;
 			bool foundUnusedFile = false;
-			for( std::map<string,int>::iterator iterMap = foundFileList.begin();
+			for( std::map<string,vector<string> >::iterator iterMap = foundFileList.begin();
 				iterMap != foundFileList.end(); ++iterMap) {
 				string foundFile = iterMap->first;
 
@@ -1436,6 +1436,58 @@ void runTechValidationForPath(string techPath, string techName,
 					printf("Purged %.2f MB (%d) in files\n",purgedMegaBytes,purgeCount);
 				}
 				printf("\nWarning, unused files were detected - END:\n");
+			}
+
+			std::map<int32,vector<string> > mapDuplicateFiles;
+			// Now check for duplicate data content
+			for(std::map<string,vector<string> >::iterator iterMap = loadedFileList.begin();
+				iterMap != loadedFileList.end(); iterMap++) {
+				string fileName = iterMap->first;
+				Checksum checksum;
+				checksum.addFile(fileName);
+				int32 crcValue = checksum.getSum();
+				mapDuplicateFiles[crcValue].push_back(fileName);
+			}
+			double duplicateMegaBytes=0;
+			int duplicateCount=0;
+			bool foundDuplicates = false;
+			for(std::map<int32,vector<string> >::iterator iterMap = mapDuplicateFiles.begin();
+				iterMap != mapDuplicateFiles.end(); iterMap++) {
+				vector<string> &fileList = iterMap->second;
+				if(fileList.size() > 1) {
+					if(foundDuplicates == false) {
+						foundDuplicates = true;
+						printf("\nWarning, duplicate files were detected - START:\n=====================\n");
+					}
+
+					for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+						string duplicateFile = fileList[idx];
+						if(idx > 0) {
+							off_t fileSize = getFileSize(duplicateFile);
+							// convert to MB
+							duplicateMegaBytes += ((double)fileSize / 1048576.0);
+							duplicateCount++;
+						}
+						else {
+							printf("\n");
+						}
+
+						printf("[%s]\n",duplicateFile.c_str());
+//						std::map<string,vector<string> >::iterator iterFind = loadedFileList.find(duplicateFile);
+//						if(iterFind != loadedFileList.end()) {
+//							for(unsigned int jdx = 0; jdx < iterFind->second.size(); jdx++) {
+//								if(jdx == 0) {
+//									printf("\tParents:\n");
+//								}
+//								printf("\t[%s]\n",iterFind->second[jdx].c_str());
+//							}
+//						}
+					}
+				}
+			}
+			if(foundDuplicates == true) {
+				printf("Duplicates %.2f MB (%d) in files\n",duplicateMegaBytes,duplicateCount);
+				printf("\nWarning, duplicate files were detected - END:\n");
 			}
 
 			if(techtree_errors == false) {
@@ -2004,6 +2056,12 @@ int glestMain(int argc, char** argv) {
 //	else {
 //		printf("error %s opening resource\n", u_errorName(status));
 //	}
+
+    // TEST:
+    //string testfile = "/home/softcoder/Code/megaglest/trunk/mk/linux/techs/megapack/factions/egypt/units/desert_camp/../../upgrades/spear_weapons/images/piercing.bmp";
+    //updatePathClimbingParts(testfile);
+    //return -1;
+    //CHANGED relative path from [/home/softcoder/Code/megaglest/trunk/mk/linux/techs/megapack/factions/egypt/units/desert_camp/../../upgrades/spear_weapons/images/piercing.bmp] to [/home/softcoder/Code/megaglest/trunk/mk/linux/techs/megapack/factions/egypt/units/desert_camp/upgrades/spear_weapons/images/piercing.bmp]
 
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
 	for(int idx = 1; idx < argc; ++idx) {

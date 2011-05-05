@@ -38,9 +38,10 @@ ObjectType::~ObjectType(){
 	//Logger::getInstance().add("ObjectType", true);
 }
 
-void ObjectType::loadModel(const string &path, std::map<string,int> *loadedFileList) {
+void ObjectType::loadModel(const string &path, std::map<string,vector<string> > *loadedFileList,
+		string parentLoader) {
 	Model *model= Renderer::getInstance().newModel(rsGame);
-	model->load(path, false, loadedFileList);
+	model->load(path, false, loadedFileList, &parentLoader);
 	color= Vec3f(0.f);
 	if(model->getMeshCount()>0 && model->getMesh(0)->getTexture(0) != NULL) {
 		const Pixmap2D *p= model->getMesh(0)->getTexture(0)->getPixmapConst();
