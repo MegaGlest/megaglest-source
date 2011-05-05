@@ -152,8 +152,8 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		bool value= musicNode->getAttribute("value")->getBoolValue();
 		if(value) {
 			music= new StrSound();
-			music->open(currentPath + musicNode->getAttribute("path")->getRestrictedValue());
-			loadedFileList[currentPath + musicNode->getAttribute("path")->getRestrictedValue()]++;
+			music->open(musicNode->getAttribute("path")->getRestrictedValue(currentPath));
+			loadedFileList[musicNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

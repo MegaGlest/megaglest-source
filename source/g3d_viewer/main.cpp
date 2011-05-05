@@ -949,7 +949,7 @@ void MainWindow::loadUnit(string path, string skillName) {
 						foundSkillName = true;
 
 						if(sn->getChild("animation") != NULL) {
-							skillModelFile = unitPath + '/' + sn->getChild("animation")->getAttribute("path")->getRestrictedValue();
+							skillModelFile = sn->getChild("animation")->getAttribute("path")->getRestrictedValue(unitPath + '/');
 							printf("Found skill model [%s]\n",skillModelFile.c_str());
 						}
 
@@ -962,7 +962,7 @@ void MainWindow::loadUnit(string path, string skillName) {
 								const XmlNode *pf= particlesNode->getChild("particle-file");
 								if(pf != NULL) {
 									skillParticleFile = unitPath + '/' + pf->getAttribute("path")->getRestrictedValue();
-									printf("Found skill skill particle [%s]\n",skillParticleFile.c_str());
+									printf("Found skill particle [%s]\n",skillParticleFile.c_str());
 								}
 							}
 						}

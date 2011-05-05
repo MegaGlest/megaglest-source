@@ -57,8 +57,8 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 		}
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
-		texture->load(currentPath + textureNode->getAttribute("path")->getRestrictedValue());
-		loadedFileList[currentPath + textureNode->getAttribute("path")->getRestrictedValue()]++;
+		texture->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+		loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)]++;
 	}
 	else {
 		texture= NULL;
@@ -68,18 +68,18 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	if(particleSystemNode->hasChild("model")){
 		const XmlNode *modelNode= particleSystemNode->getChild("model");
 		bool modelEnabled= modelNode->getAttribute("value")->getBoolValue();
-		if(modelEnabled){
-			string path= modelNode->getAttribute("path")->getRestrictedValue();
-			model= renderer->newModel(rsGame);
-
+		if(modelEnabled) {
 			string currentPath = dir;
 			endPathWithSlash(currentPath);
 
-			model->load(currentPath + path, false, &loadedFileList);
-			loadedFileList[currentPath + path]++;
+			string path= modelNode->getAttribute("path")->getRestrictedValue(currentPath);
+			model= renderer->newModel(rsGame);
+
+			model->load(path, false, &loadedFileList);
+			loadedFileList[path]++;
 		}
 	}
-	else{
+	else {
 		model= NULL;
 	}
 
@@ -151,7 +151,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 		alternations= alternatingNode->getAttribute("value")->getIntValue();
 	}
 	//mode
-	if(particleSystemNode->hasChild("mode")){
+	if(particleSystemNode->hasChild("mode")) {
 		const XmlNode *modeNode= particleSystemNode->getChild("mode");
     	mode= modeNode->getAttribute("value")->getRestrictedValue();
 	}
