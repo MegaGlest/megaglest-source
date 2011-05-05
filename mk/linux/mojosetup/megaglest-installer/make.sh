@@ -145,8 +145,8 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	pushd "`pwd`/$megaglest_linux_path"
 
-	find megaglest -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find megaglest.bin -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
+	find start_megaglest -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+	find megaglest -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
 	find glest.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find megaglest.bmp -exec cp -p --parents "{}" $INSTALLDATADIR ';'
 	find glestkeys.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
@@ -211,9 +211,9 @@ if [ $REPACKONLY -eq 0 ]; then
 	find data/ -name "*~" -exec rm -rf {} \;
         find data/ -name "*.bak" -exec rm -rf {} \;
 
-	# Copy shared lib dependencies for megaglest.bin
+	# Copy shared lib dependencies for megaglest
 	cd data
-	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh bin/megaglest.bin"
+	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh bin/megaglest"
 	$copyGlestDeptsCmd
 	cd ..
 fi
