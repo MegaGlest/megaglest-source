@@ -169,7 +169,7 @@ ENDIF()
 IF(WIN32)
 	SET(TARGET_NAME "megaglest")
 ELSE()
-	SET(TARGET_NAME "megaglest.bin")
+	SET(TARGET_NAME "megaglest")
 ENDIF()
 
 IF(UNIX AND NOT APPLE)
@@ -192,20 +192,21 @@ TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
 # Requires an install prefix for the items below to work
 IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
-	IF(NOT WIN32)
+	#IF(NOT WIN32)
 		#set_target_properties(megaglest.bin PROPERTIES OUTPUT_NAME "megaglest")
 		# rename the binary for installation
-		MESSAGE(STATUS "Copying [${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}] to [${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest]")
-		install(CODE 
-			"EXECUTE_PROCESS(COMMAND \"cmake\" \"-E\" \"copy\" \"${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}\" \"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest\")")
+	#	MESSAGE(STATUS "Copying [${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}] to [${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest]")
+	#	install(CODE 
+	#		"EXECUTE_PROCESS(COMMAND \"cmake\" \"-E\" \"copy\" \"${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}\" \"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest\")")
 
-		install(CODE 
-			"EXECUTE_PROCESS(COMMAND \"chmod\" \"+x\" \"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest\")")
+	#	install(CODE 
+	#		"EXECUTE_PROCESS(COMMAND \"chmod\" \"+x\" \"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest\")")
 
-	ELSE()
-		# Installation of the program
-		INSTALL(TARGETS 
-			${TARGET_NAME} 
-			DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
-	ENDIF()
+	#ELSE()
+	
+	# Installation of the program
+	INSTALL(TARGETS 
+		${TARGET_NAME} 
+		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
+	#ENDIF()
 ENDIF()

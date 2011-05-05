@@ -86,8 +86,8 @@ sync_support_libs(){
 }
  
 usage(){
-	echo "Syntax : $0 megaglest.bin
-	echo "Example: $0 megaglest.bin
+	echo "Syntax : $0 megaglest
+	echo "Example: $0 megaglest
 	exit 1
 }
  
