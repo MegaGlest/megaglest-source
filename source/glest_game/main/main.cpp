@@ -1460,6 +1460,7 @@ void runTechValidationForPath(string techPath, string techName,
 						printf("\nWarning, duplicate files were detected - START:\n=====================\n");
 					}
 
+					map<string,int> parentList;
 					for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 						string duplicateFile = fileList[idx];
 						if(idx > 0) {
@@ -1473,15 +1474,21 @@ void runTechValidationForPath(string techPath, string techName,
 						}
 
 						printf("[%s]\n",duplicateFile.c_str());
-//						std::map<string,vector<string> >::iterator iterFind = loadedFileList.find(duplicateFile);
-//						if(iterFind != loadedFileList.end()) {
-//							for(unsigned int jdx = 0; jdx < iterFind->second.size(); jdx++) {
-//								if(jdx == 0) {
-//									printf("\tParents:\n");
-//								}
-//								printf("\t[%s]\n",iterFind->second[jdx].c_str());
-//							}
-//						}
+						std::map<string,vector<string> >::iterator iterFind = loadedFileList.find(duplicateFile);
+						if(iterFind != loadedFileList.end()) {
+							for(unsigned int jdx = 0; jdx < iterFind->second.size(); jdx++) {
+								parentList[iterFind->second[jdx]]++;
+							}
+						}
+					}
+
+					for(map<string,int>::iterator iterMap = parentList.begin();
+							iterMap != parentList.end(); iterMap++) {
+
+						if(iterMap == parentList.begin()) {
+							printf("\tParents:\n");
+						}
+						printf("\t[%s]\n",iterMap->first.c_str());
 					}
 				}
 			}

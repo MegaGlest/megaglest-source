@@ -126,6 +126,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
 	string path = currentPath + name + ".xml";
+	string sourceXMLFile = path;
 
 	this->id= id;
 
@@ -294,8 +295,8 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 					Texture2D *newTexture = NULL;
 
 					unitParticleSystemType->load(dir,  currentPath + path,
-							&Renderer::getInstance(),loadedFileList);
-					loadedFileList[currentPath + path].push_back(dir);
+							&Renderer::getInstance(),loadedFileList, sourceXMLFile);
+					loadedFileList[currentPath + path].push_back(sourceXMLFile);
 
 					//if(unitParticleSystemType->hasTexture() == false) {
 						//Renderer::getInstance().endLastTexture(rsGame,true);
@@ -399,13 +400,13 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		const XmlNode *imageNode= parametersNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
 		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
+		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(sourceXMLFile);
 
 		//image cancel
 		const XmlNode *imageCancelNode= parametersNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
 		cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
+		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(sourceXMLFile);
 
 		//meeting point
 		const XmlNode *meetingPointNode= parametersNode->getChild("meeting-point");
@@ -413,33 +414,33 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		if(meetingPoint) {
 			meetingPointImage= Renderer::getInstance().newTexture2D(rsGame);
 			meetingPointImage->load(meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath));
-			loadedFileList[meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath)].push_back(currentPath);
+			loadedFileList[meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath)].push_back(sourceXMLFile);
 		}
 
 		//selection sounds
 		const XmlNode *selectionSoundNode= parametersNode->getChild("selection-sounds");
 		if(selectionSoundNode->getAttribute("enabled")->getBoolValue()){
 			selectionSounds.resize(selectionSoundNode->getChildCount());
-			for(int i=0; i<selectionSounds.getSounds().size(); ++i){
+			for(int i = 0; i < selectionSounds.getSounds().size(); ++i) {
 				const XmlNode *soundNode= selectionSoundNode->getChild("sound", i);
 				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
-				loadedFileList[path].push_back(currentPath);
+				loadedFileList[path].push_back(sourceXMLFile);
 				selectionSounds[i]= sound;
 			}
 		}
 
 		//command sounds
 		const XmlNode *commandSoundNode= parametersNode->getChild("command-sounds");
-		if(commandSoundNode->getAttribute("enabled")->getBoolValue()){
+		if(commandSoundNode->getAttribute("enabled")->getBoolValue()) {
 			commandSounds.resize(commandSoundNode->getChildCount());
-			for(int i=0; i<commandSoundNode->getChildCount(); ++i){
+			for(int i = 0; i < commandSoundNode->getChildCount(); ++i) {
 				const XmlNode *soundNode= commandSoundNode->getChild("sound", i);
 				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
-				loadedFileList[path].push_back(currentPath);
+				loadedFileList[path].push_back(sourceXMLFile);
 				commandSounds[i]= sound;
 			}
 		}
@@ -452,7 +453,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			const XmlNode *typeNode= sn->getChild("type");
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
 			SkillType *skillType= SkillTypeFactory::getInstance().newInstance(classId);
-			skillType->load(sn, dir, techTree, factionType, loadedFileList);
+			skillType->load(sn, dir, techTree, factionType, loadedFileList,sourceXMLFile);
 			skillTypes[i]= skillType;
 		}
 
@@ -465,7 +466,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
 			CommandType *commandType= CommandTypeFactory::getInstance().newInstance(classId);
 			commandType->load(i, commandNode, dir, techTree, factionType, *this,
-					loadedFileList);
+					loadedFileList,sourceXMLFile);
 			commandTypes[i]= commandType;
 		}
 

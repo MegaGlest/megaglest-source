@@ -57,9 +57,10 @@ protected:
 
 public:
 	void load(const XmlNode *particleSystemNode, const string &dir,
-			RendererInterface *newTexture, std::map<string,vector<string> > &loadedFileList);
+			RendererInterface *newTexture, std::map<string,vector<string> > &loadedFileList,
+			string parentLoader);
 	void load(const string &dir, const string &path, RendererInterface *newTexture,
-			std::map<string,vector<string> > &loadedFileList);
+			std::map<string,vector<string> > &loadedFileList,string parentLoader);
 	const void setValues (UnitParticleSystem *uts);
 	bool hasTexture() const { return(texture != NULL); }
 };

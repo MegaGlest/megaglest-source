@@ -42,7 +42,8 @@ SkillType::~SkillType() {
 }
 
 void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
-		const FactionType *ft, std::map<string,vector<string> > &loadedFileList) {
+		const FactionType *ft, std::map<string,vector<string> > &loadedFileList,
+		string parentLoader) {
 	//name
 	name= sn->getChild("name")->getAttribute("value")->getRestrictedValue();
 
@@ -67,8 +68,8 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 
 	string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue(currentPath);
 	animation= Renderer::getInstance().newModel(rsGame);
-	animation->load(path, false, &loadedFileList, &currentPath);
-	loadedFileList[path].push_back(currentPath);
+	animation->load(path, false, &loadedFileList, &parentLoader);
+	loadedFileList[path].push_back(parentLoader);
 
 	//particles
 	if(sn->hasChild("particles")) {
@@ -80,8 +81,8 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
 				unitParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance(),
-						loadedFileList);
-				loadedFileList[currentPath + path].push_back(currentPath);
+						loadedFileList,parentLoader);
+				loadedFileList[currentPath + path].push_back(parentLoader);
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
 		}
@@ -98,7 +99,7 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 
 			StaticSound *sound= new StaticSound();
 			sound->load(path);
-			loadedFileList[path].push_back(currentPath);
+			loadedFileList[path].push_back(parentLoader);
 			sounds[i]= sound;
 		}
 	}
@@ -192,8 +193,9 @@ AttackSkillType::~AttackSkillType() {
 }
 
 void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
-		const FactionType *ft, std::map<string,vector<string> > &loadedFileList) {
-    SkillType::load(sn, dir, tt, ft, loadedFileList);
+		const FactionType *ft, std::map<string,vector<string> > &loadedFileList,
+		string parentLoader) {
+    SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
@@ -249,7 +251,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(dir,  currentPath + path,
-					&Renderer::getInstance(), loadedFileList);
+					&Renderer::getInstance(), loadedFileList, parentLoader);
 		}
 
 		//proj sounds
@@ -263,7 +265,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
-				loadedFileList[path].push_back(currentPath);
+				loadedFileList[path].push_back(parentLoader);
 				projSounds[i]= sound;
 			}
 		}
@@ -283,7 +285,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			splashParticleSystemType= new ParticleSystemTypeSplash();
 			splashParticleSystemType->load(dir,  currentPath + path,
-					&Renderer::getInstance(),loadedFileList);
+					&Renderer::getInstance(),loadedFileList, parentLoader);
 		}
 	}
 }
@@ -406,8 +408,9 @@ DieSkillType::DieSkillType(){
 }
 
 void DieSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
-		const FactionType *ft, std::map<string,vector<string> > &loadedFileList) {
-	SkillType::load(sn, dir, tt, ft, loadedFileList);
+		const FactionType *ft, std::map<string,vector<string> > &loadedFileList,
+		string parentLoader) {
+	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
 
 	fade= sn->getChild("fade")->getAttribute("value")->getBoolValue();
 }

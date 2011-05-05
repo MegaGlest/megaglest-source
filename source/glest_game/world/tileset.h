@@ -89,7 +89,7 @@ public:
 	StaticSound *getNightStart()	{return &nightStart;}
 
 	void load(const string &dir, const XmlNode *xmlNode,
-			std::map<string,vector<string> > &loadedFileList);
+			std::map<string,vector<string> > &loadedFileList,string parentLoader);
 };
 
 // =====================================================
