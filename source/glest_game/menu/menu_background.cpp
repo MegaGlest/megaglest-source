@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -40,7 +40,7 @@ MenuBackground::MenuBackground(){
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 
 	XmlTree xmlTree;
-	xmlTree.load(data_path + "data/core/menu/menu.xml");
+	xmlTree.load(data_path + "data/core/menu/menu.xml",Properties::getTagReplacementValues());
 	const XmlNode *menuNode= xmlTree.getRootNode();
 
 	//water

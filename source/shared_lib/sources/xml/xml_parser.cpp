@@ -88,7 +88,7 @@ XmlIo::~XmlIo(){
 	XMLPlatformUtils::Terminate();
 }
 
-XmlNode *XmlIo::load(const string &path){
+XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplacementValues) {
 
 	try{
 		ErrorHandler errorHandler;
@@ -111,7 +111,7 @@ XmlNode *XmlIo::load(const string &path){
 			throw runtime_error("Can not parse URL: " + path);
 		}
 
-		XmlNode *rootNode= new XmlNode(document->getDocumentElement());
+		XmlNode *rootNode= new XmlNode(document->getDocumentElement(),mapTagReplacementValues);
 		parser->release();
 		return rootNode;
 	}
@@ -167,8 +167,8 @@ void XmlTree::init(const string &name){
 	this->rootNode= new XmlNode(name);
 }
 
-void XmlTree::load(const string &path){
-	this->rootNode= XmlIo::getInstance().load(path);
+void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues) {
+	this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues);
 }
 
 void XmlTree::save(const string &path){
@@ -183,7 +183,7 @@ XmlTree::~XmlTree(){
 //	class XmlNode
 // =====================================================
 
-XmlNode::XmlNode(DOMNode *node) {
+XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues) {
     if(node == NULL || node->getNodeName() == NULL) {
         throw runtime_error("XML structure seems to be corrupt!");
     }
@@ -203,7 +203,7 @@ XmlNode::XmlNode(DOMNode *node) {
         for(unsigned int i = 0; i < node->getChildNodes()->getLength(); ++i) {
             DOMNode *currentNode= node->getChildNodes()->item(i);
             if(currentNode != NULL && currentNode->getNodeType()==DOMNode::ELEMENT_NODE){
-                XmlNode *xmlNode= new XmlNode(currentNode);
+                XmlNode *xmlNode= new XmlNode(currentNode, mapTagReplacementValues);
                 children.push_back(xmlNode);
             }
         }
@@ -215,7 +215,7 @@ XmlNode::XmlNode(DOMNode *node) {
 		for(unsigned int i = 0; i < domAttributes->getLength(); ++i) {
 			DOMNode *currentNode= domAttributes->item(i);
 			if(currentNode->getNodeType() == DOMNode::ATTRIBUTE_NODE) {
-				XmlAttribute *xmlAttribute= new XmlAttribute(domAttributes->item(i));
+				XmlAttribute *xmlAttribute= new XmlAttribute(domAttributes->item(i), mapTagReplacementValues);
 				attributes.push_back(xmlAttribute);
 			}
 		}
@@ -321,8 +321,8 @@ XmlNode *XmlNode::addChild(const string &name){
 	return node;
 }
 
-XmlAttribute *XmlNode::addAttribute(const string &name, const string &value) {
-	XmlAttribute *attr= new XmlAttribute(name, value);
+XmlAttribute *XmlNode::addAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues) {
+	XmlAttribute *attr= new XmlAttribute(name, value, mapTagReplacementValues);
 	attributes.push_back(attr);
 	return attr;
 }
@@ -371,27 +371,30 @@ string XmlNode::getTreeString() const {
 //	class XmlAttribute
 // =====================================================
 
-XmlAttribute::XmlAttribute(DOMNode *attribute) {
-	skipRestrictionCheck = false;
-	usesCommondata = false;
-	char str[strSize]="";
+XmlAttribute::XmlAttribute(DOMNode *attribute, std::map<string,string> mapTagReplacementValues) {
+	skipRestrictionCheck 			= false;
+	usesCommondata 					= false;
+	this->mapTagReplacementValues 	= mapTagReplacementValues;
+	char str[strSize]				= "";
 
 	XMLString::transcode(attribute->getNodeValue(), str, strSize-1);
 	value= str;
 	usesCommondata = ((value.find("$COMMONDATAPATH") != string::npos) || (value.find("%%COMMONDATAPATH%%") != string::npos));
-	skipRestrictionCheck = Properties::applyTagsToValue(this->value);
+	skipRestrictionCheck = Properties::applyTagsToValue(this->value,&this->mapTagReplacementValues);
 
 	XMLString::transcode(attribute->getNodeName(), str, strSize-1);
 	name= str;
 }
 
-XmlAttribute::XmlAttribute(const string &name, const string &value) {
-	skipRestrictionCheck = false;
-	usesCommondata = false;
-	this->name= name;
-	this->value= value;
+XmlAttribute::XmlAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues) {
+	skipRestrictionCheck 			= false;
+	usesCommondata 					= false;
+	this->mapTagReplacementValues 	= mapTagReplacementValues;
+	this->name						= name;
+	this->value						= value;
+
 	usesCommondata = ((value.find("$COMMONDATAPATH") != string::npos) || (value.find("%%COMMONDATAPATH%%") != string::npos));
-	skipRestrictionCheck = Properties::applyTagsToValue(this->value);
+	skipRestrictionCheck = Properties::applyTagsToValue(this->value,&this->mapTagReplacementValues);
 }
 
 bool XmlAttribute::getBoolValue() const {

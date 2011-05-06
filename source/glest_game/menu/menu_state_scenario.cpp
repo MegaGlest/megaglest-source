@@ -245,7 +245,7 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
     Lang &lang= Lang::getInstance();
 
     XmlTree xmlTree;
-	xmlTree.load(file);
+	xmlTree.load(file,Properties::getTagReplacementValues());
 
     const XmlNode *scenarioNode= xmlTree.getRootNode();
 	const XmlNode *difficultyNode= scenarioNode->getChild("difficulty");

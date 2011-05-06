@@ -15,10 +15,10 @@
 #include <string>
 #include <vector>
 #include <xercesc/util/XercesDefs.hpp>
+#include <map>
 #include "leak_dumper.h"
 
-using std::string;
-using std::vector;
+using namespace std;
 
 namespace XERCES_CPP_NAMESPACE{
 	class DOMImplementation;
@@ -29,7 +29,7 @@ namespace XERCES_CPP_NAMESPACE{
 
 namespace Shared{ namespace Xml{
 
-const int strSize= 256;
+const int strSize= 4096;
 
 class XmlIo;
 class XmlTree;
@@ -53,7 +53,7 @@ private:
 public:
 	static XmlIo &getInstance();
 	~XmlIo();
-	XmlNode *load(const string &path);
+	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -74,7 +74,7 @@ public:
 	~XmlTree();
 
 	void init(const string &name);
-	void load(const string &path);
+	void load(const string &path, std::map<string,string> mapTagReplacementValues);
 	void save(const string &path);
 
 	XmlNode *getRootNode() const	{return rootNode;}
@@ -84,7 +84,7 @@ public:
 //	class XmlNode
 // =====================================================
 
-class XmlNode{
+class XmlNode {
 private:
 	string name;
 	string text;
@@ -96,7 +96,7 @@ private:
 	void operator =(XmlNode&);
 
 public:
-	XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node);
+	XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node, std::map<string,string> mapTagReplacementValues);
 	XmlNode(const string &name);
 	~XmlNode();
 
@@ -115,7 +115,7 @@ public:
 
 
 	XmlNode *addChild(const string &name);
-	XmlAttribute *addAttribute(const string &name, const string &value);
+	XmlAttribute *addAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues);
 
 	XERCES_CPP_NAMESPACE::DOMElement *buildElement(XERCES_CPP_NAMESPACE::DOMDocument *document) const;
 
@@ -133,14 +133,15 @@ private:
 	string name;
 	bool skipRestrictionCheck;
 	bool usesCommondata;
+	std::map<string,string> mapTagReplacementValues;
 
 private:
 	XmlAttribute(XmlAttribute&);
 	void operator =(XmlAttribute&);
 
 public:
-	XmlAttribute(XERCES_CPP_NAMESPACE::DOMNode *attribute);
-	XmlAttribute(const string &name, const string &value);
+	XmlAttribute(XERCES_CPP_NAMESPACE::DOMNode *attribute, std::map<string,string> mapTagReplacementValues);
+	XmlAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues);
 
 public:
 	const string getName() const	{return name;}

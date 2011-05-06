@@ -43,7 +43,7 @@ void Configuration::load(const string &path){
 void Configuration::loadStructure(const string &path){
 
 	XmlTree xmlTree;
-	xmlTree.load(path);
+	xmlTree.load(path,Properties::getTagReplacementValues());
 
 	const XmlNode *configurationNode= xmlTree.getRootNode();
 

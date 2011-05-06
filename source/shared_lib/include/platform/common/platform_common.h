@@ -175,6 +175,7 @@ bool renameFile(string oldFile, string newFile);
 void removeFolder(const string path);
 off_t getFileSize(string filename);
 bool searchAndReplaceTextInFile(string fileName, string findText, string replaceText, bool simulateOnly);
+void copyFileTo(string fromFileName, string toFileName);
 
 int getScreenW();
 int getScreenH();

@@ -19,6 +19,7 @@
 #include "renderer.h"
 #include "game_util.h"
 #include "leak_dumper.h"
+#include "properties.h"
 #include "platform_util.h"
 
 using namespace Shared::Util;
@@ -158,7 +159,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 		//parse xml
 		XmlTree xmlTree;
-		xmlTree.load(path);
+		xmlTree.load(path,Properties::getTagReplacementValues());
 		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -226,7 +227,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
 							objectParticleSystemType->load(dir,  currentPath + path,
-									&Renderer::getInstance(), loadedFileList, sourceXMLFile);
+									&Renderer::getInstance(), loadedFileList, sourceXMLFile,"");
 							loadedFileList[currentPath + path].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
 
 							objectTypes[i].addParticleSystem((objectParticleSystemType));

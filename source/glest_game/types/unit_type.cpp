@@ -130,8 +130,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 
 	this->id= id;
 
-	try{
-
+	try {
 		Logger::getInstance().add("Unit type: " + formatString(name), true);
 
 		//file load
@@ -139,7 +138,9 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		techtreeChecksum->addFile(path);
 
 		XmlTree xmlTree;
-		xmlTree.load(path);
+		std::map<string,string> mapExtraTagReplacementValues;
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTree->getPath() + "/commondata/";
+		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(dir,dir));
 
 		const XmlNode *unitNode= xmlTree.getRootNode();
@@ -295,7 +296,8 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 					Texture2D *newTexture = NULL;
 
 					unitParticleSystemType->load(dir,  currentPath + path,
-							&Renderer::getInstance(),loadedFileList, sourceXMLFile);
+							&Renderer::getInstance(),loadedFileList, sourceXMLFile,
+							techTree->getPath());
 					loadedFileList[currentPath + path].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
 
 					//if(unitParticleSystemType->hasTexture() == false) {

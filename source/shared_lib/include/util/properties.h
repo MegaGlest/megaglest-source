@@ -75,7 +75,8 @@ public:
 	void setFloat(const string &key, float value);
 	void setString(const string &key, const string &value);
 
-	static bool applyTagsToValue(string &value);
+	static bool applyTagsToValue(string &value, std::map<string,string> *mapTagReplacementValues=NULL);
+	static std::map<string,string> getTagReplacementValues(std::map<string,string> *mapExtraTagReplacementValues=NULL);
 
 	string getpath() const { return path;}
 
