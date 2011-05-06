@@ -120,7 +120,7 @@ void Gui::init(Game *game){
 	this->console= game->getConsole();
 	this->world= game->getWorld();
 	this->game=game;
-	selection.init(this, world->getThisFactionIndex());
+	selection.init(this, world->getThisFactionIndex(), world->getThisTeamIndex());
 }
 
 void Gui::end(){
@@ -609,15 +609,17 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay){
 }
 
 
-string Gui::computeDefaultInfoString(){
-
+string Gui::computeDefaultInfoString() {
 	Lang &lang= Lang::getInstance();
 
 	string result="";
+	//printf("\n\n\n\n********* selection.isCommandable() [%d] selection.isUniform() [%d]\n\n",selection.isCommandable(),selection.isUniform());
 
-	if(selection.isCommandable() && selection.isUniform()){
-		// default is the description extension
-		result=selection.getFrontUnit()->getDescExtension();
+	if(selection.isUniform()) {
+		if(selection.isObserver() || selection.isCommandable()) {
+			// default is the description extension
+			result = selection.getFrontUnit()->getDescExtension();
+		}
 	}
 	return result;
 }

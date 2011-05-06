@@ -39,12 +39,13 @@ public:
 
 private:
 	int factionIndex;
+	int teamIndex;
 	UnitContainer selectedUnits;
 	UnitContainer groups[maxGroups];
 	Gui *gui;
 
 public:
-	void init(Gui *gui, int factionIndex);
+	void init(Gui *gui, int factionIndex, int teamIndex);
 	virtual ~Selection();
 
 	void select(Unit *unit);
@@ -56,6 +57,8 @@ public:
 	bool isEmpty() const				{return selectedUnits.empty();}
 	bool isUniform() const;
 	bool isEnemy() const;
+	bool isObserver() const;
+
 	//bool isComandable() const;
 	bool isCommandable() const;
 	bool isCancelable() const;

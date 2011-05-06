@@ -26,8 +26,9 @@ namespace Glest{ namespace Game{
 // 	class Selection
 // =====================================================
 
-void Selection::init(Gui *gui, int factionIndex){
+void Selection::init(Gui *gui, int factionIndex, int teamIndex) {
 	this->factionIndex= factionIndex;
+	this->teamIndex = teamIndex;
 	this->gui= gui;
 }
 
@@ -35,8 +36,7 @@ Selection::~Selection(){
 	clear();
 }
 
-void Selection::select(Unit *unit){
-
+void Selection::select(Unit *unit) {
 	//check size
 	//if(selectedUnits.size() >= maxUnits){
 	if(selectedUnits.size() >= Config::getInstance().getInt("MaxUnitSelectCount",intToStr(maxUnits).c_str())) {
@@ -44,19 +44,19 @@ void Selection::select(Unit *unit){
 	}
 
 	//check if already selected
-	for(int i=0; i<selectedUnits.size(); ++i){
-		if(selectedUnits[i]==unit){
+	for(int i=0; i < selectedUnits.size(); ++i) {
+		if(selectedUnits[i ]== unit) {
 			return;
 		}
 	}
 
 	//check if dead
-	if(unit->isDead()){
+	if(unit->isDead()) {
 		return;
 	}
 
 	//check if multisel
-	if(!unit->getType()->getMultiSelect() && !isEmpty()){
+	if(!unit->getType()->getMultiSelect() && !isEmpty()) {
 		return;
 	}
 
@@ -128,13 +128,19 @@ bool Selection::isUniform() const{
     return true;
 }
 
-bool Selection::isEnemy() const{
+bool Selection::isEnemy() const {
 	return selectedUnits.size() == 1 &&
-			(selectedUnits.front()->getFactionIndex() != factionIndex ||
-			 factionIndex == (GameConstants::maxPlayers -1 + fpt_Observer));
+			selectedUnits.front()->getFactionIndex() != factionIndex;
 }
 
-bool Selection::isCommandable() const{
+bool Selection::isObserver() const {
+	return selectedUnits.size() == 1 &&
+			(teamIndex == (GameConstants::maxPlayers -1 + fpt_Observer));
+}
+
+bool Selection::isCommandable() const {
+	//printf("\n\n\n\n********* selection.isCommandable() ---> isEmpty() [%d] isEnemy() [%d] selectedUnits.size() [%d]\n\n",isEmpty(),isEnemy(),(int)selectedUnits.size());
+
 	return
 		!isEmpty() &&
 		!isEnemy() &&

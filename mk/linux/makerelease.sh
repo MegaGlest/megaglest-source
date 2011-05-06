@@ -1,50 +1,39 @@
 #!/bin/bash
 
-VERSION=`./mg-version.sh --version`
+VERSION=$(./mg-version.sh --version)
 RELEASENAME=megaglest-source
-#RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION"
-RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
+PACKAGE="$RELEASENAME-$VERSION.tar.xz"
+CURRENTDIR="$(dirname $(readlink -f $0))"
+RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
+SOURCEDIR="$CURRENTDIR/../../source/"
 
 echo "Creating source package in $RELEASEDIR"
 
-rm -rf $RELEASEDIR
-mkdir -p $RELEASEDIR
-mkdir -p $RELEASEDIR/source
-# copy sources
-pushd "`pwd`/../../source"
-find glest_game/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
-find shared_lib/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
-find glest_map_editor/ \( -name "*.cpp" -o -name "*.h" -o -name "*.xpm" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
-find g3d_viewer/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
-find configurator/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
-find masterserver/ \( -name "*.php" -o -name "*.sql" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
-find tools/ \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "*.pl" -o -name "*.sh" -o -name "*.css" -o -name "*.html" -o -name "*.ini" -o -name "*.ico" -o -name "*.txt" -o -name "*.dtd" -o -name "*.png" -o -name "*.py" -o -name "README" -o -name "INSTALL" -o -name "COPYING" -o -name "CMake*" \) -exec cp -p --parents "{}" $RELEASEDIR/source ';'
+[[ -d "$RELEASEDIR" ]] && rm -rf "$RELEASEDIR"
+mkdir -p "$RELEASEDIR"
 
-pushd "../"
-find mk/cmake/ \( -name "*.cmake" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find mk/macosx/ \( -name "*.txt" -o -name "*.plist" -o -name "*.icns" -o -name "PkgInfo" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-popd
+svn export --force "$SOURCEDIR" "$RELEASEDIR/source"
 
-popd
+#cp -r "$CURRENTDIR/../cmake/" "$RELEASEDIR"
+#cp -r "$CURRENTDIR/../macosx/" "$RELEASEDIR"
+#cp -r "$CURRENTDIR/../../docs" $RELEASEDIR
+#cp "$CURRENTDIR/"*.ini $RELEASEDIR
+#cp "$CURRENTDIR/glest.ico" $RELEASEDIR
+#cp "$CURRENTDIR/megaglest.png" $RELEASEDIR
+#cp "$CURRENTDIR/megaglest.desktop" $RELEASEDIR
+#cp "$CURRENTDIR/start_megaglest"* $RELEASEDIR
+#cp "$CURRENTDIR/../../CMake"* $RELEASEDIR
+mkdir -p "$RELEASEDIR/mk/cmake/"
+svn export --force "$CURRENTDIR/../cmake/" "$RELEASEDIR/mk/cmake/"
+mkdir -p "$RELEASEDIR/mk/macosx/"
+svn export --force "$CURRENTDIR/../macosx/" "$RELEASEDIR/mk/macosx/"
+svn export --force "$CURRENTDIR/../../docs" $RELEASEDIR
+cp "$CURRENTDIR/"*.ini $RELEASEDIR
+cp "$CURRENTDIR/glest.ico" $RELEASEDIR
+cp "$CURRENTDIR/megaglest.png" $RELEASEDIR
+cp "$CURRENTDIR/megaglest.desktop" $RELEASEDIR
+cp "$CURRENTDIR/start_megaglest"* $RELEASEDIR
+cp "$CURRENTDIR/../../CMake"* $RELEASEDIR
 
-cp -p ../../docs/*.txt $RELEASEDIR
-cp -p glest.ini $RELEASEDIR
-cp -p glestkeys.ini $RELEASEDIR
-cp -p servers.ini $RELEASEDIR
-cp -p glest.ico $RELEASEDIR
-cp -p megaglest.png $RELEASEDIR
-cp -p megaglest.desktop $RELEASEDIR
-cp -p start_megaglest $RELEASEDIR
-cp -p start_megaglest_configurator $RELEASEDIR
-cp -p start_megaglest_mapeditor $RELEASEDIR
-cp -p start_megaglest_g3dviewer $RELEASEDIR
-cp -p ../../CMake* $RELEASEDIR
-
-pushd release
-PACKAGE="$RELEASENAME-$VERSION.tar.bz2"
-echo "creating $PACKAGE"
-rm "$PACKAGE"
-
-tar -c --bzip2 -f "$PACKAGE" "$RELEASENAME-$VERSION"
-#7za a "$RELEASENAME-$VERSION.7z" "$RELEASENAME-$VERSION"
-popd
+echo "Creating $PACKAGE"
+tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
