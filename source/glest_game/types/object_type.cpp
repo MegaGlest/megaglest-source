@@ -38,7 +38,7 @@ ObjectType::~ObjectType(){
 	//Logger::getInstance().add("ObjectType", true);
 }
 
-void ObjectType::loadModel(const string &path, std::map<string,vector<string> > *loadedFileList,
+void ObjectType::loadModel(const string &path, std::map<string,vector<pair<string, string> > > *loadedFileList,
 		string parentLoader) {
 	Model *model= Renderer::getInstance().newModel(rsGame);
 	model->load(path, false, loadedFileList, &parentLoader);

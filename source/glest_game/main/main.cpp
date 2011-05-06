@@ -969,15 +969,17 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
 	printf("\n%s\t\t\tdisplays your LUA version information.",GAME_ARGS[GAME_ARG_LUA_INFO]);
 	printf("\n%s\t\t\tdisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
-	printf("\n%s=x=purgeunused\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n%s=x=purgeunused=purgeduplicates\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\tto your selected techtrees game data.");
 	printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
 	printf("\n                     \t\tWhere purgeunused is an optional parameter telling the validation to delete extra files in the techtree that are not used.");
+	printf("\n                     \t\tWhere purgeduplicates is an optional parameter telling the validation to merge duplicate files in the techtree.");
 	printf("\n                     \t\texample: %s %s=megapack,vbros_pack_5",argv0,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-	printf("\n%s=x=purgeunused\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
+	printf("\n%s=x=purgeunused=purgeduplicates\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 	printf("\n                     \t\tto your selected factions game data.");
 	printf("\n                     \t\tWhere x is a comma-delimited list of factions to validate.");
 	printf("\n                     \t\tWhere purgeunused is an optional parameter telling the validation to delete extra files in the faction that are not used.");
+	printf("\n                     \t\tWhere purgeduplicates is an optional parameter telling the validation to merge duplicate files in the faction.");
 	printf("\n                     \t\t*NOTE: leaving the list empty is the same as running");
 	printf("\n                     \t\t%s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\texample: %s %s=tech,egypt",argv0,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
@@ -1269,7 +1271,7 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 
 void runTechValidationForPath(string techPath, string techName,
 		const std::vector<string> filteredFactionList, World &world,
-		bool purgeUnusedFiles,double &purgedMegaBytes) {
+		bool purgeUnusedFiles,bool purgeDuplicateFiles, double &purgedMegaBytes) {
 	Config &config = Config::getInstance();
 	vector<string> factionsList;
 	findDirs(techPath + techName + "/factions/", factionsList, false, false);
@@ -1296,7 +1298,7 @@ void runTechValidationForPath(string techPath, string techName,
 		if(factions.size() > 0) {
 			bool techtree_errors = false;
 
-			std::map<string,vector<string>  > loadedFileList;
+			std::map<string,vector<pair<string, string> >  > loadedFileList;
 			//vector<string> pathList = config.getPathListForType(ptTechs,"");
 			vector<string> pathList;
 			pathList.push_back(techPath);
@@ -1304,15 +1306,23 @@ void runTechValidationForPath(string techPath, string techName,
 
 			// Fixup paths with ..
 			{
-				std::map<string,vector<string> > newLoadedFileList;
-				for( std::map<string,vector<string> >::iterator iterMap = loadedFileList.begin();
+				std::map<string,vector<pair<string, string> > > newLoadedFileList;
+				for( std::map<string,vector<pair<string, string> > >::iterator iterMap = loadedFileList.begin();
 					iterMap != loadedFileList.end(); ++iterMap) {
 					string loadedFile = iterMap->first;
 
 					replaceAll(loadedFile,"//","/");
 					replaceAll(loadedFile,"\\\\","\\");
 					updatePathClimbingParts(loadedFile);
-					newLoadedFileList[loadedFile] = iterMap->second;
+
+					if(newLoadedFileList.find(loadedFile) != newLoadedFileList.end()) {
+						for(unsigned int xx1 = 0; xx1 < iterMap->second.size(); ++xx1) {
+							newLoadedFileList[loadedFile].push_back(iterMap->second[xx1]);
+						}
+					}
+					else {
+						newLoadedFileList[loadedFile] = iterMap->second;
+					}
 				}
 				loadedFileList = newLoadedFileList;
 			}
@@ -1358,7 +1368,7 @@ void runTechValidationForPath(string techPath, string techName,
 			}
 
 			// Now check for unused files in the techtree
-			std::map<string,vector<string> > foundFileList;
+			std::map<string,vector<pair<string, string> > > foundFileList;
 			for(unsigned int i = 0; i < pathList.size(); ++i) {
 				string path = pathList[i];
 				endPathWithSlash(path);
@@ -1388,7 +1398,7 @@ void runTechValidationForPath(string techPath, string techName,
 					replaceAll(file,"//","/");
 					replaceAll(file,"\\\\","\\");
 
-					foundFileList[file].push_back(path);
+					foundFileList[file].push_back(make_pair(path,path));
 				}
 			}
 
@@ -1405,7 +1415,7 @@ void runTechValidationForPath(string techPath, string techName,
 
 			int purgeCount = 0;
 			bool foundUnusedFile = false;
-			for( std::map<string,vector<string> >::iterator iterMap = foundFileList.begin();
+			for( std::map<string,vector<pair<string, string> > >::iterator iterMap = foundFileList.begin();
 				iterMap != foundFileList.end(); ++iterMap) {
 				string foundFile = iterMap->first;
 
@@ -1440,16 +1450,29 @@ void runTechValidationForPath(string techPath, string techName,
 
 			std::map<int32,vector<string> > mapDuplicateFiles;
 			// Now check for duplicate data content
-			for(std::map<string,vector<string> >::iterator iterMap = loadedFileList.begin();
+			for(std::map<string,vector<pair<string, string> > >::iterator iterMap = loadedFileList.begin();
 				iterMap != loadedFileList.end(); iterMap++) {
 				string fileName = iterMap->first;
 				Checksum checksum;
 				checksum.addFile(fileName);
 				int32 crcValue = checksum.getSum();
+//				if(crcValue == 0) {
+//					char szBuf[4096]="";
+//					sprintf(szBuf,"Error calculating CRC for file [%s]",fileName.c_str());
+//					throw runtime_error(szBuf);
+//				}
+//				else {
+//					printf("** CRC for file [%s] is [%d] and has %d parents\n",fileName.c_str(),crcValue,(int)iterMap->second.size());
+//				}
 				mapDuplicateFiles[crcValue].push_back(fileName);
 			}
+
+			double duplicateMegaBytesPurged=0;
+			int duplicateCountPurged=0;
+
 			double duplicateMegaBytes=0;
 			int duplicateCount=0;
+
 			bool foundDuplicates = false;
 			for(std::map<int32,vector<string> >::iterator iterMap = mapDuplicateFiles.begin();
 				iterMap != mapDuplicateFiles.end(); iterMap++) {
@@ -1474,26 +1497,129 @@ void runTechValidationForPath(string techPath, string techName,
 						}
 
 						printf("[%s]\n",duplicateFile.c_str());
-						std::map<string,vector<string> >::iterator iterFind = loadedFileList.find(duplicateFile);
+						std::map<string,vector<pair<string, string> > >::iterator iterFind = loadedFileList.find(duplicateFile);
 						if(iterFind != loadedFileList.end()) {
 							for(unsigned int jdx = 0; jdx < iterFind->second.size(); jdx++) {
-								parentList[iterFind->second[jdx]]++;
+								parentList[iterFind->second[jdx].first]++;
 							}
 						}
 					}
 
-					for(map<string,int>::iterator iterMap = parentList.begin();
-							iterMap != parentList.end(); iterMap++) {
+					for(map<string,int>::iterator iterMap1 = parentList.begin();
+							iterMap1 != parentList.end(); iterMap1++) {
 
-						if(iterMap == parentList.begin()) {
+						if(iterMap1 == parentList.begin()) {
 							printf("\tParents:\n");
 						}
-						printf("\t[%s]\n",iterMap->first.c_str());
+						printf("\t[%s]\n",iterMap1->first.c_str());
+					}
+
+					if(purgeDuplicateFiles == true) {
+						string newCommonFileName = "";
+						for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+							string duplicateFile = fileList[idx];
+							string fileExt = extractExtension(duplicateFile);
+							if(fileExt == "wav" || fileExt == "ogg") {
+								off_t fileSize = getFileSize(duplicateFile);
+								if(idx == 0) {
+									newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
+
+									string expandedNewCommonFileName = newCommonFileName;
+									Properties::applyTagsToValue(expandedNewCommonFileName);
+
+									//int result = 0;
+									int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+									if(result != 0) {
+										char szBuf[4096]="";
+										char *errmsg = strerror(errno);
+										sprintf(szBuf,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+										throw runtime_error(szBuf);
+									}
+									else {
+										printf("*** Duplicate file:\n[%s]\nwas renamed to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+									}
+								}
+								else {
+									removeFile(duplicateFile);
+									printf("*** Duplicate file:\n[%s]\nwas removed\n",duplicateFile.c_str());
+
+									// convert to MB
+									duplicateMegaBytesPurged += ((double)fileSize / 1048576.0);
+									duplicateCountPurged++;
+								}
+							}
+						}
+
+						std::map<string,int> mapUniqueParentList;
+
+						for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+							string duplicateFile = fileList[idx];
+							string fileExt = extractExtension(duplicateFile);
+							if(fileExt == "wav" || fileExt == "ogg") {
+								std::map<string,vector<pair<string, string> > >::iterator iterFind2 = loadedFileList.find(duplicateFile);
+								if(iterFind2 != loadedFileList.end()) {
+									for(unsigned int jdx1 = 0; jdx1 < iterFind2->second.size(); jdx1++) {
+										string parentFile = iterFind2->second[jdx1].first;
+										string searchText = iterFind2->second[jdx1].second;
+
+										if(mapUniqueParentList.find(parentFile) == mapUniqueParentList.end()) {
+											printf("*** Searching parent file:\n[%s]\nfor duplicate file reference:\n[%s]\nto replace with newname:\n[%s]\n",parentFile.c_str(),searchText.c_str(),newCommonFileName.c_str());
+											bool foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, false);
+											printf("foundText = %d\n",foundText);
+											if(foundText == false) {
+												char szBuf[4096]="";
+												sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
+												throw runtime_error(szBuf);
+											}
+											mapUniqueParentList[parentFile]++;
+										}
+									}
+								}
+							}
+						}
+					}
+					else {
+						string newCommonFileName = "";
+						for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+							string duplicateFile = fileList[idx];
+							string fileExt = extractExtension(duplicateFile);
+							if(fileExt == "wav" || fileExt == "ogg") {
+								off_t fileSize = getFileSize(duplicateFile);
+								if(idx == 0) {
+									newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
+									break;
+								}
+							}
+						}
+						for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+							string duplicateFile = fileList[idx];
+							string fileExt = extractExtension(duplicateFile);
+							if(fileExt == "wav" || fileExt == "ogg") {
+								std::map<string,vector<pair<string, string> > >::iterator iterFind4 = loadedFileList.find(duplicateFile);
+								if(iterFind4 != loadedFileList.end()) {
+									for(unsigned int jdx = 0; jdx < iterFind4->second.size(); jdx++) {
+										string parentFile = iterFind4->second[jdx].first;
+										string searchText = iterFind4->second[jdx].second;
+
+										//printf("*** Searching parent file:\n[%s]\nfor duplicate file reference:\n[%s]\nto replace with newname:\n[%s]\n",parentFile.c_str(),searchText.c_str(),newCommonFileName.c_str());
+										bool foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, true);
+										//printf("foundText = %d\n",foundText);
+										if(foundText == false) {
+											char szBuf[4096]="";
+											sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
+											throw runtime_error(szBuf);
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
 			if(foundDuplicates == true) {
 				printf("Duplicates %.2f MB (%d) in files\n",duplicateMegaBytes,duplicateCount);
+				printf("Duplicates purged %.2f MB (%d) in files\n",duplicateMegaBytesPurged,duplicateCountPurged);
+
 				printf("\nWarning, duplicate files were detected - END:\n");
 			}
 
@@ -1512,6 +1638,7 @@ void runTechValidationReport(int argc, char** argv) {
 	//disableBacktrace=true;
 	printf("====== Started Validation ======\n");
 
+	bool purgeDuplicateFiles = false;
 	bool purgeUnusedFiles = false;
 	double purgedMegaBytes=0;
 	Config &config = Config::getInstance();
@@ -1575,7 +1702,7 @@ void runTechValidationReport(int argc, char** argv) {
 
                     		printf("Found Scenario [%s] with custom techtree [%s] validating...\n",scenarioName.c_str(),techName.c_str());
                     		runTechValidationForPath(techPath, techName, filteredFactionList,
-                    					world, 	purgeUnusedFiles,purgedMegaBytes);
+                    					world, 	purgeUnusedFiles, false, purgedMegaBytes);
                     	}
 //
 //
@@ -1654,7 +1781,22 @@ void runTechValidationReport(int argc, char** argv) {
             		purgeUnusedFiles = true;
             		printf("*NOTE All unused techtree files will be deleted!\n");
             	}
+            	else if(paramPartTokens[2] == "purgeduplicates") {
+            		purgeDuplicateFiles = true;
+            		printf("*NOTE All duplicate techtree files will be merged!\n");
+            	}
             }
+            if(paramPartTokens.size() >= 4) {
+            	if(paramPartTokens[3] == "purgeunused") {
+            		purgeUnusedFiles = true;
+            		printf("*NOTE All unused techtree files will be deleted!\n");
+            	}
+            	else if(paramPartTokens[3] == "purgeduplicates") {
+            		purgeDuplicateFiles = true;
+            		printf("*NOTE All duplicate techtree files will be merged!\n");
+            	}
+            }
+
         }
     }
 
@@ -1677,7 +1819,7 @@ void runTechValidationReport(int argc, char** argv) {
                 std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
 
             	runTechValidationForPath(techPath, techName, filteredFactionList,
-            			world, 	purgeUnusedFiles,purgedMegaBytes);
+            			world, 	purgeUnusedFiles,purgeDuplicateFiles,purgedMegaBytes);
             }
         }
     }

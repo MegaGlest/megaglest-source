@@ -199,7 +199,7 @@ void World::init(Game *game, bool createUnits){
 
 //load tileset
 Checksum World::loadTileset(const vector<string> pathList, const string &tilesetName,
-		Checksum* checksum, std::map<string,vector<string> > &loadedFileList) {
+		Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
     Checksum tilsetChecksum;
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -212,7 +212,7 @@ Checksum World::loadTileset(const vector<string> pathList, const string &tileset
 	return tilsetChecksum;
 }
 
-Checksum World::loadTileset(const string &dir, Checksum *checksum, std::map<string,vector<string> > &loadedFileList) {
+Checksum World::loadTileset(const string &dir, Checksum *checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
     Checksum tilesetChecksum;
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -226,7 +226,7 @@ Checksum World::loadTileset(const string &dir, Checksum *checksum, std::map<stri
 
 //load tech
 Checksum World::loadTech(const vector<string> pathList, const string &techName,
-		set<string> &factions, Checksum *checksum, std::map<string,vector<string> > &loadedFileList) {
+		set<string> &factions, Checksum *checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 	Checksum techtreeChecksum;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

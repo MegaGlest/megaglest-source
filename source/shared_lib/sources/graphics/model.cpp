@@ -208,7 +208,7 @@ string Mesh::findAlternateTexture(vector<string> conversionList, string textureF
 }
 
 void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
-		bool deletePixMapAfterLoad, std::map<string,vector<string> > *loadedFileList,
+		bool deletePixMapAfterLoad, std::map<string,vector<pair<string, string> > > *loadedFileList,
 		string sourceLoader) {
 	this->textureManager = textureManager;
 	//read header
@@ -270,7 +270,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 				textures[mtDiffuse]= textureManager->newTexture2D();
 				textures[mtDiffuse]->load(texPath);
 				if(loadedFileList) {
-					(*loadedFileList)[texPath].push_back(sourceLoader);
+					(*loadedFileList)[texPath].push_back(make_pair(sourceLoader,sourceLoader));
 				}
 				texturesOwned[mtDiffuse]=true;
 				textures[mtDiffuse]->init(textureManager->getTextureFilter(),textureManager->getMaxAnisotropy());
@@ -298,7 +298,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 
 void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		TextureManager *textureManager,bool deletePixMapAfterLoad,
-		std::map<string,vector<string> > *loadedFileList,
+		std::map<string,vector<pair<string, string> > > *loadedFileList,
 		string sourceLoader) {
 	this->textureManager = textureManager;
 
@@ -357,7 +357,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 				textures[mtDiffuse]= textureManager->newTexture2D();
 				textures[mtDiffuse]->load(texPath);
 				if(loadedFileList) {
-					(*loadedFileList)[texPath].push_back(sourceLoader);
+					(*loadedFileList)[texPath].push_back(make_pair(sourceLoader,sourceLoader));
 				}
 
 				texturesOwned[mtDiffuse]=true;
@@ -389,7 +389,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
 		TextureManager *textureManager, string textureFile,
 		int textureChannelCount, bool &textureOwned, bool deletePixMapAfterLoad,
-		std::map<string,vector<string> > *loadedFileList,
+		std::map<string,vector<pair<string, string> > > *loadedFileList,
 		string sourceLoader) {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #1 load texture [%s]\n",__FUNCTION__,textureFile.c_str());
@@ -416,7 +416,7 @@ Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
 			}
 			texture->load(textureFile);
 			if(loadedFileList) {
-				(*loadedFileList)[textureFile].push_back(sourceLoader);
+				(*loadedFileList)[textureFile].push_back(make_pair(sourceLoader,sourceLoader));
 			}
 
 			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] texture loaded [%s]\n",__FUNCTION__,textureFile.c_str());
@@ -439,7 +439,7 @@ Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
 }
 
 void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
-				bool deletePixMapAfterLoad,std::map<string,vector<string> > *loadedFileList,
+				bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList,
 				string sourceLoader) {
 	this->textureManager = textureManager;
 
@@ -770,7 +770,7 @@ uint32 Model::getVertexCount() const {
 // ==================== io ====================
 
 void Model::load(const string &path, bool deletePixMapAfterLoad,
-		std::map<string,vector<string> > *loadedFileList, string *sourceLoader) {
+		std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader) {
 
 	this->sourceLoader = (sourceLoader != NULL ? *sourceLoader : "");
 	this->fileName = path;
@@ -797,7 +797,7 @@ void Model::save(const string &path, string convertTextureToFormat,
 
 //load a model from a g3d file
 void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
-		std::map<string,vector<string> > *loadedFileList,
+		std::map<string,vector<pair<string, string> > > *loadedFileList,
 		string sourceLoader) {
 
     try{
@@ -808,7 +808,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		}
 
 		if(loadedFileList) {
-			(*loadedFileList)[path].push_back(sourceLoader);
+			(*loadedFileList)[path].push_back(make_pair(sourceLoader,sourceLoader));
 		}
 
 		string dir= extractDirectoryPathFromFile(path);

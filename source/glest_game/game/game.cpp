@@ -458,7 +458,7 @@ void Game::load() {
 }
 
 void Game::load(LoadGameItem loadTypes) {
-	std::map<string,vector<string> > loadedFileList;
+	std::map<string,vector<pair<string, string> > > loadedFileList;
 	originalDisplayMsgCallback = NetworkInterface::getDisplayMessageFunction();
 	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
 

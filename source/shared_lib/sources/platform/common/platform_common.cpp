@@ -1793,6 +1793,48 @@ string executable_path(string exeName, bool includeExeNameInPath) {
     return value;
 }
 
+bool searchAndReplaceTextInFile(string fileName, string findText, string replaceText, bool simulateOnly) {
+	bool replacedText = false;
+	const int MAX_LEN_SINGLE_LINE = 4096;
+	char buffer[MAX_LEN_SINGLE_LINE+2];
+	char *buff_ptr, *find_ptr;
+	FILE *fp1, *fp2;
+	size_t find_len = findText.length();
+
+	string tempfileName = fileName + "_tmp";
+	fp1 = fopen(fileName.c_str(),"r");
+	fp2 = fopen(tempfileName.c_str(),"w");
+
+	while(fgets(buffer,MAX_LEN_SINGLE_LINE + 2,fp1)) {
+		buff_ptr = buffer;
+		while ((find_ptr = strstr(buff_ptr,findText.c_str()))) {
+			//printf("Replacing text [%s] with [%s] in file [%s]\n",findText.c_str(),replaceText.c_str(),fileName.c_str());
+
+			while(buff_ptr < find_ptr) {
+				fputc((int)*buff_ptr++,fp2);
+			}
+			fputs(replaceText.c_str(),fp2);
+
+			buff_ptr += find_len;
+			replacedText = true;
+		}
+		fputs(buff_ptr,fp2);
+	}
+
+	fclose(fp2);
+	fclose(fp1);
+
+	if(replacedText == true && simulateOnly == false) {
+		removeFile(fileName);
+		renameFile(tempfileName,fileName);
+	}
+	else {
+		removeFile(tempfileName);
+	}
+	//removeFile(tempfileName);
+	return replacedText;
+}
+
 // =====================================
 //         ModeInfo
 // =====================================

@@ -54,7 +54,7 @@ public:
     ResourceType();
     ~ResourceType();
     void load(const string &dir, Checksum* checksum,Checksum *techtreeChecksum,
-    		std::map<string,vector<string> > &loadedFileList);
+    		std::map<string,vector<pair<string, string> > > &loadedFileList);
 
     //get
 	int getClass() const			{return resourceClass;}

@@ -68,7 +68,7 @@ protected:
 public:
 	ParticleSystemType();
 	void load(const XmlNode *particleSystemNode, const string &dir,
-			RendererInterface *renderer, std::map<string,vector<string> > &loadedFileList,
+			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
 	void setValues(AttackParticleSystem *ats);
 	bool hasTexture() const { return(texture != NULL); }
@@ -91,7 +91,7 @@ private:
 
 public:
 	void load(const string &dir, const string &path,
-			RendererInterface *renderer, std::map<string,vector<string> > &loadedFileList,
+			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
 	ProjectileParticleSystem *create();
 
@@ -104,7 +104,7 @@ public:
 class ParticleSystemTypeSplash: public ParticleSystemType {
 public:
 	void load(const string &dir, const string &path,
-			RendererInterface *renderer, std::map<string,vector<string> > &loadedFileList,
+			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
 	SplashParticleSystem *create();
 

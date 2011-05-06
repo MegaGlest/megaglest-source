@@ -174,6 +174,7 @@ bool removeFile(string file);
 bool renameFile(string oldFile, string newFile);
 void removeFolder(const string path);
 off_t getFileSize(string filename);
+bool searchAndReplaceTextInFile(string fileName, string findText, string replaceText, bool simulateOnly);
 
 int getScreenW();
 int getScreenH();
