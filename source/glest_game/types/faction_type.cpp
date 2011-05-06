@@ -118,7 +118,9 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		techtreeChecksum->addFile(path);
 
 		XmlTree xmlTree;
-		xmlTree.load(path);
+		std::map<string,string> mapExtraTagReplacementValues;
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTree->getPath() + "/commondata/";
+		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 
 		const XmlNode *factionNode= xmlTree.getRootNode();

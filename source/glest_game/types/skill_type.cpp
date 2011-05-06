@@ -81,7 +81,7 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
 				unitParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance(),
-						loadedFileList,parentLoader);
+						loadedFileList,parentLoader,tt->getPath());
 				loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
@@ -251,7 +251,8 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(dir,  currentPath + path,
-					&Renderer::getInstance(), loadedFileList, parentLoader);
+					&Renderer::getInstance(), loadedFileList, parentLoader,
+					tt->getPath());
 		}
 
 		//proj sounds
@@ -286,7 +287,8 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			splashParticleSystemType= new ParticleSystemTypeSplash();
 			splashParticleSystemType->load(dir,  currentPath + path,
-					&Renderer::getInstance(),loadedFileList, parentLoader);
+					&Renderer::getInstance(),loadedFileList, parentLoader,
+					tt->getPath());
 		}
 	}
 }

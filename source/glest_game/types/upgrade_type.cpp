@@ -59,12 +59,14 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 	string path = currentPath + name + ".xml";
 	string sourceXMLFile = path;
 
-	try{
+	try {
 		checksum->addFile(path);
 		techtreeChecksum->addFile(path);
 
 		XmlTree xmlTree;
-		xmlTree.load(path);
+		std::map<string,string> mapExtraTagReplacementValues;
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTree->getPath() + "/commondata/";
+		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 		const XmlNode *upgradeNode= xmlTree.getRootNode();
 

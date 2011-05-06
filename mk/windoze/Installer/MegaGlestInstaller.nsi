@@ -201,7 +201,6 @@ Section "${APNAME} (required)"
   File "..\..\..\source\tools\glexemel\g3d_logo.png"
   SetOutPath $INSTDIR
 
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\commondata"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\data"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
@@ -279,7 +278,6 @@ Section "Uninstall"
   Delete $INSTDIR\xerces-c_3_0.dll
   Delete $INSTDIR\*.log
 
-  Delete $INSTDIR\commondata\*.*
   Delete $INSTDIR\data\*.*
   Delete $INSTDIR\docs\*.*
   Delete $INSTDIR\maps\*.*
@@ -289,7 +287,6 @@ Section "Uninstall"
   Delete $INSTDIR\tilesets\*.*
   Delete $INSTDIR\tutorials\*.*
 
-  RMDir /r $INSTDIR\commondata
   RMDir /r $INSTDIR\data
   RMDir /r $INSTDIR\docs
   RMDir /r $INSTDIR\maps

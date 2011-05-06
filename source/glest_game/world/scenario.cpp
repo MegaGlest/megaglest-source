@@ -19,6 +19,7 @@
 #include "game_util.h"
 #include <stdio.h>
 #include "platform_common.h"
+#include "properties.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
@@ -47,7 +48,7 @@ Checksum Scenario::load(const string &path) {
 
 		//parse xml
 		XmlTree xmlTree;
-		xmlTree.load(path);
+		xmlTree.load(path,Properties::getTagReplacementValues());
 		const XmlNode *scenarioNode= xmlTree.getRootNode();
 		const XmlNode *scriptsNode= scenarioNode->getChild("scripts");
 

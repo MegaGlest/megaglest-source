@@ -34,6 +34,7 @@ namespace Glest{ namespace Game{
 
 Checksum TechTree::loadTech(const vector<string> pathList, const string &techName,
 		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
+	name = "";
     Checksum techtreeChecksum;
     for(int idx = 0; idx < pathList.size(); idx++) {
     	string currentPath = pathList[idx];
@@ -54,10 +55,10 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
+	treePath = currentPath;
+	name= lastDir(currentPath);
 
     vector<string> filenames;
-	string name= lastDir(currentPath);
-
 	Logger::getInstance().add("TechTree: "+ formatString(name), true);
 
 	//load resources
@@ -69,7 +70,8 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
         for(int i=0; i<filenames.size(); ++i){
             str= currentPath + "resources/" + filenames[i];
-            resourceTypes[i].load(str, checksum, &checksumValue, loadedFileList);
+            resourceTypes[i].load(str, checksum, &checksumValue, loadedFileList,
+            					treePath);
             Window::handleEvent();
 			SDL_PumpEvents();
         }
@@ -99,7 +101,9 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		checksum->addFile(path);
 		checksumValue.addFile(path);
 
-		xmlTree.load(path);
+		std::map<string,string> mapExtraTagReplacementValues;
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = currentPath + "/commondata/";
+		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 
 		const XmlNode *techTreeNode= xmlTree.getRootNode();

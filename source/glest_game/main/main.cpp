@@ -969,11 +969,13 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
 	printf("\n%s\t\t\tdisplays your LUA version information.",GAME_ARGS[GAME_ARG_LUA_INFO]);
 	printf("\n%s\t\t\tdisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
-	printf("\n%s=x=purgeunused=purgeduplicates\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n%s=x=purgeunused=purgeduplicates=svndelete\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\tto your selected techtrees game data.");
 	printf("\n                     \t\tWhere x is a comma-delimited list of techtrees to validate.");
 	printf("\n                     \t\tWhere purgeunused is an optional parameter telling the validation to delete extra files in the techtree that are not used.");
 	printf("\n                     \t\tWhere purgeduplicates is an optional parameter telling the validation to merge duplicate files in the techtree.");
+	printf("\n                     \t\tWhere svndelete is an optional parameter telling the validation to call svn delete on duplicate / unused files in the techtree.");
+	printf("\n                     \t\t*NOTE: This only applies when files are purged due to the above flags being set.");
 	printf("\n                     \t\texample: %s %s=megapack,vbros_pack_5",argv0,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n%s=x=purgeunused=purgeduplicates\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 	printf("\n                     \t\tto your selected factions game data.");
@@ -984,7 +986,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t%s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\texample: %s %s=tech,egypt",argv0,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 
-	printf("\n%s=x=purgeunused\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
+	printf("\n%s=x=purgeunused=svndelete\t\tdisplays a report detailing any known problems related",GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
 	printf("\n                     \t\tto your selected scenario game data.");
 	printf("\n                     \t\tWhere x is a single scenario to validate.");
 	printf("\n                     \t\tWhere purgeunused is an optional parameter telling the validation to delete extra files in the scenario that are not used.");
@@ -1271,7 +1273,8 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 
 void runTechValidationForPath(string techPath, string techName,
 		const std::vector<string> filteredFactionList, World &world,
-		bool purgeUnusedFiles,bool purgeDuplicateFiles, double &purgedMegaBytes) {
+		bool purgeUnusedFiles,bool purgeDuplicateFiles, bool svnPurgeFiles,
+		double &purgedMegaBytes) {
 	Config &config = Config::getInstance();
 	vector<string> factionsList;
 	findDirs(techPath + techName + "/factions/", factionsList, false, false);
@@ -1437,7 +1440,17 @@ void runTechValidationForPath(string techPath, string techName,
 						purgedMegaBytes += ((double)fileSize / 1048576.0);
 						purgeCount++;
 
-						removeFile(foundFile);
+						if(svnPurgeFiles == true) {
+							char szBuf[4096]="";
+							sprintf(szBuf,"svn delete \"%s\"",foundFile.c_str());
+							bool svnOk = executeShellCommand(szBuf,0);
+							if(svnOk == false) {
+								throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+							}
+						}
+						else {
+							removeFile(foundFile);
+						}
 					}
 				}
 			}
@@ -1525,22 +1538,51 @@ void runTechValidationForPath(string techPath, string techName,
 									newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
 
 									string expandedNewCommonFileName = newCommonFileName;
-									Properties::applyTagsToValue(expandedNewCommonFileName);
 
-									//int result = 0;
-									int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
-									if(result != 0) {
+									std::map<string,string> mapExtraTagReplacementValues;
+									mapExtraTagReplacementValues["$COMMONDATAPATH"] = techPath + techName + "/commondata/";
+									mapExtraTagReplacementValues = Properties::getTagReplacementValues(&mapExtraTagReplacementValues);
+									Properties::applyTagsToValue(expandedNewCommonFileName,&mapExtraTagReplacementValues);
+									createDirectoryPaths(extractDirectoryPathFromFile(expandedNewCommonFileName));
+
+									if(svnPurgeFiles == true) {
+										copyFileTo(duplicateFile, expandedNewCommonFileName);
+
 										char szBuf[4096]="";
-										char *errmsg = strerror(errno);
-										sprintf(szBuf,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
-										throw runtime_error(szBuf);
+										sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
+										bool svnOk = executeShellCommand(szBuf,0);
+										if(svnOk == false) {
+											throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+										}
+										printf("*** Duplicate file:\n[%s]\nwas svn deleted and copied to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 									}
 									else {
-										printf("*** Duplicate file:\n[%s]\nwas renamed to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+										//int result = 0;
+										int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+										if(result != 0) {
+											char szBuf[4096]="";
+											char *errmsg = strerror(errno);
+											sprintf(szBuf,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+											throw runtime_error(szBuf);
+										}
+										else {
+											printf("*** Duplicate file:\n[%s]\nwas renamed to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+										}
 									}
 								}
 								else {
-									removeFile(duplicateFile);
+									if(svnPurgeFiles == true) {
+										char szBuf[4096]="";
+										sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
+										bool svnOk = executeShellCommand(szBuf,0);
+										if(svnOk == false) {
+											throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+										}
+										printf("*** Duplicate file:\n[%s]\nwas svn deleted\n",duplicateFile.c_str());
+									}
+									else {
+										removeFile(duplicateFile);
+									}
 									printf("*** Duplicate file:\n[%s]\nwas removed\n",duplicateFile.c_str());
 
 									// convert to MB
@@ -1640,6 +1682,8 @@ void runTechValidationReport(int argc, char** argv) {
 
 	bool purgeDuplicateFiles = false;
 	bool purgeUnusedFiles = false;
+	bool svnPurgeFiles = false;
+
 	double purgedMegaBytes=0;
 	Config &config = Config::getInstance();
 
@@ -1691,7 +1735,7 @@ void runTechValidationReport(int argc, char** argv) {
                     	string file = scenarioPath + scenarioName + "/" + scenarioName + ".xml";
 
                         XmlTree xmlTree;
-                    	xmlTree.load(file);
+                    	xmlTree.load(file,Properties::getTagReplacementValues());
                     	const XmlNode *scenarioNode= xmlTree.getRootNode();
                     	string techName = scenarioNode->getChild("tech-tree")->getAttribute("value")->getValue();
 
@@ -1702,7 +1746,7 @@ void runTechValidationReport(int argc, char** argv) {
 
                     		printf("Found Scenario [%s] with custom techtree [%s] validating...\n",scenarioName.c_str(),techName.c_str());
                     		runTechValidationForPath(techPath, techName, filteredFactionList,
-                    					world, 	purgeUnusedFiles, false, purgedMegaBytes);
+                    					world, 	purgeUnusedFiles, false, false, purgedMegaBytes);
                     	}
 //
 //
@@ -1785,6 +1829,10 @@ void runTechValidationReport(int argc, char** argv) {
             		purgeDuplicateFiles = true;
             		printf("*NOTE All duplicate techtree files will be merged!\n");
             	}
+            	else if(paramPartTokens[2] == "svndelete") {
+            		svnPurgeFiles = true;
+            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+            	}
             }
             if(paramPartTokens.size() >= 4) {
             	if(paramPartTokens[3] == "purgeunused") {
@@ -1795,11 +1843,28 @@ void runTechValidationReport(int argc, char** argv) {
             		purgeDuplicateFiles = true;
             		printf("*NOTE All duplicate techtree files will be merged!\n");
             	}
+            	else if(paramPartTokens[3] == "svndelete") {
+            		svnPurgeFiles = true;
+            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+            	}
+            }
+            if(paramPartTokens.size() >= 5) {
+            	if(paramPartTokens[4] == "purgeunused") {
+            		purgeUnusedFiles = true;
+            		printf("*NOTE All unused techtree files will be deleted!\n");
+            	}
+            	else if(paramPartTokens[4] == "purgeduplicates") {
+            		purgeDuplicateFiles = true;
+            		printf("*NOTE All duplicate techtree files will be merged!\n");
+            	}
+            	else if(paramPartTokens[4] == "svndelete") {
+            		svnPurgeFiles = true;
+            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+            	}
             }
 
         }
     }
-
 
     {
     printf("\n---------------- Loading factions inside world ----------------");
@@ -1819,7 +1884,7 @@ void runTechValidationReport(int argc, char** argv) {
                 std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
 
             	runTechValidationForPath(techPath, techName, filteredFactionList,
-            			world, 	purgeUnusedFiles,purgeDuplicateFiles,purgedMegaBytes);
+            			world, 	purgeUnusedFiles,purgeDuplicateFiles,svnPurgeFiles,purgedMegaBytes);
             }
         }
     }

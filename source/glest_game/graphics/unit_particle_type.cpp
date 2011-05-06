@@ -31,8 +31,9 @@ namespace Glest{ namespace Game{
 
 void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
-		string parentLoader) {
-	ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList, parentLoader);
+		string parentLoader, string techtreePath) {
+	ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList,
+			parentLoader,techtreePath);
 	//radius
 	const XmlNode *radiusNode= particleSystemNode->getChild("radius");
 	radius= radiusNode->getAttribute("value")->getFloatValue();
@@ -138,16 +139,19 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 
 void UnitParticleSystemType::load(const string &dir, const string &path,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
-		string parentLoader) {
+		string parentLoader, string techtreePath) {
 
 	try{
 		XmlTree xmlTree;
-		xmlTree.load(path);
+
+		std::map<string,string> mapExtraTagReplacementValues;
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techtreePath + "/commondata/";
+		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(parentLoader,parentLoader));
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		
 		UnitParticleSystemType::load(particleSystemNode, dir, renderer,
-				loadedFileList, parentLoader);
+				loadedFileList, parentLoader, techtreePath);
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());

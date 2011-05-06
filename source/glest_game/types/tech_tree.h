@@ -36,7 +36,11 @@ private:
 	typedef vector<AttackType> AttackTypes;
 
 private:
-    string desc;
+
+	string name;
+    //string desc;
+	string treePath;
+
     ResourceTypes resourceTypes;
     FactionTypes factionTypes;
 	ArmorTypes armorTypes;
@@ -57,7 +61,11 @@ public:
 	int getTypeCount() const									{return factionTypes.size();}
 	const FactionType *getType(int i) const						{return &factionTypes[i];}
 	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
-    const string &getDesc() const								{return desc;}
+	const string getName() const								{return name;}
+    //const string &getDesc() const								{return desc;}
+
+	const string getPath() const								{return treePath;}
+
 	const FactionType *getType(const string &name) const;
 	FactionType *getTypeByName(const string &name);
 	const ResourceType *getResourceType(const string &name) const;

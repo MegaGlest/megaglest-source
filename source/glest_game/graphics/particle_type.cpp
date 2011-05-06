@@ -42,7 +42,7 @@ ParticleSystemType::ParticleSystemType() {
 
 void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
-		string parentLoader) {
+		string parentLoader, string techtreePath) {
 	//texture
 	const XmlNode *textureNode= particleSystemNode->getChild("texture");
 	bool textureEnabled= textureNode->getAttribute("value")->getBoolValue();
@@ -188,16 +188,19 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 
 void ParticleSystemTypeProjectile::load(const string &dir, const string &path,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
-		string parentLoader) {
+		string parentLoader, string techtreePath) {
 
 	try{
 		XmlTree xmlTree;
-		xmlTree.load(path);
+
+		std::map<string,string> mapExtraTagReplacementValues;
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techtreePath + "/commondata/";
+		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(parentLoader,parentLoader));
 
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		
-		ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList,parentLoader);
+		ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList,parentLoader, techtreePath);
 
 		//trajectory values
 		const XmlNode *tajectoryNode= particleSystemNode->getChild("trajectory");
@@ -250,16 +253,19 @@ ProjectileParticleSystem *ParticleSystemTypeProjectile::create() {
 
 void ParticleSystemTypeSplash::load(const string &dir, const string &path,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
-		string parentLoader) {
+		string parentLoader, string techtreePath) {
 
 	try{
 		XmlTree xmlTree;
-		xmlTree.load(path);
+
+		std::map<string,string> mapExtraTagReplacementValues;
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techtreePath + "/commondata/";
+		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(parentLoader,parentLoader));
 
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		
-		ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList, parentLoader);
+		ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList, parentLoader, techtreePath);
 
 		//emission rate fade
 		const XmlNode *emissionRateFadeNode= particleSystemNode->getChild("emission-rate-fade");

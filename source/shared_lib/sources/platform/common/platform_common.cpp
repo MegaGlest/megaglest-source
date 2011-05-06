@@ -1807,16 +1807,18 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 
 	while(fgets(buffer,MAX_LEN_SINGLE_LINE + 2,fp1)) {
 		buff_ptr = buffer;
-		while ((find_ptr = strstr(buff_ptr,findText.c_str()))) {
-			//printf("Replacing text [%s] with [%s] in file [%s]\n",findText.c_str(),replaceText.c_str(),fileName.c_str());
+		if(findText != "") {
+			while ((find_ptr = strstr(buff_ptr,findText.c_str()))) {
+				//printf("Replacing text [%s] with [%s] in file [%s]\n",findText.c_str(),replaceText.c_str(),fileName.c_str());
 
-			while(buff_ptr < find_ptr) {
-				fputc((int)*buff_ptr++,fp2);
+				while(buff_ptr < find_ptr) {
+					fputc((int)*buff_ptr++,fp2);
+				}
+				fputs(replaceText.c_str(),fp2);
+
+				buff_ptr += find_len;
+				replacedText = true;
 			}
-			fputs(replaceText.c_str(),fp2);
-
-			buff_ptr += find_len;
-			replacedText = true;
 		}
 		fputs(buff_ptr,fp2);
 	}
@@ -1833,6 +1835,24 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 	}
 	//removeFile(tempfileName);
 	return replacedText;
+}
+
+void copyFileTo(string fromFileName, string toFileName) {
+	const int MAX_LEN_SINGLE_LINE = 4096;
+	char buffer[MAX_LEN_SINGLE_LINE+2];
+	char *buff_ptr, *find_ptr;
+	FILE *fp1, *fp2;
+
+	fp1 = fopen(fromFileName.c_str(),"r");
+	fp2 = fopen(toFileName.c_str(),"w");
+
+	while(fgets(buffer,MAX_LEN_SINGLE_LINE + 2,fp1)) {
+		buff_ptr = buffer;
+		fputs(buff_ptr,fp2);
+	}
+
+	fclose(fp2);
+	fclose(fp1);
 }
 
 // =====================================

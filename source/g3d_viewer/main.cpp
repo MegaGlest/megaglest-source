@@ -931,7 +931,7 @@ void MainWindow::loadUnit(string path, string skillName) {
 
 		if(fileExists(unitXML) == true) {
 			XmlTree xmlTree;
-			xmlTree.load(unitXML);
+			xmlTree.load(unitXML,Properties::getTagReplacementValues());
 			const XmlNode *unitNode= xmlTree.getRootNode();
 
 			bool foundSkillName = false;
@@ -1102,7 +1102,7 @@ void MainWindow::loadParticle(string path) {
 
 			if(fileExists(unitXML) == true) {
 				XmlTree xmlTree;
-				xmlTree.load(unitXML);
+				xmlTree.load(unitXML,Properties::getTagReplacementValues());
 				const XmlNode *unitNode= xmlTree.getRootNode();
 				const XmlNode *parametersNode= unitNode->getChild("parameters");
 				//size
@@ -1116,7 +1116,7 @@ void MainWindow::loadParticle(string path) {
 				std::map<string,vector<pair<string, string> > > loadedFileList;
                 UnitParticleSystemType *unitParticleSystemType = new UnitParticleSystemType();
                 unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,
-                		renderer,loadedFileList,"g3dviewer");
+                		renderer,loadedFileList,"g3dviewer","");
                 unitParticleSystemTypes.push_back(unitParticleSystemType);
 
                 for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
@@ -1193,7 +1193,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			if(fileExists(unitXML) == true) {
 				XmlTree xmlTree;
-				xmlTree.load(unitXML);
+				xmlTree.load(unitXML,Properties::getTagReplacementValues());
 				const XmlNode *unitNode= xmlTree.getRootNode();
 				const XmlNode *parametersNode= unitNode->getChild("parameters");
 				//size
@@ -1205,7 +1205,7 @@ void MainWindow::loadProjectileParticle(string path) {
 			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
 			XmlTree xmlTree;
-			xmlTree.load(dir + folderDelimiter + particlePath);
+			xmlTree.load(dir + folderDelimiter + particlePath,Properties::getTagReplacementValues());
 			const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
@@ -1214,7 +1214,7 @@ void MainWindow::loadProjectileParticle(string path) {
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(dir,
 					dir + folderDelimiter + particlePath,renderer, loadedFileList,
-					"g3dviewer");
+					"g3dviewer","");
 
 			// std::cout << "Values loaded, about to read..." << std::endl;
 
@@ -1296,7 +1296,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 			if(fileExists(unitXML) == true) {
 				XmlTree xmlTree;
-				xmlTree.load(unitXML);
+				xmlTree.load(unitXML,Properties::getTagReplacementValues());
 				const XmlNode *unitNode= xmlTree.getRootNode();
 				const XmlNode *parametersNode= unitNode->getChild("parameters");
 				//size
@@ -1308,7 +1308,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
 			XmlTree xmlTree;
-			xmlTree.load(dir + folderDelimiter + particlePath);
+			xmlTree.load(dir + folderDelimiter + particlePath,Properties::getTagReplacementValues());
 			const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
@@ -1316,7 +1316,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash();
 			splashParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer,
-					loadedFileList,"g3dviewer"); // <---- only that must be splash...
+					loadedFileList,"g3dviewer",""); // <---- only that must be splash...
 
 			// std::cout << "Values loaded, about to read..." << std::endl;
 

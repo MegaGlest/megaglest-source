@@ -17,6 +17,7 @@
 #include "renderer.h"
 #include "xml_parser.h"
 #include "game_util.h"
+#include "properties.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -46,7 +47,7 @@ ResourceType::~ResourceType(){
 }
 
 void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtreeChecksum,
-		std::map<string,vector<pair<string, string> > > &loadedFileList) {
+		std::map<string,vector<pair<string, string> > > &loadedFileList, string techtreePath) {
 
 	string path, str;
 	Renderer &renderer= Renderer::getInstance();
@@ -67,7 +68,9 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 
 		//tree
 		XmlTree xmlTree;
-		xmlTree.load(path);
+		std::map<string,string> mapExtraTagReplacementValues;
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techtreePath + "/commondata/";
+		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 
 		const XmlNode *resourceNode= xmlTree.getRootNode();
@@ -104,7 +107,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
 							objectParticleSystemType->load(dir,  currentPath + particlePath,
-									&Renderer::getInstance(), loadedFileList, sourceXMLFile);
+									&Renderer::getInstance(), loadedFileList, sourceXMLFile, techtreePath);
 							loadedFileList[currentPath + particlePath].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
 
 							particleTypes.push_back(objectParticleSystemType);
