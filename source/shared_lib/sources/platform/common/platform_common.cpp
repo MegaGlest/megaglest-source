@@ -1838,21 +1838,19 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 }
 
 void copyFileTo(string fromFileName, string toFileName) {
-	const int MAX_LEN_SINGLE_LINE = 4096;
-	char buffer[MAX_LEN_SINGLE_LINE+2];
-	char *buff_ptr, *find_ptr;
-	FILE *fp1, *fp2;
+	//Open an input and output stream in binary mode
+	ifstream in(fromFileName.c_str(),ios::binary);
+	ofstream out(toFileName.c_str(),ios::binary);
 
-	fp1 = fopen(fromFileName.c_str(),"rb");
-	fp2 = fopen(toFileName.c_str(),"wb");
-
-	while(fgets(buffer,MAX_LEN_SINGLE_LINE + 2,fp1)) {
-		buff_ptr = buffer;
-		fputs(buff_ptr,fp2);
+	if(in.is_open() && out.is_open()) {
+		while(in.eof() == false) {
+			out.put(in.get());
+		}
 	}
 
-	fclose(fp2);
-	fclose(fp1);
+	//Close both files
+	in.close();
+	out.close();
 }
 
 // =====================================
