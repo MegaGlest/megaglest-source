@@ -32,6 +32,7 @@ find glest.ini \( -name "*" \) -exec cp -p "{}" $RELEASEDIR/glest_linux.ini ';'
 find glestkeys.ini \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find configuration.xml \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 
+find commondata/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find data/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find docs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
 find maps/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
