@@ -56,7 +56,7 @@ public:
 	~ObjectType();
 	void init(int modelCount, int objectClass, bool walkable, int height);
 
-	void loadModel(const string &path, std::map<string,vector<string> > *loadedFileList=NULL,
+	void loadModel(const string &path, std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,
 			string parentLoader="");
 	void addParticleSystem(ObjectParticleSystemType *particleSystem);
 

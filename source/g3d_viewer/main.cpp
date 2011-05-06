@@ -1113,8 +1113,8 @@ void MainWindow::loadParticle(string path) {
 
                 // std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
-				std::map<string,vector<string> > loadedFileList;
-                UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
+				std::map<string,vector<pair<string, string> > > loadedFileList;
+                UnitParticleSystemType *unitParticleSystemType = new UnitParticleSystemType();
                 unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,
                 		renderer,loadedFileList,"g3dviewer");
                 unitParticleSystemTypes.push_back(unitParticleSystemType);
@@ -1210,7 +1210,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
-			std::map<string,vector<string> > loadedFileList;
+			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(dir,
 					dir + folderDelimiter + particlePath,renderer, loadedFileList,
@@ -1313,7 +1313,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
-			std::map<string,vector<string> > loadedFileList;
+			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash();
 			splashParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer,
 					loadedFileList,"g3dviewer"); // <---- only that must be splash...

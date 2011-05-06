@@ -92,7 +92,7 @@ public:
     //varios
     virtual ~SkillType();
     virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
-    		const FactionType *ft, std::map<string,vector<string> > &loadedFileList,
+    		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string parentLoader);
 		
     //get
@@ -163,7 +163,7 @@ public:
     AttackSkillType();
     ~AttackSkillType();
     virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
-    		const FactionType *ft, std::map<string,vector<string> > &loadedFileList,
+    		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string parentLoader);
 	virtual string toString() const;
     
@@ -284,7 +284,7 @@ public:
     bool getFade() const	{return fade;}
 	
 	virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
-			const FactionType *ft, std::map<string,vector<string> > &loadedFileList,
+			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
 	virtual string toString() const;
 };

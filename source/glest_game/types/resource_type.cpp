@@ -46,7 +46,7 @@ ResourceType::~ResourceType(){
 }
 
 void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtreeChecksum,
-		std::map<string,vector<string> > &loadedFileList) {
+		std::map<string,vector<pair<string, string> > > &loadedFileList) {
 
 	string path, str;
 	Renderer &renderer= Renderer::getInstance();
@@ -68,7 +68,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		//tree
 		XmlTree xmlTree;
 		xmlTree.load(path);
-		loadedFileList[path].push_back(currentPath);
+		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 
 		const XmlNode *resourceNode= xmlTree.getRootNode();
 
@@ -76,7 +76,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		const XmlNode *imageNode= resourceNode->getChild("image");
 		image= renderer.newTexture2D(rsGame);
 		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(sourceXMLFile);
+		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,imageNode->getAttribute("path")->getRestrictedValue()));
 
 		//type
 		const XmlNode *typeNode= resourceNode->getChild("type");
@@ -92,7 +92,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 
                 model= renderer.newModel(rsGame);
                 model->load(modelPath, false, &loadedFileList, &sourceXMLFile);
-                loadedFileList[modelPath].push_back(sourceXMLFile);
+                loadedFileList[modelPath].push_back(make_pair(sourceXMLFile,modelNode->getAttribute("path")->getRestrictedValue()));
 
                 if(modelNode->hasChild("particles")){
 					const XmlNode *particleNode= modelNode->getChild("particles");
@@ -105,7 +105,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
 							objectParticleSystemType->load(dir,  currentPath + particlePath,
 									&Renderer::getInstance(), loadedFileList, sourceXMLFile);
-							loadedFileList[currentPath + particlePath].push_back(sourceXMLFile);
+							loadedFileList[currentPath + particlePath].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
 
 							particleTypes.push_back(objectParticleSystemType);
 						}

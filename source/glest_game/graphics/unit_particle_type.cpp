@@ -30,7 +30,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,
-		RendererInterface *renderer, std::map<string,vector<string> > &loadedFileList,
+		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
 	ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList, parentLoader);
 	//radius
@@ -137,13 +137,13 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 }
 
 void UnitParticleSystemType::load(const string &dir, const string &path,
-		RendererInterface *renderer, std::map<string,vector<string> > &loadedFileList,
+		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
 
 	try{
 		XmlTree xmlTree;
 		xmlTree.load(path);
-		loadedFileList[path].push_back(parentLoader);
+		loadedFileList[path].push_back(make_pair(parentLoader,parentLoader));
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		
 		UnitParticleSystemType::load(particleSystemNode, dir, renderer,

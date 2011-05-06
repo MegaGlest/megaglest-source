@@ -33,7 +33,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Checksum TechTree::loadTech(const vector<string> pathList, const string &techName,
-		set<string> &factions, Checksum* checksum, std::map<string,vector<string> > &loadedFileList) {
+		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
     Checksum techtreeChecksum;
     for(int idx = 0; idx < pathList.size(); idx++) {
     	string currentPath = pathList[idx];
@@ -49,7 +49,7 @@ Checksum TechTree::loadTech(const vector<string> pathList, const string &techNam
 }
 
 void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum,
-		Checksum *techtreeChecksum, std::map<string,vector<string> > &loadedFileList) {
+		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string currentPath = dir;
@@ -100,7 +100,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		checksumValue.addFile(path);
 
 		xmlTree.load(path);
-		loadedFileList[path].push_back(currentPath);
+		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 
 		const XmlNode *techTreeNode= xmlTree.getRootNode();
 

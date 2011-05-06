@@ -41,7 +41,7 @@ ParticleSystemType::ParticleSystemType() {
 }
 
 void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,
-		RendererInterface *renderer, std::map<string,vector<string> > &loadedFileList,
+		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
 	//texture
 	const XmlNode *textureNode= particleSystemNode->getChild("texture");
@@ -59,7 +59,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
 		texture->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
-		loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(parentLoader);
+		loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(parentLoader,textureNode->getAttribute("path")->getRestrictedValue()));
 	}
 	else {
 		texture= NULL;
@@ -77,7 +77,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 			model= renderer->newModel(rsGame);
 
 			model->load(path, false, &loadedFileList, &parentLoader);
-			loadedFileList[path].push_back(parentLoader);
+			loadedFileList[path].push_back(make_pair(parentLoader,modelNode->getAttribute("path")->getRestrictedValue()));
 		}
 	}
 	else {
@@ -187,13 +187,13 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 // ===========================================================
 
 void ParticleSystemTypeProjectile::load(const string &dir, const string &path,
-		RendererInterface *renderer, std::map<string,vector<string> > &loadedFileList,
+		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
 
 	try{
 		XmlTree xmlTree;
 		xmlTree.load(path);
-		loadedFileList[path].push_back(parentLoader);
+		loadedFileList[path].push_back(make_pair(parentLoader,parentLoader));
 
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		
@@ -249,13 +249,13 @@ ProjectileParticleSystem *ParticleSystemTypeProjectile::create() {
 // ===========================================================
 
 void ParticleSystemTypeSplash::load(const string &dir, const string &path,
-		RendererInterface *renderer, std::map<string,vector<string> > &loadedFileList,
+		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
 
 	try{
 		XmlTree xmlTree;
 		xmlTree.load(path);
-		loadedFileList[path].push_back(parentLoader);
+		loadedFileList[path].push_back(make_pair(parentLoader,parentLoader));
 
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		

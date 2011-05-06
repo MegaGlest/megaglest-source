@@ -37,7 +37,7 @@ FactionType::FactionType() {
 
 //load a faction, given a directory
 void FactionType::load(const string &dir, const TechTree *techTree, Checksum* checksum,
-		Checksum *techtreeChecksum, std::map<string,vector<string> > &loadedFileList) {
+		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -119,7 +119,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
 		XmlTree xmlTree;
 		xmlTree.load(path);
-		loadedFileList[path].push_back(currentPath);
+		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 
 		const XmlNode *factionNode= xmlTree.getRootNode();
 
@@ -153,7 +153,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		if(value) {
 			music= new StrSound();
 			music->open(musicNode->getAttribute("path")->getRestrictedValue(currentPath));
-			loadedFileList[musicNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(currentPath);
+			loadedFileList[musicNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,musicNode->getAttribute("path")->getRestrictedValue()));
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
