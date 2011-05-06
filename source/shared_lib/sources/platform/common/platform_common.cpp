@@ -1843,8 +1843,8 @@ void copyFileTo(string fromFileName, string toFileName) {
 	char *buff_ptr, *find_ptr;
 	FILE *fp1, *fp2;
 
-	fp1 = fopen(fromFileName.c_str(),"r");
-	fp2 = fopen(toFileName.c_str(),"w");
+	fp1 = fopen(fromFileName.c_str(),"rb");
+	fp2 = fopen(toFileName.c_str(),"wb");
 
 	while(fgets(buffer,MAX_LEN_SINGLE_LINE + 2,fp1)) {
 		buff_ptr = buffer;
