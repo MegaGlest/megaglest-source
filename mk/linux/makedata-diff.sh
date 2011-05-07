@@ -3,12 +3,13 @@
 # This script compares two mega-glest data content folders for file differences, 
 # then creates an archive of ONLY the differences (including files ONLY in new version)
 OLD_VERSION=`./mg-version.sh --oldversion`
+VERSION=`./mg-version.sh --version`
+NEW_SUBFOLDER_PATH="megaglest-$VERSION"
 
 cd release
-
 CURDIR="`pwd`"
 cd ..
-VERSION=`./mg-version.sh --version`
+
 RELEASENAME=megaglest-data-updates-$VERSION
 
 cd $CURDIR
