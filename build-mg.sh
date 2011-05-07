@@ -1,9 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 mkdir -p build
 cd build
 
-cmake ..
+[[ -f "CMakeCache.txt" ]] && rm -f "CMakeCache.txt"
+# This is for regular developers and used by our installer
+cmake -DCMAKE_INSTALL_PREFIX= -DWANT_STATIC_LIBS=ON ..
 make
 
 cd ..
