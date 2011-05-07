@@ -1,3 +1,4 @@
+#!/bin/bash
 # This script is not robust for all platforms or situations. Use as a rough
 #  example, but invest effort in what it's trying to do, and what it produces.
 #  (make sure you don't build in features you don't need, etc).
@@ -6,8 +7,10 @@
 
 megaglest_release_folder="trunk"
 #megaglest_release_folder="release-3.3.5.1"
-
 mg_installer_bin_name=megaglest-installer.run
+
+CURRENTDIR="$(dirname $(readlink -f $0))"
+
 # below describe various folder paths relative to the installer root folder
 megaglest_project_root=../../../../../
 megaglest_data_path=${megaglest_project_root}${megaglest_release_folder}/data/glest_game/
@@ -36,9 +39,7 @@ megaglest_linux_toolspath=${megaglest_project_root}${megaglest_release_folder}/s
 
 # };
 #
-#megaglest_archiver_app_data="tar -c --xz -f "
-#megaglest_archivefilename_data="mgdata.tar.xz"
-megaglest_archiver_app_data='tar -cf - * | xz -9 > mgdata.tar.xz'
+#megaglest_archiver_app_data='tar -cf - * | xz -9e > mgdata.tar.xz'
 megaglest_archivefilename_data="mgdata.tar.xz"
 
 #megaglest_archiver_app="tar -c --xz -f "
@@ -52,11 +53,13 @@ megaglest_archivefilename="mgpkg.zip"
 
 # Grab the version #
 #
-pushd "`pwd`/${megaglest_linux_path}"
-echo "Linux project root path [`pwd`/${megaglest_linux_path}]"
-VERSION=`./mg-version.sh --version`
+#pushd "`pwd`/${megaglest_linux_path}"
+#echo "Linux project root path [`pwd`/${megaglest_linux_path}]"
+echo "Linux project root path [$CURRENTDIR/${megaglest_linux_path}]"
+
+VERSION=`$CURRENTDIR/${megaglest_linux_path}/mg-version.sh --version`
 echo "About to build Installer for $VERSION"
-popd
+#popd
 
 # Stop if anything produces an error.
 set -e
@@ -137,79 +140,103 @@ if [ $REPACKONLY -eq 0 ]; then
 	mkdir data/bin
 	mkdir data/blender
 
-	INSTALL_ROOTDIR="`pwd`/"
+#	INSTALL_ROOTDIR="`pwd`/"
+	INSTALL_ROOTDIR=$CURRENTDIR/
 	INSTALLDATADIR="${INSTALL_ROOTDIR}data/"
 
 	# Now copy all megaglest binaries
 	echo Copying live Mega Glest binary files...
 
-	pushd "`pwd`/$megaglest_linux_path"
+#	pushd "`pwd`/$megaglest_linux_path"
 
-	find start_megaglest -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find megaglest -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
-	find glest.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find megaglest.bmp -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find glestkeys.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-        find start_megaglest_configurator -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find megaglest_configurator -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
-        find start_megaglest_mapeditor -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find megaglest_editor -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
-        find start_megaglest_g3dviewer -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find megaglest_g3dviewer -exec cp -p --parents "{}" ${INSTALLDATADIR}bin ';'
-	find servers.ini -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find makedeps_folder.sh -exec cp -p --parents "{}" $INSTALL_ROOTDIR ';'
+	cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest" ${INSTALLDATADIR}bin
+	cp "$CURRENTDIR/$megaglest_linux_path/glest.ini" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest.bmp" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/glestkeys.ini" $INSTALLDATADIR
+        cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_configurator" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_configurator" ${INSTALLDATADIR}bin
+        cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_mapeditor" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_editor" ${INSTALLDATADIR}bin
+        cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_g3dviewer" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_g3dviewer" ${INSTALLDATADIR}bin
+	cp "$CURRENTDIR/$megaglest_linux_path/servers.ini" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/makedeps_folder.sh" $INSTALL_ROOTDIR
 
-	popd
+#	popd
 
 	# Now copy all blender related files
 	echo Copying blender modelling Mega Glest files...
 
-	pushd "`pwd`/${megaglest_linux_toolspath}glexemel/"
+#	pushd "`pwd`/${megaglest_linux_toolspath}"
 
-	find xml2g -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
-	find g2xml -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
-        find \( -name "*.py" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
-	find \( -name "*.dtd" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
-	find \( -name "*.png" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	svn export --force "$CURRENTDIR/${megaglest_linux_toolspath}/glexemel/" "${INSTALLDATADIR}blender/"
 
-	popd
+	#find xml2g -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	#find g2xml -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+        #find \( -name "*.py" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	#find \( -name "*.dtd" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+	#find \( -name "*.png" \) -exec cp -p --parents "{}" ${INSTALLDATADIR}blender ';'
+
+#	popd
 
 	# Now copy all glest data
 	echo Copying live Mega Glest data files...
 
-	pushd "`pwd`/$megaglest_data_path"
+#	pushd "`pwd`/$megaglest_data_path"
 
-	find configuration.xml -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find megaglest.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find megaglest_uninstall.ico -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find g3dviewer.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find editor.ico -exec cp -p --parents "{}" ${INSTALLDATADIR} ';'
-	find data/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find docs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find maps/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find scenarios/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find techs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find tilesets/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	find tutorials/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
-	popd
+	cp "$CURRENTDIR/$megaglest_data_path/configuration.xml" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_data_path/megaglest.ico" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_data_path/megaglest_uninstall.ico" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_data_path/g3dviewer.ico" ${INSTALLDATADIR}
+	cp "$CURRENTDIR/$megaglest_data_path/editor.ico" ${INSTALLDATADIR}
+
+	mkdir -p "$INSTALLDATADIR/data/"
+	svn export --force "$CURRENTDIR/$megaglest_data_path/data/" "$INSTALLDATADIR/data/"
+	mkdir -p "$INSTALLDATADIR/docs/"
+	svn export --force "$CURRENTDIR/$megaglest_data_path/docs/" "$INSTALLDATADIR/docs/"
+	svn export --force "${megaglest_project_root}${megaglest_release_folder}/docs/" "$INSTALLDATADIR/docs/"
+	mkdir -p "$INSTALLDATADIR/maps/"
+	svn export --force "$CURRENTDIR/$megaglest_data_path/maps/" "$INSTALLDATADIR/maps/"
+	mkdir -p "$INSTALLDATADIR/scenarios/"
+	svn export --force "$CURRENTDIR/$megaglest_data_path/scenarios/" "$INSTALLDATADIR/scenarios/"
+	mkdir -p "$INSTALLDATADIR/techs/"
+	svn export --force "$CURRENTDIR/$megaglest_data_path/techs/" "$INSTALLDATADIR/techs/"
+	mkdir -p "$INSTALLDATADIR/tilesets/"
+	svn export --force "$CURRENTDIR/$megaglest_data_path/tilesets/" "$INSTALLDATADIR/tilesets/"
+	mkdir -p "$INSTALLDATADIR/tutorials/"
+	svn export --force "$CURRENTDIR/$megaglest_data_path/tutorials/" "$INSTALLDATADIR/tutorials/"
+
+#	find data/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+#	find docs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+#	find maps/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+#	find scenarios/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+#	find techs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+#	find tilesets/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+#	find tutorials/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $INSTALLDATADIR ';'
+
+#	popd
 
 	# Now copy all megaglest data
 	echo Copying live Mega Glest country logo files...
 
-	pushd "`pwd`/$megaglest_linux_masterserverpath"
+#	pushd "`pwd`/$megaglest_linux_masterserverpath"
+
+	mkdir -p "${INSTALLDATADIR}data/core/misc_textures/"
+	svn export --force "$CURRENTDIR/$megaglest_linux_masterserverpath/flags/" "${INSTALLDATADIR}data/core/misc_textures/flags/"
+
+#	find flags/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" ${INSTALLDATADIR}data/core/misc_textures/ ';'
 	
-	find flags/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" ${INSTALLDATADIR}data/core/misc_textures/ ';'
-	
-	popd
+#	popd
 
 	#exit
 
 	# Now remove svn and temp files
 	echo removing temp and svn files...
 
-	find data/ -name "\.svn" -type d -depth -exec rm -rf {} \;
-	find data/ -name "*~" -exec rm -rf {} \;
-        find data/ -name "*.bak" -exec rm -rf {} \;
+#	find data/ -name "\.svn" -type d -depth -exec rm -rf {} \;
+#	find data/ -name "*~" -exec rm -rf {} \;
+#        find data/ -name "*.bak" -exec rm -rf {} \;
 
 	# Copy shared lib dependencies for megaglest
 	cd data
@@ -306,19 +333,20 @@ rm -f ../megaglest-installer/image/scripts/app_localization.luac
 cd ../megaglest-installer
 
 cd data
-#${megaglest_archiver_app_data} ${megaglest_archivefilename_data} *
 #${megaglest_archiver_app_data} ${megaglest_archivefilename_data}
-tar -cf - * | xz -9 > mgdata.tar.xz
+tar -cf - * | xz -9e > $megaglest_archivefilename_data
+# now remove everything except for the docs folder and the data archive
 shopt -s extglob
-rm -rf !(docs|${megaglest_archivefilename_data})
+rm -rf !(docs|$megaglest_archivefilename_data)
 cd ..
 
 cp -R data/* image/data/
 
 # remove svn files
-echo removing temp and svn files
-find image/data/ -name "\.svn" -type d -depth -exec rm -rf {} \;
-find image/data/ -name "*~" -exec rm -rf {} \;
+#echo removing temp and svn files
+#find image/data/ -name "\.svn" -type d -depth -exec rm -rf {} \;
+#find image/data/ -name "*~" -exec rm -rf {} \;
+
 cp meta/* image/meta/
 
 # Need these scripts to do things like install menu items, etc, on Unix.
@@ -350,7 +378,7 @@ else
     # Make an archive of the Base Archive dirs and nuke the originals...
     cd image
 
-# create the compressed image for the installer
+# create the compressed image for the installer (this will use zip as a container)
 #    zip -9r ../${megaglest_archivefilename} *
     ${megaglest_archiver_app} ../${megaglest_archivefilename} *
 
