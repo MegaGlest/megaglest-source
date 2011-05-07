@@ -75,6 +75,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib lua5.1.lib xerces-c_3.lib Dbghelp.lib libpng.lib jpeg.lib zlib.lib sdl.lib sdlmain.lib winmm.lib openal32.lib iphlpapi.lib libstreflop.lib  libcurl.lib ws2_32.lib libircclient.lib"
+				OutputFile="$(OutDir)\megaglest.exe"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop;../../source/win32_deps/libircclient/build/lib"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
@@ -163,6 +164,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib lua5.1.lib xerces-c_3.lib Dbghelp.lib libpng.lib jpeg.lib zlib.lib sdl.lib sdlmain.lib winmm.lib openal32.lib iphlpapi.lib libstreflop.lib libcurl.lib ws2_32.lib libircclient.lib"
+				OutputFile="$(OutDir)\megaglest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop;../../source/win32_deps/libircclient/build/lib"
 				IgnoreDefaultLibraryNames=""
@@ -254,6 +256,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dsound.lib dxguid.lib ogg_static.lib vorbis_static.lib vorbisfile_static.lib opengl32.lib glu32.lib wsock32.lib libglest.lib mmc.lib lua5.1.lib xerces-c_3.lib Dbghelp.lib libpng.lib jpeg.lib zlib.lib sdl.lib sdlmain.lib winmm.lib openal32.lib iphlpapi.lib libstreflop.lib libcurl.lib ws2_32.lib"
+				OutputFile="$(OutDir)\megaglest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/shared_lib/sources/streflop/libstreflop"
 				IgnoreDefaultLibraryNames=""

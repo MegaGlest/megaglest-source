@@ -3,8 +3,8 @@
 
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.4.0
-!define APVER 3.5.0
+!define APVER_OLD 3.5.0
+!define APVER 3.5.1
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
@@ -23,12 +23,12 @@ RequestExecutionLevel none
 
 PageEx license
        LicenseText "Megaglest License"
-       LicenseData "..\..\..\data\glest_game\docs\LICENSE"
+       LicenseData "..\..\..\data\glest_game\docs\README.data-license.txt"
 PageExEnd
 
 PageEx license
        LicenseText "Megaglest README"
-       LicenseData "..\..\..\data\glest_game\docs\README"
+       LicenseData "..\..\..\docs\README.txt"
 PageExEnd
 
 ;--------------------------------
@@ -58,8 +58,7 @@ Page instfiles
 UninstPage uninstConfirm
 UninstPage instfiles
 
-Function MUIGUIInit
-
+Function myGUIInit
   SetOutPath '$PLUGINSDIR'
   File megaglestinstallscreen.jpg
 
@@ -71,6 +70,25 @@ Function MUIGUIInit
 #  FindWindow $0 "#32770" "" $HWNDPARENT
 #  GetDlgItem $0 $0 1006
 #  SetCtlColors $0 0xDF9437 0xDF9437
+FunctionEnd
+
+Function un.myGUIInit
+  SetOutPath '$PLUGINSDIR'
+  File megaglestinstallscreen.jpg
+
+  FindWindow $0 '_Nb'
+  EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
+FunctionEnd
+  
+Function MUIGUIInit
+
+  Call myGUIInit
+  
+#  SetOutPath '$PLUGINSDIR'
+#  File megaglestinstallscreen.jpg
+
+#  FindWindow $0 '_Nb'
+#  EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
 
 # look for known older versions
 
@@ -97,6 +115,16 @@ Function MUIGUIInit
    StrCpy $R0 "$EXEDIR"
    StrCpy $R2 "?"
    IfFileExists $EXEDIR\glest_game.exe foundInst doneInit
+
+   IfFileExists $INSTDIR\megaglest.exe 0 +2
+   StrCpy $R0 "$INSTDIR"
+   StrCpy $R2 "?"
+   IfFileExists $INSTDIR\megaglest.exe foundInst
+
+   IfFileExists $EXEDIR\megaglest.exe 0 +2
+   StrCpy $R0 "$EXEDIR"
+   StrCpy $R2 "?"
+   IfFileExists $EXEDIR\megaglest_exe foundInst doneInit
 
 foundInst:
 
@@ -162,7 +190,7 @@ noLaunchWebsite:
     click Yes to launch the game now$\nor 'No' to exit." IDNO noLaunch
 
     SetOutPath $INSTDIR
-    Exec 'glest_game.exe'
+    Exec 'megaglest.exe'
 
 noLaunch:
 
@@ -178,31 +206,34 @@ Section "${APNAME} (required)"
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
   ; Put file there
-  File "..\..\..\data\glest_game\glest_game.exe"
-  File "..\..\..\data\glest_game\glest_editor.exe"
-  File "..\..\..\data\glest_game\glest_configurator.exe"
-  File "..\..\..\data\glest_game\g3d_viewer.exe"
+  File "..\..\..\data\glest_game\megaglest.exe"
+  File "..\..\..\data\glest_game\megaglest_editor.exe"
+  File "..\..\..\data\glest_game\megaglest_configurator.exe"
+  File "..\..\..\data\glest_game\megaglest_g3dviewer.exe"
   File "..\..\..\data\glest_game\7z.exe"
   File "..\..\..\data\glest_game\configuration.xml"
   File "..\..\..\data\glest_game\megaglest.ico"
   File "..\..\..\data\glest_game\glest.ini"
   File "..\..\..\data\glest_game\glestkeys.ini"
   File "..\..\..\data\glest_game\servers.ini"
-#  File "..\..\..\data\glest_game\dsound.dll"
   File "..\..\..\data\glest_game\openal32.dll"
   File "..\..\..\data\glest_game\xerces-c_3_0.dll"
   
   SetOutPath "$INSTDIR\blender\"
   File "..\..\..\data\glest_game\xml2g.exe"
   File "..\..\..\data\glest_game\g2xml.exe"
-  File "..\..\..\source\tools\glexemel\g3d_support.py"
-  File "..\..\..\source\tools\glexemel\g3d_xml_exporter.py"
-  File "..\..\..\source\tools\glexemel\g3d.dtd"
-  File "..\..\..\source\tools\glexemel\g3d_logo.png"
+  File /r /x .svn /x mydata "..\..\..\source\tools\glexemel\*.*"
+#  File "..\..\..\data\glest_game\xml2g.exe"
+#  File "..\..\..\data\glest_game\g2xml.exe"
+#  File "..\..\..\source\tools\glexemel\g3d_support.py"
+#  File "..\..\..\source\tools\glexemel\g3d_xml_exporter.py"
+#  File "..\..\..\source\tools\glexemel\g3d.dtd"
+#  File "..\..\..\source\tools\glexemel\g3d_logo.png"
   SetOutPath $INSTDIR
 
   File /r /x .svn /x mydata "..\..\..\data\glest_game\data"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
+  File /r /x .svn /x mydata "..\..\..\docs"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\scenarios"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\techs"
@@ -243,11 +274,11 @@ Section "Start Menu Shortcuts"
 
   CreateDirectory "$SMPROGRAMS\${APNAME}"
   CreateShortCut "$SMPROGRAMS\${APNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\glest_game.exe" "" "$INSTDIR\glest_game.exe" 0 "" "" "${APNAME}"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglest.exe" "" "$INSTDIR\megaglest.exe" 0 "" "" "${APNAME}"
 
 ;  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} Configurator.lnk" "$INSTDIR\glest_configurator.exe" "" "$INSTDIR\glest_configurator.exe" 0 "" "" "${APNAME} Config Editor"
-  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\glest_editor.exe" "" "$INSTDIR\glest_editor.exe" 0 "" "" "${APNAME} Map Editor"
-  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\g3d_viewer.exe" "" "$INSTDIR\g3d_viewer.exe" 0 "" "" "${APNAME} G3D Viewer"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editor.exe" "" "$INSTDIR\megaglest_editor.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewer.exe" "" "$INSTDIR\megaglest_g3dviewer.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
 
 SectionEnd
 
@@ -257,6 +288,8 @@ SectionEnd
 
 Section "Uninstall"
 
+  Call un.myGUIInit
+  
   ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}"
   DeleteRegKey HKLM SOFTWARE\${APNAME}
@@ -264,16 +297,15 @@ Section "Uninstall"
   ; Remove files and uninstaller
   Delete $INSTDIR\uninstall.exe
 
-  Delete $INSTDIR\glest_game.exe
-  Delete $INSTDIR\glest_editor.exe
-  Delete $INSTDIR\glest_configurator.exe
-  Delete $INSTDIR\g3d_viewer.exe
+  Delete $INSTDIR\megaglest.exe
+  Delete $INSTDIR\megaglest_editor.exe
+  Delete $INSTDIR\megaglest_configurator.exe
+  Delete $INSTDIR\megaglest_g3dviewer.exe
   Delete $INSTDIR\configuration.xml
   Delete $INSTDIR\megaglest.ico
   Delete $INSTDIR\glest.ini
   Delete $INSTDIR\glestkeys.ini
   Delete $INSTDIR\servers.ini
- # Delete $INSTDIR\dsound.dll
   Delete $INSTDIR\openal32.dll
   Delete $INSTDIR\xerces-c_3_0.dll
   Delete $INSTDIR\*.log
