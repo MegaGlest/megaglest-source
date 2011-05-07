@@ -233,15 +233,18 @@ Section "${APNAME} (required)"
 
   File /r /x .svn /x mydata "..\..\..\data\glest_game\data"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
-  File /r /x .svn /x mydata "..\..\..\docs"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\scenarios"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\techs"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\tilesets"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
 #  File /r /x .svn "..\..\..\data\glest_game\screens"
-  SetOutPath "$INSTDIR\data\core\misc_textures\"
-  File /r /x .svn /x mydata "..\..\..\source\masterserver\flags"
+
+  SetOutPath "$INSTDIR\docs\"
+  File /r /x .svn /x mydata "..\..\..\docs\*.*"
+  
+  SetOutPath "$INSTDIR\data\core\misc_textures\flags"
+  File /r /x .svn /x mydata "..\..\..\source\masterserver\flags\*.*"
   SetOutPath $INSTDIR
 
   ; Write the installation path into the registry
@@ -262,7 +265,7 @@ Section "${APNAME} (required)"
   CreateDirectory $INSTDIR\techs
   CreateDirectory $INSTDIR\tilesets
   CreateDirectory $INSTDIR\tutorials
-  CreateDirectory $INSTDIR\screens
+#  CreateDirectory $INSTDIR\screens
   CreateDirectory $INSTDIR\blender
 
   AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
@@ -295,45 +298,45 @@ Section "Uninstall"
   DeleteRegKey HKLM SOFTWARE\${APNAME}
 
   ; Remove files and uninstaller
-  Delete $INSTDIR\uninstall.exe
+  Delete "$INSTDIR\uninstall.exe"
 
-  Delete $INSTDIR\megaglest.exe
-  Delete $INSTDIR\megaglest_editor.exe
-  Delete $INSTDIR\megaglest_configurator.exe
-  Delete $INSTDIR\megaglest_g3dviewer.exe
-  Delete $INSTDIR\configuration.xml
-  Delete $INSTDIR\megaglest.ico
-  Delete $INSTDIR\glest.ini
-  Delete $INSTDIR\glestkeys.ini
-  Delete $INSTDIR\servers.ini
-  Delete $INSTDIR\openal32.dll
-  Delete $INSTDIR\xerces-c_3_0.dll
-  Delete $INSTDIR\*.log
+  Delete "$INSTDIR\megaglest.exe"
+  Delete "$INSTDIR\megaglest_editor.exe"
+  Delete "$INSTDIR\megaglest_configurator.exe"
+  Delete "$INSTDIR\megaglest_g3dviewer.exe"
+  Delete "$INSTDIR\configuration.xml"
+  Delete "$INSTDIR\megaglest.ico"
+  Delete "$INSTDIR\glest.ini"
+  Delete "$INSTDIR\glestkeys.ini"
+  Delete "$INSTDIR\servers.ini"
+  Delete "$INSTDIR\openal32.dll"
+  Delete "$INSTDIR\xerces-c_3_0.dll"
+  Delete "$INSTDIR\*.log"
 
-  Delete $INSTDIR\data\*.*
-  Delete $INSTDIR\docs\*.*
-  Delete $INSTDIR\maps\*.*
-  Delete $INSTDIR\scenarios\*.*
-  Delete $INSTDIR\screens\*.*
-  Delete $INSTDIR\techs\*.*
-  Delete $INSTDIR\tilesets\*.*
-  Delete $INSTDIR\tutorials\*.*
+  Delete "$INSTDIR\data\*.*"
+  Delete "$INSTDIR\docs\*.*"
+  Delete "$INSTDIR\maps\*.*"
+  Delete "$INSTDIR\scenarios\*.*"
+  Delete "$INSTDIR\screens\*.*"
+  Delete "$INSTDIR\techs\*.*"
+  Delete "$INSTDIR\tilesets\*.*"
+  Delete "$INSTDIR\tutorials\*.*"
 
-  RMDir /r $INSTDIR\data
-  RMDir /r $INSTDIR\docs
-  RMDir /r $INSTDIR\maps
-  RMDir /r $INSTDIR\scenarios
-  RMDir /r $INSTDIR\screens
-  RMDir /r $INSTDIR\techs
-  RMDir /r $INSTDIR\tilesets
-  RMDir /r $INSTDIR\tutorials
+  RMDir /r "$INSTDIR\data"
+  RMDir /r "$INSTDIR\docs"
+  RMDir /r "$INSTDIR\maps"
+  RMDir /r "$INSTDIR\scenarios"
+  RMDir /r "$INSTDIR\screens"
+  RMDir /r "$INSTDIR\techs"
+  RMDir /r "$INSTDIR\tilesets"
+  RMDir /r "$INSTDIR\tutorials"
 
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\${APNAME}\*.*"
 
   ; Remove directories used
   RMDir "$SMPROGRAMS\${APNAME}"
-  RMDir "$INSTDIR"
+  RMDir /r "$INSTDIR"
 
 SectionEnd
 
