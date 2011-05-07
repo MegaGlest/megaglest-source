@@ -130,7 +130,6 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	rm -rf data
 	mkdir data
-	mkdir data/bin
 	mkdir data/blender
 
 	INSTALL_ROOTDIR=$CURRENTDIR/
@@ -140,16 +139,16 @@ if [ $REPACKONLY -eq 0 ]; then
 	echo Copying live Mega Glest binary files...
 
 	cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest" ${INSTALLDATADIR}bin
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest" ${INSTALLDATADIR}
 	cp "$CURRENTDIR/$megaglest_linux_path/glest.ini" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/megaglest.bmp" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/glestkeys.ini" $INSTALLDATADIR
         cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_configurator" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_configurator" ${INSTALLDATADIR}bin
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_configurator" ${INSTALLDATADIR}
         cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_mapeditor" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_editor" ${INSTALLDATADIR}bin
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_editor" ${INSTALLDATADIR}
         cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_g3dviewer" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_g3dviewer" ${INSTALLDATADIR}bin
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_g3dviewer" ${INSTALLDATADIR}
 	cp "$CURRENTDIR/$megaglest_linux_path/servers.ini" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/makedeps_folder.sh" $INSTALL_ROOTDIR
 
@@ -191,7 +190,7 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	# Copy shared lib dependencies for megaglest
 	cd data
-	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh bin/megaglest"
+	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh megaglest"
 	$copyGlestDeptsCmd
 	cd ..
 fi
