@@ -2,7 +2,8 @@
 
 VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-data
-PACKAGE="$RELEASENAME-$VERSION.7z"
+#PACKAGE="$RELEASENAME-$VERSION.7z"
+PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
 RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
 SOURCEDIR="$CURRENTDIR/../../source/"
@@ -45,10 +46,11 @@ svn export --force "$CURRENTDIR/../../data/glest_game/tutorials" "$RELEASEDIR/tu
 mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
 svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/data/core/misc_textures/flags/"
 
-cp -p CMakeLists.txt $RELEASEDIR
+cp -p "$CURRENTDIR/../../data/glest_game/CMakeLists.txt" $RELEASEDIR
 
 echo "creating $PACKAGE"
 rm "release/$PACKAGE"
 #tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
-7z a -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
+tar -cf - "$CURRENTDIR/release/$RELEASENAME-$VERSION" | xz -9e > release/$PACKAGE
+# 7z a -mmt -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
 
