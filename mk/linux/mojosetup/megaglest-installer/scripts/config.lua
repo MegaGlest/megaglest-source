@@ -68,6 +68,18 @@ Setup.Package
 	end
     end,
 
+    postuninstall = function(package)
+	-- Cleanup additional files 
+	if MojoSetup.destination ~= '' then	
+		if MojoSetup.platform.exists(MojoSetup.destination .. '/lib/') then
+			os.execute('rm -rf ' .. MojoSetup.destination .. '/lib/')
+		end
+		if MojoSetup.platform.exists(MojoSetup.destination) then
+			os.execute('rm -rf ' .. MojoSetup.destination)
+		end
+	end
+    end,
+
     Setup.Eula
     {
         description = _("Megaglest License"),

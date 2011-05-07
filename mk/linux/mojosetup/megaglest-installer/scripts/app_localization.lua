@@ -4,11 +4,12 @@
 
 MojoSetup.applocalization = {
     ["Uninstall complete"] = {
+     	en = "Uninstall complete. You may also delete '.megaglest' in your home directory to remove personal savegames and settings.",
         en = "Uninstall complete.",
         de = "Deinstallation komplett.",
         es = "Desinstalación completa.",
         pl = "Usuwanie zakończone.",
-        it = "Disinstallazione completata.",
+        it = "Disinstallazione completata. Se desideri cancellare i salvataggi e le impostazione cancella '.megaglest' nella tua directory home.",
     };
 
     ["Megaglest README"] = {
@@ -18,7 +19,7 @@ MojoSetup.applocalization = {
         it = "Informazioni su Megaglest",
     };
 
-	["docs/README"] = {
+    ["docs/README"] = {
     };
 
     ["Megaglest License"] = {

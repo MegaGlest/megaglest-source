@@ -1,7 +1,24 @@
 ===================
 MEGAGLEST CHANGELOG
 ===================
+To see a timeline of detail changes please visit:
+http://sourceforge.net/apps/trac/megaglest/timeline
 
+3.5.1
+- Much better pathfinder performance
+- Allow servers to temporary block specified network players from the game lobby
+- Better Linux distro packaing support (by default megaglest works in standard linux paths and make install added)
+- Game data cleanup (duplicate sound files have been merged in megapack) and non free content replaced.
+  (autumn and desert tilesets)
+- Displayed up to 15 queued commands (observers can view all players queued commands)
+- Allow factions in a techtree to share common data using the special tag in xml files $COMMONDATAPATH
+  which points to the techtrees commondata/ folder.
+- standardized games and tools startup scripts with names starting with 'startup_'
+- updated translations for German, Italian and French
+- bugfixes reported in 3.5.0
+- AI enhancements (better repair, and safer build positions)
+- Improved network code, fixes some out of synch issues.
+- Display players svn revision# in network game lobby
 
 3.5.0
 - Menu changes to better group similar items
