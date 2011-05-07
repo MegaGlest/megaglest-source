@@ -36,4 +36,5 @@ cp "$CURRENTDIR/start_megaglest"* $RELEASEDIR
 cp "$CURRENTDIR/../../CMake"* $RELEASEDIR
 
 echo "Creating $PACKAGE"
+rm "release/$PACKAGE"
 tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"

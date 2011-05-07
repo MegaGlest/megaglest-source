@@ -2,60 +2,53 @@
 
 VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-data
-#RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION"
-RELEASEDIR="`pwd`/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
+PACKAGE="$RELEASENAME-$VERSION.7z"
+CURRENTDIR="$(dirname $(readlink -f $0))"
+RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
+SOURCEDIR="$CURRENTDIR/../../source/"
 
 echo "Creating data package in $RELEASEDIR"
 
-rm -rf $RELEASEDIR
-mkdir -p $RELEASEDIR
+[[ -d "$RELEASEDIR" ]] && rm -rf "$RELEASEDIR"
+mkdir -p "$RELEASEDIR"
 
 # copy data
-pushd "`pwd`/../../mk/linux"
-echo '----In mk/linux'
-find megaglest.bmp \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find megaglest.desktop \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find megaglest.png \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find glest.ico \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-popd
-#ls $RELEASEDIR
+cp "$CURRENTDIR/../../mk/linux/megaglest.bmp" $RELEASEDIR
+cp "$CURRENTDIR/../../mk/linux/megaglest.desktop" $RELEASEDIR
+cp "$CURRENTDIR/../../mk/linux/megaglest.png" $RELEASEDIR
+cp "$CURRENTDIR/../../mk/linux/glest.ico" $RELEASEDIR
 
-# copy data
-pushd "`pwd`/../../data/glest_game"
-echo '----In data/glest_game'
+cp "$CURRENTDIR/../../data/glest_game/megaglest.ico" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/editor.ico" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/servers.ini" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/glest.ini" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/glestkeys.ini" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/configuration.xml" $RELEASEDIR
 
-find megaglest.ico \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find g3dviewer.ico \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find editor.ico \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find servers.ini \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find glest.ini \( -name "*" \) -exec cp -p "{}" $RELEASEDIR/glest_linux.ini ';'
-find glestkeys.ini \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find configuration.xml \( -name "*" \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+mkdir -p "$RELEASEDIR/data/"
+svn export --force "$CURRENTDIR/../../data/glest_game/data" "$RELEASEDIR/data/"
+mkdir -p "$RELEASEDIR/docs/"
+svn export --force "$CURRENTDIR/../../data/glest_game/docs" "$RELEASEDIR/docs/"
+mkdir -p "$RELEASEDIR/maps/"
+svn export --force "$CURRENTDIR/../../data/glest_game/maps" "$RELEASEDIR/maps/"
+mkdir -p "$RELEASEDIR/scenarios/"
+svn export --force "$CURRENTDIR/../../data/glest_game/scenarios" "$RELEASEDIR/scenarios/"
+mkdir -p "$RELEASEDIR/techs/"
+svn export --force "$CURRENTDIR/../../data/glest_game/techs" "$RELEASEDIR/techs/"
+mkdir -p "$RELEASEDIR/tilesets/"
+svn export --force "$CURRENTDIR/../../data/glest_game/tilesets" "$RELEASEDIR/tilesets/"
+mkdir -p "$RELEASEDIR/tutorials/"
+svn export --force "$CURRENTDIR/../../data/glest_game/tutorials" "$RELEASEDIR/tutorials/"
 
-find data/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find docs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find maps/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find scenarios/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find techs/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find tilesets/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
-find tutorials/ \( -name "*" \) -not \( -name .svn -prune \) -not \( -name "*~" -prune \) -not \( -name "*.bak" -prune \) -exec cp -p --parents "{}" $RELEASEDIR ';'
+# special export for flag images
+mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
+svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/data/core/misc_textures/flags/"
 
 cp -p CMakeLists.txt $RELEASEDIR
-popd
 
-pushd $RELEASEDIR
-
-# remove svn files
-find -name "\.svn" -type d -depth -exec rm -rf {} \;
-
-popd
-
-pushd release
-PACKAGE="$RELEASENAME-$VERSION.7z"
 echo "creating $PACKAGE"
-rm "$PACKAGE"
+rm "release/$PACKAGE"
+#tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
+7z a -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
 
-#pushd $RELEASEDIR
-7za a -mx=9 -ms=on -mhc=on "$PACKAGE" "$RELEASENAME-$VERSION"
-
-popd
