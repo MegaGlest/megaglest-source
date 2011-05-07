@@ -64,7 +64,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxbase28d.lib wxbase28d_net.lib wxbase28d_xml.lib wxexpatd.lib wxjpegd.lib wxmsw28d_adv.lib wxmsw28d_aui.lib wxmsw28d_core.lib wxmsw28d_gl.lib wxmsw28d_html.lib wxmsw28d_media.lib wxmsw28d_qa.lib wxmsw28d_richtext.lib wxmsw28d_xrc.lib wxpngd.lib wxregexd.lib wxtiffd.lib wxzlibd.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib  libglest.lib sdl.lib sdlmain.lib dsound.lib dxguid.lib Dbghelp.lib libcurl.lib ws2_32.lib xerces-c_3.lib"
-				OutputFile="$(OutDir)\Glest_Configurator.exe"
+				OutputFile="$(OutDir)\megaglest_configurator.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/win32_deps/lib"
 				GenerateDebugInformation="true"
@@ -141,7 +141,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxbase28.lib wxbase28_net.lib wxbase28_xml.lib wxexpat.lib wxjpeg.lib wxmsw28_adv.lib wxmsw28_aui.lib wxmsw28_core.lib wxmsw28_gl.lib wxmsw28_html.lib wxmsw28_media.lib wxmsw28_qa.lib wxmsw28_richtext.lib wxmsw28_xrc.lib wxpng.lib wxregex.lib wxtiff.lib wxzlib.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib xerces-c_3.lib sdl.lib sdlmain.lib dsound.lib dxguid.lib Dbghelp.lib libcurl.lib ws2_32.lib"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\megaglest_configurator.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/win32_deps/lib"
 				GenerateDebugInformation="true"
@@ -220,7 +220,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxbase28.lib wxbase28_net.lib wxbase28_xml.lib wxexpat.lib wxjpeg.lib wxmsw28_adv.lib wxmsw28_aui.lib wxmsw28_core.lib wxmsw28_gl.lib wxmsw28_html.lib wxmsw28_media.lib wxmsw28_qa.lib wxmsw28_richtext.lib wxmsw28_xrc.lib wxpng.lib wxregex.lib wxtiff.lib wxzlib.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib xerces-c_3.lib sdl.lib sdlmain.lib dsound.lib dxguid.lib Dbghelp.lib libcurl.lib ws2_32.lib"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				OutputFile="$(OutDir)\megaglest_configurator.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/win32_deps/lib"
 				GenerateDebugInformation="true"

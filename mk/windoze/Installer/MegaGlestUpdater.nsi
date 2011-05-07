@@ -2,10 +2,10 @@
 ; General Attributes
 
 !define APNAME MegaGlest
-!define APVER 3.5.0
+!define APVER 3.5.1
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.4.0
-!define APVER_UPDATE 3.5.0
+!define APVER_OLD 3.5.0
+!define APVER_UPDATE 3.5.1
 
 Name "${APNAME} ${APVER_UPDATE}"
 SetCompressor /FINAL /SOLID lzma
@@ -25,12 +25,12 @@ RequestExecutionLevel admin
 
 PageEx license
        LicenseText "Megaglest License"
-       LicenseData "..\..\..\data\glest_game\docs\LICENSE"
+       LicenseData "..\..\..\data\glest_game\docs\README.data-license.txt"
 PageExEnd
 
 PageEx license
        LicenseText "Megaglest README"
-       LicenseData "..\..\..\data\glest_game\docs\README"
+       LicenseData "..\..\..\docs\README.txt"
 PageExEnd
 
 ;--------------------------------
@@ -95,6 +95,16 @@ Function MUIGUIInit
    StrCpy $R0 "$EXEDIR"
    StrCpy $R2 "?"
    IfFileExists $EXEDIR\glest_game.exe foundInst doneInit
+
+   IfFileExists $INSTDIR\megaglest.exe 0 +2
+   StrCpy $R0 "$INSTDIR"
+   StrCpy $R2 "?"
+   IfFileExists $INSTDIR\megaglest.exe foundInst
+
+   IfFileExists $EXEDIR\megaglest.exe 0 +2
+   StrCpy $R0 "$EXEDIR"
+   StrCpy $R2 "?"
+   IfFileExists $EXEDIR\megaglest.exe foundInst doneInit
 
 foundInst:
    StrCpy $INSTDIR "$R0"
@@ -162,12 +172,14 @@ Section "${APNAME} (required)"
   #RMDir /r "$INSTDIR\techs\megapack\factions\norsemen\upgrades\training_field"
 
   ; Put file there
-  File "..\..\..\data\glest_game\glest_game.exe"
-  File "..\..\..\data\glest_game\glest_editor.exe"
-  File "..\..\..\data\glest_game\glest_configurator.exe"
-  File "..\..\..\data\glest_game\g3d_viewer.exe"
+  File "..\..\..\data\glest_game\megaglest.exe"
+  File "..\..\..\data\glest_game\megaglest_editor.exe"
+  File "..\..\..\data\glest_game\megaglest_configurator.exe"
+  File "..\..\..\data\glest_game\megaglest_g3dviewer.exe"
   File "..\..\..\data\glest_game\7z.exe"
-  File "..\..\..\data\glest_game\*.ini"
+  File "..\..\..\data\glest_game\glest.ini"
+  File "..\..\..\data\glest_game\glestkeys.ini"
+  File "..\..\..\data\glest_game\servers.ini"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\*.lng"
   #File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
   #File /r /x .svn /x mydata "..\..\..\data\glest_game\*.xml"
