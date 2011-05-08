@@ -51,6 +51,6 @@ cp -p "$CURRENTDIR/../../data/glest_game/CMakeLists.txt" $RELEASEDIR
 echo "creating $PACKAGE"
 rm "release/$PACKAGE"
 #tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
-tar -cf - -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION" | xz -9e > release/$PACKAGE
+tar -cf - -C "$CURRENTDIR/release/$RELEASENAME-$VERSION/" "megaglest-$VERSION" | xz -9e > release/$PACKAGE
 # 7z a -mmt -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
 
