@@ -106,6 +106,7 @@ void ClientInterface::connect(const Ip &ip, int port) {
 	clientSocket->setBlock(false);
 	clientSocket->connect(ip, port);
 	connectedTime = time(NULL);
+	clientSocket->setBlock(true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END - socket = %d\n",__FILE__,__FUNCTION__,clientSocket->getSocketId());
 }
