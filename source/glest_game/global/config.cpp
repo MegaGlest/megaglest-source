@@ -126,7 +126,13 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     	foundPath = tryCustomPath(cfgType, fileName, "/usr/share/megaglest/");
     }
     if(foundPath == false) {
+    	foundPath = tryCustomPath(cfgType, fileName, "/usr/share/games/megaglest/");
+    }
+    if(foundPath == false) {
     	foundPath = tryCustomPath(cfgType, fileName, "/usr/local/share/megaglest/");
+    }
+    if(foundPath == false) {
+    	foundPath = tryCustomPath(cfgType, fileName, "/usr/local/share/games/megaglest/");
     }
 #endif
 

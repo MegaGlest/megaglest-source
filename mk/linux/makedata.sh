@@ -23,7 +23,8 @@ cp "$CURRENTDIR/../../data/glest_game/megaglest.ico" $RELEASEDIR
 cp "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" $RELEASEDIR
 cp "$CURRENTDIR/../../data/glest_game/editor.ico" $RELEASEDIR
 cp "$CURRENTDIR/../../data/glest_game/servers.ini" $RELEASEDIR
-cp "$CURRENTDIR/../../data/glest_game/glest.ini" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/glest.ini" $RELEASEDIR/glest_windows.ini
+cp "$CURRENTDIR/../../mk/linux/glest.ini" $RELEASEDIR/glest_linux.ini
 cp "$CURRENTDIR/../../data/glest_game/glestkeys.ini" $RELEASEDIR
 cp "$CURRENTDIR/../../data/glest_game/configuration.xml" $RELEASEDIR
 
