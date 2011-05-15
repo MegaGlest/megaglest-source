@@ -628,6 +628,7 @@ ELSE(wxWidgets_FIND_STYLE STREQUAL "win32")
         RESULT_VARIABLE _wx_result
         ERROR_QUIET
         )
+
       IF(_wx_result EQUAL 0)
         FOREACH(_opt_name debug static unicode universal)
           STRING(TOUPPER ${_opt_name} _upper_opt_name)
@@ -860,6 +861,10 @@ SET(wxWidgets_FOUND ${WXWIDGETS_FOUND})
 FIND_PROGRAM(wxWidgets_wxrc_EXECUTABLE wxrc
   ${wxWidgets_ROOT_DIR}/utils/wxrc/vc_msw
   )
+
+MARK_AS_ADVANCED(wxWidgets_CONFIG_EXECUTABLE)
+MARK_AS_ADVANCED(wxWidgets_wxrc_EXECUTABLE)
+
 
 # 
 # WX_SPLIT_ARGUMENTS_ON(<keyword> <left> <right> <arg1> <arg2> ...)
