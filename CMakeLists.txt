@@ -95,7 +95,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
 	SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"${MG_WC_REVISION}\\\"'")
 
-	IF(UNIX AND NOT APPLE)
+	IF(UNIX AND NOT APPLE AND WANT_SVN_STAMP)
 		# We do some funky character escaping to get the right stuff written out to 
 		# the final Makefile so we get the SVN Global Revsion #
 		SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
