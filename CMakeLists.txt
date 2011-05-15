@@ -78,6 +78,8 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	SET(CMAKE_CXX_FLAGS_MINSIZEREL "-O3 ${CMAKE_CXX_FLAGS_MINSIZEREL} -O3 ")
 	SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")  ## Strip binary 
 
+	SET(HAS_SVN "FALSE") 
+
 	OPTION(WANT_SVN_STAMP "use svn stamp" ON)
 	IF(WANT_SVN_STAMP)
 		# The stuff below gets SVN Global Revision # but ONLY when calling cmake!
@@ -95,7 +97,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
 	SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"${MG_WC_REVISION}\\\"'")
 
-	IF(UNIX AND NOT APPLE AND WANT_SVN_STAMP)
+	IF(UNIX AND NOT APPLE AND ${HAS_SVN} STREQUAL "TRUE")
 		# We do some funky character escaping to get the right stuff written out to 
 		# the final Makefile so we get the SVN Global Revsion #
 		SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
