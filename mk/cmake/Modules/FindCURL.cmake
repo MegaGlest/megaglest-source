@@ -28,6 +28,7 @@ IF(CURL_FOUND)
   # and force using static libs
   IF(UNIX AND NOT APPLE)
     FIND_PROGRAM( CMAKE_CURL_CONFIG curl-config)
+    MARK_AS_ADVANCED(CMAKE_CURL_CONFIG)
 
     IF(CMAKE_CURL_CONFIG)
       OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
