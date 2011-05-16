@@ -1018,7 +1018,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 */
 
 	Chrono chrono;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+	chrono.start();
 
 	NetworkMessageType msg = nmtInvalid;
 	int waitLoopCount = 0;
