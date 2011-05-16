@@ -35,6 +35,7 @@ namespace Glest { namespace Game {
 double maxFrameCountLagAllowed 							= 25;
 double maxClientLagTimeAllowed 							= 30;
 double maxFrameCountLagAllowedEver 						= 35;
+double maxClientLagTimeAllowedEver						= 45;
 double warnFrameCountLagPercent 						= 0.65;
 double LAG_CHECK_GRACE_PERIOD 							= 15;
 double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE 				= 2;
@@ -58,10 +59,11 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 
 	maxFrameCountLagAllowed 				= Config::getInstance().getInt("MaxFrameCountLagAllowed", intToStr(maxFrameCountLagAllowed).c_str());
 	maxFrameCountLagAllowedEver 			= Config::getInstance().getInt("MaxFrameCountLagAllowedEver", intToStr(maxFrameCountLagAllowedEver).c_str());
+	maxClientLagTimeAllowedEver				= Config::getInstance().getInt("MaxClientLagTimeAllowedEver", intToStr(maxClientLagTimeAllowedEver).c_str());
 	maxClientLagTimeAllowed 				= Config::getInstance().getInt("MaxClientLagTimeAllowed", intToStr(maxClientLagTimeAllowed).c_str());
 	warnFrameCountLagPercent 				= Config::getInstance().getFloat("WarnFrameCountLagPercent", doubleToStr(warnFrameCountLagPercent).c_str());
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] maxFrameCountLagAllowed = %f, maxFrameCountLagAllowedEver = %f, maxClientLagTimeAllowed = %f\n",__FILE__,__FUNCTION__,__LINE__,maxFrameCountLagAllowed,maxFrameCountLagAllowedEver,maxClientLagTimeAllowed);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] maxFrameCountLagAllowed = %f, maxFrameCountLagAllowedEver = %f, maxClientLagTimeAllowed = %f, maxClientLagTimeAllowedEver = %f\n",__FILE__,__FUNCTION__,__LINE__,maxFrameCountLagAllowed,maxFrameCountLagAllowedEver,maxClientLagTimeAllowed,maxClientLagTimeAllowedEver);
 
 	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		slots[i]				= NULL;
@@ -456,7 +458,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 				// New lag check
 				if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
 					(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed) ||
-					(maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver)) {
+					((maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver) ||
+					  maxClientLagTimeAllowedEver > 0 && clientLagTime > maxClientLagTimeAllowedEver)) {
 					clientLagExceededOrWarned.first = true;
 
 			    	Lang &lang= Lang::getInstance();
@@ -469,7 +472,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 							msgTemplate = lang.get("ClientLagDropping",languageList[i]);
 						}
 						if(gameSettings.getNetworkPauseGameForLaggedClients() == true &&
-							(maxFrameCountLagAllowedEver <= 0 || clientLagCount <= maxFrameCountLagAllowedEver)) {
+							(maxFrameCountLagAllowedEver <= 0 || clientLagCount <= maxFrameCountLagAllowedEver ||
+							 maxClientLagTimeAllowedEver <= 0 || clientLagTime <= maxClientLagTimeAllowedEver)) {
 							msgTemplate = "PAUSING GAME TEMPORARILY for %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], waiting for client to catch up...";
 							if(lang.hasString("ClientLagPausing") == true) {
 								msgTemplate = lang.get("ClientLagPausing",languageList[i]);
@@ -492,7 +496,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 			    	}
 
 					if(gameSettings.getNetworkPauseGameForLaggedClients() == false ||
-						(maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver)) {
+						(maxFrameCountLagAllowedEver > 0 && clientLagCount > maxFrameCountLagAllowedEver) ||
+						(maxClientLagTimeAllowedEver > 0 && clientLagTime > maxClientLagTimeAllowedEver)) {
 						connectionSlot->close();
 					}
 
