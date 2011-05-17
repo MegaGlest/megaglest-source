@@ -221,7 +221,7 @@ void ClientInterface::updateLobby() {
 						string playerNameStr = getHumanPlayerName();
 						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() +
 								"\nClient: " + getNetworkVersionSVNString() + " player [" + playerNameStr + "]";
-						printf("%s\n",sErr.c_str());
+						//printf("%s\n",sErr.c_str());
                 	}
 
 					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
