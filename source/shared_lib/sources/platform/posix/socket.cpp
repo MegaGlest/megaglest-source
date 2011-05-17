@@ -1357,9 +1357,17 @@ void Socket::setBlock(bool block){
 	setBlock(block,this->sock);
 }
 
-void Socket::setBlock(bool block, PLATFORM_SOCKET socket){
+void Socket::setBlock(bool block, PLATFORM_SOCKET socket) {
+	// don't waste time if the socket is invalid
+	if(isSocketValid(&socket) == false) {
+		return;
+	}
+
 #ifndef WIN32
 	int currentFlags = fcntl(socket, F_GETFL);
+	if(currentFlags < 0) {
+		currentFlags = 0;
+	}
 	if(block == true) {
 		currentFlags &= (~O_NONBLOCK);
 	}
@@ -1371,7 +1379,7 @@ void Socket::setBlock(bool block, PLATFORM_SOCKET socket){
 	u_long iMode= !block;
 	int err= ioctlsocket(socket, FIONBIO, &iMode);
 #endif
-	if(err < 0){
+	if(err < 0) {
 		throwException("Error setting I/O mode for socket");
 	}
 }

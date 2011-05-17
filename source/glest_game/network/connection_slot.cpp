@@ -525,7 +525,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 										string playerNameStr = name;
 										sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionSVNString() +
 												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
-										printf("%s\n",sErr.c_str());
+										//printf("%s\n",sErr.c_str());
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 									}
 
