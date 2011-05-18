@@ -184,14 +184,14 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 	int fileErrno = errno;
 	ifstream file(fp);
 #else
-	ifstream file(friendly_path.c_str(), ios::in | ios::binary);
+	ifstream file(filepath.c_str(), ios::in | ios::binary);
 #endif
 	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
 #ifdef WIN32
 		DWORD error = GetLastError();
 		throw runtime_error("Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " [" + filepath + "]");
 #else
-		throw runtime_error("Could not open file [" + friendly_path + "]");
+		throw runtime_error("Could not open file [" + filepath + "]");
 #endif
 	}
 	for (typename vector<FileReader<T> const *>::const_iterator i = readers->begin(); i != readers->end(); ++i) {
