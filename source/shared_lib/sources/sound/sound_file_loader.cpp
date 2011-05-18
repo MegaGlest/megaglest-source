@@ -200,7 +200,7 @@ void OggSoundFileLoader::close() {
 		delete vf;
 		vf= 0;
 	}
-	fclose(f);
+	//fclose(f);
 }
 
 void OggSoundFileLoader::restart(){
