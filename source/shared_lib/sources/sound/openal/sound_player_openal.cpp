@@ -347,10 +347,17 @@ SoundPlayerOpenAL::~SoundPlayerOpenAL() {
 
 void SoundPlayerOpenAL::printOpenALInfo()
 {
+	printf("OpenAL Vendor: %s\n",alGetString(AL_VENDOR));
+	printf("OpenAL Version: %s\n",alGetString(AL_VERSION));
+	printf("OpenAL Renderer: %s\n",alGetString(AL_RENDERER));
+	printf("OpenAL Extensions: %s\n",alGetString(AL_RENDERER));
+
+/*	
 	std::cout << "OpenAL Vendor: " << alGetString(AL_VENDOR) << "\n"
 	          << "OpenAL Version: " << alGetString(AL_VERSION) << "\n"
 	          << "OpenAL Renderer: " << alGetString(AL_RENDERER) << "\n"
 	          << "OpenAl Extensions: " << alGetString(AL_RENDERER) << "\n";
+*/
 }
 
 bool SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
@@ -370,7 +377,7 @@ bool SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
 		char *deviceName = getenv("MEGAGLEST_SOUND_DEVICE");
 		device = alcOpenDevice(deviceName);
 		if(device == 0) {
-			printOpenALInfo();
+			//printOpenALInfo();
 			throw std::runtime_error("Couldn't open audio device.");
 		}
 
@@ -611,20 +618,25 @@ StreamSoundSource* SoundPlayerOpenAL::findStreamSoundSource() {
 void SoundPlayerOpenAL::checkAlcError(string message) {
 	int err = alcGetError(device);
 	if(err != ALC_NO_ERROR) {
-		std::stringstream msg;
-		msg << message.c_str() << alcGetString(device, err);
-		printf("openalc error [%s]\n",message.c_str());
-		throw std::runtime_error(msg.str());
+		char szBuf[4096]="";
+		sprintf(szBuf,"%s [%s]",message.c_str(),alcGetString(device, err));
+
+		//std::stringstream msg;
+		//msg << message.c_str() << alcGetString(device, err);
+		printf("openalc error [%s]\n",szBuf);
+		throw std::runtime_error(szBuf);
 	}
 }
 
 void SoundPlayerOpenAL::checkAlError(string message) {
 	int err = alGetError();
 	if(err != AL_NO_ERROR) {
-		std::stringstream msg;
-		msg << message.c_str() << alGetString(err);
-		printf("openal error [%s]\n",message.c_str());
-		throw std::runtime_error(msg.str());
+		char szBuf[4096]="";
+		sprintf(szBuf,"%s [%s]",message.c_str(),alGetString(err));
+		//std::stringstream msg;
+		//msg << message.c_str() << alGetString(err);
+		printf("openal error [%s]\n",szBuf);
+		throw std::runtime_error(szBuf);
 	}
 }
 
