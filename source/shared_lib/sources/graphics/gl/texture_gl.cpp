@@ -1063,6 +1063,23 @@ void Texture3DGl::init(Filter filter, int maxAnisotropy) {
 				error = GL_NO_ERROR;
 			}
 		}
+		else if(error != GL_NO_ERROR) {
+			glTexImage3D(
+				GL_TEXTURE_3D, 0, glInternalFormat, 
+				pot(pixmap.getW()),	pot(pixmap.getH()), pot(pixmap.getD()),
+				0, glFormat, GL_UNSIGNED_BYTE, NULL);
+
+			glTexSubImage3D(GL_TEXTURE_3D, 0, 0,  0, 0,
+				pixmap.getW(), pixmap.getH(), pixmap.getD(),
+					glFormat, GL_UNSIGNED_BYTE, pixels);
+
+			GLint error3= glGetError();
+
+			if(error3 == GL_NO_ERROR) {
+				error = GL_NO_ERROR;
+			}
+		}
+
 		//
 
 		if(error != GL_NO_ERROR) {
