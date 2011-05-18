@@ -19,13 +19,14 @@
 #include "window.h"
 #include <vector>
 //#include <SDL_image.h>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics::Gl;
 using namespace Shared::Util;
 
 namespace Shared{ namespace Platform{
-	
+
 
 	
 	// ======================================
@@ -43,11 +44,15 @@ namespace Shared{ namespace Platform{
 		
 	void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 							 int charCount, FontMetrics &metrics) {
+		//return;
+
 		// -adecw-screen-medium-r-normal--18-180-75-75-m-160-gb2312.1980-1	 this is a Chinese font
 		
 		std::string useRealFontName = type;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] trying to load useRealFontName [%s], size = %d, width = %d\n",__FILE__,__FUNCTION__,__LINE__,useRealFontName.c_str(),size,width);
 		
+		DWORD dwErrorGL = 0;
+		HDC hDC = 0;
 		static std::vector<std::string> systemFontList;
 		if(systemFontList.size() == 0) {
 			LOGFONT lf;
@@ -56,7 +61,16 @@ namespace Shared{ namespace Platform{
 			lf.lfCharSet = (BYTE)charSet;
 			lf.lfFaceName[0]='\0';
 			
-			HDC hDC = wglGetCurrentDC();
+			//HGLRC hdRC =wglGetCurrentContext();
+			//DWORD dwErrorGL = GetLastError();
+			//assertGl();
+
+			hDC = wglGetCurrentDC();
+			dwErrorGL = GetLastError();
+			assertGl();
+			//hDC = CreateCompatibleDC(0);
+			//dwErrorGL = GetLastError();
+
 			::EnumFontFamiliesEx(hDC, 
 								 &lf, 
 								 (FONTENUMPROC) EnumFontFamExProc, 
@@ -79,17 +93,39 @@ namespace Shared{ namespace Platform{
 				}
 			}
 		}
-		
+
+		LPWSTR wstr = Ansi2WideString(useRealFontName.c_str());
 		HFONT font= CreateFont(
 							   size, 0, 0, 0, width, FALSE, FALSE, FALSE, charSet,
 							   OUT_TT_ONLY_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
-							   DEFAULT_PITCH| (useRealFontName.c_str() ? FF_DONTCARE:FF_SWISS), useRealFontName.c_str());
-		
+							   DEFAULT_PITCH| (useRealFontName.c_str() ? FF_DONTCARE:FF_SWISS), wstr);
+		delete [] wstr;
 		assert(font!=NULL);
 		
 		HDC dc= wglGetCurrentDC();
+		dwErrorGL = GetLastError();
+		assertGl();
+
 		SelectObject(dc, font);
-		BOOL err= wglUseFontBitmaps(dc, 0, charCount, base);
+		dwErrorGL = GetLastError();
+		assertGl();
+
+		BOOL err= 0;
+		err= wglUseFontBitmaps(dc, 0, charCount, base);
+		dwErrorGL = GetLastError();
+
+/*
+		for(int glBugRetry = 0; glBugRetry <= 10; glBugRetry++) {
+			err= wglUseFontBitmaps(dc, 0, charCount, base);
+			dwErrorGL = GetLastError();
+			//assertGl();
+			GLenum error = glGetError();
+			if(error == 0) {
+				break;
+			}
+		}
+*/
+		assertGl();
 		
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] wglUseFontBitmaps returned = %d, charCount = %d, base = %d\n",__FILE__,__FUNCTION__,__LINE__,err,charCount,base);
 		
@@ -131,6 +167,10 @@ namespace Shared{ namespace Platform{
 		
 		DeleteObject(font);
 		
+		//if(hDC != 0) {
+		//	DeleteDC(hDC);
+		//}
+
 		assert(err);
 		
 	}

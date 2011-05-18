@@ -2373,8 +2373,13 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	GameSettings gameSettings;
 	loadGameSettings(&gameSettings);
 
+#ifdef WIN32
+	FILE *fp = _wfopen(utf8_decode(fileName).c_str(), L"w");
+	std::ofstream saveGameFile(fp);
+#else
     std::ofstream saveGameFile;
     saveGameFile.open(fileName.c_str(), ios_base::out | ios_base::trunc);
+#endif
 
 	//int factionCount= 0;
 	//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
@@ -2416,6 +2421,9 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 		saveGameFile << "FactionPlayerNameForIndex" 	<< slotIndex << "=" << gameSettings.getNetworkPlayerName(i) << std::endl;
     }
 
+#ifdef WIN32
+	fclose(fp);
+#endif
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -2635,7 +2643,11 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 	Lang &lang= Lang::getInstance();
 
 	try{
+#ifdef WIN32
+		FILE *f= _wfopen(utf8_decode(file).c_str(), L"rb");
+#else
 		FILE *f= fopen(file.c_str(), "rb");
+#endif
 		if(f==NULL)
 			throw runtime_error("Can't open file");
 

@@ -670,7 +670,11 @@ MapInfo MenuStateMods::loadMapInfo(string file) {
 	MapInfo mapInfo;
 	//memset(&mapInfo,0,sizeof(mapInfo));
 	try{
+#ifdef WIN32
+		FILE *f= _wfopen(utf8_decode(file).c_str(), L"rb");
+#else
 		FILE *f= fopen(file.c_str(), "rb");
+#endif
 		if(f != NULL) {
 
 			MapFileHeader header;
@@ -1843,7 +1847,8 @@ void MenuStateMods::render() {
 		if(keyMapScrollBar.getElementCount() != 0) {
 			for(int i = keyMapScrollBar.getVisibleStart();
 					i <= keyMapScrollBar.getVisibleEnd(); ++i) {
-				bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),keyMapButtons[i]->getText()) != mapFiles.end());
+				string mapNameToRender = keyMapButtons[i]->getText();
+				bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),mapNameToRender) != mapFiles.end());
 				if(keyMapButtons[i]->getText() == selectedMapName) {
 					bool lightedOverride = true;
 					renderer.renderButton(keyMapButtons[i],&WHITE,&lightedOverride);

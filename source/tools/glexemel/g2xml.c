@@ -61,14 +61,21 @@ int main(int argc, char **argv)
 	}
 
 	/* attempt to open the input and output files */
+//#ifdef WIN32
+//	infile = _wfopen(utf8_decode(infilename).c_str(), L"rb");
+//#else
 	infile  = fopen(infilename, "rb");
-	if (infile == NULL)
-	{
+//#endif
+	if (infile == NULL) {
 		printf("Could not open file \"%s\" for binary reading.\n",
 			infilename);
 		return (EXIT_FAILURE);
 	}
+//#ifdef WIN32
+//	outfile = _wfopen(utf8_decode(outfilename).c_str(), L"w");
+//#else
 	outfile = fopen(outfilename, "w");
+//#endif
 	if (outfile == NULL)
 	{
 		printf("Could not open file \"%s\" for writing.\n",

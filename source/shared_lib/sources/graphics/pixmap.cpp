@@ -101,7 +101,11 @@ PixmapIoTga::~PixmapIoTga() {
 }
 
 void PixmapIoTga::openRead(const string &path) {
+#ifdef WIN32
+	file= _wfopen(utf8_decode(path).c_str(), L"rb");
+#else
 	file= fopen(path.c_str(),"rb");
+#endif
 	if (file == NULL) {
 		throw runtime_error("Can't open TGA file: "+ path);
 	}
@@ -181,7 +185,11 @@ void PixmapIoTga::openWrite(const string &path, int w, int h, int components) {
 	this->h= h;
 	this->components= components;
 
+#ifdef WIN32
+	file= _wfopen(utf8_decode(path).c_str(), L"wb");
+#else
     file= fopen(path.c_str(),"wb");
+#endif
 	if (file == NULL) {
 		throw runtime_error("Can't open TGA file: "+ path);
 	}
@@ -229,7 +237,11 @@ PixmapIoBmp::~PixmapIoBmp() {
 }
 
 void PixmapIoBmp::openRead(const string &path){
+#ifdef WIN32
+	file= _wfopen(utf8_decode(path).c_str(), L"rb");
+#else
     file= fopen(path.c_str(),"rb");
+#endif
 	if (file==NULL){
 		throw runtime_error("Can't open BMP file: "+ path);
 	}
@@ -288,7 +300,11 @@ void PixmapIoBmp::openWrite(const string &path, int w, int h, int components) {
 	this->h= h;
 	this->components= components;
 
+#ifdef WIN32
+	file= _wfopen(utf8_decode(path).c_str(), L"wb");
+#else
 	file= fopen(path.c_str(),"wb");
+#endif
 	if (file == NULL) {
 		throw runtime_error("Can't open BMP file for writing: "+ path);
 	}
@@ -413,7 +429,11 @@ void PixmapIoPng::openWrite(const string &path, int w, int h, int components) {
 	this->h= h;
 	this->components= components;
 
+#ifdef WIN32
+	file= _wfopen(utf8_decode(path).c_str(), L"wb");
+#else
 	file= fopen(path.c_str(),"wb");
+#endif
 	if (file == NULL) {
 		throw runtime_error("Can't open PNG file for writing: "+ path);
 	}
@@ -602,7 +622,11 @@ void PixmapIoJpg::openWrite(const string &path, int w, int h, int components) {
 	this->h= h;
 	this->components= components;
 
+#ifdef WIN32
+	file= _wfopen(utf8_decode(path).c_str(), L"wb");
+#else
 	file= fopen(path.c_str(),"wb");
+#endif
 	if (file == NULL) {
 		throw runtime_error("Can't open JPG file for writing: "+ path);
 	}

@@ -2244,7 +2244,11 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 
 			lastMissingMap = file;
 
+#ifdef WIN32
+			FILE *f= _wfopen(utf8_decode(file).c_str(), L"rb");
+#else
 			FILE *f= fopen(file.c_str(), "rb");
+#endif
 			if(f==NULL) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				throw runtime_error("[2]Can't open file");

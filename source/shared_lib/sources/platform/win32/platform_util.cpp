@@ -33,18 +33,63 @@ namespace Shared { namespace Platform {
 
 PlatformExceptionHandler *PlatformExceptionHandler::thisPointer= NULL;
 
+// Constructs object and convert lpaszString to Unicode
+LPWSTR Ansi2WideString(LPCSTR lpaszString) {
+	LPWSTR lpwszString(NULL);
+	int nLen = ::lstrlenA(lpaszString) + 1;
+	lpwszString = new WCHAR[nLen];
+	if (lpwszString == NULL) {
+		return lpwszString;
+	}
+
+	memset(lpwszString, 0, nLen * sizeof(WCHAR));
+
+	if (::MultiByteToWideChar(CP_ACP, 0, lpaszString, nLen, lpwszString, nLen) == 0) {
+		// Conversation failed
+		return lpwszString;
+	}
+
+	return lpwszString;
+}
+
+// Convert a wide Unicode string to an UTF8 string
+std::string utf8_encode(const std::wstring &wstr) {
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string strTo( size_needed, 0 );
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+	replaceAll(strTo, "/", "\\");
+	replaceAll(strTo, "\\\\", "\\");
+	updatePathClimbingParts(strTo);
+    return strTo;
+}
+
+// Convert an UTF8 string to a wide Unicode String
+std::wstring utf8_decode(const std::string &str) {
+	string friendly_path = str;
+	replaceAll(friendly_path, "/", "\\");
+	replaceAll(friendly_path, "\\\\", "\\");
+	updatePathClimbingParts(friendly_path);
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &friendly_path[0], (int)friendly_path.size(), NULL, 0);
+    std::wstring wstrTo( size_needed, 0 );
+    MultiByteToWideChar(CP_UTF8, 0, &friendly_path[0], (int)friendly_path.size(), &wstrTo[0], size_needed);
+    return wstrTo;
+}
+
+
 LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	LPWSTR wstr = Ansi2WideString(thisPointer->dumpFileName.c_str());	
 	HANDLE hFile = CreateFile(
-		thisPointer->dumpFileName.c_str(),
+		wstr,
 		GENERIC_WRITE,
 		FILE_SHARE_WRITE,
 		NULL,
 		CREATE_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL,
 		0);
+	delete [] wstr;
 
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -158,11 +203,16 @@ void message(string message){
 	std::cerr << "    " << message << "\n";
 	std::cerr << "******************************************************\n";
 
-	MessageBox(NULL, message.c_str(), "Message", MB_OK);
+	LPWSTR wstr = Ansi2WideString(message.c_str());
+	MessageBox(NULL, wstr, L"Message", MB_OK);
+	delete [] wstr;
 }
 
 bool ask(string message){
-	return MessageBox(NULL, message.c_str(), "Confirmation", MB_YESNO)==IDYES;
+	LPWSTR wstr = Ansi2WideString(message.c_str());	
+	bool result = MessageBox(NULL, wstr, L"Confirmation", MB_YESNO)==IDYES;
+	delete [] wstr;
+	return result;
 }
 
 void exceptionMessage(const exception &excp){
@@ -175,7 +225,11 @@ void exceptionMessage(const exception &excp){
 	title= "Error: Unhandled Exception";
 	printf("Error detected with text: %s\n",message.c_str());
 
-	MessageBox(NULL, message.c_str(), title.c_str(), MB_ICONSTOP | MB_OK | MB_TASKMODAL);
+	LPWSTR wstr = Ansi2WideString(message.c_str());	
+	LPWSTR wstr1 = Ansi2WideString(title.c_str());	
+	MessageBox(NULL, wstr, wstr1, MB_ICONSTOP | MB_OK | MB_TASKMODAL);
+	delete [] wstr;
+	delete [] wstr1;
 }
 
 //int getScreenW(){
@@ -192,7 +246,7 @@ HICON icon;
 
 void init_win32() {
 	HINSTANCE handle = ::GetModuleHandle(NULL);
-	icon = ::LoadIcon(handle, "IDI_ICON1");
+	icon = ::LoadIcon(handle, L"IDI_ICON1");
 
 	SDL_SysWMinfo wminfo;
 	SDL_VERSION(&wminfo.version)

@@ -19,6 +19,7 @@
 #include "graphics_interface.h"
 #include "game_constants.h"
 #include "game_util.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -63,7 +64,11 @@ Logger & Logger::getInstance() {
 }
 
 void Logger::add(const string str,  bool renderScreen, const string statusText) {
+#ifdef WIN32
+	FILE *f= _wfopen(utf8_decode(fileName).c_str(), L"at+");
+#else
 	FILE *f = fopen(fileName.c_str(), "at+");
+#endif
 	if(f != NULL){
 		fprintf(f, "%s\n", str.c_str());
 		fclose(f);
@@ -79,7 +84,11 @@ void Logger::add(const string str,  bool renderScreen, const string statusText) 
 void Logger::clear() {
     string s = "Log file\n";
 
+#ifdef WIN32
+	FILE *f= _wfopen(utf8_decode(fileName).c_str(), L"wt+");
+#else
 	FILE *f= fopen(fileName.c_str(), "wt+");
+#endif
 	if(f == NULL){
 		throw runtime_error("Error opening log file" + fileName);
 	}

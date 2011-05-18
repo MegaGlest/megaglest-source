@@ -20,6 +20,7 @@
 #include "util.h"
 #include "platform_common.h"
 #include "opengl.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -27,6 +28,7 @@ using namespace Shared::PlatformCommon;
 using namespace Shared::Graphics::Gl;
 
 using namespace std;
+using namespace Shared::Util;
 
 namespace Shared{ namespace Graphics{
 
@@ -801,7 +803,11 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		string sourceLoader) {
 
     try{
+#ifdef WIN32
+		FILE *f= _wfopen(utf8_decode(path).c_str(), L"rb");
+#else
 		FILE *f=fopen(path.c_str(),"rb");
+#endif
 		if (f == NULL) {
 		    printf("In [%s::%s] cannot load file = [%s]\n",__FILE__,__FUNCTION__,path.c_str());
 			throw runtime_error("Error opening g3d model file [" + path + "]");
@@ -887,7 +893,12 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 void Model::saveG3d(const string &path, string convertTextureToFormat,
 		bool keepsmallest) {
 	string tempModelFilename = path + "cvt";
+
+#ifdef WIN32
+	FILE *f= _wfopen(utf8_decode(tempModelFilename).c_str(), L"wb");
+#else
 	FILE *f= fopen(tempModelFilename.c_str(), "wb");
+#endif
 	if(f == NULL) {
 		throw runtime_error("Cant open file for writting: [" + tempModelFilename + "]");
 	}

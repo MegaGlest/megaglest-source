@@ -52,7 +52,11 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 
 	//clear log file
 	if(logLevel>0){
+#ifdef WIN32
+		FILE *f= _wfopen(utf8_decode(getLogFilename()).c_str(), L"wt");
+#else
 		FILE *f= fopen(getLogFilename().c_str(), "wt");
+#endif
 		if(f==NULL){
 			throw runtime_error("Can't open file: "+getLogFilename());
 		}
@@ -80,7 +84,11 @@ void AiInterface::printLog(int logLevel, const string &s){
 		string logString= "(" + intToStr(factionIndex) + ") " + s;
 
 		//print log to file
+#ifdef WIN32
+		FILE *f= _wfopen(utf8_decode(getLogFilename()).c_str(), L"at");
+#else
 		FILE *f= fopen(getLogFilename().c_str(), "at");
+#endif
 		if(f==NULL){
 			throw runtime_error("Can't open file: "+getLogFilename());
 		}
