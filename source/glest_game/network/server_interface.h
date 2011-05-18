@@ -59,6 +59,8 @@ private:
 
 	time_t gameStartTime;
 
+	time_t lastGlobalLagCheckTime;
+
 	SimpleTaskThread *publishToMasterserverThread;
 	Mutex masterServerThreadAccessor;
 	time_t lastMasterserverHeartbeatTime;
