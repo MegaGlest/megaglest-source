@@ -772,14 +772,13 @@ void ServerInterface::checForLaggingClients(std::map<int,bool> &mapSlotSignalled
 					if(gameHasBeenInitiated == true &&
 						difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
 
-						printf("\n\n\n^^^^^^^^^^^^^^ PART A\n\n\n");
+						//printf("\n\n\n^^^^^^^^^^^^^^ PART A\n\n\n");
 
 						// New lag check
 						std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
 						if( gameHasBeenInitiated == true && connectionSlot != NULL &&
 							connectionSlot->isConnected() == true) {
-
-							printf("\n\n\n^^^^^^^^^^^^^^ PART B\n\n\n");
+							//printf("\n\n\n^^^^^^^^^^^^^^ PART B\n\n\n");
 
 							lastGlobalLagCheckTimeUpdate = true;
 							clientLagExceededOrWarned = clientLagCheck(connectionSlot,slotsWarnedList[i]);
