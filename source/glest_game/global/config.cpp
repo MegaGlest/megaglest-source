@@ -194,10 +194,17 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 		if(fileName.second != "" && fileExists(fileName.second) == false) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] attempting to auto-create cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
 
+#ifdef WIN32
+			FILE *fp = _wfopen(utf8_decode(fileName.second).c_str(), L"w");
+			std::ofstream userFile(fp);
+#else
 			std::ofstream userFile;
 			userFile.open(fileName.second.c_str(), ios_base::out | ios_base::trunc);
+#endif
 			userFile.close();
-
+#ifdef WIN32
+			fclose(fp);
+#endif
 			fileLoaded.second = true;
 			properties.second.load(fileName.second);
 		}

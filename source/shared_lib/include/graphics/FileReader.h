@@ -141,7 +141,12 @@ public:
 template <typename T>
 static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, const string& filepath) {
 	//try to assign file
+#ifdef WIN32
+	FILE *fp = _wfopen(utf8_decode(filepath).c_str(), L"rb");
+	ifstream file(fp);
+#else
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
+#endif
 	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
 		throw runtime_error("Could not open file " + filepath);
 	}
@@ -155,18 +160,39 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 			continue;
 		}
 		if (ret != NULL) {
+			file.close();
+#ifdef WIN32
+			fclose(fp);
+#endif
 			return ret;
 		}
 	}
+	file.close();
+#ifdef WIN32
+	fclose(fp);
+#endif
+
 	return NULL;
 }
 
 template <typename T>
 static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, const string& filepath, T* object) {
 	//try to assign file
-	ifstream file(filepath.c_str(), ios::in | ios::binary);
+#ifdef WIN32
+	wstring wstr = utf8_decode(filepath);
+	FILE *fp = _wfopen(wstr.c_str(), L"rb");
+	int fileErrno = errno;
+	ifstream file(fp);
+#else
+	ifstream file(friendly_path.c_str(), ios::in | ios::binary);
+#endif
 	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
-		throw runtime_error("Could not open file [" + filepath + "]");
+#ifdef WIN32
+		DWORD error = GetLastError();
+		throw runtime_error("Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " [" + filepath + "]");
+#else
+		throw runtime_error("Could not open file [" + friendly_path + "]");
+#endif
 	}
 	for (typename vector<FileReader<T> const *>::const_iterator i = readers->begin(); i != readers->end(); ++i) {
 		T* ret = NULL;
@@ -178,9 +204,17 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 			continue;
 		}
 		if (ret != NULL) {
+			file.close();
+#ifdef WIN32
+			fclose(fp);
+#endif
 			return ret;
 		}
 	}
+	file.close();
+#ifdef WIN32
+	fclose(fp);
+#endif
 	return NULL;
 }
 
@@ -292,11 +326,22 @@ bool FileReader<T>::canRead(ifstream& file) const {
  */
 template <typename T>
 T* FileReader<T>::read(const string& filepath) const {
+#ifdef WIN32
+	FILE *fp = _wfopen(utf8_decode(filepath).c_str(), L"rb");
+	ifstream file(fp);
+#else
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
+#endif
 	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
 		throw runtime_error("Could not open file " + filepath);
 	}
-	return read(file,filepath);
+	T* ret = read(file,filepath);
+	file.close();
+#ifdef WIN32
+	fclose(fp);
+#endif
+
+	return ret;
 }
 
 /**Reads a file
@@ -306,11 +351,22 @@ T* FileReader<T>::read(const string& filepath) const {
  */
 template <typename T>
 T* FileReader<T>::read(const string& filepath, T* object) const {
+#ifdef WIN32
+	FILE *fp = _wfopen(utf8_decode(filepath).c_str(), L"rb");
+	ifstream file(fp);
+#else
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
+#endif
 	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
 		throw runtime_error("Could not open file " + filepath);
 	}
-	return read(file,filepath,object);
+	T* ret = read(file,filepath,object);
+	file.close();
+#ifdef WIN32
+	fclose(fp);
+#endif
+
+	return ret;
 }
 
 

@@ -29,12 +29,13 @@
 #include "platform_common.h"
 #include "conversion.h"
 #include "simple_threads.h"
-
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
+using namespace Shared::Util;
 
 namespace Shared{ namespace Util{
 
@@ -508,8 +509,12 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 			}
 
             if(currentDebugLog.fileStream == NULL) {
+#ifdef WIN32
+				currentDebugLog.fileStream = new std::ofstream(_wfopen(utf8_decode(debugLog).c_str(), L"w"));
+#else
             	currentDebugLog.fileStream = new std::ofstream();
             	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::trunc);
+#endif
 				currentDebugLog.fileStreamOwner = true;
 				currentDebugLog.mutex			= new Mutex();
             }
@@ -583,8 +588,8 @@ string lastDir(const string &s) {
 		pos= i<j? j: i;
 	}
 
-	if (pos==string::npos){
-		throw runtime_error(string(__FILE__)+" lastDir - i==string::npos");
+	if (pos==string::npos) {
+		throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
 	}
 
 	if(	pos + 1 == s.length() && s.length() > 0 &&
@@ -610,43 +615,47 @@ string cutLastFile(const string &s){
 	size_t j= s.find_last_of('\\');
 	size_t pos;
 
-	if(i==string::npos){
+	if(i == string::npos) {
 		pos= j;
 	}
-	else if(j==string::npos){
+	else if(j == string::npos) {
 		pos= i;
 	}
 	else{
-		pos= i<j? j: i;
+		pos= i < j ? j: i;
 	}
 
-	if (pos==string::npos){
-		throw runtime_error(string(__FILE__)+"cutLastFile - i==string::npos");
-	}
+	if (pos != string::npos) {
+		//throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
+	//}
 
-	return (s.substr(0, pos));
+		return (s.substr(0, pos));
+	}
+	return s;
 }
 
-string cutLastExt(const string &s){
+string cutLastExt(const string &s) {
      size_t i= s.find_last_of('.');
+	 if (i != string::npos) {
+          //throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
+	 //}
 
-	 if (i==string::npos){
-          throw runtime_error(string(__FILE__)+"cutLastExt - i==string::npos");
+		return (s.substr(0, i));
 	 }
-
-     return (s.substr(0, i));
+	 return s;
 }
 
-string ext(const string &s){
+string ext(const string &s) {
      size_t i;
 
      i=s.find_last_of('.')+1;
 
-	 if (i==string::npos){
-          throw runtime_error(string(__FILE__)+"cutLastExt - i==string::npos");
+	 if (i != string::npos) {
+          throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
+	 //}
+		return (s.substr(i, s.size()-i));
 	 }
-
-     return (s.substr(i, s.size()-i));
+	 return "";
 }
 
 string replaceBy(const string &s, char c1, char c2){
@@ -715,7 +724,11 @@ int round(float f){
 // ==================== misc ====================
 
 bool fileExists(const string &path){
+#ifdef WIN32
+	FILE* file= _wfopen(utf8_decode(path).c_str(), L"rb");
+#else
 	FILE* file= fopen(path.c_str(), "rb");
+#endif
 	if(file!=NULL){
 		fclose(file);
 		return true;

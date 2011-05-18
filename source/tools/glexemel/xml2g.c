@@ -29,7 +29,6 @@
 #endif
 
 
-
 /**
  * Forward function declarations.
  */
@@ -90,9 +89,12 @@ int main(int argc, char **argv)
 	}
 
 	/* attempt to open the output binary file */
+//#ifdef WIN32
+//	outfile = _wfopen(utf8_decode(outfilename).c_str(), L"wb");
+//#else
 	outfile = fopen(outfilename, "wb");
-	if (outfile == NULL)
-	{
+//#endif
+	if (outfile == NULL) {
 		printf("Could not open file \"%s\" for writing!\n",
 			outfilename);
 		xmlFreeDoc(doc);

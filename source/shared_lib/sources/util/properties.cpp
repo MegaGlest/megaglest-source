@@ -18,6 +18,7 @@
 #include "conversion.h"
 #include "util.h"
 #include "platform_common.h"
+#include "platform_util.h"
 
 #ifdef WIN32
 #include <shlwapi.h>
@@ -28,6 +29,7 @@
 
 using namespace std;
 using namespace Shared::PlatformCommon;
+using namespace Shared::Platform;
 
 namespace Shared{ namespace Util{
 
@@ -39,14 +41,19 @@ string Properties::applicationPath = "";
 
 void Properties::load(const string &path, bool clearCurrentProperties) {
 
-	ifstream fileStream;
 	char lineBuffer[maxLine]="";
 	string line, key, value;
 	size_t pos=0;
-
 	this->path= path;
 
+#ifdef WIN32
+	FILE *fp = _wfopen(utf8_decode(path).c_str(), L"r");
+	ifstream fileStream(fp);
+#else
+	ifstream fileStream;
 	fileStream.open(path.c_str(), ios_base::in);
+#endif
+	
 	if(fileStream.fail()){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 		throw runtime_error("Can't open propertyMap file: " + path);
@@ -102,6 +109,9 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 	}
 
 	fileStream.close();
+#ifdef WIN32
+	fclose(fp);
+#endif
 }
 
 std::map<string,string> Properties::getTagReplacementValues(std::map<string,string> *mapExtraTagReplacementValues) {
@@ -127,11 +137,20 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
 #ifdef WIN32
-	TCHAR szPath[MAX_PATH]="";
+	TCHAR szPath[MAX_PATH];
    // Get path for each computer, non-user specific and non-roaming data.
    if ( SUCCEEDED( SHGetFolderPath( NULL, CSIDL_APPDATA,
                                     NULL, 0, szPath))) {
-	   string appPath = szPath;
+
+	   //const wchar_t *wBuf = &szPath[0];
+	   //size_t size = MAX_PATH + 1;
+	   //char pMBBuffer[MAX_PATH + 1]="";
+	   //wcstombs_s(&size, &pMBBuffer[0], (size_t)size, wBuf, (size_t)size);// Convert to char* from TCHAR[]
+  	   //string appPath="";
+	   //appPath.assign(&pMBBuffer[0]); // Now assign the char* to the string, and there you have it!!! :) 
+	   std::string appPath = utf8_encode(szPath);
+
+	   //string appPath = szPath;
 	   mapTagReplacementValues["$APPDATA"] = appPath;
 	   mapTagReplacementValues["%%APPDATA%%"] = appPath;
    }
@@ -201,11 +220,19 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
 #ifdef WIN32
-	TCHAR szPath[MAX_PATH]="";
+	TCHAR szPath[MAX_PATH];
    // Get path for each computer, non-user specific and non-roaming data.
    if ( SUCCEEDED( SHGetFolderPath( NULL, CSIDL_APPDATA, 
                                     NULL, 0, szPath))) {
-	   string appPath = szPath;
+	   //const wchar_t *wBuf = &szPath[0];
+	   //size_t size = MAX_PATH + 1;
+	   //char pMBBuffer[MAX_PATH + 1]="";
+	   //wcstombs_s(&size, &pMBBuffer[0], (size_t)size, wBuf, (size_t)size);// Convert to char* from TCHAR[]
+  	   //string appPath="";
+	   //appPath.assign(&pMBBuffer[0]); // Now assign the char* to the string, and there you have it!!! :) 
+	   std::string appPath = utf8_encode(szPath);
+
+		//string appPath = szPath;
        replaceAll(value, "$APPDATA", appPath);
 	   replaceAll(value, "%%APPDATA%%", appPath);
    }
@@ -241,10 +268,13 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 }
 
 void Properties::save(const string &path){
+#ifdef WIN32
+	FILE *fp = _wfopen(utf8_decode(path).c_str(), L"w");
+	ofstream fileStream(fp);
+#else
 	ofstream fileStream;
-
 	fileStream.open(path.c_str(), ios_base::out | ios_base::trunc);
-
+#endif
 	fileStream << "; === propertyMap File === \n";
 	fileStream << '\n';
 
@@ -253,6 +283,9 @@ void Properties::save(const string &path){
 	}
 
 	fileStream.close();
+#ifdef WIN32
+	fclose(fp);
+#endif
 }
 
 void Properties::clear(){

@@ -30,6 +30,8 @@ void Font2DGl::init(){
 
 	if(!inited){
 		handle= glGenLists(charCount);
+		assertGl();
+
 		createGlFontBitmaps(handle, type, size, width, charCount, metrics);
 		inited= true;
 	}

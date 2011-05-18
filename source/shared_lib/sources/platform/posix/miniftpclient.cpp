@@ -19,6 +19,7 @@
 #include <curl/easy.h>
 #include <algorithm>
 #include "conversion.h"
+#include "platform_util.h"
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
@@ -85,7 +86,11 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread opening file for writing [%s]\n",fullFilePath.c_str());
 
         /* open file for writing */
+#ifdef WIN32
+		out->stream= _wfopen(utf8_decode(fullFilePath).c_str(), L"wb");
+#else
         out->stream = fopen(fullFilePath.c_str(), "wb");
+#endif
         if(out->stream == NULL) {
           if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
           if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
@@ -1164,7 +1169,11 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
                     ftpfile.stream = NULL;
                 }
 
+#ifdef WIN32
+				FILE *fp = _wfopen(utf8_decode(destFileSaveAs).c_str(), L"rt");
+#else
                 FILE *fp = fopen(destFileSaveAs.c_str(), "rt");
+#endif
                 if(fp != NULL) {
                 	char szBuf[4096]="";
                 	while(feof(fp) == false) {

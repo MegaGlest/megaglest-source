@@ -104,7 +104,12 @@ string MenuStateAbout::loadAdditionalCredits(){
 	string result= "";
 	const string dir= data_path + "data/core/menu/credits.txt";
 	if(fileExists(dir) == true) {
+#ifdef WIN32
+		FILE *fp = _wfopen(utf8_decode(dir).c_str(), L"r");
+		ifstream file(fp);
+#else
 		ifstream file(dir.c_str());
+#endif
 		std::string buffer;
 		while(!file.eof()){
 			getline(file, buffer);
@@ -112,6 +117,9 @@ string MenuStateAbout::loadAdditionalCredits(){
 		}
 		std::cout << buffer << std::endl;
 		file.close();
+#ifdef WIN32
+		fclose(fp);
+#endif
 	}
 	return result;
 }

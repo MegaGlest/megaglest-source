@@ -202,7 +202,11 @@ Vec2i Map::getStartLocation(int locationIndex) const {
 Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
     Checksum mapChecksum;
 	try{
+#ifdef WIN32
+		FILE *f= _wfopen(utf8_decode(path).c_str(), L"rb");
+#else
 		FILE *f = fopen(path.c_str(), "rb");
+#endif
 		if(f != NULL) {
 		    mapChecksum.addFile(path);
 		    checksumValue.addFile(path);

@@ -91,7 +91,11 @@ void AllocRegistry::reset(){
 }
 
 void AllocRegistry::dump(const char *path){
+#ifdef WIN32
+	FILE* f= = _wfopen(utf8_decode(path).c_str(), L"wt");
+#else
 	FILE *f= fopen(path, "wt");
+#endif
 	int leakCount=0;
 	size_t leakBytes=0;
 

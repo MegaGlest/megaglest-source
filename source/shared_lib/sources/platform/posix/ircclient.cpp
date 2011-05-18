@@ -43,12 +43,12 @@ void addlog (const char * fmt, ...) {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: %s\n", buf);
 
-    if(SystemFlags::VERBOSE_MODE_ENABLED == true) {
-        if ( (fp = fopen ("irctest.log", "ab")) != 0 ) {
-            fprintf (fp, "%s\n", buf);
-            fclose (fp);
-        }
-    }
+    //if(SystemFlags::VERBOSE_MODE_ENABLED == true) {
+    //    if ( (fp = fopen ("irctest.log", "ab")) != 0 ) {
+    //        fprintf (fp, "%s\n", buf);
+    //        fclose (fp);
+    //    }
+    //}
 }
 
 void dump_event (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {

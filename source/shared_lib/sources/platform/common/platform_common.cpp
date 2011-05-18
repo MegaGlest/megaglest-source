@@ -56,6 +56,7 @@
 #include <map>
 #include "randomgen.h"
 #include <algorithm>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -290,7 +291,7 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
         findAll(path, current_results, cutExtension, errorOnNotFound);
         if(current_results.size() > 0) {
             for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
-                string &current_file = current_results[folder_index];
+                string current_file = current_results[folder_index];
                 if(keepDuplicates == true || std::find(results.begin(),results.end(),current_file) == results.end()) {
                     results.push_back(current_file);
                 }
@@ -319,16 +320,14 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 	glob_t globbuf;
 
 	int res = glob(mypath.c_str(), 0, 0, &globbuf);
-	if(res < 0 && errorOnNotFound == true)
-	{
+	if(res < 0 && errorOnNotFound == true) {
 		if(errorOnNotFound) {
 			std::stringstream msg;
 			msg << "#1 Couldn't scan directory '" << mypath << "': " << strerror(errno);
 			throw runtime_error(msg.str());
 		}
 	}
-	else
-	{
+	else {
 		for(int i = 0; i < globbuf.gl_pathc; ++i) {
 			const char* p = globbuf.gl_pathv[i];
 			const char* begin = p;
@@ -370,8 +369,13 @@ bool isdir(const char *path)
   }
 #endif
 
+#ifdef WIN32
+  struct _stat64i32 stats;
+  int result = _wstat(utf8_decode(friendly_path).c_str(), &stats);
+#else
   struct stat stats;
   int result = stat(friendly_path.c_str(), &stats);
+#endif
   bool ret = (result == 0);
   if(ret == true) {
 	  ret = S_ISDIR(stats.st_mode); // #define S_ISDIR(mode) ((mode) & _S_IFDIR)
@@ -423,7 +427,8 @@ void removeFolder(const string path) {
         	//printf("~~~~~ REMOVE FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
 
 #ifdef WIN32
-            int result = _rmdir(item.c_str());
+            //int result = _rmdir(item.c_str());
+			int result = _wrmdir(utf8_decode(item).c_str());
 #else
             int result = rmdir(item.c_str());
 #endif
@@ -437,7 +442,8 @@ void removeFolder(const string path) {
     }
 
 #ifdef WIN32
-    int result = _rmdir(path.c_str());
+    //int result = _rmdir(path.c_str());
+	int result = _wrmdir(utf8_decode(path).c_str());
 #else
     int result = rmdir(path.c_str());
 #endif
@@ -555,7 +561,11 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 	//bool result = false;
 	pair<bool,time_t> result = make_pair(false,0);
 	if(fileExists(crcCacheFile) == true) {
+#ifdef WIN32
+		FILE *fp = _wfopen(utf8_decode(crcCacheFile).c_str(), L"r");
+#else
 		FILE *fp = fopen(crcCacheFile.c_str(),"r");
+#endif
 		if(fp != NULL) {
 			time_t refreshDate = 0;
 			int32 crcValue = 0;
@@ -589,7 +599,11 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 }
 
 void writeCachedFileCRCValue(string crcCacheFile, int32 &crcValue) {
+#ifdef WIN32
+		FILE *fp = _wfopen(utf8_decode(crcCacheFile).c_str(), L"w");
+#else
 	FILE *fp = fopen(crcCacheFile.c_str(),"w");
+#endif
 	if(fp != NULL) {
 		//RandomGen random;
 		//int offset = random.randRange(5, 15);
@@ -1258,7 +1272,8 @@ void createDirectoryPaths(string Path) {
    if ('/' == *path) {
 	   if(isdir(DirName) == false) {
 #ifdef WIN32
-		   int result = _mkdir(DirName);
+		   int result = _wmkdir(utf8_decode(DirName).c_str());
+		   //int result = _mkdir(DirName);
 #elif defined(__GNUC__)
 		   int result = mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
 #else
@@ -1271,12 +1286,14 @@ void createDirectoryPaths(string Path) {
    *dirName = '\0';
  }
 #ifdef WIN32
- _mkdir(DirName);
+ //int result = _mkdir(DirName);
+ int result = _wmkdir(utf8_decode(DirName).c_str());
 #elif defined(__GNUC__)
- mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
+ int result = mkdir(DirName, S_IRWXU | S_IRWXO | S_IRWXG);
 #else
 	#error "Your compiler needs to support mkdir!"
 #endif
+ if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DirName [%s] result = %d, errno = %d\n",__FILE__,__FUNCTION__,__LINE__,DirName,result,errno);
 }
 
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bool isFullscreen) {
@@ -1653,7 +1670,7 @@ bool executeShellCommand(string cmd, int expectedResult) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("About to run [%s]", cmd.c_str());
 
 #ifdef WIN32
-	FILE *file = _popen(cmd.c_str(),"r");
+	FILE *file = _wpopen(utf8_decode(cmd).c_str(),L"r");
 #else
 	FILE *file = popen(cmd.c_str(),"r");
 #endif
@@ -1699,8 +1716,13 @@ bool renameFile(string oldFile, string newFile) {
 }
 
 off_t getFileSize(string filename) {
+#ifdef WIN32
+  struct _stat64i32 stbuf;
+  if(_wstat(utf8_decode(filename).c_str(), &stbuf) != -1) {
+#else
   struct stat stbuf;
   if(stat(filename.c_str(), &stbuf) != -1) {
+#endif
 	  return stbuf.st_size;
   }
   return 0;
@@ -1710,7 +1732,7 @@ string executable_path(string exeName, bool includeExeNameInPath) {
 	string value = "";
 #ifdef _WIN32
 	char path[MAX_PATH]="";
-	if( GetModuleFileName(NULL,path,MAX_PATH) == 0 ) {
+	if( GetModuleFileNameA(NULL,path,MAX_PATH) == 0 ) {
 		if(includeExeNameInPath == true) {
 			value = exeName;
 		}
@@ -1802,8 +1824,13 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 	size_t find_len = findText.length();
 
 	string tempfileName = fileName + "_tmp";
+#ifdef WIN32
+	fp1 = _wfopen(utf8_decode(fileName).c_str(), L"r");
+	fp2 = _wfopen(utf8_decode(tempfileName).c_str(), L"w");
+#else
 	fp1 = fopen(fileName.c_str(),"r");
 	fp2 = fopen(tempfileName.c_str(),"w");
+#endif
 
 	while(fgets(buffer,MAX_LEN_SINGLE_LINE + 2,fp1)) {
 		buff_ptr = buffer;
@@ -1839,8 +1866,15 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 
 void copyFileTo(string fromFileName, string toFileName) {
 	//Open an input and output stream in binary mode
+#ifdef WIN32
+	FILE *fp1 = _wfopen(utf8_decode(fromFileName).c_str(), L"rb");
+	ifstream in(fp1);
+	FILE *fp2 = _wfopen(utf8_decode(toFileName).c_str(), L"wb");
+	ofstream out(fp2);
+#else
 	ifstream in(fromFileName.c_str(),ios::binary);
 	ofstream out(toFileName.c_str(),ios::binary);
+#endif
 
 	if(in.is_open() && out.is_open()) {
 		while(in.eof() == false) {
@@ -1851,6 +1885,11 @@ void copyFileTo(string fromFileName, string toFileName) {
 	//Close both files
 	in.close();
 	out.close();
+
+#ifdef WIN32
+	fclose(fp1);
+	fclose(fp2);
+#endif
 }
 
 // =====================================

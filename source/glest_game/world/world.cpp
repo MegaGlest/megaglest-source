@@ -1677,9 +1677,13 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 	}
 	else {
 
+#ifdef WIN32
+		FILE *fp = _wfopen(utf8_decode(debugWorldLogFile).c_str(), L"w");
+		std::ofstream logFile(fp);
+#else
 		std::ofstream logFile;
 		logFile.open(debugWorldLogFile.c_str(), ios_base::out | ios_base::trunc);
-
+#endif
 		logFile << "World debug information:"  << std::endl;
 		logFile << "========================"  << std::endl;
 
@@ -1704,6 +1708,9 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 		}
 
 		logFile.close();
+#ifdef WIN32
+		fclose(fp);
+#endif
 	}
     return debugWorldLogFile;
 }

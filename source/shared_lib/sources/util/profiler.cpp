@@ -83,7 +83,11 @@ Profiler::~Profiler(){
         }
         profileLog = userData + profileLog;
     }
+#ifdef WIN32
+	FILE* f= = _wfopen(utf8_decode(profileLog).c_str(), L"w");
+#else
 	FILE *f= fopen(profileLog.c_str(), "w");
+#endif
 	if(f==NULL)
 		throw runtime_error("Can not open file: " + profileLog);
 

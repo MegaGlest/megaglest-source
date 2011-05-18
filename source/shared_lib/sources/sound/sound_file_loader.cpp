@@ -16,6 +16,7 @@
 
 #include "sound.h"
 #include "util.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -144,7 +145,11 @@ void WavSoundFileLoader::restart(){
 void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	fileName = path;
 
+#ifdef WIN32
+	f = _wfopen(utf8_decode(path).c_str(), L"rb");
+#else
 	f= fopen(path.c_str(), "rb");
+#endif
 	if(f==NULL){
 		throw runtime_error("Can't open ogg file: "+path);
 	}
@@ -189,12 +194,13 @@ uint32 OggSoundFileLoader::read(int8 *samples, uint32 size){
 	return totalBytesRead;
 }
 
-void OggSoundFileLoader::close(){
-	if(vf!=NULL){
+void OggSoundFileLoader::close() {
+	if(vf != NULL) {
 		ov_clear(vf);
 		delete vf;
 		vf= 0;
 	}
+	fclose(f);
 }
 
 void OggSoundFileLoader::restart(){

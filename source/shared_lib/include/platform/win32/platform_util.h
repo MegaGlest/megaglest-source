@@ -28,6 +28,10 @@ namespace Shared{ namespace Platform{
 //	class PlatformExceptionHandler
 // =====================================================
 
+LPWSTR Ansi2WideString(LPCSTR lpaszString);
+std::string utf8_encode(const std::wstring &wstr);
+std::wstring utf8_decode(const std::string &str);
+
 LONG WINAPI UnhandledExceptionFilter2(struct _EXCEPTION_POINTERS *ExceptionInfo);
 
 class PlatformExceptionHandler{

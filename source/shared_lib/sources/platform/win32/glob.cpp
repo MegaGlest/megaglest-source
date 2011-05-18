@@ -47,21 +47,23 @@
 #include <stdlib.h>
 #define NOMINMAX
 #include <windows.h>
+#include "platform_util.h"
 
 #define NUM_ELEMENTS(ar)      (sizeof(ar) / sizeof(ar[0]))
 
+using namespace Shared::Util;
 /* /////////////////////////////////////////////////////////////////////////
  * Helper functions
  */
 
 static char const *strrpbrk(char const *string, char const *strCharSet)
 {
-    char        *part   =   NULL;
+    char const  *part   =   NULL;
     char const  *pch;
 
     for(pch = strCharSet; *pch; ++pch)
     {
-        char    *p  =   strrchr(string, *pch);
+        const char    *p  =   strrchr(string, *pch);
 
         if(NULL != p)
         {
@@ -102,7 +104,7 @@ int glob(   char const  *pattern
     int                 result;
     char                szRelative[1 + _MAX_PATH];
     char const          *file_part;
-    WIN32_FIND_DATAA    find_data;
+    WIN32_FIND_DATAW    find_data;
     HANDLE              hFind;
     char                *buffer;
     char                szPattern2[1 + _MAX_PATH];
@@ -167,7 +169,8 @@ int glob(   char const  *pattern
 
     bMagic0 =   (leafMost == strpbrk(leafMost, "?*"));
 
-    hFind   =   FindFirstFileA(effectivePattern, &find_data);
+	std::wstring wstr = utf8_decode(effectivePattern);
+    hFind   =   FindFirstFileW(wstr.c_str(), &find_data);
     buffer  =   NULL;
 
     pglob->gl_pathc = 0;
@@ -234,8 +237,8 @@ int glob(   char const  *pattern
                     GLOB_NODOTSDIRS == (flags & GLOB_NODOTSDIRS))
                 {
                     /* Pattern must begin with '.' to match either dots directory */
-                    if( 0 == lstrcmpA(".", find_data.cFileName) ||
-                        0 == lstrcmpA("..", find_data.cFileName))
+                    if( 0 == lstrcmpW(L".", find_data.cFileName) ||
+                        0 == lstrcmpW(L"..", find_data.cFileName))
                     {
                         continue;
                     }
@@ -246,7 +249,7 @@ int glob(   char const  *pattern
 #if 0
                     if(find_data.cFileName[0] >= 'A' && find_data.cFileName[0] <= 'M')
 #endif /* 0 */
-                    (void)lstrcatA(find_data.cFileName, "/");
+                    (void)lstrcatW(find_data.cFileName, L"/");
                 }
             }
             else
@@ -261,7 +264,9 @@ int glob(   char const  *pattern
                 }
             }
 
-            cch = lstrlenA(find_data.cFileName);
+            //cch = lstrlenW(find_data.cFileName);
+			string sFileName = utf8_encode(find_data.cFileName);
+			cch = sFileName.length();
             if(NULL != file_part)
             {
                 cch += (int)(file_part - effectivePattern);
@@ -291,12 +296,13 @@ int glob(   char const  *pattern
             }
 
             (void)lstrcpynA(buffer + cbCurr, szRelative, 1 + (int)(file_part - effectivePattern));
-            (void)lstrcatA(buffer + cbCurr, find_data.cFileName);
+            (void)lstrcatA(buffer + cbCurr, sFileName.c_str());
             cbCurr += cch + 1;
 
             ++cMatches;
         }
-        while(FindNextFile(hFind, &find_data) && cMatches != maxMatches);
+        //while(FindNextFileA(hFind, &find_data) && cMatches != maxMatches);
+		while(FindNextFileW(hFind, &find_data) && cMatches != maxMatches);
 
         (void)FindClose(hFind);
 

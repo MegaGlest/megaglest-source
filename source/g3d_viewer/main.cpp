@@ -13,6 +13,7 @@
 #include "config.h"
 #include "game_constants.h"
 #include <wx/stdpaths.h>
+#include <platform_util.h>
 //#include <wx/filename.h>
 
 #ifndef WIN32
@@ -799,7 +800,11 @@ void MainWindow::saveScreenshot() {
 	    if(autoSaveScreenshotIndex >= 0) {
 	    	string saveAsFilename = autoScreenShotParams[autoSaveScreenshotIndex];
 	    	saveAsFilename.erase(0,7);
+#ifdef WIN32
+			FILE*f = _wfopen(utf8_decode(saveAsFilename).c_str(), L"rb");
+#else
 			FILE *f= fopen(saveAsFilename.c_str(), "rb");
+#endif
 			if(f == NULL) {
 				renderer->saveScreen(saveAsFilename.c_str());
 			}
@@ -829,7 +834,11 @@ void MainWindow::saveScreenshot() {
 				for(int i=0; i < 5000; ++i) {
 					path = screenShotsPath;
 					path += string("screen") + intToStr(i) + string(".") + fileFormat;
+#ifdef WIN32
+					FILE*f= _wfopen(utf8_decode(path).c_str(), L"rb");
+#else
 					FILE *f= fopen(path.c_str(), "rb");
+#endif
 					if(f == NULL) {
 						renderer->saveScreen(path);
 						break;

@@ -2488,6 +2488,12 @@ void Renderer::renderWater() {
 
 			SurfaceCell *tc0= map->getSurfaceCell(i, j);
             SurfaceCell *tc1= map->getSurfaceCell(i, j+1);
+			if(tc0 == NULL) {
+				throw runtime_error("tc0 == NULL");
+			}
+			if(tc1 == NULL) {
+				throw runtime_error("tc1 == NULL");
+			}
 
 			int thisTeamIndex= world->getThisTeamIndex();
 
@@ -4458,6 +4464,8 @@ void Renderer::init2dList() {
 
 	//this list sets the state for the 2d rendering
 	list2d= glGenLists(1);
+	assertGl();
+
 	glNewList(list2d, GL_COMPILE);
 
 		//projection

@@ -24,10 +24,12 @@
 #include "util.h"
 #include "platform_common.h"
 #include "conversion.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::PlatformCommon;
+using namespace Shared::Util;
 
 namespace Shared{ namespace Util{
 
@@ -131,7 +133,11 @@ bool Checksum::addFileToSum(const string &path) {
 */
 
     bool fileExists = false;
+#ifdef WIN32
+	FILE* file= _wfopen(utf8_decode(path).c_str(), L"rb");
+#else
 	FILE* file= fopen(path.c_str(), "rb");
+#endif
 	if(file != NULL) {
         fileExists = true;
 		addString(lastFile(path));
