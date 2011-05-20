@@ -204,9 +204,13 @@ Program::~Program(){
 void Program::keyDown(char key){
 
 	if(msgBox.getEnabled()) {
+		SDL_keysym keystate = Window::getKeystate();
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if(key == vkEscape  || key == SDLK_ESCAPE || key == vkReturn || key == SDLK_RETURN || key == SDLK_KP_ENTER) {
+		if(key == vkEscape  || key == SDLK_ESCAPE ||
+			((key == vkReturn || key == SDLK_RETURN || key == SDLK_KP_ENTER) && !(keystate.mod & (KMOD_LALT | KMOD_RALT)))) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			//printf("---> keystate [%d]\n",keystate);
 			msgBox.setEnabled(false);
 
 		}
