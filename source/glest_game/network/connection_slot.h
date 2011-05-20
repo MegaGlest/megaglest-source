@@ -112,6 +112,8 @@ private:
 	time_t connectedTime;
 	bool gotIntro;
 
+	Mutex mutexCloseConnection;
+
 	Mutex mutexPendingNetworkCommandList;
 	vector<NetworkCommand> vctPendingNetworkCommandList;
 	ConnectionSlotThread* slotThreadWorker;
