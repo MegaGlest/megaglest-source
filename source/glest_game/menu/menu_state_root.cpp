@@ -222,8 +222,16 @@ void MenuStateRoot::keyDown(char key) {
 		showMessageBox(lang.get("ExitGame?"), "", true);
 	}
 	else if(mainMessageBox.getEnabled() == true && key == vkReturn) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		program->exit();
+		SDL_keysym keystate = Window::getKeystate();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate.mod [%d]\n",__FILE__,__FUNCTION__,__LINE__,keystate.mod);
+
+		//printf("---> keystate.mod [%d]\n",keystate.mod);
+		if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
+		}
+		else {
+			//printf("EXITING ---> keystate.mod [%d]\n",keystate.mod);
+			program->exit();
+		}
 	}
 	else if(key == configKeys.getCharKey("SaveGUILayout")) {
 		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
