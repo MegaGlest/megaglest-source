@@ -327,7 +327,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 #if defined(__MINGW32__)
 	wxIcon icon(ToUnicode("IDI_ICON1"));
 #else
-    wxIcon icon("IDI_ICON1");
+    wxIcon icon(L"IDI_ICON1");
 #endif
 
 #else
@@ -367,20 +367,22 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	//@="blergcorp.blergapp.v1"
 
 	//Open the registry key.
-	string subKey = "Software\\Classes\\megaglest.g3d\\shell\\open\\command";
+	wstring subKey = L"Software\\Classes\\megaglest.g3d\\shell\\open\\command";
 	HKEY keyHandle;
 	DWORD dwDisposition;
 	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
 	//Set the value.
-	string launchApp = appPath + " \"%1\"";
+	std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+	
+	wstring launchApp = wstring(wstr.get()) + L" \"%1\"";
 	DWORD len = launchApp.length() + 1;
 	RegSetValueEx(keyHandle, NULL, 0, REG_SZ, (PBYTE)launchApp.c_str(), len);
 	RegCloseKey(keyHandle);
 
-	subKey = "Software\\Classes\\.g3d";
+	subKey = L"Software\\Classes\\.g3d";
 	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
 	//Set the value.
-	launchApp = "megaglest.g3d";
+	launchApp = L"megaglest.g3d";
 	len = launchApp.length() + 1;
 	RegSetValueEx(keyHandle, NULL, 0, REG_SZ, (PBYTE)launchApp.c_str(), len);
 	RegCloseKey(keyHandle);
@@ -668,7 +670,15 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 
 		if(fileDialog->ShowModal()==wxID_OK){
 			modelPathList.clear();
-			loadModel((const char*)wxFNCONV(fileDialog->GetPath().c_str()));
+			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
+			string file = tmp_buf;
+			#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			file = utf8_encode(wstr.get());
+			#endif
+
+			//loadModel((const char*)wxFNCONV(fileDialog->GetPath().c_str()));
+			loadModel(file);
 		}
 		isControlKeyPressed = false;
 	}
@@ -691,8 +701,15 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 		}
 
 		if(fileDialog->ShowModal()==wxID_OK){
-			string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-			loadParticle(path);
+			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
+			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
+			string file = tmp_buf;
+			#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			file = utf8_encode(wstr.get());
+			#endif
+
+			loadParticle(file);
 		}
 		isControlKeyPressed = false;
 	}
@@ -715,8 +732,15 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 		}
 
 		if(fileDialog->ShowModal()==wxID_OK){
-			string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-			loadProjectileParticle(path);
+			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
+			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
+			string file = tmp_buf;
+			#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			file = utf8_encode(wstr.get());
+			#endif
+
+			loadProjectileParticle(file);
 		}
 		isControlKeyPressed = false;
 	}
@@ -739,8 +763,15 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 		}
 
 		if(fileDialog->ShowModal()==wxID_OK){
-			string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-			loadSplashParticle(path);
+			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
+			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
+			string file = tmp_buf;
+			#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			file = utf8_encode(wstr.get());
+			#endif
+
+			loadSplashParticle(file);
 		}
 		isControlKeyPressed = false;
 	}
@@ -809,7 +840,9 @@ void MainWindow::saveScreenshot() {
 				renderer->saveScreen(saveAsFilename.c_str());
 			}
 			else {
-				fclose(f);
+				if(f) {
+					fclose(f);
+				}
 			}
 	    }
 	    else {
@@ -844,7 +877,9 @@ void MainWindow::saveScreenshot() {
 						break;
 					}
 					else {
-						fclose(f);
+						if(f) {
+							fclose(f);
+						}
 					}
 				}
 			}
@@ -1856,6 +1891,14 @@ bool App::OnInit() {
 
             autoScreenShotParams.clear();
             Tokenize(optionsValue,autoScreenShotParams,",");
+
+			#ifdef WIN32
+			for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
+				std::auto_ptr<wchar_t> wstr(Ansi2WideString(autoScreenShotParams[i].c_str()));
+				autoScreenShotParams[i] = utf8_encode(wstr.get());
+			}
+			#endif
+
         }
     }
 
@@ -1880,8 +1923,19 @@ bool App::OnInit() {
 
             if(delimitedList.size() >= 2) {
             	unitToLoad.first = delimitedList[0];
+  				#ifdef WIN32
+				std::auto_ptr<wchar_t> wstr(Ansi2WideString(unitToLoad.first.c_str()));
+				unitToLoad.first = utf8_encode(wstr.get());
+				#endif
+
             	for(unsigned int i = 1; i < delimitedList.size(); ++i) {
-            		unitToLoad.second.push_back(delimitedList[i]);
+					string value = delimitedList[i];
+  					#ifdef WIN32
+					std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
+					value = utf8_encode(wstr.get());
+					#endif
+
+            		unitToLoad.second.push_back(value);
             	}
             }
             else {
@@ -1915,6 +1969,11 @@ bool App::OnInit() {
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
             string customPathValue = paramPartTokens[1];
             modelPath = customPathValue;
+			#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
+			modelPath = utf8_encode(wstr.get());
+			#endif
+
         }
         else {
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -1940,6 +1999,10 @@ bool App::OnInit() {
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
             string customPathValue = paramPartTokens[1];
             particlePath = customPathValue;
+			#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(particlePath.c_str()));
+			particlePath = utf8_encode(wstr.get());
+			#endif
         }
         else {
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -1964,6 +2027,10 @@ bool App::OnInit() {
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
             string customPathValue = paramPartTokens[1];
             projectileParticlePath = customPathValue;
+			#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(projectileParticlePath.c_str()));
+			projectileParticlePath = utf8_encode(wstr.get());
+			#endif
         }
         else {
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -1988,6 +2055,10 @@ bool App::OnInit() {
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
             string customPathValue = paramPartTokens[1];
             splashParticlePath = customPathValue;
+			#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(splashParticlePath.c_str()));
+			splashParticlePath = utf8_encode(wstr.get());
+			#endif
         }
         else {
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -2118,12 +2189,17 @@ bool App::OnInit() {
 
 	if(argc == 2 && argv[1][0] != '-') {
 
-#if defined(__MINGW32__)
+//#if defined(__MINGW32__)
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[1]));
 		modelPath = tmp_buf;
-#else
-        modelPath = wxFNCONV(argv[1]);
-#endif
+		#ifdef WIN32
+		std::auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
+		modelPath = utf8_encode(wstr.get());
+		#endif
+
+//#else
+//        modelPath = wxFNCONV(argv[1]);
+//#endif
 
 	}
 
@@ -2142,12 +2218,17 @@ bool App::OnInit() {
     //exe_path = exe_path.BeforeLast(path_separator[0]);
     //exe_path += path_separator;
 
-#if defined(__MINGW32__)
+//#if defined(__MINGW32__)
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
 		appPath = tmp_buf;
-#else
-		appPath = wxFNCONV(exe_path);
-#endif
+		#ifdef WIN32
+		std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+		appPath = utf8_encode(wstr.get());
+		#endif
+
+//#else
+//		appPath = wxFNCONV(exe_path);
+//#endif
 
 //	printf("#2 appPath [%s]\n",appPath.c_str());
 

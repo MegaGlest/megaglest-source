@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include "platform_util.h"
+#include "conversion.h"
 
 using namespace Shared::Util;
 using namespace std;
@@ -683,11 +684,15 @@ void MapPreview::switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2) {
 
 void MapPreview::loadFromFile(const string &path) {
 
+	// "Could not open file, result: 3 - 2 No such file or directory [C:\Documents and Settings\人間五\Application Data\megaglest\maps\clearings_in_the_woods.gbm]
+
 #ifdef WIN32
-	FILE* f1= _wfopen(utf8_decode(path).c_str(), L"rb");
+	wstring wstr = utf8_decode(path);
+	FILE* f1= _wfopen(wstr.c_str(), L"rb");
 #else
 	FILE *f1 = fopen(path.c_str(), "rb");
 #endif
+	int fileErrno = errno;
 	if (f1 != NULL) {
 
 		//read header
@@ -750,7 +755,13 @@ void MapPreview::loadFromFile(const string &path) {
 		mapFileLoaded = path;
 	}
 	else {
+#ifdef WIN32
+		DWORD error = GetLastError();
+		string strError = "Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
+		throw strError;
+#else
 		throw runtime_error("error opening map file: " + path);
+#endif
 	}
 }
 

@@ -195,7 +195,8 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] attempting to auto-create cfgFile.second = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.second.c_str());
 
 #ifdef WIN32
-			FILE *fp = _wfopen(utf8_decode(fileName.second).c_str(), L"w");
+			wstring wstr = utf8_decode(fileName.second);
+			FILE *fp = _wfopen(wstr.c_str(), L"w");
 			std::ofstream userFile(fp);
 #else
 			std::ofstream userFile;
@@ -203,7 +204,9 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 #endif
 			userFile.close();
 #ifdef WIN32
-			fclose(fp);
+			if(fp) {
+				fclose(fp);
+			}
 #endif
 			fileLoaded.second = true;
 			properties.second.load(fileName.second);

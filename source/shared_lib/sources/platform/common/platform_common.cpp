@@ -1832,6 +1832,13 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 	fp2 = fopen(tempfileName.c_str(),"w");
 #endif
 
+	if(fp1 == NULL) {
+		throw runtime_error("cannot open input file [" + fileName + "]");
+	}
+	if(fp2 == NULL) {
+		throw runtime_error("cannot open output file [" + tempfileName + "]");
+	}
+
 	while(fgets(buffer,MAX_LEN_SINGLE_LINE + 2,fp1)) {
 		buff_ptr = buffer;
 		if(findText != "") {
@@ -1881,14 +1888,24 @@ void copyFileTo(string fromFileName, string toFileName) {
 			out.put(in.get());
 		}
 	}
+	else if(in.is_open() == false) {
+		throw runtime_error("cannot open input file [" + fromFileName + "]");
+	}
+	else if(out.is_open() == false) {
+		throw runtime_error("cannot open input file [" + toFileName + "]");
+	}
 
 	//Close both files
 	in.close();
 	out.close();
 
 #ifdef WIN32
-	fclose(fp1);
-	fclose(fp2);
+	if(fp1) {
+		fclose(fp1);
+	}
+	if(fp2) {
+		fclose(fp2);
+	}
 #endif
 }
 
