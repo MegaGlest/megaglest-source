@@ -213,12 +213,15 @@ bool App::OnInit(){
 		string appPath = "";
 		wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
 
+#ifdef WIN32
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
 		appPath = tmp_buf;
-		#ifdef WIN32
+
 		std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 		appPath = utf8_encode(wstr.get());
-		#endif
+#else
+		appPath = wxFNCONV(exe_path);
+#endif
 
 	//#if defined(__MINGW32__)
 	//		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));

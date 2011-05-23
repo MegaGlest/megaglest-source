@@ -18,6 +18,10 @@
 #include "platform_util.h"
 #include "conversion.h"
 
+#ifndef WIN32
+#include <errno.h>
+#endif
+
 using namespace Shared::Util;
 using namespace std;
 

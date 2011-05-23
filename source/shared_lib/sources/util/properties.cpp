@@ -65,6 +65,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 	while(!fileStream.eof()){
 		fileStream.getline(lineBuffer, maxLine);
 		lineBuffer[maxLine-1]='\0';
+		//printf("\n[%s]\n",lineBuffer);
 
 		//process line if it it not a comment
 		if(lineBuffer[0]!=';'){
