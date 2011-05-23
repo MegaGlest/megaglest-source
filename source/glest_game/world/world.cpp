@@ -1709,7 +1709,9 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 
 		logFile.close();
 #ifdef WIN32
-		fclose(fp);
+		if(fp) {
+			fclose(fp);
+		}
 #endif
 	}
     return debugWorldLogFile;

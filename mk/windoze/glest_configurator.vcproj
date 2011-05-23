@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;&quot;../../source/win32_deps/curl-7.21.3/include&quot;;..\..\source\glest_game\global;..\..\source\glest_game\facilities;..\..\source\glest_game\game"
-				PreprocessorDefinitions="MWIN;__WXMSW__;__WXDEBUG__;CURL_STATICLIB"
+				PreprocessorDefinitions="MWIN;__WXMSW__;__WXDEBUG__;CURL_STATICLIB;UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -118,7 +118,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/arch:SSE2"
 				AdditionalIncludeDirectories="&quot;..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc&quot;;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;&quot;..\..\source\win32_deps\wxWidgets-2.8.10\include&quot;;..\..\source\shared_lib\include\xml;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;&quot;../../source/win32_deps/curl-7.21.3/include&quot;;..\..\source\glest_game\global;..\..\source\glest_game\facilities;..\..\source\glest_game\game"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB;UNICODE"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="0"
@@ -140,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28.lib wxbase28_net.lib wxbase28_xml.lib wxexpat.lib wxjpeg.lib wxmsw28_adv.lib wxmsw28_aui.lib wxmsw28_core.lib wxmsw28_gl.lib wxmsw28_html.lib wxmsw28_media.lib wxmsw28_qa.lib wxmsw28_richtext.lib wxmsw28_xrc.lib wxpng.lib wxregex.lib wxtiff.lib wxzlib.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib xerces-c_3.lib sdl.lib sdlmain.lib dsound.lib dxguid.lib Dbghelp.lib libcurl.lib ws2_32.lib"
+				AdditionalDependencies="wxbase28u.lib wxbase28u_net.lib wxbase28u_xml.lib wxexpat.lib wxjpeg.lib wxmsw28u_adv.lib wxmsw28u_aui.lib wxmsw28u_core.lib wxmsw28u_gl.lib wxmsw28u_html.lib wxmsw28u_media.lib wxmsw28u_qa.lib wxmsw28u_richtext.lib wxmsw28u_xrc.lib wxpng.lib wxregex.lib wxtiff.lib wxzlib.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib xerces-c_3.lib sdl.lib sdlmain.lib dsound.lib dxguid.lib Dbghelp.lib libcurl.lib ws2_32.lib"
 				OutputFile="$(OutDir)\megaglest_configurator.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;../../build/$(ConfigurationName)/libglest&quot;;../../source/win32_deps/lib"

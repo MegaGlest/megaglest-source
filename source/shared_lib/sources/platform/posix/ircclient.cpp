@@ -29,7 +29,7 @@ namespace Shared { namespace PlatformCommon {
 const int IRC_SERVER_PORT = 6667;
 
 void addlog (const char * fmt, ...) {
-	FILE * fp;
+	//FILE * fp;
 	char buf[1024];
 	va_list va_alist;
 

@@ -16,6 +16,7 @@
 #include "platform_common.h"
 #include "config.h"
 #include <iostream>
+#include"platform_util.h"
 #include <wx/stdpaths.h>
 
 using namespace Shared::Util;
@@ -349,11 +350,11 @@ void MainWindow::init(string fname) {
 	wxInitAllImageHandlers();
 #ifdef WIN32
 	//std::cout << "B" << std::endl;
-	#if defined(__MINGW32__)
+//	#if defined(__MINGW32__)
 		wxIcon icon(ToUnicode("IDI_ICON1"));
-	#else
-		wxIcon icon("IDI_ICON1");
-	#endif
+//	#else
+//		wxIcon icon("IDI_ICON1");
+//	#endif
 
 #else
 	//std::cout << "B" << std::endl;
@@ -575,16 +576,31 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 		return;
 	}
 
-	fileDialog->SetMessage(wxT("Select Glestmap to load"));
-	fileDialog->SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
-	if (fileDialog->ShowModal() == wxID_OK) {
-		currentFile = fileDialog->GetPath().ToAscii();
-		program->loadMap(currentFile);
-		fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
-		setDirty(false);
-		setExtension();
-		SetTitle(ToUnicode(winHeader + "; " + currentFile));
+	try {
+		fileDialog->SetMessage(wxT("Select Glestmap to load"));
+		fileDialog->SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
+		if (fileDialog->ShowModal() == wxID_OK) {
+			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fileDialog->GetPath()));
+			currentFile = tmp_buf;
+#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
+			currentFile = utf8_encode(wstr.get());
+#endif
+
+			program->loadMap(currentFile);
+			fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
+			setDirty(false);
+			setExtension();
+			SetTitle(ToUnicode(winHeader + "; " + currentFile));
+		}
 	}
+	catch (const string &e) {
+		MsgDialog(this, ToUnicode(e), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+	}
+	catch (const exception &e) {
+		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+	}
+
 }
 
 void MainWindow::onMenuFileSave(wxCommandEvent &event) {
@@ -597,6 +613,7 @@ void MainWindow::onMenuFileSave(wxCommandEvent &event) {
 		onMenuFileSaveAs(ev);
 	} else {
 		setExtension();
+
 		program->saveMap(currentFile);
 		setDirty(false);
 	}
@@ -628,7 +645,13 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 
 	fd.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));
 	if (fd.ShowModal() == wxID_OK) {
-		currentFile = fd.GetPath().ToAscii();
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fd.GetPath()));
+		currentFile = tmp_buf;
+#ifdef WIN32
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
+			currentFile = utf8_encode(wstr.get());
+#endif
+
 		fileDialog->SetPath(fd.GetPath());
 		setExtension();
 		program->saveMap(currentFile);
@@ -1379,7 +1402,8 @@ bool SimpleDialog::show(const string &title, bool wide) {
 	if(m_returnCode==wxID_CANCEL) return false; // don't change values if canceled
 
 	for (unsigned int i = 0; i < texts.size(); ++i) {
-		values[i].second = texts[i]->GetValue().ToAscii();
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(texts[i]->GetValue()));
+		values[i].second = tmp_buf;
 	}
 	return true;
 }
@@ -1407,12 +1431,18 @@ bool App::OnInit() {
 			exit (0);
 		}
 
-#if defined(__MINGW32__)
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[1]));
+//#if defined(__MINGW32__)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[1]);
 		fileparam = tmp_buf;
-#else
-        fileparam = wxFNCONV(argv[1]);
+		
+#ifdef WIN32
+		std::auto_ptr<wchar_t> wstr(Ansi2WideString(fileparam.c_str()));
+		fileparam = utf8_encode(wstr.get());
 #endif
+
+//#else
+//        fileparam = wxFNCONV(argv[1]);
+//#endif
 	}
 
 	wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
@@ -1421,12 +1451,19 @@ bool App::OnInit() {
     //exe_path += path_separator;
 
 	string appPath = "";
-#if defined(__MINGW32__)
+//#if defined(__MINGW32__)
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
 		appPath = tmp_buf;
-#else
-		appPath = wxFNCONV(exe_path);
+
+#ifdef WIN32
+		std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+		appPath = utf8_encode(wstr.get());
 #endif
+
+//#else
+//		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
+//		appPath = tmp_buf;
+//#endif
 
 	mainWindow = new MainWindow(appPath);
 	mainWindow->Show();

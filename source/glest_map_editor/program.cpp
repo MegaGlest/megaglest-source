@@ -11,10 +11,10 @@
 
 
 #include "program.h"
-
 #include "util.h"
-
 #include <iostream>
+#include "platform_util.h"
+
 using namespace Shared::Util;
 
 namespace MapEditor {
@@ -612,11 +612,25 @@ void Program::setMapAdvanced(int altFactor, int waterLevel, int cliffLevel , int
 void Program::loadMap(const string &path) {
 	undoStack.clear();
 	redoStack.clear();
-	map->loadFromFile(path);
+
+	std::string encodedPath = path;
+//#ifdef WIN32
+//	std::auto_ptr<wchar_t> wstr(Ansi2WideString(path.c_str()));
+//	encodedPath = utf8_encode(wstr.get());
+//#endif
+	map->loadFromFile(encodedPath);
 }
 
 void Program::saveMap(const string &path) {
-	if(map) map->saveToFile(path);
+	if(map) {
+		std::string encodedPath = path;
+//#ifdef WIN32
+//		std::auto_ptr<wchar_t> wstr(Ansi2WideString(path.c_str()));
+//		encodedPath = utf8_encode(wstr.get());
+//#endif
+
+		map->saveToFile(encodedPath);
+	}
 }
 
 }// end namespace

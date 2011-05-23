@@ -22,6 +22,7 @@
 #include "types.h"
 #include "properties.h"
 #include "platform_common.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 
@@ -106,8 +107,12 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
 		config->setParameter(XMLUni::fgDOMValidate, true);
 #endif
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
-
-		if(document==NULL){
+#ifdef WIN32
+		if(document == NULL) {
+			document= parser->parseURI(utf8_decode(path).c_str());
+		}
+#endif
+		if(document == NULL) {
 			throw runtime_error("Can not parse URL: " + path);
 		}
 

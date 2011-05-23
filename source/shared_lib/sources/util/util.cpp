@@ -650,7 +650,7 @@ string ext(const string &s) {
 
      i=s.find_last_of('.')+1;
 
-	 if (i != string::npos) {
+	 if (i == string::npos) {
           throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
 	 //}
 		return (s.substr(i, s.size()-i));
@@ -723,15 +723,23 @@ int round(float f){
 
 // ==================== misc ====================
 
-bool fileExists(const string &path){
+bool fileExists(const string &path) {
 #ifdef WIN32
-	FILE* file= _wfopen(utf8_decode(path).c_str(), L"rb");
+	wstring wstr = utf8_decode(path);
+	FILE* file= _wfopen(wstr.c_str(), L"rb");
 #else
 	FILE* file= fopen(path.c_str(), "rb");
 #endif
-	if(file!=NULL){
+	if(file != NULL) {
 		fclose(file);
 		return true;
+	}
+	else {
+		int fileErrno = errno;
+#ifdef WIN32
+		DWORD error = GetLastError();
+		string strError = "Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
+#endif
 	}
 	return false;
 }
