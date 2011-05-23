@@ -2531,6 +2531,21 @@ int glestMain(int argc, char** argv) {
 
         lang.loadStrings(language);
 
+        if(	lang.hasString("FONT_CHARCOUNT") &&
+        	lang.hasString("FONT_TYPENAME") &&
+        	lang.hasString("FONT_CHARSET")) {
+			// 256 for English
+			// 30000 for Chinese
+			Font::charCount    = strToInt(lang.get("FONT_CHARCOUNT"));
+			Font::fontTypeName = lang.get("FONT_TYPENAME");
+			// Example values:
+			// DEFAULT_CHARSET (English) = 1
+			// GB2312_CHARSET (Chinese)  = 134
+			Shared::Platform::charSet = strToInt(lang.get("FONT_CHARSET"));
+		}
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
+
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) == true) {

@@ -30,6 +30,10 @@
 #include "conversion.h"
 #include "simple_threads.h"
 #include "platform_util.h"
+#ifndef WIN32
+#include <errno.h>
+#endif
+
 #include "leak_dumper.h"
 
 using namespace std;

@@ -235,13 +235,15 @@ void IntField::createControl(wxWindow *parent, wxSizer *sizer){
 
 void IntField::updateValue(){
 //#if defined(__MINGW32__)
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
-		value = tmp_buf;
+#ifdef WIN32
+	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
+	value = tmp_buf;
 
-		#ifdef WIN32
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
-		value = utf8_encode(wstr.get());
-		#endif
+	std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
+	value = utf8_encode(wstr.get());
+#else
+	value= (const char*)wxFNCONV(textCtrl->GetValue());
+#endif
 
 //#else
 	//value= (const char*)wxFNCONV(textCtrl->GetValue());
@@ -274,12 +276,15 @@ void FloatField::createControl(wxWindow *parent, wxSizer *sizer){
 void FloatField::updateValue(){
 
 //#if defined(__MINGW32__)
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
-		value = tmp_buf;
-		#ifdef WIN32
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
-		value = utf8_encode(wstr.get());
-		#endif
+#ifdef WIN32
+	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
+	value = tmp_buf;
+
+	std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
+	value = utf8_encode(wstr.get());
+#else
+	value= (const char*)wxFNCONV(textCtrl->GetValue());
+#endif
 
 //#else
 //	value= (const char*)wxFNCONV(textCtrl->GetValue());
@@ -313,12 +318,15 @@ void StringField::createControl(wxWindow *parent, wxSizer *sizer){
 void StringField::updateValue(){
 
 //#if defined(__MINGW32__)
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
-		value = tmp_buf;
-		#ifdef WIN32
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
-		value = utf8_encode(wstr.get());
-		#endif
+#ifdef WIN32
+	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
+	value = tmp_buf;
+
+	std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
+	value = utf8_encode(wstr.get());
+#else
+	value= (const char*)wxFNCONV(textCtrl->GetValue());
+#endif
 
 //#else
 //	value= (const char*)wxFNCONV(textCtrl->GetValue());
@@ -348,13 +356,16 @@ void EnumField::createControl(wxWindow *parent, wxSizer *sizer){
 
 void EnumField::updateValue(){
 //#if defined(__MINGW32__)
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(comboBox->GetValue()));
-		value = tmp_buf;
 
-		#ifdef WIN32
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
-		value = utf8_encode(wstr.get());
-		#endif
+#ifdef WIN32
+	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(comboBox->GetValue()));
+	value = tmp_buf;
+
+	std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
+	value = utf8_encode(wstr.get());
+#else
+	value= (const char*)wxFNCONV(comboBox->GetValue());
+#endif
 
 //#else
 //	value= (const char*)wxFNCONV(comboBox->GetValue());
@@ -428,13 +439,16 @@ void FloatRangeField::createControl(wxWindow *parent, wxSizer *sizer){
 
 void FloatRangeField::updateValue(){
 //#if defined(__MINGW32__)
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
-		value = tmp_buf;
 
-		#ifdef WIN32
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
-		value = utf8_encode(wstr.get());
-		#endif
+#ifdef WIN32
+	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(textCtrl->GetValue()));
+	value = tmp_buf;
+
+	std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
+	value = utf8_encode(wstr.get());
+#else
+	value= (const char*)wxFNCONV(textCtrl->GetValue());
+#endif
 
 //#else
 //	value= (const char*)wxFNCONV(textCtrl->GetValue());
