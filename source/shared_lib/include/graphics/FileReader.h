@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <vector>
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using std::map;
@@ -29,6 +30,7 @@ using std::vector;
 using std::ifstream;
 using std::ios;
 using std::runtime_error;
+using namespace Shared::Util;
 
 using Shared::PlatformCommon::extractExtension;
 
@@ -141,7 +143,7 @@ public:
 template <typename T>
 static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, const string& filepath) {
 	//try to assign file
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	FILE *fp = _wfopen(utf8_decode(filepath).c_str(), L"rb");
 	ifstream file(fp);
 #else
@@ -161,14 +163,14 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 		}
 		if (ret != NULL) {
 			file.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 			fclose(fp);
 #endif
 			return ret;
 		}
 	}
 	file.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	fclose(fp);
 #endif
 
@@ -178,7 +180,7 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 template <typename T>
 static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, const string& filepath, T* object) {
 	//try to assign file
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	wstring wstr = utf8_decode(filepath);
 	FILE *fp = _wfopen(wstr.c_str(), L"rb");
 	int fileErrno = errno;
@@ -187,7 +189,7 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
 #endif
 	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 		DWORD error = GetLastError();
 		throw runtime_error("Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " [" + filepath + "]");
 #else
@@ -205,14 +207,14 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 		}
 		if (ret != NULL) {
 			file.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 			fclose(fp);
 #endif
 			return ret;
 		}
 	}
 	file.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	fclose(fp);
 #endif
 	return NULL;
@@ -326,7 +328,7 @@ bool FileReader<T>::canRead(ifstream& file) const {
  */
 template <typename T>
 T* FileReader<T>::read(const string& filepath) const {
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	FILE *fp = _wfopen(utf8_decode(filepath).c_str(), L"rb");
 	ifstream file(fp);
 #else
@@ -337,7 +339,7 @@ T* FileReader<T>::read(const string& filepath) const {
 	}
 	T* ret = read(file,filepath);
 	file.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	fclose(fp);
 #endif
 
@@ -351,7 +353,7 @@ T* FileReader<T>::read(const string& filepath) const {
  */
 template <typename T>
 T* FileReader<T>::read(const string& filepath, T* object) const {
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	FILE *fp = _wfopen(utf8_decode(filepath).c_str(), L"rb");
 	ifstream file(fp);
 #else
@@ -362,7 +364,7 @@ T* FileReader<T>::read(const string& filepath, T* object) const {
 	}
 	T* ret = read(file,filepath,object);
 	file.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	fclose(fp);
 #endif
 

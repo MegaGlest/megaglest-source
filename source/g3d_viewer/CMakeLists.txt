@@ -64,7 +64,7 @@ SET(GLEST_LIB_INCLUDE_ROOT "../shared_lib/include/")
 
 SET(GLEST_LIB_INCLUDE_DIRS
     ${GLEST_LIB_INCLUDE_ROOT}platform/common
-    ${GLEST_LIB_INCLUDE_ROOT}platform/sdl
+#    ${GLEST_LIB_INCLUDE_ROOT}platform/sdl
     ${GLEST_LIB_INCLUDE_ROOT}platform/posix
     ${GLEST_LIB_INCLUDE_ROOT}util
     ${GLEST_LIB_INCLUDE_ROOT}graphics
@@ -80,6 +80,13 @@ SET(GLEST_LIB_INCLUDE_DIRS
     ${GLEST_MAIN_INCLUDE_ROOT}sound
        )
 INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
+
+IF(WIN32)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
+	INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+ELSE()
+	INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+ENDIF()
 
 SET(MG_SOURCE_FILES "../glest_game/graphics/particle_type.cpp" "../glest_game/graphics/unit_particle_type.cpp" "../glest_game/global/config.cpp")
 	

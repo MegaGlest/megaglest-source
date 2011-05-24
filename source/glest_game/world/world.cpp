@@ -1677,7 +1677,7 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 	}
 	else {
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 		FILE *fp = _wfopen(utf8_decode(debugWorldLogFile).c_str(), L"w");
 		std::ofstream logFile(fp);
 #else
@@ -1708,7 +1708,7 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 		}
 
 		logFile.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 		if(fp) {
 			fclose(fp);
 		}

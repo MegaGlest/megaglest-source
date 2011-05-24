@@ -370,7 +370,11 @@ bool isdir(const char *path)
 #endif
 
 #ifdef WIN32
+  #if defined(__MINGW32__)
+  struct _stat stats;
+  #else
   struct _stat64i32 stats;
+  #endif
   int result = _wstat(utf8_decode(friendly_path).c_str(), &stats);
 #else
   struct stat stats;
@@ -1717,7 +1721,11 @@ bool renameFile(string oldFile, string newFile) {
 
 off_t getFileSize(string filename) {
 #ifdef WIN32
+  #if defined(__MINGW32__)
+  struct _stat stbuf;
+  #else
   struct _stat64i32 stbuf;
+  #endif
   if(_wstat(utf8_decode(filename).c_str(), &stbuf) != -1) {
 #else
   struct stat stbuf;
@@ -1873,7 +1881,7 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 
 void copyFileTo(string fromFileName, string toFileName) {
 	//Open an input and output stream in binary mode
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	FILE *fp1 = _wfopen(utf8_decode(fromFileName).c_str(), L"rb");
 	ifstream in(fp1);
 	FILE *fp2 = _wfopen(utf8_decode(toFileName).c_str(), L"wb");
@@ -1899,7 +1907,7 @@ void copyFileTo(string fromFileName, string toFileName) {
 	in.close();
 	out.close();
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	if(fp1) {
 		fclose(fp1);
 	}
