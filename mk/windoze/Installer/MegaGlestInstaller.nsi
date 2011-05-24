@@ -22,13 +22,13 @@ BGGradient 0xDF9437 0xffffff
 RequestExecutionLevel none
 
 PageEx license
-       LicenseText "Megaglest License"
-       LicenseData "..\..\..\data\glest_game\docs\README.data-license.txt"
+       LicenseText "MegaGlest Game License"
+       LicenseData "..\..\..\docs\gnu_gpl_3.0.txt"
 PageExEnd
 
 PageEx license
-       LicenseText "Megaglest README"
-       LicenseData "..\..\..\docs\README.txt"
+       LicenseText "MegaGlest Data License"
+       LicenseData "..\..\..\data\glest_game\docs\cc-by-sa-3.0-unported.txt"
 PageExEnd
 
 ;--------------------------------
@@ -186,6 +186,11 @@ Function .onInstSuccess
     
 noLaunchWebsite:
 
+MessageBox MB_YESNO "Would you like to view the README file? This is heavily recommended." IDNO noViewReadme
+    ExecShell "open" "$INSTDIR\docs\README.txt"
+
+noViewReadme:
+
     MessageBox MB_YESNO "${APNAME} v${APVER} installed successfully, \
     click Yes to launch the game now$\nor 'No' to exit." IDNO noLaunch
 
@@ -282,6 +287,8 @@ Section "Start Menu Shortcuts"
 ;  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} Configurator.lnk" "$INSTDIR\glest_configurator.exe" "" "$INSTDIR\glest_configurator.exe" 0 "" "" "${APNAME} Config Editor"
   CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editor.exe" "" "$INSTDIR\megaglest_editor.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
   CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewer.exe" "" "$INSTDIR\megaglest_g3dviewer.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
+
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} User Data.lnk" "$APPDATA\megaglest" "" "" 0 "" "" "This folder contains downloaded data (such as mods) and your personal ${APNAME} configuration"
 
 SectionEnd
 
