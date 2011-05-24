@@ -483,6 +483,22 @@ void Program::shiftLeft() {
 			map->changeStartLocation(map->getStartLocationX(i)-1, map->getStartLocationY(i), i); // it allready check limits
 	}
 }
+
+void Program::flipDiagonal() {
+	if(map) {
+		int w=map->getW();
+		int h=map->getH();
+		for (int i=0; i<w; i++)
+			for (int j=i; j<h; j++){
+				map->swapXY(i,j ,  j,i);
+			}
+		for (int i = 0; i < map->getMaxFactions(); ++i)     // move players
+			if (map->getStartLocationX(i) != 0 || map->getStartLocationY(i) != 0) // don't move the unset ones
+				map->changeStartLocation(map->getStartLocationY(i), map->getStartLocationX(i), i); // it allready check limits
+	}
+}
+
+
 void Program::shiftRight() {
 	if(map) {
 		int w=map->getW()-1;

@@ -125,6 +125,7 @@ void MainWindow::init(string fname) {
 //	menuEdit->Append(miEditReset, wxT("Rese&t..."));
 	menuEdit->Append(miEditResetPlayers, wxT("Reset &Players..."));
 	menuEdit->Append(miEditResize, wxT("Re&size..."));
+	menuEdit->Append(miEditFlipDiagonal, wxT("Flip &Diagonal"));
 	menuEdit->Append(miEditFlipX, wxT("Flip &X"));
 	menuEdit->Append(miEditFlipY, wxT("Flip &Y"));
 
@@ -747,6 +748,16 @@ void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
 	setExtension();
 }
 
+
+void MainWindow::onMenuEditFlipDiagonal(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+	program->setUndoPoint(ctAll);
+		program->flipDiagonal();
+		setDirty();
+}
+
 void MainWindow::onMenuEditResize(wxCommandEvent &event) {
 	if(program == NULL) {
 		return;
@@ -1255,6 +1266,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(miEditRedo, MainWindow::onMenuEditRedo)
 	EVT_MENU(miEditResetPlayers, MainWindow::onMenuEditResetPlayers)
 	EVT_MENU(miEditResize, MainWindow::onMenuEditResize)
+	EVT_MENU(miEditFlipDiagonal, MainWindow::onMenuEditFlipDiagonal)
 	EVT_MENU(miEditFlipX, MainWindow::onMenuEditFlipX)
 	EVT_MENU(miEditFlipY, MainWindow::onMenuEditFlipY)
 
