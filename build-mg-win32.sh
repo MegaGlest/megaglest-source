@@ -11,3 +11,14 @@ make -j$NUMCORES
 
 #echo 'You may now launch mega-glest from this folder like this:'
 #echo '../mk/linux/glest.bin --ini-path=../mk/linux/ --data-path=../mk/linux/'
+
+echo 'Copying mingw dependencies if they are missing...'
+
+[[ -f "data/glest_game/lua51.dll" ]] && cp source/win32_deps/lib/lua5.1.dll data/glest_game/lua51.dll
+[[ -f "data/glest_game/libcurl-4.dll" ]] && cp source/win32_deps/curl-7.21.3/lib/.libs/libcurl-4.dll data/glest_game/libcurl-4.dll
+[[ -f "data/glest_game/libxerces-c2_8_0.dll" ]] && cp source/win32_deps/xerces-c-src_2_8_0/lib/libxerces-c2_8_0.dll data/glest_game/libxerces-c2_8_0.dll
+[[ -f "data/glest_game/libpng14.dll" ]] && cp source/win32_deps/lpng141/libpng14.dll data/glest_game/libpng14.dll
+[[ -f "data/glest_game/libjpeg-8.dll" ]] && cp source/win32_deps/lib/libjpeg.dll data/glest_game/libjpeg-8.dll
+[[ -f "data/glest_game/libvorbisfile-3.dll" ]] && cp source/win32_deps/lib/libvorbisfile.dll data/glest_game/libvorbisfile-3.dll
+[[ -f "data/glest_game/libvorbis-0.dll" ]] && cp source/win32_deps/lib/libvorbis.dll data/glest_game/libvorbis-0.dll
+[[ -f "data/glest_game/libogg-0.dll" ]] && cp source/win32_deps/lib/libogg.dll data/glest_game/libogg-0.dll
