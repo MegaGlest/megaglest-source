@@ -133,6 +133,7 @@ public:
 	void rotatecopyY();
 	void rotatecopyXY();
 	void rotatecopyCorner();
+	void flipDiagonal();
 	void shiftLeft();
 	void shiftRight();
 	void shiftUp();

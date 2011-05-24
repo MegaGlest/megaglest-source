@@ -104,6 +104,7 @@ private:
 		miEditReset,
 		miEditResetPlayers,
 		miEditResize,
+		miEditFlipDiagonal,
 		miEditFlipX,
 		miEditFlipY,
 
@@ -212,6 +213,7 @@ public:
 	void onMenuEditReset(wxCommandEvent &event);
 	void onMenuEditResetPlayers(wxCommandEvent &event);
 	void onMenuEditResize(wxCommandEvent &event);
+	void onMenuEditFlipDiagonal(wxCommandEvent &event);
 	void onMenuEditFlipX(wxCommandEvent &event);
 	void onMenuEditFlipY(wxCommandEvent &event);
 

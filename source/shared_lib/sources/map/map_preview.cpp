@@ -401,6 +401,27 @@ void MapPreview::copyXY(int x, int y, int sx, int sy) {
 		cells[x][y].surface  = cells[sx][sy].surface;
 }
 
+// swap a cell in the map with another, used by rotate etc
+void MapPreview::swapXY(int x, int y, int sx, int sy) {
+	if(inside(x, y) and inside(sx, sy)){
+		float tmpHeight= cells[x][y].height;
+		cells[x][y].height= cells[sx][sy].height;
+		cells[sx][sy].height= tmpHeight;
+
+		int tmpObject= cells[x][y].object;
+		cells[x][y].object= cells[sx][sy].object;
+		cells[sx][sy].object= tmpObject;
+
+		int tmpResource= cells[x][y].resource;
+		cells[x][y].resource= cells[sx][sy].resource;
+		cells[sx][sy].resource= tmpResource;
+
+		int tmpSurface= cells[x][y].surface;
+		cells[x][y].surface= cells[sx][sy].surface;
+		cells[sx][sy].surface= tmpSurface;
+	}
+}
+
 void MapPreview::changeSurface(int x, int y, MapSurfaceType surface, int radius) {
 	int i, j;
 	int dist;
