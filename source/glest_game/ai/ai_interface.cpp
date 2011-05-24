@@ -20,6 +20,7 @@
 #include "game.h"
 #include "config.h"
 #include "network_manager.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -53,7 +54,7 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 	//clear log file
 	if(logLevel>0){
 #ifdef WIN32
-		FILE *f= _wfopen(utf8_decode(getLogFilename()).c_str(), L"wt");
+		FILE *f= _wfopen(Shared::Platform::utf8_decode(getLogFilename()).c_str(), L"wt");
 #else
 		FILE *f= fopen(getLogFilename().c_str(), "wt");
 #endif

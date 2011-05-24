@@ -513,7 +513,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 			}
 
             if(currentDebugLog.fileStream == NULL) {
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 				currentDebugLog.fileStream = new std::ofstream(_wfopen(utf8_decode(debugLog).c_str(), L"w"));
 #else
             	currentDebugLog.fileStream = new std::ofstream();

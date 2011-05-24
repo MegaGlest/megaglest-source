@@ -46,7 +46,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 	size_t pos=0;
 	this->path= path;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	FILE *fp = _wfopen(utf8_decode(path).c_str(), L"r");
 	ifstream fileStream(fp);
 #else
@@ -110,7 +110,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 	}
 
 	fileStream.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	fclose(fp);
 #endif
 }
@@ -269,7 +269,7 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 }
 
 void Properties::save(const string &path){
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	FILE *fp = _wfopen(utf8_decode(path).c_str(), L"w");
 	ofstream fileStream(fp);
 #else
@@ -284,7 +284,7 @@ void Properties::save(const string &path){
 	}
 
 	fileStream.close();
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	fclose(fp);
 #endif
 }

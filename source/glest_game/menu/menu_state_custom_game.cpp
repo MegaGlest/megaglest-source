@@ -2373,7 +2373,7 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	GameSettings gameSettings;
 	loadGameSettings(&gameSettings);
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	FILE *fp = _wfopen(utf8_decode(fileName).c_str(), L"w");
 	std::ofstream saveGameFile(fp);
 #else
@@ -2421,7 +2421,7 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 		saveGameFile << "FactionPlayerNameForIndex" 	<< slotIndex << "=" << gameSettings.getNetworkPlayerName(i) << std::endl;
     }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 	fclose(fp);
 #endif
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
