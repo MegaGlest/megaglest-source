@@ -100,7 +100,7 @@ bool Lang::hasString(const string &s, string language) {
 	}
 	catch(exception &ex) {
 		if(strings.getpath() != "") {
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] for language [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),language.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] for language [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),language.c_str());
 		}
 	}
 	return hasString;
