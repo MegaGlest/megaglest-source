@@ -251,6 +251,9 @@ int App::MainLoop(){
 }
 
 int App::OnExit(){
+	SystemFlags::Close();
+	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
+
 	return 0;
 }
 

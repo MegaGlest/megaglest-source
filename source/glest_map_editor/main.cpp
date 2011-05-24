@@ -391,7 +391,12 @@ void MainWindow::init(string fname) {
 	//program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 
 	fileName = "New (unsaved) Map";
-	if (!fname.empty() && fileExists(fname)) {
+
+	//printf("Does file exist, fname [%s]\n",fname.c_str());
+
+	if (fname.empty() == false && fileExists(fname)) {
+		//printf("YES file exist, fname [%s]\n",fname.c_str());
+
 		//program->loadMap(fname);
 		currentFile = fname;
 		fileName = cutLastExt(extractFileFromDirectoryPath(fname.c_str()));
@@ -400,6 +405,11 @@ void MainWindow::init(string fname) {
 	SetTitle(ToUnicode(currentFile + " - " + winHeader));
 	//setDirty(false);
 	//setExtension();
+
+	if(startupSettingsInited == false) {
+		startupSettingsInited = true;
+		setupStartupSettings();
+	}
 }
 
 void MainWindow::onClose(wxCloseEvent &event) {
@@ -415,7 +425,12 @@ void MainWindow::setupStartupSettings() {
 	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 
 	fileName = "New (unsaved) Map";
+
+	//printf("#0 file load [%s]\n",currentFile.c_str());
+
 	if (!currentFile.empty() && fileExists(currentFile)) {
+		//printf("#0 exists file load [%s]\n",currentFile.c_str());
+
 		program->loadMap(currentFile);
 		//currentFile = fname;
 		fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
@@ -452,14 +467,19 @@ void MainWindow::setExtension() {
 	if (currentFile.empty() || program == NULL) {
 		return;
 	}
+
 	string extnsn = ext(currentFile);
+
+	//printf("#A currentFile [%s] extnsn [%s]\n",currentFile.c_str(),extnsn.c_str());
+
 	if (extnsn == "gbm" || extnsn == "mgm") {
 		currentFile = cutLastExt(currentFile);
 	}
 	if (Program::getMap()->getMaxFactions() <= 4) {
 		SetStatusText(wxT(".gbm"), siFILE_TYPE);
 		currentFile += ".gbm";
-	} else {
+	}
+	else {
 		SetStatusText(wxT(".mgm"), siFILE_TYPE);
 		currentFile += ".mgm";
 	}
@@ -549,11 +569,6 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	glCanvas->setCurrentGLContext();
 #endif
 
-	if(startupSettingsInited == false) {
-		startupSettingsInited = true;
-		setupStartupSettings();
-	}
-
 	if(lastPaintEvent.getMillis() < 30) {
 		sleep(1);
 		return;
@@ -591,8 +606,13 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 			std::auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
 			currentFile = utf8_encode(wstr.get());
 #else
-			currentFile = fileDialog->GetPath().ToAscii();
+			//currentFile = fileDialog->GetPath().ToAscii();
+
+			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
+			currentFile = tmp_buf;
 #endif
+
+			//printf("#1 file load [%s]\n",currentFile.c_str());
 
 			program->loadMap(currentFile);
 			fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
@@ -618,8 +638,11 @@ void MainWindow::onMenuFileSave(wxCommandEvent &event) {
 	if (currentFile.empty()) {
 		wxCommandEvent ev;
 		onMenuFileSaveAs(ev);
-	} else {
+	}
+	else {
 		setExtension();
+
+		//printf("#1 save load [%s]\n",currentFile.c_str());
 
 		program->saveMap(currentFile);
 		setDirty(false);
@@ -659,11 +682,16 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 		std::auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
 		currentFile = utf8_encode(wstr.get());
 #else
-		 currentFile = fd.GetPath().ToAscii();
+		 //currentFile = fd.GetPath().ToAscii();
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fd.GetPath());
+		currentFile = tmp_buf;
 #endif
 
 		fileDialog->SetPath(fd.GetPath());
 		setExtension();
+
+		//printf("#2 file save [%s]\n",currentFile.c_str());
+
 		program->saveMap(currentFile);
 		fileName = cutLastExt(extractFileFromDirectoryPath(currentFile.c_str()));
 		setDirty(false);
@@ -1440,6 +1468,7 @@ bool SimpleDialog::show(const string &title, bool wide) {
 
 bool App::OnInit() {
 	SystemFlags::VERBOSE_MODE_ENABLED  = true;
+	SystemFlags::ENABLE_THREADED_LOGGING = false;
 
 	string fileparam;
 	if(argc==2){
@@ -1520,6 +1549,9 @@ int App::MainLoop() {
 }
 
 int App::OnExit() {
+	SystemFlags::Close();
+	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
+
 	return 0;
 }
 

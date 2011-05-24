@@ -654,8 +654,8 @@ string ext(const string &s) {
 
      i=s.find_last_of('.')+1;
 
-	 if (i == string::npos) {
-          throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
+	 if (i != string::npos) {
+          //throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
 	 //}
 		return (s.substr(i, s.size()-i));
 	 }
