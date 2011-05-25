@@ -2266,6 +2266,9 @@ bool App::OnInit() {
 								newXRotValue,
 								newYRotValue,
 								appPath);
+	if(autoScreenShotAndExit == true) {
+		mainWindow->Iconize(true);
+	}
 	mainWindow->Show();
 	mainWindow->init();
 	mainWindow->Update();
