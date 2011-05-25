@@ -2549,6 +2549,28 @@ int glestMain(int argc, char** argv) {
         if(	lang.hasString("FONT_MULTIBYTE")) {
         	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE"));
         }
+
+#if defined(WIN32)
+        // Win32 overrides for fonts (just in case they must be different)
+        if(	lang.hasString("FONT_CHARCOUNT_WINDOWS")) {
+			// 256 for English
+			// 30000 for Chinese
+			Font::charCount    = strToInt(lang.get("FONT_CHARCOUNT_WINDOWS"));
+		}
+        if(	lang.hasString("FONT_TYPENAME_WINDOWS")) {
+			Font::fontTypeName = lang.get("FONT_TYPENAME_WINDOWS");
+		}
+        if(	lang.hasString("FONT_CHARSET_WINDOWS")) {
+			// Example values:
+			// DEFAULT_CHARSET (English) = 1
+			// GB2312_CHARSET (Chinese)  = 134
+			Shared::Platform::charSet = strToInt(lang.get("FONT_CHARSET_WINDOWS"));
+		}
+        if(	lang.hasString("FONT_MULTIBYTE_WINDOWS")) {
+        	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE_WINDOWS"));
+        }
+        // end win32
+#endif
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
 
