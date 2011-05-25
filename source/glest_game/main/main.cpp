@@ -2440,8 +2440,9 @@ int glestMain(int argc, char** argv) {
 		Texture::useTextureCompression = config.getBool("EnableTextureCompression","false");
 		// 256 for English
 		// 30000 for Chinese
-		Font::charCount    = config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());
-		Font::fontTypeName = config.getString("FONT_TYPENAME",Font::fontTypeName.c_str());
+		Font::charCount    		= config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());
+		Font::fontTypeName 		= config.getString("FONT_TYPENAME",Font::fontTypeName.c_str());
+		Font::fontIsMultibyte 	= config.getBool("FONT_MULTIBYTE",intToStr(Font::fontIsMultibyte).c_str());
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
 		// GB2312_CHARSET (Chinese)  = 134
@@ -2463,7 +2464,7 @@ int glestMain(int argc, char** argv) {
         // Setup debug logging etc
 		setupLogging(config, haveSpecialOutputCommandLineOption);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
@@ -2531,20 +2532,25 @@ int glestMain(int argc, char** argv) {
 
         lang.loadStrings(language);
 
-        if(	lang.hasString("FONT_CHARCOUNT") &&
-        	lang.hasString("FONT_TYPENAME") &&
-        	lang.hasString("FONT_CHARSET")) {
+        if(	lang.hasString("FONT_CHARCOUNT")) {
 			// 256 for English
 			// 30000 for Chinese
 			Font::charCount    = strToInt(lang.get("FONT_CHARCOUNT"));
+		}
+        if(	lang.hasString("FONT_TYPENAME")) {
 			Font::fontTypeName = lang.get("FONT_TYPENAME");
+		}
+        if(	lang.hasString("FONT_CHARSET")) {
 			// Example values:
 			// DEFAULT_CHARSET (English) = 1
 			// GB2312_CHARSET (Chinese)  = 134
 			Shared::Platform::charSet = strToInt(lang.get("FONT_CHARSET"));
 		}
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d\n",Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet);
+        if(	lang.hasString("FONT_MULTIBYTE")) {
+        	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE"));
+        }
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

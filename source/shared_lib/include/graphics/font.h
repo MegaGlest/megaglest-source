@@ -47,6 +47,7 @@ class Font{
 public:
 	static int charCount;
 	static std::string fontTypeName;
+	static bool fontIsMultibyte;
 	
 public:
 	enum Width{
