@@ -38,6 +38,8 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	if(display == 0) {
 		throw std::runtime_error("Couldn't create font: display is 0");
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("About to try font [%s]\n",type.c_str());
 	XFontStruct* fontInfo = XLoadQueryFont(display, type.c_str());
 	if(fontInfo == NULL) {
 		string default_font = FontGl::getDefault_fontType();
@@ -54,7 +56,78 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	// we need the height of 'a' which sould ~ be half ascent+descent
 	metrics.setHeight(static_cast<float> 
 			(fontInfo->ascent + fontInfo->descent) / 2);
-	for(unsigned int i = 0; i < static_cast<unsigned int> (charCount); ++i) {
+
+
+	int first = (fontInfo->min_byte1 << 8) + fontInfo->min_char_or_byte2;
+	int last = (fontInfo->max_byte1 << 8) + fontInfo->max_char_or_byte2;
+	int count = last - first + 1;
+
+	// 16-bit fonts have more than one row; indexing into
+	//     per_char is trickier.
+	int rows = fontInfo->max_byte1 - fontInfo->min_byte1 + 1;
+	int pages = fontInfo->max_char_or_byte2 - fontInfo->min_char_or_byte2 + 1;
+	int byte1, byte2, index;
+	int charIndex = 0;
+	int charWidth, charHeight;
+	XChar2b character;
+
+
+	for (int i = first; count; i++, count--) {
+		bool skipToEnd = false;
+		int undefined = 0;
+		if (rows == 1) {
+		  undefined = (fontInfo->min_char_or_byte2 > i ||
+				  fontInfo->max_char_or_byte2 < i);
+		}
+		else {
+		  byte2 = i & 0xff;
+		  byte1 = i >> 8;
+		  undefined = (fontInfo->min_char_or_byte2 > byte2 ||
+				  fontInfo->max_char_or_byte2 < byte2 ||
+				  fontInfo->min_byte1 > byte1 ||
+				  fontInfo->max_byte1 < byte1);
+
+		}
+		if (undefined) {
+			skipToEnd = true;
+		}
+		else if (fontInfo->per_char != NULL) {
+		  if (rows == 1) {
+			index = i - fontInfo->min_char_or_byte2;
+		  }
+		  else {
+			byte2 = i & 0xff;
+			byte1 = i >> 8;
+
+			index =
+			  (byte1 - fontInfo->min_byte1) * pages +
+			  (byte2 - fontInfo->min_char_or_byte2);
+		  }
+		  XCharStruct *charinfo = &(fontInfo->per_char[index]);
+		  charWidth = charinfo->rbearing - charinfo->lbearing;
+		  charHeight = charinfo->ascent + charinfo->descent;
+		  if (charWidth == 0 || charHeight == 0) {
+			//if (charinfo->width != 0) {
+			//}
+			skipToEnd = true;
+		  }
+
+		  if(skipToEnd == false) {
+			  metrics.setWidth(charIndex, static_cast<float> (fontInfo->per_char[index].width));
+			  charIndex++;
+		  }
+		}
+		if(skipToEnd == false) {
+			character.byte2 = i & 255;
+			character.byte1 = i >> 8;
+		}
+	}
+	//Shared::Graphics::Font::charCount = charIndex;
+
+
+/*
+	//for(unsigned int i = 0; fontInfo->per_char != NULL && i < static_cast<unsigned int> (charCount); ++i) {
+	for(unsigned int i = 0; fontInfo->per_char != NULL && i < static_cast<unsigned int> (count); ++i) {
 		if(i < fontInfo->min_char_or_byte2 ||
 				i > fontInfo->max_char_or_byte2) {
 			metrics.setWidth(i, static_cast<float>(6));
@@ -63,10 +136,11 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 			int p = i - fontInfo->min_char_or_byte2;
 			metrics.setWidth(i, static_cast<float> (
 			fontInfo->per_char[p].width));
-//						fontInfo->per_char[p].rbearing 
-//						- fontInfo->per_char[p].lbearing));
+	//						fontInfo->per_char[p].rbearing
+	//						- fontInfo->per_char[p].lbearing));
 		}
 	}
+*/
 
 	glXUseXFont(fontInfo->fid, 0, charCount, base);
 	XFreeFont(display, fontInfo);

@@ -19,6 +19,7 @@
 #include "platform_util.h"
 #include "game_constants.h"
 #include "game_util.h"
+#include "lang.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Sound;
@@ -123,12 +124,27 @@ void CoreData::load() {
 	gameWinnerTexture->setForceCompressionDisabled(true);
 	gameWinnerTexture->getPixmap()->load(dir+"/misc_textures/game_winner.png");
 
+	Lang &lang= Lang::getInstance();
+
 	//display font
 	Config &config= Config::getInstance();
-	string displayFontNamePrefix=config.getString("FontDisplayPrefix");
-	string displayFontNamePostfix=config.getString("FontDisplayPostfix");
-	int displayFontSize=computeFontSize(config.getInt("FontDisplayBaseSize"));
+
+	string displayFontNamePrefix	= config.getString("FontDisplayPrefix");
+	string displayFontNamePostfix	= config.getString("FontDisplayPostfix");
+	int displayFontSize				= computeFontSize(config.getInt("FontDisplayBaseSize"));
+
+	if(lang.hasString("FontDisplayPrefix") == true) {
+		displayFontNamePrefix = lang.get("FontDisplayPrefix");
+	}
+	if(lang.hasString("FontDisplayPostfix") == true) {
+		displayFontNamePostfix = lang.get("FontDisplayPostfix");
+	}
+	if(lang.hasString("FontDisplayBaseSize") == true) {
+		displayFontSize = strToInt(lang.get("FontDisplayBaseSize"));
+	}
+
 	string displayFontName=displayFontNamePrefix+intToStr(displayFontSize)+displayFontNamePostfix;
+
 	displayFont= renderer.newFont(rsGlobal);
 	displayFont->setType(displayFontName);
 	displayFont->setSize(displayFontSize);
@@ -136,9 +152,20 @@ void CoreData::load() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontName = [%s] displayFontSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontName.c_str(),displayFontSize);
 
 	//menu fonts
-	string displayFontNameSmallPrefix= config.getString("FontDisplayPrefix");
-	string displayFontNameSmallPostfix= config.getString("FontDisplayPostfix");
-	int displayFontNameSmallSize=computeFontSize(config.getInt("FontDisplaySmallBaseSize"));
+	string displayFontNameSmallPrefix	= config.getString("FontDisplayPrefix");
+	string displayFontNameSmallPostfix	= config.getString("FontDisplayPostfix");
+	int displayFontNameSmallSize		= computeFontSize(config.getInt("FontDisplaySmallBaseSize"));
+
+	if(lang.hasString("FontDisplayPrefix") == true) {
+		displayFontNameSmallPrefix = lang.get("FontDisplayPrefix");
+	}
+	if(lang.hasString("FontDisplayPostfix") == true) {
+		displayFontNameSmallPostfix = lang.get("FontDisplayPostfix");
+	}
+	if(lang.hasString("FontDisplaySmallBaseSize") == true) {
+		displayFontNameSmallSize = strToInt(lang.get("FontDisplaySmallBaseSize"));
+	}
+
 	string displayFontNameSmall=displayFontNameSmallPrefix+intToStr(displayFontNameSmallSize)+displayFontNameSmallPostfix;
 	displayFontSmall= renderer.newFont(rsGlobal);
 	displayFontSmall->setType(displayFontNameSmall);
@@ -146,9 +173,20 @@ void CoreData::load() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontSmallName = [%s] displayFontSmallNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontNameSmall.c_str(),displayFontNameSmallSize);
 
-	string menuFontNameNormalPrefix= config.getString("FontMenuNormalPrefix");
-	string menuFontNameNormalPostfix= config.getString("FontMenuNormalPostfix");
-	int menuFontNameNormalSize=computeFontSize(config.getInt("FontMenuNormalBaseSize"));
+	string menuFontNameNormalPrefix		= config.getString("FontMenuNormalPrefix");
+	string menuFontNameNormalPostfix	= config.getString("FontMenuNormalPostfix");
+	int menuFontNameNormalSize			= computeFontSize(config.getInt("FontMenuNormalBaseSize"));
+
+	if(lang.hasString("FontMenuNormalPrefix") == true) {
+		menuFontNameNormalPrefix = lang.get("FontMenuNormalPrefix");
+	}
+	if(lang.hasString("FontMenuNormalPostfix") == true) {
+		menuFontNameNormalPostfix = lang.get("FontMenuNormalPostfix");
+	}
+	if(lang.hasString("FontMenuNormalBaseSize") == true) {
+		menuFontNameNormalSize = strToInt(lang.get("FontMenuNormalBaseSize"));
+	}
+
 	string menuFontNameNormal= menuFontNameNormalPrefix+intToStr(menuFontNameNormalSize)+menuFontNameNormalPostfix;
 	menuFontNormal= renderer.newFont(rsGlobal);
 	menuFontNormal->setType(menuFontNameNormal);
@@ -157,20 +195,44 @@ void CoreData::load() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNormalName = [%s] menuFontNormalNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameNormal.c_str(),menuFontNameNormalSize);
 
-	string menuFontNameBigPrefix= config.getString("FontMenuBigPrefix");
-	string menuFontNameBigPostfix= config.getString("FontMenuBigPostfix");
-	int menuFontNameBigSize=computeFontSize(config.getInt("FontMenuBigBaseSize"));
+	string menuFontNameBigPrefix	= config.getString("FontMenuBigPrefix");
+	string menuFontNameBigPostfix	= config.getString("FontMenuBigPostfix");
+	int menuFontNameBigSize			= computeFontSize(config.getInt("FontMenuBigBaseSize"));
+
+	if(lang.hasString("FontMenuBigPrefix") == true) {
+		menuFontNameBigPrefix = lang.get("FontMenuBigPrefix");
+	}
+	if(lang.hasString("FontMenuBigPostfix") == true) {
+		menuFontNameBigPostfix = lang.get("FontMenuBigPostfix");
+	}
+	if(lang.hasString("FontMenuBigBaseSize") == true) {
+		menuFontNameBigSize = strToInt(lang.get("FontMenuBigBaseSize"));
+	}
+
 	string menuFontNameBig= menuFontNameBigPrefix+intToStr(menuFontNameBigSize)+menuFontNameBigPostfix;
+
 	menuFontBig= renderer.newFont(rsGlobal);
 	menuFontBig->setType(menuFontNameBig);
 	menuFontBig->setSize(menuFontNameBigSize);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameBig = [%s] menuFontNameBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameBig.c_str(),menuFontNameBigSize);
 
-	string menuFontNameVeryBigPrefix= config.getString("FontMenuBigPrefix");
-	string menuFontNameVeryBigPostfix= config.getString("FontMenuBigPostfix");
-	int menuFontNameVeryBigSize=computeFontSize(config.getInt("FontMenuVeryBigBaseSize"));
+	string menuFontNameVeryBigPrefix	= config.getString("FontMenuBigPrefix");
+	string menuFontNameVeryBigPostfix	= config.getString("FontMenuBigPostfix");
+	int menuFontNameVeryBigSize			= computeFontSize(config.getInt("FontMenuVeryBigBaseSize"));
+
+	if(lang.hasString("FontMenuBigPrefix") == true) {
+		menuFontNameVeryBigPrefix = lang.get("FontMenuBigPrefix");
+	}
+	if(lang.hasString("FontMenuBigPostfix") == true) {
+		menuFontNameVeryBigPostfix = lang.get("FontMenuBigPostfix");
+	}
+	if(lang.hasString("FontMenuVeryBigBaseSize") == true) {
+		menuFontNameVeryBigSize = strToInt(lang.get("FontMenuVeryBigBaseSize"));
+	}
+
 	string menuFontNameVeryBig= menuFontNameVeryBigPrefix+intToStr(menuFontNameVeryBigSize)+menuFontNameVeryBigPostfix;
+
 	menuFontVeryBig= renderer.newFont(rsGlobal);
 	menuFontVeryBig->setType(menuFontNameVeryBig);
 	menuFontVeryBig->setSize(menuFontNameVeryBigSize);
@@ -178,10 +240,22 @@ void CoreData::load() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameVeryBig = [%s] menuFontNameVeryBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameVeryBig.c_str(),menuFontNameVeryBigSize);
 
 	//console font
-	string consoleFontNamePrefix= config.getString("FontConsolePrefix");
-	string consoleFontNamePostfix= config.getString("FontConsolePostfix");
-	int consoleFontNameSize=computeFontSize(config.getInt("FontConsoleBaseSize"));
+	string consoleFontNamePrefix	= config.getString("FontConsolePrefix");
+	string consoleFontNamePostfix	= config.getString("FontConsolePostfix");
+	int consoleFontNameSize			= computeFontSize(config.getInt("FontConsoleBaseSize"));
+
+	if(lang.hasString("FontConsolePrefix") == true) {
+		consoleFontNamePrefix = lang.get("FontConsolePrefix");
+	}
+	if(lang.hasString("FontConsolePostfix") == true) {
+		consoleFontNamePostfix = lang.get("FontConsolePostfix");
+	}
+	if(lang.hasString("FontConsoleBaseSize") == true) {
+		consoleFontNameSize = strToInt(lang.get("FontConsoleBaseSize"));
+	}
+
 	string consoleFontName= consoleFontNamePrefix+intToStr(consoleFontNameSize)+consoleFontNamePostfix;
+
 	consoleFont= renderer.newFont(rsGlobal);
 	consoleFont->setType(consoleFontName);
 	consoleFont->setSize(consoleFontNameSize);

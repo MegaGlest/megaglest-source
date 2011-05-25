@@ -17,7 +17,7 @@ cd $CURDIR
 echo "Creating data package $RELEASENAME (comparing against $OLD_VERSION)"
 
 #if [ ! -e megaglest-data-$VERSION-changes.txt ]; then
-diff --strip-trailing-cr --brief -r -x "*~" megaglest-data-$OLD_VERSION megaglest-data-$VERSION > megaglest-data-$VERSION-changes.txt
+diff --strip-trailing-cr --brief -r -x "*~" megaglest-data-$OLD_VERSION/megaglest-$OLD_VERSION megaglest-data-$VERSION/megaglest-$VERSION > megaglest-data-$VERSION-changes.txt
 #fi
 
 cd megaglest-data-$VERSION
