@@ -21,6 +21,7 @@ namespace Shared{ namespace Graphics{
 
 int Font::charCount= 256;
 std::string Font::fontTypeName = "Times New Roman";
+bool Font::fontIsMultibyte = false;
 
 // =====================================================
 //	class FontMetrics

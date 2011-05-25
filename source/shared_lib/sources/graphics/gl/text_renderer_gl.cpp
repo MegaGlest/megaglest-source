@@ -13,6 +13,7 @@
 
 #include "opengl.h"
 #include "font_gl.h"
+//#include <stdlib.h>
 #include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{ namespace Gl{
@@ -31,6 +32,22 @@ void TextRenderer2DGl::begin(const Font2D *font){
 	
 	this->font= static_cast<const Font2DGl*>(font);
 }
+
+//// Convert a narrow string to a wide string//
+//std::wstring widen(const std::string& str) {
+//	// Make space for wide string
+//	wchar_t* buffer = new wchar_t[str.size() + 1];
+//	// convert ASCII to UNICODE
+//	mbstowcs( buffer, str.c_str(), str.size() );
+//	// NULL terminate it
+//	buffer[str.size()] = 0;
+//	// Clean memory and return it
+//	std::wstring wstr = buffer;
+//	delete [] buffer;
+//	return wstr;
+//
+//}
+//// Widen an individual character
 
 void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, Vec3f *color) {
 	assert(rendering);
@@ -57,19 +74,44 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 	}
 	glRasterPos2f(rasterPos.x, rasterPos.y);
 
-	for (int i=0; utext[i]!='\0'; ++i) {
-		switch(utext[i]){
-		case '\t':
-			rasterPos= Vec2f((rasterPos.x/size+3.f)*size, y-(size+1.f)*line);
-			glRasterPos2f(rasterPos.x, rasterPos.y);
-			break;
-		case '\n':
-			line++;
-			rasterPos= Vec2f(static_cast<float>(x), y-(metrics->getHeight()*2.f)*line);
-			glRasterPos2f(rasterPos.x, rasterPos.y);
-			break;
-		default:
-			glCallList(font->getHandle()+utext[i]);
+	if(Font::fontIsMultibyte == true) {
+		//setlocale(LC_CTYPE, "en_ca.UTF-8");
+
+		//wstring wText = widen(text);
+		//glListBase(font->getHandle());
+		//glCallLists(wText.length(), GL_UNSIGNED_SHORT, &wText[0]);
+
+		//string utfText = text;
+		//glListBase(font->getHandle());
+		//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
+
+		string utfText = text;
+		glListBase(font->getHandle());
+		glCallLists(text.length(), GL_UNSIGNED_SHORT, &utext[0]);
+
+		//std::locale loc("");
+		//wstring wText = widen(text);
+		//std::string strBuffer(Text.size() * 4 + 1, 0);
+		//std::use_facet<std::ctype<wchar_t> >(loc).narrow(&Text[0], &Text[0] + Text.size(), '?', &strBuffer[0]);
+		//string utfText = std::string(&strBuffer[0]);
+		//glListBase(font->getHandle());
+		//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
+	}
+	else {
+		for (int i=0; utext[i]!='\0'; ++i) {
+			switch(utext[i]){
+			case '\t':
+				rasterPos= Vec2f((rasterPos.x/size+3.f)*size, y-(size+1.f)*line);
+				glRasterPos2f(rasterPos.x, rasterPos.y);
+				break;
+			case '\n':
+				line++;
+				rasterPos= Vec2f(static_cast<float>(x), y-(metrics->getHeight()*2.f)*line);
+				glRasterPos2f(rasterPos.x, rasterPos.y);
+				break;
+			default:
+				glCallList(font->getHandle()+utext[i]);
+			}
 		}
 	}
 
