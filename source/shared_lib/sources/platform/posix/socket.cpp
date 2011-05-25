@@ -752,28 +752,31 @@ bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 }
 
 Socket::Socket(PLATFORM_SOCKET sock) {
+	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
+	this->inSocketDestructor = false;
+	//safeMutexSocketDestructorFlag.ReleaseLock();
+
 	//this->pingThread = NULL;
 	pingThreadAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	dataSynchAccessorRead.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	dataSynchAccessorWrite.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 
-	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
-	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
-	this->inSocketDestructor = false;
-	safeMutexSocketDestructorFlag.ReleaseLock();
+
 
 	this->sock= sock;
 	this->connectedIpAddress = "";
 }
 
 Socket::Socket() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//this->pingThread = NULL;
 	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	this->inSocketDestructor = false;
-	safeMutexSocketDestructorFlag.ReleaseLock();
+	//safeMutexSocketDestructorFlag.ReleaseLock();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//this->pingThread = NULL;
 
 	this->connectedIpAddress = "";
 
@@ -833,14 +836,17 @@ void Socket::simpleTask(BaseThread *callingThread)  {
 }
 */
 
-Socket::~Socket()
-{
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
-
+Socket::~Socket() {
 	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	if(this->inSocketDestructor == true) {
+		return;
+	}
 	inSocketDestructorSynchAccessor.setOwnerId(string(__FILE__) + "_" + intToStr(__LINE__));
 	this->inSocketDestructor = true;
-	safeMutexSocketDestructorFlag.ReleaseLock();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
+
+	//safeMutexSocketDestructorFlag.ReleaseLock();
 
     disconnectSocket();
 
