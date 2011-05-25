@@ -2,10 +2,10 @@
 ; General Attributes
 
 !define APNAME MegaGlest
-!define APVER 3.5.1
+!define APVER 3.5.2
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.5.0
-!define APVER_UPDATE 3.5.1
+!define APVER_OLD 3.5.1
+!define APVER_UPDATE 3.5.2
 
 Name "${APNAME} ${APVER_UPDATE}"
 SetCompressor /FINAL /SOLID lzma
@@ -21,16 +21,16 @@ BGGradient 0xDF9437 0xffffff
 
 ; Request application privileges for Windows Vista
 ;RequestExecutionLevel none
-RequestExecutionLevel admin
+RequestExecutionLevel none
 
 PageEx license
-       LicenseText "Megaglest License"
-       LicenseData "..\..\..\data\glest_game\docs\README.data-license.txt"
+       LicenseText "MegaGlest Game License"
+       LicenseData "..\..\..\docs\gnu_gpl_3.0.txt"
 PageExEnd
 
 PageEx license
-       LicenseText "Megaglest README"
-       LicenseData "..\..\..\docs\README.txt"
+       LicenseText "MegaGlest Data License"
+       LicenseData "..\..\..\data\glest_game\docs\cc-by-sa-3.0-unported.txt"
 PageExEnd
 
 ;--------------------------------
@@ -191,6 +191,19 @@ SectionEnd
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
 
+  ; Remove shortcuts, if any
+  Delete "$SMPROGRAMS\${APNAME}\*.*"
+
+  CreateDirectory "$SMPROGRAMS\${APNAME}"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglest.exe" "" "$INSTDIR\megaglest.exe" 0 "" "" "${APNAME}"
+
+;  CreateShortCut "$SMPROGRAMS\${APNAME} ${APVER}\${APNAME} Configurator.lnk" "$INSTDIR\glest_configurator.exe" "" "$INSTDIR\glest_configurator.exe" 0 "" "" "${APNAME} Config Editor"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editor.exe" "" "$INSTDIR\megaglest_editor.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewer.exe" "" "$INSTDIR\megaglest_g3dviewer.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
+
+  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} User Data.lnk" "$APPDATA\megaglest" "" "" 0 "" "" "This folder contains downloaded data (such as mods) and your personal ${APNAME} configuration"
+
 SectionEnd
 
 ;--------------------------------
@@ -198,6 +211,51 @@ SectionEnd
 ; Uninstaller
 
 Section "Uninstall"
+
+  ; Remove registry keys
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}"
+  DeleteRegKey HKLM SOFTWARE\${APNAME}
+
+  ; Remove files and uninstaller
+  Delete "$INSTDIR\uninstall.exe"
+
+  Delete "$INSTDIR\megaglest.exe"
+  Delete "$INSTDIR\megaglest_editor.exe"
+  Delete "$INSTDIR\megaglest_configurator.exe"
+  Delete "$INSTDIR\megaglest_g3dviewer.exe"
+  Delete "$INSTDIR\configuration.xml"
+  Delete "$INSTDIR\megaglest.ico"
+  Delete "$INSTDIR\glest.ini"
+  Delete "$INSTDIR\glestkeys.ini"
+  Delete "$INSTDIR\servers.ini"
+  Delete "$INSTDIR\openal32.dll"
+  Delete "$INSTDIR\xerces-c_3_0.dll"
+  Delete "$INSTDIR\*.log"
+
+  Delete "$INSTDIR\data\*.*"
+  Delete "$INSTDIR\docs\*.*"
+  Delete "$INSTDIR\maps\*.*"
+  Delete "$INSTDIR\scenarios\*.*"
+  Delete "$INSTDIR\screens\*.*"
+  Delete "$INSTDIR\techs\*.*"
+  Delete "$INSTDIR\tilesets\*.*"
+  Delete "$INSTDIR\tutorials\*.*"
+
+  RMDir /r "$INSTDIR\data"
+  RMDir /r "$INSTDIR\docs"
+  RMDir /r "$INSTDIR\maps"
+  RMDir /r "$INSTDIR\scenarios"
+  RMDir /r "$INSTDIR\screens"
+  RMDir /r "$INSTDIR\techs"
+  RMDir /r "$INSTDIR\tilesets"
+  RMDir /r "$INSTDIR\tutorials"
+
+  ; Remove shortcuts, if any
+  Delete "$SMPROGRAMS\${APNAME}\*.*"
+
+  ; Remove directories used
+  RMDir "$SMPROGRAMS\${APNAME}"
+  RMDir /r "$INSTDIR"
 
 SectionEnd
 
