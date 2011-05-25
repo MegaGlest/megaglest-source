@@ -22,3 +22,10 @@ echo 'Copying mingw dependencies if they are missing...'
 [[ -f "data/glest_game/libvorbisfile-3.dll" ]] && cp source/win32_deps/lib/libvorbisfile.dll data/glest_game/libvorbisfile-3.dll
 [[ -f "data/glest_game/libvorbis-0.dll" ]] && cp source/win32_deps/lib/libvorbis.dll data/glest_game/libvorbis-0.dll
 [[ -f "data/glest_game/libogg-0.dll" ]] && cp source/win32_deps/lib/libogg.dll data/glest_game/libogg-0.dll
+[[ -f "data/glest_game/OpenAL32.dll" ]] && cp source/win32_deps/lib/OpenAL32.dll data/glest_game/OpenAL32.dll
+[[ -f "data/glest_game/SDLmain.dll" ]] && cp source/win32_deps/lib/SDLmain.dll data/glest_game/SDLmain.dll
+[[ -f "data/glest_game/SDL.dll" ]] && cp source/win32_deps/lib/SDL.dll data/glest_game/SDL.dll
+[[ -f "data/glest_game/wxmsw28u_gcc_custom.dll" ]] && cp source/win32_deps/wxWidgets-2.8.10/lib/wxmsw28u_gcc_custom.dll data/glest_game/wxmsw28u_gcc_custom.dll
+[[ -f "data/glest_game/wxmsw28u_gl_gcc_custom.dll" ]] && cp source/win32_deps/wxWidgets-2.8.10/lib/wxmsw28u_gl_gcc_custom.dll data/glest_game/wxmsw28u_gl_gcc_custom.dll
+[[ -f "data/glest_game/zlib.dll" ]] && cp source/win32_deps/lib/zlib.dll data/glest_game/zlib.dll
+[[ -f "data/glest_game/mingwm10.dll" ]] && cp /usr/share/doc/mingw32-runtime/mingwm10.dll data/glest_game/mingwm10.dll

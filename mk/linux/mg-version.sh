@@ -1,7 +1,7 @@
 #!/bin/bash
 
-OLD_MG_VERSION=3.5.0
-MG_VERSION=3.5.1
+OLD_MG_VERSION=3.5.1
+MG_VERSION=3.5.2
 
 if [ "$1" = "--oldversion" ]; then
   echo "$OLD_MG_VERSION"
