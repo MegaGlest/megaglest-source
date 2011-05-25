@@ -167,11 +167,35 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, float size,
 		glTranslatef(x-scale, y-scale, 0);
 	}
 	glScalef(scale, scale, scale);
-                     
-	for (int i=0; utext[i]!='\0'; ++i) {
-		glCallList(font->getHandle()+utext[i]);
-	}
 
+	if(Font::fontIsMultibyte == true) {
+		//setlocale(LC_CTYPE, "en_ca.UTF-8");
+
+		//wstring wText = widen(text);
+		//glListBase(font->getHandle());
+		//glCallLists(wText.length(), GL_UNSIGNED_SHORT, &wText[0]);
+
+		//string utfText = text;
+		//glListBase(font->getHandle());
+		//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
+
+		string utfText = text;
+		glListBase(font->getHandle());
+		glCallLists(text.length(), GL_UNSIGNED_SHORT, &utext[0]);
+
+		//std::locale loc("");
+		//wstring wText = widen(text);
+		//std::string strBuffer(Text.size() * 4 + 1, 0);
+		//std::use_facet<std::ctype<wchar_t> >(loc).narrow(&Text[0], &Text[0] + Text.size(), '?', &strBuffer[0]);
+		//string utfText = std::string(&strBuffer[0]);
+		//glListBase(font->getHandle());
+		//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
+	}
+	else {
+		for (int i=0; utext[i]!='\0'; ++i) {
+			glCallList(font->getHandle()+utext[i]);
+		}
+	}
 	glPopMatrix();
 	glPopAttrib();
 
