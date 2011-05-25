@@ -494,7 +494,19 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		setupStartupSettings();
 	}
 
+	// notice that we use GetSize() here and not GetClientSize() because
+	// the latter doesn't return correct results for the minimized windows
+	// (at least not under Windows)
+#if defined(WIN32)
+	if(autoScreenShotAndExit == true) {
+		renderer->reset(GetSize().x, GetSize().y, playerColor);
+	}
+	else {
+		renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
+	}
+#else
 	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
+#endif
 
 	renderer->transform(rotX, rotY, zoom);
 	renderer->renderGrid();
