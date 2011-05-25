@@ -47,14 +47,15 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 	this->path= path;
 
 #if defined(WIN32) && !defined(__MINGW32__)
-	FILE *fp = _wfopen(utf8_decode(path).c_str(), L"r");
+	wstring wstr = utf8_decode(path);
+	FILE *fp = _wfopen(wstr.c_str(), L"r");
 	ifstream fileStream(fp);
 #else
 	ifstream fileStream;
 	fileStream.open(path.c_str(), ios_base::in);
 #endif
 	
-	if(fileStream.fail()){
+	if(fileStream.is_open() == false){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 		throw runtime_error("Can't open propertyMap file: " + path);
 	}
@@ -111,7 +112,9 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 
 	fileStream.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-	fclose(fp);
+	if(fp) {
+		fclose(fp);
+	}
 #endif
 }
 
