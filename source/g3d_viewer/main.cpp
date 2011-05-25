@@ -484,7 +484,7 @@ void MainWindow::init() {
 
 void MainWindow::onPaint(wxPaintEvent &event) {
 	if(!IsShown()) return;
-
+	
 #if wxCHECK_VERSION(2, 9, 1)
 	glCanvas->setCurrentGLContext();
 #endif
@@ -498,12 +498,25 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	// the latter doesn't return correct results for the minimized windows
 	// (at least not under Windows)
 #if defined(WIN32)
+/*
+	//Seems like windows cannot handle this consistently
+
 	if(autoScreenShotAndExit == true) {
-		renderer->reset(GetSize().x, GetSize().y, playerColor);
+		printf("\n\n$$$ GetSize() x = %d y = %d, Renderer::windowW = %d H = %d\n",GetSize().x,GetSize().y,Renderer::windowW,Renderer::windowH);
+		//renderer->reset(GetSize().x, GetSize().y-10, playerColor);
+		//renderer->reset(Renderer::windowW, Renderer::windowH-20, playerColor);
+		//this->Iconize(false);
+		
+		//this->Refresh();
+		//renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
+		renderer->reset(Renderer::windowW, Renderer::windowH-20, playerColor);
 	}
 	else {
+		printf("\n\n### GetClientSize() x = %d y = %d\n",GetClientSize().x,GetClientSize().y);
 		renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
 	}
+*/
+	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
 #else
 	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
 #endif
@@ -2279,7 +2292,9 @@ bool App::OnInit() {
 								newYRotValue,
 								appPath);
 	if(autoScreenShotAndExit == true) {
+#if !defined(WIN32)
 		mainWindow->Iconize(true);
+#endif		
 	}
 	mainWindow->Show();
 	mainWindow->init();
