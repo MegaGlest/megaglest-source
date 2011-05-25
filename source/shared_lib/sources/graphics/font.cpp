@@ -49,8 +49,8 @@ float FontMetrics::getTextWidth(const string &str) const {
 		}
 		//Treat 2 byte characters as spaces
         if(str[i] < 0) {
-            width+= widths[87]; // This is the letter W which is a fairly wide character and good to use for spacing
-            i++;
+            width+= (widths[87]); // This is the letter W which is a fairly wide character and good to use for spacing
+            //i++;
         }
         else {
             width+= widths[str[i]];
