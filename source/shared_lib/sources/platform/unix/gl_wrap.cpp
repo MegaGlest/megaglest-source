@@ -62,6 +62,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	int last = (fontInfo->max_byte1 << 8) + fontInfo->max_char_or_byte2;
 	int count = last - first + 1;
 
+/*
 	// 16-bit fonts have more than one row; indexing into
 	//     per_char is trickier.
 	int rows = fontInfo->max_byte1 - fontInfo->min_byte1 + 1;
@@ -123,9 +124,9 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		}
 	}
 	//Shared::Graphics::Font::charCount = charIndex;
+*/
 
 
-/*
 	//for(unsigned int i = 0; fontInfo->per_char != NULL && i < static_cast<unsigned int> (charCount); ++i) {
 	for(unsigned int i = 0; fontInfo->per_char != NULL && i < static_cast<unsigned int> (count); ++i) {
 		if(i < fontInfo->min_char_or_byte2 ||
@@ -140,7 +141,6 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	//						- fontInfo->per_char[p].lbearing));
 		}
 	}
-*/
 
 	glXUseXFont(fontInfo->fid, 0, charCount, base);
 	XFreeFont(display, fontInfo);
