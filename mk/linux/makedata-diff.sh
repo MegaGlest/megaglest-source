@@ -22,9 +22,7 @@ diff --strip-trailing-cr --brief -r -x "*~" megaglest-data-$OLD_VERSION/megagles
 
 cd megaglest-data-$VERSION
 
-if [ -e ../megaglest-data-$VERSION-fileslist.txt ]; then
-	rm ../megaglest-data-$VERSION-fileslist.txt
-fi
+[[ -f "../megaglest-data-$VERSION-fileslist.txt" ]] && rm "../megaglest-data-$VERSION-fileslist.txt"
 
 cat ../megaglest-data-$VERSION-changes.txt | while read line;
 do
@@ -42,23 +40,32 @@ addfilepos=`awk "BEGIN {print index(\"$line\", \"megaglest-data-$VERSION\")}"`
 #echo [${line:$addfilepos-1}]
 
 #echo [Looking for ONLY in: `expr match "$line" 'Only in '`]
-onlyinpos=`expr match "$line" 'Only in '`
+onlyinpos=`expr match "$line" "Only in "`
 #echo [$onlyinpos]
 
 if [ "$onlyinpos" -eq "8" ]; then
 
-	echo **NOTE: Found ONLY IN string...
+	echo **NOTE: Found ONLY IN string... original line [${line}]
 
-	line=${line:$addfilepos-1}	
-	line=${line/: //}
-    line=${line/megaglest-data-$VERSION\/}
+	onlyinpos=`expr match "$line" "Only in megaglest-data-$VERSION"`
+	if [ "$onlyinpos" -ge "24" ]; then
+		line=${line:$addfilepos-1}	
+		line=${line/: //}
+	    	line=${line/megaglest-data-$VERSION\/}
 
-	echo New path: [$line]
+		echo New path: [$line]
+	else
+		echo **NOTE: skipping file since it is not in current version [${line}] match [$onlyinpos]
+		line=
+		echo New path: [$line]
+	fi
 else
+
+	echo Section B ... original line [${line}]
 
 	line=${line:$addfilepos-1}	
 	line=${line/ differ/}
-    line=${line/megaglest-data-$VERSION\/}
+    	line=${line/megaglest-data-$VERSION\/}
 
 	echo New path: [$line]
 fi
@@ -68,7 +75,9 @@ fi
 #echo compress_files = [$compress_files]
 #echo ${line##megaglest-data-$VERSION*}
 
-echo "${line} " >> ../megaglest-data-$VERSION-fileslist.txt
+if [ -n "${line}" ]; then
+	echo "${line} " >> ../megaglest-data-$VERSION-fileslist.txt
+fi
 
 done
 #exit
@@ -77,12 +86,12 @@ files_list=`cat ../megaglest-data-$VERSION-fileslist.txt`
 
 #echo compress_files = [$files_list]
 
-if [ -e ../$RELEASENAME.7z ]; then
-	rm ../$RELEASENAME.7z
-fi
+[[ -f "../$RELEASENAME.tar.xz" ]] && rm "../$RELEASENAME.tar.xz"
 
+echo Current Folder is [`pwd`]
 #echo 7za a "../$RELEASENAME.7z" $files_list
-7za a -mx=9 -ms=on -mhc=on "../$RELEASENAME.7z" $files_list
+#7za a -mx=9 -ms=on -mhc=on "../$RELEASENAME.7z" $files_list
+tar -cf - --add-file $files_list | xz -9e > ../$RELEASENAME.tar.xz
 
 cd ..
 
