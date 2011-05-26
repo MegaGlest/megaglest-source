@@ -66,7 +66,9 @@ if not "%SVNVERSION%" == "." set CL=/DSVNVERSIONHEADER
 if not "%SVNVERSION%" == "."  echo building with CL [%CL%]
 if not "%SVNVERSION%" == "." echo #define SVNVERSION "%SVNVERSION%" > ..\..\source\glest_game\facilities\svnversion.h
 
-msbuild /p:Configuration=Release Glest.sln
+if "%2" == "rebuild" echo Doing a FULL REBUILD...
+if "%2" == "rebuild" msbuild /p:Configuration=Release /t:Rebuild Glest.sln
+if not "%2" == "rebuild" msbuild /p:Configuration=Release Glest.sln
 
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
