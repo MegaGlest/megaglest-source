@@ -211,5 +211,25 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 	INSTALL(TARGETS 
 		${TARGET_NAME} 
 		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
+
+	# Installation of the program desktop file
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/megaglest.desktop"
+	  DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+
+	# Installation of the program desktop icon file
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/megaglest.png"
+          "${PROJECT_SOURCE_DIR}/megaglest.bmp"
+          "${PROJECT_SOURCE_DIR}/editor.ico"
+          "${PROJECT_SOURCE_DIR}/glest.ico"
+          "${PROJECT_SOURCE_DIR}/g3dviewer.ico"
+	  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+
+	# Installation of the program manpage file
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/megaglest.6"
+	  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
+
 	#ENDIF()
 ENDIF()

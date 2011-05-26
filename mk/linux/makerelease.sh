@@ -30,8 +30,14 @@ svn export --force "$CURRENTDIR/../macosx/" "$RELEASEDIR/mk/macosx/"
 svn export --force "$CURRENTDIR/../../docs" $RELEASEDIR
 cp "$CURRENTDIR/"*.ini $RELEASEDIR
 cp "$CURRENTDIR/glest.ico" $RELEASEDIR
+cp "$CURRENTDIR/megaglest.bmp" $RELEASEDIR
 cp "$CURRENTDIR/megaglest.png" $RELEASEDIR
 cp "$CURRENTDIR/megaglest.desktop" $RELEASEDIR
+cp "$CURRENTDIR/megaglest.6" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/megaglest.ico" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" $RELEASEDIR
+cp "$CURRENTDIR/../../data/glest_game/editor.ico" $RELEASEDIR
+
 cp "$CURRENTDIR/start_megaglest"* $RELEASEDIR
 cp "$CURRENTDIR/../../CMake"* $RELEASEDIR
 
