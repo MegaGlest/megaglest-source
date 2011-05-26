@@ -7,7 +7,7 @@ Setup.Package
 {
     vendor = "megaglest.org",
     id = "megaglest",
-    description = _("Mega Glest v" .. GAME_VERSION),
+    description = _("MegaGlest v" .. GAME_VERSION),
     version = GAME_VERSION,
     splash = "glestforumsheader.bmp",
     superuser = false,
@@ -33,7 +33,7 @@ Setup.Package
 	end
 
 	if previousPath ~= '' then
-		if MojoSetup.promptyn(_("Megaglest Uninstall Title"), _("Megaglest Uninstall Prompt") .. '\n\n[' .. previousPath .. ']') then
+		if MojoSetup.promptyn(_("MegaGlest Uninstall Title"), _("MegaGlest Uninstall Prompt") .. '\n\n[' .. previousPath .. ']') then
 			os.execute(previousPath .. 'uninstall-megaglest.sh')
 		end
 
@@ -63,7 +63,7 @@ Setup.Package
     end,
 
     postinstall = function(package)
-	if MojoSetup.promptyn(_("Megaglest Visit Website Title"), _("Megaglest Visit Website Prompt")) then
+	if MojoSetup.promptyn(_("MegaGlest Visit Website Title"), _("MegaGlest Visit Website Prompt")) then
         	MojoSetup.launchbrowser("http://megaglest.org/get-started.html")
 	end
     end,
@@ -82,13 +82,19 @@ Setup.Package
 
     Setup.Eula
     {
-        description = _("Megaglest License"),
-        source = _("docs/README.data-license.txt")
+        description = _("MegaGlest Game License"),
+        source = _("docs/gnu_gpl_3.0.txt")
+    },
+
+    Setup.Eula
+    {
+        description = _("MegaGlest Data License"),
+        source = _("docs/cc-by-sa-3.0-unported.txt")
     },
 
     Setup.Readme
     {
-        description = _("Megaglest README"),
+        description = _("MegaGlest README"),
         source = _("docs/README.txt")
     },
 
@@ -98,7 +104,7 @@ Setup.Package
         required = true,
         disabled = false,
         bytes = GAME_INSTALL_SIZE,
-        description = _("Mega Glest v" .. GAME_VERSION),
+        description = _("MegaGlest v" .. GAME_VERSION),
 
         Setup.File
         {

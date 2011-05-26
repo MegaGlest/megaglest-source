@@ -64,7 +64,7 @@ if [ "$1" = "--debug" -o "$2" = "--debug" ]; then
     DEBUG=1
 fi
 if [ "$1" = "--repackonly" -o "$2" = "--repackonly" ]; then
-    echo "reacking installer only!"
+    echo "repacking installer only!"
     REPACKONLY=1
 fi
 
@@ -125,7 +125,7 @@ mkdir image/scripts
 mkdir image/data
 mkdir image/meta
 
-# This next section copies live data from the mega-glest folders
+# This next section copies live data from the MegaGlest directories
 if [ $REPACKONLY -eq 0 ]; then
 
 	rm -rf data
@@ -136,7 +136,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	INSTALLDATADIR="${INSTALL_ROOTDIR}data/"
 
 	# Now copy all megaglest binaries
-	echo Copying live Mega Glest binary files...
+	echo Copying live MegaGlest binary files...
 
 	cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/megaglest" ${INSTALLDATADIR}
@@ -153,12 +153,12 @@ if [ $REPACKONLY -eq 0 ]; then
 	cp "$CURRENTDIR/$megaglest_linux_path/makedeps_folder.sh" $INSTALL_ROOTDIR
 
 	# Now copy all blender related files
-	echo Copying blender modelling Mega Glest files...
+	echo Copying blender modelling MegaGlest files...
 
 	svn export --force "$CURRENTDIR/${megaglest_linux_toolspath}/glexemel/" "${INSTALLDATADIR}blender/"
 
 	# Now copy all glest data
-	echo Copying live Mega Glest data files...
+	echo Copying live MegaGlest data files...
 
 	cp "$CURRENTDIR/$megaglest_data_path/configuration.xml" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_data_path/megaglest.ico" $INSTALLDATADIR
@@ -183,7 +183,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	svn export --force "$CURRENTDIR/$megaglest_data_path/tutorials/" "$INSTALLDATADIR/tutorials/"
 
 	# Now copy all megaglest data
-	echo Copying live Mega Glest country logo files...
+	echo Copying live MegaGlest country logo files...
 
 	mkdir -p "${INSTALLDATADIR}data/core/misc_textures/"
 	svn export --force "$CURRENTDIR/$megaglest_linux_masterserverpath/flags/" "${INSTALLDATADIR}data/core/misc_textures/flags/"
