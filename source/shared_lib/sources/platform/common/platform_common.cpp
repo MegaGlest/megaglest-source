@@ -471,7 +471,11 @@ bool EndsWith(const string &str, const string& key)
 
 void endPathWithSlash(string &path) {
 	if(EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
+#if defined(WIN32)
+		path += "\\";
+#else
 		path += "/";
+#endif
 	}
 }
 
