@@ -2142,7 +2142,11 @@ int UPNP_Tools::upnp_init(void *param) {
 			}
 
             char externalIP[16]     = "";
+#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
+            UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIP);
+#else
             UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
+#endif
             if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device found at: [%s] callback [%p]\n",externalIP,callback);
 
             //UPNP_Tools::NETaddRedirects(ports);
@@ -2182,12 +2186,20 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_add_redir(%d : %d)\n",__FILE__,__FUNCTION__,__LINE__,ports[0],ports[1]);
 
+#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
+	UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIP);
+#else
 	UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
+#endif
 
 	sprintf(ext_port_str, "%d", ports[0]);
 	sprintf(int_port_str, "%d", ports[1]);
 
+#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
+	r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0);
+#else
 	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0);
+#endif
 	if (r != UPNPCOMMAND_SUCCESS) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] AddPortMapping(%s, %s, %s) failed\n",__FILE__,__FUNCTION__,__LINE__,ext_port_str, int_port_str, lanaddr);
 		return false;
@@ -2202,7 +2214,11 @@ void UPNP_Tools::upnp_rem_redirect(int ext_port) {
 
 	char ext_port_str[16]="";
 	sprintf(ext_port_str, "%d", ext_port);
+#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
+	UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, ext_port_str, "TCP", 0);
+#else
 	UPNP_DeletePortMapping(urls.controlURL, data.servicetype, ext_port_str, "TCP", 0);
+#endif
 }
 
 void UPNP_Tools::NETaddRedirects(std::vector<int> UPNPPortForwardList) {

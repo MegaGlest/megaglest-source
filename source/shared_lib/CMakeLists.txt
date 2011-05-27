@@ -132,13 +132,28 @@ SET(DIRS_WITH_SRC
 	lua
 	map	
 	platform/common
-	platform/miniupnpc
 	sound
 	sound/openal
 	streflop
 	streflop/libm_flt32_source	
 	util
 	xml)
+
+IF(NOT WANT_STATIC_LIBS)
+	MESSAGE(STATUS "*** Searching for miniupnpc since WANT_STATIC_LIBS is off ...")
+	FIND_PACKAGE(Miniupnpc)
+ENDIF()
+
+if(NOT MINIUPNP_FOUND)
+	MESSAGE(STATUS "*** Using EMBEDDED miniupnpc since dev system does not have it... MINIUPNP_FOUND [${MINIUPNP_FOUND}]")
+
+	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/miniupnpc)
+else()
+	MESSAGE(STATUS "*** Using SHARED miniupnpc found in [${MINIUPNP_INCLUDE_DIR}] MINIUPNP_FOUND [${MINIUPNP_FOUND}] MINIUPNP_LIBRARY [${MINIUPNP_LIBRARY}]")
+
+	INCLUDE_DIRECTORIES(${MINIUPNP_INCLUDE_DIR})
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${MINIUPNP_LIBRARY})
+endif()
 
 IF(APPLE)
 	SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/sdl)
@@ -160,8 +175,22 @@ SET(MG_INCLUDE_FILES "")
 SET(MG_SOURCE_FILES "")
 INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}platform/sdl )
 
-SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)
+IF(NOT WANT_STATIC_LIBS)
+	MESSAGE(STATUS "*** Searching for libircclient since WANT_STATIC_LIBS is off ...")
+	FIND_PACKAGE(Ircclient)
+ENDIF()
+
+if(NOT IRCCLIENT_FOUND)
+	MESSAGE(STATUS "*** Using EMBEDDED libircclient since dev system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
+
+	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
+	INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)
+else()
+	MESSAGE(STATUS "*** Using SHARED libircclient found in [${IRCCLIENT_INCLUDE_DIR}] IRCCLIENT_FOUND [${IRCCLIENT_FOUND}] IRCCLIENT_LIBRARY [${IRCCLIENT_LIBRARY}]")
+
+	INCLUDE_DIRECTORIES(${IRCCLIENT_INCLUDE_DIR})
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${IRCCLIENT_LIBRARY})
+endif()
 
 IF(WIN32)
 	SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/socket.cpp)

@@ -8,6 +8,8 @@
 #ifndef __MINIUPNPC_H__
 #define __MINIUPNPC_H__
 
+#define MEGAGLEST_EMBEDDED_MINIUPNPC
+
 #include "declspec.h"
 #include "igd_desc_parse.h"
 
