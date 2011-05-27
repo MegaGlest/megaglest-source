@@ -165,7 +165,7 @@ void restoreVideoMode(bool exitingApp=false);
 bool StartsWith(const std::string &str, const std::string &key);
 bool EndsWith(const string &str, const string& key);
 
-void endPathWithSlash(string &path);
+void endPathWithSlash(string &path, bool requireOSSlash=false);
 void trimPathWithStartingSlash(string &path);
 void updatePathClimbingParts(string &path);
 
