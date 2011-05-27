@@ -469,13 +469,15 @@ bool EndsWith(const string &str, const string& key)
     return result;
 }
 
-void endPathWithSlash(string &path) {
+void endPathWithSlash(string &path,bool requireOSSlash) {
 	if(EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
+		string seperator = "/";
+		if(requireOSSlash == true) {
 #if defined(WIN32)
-		path += "\\";
-#else
-		path += "/";
+			seperator = "\\";
 #endif
+		}
+		path += seperator;
 	}
 }
 
@@ -1663,10 +1665,21 @@ string replaceAll(string& context, const string& from, const string& to) {
 
 string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 		string fileArchiveExtractCommandParameters, string outputpath, string archivename) {
+	string parsedOutputpath = outputpath;
+	string parsedArchivename = archivename;
+
+// This is required for execution on win32
+#if defined(WIN32)
+	replaceAll(parsedOutputpath, "\\\\", "\\");
+	replaceAll(parsedOutputpath, "/", "\\");
+	replaceAll(parsedArchivename, "\\\\", "\\");
+	replaceAll(parsedArchivename, "/", "\\");
+#endif
+
 	string result = fileArchiveExtractCommand;
 	result += " ";
-	string args = replaceAll(fileArchiveExtractCommandParameters, "{outputpath}", outputpath);
-	args = replaceAll(args, "{archivename}", archivename);
+	string args = replaceAll(fileArchiveExtractCommandParameters, "{outputpath}", parsedOutputpath);
+	args = replaceAll(args, "{archivename}", parsedArchivename);
 	result += args;
 
 	return result;
