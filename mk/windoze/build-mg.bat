@@ -7,6 +7,7 @@ cd /d "%~dp0"
 
 ECHO Checking for windows binary runtime tools...
 if NOT EXIST "..\..\data\glest_game\7z.exe" cscript getTools.vbs
+if NOT EXIST "..\..\data\glest_game\7z.dll" cscript getTools.vbs
 call CopyWindowsRuntimeDlls.bat nopause
 
 rem setup the Visual Studio 2008 environment
