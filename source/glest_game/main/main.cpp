@@ -297,33 +297,41 @@ public:
 #if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
     static int getFileAndLine(void *address, char *file, size_t flen) {
         int line=-1;
-        static char buf[256]="";
+        const int maxbufSize = 1024;
+        static char buf[maxbufSize+1]="";
         char *p=NULL;
 
         // prepare command to be executed
         // our program need to be passed after the -e parameter
         //sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
-        sprintf (buf, "addr2line -C -e %s -f -i %p",application_binary.c_str(),address);
+        sprintf(buf, "addr2line -C -e %s -f -i %p",application_binary.c_str(),address);
 
         FILE* f = popen (buf, "r");
-
         if (f == NULL) {
             perror (buf);
             return 0;
         }
 
         // get function name
-        char *ret = fgets (buf, 256, f);
-        // get file and line
-        ret = fgets (buf, 256, f);
+        char *ret = fgets (buf, maxbufSize, f);
+        if(ret == NULL) {
+        	pclose(f);
+        	return 0;
+        }
 
-        if (buf[0] != '?') {
-            int l;
+        // get file and line
+        ret = fgets (buf, maxbufSize, f);
+        if(ret == NULL) {
+        	pclose(f);
+        	return 0;
+        }
+
+        if(strlen(buf) > 0 && buf[0] != '?') {
+            //int l;
             char *p = buf;
 
             // file name is until ':'
-            while (*p != ':')
-            {
+            while(*p != 0 && *p != ':') {
                 p++;
             }
 
@@ -333,7 +341,7 @@ public:
             sscanf (p,"%d", &line);
         }
         else {
-            strcpy (file,"unkown");
+            strcpy (file,"unknown");
             line = 0;
         }
         pclose(f);
