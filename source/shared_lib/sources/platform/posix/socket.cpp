@@ -1276,7 +1276,15 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 			bytesReceived += additionalBytes;
 		}
 		else {
-			throw runtime_error("additionalBytes == " + intToStr(additionalBytes));
+			//throw runtime_error("additionalBytes == " + intToStr(additionalBytes));
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] additionalBytes == %d\n",__FILE__,__FUNCTION__,__LINE__,additionalBytes);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] additionalBytes == %d\n",__FILE__,__FUNCTION__,__LINE__,additionalBytes);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] additionalBytes == %d\n",__FILE__,__FUNCTION__,__LINE__,additionalBytes);
+
+		    int iErr = getLastSocketError();
+		    disconnectSocket();
+
+		    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while receiving socket data, bytesReceived = %d, error = %s, dataSize = %d, tryReceiveUntilDataSizeMet = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText(&iErr).c_str(),dataSize,tryReceiveUntilDataSizeMet);
 		}
 	}
 	return static_cast<int>(bytesReceived);
