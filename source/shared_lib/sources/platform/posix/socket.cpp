@@ -2235,13 +2235,21 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
 void UPNP_Tools::upnp_rem_redirect(int ext_port) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__,ext_port);
 
-	char ext_port_str[16]="";
-	sprintf(ext_port_str, "%d", ext_port);
-#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
-	UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, ext_port_str, "TCP", 0);
-#else
-	UPNP_DeletePortMapping(urls.controlURL, data.servicetype, ext_port_str, "TCP", 0);
-#endif
+	if(urls.controlURL != NULL) {
+		char ext_port_str[16]="";
+		sprintf(ext_port_str, "%d", ext_port);
+
+		printf("\n\n#1 DEBUGGUNG urls.controlURL [%s]\n",urls.controlURL);
+
+	#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
+		printf("\n\n#1 DEBUGGUNG data.first.servicetype [%s]\n",data.first.servicetype);
+		UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, ext_port_str, "TCP", 0);
+	#else
+		printf("\n\n#1 DEBUGGUNG data.servicetype [%s]\n",data.servicetype);
+		UPNP_DeletePortMapping(urls.controlURL, data.servicetype, ext_port_str, "TCP", 0);
+	#endif
+	}
+	printf("\n\n#2 DEBUGGUNG urls.controlURL [%s]\n",urls.controlURL);
 }
 
 void UPNP_Tools::NETaddRedirects(std::vector<int> UPNPPortForwardList) {
