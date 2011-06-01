@@ -154,7 +154,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\t\tdisplays this help text.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_HELP]));
 
 	printf("\n%s=x\t\t\tAuto load the unit / skill information specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
-	printf("\n                     \t\tWhere x is a g3d filename to load seperated with a comma and one or more skill names to try loading:");
+	printf("\n                     \t\tWhere x is a g3d filename to load separated with a comma and one or more skill names to try loading:");
 	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill,stop_skill",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
 
 	printf("\n%s=x\t\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
