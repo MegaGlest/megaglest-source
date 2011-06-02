@@ -368,8 +368,8 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 	if(resourceClickPos) {
 		//printf("+++++++++ unit [%s - %d] pos = [%s] resourceClickPos [%s]\n",unit->getFullName().c_str(),unit->getId(),pos.getString().c_str(),resourceClickPos->getString().c_str());
 	}
-	for(int i = -1; i <= size; ++i) {
-		for(int j = -1; j <= size; ++j) {
+	for(int i = -size; i <= size; ++i) {
+		for(int j = -size; j <= size; ++j) {
 			Vec2i resPos = Vec2i(pos.x + i, pos.y + j);
 			if(resourceClickPos) {
 				resPos = Vec2i(resourceClickPos->x + i, resourceClickPos->y + j);
@@ -389,8 +389,8 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 								(distanceFromUnit < 0 || unit->getCenteredPos().dist(resPos) <= distanceFromUnit)) {
 
 								bool isResourceNextToUnit = (resourceClickPos == NULL);
-								for(int i1 = -1; isResourceNextToUnit == false && i1 <= size; ++i1) {
-									for(int j1 = -1; j1 <= size; ++j1) {
+								for(int i1 = -size; isResourceNextToUnit == false && i1 <= size; ++i1) {
+									for(int j1 = -size; j1 <= size; ++j1) {
 										Vec2i resPos1 = Vec2i(pos.x + i1, pos.y + j1);
 										if(resPos == resPos1) {
 											isResourceNextToUnit = true;
@@ -528,7 +528,7 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 
 //returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
 bool Map::isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec2i &resourcePos) const {
-	Vec2i p1 = pos + Vec2i(-1);
+	Vec2i p1 = pos + Vec2i(-size);
 	Vec2i p2 = pos + Vec2i(size);
 	Util::PerimeterIterator iter(p1, p2);
 	while (iter.more()) {
@@ -983,7 +983,7 @@ Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const 
 
 	float bestRange = -1;
 
-	Vec2i start = pos - Vec2i(1);
+	Vec2i start = pos - Vec2i(ut->getSize());
 	Vec2i end 	= pos + Vec2i(ut->getSize());
 
 	for(int i = start.x; i <= end.x; ++i) {
