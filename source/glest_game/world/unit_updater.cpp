@@ -483,16 +483,42 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 			else {
 				//if unit arrives destPos order has ended
 				switch (tsValue){
-				case tsMoving:
-					unit->setCurrSkill(act->getMoveSkillType());
-					break;
-				case tsBlocked:
-					if(unit->getPath()->isBlocked()){
+					case tsMoving:
+						unit->setCurrSkill(act->getMoveSkillType());
+
+						{
+							std::pair<bool,Unit *> beingAttacked = unitBeingAttacked(unit);
+							if(beingAttacked.first == true) {
+								Unit *enemy = beingAttacked.second;
+								const AttackCommandType *act_forenemy = unit->getType()->getFirstAttackCommand(enemy->getCurrField());
+								if(act_forenemy != NULL) {
+									if(unit->getEp() >= act_forenemy->getAttackSkillType()->getEpCost()) {
+										unit->setCurrSkill(act_forenemy->getAttackSkillType());
+										unit->setTarget(enemy);
+									}
+									//aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
+								}
+								else {
+									const AttackStoppedCommandType *asct_forenemy = unit->getType()->getFirstAttackStoppedCommand(enemy->getCurrField());
+									if(asct_forenemy != NULL) {
+										//aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
+										if(unit->getEp() >= asct_forenemy->getAttackSkillType()->getEpCost()) {
+											unit->setCurrSkill(asct_forenemy->getAttackSkillType());
+											unit->setTarget(enemy);
+										}
+									}
+								}
+							}
+						}
+
+						break;
+					case tsBlocked:
+						if(unit->getPath()->isBlocked()){
+							unit->finishCommand();
+						}
+						break;
+					default:
 						unit->finishCommand();
-					}
-					break;
-				default:
-					unit->finishCommand();
 				}
 			}
 		}

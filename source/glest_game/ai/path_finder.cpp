@@ -41,7 +41,7 @@ const int PathFinder::maxFreeSearchRadius	= 10;
 //const int PathFinder::pathFindNodesMax= 400;
 
 int PathFinder::pathFindNodesAbsoluteMax	= 900;
-int PathFinder::pathFindNodesMax			= 2000;
+int PathFinder::pathFindNodesMax			= 1500;
 const int PathFinder::pathFindRefresh		= 10;
 const int PathFinder::pathFindBailoutRadius	= 20;
 const int PathFinder::pathFindExtendRefreshForNodeCount	= 25;
@@ -288,7 +288,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 								if(canUnitMove) {
 									//printf("$$$$ Unit BAILOUT(1) ASTAR ATTEMPT for [%d - %s] newFinalPos = [%s]\n",unit->getId(),unit->getFullName().c_str(),newFinalPos.getString().c_str());
 
-									ts= aStar(unit, newFinalPos, true, frameIndex);
+									int maxBailoutNodeCount = (PathFinder::pathFindBailoutRadius * 2);
+									ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount);
 								}
 							}
 						}
@@ -308,7 +309,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 								if(canUnitMove) {
 									//printf("$$$$ Unit BAILOUT(1) ASTAR ATTEMPT for [%d - %s] newFinalPos = [%s]\n",unit->getId(),unit->getFullName().c_str(),newFinalPos.getString().c_str());
-									ts= aStar(unit, newFinalPos, true, frameIndex);
+									int maxBailoutNodeCount = (PathFinder::pathFindBailoutRadius * 2);
+									ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount);
 								}
 							}
 						}
