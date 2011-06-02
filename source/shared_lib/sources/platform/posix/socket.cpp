@@ -2209,6 +2209,9 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_add_redir(%d : %d)\n",__FILE__,__FUNCTION__,__LINE__,ports[0],ports[1]);
 
+	if (!urls.controlURL || urls.controlURL[0] == '\0')	{
+		return false;
+	}
 #ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
 	UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIP);
 #else
@@ -2235,7 +2238,7 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
 void UPNP_Tools::upnp_rem_redirect(int ext_port) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__,ext_port);
 
-	if(urls.controlURL != NULL) {
+	if (urls.controlURL && urls.controlURL[0] != '\0')	{
 		char ext_port_str[16]="";
 		sprintf(ext_port_str, "%d", ext_port);
 
