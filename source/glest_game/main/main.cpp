@@ -57,6 +57,8 @@
 #include <dbghelp.h>
 #endif
 
+#include <stdlib.h>
+
 #include "leak_dumper.h"
 
 #ifndef WIN32
@@ -2560,7 +2562,12 @@ int glestMain(int argc, char** argv) {
 
         if(	lang.hasString("MEGAGLEST_FONT")) {
         	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
+#if defined(WIN32)
+			string newEnvValue = "MEGAGLEST_FONT=" + lang.get("MEGAGLEST_FONT");
+			_putenv(newEnvValue.c_str());
+#else
         	setenv("MEGAGLEST_FONT",lang.get("MEGAGLEST_FONT").c_str(),0);
+#endif
         }
 
 #if defined(WIN32)
@@ -2584,7 +2591,8 @@ int glestMain(int argc, char** argv) {
         }
         if(	lang.hasString("MEGAGLEST_FONT_WINDOWS")) {
         	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
-        	setenv("MEGAGLEST_FONT",lang.get("MEGAGLEST_FONT_WINDOWS").c_str(),0);
+			string newEnvValue = "MEGAGLEST_FONT=" + lang.get("MEGAGLEST_FONT_WINDOWS");
+			_putenv(newEnvValue.c_str());
         }
 
         // end win32
