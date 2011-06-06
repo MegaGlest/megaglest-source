@@ -121,6 +121,58 @@ IF(UNIX)
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
 ENDIF()
 
+FIND_PACKAGE(FontConfig)
+IF(FONTCONFIG_FOUND)
+    SET(HAVE_FONTCONFIG 1)
+    INCLUDE_DIRECTORIES( ${FONTCONFIG_INCLUDE_DIR} ) 
+    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FONTCONFIG_LIBRARIES} )
+ENDIF(FONTCONFIG_FOUND)
+
+OPTION(USE_FTGL "Use FTGL for on-screen fonts (found on your system)" ON)
+
+if(USE_FTGL)
+	ADD_DEFINITIONS(-DUSE_FTGL)
+
+	find_package( Freetype REQUIRED)
+	include_directories( ${FREETYPE_INCLUDE_DIRS} )
+	
+endif(USE_FTGL)
+
+#INCLUDE(FindPkgConfig.cmake)
+#pkg_search_module (FTGL ftgl)
+FIND_PACKAGE(FTGL)
+
+
+IF(USE_FTGL)
+        if (FTGL_FOUND)
+                MESSAGE(STATUS "**NOTE: FTGL font support was detected and enabled.")
+        else()
+                MESSAGE(STATUS 
+	        "**NOTE: Warning! FTGL has been enabled but not detected. Your compilation will probably break. Turn off FTGL support by setting USE_FTGL to false, or visit http://ftgl.wiki.sourceforge.net/ for help on installing FTGL.")
+        endif()
+	
+        ADD_DEFINITIONS(-DUSE_FTGL)
+	
+        #set(FTGL_INCUDE_DIR ${FTGL_INCLUDE_DIR} ${CMAKE_INCLUDE_PATH} ${OPENGL_INCLUDE_DIR})
+        #set(FTGL_LINK_DIRS ${FTGL_LIBRARY_DIRS} )
+        #set(FTGL_LINK_TARGETS ftgl freetype)
+	
+	INCLUDE_DIRECTORIES(${FTGL_INCLUDE_DIR})
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FTGL_LIBRARY})
+
+ELSE()
+        IF(FTGL_FOUND)
+                MESSAGE(STATUS "**NOTE:  Warning: FTGL font support was detected but NOT enabled. You can enable it by setting USE_FTGL=true")
+        ELSE()
+                MESSAGE(STATUS "**NOTE:  Warning: FTGL font support was not detected. Visit http://ftgl.wiki.sourceforge.net/ for help on installing FTGL.")
+        ENDIF()
+	
+        # todo: change this because its obscure and probably not being used
+        #set (FTGL_INCLUDE_DIRS )
+        #set (FTGL_LINK_DIRS )
+        #set (FTGL_LINK_TARGETS )
+ENDIF(USE_FTGL)
+
 #########################################################################################
 # megaglest lib
 

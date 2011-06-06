@@ -15,41 +15,41 @@
 #include "graphics_factory.h"
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{
+namespace Shared { namespace Graphics {
 
 // =====================================================
 //	class FontManager
 // =====================================================
-FontManager::FontManager(){
+FontManager::FontManager() {
 	fonts.clear();
 }
 
-FontManager::~FontManager(){
+FontManager::~FontManager() {
 	end();
 }
 
-Font2D *FontManager::newFont2D(){
+Font2D *FontManager::newFont2D() {
 	Font2D *font= GraphicsInterface::getInstance().getFactory()->newFont2D();
 	fonts.push_back(font);
 	return font;
 }
 
-Font3D *FontManager::newFont3D(){
+Font3D *FontManager::newFont3D() {
 	Font3D *font= GraphicsInterface::getInstance().getFactory()->newFont3D();
 	fonts.push_back(font);
 	return font;
 }
 
-void FontManager::init(){
-	for(size_t i=0; i<fonts.size(); ++i){
+void FontManager::init() {
+	for(size_t i=0; i<fonts.size(); ++i) {
 		if(fonts[i] != NULL) {
 			fonts[i]->init();
 		}
 	}
 } 
 
-void FontManager::end(){
-	for(size_t i=0; i<fonts.size(); ++i){
+void FontManager::end() {
+	for(size_t i=0; i<fonts.size(); ++i) {
 		if(fonts[i] != NULL) {
 			fonts[i]->end();
 			delete fonts[i];
@@ -57,6 +57,5 @@ void FontManager::end(){
 	}
 	fonts.clear();
 }
-
 
 }}//end namespace

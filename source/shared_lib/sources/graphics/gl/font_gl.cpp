@@ -15,7 +15,7 @@
 #include "gl_wrap.h"
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared { namespace Graphics { namespace Gl {
 
 using namespace Platform;
 
@@ -25,57 +25,65 @@ using namespace Platform;
 
 string FontGl::default_fonttype = "fixed";
 
-void Font2DGl::init(){
-	assertGl();
+void Font2DGl::init() {
+	if(inited == false) {
+//#ifndef USE_FTGL
+		if(getTextHandler() == NULL) {
+			assertGl();
+			handle= glGenLists(charCount);
+			assertGl();
 
-	if(!inited){
-		handle= glGenLists(charCount);
-		assertGl();
-
-		createGlFontBitmaps(handle, type, size, width, charCount, metrics);
+			createGlFontBitmaps(handle, type, size, width, charCount, metrics);
+			assertGl();
+		}
+//#endif
 		inited= true;
 	}
-
-	assertGl();
 }
 
-void Font2DGl::end(){
-	assertGl();
-
-	if(inited){
-		//assert(glIsList(handle));
-		glDeleteLists(handle, 1);
-		inited= false;
+void Font2DGl::end() {
+	if(inited) {
+//#ifndef USE_FTGL
+		if(getTextHandler() == NULL) {
+			assertGl();
+			//assert(glIsList(handle));
+			glDeleteLists(handle, 1);
+			assertGl();
+		}
+//#endif
+		inited = false;
 	}
-
-	assertGl();
 }
 
 // =====================================================
 //	class Font3DGl
 // =====================================================
 
-void Font3DGl::init(){
-	assertGl();
-
-	if(!inited){
-		handle= glGenLists(charCount);
-		createGlFontOutlines(handle, type, width, depth, charCount, metrics);
+void Font3DGl::init() {
+	if(inited == false) {
+//#ifndef USE_FTGL
+		if(getTextHandler() == NULL) {
+			assertGl();
+			handle= glGenLists(charCount);
+			createGlFontOutlines(handle, type, width, depth, charCount, metrics);
+			assertGl();
+		}
+//#endif
 		inited= true;
 	}
-
-	assertGl();
 }
 
-void Font3DGl::end(){
-	assertGl();
-
-	if(inited){
-		assert(glIsList(handle));
-		glDeleteLists(handle, 1);
+void Font3DGl::end() {
+	if(inited) {
+//#ifndef USE_FTGL
+		if(getTextHandler() == NULL) {
+			assertGl();
+			assert(glIsList(handle));
+			glDeleteLists(handle, 1);
+			assertGl();
+		}
+//#endif
 	}
-
-	assertGl();
 }
 
 }}}//end namespace

@@ -2558,6 +2558,11 @@ int glestMain(int argc, char** argv) {
         	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE"));
         }
 
+        if(	lang.hasString("MEGAGLEST_FONT")) {
+        	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
+        	setenv("MEGAGLEST_FONT",lang.get("MEGAGLEST_FONT").c_str(),0);
+        }
+
 #if defined(WIN32)
         // Win32 overrides for fonts (just in case they must be different)
         if(	lang.hasString("FONT_CHARCOUNT_WINDOWS")) {
@@ -2577,6 +2582,11 @@ int glestMain(int argc, char** argv) {
         if(	lang.hasString("FONT_MULTIBYTE_WINDOWS")) {
         	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE_WINDOWS"));
         }
+        if(	lang.hasString("MEGAGLEST_FONT_WINDOWS")) {
+        	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
+        	setenv("MEGAGLEST_FONT",lang.get("MEGAGLEST_FONT_WINDOWS").c_str(),0);
+        }
+
         // end win32
 #endif
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
@@ -3062,6 +3072,9 @@ int glestMain(int argc, char** argv) {
 }
 
 int glestMainWrapper(int argc, char** argv) {
+
+	//setlocale(LC_ALL, "zh_TW.UTF-8");
+	//setlocale(LC_ALL, "");
 
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
 //#ifdef DEBUG

@@ -343,25 +343,25 @@ public:
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
 	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false, int overrideMaxConsoleLines=-1);
-	void renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight, const Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
+	void renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight, Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
 	void renderChatManager(const ChatManager *chatManager);
 	void renderResourceStatus();
 	void renderSelectionQuad();
-	void renderText(const string &text, const Font2D *font, float alpha, int x, int y, bool centered= false);
-	void renderText(const string &text, const Font2D *font, const Vec3f &color, int x, int y, bool centered= false);
-	void renderText(const string &text, const Font2D *font, const Vec4f &color, int x, int y, bool centered=false);
-	void renderTextShadow(const string &text, const Font2D *font,const Vec4f &color, int x, int y, bool centered= false);
+	void renderText(const string &text, Font2D *font, float alpha, int x, int y, bool centered= false);
+	void renderText(const string &text, Font2D *font, const Vec3f &color, int x, int y, bool centered= false);
+	void renderText(const string &text, Font2D *font, const Vec4f &color, int x, int y, bool centered=false);
+	void renderTextShadow(const string &text, Font2D *font,const Vec4f &color, int x, int y, bool centered= false);
 
     //components
-	void renderLabel(const GraphicLabel *label);
-	void renderLabel(const GraphicLabel *label,const Vec3f *color);
-	void renderLabel(const GraphicLabel *label,const Vec4f *color);
-    void renderButton(const GraphicButton *button,const Vec4f *fontColorOverride=NULL,bool *lightedOverride=NULL);
+	void renderLabel(GraphicLabel *label);
+	void renderLabel(GraphicLabel *label,const Vec3f *color);
+	void renderLabel(GraphicLabel *label,const Vec4f *color);
+    void renderButton(GraphicButton *button,const Vec4f *fontColorOverride=NULL,bool *lightedOverride=NULL);
     void renderCheckBox(const GraphicCheckBox *box);
     void renderLine(const GraphicLine *line);
     void renderScrollBar(const GraphicScrollBar *sb);
-    void renderListBox(const GraphicListBox *listBox);
-	void renderMessageBox(const GraphicMessageBox *listBox);
+    void renderListBox(GraphicListBox *listBox);
+	void renderMessageBox(GraphicMessageBox *listBox);
 
     //complex rendering
     void renderSurface(const int renderFps);

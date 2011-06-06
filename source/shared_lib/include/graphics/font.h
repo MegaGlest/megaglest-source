@@ -17,25 +17,31 @@
 
 using std::string;
 
-namespace Shared{ namespace Graphics{
+class Text;
+
+namespace Shared { namespace Graphics {
 	
 // =====================================================
 //	class FontMetrics
 // =====================================================
 
-class FontMetrics{
+class FontMetrics {
 private:
 	float *widths;
 	float height;
+	Text *textHandler;
 
 public:
-	FontMetrics();
+	FontMetrics(Text *textHandler=NULL);
 	~FontMetrics();
 
-	void setWidth(int i, float width)	{widths[i]= width;}
+	void setTextHandler(Text *textHandler);
+	Text * getTextHandler();
+
+	void setWidth(int i, float width)	{this->widths[i] = width;}
 	void setHeight(float height)		{this->height= height;}
 
-	float getTextWidth(const string &str) const;
+	float getTextWidth(const string &str);
 	float getHeight() const;
 };
 
@@ -43,14 +49,14 @@ public:
 //	class Font
 // =====================================================
 
-class Font{
+class Font {
 public:
 	static int charCount;
 	static std::string fontTypeName;
 	static bool fontIsMultibyte;
 	
 public:
-	enum Width{
+	enum Width {
 		wNormal= 400,
 		wBold= 700
 	};
@@ -61,48 +67,53 @@ protected:
 	bool inited;
 	FontMetrics metrics;
 	
+	Text *textHandler;
+
 public:
 	//constructor & destructor
 	Font();
-	virtual ~Font(){};
+	virtual ~Font();
 	virtual void init()=0;
 	virtual void end()=0;
 	
 	//get
-	string getType() const					{return type;}	
-	int getWidth() const					{return width;}
-	const FontMetrics *getMetrics() const	{return &metrics;}
+	//string getType() const			{return type;}
+	int getWidth() const;
+	FontMetrics *getMetrics() 		{return &metrics;}
+	Text * getTextHandler() 		{return textHandler;}
 
 	//set
-	void setType(string type)		{this->type= type;}
-	void setWidth(int width)		{this->width= width;}
+	void setType(string typeX11, string typeGeneric);
+	void setWidth(int width);
 };
 
 // =====================================================
 //	class Font2D
 // =====================================================
 
-class Font2D: public Font{
+class Font2D: public Font {
 protected:
 	int size;
 
 public:
 	Font2D();
+	virtual ~Font2D() {};
 	
-	int getSize() const				{return size;}
-	void setSize(int size)			{this->size= size;}
+	int getSize() const;
+	void setSize(int size);
 };
 
 // =====================================================
 //	class Font3D
 // =====================================================
 
-class Font3D: public Font{
+class Font3D: public Font {
 protected:
 	float depth;
 
 public:
 	Font3D();
+	virtual ~Font3D() {};
 	
 	float getDepth() const			{return depth;}
 	void setDepth(float depth)		{this->depth= depth;}

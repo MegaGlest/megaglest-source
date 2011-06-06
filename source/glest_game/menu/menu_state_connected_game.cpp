@@ -898,7 +898,7 @@ void MenuStateConnectedGame::render() {
 		int offsetPosition=0;
 	    for(int i=0; i < GameConstants::maxPlayers; ++i) {
 			const Metrics &metrics= Metrics::getInstance();
-			const FontMetrics *fontMetrics= CoreData::getInstance().getMenuFontNormal()->getMetrics();
+			FontMetrics *fontMetrics= CoreData::getInstance().getMenuFontNormal()->getMetrics();
 			if(fontMetrics == NULL) {
 				throw runtime_error("fontMetrics == NULL");
 			}
