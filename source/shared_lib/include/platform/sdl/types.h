@@ -34,7 +34,9 @@ typedef Uint32 uint32;
 typedef Sint64 int64;
 typedef Uint64 uint64;
 
+#ifndef WIN32
 typedef uint8 byte;
+#endif
 
 }}//end namespace
 

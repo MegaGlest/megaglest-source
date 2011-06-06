@@ -20,13 +20,13 @@
 #include <algorithm>
 //#include "string_utils.h"
 using namespace Shared::Util;
+using namespace Shared::Graphics::Gl;
 #endif
 
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Util;
-using namespace Shared::Graphics::Gl;
 
 namespace Shared{ namespace Graphics{
 
