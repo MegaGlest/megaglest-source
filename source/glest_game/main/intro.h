@@ -40,15 +40,15 @@ private:
 	Vec2i pos;
     Vec2i size;
 	int time;
-	const Font2D *font;
+	Font2D *font;
 	const Texture2D *texture;
 
 public:
-	Text(const string &text, const Vec2i &pos, int time, const Font2D *font);
+	Text(const string &text, const Vec2i &pos, int time, Font2D *font);
 	Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int time);
 
 	const string &getText() const		{return text;}
-	const Font2D *getFont() const		{return font;}
+	Font2D *getFont() 					{return font;}
 	const Vec2i &getPos() const			{return pos;}
 	const Vec2i &getSize() const		{return size;}
 	int getTime() const					{return time;}

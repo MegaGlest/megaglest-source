@@ -48,7 +48,7 @@ public:
 protected:
     int x, y, w, h;
     string text;
-	const Font2D *font; 
+	Font2D *font;
 	bool enabled;
 	bool editable;
 	bool visible;
@@ -83,7 +83,7 @@ public:
 	virtual int getW() const				{return w;}
 	virtual int getH() const				{return h;}
 	virtual const string &getText() const	{return text;}
-	virtual const Font2D *getFont() const	{return font;}
+	virtual Font2D *getFont() 				{return font;}
 	virtual bool getEnabled() const			{return enabled;}
 	virtual bool getEditable() const		{return editable;}
 	virtual bool getVisible() const			{return visible;}
@@ -93,7 +93,7 @@ public:
 	virtual void setW(int w)					{this->w= w;}
 	virtual void setH(int h)					{this->h= h;}
 	virtual void setText(const string &text)	{this->text= text;}
-	virtual void setFont(const Font2D *font)	{this->font= font;}
+	virtual void setFont(Font2D *font)			{this->font= font;}
 	virtual void setEnabled(bool enabled)		{this->enabled= enabled;}
 	virtual void setEditable(bool editable)		{this->editable= editable;}
 	virtual void setVisible(bool value)			{this->visible = value;}
@@ -188,8 +188,8 @@ public:
 	string getItem(int index) const			{return items[index];}
 	int getSelectedItemIndex() const		{return selectedItemIndex;}
 	string getSelectedItem() const			{return items[selectedItemIndex];}
-	const GraphicButton *getButton1() const	{return &graphButton1;}
-	const GraphicButton *getButton2() const	{return &graphButton2;}
+	GraphicButton *getButton1() 			{return &graphButton1;}
+	GraphicButton *getButton2() 			{return &graphButton2;}
 	bool getLighted() const					{return lighted;}
     void setLighted(bool lighted)			{this->lighted= lighted;}
 	Vec3f getTextColor() const				{return textColor;}
@@ -227,8 +227,8 @@ public:
 	void init(const string &button1Str);
 
 	int getButtonCount() const				{return buttonCount;}
-	const GraphicButton *getButton1() const	{return &button1;}
-	const GraphicButton *getButton2() const	{return &button2;}
+	GraphicButton *getButton1() 			{return &button1;}
+	GraphicButton *getButton2() 			{return &button2;}
 	string getHeader() const				{return header;}
 
 	virtual void setX(int x);

@@ -27,11 +27,18 @@ namespace Shared { namespace Graphics { namespace Gl {
 
 class FontGl {
 protected:
+
+//#ifndef USE_FTGL
 	GLuint handle;
+//#endif
+
 	static string default_fonttype;
 
 public:
+
+//#ifndef USE_FTGL
 	GLuint getHandle() const				{return handle;}
+//#endif
 
 	static string getDefault_fontType() { return default_fonttype; }
 	static void setDefault_fontType(string value) { default_fonttype = value; }
@@ -43,8 +50,9 @@ public:
 ///	OpenGL bitmap font
 // =====================================================
 
-class Font2DGl: public Font2D, public FontGl{
+class Font2DGl: public Font2D, public FontGl {
 public:
+
 	virtual void init();
 	virtual void end();
 };
@@ -55,8 +63,9 @@ public:
 ///	OpenGL outline font
 // =====================================================
 
-class Font3DGl: public Font3D, public FontGl{
+class Font3DGl: public Font3D, public FontGl {
 public:
+
 	virtual void init();
 	virtual void end();
 };

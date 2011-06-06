@@ -32,7 +32,7 @@ namespace Glest{ namespace Game{
 // 	class Text
 // =====================================================
 
-Text::Text(const string &text, const Vec2i &pos, int time, const Font2D *font){
+Text::Text(const string &text, const Vec2i &pos, int time, Font2D *font) {
 	this->text= text;
 	this->pos= pos;
 	this->time= time;
@@ -40,7 +40,7 @@ Text::Text(const string &text, const Vec2i &pos, int time, const Font2D *font){
 	this->font= font;
 }
 
-Text::Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int time){
+Text::Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int time) {
 	this->pos= pos;
 	this->size= size;
 	this->time= time;
@@ -103,7 +103,7 @@ void Intro::update(){
 	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
 }
 
-void Intro::render(){
+void Intro::render() {
 	Renderer &renderer= Renderer::getInstance();
 	int difTime;
 

@@ -946,10 +946,10 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 }
 
 void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight,
-								const Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
+								Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
 	Vec4f fontColor;
 	const Metrics &metrics= Metrics::getInstance();
-	const FontMetrics *fontMetrics= font->getMetrics();
+	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(game != NULL) {
 		fontColor = game->getGui()->getDisplay()->getColor();
@@ -1208,12 +1208,12 @@ void Renderer::renderSelectionQuad() {
     }
 }
 
-Vec2i computeCenteredPos(const string &text, const Font2D *font, int x, int y) {
+Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 	if(font == NULL) {
 		throw runtime_error("font == NULL");
 	}
 	const Metrics &metrics= Metrics::getInstance();
-	const FontMetrics *fontMetrics= font->getMetrics();
+	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
 		throw runtime_error("fontMetrics == NULL");
@@ -1229,7 +1229,7 @@ Vec2i computeCenteredPos(const string &text, const Font2D *font, int x, int y) {
 	return textPos;
 }
 
-void Renderer::renderText(const string &text, const Font2D *font, float alpha, int x, int y, bool centered){
+void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, int y, bool centered){
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
@@ -1243,7 +1243,7 @@ void Renderer::renderText(const string &text, const Font2D *font, float alpha, i
 	glPopAttrib();
 }
 
-void Renderer::renderText(const string &text, const Font2D *font, const Vec3f &color, int x, int y, bool centered){
+void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, int x, int y, bool centered){
 	glPushAttrib(GL_CURRENT_BIT);
 	glColor3fv(color.ptr());
 
@@ -1256,7 +1256,7 @@ void Renderer::renderText(const string &text, const Font2D *font, const Vec3f &c
 	glPopAttrib();
 }
 
-void Renderer::renderText(const string &text, const Font2D *font, const Vec4f &color, int x, int y, bool centered){
+void Renderer::renderText(const string &text, Font2D *font, const Vec4f &color, int x, int y, bool centered){
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(color.ptr());
@@ -1270,7 +1270,7 @@ void Renderer::renderText(const string &text, const Font2D *font, const Vec4f &c
 	glPopAttrib();
 }
 
-void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec4f &color, int x, int y, bool centered){
+void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &color, int x, int y, bool centered){
 	if(font == NULL) {
 		throw runtime_error("font == NULL");
 	}
@@ -1293,13 +1293,13 @@ void Renderer::renderTextShadow(const string &text, const Font2D *font,const Vec
 
 // ============= COMPONENTS =============================
 
-void Renderer::renderLabel(const GraphicLabel *label) {
+void Renderer::renderLabel(GraphicLabel *label) {
 	Vec3f labelColor=label->getTextColor();
 	Vec4f colorWithAlpha = Vec4f(labelColor.x,labelColor.y,labelColor.z,GraphicComponent::getFade());
 	renderLabel(label,&colorWithAlpha);
 }
 
-void Renderer::renderLabel(const GraphicLabel *label,const Vec3f *color) {
+void Renderer::renderLabel(GraphicLabel *label,const Vec3f *color) {
 	if(color != NULL) {
 		Vec4f colorWithAlpha = Vec4f(*color);
 		colorWithAlpha.w = GraphicComponent::getFade();
@@ -1311,7 +1311,7 @@ void Renderer::renderLabel(const GraphicLabel *label,const Vec3f *color) {
 	}
 }
 
-void Renderer::renderLabel(const GraphicLabel *label,const Vec4f *color) {
+void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 	if(label->getVisible() == false) {
 		return;
 	}
@@ -1351,7 +1351,7 @@ void Renderer::renderLabel(const GraphicLabel *label,const Vec4f *color) {
 	glPopAttrib();
 }
 
-void Renderer::renderButton(const GraphicButton *button, const Vec4f *fontColorOverride, bool *lightedOverride) {
+void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverride, bool *lightedOverride) {
 	if(button->getVisible() == false) {
 		return;
 	}
@@ -1740,7 +1740,7 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
     glPopAttrib();
 }
 
-void Renderer::renderListBox(const GraphicListBox *listBox) {
+void Renderer::renderListBox(GraphicListBox *listBox) {
 	if(listBox->getVisible() == false) {
 		return;
 	}
@@ -1806,7 +1806,7 @@ void Renderer::renderListBox(const GraphicListBox *listBox) {
 	glPopAttrib();
 }
 
-void Renderer::renderMessageBox(const GraphicMessageBox *messageBox) {
+void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 	if(messageBox->getVisible() == false) {
 		return;
 	}

@@ -18,7 +18,7 @@
 
 using namespace std;
 
-namespace Shared{ namespace Graphics{
+namespace Shared { namespace Graphics {
 
 // =====================================================
 //	class FontManager
@@ -26,7 +26,7 @@ namespace Shared{ namespace Graphics{
 ///	Creates, Intializes, Finalizes, and Deletes fonts
 // =====================================================
 
-class FontManager{
+class FontManager {
 protected:
 	typedef vector<Font*> FontContainer;
 
