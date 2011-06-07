@@ -23,9 +23,11 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
+#include "platform_common.h"
 #include "util.h"
 using namespace std;
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Graphics{ namespace Gl{
 
