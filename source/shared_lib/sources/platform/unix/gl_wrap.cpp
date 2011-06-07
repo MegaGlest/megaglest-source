@@ -35,7 +35,6 @@ namespace Shared { namespace Platform {
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 						 int charCount, FontMetrics &metrics) {
 
-//#ifndef USE_FTGL
 	Display* display = glXGetCurrentDisplay();
 	if(display == 0) {
 		throw std::runtime_error("Couldn't create font: display is 0");
@@ -146,7 +145,6 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 
 	glXUseXFont(fontInfo->fid, 0, charCount, base);
 	XFreeFont(display, fontInfo);
-//#endif
 }
 
 void createGlFontOutlines(uint32 &base, const string &type, int width,

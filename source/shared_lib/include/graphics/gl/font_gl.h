@@ -28,20 +28,15 @@ namespace Shared { namespace Graphics { namespace Gl {
 class FontGl {
 protected:
 
-//#ifndef USE_FTGL
 	GLuint handle;
-//#endif
-
 	static string default_fonttype;
 
 public:
 
-//#ifndef USE_FTGL
-	GLuint getHandle() const				{return handle;}
-//#endif
+	GLuint getHandle() const						{return handle;}
 
-	static string getDefault_fontType() { return default_fonttype; }
-	static void setDefault_fontType(string value) { default_fonttype = value; }
+	static string getDefault_fontType() 			{return default_fonttype;}
+	static void setDefault_fontType(string value) 	{default_fonttype = value;}
 };
 
 // =====================================================

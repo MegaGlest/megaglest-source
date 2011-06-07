@@ -27,7 +27,6 @@ using namespace Shared::Util;
 
 namespace Shared{ namespace Platform{
 
-//#ifndef USE_FTGL
 // ======================================
 //	Global Fcs
 // ======================================
@@ -40,13 +39,11 @@ int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX *lpelfe,
 	systemFontList->push_back((char *)lpelfe->elfFullName);
 	return 1; // I want to get all fonts
 }
-//#endif
 
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 							 int charCount, FontMetrics &metrics) {
 	//return;
 
-//#ifndef USE_FTGL
 	// -adecw-screen-medium-r-normal--18-180-75-75-m-160-gb2312.1980-1	 this is a Chinese font
 	
 	std::string useRealFontName = type;
@@ -173,7 +170,6 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	//}
 
 	assert(err);
-//#endif
 }
 	
 void createGlFontOutlines(uint32 &base, const string &type, int width,

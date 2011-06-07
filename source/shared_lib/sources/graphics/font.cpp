@@ -28,7 +28,7 @@ using namespace Shared::Graphics::Gl;
 using namespace std;
 using namespace Shared::Util;
 
-namespace Shared{ namespace Graphics{
+namespace Shared { namespace Graphics {
 
 // Init statics
 int Font::charCount				= 256;

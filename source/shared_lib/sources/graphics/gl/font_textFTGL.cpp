@@ -38,7 +38,7 @@ TextFTGL::TextFTGL() {
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-doulos/DoulosSILR.ttf",0); // Russian / Cyrillic
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-charis/CharisSILR.ttf",0); // Russian / Cyrillic
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf",0); // Russian / Cyrillic
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
+	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/takao/TakaoPGothic.ttf",0); // Japanese
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-scheherazade/ScheherazadeRegOT.ttf",0); // Arabic
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/linux-libertine/LinLibertine_Re.ttf",0); // Hebrew
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/unifont/unifont.ttf",0); // Czech?
@@ -218,6 +218,11 @@ const char* TextFTGL::findFont(const char *firstFontToTry) {
 		FcFini();
 	}
 #endif
+
+	string data_path = Text::DEFAULT_FONT_PATH;
+	const string defaultFont = data_path + "data/core/fonts/gothub__.ttf";
+
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf")
 
 	// Check a couple of common paths for Gothic Uralic/bold as a last resort
 	// Debian

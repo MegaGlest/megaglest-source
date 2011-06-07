@@ -23,6 +23,8 @@ class Text
 {
 public:
 
+	static std::string DEFAULT_FONT_PATH;
+
 	Text();
 	virtual ~Text();
 
