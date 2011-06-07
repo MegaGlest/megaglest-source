@@ -12,6 +12,8 @@
 
 using namespace std;
 
+std::string Text::DEFAULT_FONT_PATH = "";
+
 //====================================================================
 Text::Text() {}
 Text::~Text() {}

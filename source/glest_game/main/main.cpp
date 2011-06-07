@@ -38,6 +38,7 @@
 #include "cache_manager.h"
 #include <iterator>
 #include "core_data.h"
+#include "font_text.h"
 //#include "unicode/uclean.h"
 
 // For gcc backtrace on crash!
@@ -1148,6 +1149,7 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
     	}
     }
 
+    Text::DEFAULT_FONT_PATH = pathCache[GameConstants::path_data_CacheLookupKey];
 
     return 0;
 }
@@ -2448,6 +2450,7 @@ int glestMain(int argc, char** argv) {
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
 		UPNP_Tools::isUPNP = !config.getBool("DisableUPNP","false");
 		Texture::useTextureCompression = config.getBool("EnableTextureCompression","false");
+
 		// 256 for English
 		// 30000 for Chinese
 		Font::charCount    		= config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());

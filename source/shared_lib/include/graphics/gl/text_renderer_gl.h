@@ -19,10 +19,6 @@ namespace Shared { namespace Graphics { namespace Gl {
 
 class Font2DGl;
 class Font3DGl;
-//#ifdef USE_FTGL
-//	class TextFTGL;
-//#endif
-
 
 // =====================================================
 //	class TextRenderer2DGl
@@ -32,10 +28,6 @@ class TextRenderer2DGl: public TextRenderer2D {
 private:
 	Font2DGl *font;
 	bool rendering;
-
-//#ifdef USE_FTGL
-//	TextFTGL *fontFTGL;
-//#endif
 
 public:
 	TextRenderer2DGl();
@@ -54,10 +46,6 @@ class TextRenderer3DGl: public TextRenderer3D{
 private:
 	Font3DGl *font;
 	bool rendering;
-
-//#ifdef USE_FTGL
-//	TextFTGL *fontFTGL;
-//#endif
 
 public:
 	TextRenderer3DGl();

@@ -27,7 +27,6 @@ string FontGl::default_fonttype = "fixed";
 
 void Font2DGl::init() {
 	if(inited == false) {
-//#ifndef USE_FTGL
 		if(getTextHandler() == NULL) {
 			assertGl();
 			handle= glGenLists(charCount);
@@ -36,21 +35,18 @@ void Font2DGl::init() {
 			createGlFontBitmaps(handle, type, size, width, charCount, metrics);
 			assertGl();
 		}
-//#endif
 		inited= true;
 	}
 }
 
 void Font2DGl::end() {
 	if(inited) {
-//#ifndef USE_FTGL
 		if(getTextHandler() == NULL) {
 			assertGl();
 			//assert(glIsList(handle));
 			glDeleteLists(handle, 1);
 			assertGl();
 		}
-//#endif
 		inited = false;
 	}
 }
@@ -61,28 +57,24 @@ void Font2DGl::end() {
 
 void Font3DGl::init() {
 	if(inited == false) {
-//#ifndef USE_FTGL
 		if(getTextHandler() == NULL) {
 			assertGl();
 			handle= glGenLists(charCount);
 			createGlFontOutlines(handle, type, width, depth, charCount, metrics);
 			assertGl();
 		}
-//#endif
 		inited= true;
 	}
 }
 
 void Font3DGl::end() {
 	if(inited) {
-//#ifndef USE_FTGL
 		if(getTextHandler() == NULL) {
 			assertGl();
 			assert(glIsList(handle));
 			glDeleteLists(handle, 1);
 			assertGl();
 		}
-//#endif
 	}
 }
 

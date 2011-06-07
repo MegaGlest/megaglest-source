@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martio Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -15,14 +15,8 @@
 #include "font_gl.h"
 
 #include "font_text.h"
-//#ifdef USE_FTGL
-//#include "font_textFTGL.h"
 #include <vector>
 #include <algorithm>
-//#include "string_utils.h"
-//using namespace Shared::Util;
-//#endif
-
 #include "leak_dumper.h"
 
 namespace Shared { namespace Graphics { namespace Gl {
@@ -34,29 +28,16 @@ namespace Shared { namespace Graphics { namespace Gl {
 TextRenderer2DGl::TextRenderer2DGl() {
 	rendering= false;
 	this->font = NULL;
-//#ifdef USE_FTGL
-//	fontFTGL = new TextFTGL();
-//#endif
-
 }
 
 TextRenderer2DGl::~TextRenderer2DGl() {
-//#ifdef USE_FTGL
-//	delete fontFTGL;
-//	fontFTGL = NULL;
-//#endif
 }
 
 void TextRenderer2DGl::begin(Font2D *font) {
 	assert(!rendering);
-	rendering= true;
-	
-	this->font= static_cast<Font2DGl*>(font);
 
-//#ifdef USE_FTGL
-//	this->font->getMetrics()->setHeight(fontFTGL->LineHeight(" "));
-//	this->font->getMetrics()->setWidth(i,fontFTGL->Advance(" "));
-//#endif
+	rendering	= true;
+	this->font	= static_cast<Font2DGl*>(font);
 }
 
 // Convert a narrow string to a wide string//
@@ -89,21 +70,20 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 	const unsigned char *utext	= NULL;
 	FontMetrics *metrics	= NULL;
 
-	Vec2f rasterPos;
-//#ifdef USE_FTGL
-	if(font->getTextHandler() != NULL) {
-		//font->getTextHandler()->SetFaceSize(size);
+	//printf("font->getTextHandler() [%p] centered = %d text [%s]\n",font->getTextHandler(),centered,text.c_str());
 
+	Vec2f rasterPos;
+	if(font->getTextHandler() != NULL) {
 		if(centered) {
 			rasterPos.x= x - font->getTextHandler()->Advance(text.c_str()) / 2.f;
 			rasterPos.y= y + font->getTextHandler()->LineHeight(text.c_str()) / 2.f;
 		}
 		else {
 			rasterPos= Vec2f(static_cast<float>(x), static_cast<float>(y));
+			rasterPos.y= y + (font->getTextHandler()->LineHeight(text.c_str()) / 8.f);
 		}
 	}
 	else {
-//#else
 		utext= reinterpret_cast<const unsigned char*>(text.c_str());
 		metrics= font->getMetrics();
 		if(centered) {
@@ -114,12 +94,9 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 			rasterPos= Vec2f(static_cast<float>(x), static_cast<float>(y));
 		}
 	}
-//#endif
 	glRasterPos2f(rasterPos.x, rasterPos.y);
 
 	if(Font::fontIsMultibyte == true) {
-
-//#ifdef USE_FTGL
 		if(font->getTextHandler() != NULL) {
 			//String str("資料");
 			//WString wstr(str);
@@ -228,8 +205,6 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 			}
 		}
 		else {
-//#else
-
 			//setlocale(LC_CTYPE, "en_ca.UTF-8");
 
 			//wstring wText = widen(text);
@@ -252,11 +227,8 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 			//glListBase(font->getHandle());
 			//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
 		}
-//#endif
 	}
 	else {
-
-//#ifdef USE_FTGL
 		if(font->getTextHandler() != NULL) {
 			if(text.find("\n") == text.npos && text.find("\t") == text.npos) {
 				font->getTextHandler()->Render(text.c_str());
@@ -314,7 +286,6 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 			}
 		}
 		else {
-//#else
 			for (int i=0; utext[i]!='\0'; ++i) {
 				switch(utext[i]){
 				case '\t':
@@ -331,7 +302,6 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 				}
 			}
 		}
-//#endif
 	}
 
 	if(color != NULL) {
@@ -352,16 +322,9 @@ void TextRenderer2DGl::end() {
 TextRenderer3DGl::TextRenderer3DGl() {
 	rendering= false;
 	this->font = NULL;
-//#ifdef USE_FTGL
-//	fontFTGL = new TextFTGL();
-//#endif
 }
 
 TextRenderer3DGl::~TextRenderer3DGl() {
-//#ifdef USE_FTGL
-//	delete fontFTGL;
-//	fontFTGL = NULL;
-//#endif
 }
 
 void TextRenderer3DGl::begin(Font3D *font) {
@@ -390,10 +353,7 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, float size,
 	float scale= size / 10.f;
 	Vec3f translatePos;
 
-//#ifdef USE_FTGL
 	if(font->getTextHandler() != NULL) {
-		//font->getTextHandler()->SetFaceSize(size);
-
 		if(centered) {
 			translatePos.x = x - scale * font->getTextHandler()->Advance(text.c_str()) / 2.f;
 			translatePos.y = y - scale * font->getTextHandler()->LineHeight(text.c_str()) / 2.f;
@@ -406,7 +366,6 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, float size,
 		}
 	}
 	else {
-//#else
 		utext= reinterpret_cast<const unsigned char*>(text.c_str());
 		if(centered) {
 			FontMetrics *metrics= font->getMetrics();
@@ -422,14 +381,11 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, float size,
 			translatePos.z = 0;
 		}
 	}
-//#endif
 
 	glTranslatef(translatePos.x, translatePos.y, translatePos.z);
 	glScalef(scale, scale, scale);
 
 	if(Font::fontIsMultibyte == true) {
-
-//#ifdef USE_FTGL
 		if(font->getTextHandler() != NULL) {
 			if(text.find("\n") == text.npos && text.find("\t") == text.npos) {
 				font->getTextHandler()->Render(text.c_str());
@@ -488,7 +444,6 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, float size,
 			}
 		}
 		else {
-//#else
 			//setlocale(LC_CTYPE, "en_ca.UTF-8");
 
 			//wstring wText = widen(text);
@@ -511,12 +466,10 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, float size,
 			//glListBase(font->getHandle());
 			//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
 		}
-//#endif
 	}
 	else {
 
 		if(font->getTextHandler() != NULL) {
-//#ifdef USE_FTGL
 			if(text.find("\n") == text.npos && text.find("\t") == text.npos) {
 				font->getTextHandler()->Render(text.c_str());
 			}
@@ -574,12 +527,10 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, float size,
 			}
 		}
 		else {
-//#else
 			for (int i=0; utext[i]!='\0'; ++i) {
 				glCallList(font->getHandle()+utext[i]);
 			}
 		}
-//#endif
 	}
 	glPopMatrix();
 	glPopAttrib();
