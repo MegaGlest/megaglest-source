@@ -23,7 +23,9 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
+#include "util.h"
 using namespace std;
+using namespace Shared::Util;
 
 namespace Shared{ namespace Graphics{ namespace Gl{
 
@@ -160,23 +162,43 @@ float TextFTGL::LineHeight(const wchar_t* str, const int len) {
 }
 
 const char* TextFTGL::findFont(const char *firstFontToTry) {
-	struct stat statbuf;
 	const char* font = NULL;
 	const char* path = NULL;
 
 	#define CHECK_FONT_PATH(filename) \
 	{ \
 		path = filename; \
-		if( !font && path && 0 == stat(path, &statbuf) ) \
+		if( !font && path && fileExists(path) == true ) \
 			font = strdup(path); \
 	}
 
+	string tryFont = "";
 	if(firstFontToTry) {
-		CHECK_FONT_PATH(getenv(firstFontToTry))
+		tryFont = firstFontToTry;
+		#ifdef WIN32
+		  replaceAll(tryFont, "/", "\\");
+		#endif
+
+		CHECK_FONT_PATH(tryFont.c_str())
 	}
 
 	// Get user-specified font path
-	CHECK_FONT_PATH(getenv("MEGAGLEST_FONT"))
+	if(getenv("MEGAGLEST_FONT") != NULL) {
+		tryFont = getenv("MEGAGLEST_FONT");
+		#ifdef WIN32
+		  replaceAll(tryFont, "/", "\\");
+		#endif
+
+		CHECK_FONT_PATH(tryFont.c_str())
+	}
+
+	string data_path = Text::DEFAULT_FONT_PATH;
+	string defaultFont = data_path + "data/core/fonts/gothub__.ttf";
+	tryFont = defaultFont;
+	#ifdef WIN32
+	  replaceAll(tryFont, "/", "\\");
+	#endif
+	CHECK_FONT_PATH(tryFont.c_str())
 
 #ifdef FONT_PATH
 	// Get distro-specified font path
@@ -218,9 +240,6 @@ const char* TextFTGL::findFont(const char *firstFontToTry) {
 		FcFini();
 	}
 #endif
-
-	string data_path = Text::DEFAULT_FONT_PATH;
-	const string defaultFont = data_path + "data/core/fonts/gothub__.ttf";
 
 	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf")
 
