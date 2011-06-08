@@ -15,17 +15,25 @@
 #include <string>
 
 using std::string;
+
+enum FontTextHandlerType {
+	ftht_2D,
+	ftht_3D
+};
+
 /**
  * Base class upon which all text rendering calls are made.
  */
 //====================================================================
 class Text
 {
+protected:
+	FontTextHandlerType type;
 public:
 
 	static std::string DEFAULT_FONT_PATH;
 
-	Text();
+	Text(FontTextHandlerType type);
 	virtual ~Text();
 
 	virtual void init(string fontName, int fontSize);

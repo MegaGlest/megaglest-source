@@ -27,11 +27,11 @@ namespace Shared{ namespace Util{
 
 const int strSize = 256;
 
-bool strToBool(const string &s){
-	if (s=="0" || s=="false"){
+bool strToBool(const string &s) {
+	if(s=="0" || s=="false") {
 		return false;
 	}
-	if (s=="1" || s=="true"){
+	if(s=="1" || s=="true") {
 		return true;
 	}
 	throw runtime_error("Error converting string to bool, expected 0 or 1, found: [" + s + "]");
