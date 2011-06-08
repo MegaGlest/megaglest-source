@@ -363,7 +363,7 @@ namespace Shared { namespace Util {
         return ConvertToUTF8(s, len, nws);
     }
 
-    int String::ASCIItoUTF8(const byte c, byte *out) {
+    int String::ASCIItoUTF8(const Shared::Platform::byte c, Shared::Platform::byte *out) {
     	if (c < 0x80)
     	{
     		*out = c;
@@ -390,17 +390,17 @@ namespace Shared { namespace Util {
             *ret = '\0';
             return ret;
         }
-        byte tmp[4];
+        Shared::Platform::byte tmp[4];
         newSize = 1;
-        for(byte *p = (byte*)s ; *p ; p++)
+        for(Shared::Platform::byte *p = (Shared::Platform::byte*)s ; *p ; p++)
             newSize += ASCIItoUTF8(*p, tmp);
 
         char* ret = new char[newSize];
         //LOG_ASSERT(NULL != ret);
         assert(NULL != ret);
 
-        byte *q = (byte*)ret;
-        for(byte *p = (byte*)s ; *p ; p++)
+        Shared::Platform::byte *q = (Shared::Platform::byte*)ret;
+        for(Shared::Platform::byte *p = (Shared::Platform::byte*)s ; *p ; p++)
             q += ASCIItoUTF8(*p, q);
         *q = '\0'; // A bit paranoid
         return ret;
@@ -585,7 +585,7 @@ namespace Shared { namespace Util {
 
         int e = 0;
         int prev = -1;
-        for(int i = 0 ; i < size() ; i++)
+        for(unsigned int i = 0 ; i < size() ; i++)
             if (pattern[e] == '*')
             {
                 if (e + 1 == pattern.size())
@@ -614,10 +614,10 @@ namespace Shared { namespace Util {
         String res;
         int utf8_pos = 0;
         for(; pos > 0 ; pos--)
-            if (((byte)(*this)[utf8_pos]) >= 0xC0)
+            if (((Shared::Platform::byte)(*this)[utf8_pos]) >= 0xC0)
             {
                 utf8_pos++;
-                while (((byte)(*this)[utf8_pos]) >= 0x80 && ((byte)(*this)[utf8_pos]) < 0xC0)
+                while (((Shared::Platform::byte)(*this)[utf8_pos]) >= 0x80 && ((Shared::Platform::byte)(*this)[utf8_pos]) < 0xC0)
                     utf8_pos++;
             }
             else
@@ -625,11 +625,11 @@ namespace Shared { namespace Util {
 
         for(; len > 0 ; len--)
         {
-            if (((byte)(*this)[utf8_pos]) >= 0x80)
+            if (((Shared::Platform::byte)(*this)[utf8_pos]) >= 0x80)
             {
                 res << (char)(*this)[utf8_pos];
                 utf8_pos++;
-                while (((byte)(*this)[utf8_pos]) >= 0x80 && ((byte)(*this)[utf8_pos]) < 0xC0)
+                while (((Shared::Platform::byte)(*this)[utf8_pos]) >= 0x80 && ((Shared::Platform::byte)(*this)[utf8_pos]) < 0xC0)
                 {
                     res << (char)(*this)[utf8_pos];
                     utf8_pos++;
@@ -647,8 +647,8 @@ namespace Shared { namespace Util {
     int String::sizeUTF8() const
     {
         int len = 0;
-        for(int i = 0 ; i < this->size() ; i++)
-            if (((byte)(*this)[i]) >= 0xC0 || ((byte)(*this)[i]) < 0x80)
+        for(unsigned int i = 0 ; i < this->size() ; i++)
+            if (((Shared::Platform::byte)(*this)[i]) >= 0xC0 || ((Shared::Platform::byte)(*this)[i]) < 0x80)
                 len++;
         return len;
     }
@@ -671,18 +671,18 @@ namespace Shared { namespace Util {
 	void WString::fromUtf8(const char* str, size_t length)
 	{
 		int len = 0;
-		for(int i = 0 ; i < length; i++)
+		for(unsigned int i = 0 ; i < length; i++)
 		{
-			if (((byte)str[i]) < 0x80)
+			if (((Shared::Platform::byte)str[i]) < 0x80)
 			{
-				pBuffer[len++] = ((byte)str[i]);
+				pBuffer[len++] = ((Shared::Platform::byte)str[i]);
 				continue;
 			}
-			if (((byte)str[i]) >= 0xC0)
+			if (((Shared::Platform::byte)str[i]) >= 0xC0)
 			{
-				wchar_t c = ((byte)str[i++]) - 0xC0;
-				while(((byte)str[i]) >= 0x80)
-					c = (c << 6) | (((byte)str[i++]) - 0x80);
+				wchar_t c = ((Shared::Platform::byte)str[i++]) - 0xC0;
+				while(((Shared::Platform::byte)str[i]) >= 0x80)
+					c = (c << 6) | (((Shared::Platform::byte)str[i++]) - 0x80);
 				--i;
 				pBuffer[len++] = c;
 				continue;

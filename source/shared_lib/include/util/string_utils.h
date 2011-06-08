@@ -584,7 +584,7 @@ namespace Shared { namespace Util {
             return !(iss >> t).fail();
         }
 
-        static int ASCIItoUTF8(const byte c, byte *out);
+		static int ASCIItoUTF8(const Shared::Platform::byte c, Shared::Platform::byte *out);
     }; // class String
 
 
