@@ -57,6 +57,7 @@
 #include "randomgen.h"
 #include <algorithm>
 #include "platform_util.h"
+#include "utf8.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -1932,6 +1933,33 @@ void copyFileTo(string fromFileName, string toFileName) {
 		fclose(fp2);
 	}
 #endif
+}
+
+bool valid_utf8_file(const char* file_name) {
+#if defined(WIN32) && !defined(__MINGW32__)
+	wstring wstr = utf8_decode(file_name);
+	FILE *fp = _wfopen(wstr.c_str(), L"r");
+	ifstream ifs(fp);
+#else
+    ifstream ifs(file_name);
+#endif
+
+    if (!ifs) {
+        return false; // even better, throw here
+    }
+    istreambuf_iterator<char> it(ifs.rdbuf());
+    istreambuf_iterator<char> eos;
+
+    bool result = utf8::is_valid(it, eos);
+
+	ifs.close();
+#if defined(WIN32) && !defined(__MINGW32__)
+	if(fp) {
+		fclose(fp);
+	}
+#endif
+
+	return result;
 }
 
 // =====================================

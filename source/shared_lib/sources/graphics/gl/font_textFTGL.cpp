@@ -29,12 +29,11 @@ using namespace std;
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared { namespace Graphics { namespace Gl {
 
 
 //====================================================================
-TextFTGL::TextFTGL() {
-
+TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",0);
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/arphic/uming.ttc",0); // Chinese
@@ -56,7 +55,17 @@ TextFTGL::TextFTGL() {
 	//ftFont = new FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 
 	//ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
-	ftFont = new FTGLPixmapFont(fontFile);
+	if(type == ftht_2D) {
+		ftFont = new FTGLPixmapFont(fontFile);
+		//printf("2D font [%s]\n",fontFile);
+	}
+	else if(type == ftht_3D) {
+		ftFont = new FTBufferFont(fontFile);
+		//printf("3D font [%s]\n",fontFile);
+	}
+	else {
+		throw runtime_error("font render type not set to a known value!");
+	}
 
 	if(ftFont->Error())	{
 		printf("FTGL: error loading font: %s\n", fontFile);
@@ -96,7 +105,17 @@ void TextFTGL::init(string fontName, int fontSize) {
 	//ftFont = new FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 	//ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 
-	ftFont = new FTGLPixmapFont(fontFile);
+	if(type == ftht_2D) {
+		ftFont = new FTGLPixmapFont(fontFile);
+		//printf("2D font [%s]\n",fontFile);
+	}
+	else if(type == ftht_3D) {
+		ftFont = new FTBufferFont(fontFile);
+		//printf("3D font [%s]\n",fontFile);
+	}
+	else {
+		throw runtime_error("font render type not set to a known value!");
+	}
 
 	if(ftFont->Error())	{
 		printf("FTGL: error loading font: %s\n", fontFile);

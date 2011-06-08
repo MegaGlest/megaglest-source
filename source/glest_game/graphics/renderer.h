@@ -221,6 +221,7 @@ private:
 	//renderers
 	ModelRenderer *modelRenderer;
 	TextRenderer2D *textRenderer;
+	TextRenderer3D *textRenderer3D;
 	ParticleRenderer *particleRenderer;
 
 	//texture managers
@@ -322,6 +323,8 @@ public:
 	Texture2D *newTexture2D(ResourceScope rs);
 	Texture3D *newTexture3D(ResourceScope rs);
 	Font2D *newFont(ResourceScope rs);
+	Font3D *newFont3D(ResourceScope rs);
+
 	TextRenderer2D *getTextRenderer() const	{return textRenderer;}
 	void manageParticleSystem(ParticleSystem *particleSystem, ResourceScope rs);
 	void cleanupParticleSystems(vector<ParticleSystem *> &particleSystems,ResourceScope rs);
@@ -351,6 +354,13 @@ public:
 	void renderText(const string &text, Font2D *font, const Vec3f &color, int x, int y, bool centered= false);
 	void renderText(const string &text, Font2D *font, const Vec4f &color, int x, int y, bool centered=false);
 	void renderTextShadow(const string &text, Font2D *font,const Vec4f &color, int x, int y, bool centered= false);
+
+	void renderText3D(const string &text, Font3D *font, float alpha, int x, int y, bool centered);
+	void renderText3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, bool centered);
+	void renderText3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, bool centered);
+	void renderTextShadow3D(const string &text, Font3D *font,const Vec4f &color, int x, int y, bool centered);
+	void renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth,
+			string prefixLabel,bool centeredText);
 
     //components
 	void renderLabel(GraphicLabel *label);

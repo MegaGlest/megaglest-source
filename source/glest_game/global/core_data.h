@@ -25,6 +25,7 @@ namespace Glest{ namespace Game{
 using Shared::Graphics::Texture2D;
 using Shared::Graphics::Texture3D;
 using Shared::Graphics::Font2D;
+using Shared::Graphics::Font3D;
 using Shared::Sound::StrSound;
 using Shared::Sound::StaticSound;
 
@@ -67,6 +68,13 @@ private:
 	Font2D *menuFontVeryBig;
 	Font2D *consoleFont;
 
+    Font3D *displayFont3D;
+	Font3D *menuFontNormal3D;
+	Font3D *displayFontSmall3D;
+	Font3D *menuFontBig3D;
+	Font3D *menuFontVeryBig3D;
+	Font3D *consoleFont3D;
+
 public:
 	static CoreData &getInstance();
 	~CoreData();
@@ -106,6 +114,13 @@ public:
     Font2D *getMenuFontBig() const			{return menuFontBig;}
 	Font2D *getMenuFontVeryBig() const		{return menuFontVeryBig;}
     Font2D *getConsoleFont() const			{return consoleFont;}
+
+	Font3D *getDisplayFont3D() const			{return displayFont3D;}
+    Font3D *getDisplayFontSmall3D() const		{return displayFontSmall3D;}
+    Font3D *getMenuFontNormal3D() const			{return menuFontNormal3D;}
+    Font3D *getMenuFontBig3D() const			{return menuFontBig3D;}
+	Font3D *getMenuFontVeryBig3D() const		{return menuFontVeryBig3D;}
+    Font3D *getConsoleFont3D() const			{return consoleFont3D;}
 
 private:
 	CoreData(){};

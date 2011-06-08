@@ -19,6 +19,7 @@ namespace Shared { namespace Graphics { namespace Gl {
 
 class Font2DGl;
 class Font3DGl;
+class TextRenderer3DGl;
 
 // =====================================================
 //	class TextRenderer2DGl
@@ -28,6 +29,9 @@ class TextRenderer2DGl: public TextRenderer2D {
 private:
 	Font2DGl *font;
 	bool rendering;
+
+	//Font3DGl *font3D;
+	//TextRenderer3DGl *tester;
 
 public:
 	TextRenderer2DGl();
@@ -42,7 +46,7 @@ public:
 //	class TextRenderer3DGl
 // =====================================================
 
-class TextRenderer3DGl: public TextRenderer3D{
+class TextRenderer3DGl: public TextRenderer3D {
 private:
 	Font3DGl *font;
 	bool rendering;
@@ -52,7 +56,7 @@ public:
 	virtual ~TextRenderer3DGl();
 
 	virtual void begin(Font3D *font);
-	virtual void render(const string &text, float x, float y, float size, bool centered);
+	virtual void render(const string &text, float x, float y, bool centered);
 	virtual void end();
 };
 

@@ -43,7 +43,7 @@ public:
 	virtual ~TextRenderer3D(){};
 
 	virtual void begin(Font3D *font)= 0;
-	virtual void render(const string &text, float x, float y, float size, bool centered= false)= 0;
+	virtual void render(const string &text, float x, float y, bool centered= false)= 0;
 	virtual void end()= 0;
 };
 

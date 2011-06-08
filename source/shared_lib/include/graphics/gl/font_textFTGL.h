@@ -18,7 +18,8 @@
 
 #include "font_text.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared { namespace Graphics { namespace Gl {
+
 /**
  * Use FTGL for rendering text in OpenGL
  */
@@ -27,7 +28,7 @@ class TextFTGL : public Text
 {
 public:
 
-	TextFTGL();
+	TextFTGL(FontTextHandlerType type);
 	virtual ~TextFTGL();
 	virtual void init(string fontName, int fontSize);
 

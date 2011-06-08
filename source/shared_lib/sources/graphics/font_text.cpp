@@ -15,7 +15,9 @@ using namespace std;
 std::string Text::DEFAULT_FONT_PATH = "";
 
 //====================================================================
-Text::Text() {}
+Text::Text(FontTextHandlerType type) {
+	this->type = type;
+}
 Text::~Text() {}
 void  Text::init(string fontName, int fontSize) {}
 void  Text::Render(const char*, const int) {}

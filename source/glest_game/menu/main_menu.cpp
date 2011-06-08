@@ -82,12 +82,12 @@ MainMenu::~MainMenu() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MainMenu::init(){
+void MainMenu::init() {
 	Renderer::getInstance().initMenu(this);
 }
 
 //asynchronus render update
-void MainMenu::render(){
+void MainMenu::render() {
 
 	Config &config= Config::getInstance();
 	Renderer &renderer= Renderer::getInstance();
@@ -110,7 +110,6 @@ void MainMenu::render(){
 	state->render();
     renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 
-    //if(config.getBool("DebugMode")){
 	if(renderer.getShowDebugUI() == true) {
 		renderer.renderText(
 			"FPS: " + intToStr(lastFps),

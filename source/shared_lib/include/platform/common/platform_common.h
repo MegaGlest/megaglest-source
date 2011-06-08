@@ -213,6 +213,8 @@ string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE);
 string executable_path(string exeName,bool includeExeNameInPath=false);
 
+bool valid_utf8_file(const char* file_name);
+
 class ValueCheckerVault {
 
 protected:

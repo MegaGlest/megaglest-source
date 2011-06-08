@@ -18,6 +18,7 @@
 #include "platform_util.h"
 #include "game_constants.h"
 #include "game_util.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -30,7 +31,12 @@ namespace Glest{ namespace Game{
 // 	class Lang
 // =====================================================
 
-Lang &Lang::getInstance(){
+Lang::Lang() {
+	language 			= "";
+	is_utf8_language 	= false;
+}
+
+Lang &Lang::getInstance() {
 	static Lang lang;
 	return lang;
 }
@@ -47,7 +53,12 @@ void Lang::loadStrings(const string &language, Properties &properties, bool file
 	if(fileMustExist == false && fileExists(languageFile) == false) {
 		return;
 	}
+	is_utf8_language = valid_utf8_file(languageFile.c_str());
 	properties.load(languageFile);
+}
+
+bool Lang::isUTF8Language() const {
+	return is_utf8_language;
 }
 
 void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenarioName){

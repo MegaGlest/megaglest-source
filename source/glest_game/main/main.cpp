@@ -125,6 +125,7 @@ const char  *GAME_ARGS[] = {
 	"--disable-backtrace",
 	"--disable-vbo",
 	"--disable-sound",
+	"--enable-legacyfonts",
 	"--verbose"
 
 };
@@ -159,6 +160,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_BACKTRACE,
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_DISABLE_SOUND,
+	GAME_ARG_ENABLE_LEGACYFONTS,
 	GAME_ARG_VERBOSE_MODE
 };
 
@@ -1058,6 +1060,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 	printf("\n%s\t\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
 	printf("\n%s\t\t\tdisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
+
+	printf("\n%s\t\t\tenables using the legacy font system.",GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]);
 
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 
@@ -2445,6 +2449,11 @@ int glestMain(int argc, char** argv) {
 	    	TextureGl::setEnableATIHacks(enableATIHacks);
 	    }
 
+        if(config.getBool("EnableLegacyFonts","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]) == true) {
+        	Font::forceLegacyFonts = true;
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Forcing Legacy Fonts Enabled\n");
+        }
+
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
@@ -2573,6 +2582,10 @@ int glestMain(int argc, char** argv) {
 #endif
         }
 
+        if(	lang.hasString("FONT_YOFFSET_FACTOR")) {
+        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR"));
+		}
+
 #if defined(WIN32)
         // Win32 overrides for fonts (just in case they must be different)
         if(	lang.hasString("FONT_CHARCOUNT_WINDOWS")) {
@@ -2597,6 +2610,10 @@ int glestMain(int argc, char** argv) {
 			string newEnvValue = "MEGAGLEST_FONT=" + lang.get("MEGAGLEST_FONT_WINDOWS");
 			_putenv(newEnvValue.c_str());
         }
+
+        if(	lang.hasString("FONT_YOFFSET_FACTOR_WINDOWS")) {
+        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR_WINDOWS"));
+		}
 
         // end win32
 #endif

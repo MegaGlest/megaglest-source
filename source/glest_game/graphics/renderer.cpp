@@ -159,6 +159,7 @@ Renderer::Renderer() {
 	showDebugUILevel = debugui_fps;
 	modelRenderer = NULL;
 	textRenderer = NULL;
+	textRenderer3D = NULL;
 	particleRenderer = NULL;
 	saveScreenShotThread = NULL;
 	mapSurfaceData.clear();
@@ -191,6 +192,7 @@ Renderer::Renderer() {
 
 	modelRenderer= graphicsFactory->newModelRenderer();
 	textRenderer= graphicsFactory->newTextRenderer2D();
+	textRenderer3D = graphicsFactory->newTextRenderer3D();
 	particleRenderer= graphicsFactory->newParticleRenderer();
 
 	//resources
@@ -238,6 +240,8 @@ Renderer::~Renderer() {
 	modelRenderer = NULL;
 	delete textRenderer;
 	textRenderer = NULL;
+	delete textRenderer3D;
+	textRenderer3D = NULL;
 	delete particleRenderer;
 	particleRenderer = NULL;
 
@@ -579,6 +583,10 @@ Font2D *Renderer::newFont(ResourceScope rs){
 	return fontManager[rs]->newFont2D();
 }
 
+Font3D *Renderer::newFont3D(ResourceScope rs){
+	return fontManager[rs]->newFont3D();
+}
+
 void Renderer::manageParticleSystem(ParticleSystem *particleSystem, ResourceScope rs){
 	particleManager[rs]->manage(particleSystem);
 }
@@ -687,9 +695,11 @@ void Renderer::loadGameCameraMatrix() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glRotatef(gameCamera->getVAng(), -1, 0, 0);
-	glRotatef(gameCamera->getHAng(), 0, 1, 0);
-	glTranslatef(-gameCamera->getPos().x, -gameCamera->getPos().y, -gameCamera->getPos().z);
+	if(gameCamera != NULL) {
+		glRotatef(gameCamera->getVAng(), -1, 0, 0);
+		glRotatef(gameCamera->getHAng(), 0, 1, 0);
+		glTranslatef(-gameCamera->getPos().x, -gameCamera->getPos().y, -gameCamera->getPos().z);
+	}
 }
 
 void Renderer::loadCameraMatrix(const Camera *camera) {
@@ -1229,7 +1239,43 @@ Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 	return textPos;
 }
 
-void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, int y, bool centered){
+Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
+	if(font == NULL) {
+		throw runtime_error("font == NULL");
+	}
+	const Metrics &metrics= Metrics::getInstance();
+	FontMetrics *fontMetrics= font->getMetrics();
+
+	if(fontMetrics == NULL) {
+		throw runtime_error("fontMetrics == NULL");
+	}
+
+	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text) / 2.f) : 5);
+	int virtualY = (fontMetrics->getHeight() > 0 ? static_cast<int>(fontMetrics->getHeight() / 2.f) : 5);
+
+	Vec2i textPos(
+		x-metrics.toVirtualX(virtualX),
+		y-metrics.toVirtualY(virtualY));
+
+	return textPos;
+}
+
+void Renderer::renderText3D(const string &text, Font3D *font, float alpha, int x, int y, bool centered) {
+	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glEnable(GL_BLEND);
+	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
+
+	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
+	//Vec2i pos= Vec2i(x, y);
+
+	textRenderer3D->begin(font);
+	textRenderer3D->render(text, pos.x, pos.y, font->getSize());
+	textRenderer3D->end();
+
+	glPopAttrib();
+}
+
+void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, int y, bool centered) {
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
@@ -1243,6 +1289,19 @@ void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, 
 	glPopAttrib();
 }
 
+void Renderer::renderText3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, bool centered) {
+	glPushAttrib(GL_CURRENT_BIT);
+	glColor3fv(color.ptr());
+
+	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
+
+	textRenderer3D->begin(font);
+	textRenderer3D->render(text, pos.x, pos.y);
+	textRenderer3D->end();
+
+	glPopAttrib();
+}
+
 void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, int x, int y, bool centered){
 	glPushAttrib(GL_CURRENT_BIT);
 	glColor3fv(color.ptr());
@@ -1252,6 +1311,20 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, 
 	textRenderer->begin(font);
 	textRenderer->render(text, pos.x, pos.y);
 	textRenderer->end();
+
+	glPopAttrib();
+}
+
+void Renderer::renderText3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, bool centered) {
+	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glEnable(GL_BLEND);
+	glColor4fv(color.ptr());
+
+	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
+
+	textRenderer3D->begin(font);
+	textRenderer3D->render(text, pos.x, pos.y);
+	textRenderer3D->end();
 
 	glPopAttrib();
 }
@@ -1270,6 +1343,29 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec4f &color, 
 	glPopAttrib();
 }
 
+void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &color, int x, int y, bool centered) {
+	if(font == NULL) {
+		throw runtime_error("font == NULL");
+	}
+
+	glPushAttrib(GL_CURRENT_BIT);
+
+	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
+
+	textRenderer3D->begin(font);
+	if(color.w < 0.5)	{
+		glColor3f(0.0f, 0.0f, 0.0f);
+
+		textRenderer3D->render(text, pos.x-1.0f, pos.y-1.0f);
+	}
+	glColor3f(color.x,color.y,color.z);
+
+	textRenderer3D->render(text, pos.x, pos.y);
+	textRenderer3D->end();
+
+	glPopAttrib();
+}
+
 void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &color, int x, int y, bool centered){
 	if(font == NULL) {
 		throw runtime_error("font == NULL");
@@ -1280,11 +1376,13 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
 	textRenderer->begin(font);
-	if(color.w<0.5)	{
+	if(color.w < 0.5)	{
 		glColor3f(0.0f, 0.0f, 0.0f);
+
 		textRenderer->render(text, pos.x-1.0f, pos.y-1.0f);
 	}
 	glColor3f(color.x,color.y,color.z);
+
 	textRenderer->render(text, pos.x, pos.y);
 	textRenderer->end();
 
@@ -1460,9 +1558,16 @@ void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverrid
 	Vec2i textPos= Vec2i(x+w/2, y+h/2);
 
 	if(button->getEditable()) {
+		Font2D *font = button->getFont();
+		//Font3D *font3d = ConvertFont2DTo3D(button->getFont());
 		renderText(
-			button->getText(), button->getFont(), color,
+			button->getText(), font, color,
 			x+w/2, y+h/2, true);
+		//delete font3d;
+
+//		renderText(
+//			button->getText(), button->getFont(), color,
+//			x+w/2, y+h/2, true);
 	}
 	else {
 		renderText(
@@ -4676,6 +4781,60 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 	glEnd();
 }
 
+void Renderer::renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth,
+		string prefixLabel,bool centeredText) {
+
+    int currentSize     = size;
+    int maxSize         = maxProgressBar;
+    string renderText   = intToStr(static_cast<int>(size)) + "%";
+    if(customWidth > 0) {
+        if(size > 0) {
+            currentSize     = (int)((double)customWidth * ((double)size / 100.0));
+        }
+        maxSize         = customWidth;
+        if(maxSize <= 0) {
+        	maxSize = maxProgressBar;
+        }
+    }
+    if(prefixLabel != "") {
+        renderText = prefixLabel + renderText;
+    }
+
+	//bar
+	glBegin(GL_QUADS);
+		glColor4fv(progressBarFront2.ptr());
+		glVertex2i(x, y);
+		glVertex2i(x, y+10);
+		glColor4fv(progressBarFront1.ptr());
+		glVertex2i(x + currentSize, y+10);
+		glVertex2i(x + currentSize, y);
+	glEnd();
+
+	//transp bar
+	glEnable(GL_BLEND);
+	glBegin(GL_QUADS);
+		glColor4fv(progressBarBack2.ptr());
+		glVertex2i(x + currentSize, y);
+		glVertex2i(x + currentSize, y+10);
+		glColor4fv(progressBarBack1.ptr());
+		glVertex2i(x + maxSize, y+10);
+		glVertex2i(x + maxSize, y);
+	glEnd();
+	glDisable(GL_BLEND);
+
+	//text
+	glColor3fv(defColor.ptr());
+
+	textRenderer3D->begin(font);
+	if(centeredText == true) {
+		textRenderer3D->render(renderText.c_str(), x + maxSize / 2, y, centeredText);
+	}
+	else {
+		textRenderer3D->render(renderText.c_str(), x, y, centeredText);
+	}
+	textRenderer3D->end();
+}
+
 void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int customWidth,
 		string prefixLabel,bool centeredText) {
 
@@ -4719,6 +4878,7 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
 
 	//text
 	glColor3fv(defColor.ptr());
+
 	textRenderer->begin(font);
 	if(centeredText == true) {
 		textRenderer->render(renderText.c_str(), x + maxSize / 2, y, centeredText);

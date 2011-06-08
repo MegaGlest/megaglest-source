@@ -13,16 +13,17 @@
 #include <stdexcept>
 #include "conversion.h"
 
-#include "font_text.h"
 #ifdef USE_FTGL
+
 #include "font_textFTGL.h"
 #include <vector>
 #include <algorithm>
-//#include "string_utils.h"
 using namespace Shared::Util;
 using namespace Shared::Graphics::Gl;
+
 #endif
 
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -31,9 +32,11 @@ using namespace Shared::Util;
 namespace Shared { namespace Graphics {
 
 // Init statics
-int Font::charCount				= 256;
-std::string Font::fontTypeName 	= "Times New Roman";
-bool Font::fontIsMultibyte 		= false;
+int Font::charCount							= 256;
+std::string Font::fontTypeName 				= "Times New Roman";
+bool Font::fontIsMultibyte 					= false;
+bool Font::forceLegacyFonts					= false;
+float FontMetrics::DEFAULT_Y_OFFSET_FACTOR	= 8.0f;
 //
 
 // =====================================================
@@ -44,6 +47,7 @@ FontMetrics::FontMetrics(Text *textHandler) {
 	this->textHandler 	= textHandler;
 	this->widths		= new float[Font::charCount];
 	this->height		= 0;
+	this->yOffsetFactor = FontMetrics::DEFAULT_Y_OFFSET_FACTOR;
 
 	for(int i=0; i < Font::charCount; ++i) {
 		widths[i]= 0;
@@ -53,6 +57,14 @@ FontMetrics::FontMetrics(Text *textHandler) {
 FontMetrics::~FontMetrics() {
 	delete [] widths;
 	widths = NULL;
+}
+
+void FontMetrics::setYOffsetFactor(float yOffsetFactor) {
+	this->yOffsetFactor = yOffsetFactor;
+}
+
+float FontMetrics::getYOffsetFactor() const {
+	return this->yOffsetFactor;
 }
 
 void FontMetrics::setTextHandler(Text *textHandler) {
@@ -100,15 +112,27 @@ float FontMetrics::getHeight() const {
 //	class Font
 // ===============================================
 
-Font::Font() {
+Font::Font(FontTextHandlerType type) {
 	inited		= false;
-	type		= fontTypeName;
+	this->type	= fontTypeName;
 	width		= 400;
+	size 		= 10;
 	textHandler = NULL;
 
 #ifdef USE_FTGL
-	textHandler = new TextFTGL();
-	metrics.setTextHandler(this->textHandler);
+
+	if(Font::forceLegacyFonts == false) {
+		try {
+			textHandler = NULL;
+			textHandler = new TextFTGL(type);
+			metrics.setTextHandler(this->textHandler);
+		}
+		catch(exception &ex) {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			textHandler = NULL;
+		}
+	}
+
 #endif
 }
 
@@ -119,12 +143,32 @@ Font::~Font() {
 	textHandler = NULL;
 }
 
+void Font::setYOffsetFactor(float yOffsetFactor) {
+	metrics.setYOffsetFactor(yOffsetFactor);
+}
+
+float Font::getYOffsetFactor() const {
+	return metrics.getYOffsetFactor();
+}
+
+string Font::getType() const {
+	return this->type;
+}
+
 void Font::setType(string typeX11, string typeGeneric) {
 	if(textHandler) {
-		textHandler->init(typeGeneric,textHandler->GetFaceSize());
+		try {
+			this->type= typeGeneric;
+			textHandler->init(typeGeneric,textHandler->GetFaceSize());
+			metrics.setTextHandler(this->textHandler);
+		}
+		catch(exception &ex) {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			textHandler = NULL;
+		}
 	}
-	else {
-		this->type= type;
+	if(textHandler == NULL) {
+		this->type= typeX11;
 	}
 }
 
@@ -136,15 +180,7 @@ int Font::getWidth() const	{
 	return width;
 }
 
-// ===============================================
-//	class Font2D
-// ===============================================
-
-Font2D::Font2D() {
-	size = 10;
-}
-
-int Font2D::getSize() const	{
+int Font::getSize() const	{
 	if(textHandler) {
 		return textHandler->GetFaceSize();
 	}
@@ -152,7 +188,7 @@ int Font2D::getSize() const	{
 		return size;
 	}
 }
-void Font2D::setSize(int size)	{
+void Font::setSize(int size)	{
 	if(textHandler) {
 		return textHandler->SetFaceSize(size);
 	}
@@ -162,10 +198,17 @@ void Font2D::setSize(int size)	{
 }
 
 // ===============================================
+//	class Font2D
+// ===============================================
+
+Font2D::Font2D(FontTextHandlerType type) : Font(type) {
+}
+
+// ===============================================
 //	class Font3D
 // ===============================================
 
-Font3D::Font3D() {
+Font3D::Font3D(FontTextHandlerType type) : Font(type) {
 	depth= 10.f;
 }
 
