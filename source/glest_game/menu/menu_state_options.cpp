@@ -267,6 +267,15 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxDisableScreenshotConsoleText.setValue(!config.getBool("DisableScreenshotConsoleText","false"));
 	currentLine-=30;
 
+	labelVisibleHud.registerGraphicComponent(containerName,"lavelVisibleHud");
+	labelVisibleHud.init(currentLabelStart ,currentLine);
+	labelVisibleHud.setText(lang.get("VisibleHUD"));
+
+	checkBoxVisibleHud.registerGraphicComponent(containerName,"checkBoxVisibleHud");
+	checkBoxVisibleHud.init(currentColumnStart ,currentLine );
+	checkBoxVisibleHud.setValue(config.getBool("VisibleHud","true"));
+	currentLine-=30;
+
 	// end
 
 	//////////////////////////////////////////////////////////////////
@@ -615,8 +624,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
         listBoxScreenShotType.mouseClick(x, y);
 
-        labelDisableScreenshotConsoleText.mouseClick(x, y);
         checkBoxDisableScreenshotConsoleText.mouseClick(x, y);
+        checkBoxVisibleHud.mouseClick(x, y);
 	}
 }
 
@@ -646,21 +655,15 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxFullscreenWindowed.mouseMove(x, y);
 	listFontSizeAdjustment.mouseMove(x, y);
 	listBoxPublishServerExternalPort.mouseMove(x, y);
-
 	checkBoxEnableFTP.mouseMove(x, y);
 	checkBoxEnableFTPServer.mouseMove(x, y);
-
     checkBoxEnableFTPServerInternetTilesetXfer.mouseMove(x, y);
     checkBoxEnableFTPServerInternetTechtreeXfer.mouseMove(x, y);
-
 	checkBoxEnablePrivacy.mouseMove(x, y);
-
 	checkBoxEnableTextureCompression.mouseMove(x, y);
-
 	listBoxScreenShotType.mouseMove(x, y);
-
-    labelDisableScreenshotConsoleText.mouseMove(x, y);
     checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
+    checkBoxVisibleHud.mouseMove(x, y);
 }
 
 bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
@@ -791,6 +794,9 @@ void MenuStateOptions::render(){
 
         renderer.renderLabel(&labelDisableScreenshotConsoleText);
         renderer.renderCheckBox(&checkBoxDisableScreenshotConsoleText);
+
+        renderer.renderLabel(&labelVisibleHud);
+        renderer.renderCheckBox(&checkBoxVisibleHud);
 	}
 
 	renderer.renderConsole(&console,false,true);
@@ -841,6 +847,7 @@ void MenuStateOptions::saveConfig(){
     config.setString("ScreenShotFileType", listBoxScreenShotType.getSelectedItem());
 
     config.setBool("DisableScreenshotConsoleText", !checkBoxDisableScreenshotConsoleText.getValue());
+    config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();

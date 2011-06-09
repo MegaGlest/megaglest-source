@@ -115,6 +115,7 @@ private:
 	int renderFpsAvgTest;
 
 	bool photoModeEnabled;
+	bool visibleHUD;
 	Program *program;
 
 	bool gameStarted;
