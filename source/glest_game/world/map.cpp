@@ -983,7 +983,7 @@ Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const 
 
 	float bestRange = -1;
 
-	Vec2i start = pos - Vec2i(ut->getSize());
+	Vec2i start = pos - Vec2i(unit->getType()->getSize());
 	Vec2i end 	= pos + Vec2i(ut->getSize());
 
 	for(int i = start.x; i <= end.x; ++i) {
