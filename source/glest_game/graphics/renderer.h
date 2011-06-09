@@ -382,6 +382,7 @@ public:
 
 	void renderSelectionEffects();
 	void renderWaterEffects();
+	void renderHud();
 	void renderMinimap();
     void renderDisplay();
 	void renderMenuBackground(const MenuBackground *menuBackground);
