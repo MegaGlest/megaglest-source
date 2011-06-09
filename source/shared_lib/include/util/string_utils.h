@@ -610,6 +610,11 @@ namespace Shared { namespace Util {
 	};
 
 
+	void strrev(char *p);
+	void strrev_utf8(char *p);
+	void strrev_utf8(std::string &p);
+	bool is_string_all_ascii(std::string str);
+
 }} // namespace TA3D
 
 #endif // _SHARED_UTIL_W_STRING_H__
