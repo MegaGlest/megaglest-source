@@ -21,6 +21,7 @@
 #include "randomgen.h"
 #include <map>
 #include "object.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using Shared::Util::RandomGen;
@@ -131,6 +132,7 @@ private:
 	int selectionCalculationFrameSkip;
 	int minQuadSize;
 
+	Chrono lastGroupRecallTime;
 	//states
 	bool selectingBuilding;
 	bool selectingPos;
