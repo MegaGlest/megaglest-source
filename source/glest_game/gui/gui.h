@@ -139,6 +139,8 @@ private:
 	CardinalDir selectedBuildingFacing;
 	const Object *selectedResourceObject;
 
+	Texture2D* hudTexture;
+
 public:
 	Gui();
 	void init(Game *game);
@@ -150,6 +152,9 @@ public:
 	//get
 	Vec2i getPosObjWorld() const			{return posObjWorld;}
 	const UnitType *getBuilding() const;
+
+	Texture2D *getHudTexture() const {return hudTexture;}
+	void setHudTexture(Texture2D* value) { hudTexture = value;}
 
 	const Mouse3d *getMouse3d() const				{return &mouse3d;}
 	const Display *getDisplay()	const				{return &display;}

@@ -1407,7 +1407,8 @@ void runTechValidationForPath(string techPath, string techName,
 				for(unsigned int j = 0; j < foundFiles.size(); ++j) {
 					string file = foundFiles[j];
 					if(	file.find("loading_screen") != string::npos ||
-						file.find("preview_screen") != string::npos) {
+							file.find("preview_screen") != string::npos ||
+							file.find("hud") != string::npos) {
 						continue;
 					}
 					if(file.find("/factions/") != string::npos) {

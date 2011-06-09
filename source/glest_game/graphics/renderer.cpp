@@ -3044,6 +3044,15 @@ void Renderer::renderWaterEffects(){
 	assertGl();
 }
 
+void Renderer::renderHud(){
+	const Metrics &metrics= Metrics::getInstance();
+	const World *world= game->getWorld();
+	Texture2D *hudTexture=game->getGui()->getHudTexture();
+	if(hudTexture!=NULL){
+		renderTextureQuad(0, 0, metrics.getVirtualW(), metrics.getVirtualH(),hudTexture,1.0f);
+	}
+}
+
 void Renderer::renderMinimap(){
     const World *world= game->getWorld();
 	const Minimap *minimap= world->getMinimap();

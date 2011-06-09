@@ -353,6 +353,48 @@ string Game::extractTechLogoFile(string scenarioDir, string techName,
     return result;
 }
 
+void Game::loadHudTexture(const GameSettings *settings)
+{
+	string factionName = "";
+	string techName			= settings->getTech();
+	string scenarioDir =settings->getScenarioDir();
+
+	for(int i=0; i < settings->getFactionCount(); ++i ) {
+		if(settings->getFactionControl(i) == ctHuman){
+			factionName= settings->getFactionTypeName(i);
+			break;
+		}
+	}
+	if(factionName != ""){
+		Config &config= Config::getInstance();
+		vector<string> pathList= config.getPathListForType(ptTechs, scenarioDir);
+		for(int idx= 0; idx < pathList.size(); idx++){
+			string currentPath= pathList[idx];
+			endPathWithSlash(currentPath);
+
+			vector<string> hudList;
+			string path= currentPath + techName + "/" + "factions" + "/" + factionName;
+			endPathWithSlash(path);
+			findAll(path + "hud.*", hudList, false, false);
+			if(hudList.size() > 0){
+				string hudImageFileName= path + hudList[0];
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for a HUD '%s'\n",__FILE__,__FUNCTION__,__LINE__,hudImageFileName.c_str());
+
+				if(fileExists(hudImageFileName) == true){
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found HUD image '%s'\n",__FILE__,__FUNCTION__,__LINE__,hudImageFileName.c_str());
+
+					Texture2D* texture= Renderer::findFactionLogoTexture(hudImageFileName);
+					gui.setHudTexture(texture);
+					//printf("Hud texture found! \n");
+					break;
+				}
+			}
+		}
+	}
+}
+
 string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,
 		string factionLogoFilter) {
 	string result = "";
@@ -482,6 +524,8 @@ void Game::load(LoadGameItem loadTypes) {
 		Window::handleEvent();
 		SDL_PumpEvents();
 	}
+
+	loadHudTexture(&gameSettings);
 
     string scenarioDir = "";
     if(gameSettings.getScenarioDir() != "") {
@@ -1839,6 +1883,9 @@ void Game::render2d(){
 
 	//init
 	renderer.reset2d();
+
+	//HUD
+	renderer.renderHud();
 
 	//display
 	renderer.renderDisplay();

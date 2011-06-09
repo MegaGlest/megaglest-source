@@ -110,6 +110,7 @@ Gui::Gui(){
 	selectionCalculationFrameSkip=10;
 	minQuadSize=20;
 	selectedResourceObject=NULL;
+	hudTexture=NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -125,6 +126,10 @@ void Gui::init(Game *game){
 
 void Gui::end(){
 	selection.clear();
+	if(hudTexture != NULL) {
+		Renderer::getInstance().endTexture(rsGlobal, hudTexture, false);
+	}
+	hudTexture = NULL;
 }
 
 // ==================== get ====================

@@ -183,6 +183,7 @@ public:
 	static string extractFactionLogoFile(bool &loadingImageUsed, string factionName, string scenarioDir, string techName, Logger *logger=NULL, string factionLogoFilter="loading_screen.*");
 	static string extractTechLogoFile(string scenarioDir, string techName, bool &loadingImageUsed, Logger *logger=NULL,string factionLogoFilter="loading_screen.*");
 
+	void loadHudTexture(const GameSettings *settings);
 
 	bool getGameOver() { return gameOver; }
 	bool hasGameStarted() { return gameStarted;}
