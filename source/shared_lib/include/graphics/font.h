@@ -64,6 +64,7 @@ public:
 	static std::string fontTypeName;
 	static bool fontIsMultibyte;
 	static bool forceLegacyFonts;
+	static bool fontIsRightToLeft;
 	
 public:
 	enum Width {

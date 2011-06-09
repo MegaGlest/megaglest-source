@@ -351,6 +351,80 @@ namespace internal
             (internal::mask8(*it))   == bom[2]
            );
     }
+
+
+/*
+    //const uint8_t rlm[] = {0xe2, 0x80, 0x8f};
+    const uint8_t rlm1[] = {0x20, 0x0f};
+    const uint8_t rlm2[] = {0x20, 0x2b};
+    const uint8_t rlm3[] = {0x20, 0x2e};
+
+    template <typename octet_iterator>
+    inline bool starts_with_rlm (octet_iterator it, octet_iterator end)
+    {
+    	int rlmMatchCount = 0;
+    	uint32_t code_point = 0;
+        octet_iterator result = it;
+        while (result != end) {
+            internal::utf_error err_code = internal::validate_next(result, end, &code_point);
+            if (err_code != internal::UTF8_OK) {
+                return false;
+            }
+            else {
+
+            	if( (code_point == rlm1[0] && rlmMatchCount == 0) ||
+            		(code_point == rlm1[1] && rlmMatchCount == 1)) {
+            		//printf("#1 FOUND rlm: [%X][%c]\n",code_point,code_point);
+            		rlmMatchCount++;
+            	}
+            	else if( (code_point == rlm2[0] && rlmMatchCount == 0) ||
+            		(code_point == rlm2[1] && rlmMatchCount == 1)) {
+            		//printf("#2 FOUND rlm: [%X][%c]\n",code_point,code_point);
+            		rlmMatchCount++;
+            	}
+            	else if( (code_point == rlm3[0] && rlmMatchCount == 0) ||
+            		(code_point == rlm3[1] && rlmMatchCount == 1)) {
+            		//printf("#3 FOUND rlm: [%X][%c]\n",code_point,code_point);
+            		rlmMatchCount++;
+            	}
+            	else {
+            		rlmMatchCount = 0;
+            	}
+
+            	if(rlmMatchCount == 2) {
+            		return true;
+            	}
+
+            	//if(rlmMatchCount == 0 && code_point == rlm[0]) {
+            	//	rlmMatchCount++;
+            	//}
+            	//if(rlmMatchCount == 1 && code_point == rlm[1]) {
+            	//	rlmMatchCount++;
+            	//	return true;
+            	//}
+//            	if(rlmMatchCount == 2 && code_point == rlm[2]) {
+//            		rlmMatchCount++;
+//
+//            		return true;
+//            	}
+
+//                if(((result != end) && (internal::mask8(*result)) 	   == rlm[0]) &&
+//                   ((result != end) && (internal::mask8(*result + 1))  == rlm[1]) &&
+//                   ((result != end) && (internal::mask8(*result + 2))  == rlm[2])) {
+//                	return true;
+//                }
+
+            }
+        }
+        return false;
+
+//        return (
+//            ((it != end) && (internal::mask8(*it++)) == rlm[0]) &&
+//            ((it != end) && (internal::mask8(*it++)) == rlm[1]) &&
+//            ((it != end) && (internal::mask8(*it))   == rlm[2])
+//           );
+    }
+*/
 } // namespace utf8
 
 #endif // header guard

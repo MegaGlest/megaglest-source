@@ -2466,6 +2466,8 @@ int glestMain(int argc, char** argv) {
 		Font::charCount    		= config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());
 		Font::fontTypeName 		= config.getString("FONT_TYPENAME",Font::fontTypeName.c_str());
 		Font::fontIsMultibyte 	= config.getBool("FONT_MULTIBYTE",intToStr(Font::fontIsMultibyte).c_str());
+		Font::fontIsRightToLeft	= config.getBool("FONT_RIGHTTOLEFT",intToStr(Font::fontIsRightToLeft).c_str());
+
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
 		// GB2312_CHARSET (Chinese)  = 134
@@ -2487,7 +2489,7 @@ int glestMain(int argc, char** argv) {
         // Setup debug logging etc
 		setupLogging(config, haveSpecialOutputCommandLineOption);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte, Font::fontIsRightToLeft);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
@@ -2573,6 +2575,10 @@ int glestMain(int argc, char** argv) {
         	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE"));
         }
 
+        if(	lang.hasString("FONT_RIGHTTOLEFT")) {
+        	Font::fontIsRightToLeft	= strToBool(lang.get("FONT_RIGHTTOLEFT"));
+        }
+
         if(	lang.hasString("MEGAGLEST_FONT")) {
         	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
 #if defined(WIN32)
@@ -2606,6 +2612,10 @@ int glestMain(int argc, char** argv) {
         if(	lang.hasString("FONT_MULTIBYTE_WINDOWS")) {
         	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE_WINDOWS"));
         }
+        if(	lang.hasString("FONT_RIGHTTOLEFT_WINDOWS")) {
+        	Font::fontIsRightToLeft	= strToBool(lang.get("FONT_RIGHTTOLEFT_WINDOWS"));
+        }
+
         if(	lang.hasString("MEGAGLEST_FONT_WINDOWS")) {
         	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
 			string newEnvValue = "MEGAGLEST_FONT=" + lang.get("MEGAGLEST_FONT_WINDOWS");
@@ -2618,8 +2628,8 @@ int glestMain(int argc, char** argv) {
 
         // end win32
 #endif
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d\n",Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte,Font::fontIsRightToLeft);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte,Font::fontIsRightToLeft);
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

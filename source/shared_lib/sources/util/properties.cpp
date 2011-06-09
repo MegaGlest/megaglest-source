@@ -299,6 +299,11 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 			memcpy(&lineBuffer[0],&utfStr[0],strlen(utfStr));
 		}
 
+//		bool isRLM = utf8::starts_with_rlm(&lineBuffer[0], &lineBuffer[0] + strlen(lineBuffer));
+//		if(isRLM) {
+//			printf("\n\nORIGINAL TEXT [%s] isRLM = %d\n\n",&lineBuffer[0],isRLM);
+//		}
+
 		//if(is_utf8_language == true && Font::forceLegacyFonts == true) {
 			//string line = lineBuffer;
 			//wstring wstr = fromUtf8(line.c_str(), line.size());

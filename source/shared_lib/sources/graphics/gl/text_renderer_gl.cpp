@@ -17,7 +17,11 @@
 #include "font_text.h"
 #include <vector>
 #include <algorithm>
+#include "string_utils.h"
+#include "utf8.h"
 #include "leak_dumper.h"
+
+using namespace Shared::Util;
 
 namespace Shared { namespace Graphics { namespace Gl {
 
@@ -56,21 +60,6 @@ void TextRenderer2DGl::begin(Font2D *font) {
 	assert(!rendering);
 	rendering	= true;
 }
-
-// Convert a narrow string to a wide string//
-//std::wstring widen(const std::string& str) {
-//	// Make space for wide string
-//	wchar_t* buffer = new wchar_t[str.size() + 1];
-//	// convert ASCII to UNICODE
-//	mbstowcs( buffer, str.c_str(), str.size() );
-//	// NULL terminate it
-//	buffer[str.size()] = 0;
-//	// Clean memory and return it
-//	std::wstring wstr = buffer;
-//	delete [] buffer;
-//	return wstr;
-//}
-// Widen an individual character
 
 void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, Vec3f *color) {
 	//tester->render(text, x, y, this->font->getWidth(),centered);
@@ -116,11 +105,32 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 	}
 	glRasterPos2f(rasterPos.x, rasterPos.y);
 
+	//fontFTGL->Render("مرحبا العالم"); //Arabic Works!
+	//wstring temp = L"المدى";
+	//temp = wstring (temp.rbegin(), temp.rend());
+	//font->getTextHandler()->Render(temp.c_str());
+	//return;
+
 	//font->getTextHandler()->Render("Zurück");
 	//return;
 
 	if(Font::fontIsMultibyte == true) {
 		if(font->getTextHandler() != NULL) {
+			string renderText = text;
+			if(Font::fontIsRightToLeft == true) {
+				//printf("\n\n#A [%s]\n",renderText.c_str());
+				//bool isRLM = utf8::starts_with_rlm(text.begin(), text.end() + text.size());
+
+				//printf("\n\nORIGINAL TEXT [%s] isRLM = %d\n\n",text.c_str(),isRLM);
+				//for(int i = 0; i < renderText.size(); ++i) {
+				//	printf("i = %d c [%c][%d][%X]\n",i,renderText[i],renderText[i],renderText[i]);
+				//}
+				//if(isRLM == true) {
+				if(is_string_all_ascii(renderText) == false) {
+					strrev_utf8(renderText);
+				}
+			}
+
 			//String str("資料");
 			//WString wstr(str);
 			//fontFTGL->Render(wstr.cw_str());
@@ -169,19 +179,19 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 			// This works
 			//fontFTGL->Render(text.c_str());
 
-			if(text.find("\n") == text.npos && text.find("\t") == text.npos) {
-				font->getTextHandler()->Render(text.c_str());
+			if(renderText.find("\n") == renderText.npos && renderText.find("\t") == renderText.npos) {
+				font->getTextHandler()->Render(renderText.c_str());
 			}
 			else {
 				bool lastCharacterWasSpecial = true;
 				vector<string> parts;
 				char szBuf[4096]="";
 
-				for (int i=0; text[i] != '\0'; ++i) {
+				for (int i=0; renderText[i] != '\0'; ++i) {
 					szBuf[0] = '\0';
-					sprintf(szBuf,"%c",text[i]);
+					sprintf(szBuf,"%c",renderText[i]);
 
-					switch(text[i]) {
+					switch(renderText[i]) {
 						case '\t':
 							parts.push_back(szBuf);
 							lastCharacterWasSpecial = true;
@@ -236,6 +246,12 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 			//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
 
 			string utfText = text;
+			if(Font::fontIsRightToLeft == true) {
+				if(is_string_all_ascii(utfText) == false) {
+					strrev_utf8(utfText);
+				}
+			}
+
 			glListBase(font->getHandle());
 			glCallLists(text.length(), GL_UNSIGNED_SHORT, &utext[0]);
 
@@ -250,19 +266,26 @@ void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, V
 	}
 	else {
 		if(font->getTextHandler() != NULL) {
-			if(text.find("\n") == text.npos && text.find("\t") == text.npos) {
-				font->getTextHandler()->Render(text.c_str());
+			string renderText = text;
+			if(Font::fontIsRightToLeft == true) {
+				if(is_string_all_ascii(renderText) == false) {
+					strrev_utf8(renderText);
+				}
+			}
+
+			if(renderText.find("\n") == renderText.npos && renderText.find("\t") == renderText.npos) {
+				font->getTextHandler()->Render(renderText.c_str());
 			}
 			else {
 				bool lastCharacterWasSpecial = true;
 				vector<string> parts;
 				char szBuf[4096]="";
 
-				for (int i=0; text[i] != '\0'; ++i) {
+				for (int i=0; renderText[i] != '\0'; ++i) {
 					szBuf[0] = '\0';
-					sprintf(szBuf,"%c",text[i]);
+					sprintf(szBuf,"%c",renderText[i]);
 
-					switch(text[i]) {
+					switch(renderText[i]) {
 						case '\t':
 							parts.push_back(szBuf);
 							lastCharacterWasSpecial = true;

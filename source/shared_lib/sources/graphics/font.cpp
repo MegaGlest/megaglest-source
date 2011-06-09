@@ -37,6 +37,7 @@ std::string Font::fontTypeName 				= "Times New Roman";
 bool Font::fontIsMultibyte 					= false;
 bool Font::forceLegacyFonts					= false;
 float FontMetrics::DEFAULT_Y_OFFSET_FACTOR	= 8.0f;
+bool Font::fontIsRightToLeft				= false;
 //
 
 // =====================================================
