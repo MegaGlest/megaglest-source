@@ -729,11 +729,14 @@ namespace Shared { namespace Util {
 	}
 
 	void strrev_utf8(std::string &p) {
-		char szBuf[p.size()+1];
+		int bufSize = p.size()+1;
+		char *szBuf = new char[bufSize];
 		strcpy(szBuf,p.c_str());
-		szBuf[p.size()+1] = '\0';
+		szBuf[bufSize] = '\0';
 		strrev_utf8(&szBuf[0]);
 		p = szBuf;
+
+		delete [] szBuf;
 	}
 
 	bool is_string_all_ascii(std::string str) {
