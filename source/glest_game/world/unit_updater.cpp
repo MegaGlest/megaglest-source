@@ -483,7 +483,17 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 			else {
 				//if unit arrives destPos order has ended
 				switch (tsValue) {
-
+					case tsMoving:
+						unit->setCurrSkill(act->getMoveSkillType());
+						break;
+					case tsBlocked:
+						if(unit->getPath()->isBlocked()) {
+							unit->finishCommand();
+						}
+						break;
+					default:
+						unit->finishCommand();
+					}
 /*
 					case tsMoving:
 						unit->setCurrSkill(act->getMoveSkillType());
@@ -514,7 +524,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 						}
 
 						break;
-*/
+
 					case tsBlocked:
 						if(unit->getPath()->isBlocked()){
 							unit->finishCommand();
@@ -523,6 +533,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 					default:
 						unit->finishCommand();
 				}
+*/
 			}
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
