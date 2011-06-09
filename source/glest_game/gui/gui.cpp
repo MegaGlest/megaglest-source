@@ -311,7 +311,9 @@ void Gui::groupKey(int groupIndex) {
 	else{
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
 
-		if(lastGroupRecallTime.getMillis() > 0 && lastGroupRecallTime.getMillis() <= 1500) {
+		Config &config = Config::getInstance();
+		int recallGroupCenterCameraTimeout = config.getInt("RecallGroupCenterCameraTimeoutMilliseconds","1500");
+		if(lastGroupRecallTime.getMillis() > 0 && lastGroupRecallTime.getMillis() <= recallGroupCenterCameraTimeout) {
 			centerCameraOnSelection();
 		}
 		else {
