@@ -75,6 +75,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
+	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
 	//MIN_RENDER_FPS_ALLOWED = Config::getInstance().getInt("MIN_RENDER_FPS_ALLOWED",intToStr(MIN_RENDER_FPS_ALLOWED).c_str());
 
 	mouseX=0;
@@ -1885,8 +1886,9 @@ void Game::render2d(){
 	renderer.reset2d();
 
 	//HUD
-	renderer.renderHud();
-
+	if(visibleHUD == true) {
+		renderer.renderHud();
+	}
 	//display
 	renderer.renderDisplay();
 

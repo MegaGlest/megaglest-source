@@ -114,6 +114,10 @@ private:
 	GraphicLabel labelDisableScreenshotConsoleText;
 	GraphicCheckBox checkBoxDisableScreenshotConsoleText;
 
+	GraphicLabel labelVisibleHud;
+	GraphicCheckBox checkBoxVisibleHud;
+
+
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
