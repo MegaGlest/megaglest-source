@@ -482,7 +482,9 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 			}
 			else {
 				//if unit arrives destPos order has ended
-				switch (tsValue){
+				switch (tsValue) {
+
+/*
 					case tsMoving:
 						unit->setCurrSkill(act->getMoveSkillType());
 
@@ -512,6 +514,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 						}
 
 						break;
+*/
 					case tsBlocked:
 						if(unit->getPath()->isBlocked()){
 							unit->finishCommand();
