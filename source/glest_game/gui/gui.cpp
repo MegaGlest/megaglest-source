@@ -311,7 +311,13 @@ void Gui::groupKey(int groupIndex) {
 	else{
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
 
-		selection.recallGroup(groupIndex);
+		if(lastGroupRecallTime.getMillis() > 0 && lastGroupRecallTime.getMillis() <= 1500) {
+			centerCameraOnSelection();
+		}
+		else {
+			selection.recallGroup(groupIndex);
+		}
+		lastGroupRecallTime.start();
 	}
 }
 
