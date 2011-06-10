@@ -1084,6 +1084,9 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
             string customPathValue = paramPartTokens[1];
+            if(customPathValue != "") {
+            	endPathWithSlash(customPathValue);
+            }
             pathCache[GameConstants::path_data_CacheLookupKey]=customPathValue;
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom data path [%s]\n",customPathValue.c_str());
         }
@@ -1096,6 +1099,10 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
     }
     else if(config != NULL) {
     	if(config->getString("DataPath","") != "") {
+    		string customPathValue = config->getString("DataPath","");
+    		if(customPathValue != "") {
+    			endPathWithSlash(customPathValue);
+    		}
             pathCache[GameConstants::path_data_CacheLookupKey] = config->getString("DataPath","");
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using ini specified data path [%s]\n",config->getString("DataPath","").c_str());
     	}
