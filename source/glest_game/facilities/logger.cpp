@@ -156,37 +156,41 @@ void Logger::renderLoadingScreen() {
     	}
     }
 
+    int xLocation = metrics.getVirtualW() / 4;
 	if(Renderer::renderText3DEnabled) {
-		renderer.renderText3D(
-			state, coreData.getMenuFontBig3D(), Vec3f(1.f),
-			metrics.getVirtualW()/4, 65*metrics.getVirtualH()/100, false);
 
 		renderer.renderText3D(
-			current, coreData.getMenuFontNormal3D(), 1.0f,
-			metrics.getVirtualW() / 4,
+			state, coreData.getMenuFontBig3D(), Vec3f(1.f),
+			xLocation,
+			65 * metrics.getVirtualH() / 100, false);
+
+		renderer.renderText3D(
+			current, coreData.getMenuFontNormal3D(), Vec3f(1.f),
+			xLocation,
 			62 * metrics.getVirtualH() / 100, false);
 
 	    if(this->statusText != "") {
 	    	renderer.renderText3D(
 	    		this->statusText, coreData.getMenuFontNormal3D(), 1.0f,
-	    		metrics.getVirtualW() / 4,
+	    		xLocation,
 	    		56 * metrics.getVirtualH() / 100, false);
 	    }
 	}
 	else {
 		renderer.renderText(
 			state, coreData.getMenuFontBig(), Vec3f(1.f),
-			metrics.getVirtualW()/4, 65*metrics.getVirtualH()/100, false);
+			xLocation,
+			65 * metrics.getVirtualH() / 100, false);
 
 		renderer.renderText(
 			current, coreData.getMenuFontNormal(), 1.0f,
-			metrics.getVirtualW() / 4,
+			xLocation,
 			62 * metrics.getVirtualH() / 100, false);
 
 		if(this->statusText != "") {
 			renderer.renderText(
 				this->statusText, coreData.getMenuFontNormal(), 1.0f,
-				metrics.getVirtualW() / 4,
+				xLocation,
 				56 * metrics.getVirtualH() / 100, false);
 		}
 	}
