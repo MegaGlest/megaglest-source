@@ -913,11 +913,19 @@ SplashParticleSystem::~SplashParticleSystem(){
 	}
 }
 
+void SplashParticleSystem::initParticleSystem() {
+	startEmissionRate = emissionRate;
+}
+
 void SplashParticleSystem::update(){
 	ParticleSystem::update();
-	if(state != sPause){
+	if(state != sPause) {
 		emissionRate-= emissionRateFade;
-		if(emissionRate < 0.0f){//otherwise this system lives forever!
+
+		tween= 1.0f - ((emissionRate + startEmissionRate) / (startEmissionRate * 2.0f));
+		tween= clamp(tween, 0.0f, 1.0f);
+
+		if(emissionRate < 0.0f) {//otherwise this system lives forever!
 			fade();
 		}
 	}

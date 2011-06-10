@@ -350,7 +350,6 @@ protected:
 	Vec3f offset;
 	float sizeNoEnergy;
 	float gravity;
-	
 	float tween;
 	Vec3f direction;
 
@@ -369,8 +368,9 @@ public:
 	void setSizeNoEnergy(float sizeNoEnergy)	{this->sizeNoEnergy= sizeNoEnergy;}
 	void setGravity(float gravity)				{this->gravity= gravity;}
 	void setPrimitive(Primitive primitive)		{this->primitive= primitive;}
-
+	
 	float getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
+	virtual void initParticleSystem() {} // opportunity to do any initialisation when the system has been created and all settings set
 
 	static Primitive strToPrimitive(const string &str);
 };
@@ -445,6 +445,8 @@ private:
 	float verticalSpreadB;
 	float horizontalSpreadA;
 	float horizontalSpreadB;
+	
+	float startEmissionRate;
 
 public:
 	SplashParticleSystem(int particleCount= 1000);
@@ -453,6 +455,8 @@ public:
 	virtual void update();
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual void updateParticle(Particle *p);
+	
+	virtual void initParticleSystem();
 
 	void setEmissionRateFade(float emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
 	void setVerticalSpreadA(float verticalSpreadA)		{this->verticalSpreadA= verticalSpreadA;}
