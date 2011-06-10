@@ -133,6 +133,8 @@ private:
 	int minQuadSize;
 
 	Chrono lastGroupRecallTime;
+	int lastGroupRecall;
+
 	//states
 	bool selectingBuilding;
 	bool selectingPos;
