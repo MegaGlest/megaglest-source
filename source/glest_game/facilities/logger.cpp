@@ -136,30 +136,60 @@ void Logger::renderLoadingScreen() {
 	else {
 		renderer.renderBackground(loadingTexture);
 	}
-	renderer.renderText(
-		state, coreData.getMenuFontBig(), Vec3f(1.f),
-		metrics.getVirtualW()/4, 65*metrics.getVirtualH()/100, false);
-
-	renderer.renderText(
-		current, coreData.getMenuFontNormal(), 1.0f,
-		metrics.getVirtualW() / 4,
-		62 * metrics.getVirtualH() / 100, false);
 
     if(showProgressBar == true) {
-        renderer.renderProgressBar(
-            progress,
-            metrics.getVirtualW() / 4,
-            59 * metrics.getVirtualH() / 100,
-            coreData.getDisplayFontSmall(),
-            350,""); // no string here, because it has to be language specific and does not give much information
+    	if(Renderer::renderText3DEnabled) {
+            renderer.renderProgressBar3D(
+                progress,
+                metrics.getVirtualW() / 4,
+                59 * metrics.getVirtualH() / 100,
+                coreData.getDisplayFontSmall3D(),
+                350,""); // no string here, because it has to be language specific and does not give much information
+    	}
+    	else {
+			renderer.renderProgressBar(
+				progress,
+				metrics.getVirtualW() / 4,
+				59 * metrics.getVirtualH() / 100,
+				coreData.getDisplayFontSmall(),
+				350,""); // no string here, because it has to be language specific and does not give much information
+    	}
     }
 
-    if(this->statusText != "") {
-    	renderer.renderText(
-    		this->statusText, coreData.getMenuFontNormal(), 1.0f,
-    		metrics.getVirtualW() / 4,
-    		56 * metrics.getVirtualH() / 100, false);
-    }
+	if(Renderer::renderText3DEnabled) {
+		renderer.renderText3D(
+			state, coreData.getMenuFontBig3D(), Vec3f(1.f),
+			metrics.getVirtualW()/4, 65*metrics.getVirtualH()/100, false);
+
+		renderer.renderText3D(
+			current, coreData.getMenuFontNormal3D(), 1.0f,
+			metrics.getVirtualW() / 4,
+			62 * metrics.getVirtualH() / 100, false);
+
+	    if(this->statusText != "") {
+	    	renderer.renderText3D(
+	    		this->statusText, coreData.getMenuFontNormal3D(), 1.0f,
+	    		metrics.getVirtualW() / 4,
+	    		56 * metrics.getVirtualH() / 100, false);
+	    }
+	}
+	else {
+		renderer.renderText(
+			state, coreData.getMenuFontBig(), Vec3f(1.f),
+			metrics.getVirtualW()/4, 65*metrics.getVirtualH()/100, false);
+
+		renderer.renderText(
+			current, coreData.getMenuFontNormal(), 1.0f,
+			metrics.getVirtualW() / 4,
+			62 * metrics.getVirtualH() / 100, false);
+
+		if(this->statusText != "") {
+			renderer.renderText(
+				this->statusText, coreData.getMenuFontNormal(), 1.0f,
+				metrics.getVirtualW() / 4,
+				56 * metrics.getVirtualH() / 100, false);
+		}
+	}
 
     if(buttonCancel.getEnabled() == true) {
     	renderer.renderButton(&buttonCancel);

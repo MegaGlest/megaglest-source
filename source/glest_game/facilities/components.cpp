@@ -52,6 +52,7 @@ GraphicComponent::GraphicComponent(std::string containerName, std::string objNam
 	h = 0;
 	text = "";
 	font = NULL;
+	font3D = NULL;
 }
 
 void GraphicComponent::clearRegisteredComponents(std::string containerName) {
@@ -209,6 +210,7 @@ void GraphicComponent::init(int x, int y, int w, int h) {
     this->w= w;
     this->h= h;
     font= CoreData::getInstance().getMenuFontNormal();
+    font3D= CoreData::getInstance().getMenuFontNormal3D();
 	enabled= true;
 }
 
@@ -422,6 +424,7 @@ void GraphicMessageBox::setY(int y) {
 
 void GraphicMessageBox::init(const string &button1Str) {
 	font= CoreData::getInstance().getMenuFontNormal();
+	font3D= CoreData::getInstance().getMenuFontNormal3D();
 
 	h= defH;
 	w= defW;

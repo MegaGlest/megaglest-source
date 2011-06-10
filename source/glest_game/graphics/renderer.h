@@ -186,6 +186,8 @@ public:
 	//light
 	static const float maxLightDist;
 
+	static bool renderText3DEnabled;
+
 public:
 	enum Shadows {
 		sDisabled,
@@ -196,6 +198,7 @@ public:
 	};
 
 private:
+
 	//config
 	int maxLights;
     bool photoMode;
@@ -326,6 +329,8 @@ public:
 	Font3D *newFont3D(ResourceScope rs);
 
 	TextRenderer2D *getTextRenderer() const	{return textRenderer;}
+	TextRenderer3D *getTextRenderer3D() const	{return textRenderer3D;}
+
 	void manageParticleSystem(ParticleSystem *particleSystem, ResourceScope rs);
 	void cleanupParticleSystems(vector<ParticleSystem *> &particleSystems,ResourceScope rs);
 	void cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems,ResourceScope rs);
@@ -346,7 +351,9 @@ public:
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
 	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false, int overrideMaxConsoleLines=-1);
+	void renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, int lineHeight, Font3D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
 	void renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight, Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
+
 	void renderChatManager(const ChatManager *chatManager);
 	void renderResourceStatus();
 	void renderSelectionQuad();
@@ -358,9 +365,8 @@ public:
 	void renderText3D(const string &text, Font3D *font, float alpha, int x, int y, bool centered);
 	void renderText3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, bool centered);
 	void renderText3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, bool centered);
-	void renderTextShadow3D(const string &text, Font3D *font,const Vec4f &color, int x, int y, bool centered);
-	void renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth,
-			string prefixLabel,bool centeredText);
+	void renderTextShadow3D(const string &text, Font3D *font,const Vec4f &color, int x, int y, bool centered=false);
+	void renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth=-1, string prefixLabel="", bool centeredText=true);
 
     //components
 	void renderLabel(GraphicLabel *label);

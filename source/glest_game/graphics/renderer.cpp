@@ -38,6 +38,8 @@ namespace Glest { namespace Game{
 
 uint32 Renderer::SurfaceData::nextUniqueId = 1;
 
+bool Renderer::renderText3DEnabled = true;
+
 // =====================================================
 // 	class MeshCallbackTeamColor
 // =====================================================
@@ -955,6 +957,91 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 	assertGl();
 }
 
+void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, int lineHeight,
+								Font3D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
+	Vec4f fontColor;
+	const Metrics &metrics= Metrics::getInstance();
+	FontMetrics *fontMetrics= font->getMetrics();
+
+	if(game != NULL) {
+		fontColor = game->getGui()->getDisplay()->getColor();
+	}
+	else {
+		// white shadowed is default ( in the menu for example )
+		//fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
+		fontColor=Vec4f(lineInfo->color.x,lineInfo->color.y,lineInfo->color.z, 0.0f);
+	}
+
+	Vec4f defaultFontColor = fontColor;
+
+	if(lineInfo->PlayerIndex >= 0) {
+		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+		Vec3f playerColor = crcPlayerTextureCache[lineInfo->PlayerIndex]->getPixmap()->getPixel3f(0, 0);
+		fontColor.x = playerColor.x;
+		fontColor.y = playerColor.y;
+		fontColor.z = playerColor.z;
+
+		GameNetworkInterface *gameNetInterface = NetworkManager::getInstance().getGameNetworkInterface();
+		if(gameNetInterface != NULL && gameNetInterface->getGameSettings() != NULL) {
+			const GameSettings *gameSettings = gameNetInterface->getGameSettings();
+			string playerName = gameSettings->getNetworkPlayerNameByPlayerIndex(lineInfo->PlayerIndex);
+			if(playerName != lineInfo->originalPlayerName && lineInfo->originalPlayerName != "") {
+				playerName = lineInfo->originalPlayerName;
+			}
+			//printf("playerName [%s], line [%s]\n",playerName.c_str(),line.c_str());
+
+			//string headerLine = "*" + playerName + ":";
+			string headerLine = playerName + ": ";
+
+			if(fontMetrics == NULL) {
+				throw runtime_error("fontMetrics == NULL");
+			}
+
+			renderTextShadow3D(
+					headerLine,
+					font,
+					fontColor,
+                	xPosition, lineIndex * lineHeight + yPosition);
+
+			fontColor = defaultFontColor;
+			//xPosition += (8 * (playerName.length() + 2));
+			// Proper font spacing after username portion of chat text rendering
+			xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
+		}
+	}
+	else if(lineInfo->originalPlayerName != "") {
+        string playerName = lineInfo->originalPlayerName;
+        string headerLine = playerName + ": ";
+
+        if(fontMetrics == NULL) {
+            throw runtime_error("fontMetrics == NULL");
+        }
+
+        renderTextShadow3D(
+                headerLine,
+                font,
+                fontColor,
+                xPosition, lineIndex * lineHeight + yPosition);
+
+        fontColor = defaultFontColor;
+        //xPosition += (8 * (playerName.length() + 2));
+        // Proper font spacing after username portion of chat text rendering
+        xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
+	}
+	else {
+		fontColor = defaultFontColor;
+	}
+
+	if(stringToHightlight!="" && lineInfo->text.find(stringToHightlight)!=string::npos){
+		fontColor=Vec4f(1.f, 0.5f, 0.5f, 0.0f);
+	}
+	renderTextShadow3D(
+			lineInfo->text,
+		font,
+		fontColor,
+        xPosition, (lineIndex * lineHeight) + yPosition);
+}
+
 void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight,
 								Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
 	Vec4f fontColor;
@@ -1052,23 +1139,43 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 	if(showFullConsole) {
 		for(int i = 0; i < console->getStoredLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
-			renderConsoleLine(i, console->getXPos(), console->getYPos(),
-			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+			if(renderText3DEnabled == true) {
+				renderConsoleLine3D(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont3D(),
+						console->getStringToHighlight(), &lineInfo);
+			}
+			else {
+				renderConsoleLine(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont(),
+						console->getStringToHighlight(), &lineInfo);
+			}
 		}
 	}
 	else if(showMenuConsole) {
 		int allowedMaxLines = (overrideMaxConsoleLines >= 0 ? overrideMaxConsoleLines : maxConsoleLines);
 		for(int i = 0; i < console->getStoredLineCount() && i < allowedMaxLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
-			renderConsoleLine(i, console->getXPos(), console->getYPos(),
-			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+			if(renderText3DEnabled == true) {
+				renderConsoleLine3D(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont3D(), console->getStringToHighlight(), &lineInfo);
+			}
+			else {
+				renderConsoleLine(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+			}
 		}
 	}
 	else {
 		for(int i = 0; i < console->getLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
-			renderConsoleLine(i, console->getXPos(), console->getYPos(),
-			console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+			if(renderText3DEnabled == true) {
+				renderConsoleLine3D(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont3D(), console->getStringToHighlight(), &lineInfo);
+			}
+			else {
+				renderConsoleLine(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+			}
 		}
 	}
 	glPopAttrib();
@@ -1081,7 +1188,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	if(chatManager->getEditEnabled()) {
 		string text="";
 
-		if(chatManager->getInMenu()){
+		if(chatManager->getInMenu()) {
 			text += lang.get("Chat");
 		}
 		else if(chatManager->getTeamMode()) {
@@ -1100,23 +1207,35 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 			fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
 		}
 
-		renderTextShadow(
-				text,
-				chatManager->getFont(),
-				fontColor,
-				chatManager->getXPos(), chatManager->getYPos());
-
-		//textRenderer->begin(CoreData::getInstance().getConsoleFont());
-		//textRenderer->render(text, 300, 150);
-		//textRenderer->end();
+		if(renderText3DEnabled == true) {
+			renderTextShadow3D(
+					text,
+					chatManager->getFont3D(),
+					fontColor,
+					chatManager->getXPos(), chatManager->getYPos());
+		}
+		else {
+			renderTextShadow(
+					text,
+					chatManager->getFont(),
+					fontColor,
+					chatManager->getXPos(), chatManager->getYPos());
+		}
 	}
 	else
 	{
 		if (chatManager->getInMenu()) {
 			string text = ">> "+lang.get("PressEnterToChat")+" <<";
 			fontColor = Vec4f(0.5f, 0.5f, 0.5f, 0.5f);
-			renderTextShadow(text, chatManager->getFont(), fontColor,
-					chatManager->getXPos(), chatManager->getYPos());
+
+			if(renderText3DEnabled == true) {
+				renderTextShadow3D(text, chatManager->getFont3D(), fontColor,
+						chatManager->getXPos(), chatManager->getYPos());
+			}
+			else {
+				renderTextShadow(text, chatManager->getFont(), fontColor,
+						chatManager->getXPos(), chatManager->getYPos());
+			}
 		}
 	}
 }
@@ -1169,10 +1288,18 @@ void Renderer::renderResourceStatus() {
 
 			glDisable(GL_TEXTURE_2D);
 
-			renderTextShadow(
-				str, CoreData::getInstance().getDisplayFontSmall(),
-				fontColor,
-				j*100+220, metrics.getVirtualH()-30, false);
+			if(renderText3DEnabled == true) {
+				renderTextShadow3D(
+					str, CoreData::getInstance().getDisplayFontSmall3D(),
+					fontColor,
+					j*100+220, metrics.getVirtualH()-30, false);
+			}
+			else {
+				renderTextShadow(
+					str, CoreData::getInstance().getDisplayFontSmall(),
+					fontColor,
+					j*100+220, metrics.getVirtualH()-30, false);
+			}
 			++j;
 		}
 
@@ -1440,10 +1567,20 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 		}
 
 		if(color != NULL) {
-			renderText(lines[i], label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
+			if(renderText3DEnabled == true) {
+				renderText3D(lines[i], label->getFont3D(), (*color), textPos.x, textPos.y, label->getCentered());
+			}
+			else {
+				renderText(lines[i], label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
+			}
 		}
 		else {
-			renderText(lines[i], label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+			if(renderText3DEnabled == true) {
+				renderText3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+			}
+			else {
+				renderText(lines[i], label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+			}
 		}
 	}
 	glPopAttrib();
@@ -1555,24 +1692,25 @@ void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverrid
 		glEnd();
 	}
 
-	Vec2i textPos= Vec2i(x+w/2, y+h/2);
+	Vec2i textPos= Vec2i(x + w / 2, y + h / 2);
 
 	if(button->getEditable()) {
-		Font2D *font = button->getFont();
-		//Font3D *font3d = ConvertFont2DTo3D(button->getFont());
-		renderText(
-			button->getText(), font, color,
-			x+w/2, y+h/2, true);
-		//delete font3d;
-
-//		renderText(
-//			button->getText(), button->getFont(), color,
-//			x+w/2, y+h/2, true);
+		if(renderText3DEnabled == true) {
+			renderText3D(button->getText(), button->getFont3D(), color,x + w / 2, y + h / 2, true);
+		}
+		else {
+			renderText(button->getText(), button->getFont(), color,x + w / 2, y + h / 2, true);
+		}
 	}
 	else {
-		renderText(
-			button->getText(), button->getFont(),disabledTextColor,
-			x+w/2, y+h/2, true);
+		if(renderText3DEnabled == true) {
+			renderText3D(button->getText(), button->getFont3D(),disabledTextColor,
+			       x + w / 2, y + h / 2, true);
+		}
+		else {
+			renderText(button->getText(), button->getFont(),disabledTextColor,
+			       x + w / 2, y + h / 2, true);
+		}
 	}
 
     glPopAttrib();
@@ -1976,16 +2114,31 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 		fontColor=Vec4f(1.f, 1.f, 1.f, 1.0f);
 	//}
 
-	//text
-	renderTextShadow(
-		messageBox->getText(), messageBox->getFont(), fontColor,
-		messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
-		false );
+	if(renderText3DEnabled == true) {
+		//text
+		renderTextShadow3D(
+			messageBox->getText(), messageBox->getFont3D(), fontColor,
+			messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
+			false );
 
-	renderTextShadow(
-		messageBox->getHeader(), messageBox->getFont(),fontColor,
-		messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
-		false );
+		renderTextShadow3D(
+			messageBox->getHeader(), messageBox->getFont3D(),fontColor,
+			messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
+			false );
+
+	}
+	else {
+		//text
+		renderTextShadow(
+			messageBox->getText(), messageBox->getFont(), fontColor,
+			messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
+			false );
+
+		renderTextShadow(
+			messageBox->getHeader(), messageBox->getFont(),fontColor,
+			messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
+			false );
+	}
 }
 
 // ==================== complex rendering ====================
@@ -3459,7 +3612,7 @@ void Renderer::renderMinimap(){
 	assertGl();
 }
 
-void Renderer::renderDisplay(){
+void Renderer::renderDisplay() {
 
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();
@@ -3467,39 +3620,77 @@ void Renderer::renderDisplay(){
 
 	glPushAttrib(GL_ENABLE_BIT);
 
-	//infoString
-	renderTextShadow(
-		display->getInfoText().c_str(),
-		coreData.getDisplayFont(),
-		display->getColor(),
-		metrics.getDisplayX(),
-		metrics.getDisplayY()+Display::infoStringY);
-
-	//title
-	renderTextShadow(
-		display->getTitle().c_str(),
-		coreData.getDisplayFont(),
-		display->getColor(),
-		metrics.getDisplayX()+40,
-		metrics.getDisplayY() + metrics.getDisplayH() - 20);
-
-    glColor3f(0.0f, 0.0f, 0.0f);
-
-	//text
-	renderTextShadow(
-		display->getText().c_str(),
-		coreData.getDisplayFont(),
-		display->getColor(),
-		metrics.getDisplayX() -1,
-		metrics.getDisplayY() + metrics.getDisplayH() - 56);
-
-	//progress Bar
-	if(display->getProgressBar()!=-1){
-		renderProgressBar(
-			display->getProgressBar(),
+	if(renderText3DEnabled == true) {
+		//infoString
+		renderTextShadow3D(
+			display->getInfoText().c_str(),
+			coreData.getDisplayFont3D(),
+			display->getColor(),
 			metrics.getDisplayX(),
-			metrics.getDisplayY() + metrics.getDisplayH()-50,
-			coreData.getDisplayFontSmall());
+			metrics.getDisplayY()+Display::infoStringY);
+
+		//title
+		renderTextShadow3D(
+			display->getTitle().c_str(),
+			coreData.getDisplayFont3D(),
+			display->getColor(),
+			metrics.getDisplayX()+40,
+			metrics.getDisplayY() + metrics.getDisplayH() - 20);
+
+		glColor3f(0.0f, 0.0f, 0.0f);
+
+		//text
+		renderTextShadow3D(
+			display->getText().c_str(),
+			coreData.getDisplayFont3D(),
+			display->getColor(),
+			metrics.getDisplayX() -1,
+			metrics.getDisplayY() + metrics.getDisplayH() - 56);
+
+		//progress Bar
+		if(display->getProgressBar() != -1) {
+			renderProgressBar3D(
+				display->getProgressBar(),
+				metrics.getDisplayX(),
+				metrics.getDisplayY() + metrics.getDisplayH()-50,
+				coreData.getDisplayFontSmall3D());
+		}
+	}
+	else {
+		//infoString
+		renderTextShadow(
+			display->getInfoText().c_str(),
+			coreData.getDisplayFont(),
+			display->getColor(),
+			metrics.getDisplayX(),
+			metrics.getDisplayY()+Display::infoStringY);
+
+		//title
+		renderTextShadow(
+			display->getTitle().c_str(),
+			coreData.getDisplayFont(),
+			display->getColor(),
+			metrics.getDisplayX()+40,
+			metrics.getDisplayY() + metrics.getDisplayH() - 20);
+
+		glColor3f(0.0f, 0.0f, 0.0f);
+
+		//text
+		renderTextShadow(
+			display->getText().c_str(),
+			coreData.getDisplayFont(),
+			display->getColor(),
+			metrics.getDisplayX() -1,
+			metrics.getDisplayY() + metrics.getDisplayH() - 56);
+
+		//progress Bar
+		if(display->getProgressBar()!=-1){
+			renderProgressBar(
+				display->getProgressBar(),
+				metrics.getDisplayX(),
+				metrics.getDisplayY() + metrics.getDisplayH()-50,
+				coreData.getDisplayFontSmall());
+		}
 	}
 
 	//up images

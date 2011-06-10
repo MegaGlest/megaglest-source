@@ -41,6 +41,7 @@ ChatManager::ChatManager() {
 	yPos=150;
 	maxTextLenght=64;
 	font=CoreData::getInstance().getConsoleFont();
+	font3D=CoreData::getInstance().getConsoleFont3D();
 }
 
 void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu, string manualPlayerNameOverride) {

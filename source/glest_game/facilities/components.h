@@ -25,6 +25,7 @@ using std::string;
 using std::vector;
 
 using Shared::Graphics::Font2D;
+using Shared::Graphics::Font3D;
 using namespace Shared::Graphics;
 using Shared::Graphics::Vec3f;
 
@@ -49,6 +50,7 @@ protected:
     int x, y, w, h;
     string text;
 	Font2D *font;
+	Font3D *font3D;
 	bool enabled;
 	bool editable;
 	bool visible;
@@ -84,6 +86,7 @@ public:
 	virtual int getH() const				{return h;}
 	virtual const string &getText() const	{return text;}
 	virtual Font2D *getFont() 				{return font;}
+	virtual Font3D *getFont3D() 			{return font3D;}
 	virtual bool getEnabled() const			{return enabled;}
 	virtual bool getEditable() const		{return editable;}
 	virtual bool getVisible() const			{return visible;}
@@ -94,6 +97,7 @@ public:
 	virtual void setH(int h)					{this->h= h;}
 	virtual void setText(const string &text)	{this->text= text;}
 	virtual void setFont(Font2D *font)			{this->font= font;}
+	virtual void setFont3D(Font3D *font)		{this->font3D= font3D;}
 	virtual void setEnabled(bool enabled)		{this->enabled= enabled;}
 	virtual void setEditable(bool editable)		{this->editable= editable;}
 	virtual void setVisible(bool value)			{this->visible = value;}

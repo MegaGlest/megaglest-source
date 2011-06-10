@@ -111,9 +111,16 @@ void MainMenu::render() {
     renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 
 	if(renderer.getShowDebugUI() == true) {
-		renderer.renderText(
-			"FPS: " + intToStr(lastFps),
-			coreData.getMenuFontNormal(), Vec3f(1.f), 10, 10, false);
+		if(Renderer::renderText3DEnabled) {
+			renderer.renderText3D(
+				"FPS: " + intToStr(lastFps),
+				coreData.getMenuFontNormal3D(), Vec3f(1.f), 10, 10, false);
+		}
+		else {
+			renderer.renderText(
+				"FPS: " + intToStr(lastFps),
+				coreData.getMenuFontNormal(), Vec3f(1.f), 10, 10, false);
+		}
     }
 
 	renderer.swapBuffers();

@@ -26,6 +26,7 @@ using Shared::Graphics::Vec2i;
 using Shared::Graphics::Vec2f;
 using Shared::Graphics::Vec3f;
 using Shared::Graphics::Font2D;
+using Shared::Graphics::Font3D;
 using Shared::Graphics::Texture2D;
 
 namespace Glest{ namespace Game{
@@ -34,21 +35,23 @@ namespace Glest{ namespace Game{
 //	class Text
 // =====================================================
 
-class Text{
+class Text {
 private:
 	string text;
 	Vec2i pos;
     Vec2i size;
 	int time;
 	Font2D *font;
+	Font3D *font3D;
 	const Texture2D *texture;
 
 public:
-	Text(const string &text, const Vec2i &pos, int time, Font2D *font);
+	Text(const string &text, const Vec2i &pos, int time, Font2D *font, Font3D *font3D);
 	Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int time);
 
 	const string &getText() const		{return text;}
 	Font2D *getFont() 					{return font;}
+	Font3D *getFont3D() 				{return font3D;}
 	const Vec2i &getPos() const			{return pos;}
 	const Vec2i &getSize() const		{return size;}
 	int getTime() const					{return time;}
