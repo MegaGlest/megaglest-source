@@ -72,9 +72,11 @@ void BattleEnd::update() {
 
 void BattleEnd::render(){
 	Renderer &renderer= Renderer::getInstance();
-	TextRenderer2D *textRenderer2D= renderer.getTextRenderer();
-	TextRenderer3D *textRenderer3D= renderer.getTextRenderer3D();
-	TextRenderer *textRenderer= NULL;
+
+	TextRenderer2D *textRenderer2D	= renderer.getTextRenderer();
+	TextRenderer3D *textRenderer3D	= renderer.getTextRenderer3D();
+	TextRenderer *textRenderer		= NULL;
+
 	if(Renderer::renderText3DEnabled == true) {
 		textRenderer= textRenderer3D;
 	}

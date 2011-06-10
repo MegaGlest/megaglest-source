@@ -60,7 +60,7 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 		//printf("2D font [%s]\n",fontFile);
 	}
 	else if(type == ftht_3D) {
-		ftFont = new FTBufferFont(fontFile);
+		ftFont = new FTGLTextureFont(fontFile);
 		//printf("3D font [%s]\n",fontFile);
 	}
 	else {
@@ -110,7 +110,7 @@ void TextFTGL::init(string fontName, int fontSize) {
 		//printf("2D font [%s]\n",fontFile);
 	}
 	else if(type == ftht_3D) {
-		ftFont = new FTBufferFont(fontFile);
+		ftFont = new FTGLTextureFont(fontFile);
 		//printf("3D font [%s]\n",fontFile);
 	}
 	else {
