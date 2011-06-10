@@ -61,7 +61,10 @@ void TextRenderer2DGl::begin(Font2D *font) {
 	rendering	= true;
 }
 
-void TextRenderer2DGl::render(const string &text, int x, int y, bool centered, Vec3f *color) {
+void TextRenderer2DGl::render(const string &text, float x, float y, bool centered, Vec3f *color) {
+
+	printf("**** RENDERING 2D text [%s]\n",text.c_str());
+
 	//tester->render(text, x, y, this->font->getWidth(),centered);
 	//return;
 
@@ -387,21 +390,34 @@ void TextRenderer3DGl::begin(Font3D *font) {
 	assertGl();
 }
 
-void TextRenderer3DGl::render(const string &text, float  x, float y, bool centered) {
+void TextRenderer3DGl::render(const string &text, float  x, float y, bool centered, Vec3f *color) {
 	assert(rendering);
+
+	internalRender(text, x, y, centered, color);
+}
+
+void TextRenderer3DGl::internalRender(const string &text, float  x, float y, bool centered, Vec3f *color) {
+	//assert(rendering);
+
+	if(color != NULL) {
+		glPushAttrib(GL_CURRENT_BIT);
+		glColor3fv(color->ptr());
+	}
 	
 	const unsigned char *utext= NULL;
 	assertGl();
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	glPushAttrib(GL_POLYGON_BIT);
+	glLoadIdentity();
+	//glPushAttrib(GL_POLYGON_BIT);
 
 	int size = font->getSize();
 	//float scale= size / 15.f;
 	float scale= 1.0f;
 	//float scale= size;
 	Vec3f translatePos;
+	FontMetrics *metrics= font->getMetrics();
 
 	if(font->getTextHandler() != NULL) {
 		if(centered) {
@@ -418,7 +434,6 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, bool center
 	else {
 		utext= reinterpret_cast<const unsigned char*>(text.c_str());
 		if(centered) {
-			FontMetrics *metrics= font->getMetrics();
 			//glTranslatef(x-scale*metrics->getTextWidth(text)/2.f, y-scale*metrics->getHeight()/2.f, 0);
 			translatePos.x = x-scale*metrics->getTextWidth(text)/2.f;
 			translatePos.y = y-scale*metrics->getHeight()/2.f;
@@ -433,11 +448,20 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, bool center
 	}
 
 	//glScalef(scale, scale, scale);
+	float scaleX = 0.65;
+	float scaleY = 0.75;
+	float scaleZ = 1.0;
+
+	//x = translatePos.x;
+	float yScaleFactor = (metrics->getHeight() * (1.0 - scaleY));
+	translatePos.y += yScaleFactor;
+	//y = translatePos.y;
+
 	glTranslatef(translatePos.x, translatePos.y, translatePos.z);
+	glScalef(scaleX, scaleY, scaleZ);
 
-	font->getTextHandler()->Render(text.c_str());
+	//font->getTextHandler()->Render(text.c_str());
 
-/*
 	if(Font::fontIsMultibyte == true) {
 		if(font->getTextHandler() != NULL) {
 			if(text.find("\n") == text.npos && text.find("\t") == text.npos) {
@@ -479,19 +503,30 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, bool center
 					}
 				}
 
+				bool needsRecursiveRender = false;
 				for (unsigned int i=0; i < parts.size(); ++i) {
 					switch(parts[i][0]) {
 						case '\t':
-							translatePos= Vec3f((translatePos.x / size + 3.f) * size, y-(size + 1.f) * line, translatePos.z);
-							glTranslatef(translatePos.x, translatePos.y, translatePos.z);
+							//translatePos= Vec3f((translatePos.x / size + 3.f) * size, y-(size + 1.f) * line, translatePos.z);
+							translatePos= Vec3f((translatePos.x / size + 3.f) * size, translatePos.y, translatePos.z);
+							needsRecursiveRender = true;
 							break;
 						case '\n':
+							{
 							line++;
-							translatePos= Vec3f(static_cast<float>(x), y - (font->getTextHandler()->LineHeight(parts[i].c_str())) * line, translatePos.z);
-							glTranslatef(translatePos.x, translatePos.y, translatePos.z);
+							float yLineValue = font->getTextHandler()->LineHeight(parts[i].c_str());
+							translatePos= Vec3f(translatePos.x, translatePos.y - yLineValue, translatePos.z);
+							needsRecursiveRender = true;
+							}
 							break;
 						default:
-							font->getTextHandler()->Render(parts[i].c_str());
+							if(needsRecursiveRender == true) {
+								internalRender(parts[i], translatePos.x, translatePos.y, false, color);
+								needsRecursiveRender = false;
+							}
+							else {
+								font->getTextHandler()->Render(parts[i].c_str());
+							}
 					}
 				}
 			}
@@ -562,19 +597,30 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, bool center
 					}
 				}
 
+				bool needsRecursiveRender = false;
 				for (unsigned int i=0; i < parts.size(); ++i) {
 					switch(parts[i][0]) {
 						case '\t':
-							translatePos= Vec3f((translatePos.x / size + 3.f) * size, y-(size + 1.f) * line, translatePos.z);
-							glTranslatef(translatePos.x, translatePos.y, translatePos.z);
+							//translatePos= Vec3f((translatePos.x / size + 3.f) * size, y-(size + 1.f) * line, translatePos.z);
+							translatePos= Vec3f((translatePos.x / size + 3.f) * size, translatePos.y, translatePos.z);
+							needsRecursiveRender = true;
 							break;
 						case '\n':
+							{
 							line++;
-							translatePos= Vec3f(static_cast<float>(x), y - (font->getTextHandler()->LineHeight(parts[i].c_str())) * line, translatePos.z);
-							glTranslatef(translatePos.x, translatePos.y, translatePos.z);
+							float yLineValue = font->getTextHandler()->LineHeight(parts[i].c_str());
+							translatePos= Vec3f(translatePos.x, translatePos.y - yLineValue, translatePos.z);
+							needsRecursiveRender = true;
+							}
 							break;
 						default:
-							font->getTextHandler()->Render(parts[i].c_str());
+							if(needsRecursiveRender == true) {
+								internalRender(parts[i], translatePos.x, translatePos.y, false, color);
+								needsRecursiveRender = false;
+							}
+							else {
+								font->getTextHandler()->Render(parts[i].c_str());
+							}
 					}
 				}
 			}
@@ -585,10 +631,14 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, bool center
 			}
 		}
 	}
-*/
 
 	glPopMatrix();
-	glPopAttrib();
+	//glPopMatrix();
+	//glPopAttrib();
+
+	if(color != NULL) {
+		glPopAttrib();
+	}
 
 	assertGl();
 }

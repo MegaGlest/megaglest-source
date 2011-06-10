@@ -38,7 +38,7 @@ public:
 	virtual ~TextRenderer2DGl();
 
 	virtual void begin(Font2D *font);
-	virtual void render(const string &text, int x, int y, bool centered, Vec3f *color=NULL);
+	virtual void render(const string &text, float x, float y, bool centered=false, Vec3f *color=NULL);
 	virtual void end();
 };
 
@@ -51,12 +51,14 @@ private:
 	Font3DGl *font;
 	bool rendering;
 
+	void internalRender(const string &text, float  x, float y, bool centered, Vec3f *color);
+
 public:
 	TextRenderer3DGl();
 	virtual ~TextRenderer3DGl();
 
 	virtual void begin(Font3D *font);
-	virtual void render(const string &text, float x, float y, bool centered);
+	virtual void render(const string &text, float x, float y, bool centered=false, Vec3f *color=NULL);
 	virtual void end();
 };
 

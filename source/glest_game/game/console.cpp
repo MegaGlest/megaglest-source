@@ -39,6 +39,7 @@ Console::Console() {
 	yPos=20;
 	lineHeight=20;
 	font=CoreData::getInstance().getConsoleFont();
+	font3D=CoreData::getInstance().getConsoleFont3D();
 	stringToHighlight="";
 }
 

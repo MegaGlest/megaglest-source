@@ -28,6 +28,7 @@ using namespace std;
 namespace Glest { namespace Game {
 
 using Shared::Graphics::Font2D;
+using Shared::Graphics::Font3D;
 using Shared::Graphics::Vec3f;
 // =====================================================
 // 	class Console
@@ -67,6 +68,7 @@ private:
 	int yPos;
 	int lineHeight;
 	Font2D *font;
+	Font3D *font3D;
 
 public:
 	Console();
@@ -80,7 +82,9 @@ public:
 	int getLineHeight() const {return lineHeight;}
 	void setLineHeight(int lineHeight)	{this->lineHeight= lineHeight;}
 	Font2D *getFont() const {return font;}
+	Font3D *getFont3D() const {return font3D;}
 	void setFont(Font2D *font)	{this->font= font;}
+	void setFont3D(Font3D *font)	{this->font3D= font;}
     string getStringToHighlight() const { return stringToHighlight;}
     void setStringToHighlight(string stringToHighlight) { this->stringToHighlight = stringToHighlight;}
 

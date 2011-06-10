@@ -18,6 +18,7 @@
 
 using std::string;
 using Shared::Graphics::Font2D;
+using Shared::Graphics::Font3D;
 
 namespace Glest{ namespace Game{
 
@@ -42,6 +43,7 @@ private:
 	int yPos;
 	int maxTextLenght;
 	Font2D *font;
+	Font3D *font3D;
 	
 
 public:
@@ -64,7 +66,9 @@ public:
 	int getMaxTextLenght() const {return maxTextLenght;}
 	void setMaxTextLenght(int maxTextLenght)	{this->maxTextLenght= maxTextLenght;}
 	Font2D *getFont() const {return font;}
+	Font3D *getFont3D() const {return font3D;}
 	void setFont(Font2D *font)	{this->font= font;}
+	void setFont3D(Font3D *font)	{this->font3D= font;}
 	void addText(string text);
 	void switchOnEdit();
 	

@@ -72,7 +72,16 @@ void BattleEnd::update() {
 
 void BattleEnd::render(){
 	Renderer &renderer= Renderer::getInstance();
-	TextRenderer2D *textRenderer= renderer.getTextRenderer();
+	TextRenderer2D *textRenderer2D= renderer.getTextRenderer();
+	TextRenderer3D *textRenderer3D= renderer.getTextRenderer3D();
+	TextRenderer *textRenderer= NULL;
+	if(Renderer::renderText3DEnabled == true) {
+		textRenderer= textRenderer3D;
+	}
+	else {
+		textRenderer= textRenderer2D;
+	}
+
 	Lang &lang= Lang::getInstance();
 
 	renderer.clearBuffers();
@@ -137,7 +146,13 @@ void BattleEnd::render(){
 	}
 
 	bool disableStatsColorCoding = Config::getInstance().getBool("DisableBattleEndColorCoding","false");
-	textRenderer->begin(CoreData::getInstance().getMenuFontNormal());
+
+	if(Renderer::renderText3DEnabled == true) {
+		textRenderer3D->begin(CoreData::getInstance().getMenuFontNormal3D());
+	}
+	else {
+		textRenderer2D->begin(CoreData::getInstance().getMenuFontNormal());
+	}
 
 	int lm= 20;
 	int bm= 100;
@@ -292,7 +307,12 @@ void BattleEnd::render(){
 
 	textRenderer->end();
 
-	textRenderer->begin(CoreData::getInstance().getMenuFontVeryBig());
+	if(Renderer::renderText3DEnabled == true) {
+		textRenderer3D->begin(CoreData::getInstance().getMenuFontVeryBig3D());
+	}
+	else {
+		textRenderer2D->begin(CoreData::getInstance().getMenuFontVeryBig());
+	}
 
 	string header = stats.getDescription() + " - ";
 

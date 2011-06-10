@@ -1919,9 +1919,16 @@ void Game::render2d(){
 	if(!scriptManager.getDisplayText().empty() && !scriptManager.getMessageBoxEnabled()){
 		Vec4f fontColor = getGui()->getDisplay()->getColor();
 
-		renderer.renderText(
-			scriptManager.getDisplayText(), coreData.getMenuFontNormal(),
-			Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 680, false);
+		if(Renderer::renderText3DEnabled == true) {
+			renderer.renderText3D(
+				scriptManager.getDisplayText(), coreData.getMenuFontNormal3D(),
+				Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 680, false);
+		}
+		else {
+			renderer.renderText(
+				scriptManager.getDisplayText(), coreData.getMenuFontNormal(),
+				Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 680, false);
+		}
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();
@@ -2040,16 +2047,29 @@ void Game::render2d(){
 		int mh= metrics.getMinimapH();
 		const Vec4f fontColor=getGui()->getDisplay()->getColor();
 
-		renderer.renderTextShadow(str, coreData.getMenuFontNormal(),
-				fontColor, 10, metrics.getVirtualH() - mh - 60, false);
+		if(Renderer::renderText3DEnabled == true) {
+			renderer.renderTextShadow3D(str, coreData.getMenuFontNormal3D(),
+					fontColor, 10, metrics.getVirtualH() - mh - 60, false);
+		}
+		else {
+			renderer.renderTextShadow(str, coreData.getMenuFontNormal(),
+					fontColor, 10, metrics.getVirtualH() - mh - 60, false);
+		}
 
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			string factionInfo = factionDebugInfo[i];
 			Vec3f playerColor = world.getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0);
 
-			renderer.renderText(factionInfo, coreData.getMenuFontBig(),
-					Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
-					10, metrics.getVirtualH() - mh - 90 - 280 - (i * 16), false);
+			if(Renderer::renderText3DEnabled == true) {
+				renderer.renderText3D(factionInfo, coreData.getMenuFontBig3D(),
+						Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
+						10, metrics.getVirtualH() - mh - 90 - 280 - (i * 16), false);
+			}
+			else {
+				renderer.renderText(factionInfo, coreData.getMenuFontBig(),
+						Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
+						10, metrics.getVirtualH() - mh - 90 - 280 - (i * 16), false);
+			}
 		}
 
 		if((renderer.getShowDebugUILevel() & debugui_unit_titles) == debugui_unit_titles) {
@@ -2070,10 +2090,18 @@ void Game::render2d(){
 			int mh= metrics.getMinimapH();
 			const Vec4f fontColor=getGui()->getDisplay()->getColor();
 
-			renderer.renderTextShadow(
-				NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
-				coreData.getMenuFontNormal(),
-				fontColor, mx + mw + 5 , metrics.getVirtualH()-30-20, false);
+			if(Renderer::renderText3DEnabled == true) {
+				renderer.renderTextShadow3D(
+								NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
+								coreData.getMenuFontNormal3D(),
+								fontColor, mx + mw + 5 , metrics.getVirtualH()-30-20, false);
+			}
+			else {
+				renderer.renderTextShadow(
+					NetworkManager::getInstance().getGameNetworkInterface()->getNetworkStatus(),
+					coreData.getMenuFontNormal(),
+					fontColor, mx + mw + 5 , metrics.getVirtualH()-30-20, false);
+			}
 		}
 	}
 
