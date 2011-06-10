@@ -96,6 +96,7 @@ void SelectionQuad::disable(){
 Gui::Gui(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
+	lastGroupRecall = -1;
     posObjWorld= Vec2i(54, 14);
 	validPosObjWorld= false;
     activeCommandType= NULL;
@@ -313,13 +314,16 @@ void Gui::groupKey(int groupIndex) {
 
 		Config &config = Config::getInstance();
 		int recallGroupCenterCameraTimeout = config.getInt("RecallGroupCenterCameraTimeoutMilliseconds","1500");
-		if(lastGroupRecallTime.getMillis() > 0 && lastGroupRecallTime.getMillis() <= recallGroupCenterCameraTimeout) {
+		if(lastGroupRecall == groupIndex &&
+			lastGroupRecallTime.getMillis() > 0 &&
+			lastGroupRecallTime.getMillis() <= recallGroupCenterCameraTimeout) {
 			centerCameraOnSelection();
 		}
 		else {
 			selection.recallGroup(groupIndex);
 		}
 		lastGroupRecallTime.start();
+		lastGroupRecall = groupIndex;
 	}
 }
 
