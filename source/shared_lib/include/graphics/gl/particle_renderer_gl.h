@@ -38,7 +38,7 @@ public:
 	virtual void renderSystem(ParticleSystem *ps);
 	virtual void renderSystemLine(ParticleSystem *ps);
 	virtual void renderSystemLineAlpha(ParticleSystem *ps);
-	virtual void renderSingleModel(AttackParticleSystem *ps, ModelRenderer *mr);
+	virtual void renderModel(AttackParticleSystem *ps, ModelRenderer *mr);
 	
 protected:
 	void renderBufferQuads(int quadCount);

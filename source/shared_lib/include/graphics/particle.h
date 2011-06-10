@@ -351,6 +351,7 @@ protected:
 	float sizeNoEnergy;
 	float gravity;
 	
+	float tween;
 	Vec3f direction;
 
 public:
@@ -368,6 +369,8 @@ public:
 	void setSizeNoEnergy(float sizeNoEnergy)	{this->sizeNoEnergy= sizeNoEnergy;}
 	void setGravity(float gravity)				{this->gravity= gravity;}
 	void setPrimitive(Primitive primitive)		{this->primitive= primitive;}
+
+	float getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
 
 	static Primitive strToPrimitive(const string &str);
 };

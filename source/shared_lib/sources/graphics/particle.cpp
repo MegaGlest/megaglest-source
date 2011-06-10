@@ -684,13 +684,14 @@ AttackParticleSystem::AttackParticleSystem(int particleCount) :
 	primitive= pQuad;
 	offset= Vec3f(0.0f);
 	gravity= 0.0f;
+	tween= 0.0f;
 	direction= Vec3f(1.0f, 0.0f, 0.0f);
 }
 
 void AttackParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 	if(active){
 		if(model != NULL){
-			pr->renderSingleModel(this, mr);
+			pr->renderModel(this, mr);
 		}
 		switch(primitive){
 			case pQuad:
@@ -760,7 +761,7 @@ void ProjectileParticleSystem::update(){
 		Vec3f currentVector= flatPos - startPos;
 
 		// ratio
-		float t= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
+		tween = clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
 
 		// trajectory
 		switch(trajectory){
@@ -770,7 +771,7 @@ void ProjectileParticleSystem::update(){
 				break;
 
 			case tParabolic: {
-				float scaledT= 2.0f * (t - 0.5f);
+				float scaledT= 2.0f * (tween - 0.5f);
 				float paraboleY= (1.0f - scaledT * scaledT) * trajectoryScale;
 
 				pos= flatPos;
@@ -781,11 +782,11 @@ void ProjectileParticleSystem::update(){
 			case tSpiral: {
 				pos= flatPos;
 #ifdef USE_STREFLOP
-				pos+= xVector * streflop::cos(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
-				pos+= yVector * streflop::sin(t*trajectoryFrequency*targetVector.length())*trajectoryScale;
+				pos+= xVector * streflop::cos(tween * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= yVector * streflop::sin(tween * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #else
-				pos+= xVector * cos(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
-				pos+= yVector * sin(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= xVector * cos(tween * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= yVector * sin(tween * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #endif
 			}
 				break;
