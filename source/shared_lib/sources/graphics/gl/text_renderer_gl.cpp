@@ -30,7 +30,7 @@ namespace Shared { namespace Graphics { namespace Gl {
 //	class TextRenderer2DGl
 // =====================================================
 
-TextRenderer2DGl::TextRenderer2DGl() {
+TextRenderer2DGl::TextRenderer2DGl() : TextRenderer2D() {
 	rendering= false;
 	this->font = NULL;
 }
@@ -348,7 +348,7 @@ void TextRenderer2DGl::end() {
 //	class TextRenderer3DGl
 // =====================================================
 
-TextRenderer3DGl::TextRenderer3DGl() {
+TextRenderer3DGl::TextRenderer3DGl() : TextRenderer3D() {
 	rendering= false;
 	this->font = NULL;
 }
