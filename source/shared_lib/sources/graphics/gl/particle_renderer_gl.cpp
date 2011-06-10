@@ -223,9 +223,10 @@ void ParticleRendererGl::renderSystemLineAlpha(ParticleSystem *ps){
 	assertGl();
 }
 
-void ParticleRendererGl::renderSingleModel(AttackParticleSystem *ps, ModelRenderer *mr){
+void ParticleRendererGl::renderModel(AttackParticleSystem *ps, ModelRenderer *mr){
 	//render model
-	if(ps->getModel()!=NULL){
+	Model *model = ps->getModel();
+	if(model != NULL) {
 
 		//init
 		glEnable(GL_LIGHTING);
@@ -261,7 +262,8 @@ void ParticleRendererGl::renderSingleModel(AttackParticleSystem *ps, ModelRender
 
 		//render
 		mr->begin(true, true, false);
-		mr->render(ps->getModel());
+		model->updateInterpolationData(ps->getTween(), false);
+		mr->render(model);
 		mr->end();
 
 		//end

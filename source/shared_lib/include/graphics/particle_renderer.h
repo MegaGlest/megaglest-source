@@ -31,7 +31,7 @@ public:
 	virtual void renderSystem(ParticleSystem *ps)=0;
 	virtual void renderSystemLine(ParticleSystem *ps)=0;
 	virtual void renderSystemLineAlpha(ParticleSystem *ps)=0;
-	virtual void renderSingleModel(AttackParticleSystem *ps, ModelRenderer *mr)=0;
+	virtual void renderModel(AttackParticleSystem *ps, ModelRenderer *mr)=0;
 };
 
 }}//end namespace
