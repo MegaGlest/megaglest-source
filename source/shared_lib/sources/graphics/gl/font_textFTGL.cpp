@@ -76,11 +76,21 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 	}
 	free((void*)fontFile);
 	fontFile = NULL;
+
 	ftFont->FaceSize(24);
+	if(ftFont->Error())	{
+		throw runtime_error("FTGL: error setting face size");
+	}
 	//ftFont->UseDisplayList(false);
 	//ftFont->CharMap(ft_encoding_gb2312);
 	//ftFont->CharMap(ft_encoding_big5);
-	ftFont->CharMap(ft_encoding_unicode);
+	if(ftFont->CharMap(ft_encoding_unicode) == false) {
+		throw runtime_error("FTGL: error setting encoding");
+	}
+
+	if(ftFont->Error())	{
+		throw runtime_error("FTGL: error setting encoding");
+	}
 }
 
 TextFTGL::~TextFTGL() {
@@ -133,14 +143,27 @@ void TextFTGL::init(string fontName, int fontSize) {
 	else {
 		ftFont->FaceSize(24);
 	}
+
+	if(ftFont->Error())	{
+		throw runtime_error("FTGL: error setting face size");
+	}
+
 	//ftFont->UseDisplayList(false);
 	//ftFont->CharMap(ft_encoding_gb2312);
 	//ftFont->CharMap(ft_encoding_big5);
-	ftFont->CharMap(ft_encoding_unicode);
+	if(ftFont->CharMap(ft_encoding_unicode) == false) {
+		throw runtime_error("FTGL: error setting encoding");
+	}
+	if(ftFont->Error())	{
+		throw runtime_error("FTGL: error setting encoding");
+	}
 }
 
 void TextFTGL::SetFaceSize(int value) {
 	ftFont->FaceSize(value);
+	if(ftFont->Error())	{
+		throw runtime_error("FTGL: error setting face size");
+	}
 }
 int TextFTGL::GetFaceSize() {
 	return ftFont->FaceSize();
@@ -153,6 +176,10 @@ void TextFTGL::Render(const char* str, const int len) {
 	*/
 	if(len != 0) {
 		ftFont->Render(str, len);
+
+		if(ftFont->Error())	{
+			throw runtime_error("FTGL: error trying to render");
+		}
 	}
 }
 
