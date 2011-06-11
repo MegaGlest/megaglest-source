@@ -289,14 +289,28 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 		//printf("\n[%ls]\n",lineBuffer);
 		//printf("\n[%s]\n",&lineBuffer[0]);
 
-		// If the file is NOT in UTF-8 format convert each line
-		if(is_utf8_language == false && Font::forceLegacyFonts == false) {
-			char *utfStr = String::ConvertToUTF8(&lineBuffer[0]);
+		if(lineBuffer[0] != '\0') {
+			// If the file is NOT in UTF-8 format convert each line
+			if(is_utf8_language == false && Font::forceLegacyFonts == false) {
+				char *utfStr = String::ConvertToUTF8(&lineBuffer[0]);
 
-			//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
+				//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
 
-			memset(&lineBuffer[0],0,maxLine);
-			memcpy(&lineBuffer[0],&utfStr[0],strlen(utfStr));
+				memset(&lineBuffer[0],0,maxLine);
+				memcpy(&lineBuffer[0],&utfStr[0],strlen(utfStr));
+
+				delete [] utfStr;
+			}
+			else if(is_utf8_language == true && Font::forceLegacyFonts == true) {
+				char *asciiStr = String::ConvertFromUTF8(&lineBuffer[0]);
+
+				//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
+
+				memset(&lineBuffer[0],0,maxLine);
+				memcpy(&lineBuffer[0],&asciiStr[0],strlen(asciiStr));
+
+				delete [] asciiStr;
+			}
 		}
 
 //		bool isRLM = utf8::starts_with_rlm(&lineBuffer[0], &lineBuffer[0] + strlen(lineBuffer));
