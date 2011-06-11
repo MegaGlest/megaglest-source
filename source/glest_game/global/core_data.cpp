@@ -324,14 +324,22 @@ void CoreData::load() {
 
 }
 
-int CoreData::computeFontSize(int size){
+int CoreData::computeFontSize(int size) {
+	int rs = size;
 	Config &config= Config::getInstance();
-	int screenH= config.getInt("ScreenHeight");
-	int rs= size*screenH/1024;
+	if(Font::forceLegacyFonts == true) {
+		int screenH = config.getInt("ScreenHeight");
+		rs = size * screenH / 1024;
+	}
+	else {
+		rs = ((float)size * 0.86);
+	}
 	//FontSizeAdjustment
-	rs=rs+config.getInt("FontSizeAdjustment");
-	if(rs<10){
-		rs= 10;
+	rs += config.getInt("FontSizeAdjustment");
+	if(Font::forceLegacyFonts == true) {
+		if(rs < 10) {
+			rs= 10;
+		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize orginal %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
 	return rs;

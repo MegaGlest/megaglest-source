@@ -50,8 +50,10 @@ class TextRenderer3DGl: public TextRenderer3D {
 private:
 	Font3DGl *font;
 	bool rendering;
+	int currentFTGLErrorCount;
 
 	void internalRender(const string &text, float  x, float y, bool centered, Vec3f *color);
+	void specialFTGLErrorCheckWorkaround(string text);
 
 public:
 	TextRenderer3DGl();

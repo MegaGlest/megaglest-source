@@ -368,6 +368,9 @@ public:
 	void renderTextShadow3D(const string &text, Font3D *font,const Vec4f &color, int x, int y, bool centered=false);
 	void renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth=-1, string prefixLabel="", bool centeredText=true);
 
+	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, int w, int h, bool centered);
+	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, int w, int h, bool centered);
+
     //components
 	void renderLabel(GraphicLabel *label);
 	void renderLabel(GraphicLabel *label,const Vec3f *color);

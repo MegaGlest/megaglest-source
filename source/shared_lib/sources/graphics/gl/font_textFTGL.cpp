@@ -185,6 +185,29 @@ void TextFTGL::Render(const char* str, const int len) {
 
 float TextFTGL::Advance(const char* str, const int len) {
 	return ftFont->Advance(str, len);
+
+	//FTBBox box = ftFont->BBox(str);
+	//float urx = box.Upper().X();
+	//float llx = box.Lower().X();
+	//float llx, lly, llz, urx, ury, urz;
+	//ftFont->BBox(str, llx, lly, llz, urx, ury, urz);
+
+	//Short_t halign = fTextAlign/10;
+	//Short_t valign = fTextAlign - 10*halign;
+	//Float_t dx = 0, dy = 0;
+//	switch (halign) {
+//	  case 1 : dx =  0    ; break;
+//	  case 2 : dx = -urx/2; break;
+//	  case 3 : dx = -urx  ; break;
+//	}
+//	switch (valign) {
+//	  case 1 : dy =  0    ; break;
+//	  case 2 : dy = -ury/2; break;
+//	  case 3 : dy = -ury  ; break;
+//	}
+
+	//printf("For str [%s] advance = %f, urx = %f, llx = %f\n",str, ftFont->Advance(str, len),urx,llx);
+	//return urx;
 }
 
 float TextFTGL::LineHeight(const char* str, const int len) {

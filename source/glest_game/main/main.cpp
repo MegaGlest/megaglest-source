@@ -126,6 +126,7 @@ const char  *GAME_ARGS[] = {
 	"--disable-vbo",
 	"--disable-sound",
 	"--enable-legacyfonts",
+	"--use-video-settings",
 	"--verbose"
 
 };
@@ -161,6 +162,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_DISABLE_SOUND,
 	GAME_ARG_ENABLE_LEGACYFONTS,
+	GAME_ARG_USE_VIDEO_SETTINGS,
 	GAME_ARG_VERBOSE_MODE
 };
 
@@ -1062,6 +1064,16 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
 
 	printf("\n%s\t\t\tenables using the legacy font system.",GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]);
+
+
+	printf("\n%s=x\t\t\toverride video settings.",GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+	printf("\n                     \t\tWhere x is a string with the following format:");
+	printf("\n                     \t\twidthxheightxcolorbitsxdepthbitsxfullscreen");
+	printf("\n                     \t\twhere * indicates not to replace the default value for the parameter");
+	printf("\n                     \t\fullscreen has possible values of true, false, 1 or 0");
+	printf("\n                     \t\tand only the width and height parameters are required (the others are optional)");
+	printf("\n                     \t\texample: %s %s=1024x768x*x*",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+	printf("\n                     \t\tsame result for: %s %s=1024x768",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
 
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 
@@ -2463,6 +2475,60 @@ int glestMain(int argc, char** argv) {
         }
 
         Renderer::renderText3DEnabled = config.getBool("Enable3DFontRendering",intToStr(Renderer::renderText3DEnabled).c_str());
+
+        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string settings = paramPartTokens[1];
+				printf("Forcing video settings [%s]\n",settings.c_str());
+
+				paramPartTokens.clear();
+				Tokenize(settings,paramPartTokens,"x");
+				if(paramPartTokens.size() >= 2) {
+					int newScreenWidth 	= strToInt(paramPartTokens[0]);
+					config.setInt("ScreenWidth",newScreenWidth);
+
+					int newScreenHeight = strToInt(paramPartTokens[1]);
+					config.setInt("ScreenHeight",newScreenHeight);
+
+					if(paramPartTokens.size() >= 3) {
+						if(paramPartTokens[2] != "*") {
+							int newColorBits = strToInt(paramPartTokens[2]);
+							config.setInt("ColorBits",newColorBits);
+						}
+					}
+					if(paramPartTokens.size() >= 4) {
+						if(paramPartTokens[3] != "*") {
+							int newDepthBits = strToInt(paramPartTokens[3]);
+							config.setInt("DepthBits",newDepthBits);
+						}
+					}
+					if(paramPartTokens.size() >= 5) {
+						if(paramPartTokens[4] != "*") {
+							bool newFullScreenMode = strToBool(paramPartTokens[4]);
+							config.setBool("Windowed",newFullScreenMode);
+						}
+					}
+				}
+				else {
+		            printf("\nInvalid missing video settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+		            //printParameterHelp(argv[0],false);
+		            return -1;
+				}
+			}
+	        else {
+	            printf("\nInvalid missing video settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+        }
 
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
