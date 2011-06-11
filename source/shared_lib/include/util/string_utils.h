@@ -243,6 +243,8 @@ namespace Shared { namespace Util {
         */
         static String ConvertToUTF8(const String& s);
 
+        static char* ConvertFromUTF8(const char* str);
+
         /*!
         ** \brief Formatted string
         ** \param format The format of the new string

@@ -346,6 +346,99 @@ namespace Shared { namespace Util {
     }
 
 
+    char* String::ConvertFromUTF8(const char* str) {
+
+/*
+    	int length = strlen(str);
+    	char *pBuffer = new char[length * 8];
+    	memset(pBuffer,0,length * 8);
+
+		int len = 0;
+		for(unsigned int i = 0 ; i < length; i++)
+		{
+			if (((Shared::Platform::byte)str[i]) < 0x80)
+			{
+				pBuffer[len++] = ((Shared::Platform::byte)str[i]);
+				continue;
+			}
+			if (((Shared::Platform::byte)str[i]) >= 0xC0)
+			{
+				wchar_t c = ((Shared::Platform::byte)str[i++]) - 0xC0;
+				while(((Shared::Platform::byte)str[i]) >= 0x80)
+					c = (c << 6) | (((Shared::Platform::byte)str[i++]) - 0x80);
+				--i;
+				pBuffer[len++] = c;
+				continue;
+			}
+		}
+		pBuffer[len] = 0;
+		return pBuffer;
+*/
+
+        const unsigned char *in = reinterpret_cast<const unsigned char*>(str);
+        int len = strlen(str);
+        char *out = new char[len*8];
+        memset(out,0,len*8);
+		int outc;
+		int inpos = 0;
+		int outpos = 0;
+		while (inpos < len || len == -1) {
+			  if (in[inpos]<0x80) {
+			   out[outpos++] = in[inpos];
+			   if (in[inpos] == 0 && len == -1)
+				break;
+			   inpos++;
+			 }
+			 else if (in[inpos]<0xE0) {
+				 // Shouldn't happen.
+				 if(in[inpos]<0xC0 || (len!=-1 && inpos+1 >= len) ||
+				  (in[inpos+1]&0xC0)!= 0x80) {
+					 out[outpos++] = '?';
+					 inpos++;
+					 continue;
+				 }
+				 outc =	((((wchar_t)in[inpos])&0x1F)<<6) |
+						 (((wchar_t)in[inpos+1])&0x3F);
+				 if (outc < 256)
+					 out[outpos] = ((char*)&outc)[0];
+				 else
+					 out[outpos] = '?';
+				 outpos++;
+				 inpos+=2;
+			 }
+			 else if (in[inpos]<0xF0) {
+				 // Shouldn't happen.
+				 if ((len!=-1 && inpos+2 >= len) ||
+					   (in[inpos+1]&0xC0)!= 0x80 ||
+					   (in[inpos+2]&0xC0)!= 0x80) {
+				   out[outpos++] = '?';
+				   inpos++;
+				   continue;
+				 }
+				 out[outpos++] = '?';
+				 inpos+=3;
+			 }
+			 else if (in[inpos]<0xF8) {
+				 // Shouldn't happen.
+				 if ((len!=-1 && inpos+3 >= len) ||
+						 (in[inpos+1]&0xC0)!= 0x80 ||
+						 (in[inpos+2]&0xC0)!= 0x80 ||
+						 (in[inpos+3]&0xC0)!= 0x80) {
+					 out[outpos++] = '?';
+					 inpos++;
+					 continue;
+				 }
+				 out[outpos++] = '?';
+				 inpos+=4;
+			 }
+			 else {
+			   out[outpos++] = '?';
+			   inpos++;
+			 }
+		}
+		return out;
+    }
+
     char* String::ConvertToUTF8(const char* s)
     {
         if (NULL != s && *s != '\0')
