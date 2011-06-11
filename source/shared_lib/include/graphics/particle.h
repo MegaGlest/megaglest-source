@@ -370,7 +370,7 @@ public:
 	void setPrimitive(Primitive primitive)		{this->primitive= primitive;}
 	
 	float getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
-	virtual void initParticleSystem() {} // opportunity to do any initialisation when the system has been created and all settings set
+	virtual void initParticleSystem() {} // opportunity to do any initialization when the system has been created and all settings set
 
 	static Primitive strToPrimitive(const string &str);
 };
@@ -401,6 +401,8 @@ private:
 	Vec3f yVector;
 	Vec3f zVector;
 
+	float modelCycle;
+
 	Trajectory trajectory;
 	float trajectorySpeed;
 
@@ -424,6 +426,8 @@ public:
 	void setTrajectorySpeed(float trajectorySpeed)			{this->trajectorySpeed= trajectorySpeed;}
 	void setTrajectoryScale(float trajectoryScale)			{this->trajectoryScale= trajectoryScale;}
 	void setTrajectoryFrequency(float trajectoryFrequency)	{this->trajectoryFrequency= trajectoryFrequency;}
+
+	void setModelCycle(float modelCycle)         			{this->modelCycle= modelCycle;}
 	void setPath(Vec3f startPos, Vec3f endPos);
 
 	static Trajectory strToTrajectory(const string &str);

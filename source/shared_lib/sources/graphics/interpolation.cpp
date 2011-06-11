@@ -73,6 +73,9 @@ void InterpolationData::update(float t, bool cycle){
 }
 
 void InterpolationData::updateVertices(float t, bool cycle) {
+	if(t <0.0f || t>1.0f) {
+		printf("ERROR t = [%f] for cycle [%d] f [%d] v [%d]\n",t,cycle,mesh->getFrameCount(),mesh->getVertexCount());
+	}
 	assert(t>=0.0f && t<=1.0f);
 
 	uint32 frameCount= mesh->getFrameCount();
