@@ -244,6 +244,8 @@ ProjectileParticleSystem *ParticleSystemTypeProjectile::create() {
 	ps->setTrajectoryScale(trajectoryScale);
 	ps->setTrajectoryFrequency(trajectoryFrequency);
 
+	ps->initParticleSystem();
+
 	return ps;
 }
 
@@ -296,6 +298,8 @@ SplashParticleSystem *ParticleSystemTypeSplash::create(){
 	ps->setVerticalSpreadB(verticalSpreadB);
 	ps->setHorizontalSpreadA(horizontalSpreadA);
 	ps->setHorizontalSpreadB(horizontalSpreadB);
+
+	ps->initParticleSystem();
 
 	return ps;
 }

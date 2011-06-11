@@ -747,6 +747,7 @@ ProjectileParticleSystem::~ProjectileParticleSystem(){
 
 void ProjectileParticleSystem::link(SplashParticleSystem *particleSystem){
 	nextParticleSystem= particleSystem;
+	nextParticleSystem->setVisible(false);
 	nextParticleSystem->setState(sPause);
 	nextParticleSystem->prevParticleSystem= this;
 }
@@ -761,17 +762,30 @@ void ProjectileParticleSystem::update(){
 		Vec3f currentVector= flatPos - startPos;
 
 		// ratio
-		tween = clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
+		float t= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
+
+		// animation?
+		if(modelCycle == 0.0f) {
+			tween= t;
+		}
+		else {
+		#ifdef USE_STREFLOP
+			tween= streflop::fmod(currentVector.length(), modelCycle);
+		#else
+			tween= fmod(currentVector.length(), modelCycle);
+		#endif
+			tween= clamp(tween / currentVector.length(), 0.0f, 1.0f);
+		}
 
 		// trajectory
-		switch(trajectory){
+		switch(trajectory) {
 			case tLinear: {
 				pos= flatPos;
 			}
 				break;
 
 			case tParabolic: {
-				float scaledT= 2.0f * (tween - 0.5f);
+				float scaledT= 2.0f * (t - 0.5f);
 				float paraboleY= (1.0f - scaledT * scaledT) * trajectoryScale;
 
 				pos= flatPos;
@@ -808,6 +822,7 @@ void ProjectileParticleSystem::update(){
 			}
 
 			if(nextParticleSystem != NULL){
+				nextParticleSystem->setVisible(true);
 				nextParticleSystem->setState(sPlay);
 				nextParticleSystem->setPos(endPos);
 			}
@@ -917,7 +932,7 @@ void SplashParticleSystem::initParticleSystem() {
 	startEmissionRate = emissionRate;
 }
 
-void SplashParticleSystem::update(){
+void SplashParticleSystem::update() {
 	ParticleSystem::update();
 	if(state != sPause) {
 		emissionRate-= emissionRateFade;
