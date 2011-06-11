@@ -24,8 +24,8 @@ namespace Glest{ namespace Game{
 // 	class Metrics
 // =====================================================
 
-Metrics::Metrics(){
-	Config &config= Config::getInstance();
+Metrics::Metrics() {
+	Config &config = Config::getInstance();
 	
 	virtualW= 1000;
 	virtualH= 750;

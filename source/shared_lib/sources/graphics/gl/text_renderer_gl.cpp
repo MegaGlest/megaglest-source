@@ -351,6 +351,7 @@ void TextRenderer2DGl::end() {
 TextRenderer3DGl::TextRenderer3DGl() : TextRenderer3D() {
 	rendering= false;
 	this->font = NULL;
+	currentFTGLErrorCount = 0;
 }
 
 TextRenderer3DGl::~TextRenderer3DGl() {
@@ -367,70 +368,118 @@ void TextRenderer3DGl::begin(Font3D *font) {
 	//load color
 	glPushAttrib(GL_TRANSFORM_BIT);
 
-	assertGl();
+	//assertGl();
 }
 
 void TextRenderer3DGl::render(const string &text, float  x, float y, bool centered, Vec3f *color) {
 	assert(rendering);
 
-	string renderText = text;
-	if(Font::fontIsMultibyte == true) {
-		if(font->getTextHandler() != NULL) {
-			if(Font::fontIsRightToLeft == true) {
-				//printf("\n\n#A [%s]\n",renderText.c_str());
-				//bool isRLM = utf8::starts_with_rlm(text.begin(), text.end() + text.size());
+	if(text.empty() == false) {
+		string renderText = text;
+		if(Font::fontIsMultibyte == true) {
+			if(font->getTextHandler() != NULL) {
+				if(Font::fontIsRightToLeft == true) {
+					//printf("\n\n#A [%s]\n",renderText.c_str());
+					//bool isRLM = utf8::starts_with_rlm(text.begin(), text.end() + text.size());
 
-				//printf("\n\nORIGINAL TEXT [%s] isRLM = %d\n\n",text.c_str(),isRLM);
-				//for(int i = 0; i < renderText.size(); ++i) {
-				//	printf("i = %d c [%c][%d][%X]\n",i,renderText[i],renderText[i],renderText[i]);
-				//}
-				//if(isRLM == true) {
-				if(is_string_all_ascii(renderText) == false) {
-					strrev_utf8(renderText);
+					//printf("\n\nORIGINAL TEXT [%s] isRLM = %d\n\n",text.c_str(),isRLM);
+					//for(int i = 0; i < renderText.size(); ++i) {
+					//	printf("i = %d c [%c][%d][%X]\n",i,renderText[i],renderText[i],renderText[i]);
+					//}
+					//if(isRLM == true) {
+					if(is_string_all_ascii(renderText) == false) {
+						strrev_utf8(renderText);
+					}
 				}
 			}
 		}
-	}
 
-	internalRender(renderText, x, y, centered, color);
+		internalRender(renderText, x, y, centered, color);
+	}
+}
+
+void TextRenderer3DGl::specialFTGLErrorCheckWorkaround(string text) {
+	GLenum error = glGetError();
+	if(error) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nIn [%s::%s Line: %d] error = %d for text [%s]\n\n",__FILE__,__FUNCTION__,__LINE__,error,text.c_str());
+
+		if(currentFTGLErrorCount > 0) {
+			printf("error = %d for text [%s]\n",error,text.c_str());
+			assertGlWithErrorNumber(error);
+		}
+
+		currentFTGLErrorCount++;
+	}
 }
 
 void TextRenderer3DGl::internalRender(const string &text, float  x, float y, bool centered, Vec3f *color) {
 	//assert(rendering);
 
 	if(color != NULL) {
+		//assertGl();
 		glPushAttrib(GL_CURRENT_BIT);
+
+		//assertGl();
+
 		glColor3fv(color->ptr());
+
+		//assertGl();
 	}
 	
 	const unsigned char *utext= NULL;
-	assertGl();
+	//assertGl();
 
 	glMatrixMode(GL_MODELVIEW);
+
+	//assertGl();
+
 	glPushMatrix();
+
+	//assertGl();
+
 	glLoadIdentity();
+
+	//assertGl();
+
 	//glPushAttrib(GL_POLYGON_BIT);
 
 	int size = font->getSize();
 	//float scale= size / 15.f;
-	float scale= 1.0f;
-	//float scale= size;
 	Vec3f translatePos;
 	FontMetrics *metrics= font->getMetrics();
 
 	if(font->getTextHandler() != NULL) {
+		//centered = false;
 		if(centered) {
-			translatePos.x = x - scale * font->getTextHandler()->Advance(text.c_str()) / 2.f;
-			translatePos.y = y - scale * font->getTextHandler()->LineHeight(text.c_str()) / font->getYOffsetFactor();
+			//printf("3d text to center [%s] advance = %f, x = %f\n",text.c_str(),font->getTextHandler()->Advance(text.c_str()), x);
+			//printf("3d text to center [%s] lineheight = %f, y = %f\n",text.c_str(),font->getTextHandler()->LineHeight(text.c_str()), y);
+
+//			translatePos.x = x - scale * font->getTextHandler()->Advance(text.c_str()) / 2.f;
+//			translatePos.y = y - scale * font->getTextHandler()->LineHeight(text.c_str()) / font->getYOffsetFactor();
+			//assertGl();
+			translatePos.x = x - (font->getTextHandler()->Advance(text.c_str()) / 2.f);
+			//assertGl();
+			//translatePos.y = y - (font->getTextHandler()->LineHeight(text.c_str()) / font->getYOffsetFactor());
+			translatePos.y = y - (font->getTextHandler()->LineHeight(text.c_str()) / 2.f);
+			//assertGl();
+
 			translatePos.z = 0;
 		}
 		else {
-			translatePos.x = x-scale;
-			translatePos.y = y-scale;
+			//printf("3d text [%s] advance = %f, x = %f\n",text.c_str(),font->getTextHandler()->Advance(text.c_str()), x);
+
+//			translatePos.x = x-scale;
+//			translatePos.y = y-scale;
+			translatePos.x = x;
+			translatePos.y = y;
+
 			translatePos.z = 0;
 		}
 	}
 	else {
+		float scale= 1.0f;
+		//float scale= size;
+
 		utext= reinterpret_cast<const unsigned char*>(text.c_str());
 		if(centered) {
 			//glTranslatef(x-scale*metrics->getTextWidth(text)/2.f, y-scale*metrics->getHeight()/2.f, 0);
@@ -446,24 +495,35 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 		}
 	}
 
-	float scaleX = 0.65;
-	float scaleY = 0.75;
-	float scaleZ = 1.0;
+	//float scaleX = 0.65;
+	//float scaleY = 0.75;
+	//float scaleZ = 1.0;
+
 	//float scaleX = 1;
 	//float scaleY = 1;
 	//float scaleZ = 1;
 
-	float yScaleFactor = (metrics->getHeight() * (1.0 - scaleY));
-	translatePos.y += yScaleFactor;
+	//float yScaleFactor = (metrics->getHeight() * (1.0 - scaleY));
+	//translatePos.y += yScaleFactor;
+
+	//assertGl();
 
 	glTranslatef(translatePos.x, translatePos.y, translatePos.z);
-	glScalef(scaleX, scaleY, scaleZ);
 
-	//font->getTextHandler()->Render(text.c_str());
+	//assertGl();
+
+	//glScalef(scaleX, scaleY, scaleZ);
+
+	//assertGl();
+
+	// font->getTextHandler()->Render(text.c_str());
+	// specialFTGLErrorCheckWorkaround(text);
 
 	if(font->getTextHandler() != NULL) {
 		if(text.find("\n") == text.npos && text.find("\t") == text.npos) {
+			//assertGl();
 			font->getTextHandler()->Render(text.c_str());
+			specialFTGLErrorCheckWorkaround(text);
 		}
 		else {
 			int line=0;
@@ -479,18 +539,12 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 					case '\t':
 						parts.push_back(szBuf);
 						lastCharacterWasSpecial = true;
-						//rasterPos= Vec2f((rasterPos.x / size + 3.f) * size, y-(size + 1.f) * line);
-						//glRasterPos2f(rasterPos.x, rasterPos.y);
 						break;
 					case '\n':
 						parts.push_back(szBuf);
 						lastCharacterWasSpecial = true;
-						//line++;
-						//rasterPos= Vec2f(static_cast<float>(x), y - (fontFTGL->LineHeight(text.c_str()) * 2.f) * line);
-						//glRasterPos2f(rasterPos.x, rasterPos.y);
 						break;
 					default:
-						//glCallList(font->getHandle()+utext[i]);
 						if(lastCharacterWasSpecial == true) {
 							parts.push_back(szBuf);
 						}
@@ -512,18 +566,30 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 					case '\n':
 						{
 						line++;
+						//assertGl();
 						float yLineValue = font->getTextHandler()->LineHeight(parts[i].c_str());
+						//assertGl();
 						translatePos= Vec3f(translatePos.x, translatePos.y - yLineValue, translatePos.z);
 						needsRecursiveRender = true;
 						}
 						break;
 					default:
 						if(needsRecursiveRender == true) {
-							internalRender(parts[i], translatePos.x, translatePos.y, false, color);
+							//internalRender(parts[i], translatePos.x, translatePos.y, false, color);
+							glPushMatrix();
+							glLoadIdentity();
+							glTranslatef(translatePos.x, translatePos.y, translatePos.z);
+							font->getTextHandler()->Render(parts[i].c_str());
+							specialFTGLErrorCheckWorkaround(parts[i]);
+							glPopMatrix();
+
 							needsRecursiveRender = false;
 						}
 						else {
+							//assertGl();
+
 							font->getTextHandler()->Render(parts[i].c_str());
+							specialFTGLErrorCheckWorkaround(parts[i]);
 						}
 				}
 			}
@@ -560,7 +626,11 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 		}
 	}
 
+	//assertGl();
+
 	glPopMatrix();
+
+	//assertGl();
 
 	if(color != NULL) {
 		glPopAttrib();
@@ -573,7 +643,7 @@ void TextRenderer3DGl::end() {
 	assert(rendering);
 	rendering= false;
 
-	assertGl();
+	//assertGl();
 
 	glPopAttrib();
 

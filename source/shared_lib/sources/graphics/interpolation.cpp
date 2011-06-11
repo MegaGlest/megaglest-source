@@ -17,6 +17,7 @@
 #include "model.h"
 #include "conversion.h"
 #include "util.h"
+#include <stdexcept>
 #include "leak_dumper.h"
 
 using namespace std;
@@ -76,7 +77,11 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 	if(t <0.0f || t>1.0f) {
 		printf("ERROR t = [%f] for cycle [%d] f [%d] v [%d]\n",t,cycle,mesh->getFrameCount(),mesh->getVertexCount());
 	}
-	assert(t>=0.0f && t<=1.0f);
+	//assert(t>=0.0f && t<=1.0f);
+	if(t < 0.0f || t > 1.0f) {
+		throw runtime_error("t < 0.0f || t > 1.0f t = [" + floatToStr(t) + "]");
+	}
+	assert(t >= 0.f && t <= 1.f);
 
 	uint32 frameCount= mesh->getFrameCount();
 	uint32 vertexCount= mesh->getVertexCount();
