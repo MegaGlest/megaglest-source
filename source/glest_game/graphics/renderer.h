@@ -371,6 +371,10 @@ public:
 	Vec2f getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, int w, int h);
 	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, int w, int h, bool centered);
 	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, int w, int h, bool centered);
+	void renderTextBoundingBox3D(const string &text, Font3D *font, float alpha, int x, int y, int w, int h, bool centered);
+
+	void beginRenderToTexture(Texture2D **renderToTexture);
+	void endRenderToTexture(Texture2D **renderToTexture);
 
     //components
 	void renderLabel(GraphicLabel *label);
