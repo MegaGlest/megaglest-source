@@ -453,6 +453,7 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	mapTagReplacementValues["%%HOME%%"] = (homeDir != NULL ? homeDir : "");
 	mapTagReplacementValues["%%USERPROFILE%%"] = (homeDir != NULL ? homeDir : "");
 	mapTagReplacementValues["%%HOMEPATH%%"] = (homeDir != NULL ? homeDir : "");
+	mapTagReplacementValues["{HOMEPATH}"] = (homeDir != NULL ? homeDir : "");
 
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
@@ -473,6 +474,7 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	   //string appPath = szPath;
 	   mapTagReplacementValues["$APPDATA"] = appPath;
 	   mapTagReplacementValues["%%APPDATA%%"] = appPath;
+	   mapTagReplacementValues["{APPDATA}"] = appPath;
    }
 #endif
 
@@ -481,13 +483,16 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 
 	mapTagReplacementValues["$USERNAME"] = (username != NULL ? username : "");
 	mapTagReplacementValues["%%USERNAME%%"] = (username != NULL ? username : "");
+	mapTagReplacementValues["{USERNAME}"] = (username != NULL ? username : "");
 
 	mapTagReplacementValues["$APPLICATIONPATH"] = Properties::applicationPath;
 	mapTagReplacementValues["%%APPLICATIONPATH%%"] = Properties::applicationPath;
+	mapTagReplacementValues["{APPLICATIONPATH}"] = Properties::applicationPath;
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
 	mapTagReplacementValues["$APPLICATIONDATAPATH"] = CUSTOM_DATA_INSTALL_PATH;
 	mapTagReplacementValues["%%APPLICATIONDATAPATH%%"] = CUSTOM_DATA_INSTALL_PATH;
+	mapTagReplacementValues["{APPLICATIONDATAPATH}"] = CUSTOM_DATA_INSTALL_PATH;
 
 	//mapTagReplacementValues["$COMMONDATAPATH", 	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
 	//mapTagReplacementValues["%%COMMONDATAPATH%%",	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
@@ -495,6 +500,7 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 #else
 	mapTagReplacementValues["$APPLICATIONDATAPATH"] = Properties::applicationPath;
 	mapTagReplacementValues["%%APPLICATIONDATAPATH%%"] = Properties::applicationPath;
+	mapTagReplacementValues["{APPLICATIONDATAPATH}"] = Properties::applicationPath;
 
 	//mapTagReplacementValues["$COMMONDATAPATH", 	Properties::applicationPath + "/commondata/");
 	//mapTagReplacementValues["%%COMMONDATAPATH%%",	Properties::applicationPath + "/commondata/");
@@ -517,6 +523,10 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTagReplacementValues) {
 	string originalValue = value;
 
+	//if(originalValue.find("$APPLICATIONDATAPATH") != string::npos) {
+	//	printf("\nBEFORE SUBSTITUTE [%s] app [%s] mapTagReplacementValues [%p]\n",originalValue.c_str(),Properties::applicationPath.c_str(),mapTagReplacementValues);
+	//}
+
 	if(mapTagReplacementValues != NULL) {
 		for(std::map<string,string>::iterator iterMap = mapTagReplacementValues->begin();
 				iterMap != mapTagReplacementValues->end(); ++iterMap) {
@@ -536,6 +546,7 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 	replaceAll(value, "%%HOME%%", 		(homeDir != NULL ? homeDir : ""));
 	replaceAll(value, "%%USERPROFILE%%",(homeDir != NULL ? homeDir : ""));
 	replaceAll(value, "%%HOMEPATH%%",	(homeDir != NULL ? homeDir : ""));
+	replaceAll(value, "{HOMEPATH}",		(homeDir != NULL ? homeDir : ""));
 
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
@@ -553,8 +564,9 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 	   std::string appPath = utf8_encode(szPath);
 
 		//string appPath = szPath;
-       replaceAll(value, "$APPDATA", appPath);
+       replaceAll(value, "$APPDATA", 	appPath);
 	   replaceAll(value, "%%APPDATA%%", appPath);
+	   replaceAll(value, "{APPDATA}", 	appPath);
    }
 #endif
 
@@ -562,13 +574,16 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 	username = getenv("USERNAME");
 	replaceAll(value, "$USERNAME", 		(username != NULL ? username : ""));
 	replaceAll(value, "%%USERNAME%%", 	(username != NULL ? username : ""));
+	replaceAll(value, "{USERNAME}", 	(username != NULL ? username : ""));
 
 	replaceAll(value, "$APPLICATIONPATH", 		Properties::applicationPath);
 	replaceAll(value, "%%APPLICATIONPATH%%",	Properties::applicationPath);
+	replaceAll(value, "{APPLICATIONPATH}",		Properties::applicationPath);
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
 	replaceAll(value, "$APPLICATIONDATAPATH", 		CUSTOM_DATA_INSTALL_PATH);
 	replaceAll(value, "%%APPLICATIONDATAPATH%%",	CUSTOM_DATA_INSTALL_PATH);
+	replaceAll(value, "{APPLICATIONDATAPATH}",		CUSTOM_DATA_INSTALL_PATH);
 
 	//replaceAll(value, "$COMMONDATAPATH", 	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
 	//replaceAll(value, "%%COMMONDATAPATH%%",	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
@@ -576,6 +591,7 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 #else
 	replaceAll(value, "$APPLICATIONDATAPATH", 		Properties::applicationPath);
 	replaceAll(value, "%%APPLICATIONDATAPATH%%",	Properties::applicationPath);
+	replaceAll(value, "{APPLICATIONDATAPATH}",		Properties::applicationPath);
 
 	//replaceAll(value, "$COMMONDATAPATH", 	Properties::applicationPath + "/commondata/");
 	//replaceAll(value, "%%COMMONDATAPATH%%",	Properties::applicationPath + "/commondata/");
@@ -583,7 +599,9 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 
 	}
 
-	//printf("\nBEFORE SUBSTITUTE [%s] AFTER [%s]\n",originalValue.c_str(),value.c_str());
+	//if(originalValue != value || originalValue.find("$APPLICATIONDATAPATH") != string::npos) {
+	//	printf("\nBEFORE SUBSTITUTE [%s] AFTER [%s]\n",originalValue.c_str(),value.c_str());
+	//}
 	return (originalValue != value);
 }
 
