@@ -33,6 +33,7 @@ private:
 	int mouseY;
 	int mouse2d;
 	GraphicMessageBox mainMessageBox;
+	Texture2D *renderToTexture;
 
 	void showMessageBox(const string &text, const string &header, bool toggle);
 

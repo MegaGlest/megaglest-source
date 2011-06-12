@@ -1387,6 +1387,25 @@ Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
 	return textPos;
 }
 
+void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, float alpha, int x, int y, int w, int h, bool centered) {
+	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glEnable(GL_BLEND);
+	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
+
+	Vec2f pos= Vec2f(x, y);
+	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
+	if(centered == true) {
+		getCentered3DPos(text, font, pos, w, h);
+	}
+
+	textRenderer3D->begin(font);
+	textRenderer3D->render(text, pos.x, pos.y);
+	textRenderer3D->end();
+
+	glDisable(GL_BLEND);
+	glPopAttrib();
+}
+
 void Renderer::renderText3D(const string &text, Font3D *font, float alpha, int x, int y, bool centered) {
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
@@ -1624,16 +1643,17 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 		int w= label->getW();
 		//if(label->getInstanceName() == "modDescrLabel") printf("~~~ lines.size() [%u] i = %d lines[i] [%s] y = %d\n",lines.size(),i,lines[i].c_str(),y);
 
-		if(label->getCentered()){
+		if(label->getCentered()) {
 			textPos= Vec2i(x+w/2, y+h/2);
 		}
-		else{
+		else {
 			textPos= Vec2i(x, y+h/4);
 		}
 
 		if(color != NULL) {
 			if(renderText3DEnabled == true) {
-				renderText3D(lines[i], label->getFont3D(), (*color), textPos.x, textPos.y, label->getCentered());
+				//renderText3D(lines[i], label->getFont3D(), (*color), textPos.x, textPos.y, label->getCentered());
+				renderTextBoundingBox3D(lines[i], label->getFont3D(), (*color), x, y, w, h, label->getCentered());
 			}
 			else {
 				renderText(lines[i], label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
@@ -1641,7 +1661,8 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 		}
 		else {
 			if(renderText3DEnabled == true) {
-				renderText3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+				//renderText3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+				renderTextBoundingBox3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), x, y, w, h, label->getCentered());
 			}
 			else {
 				renderText(lines[i], label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
@@ -1841,9 +1862,11 @@ void Renderer::renderCheckBox(const GraphicCheckBox *box) {
 
 	//lighting
 	float anim= GraphicComponent::getAnim();
-	if(anim>0.5f) anim= 1.f-anim;
+	if(anim > 0.5f) {
+		anim = 1.f - anim;
+	}
 
-	if(box->getLighted() && box->getEditable()){
+	if(box->getLighted() && box->getEditable()) {
 		const int lightSize= 0;
 		const Vec4f color1= Vec4f(color.x, color.y, color.z, 0.1f+anim*0.5f);
 		const Vec4f color2= Vec4f(color.x, color.y, color.z, 0.3f+anim);
@@ -5487,6 +5510,49 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 	}
 
 	return quadCache;
+}
+
+void Renderer::beginRenderToTexture(Texture2D **renderToTexture) {
+	static bool supportFBOs = Texture2DGl().supports_FBO_RBO();
+
+	if(supportFBOs == true && renderToTexture != NULL) {
+		Config &config= Config::getInstance();
+		Texture2D::Filter textureFilter = strToTextureFilter(config.getString("Filter"));
+		int maxAnisotropy				= config.getInt("FilterMaxAnisotropy");
+
+		const Metrics &metrics	= Metrics::getInstance();
+
+		*renderToTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
+		texture->setMipmap(false);
+		Pixmap2D *pixmapScreenShot = texture->getPixmap();
+		pixmapScreenShot->init(metrics.getScreenW(), metrics.getScreenH(), 4);
+		texture->setForceCompressionDisabled(true);
+		texture->init(textureFilter,maxAnisotropy);
+		texture->setup_FBO_RBO();
+
+		assertGl();
+
+		if(texture->checkFrameBufferStatus() == false) {
+			//printf("******************** WARNING CANNOT Attach to FBO!\n");
+			texture->end();
+			delete texture;
+			*renderToTexture=NULL;
+		}
+	}
+}
+
+void Renderer::endRenderToTexture(Texture2D **renderToTexture) {
+	static bool supportFBOs = Texture2DGl().supports_FBO_RBO();
+
+	if(supportFBOs == true && renderToTexture != NULL) {
+		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
+		if(texture != NULL) {
+			texture->dettachFrameBufferFromTexture();
+		}
+
+		assertGl();
+	}
 }
 
 void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
