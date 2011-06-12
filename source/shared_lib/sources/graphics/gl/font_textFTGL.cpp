@@ -211,7 +211,40 @@ float TextFTGL::Advance(const char* str, const int len) {
 }
 
 float TextFTGL::LineHeight(const char* str, const int len) {
+	//FTBBox box = ftFont->BBox(str);
+	//printf("String [%s] lineheight = %f upper_y = %f lower_y = %f\n",str,ftFont->LineHeight(),box.Upper().Y(),box.Lower().Y());
+
+	//return ftFont->Ascender() + ftFont->Descender();
 	return ftFont->LineHeight();
+
+	//FTBBox box = ftFont->BBox(str);
+	//float result = box.Upper().Y()- box.Lower().Y();
+	//printf("For str [%s] LineHeight = %f, result = %f\n",str, ftFont->LineHeight(),result);
+	//return result;
+
+	//float urx = box.Upper().X();
+	//float llx = box.Lower().X();
+	//float llx, lly, llz, urx, ury, urz;
+	//ftFont->BBox(str, llx, lly, llz, urx, ury, urz);
+	//return  ury - lly;
+
+	//Short_t halign = fTextAlign/10;
+	//Short_t valign = fTextAlign - 10*halign;
+	//Float_t dx = 0, dy = 0;
+//	switch (halign) {
+//	  case 1 : dx =  0    ; break;
+//	  case 2 : dx = -urx/2; break;
+//	  case 3 : dx = -urx  ; break;
+//	}
+//	switch (valign) {
+//	  case 1 : dy =  0    ; break;
+//	  case 2 : dy = -ury/2; break;
+//	  case 3 : dy = -ury  ; break;
+//	}
+
+	//printf("For str [%s] advance = %f, urx = %f, llx = %f\n",str, ftFont->Advance(str, len),urx,llx);
+	//return urx;
+
 }
 
 void TextFTGL::Render(const wchar_t* str, const int len) {
