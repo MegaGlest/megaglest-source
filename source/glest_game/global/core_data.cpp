@@ -332,7 +332,7 @@ int CoreData::computeFontSize(int size) {
 		rs = size * screenH / 1024;
 	}
 	else {
-		rs = ((float)size * 0.86);
+		rs = ((float)size * 0.80);
 	}
 	//FontSizeAdjustment
 	rs += config.getInt("FontSizeAdjustment");

@@ -1417,6 +1417,29 @@ void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, 
 	glPopAttrib();
 }
 
+Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, int w, int h) {
+	float lineWidth = font->getTextHandler()->Advance(text.c_str());
+	if(lineWidth < w) {
+		pos.x += ((w / 2.f) - (lineWidth / 2.f));
+	}
+
+	//h /= 2.f;
+	float lineHeight = font->getTextHandler()->LineHeight(text.c_str());
+	if(lineHeight < h) {
+		//pos.y += ((float)h / 2.f);
+		//pos.y -= ((float(h) / 2.f) - (lineHeight / 2.f));
+		pos.y += (lineHeight / 2.f);
+		//pos.y -= h;
+		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
+
+		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
+	}
+	else {
+		pos.y += ((float)h / 2.f) - 2;
+	}
+	return pos;
+}
+
 void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, int w, int h, bool centered) {
 	glPushAttrib(GL_CURRENT_BIT);
 	glColor3fv(color.ptr());
@@ -1424,17 +1447,8 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const V
 	Vec2f pos= Vec2f(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	if(centered) {
-		float lineWidth = font->getTextHandler()->Advance(text.c_str());
-		if(lineWidth < w) {
-			pos.x += ((w / 2.f) - (lineWidth / 2.f));
-		}
-
-		float lineHeight = font->getTextHandler()->LineHeight(text.c_str());
-		if(lineHeight < h) {
-			//pos.y -= ((float(h) / 2.f) - (lineHeight / 2.f));
-			pos.y += (lineHeight / 2.f);
-		}
+	if(centered == true) {
+		getCentered3DPos(text, font, pos, w, h);
 	}
 
 	textRenderer3D->begin(font);
@@ -1479,17 +1493,8 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const V
 	Vec2f pos= Vec2f(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	if(centered) {
-		float lineWidth = font->getTextHandler()->Advance(text.c_str());
-		if(lineWidth < w) {
-			pos.x += ((w / 2.f) - (lineWidth / 2.f));
-		}
-
-		float lineHeight = font->getTextHandler()->LineHeight(text.c_str());
-		if(lineHeight < h) {
-			//pos.y -= ((float(h) / 2.f) - (lineHeight / 2.f));
-			pos.y += (lineHeight / 2.f);
-		}
+	if(centered == true) {
+		getCentered3DPos(text, font, pos, w, h);
 	}
 
 	textRenderer3D->begin(font);
@@ -5088,20 +5093,9 @@ void Renderer::renderProgressBar3D(int size, int x, int y, Font3D *font, int cus
 
 	//text
 	//glColor3fv(defColor.ptr());
-
 	//printf("Render progress bar3d renderText [%s] y = %d, centeredText = %d\n",renderText.c_str(),y, centeredText);
 
 	renderTextBoundingBox3D(renderText, font, defColor, x, y, maxSize, progressbarHeight, true);
-	/*
-	textRenderer3D->begin(font);
-	if(centeredText == true) {
-		textRenderer3D->render(renderText.c_str(), x + maxSize / 2, y, centeredText);
-	}
-	else {
-		textRenderer3D->render(renderText.c_str(), x, y, centeredText);
-	}
-	textRenderer3D->end();
-	*/
 }
 
 void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int customWidth,
