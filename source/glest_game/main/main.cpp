@@ -127,6 +127,7 @@ const char  *GAME_ARGS[] = {
 	"--disable-sound",
 	"--enable-legacyfonts",
 	"--use-video-settings",
+	"--use-font",
 	"--verbose"
 
 };
@@ -163,6 +164,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_SOUND,
 	GAME_ARG_ENABLE_LEGACYFONTS,
 	GAME_ARG_USE_VIDEO_SETTINGS,
+	GAME_ARG_USE_FONT,
 	GAME_ARG_VERBOSE_MODE
 };
 
@@ -1075,6 +1077,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample: %s %s=1024x768x*x*",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
 	printf("\n                     \t\tsame result for: %s %s=1024x768",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
 
+	printf("\n%s=x\t\t\toverride the font to use.",GAME_ARGS[GAME_ARG_USE_FONT]);
+	printf("\n                     \t\tWhere x is the path and name of a font file support by freetype2.");
+	printf("\n                     \t\texample: %s %s=$APPLICATIONDATAPATH/data/core/fonts/Vera.ttf",argv0,GAME_ARGS[GAME_ARG_USE_FONT]);
+
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 
 	printf("\n\n");
@@ -1096,6 +1102,7 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
             string customPathValue = paramPartTokens[1];
+            Properties::applyTagsToValue(customPathValue);
             if(customPathValue != "") {
             	endPathWithSlash(customPathValue);
             }
@@ -1132,6 +1139,7 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
             string customPathValue = paramPartTokens[1];
+            Properties::applyTagsToValue(customPathValue);
             pathCache[GameConstants::path_ini_CacheLookupKey]=customPathValue;
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom ini path [%s]\n",customPathValue.c_str());
         }
@@ -1155,6 +1163,7 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
             string customPathValue = paramPartTokens[1];
+            Properties::applyTagsToValue(customPathValue);
             pathCache[GameConstants::path_logs_CacheLookupKey]=customPathValue;
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom logs path [%s]\n",customPathValue.c_str());
         }
@@ -2707,6 +2716,35 @@ int glestMain(int argc, char** argv) {
 #endif
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte,Font::fontIsRightToLeft);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte,Font::fontIsRightToLeft);
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_FONT]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_FONT]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_FONT]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string newfont = paramPartTokens[1];
+				//printf("#1 Forcing font [%s] paramPartTokens.size() = %d, paramValue [%s]\n",newfont.c_str(),paramPartTokens.size(),paramValue.c_str());
+				Properties::applyTagsToValue(newfont);
+				printf("Forcing font [%s]\n",newfont.c_str());
+
+#if defined(WIN32)
+				string newEnvValue = "MEGAGLEST_FONT=" + newfont;
+				_putenv(newEnvValue.c_str());
+#else
+        		setenv("MEGAGLEST_FONT",newfont.c_str(),1);
+#endif
+			}
+	        else {
+	            printf("\nInvalid missing font specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+    	}
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

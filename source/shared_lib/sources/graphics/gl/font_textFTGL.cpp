@@ -274,6 +274,7 @@ const char* TextFTGL::findFont(const char *firstFontToTry) {
 		path = filename; \
 		if( !font && path && fileExists(path) == true ) \
 			font = strdup(path); \
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found font file [%s]\n",font); \
 	}
 
 	string tryFont = "";
