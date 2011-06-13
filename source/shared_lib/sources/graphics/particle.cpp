@@ -796,11 +796,11 @@ void ProjectileParticleSystem::update(){
 			case tSpiral: {
 				pos= flatPos;
 #ifdef USE_STREFLOP
-				pos+= xVector * streflop::cos(tween * trajectoryFrequency * targetVector.length()) * trajectoryScale;
-				pos+= yVector * streflop::sin(tween * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= xVector * streflop::cos(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= yVector * streflop::sin(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #else
-				pos+= xVector * cos(tween * trajectoryFrequency * targetVector.length()) * trajectoryScale;
-				pos+= yVector * sin(tween * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= xVector * cos(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= yVector * sin(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #endif
 			}
 				break;
