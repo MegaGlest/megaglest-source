@@ -1886,7 +1886,7 @@ void Game::render2d(){
 	renderer.reset2d();
 
 	//HUD
-	if(visibleHUD == true) {
+	if(visibleHUD == true && photoModeEnabled == false) {
 		renderer.renderHud();
 	}
 	//display
