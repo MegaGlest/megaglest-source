@@ -1072,7 +1072,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a string with the following format:");
 	printf("\n                     \t\twidthxheightxcolorbitsxdepthbitsxfullscreen");
 	printf("\n                     \t\twhere * indicates not to replace the default value for the parameter");
-	printf("\n                     \t\fullscreen has possible values of true, false, 1 or 0");
+	printf("\n                     \t\tfullscreen has possible values of true, false, 1 or 0");
 	printf("\n                     \t\tand only the width and height parameters are required (the others are optional)");
 	printf("\n                     \t\texample: %s %s=1024x768x*x*",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
 	printf("\n                     \t\tsame result for: %s %s=1024x768",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
@@ -2524,7 +2524,7 @@ int glestMain(int argc, char** argv) {
 					if(paramPartTokens.size() >= 5) {
 						if(paramPartTokens[4] != "*") {
 							bool newFullScreenMode = strToBool(paramPartTokens[4]);
-							config.setBool("Windowed",newFullScreenMode);
+							config.setBool("Windowed",!newFullScreenMode);
 						}
 					}
 				}
