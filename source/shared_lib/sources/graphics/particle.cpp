@@ -735,6 +735,7 @@ ProjectileParticleSystem::ProjectileParticleSystem(int particleCount) :
 	trajectorySpeed= 1.0f;
 	trajectoryScale= 1.0f;
 	trajectoryFrequency= 1.0f;
+	modelCycle=0.0f;
 
 	nextParticleSystem= NULL;
 }
