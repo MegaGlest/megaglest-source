@@ -550,7 +550,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	playerStatuses.push_back(lang.get("PlayerStatusReady"));
 	listBoxPlayerStatus.setItems(playerStatuses);
 	listBoxPlayerStatus.setSelectedItemIndex(2,true);
-	listBoxPlayerStatus.setVisible(false);
+	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+	listBoxPlayerStatus.setLighted(false);
+	listBoxPlayerStatus.setVisible(true);
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -850,11 +852,11 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             for(int i=0; i<mapInfo.players; ++i) {
                 MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-                if (listBoxAdvanced.getSelectedItemIndex() == 1) {
+                //if (listBoxAdvanced.getSelectedItemIndex() == 1) {
                     // set multiplier
                     if(listBoxRMultiplier[i].mouseClick(x, y)) {
                     }
-                }
+                //}
 
                 //ensure thet only 1 human player is present
                 if(listBoxControls[i].mouseClick(x, y)) {
@@ -994,6 +996,21 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			soundRenderer.playFx(coreData.getClickSoundC());
+			if(getNetworkPlayerStatus()==npst_PickSettings)
+			{
+				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.0f,0.0f));
+				listBoxPlayerStatus.setLighted(true);
+			}
+			else if(getNetworkPlayerStatus()==npst_BeRightBack)
+			{
+				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,1.0f,0.0f));
+				listBoxPlayerStatus.setLighted(true);
+			}
+			else if(getNetworkPlayerStatus()==npst_Ready)
+			{
+				listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+				listBoxPlayerStatus.setLighted(false);
+			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1387,9 +1404,9 @@ void MenuStateCustomGame::render() {
 				renderer.renderListBox(&listBoxControls[i]);
 
 				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
-					if(listBoxAdvanced.getSelectedItemIndex() == 1){
+					//if(listBoxAdvanced.getSelectedItemIndex() == 1){
 						renderer.renderListBox(&listBoxRMultiplier[i]);
-					}
+					//}
 					renderer.renderListBox(&listBoxFactions[i]);
 					renderer.renderListBox(&listBoxTeams[i]);
 					renderer.renderLabel(&labelNetStatus[i]);

@@ -117,6 +117,8 @@ private:
 	GraphicLabel labelVisibleHud;
 	GraphicCheckBox checkBoxVisibleHud;
 
+	GraphicLabel labelRainEffect;
+	GraphicCheckBox checkBoxRainEffect;
 
 
 public:

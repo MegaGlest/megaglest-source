@@ -116,6 +116,7 @@ private:
 
 	bool photoModeEnabled;
 	bool visibleHUD;
+	bool withRainEffect;
 	Program *program;
 
 	bool gameStarted;
