@@ -49,6 +49,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	int currentLabelStart=leftLabelStart;
 	int currentColumnStart=leftColumnStart;
 	int currentLine=700;
+	int lineOffset=27;
 
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
@@ -59,7 +60,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelAudioSection.init(currentLabelStart+captionOffset, currentLine);
 	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelAudioSection.setText(lang.get("Audio"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//soundboxes
 	labelSoundFactory.registerGraphicComponent(containerName,"labelSoundFactory");
@@ -75,7 +76,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 #endif
 
 	listBoxSoundFactory.setSelectedItem(config.getString("FactorySound"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	labelVolumeFx.registerGraphicComponent(containerName,"labelVolumeFx");
 	labelVolumeFx.init(currentLabelStart, currentLine);
@@ -83,7 +84,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	listBoxVolumeFx.registerGraphicComponent(containerName,"listBoxVolumeFx");
 	listBoxVolumeFx.init(currentColumnStart, currentLine, 80);
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	labelVolumeAmbient.registerGraphicComponent(containerName,"labelVolumeAmbient");
 	labelVolumeAmbient.init(currentLabelStart, currentLine);
@@ -91,7 +92,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeAmbient.registerGraphicComponent(containerName,"listBoxVolumeAmbient");
 	listBoxVolumeAmbient.init(currentColumnStart, currentLine, 80);
 	labelVolumeAmbient.setText(lang.get("AmbientVolume"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	labelVolumeMusic.registerGraphicComponent(containerName,"labelVolumeMusic");
 	labelVolumeMusic.init(currentLabelStart, currentLine);
@@ -99,7 +100,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeMusic.registerGraphicComponent(containerName,"listBoxVolumeMusic");
 	listBoxVolumeMusic.init(currentColumnStart, currentLine, 80);
 	labelVolumeMusic.setText(lang.get("MusicVolume"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	for(int i=0; i<=100; i+=5){
 		listBoxVolumeFx.pushBackItem(intToStr(i));
@@ -110,13 +111,13 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
 	listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
 
-	currentLine-=30;
+	currentLine-=lineOffset;
 	// Video Section
 	labelVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 	labelVideoSection.init(currentLabelStart+captionOffset, currentLine);
 	labelVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelVideoSection.setText(lang.get("Video"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//resolution
 	labelScreenModes.registerGraphicComponent(containerName,"labelScreenModes");
@@ -140,7 +141,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		listBoxScreenModes.pushBackItem(currentResString);
 	}
 	listBoxScreenModes.setSelectedItem(currentResString);
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 
 	//FullscreenWindowed
@@ -151,7 +152,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxFullscreenWindowed.init(currentColumnStart, currentLine);
 	labelFullscreenWindowed.setText(lang.get("Windowed"));
 	checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//filter
 	labelFilter.registerGraphicComponent(containerName,"labelFilter");
@@ -163,7 +164,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	listBoxFilter.pushBackItem("Bilinear");
 	listBoxFilter.pushBackItem("Trilinear");
 	listBoxFilter.setSelectedItem(config.getString("Filter"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//shadows
 	labelShadows.registerGraphicComponent(containerName,"labelShadows");
@@ -177,7 +178,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
 	string str= config.getString("Shadows");
 	listBoxShadows.setSelectedItemIndex(clamp(Renderer::strToShadows(str), 0, Renderer::sCount-1));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//textures 3d
 	labelTextures3D.registerGraphicComponent(containerName,"labelTextures3D");
@@ -187,7 +188,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxTextures3D.init(currentColumnStart, currentLine);
 	labelTextures3D.setText(lang.get("Textures3D"));
 	checkBoxTextures3D.setValue(config.getBool("Textures3D"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//lights
 	labelLights.registerGraphicComponent(containerName,"labelLights");
@@ -200,7 +201,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		listBoxLights.pushBackItem(intToStr(i));
 	}
 	listBoxLights.setSelectedItemIndex(clamp(config.getInt("MaxLights")-1, 0, 7));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//unit particles
 	labelUnitParticles.registerGraphicComponent(containerName,"labelUnitParticles");
@@ -210,7 +211,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxUnitParticles.registerGraphicComponent(containerName,"checkBoxUnitParticles");
 	checkBoxUnitParticles.init(currentColumnStart,currentLine);
 	checkBoxUnitParticles.setValue(config.getBool("UnitParticles","true"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//tileset particles
 	labelTilesetParticles.registerGraphicComponent(containerName,"labelTilesetParticles");
@@ -220,7 +221,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxTilesetParticles.registerGraphicComponent(containerName,"checkBoxTilesetParticles");
 	checkBoxTilesetParticles.init(currentColumnStart,currentLine);
 	checkBoxTilesetParticles.setValue(config.getBool("TilesetParticles","true"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//unit particles
 	labelMapPreview.registerGraphicComponent(containerName,"labelMapPreview");
@@ -230,7 +231,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxMapPreview.registerGraphicComponent(containerName,"checkBoxMapPreview");
 	checkBoxMapPreview.init(currentColumnStart,currentLine);
 	checkBoxMapPreview.setValue(config.getBool("MapPreview","true"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	// Texture Compression flag
 	labelEnableTextureCompression.registerGraphicComponent(containerName,"labelEnableTextureCompression");
@@ -240,32 +241,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxEnableTextureCompression.registerGraphicComponent(containerName,"checkBoxEnableTextureCompression");
 	checkBoxEnableTextureCompression.init(currentColumnStart ,currentLine );
 	checkBoxEnableTextureCompression.setValue(config.getBool("EnableTextureCompression","false"));
-	currentLine-=30;
-	// end
-
-	// Screenshot type flag
-	labelScreenShotType.registerGraphicComponent(containerName,"labelScreenShotType");
-	labelScreenShotType.init(currentLabelStart ,currentLine);
-	labelScreenShotType.setText(lang.get("ScreenShotFileType"));
-
-	listBoxScreenShotType.registerGraphicComponent(containerName,"listBoxScreenShotType");
-	listBoxScreenShotType.init(currentColumnStart ,currentLine, 80 );
-	listBoxScreenShotType.pushBackItem("bmp");
-	listBoxScreenShotType.pushBackItem("jpg");
-	listBoxScreenShotType.pushBackItem("png");
-	listBoxScreenShotType.pushBackItem("tga");
-	listBoxScreenShotType.setSelectedItem(config.getString("ScreenShotFileType","jpg"));
-
-	currentLine-=30;
-
-	labelDisableScreenshotConsoleText.registerGraphicComponent(containerName,"lavelDisableScreenshotConsoleText");
-	labelDisableScreenshotConsoleText.init(currentLabelStart ,currentLine);
-	labelDisableScreenshotConsoleText.setText(lang.get("ScreenShotConsoleText"));
-
-	checkBoxDisableScreenshotConsoleText.registerGraphicComponent(containerName,"checkBoxDisableScreenshotConsoleText");
-	checkBoxDisableScreenshotConsoleText.init(currentColumnStart ,currentLine );
-	checkBoxDisableScreenshotConsoleText.setValue(!config.getBool("DisableScreenshotConsoleText","false"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	labelVisibleHud.registerGraphicComponent(containerName,"lavelVisibleHud");
 	labelVisibleHud.init(currentLabelStart ,currentLine);
@@ -274,7 +250,17 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxVisibleHud.registerGraphicComponent(containerName,"checkBoxVisibleHud");
 	checkBoxVisibleHud.init(currentColumnStart ,currentLine );
 	checkBoxVisibleHud.setValue(config.getBool("VisibleHud","true"));
-	currentLine-=30;
+	currentLine-=lineOffset;
+
+	labelRainEffect.registerGraphicComponent(containerName,"labelRainEffect");
+	labelRainEffect.init(currentLabelStart ,currentLine);
+	labelRainEffect.setText(lang.get("RainEffect"));
+
+	checkBoxRainEffect.registerGraphicComponent(containerName,"checkBoxRainEffect");
+	checkBoxRainEffect.init(currentColumnStart ,currentLine );
+	checkBoxRainEffect.setValue(config.getBool("RainEffect","true"));
+	currentLine-=lineOffset;
+
 
 	// end
 
@@ -287,12 +273,12 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	currentColumnStart=rightColumnStart; // set to right side
 
 
-	//currentLine-=30;
+	//currentLine-=lineOffset;
 	labelMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 	labelMiscSection.init(currentLabelStart+captionOffset, currentLine);
 	labelMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelMiscSection.setText(lang.get("Misc"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//lang
 	labelLang.registerGraphicComponent(containerName,"labelLang");
@@ -310,7 +296,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
     listBoxLang.setItems(langResults);
 	listBoxLang.setSelectedItem(config.getString("Lang"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//playerName
 	labelPlayerNameLabel.registerGraphicComponent(containerName,"labelPlayerNameLabel");
@@ -321,7 +307,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelPlayerName.init(currentColumnStart,currentLine);
 	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 	labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	//FontSizeAdjustment
 	labelFontSizeAdjustment.registerGraphicComponent(containerName,"labelFontSizeAdjustment");
@@ -335,15 +321,39 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
 	listFontSizeAdjustment.setSelectedItem(intToStr(config.getInt("FontSizeAdjustment")));
 
-	currentLine-=30;
-	currentLine-=30;
-	currentLine-=30;
+	currentLine-=lineOffset;
+	// Screenshot type flag
+	labelScreenShotType.registerGraphicComponent(containerName,"labelScreenShotType");
+	labelScreenShotType.init(currentLabelStart ,currentLine);
+	labelScreenShotType.setText(lang.get("ScreenShotFileType"));
+
+	listBoxScreenShotType.registerGraphicComponent(containerName,"listBoxScreenShotType");
+	listBoxScreenShotType.init(currentColumnStart ,currentLine, 80 );
+	listBoxScreenShotType.pushBackItem("bmp");
+	listBoxScreenShotType.pushBackItem("jpg");
+	listBoxScreenShotType.pushBackItem("png");
+	listBoxScreenShotType.pushBackItem("tga");
+	listBoxScreenShotType.setSelectedItem(config.getString("ScreenShotFileType","jpg"));
+
+	currentLine-=lineOffset;
+
+	labelDisableScreenshotConsoleText.registerGraphicComponent(containerName,"lavelDisableScreenshotConsoleText");
+	labelDisableScreenshotConsoleText.init(currentLabelStart ,currentLine);
+	labelDisableScreenshotConsoleText.setText(lang.get("ScreenShotConsoleText"));
+
+	checkBoxDisableScreenshotConsoleText.registerGraphicComponent(containerName,"checkBoxDisableScreenshotConsoleText");
+	checkBoxDisableScreenshotConsoleText.init(currentColumnStart ,currentLine );
+	checkBoxDisableScreenshotConsoleText.setValue(!config.getBool("DisableScreenshotConsoleText","false"));
+
+	currentLine-=lineOffset;
+	currentLine-=lineOffset;
+	currentLine-=lineOffset;
 
 	labelNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 	labelNetworkSettings.init(currentLabelStart+captionOffset, currentLine);
 	labelNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelNetworkSettings.setText(lang.get("Network"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 	// server port
 	labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
 	labelServerPortLabel.init(currentLabelStart,currentLine);
@@ -360,7 +370,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelServerPort.setText(port);
 
 	// external server port
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
 	labelPublishServerExternalPort.init(currentLabelStart, currentLine, 150);
@@ -386,7 +396,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
 	listBoxPublishServerExternalPort.setSelectedItemIndex(masterServerExternalPortSelectionIndex);
 
-	currentLine-=30;
+	currentLine-=lineOffset;
     // FTP Config - start
 	labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
 	labelEnableFTP.init(currentLabelStart ,currentLine);
@@ -395,7 +405,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxEnableFTP.registerGraphicComponent(containerName,"checkBoxEnableFTP");
 	checkBoxEnableFTP.init(currentColumnStart ,currentLine );
 	checkBoxEnableFTP.setValue(config.getBool("EnableFTPXfer","true"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 	labelEnableFTPServer.registerGraphicComponent(containerName,"labelEnableFTPServer");
 	labelEnableFTPServer.init(currentLabelStart ,currentLine);
 	labelEnableFTPServer.setText(lang.get("EnableFTPServer"));
@@ -403,7 +413,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxEnableFTPServer.registerGraphicComponent(containerName,"checkBoxEnableFTPServer");
 	checkBoxEnableFTPServer.init(currentColumnStart ,currentLine );
 	checkBoxEnableFTPServer.setValue(config.getBool("EnableFTPServer","true"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 	labelFTPServerPortLabel.registerGraphicComponent(containerName,"labelFTPServerPortLabel");
 	labelFTPServerPortLabel.init(currentLabelStart ,currentLine );
 	labelFTPServerPortLabel.setText(lang.get("FTPServerPort"));
@@ -412,7 +422,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelFTPServerPort.registerGraphicComponent(containerName,"labelFTPServerPort");
 	labelFTPServerPort.init(currentColumnStart ,currentLine );
 	labelFTPServerPort.setText(intToStr(FTPPort));
-	currentLine-=30;
+	currentLine-=lineOffset;
 	labelFTPServerDataPortsLabel.registerGraphicComponent(containerName,"labelFTPServerDataPortsLabel");
 	labelFTPServerDataPortsLabel.init(currentLabelStart ,currentLine );
 	labelFTPServerDataPortsLabel.setText(lang.get("FTPServerDataPort"));
@@ -423,7 +433,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelFTPServerDataPorts.registerGraphicComponent(containerName,"labelFTPServerDataPorts");
 	labelFTPServerDataPorts.init(currentColumnStart,currentLine );
 	labelFTPServerDataPorts.setText(szBuf);
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	labelEnableFTPServerInternetTilesetXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTilesetXfer");
 	labelEnableFTPServerInternetTilesetXfer.init(currentLabelStart ,currentLine );
@@ -433,7 +443,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxEnableFTPServerInternetTilesetXfer.init(currentColumnStart ,currentLine );
 	checkBoxEnableFTPServerInternetTilesetXfer.setValue(config.getBool("EnableFTPServerInternetTilesetXfer","true"));
 
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 	labelEnableFTPServerInternetTechtreeXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTechtreeXfer");
 	labelEnableFTPServerInternetTechtreeXfer.init(currentLabelStart ,currentLine );
@@ -443,7 +453,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxEnableFTPServerInternetTechtreeXfer.init(currentColumnStart ,currentLine );
 	checkBoxEnableFTPServerInternetTechtreeXfer.setValue(config.getBool("EnableFTPServerInternetTechtreeXfer","true"));
 
-	currentLine-=30;
+	currentLine-=lineOffset;
 
 
     // FTP config end
@@ -456,7 +466,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxEnablePrivacy.registerGraphicComponent(containerName,"checkBoxEnablePrivacy");
 	checkBoxEnablePrivacy.init(currentColumnStart ,currentLine );
 	checkBoxEnablePrivacy.setValue(config.getBool("PrivacyPlease","false"));
-	currentLine-=30;
+	currentLine-=lineOffset;
 	// end
 
 	// buttons
@@ -626,6 +636,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
         checkBoxDisableScreenshotConsoleText.mouseClick(x, y);
         checkBoxVisibleHud.mouseClick(x, y);
+        checkBoxRainEffect.mouseClick(x,y);
 	}
 }
 
@@ -664,6 +675,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxScreenShotType.mouseMove(x, y);
     checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
     checkBoxVisibleHud.mouseMove(x, y);
+    checkBoxRainEffect.mouseMove(x, y);
 }
 
 bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
@@ -797,6 +809,10 @@ void MenuStateOptions::render(){
 
         renderer.renderLabel(&labelVisibleHud);
         renderer.renderCheckBox(&checkBoxVisibleHud);
+
+        renderer.renderLabel(&labelRainEffect);
+        renderer.renderCheckBox(&checkBoxRainEffect);
+
 	}
 
 	renderer.renderConsole(&console,false,true);
@@ -848,6 +864,7 @@ void MenuStateOptions::saveConfig(){
 
     config.setBool("DisableScreenshotConsoleText", !checkBoxDisableScreenshotConsoleText.getValue());
     config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
+    config.setBool("RainEffect", checkBoxRainEffect.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();

@@ -76,6 +76,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
+	withRainEffect = Config::getInstance().getBool("RainEffect","true");
 	//MIN_RENDER_FPS_ALLOWED = Config::getInstance().getInt("MIN_RENDER_FPS_ALLOWED",intToStr(MIN_RENDER_FPS_ALLOWED).c_str());
 
 	mouseX=0;
@@ -744,21 +745,23 @@ void Game::init(bool initForPreviewOnly)
 		Window::handleEvent();
 		SDL_PumpEvents();
 
-		//weather particle systems
-		if(world.getTileset()->getWeather() == wRainy) {
-			logger.add("Creating rain particle system", true);
-			weatherParticleSystem= new RainParticleSystem();
-			weatherParticleSystem->setSpeed(12.f/GameConstants::updateFps);
-			weatherParticleSystem->setPos(gameCamera.getPos());
-			renderer.manageParticleSystem(weatherParticleSystem, rsGame);
-		}
-		else if(world.getTileset()->getWeather() == wSnowy) {
-			logger.add("Creating snow particle system", true);
-			weatherParticleSystem= new SnowParticleSystem(1200);
-			weatherParticleSystem->setSpeed(1.5f/GameConstants::updateFps);
-			weatherParticleSystem->setPos(gameCamera.getPos());
-			weatherParticleSystem->setTexture(coreData.getSnowTexture());
-			renderer.manageParticleSystem(weatherParticleSystem, rsGame);
+		if(withRainEffect){
+			//weather particle systems
+			if(world.getTileset()->getWeather() == wRainy){
+				logger.add("Creating rain particle system", true);
+				weatherParticleSystem= new RainParticleSystem();
+				weatherParticleSystem->setSpeed(12.f / GameConstants::updateFps);
+				weatherParticleSystem->setPos(gameCamera.getPos());
+				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
+			}
+			else if(world.getTileset()->getWeather() == wSnowy){
+				logger.add("Creating snow particle system", true);
+				weatherParticleSystem= new SnowParticleSystem(1200);
+				weatherParticleSystem->setSpeed(1.5f / GameConstants::updateFps);
+				weatherParticleSystem->setPos(gameCamera.getPos());
+				weatherParticleSystem->setTexture(coreData.getSnowTexture());
+				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
+			}
 		}
     }
 
