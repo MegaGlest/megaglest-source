@@ -112,6 +112,7 @@ public:
 class AiRuleRepair: public AiRule{
 private:
 	int damagedUnitIndex;
+    bool damagedUnitIsCastle;
 
 	int getMinUnitsToRepairCastle();
 	double getMinCastleHpRatio();

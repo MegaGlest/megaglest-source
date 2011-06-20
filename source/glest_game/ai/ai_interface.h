@@ -67,7 +67,7 @@ public:
     CommandResult giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos=Vec2i(0));
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType);
     CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos);
-    CommandResult giveCommand(int unitIndex, const CommandType *commandType, Unit *u= NULL);
+    CommandResult giveCommand(int unitIndex, const CommandType *commandType,  Unit *u= NULL);
     CommandResult giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos);
 
     //get data
