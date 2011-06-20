@@ -599,10 +599,10 @@ void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *
 
 			if(distToUnit < 0 || unit->getCenteredPos().dist(enemy->getCenteredPos()) < distToUnit) {
 				distToUnit = unit->getCenteredPos().dist(enemy->getCenteredPos());
-				result.first = true;
-				result.second = enemy;
 				if( ast->getAttackRange()>=distToUnit)
 				{
+					result.first = true;
+					result.second = enemy;
 					break;
 				}
 			}

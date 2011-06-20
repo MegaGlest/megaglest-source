@@ -451,12 +451,9 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 	int attackerWorkersHarvestingCount = 0;
     for(int i = 0; i < unitCount; ++i) {
     	bool isWarrior=false;
+    	bool productionInProgress=false;
         const Unit *unit= aiInterface->getMyUnit(i);
 		const AttackCommandType *act= unit->getType()->getFirstAttackCommand(field);
-
-		if(act != NULL && unit->getType()->hasCommandClass(ccProduce)) {
-			producerWarriorCount++;
-		}
 
 		if(	aiInterface->getControlType() == ctCpuMega ||
 			aiInterface->getControlType() == ctNetworkCpuMega) {
@@ -469,7 +466,9 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 					unit->getCurrCommand()->getCommandType()->getClass()==ccProduce
 					)
 				 ) {
+					productionInProgress=true;
 					isWarrior=false;
+					producerWarriorCount++;
 				}
 				else {
 					isWarrior =! unit->getType()->hasCommandClass(ccHarvest);
@@ -487,49 +486,48 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 		bool alreadyAttacking= (unit->getCurrSkill()->getClass() == scAttack);
 
 		bool unitSignalledToAttack = false;
-		if( alreadyAttacking == false &&
-			unit->getType()->hasSkillClass(scAttack) &&
-			(aiInterface->getControlType() == ctCpuUltra ||
-			aiInterface->getControlType() == ctCpuMega ||
-			aiInterface->getControlType() == ctNetworkCpuUltra ||
-			aiInterface->getControlType() == ctNetworkCpuMega)) {
+		if(alreadyAttacking == false && unit->getType()->hasSkillClass(scAttack) && (aiInterface->getControlType()
+		        == ctCpuUltra || aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType()
+		        == ctNetworkCpuUltra || aiInterface->getControlType() == ctNetworkCpuMega)){
 			//printf("~~~~~~~~ Unit [%s - %d] checking if unit is being attacked\n",unit->getFullName().c_str(),unit->getId());
 
-			std::pair<bool,Unit *> beingAttacked = aiInterface->getWorld()->getUnitUpdater()->unitBeingAttacked(unit);
-			if(beingAttacked.first == true) {
-				Unit *enemy = beingAttacked.second;
-				const AttackCommandType *act_forenemy = unit->getType()->getFirstAttackCommand(enemy->getCurrField());
-				//printf("~~~~~~~~ Unit [%s - %d] found enemy [%s - %d] act_forenemy [%p] enemy->getCurrField() = %d\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId(),act_forenemy,enemy->getCurrField());
+			std::pair<bool, Unit *> beingAttacked= aiInterface->getWorld()->getUnitUpdater()->unitBeingAttacked(unit);
+			if(beingAttacked.first == true){
+				Unit *enemy= beingAttacked.second;
+				const AttackCommandType *act_forenemy= unit->getType()->getFirstAttackCommand(enemy->getCurrField());
 
-				if(act_forenemy != NULL) {
-					bool shouldAttack = true;
-					if(unit->getType()->hasSkillClass(scHarvest)) {
-						shouldAttack = (attackerWorkersHarvestingCount > minWorkerAttackersHarvesting);
-						if(shouldAttack == false) {
+				//printf("~~~~~~~~ Unit [%s - %d] attacked by enemy [%s - %d] act_forenemy [%p] enemy->getCurrField() = %d\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId(),act_forenemy,enemy->getCurrField());
+
+				if(act_forenemy != NULL){
+					bool shouldAttack= true;
+					if(unit->getType()->hasSkillClass(scHarvest)){
+						shouldAttack= (attackerWorkersHarvestingCount > minWorkerAttackersHarvesting);
+						if(shouldAttack == false){
 							attackerWorkersHarvestingCount++;
 						}
 					}
-					if(shouldAttack) {
-						//printf("~~~~~~~~ Unit [%s - %d] WILL ATTACK [%s - %d]\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId());
+					if(shouldAttack){
 						aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
-						unitSignalledToAttack = true;
+						unitSignalledToAttack= true;
 					}
 				}
-				else {
-					const AttackStoppedCommandType *asct_forenemy = unit->getType()->getFirstAttackStoppedCommand(enemy->getCurrField());
+				else{
+					const AttackStoppedCommandType *asct_forenemy= unit->getType()->getFirstAttackStoppedCommand(
+					        enemy->getCurrField());
 					//printf("~~~~~~~~ Unit [%s - %d] found enemy [%s - %d] asct_forenemy [%p] enemy->getCurrField() = %d\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId(),asct_forenemy,enemy->getCurrField());
-					if(asct_forenemy != NULL) {
-						bool shouldAttack = true;
-						if(unit->getType()->hasSkillClass(scHarvest)) {
-							shouldAttack = (attackerWorkersHarvestingCount > minWorkerAttackersHarvesting);
-							if(shouldAttack == false) {
+					if(asct_forenemy != NULL){
+						bool shouldAttack= true;
+						if(unit->getType()->hasSkillClass(scHarvest)){
+							shouldAttack= (attackerWorkersHarvestingCount > minWorkerAttackersHarvesting);
+							if(shouldAttack == false){
 								attackerWorkersHarvestingCount++;
 							}
 						}
-						if(shouldAttack) {
-							//printf("~~~~~~~~ Unit [%s - %d] WILL ATTACK [%s - %d]\n",unit->getFullName().c_str(),unit->getId(),enemy->getFullName().c_str(),enemy->getId());
+						if(shouldAttack){
+//								printf("~~~~~~~~ Unit [%s - %d] WILL AttackStoppedCommand [%s - %d]\n", unit->getFullName().c_str(),
+//								        unit->getId(), enemy->getFullName().c_str(), enemy->getId());
 							aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
-							unitSignalledToAttack = true;
+							unitSignalledToAttack= true;
 						}
 					}
 				}
@@ -544,7 +542,17 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 					attackerWorkersHarvestingCount++;
 				}
 			}
-			if(shouldAttack) {
+
+			// Mega CPU does not send ( far away ) units which are currently producing something
+			if(aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType() == ctNetworkCpuMega){
+				if(!isWarrior ){
+					if(!productionInProgress){
+						shouldAttack= false;
+						//printf("no attack \n ");
+					}
+				}
+			}
+			if(shouldAttack){
 				aiInterface->giveCommand(i, act, pos);
 			}
 		}
