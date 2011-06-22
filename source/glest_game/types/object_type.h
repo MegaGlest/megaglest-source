@@ -17,6 +17,7 @@
 #include "vec.h"
 #include "leak_dumper.h"
 #include "unit_particle_type.h"
+#include "tileset_model_type.h"
 
 using std::vector;
 
@@ -36,17 +37,14 @@ typedef vector<ObjectParticleSystemTypes> ObjectParticleVector;
 
 class ObjectType{
 private:
-	typedef vector<Model*> Models;
-
-
+	typedef vector<TilesetModelType*> ModelTypes;
 private:
 	static const int tree1= 0;
 	static const int tree2= 1;
 	static const int choppedTree= 2;
 
 private:
-	Models models;
-	ObjectParticleVector particles;
+	ModelTypes modeltypes;
 	Vec3f color;
 	int objectClass;
 	bool walkable;
@@ -56,14 +54,11 @@ public:
 	~ObjectType();
 	void init(int modelCount, int objectClass, bool walkable, int height);
 
-	void loadModel(const string &path, std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,
+	TilesetModelType* loadModel(const string &path, std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,
 			string parentLoader="");
-	void addParticleSystem(ObjectParticleSystemType *particleSystem);
 
-	Model *getModel(int i)			{return models[i];}
-	bool hasParticles()	const		{return !particles.empty();}
-	ObjectParticleSystemTypes *getObjectParticleSystemTypes(int i)			{return &particles[i];}
-	int getModelCount() const		{return models.size();}
+	TilesetModelType *getTilesetModelType(int i)			{return modeltypes[i];}
+	int getModelCount() const		{return modeltypes.size();}
 	const Vec3f &getColor() const	{return color;} 
 	int getClass() const			{return objectClass;}
 	bool getWalkable() const		{return walkable;}

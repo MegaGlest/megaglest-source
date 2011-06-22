@@ -215,7 +215,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			for(int j=0; j<childCount; ++j) {
 				const XmlNode *modelNode= objectNode->getChild("model", j);
 				const XmlAttribute *pathAttribute= modelNode->getAttribute("path");
-				objectTypes[i].loadModel(pathAttribute->getRestrictedValue(currentPath),&loadedFileList, sourceXMLFile);
+				TilesetModelType* tmt=objectTypes[i].loadModel(pathAttribute->getRestrictedValue(currentPath),&loadedFileList, sourceXMLFile);
 				loadedFileList[pathAttribute->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,pathAttribute->getRestrictedValue()));
 
 				if(modelNode->hasChild("particles")){
@@ -230,9 +230,18 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 									&Renderer::getInstance(), loadedFileList, sourceXMLFile,"");
 							loadedFileList[currentPath + path].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
 
-							objectTypes[i].addParticleSystem((objectParticleSystemType));
+							tmt->addParticleSystem(objectParticleSystemType);
 						}
 					}
+				}
+
+			//rotationAllowed
+			if(modelNode->hasChild("rotationAllowed")){
+					const XmlNode *rotationAllowedNode= modelNode->getChild("rotationAllowed");
+					tmt->setRotationAllowed(rotationAllowedNode->getAttribute("value")->getBoolValue());
+				}
+				else{
+					tmt->setRotationAllowed(true);
 				}
 			}
 		}
