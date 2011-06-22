@@ -16,6 +16,7 @@
 #include "leak_dumper.h"
 #include "particle.h"
 #include "object_type.h"
+#include "tileset_model_type.h"
 
 namespace Glest{ namespace Game{
 
@@ -64,7 +65,7 @@ public:
 
 	void end(); //to kill particles
 	void initParticles();
-	void initParticlesFromTypes(const ObjectParticleSystemTypes *particleTypes);
+	void initParticlesFromTypes(const ModelParticleSystemTypes *particleTypes);
 	static void setStateCallback(ObjectStateInterface *value) { stateCallback=value; }
 
 	const ObjectType *getType() const	{return objectType;}

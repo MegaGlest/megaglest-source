@@ -21,24 +21,21 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 void ObjectType::init(int modelCount, int objectClass, bool walkable, int height) {
-	models.reserve(modelCount);
-	particles.reserve(modelCount); // one list per model
+//	modeltypes.reserve(modelCount);
 	this->objectClass= objectClass;
 	this->walkable= walkable;
 	this->height = height;
 }
 
 ObjectType::~ObjectType(){
-	for(int i= 0; i < particles.size(); i++){
-		while(!(particles[i].empty())){
-			delete particles[i].back();
-			particles[i].pop_back();
-		}
+	while(!(modeltypes.empty())){
+		delete modeltypes.back();
+		modeltypes.pop_back();
+		//Logger::getInstance().add("ObjectType", true);
 	}
-	//Logger::getInstance().add("ObjectType", true);
 }
 
-void ObjectType::loadModel(const string &path, std::map<string,vector<pair<string, string> > > *loadedFileList,
+TilesetModelType* ObjectType::loadModel(const string &path, std::map<string,vector<pair<string, string> > > *loadedFileList,
 		string parentLoader) {
 	Model *model= Renderer::getInstance().newModel(rsGame);
 	model->load(path, false, loadedFileList, &parentLoader);
@@ -47,19 +44,17 @@ void ObjectType::loadModel(const string &path, std::map<string,vector<pair<strin
 		const Pixmap2D *p= model->getMesh(0)->getTexture(0)->getPixmapConst();
 		color= p->getPixel3f(p->getW()/2, p->getH()/2);
 	}
-	models.push_back(model);
-	particles.resize(particles.size()+1);
-}
-
-void ObjectType::addParticleSystem(ObjectParticleSystemType *particleSystem){
-	particles.back().push_back(particleSystem);
+	TilesetModelType *modelType=new TilesetModelType();
+	modelType->setModel(model);
+	modeltypes.push_back(modelType);
+	return modelType;
 }
 
 void ObjectType::deletePixels() {
-	for(int i = 0; i < models.size(); ++i) {
-		Model *model = models[i];
-		if(model != NULL) {
-			model->deletePixels();
+	for(int i = 0; i < modeltypes.size(); ++i) {
+		TilesetModelType *model = modeltypes[i];
+		if(model->getModel() != NULL) {
+			model->getModel()->deletePixels();
 		}
 	}
 }
