@@ -943,6 +943,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\glest_game\types\tileset_model_type.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\types\unit_type.cpp"
 				>
 			</File>

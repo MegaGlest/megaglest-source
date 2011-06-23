@@ -54,7 +54,7 @@ public:
 	int getHeight() const			{return height;}
 	void setHeight(int height) 			{this->height=height;}
 	bool getRotationAllowed() const			{return rotationAllowed;}
-	void setRotationAllowed(int rotationAllowed)	{this->rotationAllowed=rotationAllowed;}
+	void setRotationAllowed(bool rotationAllowed)	{this->rotationAllowed=rotationAllowed;}
 };
 
 }}//end namespace
