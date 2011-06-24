@@ -87,7 +87,8 @@ public:
 	static const int pathFindRefresh;
 	static const int pathFindBailoutRadius;
 	static const int pathFindExtendRefreshForNodeCount;
-	static const int pathFindExtendRefreshNodeCount;
+	static const int pathFindExtendRefreshNodeCountMin;
+	static const int pathFindExtendRefreshNodeCountMax;
 
 private:
 
@@ -117,6 +118,7 @@ private:
 
 	bool processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached, int maxNodeCount);
 	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
+	int getPathFindExtendRefreshNodeCount(int factionIndex);
 };
 
 }}//end namespace

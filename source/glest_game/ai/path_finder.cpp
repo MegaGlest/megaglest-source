@@ -45,13 +45,19 @@ int PathFinder::pathFindNodesMax			= 1500;
 const int PathFinder::pathFindRefresh		= 10;
 const int PathFinder::pathFindBailoutRadius	= 20;
 const int PathFinder::pathFindExtendRefreshForNodeCount	= 25;
-const int PathFinder::pathFindExtendRefreshNodeCount	= 40;
+const int PathFinder::pathFindExtendRefreshNodeCountMin	= 20;
+const int PathFinder::pathFindExtendRefreshNodeCountMax	= 60;
 
 PathFinder::PathFinder() {
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		factions.push_back(FactionState());
 	}
 	map=NULL;
+}
+
+int PathFinder::getPathFindExtendRefreshNodeCount(int factionIndex) {
+	int refreshNodeCount = factions[factionIndex].random.randRange(PathFinder::pathFindExtendRefreshNodeCountMin,PathFinder::pathFindExtendRefreshNodeCountMax);
+	return refreshNodeCount;
 }
 
 PathFinder::PathFinder(const Map *map) {
@@ -451,7 +457,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					}
 
 					if(i < pathFindRefresh ||
-						(factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount && i < pathFindExtendRefreshNodeCount)) {
+						(factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
+						 i < getPathFindExtendRefreshNodeCount(unit->getFactionIndex()))) {
 						if(map->aproxCanMove(unit, lastPos, nodePos) == false) {
 							canMoveToCells = false;
 							break;
@@ -474,7 +481,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						}
 
 						if(i < pathFindRefresh ||
-								(factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount && i < pathFindExtendRefreshNodeCount)) {
+								(factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
+								 i < getPathFindExtendRefreshNodeCount(unit->getFactionIndex()))) {
 							path->add(nodePos);
 						}
 						//else if(tryLastPathCache == false) {
@@ -927,7 +935,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			}
 			else {
 				if(i < pathFindRefresh ||
-					(whileLoopCount >= pathFindExtendRefreshForNodeCount && i < pathFindExtendRefreshNodeCount)) {
+					(whileLoopCount >= pathFindExtendRefreshForNodeCount &&
+					 i < getPathFindExtendRefreshNodeCount(unit->getFactionIndex()))) {
 					path->add(nodePos);
 				}
 				//else if(tryLastPathCache == false) {
