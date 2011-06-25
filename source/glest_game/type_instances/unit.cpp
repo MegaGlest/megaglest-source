@@ -179,6 +179,39 @@ Unit *UnitReference::getUnit() const{
 	return NULL;
 }
 
+UnitAttackBoostEffect::UnitAttackBoostEffect() {
+	boost = NULL;
+	source = NULL;
+	ups = NULL;
+	upst = NULL;
+}
+
+UnitAttackBoostEffect::~UnitAttackBoostEffect() {
+	if(ups != NULL) {
+		//ups->fade();
+
+		vector<UnitParticleSystem *> particleSystemToRemove;
+		particleSystemToRemove.push_back(ups);
+
+		Renderer::getInstance().cleanupUnitParticleSystems(particleSystemToRemove,rsGame);
+		ups = NULL;
+	}
+
+	delete upst;
+	upst = NULL;
+}
+
+UnitAttackBoostEffectOriginator::UnitAttackBoostEffectOriginator() {
+	skillType = NULL;
+	currentAppliedEffect = NULL;
+}
+
+UnitAttackBoostEffectOriginator::~UnitAttackBoostEffectOriginator() {
+	delete currentAppliedEffect;
+	currentAppliedEffect = NULL;
+}
+
+
 // =====================================================
 // 	class Unit
 // =====================================================
@@ -278,7 +311,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	//starting skill
 	this->lastModelIndexForCurrSkillType = -1;
 	this->currSkill = getType()->getFirstStOfClass(scStop);
-	this->currentAttackBoostUnits.first = this->currSkill;
+	this->currentAttackBoostOriginatorEffect.skillType = this->currSkill;
 
 	livingUnits.insert(id);
 	livingUnitsp.insert(this);
@@ -327,6 +360,14 @@ Unit::~Unit() {
 		unitParticleSystems.pop_back();
 	}
 	stopDamageParticles();
+
+	while(currentAttackBoostEffects.empty() == false) {
+		//UnitAttackBoostEffect &effect = currentAttackBoostEffects.back();
+		currentAttackBoostEffects.pop_back();
+	}
+
+	delete currentAttackBoostOriginatorEffect.currentAppliedEffect;
+	currentAttackBoostOriginatorEffect.currentAppliedEffect = NULL;
 
 	delete this->unitPath;
 	this->unitPath = NULL;
@@ -678,6 +719,18 @@ void Unit::setVisible(const bool visible) {
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
 		(*it)->setVisible(visible);
 	}
+
+	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
+		UnitAttackBoostEffect &effect = currentAttackBoostEffects[i];
+		if(effect.ups != NULL) {
+			effect.ups->setVisible(visible);
+		}
+	}
+	if(currentAttackBoostOriginatorEffect.currentAppliedEffect != NULL) {
+		if(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups != NULL) {
+			currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setVisible(visible);
+		}
+	}
 }
 
 // =============================== Render related ==================================
@@ -1019,15 +1072,15 @@ void Unit::undertake() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
 
 	// Remove any units that were previously in attack-boost range
-	if(currentAttackBoostUnits.second.size() > 0) {
-		for(unsigned int i = 0; i < currentAttackBoostUnits.second.size(); ++i) {
+	if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() > 0) {
+		for(unsigned int i = 0; i < currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size(); ++i) {
 			// Remove attack boost upgrades from unit
-			Unit *affectedUnit = currentAttackBoostUnits.second[i];
-			affectedUnit->deapplyAttackBoost(currentAttackBoostUnits.first->getAttackBoost(), this);
+			Unit *affectedUnit = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
+			affectedUnit->deapplyAttackBoost(currentAttackBoostOriginatorEffect.skillType->getAttackBoost(), this);
 
 			//printf("!!!! DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
 		}
-		currentAttackBoostUnits.second.clear();
+		currentAttackBoostOriginatorEffect.currentAttackBoostUnits.clear();
 	}
 
 	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
@@ -1221,6 +1274,20 @@ bool Unit::update() {
 		(*it)->setRotation(getRotation());
 	}
 
+	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
+		UnitAttackBoostEffect &effect = currentAttackBoostEffects[i];
+		if(effect.ups != NULL) {
+			effect.ups->setPos(getCurrVector());
+			effect.ups->setRotation(getRotation());
+		}
+	}
+	if(currentAttackBoostOriginatorEffect.currentAppliedEffect != NULL) {
+		if(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups != NULL) {
+			currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
+			currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
+		}
+	}
+
 	//checks
 	if(animProgress > 1.f) {
 		animProgress = currSkill->getClass() == scDie? 1.f: 0.f;
@@ -1245,39 +1312,217 @@ bool Unit::update() {
 		}
 	}
 
-	// Remove any units that were previously in range
-	if(currentAttackBoostUnits.second.size() > 0) {
-		for(unsigned int i = 0; i < currentAttackBoostUnits.second.size(); ++i) {
-			// Remove attack boost upgrades from unit
-			Unit *affectedUnit = currentAttackBoostUnits.second[i];
-			affectedUnit->deapplyAttackBoost(currentAttackBoostUnits.first->getAttackBoost(), this);
+	if(currSkill != currentAttackBoostOriginatorEffect.skillType) {
+		if(currentAttackBoostOriginatorEffect.currentAppliedEffect != NULL) {
+			delete currentAttackBoostOriginatorEffect.currentAppliedEffect;
+			currentAttackBoostOriginatorEffect.currentAppliedEffect = NULL;
 
-			//printf("!!!! DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+			//printf("- #1 DE-APPLY ATTACK BOOST SELF PARTICLE to unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId());
 		}
-		currentAttackBoostUnits.second.clear();
+
+		// Remove any units that were previously in range
+		if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() > 0) {
+			for(unsigned int i = 0; i < currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size(); ++i) {
+				// Remove attack boost upgrades from unit
+				Unit *affectedUnit = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
+				affectedUnit->deapplyAttackBoost(currentAttackBoostOriginatorEffect.skillType->getAttackBoost(), this);
+
+				//printf("- #1 DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+			}
+			currentAttackBoostOriginatorEffect.currentAttackBoostUnits.clear();
+		}
+		currentAttackBoostOriginatorEffect.skillType = currSkill;
+
+		if(currSkill->isAttackBoostEnabled() == true) {
+			// Search for units in range of this unit which apply to the
+			// attack-boost and temporarily upgrade them
+			UnitUpdater *unitUpdater = this->game->getWorld()->getUnitUpdater();
+
+			const AttackBoost *attackBoost = currSkill->getAttackBoost();
+			vector<Unit *> candidates = unitUpdater->findUnitsInRange(this, attackBoost->radius);
+			for(unsigned int i = 0; i < candidates.size(); ++i) {
+				Unit *affectedUnit = candidates[i];
+				if(attackBoost->isAffected(this,affectedUnit) == true) {
+					if(affectedUnit->applyAttackBoost(attackBoost, this) == true) {
+						currentAttackBoostOriginatorEffect.currentAttackBoostUnits.push_back(affectedUnit);
+
+						//printf("+ #1 APPLY ATTACK BOOST to unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+					}
+				}
+			}
+
+			if(showUnitParticles == true) {
+				if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() > 0) {
+					if(attackBoost->unitParticleSystemTypeForSourceUnit != NULL) {
+						currentAttackBoostOriginatorEffect.currentAppliedEffect = new UnitAttackBoostEffect();
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst = new UnitParticleSystemType();
+						*currentAttackBoostOriginatorEffect.currentAppliedEffect->upst = *attackBoost->unitParticleSystemTypeForSourceUnit;
+						//effect.upst = boost->unitParticleSystemTypeForAffectedUnit;
+
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups = new UnitParticleSystem(200);
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						Renderer::getInstance().manageParticleSystem(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups, rsGame);
+
+						//printf("+ #1 APPLY ATTACK BOOST SELF PARTICLE to unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId());
+					}
+				}
+			}
+		}
 	}
-	currentAttackBoostUnits.first = currSkill;
+	else {
+		if(currSkill->isAttackBoostEnabled() == true) {
+			// Search for units in range of this unit which apply to the
+			// attack-boost and temporarily upgrade them
+			UnitUpdater *unitUpdater = this->game->getWorld()->getUnitUpdater();
 
-	if(currSkill->isAttackBoostEnabled() == true) {
-		// Search for units in range of this unit which apply to the
-		// attack-boost and temporarily upgrade them
-		UnitUpdater *unitUpdater = this->game->getWorld()->getUnitUpdater();
+			const AttackBoost *attackBoost = currSkill->getAttackBoost();
+			vector<Unit *> candidates = unitUpdater->findUnitsInRange(this, attackBoost->radius);
+			for(unsigned int i = 0; i < candidates.size(); ++i) {
+				Unit *affectedUnit = candidates[i];
 
-		const AttackBoost *attackBoost = currSkill->getAttackBoost();
-		vector<Unit *> candidates = unitUpdater->findUnitsInRange(this, attackBoost->radius);
-		for(unsigned int i = 0; i < candidates.size(); ++i) {
-			Unit *affectedUnit = candidates[i];
-			if(attackBoost->isAffected(this,affectedUnit) == true) {
-				affectedUnit->applyAttackBoost(attackBoost, this);
+				std::vector<Unit *>::iterator iterFound = std::find(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.begin(), currentAttackBoostOriginatorEffect.currentAttackBoostUnits.end(), affectedUnit);
 
-				currentAttackBoostUnits.second.push_back(affectedUnit);
+				if(attackBoost->isAffected(this,affectedUnit) == true) {
+					if(iterFound == currentAttackBoostOriginatorEffect.currentAttackBoostUnits.end()) {
+						if(affectedUnit->applyAttackBoost(attackBoost, this) == true) {
+							currentAttackBoostOriginatorEffect.currentAttackBoostUnits.push_back(affectedUnit);
 
-				//printf("@@@@ APPLY ATTACK BOOST to unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+							//printf("+ #2 APPLY ATTACK BOOST to unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+						}
+					}
+				}
+				else {
+					if(iterFound != currentAttackBoostOriginatorEffect.currentAttackBoostUnits.end()) {
+						affectedUnit->deapplyAttackBoost(currentAttackBoostOriginatorEffect.skillType->getAttackBoost(), this);
+						currentAttackBoostOriginatorEffect.currentAttackBoostUnits.erase(iterFound);
+
+						//printf("- #2 DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+					}
+				}
+			}
+
+			if(showUnitParticles == true) {
+				if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() > 0) {
+					if( attackBoost->unitParticleSystemTypeForSourceUnit != NULL &&
+						currentAttackBoostOriginatorEffect.currentAppliedEffect == NULL) {
+
+						currentAttackBoostOriginatorEffect.currentAppliedEffect = new UnitAttackBoostEffect();
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst = new UnitParticleSystemType();
+						*currentAttackBoostOriginatorEffect.currentAppliedEffect->upst = *attackBoost->unitParticleSystemTypeForSourceUnit;
+						//effect.upst = boost->unitParticleSystemTypeForAffectedUnit;
+
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups = new UnitParticleSystem(200);
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						Renderer::getInstance().manageParticleSystem(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups, rsGame);
+
+						//printf("+ #2 APPLY ATTACK BOOST SELF PARTICLE to unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId());
+					}
+				}
+				else if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() <= 0) {
+					if(currentAttackBoostOriginatorEffect.currentAppliedEffect != NULL) {
+						delete currentAttackBoostOriginatorEffect.currentAppliedEffect;
+						currentAttackBoostOriginatorEffect.currentAppliedEffect = NULL;
+
+						//printf("- #2 DE-APPLY ATTACK BOOST SELF PARTICLE to unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId());
+					}
+				}
 			}
 		}
 	}
 
 	return return_value;
+}
+
+bool Unit::unitHasAttackBoost(const AttackBoost *boost, const Unit *source) const {
+	bool result = false;
+	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
+		const UnitAttackBoostEffect &effect = currentAttackBoostEffects[i];
+		if( effect.boost == boost &&
+			effect.source->getType()->getId() == source->getType()->getId()) {
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
+	if(boost == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+	//printf("APPLYING ATTACK BOOST to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
+
+	bool shouldApplyAttackBoost = true;
+	if(boost->allowMultipleBoosts == false) {
+		// Check if we already have this boost from this unit type and multiples
+		// are not allowed
+		bool alreadyHasAttackBoost = this->unitHasAttackBoost(boost, source);
+		if(alreadyHasAttackBoost == true) {
+			shouldApplyAttackBoost = false;
+		}
+	}
+
+	if(shouldApplyAttackBoost == true) {
+		currentAttackBoostEffects.push_back(UnitAttackBoostEffect());
+		UnitAttackBoostEffect &effect = currentAttackBoostEffects[currentAttackBoostEffects.size()-1];
+		effect.boost = boost;
+		effect.source = source;
+
+		//if(boost->isAffected(source, this)) {
+			totalUpgrade.apply(&boost->boostUpgrade);
+
+			checkItemInVault(&this->hp,this->hp);
+			hp += boost->boostUpgrade.getMaxHp();
+			addItemToVault(&this->hp,this->hp);
+		//}
+
+		if(showUnitParticles == true) {
+			effect.upst = new UnitParticleSystemType();
+			*effect.upst = *boost->unitParticleSystemTypeForAffectedUnit;
+			//effect.upst = boost->unitParticleSystemTypeForAffectedUnit;
+
+			effect.ups = new UnitParticleSystem(200);
+			effect.upst->setValues(effect.ups);
+			effect.ups->setPos(getCurrVector());
+			effect.ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+			Renderer::getInstance().manageParticleSystem(effect.ups, rsGame);
+		}
+		//currentAttackBoostEffects.push_back(effect);
+	}
+	return shouldApplyAttackBoost;
+}
+
+void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
+	if(boost == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+	//printf("DE-APPLYING ATTACK BOOST to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
+
+	//if(boost->isAffected(source, this)) {
+		totalUpgrade.deapply(&boost->boostUpgrade);
+
+		checkItemInVault(&this->hp,this->hp);
+		hp -= boost->boostUpgrade.getMaxHp();
+		addItemToVault(&this->hp,this->hp);
+	//}
+
+	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
+		UnitAttackBoostEffect &effect = currentAttackBoostEffects[i];
+		if(effect.boost == boost && effect.source == source) {
+			currentAttackBoostEffects.erase(currentAttackBoostEffects.begin() + i);
+			break;
+		}
+	}
 }
 
 void Unit::tick() {
@@ -1560,38 +1805,6 @@ string Unit::getDesc() const {
 	}
 
     return str;
-}
-
-void Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
-	if(boost == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
-	}
-
-	//if(boost->isAffected(source, this)) {
-		totalUpgrade.apply(&boost->boostUpgrade);
-
-		checkItemInVault(&this->hp,this->hp);
-		hp += boost->boostUpgrade.getMaxHp();
-		addItemToVault(&this->hp,this->hp);
-	//}
-}
-
-void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
-	if(boost == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
-	}
-
-	//if(boost->isAffected(source, this)) {
-		totalUpgrade.deapply(&boost->boostUpgrade);
-
-		checkItemInVault(&this->hp,this->hp);
-		hp -= boost->boostUpgrade.getMaxHp();
-		addItemToVault(&this->hp,this->hp);
-	//}
 }
 
 void Unit::applyUpgrade(const UpgradeType *upgradeType){
@@ -2182,7 +2395,7 @@ void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
 			// as a bad one
 			const int addInterval = (GameConstants::updateFps * 5);
 			if(lastHarvestResourceTarget.second - getFrameCount() >= addInterval) {
-				printf("-----------------------> setLastHarvestResourceTarget() [%d][%d]\n",getFrameCount(),lastHarvestResourceTarget.second);
+				//printf("-----------------------> setLastHarvestResourceTarget() [%d][%d]\n",getFrameCount(),lastHarvestResourceTarget.second);
 				addBadHarvestPos(resourceLocation);
 			}
 		}

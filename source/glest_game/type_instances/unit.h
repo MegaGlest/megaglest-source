@@ -52,7 +52,7 @@ class MorphCommandType;
 class Game;
 class Unit;
 
-enum CommandResult{
+enum CommandResult {
 	crSuccess,
 	crFailRes,
 	crFailReqs,
@@ -61,7 +61,7 @@ enum CommandResult{
 	crSomeFailed
 };
 
-enum InterestingUnitType{
+enum InterestingUnitType {
 	iutIdleHarvester,
 	iutBuiltBuilding,
 	iutProducer,
@@ -73,7 +73,7 @@ enum InterestingUnitType{
 // 	class UnitObserver
 // =====================================================
 
-class UnitObserver{
+class UnitObserver {
 public:
 	enum Event{
 		eKill
@@ -88,7 +88,7 @@ public:
 // 	class UnitReference
 // =====================================================
 
-class UnitReference{
+class UnitReference {
 private:
 	int id;
 	Faction *faction;
@@ -236,6 +236,30 @@ public:
 ///	A game unit or building
 // ===============================
 
+class UnitAttackBoostEffect {
+public:
+
+	UnitAttackBoostEffect();
+	~UnitAttackBoostEffect();
+
+	const AttackBoost *boost;
+	const Unit *source;
+	UnitParticleSystem *ups;
+	UnitParticleSystemType *upst;
+
+};
+
+class UnitAttackBoostEffectOriginator {
+public:
+
+	UnitAttackBoostEffectOriginator();
+	~UnitAttackBoostEffectOriginator();
+
+	const SkillType *skillType;
+	std::vector<Unit *> currentAttackBoostUnits;
+	UnitAttackBoostEffect *currentAppliedEffect;
+};
+
 class Unit : public ValueCheckerVault {
 private:
     typedef list<Command*> Commands;
@@ -344,7 +368,9 @@ private:
 	bool usePathfinderExtendedMaxNodes;
 	int maxQueuedCommandDisplayCount;
 
-	std::pair<const SkillType *,std::vector<Unit *> > currentAttackBoostUnits;
+	UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
+
+	std::vector<UnitAttackBoostEffect> currentAttackBoostEffects;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
@@ -352,7 +378,9 @@ public:
 
     static void setGame(Game *value) { game=value;}
 
-    const std::pair<const SkillType *,std::vector<Unit *> > & getCurrentAttackBoostUnits() const { return currentAttackBoostUnits; }
+    //const std::pair<const SkillType *,std::vector<Unit *> > & getCurrentAttackBoostUnits() const { return currentAttackBoostUnits; }
+    const UnitAttackBoostEffectOriginator & getAttackBoostOriginatorEffect() const { return currentAttackBoostOriginatorEffect; }
+    bool unitHasAttackBoost(const AttackBoost *boost, const Unit *source) const;
 
     //queries
     void setIgnoreCheckCommand(bool value)      { ignoreCheckCommand=value;}
@@ -470,7 +498,7 @@ public:
     bool update();
 	void tick();
 
-	void applyAttackBoost(const AttackBoost *boost, const Unit *source);
+	bool applyAttackBoost(const AttackBoost *boost, const Unit *source);
 	void deapplyAttackBoost(const AttackBoost *boost, const Unit *source);
 
 	void applyUpgrade(const UpgradeType *upgradeType);

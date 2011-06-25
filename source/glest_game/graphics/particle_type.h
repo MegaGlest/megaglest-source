@@ -67,6 +67,8 @@ protected:
 
 public:
 	ParticleSystemType();
+	~ParticleSystemType();
+
 	void load(const XmlNode *particleSystemNode, const string &dir,
 			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);

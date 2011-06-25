@@ -33,11 +33,17 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 ParticleSystemType::ParticleSystemType() {
+	//printf("++ Create ParticleSystemType [%p]\n",this);
+
 	teamcolorNoEnergy=false;
 	teamcolorEnergy=false;
 	alternations=false;
 	texture=NULL;
 	model=NULL;
+}
+
+ParticleSystemType::~ParticleSystemType() {
+	//printf("-- Delete ParticleSystemType [%p] type = [%s]\n",this,type.c_str());
 }
 
 void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,

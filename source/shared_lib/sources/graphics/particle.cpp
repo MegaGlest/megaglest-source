@@ -33,7 +33,9 @@ namespace Graphics {
 //	class ParticleSystem
 // =====================================================
 
-ParticleSystem::ParticleSystem(int particleCount){
+ParticleSystem::ParticleSystem(int particleCount) {
+	//printf("++ Create ParticleSystem [%p]\n",this);
+
 	//init particle vector
 	blendMode= bmOne;
 	//particles= new Particle[particleCount];
@@ -67,6 +69,8 @@ ParticleSystem::ParticleSystem(int particleCount){
 }
 
 ParticleSystem::~ParticleSystem(){
+	//printf("-- Delete ParticleSystem [%p]\n",this);
+
 	//delete [] particles;
 	particles.clear();
 }
@@ -182,6 +186,13 @@ void ParticleSystem::setVisible(bool visible){
 // =============== MISC =========================
 void ParticleSystem::fade(){
 	if(particleObserver != NULL){
+		if(state != sPlay) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"state != sPlay, state = [%d]",state);
+			//throw runtime_error(szBuf);
+			//printf(szBuf);
+			SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
+		}
 		assert(state == sPlay);
 	}
 	state= sFade;

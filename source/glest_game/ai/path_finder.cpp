@@ -45,7 +45,7 @@ int PathFinder::pathFindNodesMax			= 1500;
 const int PathFinder::pathFindRefresh		= 10;
 const int PathFinder::pathFindBailoutRadius	= 20;
 const int PathFinder::pathFindExtendRefreshForNodeCount	= 25;
-const int PathFinder::pathFindExtendRefreshNodeCountMin	= 20;
+const int PathFinder::pathFindExtendRefreshNodeCountMin	= 40;
 const int PathFinder::pathFindExtendRefreshNodeCountMax	= 60;
 
 PathFinder::PathFinder() {

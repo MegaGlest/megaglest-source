@@ -3112,15 +3112,16 @@ void Renderer::renderSelectionEffects() {
 
 		// Render Attack-boost circles
 		if(showDebugUI == true) {
-			const std::pair<const SkillType *,std::vector<Unit *> > &currentAttackBoostUnits = unit->getCurrentAttackBoostUnits();
+			//const std::pair<const SkillType *,std::vector<Unit *> > &currentAttackBoostUnits = unit->getCurrentAttackBoostUnits();
+			const UnitAttackBoostEffectOriginator &effect = unit->getAttackBoostOriginatorEffect();
 
-			if(currentAttackBoostUnits.first->isAttackBoostEnabled() == true) {
+			if(effect.skillType->isAttackBoostEnabled() == true) {
 				glColor4f(MAGENTA.x,MAGENTA.y,MAGENTA.z,MAGENTA.w);
-				renderSelectionCircle(currVec, unit->getType()->getSize(), currentAttackBoostUnits.first->getAttackBoost()->radius);
+				renderSelectionCircle(currVec, unit->getType()->getSize(), effect.skillType->getAttackBoost()->radius);
 
-				for(unsigned int i = 0; i < currentAttackBoostUnits.second.size(); ++i) {
+				for(unsigned int i = 0; i < effect.currentAttackBoostUnits.size(); ++i) {
 					// Remove attack boost upgrades from unit
-					Unit *affectedUnit = currentAttackBoostUnits.second[i];
+					Unit *affectedUnit = effect.currentAttackBoostUnits[i];
 
 					Vec3f currVecBoost = affectedUnit->getCurrVectorFlat();
 					currVecBoost.y += 0.3f;
