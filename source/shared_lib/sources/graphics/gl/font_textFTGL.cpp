@@ -157,6 +157,11 @@ void TextFTGL::init(string fontName, int fontSize) {
 	if(ftFont->Error())	{
 		throw runtime_error("FTGL: error setting encoding");
 	}
+
+	// Create a string containing common characters
+	// and preload the chars without rendering them.
+	string preloadText = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890-=!@#$%^&*()_+:\"{}[]/?.,<>\\';";
+	ftFont->Advance(preloadText.c_str());
 }
 
 void TextFTGL::SetFaceSize(int value) {
