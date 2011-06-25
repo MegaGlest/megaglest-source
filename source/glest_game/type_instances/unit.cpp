@@ -276,6 +276,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	computeTotalUpgrade();
 
 	//starting skill
+	this->lastModelIndexForCurrSkillType = -1;
 	this->currSkill = getType()->getFirstStOfClass(scStop);
 	livingUnits.insert(id);
 	livingUnitsp.insert(this);
@@ -588,7 +589,11 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		}
 	}
 	progress2= 0;
+	if(this->currSkill != currSkill) {
+		this->lastModelIndexForCurrSkillType = -1;
+	}
 	this->currSkill= currSkill;
+
 }
 
 void Unit::setCurrSkill(SkillClass sc) {
@@ -675,24 +680,24 @@ void Unit::setVisible(const bool visible) {
 
 // =============================== Render related ==================================
 
-Model *Unit::getCurrentModelPtr() const {
+Model *Unit::getCurrentModelPtr() {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw runtime_error(szBuf);
 	}
 
-    return currSkill->getAnimation();
+    return currSkill->getAnimation(animProgress,&lastModelIndexForCurrSkillType);
 }
 
-const Model *Unit::getCurrentModel() const{
+const Model *Unit::getCurrentModel() {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw runtime_error(szBuf);
 	}
 
-    return currSkill->getAnimation();
+    return currSkill->getAnimation(animProgress,&lastModelIndexForCurrSkillType);
 }
 
 Vec3f Unit::getCurrVector() const{
@@ -1205,6 +1210,7 @@ bool Unit::update() {
 	//checks
 	if(animProgress > 1.f) {
 		animProgress = currSkill->getClass() == scDie? 1.f: 0.f;
+		this->lastModelIndexForCurrSkillType = -1;
 	}
 
     bool return_value = false;

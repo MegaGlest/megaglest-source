@@ -120,12 +120,46 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 			sounds[i]= sound;
 		}
 	}
+
+
+	// attack-boost
+	if(sn->hasChild("attack-boost") == true) {
+		//printf("$$FOUND ATTACK BOOST FOR [%s]\n",parentLoader.c_str());
+
+		attackBoost.enabled = true;
+
+		const XmlNode *attackBoostNode = sn->getChild("attack-boost");
+		attackBoost.radius = attackBoostNode->getChild("radius")->getAttribute("value")->getIntValue();
+		attackBoost.boostAllUnits = attackBoostNode->getChild("boost-all-units")->getAttribute("value")->getBoolValue();
+		if(attackBoost.boostAllUnits == false) {
+			for(int i = 0; i < attackBoostNode->getChild("boost-all-units")->getChildCount(); ++i) {
+				const XmlNode *boostUnitNode= attackBoostNode->getChild("boost-all-units")->getChild("unit-type", i);
+				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+			}
+		}
+		attackBoost.boostUpgrade.load(attackBoostNode);
+	}
+
 }
 
-Model *SkillType::getAnimation() const {
-	//int modelIndex = random.randRange(0,animations.size()-1);
-	srand(time(NULL));
-	int modelIndex = rand() % animations.size();
+Model *SkillType::getAnimation(float animProgress, int *lastAnimationIndex) const {
+	int modelIndex = 0;
+	if(animations.size() > 1) {
+		//printf("animProgress = [%f] for skill [%s]\n",animProgress,name.c_str());
+
+		if(lastAnimationIndex) {
+			modelIndex = *lastAnimationIndex;
+		}
+		if(modelIndex < 0 || animProgress > 1.0f) {
+			//int modelIndex = random.randRange(0,animations.size()-1);
+			srand(time(NULL));
+			modelIndex = rand() % animations.size();
+		}
+	}
+	if(lastAnimationIndex) {
+		*lastAnimationIndex = modelIndex;
+	}
+
 	//printf("!!RETURN ANIMATION [%d / %d]\n",modelIndex,animations.size()-1);
 	return animations[modelIndex];
 }

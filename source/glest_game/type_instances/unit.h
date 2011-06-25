@@ -283,6 +283,7 @@ private:
     const UnitType *type;
     const ResourceType *loadType;
     const SkillType *currSkill;
+    int lastModelIndexForCurrSkillType;
 
     bool toBeUndertaken;
 	bool alive;
@@ -423,8 +424,8 @@ public:
 	bool getVisible() const { return visible; }
 
 	//render related
-    const Model *getCurrentModel() const;
-    Model *getCurrentModelPtr() const;
+    const Model *getCurrentModel();
+    Model *getCurrentModelPtr();
 	Vec3f getCurrVector() const;
 	Vec3f getCurrVectorFlat() const;
 	Vec3f getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const;
