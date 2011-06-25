@@ -30,45 +30,68 @@ namespace Glest{ namespace Game{
 
 
 AttackBoost::AttackBoost() {
-		enabled = false;
-		radius = 0;
-		boostAllUnits = false;
+	enabled = false;
+	allowMultipleBoosts = false;
+	radius = 0;
+	targetType = abtFaction;
+	unitParticleSystemTypeForSourceUnit = NULL;
+	unitParticleSystemTypeForAffectedUnit = NULL;
 }
+
+AttackBoost::~AttackBoost() {
+	delete unitParticleSystemTypeForSourceUnit;
+	unitParticleSystemTypeForSourceUnit = NULL;
+
+	delete unitParticleSystemTypeForAffectedUnit;
+	unitParticleSystemTypeForAffectedUnit = NULL;
+}
+
 bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 	bool result = false;
-	if(enabled == true && source != NULL && dest != NULL &&
-		source != dest) {
+	if(enabled == true && source != NULL && dest != NULL && source != dest) {
+		bool destUnitMightApply = false;
 		// All units are affected (including enemies)
-		if(boostAllUnits == true) {
+		if(targetType == abtAll) {
+			destUnitMightApply = true;
+		}
+		// Only same faction units are affected
+		else if(targetType == abtFaction) {
+			if(boostUnitList.size() == 0) {
+				if(source->getFactionIndex() == dest->getFactionIndex()) {
+					destUnitMightApply = true;
+				}
+			}
+		}
+		// Only ally units are affected
+		else if(targetType == abtAlly) {
+			if(boostUnitList.size() == 0) {
+				if(source->isAlly(dest) == true) {
+					destUnitMightApply = true;
+				}
+			}
+		}
+		// Only foe units are affected
+		else if(targetType == abtFoe) {
+			if(boostUnitList.size() == 0) {
+				if(source->isAlly(dest) == false) {
+					destUnitMightApply = true;
+				}
+			}
+		}
+		else if(targetType == abtUnitTypes) {
+			// Specify which units are affected
+			for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+				const UnitType *ut = boostUnitList[i];
+				if(dest->getType()->getId() == ut->getId()) {
+					destUnitMightApply = true;
+				}
+			}
+		}
+
+		if(destUnitMightApply == true) {
 			float distance = source->getCenteredPos().dist(dest->getCenteredPos());
 			if(distance <= radius) {
 				result = true;
-			}
-		}
-		else {
-			// Only same faction units are affected
-			if(boostUnitList.size() == 0) {
-				//if(source->isAlly(dest) == true) {
-				//}
-				if(source->getFactionIndex() == dest->getFactionIndex()) {
-					float distance = source->getCenteredPos().dist(dest->getCenteredPos());
-					if(distance <= radius) {
-						result = true;
-					}
-				}
-			}
-			// Specify which units are affected
-			else {
-				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-					const UnitType *ut = boostUnitList[i];
-					if(dest->getType()->getId() == ut->getId()) {
-						float distance = source->getCenteredPos().dist(dest->getCenteredPos());
-						if(distance <= radius) {
-							result = true;
-							break;
-						}
-					}
-				}
 			}
 		}
 	}
@@ -185,17 +208,63 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 		attackBoost.enabled = true;
 
 		const XmlNode *attackBoostNode = sn->getChild("attack-boost");
+		attackBoost.allowMultipleBoosts = attackBoostNode->getChild("allow-multiple-boosts")->getAttribute("value")->getBoolValue();
 		attackBoost.radius = attackBoostNode->getChild("radius")->getAttribute("value")->getIntValue();
-		attackBoost.boostAllUnits = attackBoostNode->getChild("boost-all-units")->getAttribute("value")->getBoolValue();
-		if(attackBoost.boostAllUnits == false) {
-			for(int i = 0; i < attackBoostNode->getChild("boost-all-units")->getChildCount(); ++i) {
-				const XmlNode *boostUnitNode= attackBoostNode->getChild("boost-all-units")->getChild("unit-type", i);
+
+		string targetType = attackBoostNode->getChild("target")->getAttribute("value")->getValue();
+		if(targetType == "ally") {
+			attackBoost.targetType = abtAlly;
+		}
+		else if(targetType == "foe") {
+			attackBoost.targetType = abtFoe;
+		}
+		else if(targetType == "faction") {
+			attackBoost.targetType = abtFaction;
+		}
+		else if(targetType == "unit-types") {
+			attackBoost.targetType = abtUnitTypes;
+
+			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
+				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
 				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
 			}
 		}
-		attackBoost.boostUpgrade.load(attackBoostNode);
-	}
+		else if(targetType == "all") {
+			attackBoost.targetType = abtAll;
+		}
+		else {
+			char szBuf[4096]="";
+			sprintf(szBuf,"Unsupported target [%s] specified for attack boost for skill [%s] in [%s]",targetType.c_str(),name.c_str(),parentLoader.c_str());
+			throw runtime_error(szBuf);
+		}
 
+		attackBoost.boostUpgrade.load(attackBoostNode);
+
+		//particles
+		if(attackBoostNode->hasChild("particles") == true) {
+			const XmlNode *particleNode= attackBoostNode->getChild("particles");
+			bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+			if(particleEnabled == true) {
+				if(particleNode->hasChild("originator-particle-file") == true) {
+					const XmlNode *particleFileNode= particleNode->getChild("originator-particle-file");
+					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
+					attackBoost.unitParticleSystemTypeForSourceUnit = new UnitParticleSystemType();
+					attackBoost.unitParticleSystemTypeForSourceUnit->load(dir,  currentPath + path, &Renderer::getInstance(),
+							loadedFileList,parentLoader,tt->getPath());
+					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
+
+				}
+				if(particleNode->hasChild("affected-particle-file") == true) {
+					const XmlNode *particleFileNode= particleNode->getChild("affected-particle-file");
+					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
+					attackBoost.unitParticleSystemTypeForAffectedUnit = new UnitParticleSystemType();
+					attackBoost.unitParticleSystemTypeForAffectedUnit->load(dir,  currentPath + path, &Renderer::getInstance(),
+							loadedFileList,parentLoader,tt->getPath());
+					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
+				}
+			}
+		}
+	}
 }
 
 Model *SkillType::getAnimation(float animProgress, const Unit *unit, int *lastAnimationIndex) const {

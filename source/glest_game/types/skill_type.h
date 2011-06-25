@@ -74,14 +74,27 @@ typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
 ///	A basic action that an unit can perform
 // =====================================================
 
+enum AttackBoostTargetType {
+	abtAlly,
+	abtFoe,
+	abtFaction,
+	abtUnitTypes,
+	abtAll
+};
+
 class AttackBoost {
 public:
 	AttackBoost();
+	~AttackBoost();
 	bool enabled;
+	bool allowMultipleBoosts;
 	int radius;
-	bool boostAllUnits;
+	AttackBoostTargetType targetType;
 	vector<const UnitType *> boostUnitList;
 	UpgradeTypeBase boostUpgrade;
+
+	UnitParticleSystemType *unitParticleSystemTypeForSourceUnit;
+	UnitParticleSystemType *unitParticleSystemTypeForAffectedUnit;
 
 	bool isAffected(const Unit *source, const Unit *dest) const;
 };
