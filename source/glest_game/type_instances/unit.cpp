@@ -1559,13 +1559,13 @@ void Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		throw runtime_error(szBuf);
 	}
 
-	if(boost->isAffected(source, this)) {
+	//if(boost->isAffected(source, this)) {
 		totalUpgrade.apply(&boost->boostUpgrade);
 
 		checkItemInVault(&this->hp,this->hp);
 		hp += boost->boostUpgrade.getMaxHp();
 		addItemToVault(&this->hp,this->hp);
-	}
+	//}
 }
 
 void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
@@ -1575,13 +1575,13 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		throw runtime_error(szBuf);
 	}
 
-	if(boost->isAffected(source, this)) {
+	//if(boost->isAffected(source, this)) {
 		totalUpgrade.deapply(&boost->boostUpgrade);
 
 		checkItemInVault(&this->hp,this->hp);
 		hp -= boost->boostUpgrade.getMaxHp();
 		addItemToVault(&this->hp,this->hp);
-	}
+	//}
 }
 
 void Unit::applyUpgrade(const UpgradeType *upgradeType){
