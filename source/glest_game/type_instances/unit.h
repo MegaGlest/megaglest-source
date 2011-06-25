@@ -310,6 +310,7 @@ private:
     const ResourceType *loadType;
     const SkillType *currSkill;
     int lastModelIndexForCurrSkillType;
+    int animationRandomCycleCount;
 
     bool toBeUndertaken;
 	bool alive;

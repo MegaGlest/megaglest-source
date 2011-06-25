@@ -119,6 +119,8 @@ protected:
 	int hpCost;
     int speed;
     int animSpeed;
+
+    int animationRandomCycleMaxcount;
     vector<Model *> animations;
     vector<AnimationAttributes> animationAttributes;
 
@@ -137,6 +139,8 @@ public:
     		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string parentLoader);
 		
+    bool CanCycleNextRandomAnimation(const int *animationRandomCycleCount) const;
+
     //get
 	const string &getName() const		{return name;}
 	SkillClass getClass() const			{return skillClass;}
@@ -144,7 +148,7 @@ public:
 	int getHpCost() const				{return hpCost;}
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
-	Model *getAnimation(float animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL) const;
+	Model *getAnimation(float animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL, int *animationRandomCycleCount=NULL) const;
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
 	

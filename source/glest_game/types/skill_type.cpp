@@ -138,6 +138,12 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
 
+	animationRandomCycleMaxcount = -1;
+	if(sn->hasChild("animation-random-cycle-maxcount") == true) {
+		const XmlNode *randomCycleCountNode = sn->getChild("animation-random-cycle-maxcount");
+		animationRandomCycleMaxcount = randomCycleCountNode->getAttribute("value")->getIntValue();
+	}
+
 	//string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue(currentPath);
 	vector<XmlNode *> animationList = sn->getChildList("animation");
 	for(unsigned int i = 0; i < animationList.size(); ++i) {
@@ -267,7 +273,20 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 	}
 }
 
-Model *SkillType::getAnimation(float animProgress, const Unit *unit, int *lastAnimationIndex) const {
+bool SkillType::CanCycleNextRandomAnimation(const int *animationRandomCycleCount) const {
+	bool result = true;
+	if(animations.size() > 1) {
+		if( animationRandomCycleMaxcount >= 0 &&
+				animationRandomCycleCount != NULL &&
+			*animationRandomCycleCount >= animationRandomCycleMaxcount) {
+			result = false;
+		}
+	}
+	return result;
+}
+
+Model *SkillType::getAnimation(float animProgress, const Unit *unit,
+		int *lastAnimationIndex, int *animationRandomCycleCount) const {
 	int modelIndex = 0;
 	if(animations.size() > 1) {
 		//printf("animProgress = [%f] for skill [%s]\n",animProgress,name.c_str());
@@ -276,24 +295,27 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit, int *lastAn
 			modelIndex = *lastAnimationIndex;
 		}
 		if(modelIndex < 0 || animProgress > 1.0f) {
-			bool foundSpecificAnimation = false;
-			if(unit != NULL) {
-				for(unsigned int i = 0; i < animationAttributes.size(); ++i) {
-					const AnimationAttributes &attributes = animationAttributes[i];
-					if(attributes.fromHp != 0 || attributes.toHp != 0) {
-						if(unit->getHp() >= attributes.fromHp && unit->getHp() <= attributes.toHp) {
-							modelIndex = i;
-							foundSpecificAnimation = true;
-							break;
+			bool canCycle = CanCycleNextRandomAnimation(animationRandomCycleCount);
+			if(canCycle == true) {
+				bool foundSpecificAnimation = false;
+				if(unit != NULL) {
+					for(unsigned int i = 0; i < animationAttributes.size(); ++i) {
+						const AnimationAttributes &attributes = animationAttributes[i];
+						if(attributes.fromHp != 0 || attributes.toHp != 0) {
+							if(unit->getHp() >= attributes.fromHp && unit->getHp() <= attributes.toHp) {
+								modelIndex = i;
+								foundSpecificAnimation = true;
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			if(foundSpecificAnimation == false) {
-				//int modelIndex = random.randRange(0,animations.size()-1);
-				srand(time(NULL));
-				modelIndex = rand() % animations.size();
+				if(foundSpecificAnimation == false) {
+					//int modelIndex = random.randRange(0,animations.size()-1);
+					srand(time(NULL));
+					modelIndex = rand() % animations.size();
+				}
 			}
 		}
 	}
