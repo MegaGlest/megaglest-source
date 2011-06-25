@@ -66,10 +66,27 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
 
-	string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue(currentPath);
-	animation= Renderer::getInstance().newModel(rsGame);
-	animation->load(path, false, &loadedFileList, &parentLoader);
-	loadedFileList[path].push_back(make_pair(parentLoader,sn->getChild("animation")->getAttribute("path")->getRestrictedValue()));
+	//string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue(currentPath);
+	vector<XmlNode *> animationList = sn->getChildList("animation");
+	for(unsigned int i = 0; i < animationList.size(); ++i) {
+		string path= animationList[i]->getAttribute("path")->getRestrictedValue(currentPath);
+		if(fileExists(path) == true) {
+			Model *animation= Renderer::getInstance().newModel(rsGame);
+			animation->load(path, false, &loadedFileList, &parentLoader);
+			loadedFileList[path].push_back(make_pair(parentLoader,animationList[i]->getAttribute("path")->getRestrictedValue()));
+
+			animations.push_back(animation);
+			//printf("**FOUND ANIMATION [%s]\n",path.c_str());
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] WARNING CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
+		}
+	}
+	if(animations.size() <= 0) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
+		throw runtime_error(szBuf);
+	}
 
 	//particles
 	if(sn->hasChild("particles")) {
@@ -103,6 +120,14 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 			sounds[i]= sound;
 		}
 	}
+}
+
+Model *SkillType::getAnimation() const {
+	//int modelIndex = random.randRange(0,animations.size()-1);
+	srand(time(NULL));
+	int modelIndex = rand() % animations.size();
+	//printf("!!RETURN ANIMATION [%d / %d]\n",modelIndex,animations.size()-1);
+	return animations[modelIndex];
 }
 
 string SkillType::skillClassToStr(SkillClass skillClass) {

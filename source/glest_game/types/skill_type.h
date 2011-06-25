@@ -82,9 +82,11 @@ protected:
 	int hpCost;
     int speed;
     int animSpeed;
-    Model *animation;
+    vector<Model *> animations;
     SoundContainer sounds;
 	float soundStartTime;
+	RandomGen random;
+
 public:
 	UnitParticleSystemTypes unitParticleSystemTypes;
 
@@ -102,7 +104,7 @@ public:
 	int getHpCost() const				{return hpCost;}
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
-	Model *getAnimation() 		const	{return animation;}
+	Model *getAnimation() const;
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
 	

@@ -275,6 +275,16 @@ XmlNode *XmlNode::getChild(unsigned int i) const {
 	return children[i];
 }
 
+vector<XmlNode *> XmlNode::getChildList(const string &childName) const {
+	vector<XmlNode *> list;
+	for(unsigned int j = 0; j < children.size(); ++j) {
+		if(children[j]->getName() == childName) {
+			list.push_back(children[j]);
+		}
+	}
+
+	return list;
+}
 
 XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
 	if(i>=children.size()){
