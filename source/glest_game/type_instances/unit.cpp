@@ -310,6 +310,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 
 	//starting skill
 	this->lastModelIndexForCurrSkillType = -1;
+	this->animationRandomCycleCount = 0;
 	this->currSkill = getType()->getFirstStOfClass(scStop);
 	this->currentAttackBoostOriginatorEffect.skillType = this->currSkill;
 
@@ -634,6 +635,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 	progress2= 0;
 	if(this->currSkill != currSkill) {
 		this->lastModelIndexForCurrSkillType = -1;
+		this->animationRandomCycleCount = 0;
 	}
 	this->currSkill= currSkill;
 
@@ -742,7 +744,12 @@ Model *Unit::getCurrentModelPtr() {
 		throw runtime_error(szBuf);
 	}
 
-    return currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType);
+	int currentModelIndexForCurrSkillType = lastModelIndexForCurrSkillType;
+	Model *result = currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
+	if(currentModelIndexForCurrSkillType != lastModelIndexForCurrSkillType) {
+		animationRandomCycleCount++;
+	}
+	return result;
 }
 
 const Model *Unit::getCurrentModel() {
@@ -752,7 +759,12 @@ const Model *Unit::getCurrentModel() {
 		throw runtime_error(szBuf);
 	}
 
-    return currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType);
+	int currentModelIndexForCurrSkillType = lastModelIndexForCurrSkillType;
+	const Model *result = currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
+	if(currentModelIndexForCurrSkillType != lastModelIndexForCurrSkillType) {
+		animationRandomCycleCount++;
+	}
+	return result;
 }
 
 Vec3f Unit::getCurrVector() const{
@@ -1290,8 +1302,11 @@ bool Unit::update() {
 
 	//checks
 	if(animProgress > 1.f) {
+		bool canCycle = currSkill->CanCycleNextRandomAnimation(&animationRandomCycleCount);
 		animProgress = currSkill->getClass() == scDie? 1.f: 0.f;
-		this->lastModelIndexForCurrSkillType = -1;
+		if(canCycle == true) {
+			this->lastModelIndexForCurrSkillType = -1;
+		}
 	}
 
     bool return_value = false;
