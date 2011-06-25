@@ -126,6 +126,13 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 
 			animations.push_back(animation);
 			//printf("**FOUND ANIMATION [%s]\n",path.c_str());
+
+			AnimationAttributes animationAttributeList;
+			if(animationList[i]->getAttribute("fromHp",false) != NULL && animationList[i]->getAttribute("toHp",false) != NULL) {
+				animationAttributeList.fromHp = animationList[i]->getAttribute("fromHp")->getIntValue();
+				animationAttributeList.toHp = animationList[i]->getAttribute("toHp")->getIntValue();
+			}
+			animationAttributes.push_back(animationAttributeList);
 		}
 		else {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] WARNING CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
@@ -191,7 +198,7 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 
 }
 
-Model *SkillType::getAnimation(float animProgress, int *lastAnimationIndex) const {
+Model *SkillType::getAnimation(float animProgress, const Unit *unit, int *lastAnimationIndex) const {
 	int modelIndex = 0;
 	if(animations.size() > 1) {
 		//printf("animProgress = [%f] for skill [%s]\n",animProgress,name.c_str());
@@ -200,9 +207,25 @@ Model *SkillType::getAnimation(float animProgress, int *lastAnimationIndex) cons
 			modelIndex = *lastAnimationIndex;
 		}
 		if(modelIndex < 0 || animProgress > 1.0f) {
-			//int modelIndex = random.randRange(0,animations.size()-1);
-			srand(time(NULL));
-			modelIndex = rand() % animations.size();
+			bool foundSpecificAnimation = false;
+			if(unit != NULL) {
+				for(unsigned int i = 0; i < animationAttributes.size(); ++i) {
+					const AnimationAttributes &attributes = animationAttributes[i];
+					if(attributes.fromHp != 0 || attributes.toHp != 0) {
+						if(unit->getHp() >= attributes.fromHp && unit->getHp() <= attributes.toHp) {
+							modelIndex = i;
+							foundSpecificAnimation = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if(foundSpecificAnimation == false) {
+				//int modelIndex = random.randRange(0,animations.size()-1);
+				srand(time(NULL));
+				modelIndex = rand() % animations.size();
+			}
 		}
 	}
 	if(lastAnimationIndex) {

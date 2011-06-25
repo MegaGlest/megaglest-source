@@ -86,6 +86,17 @@ public:
 	bool isAffected(const Unit *source, const Unit *dest) const;
 };
 
+class AnimationAttributes {
+public:
+	AnimationAttributes() {
+		fromHp = 0;
+		toHp = 0;
+	}
+
+	int fromHp;
+	int toHp;
+};
+
 class SkillType {
     
 protected:
@@ -96,6 +107,8 @@ protected:
     int speed;
     int animSpeed;
     vector<Model *> animations;
+    vector<AnimationAttributes> animationAttributes;
+
     SoundContainer sounds;
 	float soundStartTime;
 	RandomGen random;
@@ -118,7 +131,7 @@ public:
 	int getHpCost() const				{return hpCost;}
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
-	Model *getAnimation(float animProgress=0, int *lastAnimationIndex=NULL) const;
+	Model *getAnimation(float animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL) const;
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
 	
