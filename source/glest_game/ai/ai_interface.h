@@ -86,6 +86,7 @@ public:
     const FactionType *getMyFactionType();
     Faction *getMyFaction();
     const TechTree *getTechTree();
+    bool isResourceInRegion(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int range) const;
     bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, Faction *faction, bool fallbackToPeersHarvestingSameResource) const;
     bool getNearestSightedResource(const ResourceType *rt, const Vec2i &pos, Vec2i &resultPos, bool usableResourceTypeOnly);
     bool isAlly(const Unit *unit) const;

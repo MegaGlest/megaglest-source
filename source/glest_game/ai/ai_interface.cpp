@@ -428,6 +428,38 @@ const TechTree *AiInterface::getTechTree(){
 	return world->getTechTree();
 }
 
+
+bool AiInterface::isResourceInRegion(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int range) const {
+	const Map *map= world->getMap();
+	RandomGen random;
+	int xi=1;
+	int xj=1;
+	if(random.randRange(0,1)==1){
+		xi=-1;
+	}
+	if(random.randRange(0,1)==1){
+		xj=-1;
+	}
+	for(int i = -range; i <= range; ++i) {
+		for(int j = -range; j <= range; ++j) {
+			int ii=xi*i;
+			int jj=xj*j;
+			if(map->isInside(pos.x + ii, pos.y + jj)) {
+				Resource *r= map->getSurfaceCell(map->toSurfCoords(Vec2i(pos.x + ii, pos.y + jj)))->getResource();
+				if(r != NULL) {
+					if(r->getType() == rt) {
+						resourcePos= pos + Vec2i(ii,jj);
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+
 //returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
 bool AiInterface::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, Faction *faction, bool fallbackToPeersHarvestingSameResource) const {
 	const Map *map= world->getMap();

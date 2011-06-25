@@ -424,21 +424,68 @@ Vec2i Ai::getRandomHomePosition(){
 // ==================== actions ====================
 
 void Ai::sendScoutPatrol(){
-    Vec2i pos;
-    int unit;
+	Vec2i pos;
+	int unit;
+	bool possibleTargetFound= false;
 
-	startLoc= (startLoc+1) % aiInterface->getMapMaxPlayers();
-	pos= aiInterface->getStartLocation(startLoc);
+	if((aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType() == ctNetworkCpuMega)
+	        && random.randRange(0, 1) == 1)
+			{
+		Map *map= aiInterface->getMap();
 
-	if(aiInterface->getFactionIndex()!=startLoc){
-		if(findAbleUnit(&unit, ccAttack, false)){
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		const TechTree *tt= aiInterface->getTechTree();
+		const ResourceType *rt= tt->getResourceType(0);
+		int tryCount= 0;
+		int height= map->getH();
+		int width= map->getW();
 
-			aiInterface->giveCommand(unit, ccAttack, pos);
-			aiInterface->printLog(2, "Scout patrol sent to: " + intToStr(pos.x)+","+intToStr(pos.y)+"\n");
+		for(int i= 0; i < tt->getResourceTypeCount(); ++i){
+			const ResourceType *rt_= tt->getResourceType(i);
+			const Resource *r= aiInterface->getResource(rt);
+
+			if(rt_->getClass() == rcTech){
+				rt=rt_;
+				break;
+			}
+		}
+		//printf("looking for resource %s\n",rt->getName().c_str());
+		while(possibleTargetFound == false){
+			tryCount++;
+			if(tryCount == 4){
+				//printf("no target found\n");
+				break;
+			}
+			pos= Vec2i(random.randRange(2, width - 2), random.randRange(2, height - 2));
+			if(map->isInside(pos) && map->isInsideSurface(map->toSurfCoords(pos))){
+				//printf("is inside map\n");
+				// find first resource in this area
+				Vec2i resPos;
+				if(aiInterface->isResourceInRegion(pos, rt, resPos, 20)){
+					// found a possible target.
+					pos= resPos;
+					//printf("lets try the new target\n");
+					possibleTargetFound= true;
+					break;
+				}
+			}
+			//else printf("is outside map\n");
 		}
 	}
+	if(possibleTargetFound == false){
+		startLoc= (startLoc + 1) % aiInterface->getMapMaxPlayers();
+		pos= aiInterface->getStartLocation(startLoc);
+		printf("och noe\n");
+	}
 
+	if(aiInterface->getHomeLocation() != pos){
+		if(findAbleUnit(&unit, ccAttack, false)){
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			aiInterface->giveCommand(unit, ccAttack, pos);
+			aiInterface->printLog(2, "Scout patrol sent to: " + intToStr(pos.x) + "," + intToStr(pos.y) + "\n");
+		}
+	}
 }
 
 void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
