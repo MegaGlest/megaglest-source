@@ -278,6 +278,8 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	//starting skill
 	this->lastModelIndexForCurrSkillType = -1;
 	this->currSkill = getType()->getFirstStOfClass(scStop);
+	this->currentAttackBoostUnits.first = this->currSkill;
+
 	livingUnits.insert(id);
 	livingUnitsp.insert(this);
 
@@ -1231,6 +1233,40 @@ bool Unit::update() {
 		}
 	}
 
+	//if(currSkill != currentAttackBoostUnits.first) {
+	// First remove any units that were previosuly in range
+	if(currentAttackBoostUnits.second.size() > 0) {
+		for(unsigned int i = 0; i < currentAttackBoostUnits.second.size(); ++i) {
+			// Remove attack boost upgrades from unit
+			Unit *affectedUnit = currentAttackBoostUnits.second[i];
+			affectedUnit->deapplyAttackBoost(currentAttackBoostUnits.first->getAttackBoost(), this);
+
+			//printf("!!!! DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+		}
+		currentAttackBoostUnits.second.clear();
+	}
+	//}
+	currentAttackBoostUnits.first = currSkill;
+
+	if(currSkill->isAttackBoostEnabled() == true) {
+		// Search for units in range of this unit which apply to the
+		// attack-boost and temporarily upgrade them
+		UnitUpdater *unitUpdater = this->game->getWorld()->getUnitUpdater();
+
+		const AttackBoost *attackBoost = currSkill->getAttackBoost();
+		vector<Unit *> candidates = unitUpdater->findUnitsInRange(this, attackBoost->radius);
+		for(unsigned int i = 0; i < candidates.size(); ++i) {
+			Unit *affectedUnit = candidates[i];
+			if(attackBoost->isAffected(this,affectedUnit) == true) {
+				affectedUnit->applyAttackBoost(attackBoost, this);
+
+				currentAttackBoostUnits.second.push_back(affectedUnit);
+
+				//printf("@@@@ APPLY ATTACK BOOST to unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+			}
+		}
+	}
+
 	return return_value;
 }
 
@@ -1514,6 +1550,38 @@ string Unit::getDesc() const {
 	}
 
     return str;
+}
+
+void Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
+	if(boost == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+	if(boost->isAffected(source, this)) {
+		totalUpgrade.apply(&boost->boostUpgrade);
+
+		checkItemInVault(&this->hp,this->hp);
+		hp += boost->boostUpgrade.getMaxHp();
+		addItemToVault(&this->hp,this->hp);
+	}
+}
+
+void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
+	if(boost == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+	if(boost->isAffected(source, this)) {
+		totalUpgrade.deapply(&boost->boostUpgrade);
+
+		checkItemInVault(&this->hp,this->hp);
+		hp -= boost->boostUpgrade.getMaxHp();
+		addItemToVault(&this->hp,this->hp);
+	}
 }
 
 void Unit::applyUpgrade(const UpgradeType *upgradeType){

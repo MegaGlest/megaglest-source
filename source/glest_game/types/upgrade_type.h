@@ -22,7 +22,7 @@ using Shared::Util::Checksum;
 using namespace Shared::Util;
 using namespace Shared::Xml;
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
 class TechTree;
 class FactionType;
@@ -75,7 +75,7 @@ public:
 // 	class UpgradeType
 // ===============================
 
-class UpgradeType: public UpgradeTypeBase, public ProducibleType{
+class UpgradeType: public UpgradeTypeBase, public ProducibleType {
 private:
     vector<const UnitType*> effects;
 
@@ -98,13 +98,16 @@ public:
 // 	class TotalUpgrade
 // ===============================
 
-class TotalUpgrade: public UpgradeTypeBase{
+class TotalUpgrade: public UpgradeTypeBase {
 public:
 	TotalUpgrade();
 
 	void reset();
-	void sum(const UpgradeType *ut);
+	void sum(const UpgradeTypeBase *ut);
 	void incLevel(const UnitType *ut);
+
+	void apply(const UpgradeTypeBase *ut);
+	void deapply(const UpgradeTypeBase *ut);
 };
 
 }}//end namespace

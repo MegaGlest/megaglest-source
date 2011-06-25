@@ -232,11 +232,11 @@ string UpgradeType::getReqDesc() const{
 // 	class TotalUpgrade
 // ===============================
 
-TotalUpgrade::TotalUpgrade(){
+TotalUpgrade::TotalUpgrade() {
 	reset();
 }
 
-void TotalUpgrade::reset(){
+void TotalUpgrade::reset() {
     maxHp= 0;
     maxEp= 0;
     sight=0;
@@ -247,7 +247,7 @@ void TotalUpgrade::reset(){
     prodSpeed=0;
 }
 
-void TotalUpgrade::sum(const UpgradeType *ut){
+void TotalUpgrade::sum(const UpgradeTypeBase *ut) {
 	maxHp+= ut->getMaxHp();
 	maxEp+= ut->getMaxEp();
 	sight+= ut->getSight();
@@ -258,11 +258,26 @@ void TotalUpgrade::sum(const UpgradeType *ut){
     prodSpeed+= ut->getProdSpeed();
 }
 
-void TotalUpgrade::incLevel(const UnitType *ut){
+void TotalUpgrade::incLevel(const UnitType *ut) {
 	maxHp+= ut->getMaxHp()*50/100;
 	maxEp+= ut->getMaxEp()*50/100;
 	sight+= ut->getSight()*20/100;
 	armor+= ut->getArmor()*50/100;
+}
+
+void TotalUpgrade::apply(const UpgradeTypeBase *ut) {
+	sum(ut);
+}
+
+void TotalUpgrade::deapply(const UpgradeTypeBase *ut) {
+	maxHp-= ut->getMaxHp();
+	maxEp-= ut->getMaxEp();
+	sight-= ut->getSight();
+	armor-= ut->getArmor();
+	attackStrength-= ut->getAttackStrength();
+	attackRange-= ut->getAttackRange();
+	moveSpeed-= ut->getMoveSpeed();
+    prodSpeed-= ut->getProdSpeed();
 }
 
 }}//end namespace

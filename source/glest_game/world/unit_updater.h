@@ -121,6 +121,9 @@ public:
 	vector<Unit*> enemyUnitsOnRange(const Unit *unit,const AttackSkillType *ast);
 	void findEnemiesForCell(const Vec2i pos, int size, int sightRange, const Faction *faction, vector<Unit*> &enemies, bool attackersOnly) const;
 
+	void findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &units);
+	vector<Unit*> findUnitsInRange(const Unit *unit, int radius);
+
 private:
     //attack
     void hit(Unit *attacker);

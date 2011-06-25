@@ -19,6 +19,7 @@
 #include "game_constants.h"
 #include <set>
 #include "platform_common.h"
+#include <vector>
 #include "leak_dumper.h"
 
 namespace Glest { namespace Game {
@@ -49,6 +50,7 @@ class UpgradeType;
 class Level;
 class MorphCommandType;
 class Game;
+class Unit;
 
 enum CommandResult{
 	crSuccess,
@@ -342,6 +344,8 @@ private:
 	bool usePathfinderExtendedMaxNodes;
 	int maxQueuedCommandDisplayCount;
 
+	std::pair<const SkillType *,std::vector<Unit *> > currentAttackBoostUnits;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -463,6 +467,10 @@ public:
     int update2();
     bool update();
 	void tick();
+
+	void applyAttackBoost(const AttackBoost *boost, const Unit *source);
+	void deapplyAttackBoost(const AttackBoost *boost, const Unit *source);
+
 	void applyUpgrade(const UpgradeType *upgradeType);
 	void computeTotalUpgrade();
 	void incKills(int team);
