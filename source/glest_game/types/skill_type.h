@@ -22,6 +22,7 @@
 #include "factory.h"
 #include "sound_container.h"
 #include "particle.h"
+#include "upgrade_type.h"
 #include "leak_dumper.h"
 
 using Shared::Sound::StaticSound;
@@ -72,8 +73,21 @@ typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
 ///	A basic action that an unit can perform
 // =====================================================
 
-class SkillType {
+class AttackBoost {
+public:
+	AttackBoost() {
+		enabled = false;
+		radius = 0;
+		boostAllUnits = false;
+	}
+	bool enabled;
+	int radius;
+	bool boostAllUnits;
+	vector<const UnitType *> boostUnitList;
+	UpgradeTypeBase boostUpgrade;
+};
 
+class SkillType {
     
 protected:
     SkillClass skillClass;
@@ -86,6 +100,7 @@ protected:
     SoundContainer sounds;
 	float soundStartTime;
 	RandomGen random;
+	AttackBoost attackBoost;
 
 public:
 	UnitParticleSystemTypes unitParticleSystemTypes;
@@ -104,7 +119,7 @@ public:
 	int getHpCost() const				{return hpCost;}
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
-	Model *getAnimation() const;
+	Model *getAnimation(float animProgress=0, int *lastAnimationIndex=NULL) const;
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
 	

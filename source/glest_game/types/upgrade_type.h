@@ -15,10 +15,12 @@
 #include "element_type.h"
 #include "checksum.h"
 #include "conversion.h"
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 using Shared::Util::Checksum;
 using namespace Shared::Util;
+using namespace Shared::Xml;
 
 namespace Glest{ namespace Game{
 
@@ -30,7 +32,7 @@ class UnitType;
 // 	class UpgradeTypeBase
 // ===============================
 
-class UpgradeTypeBase{
+class UpgradeTypeBase {
 protected:
     int maxHp;
     int sight;
@@ -50,6 +52,8 @@ public:
 	int getAttackRange() const		{return attackRange;}
 	int getMoveSpeed() const		{return moveSpeed;}
 	int getProdSpeed() const		{return prodSpeed;}
+
+	void load(const XmlNode *upgradeNode);
 
 	std::string toString() const {
 		std::string result = "";

@@ -37,6 +37,18 @@ namespace Glest{ namespace Game{
 
 // ==================== get ====================
 
+void UpgradeTypeBase::load(const XmlNode *upgradeNode) {
+	//values
+	maxHp= upgradeNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+	maxEp= upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
+	sight= upgradeNode->getChild("sight")->getAttribute("value")->getIntValue();
+	attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
+	attackRange= upgradeNode->getChild("attack-range")->getAttribute("value")->getIntValue();
+	armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
+	moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
+	prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
+}
+
 bool UpgradeType::isAffected(const UnitType *unitType) const{
 	return find(effects.begin(), effects.end(), unitType)!=effects.end();
 }
@@ -154,14 +166,15 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		sortedItems.clear();
 
 		//values
-		maxHp= upgradeNode->getChild("max-hp")->getAttribute("value")->getIntValue();
-		maxEp= upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
-		sight= upgradeNode->getChild("sight")->getAttribute("value")->getIntValue();
-		attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
-		attackRange= upgradeNode->getChild("attack-range")->getAttribute("value")->getIntValue();
-		armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
-		moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
-		prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
+//		maxHp= upgradeNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+//		maxEp= upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
+//		sight= upgradeNode->getChild("sight")->getAttribute("value")->getIntValue();
+//		attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
+//		attackRange= upgradeNode->getChild("attack-range")->getAttribute("value")->getIntValue();
+//		armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
+//		moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
+//		prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
+		UpgradeTypeBase::load(upgradeNode);
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
