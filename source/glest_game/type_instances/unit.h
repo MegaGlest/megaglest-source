@@ -352,6 +352,8 @@ public:
 
     static void setGame(Game *value) { game=value;}
 
+    const std::pair<const SkillType *,std::vector<Unit *> > & getCurrentAttackBoostUnits() const { return currentAttackBoostUnits; }
+
     //queries
     void setIgnoreCheckCommand(bool value)      { ignoreCheckCommand=value;}
     bool getIgnoreCheckCommand() const			{return ignoreCheckCommand;}

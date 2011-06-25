@@ -1018,6 +1018,18 @@ void Unit::kill() {
 void Unit::undertake() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
 
+	// Remove any units that were previously in attack-boost range
+	if(currentAttackBoostUnits.second.size() > 0) {
+		for(unsigned int i = 0; i < currentAttackBoostUnits.second.size(); ++i) {
+			// Remove attack boost upgrades from unit
+			Unit *affectedUnit = currentAttackBoostUnits.second[i];
+			affectedUnit->deapplyAttackBoost(currentAttackBoostUnits.first->getAttackBoost(), this);
+
+			//printf("!!!! DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+		}
+		currentAttackBoostUnits.second.clear();
+	}
+
 	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
 	//unitUpdater->clearUnitPrecache(this);
 	unitUpdater->removeUnitPrecache(this);
@@ -1233,8 +1245,7 @@ bool Unit::update() {
 		}
 	}
 
-	//if(currSkill != currentAttackBoostUnits.first) {
-	// First remove any units that were previosuly in range
+	// Remove any units that were previously in range
 	if(currentAttackBoostUnits.second.size() > 0) {
 		for(unsigned int i = 0; i < currentAttackBoostUnits.second.size(); ++i) {
 			// Remove attack boost upgrades from unit
@@ -1245,7 +1256,6 @@ bool Unit::update() {
 		}
 		currentAttackBoostUnits.second.clear();
 	}
-	//}
 	currentAttackBoostUnits.first = currSkill;
 
 	if(currSkill->isAttackBoostEnabled() == true) {

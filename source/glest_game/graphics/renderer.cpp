@@ -3109,6 +3109,27 @@ void Renderer::renderSelectionEffects() {
 			glColor4f(unit->getEpRatio()/2.f, unit->getEpRatio(), unit->getEpRatio(), 0.5f);
 			renderSelectionCircle(currVec, unit->getType()->getSize(), magicCircleRadius);
 		}
+
+		// Render Attack-boost circles
+		if(showDebugUI == true) {
+			const std::pair<const SkillType *,std::vector<Unit *> > &currentAttackBoostUnits = unit->getCurrentAttackBoostUnits();
+
+			if(currentAttackBoostUnits.first->isAttackBoostEnabled() == true) {
+				glColor4f(MAGENTA.x,MAGENTA.y,MAGENTA.z,MAGENTA.w);
+				renderSelectionCircle(currVec, unit->getType()->getSize(), currentAttackBoostUnits.first->getAttackBoost()->radius);
+
+				for(unsigned int i = 0; i < currentAttackBoostUnits.second.size(); ++i) {
+					// Remove attack boost upgrades from unit
+					Unit *affectedUnit = currentAttackBoostUnits.second[i];
+
+					Vec3f currVecBoost = affectedUnit->getCurrVectorFlat();
+					currVecBoost.y += 0.3f;
+
+					renderSelectionCircle(currVecBoost, affectedUnit->getType()->getSize(), 1.f);
+				}
+			}
+		}
+
 	}
 	if(selectedResourceObject!=NULL)
 	{
