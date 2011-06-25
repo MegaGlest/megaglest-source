@@ -2330,6 +2330,49 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 	return enemies;
 }
 
+
+void UnitUpdater::findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &units) {
+	//all fields
+	for(int k = 0; k < fieldCount; k++) {
+		Field f= static_cast<Field>(k);
+
+		//check field
+		Unit *cellUnit = cell->getUnit(f);
+
+		if(cellUnit != NULL && cellUnit->isAlive()) {
+			units.push_back(cellUnit);
+		}
+	}
+}
+
+vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
+	int range = radius;
+	vector<Unit*> units;
+
+	//aux vars
+	int size 			= unit->getType()->getSize();
+	Vec2i center 		= unit->getPos();
+	Vec2f floatCenter	= unit->getFloatCenteredPos();
+
+	//nearby cells
+	UnitRangeCellsLookupItem cacheItem;
+	for(int i = center.x - range; i < center.x + range + size; ++i) {
+		for(int j = center.y - range; j < center.y + range + size; ++j) {
+			//cells inside map and in range
+#ifdef USE_STREFLOP
+			if(map->isInside(i, j) && streflop::floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+#else
+			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+#endif
+				Cell *cell = map->getCell(i,j);
+				findUnitsForCell(cell,unit,units);
+			}
+		}
+	}
+
+	return units;
+}
+
 // =====================================================
 //	class ParticleDamager
 // =====================================================

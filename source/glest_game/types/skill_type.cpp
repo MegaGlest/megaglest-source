@@ -28,6 +28,55 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
+
+AttackBoost::AttackBoost() {
+		enabled = false;
+		radius = 0;
+		boostAllUnits = false;
+}
+bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
+	bool result = false;
+	if(enabled == true && source != NULL && dest != NULL &&
+		source != dest) {
+		// All units are affected (including enemies)
+		if(boostAllUnits == true) {
+			float distance = source->getCenteredPos().dist(dest->getCenteredPos());
+			if(distance <= radius) {
+				result = true;
+			}
+		}
+		else {
+			// Only same faction units are affected
+			if(boostUnitList.size() == 0) {
+				//if(source->isAlly(dest) == true) {
+				//}
+				if(source->getFactionIndex() == dest->getFactionIndex()) {
+					float distance = source->getCenteredPos().dist(dest->getCenteredPos());
+					if(distance <= radius) {
+						result = true;
+					}
+				}
+			}
+			// Specify which units are affected
+			else {
+				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+					const UnitType *ut = boostUnitList[i];
+					if(dest->getType()->getId() == ut->getId()) {
+						float distance = source->getCenteredPos().dist(dest->getCenteredPos());
+						if(distance <= radius) {
+							result = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+
 // =====================================================
 // 	class SkillType
 // =====================================================

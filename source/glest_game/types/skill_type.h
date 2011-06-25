@@ -41,6 +41,7 @@ class FactionType;
 class TechTree;
 class Lang;
 class TotalUpgrade;
+class Unit;
 
 
 enum Field{
@@ -75,16 +76,14 @@ typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
 
 class AttackBoost {
 public:
-	AttackBoost() {
-		enabled = false;
-		radius = 0;
-		boostAllUnits = false;
-	}
+	AttackBoost();
 	bool enabled;
 	int radius;
 	bool boostAllUnits;
 	vector<const UnitType *> boostUnitList;
 	UpgradeTypeBase boostUpgrade;
+
+	bool isAffected(const Unit *source, const Unit *dest) const;
 };
 
 class SkillType {
@@ -123,6 +122,9 @@ public:
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
 	
+	bool isAttackBoostEnabled() const { return attackBoost.enabled; }
+	const AttackBoost * getAttackBoost() const { return &attackBoost; }
+
 	//other
 	virtual string toString() const= 0;	
 	virtual int getTotalSpeed(const TotalUpgrade *) const	{return speed;}
