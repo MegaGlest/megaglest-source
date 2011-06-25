@@ -689,7 +689,7 @@ Model *Unit::getCurrentModelPtr() {
 		throw runtime_error(szBuf);
 	}
 
-    return currSkill->getAnimation(animProgress,&lastModelIndexForCurrSkillType);
+    return currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType);
 }
 
 const Model *Unit::getCurrentModel() {
@@ -699,7 +699,7 @@ const Model *Unit::getCurrentModel() {
 		throw runtime_error(szBuf);
 	}
 
-    return currSkill->getAnimation(animProgress,&lastModelIndexForCurrSkillType);
+    return currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType);
 }
 
 Vec3f Unit::getCurrVector() const{
