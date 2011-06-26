@@ -67,9 +67,9 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 
 	Vec2f rasterPos;
 	if(font->getTextHandler() != NULL) {
-		char *utfStr = String::ConvertToUTF8(renderText.c_str());
-		renderText = utfStr;
-		delete [] utfStr;
+		//char *utfStr = String::ConvertToUTF8(renderText.c_str());
+		//renderText = utfStr;
+		//delete [] utfStr;
 
 		if(centered) {
 			rasterPos.x= x - font->getTextHandler()->Advance(renderText.c_str()) / 2.f;
@@ -455,9 +455,9 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 	FontMetrics *metrics= font->getMetrics();
 
 	if(font->getTextHandler() != NULL) {
-		char *utfStr = String::ConvertToUTF8(renderText.c_str());
-		renderText = utfStr;
-		delete [] utfStr;
+		//char *utfStr = String::ConvertToUTF8(renderText.c_str());
+		//renderText = utfStr;
+		//delete [] utfStr;
 
 		//centered = false;
 		if(centered) {

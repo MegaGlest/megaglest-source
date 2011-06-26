@@ -23,6 +23,7 @@
 #include "client_interface.h"
 #include "conversion.h"
 #include "game.h"
+#include "string_utils.h"
 #include "socket.h"
 
 #include "leak_dumper.h"
@@ -520,7 +521,13 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 		if(key >= SDLK_0 && key <= SDLK_9) {
 			if(labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
-				text.insert(text.end()-1, key);
+				//text.insert(text.end()-1, key);
+				char szCharText[20]="";
+				sprintf(szCharText,"%c",key);
+				char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+				text.insert(text.end() -1, utfStr[0]);
+				delete [] utfStr;
+
 				labelServerIp.setText(text);
 			}
 		}

@@ -249,21 +249,21 @@ void TotalUpgrade::reset() {
 
 void TotalUpgrade::sum(const UpgradeTypeBase *ut) {
 	maxHp+= ut->getMaxHp();
-	maxHp = max(0,maxHp);
+	//maxHp = max(0,maxHp);
 	maxEp+= ut->getMaxEp();
-	maxEp = max(0,maxEp);
+	//maxEp = max(0,maxEp);
 	sight+= ut->getSight();
-	sight = max(0,sight);
+	//sight = max(0,sight);
 	armor+= ut->getArmor();
-	armor = max(0,armor);
+	//armor = max(0,armor);
 	attackStrength+= ut->getAttackStrength();
-	attackStrength = max(0,attackStrength);
+	//attackStrength = max(0,attackStrength);
 	attackRange+= ut->getAttackRange();
-	attackRange = max(0,attackRange);
+	//attackRange = max(0,attackRange);
 	moveSpeed+= ut->getMoveSpeed();
-	moveSpeed = max(0,moveSpeed);
+	//moveSpeed = max(0,moveSpeed);
     prodSpeed+= ut->getProdSpeed();
-    prodSpeed = max(0,prodSpeed);
+    //prodSpeed = max(0,prodSpeed);
 }
 
 void TotalUpgrade::incLevel(const UnitType *ut) {

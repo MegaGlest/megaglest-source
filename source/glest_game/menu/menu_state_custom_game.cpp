@@ -30,6 +30,7 @@
 #include "cache_manager.h"
 #include <iterator>
 #include "map_preview.h"
+#include "string_utils.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -2953,7 +2954,13 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 				//   (c=='-') || (c=='(') || (c==')')) {
 					if(activeInputLabel->getText().size() < maxTextSize) {
 						string text= activeInputLabel->getText();
-						text.insert(text.end()-1, key);
+						//text.insert(text.end()-1, key);
+						char szCharText[20]="";
+						sprintf(szCharText,"%c",key);
+						char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+						text.insert(text.end() -1, utfStr[0]);
+						delete [] utfStr;
+
 						activeInputLabel->setText(text);
 
 						MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
