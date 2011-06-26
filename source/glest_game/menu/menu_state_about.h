@@ -43,7 +43,7 @@ public:
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
-	virtual void keyDown(char key);
+	virtual void keyDown(SDL_KeyboardEvent key);
 };
 
 }}//end namespace

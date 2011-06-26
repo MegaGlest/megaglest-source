@@ -154,15 +154,15 @@ void MainMenu::mouseDownRight(int x, int y){
 	state->mouseClick(x, y, mbRight);
 }
 
-void MainMenu::keyDown(char key){
+void MainMenu::keyDown(SDL_KeyboardEvent key) {
 	state->keyDown(key);
 }
 
-void MainMenu::keyUp(char key){
+void MainMenu::keyUp(SDL_KeyboardEvent key) {
 	state->keyUp(key);
 }
 
-void MainMenu::keyPress(char c){
+void MainMenu::keyPress(SDL_KeyboardEvent c) {
 	state->keyPress(c);
 }
 

@@ -43,7 +43,7 @@ class MainWindow;
 /// Intro, MainMenu, Game, BattleEnd (State Design pattern)
 // =====================================================
 
-class ProgramState{
+class ProgramState {
 protected:
 	Program *program;
 
@@ -85,9 +85,9 @@ public:
 	virtual void mouseDoubleClickCenter(int x, int y){}
 	virtual void eventMouseWheel(int x, int y, int zDelta){}
 	virtual void mouseMove(int x, int y, const MouseState *mouseState);
-	virtual void keyDown(char key){};
-	virtual void keyUp(char key){};
-	virtual void keyPress(char c){};
+	virtual void keyDown(SDL_KeyboardEvent key){};
+	virtual void keyUp(SDL_KeyboardEvent key){};
+	virtual void keyPress(SDL_KeyboardEvent c){};
 	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
 	virtual void restoreToStartXY() { SDL_WarpMouse(startX, startY); }
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
@@ -121,7 +121,7 @@ private:
 		virtual void render();
 		virtual void mouseDownLeft(int x, int y);
 		virtual void mouseMove(int x, int y, const MouseState &mouseState);
-		virtual void keyPress(char c);
+		virtual void keyPress(SDL_KeyboardEvent c);
 		virtual void update();
 		virtual bool wantExit() { return userWantsExit; }
 	};
@@ -153,9 +153,9 @@ public:
 	void initScenario(WindowGl *window, string autoloadScenarioName);
 
 	//main
-    void keyDown(char key);
-    void keyUp(char key);
-    void keyPress(char c);
+    void keyDown(SDL_KeyboardEvent key);
+    void keyUp(SDL_KeyboardEvent key);
+    void keyPress(SDL_KeyboardEvent c);
 
 	void loop();
 	void loopWorker();

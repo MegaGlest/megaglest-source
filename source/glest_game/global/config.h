@@ -75,7 +75,8 @@ public:
 	bool getBool(const char *key,const char *defaultValueIfNotFound=NULL) const;
 	float getFloat(const char *key,const char *defaultValueIfNotFound=NULL) const;
 	const string getString(const char *key,const char *defaultValueIfNotFound=NULL) const;
-	char getCharKey(const char *key) const;
+	//char getCharKey(const char *key) const;
+	SDLKey getSDLKey(const char *key) const;
 
 	void setInt(const string &key, int value);
 	void setBool(const string &key, bool value);
@@ -91,8 +92,10 @@ public:
 
     string getFileName(bool userFilename) const;
 
-    char translateStringToCharKey(const string &value) const;
-    SDLKey translateSpecialStringToSDLKey(char c) const;
+    //char translateStringToCharKey(const string &value) const;
+    //SDLKey translateSpecialStringToSDLKey(char c) const;
+
+    SDLKey translateStringToSDLKey(const string &value) const;
 
 	string toString();
 };

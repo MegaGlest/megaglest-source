@@ -99,16 +99,14 @@ void Program::ShowMessageProgramState::mouseDownLeft(int x, int y) {
 	}
 }
 
-void Program::ShowMessageProgramState::keyPress(char c){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+void Program::ShowMessageProgramState::keyPress(SDL_KeyboardEvent c) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym);
 
     // if user pressed return we exit
-	if(c == 13) {
+	//if(c == 13) {
+	if(isKeyPressed(SDLK_RETURN,c) == true) {
 		program->exit();
 		userWantsExit = true;
-	}
-	else {
-        //msgBox.keyPress(c);
 	}
 }
 
@@ -201,13 +199,14 @@ Program::~Program(){
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Program::keyDown(char key){
-
+void Program::keyDown(SDL_KeyboardEvent key) {
 	if(msgBox.getEnabled()) {
-		SDL_keysym keystate = Window::getKeystate();
+		//SDL_keysym keystate = Window::getKeystate();
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if(key == vkEscape  || key == SDLK_ESCAPE ||
-			((key == vkReturn || key == SDLK_RETURN || key == SDLK_KP_ENTER) && !(keystate.mod & (KMOD_LALT | KMOD_RALT)))) {
+
+		//if(key == vkEscape  || key == SDLK_ESCAPE ||
+		//	((key == vkReturn || key == SDLK_RETURN || key == SDLK_KP_ENTER) && !(keystate.mod & (KMOD_LALT | KMOD_RALT)))) {
+		if(isKeyPressed(SDLK_ESCAPE,key) == true ||	((isKeyPressed(SDLK_RETURN,key) == true) && !(key.keysym.mod & (KMOD_LALT | KMOD_RALT)))) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			//printf("---> keystate [%d]\n",keystate);
@@ -219,11 +218,11 @@ void Program::keyDown(char key){
 	programState->keyDown(key);
 }
 
-void Program::keyUp(char key){
+void Program::keyUp(SDL_KeyboardEvent key) {
 	programState->keyUp(key);
 }
 
-void Program::keyPress(char c){
+void Program::keyPress(SDL_KeyboardEvent c) {
 	programState->keyPress(c);
 }
 

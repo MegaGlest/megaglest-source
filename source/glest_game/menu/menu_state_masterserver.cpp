@@ -796,7 +796,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                 consoleIRC.addLine("---------------------------------------------");
                 // write hint to console:
                 Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-                consoleIRC.addLine(Lang::getInstance().get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+                consoleIRC.addLine(Lang::getInstance().get("To switch off music press")+" - \""+configKeys.getString("ToggleMusic")+"\"");
 
                 announcementLoaded=true;
             }
@@ -976,7 +976,7 @@ void MenuStateMasterserver::showMessageBox(const string &text, const string &hea
 }
 
 
-void MenuStateMasterserver::keyDown(char key) {
+void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 	if (ircClient != NULL && ircClient->isConnected() == true
@@ -985,7 +985,8 @@ void MenuStateMasterserver::keyDown(char key) {
 		if (chatManager.getEditEnabled() == true) {
 			//printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
 			MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
-			if (key == vkReturn && ircClient != NULL) {
+			//if (key == vkReturn && ircClient != NULL) {
+			if(isKeyPressed(SDLK_RETURN,key) == true && ircClient != NULL) {
 				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
 			}
 		}
@@ -993,7 +994,8 @@ void MenuStateMasterserver::keyDown(char key) {
 		chatManager.keyDown(key);
 	}
     if(chatManager.getEditEnabled() == false) {
-        if(key == configKeys.getCharKey("ToggleMusic")) {
+        //if(key == configKeys.getCharKey("ToggleMusic")) {
+    	if(isKeyPressed(configKeys.getSDLKey("ToggleMusic"),key) == true) {
             Config &config = Config::getInstance();
             Lang &lang= Lang::getInstance();
 
@@ -1010,7 +1012,8 @@ void MenuStateMasterserver::keyDown(char key) {
                 consoleIRC.addLine(lang.get("GameMusic"));
             }
         }
-        else if(key == configKeys.getCharKey("SaveGUILayout")) {
+        //else if(key == configKeys.getCharKey("SaveGUILayout")) {
+    	else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
             bool saved = GraphicComponent::saveAllCustomProperties(containerName);
             Lang &lang= Lang::getInstance();
             consoleIRC.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
@@ -1018,13 +1021,13 @@ void MenuStateMasterserver::keyDown(char key) {
     }
 }
 
-void MenuStateMasterserver::keyPress(char c) {
+void MenuStateMasterserver::keyPress(SDL_KeyboardEvent c) {
 	if (ircClient != NULL && ircClient->isConnected() == true
 			&& ircClient->getHasJoinedChannel() == true) {
 		chatManager.keyPress(c);
 	}
 }
-void MenuStateMasterserver::keyUp(char key) {
+void MenuStateMasterserver::keyUp(SDL_KeyboardEvent key) {
 	if (ircClient != NULL && ircClient->isConnected() == true
 			&& ircClient->getHasJoinedChannel() == true) {
 		chatManager.keyUp(key);

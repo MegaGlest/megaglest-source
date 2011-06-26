@@ -43,10 +43,10 @@ public:
 	virtual void eventMouseUp(int x, int y, MouseButton mouseButton);
 	virtual void eventMouseDoubleClick(int x, int y, MouseButton mouseButton);
 	virtual void eventMouseMove(int x, int y, const MouseState *mouseState);
-	virtual void eventKeyDown(char key);
+	virtual void eventKeyDown(SDL_KeyboardEvent key);
 	virtual void eventMouseWheel(int x, int y, int zDelta);
-	virtual void eventKeyUp(char key);
-	virtual void eventKeyPress(char c);
+	virtual void eventKeyUp(SDL_KeyboardEvent key);
+	virtual void eventKeyPress(SDL_KeyboardEvent c);
 	virtual void eventActivate(bool active);
 	virtual void eventResize(SizeState sizeState);
 	virtual void eventClose();

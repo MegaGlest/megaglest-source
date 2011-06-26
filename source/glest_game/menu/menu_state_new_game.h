@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -37,7 +37,7 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void update();
 	void render();
-	virtual void keyDown(char key);
+	virtual void keyDown(SDL_KeyboardEvent key);
 };
 
 

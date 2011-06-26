@@ -190,12 +190,12 @@ bool Window::handleEvent() {
 					}
 #endif
 					if(global_window) {
-						char key = getKey(event.key.keysym,true);
-						key = tolower(key);
+						//char key = getKey(event.key.keysym,true);
+						//key = tolower(key);
 						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("******************* key [%d]\n",key);
 
-						global_window->eventKeyDown(key);
-						global_window->eventKeyPress(getRawKey(event.key.keysym));
+						global_window->eventKeyDown(event.key);
+						global_window->eventKeyPress(event.key);
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
@@ -217,9 +217,9 @@ bool Window::handleEvent() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode);
 
 					if(global_window) {
-						char key = getKey(event.key.keysym,true);
-						key = tolower(key);
-						global_window->eventKeyUp(key);
+						//char key = getKey(event.key.keysym,true);
+						//key = tolower(key);
+						global_window->eventKeyUp(event.key);
 					}
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_KEYUP ================================\n",__FILE__,__FUNCTION__,__LINE__);
@@ -940,6 +940,77 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 
 	return result;
+}
+
+bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input) {
+	Uint16 c = 0;
+	if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		c = input.keysym.unicode;
+		//c = toupper(c);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
+	}
+	//if(c == 0) {
+	if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
+		c = input.keysym.sym;
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+
+	//c = (c & 0xFF);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+
+	// SDL does NOT handle lowercase
+	if(c >= 'A' && c <= 'Z') {
+		c = tolower(c);
+	}
+	// SDL does NOT handle lowercase
+	if(compareKey >= 'A' && compareKey <= 'Z') {
+		compareKey = (SDLKey)tolower((char)compareKey);
+	}
+
+	bool result = (c == compareKey);
+	if(result == false) {
+		if(compareKey == SDLK_RETURN) {
+			result = (c == SDLK_KP_ENTER);
+		}
+	}
+
+	string compareKeyName = SDL_GetKeyName(compareKey);
+	string pressKeyName = SDL_GetKeyName((SDLKey)c);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] compareKey [%d - %s] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,compareKey,compareKeyName.c_str(),c,pressKeyName.c_str(),result);
+	//printf ("In [%s::%s Line: %d] compareKey [%d - %s] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,compareKey,compareKeyName.c_str(),c,pressKeyName.c_str(),result);
+
+	return result;
+}
+
+SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
+	SDLKey c = SDLK_UNKNOWN;
+	if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		c = (SDLKey)input.keysym.unicode;
+		//c = toupper(c);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
+	}
+	if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
+		c = input.keysym.sym;
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+
+	//c = (SDLKey)(c & 0xFF);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+
+	string pressKeyName = SDL_GetKeyName((SDLKey)c);
+	string inputKeyName = SDL_GetKeyName(input.keysym.sym);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] pressed key [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str());
+	//printf ("In [%s::%s Line: %d] pressed key [%d - %s] input [%d - %s] input.keysym.unicode [%d]\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str(),input.keysym.sym,inputKeyName.c_str(),input.keysym.unicode);
+
+	return c;
 }
 
 }}//end namespace

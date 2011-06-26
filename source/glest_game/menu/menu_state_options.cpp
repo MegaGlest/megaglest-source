@@ -682,9 +682,10 @@ bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
 	return (activeInputLabel != NULL);
 }
 
-void MenuStateOptions::keyDown(char key){
+void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 	if(activeInputLabel != NULL) {
-		if(key == vkBack) {
+		//if(key == vkBack) {
+		if(isKeyPressed(SDLK_BACKSPACE,key) == true) {
 			string text= activeInputLabel->getText();
 			if(text.size() > 1) {
 				text.erase(text.end()-2);
@@ -694,28 +695,29 @@ void MenuStateOptions::keyDown(char key){
 	}
 }
 
-void MenuStateOptions::keyPress(char c){
-	if(activeInputLabel!=NULL)
-	{
+void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
+	if(activeInputLabel!=NULL) {
 	    //printf("[%d]\n",c); fflush(stdout);
 		int maxTextSize= 16;
-		if(&labelPlayerName==activeInputLabel){
-			if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
+		if(&labelPlayerName==activeInputLabel) {
+			SDLKey key = extractKeyPressed(c);
+			//if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
 				// (c>=(192-256) && c<=(255-256))||     // test some support for accented letters in names, is this ok? (latin1 signed char)
 				// no master server breaks, and a russian translation with game switched to KOI-8p encoding? probably irc too.
 				// (use Shared::Platform::charSet in shared_lib/include/platform/sdl/gl_wrap.h ?)
-				(c=='-')||(c=='(')||(c==')')){
+				//(c=='-')||(c=='(')||(c==')')){
 				if(activeInputLabel->getText().size()<maxTextSize){
 					string text= activeInputLabel->getText();
-					text.insert(text.end()-1, c);
+					text.insert(text.end()-1, key);
 					activeInputLabel->setText(text);
 				}
-			}
+			//}
 		}
 	}
 	else {
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		if(c == configKeys.getCharKey("SaveGUILayout")) {
+		//if(c == configKeys.getCharKey("SaveGUILayout")) {
+		if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
 			bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 			//Lang &lang= Lang::getInstance();
 			//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");

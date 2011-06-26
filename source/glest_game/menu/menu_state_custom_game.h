@@ -167,9 +167,9 @@ public:
 	void render();
 	void update();
 
-    virtual void keyDown(char key);
-    virtual void keyPress(char c);
-    virtual void keyUp(char key);
+    virtual void keyDown(SDL_KeyboardEvent key);
+    virtual void keyPress(SDL_KeyboardEvent c);
+    virtual void keyUp(SDL_KeyboardEvent key);
 
 
     virtual void simpleTask(BaseThread *callingThread);

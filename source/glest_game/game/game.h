@@ -157,9 +157,9 @@ public:
 	virtual void tick();
 
     //event managing
-    virtual void keyDown(char key);
-    virtual void keyUp(char key);
-    virtual void keyPress(char c);
+    virtual void keyDown(SDL_KeyboardEvent key);
+    virtual void keyUp(SDL_KeyboardEvent key);
+    virtual void keyPress(SDL_KeyboardEvent c);
     virtual void mouseDownLeft(int x, int y);
     virtual void mouseDownRight(int x, int y);
     virtual void mouseUpCenter(int x, int y);

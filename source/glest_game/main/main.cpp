@@ -774,8 +774,8 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MainWindow::eventKeyDown(char key){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
+void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym);
 
 	SDL_keysym keystate = Window::getKeystate();
 
@@ -795,7 +795,8 @@ void MainWindow::eventKeyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
-		if(key == vkReturn) {
+		//if(key == vkReturn) {
+		if(isKeyPressed(SDLK_RETURN,key) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ALT-ENTER pressed\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// This stupidity only required in win32.
@@ -815,7 +816,8 @@ void MainWindow::eventKeyDown(char key){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		if(key == configKeys.getCharKey("HotKeyShowDebug")) {
+		//if(key == configKeys.getCharKey("HotKeyShowDebug")) {
+		if(isKeyPressed(configKeys.getSDLKey("HotKeyShowDebug"),key) == true) {
 
 			Renderer &renderer= Renderer::getInstance();
 			//if(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
@@ -827,11 +829,13 @@ void MainWindow::eventKeyDown(char key){
 				renderer.setShowDebugUI(!showDebugUI);
 			}
 		}
-		else if(key == configKeys.getCharKey("ReloadINI")) {
+		//else if(key == configKeys.getCharKey("ReloadINI")) {
+		else if(isKeyPressed(configKeys.getSDLKey("ReloadINI"),key) == true) {
 			Config &config = Config::getInstance();
 			config.reload();
 		}
-		else if(key == configKeys.getCharKey("Screenshot")) {
+		//else if(key == configKeys.getCharKey("Screenshot")) {
+		else if(isKeyPressed(configKeys.getSDLKey("Screenshot"),key) == true) {
 	        string userData = Config::getInstance().getString("UserData_Root","");
 	        if(userData != "") {
         		endPathWithSlash(userData);
@@ -882,7 +886,7 @@ void MainWindow::eventKeyDown(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MainWindow::eventKeyUp(char key){
+void MainWindow::eventKeyUp(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
     if(program == NULL) {
     	throw runtime_error("In [MainWindow::eventKeyUp] ERROR, program == NULL!");
@@ -892,7 +896,7 @@ void MainWindow::eventKeyUp(char key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
 }
 
-void MainWindow::eventKeyPress(char c){
+void MainWindow::eventKeyPress(SDL_KeyboardEvent c) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
     if(program == NULL) {
     	throw runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
@@ -904,7 +908,8 @@ void MainWindow::eventKeyPress(char c){
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		if(c == configKeys.getCharKey("HotKeyToggleOSMouseEnabled")) {
+		//if(c == configKeys.getCharKey("HotKeyToggleOSMouseEnabled")) {
+		if(isKeyPressed(configKeys.getSDLKey("HotKeyToggleOSMouseEnabled"),c) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			bool showCursorState = false;
@@ -924,13 +929,13 @@ void MainWindow::eventKeyPress(char c){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
 }
 
-void MainWindow::eventActivate(bool active){
+void MainWindow::eventActivate(bool active) {
 	if(!active){
 		//minimize();
 	}
 }
 
-void MainWindow::eventResize(SizeState sizeState){
+void MainWindow::eventResize(SizeState sizeState) {
     if(program == NULL) {
     	throw runtime_error("In [MainWindow::eventResize] ERROR, program == NULL!");
     }

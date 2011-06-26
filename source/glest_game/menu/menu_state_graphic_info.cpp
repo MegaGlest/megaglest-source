@@ -75,9 +75,10 @@ void MenuStateGraphicInfo::render(){
 	renderer.renderConsole(&console,false,true);
 }
 
-void MenuStateGraphicInfo::keyDown(char key) {
+void MenuStateGraphicInfo::keyDown(SDL_KeyboardEvent key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	if(key == configKeys.getCharKey("SaveGUILayout")) {
+	//if(key == configKeys.getCharKey("SaveGUILayout")) {
+	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 		//Lang &lang= Lang::getInstance();
 		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");

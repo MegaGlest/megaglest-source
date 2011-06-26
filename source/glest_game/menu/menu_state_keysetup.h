@@ -51,7 +51,8 @@ private:
 	vector<pair<string,string> > userProperties;
 
 	int hotkeyIndex;
-	char hotkeyChar;
+	//char hotkeyChar;
+	SDLKey hotkeyChar;
 
 	GraphicLabel labelTestTitle;
 	GraphicLabel labelTestValue;
@@ -65,9 +66,9 @@ public:
 	void update();
 	void render();
 
-	virtual void keyDown(char key);
-    virtual void keyPress(char c);
-    virtual void keyUp(char key);
+	virtual void keyDown(SDL_KeyboardEvent key);
+    virtual void keyPress(SDL_KeyboardEvent c);
+    virtual void keyUp(SDL_KeyboardEvent key);
 
 	virtual bool isInSpecialKeyCaptureEvent() { return true; }
 

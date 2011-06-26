@@ -461,8 +461,8 @@ void MenuStateJoinGame::update()
     if(clientInterface != NULL && clientInterface->getLaunchGame()) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
 }
 
-void MenuStateJoinGame::keyDown(char key) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+void MenuStateJoinGame::keyDown(SDL_KeyboardEvent key) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	if(clientInterface->isConnected() == false)	{
@@ -470,17 +470,19 @@ void MenuStateJoinGame::keyDown(char key) {
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-		if(key == vkBack) {
+		//if(key == vkBack) {
+		if(isKeyPressed(SDLK_BACKSPACE,key) == true) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			string text= labelServerIp.getText();
 
-			if(text.size()>1){
+			if(text.size() > 1) {
 				text.erase(text.end()-2);
 			}
 
 			labelServerIp.setText(text);
 		}
-		else if(key == configKeys.getCharKey("SaveGUILayout")) {
+		//else if(key == configKeys.getCharKey("SaveGUILayout")) {
+		else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 			bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 			Lang &lang= Lang::getInstance();
 			console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
@@ -494,7 +496,8 @@ void MenuStateJoinGame::keyDown(char key) {
 
         if(chatManager.getEditEnabled() == false) {
         	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-			if(key == configKeys.getCharKey("SaveGUILayout")) {
+			//if(key == configKeys.getCharKey("SaveGUILayout")) {
+        	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 				bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 				Lang &lang= Lang::getInstance();
 				console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
@@ -503,7 +506,7 @@ void MenuStateJoinGame::keyDown(char key) {
 	}
 }
 
-void MenuStateJoinGame::keyPress(char c) {
+void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 
 	if(clientInterface->isConnected() == false)	{
@@ -511,15 +514,18 @@ void MenuStateJoinGame::keyPress(char c) {
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-		if(c>='0' && c<='9') {
+		SDLKey key = extractKeyPressed(c);
 
-			if(labelServerIp.getText().size()<maxTextSize) {
+		//if(c>='0' && c<='9') {
+		if(key >= SDLK_0 && key <= SDLK_9) {
+			if(labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
-				text.insert(text.end()-1, c);
+				text.insert(text.end()-1, key);
 				labelServerIp.setText(text);
 			}
 		}
-		else if (c=='.') {
+		//else if (c=='.') {
+		else if (key == SDLK_PERIOD) {
 			if(labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
 				text.insert(text.end()-1, '.');
