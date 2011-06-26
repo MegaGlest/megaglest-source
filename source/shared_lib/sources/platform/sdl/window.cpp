@@ -577,6 +577,7 @@ MouseButton Window::getMouseButton(int sdlButton) {
 	}
 }
 
+/*
 char Window::getRawKey(SDL_keysym keysym) {
 	char result = 0;
 	// Because Control messes up unicode character
@@ -941,6 +942,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 
 	return result;
 }
+*/
 
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input) {
 	Uint16 c = 0;
