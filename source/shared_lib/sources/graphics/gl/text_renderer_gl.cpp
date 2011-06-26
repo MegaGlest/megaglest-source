@@ -57,6 +57,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 		glColor3fv(color->ptr());
 	}
 
+	string renderText			= text;
 	int line					= 0;
 	int size					= font->getSize();
 	const unsigned char *utext	= NULL;
@@ -66,20 +67,24 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 
 	Vec2f rasterPos;
 	if(font->getTextHandler() != NULL) {
+		char *utfStr = String::ConvertToUTF8(renderText.c_str());
+		renderText = utfStr;
+		delete [] utfStr;
+
 		if(centered) {
-			rasterPos.x= x - font->getTextHandler()->Advance(text.c_str()) / 2.f;
-			rasterPos.y= y + font->getTextHandler()->LineHeight(text.c_str()) / font->getYOffsetFactor();
+			rasterPos.x= x - font->getTextHandler()->Advance(renderText.c_str()) / 2.f;
+			rasterPos.y= y + font->getTextHandler()->LineHeight(renderText.c_str()) / font->getYOffsetFactor();
 		}
 		else {
 			rasterPos= Vec2f(static_cast<float>(x), static_cast<float>(y));
-			rasterPos.y= y + (font->getTextHandler()->LineHeight(text.c_str()) / font->getYOffsetFactor());
+			rasterPos.y= y + (font->getTextHandler()->LineHeight(renderText.c_str()) / font->getYOffsetFactor());
 		}
 	}
 	else {
-		utext= reinterpret_cast<const unsigned char*>(text.c_str());
+		utext= reinterpret_cast<const unsigned char*>(renderText.c_str());
 		metrics= font->getMetrics();
 		if(centered) {
-			rasterPos.x= x-metrics->getTextWidth(text)/2.f;
+			rasterPos.x= x-metrics->getTextWidth(renderText)/2.f;
 			rasterPos.y= y+metrics->getHeight()/2.f;
 		}
 		else {
@@ -99,7 +104,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 
 	if(Font::fontIsMultibyte == true) {
 		if(font->getTextHandler() != NULL) {
-			string renderText = text;
+			//string renderText = text;
 			if(Font::fontIsRightToLeft == true) {
 				//printf("\n\n#A [%s]\n",renderText.c_str());
 				//bool isRLM = utf8::starts_with_rlm(text.begin(), text.end() + text.size());
@@ -228,7 +233,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 			//glListBase(font->getHandle());
 			//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
 
-			string utfText = text;
+			string utfText = renderText;
 			if(Font::fontIsRightToLeft == true) {
 				if(is_string_all_ascii(utfText) == false) {
 					strrev_utf8(utfText);
@@ -236,7 +241,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 			}
 
 			glListBase(font->getHandle());
-			glCallLists(text.length(), GL_UNSIGNED_SHORT, &utext[0]);
+			glCallLists(renderText.length(), GL_UNSIGNED_SHORT, &utext[0]);
 
 			//std::locale loc("");
 			//wstring wText = widen(text);
@@ -249,7 +254,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 	}
 	else {
 		if(font->getTextHandler() != NULL) {
-			string renderText = text;
+			//string renderText = text;
 			if(Font::fontIsRightToLeft == true) {
 				if(is_string_all_ascii(renderText) == false) {
 					strrev_utf8(renderText);
@@ -425,7 +430,8 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 
 		//assertGl();
 	}
-	
+
+	string renderText			= text;
 	const unsigned char *utext= NULL;
 	//assertGl();
 
@@ -449,6 +455,10 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 	FontMetrics *metrics= font->getMetrics();
 
 	if(font->getTextHandler() != NULL) {
+		char *utfStr = String::ConvertToUTF8(renderText.c_str());
+		renderText = utfStr;
+		delete [] utfStr;
+
 		//centered = false;
 		if(centered) {
 			//printf("3d text to center [%s] advance = %f, x = %f\n",text.c_str(),font->getTextHandler()->Advance(text.c_str()), x);
@@ -457,10 +467,10 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 //			translatePos.x = x - scale * font->getTextHandler()->Advance(text.c_str()) / 2.f;
 //			translatePos.y = y - scale * font->getTextHandler()->LineHeight(text.c_str()) / font->getYOffsetFactor();
 			//assertGl();
-			translatePos.x = x - (font->getTextHandler()->Advance(text.c_str()) / 2.f);
+			translatePos.x = x - (font->getTextHandler()->Advance(renderText.c_str()) / 2.f);
 			//assertGl();
 			//translatePos.y = y - (font->getTextHandler()->LineHeight(text.c_str()) / font->getYOffsetFactor());
-			translatePos.y = y - (font->getTextHandler()->LineHeight(text.c_str()) / 2.f);
+			translatePos.y = y - (font->getTextHandler()->LineHeight(renderText.c_str()) / 2.f);
 			//assertGl();
 
 			translatePos.z = 0;
@@ -480,10 +490,10 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 		float scale= 1.0f;
 		//float scale= size;
 
-		utext= reinterpret_cast<const unsigned char*>(text.c_str());
+		utext= reinterpret_cast<const unsigned char*>(renderText.c_str());
 		if(centered) {
 			//glTranslatef(x-scale*metrics->getTextWidth(text)/2.f, y-scale*metrics->getHeight()/2.f, 0);
-			translatePos.x = x-scale*metrics->getTextWidth(text)/2.f;
+			translatePos.x = x-scale*metrics->getTextWidth(renderText)/2.f;
 			translatePos.y = y-scale*metrics->getHeight()/2.f;
 			translatePos.z = 0;
 		}
@@ -520,10 +530,10 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 	// specialFTGLErrorCheckWorkaround(text);
 
 	if(font->getTextHandler() != NULL) {
-		if(text.find("\n") == text.npos && text.find("\t") == text.npos) {
+		if(text.find("\n") == renderText.npos && renderText.find("\t") == renderText.npos) {
 			//assertGl();
-			font->getTextHandler()->Render(text.c_str());
-			specialFTGLErrorCheckWorkaround(text);
+			font->getTextHandler()->Render(renderText.c_str());
+			specialFTGLErrorCheckWorkaround(renderText);
 		}
 		else {
 			int line=0;
@@ -531,11 +541,11 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 			vector<string> parts;
 			char szBuf[4096]="";
 
-			for (int i=0; text[i] != '\0'; ++i) {
+			for (int i=0; renderText[i] != '\0'; ++i) {
 				szBuf[0] = '\0';
-				sprintf(szBuf,"%c",text[i]);
+				sprintf(szBuf,"%c",renderText[i]);
 
-				switch(text[i]) {
+				switch(renderText[i]) {
 					case '\t':
 						parts.push_back(szBuf);
 						lastCharacterWasSpecial = true;
@@ -607,9 +617,9 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 			//glListBase(font->getHandle());
 			//glCallLists(utfText.length(), GL_UNSIGNED_SHORT, &utfText[0]);
 
-			string utfText = text;
+			string utfText = renderText;
 			glListBase(font->getHandle());
-			glCallLists(text.length(), GL_UNSIGNED_SHORT, &utext[0]);
+			glCallLists(renderText.length(), GL_UNSIGNED_SHORT, &utext[0]);
 
 			//std::locale loc("");
 			//wstring wText = widen(text);
