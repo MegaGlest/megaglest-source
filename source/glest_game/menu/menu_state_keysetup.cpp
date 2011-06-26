@@ -339,7 +339,7 @@ void MenuStateKeysetup::showMessageBox(const string &text, const string &header,
 
 void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 	hotkeyChar = extractKeyPressed(key);
-	printf("\nkeyDown [%d]\n",hotkeyChar);
+	//printf("\nkeyDown [%d]\n",hotkeyChar);
 
 	string keyName = "";
 	if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDLK_LAST) {
@@ -369,7 +369,7 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 
 	char szBuf[1024] = "";
 	//sprintf(szBuf,"%s [%d][%d]",keyName.c_str(),key.keysym.sym,keysym);
-	sprintf(szBuf,"%s [%d][%d]",keyName.c_str(),key.keysym.sym,hotkeyChar);
+	sprintf(szBuf,"%s [%d][%d][%d]",keyName.c_str(),key.keysym.sym,hotkeyChar,key.keysym.unicode);
 	labelTestValue.setText(szBuf);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] hotkeyChar [%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar);

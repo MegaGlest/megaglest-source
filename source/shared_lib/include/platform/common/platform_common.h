@@ -40,6 +40,41 @@ using Shared::Util::Checksum;
 namespace Shared { namespace PlatformCommon {
 
 static const int IGNORE_CMD_RESULT_VALUE = -999999;
+
+// keycode constants (unfortunately designed after DirectInput and therefore not
+// very specific)
+// They also have to fit into a char. The positive numbers seem to be equal
+// to ascii, for the rest we have to find sensefull mappings from SDL (which is
+// alot more fine grained like left/right control instead of just control...)
+const char vkAdd = -1;
+const char vkSubtract = -2;
+const char vkAlt = -3;
+const char vkControl = -4;
+const char vkShift = -5;
+const char vkEscape = -6;
+const char vkUp = -7;
+const char vkLeft = -8;
+const char vkRight = -9;
+const char vkDown = -10;
+const char vkReturn = -11;
+const char vkBack = -12;
+const char vkTab = -13;
+const char vkF1 = -14;
+const char vkF2 = -15;
+const char vkF3 = -16;
+const char vkF4 = -17;
+const char vkF5 = -18;
+const char vkF6 = -19;
+const char vkF7 = -20;
+const char vkF8 = -21;
+const char vkF9 = -22;
+const char vkF10 = -23;
+const char vkF11 = -24;
+const char vkF12 = -25;
+const char vkDelete = -26;
+const char vkPrint = -27;
+const char vkPause = -29;
+
 // =====================================================
 //	class PerformanceTimer
 // =====================================================
@@ -185,6 +220,7 @@ void sleep(int millis);
 bool isCursorShowing();
 void showCursor(bool b);
 bool isKeyDown(int virtualKey);
+//bool isKeyDown(SDLKey key);
 string getCommandLine();
 
 #define SPACES " "

@@ -1596,6 +1596,21 @@ void showCursor(bool b) {
 	SDL_ShowCursor(b == true ? SDL_ENABLE : SDL_DISABLE);
 }
 
+//bool isKeyDown(SDLKey key) {
+//	const Uint8* keystate = SDL_GetKeyState(0);
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+//
+//	if(key >= 0) {
+//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate[key] = %d\n",__FILE__,__FUNCTION__,__LINE__,keystate[key]);
+//
+//		return (keystate[key] != 0);
+//	}
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning false\n",__FILE__,__FUNCTION__,__LINE__);
+//	return false;
+//
+//}
+
 bool isKeyDown(int virtualKey) {
 	char key = static_cast<char> (virtualKey);
 	const Uint8* keystate = SDL_GetKeyState(0);
@@ -1646,7 +1661,6 @@ bool isKeyDown(int virtualKey) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning false\n",__FILE__,__FUNCTION__,__LINE__);
 	return false;
 }
-
 
 string replaceAll(string& context, const string& from, const string& to) {
     size_t lookHere = 0;
