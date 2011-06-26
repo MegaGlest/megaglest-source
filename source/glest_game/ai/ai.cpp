@@ -474,7 +474,7 @@ void Ai::sendScoutPatrol(){
 	if(possibleTargetFound == false){
 		startLoc= (startLoc + 1) % aiInterface->getMapMaxPlayers();
 		pos= aiInterface->getStartLocation(startLoc);
-		printf("och noe\n");
+		//printf("normal target used\n");
 	}
 
 	if(aiInterface->getHomeLocation() != pos){

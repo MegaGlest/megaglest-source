@@ -46,7 +46,7 @@ const int PathFinder::pathFindRefresh		= 10;
 const int PathFinder::pathFindBailoutRadius	= 20;
 const int PathFinder::pathFindExtendRefreshForNodeCount	= 25;
 const int PathFinder::pathFindExtendRefreshNodeCountMin	= 40;
-const int PathFinder::pathFindExtendRefreshNodeCountMax	= 60;
+const int PathFinder::pathFindExtendRefreshNodeCountMax	= 40;
 
 PathFinder::PathFinder() {
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
