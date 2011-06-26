@@ -54,6 +54,10 @@
 
 # define TA3D_WSTR_SEPARATORS  " \t\r\n"
 
+#ifndef WIN32
+using Shared::Platform::byte;
+#endif
+
 using namespace Shared::Platform;
 
 namespace Shared { namespace Util {
@@ -233,8 +237,8 @@ namespace Shared { namespace Util {
         ** \param[out] The new size
         ** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
         */
-        static char* ConvertToUTF8(const char* s, const uint32 len);
-        static char* ConvertToUTF8(const char* s, const uint32 len, uint32& newSize);
+		static char* ConvertToUTF8(const char* s, const Shared::Platform::uint32 len);
+		static char* ConvertToUTF8(const char* s, const Shared::Platform::uint32 len, Shared::Platform::uint32& newSize);
 
         /*!
         ** \brief Convert a string from ASCII to UTF8
@@ -503,7 +507,7 @@ namespace Shared { namespace Util {
         /*!
         ** \brief Get the hash value of this string
         */
-        uint32 hashValue() const;
+        Shared::Platform::uint32 hashValue() const;
 
         /*!
         ** \brief Convert the string from ASCII to UTF8
@@ -586,7 +590,11 @@ namespace Shared { namespace Util {
             return !(iss >> t).fail();
         }
 
+#ifndef WIN32
 		static int ASCIItoUTF8(const Shared::Platform::byte c, Shared::Platform::byte *out);
+#else
+		static int ASCIItoUTF8(const byte c, byte *out);
+#endif
     }; // class String
 
 
