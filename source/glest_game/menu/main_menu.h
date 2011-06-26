@@ -69,7 +69,7 @@ class MenuState;
 ///	Main menu ProgramState
 // =====================================================
 
-class MainMenu: public ProgramState{
+class MainMenu: public ProgramState {
 	
 private:
 	static MenuState *oldstate;
@@ -101,9 +101,9 @@ public:
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
     virtual void mouseDownLeft(int x, int y);
     virtual void mouseDownRight(int x, int y);
-	virtual void keyDown(char key);
-	virtual void keyUp(char key);
-	virtual void keyPress(char key);
+	virtual void keyDown(SDL_KeyboardEvent key);
+	virtual void keyUp(SDL_KeyboardEvent key);
+	virtual void keyPress(SDL_KeyboardEvent key);
 	
 	void setState(MenuState *state);
 	virtual bool isInSpecialKeyCaptureEvent();
@@ -137,9 +137,9 @@ public:
 	virtual void mouseMove(int x, int y, const MouseState *mouseState)=0;
 	virtual void render()=0;
 	virtual void update(){};
-	virtual void keyDown(char key){};
-	virtual void keyPress(char c){};
-	virtual void keyUp(char key){};
+	virtual void keyDown(SDL_KeyboardEvent key){};
+	virtual void keyPress(SDL_KeyboardEvent c){};
+	virtual void keyUp(SDL_KeyboardEvent key){};
 
 	const Camera *getCamera() const			{return &camera;}
 

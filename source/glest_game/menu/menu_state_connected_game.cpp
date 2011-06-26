@@ -2089,10 +2089,12 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
     return hasNetworkSlot;
 }
 
-void MenuStateConnectedGame::keyDown(char key) {
+void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 	if(activeInputLabel != NULL) {
 		string text = activeInputLabel->getText();
-		if(key == vkBack && text.length() > 0) {
+
+		//if(key == vkBack && text.length() > 0) {
+		if(isKeyPressed(SDLK_BACKSPACE,key) == true && text.length() > 0) {
 			size_t found = text.find_last_of("_");
 			if (found == string::npos) {
 				text.erase(text.end() - 1);
@@ -2116,10 +2118,12 @@ void MenuStateConnectedGame::keyDown(char key) {
 		if(chatManager.getEditEnabled() == false) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-			if(key == configKeys.getCharKey("ShowFullConsole")) {
+			//if(key == configKeys.getCharKey("ShowFullConsole")) {
+			if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 				showFullConsole= true;
 			}
-			else if(key == configKeys.getCharKey("SaveGUILayout")) {
+			//else if(key == configKeys.getCharKey("SaveGUILayout")) {
+			else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 				bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 				Lang &lang= Lang::getInstance();
 				console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
@@ -2128,23 +2132,24 @@ void MenuStateConnectedGame::keyDown(char key) {
 	}
 }
 
-void MenuStateConnectedGame::keyPress(char c) {
+void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 	if(activeInputLabel != NULL) {
 		int maxTextSize= 16;
 	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			if(&labelPlayerNames[i] == activeInputLabel) {
-				if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
-				   (c=='-') || (c=='(') || (c==')')) {
+				SDLKey key = extractKeyPressed(c);
+				//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
+				//   (c=='-') || (c=='(') || (c==')')) {
 					if(activeInputLabel->getText().size() < maxTextSize) {
 						string text= activeInputLabel->getText();
-						text.insert(text.end() -1, c);
+						text.insert(text.end() -1, key);
 						activeInputLabel->setText(text);
 
 						switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
 			            needToSetChangedGameSettings = true;
 			            lastSetChangedGameSettings   = time(NULL);
 					}
-				}
+				//}
 			}
 	    }
 	}
@@ -2153,7 +2158,7 @@ void MenuStateConnectedGame::keyPress(char c) {
 	}
 }
 
-void MenuStateConnectedGame::keyUp(char key) {
+void MenuStateConnectedGame::keyUp(SDL_KeyboardEvent key) {
 	if(activeInputLabel==NULL) {
 		chatManager.keyUp(key);
 
@@ -2163,7 +2168,8 @@ void MenuStateConnectedGame::keyUp(char key) {
 			//send key to the chat manager
 			chatManager.keyUp(key);
 		}
-		else if(key== configKeys.getCharKey("ShowFullConsole")) {
+		//else if(key== configKeys.getCharKey("ShowFullConsole")) {
+		else if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 			showFullConsole= false;
 		}
 	}

@@ -14,6 +14,7 @@
 
 #include <string>
 #include "font.h"
+#include <SDL.h>
 #include "leak_dumper.h"
 
 using std::string;
@@ -28,7 +29,7 @@ class Console;
 //	class ChatManager
 // =====================================================
 
-class ChatManager{
+class ChatManager {
 
 private:
 	bool editEnabled;
@@ -50,9 +51,9 @@ public:
 	ChatManager();
 	void init(Console* console, int thisTeamIndex, const bool inMenu=false, string manualPlayerNameOverride="");
 
-	void keyDown(char key);
-	void keyUp(char key);
-	void keyPress(char c);
+	void keyDown(SDL_KeyboardEvent key);
+	void keyUp(SDL_KeyboardEvent key);
+	void keyPress(SDL_KeyboardEvent c);
 	void updateNetwork();
 
 	bool getEditEnabled() const	{return editEnabled;}

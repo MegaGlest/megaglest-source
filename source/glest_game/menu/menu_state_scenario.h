@@ -68,7 +68,7 @@ public:
 	void setScenario(int i);
 	int getScenarioCount() const	{ return listBoxScenario.getItemCount(); }
 
-	virtual void keyDown(char key);
+	virtual void keyDown(SDL_KeyboardEvent key);
 
 private:
 

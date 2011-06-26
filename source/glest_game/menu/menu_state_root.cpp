@@ -210,18 +210,22 @@ void MenuStateRoot::update(){
 	console.update();
 }
 
-void MenuStateRoot::keyDown(char key) {
+void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] key = [%d - %c]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] key = [%d - %c]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
+
+	//printf("\n\n\nIN MENU STATE ROOT KEYDOWN!!!\n\n\n");
 
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 	//exit
-	if(key == configKeys.getCharKey("ExitKey")) {
+	//if(key == configKeys.getCharKey("ExitKey")) {
+	if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key) == true) {
 		Lang &lang= Lang::getInstance();
 		showMessageBox(lang.get("ExitGame?"), "", true);
 	}
-	else if(mainMessageBox.getEnabled() == true && key == vkReturn) {
+	//else if(mainMessageBox.getEnabled() == true && key == vkReturn) {
+	else if(mainMessageBox.getEnabled() == true && isKeyPressed(SDLK_RETURN,key) == true) {
 		SDL_keysym keystate = Window::getKeystate();
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate.mod [%d]\n",__FILE__,__FUNCTION__,__LINE__,keystate.mod);
 
@@ -233,7 +237,8 @@ void MenuStateRoot::keyDown(char key) {
 			program->exit();
 		}
 	}
-	else if(key == configKeys.getCharKey("SaveGUILayout")) {
+	//else if(key == configKeys.getCharKey("SaveGUILayout")) {
+	else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 		//Lang &lang= Lang::getInstance();
 		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");

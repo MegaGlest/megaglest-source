@@ -52,14 +52,23 @@ void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu, s
 	this->manualPlayerNameOverride = manualPlayerNameOverride;
 }
 
-void ChatManager::keyUp(char key) {
+void ChatManager::setDisableTeamMode(bool value) {
+	disableTeamMode = value;
+
+	if(disableTeamMode == true) {
+		teamMode = false;
+	}
+}
+
+void ChatManager::keyUp(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	try {
 		if(editEnabled) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
-			if(key == vkEscape || key == SDLK_ESCAPE) {
+			//if(key == vkEscape || key == SDLK_ESCAPE) {
+			if(isKeyPressed(SDLK_ESCAPE,key) == true) {
 				text.clear();
 				editEnabled= false;
 			}
@@ -74,16 +83,8 @@ void ChatManager::keyUp(char key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ChatManager::setDisableTeamMode(bool value) {
-	disableTeamMode = value;
-
-	if(disableTeamMode == true) {
-		teamMode = false;
-	}
-}
-
-void ChatManager::keyDown(char key) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+void ChatManager::keyDown(SDL_KeyboardEvent key) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 	try {
 		Lang &lang= Lang::getInstance();
@@ -91,8 +92,9 @@ void ChatManager::keyDown(char key) {
 
 		//toggle team mode
 		if(editEnabled == false && disableTeamMode == false &&
-			key == configKeys.getCharKey("ChatTeamMode")) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+			//key == configKeys.getCharKey("ChatTeamMode")) {
+			isKeyPressed(configKeys.getSDLKey("ChatTeamMode"),key) == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			if (!inMenu) {
 				if (teamMode == true) {
@@ -101,26 +103,25 @@ void ChatManager::keyDown(char key) {
 							"All"));
 				} else {
 					teamMode = true;
-					console->addLine(lang.get("ChatMode") + ": " + lang.get(
-							"Team"));
+					console->addLine(lang.get("ChatMode") + ": " + lang.get("Team"));
 				}
 			}
 		}
 
-		if(key==vkReturn){
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+		//if(key==vkReturn) {
+		if(isKeyPressed(SDLK_RETURN,key) == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			SDL_keysym keystate = Window::getKeystate();
 			if(keystate.mod & (KMOD_LALT | KMOD_RALT)){
 				// alt+enter is ignored
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 			}
-			else
-			{
-				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 				if(editEnabled == true) {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 					if(text.empty() == false) {
@@ -145,14 +146,15 @@ void ChatManager::keyDown(char key) {
 					text.clear();
 				}
 				else {
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 					switchOnEdit();
 				}
 			}
 		}
-		else if(key==vkBack) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
+		//else if(key==vkBack) {
+		else if(isKeyPressed(SDLK_BACKSPACE,key) == true) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			if(!text.empty()) {
 				text.erase(text.end() -1);
@@ -170,26 +172,26 @@ void ChatManager::keyDown(char key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ChatManager::switchOnEdit(){
+void ChatManager::switchOnEdit() {
 	editEnabled= true;
 	text.clear();
 }
 
-void ChatManager::keyPress(char c){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c,c);
+void ChatManager::keyPress(SDL_KeyboardEvent c) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 
-	if(editEnabled && text.size()<maxTextLenght){
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c,c);
+	if(editEnabled && text.size() < maxTextLenght) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 		//space is the first meaningful code
-		if(c>=' '){
-			text+= c;
+		if(extractKeyPressed(c) >= SDLK_SPACE) {
+			text += extractKeyPressed(c);
 		}
 	}
 }
 
-void ChatManager::addText(string text){
-	if(editEnabled && text.size()+this->text.size()<maxTextLenght){
-		this->text+= text;
+void ChatManager::addText(string text) {
+	if(editEnabled && text.size() + this->text.size() < maxTextLenght) {
+		this->text += text;
 	}
 }
 

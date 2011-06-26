@@ -557,7 +557,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-	console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+	console.addLine(lang.get("To switch off music press") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
 
 	chatManager.init(&console, -1,true);
 
@@ -2878,10 +2878,11 @@ void MenuStateCustomGame::updateNetworkSlots() {
 	}
 }
 
-void MenuStateCustomGame::keyDown(char key) {
+void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
 	if(activeInputLabel != NULL) {
 		string text = activeInputLabel->getText();
-		if(key == vkBack && text.length() > 0) {
+		//if(key == vkBack && text.length() > 0) {
+		if(isKeyPressed(SDLK_BACKSPACE,key) == true && text.length() > 0) {
 			size_t found = text.find_last_of("_");
 			if (found == string::npos) {
 				text.erase(text.end() - 1);
@@ -2909,11 +2910,13 @@ void MenuStateCustomGame::keyDown(char key) {
 		if(chatManager.getEditEnabled() == false) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-			if(key == configKeys.getCharKey("ShowFullConsole")) {
+			//if(key == configKeys.getCharKey("ShowFullConsole")) {
+			if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 				showFullConsole= true;
 			}
 			//Toggle music
-			else if(key == configKeys.getCharKey("ToggleMusic")) {
+			//else if(key == configKeys.getCharKey("ToggleMusic")) {
+			else if(isKeyPressed(configKeys.getSDLKey("ToggleMusic"),key) == true) {
 				Config &config = Config::getInstance();
 				Lang &lang= Lang::getInstance();
 
@@ -2930,7 +2933,8 @@ void MenuStateCustomGame::keyDown(char key) {
 					console.addLine(lang.get("GameMusic"));
 				}
 			}
-			else if(key == configKeys.getCharKey("SaveGUILayout")) {
+			//else if(key == configKeys.getCharKey("SaveGUILayout")) {
+			else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 				bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 				Lang &lang= Lang::getInstance();
 				console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
@@ -2939,16 +2943,17 @@ void MenuStateCustomGame::keyDown(char key) {
 	}
 }
 
-void MenuStateCustomGame::keyPress(char c) {
+void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 	if(activeInputLabel != NULL) {
 		int maxTextSize= 16;
 	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			if(&labelPlayerNames[i] == activeInputLabel) {
-				if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
-				   (c=='-') || (c=='(') || (c==')')) {
+				SDLKey key = extractKeyPressed(c);
+				//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
+				//   (c=='-') || (c=='(') || (c==')')) {
 					if(activeInputLabel->getText().size() < maxTextSize) {
 						string text= activeInputLabel->getText();
-						text.insert(text.end()-1, c);
+						text.insert(text.end()-1, key);
 						activeInputLabel->setText(text);
 
 						MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -2957,7 +2962,7 @@ void MenuStateCustomGame::keyPress(char c) {
 				            lastSetChangedGameSettings   = time(NULL);
 				        }
 					}
-				}
+				//}
 			}
 	    }
 	}
@@ -2968,7 +2973,7 @@ void MenuStateCustomGame::keyPress(char c) {
 	}
 }
 
-void MenuStateCustomGame::keyUp(char key) {
+void MenuStateCustomGame::keyUp(SDL_KeyboardEvent key) {
 	if(activeInputLabel==NULL) {
 		if(hasNetworkGameSettings() == true) {
 			chatManager.keyUp(key);
@@ -2981,7 +2986,8 @@ void MenuStateCustomGame::keyUp(char key) {
 				chatManager.keyUp(key);
 			}
 		}
-		else if(key == configKeys.getCharKey("ShowFullConsole")) {
+		//else if(key == configKeys.getCharKey("ShowFullConsole")) {
+		else if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 			showFullConsole= false;
 		}
 	}

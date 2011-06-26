@@ -71,8 +71,8 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
 	void update();
-    virtual void keyDown(char key);
-    virtual void keyPress(char c);
+    virtual void keyDown(SDL_KeyboardEvent key);
+    virtual void keyPress(SDL_KeyboardEvent c);
 
     virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 

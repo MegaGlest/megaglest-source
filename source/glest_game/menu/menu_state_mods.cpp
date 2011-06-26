@@ -2011,19 +2011,21 @@ void MenuStateMods::update() {
 	console.update();
 }
 
-void MenuStateMods::keyDown(char key) {
+void MenuStateMods::keyDown(SDL_KeyboardEvent key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	if(key == configKeys.getCharKey("ShowFullConsole")) {
+	//if(key == configKeys.getCharKey("ShowFullConsole")) {
+	if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 		showFullConsole= true;
 	}
 }
 
-void MenuStateMods::keyPress(char c) {
+void MenuStateMods::keyPress(SDL_KeyboardEvent c) {
 }
 
-void MenuStateMods::keyUp(char key) {
+void MenuStateMods::keyUp(SDL_KeyboardEvent key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	if(key== configKeys.getCharKey("ShowFullConsole")) {
+	//if(key== configKeys.getCharKey("ShowFullConsole")) {
+	if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 		showFullConsole= false;
 	}
 }

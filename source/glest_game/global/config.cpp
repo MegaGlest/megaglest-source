@@ -345,6 +345,7 @@ const string Config::getString(const string &key,const char *defaultValueIfNotFo
 	return properties.first.getString(key,defaultValueIfNotFound);
 }
 
+/*
 SDLKey Config::translateSpecialStringToSDLKey(char c) const {
 	SDLKey result = SDLK_UNKNOWN;
 	if(c < 0) {
@@ -645,17 +646,137 @@ char Config::translateStringToCharKey(const string &value) const {
 	result = tolower(result);
 	return result;
 }
+*/
 
-char Config::getCharKey(const char *key) const {
+SDLKey Config::translateStringToSDLKey(const string &value) const {
+	SDLKey result = SDLK_UNKNOWN;
+
+	if(IsNumeric(value.c_str()) == true) {
+		result = (SDLKey)strToInt(value);
+	}
+	else if(value.substr(0,2) == "vk") {
+		if(value == "vkLeft") {
+			result = SDLK_LEFT;
+		}
+		else if(value == "vkRight") {
+			result = SDLK_RIGHT;
+		}
+		else if(value == "vkUp") {
+			result = SDLK_UP;
+		}
+		else if(value == "vkDown") {
+			result = SDLK_DOWN;
+		}
+		else if(value == "vkAdd") {
+			result = SDLK_PLUS;
+		}
+		else if(value == "vkSubtract") {
+			result = SDLK_MINUS;
+		}
+		else if(value == "vkEscape") {
+			result = SDLK_ESCAPE;
+		}
+		else if(value == "vkF1") {
+			result = SDLK_F1;
+		}
+		else if(value == "vkF2") {
+			result = SDLK_F2;
+		}
+		else if(value == "vkF3") {
+			result = SDLK_F3;
+		}
+		else if(value == "vkF4") {
+			result = SDLK_F4;
+		}
+		else if(value == "vkF5") {
+			result = SDLK_F5;
+		}
+		else if(value == "vkF6") {
+			result = SDLK_F6;
+		}
+		else if(value == "vkF7") {
+			result = SDLK_F7;
+		}
+		else if(value == "vkF8") {
+			result = SDLK_F8;
+		}
+		else if(value == "vkF9") {
+			result = SDLK_F9;
+		}
+		else if(value == "vkF10") {
+			result = SDLK_F10;
+		}
+		else if(value == "vkF11") {
+			result = SDLK_F11;
+		}
+		else if(value == "vkF12") {
+			result = SDLK_F12;
+		}
+		else if(value == "vkPrint") {
+			result = SDLK_PRINT;
+		}
+		else if(value == "vkPause") {
+			result = SDLK_PAUSE;
+		}
+		else {
+			string sError = "Unsupported key translation [" + value + "]";
+			throw runtime_error(sError.c_str());
+		}
+	}
+	else if(value.length() >= 1) {
+		if(value.length() == 3 && value[0] == '\'' && value[2] == '\'') {
+			result = (SDLKey)value[1];
+		}
+		else {
+			bool foundKey = false;
+			if(value.length() > 1) {
+				for(int i = SDLK_UNKNOWN; i < SDLK_LAST; ++i) {
+					SDLKey key = static_cast<SDLKey>(i);
+					string keyName = SDL_GetKeyName(key);
+					if(value == keyName) {
+						result = key;
+						foundKey = true;
+						break;
+					}
+				}
+			}
+
+			if(foundKey == false) {
+				result = (SDLKey)value[0];
+			}
+		}
+	}
+	else {
+		string sError = "Unsupported key translation" + value;
+		throw runtime_error(sError.c_str());
+	}
+
+	// Because SDL is based on lower Ascii
+	//result = tolower(result);
+	return result;
+}
+
+SDLKey Config::getSDLKey(const char *key) const {
 	if(fileLoaded.second == true &&
 		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
 
 		string value = properties.second.getString(key);
-		return translateStringToCharKey(value);
+		return translateStringToSDLKey(value);
 	}
 	string value = properties.first.getString(key);
-	return translateStringToCharKey(value);
+	return translateStringToSDLKey(value);
 }
+
+//char Config::getCharKey(const char *key) const {
+//	if(fileLoaded.second == true &&
+//		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
+//
+//		string value = properties.second.getString(key);
+//		return translateStringToCharKey(value);
+//	}
+//	string value = properties.first.getString(key);
+//	return translateStringToCharKey(value);
+//}
 
 void Config::setInt(const string &key, int value){
 	if(fileLoaded.second == true) {

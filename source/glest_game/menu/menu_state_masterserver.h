@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martiño Figueroa
+//	Copyright (C) 2001-2005 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -119,9 +119,9 @@ public:
 	void update();
 	void render();
 
-	virtual void keyDown(char key);
-    virtual void keyPress(char c);
-    virtual void keyUp(char key);
+	virtual void keyDown(SDL_KeyboardEvent key);
+    virtual void keyPress(SDL_KeyboardEvent c);
+    virtual void keyUp(SDL_KeyboardEvent key);
 
 	virtual void simpleTask(BaseThread *callingThread);
 	virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }

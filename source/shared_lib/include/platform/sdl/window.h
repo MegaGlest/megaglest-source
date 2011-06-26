@@ -208,17 +208,17 @@ protected:
 	virtual void eventMouseMove(int x, int y, const MouseState* mouseState){}
 	virtual void eventMouseDoubleClick(int x, int y, MouseButton mouseButton){}
 	virtual void eventMouseWheel(int x, int y, int zDelta) {}
-	virtual void eventKeyDown(char key){}
-	virtual void eventKeyUp(char key){}
-	virtual void eventKeyPress(char c){}
-	virtual void eventResize(){};
-	virtual void eventPaint(){}
-	virtual void eventTimer(int timerId){}
-	virtual void eventActivate(bool activated){};
-	virtual void eventResize(SizeState sizeState){};
-	virtual void eventMenu(int menuId){}
-	virtual void eventClose(){};
-	virtual void eventDestroy(){};
+	virtual void eventKeyDown(SDL_KeyboardEvent key) {}
+	virtual void eventKeyUp(SDL_KeyboardEvent key) {}
+	virtual void eventKeyPress(SDL_KeyboardEvent c) {}
+	virtual void eventResize() {};
+	virtual void eventPaint() {}
+	virtual void eventTimer(int timerId) {}
+	virtual void eventActivate(bool activated) {};
+	virtual void eventResize(SizeState sizeState) {};
+	virtual void eventMenu(int menuId) {}
+	virtual void eventClose() {};
+	virtual void eventDestroy() {};
 
 private:
 	/// needed to detect double clicks
@@ -229,6 +229,10 @@ private:
 	static char getNormalKey(SDL_keysym keysym,bool skipSpecialKeys=false);
 	static void toggleFullscreen();
 };
+
+bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input);
+SDLKey extractKeyPressed(SDL_KeyboardEvent input);
+
 
 }}//end namespace
 
