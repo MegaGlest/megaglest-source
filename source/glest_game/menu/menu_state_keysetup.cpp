@@ -369,7 +369,7 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 
 	char szBuf[1024] = "";
 	//sprintf(szBuf,"%s [%d][%d]",keyName.c_str(),key.keysym.sym,keysym);
-	sprintf(szBuf,"%s [%d][%d][%d]",keyName.c_str(),key.keysym.sym,hotkeyChar,key.keysym.unicode);
+	sprintf(szBuf,"%s [%c][%d][%d][%d]",keyName.c_str(),hotkeyChar,key.keysym.sym,hotkeyChar,key.keysym.unicode);
 	labelTestValue.setText(szBuf);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] hotkeyChar [%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar);
