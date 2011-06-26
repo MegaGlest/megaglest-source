@@ -27,6 +27,11 @@ namespace Glest { namespace Game {
 class TechTree;
 class FactionType;
 class UnitType;
+class Unit;
+class SkillType;
+class AttackSkillType;
+class MoveSkillType;
+class ProduceSkillType;
 
 // ===============================
 // 	class UpgradeTypeBase
@@ -35,23 +40,53 @@ class UnitType;
 class UpgradeTypeBase {
 protected:
     int maxHp;
+    bool maxHpIsMultiplier;
+
     int sight;
+    bool sightIsMultiplier;
+
     int maxEp;
+    bool maxEpIsMultiplier;
+
     int armor;
+    bool armorIsMultiplier;
+
     int attackStrength;
+    bool attackStrengthIsMultiplier;
+    std::map<string,int> attackStrengthMultiplierValueList;
+
     int attackRange;
+    bool attackRangeIsMultiplier;
+    std::map<string,int> attackRangeMultiplierValueList;
+
     int moveSpeed;
+    bool moveSpeedIsMultiplier;
+    std::map<string,int> moveSpeedIsMultiplierValueList;
+
     int prodSpeed;
+    bool prodSpeedIsMultiplier;
+    std::map<string,int> prodSpeedProduceIsMultiplierValueList;
+    std::map<string,int> prodSpeedUpgradeIsMultiplierValueList;
+    std::map<string,int> prodSpeedMorphIsMultiplierValueList;
 
 public:
 	int getMaxHp() const			{return maxHp;}
+	bool getMaxHpIsMultiplier() const			{return maxHpIsMultiplier;}
 	int getSight() const			{return sight;}
+	bool getSightIsMultiplier() const			{return sightIsMultiplier;}
 	int getMaxEp() const			{return maxEp;}
+	bool getMaxEpIsMultiplier() const			{return maxEpIsMultiplier;}
 	int getArmor() const			{return armor;}
-	int getAttackStrength() const	{return attackStrength;}
-	int getAttackRange() const		{return attackRange;}
-	int getMoveSpeed() const		{return moveSpeed;}
-	int getProdSpeed() const		{return prodSpeed;}
+	bool getArmorIsMultiplier() const			{return armorIsMultiplier;}
+
+	int getAttackStrength(const AttackSkillType *st) const;
+	bool getAttackStrengthIsMultiplier() const	{return attackStrengthIsMultiplier;}
+	int getAttackRange(const AttackSkillType *st) const;
+	bool getAttackRangeIsMultiplier() const		{return attackRangeIsMultiplier;}
+	int getMoveSpeed(const MoveSkillType *st) const;
+	bool getMoveSpeedIsMultiplier() const		{return moveSpeedIsMultiplier;}
+	int getProdSpeed(const SkillType *st) const;
+	bool getProdSpeedIsMultiplier() const		{return prodSpeedIsMultiplier;}
 
 	void load(const XmlNode *upgradeNode);
 
@@ -59,13 +94,21 @@ public:
 		std::string result = "";
 
 		result += "maxHp = " + intToStr(maxHp);
+		result += "maxHpIsMultiplier = " + intToStr(maxHpIsMultiplier);
 		result += " sight = " + intToStr(sight);
+		result += "sightIsMultiplier = " + intToStr(sightIsMultiplier);
 		result += " maxEp = " + intToStr(maxEp);
+		result += "maxEpIsMultiplier = " + intToStr(maxEpIsMultiplier);
 		result += " armor = " + intToStr(armor);
+		result += "armorIsMultiplier = " + intToStr(armorIsMultiplier);
 		result += " attackStrength = " + intToStr(attackStrength);
+		result += "attackStrengthIsMultiplier = " + intToStr(attackStrengthIsMultiplier);
 		result += " attackRange = " + intToStr(attackRange);
+		result += "attackRangeIsMultiplier = " + intToStr(attackRangeIsMultiplier);
 		result += " moveSpeed = " + intToStr(moveSpeed);
+		result += "moveSpeedIsMultiplier = " + intToStr(moveSpeedIsMultiplier);
 		result += " prodSpeed = " + intToStr(prodSpeed);
+		result += "prodSpeedIsMultiplier = " + intToStr(prodSpeedIsMultiplier);
 
 		return result;
 	}
@@ -103,11 +146,11 @@ public:
 	TotalUpgrade();
 
 	void reset();
-	void sum(const UpgradeTypeBase *ut);
+	void sum(const UpgradeTypeBase *ut, const Unit *unit);
 	void incLevel(const UnitType *ut);
 
-	void apply(const UpgradeTypeBase *ut);
-	void deapply(const UpgradeTypeBase *ut);
+	void apply(const UpgradeTypeBase *ut, const Unit *unit);
+	void deapply(const UpgradeTypeBase *ut, const Unit *unit);
 };
 
 }}//end namespace

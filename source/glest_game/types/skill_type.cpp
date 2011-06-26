@@ -381,7 +381,7 @@ string MoveSkillType::toString() const{
 }
 
 int MoveSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
-	int result = speed + totalUpgrade->getMoveSpeed();
+	int result = speed + totalUpgrade->getMoveSpeed(this);
 	result = max(0,result);
 	return result;
 }
@@ -523,13 +523,13 @@ string AttackSkillType::toString() const{
 
 //get totals
 int AttackSkillType::getTotalAttackStrength(const TotalUpgrade *totalUpgrade) const{
-	int result = attackStrength + totalUpgrade->getAttackStrength();
+	int result = attackStrength + totalUpgrade->getAttackStrength(this);
 	result = max(0,result);
 	return result;
 }
 
 int AttackSkillType::getTotalAttackRange(const TotalUpgrade *totalUpgrade) const{
-	int result = attackRange + totalUpgrade->getAttackRange();
+	int result = attackRange + totalUpgrade->getAttackRange(this);
 	result = max(0,result);
 	return result;
 }
@@ -583,7 +583,7 @@ string ProduceSkillType::toString() const{
 }
 
 int ProduceSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
-	int result = speed + totalUpgrade->getProdSpeed();
+	int result = speed + totalUpgrade->getProdSpeed(this);
 	result = max(0,result);
 	return result;
 }
@@ -601,7 +601,7 @@ string UpgradeSkillType::toString() const{
 }
 
 int UpgradeSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
-	int result = speed + totalUpgrade->getProdSpeed();
+	int result = speed + totalUpgrade->getProdSpeed(this);
 	result = max(0,result);
 	return result;
 }
@@ -631,7 +631,7 @@ string MorphSkillType::toString() const{
 }
 
 int MorphSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
-	int result = speed + totalUpgrade->getProdSpeed();
+	int result = speed + totalUpgrade->getProdSpeed(this);
 	result = max(0,result);
 	return result;
 }
