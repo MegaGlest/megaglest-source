@@ -990,7 +990,8 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input) {
 
 SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 	SDLKey c = SDLK_UNKNOWN;
-	if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
+	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
+	if(input.keysym.unicode > 0) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		c = (SDLKey)input.keysym.unicode;
 		//c = toupper(c);

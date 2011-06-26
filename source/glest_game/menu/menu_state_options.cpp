@@ -19,7 +19,7 @@
 #include "util.h"
 #include "menu_state_graphic_info.h"
 #include "menu_state_keysetup.h"
-
+#include "string_utils.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -708,7 +708,13 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 				//(c=='-')||(c=='(')||(c==')')){
 				if(activeInputLabel->getText().size()<maxTextSize){
 					string text= activeInputLabel->getText();
-					text.insert(text.end()-1, key);
+					//text.insert(text.end()-1, key);
+					char szCharText[20]="";
+					sprintf(szCharText,"%c",key);
+					char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+					text.insert(text.end() -1, utfStr[0]);
+					delete [] utfStr;
+
 					activeInputLabel->setText(text);
 				}
 			//}

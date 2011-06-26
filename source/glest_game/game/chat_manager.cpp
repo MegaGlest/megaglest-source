@@ -19,6 +19,7 @@
 #include "core_data.h"
 #include "util.h"
 #include <stdexcept>
+#include "string_utils.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -183,8 +184,13 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 	if(editEnabled && text.size() < maxTextLenght) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 		//space is the first meaningful code
-		if(extractKeyPressed(c) >= SDLK_SPACE) {
-			text += extractKeyPressed(c);
+		SDLKey key = extractKeyPressed(c);
+		if(key >= SDLK_SPACE) {
+			char szCharText[20]="";
+			sprintf(szCharText,"%c",key);
+			char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+			text += utfStr;
+			delete [] utfStr;
 		}
 	}
 }
