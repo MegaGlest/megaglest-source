@@ -409,7 +409,10 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		ircClient->SendIRCCmdMessage(IRC_CHANNEL, "left the lobby");
+		if (ircClient != NULL && ircClient->isConnected() == true
+					&& ircClient->getHasJoinedChannel() == true) {
+			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "left the lobby");
+		}
         cleanup();
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -427,7 +430,10 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		safeMutex.ReleaseLock();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		ircClient->SendIRCCmdMessage(IRC_CHANNEL, "tries to create a game");
+		if (ircClient != NULL && ircClient->isConnected() == true
+					&& ircClient->getHasJoinedChannel() == true) {
+			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "tries to create a game");
+		}
         cleanup();
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -455,7 +461,10 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					safeMutex.ReleaseLock();
 					if(connected){
-						ircClient->SendIRCCmdMessage(IRC_CHANNEL, "connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");
+						if (ircClient != NULL && ircClient->isConnected() == true
+									&& ircClient->getHasJoinedChannel() == true) {
+							ircClient->SendIRCCmdMessage(IRC_CHANNEL, "connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");
+						}
 						cleanup();
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
