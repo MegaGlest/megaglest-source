@@ -314,9 +314,9 @@ namespace Shared { namespace Util {
         return *this;
     }
 
-    uint32 String::hashValue() const
+    Shared::Platform::uint32 String::hashValue() const
     {
-        uint32 hash = 0;
+        Shared::Platform::uint32 hash = 0;
         for (String::const_iterator i = this->begin(); i != this->end(); ++i)
             hash = (hash << 5) - hash + *i;
         return hash;
@@ -450,13 +450,17 @@ namespace Shared { namespace Util {
         return ret;
     }
 
-    char* String::ConvertToUTF8(const char* s, const uint32 len)
+    char* String::ConvertToUTF8(const char* s, const Shared::Platform::uint32 len)
     {
-        uint32 nws;
+        Shared::Platform::uint32 nws;
         return ConvertToUTF8(s, len, nws);
     }
 
+#ifndef WIN32
     int String::ASCIItoUTF8(const Shared::Platform::byte c, Shared::Platform::byte *out) {
+#else
+	int String::ASCIItoUTF8(const byte c, byte *out) {
+#endif
     	if (c < 0x80)
     	{
     		*out = c;
@@ -473,7 +477,7 @@ namespace Shared { namespace Util {
     	return 2;
     }
 
-    char* String::ConvertToUTF8(const char* s, uint32 len, uint32& newSize)
+    char* String::ConvertToUTF8(const char* s, Shared::Platform::uint32 len, Shared::Platform::uint32& newSize)
     {
         if (NULL == s || '\0' == *s)
         {
@@ -483,17 +487,32 @@ namespace Shared { namespace Util {
             *ret = '\0';
             return ret;
         }
+#ifndef WIN32
         Shared::Platform::byte tmp[4];
+#else
+		byte tmp[4];
+#endif
         newSize = 1;
+
+#ifndef WIN32
         for(Shared::Platform::byte *p = (Shared::Platform::byte*)s ; *p ; p++)
+#else
+		for(byte *p = (byte*)s ; *p ; p++)
+#endif
             newSize += ASCIItoUTF8(*p, tmp);
 
         char* ret = new char[newSize];
         //LOG_ASSERT(NULL != ret);
         assert(NULL != ret);
 
+#ifndef WIN32
         Shared::Platform::byte *q = (Shared::Platform::byte*)ret;
         for(Shared::Platform::byte *p = (Shared::Platform::byte*)s ; *p ; p++)
+#else
+        byte *q = (byte*)ret;
+        for(byte *p = (byte*)s ; *p ; p++)
+
+#endif
             q += ASCIItoUTF8(*p, q);
         *q = '\0'; // A bit paranoid
         return ret;
@@ -707,10 +726,18 @@ namespace Shared { namespace Util {
         String res;
         int utf8_pos = 0;
         for(; pos > 0 ; pos--)
+#ifndef WIN32
             if (((Shared::Platform::byte)(*this)[utf8_pos]) >= 0xC0)
+#else
+			if (((byte)(*this)[utf8_pos]) >= 0xC0)
+#endif
             {
                 utf8_pos++;
+#ifndef WIN32
                 while (((Shared::Platform::byte)(*this)[utf8_pos]) >= 0x80 && ((Shared::Platform::byte)(*this)[utf8_pos]) < 0xC0)
+#else
+				while (((byte)(*this)[utf8_pos]) >= 0x80 && ((byte)(*this)[utf8_pos]) < 0xC0)
+#endif
                     utf8_pos++;
             }
             else
@@ -718,11 +745,19 @@ namespace Shared { namespace Util {
 
         for(; len > 0 ; len--)
         {
+#ifndef WIN32
             if (((Shared::Platform::byte)(*this)[utf8_pos]) >= 0x80)
+#else
+			if (((byte)(*this)[utf8_pos]) >= 0x80)
+#endif
             {
                 res << (char)(*this)[utf8_pos];
                 utf8_pos++;
+#ifndef WIN32
                 while (((Shared::Platform::byte)(*this)[utf8_pos]) >= 0x80 && ((Shared::Platform::byte)(*this)[utf8_pos]) < 0xC0)
+#else
+				while (((byte)(*this)[utf8_pos]) >= 0x80 && ((byte)(*this)[utf8_pos]) < 0xC0)
+#endif
                 {
                     res << (char)(*this)[utf8_pos];
                     utf8_pos++;
@@ -741,7 +776,11 @@ namespace Shared { namespace Util {
     {
         int len = 0;
         for(unsigned int i = 0 ; i < this->size() ; i++)
+#ifndef WIN32
             if (((Shared::Platform::byte)(*this)[i]) >= 0xC0 || ((Shared::Platform::byte)(*this)[i]) < 0x80)
+#else
+			if (((byte)(*this)[i]) >= 0xC0 || ((byte)(*this)[i]) < 0x80)
+#endif
                 len++;
         return len;
     }
@@ -766,16 +805,34 @@ namespace Shared { namespace Util {
 		int len = 0;
 		for(unsigned int i = 0 ; i < length; i++)
 		{
+#ifndef WIN32
 			if (((Shared::Platform::byte)str[i]) < 0x80)
+#else
+			if (((byte)str[i]) < 0x80)
+#endif
 			{
+#ifndef WIN32
 				pBuffer[len++] = ((Shared::Platform::byte)str[i]);
+#else
+				pBuffer[len++] = ((byte)str[i]);
+#endif
 				continue;
 			}
+#ifndef WIN32
 			if (((Shared::Platform::byte)str[i]) >= 0xC0)
 			{
 				wchar_t c = ((Shared::Platform::byte)str[i++]) - 0xC0;
 				while(((Shared::Platform::byte)str[i]) >= 0x80)
 					c = (c << 6) | (((Shared::Platform::byte)str[i++]) - 0x80);
+#else
+			if (((byte)str[i]) >= 0xC0)
+			{
+				wchar_t c = ((byte)str[i++]) - 0xC0;
+				while(((byte)str[i]) >= 0x80)
+					c = (c << 6) | (((byte)str[i++]) - 0x80);
+
+#endif
+
 				--i;
 				pBuffer[len++] = c;
 				continue;
@@ -834,7 +891,7 @@ namespace Shared { namespace Util {
 
 	bool is_string_all_ascii(std::string str) {
 		bool result = true;
-		for(int i = 0; i < str.length(); ++i) {
+		for(unsigned int i = 0; i < str.length(); ++i) {
 			if(isascii(str[i]) == false) {
 				result = false;
 				break;
