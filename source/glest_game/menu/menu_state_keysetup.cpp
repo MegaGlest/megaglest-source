@@ -18,6 +18,7 @@
 #include "menu_state_options.h"
 #include "menu_state_root.h"
 #include "metrics.h"
+#include "string_utils.h"
 
 #include "leak_dumper.h"
 
@@ -367,10 +368,16 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 //		keyName = SDL_GetKeyName(keysym);
 //	}
 
+	char szCharText[20]="";
+	sprintf(szCharText,"%c",hotkeyChar);
+	char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+
 	char szBuf[1024] = "";
 	//sprintf(szBuf,"%s [%d][%d]",keyName.c_str(),key.keysym.sym,keysym);
-	sprintf(szBuf,"%s [%c][%d][%d][%d]",keyName.c_str(),hotkeyChar,key.keysym.sym,hotkeyChar,key.keysym.unicode);
+	sprintf(szBuf,"%s [%s][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.unicode);
 	labelTestValue.setText(szBuf);
+
+	delete [] utfStr;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] hotkeyChar [%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar);
 }
