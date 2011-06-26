@@ -691,22 +691,30 @@ const SkillType *UnitType::getSkillType(const string &skillName, SkillClass skil
 
 int UnitType::getTotalMaxHp(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->maxHp),this->maxHp);
-	return maxHp + totalUpgrade->getMaxHp();
+	int result = maxHp + totalUpgrade->getMaxHp();
+	result = max(0,result);
+	return result;
 }
 
 int UnitType::getTotalMaxEp(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->maxEp),this->maxEp);
-	return maxEp + totalUpgrade->getMaxEp();
+	int result = maxEp + totalUpgrade->getMaxEp();
+	result = max(0,result);
+	return result;
 }
 
 int UnitType::getTotalArmor(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->armor),this->armor);
-	return armor + totalUpgrade->getArmor();
+	int result = armor + totalUpgrade->getArmor();
+	result = max(0,result);
+	return result;
 }
 
 int UnitType::getTotalSight(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->sight),this->sight);
-	return sight + totalUpgrade->getSight();
+	int result = sight + totalUpgrade->getSight();
+	result = max(0,result);
+	return result;
 }
 
 // ==================== has ====================

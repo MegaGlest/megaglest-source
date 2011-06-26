@@ -1834,6 +1834,7 @@ void Unit::applyUpgrade(const UpgradeType *upgradeType){
 
 		checkItemInVault(&this->hp,this->hp);
 		hp += upgradeType->getMaxHp();
+		hp = max(0,hp);
 		addItemToVault(&this->hp,this->hp);
 	}
 }
