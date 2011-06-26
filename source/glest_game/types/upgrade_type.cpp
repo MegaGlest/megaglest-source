@@ -39,14 +39,139 @@ namespace Glest{ namespace Game{
 
 void UpgradeTypeBase::load(const XmlNode *upgradeNode) {
 	//values
+	maxHpIsMultiplier = false;
 	maxHp= upgradeNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+	if(upgradeNode->getChild("max-hp")->getAttribute("value-percent-multipler",false) != NULL) {
+		maxHpIsMultiplier = upgradeNode->getChild("max-hp")->getAttribute("value-percent-multipler")->getBoolValue();
+
+		//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
+	}
+
+	maxEpIsMultiplier = false;
 	maxEp= upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
+	if(upgradeNode->getChild("max-ep")->getAttribute("value-percent-multipler",false) != NULL) {
+		maxEpIsMultiplier = upgradeNode->getChild("max-ep")->getAttribute("value-percent-multipler")->getBoolValue();
+
+		//printf("Found maxEpIsMultiplier = %d\n",maxEpIsMultiplier);
+	}
+
+	sightIsMultiplier = false;
 	sight= upgradeNode->getChild("sight")->getAttribute("value")->getIntValue();
+	if(upgradeNode->getChild("sight")->getAttribute("value-percent-multipler",false) != NULL) {
+		sightIsMultiplier = upgradeNode->getChild("sight")->getAttribute("value-percent-multipler")->getBoolValue();
+
+		//printf("Found sightIsMultiplier = %d\n",sightIsMultiplier);
+	}
+
+	attackStrengthIsMultiplier = false;
 	attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
+	if(upgradeNode->getChild("attack-strenght")->getAttribute("value-percent-multipler",false) != NULL) {
+		attackStrengthIsMultiplier = upgradeNode->getChild("attack-strenght")->getAttribute("value-percent-multipler")->getBoolValue();
+
+		//printf("Found attackStrengthIsMultiplier = %d\n",attackStrengthIsMultiplier);
+	}
+
+	attackRangeIsMultiplier = false;
 	attackRange= upgradeNode->getChild("attack-range")->getAttribute("value")->getIntValue();
+	if(upgradeNode->getChild("attack-range")->getAttribute("value-percent-multipler",false) != NULL) {
+		attackRangeIsMultiplier = upgradeNode->getChild("attack-range")->getAttribute("value-percent-multipler")->getBoolValue();
+
+		//printf("Found attackRangeIsMultiplier = %d\n",attackRangeIsMultiplier);
+	}
+
+	armorIsMultiplier = false;
 	armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
+	if(upgradeNode->getChild("armor")->getAttribute("value-percent-multipler",false) != NULL) {
+		armorIsMultiplier = upgradeNode->getChild("armor")->getAttribute("value-percent-multipler")->getBoolValue();
+
+		//printf("Found armorIsMultiplier = %d\n",armorIsMultiplier);
+	}
+
+	moveSpeedIsMultiplier = false;
 	moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
+	if(upgradeNode->getChild("move-speed")->getAttribute("value-percent-multipler",false) != NULL) {
+		moveSpeedIsMultiplier = upgradeNode->getChild("move-speed")->getAttribute("value-percent-multipler")->getBoolValue();
+
+		//printf("Found moveSpeedIsMultiplier = %d\n",moveSpeedIsMultiplier);
+	}
+
+	prodSpeedIsMultiplier = false;
 	prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
+	if(upgradeNode->getChild("production-speed")->getAttribute("value-percent-multipler",false) != NULL) {
+		prodSpeedIsMultiplier = upgradeNode->getChild("production-speed")->getAttribute("value-percent-multipler")->getBoolValue();
+
+		//printf("Found prodSpeedIsMultiplier = %d\n",prodSpeedIsMultiplier);
+	}
+}
+
+int UpgradeTypeBase::getAttackStrength(const AttackSkillType *st) const	{
+	if(attackStrengthIsMultiplier == false || st == NULL) {
+		return attackStrength;
+	}
+	else {
+		int result = 0;
+		if(attackStrengthMultiplierValueList.find(st->getName()) != attackStrengthMultiplierValueList.end()) {
+			result = attackStrengthMultiplierValueList.find(st->getName())->second;
+		}
+		return result;
+	}
+}
+int UpgradeTypeBase::getAttackRange(const AttackSkillType *st) const {
+	if(attackRangeIsMultiplier == false || st == NULL) {
+		return attackRange;
+	}
+	else {
+		int result = 0;
+		if(attackRangeMultiplierValueList.find(st->getName()) != attackRangeMultiplierValueList.end()) {
+			result = attackRangeMultiplierValueList.find(st->getName())->second;
+		}
+		return result;
+	}
+}
+
+int UpgradeTypeBase::getMoveSpeed(const MoveSkillType *st) const {
+	if(moveSpeedIsMultiplier == false || st == NULL) {
+		//printf("getMoveSpeed moveSpeedIsMultiplier OFF st [%p]\n",st);
+		return moveSpeed;
+	}
+	else {
+		int result = 0;
+		if(moveSpeedIsMultiplierValueList.find(st->getName()) != moveSpeedIsMultiplierValueList.end()) {
+			result = moveSpeedIsMultiplierValueList.find(st->getName())->second;
+		}
+
+		//printf("getMoveSpeed moveSpeedIsMultiplier mst->getSpeed() = %d for skill [%s] result = %d\n",st->getSpeed(),st->getName().c_str(),result);
+		return result;
+	}
+}
+
+int UpgradeTypeBase::getProdSpeed(const SkillType *st) const {
+	if(prodSpeedIsMultiplier == false || st == NULL) {
+		return prodSpeed;
+	}
+	else {
+		int result = 0;
+		if(dynamic_cast<const ProduceSkillType *>(st) != NULL) {
+			if(prodSpeedProduceIsMultiplierValueList.find(st->getName()) != prodSpeedProduceIsMultiplierValueList.end()) {
+				result = prodSpeedProduceIsMultiplierValueList.find(st->getName())->second;
+			}
+		}
+		else if(dynamic_cast<const UpgradeSkillType *>(st) != NULL) {
+			if(prodSpeedUpgradeIsMultiplierValueList.find(st->getName()) != prodSpeedUpgradeIsMultiplierValueList.end()) {
+				result = prodSpeedUpgradeIsMultiplierValueList.find(st->getName())->second;
+			}
+		}
+		else if(dynamic_cast<const MorphSkillType *>(st) != NULL) {
+			if(prodSpeedMorphIsMultiplierValueList.find(st->getName()) != prodSpeedMorphIsMultiplierValueList.end()) {
+				result = prodSpeedMorphIsMultiplierValueList.find(st->getName())->second;
+			}
+		}
+		else {
+			throw runtime_error("Unsupported skilltype in getProdSpeed!");
+		}
+
+		return result;
+	}
 }
 
 bool UpgradeType::isAffected(const UnitType *unitType) const{
@@ -166,14 +291,6 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		sortedItems.clear();
 
 		//values
-//		maxHp= upgradeNode->getChild("max-hp")->getAttribute("value")->getIntValue();
-//		maxEp= upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
-//		sight= upgradeNode->getChild("sight")->getAttribute("value")->getIntValue();
-//		attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
-//		attackRange= upgradeNode->getChild("attack-range")->getAttribute("value")->getIntValue();
-//		armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
-//		moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
-//		prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
 		UpgradeTypeBase::load(upgradeNode);
 	}
 	catch(const exception &e){
@@ -247,45 +364,214 @@ void TotalUpgrade::reset() {
     prodSpeed=0;
 }
 
-void TotalUpgrade::sum(const UpgradeTypeBase *ut) {
-	maxHp+= ut->getMaxHp();
-	//maxHp = max(0,maxHp);
-	maxEp+= ut->getMaxEp();
-	//maxEp = max(0,maxEp);
-	sight+= ut->getSight();
-	//sight = max(0,sight);
-	armor+= ut->getArmor();
-	//armor = max(0,armor);
-	attackStrength+= ut->getAttackStrength();
-	//attackStrength = max(0,attackStrength);
-	attackRange+= ut->getAttackRange();
-	//attackRange = max(0,attackRange);
-	moveSpeed+= ut->getMoveSpeed();
-	//moveSpeed = max(0,moveSpeed);
-    prodSpeed+= ut->getProdSpeed();
-    //prodSpeed = max(0,prodSpeed);
+void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
+	maxHpIsMultiplier			= ut->getMaxHpIsMultiplier();
+	sightIsMultiplier			= ut->getSightIsMultiplier();
+	maxEpIsMultiplier			= ut->getMaxEpIsMultiplier();
+	armorIsMultiplier			= ut->getArmorIsMultiplier();
+	attackStrengthIsMultiplier	= ut->getAttackStrengthIsMultiplier();
+	attackRangeIsMultiplier		= ut->getAttackRangeIsMultiplier();
+	moveSpeedIsMultiplier		= ut->getMoveSpeedIsMultiplier();
+	prodSpeedIsMultiplier		= ut->getProdSpeedIsMultiplier();
+
+	if(ut->getMaxHpIsMultiplier() == true) {
+		maxHp += (unit->getHp() * (ut->getMaxHp() / 100));
+	}
+	else {
+		maxHp += ut->getMaxHp();
+	}
+
+	if(ut->getMaxEpIsMultiplier() == true) {
+		maxEp += (unit->getEp() * (ut->getMaxEp() / 100));
+	}
+	else {
+		maxEp += ut->getMaxEp();
+	}
+
+	if(ut->getSightIsMultiplier() == true) {
+		sight += (unit->getType()->getSight() * (ut->getSight() / 100));
+	}
+	else {
+		sight += ut->getSight();
+	}
+
+	if(ut->getArmorIsMultiplier() == true) {
+		armor += (unit->getType()->getArmor() * (ut->getArmor() / 100));
+	}
+	else {
+		armor += ut->getArmor();
+	}
+
+	if(ut->getAttackStrengthIsMultiplier() == true) {
+		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+			const SkillType *skillType = unit->getType()->getSkillType(i);
+			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
+			if(ast != NULL) {
+				attackStrengthMultiplierValueList[ast->getName()] += (ast->getAttackStrength() * (ut->getAttackStrength(NULL) / 100));
+			}
+		}
+	}
+	else {
+		attackStrength += ut->getAttackStrength(NULL);
+	}
+
+	if(ut->getAttackRangeIsMultiplier() == true) {
+		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+			const SkillType *skillType = unit->getType()->getSkillType(i);
+			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
+			if(ast != NULL) {
+				attackRangeMultiplierValueList[ast->getName()] += (ast->getAttackRange() * (ut->getAttackRange(NULL) / 100));
+			}
+		}
+	}
+	else {
+		attackRange += ut->getAttackRange(NULL);
+	}
+
+	if(ut->getMoveSpeedIsMultiplier() == true) {
+		//printf("BEFORE Applying moveSpeedIsMultiplier\n");
+
+		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+			const SkillType *skillType = unit->getType()->getSkillType(i);
+			const MoveSkillType *mst = dynamic_cast<const MoveSkillType *>(skillType);
+			if(mst != NULL) {
+				moveSpeedIsMultiplierValueList[mst->getName()] += (mst->getSpeed() * (ut->getMoveSpeed(NULL) / 100));
+
+				//printf("Applying moveSpeedIsMultiplier for unit [%s - %d], mst->getSpeed() = %d ut->getMoveSpeed(NULL) = %d newmoveSpeed = %d for skill [%s]\n",unit->getType()->getName().c_str(),unit->getId(), mst->getSpeed(),ut->getMoveSpeed(NULL),moveSpeedIsMultiplierValueList[mst->getName()],mst->getName().c_str());
+			}
+		}
+
+		//printf("AFTER Applying moveSpeedIsMultiplierd\n");
+	}
+	else {
+		moveSpeed += ut->getMoveSpeed(NULL);
+	}
+
+	if(ut->getProdSpeedIsMultiplier() == true) {
+		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+			const SkillType *skillType = unit->getType()->getSkillType(i);
+			const ProduceSkillType *pst = dynamic_cast<const ProduceSkillType *>(skillType);
+			if(pst != NULL) {
+				prodSpeedProduceIsMultiplierValueList[pst->getName()] += (pst->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+			}
+			const UpgradeSkillType *ust = dynamic_cast<const UpgradeSkillType *>(skillType);
+			if(ust != NULL) {
+				prodSpeedUpgradeIsMultiplierValueList[ust->getName()] += (ust->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+			}
+			const MorphSkillType *mst = dynamic_cast<const MorphSkillType *>(skillType);
+			if(mst != NULL) {
+				prodSpeedMorphIsMultiplierValueList[mst->getName()] += (mst->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+			}
+		}
+	}
+	else {
+		prodSpeed += ut->getProdSpeed(NULL);
+	}
+}
+
+void TotalUpgrade::apply(const UpgradeTypeBase *ut, const Unit *unit) {
+	sum(ut, unit);
+}
+
+void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
+	if(ut->getMaxHpIsMultiplier() == true) {
+		maxHp -= (unit->getHp() * (ut->getMaxHp() / 100));
+	}
+	else {
+		maxHp -= ut->getMaxHp();
+	}
+
+	if(ut->getMaxEpIsMultiplier() == true) {
+		maxEp -= (unit->getEp() * (ut->getMaxEp() / 100));
+	}
+	else {
+		maxEp -= ut->getMaxEp();
+	}
+
+	if(ut->getSightIsMultiplier() == true) {
+		sight -= (unit->getType()->getSight() * (ut->getSight() / 100));
+	}
+	else {
+		sight -= ut->getSight();
+	}
+
+	if(ut->getArmorIsMultiplier() == true) {
+		armor -= (unit->getType()->getArmor() * (ut->getArmor() / 100));
+	}
+	else {
+		armor -= ut->getArmor();
+	}
+
+	if(ut->getAttackStrengthIsMultiplier() == true) {
+		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+			const SkillType *skillType = unit->getType()->getSkillType(i);
+			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
+			if(ast != NULL) {
+				attackStrengthMultiplierValueList[ast->getName()] -= (ast->getAttackStrength() * (ut->getAttackStrength(NULL) / 100));
+			}
+		}
+	}
+	else {
+		attackStrength -= ut->getAttackStrength(NULL);
+	}
+
+	if(ut->getAttackRangeIsMultiplier() == true) {
+		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+			const SkillType *skillType = unit->getType()->getSkillType(i);
+			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
+			if(ast != NULL) {
+				attackRangeMultiplierValueList[ast->getName()] -= (ast->getAttackRange() * (ut->getAttackRange(NULL) / 100));
+			}
+		}
+	}
+	else {
+		attackRange -= ut->getAttackRange(NULL);
+	}
+
+	if(ut->getMoveSpeedIsMultiplier() == true) {
+		//printf("BEFORE Applying moveSpeedIsMultiplier, moveSpeed = %d, ut->getMoveSpeed() = %d\n",moveSpeed,ut->getMoveSpeed());
+
+		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+			const SkillType *skillType = unit->getType()->getSkillType(i);
+			const MoveSkillType *mst = dynamic_cast<const MoveSkillType *>(skillType);
+			if(mst != NULL) {
+				moveSpeedIsMultiplierValueList[mst->getName()] -= (mst->getSpeed() * (ut->getMoveSpeed(NULL) / 100));
+			}
+		}
+
+		//printf("AFTER Applying moveSpeedIsMultiplier, moveSpeed = %d\n",moveSpeed);
+	}
+	else {
+		moveSpeed -= ut->getMoveSpeed(NULL);
+	}
+
+	if(ut->getProdSpeedIsMultiplier() == true) {
+		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+			const SkillType *skillType = unit->getType()->getSkillType(i);
+			const ProduceSkillType *pst = dynamic_cast<const ProduceSkillType *>(skillType);
+			if(pst != NULL) {
+				prodSpeedProduceIsMultiplierValueList[pst->getName()] -= (pst->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+			}
+			const UpgradeSkillType *ust = dynamic_cast<const UpgradeSkillType *>(skillType);
+			if(ust != NULL) {
+				prodSpeedUpgradeIsMultiplierValueList[ust->getName()] -= (ust->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+			}
+			const MorphSkillType *mst = dynamic_cast<const MorphSkillType *>(skillType);
+			if(mst != NULL) {
+				prodSpeedMorphIsMultiplierValueList[mst->getName()] -= (mst->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+			}
+		}
+	}
+	else {
+		prodSpeed -= ut->getProdSpeed(NULL);
+	}
 }
 
 void TotalUpgrade::incLevel(const UnitType *ut) {
-	maxHp+= ut->getMaxHp()*50/100;
-	maxEp+= ut->getMaxEp()*50/100;
-	sight+= ut->getSight()*20/100;
-	armor+= ut->getArmor()*50/100;
-}
-
-void TotalUpgrade::apply(const UpgradeTypeBase *ut) {
-	sum(ut);
-}
-
-void TotalUpgrade::deapply(const UpgradeTypeBase *ut) {
-	maxHp-= ut->getMaxHp();
-	maxEp-= ut->getMaxEp();
-	sight-= ut->getSight();
-	armor-= ut->getArmor();
-	attackStrength-= ut->getAttackStrength();
-	attackRange-= ut->getAttackRange();
-	moveSpeed-= ut->getMoveSpeed();
-    prodSpeed-= ut->getProdSpeed();
+	maxHp += ut->getMaxHp()*50/100;
+	maxEp += ut->getMaxEp()*50/100;
+	sight += ut->getSight()*20/100;
+	armor += ut->getArmor()*50/100;
 }
 
 }}//end namespace

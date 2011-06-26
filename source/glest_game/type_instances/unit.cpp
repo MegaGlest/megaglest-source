@@ -1491,7 +1491,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		effect.source = source;
 
 		//if(boost->isAffected(source, this)) {
-			totalUpgrade.apply(&boost->boostUpgrade);
+			totalUpgrade.apply(&boost->boostUpgrade, this);
 
 			checkItemInVault(&this->hp,this->hp);
 			hp += boost->boostUpgrade.getMaxHp();
@@ -1524,7 +1524,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	//printf("DE-APPLYING ATTACK BOOST to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 
 	//if(boost->isAffected(source, this)) {
-		totalUpgrade.deapply(&boost->boostUpgrade);
+		totalUpgrade.deapply(&boost->boostUpgrade, this);
 
 		checkItemInVault(&this->hp,this->hp);
 		hp -= boost->boostUpgrade.getMaxHp();
@@ -1830,7 +1830,7 @@ void Unit::applyUpgrade(const UpgradeType *upgradeType){
 	}
 
 	if(upgradeType->isAffected(type)){
-		totalUpgrade.sum(upgradeType);
+		totalUpgrade.sum(upgradeType, this);
 
 		checkItemInVault(&this->hp,this->hp);
 		hp += upgradeType->getMaxHp();

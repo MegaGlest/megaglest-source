@@ -153,8 +153,8 @@ string MoveCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 
     str= name+"\n";
     str+= lang.get("WalkSpeed")+": "+ intToStr(moveSkillType->getSpeed());
-	if(totalUpgrade->getMoveSpeed()!=0){
-        str+= "+" + intToStr(totalUpgrade->getMoveSpeed());
+	if(totalUpgrade->getMoveSpeed(moveSkillType) != 0) {
+        str+= "+" + intToStr(totalUpgrade->getMoveSpeed(moveSkillType));
 	}
     str+="\n";
 	if(moveSkillType->getEpCost()!=0){
@@ -218,8 +218,8 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     str+= intToStr(attackSkillType->getAttackStrength()-attackSkillType->getAttackVar());
     str+= "...";
     str+= intToStr(attackSkillType->getAttackStrength()+attackSkillType->getAttackVar());
-	if(totalUpgrade->getAttackStrength()!=0){
-        str+= "+"+intToStr(totalUpgrade->getAttackStrength());
+	if(totalUpgrade->getAttackStrength(attackSkillType) != 0) {
+        str+= "+"+intToStr(totalUpgrade->getAttackStrength(attackSkillType));
 	}
 	str+= " ("+ attackSkillType->getAttackType()->getName() +")";
     str+= "\n";
@@ -231,8 +231,8 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 
     //attack distance
     str+= lang.get("AttackDistance")+": "+intToStr(attackSkillType->getAttackRange());
-	if(totalUpgrade->getAttackRange()!=0){
-        str+= "+"+intToStr(totalUpgrade->getAttackRange()!=0);
+	if(totalUpgrade->getAttackRange(attackSkillType) != 0) {
+        str+= "+"+intToStr(totalUpgrade->getAttackRange(attackSkillType) != 0);
 	}
     str+="\n";
 
@@ -249,8 +249,8 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 
     //movement speed
     str+= lang.get("WalkSpeed")+": "+ intToStr(moveSkillType->getSpeed()) ;
-	if(totalUpgrade->getMoveSpeed()!=0){
-        str+= "+"+intToStr(totalUpgrade->getMoveSpeed());
+	if(totalUpgrade->getMoveSpeed(moveSkillType) != 0) {
+        str+= "+"+intToStr(totalUpgrade->getMoveSpeed(moveSkillType));
 	}
     str+="\n";
 
@@ -310,8 +310,8 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
     str+= intToStr(attackSkillType->getAttackStrength()-attackSkillType->getAttackVar());
     str+="...";
     str+= intToStr(attackSkillType->getAttackStrength()+attackSkillType->getAttackVar());
-    if(totalUpgrade->getAttackStrength()!=0)
-        str+= "+"+intToStr(totalUpgrade->getAttackStrength());
+    if(totalUpgrade->getAttackStrength(attackSkillType) != 0)
+        str+= "+"+intToStr(totalUpgrade->getAttackStrength(attackSkillType));
     str+= " ("+ attackSkillType->getAttackType()->getName() +")";
     str+="\n";
 
@@ -322,8 +322,8 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
 
     //attack distance
     str+= lang.get("AttackDistance")+": "+intToStr(attackSkillType->getAttackRange());
-	if(totalUpgrade->getAttackRange()!=0){
-        str+= "+"+intToStr(totalUpgrade->getAttackRange()!=0);
+	if(totalUpgrade->getAttackRange(attackSkillType) != 0) {
+        str+= "+"+intToStr(totalUpgrade->getAttackRange(attackSkillType) != 0);
 	}
     str+="\n";
 
@@ -636,8 +636,8 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 
     //prod speed
     str+= lang.get("ProductionSpeed")+": "+ intToStr(produceSkillType->getSpeed());
-	if(totalUpgrade->getProdSpeed()!=0){
-        str+="+" + intToStr(totalUpgrade->getProdSpeed());
+	if(totalUpgrade->getProdSpeed(produceSkillType)!=0){
+        str+="+" + intToStr(totalUpgrade->getProdSpeed(produceSkillType));
 	}
     str+="\n";
 

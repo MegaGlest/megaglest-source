@@ -213,7 +213,7 @@ void UpgradeManager::computeTotalUpgrade(const Unit *unit, TotalUpgrade *totalUp
 		if((*it)->getFactionIndex() == unit->getFactionIndex()
 			&& (*it)->getType()->isAffected(unit->getType())
 			&& (*it)->getState()==usUpgraded)
-			totalUpgrade->sum((*it)->getType());	
+			totalUpgrade->sum((*it)->getType(), unit);
 	}
 
 }
