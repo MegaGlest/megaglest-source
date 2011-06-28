@@ -1450,14 +1450,14 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 	if(lineHeight < h) {
 		//pos.y += ((float)h / 2.f);
 		//pos.y -= ((float(h) / 2.f) - (lineHeight / 2.f));
-		pos.y += (lineHeight / 2.f) + 2;
+		pos.y += (lineHeight / 2.f) + FontMetrics::DEFAULT_Y_OFFSET_FACTOR;
 		//pos.y -= h;
 		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
 
 		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
 	}
 	else {
-		pos.y += ((float)h / 2.f) - 2;
+		pos.y += ((float)h / 2.f) - FontMetrics::DEFAULT_Y_OFFSET_FACTOR;
 	}
 	return pos;
 }

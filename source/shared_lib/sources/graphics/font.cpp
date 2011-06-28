@@ -36,9 +36,10 @@ int Font::charCount							= 256;
 std::string Font::fontTypeName 				= "Times New Roman";
 bool Font::fontIsMultibyte 					= false;
 bool Font::forceLegacyFonts					= false;
-float FontMetrics::DEFAULT_Y_OFFSET_FACTOR	= 8.0f;
+float FontMetrics::DEFAULT_Y_OFFSET_FACTOR	= 0.0f;
 bool Font::fontIsRightToLeft				= false;
-float Font::scaleFontValue					= 0.65;
+float Font::scaleFontValue					= 0.75;
+//int Font::scaleFontYOffset					= 0;
 //
 
 // =====================================================
