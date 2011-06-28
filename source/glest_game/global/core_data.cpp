@@ -334,7 +334,10 @@ int CoreData::computeFontSize(int size) {
 		rs = size * screenH / 1024;
 	}
 	else {
-		rs = ((float)size * 0.80);
+		if(Renderer::renderText3DEnabled) {
+			//rs = ((float)size * 0.85);
+			//rs = 24;
+		}
 		//int screenH = config.getInt("ScreenHeight");
 		//rs = size * screenH / 1024;
 
