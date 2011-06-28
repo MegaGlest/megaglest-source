@@ -2956,6 +2956,7 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 				SDLKey key = extractKeyPressed(c);
 				//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
 				//   (c=='-') || (c=='(') || (c==')')) {
+				if(isAllowedInputTextKey(key)) {
 					if(activeInputLabel->getText().size() < maxTextSize) {
 						string text= activeInputLabel->getText();
 						//text.insert(text.end()-1, key);
@@ -2973,7 +2974,7 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 				            lastSetChangedGameSettings   = time(NULL);
 				        }
 					}
-				//}
+				}
 			}
 	    }
 	}

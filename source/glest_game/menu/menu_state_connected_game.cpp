@@ -2146,6 +2146,7 @@ void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 				SDLKey key = extractKeyPressed(c);
 				//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
 				//   (c=='-') || (c=='(') || (c==')')) {
+				if(isAllowedInputTextKey(key)) {
 					if(activeInputLabel->getText().size() < maxTextSize) {
 						string text= activeInputLabel->getText();
 
@@ -2161,7 +2162,7 @@ void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 			            needToSetChangedGameSettings = true;
 			            lastSetChangedGameSettings   = time(NULL);
 					}
-				//}
+				}
 			}
 	    }
 	}
