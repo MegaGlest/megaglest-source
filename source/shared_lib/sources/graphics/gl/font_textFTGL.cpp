@@ -121,6 +121,11 @@ void TextFTGL::init(string fontName, int fontSize) {
 	}
 	else if(type == ftht_3D) {
 		ftFont = new FTGLTextureFont(fontFile);
+
+		//ftFont = new FTBufferFont(fontFile);
+		//ftFont = new FTGLExtrdFont(fontFile);
+		//ftFont = new FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
+
 		//printf("3D font [%s]\n",fontFile);
 	}
 	else {

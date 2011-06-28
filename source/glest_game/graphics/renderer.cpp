@@ -1440,13 +1440,13 @@ void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, 
 }
 
 Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, int w, int h) {
-	float lineWidth = font->getTextHandler()->Advance(text.c_str());
+	float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * Font::scaleFontValue);
 	if(lineWidth < w) {
 		pos.x += ((w / 2.f) - (lineWidth / 2.f));
 	}
 
 	//h /= 2.f;
-	float lineHeight = font->getTextHandler()->LineHeight(text.c_str());
+	float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
 	if(lineHeight < h) {
 		//pos.y += ((float)h / 2.f);
 		//pos.y -= ((float(h) / 2.f) - (lineHeight / 2.f));

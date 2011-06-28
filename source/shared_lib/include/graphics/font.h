@@ -65,6 +65,7 @@ public:
 	static bool fontIsMultibyte;
 	static bool forceLegacyFonts;
 	static bool fontIsRightToLeft;
+	static float scaleFontValue;
 	
 public:
 	enum Width {

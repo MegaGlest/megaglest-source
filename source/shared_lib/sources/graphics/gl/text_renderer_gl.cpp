@@ -435,7 +435,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 	const unsigned char *utext= NULL;
 	//assertGl();
 
-	glMatrixMode(GL_MODELVIEW);
+	//glMatrixMode(GL_TEXTURE);
 
 	//assertGl();
 
@@ -518,11 +518,20 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 
 	//assertGl();
 
+	float scaleX = Font::scaleFontValue;
+	float scaleY = Font::scaleFontValue;
+	float scaleZ = 1.0;
+
+	//int scaleWidthX = (font->getTextHandler()->Advance(renderText.c_str()) * scaleX) / 2.0;
+	//glTranslatef(translatePos.x + scaleWidthX, translatePos.y, translatePos.z);
 	glTranslatef(translatePos.x, translatePos.y, translatePos.z);
 
 	//assertGl();
 
 	//glScalef(scaleX, scaleY, scaleZ);
+
+
+	//glTranslatef(0.45, 0.45, 1.0);
 
 	//assertGl();
 
@@ -530,6 +539,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 	// specialFTGLErrorCheckWorkaround(text);
 
 	if(font->getTextHandler() != NULL) {
+		glScalef(scaleX, scaleY, scaleZ);
 		if(text.find("\n") == renderText.npos && renderText.find("\t") == renderText.npos) {
 			//assertGl();
 			font->getTextHandler()->Render(renderText.c_str());
@@ -577,7 +587,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 						{
 						line++;
 						//assertGl();
-						float yLineValue = font->getTextHandler()->LineHeight(parts[i].c_str());
+						float yLineValue = (font->getTextHandler()->LineHeight(parts[i].c_str()) * Font::scaleFontValue);
 						//assertGl();
 						translatePos= Vec3f(translatePos.x, translatePos.y - yLineValue, translatePos.z);
 						needsRecursiveRender = true;
@@ -589,6 +599,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 							glPushMatrix();
 							glLoadIdentity();
 							glTranslatef(translatePos.x, translatePos.y, translatePos.z);
+							glScalef(scaleX, scaleY, scaleZ);
 							font->getTextHandler()->Render(parts[i].c_str());
 							specialFTGLErrorCheckWorkaround(parts[i]);
 							glPopMatrix();
@@ -645,6 +656,9 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 	if(color != NULL) {
 		glPopAttrib();
 	}
+
+	//assertGl();
+	//glDisable(GL_TEXTURE_2D);
 
 	assertGl();
 }
