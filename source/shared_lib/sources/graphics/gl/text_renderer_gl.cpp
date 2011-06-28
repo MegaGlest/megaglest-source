@@ -412,7 +412,7 @@ void TextRenderer3DGl::specialFTGLErrorCheckWorkaround(string text) {
 			printf("\n**FTGL Error = %d for text [%s] currentFTGLErrorCount = %d\n\n",error,text.c_str(),currentFTGLErrorCount);
 			fflush(stdout);
 
-			//assertGlWithErrorNumber(error);
+			assertGlWithErrorNumber(error);
 		}
 		else {
 			//printf("\n**FTGL #2 Error = %d for text [%s] currentFTGLErrorCount = %d\n\n",error,text.c_str(),currentFTGLErrorCount);

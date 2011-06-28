@@ -47,21 +47,20 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 	labelAdditionalCredits.init(500, 700);
 	labelAdditionalCredits.setText(additionalCredits);
 
-	if(additionalCredits == ""){
+	if(additionalCredits == "") {
 		for(int i= 0; i < aboutStringCount1; ++i){
 			labelAbout1[i].registerGraphicComponent(containerName, "labelAbout1" + intToStr(i));
-			labelAbout1[i].init(100, 750 - i * 20);
+			labelAbout1[i].init(100, 700 - i * 20);
 			labelAbout1[i].setText(getAboutString1(i));
 		}
 
 		for(int i= 0; i < aboutStringCount2; ++i){
 			labelAbout2[i].registerGraphicComponent(containerName, "labelAbout2" + intToStr(i));
-			labelAbout2[i].init(450, 650 - i * 20);
+			labelAbout2[i].init(450, 620 - i * 20);
 			labelAbout2[i].setText(getAboutString2(i));
 		}
 	}
-	else
-	{
+	else {
 		for(int i= 0; i < aboutStringCount1; ++i){
 					labelAbout1[i].registerGraphicComponent(containerName, "labelAbout1" + intToStr(i));
 					labelAbout1[i].init(100, 700 - i * 20);
