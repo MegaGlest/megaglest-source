@@ -1469,21 +1469,12 @@ void MenuStateCustomGame::render() {
 		if( enableMapPreview == true &&
 			mapPreview.hasFileLoaded() == true) {
 
-			//int mouseX = mainMenu->getMouseX();
-			//int mouseY = mainMenu->getMouseY();
-			//int mouse2dAnim = mainMenu->getMouse2dAnim();
-
-		    //renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
-
 		    if(mapPreviewTexture == NULL) {
 		    	bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);
 		    	//printf("=================> Rendering map preview into a texture BEFORE (%p)\n", mapPreviewTexture);
 		    	renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,&mapPreviewTexture);
 		    	//printf("=================> Rendering map preview into a texture AFTER (%p)\n", mapPreviewTexture);
 		    }
-		    //else {
-		    	//renderer.renderMapPreview(&mapPreview, renderAll, 10, 350);
-		    //}
 		}
 
 		if(hasNetworkGameSettings() == true) {
