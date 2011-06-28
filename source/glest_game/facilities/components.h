@@ -97,7 +97,7 @@ public:
 	virtual void setH(int h)					{this->h= h;}
 	virtual void setText(const string &text)	{this->text= text;}
 	virtual void setFont(Font2D *font)			{this->font= font;}
-	virtual void setFont3D(Font3D *font)		{this->font3D= font3D;}
+	virtual void setFont3D(Font3D *font)		{this->font3D= font;}
 	virtual void setEnabled(bool enabled)		{this->enabled= enabled;}
 	virtual void setEditable(bool editable)		{this->editable= editable;}
 	virtual void setVisible(bool value)			{this->visible = value;}

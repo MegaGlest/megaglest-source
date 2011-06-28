@@ -59,6 +59,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelAudioSection.registerGraphicComponent(containerName,"labelAudioSection");
 	labelAudioSection.init(currentLabelStart+captionOffset, currentLine);
 	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	labelAudioSection.setText(lang.get("Audio"));
 	currentLine-=lineOffset;
 
@@ -116,6 +117,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 	labelVideoSection.init(currentLabelStart+captionOffset, currentLine);
 	labelVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	labelVideoSection.setText(lang.get("Video"));
 	currentLine-=lineOffset;
 
@@ -277,6 +279,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 	labelMiscSection.init(currentLabelStart+captionOffset, currentLine);
 	labelMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	labelMiscSection.setText(lang.get("Misc"));
 	currentLine-=lineOffset;
 
@@ -307,6 +310,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelPlayerName.init(currentColumnStart,currentLine);
 	labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 	labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
+	labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	currentLine-=lineOffset;
 
 	//FontSizeAdjustment
@@ -352,6 +356,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 	labelNetworkSettings.init(currentLabelStart+captionOffset, currentLine);
 	labelNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	labelNetworkSettings.setText(lang.get("Network"));
 	currentLine-=lineOffset;
 	// server port

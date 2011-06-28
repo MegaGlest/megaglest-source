@@ -180,6 +180,7 @@ void TextFTGL::Render(const char* str, const int len) {
 	  but we don't want any text rendered then.
 	*/
 	if(len != 0) {
+		//printf("FTGL Render [%s] facesize = %d\n",str,ftFont->FaceSize());
 		ftFont->Render(str, len);
 
 		if(ftFont->Error())	{

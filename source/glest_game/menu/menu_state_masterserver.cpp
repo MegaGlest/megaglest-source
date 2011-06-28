@@ -56,6 +56,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	//Configure ConsolePosition
 	consoleIRC.setYPos(60);
 	consoleIRC.setFont(CoreData::getInstance().getMenuFontNormal());
+	consoleIRC.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 	consoleIRC.setLineHeight(18);
 
 	serverLinesToRender=8;
@@ -102,18 +103,21 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	announcementLabel.registerGraphicComponent(containerName,"announcementLabel");
     announcementLabel.init(10, 730);
     announcementLabel.setFont(CoreData::getInstance().getMenuFontBig());
+    announcementLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
     announcementLabel.setText("");
 
     // versionInfo
     versionInfoLabel.registerGraphicComponent(containerName,"versionInfoLabel");
     versionInfoLabel.init(10, 680);
     versionInfoLabel.setFont(CoreData::getInstance().getMenuFontBig());
+    versionInfoLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
     versionInfoLabel.setText("");
 
 	// header
 	labelTitle.registerGraphicComponent(containerName,"labelTitle");
 	labelTitle.init(330, serverLinesYBase+40);
 	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTitle.setText(lang.get("AvailableServers"));
 
 	if(Config::getInstance().getString("Masterserver","") == "") {
@@ -257,6 +261,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     chatManager.setXPos(0);
     chatManager.setYPos(consoleIRC.getYPos()-20);
     chatManager.setFont(CoreData::getInstance().getMenuFontNormal());
+    chatManager.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	needUpdateFromServer = true;
 	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);
@@ -677,6 +682,7 @@ void MenuStateMasterserver::update() {
 	                button->init(userButtonsXBase,userButtonsYBase,userButtonsWidth,userButtonsHeight);
 	                //button->init(userButtonsXBase,userButtonsYBase-userButtonsLineHeight*i,userButtonsWidth,userButtonsHeight);
 					button->setFont(CoreData::getInstance().getDisplayFontSmall());
+					button->setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 					button->setText(nickList[i]);
 	                userButtons.push_back(button);
 	        }

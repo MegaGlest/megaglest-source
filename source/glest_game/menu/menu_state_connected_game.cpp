@@ -131,12 +131,14 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelInfo.init(30, networkHeadPos+30);
 	labelInfo.setText("");
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
+	labelInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
     timerLabelFlash = time(NULL);
     labelDataSynchInfo.registerGraphicComponent(containerName,"labelDataSynchInfo");
 	labelDataSynchInfo.init(30, networkHeadPos-60);
 	labelDataSynchInfo.setText("");
 	labelDataSynchInfo.setFont(CoreData::getInstance().getMenuFontBig());
+	labelDataSynchInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	//create
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
@@ -351,8 +353,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelTeam.setText(lang.get("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
+    labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
+	labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	//texts
 	buttonDisconnect.setText(lang.get("Return"));

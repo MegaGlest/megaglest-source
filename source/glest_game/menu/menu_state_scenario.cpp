@@ -59,6 +59,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
     labelInfo.init(startX, startY+130);
 	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
+	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(startX, startY, 125);

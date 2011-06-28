@@ -1006,7 +1006,9 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 			fontColor = defaultFontColor;
 			//xPosition += (8 * (playerName.length() + 2));
 			// Proper font spacing after username portion of chat text rendering
-			xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
+
+			//xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
+			xPosition += fontMetrics->getTextWidth(headerLine);
 		}
 	}
 	else if(lineInfo->originalPlayerName != "") {
@@ -1026,7 +1028,8 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
         fontColor = defaultFontColor;
         //xPosition += (8 * (playerName.length() + 2));
         // Proper font spacing after username portion of chat text rendering
-        xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
+        //xPosition += (metrics.toVirtualX(fontMetrics->getTextWidth(headerLine)));
+        xPosition += fontMetrics->getTextWidth(headerLine);
 	}
 	else {
 		fontColor = defaultFontColor;
@@ -1653,6 +1656,8 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 		if(color != NULL) {
 			if(renderText3DEnabled == true) {
 				//renderText3D(lines[i], label->getFont3D(), (*color), textPos.x, textPos.y, label->getCentered());
+				//printf("Text Render3D [%s] font3d [%p]\n",lines[i].c_str(),label->getFont3D());
+
 				renderTextBoundingBox3D(lines[i], label->getFont3D(), (*color), x, y, w, h, label->getCentered());
 			}
 			else {
@@ -1662,6 +1667,8 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 		else {
 			if(renderText3DEnabled == true) {
 				//renderText3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+				//printf("Text Render3D [%s] font3d [%p]\n",lines[i].c_str(),label->getFont3D());
+
 				renderTextBoundingBox3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), x, y, w, h, label->getCentered());
 			}
 			else {
@@ -2089,6 +2096,7 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 	label.init(listBox->getX(), listBox->getY(), listBox->getW(), listBox->getH(), true,listBox->getTextColor());
 	label.setText(listBox->getText());
 	label.setFont(listBox->getFont());
+	label.setFont3D(listBox->getFont3D());
 	renderLabel(&label);
 
 
