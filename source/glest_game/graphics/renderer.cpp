@@ -5575,7 +5575,7 @@ void Renderer::beginRenderToTexture(Texture2D **renderToTexture) {
 void Renderer::endRenderToTexture(Texture2D **renderToTexture) {
 	static bool supportFBOs = Texture2DGl().supports_FBO_RBO();
 
-	if(supportFBOs == true && renderToTexture != NULL) {
+	if(supportFBOs == true && renderToTexture != NULL && *renderToTexture != NULL) {
 		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
 		if(texture != NULL) {
 			texture->dettachFrameBufferFromTexture();
@@ -5637,7 +5637,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 		}
 	}
 
-	if(supportFBOs == true && renderToTexture != NULL) {
+	if(supportFBOs == true && renderToTexture != NULL && *renderToTexture != NULL) {
 		cellSize  =1;
 		clientW = minDimension;
 		clientH = minDimension;
@@ -5678,7 +5678,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 	GLint viewport[4];	// Where The original Viewport Values Will Be Stored
 
-	if(supportFBOs == true && renderToTexture != NULL) {
+	if(supportFBOs == true && renderToTexture != NULL && *renderToTexture != NULL) {
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		glOrtho(0, clientW, 0, clientH, 0, 1);
 		glViewport(0, 0, clientW, clientH);
@@ -5692,7 +5692,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	glPushMatrix();
 	glLoadIdentity();
 
-	if(supportFBOs == false || renderToTexture == NULL) {
+	if(supportFBOs == false || renderToTexture == NULL ||  *renderToTexture == NULL) {
 		glTranslatef(static_cast<float>(screenPosX),static_cast<float>(screenPosY)-clientH,0.0f);
 	}
 
@@ -5849,7 +5849,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 	assertGl();
 
-	if(supportFBOs == true && renderToTexture != NULL) {
+	if(supportFBOs == true && renderToTexture != NULL && *renderToTexture != NULL) {
 		glLineWidth(14);
 		playerCrossSize = 24;
 	}
@@ -5909,7 +5909,7 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
-	if(supportFBOs == true && renderToTexture != NULL) {
+	if(supportFBOs == true && renderToTexture != NULL && *renderToTexture != NULL) {
 		Texture2DGl *texture = static_cast<Texture2DGl *>(*renderToTexture);
 		if(texture != NULL) {
 			texture->dettachFrameBufferFromTexture();
