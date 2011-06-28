@@ -80,6 +80,7 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 		labelTeammateName[i].init(100 + i * 180, 500);
 		labelTeammateRole[i].registerGraphicComponent(containerName, "labelTeammateRole" + intToStr(i));
 		labelTeammateRole[i].init(100 + i * 180, 520);
+
 		labelTeammateName[i].setText(getTeammateName(i));
 		labelTeammateRole[i].setText(getTeammateRole(i));
 	}

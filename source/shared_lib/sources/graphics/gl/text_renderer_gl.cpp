@@ -408,9 +408,14 @@ void TextRenderer3DGl::specialFTGLErrorCheckWorkaround(string text) {
 	if(error) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nIn [%s::%s Line: %d] error = %d for text [%s]\n\n",__FILE__,__FUNCTION__,__LINE__,error,text.c_str());
 
-		if(currentFTGLErrorCount > 0) {
-			printf("error = %d for text [%s]\n",error,text.c_str());
-			assertGlWithErrorNumber(error);
+		if(currentFTGLErrorCount > 5) {
+			printf("\n**FTGL Error = %d for text [%s] currentFTGLErrorCount = %d\n\n",error,text.c_str(),currentFTGLErrorCount);
+			fflush(stdout);
+
+			//assertGlWithErrorNumber(error);
+		}
+		else {
+			//printf("\n**FTGL #2 Error = %d for text [%s] currentFTGLErrorCount = %d\n\n",error,text.c_str(),currentFTGLErrorCount);
 		}
 
 		currentFTGLErrorCount++;
