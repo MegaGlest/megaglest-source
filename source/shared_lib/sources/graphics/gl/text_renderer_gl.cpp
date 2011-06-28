@@ -470,7 +470,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 			translatePos.x = x - (font->getTextHandler()->Advance(renderText.c_str()) / 2.f);
 			//assertGl();
 			//translatePos.y = y - (font->getTextHandler()->LineHeight(text.c_str()) / font->getYOffsetFactor());
-			translatePos.y = y - (font->getTextHandler()->LineHeight(renderText.c_str()) / 2.f);
+			translatePos.y = y - ((font->getTextHandler()->LineHeight(renderText.c_str()) * Font::scaleFontValue) / 2.f);
 			//assertGl();
 
 			translatePos.z = 0;

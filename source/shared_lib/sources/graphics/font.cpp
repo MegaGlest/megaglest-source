@@ -79,7 +79,7 @@ Text * FontMetrics::getTextHandler() {
 
 float FontMetrics::getTextWidth(const string &str) {
 	if(textHandler != NULL) {
-		return textHandler->Advance(str.c_str());
+		return (textHandler->Advance(str.c_str()) * Font::scaleFontValue);
 	}
 	else {
 		float width= 0.f;
@@ -103,7 +103,7 @@ float FontMetrics::getTextWidth(const string &str) {
 
 float FontMetrics::getHeight() const {
 	if(textHandler != NULL) {
-		return textHandler->LineHeight(" ");
+		return (textHandler->LineHeight(" ") * Font::scaleFontValue);
 	}
 	else {
 		return height;
