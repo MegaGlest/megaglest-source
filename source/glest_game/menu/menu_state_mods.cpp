@@ -93,32 +93,38 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyTechScrollBarTitle1.init(techInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTechScrollBarTitle1.setText(lang.get("TechTitle1"));
 	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyTechScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 	keyTechScrollBarTitle2.registerGraphicComponent(containerName,"keyTechScrollBarTitle2");
 	keyTechScrollBarTitle2.init(techInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
 	keyTechScrollBarTitle2.setText(lang.get("TechTitle2"));
 	keyTechScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyTechScrollBarTitle2.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	mapInfoXPos = 270;
 	keyMapScrollBarTitle1.registerGraphicComponent(containerName,"keyMapScrollBarTitle1");
 	keyMapScrollBarTitle1.init(mapInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyMapScrollBarTitle1.setText(lang.get("MapTitle1"));
 	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyMapScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 	keyMapScrollBarTitle2.registerGraphicComponent(containerName,"keyMapScrollBarTitle2");
 	keyMapScrollBarTitle2.init(mapInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
 	keyMapScrollBarTitle2.setText(lang.get("MapTitle2"));
 	keyMapScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyMapScrollBarTitle2.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	tilesetInfoXPos = 530;
 	keyTilesetScrollBarTitle1.registerGraphicComponent(containerName,"keyTilesetScrollBarTitle1");
 	keyTilesetScrollBarTitle1.init(tilesetInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTilesetScrollBarTitle1.setText(lang.get("TilesetTitle1"));
 	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyTilesetScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	scenarioInfoXPos = 760;
 	keyScenarioScrollBarTitle1.registerGraphicComponent(containerName,"keyScenarioScrollBarTitle1");
 	keyScenarioScrollBarTitle1.init(scenarioInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyScenarioScrollBarTitle1.setText(lang.get("ScenarioTitle1"));
 	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyScenarioScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	mainMessageBoxState = ftpmsg_None;
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");

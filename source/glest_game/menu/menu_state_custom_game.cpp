@@ -432,9 +432,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
     labelTeam.setText(lang.get("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
+    labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
     labelRMultiplier.setFont(CoreData::getInstance().getMenuFontBig());
+    labelRMultiplier.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
+	labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	//texts
 	buttonClearBlockedPlayers.setText(lang.get("BlockPlayerClear"));

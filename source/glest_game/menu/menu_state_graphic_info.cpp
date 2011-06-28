@@ -37,6 +37,7 @@ MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu)
 	labelMoreInfo.registerGraphicComponent(containerName,"labelMoreInfo");
 	labelMoreInfo.init(100, 520);
 	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+	labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 

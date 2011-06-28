@@ -45,16 +45,19 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
 		labelTitle.registerGraphicComponent(containerName,"labelTitle");
 		labelTitle.init(330,700);
 		labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
+		labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTitle.setText(lang.get("Keyboardsetup"));
 
 		labelTestTitle.registerGraphicComponent(containerName,"labelTestTitle");
 		labelTestTitle.init(50,700);
 		labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
+		labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTestTitle.setText(lang.get("KeyboardsetupTest"));
 
 		labelTestValue.registerGraphicComponent(containerName,"labelTestValue");
 		labelTestValue.init(50,670);
 		labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
+		labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTestValue.setText("");
 
 		// mainMassegeBox

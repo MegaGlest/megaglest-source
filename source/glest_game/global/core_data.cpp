@@ -274,6 +274,8 @@ void CoreData::load() {
 	menuFontVeryBig3D->setSize(menuFontNameVeryBigSize);
 	menuFontVeryBig3D->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 
+	//printf("CoreData menuFontVeryBig3D [%d] menuFontVeryBig3D [%p]\n",menuFontVeryBig3D->getSize(),menuFontVeryBig3D);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameVeryBig = [%s] menuFontNameVeryBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameVeryBig.c_str(),menuFontNameVeryBigSize);
 
 	//console font
@@ -333,6 +335,9 @@ int CoreData::computeFontSize(int size) {
 	}
 	else {
 		rs = ((float)size * 0.80);
+		//int screenH = config.getInt("ScreenHeight");
+		//rs = size * screenH / 1024;
+
 	}
 	//FontSizeAdjustment
 	rs += config.getInt("FontSizeAdjustment");
