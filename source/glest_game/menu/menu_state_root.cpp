@@ -226,7 +226,8 @@ void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
 	}
 	//else if(mainMessageBox.getEnabled() == true && key == vkReturn) {
 	else if(mainMessageBox.getEnabled() == true && isKeyPressed(SDLK_RETURN,key) == true) {
-		SDL_keysym keystate = Window::getKeystate();
+		//SDL_keysym keystate = Window::getKeystate();
+		SDL_keysym keystate = key.keysym;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate.mod [%d]\n",__FILE__,__FUNCTION__,__LINE__,keystate.mod);
 
 		//printf("---> keystate.mod [%d]\n",keystate.mod);

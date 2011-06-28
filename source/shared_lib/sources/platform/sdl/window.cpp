@@ -983,7 +983,7 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input) {
 	string pressKeyName = SDL_GetKeyName((SDLKey)c);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] compareKey [%d - %s] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,compareKey,compareKeyName.c_str(),c,pressKeyName.c_str(),result);
-	//printf ("In [%s::%s Line: %d] compareKey [%d - %s] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,compareKey,compareKeyName.c_str(),c,pressKeyName.c_str(),result);
+	//printf ("In [%s::%s Line: %d] pressed key [%d - %s] input.keysym.unicode [%d] mod = %d\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
 
 	return result;
 }
@@ -1011,9 +1011,65 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 	string inputKeyName = SDL_GetKeyName(input.keysym.sym);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] pressed key [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str());
-	//printf ("In [%s::%s Line: %d] pressed key [%d - %s] input [%d - %s] input.keysym.unicode [%d]\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str(),input.keysym.sym,inputKeyName.c_str(),input.keysym.unicode);
+	//printf ("In [%s::%s Line: %d] pressed key [%d - %s] input [%d - %s] input.keysym.unicode [%d] mod = %d\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str(),input.keysym.sym,inputKeyName.c_str(),input.keysym.unicode,input.keysym.mod);
 
 	return c;
+}
+
+bool isAllowedInputTextKey(SDLKey key) {
+	bool result = (
+	key != SDLK_DELETE &&
+	key != SDLK_BACKSPACE &&
+	key != SDLK_TAB &&
+	key != SDLK_CLEAR &&
+	key != SDLK_RETURN &&
+	key != SDLK_PAUSE &&
+	key != SDLK_UP &&
+	key != SDLK_DOWN &&
+	key != SDLK_RIGHT &&
+	key != SDLK_LEFT &&
+	key != SDLK_INSERT &&
+	key != SDLK_HOME &&
+	key != SDLK_END &&
+	key != SDLK_PAGEUP &&
+	key != SDLK_PAGEDOWN &&
+	key != SDLK_F1 &&
+	key != SDLK_F2 &&
+	key != SDLK_F3 &&
+	key != SDLK_F4 &&
+	key != SDLK_F5 &&
+	key != SDLK_F6 &&
+	key != SDLK_F7 &&
+	key != SDLK_F8 &&
+	key != SDLK_F9 &&
+	key != SDLK_F10 &&
+	key != SDLK_F11 &&
+	key != SDLK_F12 &&
+	key != SDLK_F13 &&
+	key != SDLK_F14 &&
+	key != SDLK_F15 &&
+	key != SDLK_NUMLOCK &&
+	key != SDLK_CAPSLOCK &&
+	key != SDLK_SCROLLOCK &&
+	key != SDLK_RSHIFT &&
+	key != SDLK_LSHIFT &&
+	key != SDLK_RCTRL &&
+	key != SDLK_LCTRL &&
+	key != SDLK_RALT &&
+	key != SDLK_LALT &&
+	key != SDLK_RMETA &&
+	key != SDLK_LMETA &&
+	key != SDLK_LSUPER &&
+	key != SDLK_RSUPER &&
+	key != SDLK_MODE &&
+	key != SDLK_HELP &&
+	key != SDLK_PRINT &&
+	key != SDLK_SYSREQ &&
+	key != SDLK_BREAK &&
+	key != SDLK_MENU &&
+	key != SDLK_POWER);
+
+	return result;
 }
 
 }}//end namespace

@@ -125,7 +125,7 @@ public:
 	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1, bool hardware_acceleration=false, bool fullscreen_anti_aliasing=false);
 	static const bool getIsFullScreen() { return isFullScreen; }
 	static void setIsFullScreen(bool value) { isFullScreen = value; }
-	static SDL_keysym getKeystate() { return keystate; }
+	//static SDL_keysym getKeystate() { return keystate; }
 
 	Window();
 	virtual ~Window();
@@ -197,7 +197,7 @@ private:
 
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input);
 SDLKey extractKeyPressed(SDL_KeyboardEvent input);
-
+bool isAllowedInputTextKey(SDLKey key);
 
 }}//end namespace
 

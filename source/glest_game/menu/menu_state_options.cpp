@@ -711,6 +711,7 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 				// no master server breaks, and a russian translation with game switched to KOI-8p encoding? probably irc too.
 				// (use Shared::Platform::charSet in shared_lib/include/platform/sdl/gl_wrap.h ?)
 				//(c=='-')||(c=='(')||(c==')')){
+			if(isAllowedInputTextKey(key)) {
 				if(activeInputLabel->getText().size()<maxTextSize){
 					string text= activeInputLabel->getText();
 					//text.insert(text.end()-1, key);
@@ -722,7 +723,7 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 
 					activeInputLabel->setText(text);
 				}
-			//}
+			}
 		}
 	}
 	else {

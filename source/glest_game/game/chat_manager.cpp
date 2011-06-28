@@ -113,7 +113,8 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 		if(isKeyPressed(SDLK_RETURN,key) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
-			SDL_keysym keystate = Window::getKeystate();
+			//SDL_keysym keystate = Window::getKeystate();
+			SDL_keysym keystate = key.keysym;
 			if(keystate.mod & (KMOD_LALT | KMOD_RALT)){
 				// alt+enter is ignored
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
@@ -185,7 +186,7 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 		//space is the first meaningful code
 		SDLKey key = extractKeyPressed(c);
-		if(key >= SDLK_SPACE) {
+		if(isAllowedInputTextKey(key)) {
 			char szCharText[20]="";
 			sprintf(szCharText,"%c",key);
 			char *utfStr = String::ConvertToUTF8(&szCharText[0]);
