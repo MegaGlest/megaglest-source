@@ -1450,7 +1450,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 	if(lineHeight < h) {
 		//pos.y += ((float)h / 2.f);
 		//pos.y -= ((float(h) / 2.f) - (lineHeight / 2.f));
-		pos.y += (lineHeight / 2.f);
+		pos.y += (lineHeight / 2.f) + 2;
 		//pos.y -= h;
 		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
 
