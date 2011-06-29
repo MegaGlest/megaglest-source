@@ -56,9 +56,12 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 
 	if(personalityType == fpt_Normal) {
 		// a1) preload units
-		string unitsPath= currentPath + "units/*.";
+		//string unitsPath= currentPath + "units/*.";
+		string unitsPath= currentPath + "units/";
 		vector<string> unitFilenames;
-		findAll(unitsPath, unitFilenames);
+		//findAll(unitsPath, unitFilenames);
+		findDirs(unitsPath, unitFilenames,false,false);
+
 		unitTypes.resize(unitFilenames.size());
 
 		for(int i = 0; i < unitTypes.size(); ++i) {
@@ -69,9 +72,12 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 		}
 
 		// a2) preload upgrades
-		string upgradesPath= currentPath + "upgrades/*.";
+		//string upgradesPath= currentPath + "upgrades/*.";
+		string upgradesPath= currentPath + "upgrades/";
 		vector<string> upgradeFilenames;
-		findAll(upgradesPath, upgradeFilenames, false, false);
+		//findAll(upgradesPath, upgradeFilenames, false, false);
+		findDirs(upgradesPath, upgradeFilenames,false,false);
+
 		upgradeTypes.resize(upgradeFilenames.size());
 		for(int i = 0; i < upgradeTypes.size(); ++i) {
 			string str= currentPath + "upgrades/" + upgradeFilenames[i];
