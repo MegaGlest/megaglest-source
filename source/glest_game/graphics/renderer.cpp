@@ -1445,20 +1445,25 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 		pos.x += ((w / 2.f) - (lineWidth / 2.f));
 	}
 
-	//h /= 2.f;
 	float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
-	if(lineHeight < h) {
-		//pos.y += ((float)h / 2.f);
-		//pos.y -= ((float(h) / 2.f) - (lineHeight / 2.f));
-		pos.y += (lineHeight / 2.f) + FontMetrics::DEFAULT_Y_OFFSET_FACTOR;
-		//pos.y -= h;
-		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
+	lineHeight= lineHeight / (2.f + 0.2f * FontMetrics::DEFAULT_Y_OFFSET_FACTOR);
+	pos.y += (h / 2.f) - (lineHeight / 2.f);
 
-		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
-	}
-	else {
-		pos.y += ((float)h / 2.f) - FontMetrics::DEFAULT_Y_OFFSET_FACTOR;
-	}
+//	//h /= 2.f;
+//	float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
+//	if(lineHeight < h) {
+//		//pos.y += ((float)h / 2.f);
+//		//pos.y -= ((float(h) / 2.f) - (lineHeight / 2.f));
+//		pos.y += (lineHeight / 2.f) + FontMetrics::DEFAULT_Y_OFFSET_FACTOR;
+//		//pos.y -= h;
+//		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
+//
+//		//printf("Center text [%s] h = %d, lineHeight = %f, pos.y = %f\n",text.c_str(),h,lineHeight,pos.y);
+//	}
+//	else {
+//		pos.y += ((float)h / 2.f) - FontMetrics::DEFAULT_Y_OFFSET_FACTOR;
+//	}
+
 	return pos;
 }
 
