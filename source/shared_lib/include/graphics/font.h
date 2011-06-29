@@ -66,6 +66,7 @@ public:
 	static bool forceLegacyFonts;
 	static bool fontIsRightToLeft;
 	static float scaleFontValue;
+	static int baseSize;
 	//static int scaleFontYOffset;
 	
 public:

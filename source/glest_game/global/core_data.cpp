@@ -344,6 +344,9 @@ int CoreData::computeFontSize(int size) {
 	}
 	//FontSizeAdjustment
 	rs += config.getInt("FontSizeAdjustment");
+	if(Font::forceLegacyFonts == false) {
+		rs += Font::baseSize; //basesize only for new font system
+	}
 	if(Font::forceLegacyFonts == true) {
 		if(rs < 10) {
 			rs= 10;

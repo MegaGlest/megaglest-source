@@ -2559,6 +2559,7 @@ int glestMain(int argc, char** argv) {
 		Font::fontTypeName 		= config.getString("FONT_TYPENAME",Font::fontTypeName.c_str());
 		Font::fontIsMultibyte 	= config.getBool("FONT_MULTIBYTE",intToStr(Font::fontIsMultibyte).c_str());
 		Font::fontIsRightToLeft	= config.getBool("FONT_RIGHTTOLEFT",intToStr(Font::fontIsRightToLeft).c_str());
+		Font::baseSize			= config.getInt("FONT_BASE_SIZE",intToStr(Font::baseSize).c_str());
 
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
@@ -2648,7 +2649,11 @@ int glestMain(int argc, char** argv) {
     	}
 
         lang.loadStrings(language);
-
+        if(	lang.hasString("FONT_BASE_SIZE")) {
+        			// 256 for English
+        			// 30000 for Chinese
+        			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE"));
+        }
         if(	lang.hasString("FONT_CHARCOUNT")) {
 			// 256 for English
 			// 30000 for Chinese
