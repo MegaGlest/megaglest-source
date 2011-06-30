@@ -1535,6 +1535,14 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 		Vec2i repairPos = command->getPos();
 		bool startRepairing = (repaired != NULL && rct->isRepairableUnitType(repaired->getType()) && repaired->isDamaged());
 
+		if(startRepairing == true) {
+			//printf("STARTING REPAIR, unit [%s - %d] for unit [%s - %d]\n",unit->getType()->getName().c_str(),unit->getId(),repaired->getType()->getName().c_str(),repaired->getId());
+//			for(unsigned int i = 0; i < rct->getRepairCount(); ++i) {
+//				const UnitType *rUnit = rct->getRepair(i);
+//				printf("Can repair unittype [%s]\n",rUnit->getName().c_str());
+//			}
+		}
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] repairPos = %s, startRepairing = %d\n",__FILE__,__FUNCTION__,__LINE__,repairPos.getString().c_str(),startRepairing);
 
 		if(startRepairing == false && peerUnitBuilder != NULL) {
@@ -1632,11 +1640,28 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
     else {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//if repairing
+		bool cancelRepair = false;
+    	//if repairing
 		if(repaired != NULL) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			unit->setTarget(repaired);
+			// Check if we can still repair the unit (may have morphed, etc)
+			bool canStillRepair = rct->isRepairableUnitType(repaired->getType());
+			if(canStillRepair == true) {
+				unit->setTarget(repaired);
+
+			}
+			else {
+				//printf("CANCELLING CURRENT REPAIR, unit [%s - %d] for unit [%s - %d]\n",unit->getType()->getName().c_str(),unit->getId(),repaired->getType()->getName().c_str(),repaired->getId());
+//				for(unsigned int i = 0; i < rct->getRepairCount(); ++i) {
+//					const UnitType *rUnit = rct->getRepair(i);
+//					printf("Can repair unittype [%s]\n",rUnit->getName().c_str());
+//				}
+
+				unit->setCurrSkill(scStop);
+				unit->finishCommand();
+				cancelRepair = true;
+			}
 		}
 		else if(peerUnitBuilder != NULL) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1644,7 +1669,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 			unit->setTargetPos(command->getPos());
 		}
 
-		if((repaired == NULL || repaired->repair()) &&
+		if(cancelRepair == false && (repaired == NULL || repaired->repair()) &&
 			peerUnitBuilder == NULL) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
 

@@ -594,6 +594,7 @@ string RepairCommandType::toString() const{
 bool RepairCommandType::isRepairableUnitType(const UnitType *unitType) const {
 	for(int i = 0; i < repairableUnits.size(); ++i) {
 		const UnitType *curUnitType = static_cast<const UnitType*>(repairableUnits[i]);
+		//printf("Lookup index = %d Can repair unittype [%s][%p] looking for [%s][%p] lookup found result = %d\n",i,curUnitType->getName().c_str(),curUnitType,unitType->getName().c_str(),unitType,(curUnitType == unitType));
 		if(curUnitType == unitType) {
             return true;
 		}
