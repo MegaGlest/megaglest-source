@@ -157,9 +157,9 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 			//printf("**FOUND ANIMATION [%s]\n",path.c_str());
 
 			AnimationAttributes animationAttributeList;
-			if(animationList[i]->getAttribute("fromHp",false) != NULL && animationList[i]->getAttribute("toHp",false) != NULL) {
-				animationAttributeList.fromHp = animationList[i]->getAttribute("fromHp")->getIntValue();
-				animationAttributeList.toHp = animationList[i]->getAttribute("toHp")->getIntValue();
+			if(animationList[i]->getAttribute("minHp",false) != NULL && animationList[i]->getAttribute("maxHp",false) != NULL) {
+				animationAttributeList.fromHp = animationList[i]->getAttribute("minHp")->getIntValue();
+				animationAttributeList.toHp = animationList[i]->getAttribute("maxHp")->getIntValue();
 			}
 			animationAttributes.push_back(animationAttributeList);
 		}
@@ -305,6 +305,8 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 							if(unit->getHp() >= attributes.fromHp && unit->getHp() <= attributes.toHp) {
 								modelIndex = i;
 								foundSpecificAnimation = true;
+
+								//printf("SELECTING Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",i,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
 								break;
 							}
 						}
@@ -315,6 +317,9 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 					//int modelIndex = random.randRange(0,animations.size()-1);
 					srand(time(NULL));
 					modelIndex = rand() % animations.size();
+
+					//const AnimationAttributes &attributes = animationAttributes[modelIndex];
+					//printf("SELECTING RANDOM Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",modelIndex,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
 				}
 			}
 		}
