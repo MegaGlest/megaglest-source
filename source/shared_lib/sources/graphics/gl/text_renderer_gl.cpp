@@ -592,6 +592,9 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 						{
 						line++;
 						//assertGl();
+						//printf("NEWLINE before [%s]\n",parts[i].c_str());
+						parts[i] = parts[i].erase(0);
+						//printf("NEWLINE after [%s]\n",parts[i].c_str());
 						float yLineValue = (font->getTextHandler()->LineHeight(parts[i].c_str()) * Font::scaleFontValue);
 						//assertGl();
 						translatePos= Vec3f(translatePos.x, translatePos.y - yLineValue, translatePos.z);
