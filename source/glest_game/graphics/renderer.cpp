@@ -2456,6 +2456,8 @@ void Renderer::renderSurface(const int renderFps) {
 				glNormalPointer(GL_FLOAT, 0, &normals[0]);
 
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+				//unsigned short faceIndices[4] = {0, 1, 2, 3};
+				//glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, &faceIndices[0]);
 
 				glClientActiveTexture(fowTexUnit);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
