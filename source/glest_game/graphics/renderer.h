@@ -434,6 +434,7 @@ public:
 	void setAllowRenderUnitTitles(bool value);
 	bool getAllowRenderUnitTitles() { return allowRenderUnitTitles; }
 	void renderUnitTitles(Font2D *font, Vec3f color);
+	void renderUnitTitles3D(Font3D *font, Vec3f color);
 	Vec3f computeScreenPosition(const Vec3f &worldPos);
 
 	void setPhotoMode(bool value) { photoMode = value; }

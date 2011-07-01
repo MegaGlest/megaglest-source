@@ -1209,18 +1209,21 @@ bool Pixmap2D::doDimensionsAgree(const Pixmap2D *pixmap){
 //	class Pixmap3D
 // =====================================================
 
-Pixmap3D::Pixmap3D(){
+Pixmap3D::Pixmap3D() {
 	w= -1;
 	h= -1;
 	d= -1;
 	components= -1;
+	pixels = NULL;
 }
 
 Pixmap3D::Pixmap3D(int w, int h, int d, int components){
+	pixels = NULL;
 	init(w, h, d, components);
 }
 
 Pixmap3D::Pixmap3D(int d, int components){
+	pixels = NULL;
 	init(d, components);
 }
 
@@ -1263,7 +1266,10 @@ Pixmap3D::~Pixmap3D() {
 
 void Pixmap3D::loadSlice(const string &path, int slice) {
 	string extension= path.substr(path.find_last_of('.') + 1);
-	if(extension == "bmp") {
+	if(extension == "png") {
+		loadSlicePng(path, slice);
+	}
+	else if(extension == "bmp") {
 		loadSliceBmp(path, slice);
 	}
 	else if(extension == "tga") {
@@ -1273,6 +1279,48 @@ void Pixmap3D::loadSlice(const string &path, int slice) {
 		throw runtime_error("Unknown pixmap extension: "+extension);
 	}
 	this->path = path;
+}
+
+void Pixmap3D::loadSlicePng(const string &path, int slice) {
+	this->path = path;
+
+	Pixmap3D *pixmap = FileReader<Pixmap3D>::readPath(path);
+	if(pixmap != NULL) {
+		this->path = path;
+
+		w= pixmap->getW();
+		h= pixmap->getH();
+		if(components==-1){
+			components= pixmap->getComponents();
+		}
+
+		if(pixels==NULL) {
+			pixels= new uint8[(std::size_t)pixmap->getPixelByteCount()];
+		}
+
+		for(unsigned int i = 0; i < pixmap->getPixelByteCount(); ++i) {
+			pixels[i] = pixmap->getPixels()[i];
+		}
+	}
+
+//	PixmapIoP plt;
+//	plt.openRead(path);
+//
+//	//header
+//	int fileComponents= plt.getComponents();
+//
+//	//init
+//	w= plt.getW();
+//	h= plt.getH();
+//	if(components==-1){
+//		components= fileComponents;
+//	}
+//	if(pixels==NULL){
+//		pixels= new uint8[(std::size_t)getPixelByteCount()];
+//	}
+//
+//	//read data
+//	plt.read(&pixels[slice*w*h*components], components);
 }
 
 void Pixmap3D::loadSliceBmp(const string &path, int slice){

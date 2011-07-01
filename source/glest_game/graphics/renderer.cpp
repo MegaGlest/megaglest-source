@@ -1445,6 +1445,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 		pos.x += ((w / 2.f) - (lineWidth / 2.f));
 	}
 	const Metrics &metrics= Metrics::getInstance();
+	//float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
 	float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
 	//lineHeight=metrics.toVirtualY(lineHeight);
 	//lineHeight= lineHeight / (2.f + 0.2f * FontMetrics::DEFAULT_Y_OFFSET_FACTOR);
@@ -2696,6 +2697,9 @@ void Renderer::renderSurface(const int renderFps) {
 
 	//Restore
 	static_cast<ModelRendererGl*>(modelRenderer)->setDuplicateTexCoords(false);
+
+	glDisable(GL_TEXTURE_2D);
+
 	glPopAttrib();
 
 	//assert
@@ -5356,10 +5360,69 @@ void Renderer::setAllowRenderUnitTitles(bool value) {
 }
 
 // This method renders titles for units
+void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
+	std::map<int,bool> unitRenderedList;
+
+	if(visibleFrameUnitList.size() > 0) {
+		//printf("Render Unit titles ON\n");
+
+		for(int idx = 0; idx < visibleFrameUnitList.size(); idx++) {
+			const Unit *unit = visibleFrameUnitList[idx];
+			if(unit != NULL && unit->getVisible() == true) {
+				if(unit != NULL && unit->getCurrentUnitTitle() != "") {
+					//get the screen coordinates
+					Vec3f screenPos = unit->getScreenPos();
+	#ifdef USE_STREFLOP
+					renderText3D(unit->getCurrentUnitTitle(), font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+	#else
+					renderText3D(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+	#endif
+
+					unitRenderedList[unit->getId()] = true;
+				}
+				else {
+					string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
+					Vec3f screenPos = unit->getScreenPos();
+	#ifdef USE_STREFLOP
+					renderText3D(str, font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+	#else
+					renderText3D(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+	#endif
+				}
+			}
+		}
+		visibleFrameUnitList.clear();
+	}
+
+	/*
+	if(renderUnitTitleList.size() > 0) {
+		for(int idx = 0; idx < renderUnitTitleList.size(); idx++) {
+			std::pair<Unit *,Vec3f> &unitInfo = renderUnitTitleList[idx];
+			Unit *unit = unitInfo.first;
+
+			const World *world= game->getWorld();
+			Unit *validUnit = world->findUnitById(unit->getId());
+
+			if(validUnit != NULL && unitRenderedList.find(validUnit->getId()) == unitRenderedList.end()) {
+				string str = validUnit->getFullName() + " - " + intToStr(validUnit->getId());
+				//get the screen coordinates
+				Vec3f &screenPos = unitInfo.second;
+				renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] screenPos.x = %f, screenPos.y = %f, screenPos.z = %f\n",__FILE__,__FUNCTION__,__LINE__,screenPos.x,screenPos.y,screenPos.z);
+			}
+		}
+		renderUnitTitleList.clear();
+	}
+	*/
+}
+
+// This method renders titles for units
 void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 	std::map<int,bool> unitRenderedList;
 
 	if(visibleFrameUnitList.size() > 0) {
+		//printf("Render Unit titles ON\n");
+
 		for(int idx = 0; idx < visibleFrameUnitList.size(); idx++) {
 			const Unit *unit = visibleFrameUnitList[idx];
 			if(unit != NULL && unit->getCurrentUnitTitle() != "") {
