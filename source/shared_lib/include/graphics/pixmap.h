@@ -320,6 +320,7 @@ public:
 	void loadSlice(const string &path, int slice);
 	void loadSliceBmp(const string &path, int slice);
 	void loadSliceTga(const string &path, int slice);
+	void loadSlicePng(const string &path, int slice);
 	
 	//get 
 	int getW() const			{return w;}

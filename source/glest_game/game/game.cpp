@@ -2116,7 +2116,13 @@ void Game::render2d(){
 			if(renderer.getAllowRenderUnitTitles() == false) {
 				renderer.setAllowRenderUnitTitles(true);
 			}
-			renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
+
+			if(Renderer::renderText3DEnabled == true) {
+				renderer.renderUnitTitles3D(coreData.getMenuFontNormal3D(),Vec3f(1.0f));
+			}
+			else {
+				renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
+			}
 		}
 	}
 
