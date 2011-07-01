@@ -225,13 +225,17 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 	//FTBBox box = ftFont->BBox(str);
 	//printf("String [%s] lineheight = %f upper_y = %f lower_y = %f\n",str,ftFont->LineHeight(),box.Upper().Y(),box.Lower().Y());
 
-	//return ftFont->Ascender() + ftFont->Descender();
-	return ftFont->LineHeight();
 
-	//FTBBox box = ftFont->BBox(str);
-	//float result = box.Upper().Y()- box.Lower().Y();
-	//printf("For str [%s] LineHeight = %f, result = %f\n",str, ftFont->LineHeight(),result);
-	//return result;
+	//printf("ftFont->Ascender():%f ftFont->Descender()*-1 = %f ftFont->LineHeight() = %f\n",ftFont->Ascender(),ftFont->Descender()*-1 , ftFont->LineHeight());
+	//return ftFont->Ascender() + ftFont->Descender()*-1 - ftFont->LineHeight();
+	//return ftFont->LineHeight();
+
+	FTBBox box = ftFont->BBox("yW");
+	float result = box.Upper().Y()- box.Lower().Y();
+	//printf("ftFont->BBox(''yW'')%f\n",result);
+	return result;
+//	printf("For str [%s] LineHeight = %f, result = %f\n",str, ftFont->LineHeight(),result);
+//	return result;
 
 	//float urx = box.Upper().X();
 	//float llx = box.Lower().X();
