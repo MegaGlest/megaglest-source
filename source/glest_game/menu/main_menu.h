@@ -85,7 +85,6 @@ private:
 	//shared
     int mouseX, mouseY;
     int mouse2dAnim;
-	int fps, lastFps;
 
 public:
 	MainMenu(Program *program);
@@ -96,7 +95,6 @@ public:
 
     virtual void render();
     virtual void update();
-	virtual void tick();
 	virtual void init();
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
     virtual void mouseDownLeft(int x, int y);

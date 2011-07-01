@@ -376,6 +376,8 @@ public:
 	void beginRenderToTexture(Texture2D **renderToTexture);
 	void endRenderToTexture(Texture2D **renderToTexture);
 
+	void renderFPSWhenEnabled(int lastFps);
+
     //components
 	void renderLabel(GraphicLabel *label);
 	void renderLabel(GraphicLabel *label,const Vec3f *color);

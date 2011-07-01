@@ -45,6 +45,7 @@ public:
 	virtual void keyDown(char key);
 	virtual void mouseDownLeft(int x, int y);
 	virtual void mouseMove(int x, int y, const MouseState *ms);
+	//virtual void tick();
 };
 
 }}//end namespace

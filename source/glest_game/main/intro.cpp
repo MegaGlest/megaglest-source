@@ -106,7 +106,10 @@ void Intro::update(){
 
 void Intro::render() {
 	Renderer &renderer= Renderer::getInstance();
-	int difTime;
+	int difTime=0;
+
+	canRender();
+	incrementFps();
 
 	renderer.reset2d();
 	renderer.clearBuffers();
@@ -151,6 +154,8 @@ void Intro::render() {
 	if(program != NULL) program->renderProgramMsgBox();
 
 	if(this->forceMouseRender == true) renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
+
+	renderer.renderFPSWhenEnabled(lastFps);
 
 	renderer.swapBuffers();
 }

@@ -80,24 +80,29 @@ void BattleEnd::update() {
 
 void BattleEnd::render() {
 	Renderer &renderer= Renderer::getInstance();
+	CoreData &coreData= CoreData::getInstance();
+
+	canRender();
+	incrementFps();
 
 	if(renderToTexture != NULL) {
 		//printf("Rendering from texture!\n");
 
 		renderer.clearBuffers();
-		renderer.reset2d();
+		renderer.reset3dMenu();
+		renderer.clearZBuffer();
 		renderer.renderBackground(renderToTexture);
+
+		renderer.reset2d();
 
 		renderer.renderButton(&buttonExit);
 
 		//exit message box
-		if(mainMessageBox.getEnabled()){
+		if(mainMessageBox.getEnabled() && mainMessageBox.getVisible()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
 	    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
-
-		renderer.swapBuffers();
 	}
 	else {
 		//printf("Rendering to texture!\n");
@@ -118,6 +123,8 @@ void BattleEnd::render() {
 		Lang &lang= Lang::getInstance();
 
 		renderer.clearBuffers();
+		renderer.reset3dMenu();
+		renderer.clearZBuffer();
 		renderer.reset2d();
 		renderer.renderBackground(CoreData::getInstance().getBackgroundTexture());
 		
@@ -388,9 +395,11 @@ void BattleEnd::render() {
 		}
 
 		renderer.endRenderToTexture(&renderToTexture);
-
-		renderer.swapBuffers();
 	}
+
+	renderer.renderFPSWhenEnabled(lastFps);
+
+	renderer.swapBuffers();
 }
 
 void BattleEnd::keyDown(char key){

@@ -1051,6 +1051,9 @@ void Game::render() {
 		this->restoreToStartXY();
 	}
 
+	canRender();
+	incrementFps();
+
 	renderFps++;
 	totalRenderFps++;
 	renderWorker();
@@ -1077,6 +1080,8 @@ void Game::renderWorker() {
 // ==================== tick ====================
 
 void Game::tick() {
+	ProgramState::tick();
+
 	tickCount++;
 
 	if(avgUpdateFps == -1) {

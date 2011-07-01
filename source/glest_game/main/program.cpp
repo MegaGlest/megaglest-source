@@ -47,8 +47,41 @@ const int SOUND_THREAD_UPDATE_MILLISECONDS = 25;
 // 	class Program::CrashProgramState
 // =====================================================
 
+ProgramState::ProgramState(Program *program) {
+	this->program= program;
+	this->forceMouseRender = false;
+	this->mouseX = 0;
+	this->mouseY = 0;
+	this->mouse2dAnim = 0;
+	this->fps= 0;
+	this->lastFps= 0;
+}
+
+void ProgramState::incrementFps() {
+	fps++;
+}
+
+void ProgramState::tick() {
+	lastFps= fps;
+	fps= 0;
+}
+
+bool ProgramState::canRender(bool sleepIfCannotRender) {
+	if(lastFps > 800) {
+		if(sleepIfCannotRender == true) {
+			sleep(1);
+		}
+		return false;
+	}
+	return true;
+}
+
 void ProgramState::render() {
 	Renderer &renderer= Renderer::getInstance();
+
+	canRender();
+	incrementFps();
+
 	renderer.clearBuffers();
 	renderer.reset2d();
 	renderer.renderMessageBox(program->getMsgBox());
