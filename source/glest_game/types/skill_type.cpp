@@ -315,7 +315,7 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 
 				if(foundSpecificAnimation == false) {
 					//int modelIndex = random.randRange(0,animations.size()-1);
-					srand(time(NULL));
+					srand(time(NULL) + unit->getId());
 					modelIndex = rand() % animations.size();
 
 					//const AnimationAttributes &attributes = animationAttributes[modelIndex];
