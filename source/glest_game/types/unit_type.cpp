@@ -304,6 +304,18 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 						//Renderer::getInstance().endLastTexture(rsGame,true);
 					//}
 
+					if(particleFileNode->getAttribute("minHp",false) != NULL && particleFileNode->getAttribute("maxHp",false) != NULL) {
+						unitParticleSystemType->setMinmaxEnabled(true);
+						unitParticleSystemType->setMinHp(particleFileNode->getAttribute("minHp")->getIntValue());
+						unitParticleSystemType->setMaxHp(particleFileNode->getAttribute("maxHp")->getIntValue());
+
+						if(particleFileNode->getAttribute("ispercentbased",false) != NULL) {
+							unitParticleSystemType->setMinmaxIsPercent(particleFileNode->getAttribute("ispercentbased")->getBoolValue());
+						}
+
+						//printf("Found customized particle trigger by HP [%d to %d]\n",unitParticleSystemType->getMinHp(),unitParticleSystemType->getMaxHp());
+					}
+
 					damageParticleSystemTypes.push_back(unitParticleSystemType);
 				}
 			}

@@ -360,7 +360,7 @@ Unit::~Unit() {
 		unitParticleSystems.back()->fade();
 		unitParticleSystems.pop_back();
 	}
-	stopDamageParticles();
+	stopDamageParticles(true);
 
 	while(currentAttackBoostEffects.empty() == false) {
 		//UnitAttackBoostEffect &effect = currentAttackBoostEffects.back();
@@ -1574,9 +1574,7 @@ void Unit::tick() {
 		}
 
 		//stop DamageParticles
-		if(hp > type->getTotalMaxHp(&totalUpgrade) / 2) {
-			stopDamageParticles();
-		}
+		stopDamageParticles(false);
 
 		checkItemInVault(&this->ep,this->ep);
 		//regenerate ep
@@ -1676,9 +1674,8 @@ bool Unit::repair(){
 	addItemToVault(&this->hp,this->hp);
 
 	//stop DamageParticles
-	if(hp > type->getTotalMaxHp(&totalUpgrade)/2 ) {
-		stopDamageParticles();
-	}
+	stopDamageParticles(false);
+
     return false;
 }
 
@@ -1699,9 +1696,7 @@ bool Unit::decHp(int i) {
 	}
 
 	//startDamageParticles
-	if(hp < type->getMaxHp() / 2 ) {
-		startDamageParticles();
-	}
+	startDamageParticles();
 
 	//stop DamageParticles on death
     if(hp <= 0) {
@@ -1709,7 +1704,7 @@ bool Unit::decHp(int i) {
         hp=0;
     	addItemToVault(&this->hp,this->hp);
 
-		stopDamageParticles();
+		stopDamageParticles(true);
 		return true;
     }
     return false;
@@ -2142,74 +2137,168 @@ CommandResult Unit::undoCommand(Command *command){
 	return crSuccess;
 }
 
-void Unit::stopDamageParticles() {
+void Unit::stopDamageParticles(bool force) {
+	if(force == true || (hp > type->getTotalMaxHp(&totalUpgrade) / 2) ) {
+		if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
+			fire = NULL;
+		}
 
-	if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
-		fire = NULL;
+		// stop fire
+		if(fire != NULL) {
+			fire->fade();
+			fire = NULL;
+		}
+		// stop additional particles
+
+		for(unsigned int i = damageParticleSystems.size()-1; i <= 0; --i) {
+			UnitParticleSystem *ps = damageParticleSystems[i];
+			UnitParticleSystemType *pst = NULL;
+			int foundParticleIndexType = -1;
+			for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
+				iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
+				if(iterMap->second == ps) {
+					foundParticleIndexType = iterMap->first;
+					pst = type->damageParticleSystemTypes[foundParticleIndexType];
+					break;
+				}
+			}
+			if(force == true || pst == NULL ||
+				pst->getMinmaxEnabled() == false) {
+				damageParticleSystemsInUse.erase(foundParticleIndexType);
+				ps->fade();
+				damageParticleSystems.pop_back();
+			}
+		}
 	}
 
-	// stop fire
-	if(fire != NULL) {
-		fire->fade();
-		fire = NULL;
+	checkCustomizedParticleTriggers(force);
+}
+
+void Unit::checkCustomizedParticleTriggers(bool force) {
+	// Now check if we have special hp triggered particles
+	for(unsigned int i = damageParticleSystems.size()-1; i <= 0; --i) {
+		UnitParticleSystem *ps = damageParticleSystems[i];
+		UnitParticleSystemType *pst = NULL;
+		int foundParticleIndexType = -1;
+		for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
+			iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
+			if(iterMap->second == ps) {
+				foundParticleIndexType = iterMap->first;
+				pst = type->damageParticleSystemTypes[foundParticleIndexType];
+				break;
+			}
+		}
+
+		if(force == true || (pst != NULL && pst->getMinmaxEnabled() == true)) {
+			bool stopParticle = force;
+			if(force == false && pst->getMinmaxIsPercent() == false) {
+				if(hp < pst->getMinHp() || hp > pst->getMaxHp()) {
+					stopParticle = true;
+				}
+			}
+
+			//printf("CHECKING to STOP customized particle trigger by HP [%d to %d percentbased = %d] current hp = %d stopParticle = %d\n",pst->getMinHp(),pst->getMaxHp(),pst->getMinmaxIsPercent(),hp,stopParticle);
+
+			if(stopParticle == true) {
+				//printf("STOPPING customized particle trigger by HP [%d to %d] current hp = %d\n",pst->getMinHp(),pst->getMaxHp(),hp);
+
+				damageParticleSystemsInUse.erase(foundParticleIndexType);
+				ps->fade();
+				damageParticleSystems.pop_back();
+			}
+		}
 	}
-	// stop additional particles
-	while(damageParticleSystems.empty() == false) {
-		damageParticleSystems.back()->fade();
-		damageParticleSystems.pop_back();
+
+	// Now check if we have special hp triggered particles
+	//start additional particles
+	if( showUnitParticles && (type->damageParticleSystemTypes.empty() == false) ) {
+		for(unsigned int i = 0; i < type->damageParticleSystemTypes.size(); ++i) {
+			UnitParticleSystemType *pst = type->damageParticleSystemTypes[i];
+
+			if(pst->getMinmaxEnabled() == true && damageParticleSystemsInUse.find(i) == damageParticleSystemsInUse.end()) {
+				bool showParticle = false;
+				if(pst->getMinmaxIsPercent() == false) {
+					if(hp >= pst->getMinHp() && hp <= pst->getMaxHp()) {
+						showParticle = true;
+					}
+				}
+
+				//printf("CHECKING to START customized particle trigger by HP [%d to %d percentbased = %d] current hp = %d showParticle = %d\n",pst->getMinHp(),pst->getMaxHp(),pst->getMinmaxIsPercent(),hp,showParticle);
+
+				if(showParticle == true) {
+					//printf("STARTING customized particle trigger by HP [%d to %d] current hp = %d\n",pst->getMinHp(),pst->getMaxHp(),hp);
+
+					UnitParticleSystem *ups = new UnitParticleSystem(200);
+					pst->setValues(ups);
+					ups->setPos(getCurrVector());
+					ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					damageParticleSystems.push_back(ups);
+					damageParticleSystemsInUse[i] = ups;
+					Renderer::getInstance().manageParticleSystem(ups, rsGame);
+				}
+			}
+		}
 	}
 }
 
-void Unit::startDamageParticles(){
-	//start additional particles
-	if( showUnitParticles && (!type->damageParticleSystemTypes.empty())
-		&& (damageParticleSystems.empty()) ){
-		for(UnitParticleSystemTypes::const_iterator it= type->damageParticleSystemTypes.begin(); it!=type->damageParticleSystemTypes.end(); ++it){
-			UnitParticleSystem *ups;
-			ups= new UnitParticleSystem(200);
-			(*it)->setValues(ups);
-			ups->setPos(getCurrVector());
-			ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-			damageParticleSystems.push_back(ups);
-			Renderer::getInstance().manageParticleSystem(ups, rsGame);
-		}
-	}
-	// start fire
-	if(type->getProperty(UnitType::pBurnable) && fire == NULL) {
-		FireParticleSystem *fps = new FireParticleSystem(200);
-		const Game *game = Renderer::getInstance().getGame();
-		fps->setSpeed(2.5f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
-		fps->setPos(getCurrVector());
-		fps->setRadius(type->getSize()/3.f);
-		fps->setTexture(CoreData::getInstance().getFireTexture());
-		fps->setParticleSize(type->getSize()/3.f);
-		fire= fps;
-		fireParticleSystems.push_back(fps);
+void Unit::startDamageParticles() {
+	if(hp < type->getMaxHp() / 2 && hp > 0) {
+		//start additional particles
+		if( showUnitParticles && (!type->damageParticleSystemTypes.empty()) ) {
+			for(unsigned int i = 0; i < type->damageParticleSystemTypes.size(); ++i) {
+				UnitParticleSystemType *pst = type->damageParticleSystemTypes[i];
 
-		Renderer::getInstance().manageParticleSystem(fps, rsGame);
-		if(showUnitParticles) {
-			// smoke
-			UnitParticleSystem *ups= new UnitParticleSystem(400);
-			ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
-			ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
-			ups->setPos(getCurrVector());
-			ups->setBlendMode(ups->strToBlendMode("black"));
-			ups->setOffset(Vec3f(0,2,0));
-			ups->setDirection(Vec3f(0,1,-0.2f));
-			ups->setRadius(type->getSize()/3.f);
-			ups->setTexture(CoreData::getInstance().getFireTexture());
+				if(pst->getMinmaxEnabled() == false && damageParticleSystemsInUse.find(i) == damageParticleSystemsInUse.end()) {
+					UnitParticleSystem *ups = new UnitParticleSystem(200);
+					pst->setValues(ups);
+					ups->setPos(getCurrVector());
+					ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					damageParticleSystems.push_back(ups);
+					damageParticleSystemsInUse[i] = ups;
+					Renderer::getInstance().manageParticleSystem(ups, rsGame);
+				}
+			}
+		}
+
+		// start fire
+		if(type->getProperty(UnitType::pBurnable) && fire == NULL) {
+			FireParticleSystem *fps = new FireParticleSystem(200);
 			const Game *game = Renderer::getInstance().getGame();
-			ups->setSpeed(2.0f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
-			ups->setGravity(0.0004f);
-			ups->setEmissionRate(1);
-			ups->setMaxParticleEnergy(150);
-			ups->setSizeNoEnergy(type->getSize()*0.6f);
-			ups->setParticleSize(type->getSize()*0.8f);
-			damageParticleSystems.push_back(ups);
-			Renderer::getInstance().manageParticleSystem(ups, rsGame);
-		}
+			fps->setSpeed(2.5f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
+			fps->setPos(getCurrVector());
+			fps->setRadius(type->getSize()/3.f);
+			fps->setTexture(CoreData::getInstance().getFireTexture());
+			fps->setParticleSize(type->getSize()/3.f);
+			fire= fps;
+			fireParticleSystems.push_back(fps);
 
+			Renderer::getInstance().manageParticleSystem(fps, rsGame);
+			if(showUnitParticles) {
+				// smoke
+				UnitParticleSystem *ups= new UnitParticleSystem(400);
+				ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
+				ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
+				ups->setPos(getCurrVector());
+				ups->setBlendMode(ups->strToBlendMode("black"));
+				ups->setOffset(Vec3f(0,2,0));
+				ups->setDirection(Vec3f(0,1,-0.2f));
+				ups->setRadius(type->getSize()/3.f);
+				ups->setTexture(CoreData::getInstance().getFireTexture());
+				const Game *game = Renderer::getInstance().getGame();
+				ups->setSpeed(2.0f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
+				ups->setGravity(0.0004f);
+				ups->setEmissionRate(1);
+				ups->setMaxParticleEnergy(150);
+				ups->setSizeNoEnergy(type->getSize()*0.6f);
+				ups->setParticleSize(type->getSize()*0.8f);
+				damageParticleSystems.push_back(ups);
+				damageParticleSystemsInUse[-1] = ups;
+				Renderer::getInstance().manageParticleSystem(ups, rsGame);
+			}
+		}
 	}
+
+	checkCustomizedParticleTriggers(false);
 }
 
 void Unit::setTargetVec(const Vec3f &targetVec)	{

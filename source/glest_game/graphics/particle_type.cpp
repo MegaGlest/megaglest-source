@@ -40,6 +40,10 @@ ParticleSystemType::ParticleSystemType() {
 	alternations=false;
 	texture=NULL;
 	model=NULL;
+    minmaxEnabled=false;
+    minHp=0;
+    maxHp=0;
+    minmaxIsPercent=false;
 }
 
 ParticleSystemType::~ParticleSystemType() {
@@ -162,8 +166,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 		const XmlNode *modeNode= particleSystemNode->getChild("mode");
     	mode= modeNode->getAttribute("value")->getRestrictedValue();
 	}
-	else
-	{
+	else {
 		mode="normal";
 	}
 }

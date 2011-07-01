@@ -64,7 +64,7 @@ enum UnitClass {
 	ucBuilding
 };
 
-typedef list<UnitParticleSystemType*> DamageParticleSystemTypes;
+typedef vector<UnitParticleSystemType*> DamageParticleSystemTypes;
 
 class UnitType: public ProducibleType, public ValueCheckerVault {
 public:
