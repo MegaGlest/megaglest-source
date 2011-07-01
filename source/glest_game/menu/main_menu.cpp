@@ -55,9 +55,6 @@ MainMenu::MainMenu(Program *program):
 	state= NULL;
 	this->program= program;
 
-	fps= 0;
-	lastFps= 0;
-
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	setState(new MenuStateRoot(program, this));
@@ -93,7 +90,9 @@ void MainMenu::render() {
 	Renderer &renderer= Renderer::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 
-	fps++;
+	//fps++;
+	canRender();
+	incrementFps();
 
 	renderer.clearBuffers();
 
@@ -110,18 +109,7 @@ void MainMenu::render() {
 	state->render();
     renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 
-	if(renderer.getShowDebugUI() == true) {
-		if(Renderer::renderText3DEnabled) {
-			renderer.renderText3D(
-				"FPS: " + intToStr(lastFps),
-				coreData.getMenuFontNormal3D(), Vec3f(1.f), 10, 10, false);
-		}
-		else {
-			renderer.renderText(
-				"FPS: " + intToStr(lastFps),
-				coreData.getMenuFontNormal(), Vec3f(1.f), 10, 10, false);
-		}
-    }
+	renderer.renderFPSWhenEnabled(lastFps);
 
 	renderer.swapBuffers();
 }
@@ -132,11 +120,6 @@ void MainMenu::update(){
 	mouse2dAnim= (mouse2dAnim +1) % Renderer::maxMouse2dAnim;
 	menuBackground.update();
 	state->update();
-}
-
-void MainMenu::tick(){
-	lastFps= fps;
-	fps= 0;
 }
 
 //event magangement: mouse click

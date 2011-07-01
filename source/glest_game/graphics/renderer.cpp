@@ -6003,4 +6003,20 @@ void Renderer::cycleShowDebugUILevel() {
 	}
 }
 
+void Renderer::renderFPSWhenEnabled(int lastFps) {
+	if(getShowDebugUI() == true) {
+		CoreData &coreData= CoreData::getInstance();
+		if(Renderer::renderText3DEnabled) {
+			renderText3D(
+				"FPS: " + intToStr(lastFps),
+				coreData.getMenuFontNormal3D(), Vec3f(1.f), 10, 10, false);
+		}
+		else {
+			renderText(
+				"FPS: " + intToStr(lastFps),
+				coreData.getMenuFontNormal(), Vec3f(1.f), 10, 10, false);
+		}
+	}
+}
+
 }}//end namespace

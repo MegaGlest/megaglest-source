@@ -55,22 +55,22 @@ protected:
     int startY;
     bool forceMouseRender;
 
-public:
-	ProgramState(Program *program) {
-		this->program= program;
-		this->forceMouseRender = false;
-		this->mouseX = 0;
-		this->mouseY = 0;
-		this->mouse2dAnim = 0;
+    int fps;
+    int lastFps;
 
-	}
+public:
+	ProgramState(Program *program);
 	virtual ~ProgramState(){};
 
+    int getFps() const { return fps; }
+    int getLastFps() const { return lastFps; }
+
 	//virtual void render()=0;
+    virtual bool canRender(bool sleepIfCannotRender=true);
 	virtual void render();
 	virtual void update();
 	virtual void updateCamera(){};
-	virtual void tick(){};
+	virtual void tick();
 	virtual void init(){};
 	virtual void load(){};
 	virtual void end(){};
@@ -96,6 +96,9 @@ public:
 	virtual Program * getProgram() { return program; }
 	virtual void setForceMouseRender(bool value) { forceMouseRender=value;}
 	virtual void consoleAddLine(string line) { };
+
+protected:
+	virtual void incrementFps();
 };
 
 // ===============================
