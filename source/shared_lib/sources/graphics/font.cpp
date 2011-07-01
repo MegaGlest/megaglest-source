@@ -40,6 +40,7 @@ float FontMetrics::DEFAULT_Y_OFFSET_FACTOR	= 2.0f;
 bool Font::fontIsRightToLeft				= false;
 float Font::scaleFontValue					= 1.0;
 int Font::baseSize							= 0;
+int Font::faceResolution					= 72;
 //int Font::scaleFontYOffset					= 0;
 //
 
@@ -129,6 +130,7 @@ Font::Font(FontTextHandlerType type) {
 		try {
 			textHandler = NULL;
 			textHandler = new TextFTGL(type);
+			TextFTGL::faceResolution = faceResolution;
 			metrics.setTextHandler(this->textHandler);
 		}
 		catch(exception &ex) {

@@ -67,6 +67,7 @@ public:
 	static bool fontIsRightToLeft;
 	static float scaleFontValue;
 	static int baseSize;
+	static int faceResolution;
 	//static int scaleFontYOffset;
 	
 public:

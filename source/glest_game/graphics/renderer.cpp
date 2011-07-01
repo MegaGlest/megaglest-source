@@ -1446,9 +1446,11 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
-	lineHeight=metrics.toVirtualY(lineHeight);
+	//lineHeight=metrics.toVirtualY(lineHeight);
 	//lineHeight= lineHeight / (2.f + 0.2f * FontMetrics::DEFAULT_Y_OFFSET_FACTOR);
-	pos.y += (h / 2.f) - (lineHeight / 2.f);
+	//pos.y += (h / 2.f) - (lineHeight / 2.f);
+	//pos.y += (h / 2.f) - (lineHeight);
+	pos.y += (lineHeight / 2.f); // y starts at the middle of the render position, so only move up 1/2 the font height
 
 	return pos;
 }

@@ -28,6 +28,8 @@ class TextFTGL : public Text
 {
 public:
 
+	static int faceResolution;
+
 	TextFTGL(FontTextHandlerType type);
 	virtual ~TextFTGL();
 	virtual void init(string fontName, int fontSize);

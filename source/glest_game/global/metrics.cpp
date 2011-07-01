@@ -67,6 +67,9 @@ int Metrics::toVirtualY(int h) const{
 	if(screenH == 0) {
 		throw runtime_error("div by 0 screenH == 0");
 	}
+
+	//printf("h [%d] virtualH [%d] screenH [%d] result = %d\n",h,virtualH,screenH,(h*virtualH/screenH));
+
 	return h*virtualH/screenH;
 }
 

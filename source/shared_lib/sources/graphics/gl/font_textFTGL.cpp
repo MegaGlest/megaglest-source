@@ -32,6 +32,8 @@ using namespace Shared::PlatformCommon;
 namespace Shared { namespace Graphics { namespace Gl {
 
 
+int TextFTGL::faceResolution = 72;
+
 //====================================================================
 TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 
@@ -77,7 +79,7 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 	free((void*)fontFile);
 	fontFile = NULL;
 
-	ftFont->FaceSize(24);
+	ftFont->FaceSize(24,TextFTGL::faceResolution);
 	if(ftFont->Error())	{
 		throw runtime_error("FTGL: error setting face size");
 	}
@@ -143,10 +145,10 @@ void TextFTGL::init(string fontName, int fontSize) {
 	fontFile = NULL;
 
 	if(fontSize > 0) {
-		ftFont->FaceSize(fontSize);
+		ftFont->FaceSize(fontSize,TextFTGL::faceResolution);
 	}
 	else {
-		ftFont->FaceSize(24);
+		ftFont->FaceSize(24,TextFTGL::faceResolution);
 	}
 
 	if(ftFont->Error())	{
@@ -170,7 +172,7 @@ void TextFTGL::init(string fontName, int fontSize) {
 }
 
 void TextFTGL::SetFaceSize(int value) {
-	ftFont->FaceSize(value);
+	ftFont->FaceSize(value,TextFTGL::faceResolution);
 	if(ftFont->Error())	{
 		throw runtime_error("FTGL: error setting face size");
 	}
