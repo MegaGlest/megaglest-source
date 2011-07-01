@@ -23,7 +23,9 @@ bool ImageRegisterer::registerImageReaders() {
 	static BMPReader imageReaderBmp;
 	static JPGReader imageReaderJpg;
 	static PNGReader imageReaderPng;
+	static PNGReader3D imageReader3DPng;
 	static TGAReader imageReaderTga;
+	static TGAReader3D imageReader3DTga;
 	return true;
 }
 

@@ -2191,9 +2191,17 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 
 		if(force == true || (pst != NULL && pst->getMinmaxEnabled() == true)) {
 			bool stopParticle = force;
-			if(force == false && pst->getMinmaxIsPercent() == false) {
-				if(hp < pst->getMinHp() || hp > pst->getMaxHp()) {
-					stopParticle = true;
+			if(force == false) {
+				if(pst->getMinmaxIsPercent() == false) {
+					if(hp < pst->getMinHp() || hp > pst->getMaxHp()) {
+						stopParticle = true;
+					}
+				}
+				else {
+					int hpPercent = (hp / type->getTotalMaxHp(&totalUpgrade) * 100);
+					if(hpPercent < pst->getMinHp() || hpPercent > pst->getMaxHp()) {
+						stopParticle = true;
+					}
 				}
 			}
 
@@ -2219,6 +2227,12 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 				bool showParticle = false;
 				if(pst->getMinmaxIsPercent() == false) {
 					if(hp >= pst->getMinHp() && hp <= pst->getMaxHp()) {
+						showParticle = true;
+					}
+				}
+				else {
+					int hpPercent = (hp / type->getTotalMaxHp(&totalUpgrade) * 100);
+					if(hpPercent >= pst->getMinHp() && hpPercent <= pst->getMaxHp()) {
 						showParticle = true;
 					}
 				}
