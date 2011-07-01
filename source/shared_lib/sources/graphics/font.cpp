@@ -38,7 +38,7 @@ bool Font::fontIsMultibyte 					= false;
 bool Font::forceLegacyFonts					= false;
 float FontMetrics::DEFAULT_Y_OFFSET_FACTOR	= 2.0f;
 bool Font::fontIsRightToLeft				= false;
-float Font::scaleFontValue					= 0.75;
+float Font::scaleFontValue					= 1.0;
 int Font::baseSize							= 0;
 //int Font::scaleFontYOffset					= 0;
 //
