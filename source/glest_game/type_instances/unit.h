@@ -1,4 +1,3 @@
-// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Marti�o Figueroa
@@ -328,6 +327,8 @@ private:
 	Observers observers;
 	vector<UnitParticleSystem*> unitParticleSystems;
 	UnitParticleSystems damageParticleSystems;
+	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
+
 	vector<ParticleSystem*> fireParticleSystems;
 
 	CardinalDir modelFacing;
@@ -573,10 +574,11 @@ private:
 	void clearCommands();
 	void deleteQueuedCommand(Command *command);
 	CommandResult undoCommand(Command *command);
-	void stopDamageParticles();
+	void stopDamageParticles(bool force);
 	void startDamageParticles();
 
 	int getFrameCount() const;
+	void checkCustomizedParticleTriggers(bool force);
 };
 
 }}// end namespace

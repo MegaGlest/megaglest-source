@@ -65,6 +65,11 @@ protected:
     bool teamcolorEnergy;
     int alternations;
 
+    bool minmaxEnabled;
+    int minHp;
+    int maxHp;
+    bool minmaxIsPercent;
+
 public:
 	ParticleSystemType();
 	~ParticleSystemType();
@@ -75,6 +80,16 @@ public:
 	void setValues(AttackParticleSystem *ats);
 	bool hasTexture() const { return(texture != NULL); }
 	bool hasModel() const { return(model != NULL); }
+
+    bool getMinmaxEnabled() const { return minmaxEnabled;}
+    int getMinHp() const { return minHp;}
+    int getMaxHp() const { return maxHp;}
+    bool getMinmaxIsPercent() const { return minmaxIsPercent; }
+
+    void setMinmaxEnabled(bool value) { minmaxEnabled=value;}
+    void setMinHp(int value) { minHp=value;}
+    void setMaxHp(int value) { maxHp=value;}
+    void setMinmaxIsPercent(bool value) { minmaxIsPercent=value; }
 
 protected:
 

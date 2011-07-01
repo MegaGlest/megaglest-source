@@ -297,6 +297,7 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 		if(modelIndex < 0 || animProgress > 1.0f) {
 			bool canCycle = CanCycleNextRandomAnimation(animationRandomCycleCount);
 			if(canCycle == true) {
+				vector<int> filteredAnimations;
 				bool foundSpecificAnimation = false;
 				if(unit != NULL) {
 					for(unsigned int i = 0; i < animationAttributes.size(); ++i) {
@@ -305,9 +306,9 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 							if(unit->getHp() >= attributes.fromHp && unit->getHp() <= attributes.toHp) {
 								modelIndex = i;
 								foundSpecificAnimation = true;
-
+								filteredAnimations.push_back(i);
 								//printf("SELECTING Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",i,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
-								break;
+								//break;
 							}
 						}
 					}
@@ -320,6 +321,11 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 
 					//const AnimationAttributes &attributes = animationAttributes[modelIndex];
 					//printf("SELECTING RANDOM Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",modelIndex,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
+				}
+				else {
+					srand(time(NULL) + unit->getId());
+					int filteredModelIndex = rand() % filteredAnimations.size();
+					modelIndex = filteredAnimations[filteredModelIndex];
 				}
 			}
 		}
