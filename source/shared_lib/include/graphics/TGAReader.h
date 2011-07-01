@@ -29,6 +29,12 @@ public:
 	Pixmap2D* read(ifstream& in, const string& path, Pixmap2D* ret) const;
 };
 
+class TGAReader3D: FileReader<Pixmap3D> {
+public:
+	TGAReader3D();
+
+	Pixmap3D* read(ifstream& in, const string& path, Pixmap3D* ret) const;
+};
 
 }} //end namespace
 

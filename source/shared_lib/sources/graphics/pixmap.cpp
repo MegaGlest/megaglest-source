@@ -1215,15 +1215,18 @@ Pixmap3D::Pixmap3D() {
 	d= -1;
 	components= -1;
 	pixels = NULL;
+	slice=0;
 }
 
 Pixmap3D::Pixmap3D(int w, int h, int d, int components){
 	pixels = NULL;
+	slice=0;
 	init(w, h, d, components);
 }
 
 Pixmap3D::Pixmap3D(int d, int components){
 	pixels = NULL;
+	slice=0;
 	init(d, components);
 }
 
@@ -1265,6 +1268,7 @@ Pixmap3D::~Pixmap3D() {
 }
 
 void Pixmap3D::loadSlice(const string &path, int slice) {
+	this->slice = slice;
 	string extension= path.substr(path.find_last_of('.') + 1);
 	if(extension == "png") {
 		loadSlicePng(path, slice);
@@ -1284,24 +1288,28 @@ void Pixmap3D::loadSlice(const string &path, int slice) {
 void Pixmap3D::loadSlicePng(const string &path, int slice) {
 	this->path = path;
 
-	Pixmap3D *pixmap = FileReader<Pixmap3D>::readPath(path);
-	if(pixmap != NULL) {
-		this->path = path;
+	deletePixels();
 
-		w= pixmap->getW();
-		h= pixmap->getH();
-		if(components==-1){
-			components= pixmap->getComponents();
-		}
+	Pixmap3D *pixmap = FileReader<Pixmap3D>::readPath(path,this);
+	//printf("Loading 3D pixmap PNG [%s] pixmap [%p] this [%p]\n",path.c_str(),pixmap, this);
 
-		if(pixels==NULL) {
-			pixels= new uint8[(std::size_t)pixmap->getPixelByteCount()];
-		}
-
-		for(unsigned int i = 0; i < pixmap->getPixelByteCount(); ++i) {
-			pixels[i] = pixmap->getPixels()[i];
-		}
-	}
+//	if(pixmap != NULL) {
+//		this->path = path;
+//
+//		w= pixmap->getW();
+//		h= pixmap->getH();
+//		if(components==-1){
+//			components= pixmap->getComponents();
+//		}
+//
+//		if(pixels==NULL) {
+//			pixels= new uint8[(std::size_t)pixmap->getPixelByteCount()];
+//		}
+//
+//		for(unsigned int i = 0; i < pixmap->getPixelByteCount(); ++i) {
+//			pixels[i] = pixmap->getPixels()[i];
+//		}
+//	}
 
 //	PixmapIoP plt;
 //	plt.openRead(path);
@@ -1346,6 +1354,38 @@ void Pixmap3D::loadSliceBmp(const string &path, int slice){
 void Pixmap3D::loadSliceTga(const string &path, int slice){
 	this->path = path;
 
+	deletePixels();
+	FileReader<Pixmap3D>::readPath(path,this);
+	//printf("Loading 3D pixmap TGA [%s] this [%p]\n",path.c_str(),this);
+
+
+//	Pixmap3D *pixmap = new Pixmap3D();
+//	pixmap->h = this->h;
+//	pixmap->w = this->w;
+//	pixmap->d = this->d;
+//	pixmap->components = this->components;
+//	pixmap->slice = this->slice;
+//	FileReader<Pixmap3D>::readPath(path,pixmap);
+//	printf("Loading 3D pixmap TGA [%s] pixmap [%p] this [%p]\n",path.c_str(),pixmap, this);
+//
+//	//init
+//	w= pixmap->getW();
+//	h= pixmap->getH();
+//	if(components==-1){
+//		components= pixmap->getComponents();
+//	}
+//	if(pixels==NULL){
+//		pixels= new uint8[(std::size_t)getPixelByteCount()];
+//	}
+//
+//	//read data
+//	for(unsigned int i = slice*w*h*components; i < h*w*components; ++i) {
+//		pixels[i] = pixmap->getPixels()[i];
+//	}
+//
+//	delete pixmap;
+
+/*
 	PixmapIoTga plt;
 	plt.openRead(path);
 
@@ -1364,6 +1404,7 @@ void Pixmap3D::loadSliceTga(const string &path, int slice){
 
 	//read data
 	plt.read(&pixels[slice*w*h*components], components);
+*/
 }
 
 // =====================================================

@@ -158,7 +158,8 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 		try {
 			FileReader<T> const * reader = *i;
 			ret = reader->read(file, filepath); //It is guaranteed that at least the filepath matches ...
-		} catch (...) { //TODO: Specific exceptions
+		}
+		catch (...) { //TODO: Specific exceptions
 			continue;
 		}
 		if (ret != NULL) {
@@ -237,8 +238,8 @@ T* FileReader<T>::readPath(const string& filepath) {
 	}
 	T* ret = readFromFileReaders(&(getFileReaders()), filepath); //Try all other
 	if (ret == NULL) {
-		std::cerr << "Could not parse filepath: " << filepath << std::endl;
-		ret = readFromFileReaders(&(getLowPriorityFileReaders()), filepath); //Try to get dummy file
+		std::cerr << "ERROR #1 - Could not parse filepath: " << filepath << std::endl;
+		throw runtime_error(string("Could not parse ") + filepath + " as object of type " + typeid(T).name());
 	}
 	return ret;
 }
@@ -260,7 +261,7 @@ T* FileReader<T>::readPath(const string& filepath, T* object) {
 	}
 	T* ret = readFromFileReaders(&(getFileReaders()), filepath, object); //Try all other
 	if (ret == NULL) {
-		std::cerr << "Could not parse filepath: " << filepath << std::endl;
+		std::cerr << "ERROR #2 - Could not parse filepath: " << filepath << std::endl;
 		ret = readFromFileReaders(&(getLowPriorityFileReaders()), filepath); //Try to get dummy file
 		if (ret == NULL) {
 			throw runtime_error(string("Could not parse ") + filepath + " as object of type " + typeid(T).name());

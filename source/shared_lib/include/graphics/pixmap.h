@@ -303,6 +303,7 @@ protected:
 	int w;
 	int d;
 	int components;
+	int slice;
 	uint8 *pixels;
 	string path;
 
@@ -322,7 +323,8 @@ public:
 	void loadSliceTga(const string &path, int slice);
 	void loadSlicePng(const string &path, int slice);
 	
-	//get 
+	//get
+	int getSlice() const { return slice; }
 	int getW() const			{return w;}
 	int getH() const			{return h;}
 	int getD() const			{return d;}
