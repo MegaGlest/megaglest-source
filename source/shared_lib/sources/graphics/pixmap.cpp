@@ -1288,47 +1288,9 @@ void Pixmap3D::loadSlice(const string &path, int slice) {
 void Pixmap3D::loadSlicePng(const string &path, int slice) {
 	this->path = path;
 
-	deletePixels();
-
+	//deletePixels();
 	Pixmap3D *pixmap = FileReader<Pixmap3D>::readPath(path,this);
 	//printf("Loading 3D pixmap PNG [%s] pixmap [%p] this [%p]\n",path.c_str(),pixmap, this);
-
-//	if(pixmap != NULL) {
-//		this->path = path;
-//
-//		w= pixmap->getW();
-//		h= pixmap->getH();
-//		if(components==-1){
-//			components= pixmap->getComponents();
-//		}
-//
-//		if(pixels==NULL) {
-//			pixels= new uint8[(std::size_t)pixmap->getPixelByteCount()];
-//		}
-//
-//		for(unsigned int i = 0; i < pixmap->getPixelByteCount(); ++i) {
-//			pixels[i] = pixmap->getPixels()[i];
-//		}
-//	}
-
-//	PixmapIoP plt;
-//	plt.openRead(path);
-//
-//	//header
-//	int fileComponents= plt.getComponents();
-//
-//	//init
-//	w= plt.getW();
-//	h= plt.getH();
-//	if(components==-1){
-//		components= fileComponents;
-//	}
-//	if(pixels==NULL){
-//		pixels= new uint8[(std::size_t)getPixelByteCount()];
-//	}
-//
-//	//read data
-//	plt.read(&pixels[slice*w*h*components], components);
 }
 
 void Pixmap3D::loadSliceBmp(const string &path, int slice){
@@ -1354,36 +1316,9 @@ void Pixmap3D::loadSliceBmp(const string &path, int slice){
 void Pixmap3D::loadSliceTga(const string &path, int slice){
 	this->path = path;
 
-	deletePixels();
+	//deletePixels();
 	FileReader<Pixmap3D>::readPath(path,this);
 	//printf("Loading 3D pixmap TGA [%s] this [%p]\n",path.c_str(),this);
-
-
-//	Pixmap3D *pixmap = new Pixmap3D();
-//	pixmap->h = this->h;
-//	pixmap->w = this->w;
-//	pixmap->d = this->d;
-//	pixmap->components = this->components;
-//	pixmap->slice = this->slice;
-//	FileReader<Pixmap3D>::readPath(path,pixmap);
-//	printf("Loading 3D pixmap TGA [%s] pixmap [%p] this [%p]\n",path.c_str(),pixmap, this);
-//
-//	//init
-//	w= pixmap->getW();
-//	h= pixmap->getH();
-//	if(components==-1){
-//		components= pixmap->getComponents();
-//	}
-//	if(pixels==NULL){
-//		pixels= new uint8[(std::size_t)getPixelByteCount()];
-//	}
-//
-//	//read data
-//	for(unsigned int i = slice*w*h*components; i < h*w*components; ++i) {
-//		pixels[i] = pixmap->getPixels()[i];
-//	}
-//
-//	delete pixmap;
 
 /*
 	PixmapIoTga plt;

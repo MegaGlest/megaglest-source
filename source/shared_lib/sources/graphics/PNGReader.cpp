@@ -258,14 +258,19 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 	png_read_image(png_ptr, row_pointers);
 	size_t fileComponents = info_ptr->rowbytes/info_ptr->width;
 	size_t picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
+ 	const int d = ret->getD();
+ 	const int slice = ret->getSlice();
+	if(ret->getPixels() == NULL){
+		ret->init(width,height,d, (int)picComponents);
+	}
+
 	//std::cout << "PNG-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << std::endl;
 	//picComponents = 4;
 	//Copy image
 	//printf("pixmap3d loading path [%s] w = %d h = %d d = %d comp = %d\n",path.c_str(),width,height,ret->getD(),picComponents);
-	ret->init(width,height,ret->getD(),(int)picComponents);
 	uint8* pixels = ret->getPixels();
-	if(ret->getSlice() > 0) {
-		pixels = &pixels[ret->getSlice()*width*height*picComponents];
+	if(slice > 0) {
+		pixels = &pixels[slice*width*height*picComponents];
 	}
 
 	const size_t rowbytes = info_ptr->rowbytes;
