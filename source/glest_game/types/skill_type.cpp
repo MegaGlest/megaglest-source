@@ -625,6 +625,20 @@ BeBuiltSkillType::BeBuiltSkillType(){
     skillClass= scBeBuilt;
 }
 
+void BeBuiltSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+		string parentLoader) {
+	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+
+	if(sn->hasChild("anim-hp-bound")){
+		animHpBound= sn->getChild("anim-hp-bound")->getAttribute("value")->getBoolValue();
+	}
+	else {
+		animHpBound=false;
+	}
+}
+
+
 string BeBuiltSkillType::toString() const{
 	return "Be built";
 }
