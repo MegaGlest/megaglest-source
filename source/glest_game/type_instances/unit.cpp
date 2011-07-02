@@ -2202,6 +2202,8 @@ CommandResult Unit::undoCommand(Command *command){
 
 void Unit::stopDamageParticles(bool force) {
 	if(force == true || (hp > type->getTotalMaxHp(&totalUpgrade) / 2) ) {
+		//printf("Checking to stop damageparticles for unit [%s - %d] hp = %d\n",this->getType()->getName().c_str(),this->getId(),hp);
+
 		if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
 			fire = NULL;
 		}
@@ -2213,7 +2215,37 @@ void Unit::stopDamageParticles(bool force) {
 		}
 		// stop additional particles
 
-		for(unsigned int i = damageParticleSystems.size()-1; i <= 0; --i) {
+		if(damageParticleSystems.size() > 0) {
+			for(int i = damageParticleSystems.size()-1; i >= 0; --i) {
+				UnitParticleSystem *ps = damageParticleSystems[i];
+				UnitParticleSystemType *pst = NULL;
+				int foundParticleIndexType = -2;
+				for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
+					iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
+					if(iterMap->second == ps) {
+						foundParticleIndexType = iterMap->first;
+						if(foundParticleIndexType >= 0) {
+							pst = type->damageParticleSystemTypes[foundParticleIndexType];
+							break;
+						}
+					}
+				}
+				if(force == true || pst->getMinmaxEnabled() == false) {
+					damageParticleSystemsInUse.erase(foundParticleIndexType);
+					ps->fade();
+					damageParticleSystems.pop_back();
+				}
+			}
+		}
+	}
+
+	checkCustomizedParticleTriggers(force);
+}
+
+void Unit::checkCustomizedParticleTriggers(bool force) {
+	// Now check if we have special hp triggered particles
+	if(damageParticleSystems.size() > 0) {
+		for(int i = damageParticleSystems.size()-1; i >= 0; --i) {
 			UnitParticleSystem *ps = damageParticleSystems[i];
 			UnitParticleSystemType *pst = NULL;
 			int foundParticleIndexType = -2;
@@ -2227,66 +2259,40 @@ void Unit::stopDamageParticles(bool force) {
 					}
 				}
 			}
-			if(force == true || pst == NULL ||
-				pst->getMinmaxEnabled() == false) {
-				damageParticleSystemsInUse.erase(foundParticleIndexType);
-				ps->fade();
-				damageParticleSystems.pop_back();
-			}
-		}
-	}
 
-	checkCustomizedParticleTriggers(force);
-}
-
-void Unit::checkCustomizedParticleTriggers(bool force) {
-	// Now check if we have special hp triggered particles
-	for(unsigned int i = damageParticleSystems.size()-1; i <= 0; --i) {
-		UnitParticleSystem *ps = damageParticleSystems[i];
-		UnitParticleSystemType *pst = NULL;
-		int foundParticleIndexType = -2;
-		for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
-			iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
-			if(iterMap->second == ps) {
-				foundParticleIndexType = iterMap->first;
-				if(foundParticleIndexType >= 0) {
-					pst = type->damageParticleSystemTypes[foundParticleIndexType];
-					break;
-				}
-			}
-		}
-
-		if(force == true || (pst != NULL && pst->getMinmaxEnabled() == true)) {
-			bool stopParticle = force;
-			if(force == false) {
-				if(pst->getMinmaxIsPercent() == false) {
-					if(hp < pst->getMinHp() || hp > pst->getMaxHp()) {
-						stopParticle = true;
+			if(force == true || (pst != NULL && pst->getMinmaxEnabled() == true)) {
+				bool stopParticle = force;
+				if(force == false) {
+					if(pst->getMinmaxIsPercent() == false) {
+						if(hp < pst->getMinHp() || hp > pst->getMaxHp()) {
+							stopParticle = true;
+						}
+					}
+					else {
+						int hpPercent = (hp / type->getTotalMaxHp(&totalUpgrade) * 100);
+						if(hpPercent < pst->getMinHp() || hpPercent > pst->getMaxHp()) {
+							stopParticle = true;
+						}
 					}
 				}
-				else {
-					int hpPercent = (hp / type->getTotalMaxHp(&totalUpgrade) * 100);
-					if(hpPercent < pst->getMinHp() || hpPercent > pst->getMaxHp()) {
-						stopParticle = true;
-					}
+
+				//printf("CHECKING to STOP customized particle trigger by HP [%d to %d percentbased = %d] current hp = %d stopParticle = %d\n",pst->getMinHp(),pst->getMaxHp(),pst->getMinmaxIsPercent(),hp,stopParticle);
+
+				if(stopParticle == true) {
+					//printf("STOPPING customized particle trigger by HP [%d to %d] current hp = %d\n",pst->getMinHp(),pst->getMaxHp(),hp);
+
+					damageParticleSystemsInUse.erase(foundParticleIndexType);
+					ps->fade();
+					damageParticleSystems.pop_back();
 				}
-			}
-
-			//printf("CHECKING to STOP customized particle trigger by HP [%d to %d percentbased = %d] current hp = %d stopParticle = %d\n",pst->getMinHp(),pst->getMaxHp(),pst->getMinmaxIsPercent(),hp,stopParticle);
-
-			if(stopParticle == true) {
-				//printf("STOPPING customized particle trigger by HP [%d to %d] current hp = %d\n",pst->getMinHp(),pst->getMaxHp(),hp);
-
-				damageParticleSystemsInUse.erase(foundParticleIndexType);
-				ps->fade();
-				damageParticleSystems.pop_back();
 			}
 		}
 	}
 
 	// Now check if we have special hp triggered particles
 	//start additional particles
-	if( showUnitParticles && (type->damageParticleSystemTypes.empty() == false) ) {
+	if(showUnitParticles && (type->damageParticleSystemTypes.empty() == false)  &&
+		force == false && alive == true) {
 		for(unsigned int i = 0; i < type->damageParticleSystemTypes.size(); ++i) {
 			UnitParticleSystemType *pst = type->damageParticleSystemTypes[i];
 
@@ -2323,7 +2329,7 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 }
 
 void Unit::startDamageParticles() {
-	if(hp < type->getMaxHp() / 2 && hp > 0) {
+	if(hp < type->getMaxHp() / 2 && hp > 0 && alive == true) {
 		//start additional particles
 		if( showUnitParticles && (!type->damageParticleSystemTypes.empty()) ) {
 			for(unsigned int i = 0; i < type->damageParticleSystemTypes.size(); ++i) {
