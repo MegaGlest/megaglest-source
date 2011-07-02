@@ -37,68 +37,70 @@ namespace Glest{ namespace Game{
 
 // ==================== get ====================
 
+const string VALUE_PERCENT_MULTIPLIER_KEY_NAME = "value-percent-multiplier";
+
 void UpgradeTypeBase::load(const XmlNode *upgradeNode) {
 	//values
 	maxHpIsMultiplier = false;
 	maxHp= upgradeNode->getChild("max-hp")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("max-hp")->getAttribute("value-percent-multipler",false) != NULL) {
-		maxHpIsMultiplier = upgradeNode->getChild("max-hp")->getAttribute("value-percent-multipler")->getBoolValue();
+	if(upgradeNode->getChild("max-hp")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+		maxHpIsMultiplier = upgradeNode->getChild("max-hp")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
 	}
 
 	maxEpIsMultiplier = false;
 	maxEp= upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("max-ep")->getAttribute("value-percent-multipler",false) != NULL) {
-		maxEpIsMultiplier = upgradeNode->getChild("max-ep")->getAttribute("value-percent-multipler")->getBoolValue();
+	if(upgradeNode->getChild("max-ep")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+		maxEpIsMultiplier = upgradeNode->getChild("max-ep")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found maxEpIsMultiplier = %d\n",maxEpIsMultiplier);
 	}
 
 	sightIsMultiplier = false;
 	sight= upgradeNode->getChild("sight")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("sight")->getAttribute("value-percent-multipler",false) != NULL) {
-		sightIsMultiplier = upgradeNode->getChild("sight")->getAttribute("value-percent-multipler")->getBoolValue();
+	if(upgradeNode->getChild("sight")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+		sightIsMultiplier = upgradeNode->getChild("sight")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found sightIsMultiplier = %d\n",sightIsMultiplier);
 	}
 
 	attackStrengthIsMultiplier = false;
 	attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("attack-strenght")->getAttribute("value-percent-multipler",false) != NULL) {
-		attackStrengthIsMultiplier = upgradeNode->getChild("attack-strenght")->getAttribute("value-percent-multipler")->getBoolValue();
+	if(upgradeNode->getChild("attack-strenght")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+		attackStrengthIsMultiplier = upgradeNode->getChild("attack-strenght")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found attackStrengthIsMultiplier = %d\n",attackStrengthIsMultiplier);
 	}
 
 	attackRangeIsMultiplier = false;
 	attackRange= upgradeNode->getChild("attack-range")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("attack-range")->getAttribute("value-percent-multipler",false) != NULL) {
-		attackRangeIsMultiplier = upgradeNode->getChild("attack-range")->getAttribute("value-percent-multipler")->getBoolValue();
+	if(upgradeNode->getChild("attack-range")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+		attackRangeIsMultiplier = upgradeNode->getChild("attack-range")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found attackRangeIsMultiplier = %d\n",attackRangeIsMultiplier);
 	}
 
 	armorIsMultiplier = false;
 	armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("armor")->getAttribute("value-percent-multipler",false) != NULL) {
-		armorIsMultiplier = upgradeNode->getChild("armor")->getAttribute("value-percent-multipler")->getBoolValue();
+	if(upgradeNode->getChild("armor")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+		armorIsMultiplier = upgradeNode->getChild("armor")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found armorIsMultiplier = %d\n",armorIsMultiplier);
 	}
 
 	moveSpeedIsMultiplier = false;
 	moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("move-speed")->getAttribute("value-percent-multipler",false) != NULL) {
-		moveSpeedIsMultiplier = upgradeNode->getChild("move-speed")->getAttribute("value-percent-multipler")->getBoolValue();
+	if(upgradeNode->getChild("move-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+		moveSpeedIsMultiplier = upgradeNode->getChild("move-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found moveSpeedIsMultiplier = %d\n",moveSpeedIsMultiplier);
 	}
 
 	prodSpeedIsMultiplier = false;
 	prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("production-speed")->getAttribute("value-percent-multipler",false) != NULL) {
-		prodSpeedIsMultiplier = upgradeNode->getChild("production-speed")->getAttribute("value-percent-multipler")->getBoolValue();
+	if(upgradeNode->getChild("production-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+		prodSpeedIsMultiplier = upgradeNode->getChild("production-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found prodSpeedIsMultiplier = %d\n",prodSpeedIsMultiplier);
 	}
@@ -375,9 +377,12 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 	prodSpeedIsMultiplier		= ut->getProdSpeedIsMultiplier();
 
 	if(ut->getMaxHpIsMultiplier() == true) {
+		//printf("#1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 		maxHp += (unit->getHp() * (ut->getMaxHp() / 100));
+		//printf("#1.1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 	}
 	else {
+		//printf("#2 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 		maxHp += ut->getMaxHp();
 	}
 
@@ -474,6 +479,15 @@ void TotalUpgrade::apply(const UpgradeTypeBase *ut, const Unit *unit) {
 }
 
 void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
+	maxHpIsMultiplier			= ut->getMaxHpIsMultiplier();
+	sightIsMultiplier			= ut->getSightIsMultiplier();
+	maxEpIsMultiplier			= ut->getMaxEpIsMultiplier();
+	armorIsMultiplier			= ut->getArmorIsMultiplier();
+	attackStrengthIsMultiplier	= ut->getAttackStrengthIsMultiplier();
+	attackRangeIsMultiplier		= ut->getAttackRangeIsMultiplier();
+	moveSpeedIsMultiplier		= ut->getMoveSpeedIsMultiplier();
+	prodSpeedIsMultiplier		= ut->getProdSpeedIsMultiplier();
+
 	if(ut->getMaxHpIsMultiplier() == true) {
 		maxHp -= (unit->getHp() * (ut->getMaxHp() / 100));
 	}

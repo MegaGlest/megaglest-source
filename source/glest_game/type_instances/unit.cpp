@@ -1490,13 +1490,46 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		effect.boost = boost;
 		effect.source = source;
 
-		//if(boost->isAffected(source, this)) {
-			totalUpgrade.apply(&boost->boostUpgrade, this);
+		bool wasAlive = alive;
+		int prevMaxHp = totalUpgrade.getMaxHp();
+		//printf("#1 wasAlive = %d hp = %d boosthp = %d\n",wasAlive,hp,boost->boostUpgrade.getMaxHp());
 
-			checkItemInVault(&this->hp,this->hp);
-			hp += boost->boostUpgrade.getMaxHp();
-			addItemToVault(&this->hp,this->hp);
-		//}
+		totalUpgrade.apply(&boost->boostUpgrade, this);
+
+		checkItemInVault(&this->hp,this->hp);
+		//hp += boost->boostUpgrade.getMaxHp();
+		hp += (totalUpgrade.getMaxHp() - prevMaxHp);
+		addItemToVault(&this->hp,this->hp);
+
+		//printf("#2 wasAlive = %d hp = %d boosthp = %d\n",wasAlive,hp,boost->boostUpgrade.getMaxHp());
+
+		if(wasAlive == true) {
+			//startDamageParticles
+			startDamageParticles();
+
+			//stop DamageParticles on death
+			if(hp <= 0) {
+				alive= false;
+				hp=0;
+				addItemToVault(&this->hp,this->hp);
+
+				stopDamageParticles(true);
+
+				Unit::game->getWorld()->getStats()->die(getFactionIndex());
+				game->getScriptManager()->onUnitDied(this);
+
+				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+				if(sound != NULL &&
+					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
+					 (game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer))) {
+					SoundRenderer::getInstance().playFx(sound);
+				}
+
+				if(this->isDead() && this->getCurrSkill()->getClass() != scDie) {
+					this->kill();
+				}
+			}
+		}
 
 		if(showUnitParticles == true) {
 			effect.upst = new UnitParticleSystemType();
@@ -1523,13 +1556,43 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 	//printf("DE-APPLYING ATTACK BOOST to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 
-	//if(boost->isAffected(source, this)) {
-		totalUpgrade.deapply(&boost->boostUpgrade, this);
+	bool wasAlive = alive;
+	int prevMaxHp = totalUpgrade.getMaxHp();
+	totalUpgrade.deapply(&boost->boostUpgrade, this);
 
-		checkItemInVault(&this->hp,this->hp);
-		hp -= boost->boostUpgrade.getMaxHp();
-		addItemToVault(&this->hp,this->hp);
-	//}
+	checkItemInVault(&this->hp,this->hp);
+	//hp -= boost->boostUpgrade.getMaxHp();
+	hp -= (prevMaxHp - totalUpgrade.getMaxHp());
+	addItemToVault(&this->hp,this->hp);
+
+	if(wasAlive == true) {
+		//startDamageParticles
+		startDamageParticles();
+
+		//stop DamageParticles on death
+		if(hp <= 0) {
+			alive= false;
+			hp=0;
+			addItemToVault(&this->hp,this->hp);
+
+			stopDamageParticles(true);
+
+			Unit::game->getWorld()->getStats()->die(getFactionIndex());
+			game->getScriptManager()->onUnitDied(this);
+
+			StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+			if(sound != NULL &&
+				(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
+				 (game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer))) {
+				SoundRenderer::getInstance().playFx(sound);
+			}
+
+			if(this->isDead() && this->getCurrSkill()->getClass() != scDie) {
+				this->kill();
+			}
+		}
+	}
+
 
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 		UnitAttackBoostEffect &effect = currentAttackBoostEffects[i];
