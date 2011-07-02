@@ -88,7 +88,6 @@ Font3D * ConvertFont2DTo3D(Font2D *font) {
 	Font3D *result = new Font3DGl();
 	result->setSize(font->getSize());
 	result->setType("",font->getType());
-	result->setYOffsetFactor(font->getYOffsetFactor());
 	result->setWidth(font->getWidth());
 	result->init();
 	return result;
