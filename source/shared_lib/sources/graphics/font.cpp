@@ -47,7 +47,18 @@ float Font::scaleFontValueCenterHFactor		= 3.0;
 //float Font::scaleFontValueCenterHFactor		= 4.0;
 
 int Font::baseSize							= 0;
+
+#ifdef USE_FTGL
+
+int Font::faceResolution					= TextFTGL::faceResolution;
+string Font::langHeightText					= TextFTGL::langHeightText;
+
+#else
+
 int Font::faceResolution					= 72;
+string Font::langHeightText					= "yW";
+
+#endif
 //
 
 // =====================================================
@@ -126,7 +137,9 @@ Font::Font(FontTextHandlerType type) {
 		try {
 			textHandler = NULL;
 			textHandler = new TextFTGL(type);
-			TextFTGL::faceResolution = faceResolution;
+			TextFTGL::faceResolution = Font::faceResolution;
+			TextFTGL::langHeightText = Font::langHeightText;
+
 			metrics.setTextHandler(this->textHandler);
 		}
 		catch(exception &ex) {

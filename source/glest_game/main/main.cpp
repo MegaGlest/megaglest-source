@@ -2562,6 +2562,7 @@ int glestMain(int argc, char** argv) {
 		Font::baseSize			= config.getInt("FONT_BASE_SIZE",intToStr(Font::baseSize).c_str());
 		Font::scaleFontValue				= config.getFloat("FONT_SCALE_SIZE",floatToStr(Font::scaleFontValue).c_str());
 		Font::scaleFontValueCenterHFactor	= config.getFloat("FONT_SCALE_CENTERH_FACTOR",floatToStr(Font::scaleFontValueCenterHFactor).c_str());
+		Font::langHeightText				= config.getString("FONT_HEIGHT_TEXT",Font::langHeightText.c_str());
 
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
@@ -2664,6 +2665,10 @@ int glestMain(int argc, char** argv) {
         	Font::scaleFontValueCenterHFactor = strToFloat(lang.get("FONT_SCALE_CENTERH_FACTOR"));
         }
 
+        if(	lang.hasString("FONT_HEIGHT_TEXT")) {
+        	Font::langHeightText = config.getString("FONT_HEIGHT_TEXT",Font::langHeightText.c_str());
+        }
+
         if(	lang.hasString("FONT_CHARCOUNT")) {
 			// 256 for English
 			// 30000 for Chinese
@@ -2714,6 +2719,10 @@ int glestMain(int argc, char** argv) {
         }
         if(	lang.hasString("FONT_SCALE_CENTERH_FACTOR_WINDOWS")) {
         	Font::scaleFontValueCenterHFactor = strToFloat(lang.get("FONT_SCALE_CENTERH_FACTOR_WINDOWS"));
+        }
+
+        if(	lang.hasString("FONT_HEIGHT_TEXT_WINDOWS")) {
+        	Font::langHeightText = config.getString("FONT_HEIGHT_TEXT_WINDOWS",Font::langHeightText.c_str());
         }
 
         if(	lang.hasString("FONT_CHARCOUNT_WINDOWS")) {
