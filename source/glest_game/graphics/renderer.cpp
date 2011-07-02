@@ -3020,7 +3020,7 @@ void Renderer::renderUnits(const int renderFps) {
 
 			//render
 			Model *model= unit->getCurrentModelPtr();
-			model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive());
+			model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive() && !unit->isBeingBuiltWithAnimHpBound());
 
 			modelRenderer->render(model);
 			triangleCount+= model->getTriangleCount();
@@ -4658,7 +4658,7 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 
 			//render
 			Model *model= unit->getCurrentModelPtr();
-			model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive());
+			model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isBeingBuiltWithAnimHpBound());
 			modelRenderer->render(model);
 
 			glPopMatrix();

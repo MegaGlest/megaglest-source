@@ -439,6 +439,7 @@ public:
     bool isOperative() const;
     bool isBeingBuilt() const;
     bool isBuilt() const;
+    bool isBeingBuiltWithAnimHpBound() const;
     bool isPutrefacting() const;
 	bool isAlly(const Unit *unit) const;
 	bool isDamaged() const;
