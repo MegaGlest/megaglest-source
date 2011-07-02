@@ -72,6 +72,8 @@ private:
 	SDL_mutex* mutex;
 	int refCount;
 	string ownerId;
+	string deleteownerId;
+
 public:
 	Mutex(string ownerId="");
 	~Mutex();
