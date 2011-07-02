@@ -303,7 +303,11 @@ public:
 // ===============================
 
 class BeBuiltSkillType: public SkillType{
+private:
+	bool animHpBound;
+
 public:
+	bool getAnimHpBound() const	{return animHpBound;}
     BeBuiltSkillType();
     virtual string toString() const;
 };

@@ -1250,8 +1250,12 @@ bool Unit::update() {
 	float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 	progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
 
-	animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
-
+	if(currSkill->getClass() == scBeBuilt && static_cast<const BeBuiltSkillType*>(currSkill)->getAnimHpBound()==true ){
+		animProgress=this->getHpRatio();
+	}
+	else{
+		animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
+	}
 	//update target
 	updateTarget();
 
@@ -2230,7 +2234,7 @@ void Unit::stopDamageParticles(bool force) {
 						}
 					}
 				}
-				if(force == true || pst->getMinmaxEnabled() == false) {
+				if(force == true || ( pst !=NULL && pst->getMinmaxEnabled() == false )) {
 					damageParticleSystemsInUse.erase(foundParticleIndexType);
 					ps->fade();
 					damageParticleSystems.pop_back();
