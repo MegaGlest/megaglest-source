@@ -87,22 +87,24 @@ Mutex::Mutex(string ownerId) {
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",__FILE__,__FUNCTION__,__LINE__);
 		throw runtime_error(szBuf);
 	}
+	deleteownerId = "";
 }
 
 Mutex::~Mutex() {
 	if(mutex == NULL) {
 		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str());
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw runtime_error(szBuf);
 		//printf("%s\n",szBuf);
 	}
 	else if(refCount >= 1) {
 		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] about to destroy mutex refCount = %d owner [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str());
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] about to destroy mutex refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw runtime_error(szBuf);
 	}
 
 	if(mutex != NULL) {
+		deleteownerId = ownerId;
 		SDL_DestroyMutex(mutex);
 		mutex=NULL;
 	}
@@ -111,7 +113,7 @@ Mutex::~Mutex() {
 void Mutex::p() {
 	if(mutex == NULL) {
 		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str());
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw runtime_error(szBuf);
 	}
 	SDL_mutexP(mutex);
@@ -121,7 +123,7 @@ void Mutex::p() {
 void Mutex::v() {
 	if(mutex == NULL) {
 		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str());
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw runtime_error(szBuf);
 	}
 	refCount--;
