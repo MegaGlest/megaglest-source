@@ -2560,6 +2560,8 @@ int glestMain(int argc, char** argv) {
 		Font::fontIsMultibyte 	= config.getBool("FONT_MULTIBYTE",intToStr(Font::fontIsMultibyte).c_str());
 		Font::fontIsRightToLeft	= config.getBool("FONT_RIGHTTOLEFT",intToStr(Font::fontIsRightToLeft).c_str());
 		Font::baseSize			= config.getInt("FONT_BASE_SIZE",intToStr(Font::baseSize).c_str());
+		Font::scaleFontValue				= config.getFloat("FONT_SCALE_SIZE",floatToStr(Font::scaleFontValue).c_str());
+		Font::scaleFontValueCenterHFactor	= config.getFloat("FONT_SCALE_CENTERH_FACTOR",floatToStr(Font::scaleFontValueCenterHFactor).c_str());
 
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
@@ -2650,10 +2652,18 @@ int glestMain(int argc, char** argv) {
 
         lang.loadStrings(language);
         if(	lang.hasString("FONT_BASE_SIZE")) {
-        			// 256 for English
-        			// 30000 for Chinese
-        			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE"));
+			// 256 for English
+			// 30000 for Chinese
+			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE"));
         }
+
+        if(	lang.hasString("FONT_SCALE_SIZE")) {
+        	Font::scaleFontValue = strToFloat(lang.get("FONT_SCALE_SIZE"));
+        }
+        if(	lang.hasString("FONT_SCALE_CENTERH_FACTOR")) {
+        	Font::scaleFontValueCenterHFactor = strToFloat(lang.get("FONT_SCALE_CENTERH_FACTOR"));
+        }
+
         if(	lang.hasString("FONT_CHARCOUNT")) {
 			// 256 for English
 			// 30000 for Chinese
@@ -2686,12 +2696,26 @@ int glestMain(int argc, char** argv) {
 #endif
         }
 
-        if(	lang.hasString("FONT_YOFFSET_FACTOR")) {
-        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR"));
-		}
+//        if(	lang.hasString("FONT_YOFFSET_FACTOR")) {
+//        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR"));
+//		}
 
 #if defined(WIN32)
         // Win32 overrides for fonts (just in case they must be different)
+
+        if(	lang.hasString("FONT_BASE_SIZE_WINDOWS")) {
+			// 256 for English
+			// 30000 for Chinese
+			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE_WINDOWS"));
+        }
+
+        if(	lang.hasString("FONT_SCALE_SIZE_WINDOWS")) {
+        	Font::scaleFontValue = strToFloat(lang.get("FONT_SCALE_SIZE_WINDOWS"));
+        }
+        if(	lang.hasString("FONT_SCALE_CENTERH_FACTOR_WINDOWS")) {
+        	Font::scaleFontValueCenterHFactor = strToFloat(lang.get("FONT_SCALE_CENTERH_FACTOR_WINDOWS"));
+        }
+
         if(	lang.hasString("FONT_CHARCOUNT_WINDOWS")) {
 			// 256 for English
 			// 30000 for Chinese
@@ -2719,9 +2743,9 @@ int glestMain(int argc, char** argv) {
 			_putenv(newEnvValue.c_str());
         }
 
-        if(	lang.hasString("FONT_YOFFSET_FACTOR_WINDOWS")) {
-        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR_WINDOWS"));
-		}
+//        if(	lang.hasString("FONT_YOFFSET_FACTOR_WINDOWS")) {
+//        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR_WINDOWS"));
+//		}
 
         // end win32
 #endif

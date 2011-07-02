@@ -36,12 +36,18 @@ int Font::charCount							= 256;
 std::string Font::fontTypeName 				= "Times New Roman";
 bool Font::fontIsMultibyte 					= false;
 bool Font::forceLegacyFonts					= false;
-float FontMetrics::DEFAULT_Y_OFFSET_FACTOR	= 2.0f;
 bool Font::fontIsRightToLeft				= false;
-float Font::scaleFontValue					= 1.0;
+
+// This value is used to scale the font text rendering
+// in 3D render mode
+float Font::scaleFontValue					= 0.80;
+// This value is used for centering font text vertically (height)
+float Font::scaleFontValueCenterHFactor		= 3.0;
+//float Font::scaleFontValue					= 1.0;
+//float Font::scaleFontValueCenterHFactor		= 4.0;
+
 int Font::baseSize							= 0;
 int Font::faceResolution					= 72;
-//int Font::scaleFontYOffset					= 0;
 //
 
 // =====================================================
@@ -52,7 +58,6 @@ FontMetrics::FontMetrics(Text *textHandler) {
 	this->textHandler 	= textHandler;
 	this->widths		= new float[Font::charCount];
 	this->height		= 0;
-	this->yOffsetFactor = FontMetrics::DEFAULT_Y_OFFSET_FACTOR;
 
 	for(int i=0; i < Font::charCount; ++i) {
 		widths[i]= 0;
@@ -62,14 +67,6 @@ FontMetrics::FontMetrics(Text *textHandler) {
 FontMetrics::~FontMetrics() {
 	delete [] widths;
 	widths = NULL;
-}
-
-void FontMetrics::setYOffsetFactor(float yOffsetFactor) {
-	this->yOffsetFactor = yOffsetFactor;
-}
-
-float FontMetrics::getYOffsetFactor() const {
-	return this->yOffsetFactor;
 }
 
 void FontMetrics::setTextHandler(Text *textHandler) {
@@ -94,7 +91,6 @@ float FontMetrics::getTextWidth(const string &str) {
 			//Treat 2 byte characters as spaces
 			if(str[i] < 0) {
 				width+= (widths[97]); // This is the letter a which is a normal wide character and good to use for spacing
-				//i++;
 			}
 			else {
 				width+= widths[str[i]];
@@ -147,14 +143,6 @@ Font::~Font() {
 		delete textHandler;
 	}
 	textHandler = NULL;
-}
-
-void Font::setYOffsetFactor(float yOffsetFactor) {
-	metrics.setYOffsetFactor(yOffsetFactor);
-}
-
-float Font::getYOffsetFactor() const {
-	return metrics.getYOffsetFactor();
 }
 
 string Font::getType() const {

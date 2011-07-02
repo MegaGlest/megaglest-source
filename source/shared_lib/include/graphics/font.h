@@ -32,17 +32,17 @@ private:
 	float *widths;
 	float height;
 
-	float yOffsetFactor;
+	//float yOffsetFactor;
 	Text *textHandler;
 
 public:
-	static float DEFAULT_Y_OFFSET_FACTOR;
+	//static float DEFAULT_Y_OFFSET_FACTOR;
 
 	FontMetrics(Text *textHandler=NULL);
 	~FontMetrics();
 
-	void setYOffsetFactor(float yOffsetFactor);
-	float getYOffsetFactor() const;
+	//void setYOffsetFactor(float yOffsetFactor);
+	//float getYOffsetFactor() const;
 
 	void setTextHandler(Text *textHandler);
 	Text * getTextHandler();
@@ -66,9 +66,9 @@ public:
 	static bool forceLegacyFonts;
 	static bool fontIsRightToLeft;
 	static float scaleFontValue;
+	static float scaleFontValueCenterHFactor;
 	static int baseSize;
 	static int faceResolution;
-	//static int scaleFontYOffset;
 	
 public:
 	enum Width {
@@ -93,15 +93,12 @@ public:
 	virtual void end()=0;
 	
 	//get
-	//string getType() const			{return type;}
 	int getWidth() const;
 	FontMetrics *getMetrics() 		{return &metrics;}
 	Text * getTextHandler() 		{return textHandler;}
-	float getYOffsetFactor() const;
 	string getType() const;
 
 	//set
-	void setYOffsetFactor(float yOffsetFactor);
 	void setType(string typeX11, string typeGeneric);
 	void setWidth(int width);
 
@@ -114,8 +111,6 @@ public:
 // =====================================================
 
 class Font2D: public Font {
-protected:
-	//int size;
 
 public:
 	Font2D(FontTextHandlerType type=ftht_2D);
