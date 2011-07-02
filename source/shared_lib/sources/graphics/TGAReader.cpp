@@ -89,17 +89,21 @@ Pixmap3D* TGAReader3D::read(ifstream& in, const string& path, Pixmap3D* ret) con
 
 	const int h = fileHeader.height;
  	const int w = fileHeader.width;
+ 	const int d = ret->getD();
+ 	const int slice = ret->getSlice();
 	const int fileComponents= fileHeader.bitsPerPixel/8;
 	const int picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
 	//std::cout << "TGA-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << " slice:" << ret->getSlice() << std::endl;
-	ret->init(w,h,ret->getD(), picComponents);
+	if(ret->getPixels() == NULL){
+		ret->init(w,h,d, picComponents);
+	}
 	uint8* pixels = ret->getPixels();
-	if(ret->getSlice() > 0) {
-		pixels = &pixels[ret->getSlice()*w*h*picComponents];
+	if(slice > 0) {
+		pixels = &pixels[slice*w*h*picComponents];
 	}
 	//read file
 	for(int i=0; i<h*w*picComponents; i+=picComponents){
-		uint8 r, g, b, a, l;
+		uint8 r=0, g=0, b=0, a=0, l=0;
 
 		if(fileComponents==1){
 			in.read((char*)&l,1);
@@ -119,9 +123,9 @@ Pixmap3D* TGAReader3D::read(ifstream& in, const string& path, Pixmap3D* ret) con
 			}
 			l= (r+g+b)/3;
 		}
-		if (!in.good()) {
-			return NULL;
-		}
+		//if (!in.good()) {
+		//	return NULL;
+		//}
 
 		switch(picComponents){
 		case 1:
@@ -191,7 +195,7 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	uint8* pixels = ret->getPixels();
 	//read file
 	for(int i=0; i<h*w*picComponents; i+=picComponents){
-		uint8 r, g, b, a, l;
+		uint8 r=0, g=0, b=0, a=0, l=0;
 
 		if(fileComponents==1){
 			in.read((char*)&l,1);
