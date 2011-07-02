@@ -526,6 +526,9 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 
 	//printf("anim [%f] particleLoopStart [%d]\n",anim,particleLoopStart);
 
+	string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+	GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
+
 	renderer->renderTheModel(model, anim);
 
 	int updateLoops = particleLoopStart;
@@ -628,7 +631,7 @@ void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
 		zoom*= 1.1f;
 		zoom= clamp(zoom, 0.1f, 10.0f);
 
-		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
 		onPaint(paintEvent);
@@ -645,7 +648,7 @@ void MainWindow::onMouseWheelUp(wxMouseEvent &event) {
 		zoom*= 0.90909f;
 		zoom= clamp(zoom, 0.1f, 10.0f);
 
-		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
 		onPaint(paintEvent);
@@ -667,7 +670,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 			rotX+= clamp(lastX-x, -10, 10);
 			rotY+= clamp(lastY-y, -10, 10);
 
-			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
 			onPaint(paintEvent);
@@ -676,7 +679,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 			zoom*= 1.0f+(lastX-x+lastY-y)/100.0f;
 			zoom= clamp(zoom, 0.1f, 10.0f);
 
-			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
 			onPaint(paintEvent);
@@ -1136,7 +1139,7 @@ void MainWindow::loadModel(string path) {
             model= tmpModel;
 
             statusbarText = getModelInfo();
-            string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+            string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
             GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
             if(timer) timer->Start(100);
             titlestring =  extractFileFromDirectoryPath(modelPath) + " - "+ titlestring;
@@ -1486,7 +1489,7 @@ void MainWindow::onMenuSpeedSlower(wxCommandEvent &event){
 			speed = 0;
 		}
 
-		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 	}
 	catch(std::runtime_error e) {
@@ -1502,7 +1505,7 @@ void MainWindow::onMenuSpeedFaster(wxCommandEvent &event){
 			speed = 1;
 		}
 
-		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0 ) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0 ) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 	}
 	catch(std::runtime_error e) {
@@ -1703,7 +1706,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 				speed = 1.0;
 			}
 
-			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
 		}
@@ -1712,7 +1715,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 			if(speed < 0) {
 				speed = 0;
 			}
-			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
+			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 		}
 		else if (e.GetKeyCode() == 'W') {

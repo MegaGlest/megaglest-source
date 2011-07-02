@@ -528,6 +528,23 @@ bool Unit::isOperative() const{
     return isAlive() && isBuilt();
 }
 
+bool Unit::isBeingBuiltWithAnimHpBound() const{
+	if(currSkill == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		throw runtime_error(szBuf);
+	}
+
+	bool result = false;
+    if(currSkill->getClass() == scBeBuilt) {
+    	const BeBuiltSkillType *bbst = dynamic_cast<const BeBuiltSkillType*>(currSkill);
+    	if(bbst != NULL) {
+    		result = bbst->getAnimHpBound();
+    	}
+    }
+    return result;
+}
+
 bool Unit::isBeingBuilt() const{
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
@@ -1250,7 +1267,7 @@ bool Unit::update() {
 	float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 	progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
 
-	if(currSkill->getClass() == scBeBuilt && static_cast<const BeBuiltSkillType*>(currSkill)->getAnimHpBound()==true ){
+	if(isBeingBuiltWithAnimHpBound() == true) {
 		animProgress=this->getHpRatio();
 	}
 	else{
@@ -1811,7 +1828,7 @@ string Unit::getDesc() const {
 		str += lang.get("MaxUnitCount")+ ": " + intToStr(faction->getCountForMaxUnitCount(type)) + "/" + intToStr(type->getMaxUnitCount());
 	}
 
-	str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade));
+	str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade)) + " [" + floatToStr(getHpRatio()) + "] [" + floatToStr(animProgress) + "]";
 	if(type->getHpRegeneration()!=0){
 		str+= " (" + lang.get("Regeneration") + ": " + intToStr(type->getHpRegeneration()) + ")";
 	}
