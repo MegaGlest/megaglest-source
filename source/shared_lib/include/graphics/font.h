@@ -69,6 +69,7 @@ public:
 	static float scaleFontValueCenterHFactor;
 	static int baseSize;
 	static int faceResolution;
+	static string langHeightText;
 	
 public:
 	enum Width {

@@ -28,6 +28,7 @@ class TextFTGL : public Text
 {
 public:
 
+	static string langHeightText;
 	static int faceResolution;
 
 	TextFTGL(FontTextHandlerType type);

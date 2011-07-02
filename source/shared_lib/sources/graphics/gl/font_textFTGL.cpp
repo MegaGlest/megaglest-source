@@ -32,7 +32,8 @@ using namespace Shared::PlatformCommon;
 namespace Shared { namespace Graphics { namespace Gl {
 
 
-int TextFTGL::faceResolution = 72;
+string TextFTGL::langHeightText = "yW";
+int TextFTGL::faceResolution 	= 72;
 
 //====================================================================
 TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
@@ -232,9 +233,12 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 	//return ftFont->Ascender() + ftFont->Descender()*-1 - ftFont->LineHeight();
 	//return ftFont->LineHeight();
 
-	FTBBox box = ftFont->BBox("yW");
-	float result = box.Upper().Y()- box.Lower().Y();
-	//printf("ftFont->BBox(''yW'')%f\n",result);
+	static float result = -1000;
+	if(result == -1000) {
+		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
+		result = box.Upper().Y()- box.Lower().Y();
+		//printf("ftFont->BBox(''yW'')%f\n",result);
+	}
 	return result;
 //	printf("For str [%s] LineHeight = %f, result = %f\n",str, ftFont->LineHeight(),result);
 //	return result;
