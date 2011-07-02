@@ -2216,13 +2216,15 @@ void Unit::stopDamageParticles(bool force) {
 		for(unsigned int i = damageParticleSystems.size()-1; i <= 0; --i) {
 			UnitParticleSystem *ps = damageParticleSystems[i];
 			UnitParticleSystemType *pst = NULL;
-			int foundParticleIndexType = -1;
+			int foundParticleIndexType = -2;
 			for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
 				iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
 				if(iterMap->second == ps) {
 					foundParticleIndexType = iterMap->first;
-					pst = type->damageParticleSystemTypes[foundParticleIndexType];
-					break;
+					if(foundParticleIndexType >= 0) {
+						pst = type->damageParticleSystemTypes[foundParticleIndexType];
+						break;
+					}
 				}
 			}
 			if(force == true || pst == NULL ||
@@ -2242,13 +2244,15 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 	for(unsigned int i = damageParticleSystems.size()-1; i <= 0; --i) {
 		UnitParticleSystem *ps = damageParticleSystems[i];
 		UnitParticleSystemType *pst = NULL;
-		int foundParticleIndexType = -1;
+		int foundParticleIndexType = -2;
 		for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
 			iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
 			if(iterMap->second == ps) {
 				foundParticleIndexType = iterMap->first;
-				pst = type->damageParticleSystemTypes[foundParticleIndexType];
-				break;
+				if(foundParticleIndexType >= 0) {
+					pst = type->damageParticleSystemTypes[foundParticleIndexType];
+					break;
+				}
 			}
 		}
 
