@@ -330,6 +330,7 @@ private:
 	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
 
 	vector<ParticleSystem*> fireParticleSystems;
+	vector<UnitParticleSystem*> smokeParticleSystems;
 
 	CardinalDir modelFacing;
 
