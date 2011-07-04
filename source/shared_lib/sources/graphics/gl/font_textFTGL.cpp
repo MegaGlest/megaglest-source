@@ -237,6 +237,9 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 	if(result == -1000) {
 		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
 		result = box.Upper().Y()- box.Lower().Y();
+		if(result == 0) {
+			result = ftFont->LineHeight();
+		}
 		//printf("ftFont->BBox(''yW'')%f\n",result);
 	}
 	return result;
@@ -268,6 +271,19 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 
 }
 
+float TextFTGL::LineHeight(const wchar_t* str, const int len) {
+	static float result = -1000;
+	if(result == -1000) {
+		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
+		result = box.Upper().Y()- box.Lower().Y();
+		if(result == 0) {
+			result = ftFont->LineHeight();
+		}
+		//printf("ftFont->BBox(''yW'')%f\n",result);
+	}
+	return result;
+}
+
 void TextFTGL::Render(const wchar_t* str, const int len) {
 	/*
 	  FTGL renders the whole string when len == 0
@@ -280,10 +296,6 @@ void TextFTGL::Render(const wchar_t* str, const int len) {
 
 float TextFTGL::Advance(const wchar_t* str, const int len) {
 	return ftFont->Advance(str, len);
-}
-
-float TextFTGL::LineHeight(const wchar_t* str, const int len) {
-	return ftFont->LineHeight();
 }
 
 const char* TextFTGL::findFont(const char *firstFontToTry) {
