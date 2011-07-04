@@ -1508,22 +1508,25 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 		//send key to the chat manager
 		chatManager.keyDown(key);
 
+		//printf("GAME KEYDOWN #1\n");
+
 		if(chatManager.getEditEnabled() == false) {
+			//printf("GAME KEYDOWN #2\n");
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%d - %c]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] key = [%d - %c] pausegame [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key,configKeys.getCharKey("PauseGame"));
 
 			//if(key == configKeys.getCharKey("RenderNetworkStatus")) {
-			if(isKeyPressed(configKeys.getSDLKey("RenderNetworkStatus"),key) == true) {
+			if(isKeyPressed(configKeys.getSDLKey("RenderNetworkStatus"),key, false) == true) {
 				renderNetworkStatus= !renderNetworkStatus;
 			}
 			//else if(key == configKeys.getCharKey("ShowFullConsole")) {
-			else if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key, false) == true) {
 				showFullConsole= true;
 			}
 			//else if(key == configKeys.getCharKey("TogglePhotoMode")) {
-			else if(isKeyPressed(configKeys.getSDLKey("TogglePhotoMode"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("TogglePhotoMode"),key, false) == true) {
 				photoModeEnabled = !photoModeEnabled;
 				if(	photoModeEnabled == true &&
 					this->gameSettings.isNetworkGame() == false) {
@@ -1536,7 +1539,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			}
 			//Toggle music
 			//else if(key == configKeys.getCharKey("ToggleMusic")) {
-			else if(isKeyPressed(configKeys.getSDLKey("ToggleMusic"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("ToggleMusic"),key, false) == true) {
 				Config &config = Config::getInstance();
 				StrSound *gameMusic = world.getThisFaction()->getType()->getMusic();
 				if(gameMusic != NULL) {
@@ -1555,54 +1558,54 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			}
 			//move camera left
 			//else if(key == configKeys.getCharKey("CameraModeLeft")) {
-			else if(isKeyPressed(configKeys.getSDLKey("CameraModeLeft"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("CameraModeLeft"),key, false) == true) {
 				gameCamera.setMoveX(-1);
 				camLeftButtonDown=true;
 			}
 			//move camera right
 			//else if(key == configKeys.getCharKey("CameraModeRight")) {
-			else if(isKeyPressed(configKeys.getSDLKey("CameraModeRight"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("CameraModeRight"),key, false) == true) {
 				gameCamera.setMoveX(1);
 				camRightButtonDown=true;
 			}
 			//move camera up
 			//else if(key == configKeys.getCharKey("CameraModeUp")) {
-			else if(isKeyPressed(configKeys.getSDLKey("CameraModeUp"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("CameraModeUp"),key, false) == true) {
 				gameCamera.setMoveZ(1);
 				camUpButtonDown=true;
 			}
 			//move camera down
 			//else if(key == configKeys.getCharKey("CameraModeDown")) {
-			else if(isKeyPressed(configKeys.getSDLKey("CameraModeDown"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("CameraModeDown"),key, false) == true) {
 				gameCamera.setMoveZ(-1);
 				camDownButtonDown=true;
 			}
 			//change camera mode
 			//else if(key == configKeys.getCharKey("FreeCameraMode")) {
-			else if(isKeyPressed(configKeys.getSDLKey("FreeCameraMode"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("FreeCameraMode"),key, false) == true) {
 				gameCamera.switchState();
 				string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
 				console.addLine(lang.get("CameraModeSet")+" "+ stateString);
 			}
 			//reset camera mode to normal
 			//else if(key == configKeys.getCharKey("ResetCameraMode")) {
-			else if(isKeyPressed(configKeys.getSDLKey("ResetCameraMode"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("ResetCameraMode"),key, false) == true) {
 				gameCamera.resetPosition();
 			}
 			//pause
 			//else if(key == configKeys.getCharKey("PauseGame")) {
-			else if(isKeyPressed(configKeys.getSDLKey("PauseGame"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("PauseGame"),key, false) == true) {
 				//printf("Toggle pause paused = %d\n",paused);
 				setPaused(!paused);
 			}
 			//switch display color
 			//else if(key == configKeys.getCharKey("ChangeFontColor")) {
-			else if(isKeyPressed(configKeys.getSDLKey("ChangeFontColor"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("ChangeFontColor"),key, false) == true) {
 				gui.switchToNextDisplayColor();
 			}
 			//increment speed
 			//else if(key == configKeys.getCharKey("GameSpeedIncrease")) {
-			else if(isKeyPressed(configKeys.getSDLKey("GameSpeedIncrease"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("GameSpeedIncrease"),key, false) == true) {
 				bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 				if(speedChangesAllowed){
 					incSpeed();
@@ -1610,7 +1613,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			}
 			//decrement speed
 			//else if(key == configKeys.getCharKey("GameSpeedDecrease")) {
-			else if(isKeyPressed(configKeys.getSDLKey("GameSpeedDecrease"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("GameSpeedDecrease"),key, false) == true) {
 				bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 				if(speedChangesAllowed){
 					decSpeed();
@@ -1618,12 +1621,13 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			}
 			//exit
 			//else if(key == configKeys.getCharKey("ExitKey")) {
-			else if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key, false) == true) {
 				showMessageBox(lang.get("ExitGame?"), "", true);
 			}
 			//group
 			//else if(key>='0' && key<'0'+Selection::maxGroups){
 			else {
+				//printf("GAME KEYDOWN #3\n");
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
 				for(int idx = 1; idx <= Selection::maxGroups; idx++) {
@@ -1634,8 +1638,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 					SDLKey groupHotKey = configKeys.getSDLKey(keyName.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
 
+					//printf("input.keysym.mod = %d groupHotKey = %d key = %d isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,isKeyPressed(groupHotKey,key));
 					//if(key == groupHotKey) {
 					if(isKeyPressed(groupHotKey,key) == true) {
+						//printf("GROUP KEY!\n");
 						//gui.groupKey(key-'0');
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						gui.groupKey(idx-1);

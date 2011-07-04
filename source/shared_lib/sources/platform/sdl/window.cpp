@@ -944,12 +944,23 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 }
 */
 
-bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input) {
-	Uint16 c = 0;
+bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllowed) {
+	Uint16 c = SDLK_UNKNOWN;
+	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 	if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		c = input.keysym.unicode;
-		//c = toupper(c);
+
+		// When modifiers are pressed the unicode result is wrong
+		// example CTRL-3 will give the ESCAPE vslue 27 in unicode
+		if( (input.keysym.mod & KMOD_LCTRL) != KMOD_LCTRL &&
+			(input.keysym.mod & KMOD_RCTRL) != KMOD_RCTRL &&
+			(input.keysym.mod & KMOD_LALT) != KMOD_LALT   &&
+			(input.keysym.mod & KMOD_RALT) != KMOD_RALT   &&
+			(input.keysym.mod & KMOD_LSHIFT) != KMOD_LSHIFT &&
+			(input.keysym.mod & KMOD_RSHIFT) != KMOD_RSHIFT) {
+			c = input.keysym.unicode;
+			//c = toupper(c);
+		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
 	}
@@ -979,11 +990,24 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input) {
 		}
 	}
 
+	if(result == true && modifiersAllowed == false) {
+		//printf("input.keysym.mod = %d\n",input.keysym.mod);
+
+		if( (input.keysym.mod & KMOD_LCTRL) == KMOD_LCTRL ||
+			(input.keysym.mod & KMOD_RCTRL) == KMOD_RCTRL ||
+			(input.keysym.mod & KMOD_LALT) == KMOD_LALT   ||
+			(input.keysym.mod & KMOD_RALT) == KMOD_RALT   ||
+			(input.keysym.mod & KMOD_LSHIFT) == KMOD_LSHIFT ||
+			(input.keysym.mod & KMOD_RSHIFT) == KMOD_RSHIFT) {
+				result = false;
+			}
+	}
 	string compareKeyName = SDL_GetKeyName(compareKey);
 	string pressKeyName = SDL_GetKeyName((SDLKey)c);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] compareKey [%d - %s] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,compareKey,compareKeyName.c_str(),c,pressKeyName.c_str(),result);
-	//printf ("In [%s::%s Line: %d] pressed key [%d - %s] input.keysym.unicode [%d] mod = %d\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
+	//printf ("ISPRESS compareKey [%d - %s] pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d result = %d\n",
+	//		compareKey,compareKeyName.c_str(),c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod,result);
 
 	return result;
 }
@@ -993,6 +1017,7 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 	if(input.keysym.unicode > 0) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		c = (SDLKey)input.keysym.unicode;
 		//c = toupper(c);
 
@@ -1009,6 +1034,9 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 
 	string pressKeyName = SDL_GetKeyName((SDLKey)c);
 	string inputKeyName = SDL_GetKeyName(input.keysym.sym);
+
+	//printf ("PRESS pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d\n",
+	//		c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] pressed key [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str());
 	//printf ("In [%s::%s Line: %d] pressed key [%d - %s] input [%d - %s] input.keysym.unicode [%d] mod = %d\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str(),input.keysym.sym,inputKeyName.c_str(),input.keysym.unicode,input.keysym.mod);
