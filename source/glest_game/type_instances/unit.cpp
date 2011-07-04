@@ -738,6 +738,9 @@ void Unit::setVisible(const bool visible) {
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
 		(*it)->setVisible(visible);
 	}
+	for(UnitParticleSystems::iterator it= smokeParticleSystems.begin(); it != smokeParticleSystems.end(); ++it) {
+		(*it)->setVisible(visible);
+	}
 
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 		UnitAttackBoostEffect &effect = currentAttackBoostEffects[i];
@@ -1303,6 +1306,11 @@ bool Unit::update() {
 		(*it)->setRotation(getRotation());
 	}
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
+		(*it)->setPos(getCurrVector());
+		(*it)->setRotation(getRotation());
+	}
+
+	for(UnitParticleSystems::iterator it= smokeParticleSystems.begin(); it != smokeParticleSystems.end(); ++it) {
 		(*it)->setPos(getCurrVector());
 		(*it)->setRotation(getRotation());
 	}
@@ -2236,6 +2244,15 @@ void Unit::stopDamageParticles(bool force) {
 		}
 		// stop additional particles
 
+
+		if(smokeParticleSystems.size() > 0) {
+			for(int i = smokeParticleSystems.size()-1; i >= 0; --i) {
+				UnitParticleSystem *ps = smokeParticleSystems[i];
+				ps->fade();
+				smokeParticleSystems.pop_back();
+			}
+		}
+
 		if(damageParticleSystems.size() > 0) {
 			for(int i = damageParticleSystems.size()-1; i >= 0; --i) {
 				UnitParticleSystem *ps = damageParticleSystems[i];
@@ -2399,8 +2416,8 @@ void Unit::startDamageParticles() {
 				ups->setMaxParticleEnergy(150);
 				ups->setSizeNoEnergy(type->getSize()*0.6f);
 				ups->setParticleSize(type->getSize()*0.8f);
-				damageParticleSystems.push_back(ups);
-				damageParticleSystemsInUse[-1] = ups;
+				smokeParticleSystems.push_back(ups);
+				//damageParticleSystemsInUse[-1] = ups;
 				Renderer::getInstance().manageParticleSystem(ups, rsGame);
 			}
 		}
