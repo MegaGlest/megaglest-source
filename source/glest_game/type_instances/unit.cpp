@@ -338,10 +338,14 @@ Unit::~Unit() {
 
 	}
 	//remove commands
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 	while(commands.empty() == false) {
 		delete commands.back();
 		commands.pop_back();
 	}
+	safeMutex.ReleaseLock();
 
 	// If the unit is not visible we better make sure we cleanup associated particles
 	if(this->getVisible() == false) {
@@ -866,6 +870,17 @@ bool Unit::anyCommand(bool validateCommandtype) const {
 }
 
 //return current command, assert that there is always one command
+Command *Unit::getCurrrentCommandThreadSafe() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
+	if(commands.empty() == false) {
+		return commands.front();
+	}
+	return NULL;
+}
+
+//return current command, assert that there is always one command
 Command *Unit::getCurrCommand() const {
 	if(commands.empty() == false) {
 		return commands.front();
@@ -933,6 +948,9 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		}
 		else{
 			//Delete all lower-prioirty commands
+			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 			for(list<Command*>::iterator i= commands.begin(); i != commands.end();){
 				if((*i)->getPriority() < command_priority){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled)
@@ -945,6 +963,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 					++i;
 				}
 			}
+			safeMutex.ReleaseLock();
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -984,7 +1003,12 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 
 	//push back command
 	if(result == crSuccess) {
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 		commands.push_back(command);
+
+		safeMutex.ReleaseLock();
 	}
 	else {
 		delete command;
@@ -1007,6 +1031,9 @@ CommandResult Unit::finishCommand() {
 	}
 
 	//pop front
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 	delete commands.front();
 	commands.erase(commands.begin());
 	this->unitPath->clear();
@@ -1019,6 +1046,8 @@ CommandResult Unit::finishCommand() {
 			break;
 		}
 	}
+
+	safeMutex.ReleaseLock();
 
 	return crSuccess;
 }
@@ -1039,12 +1068,16 @@ CommandResult Unit::cancelCommand() {
 	undoCommand(commands.back());
 
 	//delete ans pop command
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 	delete commands.back();
 	commands.pop_back();
 
 	//clear routes
 	this->unitPath->clear();
 
+	safeMutex.ReleaseLock();
 	return crSuccess;
 }
 
@@ -2044,6 +2077,9 @@ void Unit::updateTarget(){
 }
 
 void Unit::clearCommands() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 	this->setCurrentUnitTitle("");
 	this->unitPath->clear();
 	while(commands.empty() == false) {
