@@ -273,6 +273,9 @@ void AiRuleRepair::execute() {
 	if(unitCountAlreadyRepairingDamagedUnit >= minUnitsRepairingCastle){
 		return;
 	}
+
+	int unitGroupCommandId = -1;
+
 	//find a repairer and issue command
 	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
 		const Unit *u= aiInterface->getMyUnit(i);
@@ -304,7 +307,12 @@ void AiRuleRepair::execute() {
 
 					//aiInterface->giveCommand(i, rct, damagedUnit->getPos());
 					if(unitCountAlreadyRepairingDamagedUnit < minUnitsRepairingCastle) {
-						aiInterface->giveCommand(i, rct, damagedUnit->getPosWithCellMapSet());
+
+						if(unitGroupCommandId == -1) {
+							unitGroupCommandId = aiInterface->getWorld()->getNextCommandGroupId();
+						}
+
+						aiInterface->giveCommand(i, rct, damagedUnit->getPosWithCellMapSet(),unitGroupCommandId);
 						aiInterface->printLog(3, "Repairing order issued");
 						unitCountAlreadyRepairingDamagedUnit++;
 						//						printf(

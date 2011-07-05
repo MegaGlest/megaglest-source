@@ -49,6 +49,14 @@ class Faction;
 ///	Each of the game players
 // =====================================================
 
+class CommandGroupSorter {
+public:
+	Unit *unit;
+
+	CommandGroupSorter(Unit *unit);
+	bool operator< (const CommandGroupSorter &j) const;
+};
+
 class FactionThread : public BaseThread {
 protected:
 
@@ -56,6 +64,7 @@ protected:
 	Semaphore semTaskSignalled;
 	Mutex triggerIdMutex;
 	std::pair<int,bool> frameIndex;
+	std::vector<CommandGroupSorter> *unitsInFactionsSorted;
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int frameIndex);
@@ -64,7 +73,7 @@ protected:
 public:
 	FactionThread(Faction *faction);
     virtual void execute();
-    void signalPathfinder(int frameIndex);
+    void signalPathfinder(int frameIndex,std::vector<CommandGroupSorter> *unitsInFactionsSorted);
     bool isSignalPathfinderCompleted(int frameIndex);
 };
 
@@ -193,7 +202,7 @@ public:
 
 	World * getWorld() { return world; }
 	int getFrameCount();
-	void signalWorkerThread(int frameIndex);
+	void signalWorkerThread(int frameIndex,std::vector<CommandGroupSorter> *unitsInFactionsSorted);
 	bool isWorkerThreadSignalCompleted(int frameIndex);
 	void limitResourcesToStore();
 

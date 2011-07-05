@@ -87,6 +87,7 @@ private:
 	int8 unitFactionIndex;
 	int8 commandStateType;
 	int32 commandStateValue;
+	int32 unitCommandGroupId;
 
 public:
 	NetworkCommand(){};
@@ -101,7 +102,8 @@ public:
 		int facing= -1,
 		bool wantQueue = false,
 		CommandStateType commandStateType = cst_None,
-		int commandTypeStateValue = -1);
+		int commandTypeStateValue = -1,
+		int unitCommandGroupId = -1);
 
 	NetworkCommandType getNetworkCommandType() const	{return static_cast<NetworkCommandType>(networkCommandType);}
 	int getUnitId() const								{return unitId;}
@@ -116,6 +118,8 @@ public:
 
 	CommandStateType getCommandStateType() const 		{return static_cast<CommandStateType>(commandStateType);}
 	int getCommandStateValue() const				 	{return commandStateValue;}
+
+	int getUnitCommandGroupId() const					{ return unitCommandGroupId; }
 
     void preprocessNetworkCommand(World *world);
 	string toString() const;

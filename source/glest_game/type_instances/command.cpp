@@ -35,6 +35,7 @@ Command::Command(const CommandType *ct, const Vec2i &pos){
 	unitType= NULL;
 	stateType			= cst_None;
 	stateValue 			= -1;
+	unitCommandGroupId	= -1;
 }
 
 Command::Command(const CommandType *ct, Unit* unit) {
@@ -49,6 +50,7 @@ Command::Command(const CommandType *ct, Unit* unit) {
 	}
 	stateType			= cst_None;
 	stateValue 			= -1;
+	unitCommandGroupId	= -1;
 }
 
 Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing) {
@@ -60,6 +62,7 @@ Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitTy
 	this->facing = facing;
 	stateType			= cst_None;
 	stateValue 			= -1;
+	unitCommandGroupId	= -1;
 
 	//if(this->unitType != NULL) {
 	//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitType = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->unitType->toString().c_str());
@@ -130,6 +133,9 @@ std::string Command::toString() const {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
 	result += ", stateType = " + intToStr(stateType) + ", stateValue = " + intToStr(stateValue);
+
+
+	result += ", unitCommandGroupId = " + intToStr(unitCommandGroupId);
 
 	return result;
 }

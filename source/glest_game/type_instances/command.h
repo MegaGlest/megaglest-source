@@ -48,6 +48,8 @@ private:
 	CommandStateType stateType;
 	int stateValue;
 
+	int unitCommandGroupId;
+
 public:
     //constructor
     Command(const CommandType *ct, const Vec2i &pos=Vec2i(0)); 
@@ -79,6 +81,9 @@ public:
 	void setStateValue(int value) 	{ stateValue = value; }
 	int getStateValue() const		{ return stateValue; }
 
+
+	void setUnitCommandGroupId(int value) 	{ unitCommandGroupId = value; }
+	int getUnitCommandGroupId() const		{ return unitCommandGroupId; }
 
     std::string toString() const;
 };   

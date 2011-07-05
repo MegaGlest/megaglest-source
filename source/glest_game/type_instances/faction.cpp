@@ -30,6 +30,45 @@ using Shared::Util::RandomGen;
 
 namespace Glest { namespace Game {
 
+CommandGroupSorter::CommandGroupSorter(Unit *unit) {
+	this->unit = unit;
+}
+
+bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
+
+	Command *command= this->unit->getCurrCommand();
+	if( command != NULL &&
+			(command->getCommandType()->getClass() == ccMove ||
+			 command->getCommandType()->getClass() == ccAttack)  &&
+		command->getUnitCommandGroupId() > 0) {
+		int curCommandGroupId = command->getUnitCommandGroupId();
+
+		Command *commandPeer = j.unit->getCurrCommand();
+		if(commandPeer == NULL) {
+			return true;
+		}
+		else if(commandPeer->getCommandType()->getClass() !=
+				command->getCommandType()->getClass()) {
+			return true;
+		}
+		else if(commandPeer->getUnitCommandGroupId() < 0) {
+			return true;
+		}
+		else if(curCommandGroupId > commandPeer->getUnitCommandGroupId()) {
+			return false;
+		}
+		else {
+			float unitDist = this->unit->getCenteredPos().dist(command->getPos());
+			float unitDistPeer = j.unit->getCenteredPos().dist(commandPeer->getPos());
+
+
+			return unitDist < unitDistPeer;
+		}
+	}
+
+	return false;
+}
+
 // =====================================================
 //	class FactionThread
 // =====================================================
@@ -43,18 +82,20 @@ void FactionThread::setQuitStatus(bool value) {
 
 	BaseThread::setQuitStatus(value);
 	if(value == true) {
-		signalPathfinder(-1);
+		signalPathfinder(-1,NULL);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void FactionThread::signalPathfinder(int frameIndex) {
+void FactionThread::signalPathfinder(int frameIndex, std::vector<CommandGroupSorter> *unitsInFactionsSorted) {
 	if(frameIndex >= 0) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
 		this->frameIndex.first = frameIndex;
 		this->frameIndex.second = false;
+
+		this->unitsInFactionsSorted = unitsInFactionsSorted;
 		safeMutex.ReleaseLock();
 	}
 	semTaskSignalled.signal();
@@ -66,6 +107,7 @@ void FactionThread::setTaskCompleted(int frameIndex) {
 		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
 		if(this->frameIndex.first == frameIndex) {
 			this->frameIndex.second = true;
+			this->unitsInFactionsSorted = NULL;
 		}
 		safeMutex.ReleaseLock();
 	}
@@ -129,17 +171,36 @@ void FactionThread::execute() {
 				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
 
 				World *world = faction->getWorld();
-				int unitCount = faction->getUnitCount();
-				for(int j = 0; j < unitCount; ++j) {
-					Unit *unit = faction->getUnit(j);
-					if(unit == NULL) {
-						throw runtime_error("unit == NULL");
-					}
 
-					bool update = unit->needToUpdate();
-					//update = true;
-					if(update == true) {
-						world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
+				if(this->unitsInFactionsSorted != NULL) {
+					//std::vector<CommandGroupSorter> *unitsInFactionsSorted
+					int unitCount = unitsInFactionsSorted->size();
+					for(int j = 0; j < unitCount; ++j) {
+						Unit *unit = (*unitsInFactionsSorted)[j].unit;
+						if(unit == NULL) {
+							throw runtime_error("unit == NULL");
+						}
+
+						bool update = unit->needToUpdate();
+						//update = true;
+						if(update == true) {
+							world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
+						}
+					}
+				}
+				else {
+					int unitCount = faction->getUnitCount();
+					for(int j = 0; j < unitCount; ++j) {
+						Unit *unit = faction->getUnit(j);
+						if(unit == NULL) {
+							throw runtime_error("unit == NULL");
+						}
+
+						bool update = unit->needToUpdate();
+						//update = true;
+						if(update == true) {
+							world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
+						}
 					}
 				}
 
@@ -203,9 +264,9 @@ Faction::~Faction() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Faction::signalWorkerThread(int frameIndex) {
+void Faction::signalWorkerThread(int frameIndex, std::vector<CommandGroupSorter> *unitsInFactionsSorted) {
 	if(workerThread != NULL) {
-		workerThread->signalPathfinder(frameIndex);
+		workerThread->signalPathfinder(frameIndex,unitsInFactionsSorted);
 	}
 }
 

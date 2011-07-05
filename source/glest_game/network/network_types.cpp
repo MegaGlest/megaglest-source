@@ -31,7 +31,7 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 								int commandTypeId, const Vec2i &pos, int unitTypeId,
 								int targetId, int facing, bool wantQueue,
 								CommandStateType commandStateType,
-								int commandStateValue)
+								int commandStateValue, int unitCommandGroupId)
 		: networkCommandType(networkCommandType)
 		, unitId(unitId)
 		, commandTypeId(commandTypeId)
@@ -40,7 +40,8 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 		, unitTypeId(unitTypeId)
 		, wantQueue(wantQueue)
 		, commandStateType(commandStateType)
-		, commandStateValue(commandStateValue) {
+		, commandStateValue(commandStateValue)
+		, unitCommandGroupId(unitCommandGroupId) {
 
 	assert(targetId == -1 || facing == -1);
 	this->targetId = targetId >= 0 ? targetId : facing;
@@ -88,9 +89,10 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
 
 string NetworkCommand::toString() const {
     char szBuf[1024]="";
-    sprintf(szBuf,"networkCommandType = %d\nunitId = %d\ncommandTypeId = %d\npositionX = %d\npositionY = %d\nunitTypeId = %d\ntargetId = %d\nwantQueue= %d\nfromFactionIndex = %d\nunitFactionUnitCount = %d\nunitFactionIndex = %d, commandStateType = %d, commandStateValue = %d",
+    sprintf(szBuf,"networkCommandType = %d\nunitId = %d\ncommandTypeId = %d\npositionX = %d\npositionY = %d\nunitTypeId = %d\ntargetId = %d\nwantQueue= %d\nfromFactionIndex = %d\nunitFactionUnitCount = %d\nunitFactionIndex = %d, commandStateType = %d, commandStateValue = %d, unitCommandGroupId = %d",
         networkCommandType,unitId,commandTypeId,positionX,positionY,unitTypeId,targetId,wantQueue,
-        fromFactionIndex,unitFactionUnitCount,unitFactionIndex,commandStateType,commandStateValue);
+        fromFactionIndex,unitFactionUnitCount,unitFactionIndex,commandStateType,commandStateValue,
+        unitCommandGroupId);
 
     string result = szBuf;
     return result;

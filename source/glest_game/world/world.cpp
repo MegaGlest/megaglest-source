@@ -57,6 +57,7 @@ World::World(){
 	ExploredCellsLookupItemCacheTimerCount = 0;
 	FowAlphaCellsLookupItemCache.clear();
 
+	nextCommandGroupId = 0;
 	techTree = NULL;
 	fogOfWarOverride = false;
 
@@ -272,14 +273,35 @@ Checksum World::loadScenario(const string &path, Checksum *checksum) {
 void World::updateAllFactionUnits() {
 	scriptManager->onTimerTriggerEvent();
 
-	// Signal the faction threads to do any pre-processing
+	// Prioritize grouped command units so closest units to target go first
+	// units
 	int factionCount = getFactionCount();
+	std::map<int, std::vector<CommandGroupSorter> > unitsInFactionsSorted;
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
 		if(faction == NULL) {
 			throw runtime_error("faction == NULL");
 		}
-		faction->signalWorkerThread(frameCount);
+
+		int unitCount = faction->getUnitCount();
+		for(int j = 0; j < unitCount; ++j) {
+			Unit *unit = faction->getUnit(j);
+			if(unit == NULL) {
+				throw runtime_error("unit == NULL");
+			}
+
+			unitsInFactionsSorted[faction->getIndex()].push_back(CommandGroupSorter(unit));
+		}
+		std::sort(unitsInFactionsSorted[faction->getIndex()].begin(),unitsInFactionsSorted[faction->getIndex()].end());
+	}
+
+	// Signal the faction threads to do any pre-processing
+	for(int i = 0; i < factionCount; ++i) {
+		Faction *faction = getFaction(i);
+		if(faction == NULL) {
+			throw runtime_error("faction == NULL");
+		}
+		faction->signalWorkerThread(frameCount,&unitsInFactionsSorted[faction->getIndex()]);
 	}
 
 	bool workThreadsFinished = false;
@@ -316,16 +338,25 @@ void World::updateAllFactionUnits() {
 			throw runtime_error("faction == NULL");
 		}
 
-		int unitCount = faction->getUnitCount();
-
+		int unitCount = unitsInFactionsSorted[faction->getIndex()].size();
 		for(int j = 0; j < unitCount; ++j) {
-			Unit *unit = faction->getUnit(j);
+			Unit *unit = unitsInFactionsSorted[faction->getIndex()][j].unit;
 			if(unit == NULL) {
 				throw runtime_error("unit == NULL");
 			}
 
 			unitUpdater.updateUnit(unit);
 		}
+
+//		int unitCount = faction->getUnitCount();
+//		for(int j = 0; j < unitCount; ++j) {
+//			Unit *unit = faction->getUnit(j);
+//			if(unit == NULL) {
+//				throw runtime_error("unit == NULL");
+//			}
+//
+//			unitUpdater.updateUnit(unit);
+//		}
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 20) printf("In [%s::%s Line: %d] *** Faction MAIN thread processing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);
@@ -1642,6 +1673,11 @@ int World::getNextUnitId(Faction *faction)	{
 		mapFactionNextUnitId[faction->getIndex()] = faction->getIndex() * 100000;
 	}
 	return mapFactionNextUnitId[faction->getIndex()]++;
+}
+
+// Get a unique commandid when sending commands to a group of units
+int World::getNextCommandGroupId() {
+	return ++nextCommandGroupId;
 }
 
 std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {

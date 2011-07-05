@@ -494,6 +494,7 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 	int producerWarriorCount=0;
 	int maxProducerWarriors=random.randRange(1,11);
 	int unitCount = aiInterface->getMyUnitCount();
+	int unitGroupCommandId = -1;
 
 	int attackerWorkersHarvestingCount = 0;
     for(int i = 0; i < unitCount; ++i) {
@@ -553,8 +554,12 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 							attackerWorkersHarvestingCount++;
 						}
 					}
-					if(shouldAttack){
-						aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
+					if(shouldAttack) {
+						if(unitGroupCommandId == -1) {
+							unitGroupCommandId = aiInterface->getWorld()->getNextCommandGroupId();
+						}
+
+						aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos(), unitGroupCommandId);
 						unitSignalledToAttack= true;
 					}
 				}
@@ -573,7 +578,12 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 						if(shouldAttack){
 //								printf("~~~~~~~~ Unit [%s - %d] WILL AttackStoppedCommand [%s - %d]\n", unit->getFullName().c_str(),
 //								        unit->getId(), enemy->getFullName().c_str(), enemy->getId());
-							aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
+
+							if(unitGroupCommandId == -1) {
+								unitGroupCommandId = aiInterface->getWorld()->getNextCommandGroupId();
+							}
+
+							aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos(), unitGroupCommandId);
 							unitSignalledToAttack= true;
 						}
 					}
@@ -599,8 +609,12 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 					}
 				}
 			}
-			if(shouldAttack){
-				aiInterface->giveCommand(i, act, pos);
+			if(shouldAttack) {
+				if(unitGroupCommandId == -1) {
+					unitGroupCommandId = aiInterface->getWorld()->getNextCommandGroupId();
+				}
+
+				aiInterface->giveCommand(i, act, pos, unitGroupCommandId);
 			}
 		}
     }
@@ -647,7 +661,7 @@ void Ai::harvest(int unitIndex) {
 		Vec2i resPos;
 		if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos, false)) {
 			resPos= resPos+Vec2i(random.randRange(-2, 2), random.randRange(-2, 2));
-			aiInterface->giveCommand(unitIndex, hct, resPos);
+			aiInterface->giveCommand(unitIndex, hct, resPos, -1);
 			//aiInterface->printLog(4, "Order harvest pos:" + intToStr(resPos.x)+", "+intToStr(resPos.y)+": "+rrToStr(r)+"\n");
 		}
 	}
@@ -793,6 +807,8 @@ void Ai::unblockUnits() {
 	if(signalAdjacentUnits.size() > 0) {
 		//printf("#2 AI units ARE BLOCKED about to unblock\n");
 
+		int unitGroupCommandId = -1;
+
 		for(std::map<float, std::map<int, const Unit *> >::reverse_iterator iterMap = signalAdjacentUnits.rbegin();
 			iterMap != signalAdjacentUnits.rend(); iterMap++) {
 
@@ -812,7 +828,11 @@ void Ai::unblockUnits() {
 						if(canUnitMoveToCell == true) {
 
 							if(ct != NULL) {
-								CommandResult r = aiInterface->giveCommand(adjacentUnit,ct, pos);
+								if(unitGroupCommandId == -1) {
+									unitGroupCommandId = aiInterface->getWorld()->getNextCommandGroupId();
+								}
+
+								CommandResult r = aiInterface->giveCommand(adjacentUnit,ct, pos, unitGroupCommandId);
 							}
 						}
 					}

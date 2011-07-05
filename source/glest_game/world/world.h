@@ -140,6 +140,8 @@ private:
 	std::map<string,StaticSound *> staticSoundList;
 	std::map<string,StrSound *> streamSoundList;
 
+	uint32 nextCommandGroupId;
+
 public:
 	World();
 	~World();
@@ -169,6 +171,7 @@ public:
 	const WaterEffects *getWaterEffects() const		{return &waterEffects;}
 	const WaterEffects *getAttackEffects() const		{return &attackEffects;}
 	int getNextUnitId(Faction *faction);
+	int getNextCommandGroupId();
 	int getFrameCount() const						{return frameCount;}
 
 	//init & load
