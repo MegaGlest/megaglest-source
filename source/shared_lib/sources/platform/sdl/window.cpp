@@ -966,6 +966,12 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 				(input.keysym.mod & KMOD_RSHIFT) == KMOD_RSHIFT) {
 			c = input.keysym.unicode;
 		}
+		else if((input.keysym.mod & KMOD_LCTRL) == KMOD_LCTRL ||
+				(input.keysym.mod & KMOD_RCTRL) == KMOD_RCTRL) {
+			if(c >= SDLK_0 && c <= SDLK_9) {
+				c = input.keysym.unicode;
+			}
+		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
