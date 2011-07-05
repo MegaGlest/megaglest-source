@@ -292,7 +292,8 @@ void World::updateAllFactionUnits() {
 
 			unitsInFactionsSorted[faction->getIndex()].push_back(CommandGroupSorter(unit));
 		}
-		std::sort(unitsInFactionsSorted[faction->getIndex()].begin(),unitsInFactionsSorted[faction->getIndex()].end());
+		std::vector<CommandGroupSorter> &unitListToSort = unitsInFactionsSorted[faction->getIndex()];
+		std::sort(unitListToSort.begin(),unitListToSort.end());
 	}
 
 	// Signal the faction threads to do any pre-processing
@@ -301,7 +302,8 @@ void World::updateAllFactionUnits() {
 		if(faction == NULL) {
 			throw runtime_error("faction == NULL");
 		}
-		faction->signalWorkerThread(frameCount,&unitsInFactionsSorted[faction->getIndex()]);
+		std::vector<CommandGroupSorter> &unitListSorted = unitsInFactionsSorted[faction->getIndex()];
+		faction->signalWorkerThread(frameCount,&unitListSorted);
 	}
 
 	bool workThreadsFinished = false;
@@ -338,9 +340,11 @@ void World::updateAllFactionUnits() {
 			throw runtime_error("faction == NULL");
 		}
 
-		int unitCount = unitsInFactionsSorted[faction->getIndex()].size();
+		std::vector<CommandGroupSorter> &unitListSorted = unitsInFactionsSorted[faction->getIndex()];
+
+		int unitCount = unitListSorted.size();
 		for(int j = 0; j < unitCount; ++j) {
-			Unit *unit = unitsInFactionsSorted[faction->getIndex()][j].unit;
+			Unit *unit = unitListSorted[j].unit;
 			if(unit == NULL) {
 				throw runtime_error("unit == NULL");
 			}

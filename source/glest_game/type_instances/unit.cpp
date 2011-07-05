@@ -877,6 +877,7 @@ Command *Unit::getCurrrentCommandThreadSafe() {
 	if(commands.empty() == false) {
 		return commands.front();
 	}
+
 	return NULL;
 }
 
@@ -1078,6 +1079,7 @@ CommandResult Unit::cancelCommand() {
 	this->unitPath->clear();
 
 	safeMutex.ReleaseLock();
+
 	return crSuccess;
 }
 
@@ -2087,6 +2089,7 @@ void Unit::clearCommands() {
 		delete commands.back();
 		commands.pop_back();
 	}
+	safeMutex.ReleaseLock();
 }
 
 void Unit::deleteQueuedCommand(Command *command) {
