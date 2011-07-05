@@ -375,6 +375,8 @@ private:
 
 	std::vector<UnitAttackBoostEffect> currentAttackBoostEffects;
 
+	Mutex mutexCommands;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -386,6 +388,7 @@ public:
     bool unitHasAttackBoost(const AttackBoost *boost, const Unit *source) const;
 
     //queries
+    Command *getCurrrentCommandThreadSafe();
     void setIgnoreCheckCommand(bool value)      { ignoreCheckCommand=value;}
     bool getIgnoreCheckCommand() const			{return ignoreCheckCommand;}
 	int getId() const							{return id;}

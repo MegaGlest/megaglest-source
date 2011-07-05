@@ -36,14 +36,21 @@ CommandGroupSorter::CommandGroupSorter(Unit *unit) {
 
 bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 
-	Command *command= this->unit->getCurrCommand();
+	if(j.unit == NULL || j.unit->isAlive() == false) {
+		return true;
+	}
+	else if((this->unit == NULL || this->unit->isAlive() == false)) {
+		return false;
+	}
+
+	Command *command= this->unit->getCurrrentCommandThreadSafe();
 	if( command != NULL &&
 			(command->getCommandType()->getClass() == ccMove ||
 			 command->getCommandType()->getClass() == ccAttack)  &&
 		command->getUnitCommandGroupId() > 0) {
 		int curCommandGroupId = command->getUnitCommandGroupId();
 
-		Command *commandPeer = j.unit->getCurrCommand();
+		Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
 		if(commandPeer == NULL) {
 			return true;
 		}
