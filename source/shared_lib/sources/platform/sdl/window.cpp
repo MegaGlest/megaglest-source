@@ -948,7 +948,7 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 	Uint16 c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 	if(input.keysym.unicode > 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod);
 
 		// When modifiers are pressed the unicode result is wrong
 		// example CTRL-3 will give the ESCAPE vslue 27 in unicode
@@ -1021,7 +1021,7 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 	SDLKey c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 	if(input.keysym.unicode > 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod);
 
 		c = (SDLKey)input.keysym.unicode;
 		//c = toupper(c);
