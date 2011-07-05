@@ -47,6 +47,9 @@ const char *folderDelimiter = "/";
 
 const string g3dviewerVersionString= "v1.3.6";
 
+// Because g3d should always support alpha transparency
+string fileFormat = "png";
+
 namespace Glest { namespace Game {
 string getGameReadWritePath(string lookupKey) {
 	string path = "";
@@ -90,6 +93,7 @@ const wxChar  *GAME_ARGS[] = {
 	wxT("--zoom-value"),
 	wxT("--rotate-x-value"),
 	wxT("--rotate-y-value"),
+	wxT("--screenshot-format"),
 };
 
 enum GAME_ARG_TYPE {
@@ -105,6 +109,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_ZOOM_VALUE,
 	GAME_ARG_ROTATE_X_VALUE,
 	GAME_ARG_ROTATE_Y_VALUE,
+	GAME_ARG_SCREENSHOT_FORMAT,
 };
 
 bool hasCommandArgument(int argc, wxChar** argv,const string argName,
@@ -190,6 +195,12 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\tY Coordinate Rotation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE]));
 	printf("\n                     \t\tWhere x is a decimal value from -10.0 to 10.0:");
 	printf("\n                     \t\texample: %s %s=2.2",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE]));
+
+	printf("\n%s=x\t\tSpecify which image format to use for screenshots.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_SCREENSHOT_FORMAT]));
+	printf("\n                     \t\tWhere x is one of the following supported formats");
+	printf("\n                     \t\tpng,jpg,tga,bmp");
+	printf("\n                     \t\t*NOTE: png is the default (and supports transparency)");
+	printf("\n                     \t\texample: %s %s=jpg",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_SCREENSHOT_FORMAT]));
 
 	printf("\n\n");
 }
@@ -857,6 +868,7 @@ void MainWindow::onMenumFileToggleScreenshotTransparent(wxCommandEvent &event) {
     try {
         float alpha = (event.IsChecked() == true ? 0.0f : 1.0f);
         renderer->setAlphaColor(alpha);
+        //printf("alpha = %f\n",alpha);
 	}
 	catch(std::runtime_error e) {
 		std::cout << e.what() << std::endl;
@@ -906,9 +918,8 @@ void MainWindow::saveScreenshot() {
 
 			string path = screenShotsPath;
 			if(isdir(path.c_str()) == true) {
-				Config &config= Config::getInstance();
-				string fileFormat = config.getString("ScreenShotFileType","jpg");
-				//string fileFormat = "png";
+				//Config &config= Config::getInstance();
+				//string fileFormat = config.getString("ScreenShotFileType","jpg");
 
 				for(int i=0; i < 5000; ++i) {
 					path = screenShotsPath;
@@ -2228,6 +2239,28 @@ bool App::OnInit() {
         }
         else {
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            return false;
+        }
+    }
+
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_SCREENSHOT_FORMAT])) == true) {
+    	const wxWX2MBbuf param = (const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_SCREENSHOT_FORMAT]);
+
+    	int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string((const char*)param) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
+        }
+        //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        vector<string> paramPartTokens;
+        Tokenize(value,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+        	fileFormat = paramPartTokens[1];
+        }
+        else {
+            printf("\nInvalid value specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
             printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
             return false;
         }
