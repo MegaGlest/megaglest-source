@@ -69,7 +69,7 @@ void ChatManager::keyUp(SDL_KeyboardEvent key) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			//if(key == vkEscape || key == SDLK_ESCAPE) {
-			if(isKeyPressed(SDLK_ESCAPE,key) == true) {
+			if(isKeyPressed(SDLK_ESCAPE,key,false) == true) {
 				text.clear();
 				editEnabled= false;
 			}
@@ -110,7 +110,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 		}
 
 		//if(key==vkReturn) {
-		if(isKeyPressed(SDLK_RETURN,key) == true) {
+		if(isKeyPressed(SDLK_RETURN,key, false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			//SDL_keysym keystate = Window::getKeystate();
@@ -155,7 +155,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 			}
 		}
 		//else if(key==vkBack) {
-		else if(isKeyPressed(SDLK_BACKSPACE,key) == true) {
+		else if(isKeyPressed(SDLK_BACKSPACE,key,false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			if(!text.empty()) {

@@ -947,7 +947,7 @@ char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllowed) {
 	Uint16 c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
-	if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
+	if(input.keysym.unicode > 0) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		// When modifiers are pressed the unicode result is wrong
@@ -960,6 +960,11 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 			(input.keysym.mod & KMOD_RSHIFT) != KMOD_RSHIFT) {
 			c = input.keysym.unicode;
 			//c = toupper(c);
+		}
+		else if(c == SDLK_QUESTION &&
+				(input.keysym.mod & KMOD_LSHIFT) == KMOD_LSHIFT ||
+				(input.keysym.mod & KMOD_RSHIFT) == KMOD_RSHIFT) {
+			c = input.keysym.unicode;
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
