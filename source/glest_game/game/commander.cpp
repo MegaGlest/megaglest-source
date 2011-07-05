@@ -190,6 +190,11 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 		CommandStateType commandStateType 	= cst_None;
 		int commandStateValue 				= -1;
 
+		int unitCommandGroupId = -1;
+		if(selection->getCount() > 1) {
+			unitCommandGroupId = world->getNextCommandGroupId();
+		}
+
 		//bool unitSignalledToBuild = false;
 		//give orders to all selected units
 		for(int i = 0; i < selection->getCount(); ++i) {
@@ -228,7 +233,8 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 					NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
 							useCommandtype->getId(), usePos, unitType->getId(),
 							(targetUnit != NULL ? targetUnit->getId() : -1),
-							facing, tryQueue, commandStateType,commandStateValue);
+							facing, tryQueue, commandStateType,commandStateValue,
+							unitCommandGroupId);
 
 					//every unit is ordered to a the position
 					result= pushNetworkCommand(&networkCommand);
@@ -247,7 +253,8 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 
 CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType,
 									const Vec2i &pos, const UnitType* unitType,
-									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
+									CardinalDir facing, bool tryQueue,Unit *targetUnit,
+									int unitGroupCommandId) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Chrono chrono;
@@ -266,7 +273,7 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 		NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(),
 									commandType->getId(), pos, unitType->getId(),
 									(targetUnit != NULL ? targetUnit->getId() : -1),
-									facing, tryQueue);
+									facing, tryQueue,cst_None,-1,unitGroupCommandId);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -278,13 +285,19 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 	return result;
 }
 
-CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
+CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass,
+		const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
 
 	if(selection->isEmpty() == false) {
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
 
 		refPos= world->getMap()->computeRefPos(selection);
+
+		int unitCommandGroupId = -1;
+		if(selection->getCount() > 1) {
+			unitCommandGroupId = world->getNextCommandGroupId();
+		}
 
 		//give orders to all selected units
 		for(int i = 0; i < selection->getCount(); ++i) {
@@ -297,8 +310,11 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 
 					int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 					int unitId= selection->getUnit(i)->getId();
-					Vec2i currPos= world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPos(), pos);
-					NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId, -1, tryQueue);
+					Vec2i currPos= world->getMap()->computeDestPos(refPos,
+							selection->getUnit(i)->getPos(), pos);
+					NetworkCommand networkCommand(this->world,nctGiveCommand,
+							unitId, ct->getId(), currPos, -1, targetId, -1,
+							tryQueue,cst_None,-1,unitCommandGroupId);
 
 					//every unit is ordered to a different pos
 					result= pushNetworkCommand(&networkCommand);
@@ -318,15 +334,20 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 
 CommandResult Commander::tryGiveCommand(const Selection *selection,
 						const CommandType *commandType, const Vec2i &pos,
-						const Unit *targetUnit, bool tryQueue) const{
+						const Unit *targetUnit, bool tryQueue) const {
 	if(!selection->isEmpty() && commandType!=NULL){
 		Vec2i refPos;
 		CommandResultContainer results;
 
 		refPos= world->getMap()->computeRefPos(selection);
 
+		int unitCommandGroupId = -1;
+		if(selection->getCount() > 1) {
+			unitCommandGroupId = world->getNextCommandGroupId();
+		}
+
 		//give orders to all selected units
-		for(int i=0; i<selection->getCount(); ++i){
+		for(int i = 0; i < selection->getCount(); ++i) {
 			const Unit *unit = selection->getUnit(i);
 			assert(unit != NULL);
 
@@ -336,7 +357,9 @@ CommandResult Commander::tryGiveCommand(const Selection *selection,
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
 				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
-				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
+				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
+						commandType->getId(), currPos, -1, targetId, -1, tryQueue,
+						cst_None, -1, unitCommandGroupId);
 
 				//every unit is ordered to a different position
 				result= pushNetworkCommand(&networkCommand);
@@ -352,7 +375,8 @@ CommandResult Commander::tryGiveCommand(const Selection *selection,
 }
 
 //auto command
-CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const {
+CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos,
+		const Unit *targetUnit, bool tryQueue, int unitCommandGroupId) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CommandResult result = crFailUndefined;
@@ -361,9 +385,13 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
 
+		if(unitCommandGroupId == -1 && selection->getCount() > 1) {
+			unitCommandGroupId = world->getNextCommandGroupId();
+		}
+
 		//give orders to all selected units
 		refPos= world->getMap()->computeRefPos(selection);
-		for(int i=0; i<selection->getCount(); ++i) {
+		for(int i=0; i < selection->getCount(); ++i) {
 			//every unit is ordered to a different pos
 			const Unit *unit = selection->getUnit(i);
 			assert(unit != NULL);
@@ -381,13 +409,17 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 				CommandResult result = crFailUndefined;
 				bool canSubmitCommand=canSubmitCommandType(unit, commandType);
 				if(canSubmitCommand == true) {
-					NetworkCommand networkCommand(this->world,nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue);
+					NetworkCommand networkCommand(this->world,nctGiveCommand,
+							unitId, commandType->getId(), currPos, -1, targetId,
+							-1, tryQueue, cst_None, -1, unitCommandGroupId);
 					result= pushNetworkCommand(&networkCommand);
 				}
 				results.push_back(result);
 			}
 			else if(unit->isMeetingPointSettable() == true) {
-				NetworkCommand command(this->world,nctSetMeetingPoint, unit->getId(), -1, currPos);
+				NetworkCommand command(this->world,nctSetMeetingPoint,
+						unit->getId(), -1, currPos,-1,-1,-1,false,
+						cst_None,-1,unitCommandGroupId);
 
 				CommandResult result= pushNetworkCommand(&command);
 				results.push_back(result);
@@ -404,17 +436,24 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 	return result;
 }
 
-CommandResult Commander::tryCancelCommand(const Selection *selection) const{
+CommandResult Commander::tryCancelCommand(const Selection *selection) const {
 
-	for(int i=0; i<selection->getCount(); ++i){
-		NetworkCommand command(this->world,nctCancelCommand, selection->getUnit(i)->getId());
+	int unitCommandGroupId = -1;
+	if(selection->getCount() > 1) {
+		unitCommandGroupId = world->getNextCommandGroupId();
+	}
+
+	for(int i = 0; i < selection->getCount(); ++i) {
+		NetworkCommand command(this->world,nctCancelCommand,
+				selection->getUnit(i)->getId(),-1,Vec2i(0),-1,-1,-1,false,
+				cst_None,-1,unitCommandGroupId);
 		pushNetworkCommand(&command);
 	}
 
 	return crSuccess;
 }
 
-void Commander::trySetMeetingPoint(const Unit* unit, const Vec2i &pos)const{
+void Commander::trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const {
 	NetworkCommand command(this->world,nctSetMeetingPoint, unit->getId(), -1, pos);
 	pushNetworkCommand(&command);
 }
@@ -776,6 +815,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	command->setStateType(commandStateType);
 	command->setStateValue(commandStateValue);
+	command->setUnitCommandGroupId(networkCommand->getUnitCommandGroupId());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

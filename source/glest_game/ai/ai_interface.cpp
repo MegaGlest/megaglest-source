@@ -137,7 +137,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass,
 	}
 }
 
-CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos) {
+CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId) {
 	assert(this->gameSettings != NULL);
 
 	if(unit == NULL) {
@@ -172,7 +172,8 @@ CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *comm
 	}
 
 	if(executeCommandOverNetwork() == true) {
-		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
+		CommandResult result = commander->tryGiveCommand(unit, commandType, pos,
+				unit->getType(),CardinalDir::NORTH, false, NULL,unitGroupCommandId);
 		return result;
 	}
 	else {
@@ -180,14 +181,16 @@ CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *comm
 
 		Faction *faction = world->getFaction(unit->getFactionIndex());
 		Unit *unitToCommand = faction->findUnit(unit->getId());
-		CommandResult result = unitToCommand->giveCommand(new Command(commandType, pos));
+		Command *cmd = new Command(commandType, pos);
+		cmd->setUnitCommandGroupId(unitGroupCommandId);
+		CommandResult result = unitToCommand->giveCommand(cmd);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
 	}
 }
 
-CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos){
+CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId) {
 	assert(this->gameSettings != NULL);
 
 	const Unit *unit = getMyUnit(unitIndex);
@@ -225,7 +228,9 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos));
+		Command *cmd = new Command(commandType, pos);
+		cmd->setUnitCommandGroupId(unitGroupCommandId);
+		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(cmd);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;

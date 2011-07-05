@@ -388,6 +388,8 @@ void Gui::onSelectionChanged(){
 // ================= PRIVATE =================
 
 void Gui::giveOneClickOrders(){
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	CommandResult result;
 	bool queueKeyDown = isKeyDown(queueCommandKey);
 	if(selection.isUniform()){
@@ -414,10 +416,12 @@ void Gui::giveDefaultOrders(int x, int y) {
 }
 
 void Gui::givePreparedDefaultOrders(int x, int y){
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	giveDefaultOrders(x, y, NULL,false);
 }
 
 void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse3d) {
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	bool queueKeyDown = isKeyDown(queueCommandKey);
 	Vec2i targetPos=Vec2i(x, y);
 	//give order
@@ -442,7 +446,7 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 }
 
 void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
-
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	CommandResult result;
 
 	//compute target

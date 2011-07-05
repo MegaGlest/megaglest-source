@@ -92,10 +92,10 @@ public:
 										const Vec2i &pos, const UnitType* unitType,
 										CardinalDir facing, bool tryQueue,Unit *targetUnit=NULL) const;
 
-	CommandResult tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue = false,Unit *targetUnit=NULL) const;
+	CommandResult tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue = false,Unit *targetUnit=NULL,int unitGroupCommandId=-1) const;
 	CommandResult tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
     CommandResult tryGiveCommand(const Selection *selection, const CommandType *commandType, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
-    CommandResult tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit= NULL, bool tryQueue = false) const;
+    CommandResult tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit= NULL, bool tryQueue = false, int unitCommandGroupId = -1) const;
 	CommandResult tryCancelCommand(const Selection *selection) const;
 	void trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const;
 	CommandResult pushNetworkCommand(const NetworkCommand* networkCommand) const;
