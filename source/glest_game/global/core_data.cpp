@@ -64,6 +64,11 @@ void CoreData::load() {
 	fireTexture->getPixmap()->init(1);
 	fireTexture->getPixmap()->load(dir+"/misc_textures/fire_particle.tga");
 
+	teamColorTexture= renderer.newTexture2D(rsGlobal);
+	teamColorTexture->setFormat(Texture::fAlpha);
+	teamColorTexture->getPixmap()->init(1);
+	teamColorTexture->getPixmap()->load(dir+"/misc_textures/team_color_texture.tga");
+
 	snowTexture= renderer.newTexture2D(rsGlobal);
 	snowTexture->setMipmap(false);
 	snowTexture->setFormat(Texture::fAlpha);

@@ -114,6 +114,10 @@ private:
 	int updateFpsAvgTest;
 	int renderFpsAvgTest;
 
+	int renderExtraTeamColor;
+	static const int renderTeamColorCircleBit=1;
+	static const int renderTeamColorPlaneBit=2;
+
 	bool photoModeEnabled;
 	bool visibleHUD;
 	bool withRainEffect;
@@ -146,6 +150,8 @@ public:
 	bool getPaused() const					{ return paused;}
 	void setPaused(bool value);
 	const int getTotalRenderFps() const					{return totalRenderFps;}
+
+	void toggleTeamColorMarker();
     //init
     virtual void load(LoadGameItem loadTypes);
     virtual void load();

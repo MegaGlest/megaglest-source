@@ -2946,6 +2946,54 @@ void Renderer::renderWater() {
 	assertGl();
 }
 
+void Renderer::renderTeamColorCircle(){
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.size() > 0) {
+
+		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_TEXTURE_2D);
+		glDepthFunc(GL_ALWAYS);
+		glDisable(GL_STENCIL_TEST);
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glLineWidth(2.f);
+
+		for(int visibleUnitIndex = 0;
+							visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+				Vec3f currVec= unit->getCurrVectorFlat();
+				Vec3f color=unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0);
+				glColor4f(color.x, color.y, color.z, 0.7f);
+				renderSelectionCircle(currVec, unit->getType()->getSize(), 0.8f, 0.05f);
+			}
+		glPopAttrib();
+	}
+}
+
+void Renderer::renderTeamColorPlane(){
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.size() > 0){
+		glPushAttrib(GL_ENABLE_BIT);
+		glDisable(GL_LIGHTING);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glEnable(GL_COLOR_MATERIAL);
+		const Texture2D *texture=CoreData::getInstance().getTeamColorTexture();
+		for(int visibleUnitIndex = 0;
+				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex){
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+			Vec3f currVec= unit->getCurrVectorFlat();
+			renderTeamColorEffect(currVec,visibleUnitIndex,unit->getType()->getSize(),
+					unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0),texture);
+		}
+		glDisable(GL_COLOR_MATERIAL);
+		glPopAttrib();
+	}
+}
+
+
+
 void Renderer::renderUnits(const int renderFps) {
 	Unit *unit=NULL;
 	const World *world= game->getWorld();
@@ -3055,7 +3103,33 @@ void Renderer::renderUnits(const int renderFps) {
 	glAlphaFunc(GL_GREATER, 0.0f);
 	//assert
 	assertGl();
+
 }
+
+void Renderer::renderTeamColorEffect(Vec3f &v, int heigth, int size, Vec3f color, const Texture2D *texture) {
+	GLUquadricObj *disc;
+	float halfSize=size;
+	halfSize=halfSize;
+	float heigthoffset=0.5+heigth%25*0.004;
+	glPushMatrix();
+	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
+	glColor4f(color.x, color.y, color.z, 1.0f);
+		glBegin(GL_TRIANGLE_STRIP);
+			glTexCoord2i(0, 1);
+			glVertex3f(v.x-halfSize,v.y+heigthoffset,v.z+halfSize);
+			glTexCoord2i(0, 0);
+			glVertex3f(v.x-halfSize,v.y+heigthoffset, v.z-halfSize);
+			glTexCoord2i(1, 1);
+
+			glVertex3f(v.x+halfSize,v.y+heigthoffset, v.z+halfSize);
+			glTexCoord2i(1, 0);
+			glVertex3f(v.x+halfSize,v.y+heigthoffset, v.z-halfSize);
+		glEnd();
+	glPopMatrix();
+
+}
+
+
 
 void Renderer::renderSelectionEffects() {
 
@@ -3336,10 +3410,9 @@ void Renderer::renderWaterEffects(){
 }
 
 void Renderer::renderHud(){
-	const Metrics &metrics= Metrics::getInstance();
-	const World *world= game->getWorld();
 	Texture2D *hudTexture=game->getGui()->getHudTexture();
 	if(hudTexture!=NULL){
+		const Metrics &metrics= Metrics::getInstance();
 		renderTextureQuad(0, 0, metrics.getVirtualW(), metrics.getVirtualH(),hudTexture,1.0f);
 	}
 }
@@ -5056,7 +5129,7 @@ void Renderer::enableProjectiveTexturing() {
 
 // ==================== private aux drawing ====================
 
-void Renderer::renderSelectionCircle(Vec3f v, int size, float radius) {
+void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thickness) {
 	GLUquadricObj *disc;
 
 	glMatrixMode(GL_MODELVIEW);
@@ -5066,7 +5139,7 @@ void Renderer::renderSelectionCircle(Vec3f v, int size, float radius) {
 	glRotatef(90.f, 1.f, 0.f, 0.f);
 	disc= gluNewQuadric();
 	gluQuadricDrawStyle(disc, GLU_FILL);
-	gluCylinder(disc, radius*(size-0.2f), radius*size, 0.2f, 30, 1);
+	gluCylinder(disc, radius*(size-thickness), radius*size, thickness, 30, 1);
 	gluDeleteQuadric(disc);
 
     glPopMatrix();
