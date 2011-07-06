@@ -176,6 +176,11 @@ void UnitUpdater::updateUnit(Unit *unit) {
 					const UnitType *spawnUnitType = ft->getUnitType(act->getAttackSkillType()->getSpawnUnit());
 					int spawnCount = act->getAttackSkillType()->getSpawnUnitCount();
 					for (int y=0; y < spawnCount; ++y) {
+						if(spawnUnitType->getMaxUnitCount() > 0) {
+							if(spawnUnitType->getMaxUnitCount() <= unit->getFaction()->getCountForMaxUnitCount(spawnUnitType)) {
+								break;
+							}
+						}
 						UnitPathInterface *newpath = NULL;
 						switch(this->game->getGameSettings()->getPathFinderType()) {
 							case pfBasic:
