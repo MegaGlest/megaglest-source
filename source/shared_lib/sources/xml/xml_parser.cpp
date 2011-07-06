@@ -13,6 +13,8 @@
 
 #include <fstream>
 #include <stdexcept>
+#include <vector>
+#include <algorithm>
 
 #include "conversion.h"
 #include <xercesc/dom/DOM.hpp>
@@ -23,6 +25,7 @@
 #include "properties.h"
 #include "platform_common.h"
 #include "platform_util.h"
+#include "cache_manager.h"
 #include "leak_dumper.h"
 
 
@@ -172,7 +175,26 @@ void XmlTree::init(const string &name){
 	this->rootNode= new XmlNode(name);
 }
 
+typedef std::vector<XmlTree*> LoadStack;
+static LoadStack loadStack;
+//static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
+
 void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues) {
+	//printf("XmlTree::load p [%p]\n",this);
+	assert(!loadPath.size());
+
+	//LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
+	//Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
+	//MutexSafeWrapper safeMutex(&mutex);
+
+	for(LoadStack::iterator it= loadStack.begin(); it!= loadStack.end(); it++){
+		if((*it)->loadPath == path){
+			throw runtime_error(path + " recursively included");
+		}
+	}
+	loadStack.push_back(this);
+
+	loadPath = path;
 	this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues);
 }
 
@@ -180,7 +202,17 @@ void XmlTree::save(const string &path){
 	XmlIo::getInstance().save(path, rootNode);
 }
 
-XmlTree::~XmlTree(){
+XmlTree::~XmlTree() {
+	//printf("XmlTree::~XmlTree p [%p]\n",this);
+
+	//LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
+	//Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
+	//MutexSafeWrapper safeMutex(&mutex);
+
+	LoadStack::iterator it= find(loadStack.begin(),loadStack.end(),this);
+	if(it != loadStack.end()) {
+		loadStack.erase(it);
+	}
 	delete rootNode;
 }
 
@@ -188,7 +220,7 @@ XmlTree::~XmlTree(){
 //	class XmlNode
 // =====================================================
 
-XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues) {
+XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues): superNode(NULL) {
     if(node == NULL || node->getNodeName() == NULL) {
         throw runtime_error("XML structure seems to be corrupt!");
     }
@@ -235,7 +267,7 @@ XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues)
 	}
 }
 
-XmlNode::XmlNode(const string &name) {
+XmlNode::XmlNode(const string &name): superNode(NULL) {
 	this->name= name;
 }
 
@@ -269,6 +301,7 @@ XmlAttribute *XmlNode::getAttribute(const string &name,bool mustExist) const {
 }
 
 XmlNode *XmlNode::getChild(unsigned int i) const {
+	assert(!superNode);
 	if(i >= children.size()) {
 		throw runtime_error("\"" + getName()+"\" node doesn't have "+intToStr(i+1)+" children");
 	}
@@ -287,6 +320,8 @@ vector<XmlNode *> XmlNode::getChildList(const string &childName) const {
 }
 
 XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
+	if(superNode && !hasChildNoSuper(childName))
+		return superNode->getChild(childName,i);
 	if(i>=children.size()){
 		throw runtime_error("\"" + name + "\" node doesn't have "+intToStr(i+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
 	}
@@ -305,6 +340,8 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
 }
 
 bool XmlNode::hasChildAtIndex(const string &childName, int i) const {
+	if(superNode && !hasChildNoSuper(childName))
+		return superNode->hasChildAtIndex(childName,i);
 	int count= 0;
 	for(unsigned int j = 0; j < children.size(); ++j) {
 		if(children[j]->getName()==childName) {
@@ -318,19 +355,22 @@ bool XmlNode::hasChildAtIndex(const string &childName, int i) const {
 	return false;
 }
 
-
 bool XmlNode::hasChild(const string &childName) const {
+	return hasChildNoSuper(childName) || (superNode && superNode->hasChild(childName));
+}
+	
+bool XmlNode::hasChildNoSuper(const string &childName) const {
 	int count= 0;
 	for(unsigned int j = 0; j < children.size(); ++j) {
 		if(children[j]->getName() == childName) {
             return true;
 		}
 	}
-
 	return false;
 }
 
 XmlNode *XmlNode::addChild(const string &name){
+	assert(!superNode);
 	XmlNode *node= new XmlNode(name);
 	children.push_back(node);
 	return node;

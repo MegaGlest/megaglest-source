@@ -182,7 +182,7 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 				const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
 				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
-				unitParticleSystemType->load(dir,  currentPath + path, &Renderer::getInstance(),
+				unitParticleSystemType->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
 						loadedFileList,parentLoader,tt->getPath());
 				loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
@@ -255,16 +255,15 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 					const XmlNode *particleFileNode= particleNode->getChild("originator-particle-file");
 					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 					attackBoost.unitParticleSystemTypeForSourceUnit = new UnitParticleSystemType();
-					attackBoost.unitParticleSystemTypeForSourceUnit->load(dir,  currentPath + path, &Renderer::getInstance(),
+					attackBoost.unitParticleSystemTypeForSourceUnit->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
 							loadedFileList,parentLoader,tt->getPath());
 					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
-
 				}
 				if(particleNode->hasChild("affected-particle-file") == true) {
 					const XmlNode *particleFileNode= particleNode->getChild("affected-particle-file");
 					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 					attackBoost.unitParticleSystemTypeForAffectedUnit = new UnitParticleSystemType();
-					attackBoost.unitParticleSystemTypeForAffectedUnit->load(dir,  currentPath + path, &Renderer::getInstance(),
+					attackBoost.unitParticleSystemTypeForAffectedUnit->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
 							loadedFileList,parentLoader,tt->getPath());
 					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
 				}
@@ -485,7 +484,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		if(particleEnabled){
 			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(dir,  currentPath + path,
+			projectileParticleSystemType->load(particleNode, dir, currentPath + path,
 					&Renderer::getInstance(), loadedFileList, parentLoader,
 					tt->getPath());
 		}
@@ -521,7 +520,7 @@ void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree 
 		if(particleEnabled){
 			string path= particleNode->getAttribute("path")->getRestrictedValue();
 			splashParticleSystemType= new ParticleSystemTypeSplash();
-			splashParticleSystemType->load(dir,  currentPath + path,
+			splashParticleSystemType->load(particleNode, dir, currentPath + path,
 					&Renderer::getInstance(),loadedFileList, parentLoader,
 					tt->getPath());
 		}

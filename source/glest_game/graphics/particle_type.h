@@ -13,6 +13,7 @@
 #define _GLEST_GAME_PARTICLETYPE_H_
 
 #include <string>
+#include <list>
 
 #include "particle.h"
 #include "factory.h"
@@ -28,6 +29,7 @@ using namespace Shared::Graphics;
 namespace Glest{ namespace Game{
 
 using Shared::Graphics::ParticleSystem;
+using Shared::Graphics::UnitParticleSystem;
 using Shared::Graphics::AttackParticleSystem;
 using Shared::Graphics::ProjectileParticleSystem;
 using Shared::Graphics::SplashParticleSystem;
@@ -37,6 +39,8 @@ using Shared::Graphics::Vec4f;
 using Shared::Graphics::Model;
 using Shared::Util::MultiFactory;
 using Shared::Xml::XmlNode;
+
+class UnitParticleSystemType;
 
 // ===========================================================
 //	class ParticleSystemType 
@@ -49,6 +53,7 @@ protected:
 	string type;
 	Texture2D *texture;
 	Model *model;
+	float modelCycle;
 	string primitive;
 	Vec3f offset;
 	Vec4f color;
@@ -64,6 +69,8 @@ protected:
 	bool teamcolorNoEnergy;
     bool teamcolorEnergy;
     int alternations;
+	typedef std::list<UnitParticleSystemType*> Children;
+	Children children;
 
     bool minmaxEnabled;
     int minHp;
@@ -72,8 +79,7 @@ protected:
 
 public:
 	ParticleSystemType();
-	~ParticleSystemType();
-
+	virtual ~ParticleSystemType();
 	void load(const XmlNode *particleSystemNode, const string &dir,
 			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);
@@ -107,7 +113,7 @@ private:
 	float trajectoryFrequency;
 
 public:
-	void load(const string &dir, const string &path,
+	void load(const XmlNode *particleFileNode, const string &dir, const string &path,
 			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);
 	ProjectileParticleSystem *create();
@@ -120,7 +126,7 @@ public:
 
 class ParticleSystemTypeSplash: public ParticleSystemType {
 public:
-	void load(const string &dir, const string &path,
+	void load(const XmlNode *particleFileNode, const string &dir, const string &path,
 			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);
 	SplashParticleSystem *create();

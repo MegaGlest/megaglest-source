@@ -64,7 +64,7 @@ public:
 class XmlTree{
 private:
 	XmlNode *rootNode;
-
+	string loadPath;
 private:
 	XmlTree(XmlTree&);
 	void operator =(XmlTree&);
@@ -90,6 +90,7 @@ private:
 	string text;
 	vector<XmlNode*> children;
 	vector<XmlAttribute*> attributes;
+	mutable const XmlNode* superNode;
 
 private:
 	XmlNode(XmlNode&);
@@ -99,6 +100,8 @@ public:
 	XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node, std::map<string,string> mapTagReplacementValues);
 	XmlNode(const string &name);
 	~XmlNode();
+	
+	void setSuper(const XmlNode* superNode) const { this->superNode = superNode; }
 
 	const string &getName() const	{return name;}
 	size_t getChildCount() const		{return children.size();}
@@ -122,6 +125,7 @@ public:
 
 private:
 	string getTreeString() const;
+	bool hasChildNoSuper(const string& childName) const;
 };
 
 // =====================================================

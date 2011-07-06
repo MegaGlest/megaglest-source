@@ -38,12 +38,21 @@ static const char *getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey1;
 static const char *getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey2;
 
 protected:
-	static Mutex mutexCache;
-
 	typedef enum {
 		cacheItemGet,
 		cacheItemSet
 	} CacheAccessorType;
+
+	template <typename T>
+	static Mutex & manageCachedItemMutex(string cacheKey) {
+		// Here is the actual type-safe instantiation
+		static std::map<string, Mutex> itemCacheMutexList;
+		if(itemCacheMutexList.find(cacheKey) == itemCacheMutexList.end()) {
+			itemCacheMutexList[cacheKey] = Mutex();
+		}
+		Mutex &mutex = itemCacheMutexList[cacheKey];
+		return mutex;
+	}
 
 	template <typename T>
 	static T & manageCachedItem(string cacheKey, T *value,CacheAccessorType accessor) {
@@ -52,6 +61,7 @@ protected:
 		if(accessor == cacheItemSet) {
 			if(value == NULL) {
 				try {
+					Mutex &mutexCache = manageCachedItemMutex<T>(cacheKey);
 					MutexSafeWrapper safeMutex(&mutexCache);
 					if(itemCache.find(cacheKey) != itemCache.end()) {
 						itemCache.erase(cacheKey);
@@ -64,6 +74,7 @@ protected:
 
 			}
 			try {
+				Mutex &mutexCache = manageCachedItemMutex<T>(cacheKey);
 				MutexSafeWrapper safeMutex(&mutexCache);
 				itemCache[cacheKey] = *value;
 				safeMutex.ReleaseLock();
@@ -94,6 +105,10 @@ public:
 		return manageCachedItem<T>(cacheKey,NULL,cacheItemSet);
 	}
 
+	template <typename T>
+	static Mutex & getMutexForItem(string cacheKey) {
+		return manageCachedItemMutex<T>(cacheKey);
+	}
 };
 
 }}//end namespace

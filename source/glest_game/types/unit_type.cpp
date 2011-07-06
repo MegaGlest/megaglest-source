@@ -295,7 +295,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 					//Texture2D *newTexture = Renderer::getInstance().newTexture2D(rsGame);
 					Texture2D *newTexture = NULL;
 
-					unitParticleSystemType->load(dir,  currentPath + path,
+					unitParticleSystemType->load(particleFileNode, dir, currentPath + path,
 							&Renderer::getInstance(),loadedFileList, sourceXMLFile,
 							techTree->getPath());
 					loadedFileList[currentPath + path].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));

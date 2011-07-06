@@ -10,6 +10,7 @@
 // ==============================================================
 
 #include "particle_type.h"
+#include "unit_particle_type.h"
 
 #include "util.h"
 #include "core_data.h"
@@ -57,11 +58,14 @@ ParticleSystemType::~ParticleSystemType() {
 		memoryObjectList[this]--;
 		assert(memoryObjectList[this] == 0);
 	}
+	for(Children::iterator it = children.begin(); it != children.end(); it++)
+		delete *it;
 }
 
 void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader, string techtreePath) {
+
 	//texture
 	const XmlNode *textureNode= particleSystemNode->getChild("texture");
 	bool textureEnabled= textureNode->getAttribute("value")->getBoolValue();
@@ -97,6 +101,12 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 
 			model->load(path, false, &loadedFileList, &parentLoader);
 			loadedFileList[path].push_back(make_pair(parentLoader,modelNode->getAttribute("path")->getRestrictedValue()));
+			
+			if(modelNode->hasChild("cycles")) {
+				modelCycle = modelNode->getChild("cycles")->getAttribute("value")->getFloatValue();
+				if(modelCycle < 0.0)
+					throw runtime_error("negative model cycle value is bad");
+			}
 		}
 	}
 	else {
@@ -178,9 +188,35 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	else {
 		mode="normal";
 	}
+
+	// child particles
+	if(particleSystemNode->hasChild("child-particles")) {
+    		const XmlNode *childrenNode= particleSystemNode->getChild("child-particles");
+    		if(childrenNode->getAttribute("value")->getBoolValue()) {
+			for(int i = 0; i < childrenNode->getChildCount(); ++i) {
+				const XmlNode *particleFileNode= childrenNode->getChild("particle-file",i);
+				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
+				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
+				string childPath= dir;
+				endPathWithSlash(childPath);
+				childPath += path;
+				string childDir = extractDirectoryPathFromFile(childPath);
+				unitParticleSystemType->load(particleFileNode,childDir,childPath,renderer,loadedFileList,parentLoader,techtreePath);
+				loadedFileList[childPath].push_back(make_pair(parentLoader,path));
+				children.push_back(unitParticleSystemType);
+			}
+		}
+	}
 }
 
 void ParticleSystemType::setValues(AttackParticleSystem *ats){
+	// add instances of all children; some settings will cascade to all children
+	for(Children::iterator i=children.begin(); i!=children.end(); i++){
+		UnitParticleSystem *child = new UnitParticleSystem();
+		(*i)->setValues(child);
+		ats->addChild(child);
+		child->setState(ParticleSystem::sPlay);
+	}
 	ats->setTexture(texture);
 	ats->setPrimitive(AttackParticleSystem::strToPrimitive(primitive));
 	ats->setOffset(offset);
@@ -194,6 +230,7 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setMaxParticleEnergy(energyMax);
 	ats->setVarParticleEnergy(energyVar);
 	ats->setModel(model);
+	ats->setModelCycle(modelCycle);
 	ats->setTeamcolorNoEnergy(teamcolorNoEnergy);
     ats->setTeamcolorEnergy(teamcolorEnergy);
     ats->setAlternations(alternations);
@@ -204,7 +241,7 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 //	class ParticleSystemTypeProjectile
 // ===========================================================
 
-void ParticleSystemTypeProjectile::load(const string &dir, const string &path,
+void ParticleSystemTypeProjectile::load(const XmlNode* particleFileNode, const string &dir, const string &path,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader, string techtreePath) {
 
@@ -217,6 +254,12 @@ void ParticleSystemTypeProjectile::load(const string &dir, const string &path,
 		loadedFileList[path].push_back(make_pair(parentLoader,parentLoader));
 
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
+
+		if(particleFileNode){
+			// immediate children in the particleFileNode will override the particleSystemNode
+			particleFileNode->setSuper(particleSystemNode);
+			particleSystemNode= particleFileNode;
+		}
 		
 		ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList,parentLoader, techtreePath);
 
@@ -271,7 +314,7 @@ ProjectileParticleSystem *ParticleSystemTypeProjectile::create() {
 //	class ParticleSystemTypeSplash
 // ===========================================================
 
-void ParticleSystemTypeSplash::load(const string &dir, const string &path,
+void ParticleSystemTypeSplash::load(const XmlNode* particleFileNode, const string &dir, const string &path,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader, string techtreePath) {
 
@@ -285,6 +328,12 @@ void ParticleSystemTypeSplash::load(const string &dir, const string &path,
 
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
 		
+		if(particleFileNode){
+			// immediate children in the particleFileNode will override the particleSystemNode
+			particleFileNode->setSuper(particleSystemNode);
+			particleSystemNode= particleFileNode;
+		}
+
 		ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList, parentLoader, techtreePath);
 
 		//emission rate fade

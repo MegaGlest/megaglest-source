@@ -1216,7 +1216,7 @@ void MainWindow::loadParticle(string path) {
 
 				std::map<string,vector<pair<string, string> > > loadedFileList;
                 UnitParticleSystemType *unitParticleSystemType = new UnitParticleSystemType();
-                unitParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,
+                unitParticleSystemType->load(NULL, dir, dir + folderDelimiter + particlePath, //### if we knew which particle it was, we could be more accurate
                 		renderer,loadedFileList,"g3dviewer","");
                 unitParticleSystemTypes.push_back(unitParticleSystemType);
 
@@ -1313,7 +1313,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(dir,
+			projectileParticleSystemType->load(NULL, dir, //### we don't know if there are overrides in the unit XML
 					dir + folderDelimiter + particlePath,renderer, loadedFileList,
 					"g3dviewer","");
 
@@ -1416,7 +1416,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash();
-			splashParticleSystemType->load(dir,  dir + folderDelimiter + particlePath,renderer,
+			splashParticleSystemType->load(NULL, dir, dir + folderDelimiter + particlePath,renderer, //### we don't know if there are overrides in the unit XML
 					loadedFileList,"g3dviewer",""); // <---- only that must be splash...
 
 			// std::cout << "Values loaded, about to read..." << std::endl;

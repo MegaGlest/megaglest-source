@@ -132,14 +132,12 @@ protected:
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
 	int alternations;
-
 	ParticleObserver *particleObserver;
 
 public:
 	//conmstructor and destructor
 	ParticleSystem(int particleCount);
 	virtual ~ParticleSystem();
-
 	virtual ParticleSystemType getParticleSystemType() const = 0;
 
 	//public
@@ -158,9 +156,9 @@ public:
 	virtual bool getVisible() const				{return visible;}
 
 	//set
-	void setState(State state);
+	virtual void setState(State state);
 	void setTexture(Texture *texture);
-	void setPos(Vec3f pos);
+	virtual void setPos(Vec3f pos);
 	void setColor(Vec4f color);
 	void setColorNoEnergy(Vec4f color);
 	void setEmissionRate(float emissionRate);
@@ -168,9 +166,9 @@ public:
 	void setVarParticleEnergy(int varParticleEnergy);
 	void setParticleSize(float particleSize);
 	void setSpeed(float speed);
-	void setActive(bool active);
+	virtual void setActive(bool active);
 	void setObserver(ParticleObserver *particleObserver);
-	void setVisible(bool visible);
+	virtual void setVisible(bool visible);
 	void setBlendMode(BlendMode blendMode)				{this->blendMode= blendMode;}
 	void setTeamcolorNoEnergy(bool teamcolorNoEnergy)	{this->teamcolorNoEnergy= teamcolorNoEnergy;}
 	void setTeamcolorEnergy(bool teamcolorEnergy)		{this->teamcolorEnergy= teamcolorEnergy;}
@@ -179,8 +177,12 @@ public:
 
 	static BlendMode strToBlendMode(const string &str);
 	//misc
-	void fade();
+	virtual void fade();
 	int isEmpty() const;
+	
+	//children
+	virtual int getChildCount() { return 0; }
+	virtual ParticleSystem* getChild(int i);
 
 protected:
 	//protected
@@ -217,43 +219,91 @@ public:
 };
 
 // =====================================================
-//	class UnitParticleSystem
+//	class GameParticleSystem
+/// base-class for unit and attack systems
 // =====================================================
 
-class UnitParticleSystem: public ParticleSystem{
-public:
-	static bool isNight;
-private:
-	float radius;
-	Vec3f windSpeed;
-	Vec3f cRotation;
-	Vec3f fixedAddition;
-    Vec3f oldPosition;
-    bool energyUp;
+class UnitParticleSystem;
+
+class GameParticleSystem: public ParticleSystem{
 public:
 	enum Primitive{
 		pQuad,
 		pLine,
 		pLineAlpha
 	};
+	static Primitive strToPrimitive(const string &str);
+	virtual ~GameParticleSystem();
+	int getChildCount();
+	ParticleSystem* getChild(int i);
+	void addChild(UnitParticleSystem* child);
+	void removeChild(UnitParticleSystem* child);
+	void setPos(Vec3f pos);
+	void setOffset(Vec3f offset);
+	void setModel(Model *model) {this->model= model;}
+	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
+	float getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
+	Model *getModel() const {return model;}
+	void setPrimitive(Primitive primitive) {this->primitive= primitive;}
+	Vec3f getDirection() const {return direction;}
+	void setModelCycle(float modelCycle) {this->modelCycle= modelCycle;}
+protected:
+	typedef std::vector<UnitParticleSystem*> Children;
+	Children children;
+	Primitive primitive;
+	Model *model;
+	float modelCycle;
+	Vec3f offset;
+	Vec3f direction;
+	float tween;
+	
+	GameParticleSystem(int particleCount);
+	void positionChildren();
+	void setTween(float relative,float absolute);
+};
+
+// =====================================================
+//	class UnitParticleSystem
+// =====================================================
+
+class UnitParticleSystem: public GameParticleSystem{
+public:
+	static bool isNight;
+private:
+	float radius;
+	float minRadius;
+	Vec3f windSpeed;
+	Vec3f cRotation;
+	Vec3f fixedAddition;
+    Vec3f oldPosition;
+    bool energyUp;
+    
+public:
+	enum Shape{
+		sLinear, // generated in a sphere, flying in direction
+		sSpherical, // generated in a sphere, flying away from center
+		sConical, // generated in a cone at angle from direction
+	};
 	bool relative;
 	bool relativeDirection;
     bool fixed;
-	Model *model;
-	Primitive primitive;
-	Vec3f offset;
-	Vec3f direction;
+	Shape shape;
+	float angle;
 	float sizeNoEnergy;
 	float gravity;
 	float rotation;
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
 	bool radiusBasedStartenergy;
-
 	int staticParticleCount;
+	int delay;
+	int lifetime;
+	float emissionRateFade;
+	GameParticleSystem* parent;
 
 public:
 	UnitParticleSystem(int particleCount= 2000);
+	~UnitParticleSystem();
 
 	virtual ParticleSystemType getParticleSystemType() const { return pst_UnitParticleSystem;}
 
@@ -261,18 +311,21 @@ public:
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual void updateParticle(Particle *p);
 	virtual void update();
-	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 	virtual bool getVisible() const;
+	virtual void fade();
+	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 
 	//set params
-	void setRadius(float radius);
+	void setRadius(float radius)					{this->radius= radius;}
+	void setMinRadius(float minRadius)				{this->minRadius= minRadius;}
+	void setEmissionRateFade(float emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
+
 	void setWind(float windAngle, float windSpeed);
 	
-	void setOffset(Vec3f offset)						{this->offset= offset;}
-	void setDirection(Vec3f direction)					{this->direction= direction;}
+	void setDirection(Vec3f direction)				{this->direction= direction;}
 	void setSizeNoEnergy(float sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
 	void setGravity(float gravity)						{this->gravity= gravity;}
-	void setRotation(float rotation)					{this->rotation= rotation;}
+	void setRotation(float rotation);
 	void setRelative(bool relative)						{this->relative= relative;}
 	void setRelativeDirection(bool relativeDirection)	{this->relativeDirection= relativeDirection;}
 	void setFixed(bool fixed)							{this->fixed= fixed;}
@@ -281,9 +334,15 @@ public:
 	void setIsVisibleAtNight(bool value)				{this->isVisibleAtNight= value;}
 	void setIsVisibleAtDay(bool value)					{this->isVisibleAtDay= value;}
 	void setRadiusBasedStartenergy(bool value)			{this->radiusBasedStartenergy= value;}
-
-	static Primitive strToPrimitive(const string &str);
+	void setShape(Shape shape)					{this->shape= shape;}
+	void setAngle(float angle)					{this->angle= angle;}
+	void setDelay(int delay) 					{this->delay= delay;}
+	void setLifetime(int lifetime)					{this->lifetime= lifetime;}
+	void setParent(GameParticleSystem* parent)			{this->parent= parent;}
+	GameParticleSystem* getParent() const				{return parent;}
+	void setParentDirection(Vec3f parentDirection);
 	
+	static Shape strToShape(const string& str);
 };
 
 // =====================================================
@@ -336,43 +395,20 @@ public:
 /// Base class for Projectiles and Splashes
 // ===========================================================================
 
-class AttackParticleSystem: public ParticleSystem{
-public:
-	enum Primitive{
-		pQuad,
-		pLine,
-		pLineAlpha
-	};
+class AttackParticleSystem: public GameParticleSystem{
 
 protected:
-	Model *model;
-	Primitive primitive;
-	Vec3f offset;
 	float sizeNoEnergy;
 	float gravity;
-	float tween;
-	Vec3f direction;
-
 public:
 	AttackParticleSystem(int particleCount);
 
 	virtual ParticleSystemType getParticleSystemType() const { return pst_ProjectileParticleSystem;}
 
-	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
-
-	Model *getModel() const			{return model;}
-	Vec3f getDirection() const		{return direction;}
-
-	void setModel(Model *model)					{this->model= model;}
-	void setOffset(Vec3f offset)				{this->offset= offset;}
 	void setSizeNoEnergy(float sizeNoEnergy)	{this->sizeNoEnergy= sizeNoEnergy;}
 	void setGravity(float gravity)				{this->gravity= gravity;}
-	void setPrimitive(Primitive primitive)		{this->primitive= primitive;}
 	
-	float getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
 	virtual void initParticleSystem() {} // opportunity to do any initialization when the system has been created and all settings set
-
-	static Primitive strToPrimitive(const string &str);
 };
 
 // =====================================================
@@ -401,14 +437,14 @@ private:
 	Vec3f yVector;
 	Vec3f zVector;
 
-	float modelCycle;
-
 	Trajectory trajectory;
 	float trajectorySpeed;
 
 	//parabolic
 	float trajectoryScale;
 	float trajectoryFrequency;
+	
+	void rotateChildren();
 
 public:
 	ProjectileParticleSystem(int particleCount= 1000);
@@ -427,7 +463,6 @@ public:
 	void setTrajectoryScale(float trajectoryScale)			{this->trajectoryScale= trajectoryScale;}
 	void setTrajectoryFrequency(float trajectoryFrequency)	{this->trajectoryFrequency= trajectoryFrequency;}
 
-	void setModelCycle(float modelCycle)         			{this->modelCycle= modelCycle;}
 	void setPath(Vec3f startPos, Vec3f endPos);
 
 	static Trajectory strToTrajectory(const string &str);

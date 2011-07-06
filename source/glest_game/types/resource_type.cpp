@@ -106,7 +106,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 							string particlePath= particleFileNode->getAttribute("path")->getRestrictedValue();
 
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
-							objectParticleSystemType->load(dir,  currentPath + particlePath,
+							objectParticleSystemType->load(particleFileNode, dir,  currentPath + particlePath,
 									&Renderer::getInstance(), loadedFileList, sourceXMLFile, techtreePath);
 							loadedFileList[currentPath + particlePath].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
 

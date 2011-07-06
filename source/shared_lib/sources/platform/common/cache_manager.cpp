@@ -13,7 +13,7 @@
 
 namespace Shared { namespace PlatformCommon {
 
-Mutex CacheManager::mutexCache;
+//Mutex CacheManager::mutexCache;
 const char *CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1       = "CRC_Cache_FileTree1";
 const char *CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2       = "CRC_Cache_FileTree2";
 const char *CacheManager::getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey1   = "CRC_Cache_FileTreeList1";
