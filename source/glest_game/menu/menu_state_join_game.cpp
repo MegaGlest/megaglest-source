@@ -518,7 +518,8 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 		SDLKey key = extractKeyPressed(c);
 
 		//if(c>='0' && c<='9') {
-		if(key >= SDLK_0 && key <= SDLK_9) {
+		if( (key >= SDLK_0 && key <= SDLK_9) ||
+			(key >= SDLK_KP0 && key <= SDLK_KP9)) {
 			if(labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
 				//text.insert(text.end()-1, key);

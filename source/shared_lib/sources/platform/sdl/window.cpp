@@ -581,8 +581,10 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 	Uint16 c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 	if(input.keysym.unicode > 0) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym);
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym);
+		string unicodeKeyName = SDL_GetKeyName((SDLKey)input.keysym.unicode);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d unicodeKeyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym,unicodeKeyName.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d unicodeKeyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym,unicodeKeyName.c_str());
 
 		// When modifiers are pressed the unicode result is wrong
 		// example CTRL-3 will give the ESCAPE vslue 27 in unicode
@@ -606,7 +608,8 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(input.keysym.unicode >= SDLK_0 && input.keysym.unicode <= SDLK_9) {
+			if( (input.keysym.unicode >= SDLK_0 && input.keysym.unicode <= SDLK_9) ||
+				(input.keysym.unicode >= SDLK_KP0 && input.keysym.unicode <= SDLK_KP9)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -641,6 +644,74 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 	if(result == false) {
 		if(compareKey == SDLK_RETURN) {
 			result = (c == SDLK_KP_ENTER);
+		}
+		else if( compareKey >= SDLK_0 && compareKey <= SDLK_9) {
+			switch(compareKey) {
+				case SDLK_0:
+					result = (c == SDLK_KP0);
+					break;
+				case SDLK_1:
+					result = (c == SDLK_KP1);
+					break;
+				case SDLK_2:
+					result = (c == SDLK_KP2);
+					break;
+				case SDLK_3:
+					result = (c == SDLK_KP3);
+					break;
+				case SDLK_4:
+					result = (c == SDLK_KP4);
+					break;
+				case SDLK_5:
+					result = (c == SDLK_KP5);
+					break;
+				case SDLK_6:
+					result = (c == SDLK_KP6);
+					break;
+				case SDLK_7:
+					result = (c == SDLK_KP7);
+					break;
+				case SDLK_8:
+					result = (c == SDLK_KP8);
+					break;
+				case SDLK_9:
+					result = (c == SDLK_KP9);
+					break;
+			}
+		}
+		else if(compareKey >= SDLK_KP0 && compareKey <= SDLK_KP9) {
+			switch(compareKey) {
+				case SDLK_KP0:
+					result = (c == SDLK_0);
+					break;
+				case SDLK_KP1:
+					result = (c == SDLK_1);
+					break;
+				case SDLK_KP2:
+					result = (c == SDLK_2);
+					break;
+				case SDLK_KP3:
+					result = (c == SDLK_3);
+					break;
+				case SDLK_KP4:
+					result = (c == SDLK_4);
+					break;
+				case SDLK_KP5:
+					result = (c == SDLK_5);
+					break;
+				case SDLK_KP6:
+					result = (c == SDLK_6);
+					break;
+				case SDLK_KP7:
+					result = (c == SDLK_7);
+					break;
+				case SDLK_KP8:
+					result = (c == SDLK_8);
+					break;
+				case SDLK_KP9:
+					result = (c == SDLK_9);
+					break;
+			}
 		}
 	}
 
