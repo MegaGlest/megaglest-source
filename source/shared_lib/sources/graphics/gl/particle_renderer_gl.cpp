@@ -223,7 +223,7 @@ void ParticleRendererGl::renderSystemLineAlpha(ParticleSystem *ps){
 	assertGl();
 }
 
-void ParticleRendererGl::renderModel(AttackParticleSystem *ps, ModelRenderer *mr){
+void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
 	//render model
 	Model *model = ps->getModel();
 	if(model != NULL) {
@@ -262,7 +262,9 @@ void ParticleRendererGl::renderModel(AttackParticleSystem *ps, ModelRenderer *mr
 
 		//render
 		mr->begin(true, true, false);
-		model->updateInterpolationData(ps->getTween(), false);
+		float t = ps->getTween();
+		assert(t >= 0.0f && t <= 1.0f);
+		model->updateInterpolationData(t, false);
 		mr->render(model);
 		mr->end();
 

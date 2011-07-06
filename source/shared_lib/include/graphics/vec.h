@@ -156,6 +156,22 @@ public:
 		x/= m;
 		y/= m;
 	}
+	
+	Vec2<T> rotate(float rad){
+		const float
+#ifdef USE_STREFLOP
+			c = streflop::cosf(rad),
+			s = streflop::sinf(rad);
+#else
+			c = scosf(rad),
+			s = ssinf(rad);
+#endif
+		return Vec2<T>(x*c-y*s,x*s+y*c);
+	}
+
+	Vec2<T> rotateAround(float rad,const Vec2<T>& pt){
+		return pt+(*this-pt).rotate(rad);
+	}
 
 	std::string getString() const {
 		std::ostringstream streamOut;

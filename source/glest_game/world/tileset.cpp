@@ -226,7 +226,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
 							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
-							objectParticleSystemType->load(dir,  currentPath + path,
+							objectParticleSystemType->load(particleFileNode, dir, currentPath + path,
 									&Renderer::getInstance(), loadedFileList, sourceXMLFile,"");
 							loadedFileList[currentPath + path].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
 

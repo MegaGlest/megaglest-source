@@ -13,6 +13,7 @@
 #define _GLEST_GAME_UNITPARTICLETYPE_H_
 
 #include <string>
+#include <list>
 
 #include "particle.h"
 #include "factory.h"
@@ -28,6 +29,7 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
+using Shared::Graphics::ParticleManager;
 using Shared::Graphics::ParticleSystem;
 using Shared::Graphics::UnitParticleSystem;
 using Shared::Graphics::Texture2D;
@@ -44,8 +46,11 @@ using Shared::Xml::XmlNode;
 
 class UnitParticleSystemType: public ParticleSystemType {
 protected:
-
+	UnitParticleSystem::Shape shape;
+	float angle;
 	float radius;
+	float minRadius;
+	float emissionRateFade;
 	Vec3f direction;
     bool relative;
     bool relativeDirection;
@@ -54,12 +59,14 @@ protected:
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
 	bool radiusBasedStartenergy;
+	int delay;
+	int lifetime;
 
 public:
 	void load(const XmlNode *particleSystemNode, const string &dir,
 			RendererInterface *newTexture, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);
-	void load(const string &dir, const string &path, RendererInterface *newTexture,
+	void load(const XmlNode *particleFileNode, const string &dir, const string &path, RendererInterface *newTexture,
 			std::map<string,vector<pair<string, string> > > &loadedFileList,string parentLoader,
 			string techtreePath);
 	const void setValues (UnitParticleSystem *uts);
