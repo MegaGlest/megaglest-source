@@ -577,398 +577,39 @@ MouseButton Window::getMouseButton(int sdlButton) {
 	}
 }
 
-/*
-char Window::getRawKey(SDL_keysym keysym) {
-	char result = 0;
-	// Because Control messes up unicode character
-
-	if((keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) == 0) {
-		//printf("keysym.unicode = %d [%d]\n",keysym.unicode,0x80);
-
-		//Uint16 c = keysym.unicode;
-		//if(c != 0 && (c & 0xFF80) == 0) {
-		if(keysym.unicode > 0 && keysym.unicode < 0x80) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			result = static_cast<char>(keysym.unicode);
-			//c = toupper(c);
-			//result = (c & 0xFF);
-			//result = c;
-
-			//printf("result = %d\n",result);
-
-			//if(c != 0) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-			return result;
-			//}
-		}
-	}
-	if(keysym.sym <= 255) {
-		result = keysym.sym;
-	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-
-	return result;
-}
-
-char Window::getNormalKey(SDL_keysym keysym,bool skipSpecialKeys) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keysym.sym [%d] skipSpecialKeys = %d.\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,skipSpecialKeys);
-
-	//SDLKey unicodeKey = static_cast<SDLKey>(getRawKey(keysym));
-	char c = getRawKey(keysym);
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] c [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
-
-	SDLKey unicodeKey = SDLK_UNKNOWN;
-	if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
-		unicodeKey = static_cast<SDLKey>(c);
-	}
-	if(unicodeKey == SDLK_UNKNOWN) {
-		unicodeKey = keysym.sym;
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unicodeKey [%d]\n",__FILE__,__FUNCTION__,__LINE__,unicodeKey);
-
-	//string keyName = SDL_GetKeyName(keysym.sym);
-	string keyName = SDL_GetKeyName(unicodeKey);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,keysym.mod,keysym.unicode,keysym.scancode,keyName.c_str());
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,keysym.mod,keysym.unicode,keysym.scancode,keyName.c_str());
-
-	if(skipSpecialKeys == false) {
-		if(keyName == "left alt" || keyName == "right alt") {
-			return vkAlt;
-		}
-		else if(keyName == "left ctrl" || keyName == "right ctrl") {
-			return vkControl;
-		}
-		else if(keyName == "left shift" || keyName == "right shift") {
-			return vkShift;
-		}
-
-		if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
-			return vkAlt;
-		}
-		else if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
-			return vkControl;
-		}
-		else if(keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
-			return vkShift;
-		}
-	}
-	if(keyName == "up arrow" || keyName == "up") {
-		return vkUp;
-	}
-	if(keyName == "left arrow" || keyName == "left") {
-		return vkLeft;
-	}
-	if(keyName == "right arrow" || keyName == "right") {
-		return vkRight;
-	}
-	if(keyName == "down arrow" || keyName == "down") {
-		return vkDown;
-	}
-	if(keyName == "return" || keyName == "enter") {
-		return vkReturn;
-	}
-	if(keyName == "plus sign" || keyName == "plus") {
-		return vkAdd;
-	}
-	if(keyName == "minus sign" || keyName == "minus") {
-		return vkSubtract;
-	}
-	//if(keyName == "escape") {
-	//	return vkEscape;
-	//}
-	if(keyName == "escape") {
-		return unicodeKey;
-	}
-	if(keyName == "tab") {
-		return vkTab;
-	}
-	if(keyName == "backspace") {
-		return vkBack;
-	}
-	if(keyName == "delete") {
-		return vkDelete;
-	}
-	if(keyName == "print-screen") {
-		return vkPrint;
-	}
-	if(keyName == "pause") {
-		return vkPause;
-	}
-	if(keyName == "question mark" || keyName == "?") {
-		return '?';
-	}
-	if(keyName == "space") {
-		return ' ';
-	}
-
-	if(keyName == "f1" || keyName == "F1") {
-		return vkF1;
-	}
-	if(keyName == "f2" || keyName == "F2") {
-		return vkF2;
-	}
-	if(keyName == "f3" || keyName == "F3") {
-		return vkF3;
-	}
-	if(keyName == "f4" || keyName == "F4") {
-		return vkF4;
-	}
-	if(keyName == "f5" || keyName == "F5") {
-		return vkF5;
-	}
-	if(keyName == "f6" || keyName == "F6") {
-		return vkF6;
-	}
-	if(keyName == "f7" || keyName == "F7") {
-		return vkF7;
-	}
-	if(keyName == "f8" || keyName == "F8") {
-		return vkF8;
-	}
-	if(keyName == "f9" || keyName == "F9") {
-		return vkF9;
-	}
-	if(keyName == "f10" || keyName == "F10") {
-		return vkF10;
-	}
-	if(keyName == "f11" || keyName == "F11") {
-		return vkF11;
-	}
-	if(keyName == "f12" || keyName == "F12") {
-		return vkF12;
-	}
-	if(keyName == "0") {
-		return '0';
-	}
-	if(keyName == "1") {
-		return '1';
-	}
-	if(keyName == "2") {
-		return '2';
-	}
-	if(keyName == "3") {
-		return '3';
-	}
-	if(keyName == "4") {
-		return '4';
-	}
-	if(keyName == "5") {
-		return '5';
-	}
-	if(keyName == "6") {
-		return '6';
-	}
-	if(keyName == "7") {
-		return '7';
-	}
-	if(keyName == "8") {
-		return '8';
-	}
-	if(keyName == "9") {
-		return '9';
-	}
-	if(keyName == "a") {
-		return 'A';
-	}
-	if(keyName == "b") {
-		return 'B';
-	}
-	if(keyName == "c") {
-		return 'C';
-	}
-	if(keyName == "d") {
-		return 'D';
-	}
-	if(keyName == "e") {
-		return 'E';
-	}
-	if(keyName == "f") {
-		return 'F';
-	}
-	if(keyName == "g") {
-		return 'G';
-	}
-	if(keyName == "h") {
-		return 'H';
-	}
-	if(keyName == "i") {
-		return 'I';
-	}
-	if(keyName == "j") {
-		return 'J';
-	}
-	if(keyName == "k") {
-		return 'K';
-	}
-	if(keyName == "l") {
-		return 'L';
-	}
-	if(keyName == "m") {
-		return 'M';
-	}
-	if(keyName == "n") {
-		return 'N';
-	}
-	if(keyName == "o") {
-		return 'O';
-	}
-	if(keyName == "p") {
-		return 'P';
-	}
-	if(keyName == "q") {
-		return 'Q';
-	}
-	if(keyName == "r") {
-		return 'R';
-	}
-	if(keyName == "s") {
-		return 'S';
-	}
-	if(keyName == "t") {
-		return 'T';
-	}
-	if(keyName == "u") {
-		return 'U';
-	}
-	if(keyName == "v") {
-		return 'V';
-	}
-	if(keyName == "w") {
-		return 'W';
-	}
-	if(keyName == "x") {
-		return 'X';
-	}
-	if(keyName == "y") {
-		return 'Y';
-	}
-	if(keyName == "z") {
-		return 'Z';
-	}
-
-	if(unicodeKey > 0 && unicodeKey <= 255) {
-		return unicodeKey;
-	}
-	return 0;
-}
-
-char Window::getKey(SDL_keysym keysym,bool skipSpecialKeys) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keysym.sym [%d] skipSpecialKeys = %d.\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,skipSpecialKeys);
-
-	string keyName = SDL_GetKeyName(keysym.sym);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",__FILE__,__FUNCTION__,__LINE__,keysym.sym,keysym.mod,keysym.unicode,keysym.scancode,keyName.c_str());
-
-	char result = getNormalKey(keysym,skipSpecialKeys);
-	if(result != 0) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-
-		return result;
-	}
-	else {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		Uint16 c = 0;
-		if(keysym.unicode > 0 && keysym.unicode < 0x80) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			c = keysym.unicode;
-			//c = toupper(c);
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",__FILE__,__FUNCTION__,__LINE__,(c & 0xFF));
-
-			if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
-				SDL_keysym newKeysym = keysym;
-				newKeysym.sym = static_cast<SDLKey>(c);
-
-				result = getNormalKey(newKeysym,skipSpecialKeys);
-
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-				return result;
-			}
-		}
-		if(c == 0) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-			if(skipSpecialKeys == true) {
-				switch(keysym.sym) {
-					case SDLK_LALT:
-					case SDLK_RALT:
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkAlt\n",__FILE__,__FUNCTION__,__LINE__,vkAlt);
-						return vkAlt;
-					case SDLK_LCTRL:
-					case SDLK_RCTRL:
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkControl\n",__FILE__,__FUNCTION__,__LINE__,vkControl);
-						return vkControl;
-					case SDLK_LSHIFT:
-					case SDLK_RSHIFT:
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkShift\n",__FILE__,__FUNCTION__,__LINE__,vkShift);
-						return vkShift;
-				}
-
-				if(keysym.mod & (KMOD_LALT | KMOD_RALT)) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkAlt\n",__FILE__,__FUNCTION__,__LINE__,vkAlt);
-
-					return vkAlt;
-				}
-				else if(keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkControl\n",__FILE__,__FUNCTION__,__LINE__,vkControl);
-
-					return vkControl;
-				}
-				else if(keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d] vkShift\n",__FILE__,__FUNCTION__,__LINE__,vkShift);
-
-					return vkShift;
-				}
-			}
-
-			if(keysym.sym <= 255) {
-				c = keysym.sym;
-			}
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
-
-		result = (c & 0xFF);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-
-		return result;
-	}
-
-	result = 0;
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
-
-	return result;
-}
-*/
-
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllowed) {
 	Uint16 c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 	if(input.keysym.unicode > 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d\n",__FILE__,__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym);
 
 		// When modifiers are pressed the unicode result is wrong
 		// example CTRL-3 will give the ESCAPE vslue 27 in unicode
-		if( (input.keysym.mod & KMOD_LCTRL) != KMOD_LCTRL &&
-			(input.keysym.mod & KMOD_RCTRL) != KMOD_RCTRL &&
-			(input.keysym.mod & KMOD_LALT) != KMOD_LALT   &&
-			(input.keysym.mod & KMOD_RALT) != KMOD_RALT   &&
-			(input.keysym.mod & KMOD_LSHIFT) != KMOD_LSHIFT &&
-			(input.keysym.mod & KMOD_RSHIFT) != KMOD_RSHIFT) {
+		if( !(input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) &&
+			!(input.keysym.mod & (KMOD_LALT | KMOD_RALT)) &&
+			!(input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) ) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			c = input.keysym.unicode;
 			//c = toupper(c);
 		}
-		else if(c == SDLK_QUESTION &&
-				(input.keysym.mod & KMOD_LSHIFT) == KMOD_LSHIFT ||
-				(input.keysym.mod & KMOD_RSHIFT) == KMOD_RSHIFT) {
+		else if(input.keysym.unicode == SDLK_QUESTION &&
+				(input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT))) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			c = input.keysym.unicode;
 		}
-		else if((input.keysym.mod & KMOD_LCTRL) == KMOD_LCTRL ||
-				(input.keysym.mod & KMOD_RCTRL) == KMOD_RCTRL) {
-			if(c >= SDLK_0 && c <= SDLK_9) {
+		else if(input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(input.keysym.unicode >= SDLK_0 && input.keysym.unicode <= SDLK_9) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				c = input.keysym.unicode;
 			}
 		}
@@ -1006,12 +647,9 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 	if(result == true && modifiersAllowed == false) {
 		//printf("input.keysym.mod = %d\n",input.keysym.mod);
 
-		if( (input.keysym.mod & KMOD_LCTRL) == KMOD_LCTRL ||
-			(input.keysym.mod & KMOD_RCTRL) == KMOD_RCTRL ||
-			(input.keysym.mod & KMOD_LALT) == KMOD_LALT   ||
-			(input.keysym.mod & KMOD_RALT) == KMOD_RALT   ||
-			(input.keysym.mod & KMOD_LSHIFT) == KMOD_LSHIFT ||
-			(input.keysym.mod & KMOD_RSHIFT) == KMOD_RSHIFT) {
+		if( input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL) ||
+			input.keysym.mod & (KMOD_LALT | KMOD_RALT)   ||
+			input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
 				result = false;
 			}
 	}
