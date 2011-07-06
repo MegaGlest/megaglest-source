@@ -765,7 +765,6 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 	//		c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] pressed key [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str());
-	//printf ("In [%s::%s Line: %d] pressed key [%d - %s] input [%d - %s] input.keysym.unicode [%d] mod = %d\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str(),input.keysym.sym,inputKeyName.c_str(),input.keysym.unicode,input.keysym.mod);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] pressed key [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,c,pressKeyName.c_str());
 
 	return c;
@@ -823,6 +822,10 @@ bool isAllowedInputTextKey(SDLKey key) {
 	key != SDLK_BREAK &&
 	key != SDLK_MENU &&
 	key != SDLK_POWER);
+
+	string inputKeyName = SDL_GetKeyName(key);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,key,inputKeyName.c_str(),result);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,key,inputKeyName.c_str(),result);
 
 	return result;
 }
