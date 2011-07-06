@@ -48,6 +48,7 @@ bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 	}
 
 	Command *command= this->unit->getCurrrentCommandThreadSafe();
+	//Command *command= this->unit->getCurrCommand();
 	if( command != NULL &&
 			(command->getCommandType()->getClass() == ccMove ||
 			 command->getCommandType()->getClass() == ccAttack)  &&
@@ -55,6 +56,7 @@ bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 		int curCommandGroupId = command->getUnitCommandGroupId();
 
 		Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
+		//Command *commandPeer = j.unit->getCurrCommand();
 		if(commandPeer == NULL) {
 			return true;
 		}
@@ -100,7 +102,7 @@ void FactionThread::setQuitStatus(bool value) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void FactionThread::signalPathfinder(int frameIndex, std::vector<CommandGroupSorter> *unitsInFactionsSorted) {
+void FactionThread::signalPathfinder(int frameIndex, std::vector<CommandGroupSorter *> *unitsInFactionsSorted) {
 	if(frameIndex >= 0) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
@@ -188,7 +190,7 @@ void FactionThread::execute() {
 					//std::vector<CommandGroupSorter> *unitsInFactionsSorted
 					int unitCount = unitsInFactionsSorted->size();
 					for(int j = 0; j < unitCount; ++j) {
-						Unit *unit = (*unitsInFactionsSorted)[j].unit;
+						Unit *unit = (*unitsInFactionsSorted)[j]->unit;
 						if(unit == NULL) {
 							throw runtime_error("unit == NULL");
 						}
@@ -277,7 +279,7 @@ Faction::~Faction() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Faction::signalWorkerThread(int frameIndex, std::vector<CommandGroupSorter> *unitsInFactionsSorted) {
+void Faction::signalWorkerThread(int frameIndex, std::vector<CommandGroupSorter *> *unitsInFactionsSorted) {
 	if(workerThread != NULL) {
 		workerThread->signalPathfinder(frameIndex,unitsInFactionsSorted);
 	}

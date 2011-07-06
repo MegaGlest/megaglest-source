@@ -908,6 +908,9 @@ Command *Unit::getCurrCommand() const {
 }
 
 void Unit::replaceCurrCommand(Command *cmd) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 	assert(commands.empty() == false);
 	commands.front() = cmd;
 	this->setCurrentUnitTitle("");
@@ -967,22 +970,23 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		}
 		else{
 			//Delete all lower-prioirty commands
-			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-			MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
-
 			for(list<Command*>::iterator i= commands.begin(); i != commands.end();){
 				if((*i)->getPriority() < command_priority){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled)
 						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",__FILE__,__FUNCTION__,__LINE__,(*i)->toString().c_str());
 
+					static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+					MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 					deleteQueuedCommand(*i);
 					i= commands.erase(i);
+
+					safeMutex.ReleaseLock();
 				}
 				else{
 					++i;
 				}
 			}
-			safeMutex.ReleaseLock();
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -1055,18 +1059,22 @@ CommandResult Unit::finishCommand() {
 
 	delete commands.front();
 	commands.erase(commands.begin());
+
+	safeMutex.ReleaseLock(true);
+
 	this->unitPath->clear();
 
 	while (commands.empty() == false) {
 		if (commands.front()->getUnit() != NULL && livingUnitsp.find(commands.front()->getUnit()) == livingUnitsp.end()) {
+			safeMutex.Lock();
 			delete commands.front();
 			commands.erase(commands.begin());
-		} else {
+			safeMutex.ReleaseLock(true);
+		}
+		else {
 			break;
 		}
 	}
-
-	safeMutex.ReleaseLock();
 
 	return crSuccess;
 }
@@ -1093,10 +1101,12 @@ CommandResult Unit::cancelCommand() {
 	delete commands.back();
 	commands.pop_back();
 
+	safeMutex.ReleaseLock();
+
 	//clear routes
 	this->unitPath->clear();
 
-	safeMutex.ReleaseLock();
+
 
 	return crSuccess;
 }
@@ -2113,17 +2123,20 @@ void Unit::updateTarget(){
 }
 
 void Unit::clearCommands() {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
 
 	this->setCurrentUnitTitle("");
 	this->unitPath->clear();
 	while(commands.empty() == false) {
 		undoCommand(commands.back());
+
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
+
 		delete commands.back();
 		commands.pop_back();
+
+		safeMutex.ReleaseLock();
 	}
-	safeMutex.ReleaseLock();
 }
 
 void Unit::deleteQueuedCommand(Command *command) {
