@@ -3144,12 +3144,14 @@ void Renderer::renderSelectionEffects() {
 
 				for(unsigned int i = 0; i < effect.currentAttackBoostUnits.size(); ++i) {
 					// Remove attack boost upgrades from unit
-					Unit *affectedUnit = effect.currentAttackBoostUnits[i];
+					int findUnitId = effect.currentAttackBoostUnits[i];
+					Unit *affectedUnit = game->getWorld()->findUnitById(findUnitId);
+					if(affectedUnit != NULL) {
+						Vec3f currVecBoost = affectedUnit->getCurrVectorFlat();
+						currVecBoost.y += 0.3f;
 
-					Vec3f currVecBoost = affectedUnit->getCurrVectorFlat();
-					currVecBoost.y += 0.3f;
-
-					renderSelectionCircle(currVecBoost, affectedUnit->getType()->getSize(), 1.f);
+						renderSelectionCircle(currVecBoost, affectedUnit->getType()->getSize(), 1.f);
+					}
 				}
 			}
 		}

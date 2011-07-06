@@ -53,6 +53,7 @@ class CommandGroupSorter {
 public:
 	Unit *unit;
 
+	CommandGroupSorter();
 	CommandGroupSorter(Unit *unit);
 	bool operator< (const CommandGroupSorter &j) const;
 };

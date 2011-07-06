@@ -255,7 +255,7 @@ public:
 	~UnitAttackBoostEffectOriginator();
 
 	const SkillType *skillType;
-	std::vector<Unit *> currentAttackBoostUnits;
+	std::vector<int> currentAttackBoostUnits;
 	UnitAttackBoostEffect *currentAppliedEffect;
 };
 
@@ -373,7 +373,7 @@ private:
 
 	UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
 
-	std::vector<UnitAttackBoostEffect> currentAttackBoostEffects;
+	std::vector<UnitAttackBoostEffect *> currentAttackBoostEffects;
 
 	Mutex mutexCommands;
 
