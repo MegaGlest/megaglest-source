@@ -66,6 +66,7 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	lastRenderLog2d		 = 0;
 	totalRenderFps       = 0;
 	lastMaxUnitCalcTime  = 0;
+	renderExtraTeamColor = 0;
 
 	mouseMoved= false;
 	quitTriggeredIndicator = false;
@@ -1598,6 +1599,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				//printf("Toggle pause paused = %d\n",paused);
 				setPaused(!paused);
 			}
+			else if(isKeyPressed(configKeys.getSDLKey("ExtraTeamColorMarker"),key, false) == true) {
+				//printf("Toggle ExtraTeamColorMarker\n");
+				toggleTeamColorMarker();
+			}
 			//switch display color
 			//else if(key == configKeys.getCharKey("ChangeFontColor")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ChangeFontColor"),key, false) == true) {
@@ -1895,11 +1900,23 @@ void Game::render3d(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderSelectionEffects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+	// renderTeamColorCircle
+	if((renderExtraTeamColor&renderTeamColorCircleBit)>0){
+		renderer.renderTeamColorCircle();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+	}
 	//units
 	renderer.renderUnits(avgRenderFps);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderUnits]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+	// renderTeamColorPlane
+	if((renderExtraTeamColor&renderTeamColorPlaneBit)>0){
+		renderer.renderTeamColorPlane();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+	}
 	//objects
 	renderer.renderObjects(avgRenderFps);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
@@ -2474,6 +2491,10 @@ Vec2i Game::getPerformanceTimerResults() {
 
 void Game::consoleAddLine(string line) {
 	console.addLine(line);
+}
+void Game::toggleTeamColorMarker() {
+	renderExtraTeamColor++;
+	renderExtraTeamColor=renderExtraTeamColor%4;
 }
 
 }}//end namespace

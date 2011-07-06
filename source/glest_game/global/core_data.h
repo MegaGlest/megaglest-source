@@ -50,6 +50,7 @@ private:
 	std::vector<Texture2D *> logoTextureList;
     Texture2D *backgroundTexture;
     Texture2D *fireTexture;
+    Texture2D *teamColorTexture;
     Texture2D *snowTexture;
 	Texture2D *waterSplashTexture;
     Texture2D *customTexture;
@@ -83,6 +84,7 @@ public:
 
 	Texture2D *getBackgroundTexture() const		{return backgroundTexture;}
 	Texture2D *getFireTexture() const			{return fireTexture;}
+	Texture2D *getTeamColorTexture() const		{return teamColorTexture;}
 	Texture2D *getSnowTexture() const			{return snowTexture;}
 	Texture2D *getLogoTexture() const			{return logoTexture;}
 	Texture2D *getWaterSplashTexture() const	{return waterSplashTexture;}
