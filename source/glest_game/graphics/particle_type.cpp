@@ -31,9 +31,14 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class ParticleSystemType
 // =====================================================
+const bool checkMemory = false;
+static map<void *,int> memoryObjectList;
 
 ParticleSystemType::ParticleSystemType() {
-	//printf("++ Create ParticleSystemType [%p]\n",this);
+	if(checkMemory) {
+		printf("++ Create ParticleSystemType [%p]\n",this);
+		memoryObjectList[this]++;
+	}
 
 	teamcolorNoEnergy=false;
 	teamcolorEnergy=false;
@@ -47,7 +52,11 @@ ParticleSystemType::ParticleSystemType() {
 }
 
 ParticleSystemType::~ParticleSystemType() {
-	//printf("-- Delete ParticleSystemType [%p] type = [%s]\n",this,type.c_str());
+	if(checkMemory) {
+		printf("-- Delete ParticleSystemType [%p] type = [%s]\n",this,type.c_str());
+		memoryObjectList[this]--;
+		assert(memoryObjectList[this] == 0);
+	}
 }
 
 void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,

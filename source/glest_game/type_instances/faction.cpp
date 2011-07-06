@@ -30,6 +30,10 @@ using Shared::Util::RandomGen;
 
 namespace Glest { namespace Game {
 
+CommandGroupSorter::CommandGroupSorter() {
+	this->unit = NULL;
+}
+
 CommandGroupSorter::CommandGroupSorter(Unit *unit) {
 	this->unit = unit;
 }
@@ -82,6 +86,7 @@ bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 
 FactionThread::FactionThread(Faction *faction) : BaseThread() {
 	this->faction = faction;
+	this->unitsInFactionsSorted = NULL;
 }
 
 void FactionThread::setQuitStatus(bool value) {
@@ -194,6 +199,7 @@ void FactionThread::execute() {
 							world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
 						}
 					}
+					//this->unitsInFactionsSorted = NULL;
 				}
 				else {
 					int unitCount = faction->getUnitCount();

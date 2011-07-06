@@ -33,8 +33,14 @@ namespace Graphics {
 //	class ParticleSystem
 // =====================================================
 
+const bool checkMemory = false;
+static map<void *,int> memoryObjectList;
+
 ParticleSystem::ParticleSystem(int particleCount) {
-	//printf("++ Create ParticleSystem [%p]\n",this);
+	if(checkMemory) {
+		printf("++ Create ParticleSystem [%p]\n",this);
+		memoryObjectList[this]++;
+	}
 
 	//init particle vector
 	blendMode= bmOne;
@@ -69,7 +75,11 @@ ParticleSystem::ParticleSystem(int particleCount) {
 }
 
 ParticleSystem::~ParticleSystem(){
-	//printf("-- Delete ParticleSystem [%p]\n",this);
+	if(checkMemory) {
+		printf("-- Delete ParticleSystem [%p]\n",this);
+		memoryObjectList[this]--;
+		assert(memoryObjectList[this] == 0);
+	}
 
 	//delete [] particles;
 	particles.clear();
@@ -1084,10 +1094,17 @@ int ParticleManager::findParticleSystems(ParticleSystem *psFind, const vector<Pa
 	return result;
 }
 
-void ParticleManager::cleanupParticleSystems(ParticleSystem *ps){
+void ParticleManager::cleanupParticleSystems(ParticleSystem *ps) {
 
 	int index= findParticleSystems(ps, this->particleSystems);
-	if(ps != NULL && index >= 0){
+	if(ps != NULL && index >= 0) {
+//		printf("-- Delete cleanupParticleSystems [%p]\n",ps);
+//		static map<void *,int> deleteList;
+//		if(deleteList.find(ps) != deleteList.end()) {
+//			assert(deleteList.find(ps) == deleteList.end());
+//		}
+//		deleteList[ps]++;
+
 		delete ps;
 		this->particleSystems.erase(this->particleSystems.begin() + index);
 	}
@@ -1095,7 +1112,7 @@ void ParticleManager::cleanupParticleSystems(ParticleSystem *ps){
 
 void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems){
 
-	for(unsigned int i= 0; i < particleSystems.size(); i++){
+	for(int i= particleSystems.size()-1; i >= 0; i--){
 		ParticleSystem *ps= particleSystems[i];
 		cleanupParticleSystems(ps);
 	}
@@ -1106,7 +1123,7 @@ void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleS
 
 void ParticleManager::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems){
 
-	for(unsigned int i= 0; i < particleSystems.size(); i++){
+	for(int i= particleSystems.size()-1; i >= 0; i--){
 		ParticleSystem *ps= particleSystems[i];
 		cleanupParticleSystems(ps);
 	}
@@ -1120,7 +1137,16 @@ void ParticleManager::manage(ParticleSystem *ps){
 
 void ParticleManager::end(){
 	while(particleSystems.empty() == false){
-		delete particleSystems.back();
+		ParticleSystem *ps = particleSystems.back();
+
+//		printf("-- Delete end() [%p]\n",ps);
+//		static map<void *,int> deleteList;
+//		if(deleteList.find(ps) != deleteList.end()) {
+//			assert(deleteList.find(ps) == deleteList.end());
+//		}
+//		deleteList[ps]++;
+
+		delete ps;
 		particleSystems.pop_back();
 	}
 }
