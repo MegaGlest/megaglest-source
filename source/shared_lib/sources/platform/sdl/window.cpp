@@ -597,8 +597,30 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 			c = input.keysym.unicode;
 			//c = toupper(c);
 		}
-		else if(input.keysym.unicode == SDLK_QUESTION &&
-				(input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT))) {
+		else if((input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) &&
+				(input.keysym.unicode == SDLK_QUESTION ||
+				 input.keysym.unicode == SDLK_AT ||
+				 input.keysym.unicode == SDLK_COLON ||
+				 input.keysym.unicode == SDLK_LESS ||
+				 input.keysym.unicode == SDLK_GREATER ||
+				 input.keysym.unicode == SDLK_CARET ||
+				 input.keysym.unicode == SDLK_UNDERSCORE ||
+				 input.keysym.unicode == SDLK_BACKQUOTE ||
+				 input.keysym.unicode == SDLK_EXCLAIM ||
+				 input.keysym.unicode == SDLK_QUOTEDBL ||
+				 input.keysym.unicode == SDLK_HASH ||
+				 input.keysym.unicode == SDLK_DOLLAR ||
+				 input.keysym.unicode == SDLK_AMPERSAND ||
+				 input.keysym.unicode == SDLK_QUOTE ||
+				 input.keysym.unicode == SDLK_LEFTPAREN ||
+				 input.keysym.unicode == SDLK_RIGHTPAREN ||
+				 input.keysym.unicode == SDLK_ASTERISK ||
+				 input.keysym.unicode == SDLK_KP_MULTIPLY ||
+				 input.keysym.unicode == SDLK_PLUS ||
+				 input.keysym.unicode == SDLK_COMMA ||
+				 input.keysym.unicode == SDLK_MINUS ||
+				 input.keysym.unicode == SDLK_PERIOD ||
+				 input.keysym.unicode == SDLK_SLASH)) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -644,6 +666,15 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 	if(result == false) {
 		if(compareKey == SDLK_RETURN) {
 			result = (c == SDLK_KP_ENTER);
+		}
+		else if(compareKey == SDLK_KP_ENTER) {
+			result = (c == SDLK_RETURN);
+		}
+		else if(compareKey == SDLK_ASTERISK) {
+			result = (c == SDLK_KP_MULTIPLY);
+		}
+		else if(compareKey == SDLK_KP_MULTIPLY) {
+			result = (c == SDLK_ASTERISK);
 		}
 		else if( compareKey >= SDLK_0 && compareKey <= SDLK_9) {
 			switch(compareKey) {
@@ -719,8 +750,8 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 		//printf("input.keysym.mod = %d\n",input.keysym.mod);
 
 		if( input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL) ||
-			input.keysym.mod & (KMOD_LALT | KMOD_RALT)   ||
-			input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+			input.keysym.mod & (KMOD_LALT | KMOD_RALT)) {
+			//input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
 				result = false;
 			}
 	}
