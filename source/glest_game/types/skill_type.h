@@ -278,8 +278,15 @@ public:
 // ===============================
 
 class ProduceSkillType: public SkillType{
+private:
+	bool animProgressBound;
 public:
     ProduceSkillType();
+    bool getAnimProgressBound() const	{return animProgressBound;}
+    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+    			string parentLoader);
+
     virtual string toString() const;
 
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
@@ -290,8 +297,15 @@ public:
 // ===============================
 
 class UpgradeSkillType: public SkillType{
+private:
+	bool animProgressBound;
 public:
     UpgradeSkillType();
+    bool getAnimProgressBound() const	{return animProgressBound;}
+    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+    			string parentLoader);
+
 	virtual string toString() const;
 
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
@@ -304,11 +318,11 @@ public:
 
 class BeBuiltSkillType: public SkillType{
 private:
-	bool animHpBound;
+	bool animProgressBound;
 
 public:
     BeBuiltSkillType();
-	bool getAnimHpBound() const	{return animHpBound;}
+	bool getAnimProgressBound() const	{return animProgressBound;}
 
     virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
@@ -321,10 +335,18 @@ public:
 // ===============================
 
 class MorphSkillType: public SkillType{
+private:
+	bool animProgressBound;
+
 public:
     MorphSkillType();
-    virtual string toString() const;
+	bool getAnimProgressBound() const	{return animProgressBound;}
 
+    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+    			string parentLoader);
+
+    virtual string toString() const;
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
 };
 

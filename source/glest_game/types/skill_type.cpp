@@ -588,6 +588,20 @@ ProduceSkillType::ProduceSkillType(){
     skillClass= scProduce;
 }
 
+void ProduceSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+		string parentLoader) {
+	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+
+	if(sn->hasChild("anim-progress-bound")){
+		animProgressBound= sn->getChild("anim-progress-bound")->getAttribute("value")->getBoolValue();
+	}
+	else {
+		animProgressBound=false;
+	}
+}
+
+
 string ProduceSkillType::toString() const{
 	return Lang::getInstance().get("Produce");
 }
@@ -604,6 +618,19 @@ int ProduceSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
 
 UpgradeSkillType::UpgradeSkillType(){
     skillClass= scUpgrade;
+}
+
+void UpgradeSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+		string parentLoader) {
+	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+
+	if(sn->hasChild("anim-progress-bound")){
+		animProgressBound= sn->getChild("anim-progress-bound")->getAttribute("value")->getBoolValue();
+	}
+	else {
+		animProgressBound=false;
+	}
 }
 
 string UpgradeSkillType::toString() const{
@@ -629,11 +656,14 @@ void BeBuiltSkillType::load(const XmlNode *sn, const string &dir, const TechTree
 		string parentLoader) {
 	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
 
-	if(sn->hasChild("anim-hp-bound")){
-		animHpBound= sn->getChild("anim-hp-bound")->getAttribute("value")->getBoolValue();
+	if(sn->hasChild("anim-progress-bound")){
+		animProgressBound= sn->getChild("anim-progress-bound")->getAttribute("value")->getBoolValue();
+	}
+	else if(sn->hasChild("anim-hp-bound")){ // deprecated!!!! remove it when you see it after 15th July 2011
+		animProgressBound= sn->getChild("anim-hp-bound")->getAttribute("value")->getBoolValue();
 	}
 	else {
-		animHpBound=false;
+		animProgressBound=false;
 	}
 }
 
@@ -648,6 +678,19 @@ string BeBuiltSkillType::toString() const{
 
 MorphSkillType::MorphSkillType(){
     skillClass= scMorph;
+}
+
+void MorphSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+		string parentLoader) {
+	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+
+	if(sn->hasChild("anim-progress-bound")){
+		animProgressBound= sn->getChild("anim-progress-bound")->getAttribute("value")->getBoolValue();
+	}
+	else {
+		animProgressBound=false;
+	}
 }
 
 string MorphSkillType::toString() const{
