@@ -404,6 +404,7 @@ public:
 	int getHp() const							{return hp;}
 	int getEp() const							{return ep;}
 	int getProductionPercent() const;
+	float getProgressRatio() const;
 	float getHpRatio() const;
 	float getEpRatio() const;
 	bool getToBeUndertaken() const				{return toBeUndertaken;}
@@ -443,7 +444,7 @@ public:
     bool isOperative() const;
     bool isBeingBuilt() const;
     bool isBuilt() const;
-    bool isBeingBuiltWithAnimHpBound() const;
+    bool isAnimProgressBound() const;
     bool isPutrefacting() const;
 	bool isAlly(const Unit *unit) const;
 	bool isDamaged() const;

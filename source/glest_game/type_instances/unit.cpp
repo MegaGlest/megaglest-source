@@ -487,6 +487,17 @@ int Unit::getProductionPercent() const{
 	return -1;
 }
 
+float Unit::getProgressRatio() const{
+	if(anyCommand()){
+		const ProducibleType *produced= commands.front()->getCommandType()->getProduced();
+		if(produced!=NULL){
+			float help=progress2;
+			return clamp(help/produced->getProductionTime(), 0.f, 1.f);
+		}
+	}
+	return -1;
+}
+
 float Unit::getHpRatio() const {
 	if(type == NULL) {
 		char szBuf[4096]="";
@@ -550,7 +561,7 @@ bool Unit::isOperative() const{
     return isAlive() && isBuilt();
 }
 
-bool Unit::isBeingBuiltWithAnimHpBound() const{
+bool Unit::isAnimProgressBound() const{
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
@@ -559,9 +570,27 @@ bool Unit::isBeingBuiltWithAnimHpBound() const{
 
 	bool result = false;
     if(currSkill->getClass() == scBeBuilt) {
-    	const BeBuiltSkillType *bbst = dynamic_cast<const BeBuiltSkillType*>(currSkill);
-    	if(bbst != NULL) {
-    		result = bbst->getAnimHpBound();
+    	const BeBuiltSkillType *skill = dynamic_cast<const BeBuiltSkillType*>(currSkill);
+    	if(skill != NULL) {
+    		result = skill->getAnimProgressBound();
+    	}
+    }
+    else if(currSkill->getClass() == scProduce) {
+    	const ProduceSkillType *skill = dynamic_cast<const ProduceSkillType*>(currSkill);
+    	if(skill != NULL) {
+    		result = skill->getAnimProgressBound();
+    	}
+    }
+    else if(currSkill->getClass() == scUpgrade) {
+    	const UpgradeSkillType *skill = dynamic_cast<const UpgradeSkillType*>(currSkill);
+    	if(skill != NULL) {
+    		result = skill->getAnimProgressBound();
+    	}
+    }
+    else if(currSkill->getClass() == scMorph) {
+    	const MorphSkillType *skill = dynamic_cast<const MorphSkillType*>(currSkill);
+    	if(skill != NULL) {
+    		result = skill->getAnimProgressBound();
     	}
     }
     return result;
@@ -1336,8 +1365,11 @@ bool Unit::update() {
 	float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 	progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
 
-	if(isBeingBuiltWithAnimHpBound() == true) {
-		animProgress=this->getHpRatio();
+	if(isAnimProgressBound() == true) {
+		if(currSkill->getClass() == scBeBuilt) animProgress = this->getHpRatio();
+		if(currSkill->getClass() == scProduce) animProgress = this->getProgressRatio();
+		if(currSkill->getClass() == scUpgrade) animProgress = this->getProgressRatio();
+		if(currSkill->getClass() == scMorph) animProgress = this->getProgressRatio();
 	}
 	else{
 		animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
