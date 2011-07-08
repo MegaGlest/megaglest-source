@@ -284,6 +284,37 @@ private:
 	void ReleaseSurfaceVBOs();
 	std::map<string,std::pair<Chrono, std::vector<SurfaceData> > > mapSurfaceData;
 	static bool rendererEnded;
+	
+	class MapRenderer {
+	public:
+		MapRenderer(): map(NULL) {}
+		~MapRenderer() { destroy(); }
+		void render(const Map* map,float coordStep);
+		void destroy();
+	private:
+		void load(float coordStep);
+		const Map* map;
+		struct Layer {
+			Layer(int th):
+				vbo_vertices(0), vbo_normals(0), 
+				vbo_fowTexCoords(0), vbo_surfTexCoords(0),
+				vbo_indices(0), indexCount(0),
+				textureHandle(th) {}
+			~Layer();
+			void load_vbos();
+			void render();
+			std::vector<Vec3f> vertices, normals;
+			std::vector<Vec2f> fowTexCoords, surfTexCoords;
+			std::vector<GLuint> indices;
+			GLuint vbo_vertices, vbo_normals,
+				vbo_fowTexCoords, vbo_surfTexCoords,
+				vbo_indices;
+			int indexCount;
+			const int textureHandle;
+		};
+		typedef std::vector<Layer*> Layers;
+		Layers layers;
+	} mapRenderer;
 private:
 	Renderer();
 	~Renderer();
