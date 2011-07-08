@@ -126,7 +126,14 @@ const char  *GAME_ARGS[] = {
 	"--disable-vbo",
 	"--disable-sound",
 	"--enable-legacyfonts",
-	"--use-video-settings",
+//	"--use-video-settings",
+
+	"--resolution",
+	"--colorbits",
+	"--depthbits",
+	"--fullscreen",
+	//"--windowed",
+
 	"--use-font",
 	"--verbose"
 
@@ -163,7 +170,12 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_DISABLE_SOUND,
 	GAME_ARG_ENABLE_LEGACYFONTS,
-	GAME_ARG_USE_VIDEO_SETTINGS,
+	//GAME_ARG_USE_VIDEO_SETTINGS,
+	GAME_ARG_USE_RESOLUTION,
+	GAME_ARG_USE_COLORBITS,
+	GAME_ARG_USE_DEPTHBITS,
+	GAME_ARG_USE_FULLSCREEN,
+
 	GAME_ARG_USE_FONT,
 	GAME_ARG_VERBOSE_MODE
 };
@@ -1074,14 +1086,33 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tenables using the legacy font system.",GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]);
 
 
-	printf("\n%s=x\t\t\toverride video settings.",GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+//	printf("\n%s=x\t\t\toverride video settings.",GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+//	printf("\n                     \t\tWhere x is a string with the following format:");
+//	printf("\n                     \t\twidthxheightxcolorbitsxdepthbitsxfullscreen");
+//	printf("\n                     \t\twhere * indicates not to replace the default value for the parameter");
+//	printf("\n                     \t\tfullscreen has possible values of true, false, 1 or 0");
+//	printf("\n                     \t\tand only the width and height parameters are required (the others are optional)");
+//	printf("\n                     \t\texample: %s %s=1024x768x*x*",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+//	printf("\n                     \t\tsame result for: %s %s=1024x768",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+
+
+
+	printf("\n%s=x\t\t\toverride the video resolution.",GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
 	printf("\n                     \t\tWhere x is a string with the following format:");
-	printf("\n                     \t\twidthxheightxcolorbitsxdepthbitsxfullscreen");
-	printf("\n                     \t\twhere * indicates not to replace the default value for the parameter");
-	printf("\n                     \t\tfullscreen has possible values of true, false, 1 or 0");
-	printf("\n                     \t\tand only the width and height parameters are required (the others are optional)");
-	printf("\n                     \t\texample: %s %s=1024x768x*x*",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
-	printf("\n                     \t\tsame result for: %s %s=1024x768",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+	printf("\n                     \t\twidthxheight");
+	printf("\n                     \t\texample: %s %s=1024x768",argv0,GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
+
+	printf("\n%s=x\t\t\toverride the video colorbits.",GAME_ARGS[GAME_ARG_USE_COLORBITS]);
+	printf("\n                     \t\tWhere x is a valid colorbits value supported by your video driver");
+	printf("\n                     \t\texample: %s %s=32",argv0,GAME_ARGS[GAME_ARG_USE_COLORBITS]);
+
+	printf("\n%s=x\t\t\toverride the video depthbits.",GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
+	printf("\n                     \t\tWhere x is a valid depthbits value supported by your video driver");
+	printf("\n                     \t\texample: %s %s=24",argv0,GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
+
+	printf("\n%s=x\t\t\toverride the video fullscreen mode.",GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
+	printf("\n                     \t\tWhere x either true or false");
+	printf("\n                     \t\texample: %s %s=true",argv0,GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
 
 	printf("\n%s=x\t\t\toverride the font to use.",GAME_ARGS[GAME_ARG_USE_FONT]);
 	printf("\n                     \t\tWhere x is the path and name of a font file support by freetype2.");
@@ -2493,18 +2524,73 @@ int glestMain(int argc, char** argv) {
         	Renderer::renderText3DEnabled = config.getBool("Enable3DFontRendering",intToStr(Renderer::renderText3DEnabled).c_str());
         }
 
-        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]) == true) {
+//        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]) == true) {
+//			int foundParamIndIndex = -1;
+//			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]) + string("="),&foundParamIndIndex);
+//			if(foundParamIndIndex < 0) {
+//				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]),&foundParamIndIndex);
+//			}
+//			string paramValue = argv[foundParamIndIndex];
+//			vector<string> paramPartTokens;
+//			Tokenize(paramValue,paramPartTokens,"=");
+//			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+//				string settings = paramPartTokens[1];
+//				printf("Forcing video settings [%s]\n",settings.c_str());
+//
+//				paramPartTokens.clear();
+//				Tokenize(settings,paramPartTokens,"x");
+//				if(paramPartTokens.size() >= 2) {
+//					int newScreenWidth 	= strToInt(paramPartTokens[0]);
+//					config.setInt("ScreenWidth",newScreenWidth);
+//
+//					int newScreenHeight = strToInt(paramPartTokens[1]);
+//					config.setInt("ScreenHeight",newScreenHeight);
+//
+//					if(paramPartTokens.size() >= 3) {
+//						if(paramPartTokens[2] != "*") {
+//							int newColorBits = strToInt(paramPartTokens[2]);
+//							config.setInt("ColorBits",newColorBits);
+//						}
+//					}
+//					if(paramPartTokens.size() >= 4) {
+//						if(paramPartTokens[3] != "*") {
+//							int newDepthBits = strToInt(paramPartTokens[3]);
+//							config.setInt("DepthBits",newDepthBits);
+//						}
+//					}
+//					if(paramPartTokens.size() >= 5) {
+//						if(paramPartTokens[4] != "*") {
+//							bool newFullScreenMode = strToBool(paramPartTokens[4]);
+//							config.setBool("Windowed",!newFullScreenMode);
+//						}
+//					}
+//				}
+//				else {
+//		            printf("\nInvalid missing video settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+//		            //printParameterHelp(argv[0],false);
+//		            return -1;
+//				}
+//			}
+//	        else {
+//	            printf("\nInvalid missing video settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+//	            //printParameterHelp(argv[0],false);
+//	            return -1;
+//	        }
+//        }
+
+
+        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_RESOLUTION]) == true) {
 			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]) + string("="),&foundParamIndIndex);
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_RESOLUTION]) + string("="),&foundParamIndIndex);
 			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]),&foundParamIndIndex);
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_RESOLUTION]),&foundParamIndIndex);
 			}
 			string paramValue = argv[foundParamIndIndex];
 			vector<string> paramPartTokens;
 			Tokenize(paramValue,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string settings = paramPartTokens[1];
-				printf("Forcing video settings [%s]\n",settings.c_str());
+				printf("Forcing resolution [%s]\n",settings.c_str());
 
 				paramPartTokens.clear();
 				Tokenize(settings,paramPartTokens,"x");
@@ -2514,38 +2600,89 @@ int glestMain(int argc, char** argv) {
 
 					int newScreenHeight = strToInt(paramPartTokens[1]);
 					config.setInt("ScreenHeight",newScreenHeight);
-
-					if(paramPartTokens.size() >= 3) {
-						if(paramPartTokens[2] != "*") {
-							int newColorBits = strToInt(paramPartTokens[2]);
-							config.setInt("ColorBits",newColorBits);
-						}
-					}
-					if(paramPartTokens.size() >= 4) {
-						if(paramPartTokens[3] != "*") {
-							int newDepthBits = strToInt(paramPartTokens[3]);
-							config.setInt("DepthBits",newDepthBits);
-						}
-					}
-					if(paramPartTokens.size() >= 5) {
-						if(paramPartTokens[4] != "*") {
-							bool newFullScreenMode = strToBool(paramPartTokens[4]);
-							config.setBool("Windowed",!newFullScreenMode);
-						}
-					}
 				}
 				else {
-		            printf("\nInvalid missing video settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+		            printf("\nInvalid missing resolution settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 		            //printParameterHelp(argv[0],false);
 		            return -1;
 				}
 			}
 	        else {
-	            printf("\nInvalid missing video settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            printf("\nInvalid missing resolution setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
 	            return -1;
 	        }
         }
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_COLORBITS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_COLORBITS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_COLORBITS]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string settings = paramPartTokens[1];
+				printf("Forcing colorbits [%s]\n",settings.c_str());
+
+				int newColorBits = strToInt(settings);
+				config.setInt("ColorBits",newColorBits);
+			}
+			else {
+				printf("\nInvalid missing colorbits settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				//printParameterHelp(argv[0],false);
+				return -1;
+			}
+		}
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_DEPTHBITS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_DEPTHBITS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_DEPTHBITS]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string settings = paramPartTokens[1];
+				printf("Forcing depthbits [%s]\n",settings.c_str());
+
+				int newDepthBits = strToInt(settings);
+				config.setInt("DepthBits",newDepthBits);
+			}
+			else {
+				printf("\nInvalid missing depthbits setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				//printParameterHelp(argv[0],false);
+				return -1;
+			}
+		}
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_FULLSCREEN]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_FULLSCREEN]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_FULLSCREEN]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string settings = paramPartTokens[1];
+				printf("Forcing fullscreen [%s]\n",settings.c_str());
+
+				bool newFullScreenMode = strToBool(settings);
+				config.setBool("Windowed",!newFullScreenMode);
+			}
+			else {
+				printf("\nInvalid missing fullscreen setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				//printParameterHelp(argv[0],false);
+				return -1;
+			}
+		}
+
 
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
