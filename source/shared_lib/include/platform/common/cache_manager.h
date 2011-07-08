@@ -99,6 +99,7 @@ public:
 			delete iterMap->second;
 			iterMap->second = NULL;
 		}
+		itemCacheMutexList.clear();
 	}
 
 	template <typename T>

@@ -2324,20 +2324,163 @@ void Renderer::ReleaseSurfaceVBOs() {
 	mapSurfaceVBOCache.clear();
 }
 
+Renderer::MapRenderer::Layer::~Layer() {
+	if(vbo_vertices) glDeleteBuffersARB(1,&vbo_vertices);
+	if(vbo_normals) glDeleteBuffersARB(1,&vbo_normals);
+	if(vbo_fowTexCoords) glDeleteBuffersARB(1,&vbo_fowTexCoords);
+	if(vbo_surfTexCoords) glDeleteBuffersARB(1,&vbo_surfTexCoords);
+	if(vbo_indices) glDeleteBuffersARB(1,&vbo_indices);
+	
+}
+
+template<typename T> void _loadVBO(GLuint &vbo,std::vector<T> buf,int target=GL_ARRAY_BUFFER_ARB) {
+	assert(buf.size());
+	if(true /* vbo enabled? */) {
+		glGenBuffersARB(1,&vbo);
+		assert(vbo);
+		glBindBufferARB(target,vbo);
+		glBufferDataARB(target,sizeof(T)*buf.size(),&buf[0],GL_STATIC_DRAW_ARB);
+		glBindBuffer(target,0);
+		assertGl();
+		buf.clear();
+	}
+}
+
+void Renderer::MapRenderer::Layer::load_vbos() {
+	_loadVBO(vbo_vertices,vertices);
+	_loadVBO(vbo_normals,normals);
+	_loadVBO(vbo_fowTexCoords,fowTexCoords);
+	_loadVBO(vbo_surfTexCoords,surfTexCoords);
+	indexCount = indices.size();
+	_loadVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB);
+}
+
+void Renderer::MapRenderer::load(float coordStep) {
+	// we create a layer for each texture in the map
+	for(int y=0; y<map->getSurfaceH()-1; y++) {
+		for(int x=0; x<map->getSurfaceW()-1; x++) {
+			SurfaceCell *tc[4] = {
+				map->getSurfaceCell(x,y),
+				map->getSurfaceCell(x+1,y),
+				map->getSurfaceCell(x,y+1),
+				map->getSurfaceCell(x+1,y+1)
+			};
+			int textureHandle = static_cast<const Texture2DGl*>(tc[0]->getSurfaceTexture())->getHandle();
+			Layer* layer = NULL;
+			for(Layers::iterator it= layers.begin(); it!= layers.end(); ++it) {
+				if((*it)->textureHandle == textureHandle) {
+					layer = *it;
+					break;
+				}
+			}
+			if(!layer) {
+				layer = new Layer(textureHandle);
+				layers.push_back(layer);
+			}
+			// we'll be super-lazy and re-emit all four corners just because its easier
+			int index[4];
+			int loopIndexes[4] = { 2,0,3,1 };
+			for(int i=0; i < 4; i++) {
+				index[i] = layer->vertices.size();
+				SurfaceCell *corner = tc[loopIndexes[i]];
+				layer->vertices.push_back(corner->getVertex());
+				layer->normals.push_back(corner->getNormal());
+			}
+
+			// the texture coords are all on the current texture obviously
+			layer->fowTexCoords.push_back(tc[loopIndexes[0]]->getFowTexCoord());
+			layer->fowTexCoords.push_back(tc[loopIndexes[1]]->getFowTexCoord());
+			layer->fowTexCoords.push_back(tc[loopIndexes[2]]->getFowTexCoord());
+			layer->fowTexCoords.push_back(tc[loopIndexes[3]]->getFowTexCoord());
+
+			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(0,coordStep));
+			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(0,0));
+			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(coordStep,coordStep));
+			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(coordStep,0));
+			// and make two triangles (no strip, we may be disjoint)
+			layer->indices.push_back(index[0]);
+			layer->indices.push_back(index[1]);
+			layer->indices.push_back(index[2]);
+			layer->indices.push_back(index[1]);
+			layer->indices.push_back(index[3]);
+			layer->indices.push_back(index[2]);
+		}
+	}
+	// turn them into vbos
+	for(Layers::iterator layer= layers.begin(); layer!= layers.end(); ++layer){
+		(*layer)->load_vbos();
+	}
+}
+
+template<typename T> void* _bindVBO(GLuint vbo,std::vector<T> buf,int target=GL_ARRAY_BUFFER_ARB) {
+	if(vbo) {
+		glBindBuffer(target,vbo);
+		return NULL;
+	} else {
+		return &buf[0];
+	}
+}
+
+void Renderer::MapRenderer::Layer::render() {
+	glVertexPointer(3,GL_FLOAT,0,_bindVBO(vbo_vertices,vertices));
+	glNormalPointer(GL_FLOAT,0,_bindVBO(vbo_normals,normals));
+
+	glClientActiveTexture(Renderer::fowTexUnit);
+	glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_fowTexCoords,fowTexCoords));
+
+	glClientActiveTexture(Renderer::baseTexUnit);
+	glBindTexture(GL_TEXTURE_2D,textureHandle);
+	glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_surfTexCoords,surfTexCoords));
+
+	glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
+}
+
+void Renderer::MapRenderer::render(const Map* map,float coordStep) {
+	if(map != this->map) {
+		destroy(); // clear any previous map data
+		this->map = map;
+		load(coordStep);
+	}
+	glClientActiveTexture(fowTexUnit);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glClientActiveTexture(baseTexUnit);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	for(Layers::iterator layer= layers.begin(); layer!= layers.end(); ++layer)
+		(*layer)->render();
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER_ARB,0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB,0);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glClientActiveTexture(fowTexUnit);
+	glBindTexture(GL_TEXTURE_2D,0);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glClientActiveTexture(baseTexUnit);
+	glBindTexture(GL_TEXTURE_2D,0);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	assertGl();
+}
+
+void Renderer::MapRenderer::destroy() {
+	while(layers.size()) {
+		delete layers.back();
+		layers.pop_back();
+	}
+	map = NULL;
+}
+
 void Renderer::renderSurface(const int renderFps) {
 	IF_DEBUG_EDITION(
 		if (getDebugRenderer().willRenderSurface()) {
 			getDebugRenderer().renderSurface(visibleQuad / Map::cellScale);
 		} else {
 	)
-	int lastTex=-1;
-	int currTex=-1;
+	assertGl();
+
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
-	const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
 	float coordStep= world->getTileset()->getSurfaceAtlas()->getCoordStep();
-
-	assertGl();
 
 	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
 
@@ -2371,10 +2514,20 @@ void Renderer::renderSurface(const int renderFps) {
 		}
 	}
 
+	int lastTex=-1;
+	int currTex=-1;
+	const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
+
+
 	glActiveTexture(baseTexUnit);
 
 	VisibleQuadContainerCache &qCache = getQuadCache();
-	if(qCache.visibleScaledCellList.size() > 0) {
+	
+	bool useVBORendering = getVBOSupported();
+	if(useVBORendering == true) {
+		mapRenderer.render(map,coordStep);
+	}
+	else if(qCache.visibleScaledCellList.size() > 0) {
 
 		Quad2i snapshotOfvisibleQuad = visibleQuad;
 
