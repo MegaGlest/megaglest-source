@@ -176,16 +176,16 @@ void XmlTree::init(const string &name){
 }
 
 typedef std::vector<XmlTree*> LoadStack;
-static LoadStack loadStack;
-//static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
+//static LoadStack loadStack;
+static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
 
 void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues) {
 	//printf("XmlTree::load p [%p]\n",this);
 	assert(!loadPath.size());
 
-	//LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
-	//Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
-	//MutexSafeWrapper safeMutex(&mutex);
+	LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
+	Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
+	MutexSafeWrapper safeMutex(&mutex);
 
 	for(LoadStack::iterator it= loadStack.begin(); it!= loadStack.end(); it++){
 		if((*it)->loadPath == path){
@@ -193,6 +193,7 @@ void XmlTree::load(const string &path, std::map<string,string> mapTagReplacement
 		}
 	}
 	loadStack.push_back(this);
+	safeMutex.ReleaseLock();
 
 	loadPath = path;
 	this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues);
@@ -205,14 +206,16 @@ void XmlTree::save(const string &path){
 XmlTree::~XmlTree() {
 	//printf("XmlTree::~XmlTree p [%p]\n",this);
 
-	//LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
-	//Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
-	//MutexSafeWrapper safeMutex(&mutex);
+	LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
+	Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
+	MutexSafeWrapper safeMutex(&mutex);
 
 	LoadStack::iterator it= find(loadStack.begin(),loadStack.end(),this);
 	if(it != loadStack.end()) {
 		loadStack.erase(it);
 	}
+	safeMutex.ReleaseLock();
+
 	delete rootNode;
 }
 
