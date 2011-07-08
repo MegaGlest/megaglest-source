@@ -38,6 +38,8 @@ static const char *getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey1;
 static const char *getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey2;
 
 protected:
+	static std::map<string, Mutex *> itemCacheMutexList;
+
 	typedef enum {
 		cacheItemGet,
 		cacheItemSet
@@ -45,13 +47,11 @@ protected:
 
 	template <typename T>
 	static Mutex & manageCachedItemMutex(string cacheKey) {
-		// Here is the actual type-safe instantiation
-		static std::map<string, Mutex> itemCacheMutexList;
 		if(itemCacheMutexList.find(cacheKey) == itemCacheMutexList.end()) {
-			itemCacheMutexList[cacheKey] = Mutex();
+			itemCacheMutexList[cacheKey] = new Mutex();
 		}
-		Mutex &mutex = itemCacheMutexList[cacheKey];
-		return mutex;
+		Mutex *mutex = itemCacheMutexList[cacheKey];
+		return *mutex;
 	}
 
 	template <typename T>
@@ -84,13 +84,22 @@ protected:
 			}
 		}
 		// If this is the first access we return a default object of the type
+		Mutex &mutexCache = manageCachedItemMutex<T>(cacheKey);
+		MutexSafeWrapper safeMutex(&mutexCache);
+
 		return itemCache[cacheKey];
 	}
 
 public:
 
 	CacheManager() { }
-	~CacheManager() { }
+	~CacheManager() {
+		for(std::map<string, Mutex *>::iterator iterMap = itemCacheMutexList.begin();
+			iterMap != itemCacheMutexList.end(); iterMap++) {
+			delete iterMap->second;
+			iterMap->second = NULL;
+		}
+	}
 
 	template <typename T>
 	static void setCachedItem(string cacheKey, const T value) {
