@@ -2527,6 +2527,7 @@ void Unit::startDamageParticles() {
 				ups->setOffset(Vec3f(0,2,0));
 				ups->setDirection(Vec3f(0,1,-0.2f));
 				ups->setRadius(type->getSize()/3.f);
+				ups->setShape(Shared::Graphics::UnitParticleSystem::sLinear);
 				ups->setTexture(CoreData::getInstance().getFireTexture());
 				const Game *game = Renderer::getInstance().getGame();
 				ups->setSpeed(2.0f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
