@@ -16,6 +16,7 @@
 #include "core_data.h"
 #include "menu_state_options.h"
 #include "config.h"
+#include "opengl.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -39,11 +40,37 @@ MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu)
 	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
 	labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
+	labelInternalInfo.registerGraphicComponent(containerName,"labelInternalInfo");
+	labelInternalInfo.init(400, 700);
+	labelInternalInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+	labelInternalInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+
 	GraphicComponent::applyAllCustomProperties(containerName);
 
 	Renderer &renderer= Renderer::getInstance();
-	glInfo= renderer.getGlInfo();
-	glMoreInfo= renderer.getGlMoreInfo();
+
+	string glInfo= renderer.getGlInfo();
+	string glMoreInfo= renderer.getGlMoreInfo();
+	labelInfo.setText(glInfo);
+	labelMoreInfo.setText(glMoreInfo);
+
+	string strInternalInfo = "";
+	strInternalInfo += "VBOSupported: " + boolToStr(getVBOSupported());
+	if(getenv("MEGAGLEST_FONT") != NULL) {
+		char *tryFont = getenv("MEGAGLEST_FONT");
+		strInternalInfo += "\nMEGAGLEST_FONT: " + string(tryFont);
+	}
+	strInternalInfo += "\nforceLegacyFonts: " + boolToStr(Font::forceLegacyFonts);
+	strInternalInfo += "\nrenderText3DEnabled: " + boolToStr(Renderer::renderText3DEnabled);
+	strInternalInfo += "\nuseTextureCompression: " + boolToStr(Texture::useTextureCompression);
+	strInternalInfo += "\nfontIsRightToLeft: " + boolToStr(Font::fontIsRightToLeft);
+	strInternalInfo += "\nscaleFontValue: " + boolToStr(Font::scaleFontValue);
+	strInternalInfo += "\nscaleFontValueCenterHFactor: " + boolToStr(Font::scaleFontValueCenterHFactor);
+	strInternalInfo += "\nlangHeightText: " + Font::langHeightText;
+	strInternalInfo += "\nAllowAltEnterFullscreenToggle: " + boolToStr(Window::getAllowAltEnterFullscreenToggle());
+	strInternalInfo += "\nTryVSynch: " + boolToStr(Window::getTryVSynch());
+	strInternalInfo += "\nVERBOSE_MODE_ENABLED: " + boolToStr(SystemFlags::VERBOSE_MODE_ENABLED);
+	labelInternalInfo.setText(strInternalInfo);
 }
 
 void MenuStateGraphicInfo::mouseClick(int x, int y, MouseButton mouseButton){
@@ -66,11 +93,10 @@ void MenuStateGraphicInfo::render(){
 	Lang &lang= Lang::getInstance();
 
 	buttonReturn.setText(lang.get("Return"));
-	labelInfo.setText(glInfo);
-	labelMoreInfo.setText(glMoreInfo);
 
 	renderer.renderButton(&buttonReturn);
 	renderer.renderLabel(&labelInfo);
+	renderer.renderLabel(&labelInternalInfo);
 	renderer.renderLabel(&labelMoreInfo);
 
 	renderer.renderConsole(&console,false,true);
