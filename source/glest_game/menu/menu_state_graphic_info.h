@@ -15,6 +15,8 @@
 #include "main_menu.h"
 #include "leak_dumper.h"
 
+using namespace Shared::Graphics::Gl;
+
 namespace Glest{ namespace Game{
 
 // ===============================
@@ -27,8 +29,11 @@ private:
 	GraphicLabel labelInfo;
 	GraphicLabel labelMoreInfo;
 
-	string glInfo;
-	string glMoreInfo;
+	GraphicLabel labelInternalInfo;
+
+	//string glInfo;
+	//string glMoreInfo;
+
 public:
 	MenuStateGraphicInfo(Program *program, MainMenu *mainMenu);
 
