@@ -2346,19 +2346,119 @@ template<typename T> void _loadVBO(GLuint &vbo,std::vector<T> buf,int target=GL_
 	}
 }
 
-void Renderer::MapRenderer::Layer::load_vbos() {
-	_loadVBO(vbo_vertices,vertices);
-	_loadVBO(vbo_normals,normals);
-	_loadVBO(vbo_fowTexCoords,fowTexCoords);
-	_loadVBO(vbo_surfTexCoords,surfTexCoords);
+void Renderer::MapRenderer::Layer::load_vbos(bool vboEnabled) {
 	indexCount = indices.size();
-	_loadVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB);
+	if(vboEnabled) {
+		_loadVBO(vbo_vertices,vertices);
+		_loadVBO(vbo_normals,normals);
+		_loadVBO(vbo_fowTexCoords,fowTexCoords);
+		_loadVBO(vbo_surfTexCoords,surfTexCoords);
+
+		_loadVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB);
+	}
+	else {
+		vbo_vertices = 0;
+		vbo_normals = 0;
+		vbo_fowTexCoords = 0;
+		vbo_surfTexCoords = 0;
+		vbo_indices = 0;
+	}
+}
+
+//int32 CalculatePixelsCRC(const Texture2DGl *texture) {
+//	const uint8 *pixels = static_cast<const Pixmap2D *>(texture->getPixmapConst())->getPixels();
+//	uint64 pixelByteCount = static_cast<const Pixmap2D *>(texture->getPixmapConst())->getPixelByteCount();
+//	Checksum crc;
+//	for(uint64 i = 0; i < pixelByteCount; ++i) {
+//		crc.addByte(pixels[i]);
+//	}
+//
+//	return crc.getSum();
+//}
+
+void Renderer::MapRenderer::loadVisibleLayers(float coordStep,VisibleQuadContainerCache &qCache) {
+	int totalCellCount = 0;
+	// we create a layer for each visible texture in the map
+	for(int visibleIndex = 0;
+			visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+		Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+
+		totalCellCount++;
+
+		SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+		SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+		SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+		SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+
+		const Vec2f &surfCoord= tc00->getSurfTexCoord();
+
+		SurfaceCell *tc[4] = {
+				tc00,
+				tc10,
+				tc01,
+				tc11
+		};
+		int textureHandle = static_cast<const Texture2DGl*>(tc[0]->getSurfaceTexture())->getHandle();
+		string texturePath = static_cast<const Texture2DGl*>(tc[0]->getSurfaceTexture())->getPath();
+		//int32 textureCRC = CalculatePixelsCRC(static_cast<const Texture2DGl*>(tc[0]->getSurfaceTexture()));
+		Layer* layer = NULL;
+		for(Layers::iterator it= layers.begin(); it!= layers.end(); ++it) {
+			if((*it)->textureHandle == textureHandle) {
+			//if((*it)->texturePath == texturePath) {
+			//if((*it)->textureCRC == textureCRC) {
+				layer = *it;
+				break;
+			}
+		}
+		if(!layer) {
+			layer = new Layer(textureHandle);
+			layer->texturePath = texturePath;
+			//layer->textureCRC = textureCRC;
+			layers.push_back(layer);
+
+			//printf("Ading new unique texture [%s]\n",texturePath.c_str());
+		}
+		// we'll be super-lazy and re-emit all four corners just because its easier
+		int index[4];
+		int loopIndexes[4] = { 2,0,3,1 };
+		for(int i=0; i < 4; i++) {
+			index[i] = layer->vertices.size();
+			SurfaceCell *corner = tc[loopIndexes[i]];
+
+			layer->vertices.push_back(corner->getVertex());
+			layer->normals.push_back(corner->getNormal());
+			layer->fowTexCoords.push_back(corner->getFowTexCoord());
+		}
+
+		layer->surfTexCoords.push_back(Vec2f(surfCoord.x, surfCoord.y + coordStep));
+		layer->surfTexCoords.push_back(Vec2f(surfCoord.x, surfCoord.y));
+		layer->surfTexCoords.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y+coordStep));
+		layer->surfTexCoords.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y));
+
+		// and make two triangles (no strip, we may be disjoint)
+		layer->indices.push_back(index[0]);
+		layer->indices.push_back(index[1]);
+		layer->indices.push_back(index[2]);
+		layer->indices.push_back(index[1]);
+		layer->indices.push_back(index[3]);
+		layer->indices.push_back(index[2]);
+
+	}
+	// turn them into vbos (actually this method will just calc the index count)
+	for(Layers::iterator layer= layers.begin(); layer!= layers.end(); ++layer){
+		(*layer)->load_vbos(false);
+	}
+
+	//printf("Total # of layers for this map = %d totalCellCount = %d overall render reduction ratio = %d times\n",layers.size(),totalCellCount,(totalCellCount / layers.size()));
 }
 
 void Renderer::MapRenderer::load(float coordStep) {
+	int totalCellCount = 0;
 	// we create a layer for each texture in the map
 	for(int y=0; y<map->getSurfaceH()-1; y++) {
 		for(int x=0; x<map->getSurfaceW()-1; x++) {
+			totalCellCount++;
+
 			SurfaceCell *tc[4] = {
 				map->getSurfaceCell(x,y),
 				map->getSurfaceCell(x+1,y),
@@ -2366,16 +2466,24 @@ void Renderer::MapRenderer::load(float coordStep) {
 				map->getSurfaceCell(x+1,y+1)
 			};
 			int textureHandle = static_cast<const Texture2DGl*>(tc[0]->getSurfaceTexture())->getHandle();
+			string texturePath = static_cast<const Texture2DGl*>(tc[0]->getSurfaceTexture())->getPath();
+			//int32 textureCRC = CalculatePixelsCRC(static_cast<const Texture2DGl*>(tc[0]->getSurfaceTexture()));
 			Layer* layer = NULL;
 			for(Layers::iterator it= layers.begin(); it!= layers.end(); ++it) {
 				if((*it)->textureHandle == textureHandle) {
+				//if((*it)->texturePath == texturePath) {
+				//if((*it)->textureCRC == textureCRC) {
 					layer = *it;
 					break;
 				}
 			}
 			if(!layer) {
 				layer = new Layer(textureHandle);
+				layer->texturePath = texturePath;
+				//layer->textureCRC = textureCRC;
 				layers.push_back(layer);
+
+				//printf("Ading new unique texture [%s]\n",texturePath.c_str());
 			}
 			// we'll be super-lazy and re-emit all four corners just because its easier
 			int index[4];
@@ -2397,6 +2505,9 @@ void Renderer::MapRenderer::load(float coordStep) {
 			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(0,0));
 			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(coordStep,coordStep));
 			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(coordStep,0));
+
+			layer->cellToIndicesMap[Vec2i(x,y)] = layer->indices.size();
+
 			// and make two triangles (no strip, we may be disjoint)
 			layer->indices.push_back(index[0]);
 			layer->indices.push_back(index[1]);
@@ -2408,8 +2519,10 @@ void Renderer::MapRenderer::load(float coordStep) {
 	}
 	// turn them into vbos
 	for(Layers::iterator layer= layers.begin(); layer!= layers.end(); ++layer){
-		(*layer)->load_vbos();
+		(*layer)->load_vbos(true);
 	}
+
+	//printf("Total # of layers for this map = %d totalCellCount = %d overall render reduction ratio = %d times\n",layers.size(),totalCellCount,(totalCellCount / layers.size()));
 }
 
 template<typename T> void* _bindVBO(GLuint vbo,std::vector<T> buf,int target=GL_ARRAY_BUFFER_ARB) {
@@ -2421,26 +2534,143 @@ template<typename T> void* _bindVBO(GLuint vbo,std::vector<T> buf,int target=GL_
 	}
 }
 
-void Renderer::MapRenderer::Layer::render() {
-	glVertexPointer(3,GL_FLOAT,0,_bindVBO(vbo_vertices,vertices));
-	glNormalPointer(GL_FLOAT,0,_bindVBO(vbo_normals,normals));
+void Renderer::MapRenderer::Layer::renderVisibleLayer() {
+
+	//glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
+	glClientActiveTexture(Renderer::fowTexUnit);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, 0,&fowTexCoords[0]);
+
+	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	glClientActiveTexture(Renderer::baseTexUnit);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, 0, &surfTexCoords[0]);
+
+	glVertexPointer(3, GL_FLOAT, 0, &vertices[0]);
+	glNormalPointer(GL_FLOAT, 0, &normals[0]);
+
+	//glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size());
+	//unsigned short faceIndices[4] = {0, 1, 2, 3};
+	//glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, &faceIndices[0]);
+	glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,&indices[0]);
 
 	glClientActiveTexture(Renderer::fowTexUnit);
-	glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_fowTexCoords,fowTexCoords));
-
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glClientActiveTexture(Renderer::baseTexUnit);
-	glBindTexture(GL_TEXTURE_2D,textureHandle);
-	glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_surfTexCoords,surfTexCoords));
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
+
+
+
+//	glVertexPointer(3,GL_FLOAT,0,_bindVBO(vbo_vertices,vertices));
+//	glNormalPointer(GL_FLOAT,0,_bindVBO(vbo_normals,normals));
+//
+//	glClientActiveTexture(Renderer::fowTexUnit);
+//	glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_fowTexCoords,fowTexCoords));
+//
+//	glClientActiveTexture(Renderer::baseTexUnit);
+//	glBindTexture(GL_TEXTURE_2D,textureHandle);
+//	glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_surfTexCoords,surfTexCoords));
+//
+//	//glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
+//	glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size());
+//	//unsigned short faceIndices[4] = {0, 1, 2, 3};
+//	//glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, &faceIndices[0]);
+
 }
 
-void Renderer::MapRenderer::render(const Map* map,float coordStep) {
+void Renderer::MapRenderer::Layer::render(VisibleQuadContainerCache &qCache) {
+	const bool renderOnlyVisibleQuad = true;
+
+	if(renderOnlyVisibleQuad == true) {
+		int startIndex = -1;
+		int lastValidIndex = -1;
+
+		vector<pair<int,int> > rowsToRender;
+
+		if(rowsToRenderCache.find(qCache.lastVisibleQuad) != rowsToRenderCache.end()) {
+			rowsToRender = rowsToRenderCache[qCache.lastVisibleQuad];
+		}
+		else {
+			for(int visibleIndex = 0;
+					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+
+				if(cellToIndicesMap.find(pos) != cellToIndicesMap.end()) {
+					//printf("Layer Render, visibleindex = %d pos [%s] cellToIndicesMap[pos] = %d lastValidIndex = %d\n",visibleIndex,pos.getString().c_str(),cellToIndicesMap[pos],lastValidIndex);
+
+					if(startIndex < 0 || cellToIndicesMap[pos] == lastValidIndex + 6) {
+						lastValidIndex = cellToIndicesMap[pos];
+						if(startIndex < 0) {
+							startIndex = lastValidIndex;
+						}
+					}
+					else if(startIndex >= 0) {
+						rowsToRender.push_back(make_pair(startIndex,lastValidIndex));
+
+						lastValidIndex = cellToIndicesMap[pos];
+						startIndex = lastValidIndex;
+					}
+				}
+			}
+			if(startIndex >= 0) {
+				rowsToRender.push_back(make_pair(startIndex,lastValidIndex));
+			}
+
+			rowsToRenderCache[qCache.lastVisibleQuad] = rowsToRender;
+		}
+
+		if(rowsToRender.size() > 0) {
+			//printf("Layer has %d rows in visible quad, visible quad has %d cells\n",rowsToRender.size(),qCache.visibleScaledCellList.size());
+
+			glVertexPointer(3,GL_FLOAT,0,_bindVBO(vbo_vertices,vertices));
+			glNormalPointer(GL_FLOAT,0,_bindVBO(vbo_normals,normals));
+
+			glClientActiveTexture(Renderer::fowTexUnit);
+			glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_fowTexCoords,fowTexCoords));
+
+			glClientActiveTexture(Renderer::baseTexUnit);
+			glBindTexture(GL_TEXTURE_2D,textureHandle);
+			glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_surfTexCoords,surfTexCoords));
+
+			for(unsigned int i = 0; i < rowsToRender.size(); ++i) {
+				//glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
+				glDrawRangeElements(GL_TRIANGLES,rowsToRender[i].first,rowsToRender[i].second,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
+			}
+		}
+	}
+	else {
+		glVertexPointer(3,GL_FLOAT,0,_bindVBO(vbo_vertices,vertices));
+		glNormalPointer(GL_FLOAT,0,_bindVBO(vbo_normals,normals));
+
+		glClientActiveTexture(Renderer::fowTexUnit);
+		glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_fowTexCoords,fowTexCoords));
+
+		glClientActiveTexture(Renderer::baseTexUnit);
+		glBindTexture(GL_TEXTURE_2D,textureHandle);
+		glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_surfTexCoords,surfTexCoords));
+
+		glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
+	}
+}
+
+void Renderer::MapRenderer::renderVisibleLayers(const Map* map,float coordStep,VisibleQuadContainerCache &qCache) {
 	if(map != this->map) {
+		//printf("New Map loading\n");
 		destroy(); // clear any previous map data
 		this->map = map;
-		load(coordStep);
+		loadVisibleLayers(coordStep,qCache);
 	}
+	else if(lastVisibleQuad != qCache.lastVisibleQuad) {
+		//printf("New Visible Quad loading\n");
+		destroy(); // clear any previous map data
+		this->map = map;
+		loadVisibleLayers(coordStep,qCache);
+	}
+
+	lastVisibleQuad = qCache.lastVisibleQuad;
+	//printf("About to render %d layers\n",layers.size());
+
 	glClientActiveTexture(fowTexUnit);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glClientActiveTexture(baseTexUnit);
@@ -2448,7 +2678,37 @@ void Renderer::MapRenderer::render(const Map* map,float coordStep) {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	for(Layers::iterator layer= layers.begin(); layer!= layers.end(); ++layer)
-		(*layer)->render();
+		(*layer)->renderVisibleLayer();
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER_ARB,0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB,0);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glClientActiveTexture(fowTexUnit);
+	glBindTexture(GL_TEXTURE_2D,0);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glClientActiveTexture(baseTexUnit);
+	glBindTexture(GL_TEXTURE_2D,0);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	assertGl();
+}
+
+void Renderer::MapRenderer::render(const Map* map,float coordStep,VisibleQuadContainerCache &qCache) {
+	if(map != this->map) {
+		destroy(); // clear any previous map data
+		this->map = map;
+		load(coordStep);
+	}
+
+	//printf("About to render %d layers\n",layers.size());
+
+	glClientActiveTexture(fowTexUnit);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glClientActiveTexture(baseTexUnit);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	for(Layers::iterator layer= layers.begin(); layer!= layers.end(); ++layer)
+		(*layer)->render(qCache);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER_ARB,0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB,0);
@@ -2525,7 +2785,9 @@ void Renderer::renderSurface(const int renderFps) {
 	
 	bool useVBORendering = getVBOSupported();
 	if(useVBORendering == true) {
-		mapRenderer.render(map,coordStep);
+		VisibleQuadContainerCache &qCache = getQuadCache();
+		//mapRenderer.render(map,coordStep,qCache);
+		mapRenderer.renderVisibleLayers(map,coordStep,qCache);
 	}
 	else if(qCache.visibleScaledCellList.size() > 0) {
 
@@ -2542,6 +2804,18 @@ void Renderer::renderSurface(const int renderFps) {
 			Vec3f normals[4];
 		    glEnableClientState(GL_VERTEX_ARRAY);
 		    glEnableClientState(GL_NORMAL_ARRAY);
+
+		    std::map<int,int> uniqueVisibleTextures;
+			for(int visibleIndex = 0;
+					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+				SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+				int cellTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+
+				uniqueVisibleTextures[cellTex]++;
+			}
+
+			//printf("Current renders = %d possible = %d\n",qCache.visibleScaledCellList.size(),uniqueVisibleTextures.size());
 
 			for(int visibleIndex = 0;
 					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {

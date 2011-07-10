@@ -90,6 +90,8 @@ public:
 	virtual void setForceCompressionDisabled(bool value) { forceCompressionDisabled = value;}
 	virtual bool getForceCompressionDisabled() const {return forceCompressionDisabled;}
 
+	virtual uint32 getCRC() = 0;
+
 };
 
 // =====================================================
@@ -112,6 +114,7 @@ public:
 	virtual int getTextureWidth() const {return pixmap.getW();}
 	virtual int getTextureHeight() const {return -1;}
 
+	virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 };
 
 // =====================================================
@@ -133,6 +136,8 @@ public:
 
 	virtual int getTextureWidth() const {return pixmap.getW();}
 	virtual int getTextureHeight() const {return pixmap.getH();}
+
+	virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 };
 
 // =====================================================
@@ -154,6 +159,8 @@ public:
 
 	virtual int getTextureWidth() const {return pixmap.getW();}
 	virtual int getTextureHeight() const {return pixmap.getH();}
+
+	virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 };
 
 // =====================================================
@@ -175,6 +182,8 @@ public:
 
 	virtual int getTextureWidth() const {return -1;}
 	virtual int getTextureHeight() const {return -1;}
+
+	virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 };
 
 }}//end namespace
