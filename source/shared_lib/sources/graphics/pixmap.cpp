@@ -85,6 +85,13 @@ struct TargaFileHeader{
 const int tgaUncompressedRgb= 2;
 const int tgaUncompressedBw= 3;
 
+void CalculatePixelsCRC(uint8 *pixels,uint64 pixelByteCount, Checksum &crc) {
+//	crc = Checksum();
+//	for(uint64 i = 0; i < pixelByteCount; ++i) {
+//		crc.addByte(pixels[i]);
+//	}
+}
+
 // =====================================================
 //	class PixmapIoTga
 // =====================================================
@@ -732,12 +739,14 @@ void Pixmap1D::init(int components){
 	this->w= -1;
 	this->components= components;
 	pixels= NULL;
+	CalculatePixelsCRC(pixels,0, crc);
 }
 
 void Pixmap1D::init(int w, int components){
 	this->w= w;
 	this->components= components;
 	pixels= new uint8[(std::size_t)getPixelByteCount()];
+	CalculatePixelsCRC(pixels,0, crc);
 }
 
 uint64 Pixmap1D::getPixelByteCount() const {
@@ -765,6 +774,7 @@ void Pixmap1D::load(const string &path) {
 		throw runtime_error("Unknown pixmap extension: " + extension);
 	}
 	this->path = path;
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap1D::loadBmp(const string &path) {
@@ -862,6 +872,7 @@ void Pixmap2D::init(int components) {
 	this->components= components;
 	deletePixels();
 	pixels= NULL;
+	CalculatePixelsCRC(pixels,0, crc);
 }
 
 void Pixmap2D::init(int w, int h, int components) {
@@ -876,6 +887,7 @@ void Pixmap2D::init(int w, int h, int components) {
 		throw runtime_error(szBuf);
 	}
 	pixels= new uint8[(std::size_t)getPixelByteCount()];
+	CalculatePixelsCRC(pixels,0, crc);
 }
 
 uint64 Pixmap2D::getPixelByteCount() const {
@@ -909,6 +921,7 @@ void Pixmap2D::Scale(int format, int newW, int newH) {
 		assertGl();
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 Pixmap2D* Pixmap2D::loadPath(const string& path) {
@@ -917,6 +930,7 @@ Pixmap2D* Pixmap2D::loadPath(const string& path) {
 	Pixmap2D *pixmap = FileReader<Pixmap2D>::readPath(path);
 	if(pixmap != NULL) {
 		pixmap->path = path;
+		CalculatePixelsCRC(pixmap->pixels,pixmap->getPixelByteCount(), pixmap->crc);
 	}
 	return pixmap;
 }
@@ -925,6 +939,7 @@ void Pixmap2D::load(const string &path) {
 	//printf("Loading Pixmap2D [%s]\n",path.c_str());
 
 	FileReader<Pixmap2D>::readPath(path,this);
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 	this->path = path;
 }
 
@@ -1024,6 +1039,7 @@ void Pixmap2D::setPixel(int x, int y, const uint8 *value) {
 		int index = (w*y+x)*components+i;
 		pixels[index]= value[i];
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setPixel(int x, int y, const float32 *value) {
@@ -1031,16 +1047,19 @@ void Pixmap2D::setPixel(int x, int y, const float32 *value) {
 		int index = (w*y+x)*components+i;
 		pixels[index]= static_cast<uint8>(value[i]*255.f);
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setComponent(int x, int y, int component, uint8 value) {
 	int index = (w*y+x)*components+component;
 	pixels[index] = value;
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setComponent(int x, int y, int component, float32 value) {
 	int index = (w*y+x)*components+component;
 	pixels[index]= static_cast<uint8>(value*255.f);
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 //vector set
@@ -1049,6 +1068,7 @@ void Pixmap2D::setPixel(int x, int y, const Vec3f &p) {
 		int index = (w*y+x)*components+i;
 		pixels[index]= static_cast<uint8>(p.ptr()[i]*255.f);
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setPixel(int x, int y, const Vec4f &p) {
@@ -1056,11 +1076,13 @@ void Pixmap2D::setPixel(int x, int y, const Vec4f &p) {
 		int index = (w*y+x)*components+i;
 		pixels[index]= static_cast<uint8>(p.ptr()[i]*255.f);
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setPixel(int x, int y, float p) {
 	int index = (w*y+x)*components;
 	pixels[index]= static_cast<uint8>(p*255.f);
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setPixels(const uint8 *value){
@@ -1069,6 +1091,7 @@ void Pixmap2D::setPixels(const uint8 *value){
 			setPixel(i, j, value);
 		}
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setPixels(const float32 *value){
@@ -1077,6 +1100,7 @@ void Pixmap2D::setPixels(const float32 *value){
 			setPixel(i, j, value);
 		}
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setComponents(int component, uint8 value){
@@ -1086,6 +1110,7 @@ void Pixmap2D::setComponents(int component, uint8 value){
 			setComponent(i, j, component, value);
 		}
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setComponents(int component, float32 value){
@@ -1095,6 +1120,7 @@ void Pixmap2D::setComponents(int component, float32 value){
 			setComponent(i, j, component, value);
 		}
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 float splatDist(Vec2i a, Vec2i b){
@@ -1180,6 +1206,8 @@ void Pixmap2D::copy(const Pixmap2D *sourcePixmap){
 		throw runtime_error("Pixmap2D::copy() dimensions must agree");
 	}
 	memcpy(pixels, sourcePixmap->getPixels(), w*h*sourcePixmap->getComponents());
+	this->path = sourcePixmap->path;
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::subCopy(int x, int y, const Pixmap2D *sourcePixmap){
@@ -1197,6 +1225,7 @@ void Pixmap2D::subCopy(int x, int y, const Pixmap2D *sourcePixmap){
 			setPixel(i+x, j+y, pixel);
 		}
 	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 
 	delete [] pixel;
 }
@@ -1236,6 +1265,7 @@ void Pixmap3D::init(int w, int h, int d, int components){
 	this->d= d;
 	this->components= components;
 	pixels= new uint8[(std::size_t)getPixelByteCount()];
+	CalculatePixelsCRC(pixels,0, crc);
 }
 
 uint64 Pixmap3D::getPixelByteCount() const {
@@ -1248,6 +1278,7 @@ void Pixmap3D::init(int d, int components){
 	this->d= d;
 	this->components= components;
 	pixels= NULL;
+	CalculatePixelsCRC(pixels,0, crc);
 }
 
 void Pixmap3D::init(int components) {
@@ -1256,6 +1287,7 @@ void Pixmap3D::init(int components) {
 	this->d= -1;
 	this->components= components;
 	pixels= NULL;
+	CalculatePixelsCRC(pixels,0, crc);
 }
 
 void Pixmap3D::deletePixels() {
@@ -1283,6 +1315,7 @@ void Pixmap3D::loadSlice(const string &path, int slice) {
 		throw runtime_error("Unknown pixmap extension: "+extension);
 	}
 	this->path = path;
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap3D::loadSlicePng(const string &path, int slice) {

@@ -289,10 +289,13 @@ private:
 	public:
 		MapRenderer(): map(NULL) {}
 		~MapRenderer() { destroy(); }
-		void render(const Map* map,float coordStep);
+		void render(const Map* map,float coordStep,VisibleQuadContainerCache &qCache);
+		void renderVisibleLayers(const Map* map,float coordStep,VisibleQuadContainerCache &qCache);
 		void destroy();
 	private:
 		void load(float coordStep);
+		void loadVisibleLayers(float coordStep,VisibleQuadContainerCache &qCache);
+
 		const Map* map;
 		struct Layer {
 			Layer(int th):
@@ -301,19 +304,27 @@ private:
 				vbo_indices(0), indexCount(0),
 				textureHandle(th) {}
 			~Layer();
-			void load_vbos();
-			void render();
+			void load_vbos(bool vboEnabled);
+			void render(VisibleQuadContainerCache &qCache);
+			void renderVisibleLayer();
+
 			std::vector<Vec3f> vertices, normals;
 			std::vector<Vec2f> fowTexCoords, surfTexCoords;
 			std::vector<GLuint> indices;
+			std::map<Vec2i, int> cellToIndicesMap;
+			std::map<Quad2i, vector<pair<int,int> > > rowsToRenderCache;
+
 			GLuint vbo_vertices, vbo_normals,
 				vbo_fowTexCoords, vbo_surfTexCoords,
 				vbo_indices;
 			int indexCount;
 			const int textureHandle;
+			string texturePath;
+			int32 textureCRC;
 		};
 		typedef std::vector<Layer*> Layers;
 		Layers layers;
+		Quad2i lastVisibleQuad;
 	} mapRenderer;
 private:
 	Renderer();

@@ -16,6 +16,7 @@
 #include "vec.h"
 #include "types.h"
 #include <map>
+#include "checksum.h"
 #include "leak_dumper.h"
 
 using std::string;
@@ -27,6 +28,7 @@ using Shared::Platform::int32;
 using Shared::Platform::uint32;
 using Shared::Platform::uint64;
 using Shared::Platform::float32;
+using Shared::Util::Checksum;
 
 namespace Shared{ namespace Graphics{
 
@@ -188,6 +190,7 @@ protected:
 	int components;
 	uint8 *pixels;
 	string path;
+	Checksum crc;
 
 public:
 	//constructor & destructor
@@ -210,6 +213,8 @@ public:
 	void deletePixels();
 	string getPath() const		{ return path;}
 	uint64 getPixelByteCount() const;
+
+	Checksum * getCRC() { return &crc; }
 };
 
 // =====================================================
@@ -223,6 +228,8 @@ protected:
 	int components;
 	uint8 *pixels;
 	string path;
+	Checksum crc;
+
 public:
 	//constructor & destructor
 	Pixmap2D();
@@ -289,6 +296,8 @@ public:
 	string getPath() const		{ return path;}
 	uint64 getPixelByteCount() const;
 
+	Checksum * getCRC() { return &crc; }
+
 private:
 	bool doDimensionsAgree(const Pixmap2D *pixmap);
 };
@@ -306,6 +315,7 @@ protected:
 	int slice;
 	uint8 *pixels;
 	string path;
+	Checksum crc;
 
 public:
 	//constructor & destructor
@@ -333,6 +343,8 @@ public:
 	void deletePixels();
 	string getPath() const		{ return path;}
 	uint64 getPixelByteCount() const;
+
+	Checksum * getCRC() { return &crc; }
 };
 
 // =====================================================
@@ -353,6 +365,7 @@ public:
 protected:
 	Pixmap2D faces[6];
 	string path[6];
+	Checksum crc;
 
 public:
 	//init
@@ -370,6 +383,8 @@ public:
 	void deletePixels();
 	string getPath(int face) const		{ return path[face];}
 	uint64 getPixelByteCount() const;
+
+	Checksum * getCRC() { return &crc; }
 };
 
 }}//end namespace
