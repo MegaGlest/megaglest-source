@@ -3477,8 +3477,15 @@ void Renderer::renderUnits(const int renderFps) {
 			glTranslatef(currVec.x, currVec.y, currVec.z);
 
 			//rotate
+			float zrot=unit->getRotationZ();
+			float xrot=unit->getRotationX();
+			if(zrot!=.0f){
+				glRotatef(zrot, 0.f, 0.f, 1.f);
+			}
+			if(xrot!=.0f){
+				glRotatef(xrot, 1.f, 0.f, 0.f);
+			}
 			glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-			glRotatef(unit->getVerticalRotation(), 1.f, 0.f, 0.f);
 
 			//dead alpha
 			float alpha= 1.0f;
