@@ -252,6 +252,12 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	usePathfinderExtendedMaxNodes = false;
 	this->currentAttackBoostOriginatorEffect.skillType = NULL;
 
+	float targetRotationZ=.0f;
+	float targetRotationX=.0f;
+	float rotationZ=.0f;
+	float rotationX=.0f;
+
+
     RandomGen random;
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
@@ -468,14 +474,117 @@ Vec2i Unit::getCellPos() const {
 	return pos;
 }
 
-float Unit::getVerticalRotation() const{
-	/*if(type->getProperty(UnitType::pRotatedClimb) && currSkill->getClass()==scMove){
-		float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
-		float dist= pos.dist(targetPos);
-		return radToDeg(streflop::atan2(heightDiff, dist));
-	}*/
-	return 0.f;
+
+
+void Unit::calculateXZRotation(){
+	//if(type->getProperty(UnitType::pRotatedClimb) && currSkill->getClass()==scMove){
+	//if(currSkill->getClass()==scMove)
+	if(lastPos != pos){ // targetPosCalc ( maybe also sometimes needed if no move ? terrain flatting... )
+		SurfaceCell* sc= map->getSurfaceCell(Map::toSurfCoords(pos));
+		const Vec3f normal= sc->getNormal();
+
+		float targetRotationZ= radToDeg(streflop::atan2(abs(normal.x), abs(normal.y)));
+
+		if((normal.y < 0 || normal.x < 0) && !(normal.y < 0 && normal.x < 0)){
+			targetRotationZ= targetRotationZ * -1;
+		}
+		targetRotationZ= targetRotationZ * -1;
+
+		targetRotationX= radToDeg(streflop::atan2(abs(normal.z), abs(normal.y)));
+
+		if((normal.y < 0 || normal.z < 0) && !(normal.y < 0 && normal.z < 0)){
+			targetRotationX= targetRotationX * -1;
+		}
+	}
+
+	//For smooth rotation we now softly adjust the angle
+	int adjustStep= 2;
+	if(rotationZ < targetRotationZ){
+		if(rotationZ + adjustStep > targetRotationZ){
+			rotationZ= targetRotationZ;
+		}
+		else{
+			rotationZ= rotationZ + adjustStep;
+		}
+	}
+	else if(rotationZ > targetRotationZ){
+		if(rotationZ - adjustStep < targetRotationZ){
+			rotationZ= targetRotationZ;
+		}
+		else{
+			rotationZ= rotationZ - adjustStep;
+		}
+	}
+
+	if(rotationX < targetRotationX){
+		if(rotationX + adjustStep > targetRotationX){
+			rotationX= targetRotationX;
+		}
+		else{
+			rotationX= rotationX + adjustStep;
+		}
+	}
+	else if(rotationX > targetRotationX){
+		if(rotationX - adjustStep < targetRotationX){
+			rotationX= targetRotationX;
+		}
+		else{
+			rotationX= rotationX - adjustStep;
+		}
+	}
 }
+
+float Unit::getRotationZ() const{
+	return rotationZ;
+}
+
+float Unit::getRotationX() const{
+	return rotationX;
+}
+
+//float Unit::getRotationZ() const{
+//	//if(type->getProperty(UnitType::pRotatedClimb) && currSkill->getClass()==scMove){
+//	//if(currSkill->getClass()==scMove)
+//		{
+//		SurfaceCell* sc=map->getSurfaceCell(Map::toSurfCoords(pos));
+//		const Vec3f normal=sc->getNormal();
+//		//printf("normal x y z  %f %f %f \n",normal.x,normal.y,normal.z );
+//
+//
+//		float result=radToDeg(streflop::atan2(abs(normal.x), abs(normal.y)));
+//		//printf("pre result=%f\n",result);
+//		if((normal.y<0 || normal.x<0)&& !(normal.y<0 && normal.x<0))
+//		result=result*-1;
+//
+//		result=result*-1;
+//		//printf("heightDiff=%f xdiff=%f zdiff=%f grad=%f result=%f  rotation=%f \n",heightDiff,xdiff,zdiff, radToDeg(streflop::atan2(heightDiff, xdiff)),result,rotation);
+//		return result;
+//		}
+//	//else
+//		return 0.f;
+//}
+//
+//float Unit::getRotationX() const{
+//	//if(type->getProperty(UnitType::pRotatedClimb) && currSkill->getClass()==scMove){
+//	//if(currSkill->getClass()==scMove)
+//		{
+//		SurfaceCell* sc=map->getSurfaceCell(Map::toSurfCoords(pos));
+//		const Vec3f normal=sc->getNormal();
+//		//printf("normal x y z  %f %f %f \n",normal.x,normal.y,normal.z );
+//
+//
+//		float result=radToDeg(streflop::atan2(abs(normal.z), abs(normal.y)));
+//		//printf("pre result=%f\n",result);
+//		if((normal.y<0 || normal.z<0)&& !(normal.y<0 && normal.z<0))
+//		result=result*-1;
+//
+//		//result=result*-1;
+//		//printf("heightDiff=%f xdiff=%f zdiff=%f grad=%f result=%f  rotation=%f \n",heightDiff,xdiff,zdiff, radToDeg(streflop::atan2(heightDiff, xdiff)),result,rotation);
+//		return result;
+//		}
+//	//else
+//		return 0.f;
+//}
 
 int Unit::getProductionPercent() const{
 	if(anyCommand()){
@@ -1390,6 +1499,10 @@ bool Unit::update() {
 				}
 			}
 		}
+	}
+
+	if(type->getProperty(UnitType::pRotatedClimb)){
+		calculateXZRotation();
 	}
 
 	if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {

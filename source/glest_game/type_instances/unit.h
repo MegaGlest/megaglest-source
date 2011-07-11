@@ -304,6 +304,10 @@ private:
 	float lastRotation;		//in degrees
 	float targetRotation;
 	float rotation;
+	float targetRotationZ;
+	float targetRotationX;
+	float rotationZ;
+	float rotationX;
 
     const UnitType *type;
     const ResourceType *loadType;
@@ -418,7 +422,8 @@ public:
 	const SkillType *getCurrSkill() const		{return currSkill;}
 	const TotalUpgrade *getTotalUpgrade() const	{return &totalUpgrade;}
 	float getRotation() const					{return rotation;}
-	float getVerticalRotation() const;
+	float getRotationX() const;
+	float getRotationZ() const;
 	ParticleSystem *getFire() const				{return fire;}
 	int getKills() const						{return kills;}
 	int getEnemyKills() const					{return enemyKills;}
@@ -576,6 +581,7 @@ public:
 
 private:
 	float computeHeight(const Vec2i &pos) const;
+	void calculateXZRotation();
 	void updateTarget();
 	void clearCommands();
 	void deleteQueuedCommand(Command *command);
