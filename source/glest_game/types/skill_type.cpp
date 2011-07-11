@@ -311,6 +311,20 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 							}
 						}
 					}
+					// Need to make sure the filtered list does NOT include any
+					// models with min/max hp
+					if(foundSpecificAnimation == false) {
+						for(unsigned int i = 0; i < animationAttributes.size(); ++i) {
+							const AnimationAttributes &attributes = animationAttributes[i];
+							if(attributes.fromHp == 0 && attributes.toHp == 0) {
+								modelIndex = i;
+								foundSpecificAnimation = true;
+								filteredAnimations.push_back(i);
+									//printf("SELECTING Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",i,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
+									//break;
+							}
+						}
+					}
 				}
 
 				if(foundSpecificAnimation == false) {
