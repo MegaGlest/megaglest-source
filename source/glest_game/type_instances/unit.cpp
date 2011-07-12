@@ -1749,15 +1749,17 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		//printf("#2 wasAlive = %d hp = %d boosthp = %d\n",wasAlive,hp,boost->boostUpgrade.getMaxHp());
 
 		if(showUnitParticles == true) {
-			effect->upst = new UnitParticleSystemType();
-			*effect->upst = *boost->unitParticleSystemTypeForAffectedUnit;
-			//effect.upst = boost->unitParticleSystemTypeForAffectedUnit;
+			if(boost->unitParticleSystemTypeForAffectedUnit != NULL) {
+				effect->upst = new UnitParticleSystemType();
+				*effect->upst = *boost->unitParticleSystemTypeForAffectedUnit;
+				//effect.upst = boost->unitParticleSystemTypeForAffectedUnit;
 
-			effect->ups = new UnitParticleSystem(200);
-			effect->upst->setValues(effect->ups);
-			effect->ups->setPos(getCurrVector());
-			effect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-			Renderer::getInstance().manageParticleSystem(effect->ups, rsGame);
+				effect->ups = new UnitParticleSystem(200);
+				effect->upst->setValues(effect->ups);
+				effect->ups->setPos(getCurrVector());
+				effect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				Renderer::getInstance().manageParticleSystem(effect->ups, rsGame);
+			}
 		}
 		currentAttackBoostEffects.push_back(effect);
 
