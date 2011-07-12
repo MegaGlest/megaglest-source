@@ -77,9 +77,15 @@ protected:
     int maxHp;
     bool minmaxIsPercent;
 
+    void copyAll(const ParticleSystemType &src);
 public:
-	ParticleSystemType();
+
+    ParticleSystemType();
 	virtual ~ParticleSystemType();
+
+	ParticleSystemType & operator=(const ParticleSystemType &src);
+	ParticleSystemType(const ParticleSystemType &src);
+
 	void load(const XmlNode *particleSystemNode, const string &dir,
 			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);
