@@ -275,7 +275,8 @@ void World::updateAllFactionUnits() {
 
 	// Prioritize grouped command units so closest units to target go first
 	// units
-	bool sortedUnitsAllowed = true;
+	Config &config= Config::getInstance();
+	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
 	std::map<int, std::vector<CommandGroupSorter *> > unitsInFactionsSorted;
 
 	int factionCount = getFactionCount();
