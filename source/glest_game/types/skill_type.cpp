@@ -52,31 +52,72 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		bool destUnitMightApply = false;
 		// All units are affected (including enemies)
 		if(targetType == abtAll) {
-			destUnitMightApply = true;
+			destUnitMightApply = (boostUnitList.size() == 0);
+
+			// Specify which units are affected
+			for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+				const UnitType *ut = boostUnitList[i];
+				if(dest->getType()->getId() == ut->getId()) {
+					destUnitMightApply = true;
+					break;
+				}
+			}
+
 		}
 		// Only same faction units are affected
 		else if(targetType == abtFaction) {
-			if(boostUnitList.size() == 0) {
-				if(source->getFactionIndex() == dest->getFactionIndex()) {
-					destUnitMightApply = true;
+			//if(boostUnitList.size() == 0) {
+			if(source->getFactionIndex() == dest->getFactionIndex()) {
+				//destUnitMightApply = true;
+				destUnitMightApply = (boostUnitList.size() == 0);
+
+				// Specify which units are affected
+				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+					const UnitType *ut = boostUnitList[i];
+					if(dest->getType()->getId() == ut->getId()) {
+						destUnitMightApply = true;
+						break;
+					}
 				}
+
 			}
+			//}
 		}
 		// Only ally units are affected
 		else if(targetType == abtAlly) {
-			if(boostUnitList.size() == 0) {
-				if(source->isAlly(dest) == true) {
-					destUnitMightApply = true;
+			//if(boostUnitList.size() == 0) {
+			if(source->isAlly(dest) == true) {
+				//destUnitMightApply = true;
+				destUnitMightApply = (boostUnitList.size() == 0);
+
+				// Specify which units are affected
+				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+					const UnitType *ut = boostUnitList[i];
+					if(dest->getType()->getId() == ut->getId()) {
+						destUnitMightApply = true;
+						break;
+					}
 				}
 			}
+			//}
 		}
 		// Only foe units are affected
 		else if(targetType == abtFoe) {
-			if(boostUnitList.size() == 0) {
-				if(source->isAlly(dest) == false) {
-					destUnitMightApply = true;
+			//if(boostUnitList.size() == 0) {
+			if(source->isAlly(dest) == false) {
+				//destUnitMightApply = true;
+				destUnitMightApply = (boostUnitList.size() == 0);
+
+				// Specify which units are affected
+				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+					const UnitType *ut = boostUnitList[i];
+					if(dest->getType()->getId() == ut->getId()) {
+						destUnitMightApply = true;
+						break;
+					}
 				}
 			}
+			//}
 		}
 		else if(targetType == abtUnitTypes) {
 			// Specify which units are affected
@@ -84,6 +125,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				const UnitType *ut = boostUnitList[i];
 				if(dest->getType()->getId() == ut->getId()) {
 					destUnitMightApply = true;
+					break;
 				}
 			}
 		}
@@ -220,12 +262,27 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 		string targetType = attackBoostNode->getChild("target")->getAttribute("value")->getValue();
 		if(targetType == "ally") {
 			attackBoost.targetType = abtAlly;
+
+			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
+				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
+				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+			}
 		}
 		else if(targetType == "foe") {
 			attackBoost.targetType = abtFoe;
+
+			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
+				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
+				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+			}
 		}
 		else if(targetType == "faction") {
 			attackBoost.targetType = abtFaction;
+
+			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
+				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
+				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+			}
 		}
 		else if(targetType == "unit-types") {
 			attackBoost.targetType = abtUnitTypes;
@@ -237,6 +294,11 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 		}
 		else if(targetType == "all") {
 			attackBoost.targetType = abtAll;
+
+			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
+				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
+				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+			}
 		}
 		else {
 			char szBuf[4096]="";
