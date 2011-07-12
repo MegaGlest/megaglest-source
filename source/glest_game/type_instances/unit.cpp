@@ -252,10 +252,10 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	usePathfinderExtendedMaxNodes = false;
 	this->currentAttackBoostOriginatorEffect.skillType = NULL;
 
-	float targetRotationZ=.0f;
-	float targetRotationX=.0f;
-	float rotationZ=.0f;
-	float rotationX=.0f;
+	targetRotationZ=.0f;
+	targetRotationX=.0f;
+	rotationZ=.0f;
+	rotationX=.0f;
 
 
     RandomGen random;

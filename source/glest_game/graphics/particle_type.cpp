@@ -52,6 +52,25 @@ ParticleSystemType::ParticleSystemType() {
     minmaxIsPercent=false;
 }
 
+ParticleSystemType::ParticleSystemType(const ParticleSystemType &src) {
+	if(checkMemory) {
+		printf("++ Create ParticleSystemType #2 [%p]\n",this);
+		memoryObjectList[this]++;
+	}
+
+	copyAll(src);
+}
+
+ParticleSystemType & ParticleSystemType::operator=(const ParticleSystemType &src) {
+	if(checkMemory) {
+		printf("++ Create ParticleSystemType #3 [%p]\n",this);
+		memoryObjectList[this]++;
+	}
+
+	copyAll(src);
+	return *this;
+}
+
 ParticleSystemType::~ParticleSystemType() {
 	if(checkMemory) {
 		printf("-- Delete ParticleSystemType [%p] type = [%s]\n",this,type.c_str());
@@ -60,6 +79,41 @@ ParticleSystemType::~ParticleSystemType() {
 	}
 	for(Children::iterator it = children.begin(); it != children.end(); it++)
 		delete *it;
+}
+
+void ParticleSystemType::copyAll(const ParticleSystemType &src) {
+	this->type				= src.type;
+	this->texture			= src.texture;
+	this->model				= src.model;
+	this->modelCycle		= src.modelCycle;
+	this->primitive			= src.primitive;
+	this->offset			= src.offset;
+	this->color				= src.color;
+	this->colorNoEnergy		= src.colorNoEnergy;
+	this->size				= src.size;
+	this->sizeNoEnergy		= src.sizeNoEnergy;
+	this->speed				= src.speed;
+	this->gravity			= src.gravity;
+	this->emissionRate		= src.emissionRate;
+	this->energyMax			= src.energyMax;
+	this->energyVar			= src.energyVar;
+	this->mode				= src.mode;
+	this->teamcolorNoEnergy	= src.teamcolorNoEnergy;
+	this->teamcolorEnergy	= src.teamcolorEnergy;
+	this->alternations		= src.alternations;
+	for(Children::iterator it = children.begin(); it != children.end(); it++) {
+		UnitParticleSystemType *child = *it;
+
+		// Deep copy the child particles
+		UnitParticleSystemType *newCopy = new UnitParticleSystemType();
+		*newCopy = *child;
+		children.push_back(newCopy);
+	}
+
+	this->minmaxEnabled		= src.minmaxEnabled;
+	this->minHp				= src.minHp;
+	this->maxHp				= src.maxHp;
+	this->minmaxIsPercent	= src.minmaxIsPercent;
 }
 
 void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,
