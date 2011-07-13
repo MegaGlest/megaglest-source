@@ -483,14 +483,22 @@ void Unit::calculateXZRotation(){
 		SurfaceCell* sc= map->getSurfaceCell(Map::toSurfCoords(pos));
 		const Vec3f normal= sc->getNormal();
 
+#ifdef USE_STREFLOP
 		float targetRotationZ= radToDeg(streflop::atan2(abs(normal.x), abs(normal.y)));
+#else
+		float targetRotationZ= radToDeg(atan2(abs(normal.x), abs(normal.y)));
+#endif
 
 		if((normal.y < 0 || normal.x < 0) && !(normal.y < 0 && normal.x < 0)){
 			targetRotationZ= targetRotationZ * -1;
 		}
 		targetRotationZ= targetRotationZ * -1;
 
+#ifdef USE_STREFLOP
 		targetRotationX= radToDeg(streflop::atan2(abs(normal.z), abs(normal.y)));
+#else
+		targetRotationX= radToDeg(atan2(abs(normal.z), abs(normal.y)));
+#endif
 
 		if((normal.y < 0 || normal.z < 0) && !(normal.y < 0 && normal.z < 0)){
 			targetRotationX= targetRotationX * -1;
@@ -1475,12 +1483,20 @@ bool Unit::update() {
 	progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
 
 	if(isAnimProgressBound() == true) {
-		if(currSkill->getClass() == scBeBuilt) animProgress = this->getHpRatio();
-		if(currSkill->getClass() == scProduce) animProgress = this->getProgressRatio();
-		if(currSkill->getClass() == scUpgrade) animProgress = this->getProgressRatio();
-		if(currSkill->getClass() == scMorph) animProgress = this->getProgressRatio();
+		if(currSkill->getClass() == scBeBuilt) {
+			animProgress = this->getHpRatio();
+		}
+		if(currSkill->getClass() == scProduce) {
+			animProgress = this->getProgressRatio();
+		}
+		if(currSkill->getClass() == scUpgrade) {
+			animProgress = this->getProgressRatio();
+		}
+		if(currSkill->getClass() == scMorph) {
+			animProgress = this->getProgressRatio();
+		}
 	}
-	else{
+	else {
 		animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
 	}
 	//update target

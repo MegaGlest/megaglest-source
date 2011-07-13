@@ -163,8 +163,8 @@ public:
 			c = streflop::cosf(rad),
 			s = streflop::sinf(rad);
 #else
-			c = scosf(rad),
-			s = ssinf(rad);
+			c = cosf(rad),
+			s = sinf(rad);
 #endif
 		return Vec2<T>(x*c-y*s,x*s+y*c);
 	}
