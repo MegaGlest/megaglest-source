@@ -1483,17 +1483,22 @@ bool Unit::update() {
 	progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
 
 	if(isAnimProgressBound() == true) {
+		float targetProgress=0;
 		if(currSkill->getClass() == scBeBuilt) {
-			animProgress = this->getHpRatio();
+			targetProgress = this->getHpRatio();
 		}
 		if(currSkill->getClass() == scProduce) {
-			animProgress = this->getProgressRatio();
+			targetProgress = this->getProgressRatio();
 		}
 		if(currSkill->getClass() == scUpgrade) {
-			animProgress = this->getProgressRatio();
+			targetProgress = this->getProgressRatio();
 		}
 		if(currSkill->getClass() == scMorph) {
-			animProgress = this->getProgressRatio();
+			targetProgress = this->getProgressRatio();
+		}
+		if(animProgress<targetProgress){
+			float diff=targetProgress-animProgress;
+			animProgress=animProgress+diff/(GameConstants::updateFps);
 		}
 	}
 	else {
