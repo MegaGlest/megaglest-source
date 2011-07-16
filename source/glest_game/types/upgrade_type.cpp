@@ -378,7 +378,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 
 	if(ut->getMaxHpIsMultiplier() == true) {
 		//printf("#1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
-		maxHp += (unit->getHp() * (ut->getMaxHp() / 100));
+		maxHp += ((double)unit->getHp() * ((double)ut->getMaxHp() / (double)100));
 		//printf("#1.1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 	}
 	else {
@@ -387,21 +387,21 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 	}
 
 	if(ut->getMaxEpIsMultiplier() == true) {
-		maxEp += (unit->getEp() * (ut->getMaxEp() / 100));
+		maxEp += ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
 	}
 	else {
 		maxEp += ut->getMaxEp();
 	}
 
 	if(ut->getSightIsMultiplier() == true) {
-		sight += (unit->getType()->getSight() * (ut->getSight() / 100));
+		sight += ((double)unit->getType()->getSight() * ((double)ut->getSight() / (double)100));
 	}
 	else {
 		sight += ut->getSight();
 	}
 
 	if(ut->getArmorIsMultiplier() == true) {
-		armor += (unit->getType()->getArmor() * (ut->getArmor() / 100));
+		armor += ((double)unit->getType()->getArmor() * ((double)ut->getArmor() / (double)100));
 	}
 	else {
 		armor += ut->getArmor();
@@ -412,7 +412,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
-				attackStrengthMultiplierValueList[ast->getName()] += (ast->getAttackStrength() * (ut->getAttackStrength(NULL) / 100));
+				attackStrengthMultiplierValueList[ast->getName()] += ((double)ast->getAttackStrength() * ((double)ut->getAttackStrength(NULL) / (double)100));
 			}
 		}
 	}
@@ -425,7 +425,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
-				attackRangeMultiplierValueList[ast->getName()] += (ast->getAttackRange() * (ut->getAttackRange(NULL) / 100));
+				attackRangeMultiplierValueList[ast->getName()] += ((double)ast->getAttackRange() * ((double)ut->getAttackRange(NULL) / (double)100));
 			}
 		}
 	}
@@ -440,7 +440,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const MoveSkillType *mst = dynamic_cast<const MoveSkillType *>(skillType);
 			if(mst != NULL) {
-				moveSpeedIsMultiplierValueList[mst->getName()] += (mst->getSpeed() * (ut->getMoveSpeed(NULL) / 100));
+				moveSpeedIsMultiplierValueList[mst->getName()] += ((double)mst->getSpeed() * ((double)ut->getMoveSpeed(NULL) / (double)100));
 
 				//printf("Applying moveSpeedIsMultiplier for unit [%s - %d], mst->getSpeed() = %d ut->getMoveSpeed(NULL) = %d newmoveSpeed = %d for skill [%s]\n",unit->getType()->getName().c_str(),unit->getId(), mst->getSpeed(),ut->getMoveSpeed(NULL),moveSpeedIsMultiplierValueList[mst->getName()],mst->getName().c_str());
 			}
@@ -457,15 +457,15 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const ProduceSkillType *pst = dynamic_cast<const ProduceSkillType *>(skillType);
 			if(pst != NULL) {
-				prodSpeedProduceIsMultiplierValueList[pst->getName()] += (pst->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+				prodSpeedProduceIsMultiplierValueList[pst->getName()] += ((double)pst->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
 			}
 			const UpgradeSkillType *ust = dynamic_cast<const UpgradeSkillType *>(skillType);
 			if(ust != NULL) {
-				prodSpeedUpgradeIsMultiplierValueList[ust->getName()] += (ust->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+				prodSpeedUpgradeIsMultiplierValueList[ust->getName()] += ((double)ust->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
 			}
 			const MorphSkillType *mst = dynamic_cast<const MorphSkillType *>(skillType);
 			if(mst != NULL) {
-				prodSpeedMorphIsMultiplierValueList[mst->getName()] += (mst->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+				prodSpeedMorphIsMultiplierValueList[mst->getName()] += ((double)mst->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
 			}
 		}
 	}
@@ -489,28 +489,28 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	prodSpeedIsMultiplier		= ut->getProdSpeedIsMultiplier();
 
 	if(ut->getMaxHpIsMultiplier() == true) {
-		maxHp -= (unit->getHp() * (ut->getMaxHp() / 100));
+		maxHp -= ((double)unit->getHp() * ((double)ut->getMaxHp() / (double)100));
 	}
 	else {
 		maxHp -= ut->getMaxHp();
 	}
 
 	if(ut->getMaxEpIsMultiplier() == true) {
-		maxEp -= (unit->getEp() * (ut->getMaxEp() / 100));
+		maxEp -= ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
 	}
 	else {
 		maxEp -= ut->getMaxEp();
 	}
 
 	if(ut->getSightIsMultiplier() == true) {
-		sight -= (unit->getType()->getSight() * (ut->getSight() / 100));
+		sight -= ((double)unit->getType()->getSight() * ((double)ut->getSight() / (double)100));
 	}
 	else {
 		sight -= ut->getSight();
 	}
 
 	if(ut->getArmorIsMultiplier() == true) {
-		armor -= (unit->getType()->getArmor() * (ut->getArmor() / 100));
+		armor -= ((double)unit->getType()->getArmor() * ((double)ut->getArmor() / (double)100));
 	}
 	else {
 		armor -= ut->getArmor();
@@ -521,7 +521,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
-				attackStrengthMultiplierValueList[ast->getName()] -= (ast->getAttackStrength() * (ut->getAttackStrength(NULL) / 100));
+				attackStrengthMultiplierValueList[ast->getName()] -= ((double)ast->getAttackStrength() * ((double)ut->getAttackStrength(NULL) / (double)100));
 			}
 		}
 	}
@@ -534,7 +534,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
-				attackRangeMultiplierValueList[ast->getName()] -= (ast->getAttackRange() * (ut->getAttackRange(NULL) / 100));
+				attackRangeMultiplierValueList[ast->getName()] -= ((double)ast->getAttackRange() * ((double)ut->getAttackRange(NULL) / (double)100));
 			}
 		}
 	}
@@ -549,7 +549,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const MoveSkillType *mst = dynamic_cast<const MoveSkillType *>(skillType);
 			if(mst != NULL) {
-				moveSpeedIsMultiplierValueList[mst->getName()] -= (mst->getSpeed() * (ut->getMoveSpeed(NULL) / 100));
+				moveSpeedIsMultiplierValueList[mst->getName()] -= ((double)mst->getSpeed() * ((double)ut->getMoveSpeed(NULL) / (double)100));
 			}
 		}
 
@@ -564,15 +564,15 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const ProduceSkillType *pst = dynamic_cast<const ProduceSkillType *>(skillType);
 			if(pst != NULL) {
-				prodSpeedProduceIsMultiplierValueList[pst->getName()] -= (pst->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+				prodSpeedProduceIsMultiplierValueList[pst->getName()] -= ((double)pst->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
 			}
 			const UpgradeSkillType *ust = dynamic_cast<const UpgradeSkillType *>(skillType);
 			if(ust != NULL) {
-				prodSpeedUpgradeIsMultiplierValueList[ust->getName()] -= (ust->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+				prodSpeedUpgradeIsMultiplierValueList[ust->getName()] -= ((double)ust->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
 			}
 			const MorphSkillType *mst = dynamic_cast<const MorphSkillType *>(skillType);
 			if(mst != NULL) {
-				prodSpeedMorphIsMultiplierValueList[mst->getName()] -= (mst->getSpeed() * (ut->getProdSpeed(NULL) / 100));
+				prodSpeedMorphIsMultiplierValueList[mst->getName()] -= ((double)mst->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
 			}
 		}
 	}
