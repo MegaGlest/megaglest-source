@@ -225,7 +225,7 @@ void ScriptManager::onTimerTriggerEvent() {
 		TimerTriggerEvent &event = iterMap->second;
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] event.running = %d, event.startTime = %lld, event.endTime = %lld, diff = %f\n",
-													__FILE__,__FUNCTION__,__LINE__,event.running,(long long int)event.startTime,(long long int)event.endTime,difftime(event.endTime,event.startTime));
+													__FILE__,__FUNCTION__,__LINE__,event.running,(long long int)event.startFrame,(long long int)event.endFrame,(event.endFrame - event.startFrame));
 
 		if(event.running == true) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -657,13 +657,15 @@ void ScriptManager::unregisterCellTriggerEvent(int eventId) {
 int ScriptManager::startTimerEvent() {
 	TimerTriggerEvent trigger;
 	trigger.running = true;
-	trigger.startTime = time(NULL);
-	trigger.endTime = 0;
+	//trigger.startTime = time(NULL);
+	trigger.startFrame = world->getFrameCount();
+	//trigger.endTime = 0;
+	trigger.endFrame = 0;
 
 	int eventId = currentEventId++;
 	TimerTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startTime,(long long int)trigger.endTime);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame);
 
 	return eventId;
 }
@@ -674,11 +676,13 @@ int ScriptManager::resetTimerEvent(int eventId) {
 		TimerTriggerEvent &trigger = TimerTriggerEventList[eventId];
 		result = getTimerEventSecondsElapsed(eventId);
 
-		trigger.startTime = time(NULL);
-		trigger.endTime = 0;
+		//trigger.startTime = time(NULL);
+		trigger.startFrame = world->getFrameCount();
+		//trigger.endTime = 0;
+		trigger.endFrame = 0;
 		trigger.running = true;
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startTime,(long long int)trigger.endTime,result);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame,result);
 	}
 	return result;
 }
@@ -687,11 +691,12 @@ int ScriptManager::stopTimerEvent(int eventId) {
 	int result = 0;
 	if(TimerTriggerEventList.find(eventId) != TimerTriggerEventList.end()) {
 		TimerTriggerEvent &trigger = TimerTriggerEventList[eventId];
-		trigger.endTime = time(NULL);
+		//trigger.endTime = time(NULL);
+		trigger.endFrame = world->getFrameCount();
 		trigger.running = false;
 		result = getTimerEventSecondsElapsed(eventId);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startTime,(long long int)trigger.endTime,result);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame,result);
 	}
 
 	return result;
@@ -702,11 +707,15 @@ int ScriptManager::getTimerEventSecondsElapsed(int eventId) {
 	if(TimerTriggerEventList.find(eventId) != TimerTriggerEventList.end()) {
 		TimerTriggerEvent &trigger = TimerTriggerEventList[eventId];
 		if(trigger.running) {
-			result = (int)difftime(time(NULL),trigger.startTime);
+			//result = (int)difftime(time(NULL),trigger.startTime);
+			result = (world->getFrameCount()-trigger.startFrame) / GameConstants::updateFps;
 		}
 		else {
-			result = (int)difftime(trigger.endTime,trigger.startTime);
+			//result = (int)difftime(trigger.endTime,trigger.startTime);
+			result = (trigger.endFrame-trigger.startFrame) / GameConstants::updateFps;
 		}
+
+		//printf("Timer event id = %d seconmds elapsed = %d\n",eventId,result);
 	}
 
 	return result;
