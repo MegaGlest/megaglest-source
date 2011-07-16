@@ -550,50 +550,6 @@ float Unit::getRotationX() const{
 	return rotationX;
 }
 
-//float Unit::getRotationZ() const{
-//	//if(type->getProperty(UnitType::pRotatedClimb) && currSkill->getClass()==scMove){
-//	//if(currSkill->getClass()==scMove)
-//		{
-//		SurfaceCell* sc=map->getSurfaceCell(Map::toSurfCoords(pos));
-//		const Vec3f normal=sc->getNormal();
-//		//printf("normal x y z  %f %f %f \n",normal.x,normal.y,normal.z );
-//
-//
-//		float result=radToDeg(streflop::atan2(abs(normal.x), abs(normal.y)));
-//		//printf("pre result=%f\n",result);
-//		if((normal.y<0 || normal.x<0)&& !(normal.y<0 && normal.x<0))
-//		result=result*-1;
-//
-//		result=result*-1;
-//		//printf("heightDiff=%f xdiff=%f zdiff=%f grad=%f result=%f  rotation=%f \n",heightDiff,xdiff,zdiff, radToDeg(streflop::atan2(heightDiff, xdiff)),result,rotation);
-//		return result;
-//		}
-//	//else
-//		return 0.f;
-//}
-//
-//float Unit::getRotationX() const{
-//	//if(type->getProperty(UnitType::pRotatedClimb) && currSkill->getClass()==scMove){
-//	//if(currSkill->getClass()==scMove)
-//		{
-//		SurfaceCell* sc=map->getSurfaceCell(Map::toSurfCoords(pos));
-//		const Vec3f normal=sc->getNormal();
-//		//printf("normal x y z  %f %f %f \n",normal.x,normal.y,normal.z );
-//
-//
-//		float result=radToDeg(streflop::atan2(abs(normal.z), abs(normal.y)));
-//		//printf("pre result=%f\n",result);
-//		if((normal.y<0 || normal.z<0)&& !(normal.y<0 && normal.z<0))
-//		result=result*-1;
-//
-//		//result=result*-1;
-//		//printf("heightDiff=%f xdiff=%f zdiff=%f grad=%f result=%f  rotation=%f \n",heightDiff,xdiff,zdiff, radToDeg(streflop::atan2(heightDiff, xdiff)),result,rotation);
-//		return result;
-//		}
-//	//else
-//		return 0.f;
-//}
-
 int Unit::getProductionPercent() const{
 	if(anyCommand()){
 		const ProducibleType *produced= commands.front()->getCommandType()->getProduced();
@@ -1524,6 +1480,10 @@ bool Unit::update() {
 
 	if(type->getProperty(UnitType::pRotatedClimb)){
 		calculateXZRotation();
+	}
+	else {
+		 rotationZ=.0f;
+		 rotationX=.0f;
 	}
 
 	if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
