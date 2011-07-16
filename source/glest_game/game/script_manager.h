@@ -95,8 +95,11 @@ public:
 class TimerTriggerEvent {
 public:
 	bool running;
-	time_t startTime;
-	time_t endTime;
+	//time_t startTime;
+	//time_t endTime;
+	int startFrame;
+	int endFrame;
+
 };
 
 class ScriptManager{
