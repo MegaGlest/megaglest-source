@@ -484,9 +484,9 @@ void Unit::calculateXZRotation(){
 		const Vec3f normal= sc->getNormal();
 
 #ifdef USE_STREFLOP
-		float targetRotationZ= radToDeg(streflop::atan2(abs(normal.x), abs(normal.y)));
+		targetRotationZ= radToDeg(streflop::atan2(abs(normal.x), abs(normal.y)));
 #else
-		float targetRotationZ= radToDeg(atan2(abs(normal.x), abs(normal.y)));
+		targetRotationZ= radToDeg(atan2(abs(normal.x), abs(normal.y)));
 #endif
 
 		if((normal.y < 0 || normal.x < 0) && !(normal.y < 0 && normal.x < 0)){
@@ -506,7 +506,7 @@ void Unit::calculateXZRotation(){
 	}
 
 	//For smooth rotation we now softly adjust the angle
-	int adjustStep= 2;
+	int adjustStep= 1;
 	if(rotationZ < targetRotationZ){
 		if(rotationZ + adjustStep > targetRotationZ){
 			rotationZ= targetRotationZ;
