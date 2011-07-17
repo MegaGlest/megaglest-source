@@ -102,9 +102,22 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 		const Vec3f *meshVertices= mesh->getVertices();
 
 		//misc vars
-		uint32 prevFrame= min<uint32>(static_cast<uint32>(t*frameCount), frameCount-1);
-		uint32 nextFrame= cycle? (prevFrame+1) % frameCount: min(prevFrame+1, frameCount-1); 
-		float localT= t*frameCount - prevFrame; 
+		uint32 prevFrame;
+		uint32 nextFrame;
+		float localT;
+
+		if(cycle == true) {
+			prevFrame= min<uint32>(static_cast<uint32>(t*frameCount), frameCount-1);
+			nextFrame= (prevFrame+1) % frameCount;
+			localT= t*frameCount - prevFrame;
+		}
+		else {
+			prevFrame= min<uint32> (static_cast<uint32> (t * (frameCount-1)), frameCount - 2);
+			nextFrame= min(prevFrame + 1, frameCount - 1);
+			localT= t * (frameCount-1) - prevFrame;
+			//printf(" prevFrame=%d nextFrame=%d localT=%f\n",prevFrame,nextFrame,localT);
+		}
+
 		uint32 prevFrameBase= prevFrame*vertexCount;
 		uint32 nextFrameBase= nextFrame*vertexCount;
 
@@ -145,9 +158,22 @@ void InterpolationData::updateNormals(float t, bool cycle){
 		const Vec3f *meshNormals= mesh->getNormals();
 
 		//misc vars
-		uint32 prevFrame= min<uint32>(static_cast<uint32>(t*frameCount), frameCount-1);
-		uint32 nextFrame= cycle? (prevFrame+1) % frameCount: min(prevFrame+1, frameCount-1); 
-		float localT= t*frameCount - prevFrame; 
+		uint32 prevFrame;
+		uint32 nextFrame;
+		float localT;
+
+		if(cycle == true) {
+			prevFrame= min<uint32>(static_cast<uint32>(t*frameCount), frameCount-1);
+			nextFrame= (prevFrame+1) % frameCount;
+			localT= t*frameCount - prevFrame;
+		}
+		else {
+			prevFrame= min<uint32> (static_cast<uint32> (t * (frameCount-1)), frameCount - 2);
+			nextFrame= min(prevFrame + 1, frameCount - 1);
+			localT= t * (frameCount-1) - prevFrame;
+			//printf(" prevFrame=%d nextFrame=%d localT=%f\n",prevFrame,nextFrame,localT);
+		}
+
 		uint32 prevFrameBase= prevFrame*vertexCount;
 		uint32 nextFrameBase= nextFrame*vertexCount;
 
