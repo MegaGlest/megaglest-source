@@ -505,6 +505,9 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 				tween /= modelCycle;
 			}
 		}
+		if(tween < 0.0f || tween > 1.0f) {
+			printf("ERROR setting tween to [%f]\n",tween);
+		}
 		assert(tween >= 0.0f && tween <= 1.0f);
 		tween= clamp(tween, 0.0f, 1.0f);
 	}
