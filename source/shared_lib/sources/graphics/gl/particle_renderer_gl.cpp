@@ -263,7 +263,11 @@ void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
 		//render
 		mr->begin(true, true, false);
 		float t = ps->getTween();
-		assert(t >= 0.0f && t <= 1.0f);
+
+		if(t < 0.0f || t > 1.0f) {
+			printf("ERROR setting tween to [%f]\n",t);
+			assert(t >= 0.0f && t <= 1.0f);
+		}
 		model->updateInterpolationData(t, false);
 		mr->render(model);
 		mr->end();
