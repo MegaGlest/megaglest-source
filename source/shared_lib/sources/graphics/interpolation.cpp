@@ -80,8 +80,9 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 	//assert(t>=0.0f && t<=1.0f);
 	if(t < 0.0f || t > 1.0f) {
 		throw runtime_error("t < 0.0f || t > 1.0f t = [" + floatToStr(t) + "]");
+
+		assert(t >= 0.f && t <= 1.f);
 	}
-	assert(t >= 0.f && t <= 1.f);
 
 	uint32 frameCount= mesh->getFrameCount();
 	uint32 vertexCount= mesh->getVertexCount();
@@ -137,7 +138,11 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 }
 
 void InterpolationData::updateNormals(float t, bool cycle){
-	assert(t>=0.0f && t<=1.0f);
+	if(t < 0.0f || t > 1.0f) {
+		throw runtime_error("t < 0.0f || t > 1.0f t = [" + floatToStr(t) + "]");
+
+		assert(t>=0.0f && t<=1.0f);
+	}
 
 	uint32 frameCount= mesh->getFrameCount();
 	uint32 vertexCount= mesh->getVertexCount();
