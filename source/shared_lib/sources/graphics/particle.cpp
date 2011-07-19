@@ -507,8 +507,9 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 		}
 		if(tween < 0.0f || tween > 1.0f) {
 			printf("ERROR setting tween to [%f]\n",tween);
+			assert(tween >= 0.0f && tween <= 1.0f);
 		}
-		assert(tween >= 0.0f && tween <= 1.0f);
+
 		tween= clamp(tween, 0.0f, 1.0f);
 	}
 	for(Children::iterator it= children.begin(); it != children.end(); it++)
