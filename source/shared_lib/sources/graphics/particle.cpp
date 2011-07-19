@@ -921,8 +921,13 @@ void ProjectileParticleSystem::update(){
 		Vec3f currentVector= flatPos - startPos;
 
 		// ratio
-		float t= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
-		setTween(t,currentVector.length());
+		float relative= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
+#ifdef USE_STREFLOP
+		float absolute= clamp(streflop::fabs(currentVector.length()), 0.0f, 1.0f);
+#else
+		float absolute= clamp(fabs(currentVector.length()), 0.0f, 1.0f);
+#endif
+		setTween(relative,absolute);
 
 		// trajectory
 		switch(trajectory) {
@@ -932,7 +937,7 @@ void ProjectileParticleSystem::update(){
 				break;
 
 			case tParabolic: {
-				float scaledT= 2.0f * (t - 0.5f);
+				float scaledT= 2.0f * (relative - 0.5f);
 				float paraboleY= (1.0f - scaledT * scaledT) * trajectoryScale;
 
 				pos= flatPos;
@@ -943,11 +948,11 @@ void ProjectileParticleSystem::update(){
 			case tSpiral: {
 				pos= flatPos;
 #ifdef USE_STREFLOP
-				pos+= xVector * streflop::cos(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
-				pos+= yVector * streflop::sin(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= xVector * streflop::cos(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= yVector * streflop::sin(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #else
-				pos+= xVector * cos(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
-				pos+= yVector * sin(t * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= xVector * cos(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= yVector * sin(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #endif
 			}
 				break;
