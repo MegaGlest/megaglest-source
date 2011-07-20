@@ -331,7 +331,7 @@ const char* TextFTGL::findFont(const char *firstFontToTry) {
 	}
 
 	string data_path = Text::DEFAULT_FONT_PATH;
-	string defaultFont = data_path + "data/core/fonts/gothub__.ttf";
+	string defaultFont = data_path + "data/core/fonts/LiberationSans-Regular.ttf";
 	tryFont = defaultFont;
 	#ifdef WIN32
 	  replaceAll(tryFont, "/", "\\");
