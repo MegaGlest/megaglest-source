@@ -460,7 +460,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 		//printf("#1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 		maxHp += ((double)unit->getHp() * ((double)ut->getMaxHp() / (double)100));
 		if(ut->getMaxHpRegeneration() != 0) {
-			maxHpRegeneration += ((double)unit->getType()->getHpRegeneration() * ((double)ut->getMaxHpRegeneration() / (double)100));
+			maxHpRegeneration += ((double)unit->getType()->getHpRegeneration() + ((double)max(maxHp,unit->getHp()) * ((double)ut->getMaxHpRegeneration() / (double)100)));
 		}
 		//printf("#1.1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 	}
@@ -475,7 +475,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 	if(ut->getMaxEpIsMultiplier() == true) {
 		maxEp += ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
 		if(ut->getMaxHpRegeneration() != 0) {
-			maxEpRegeneration += ((double)unit->getType()->getEpRegeneration() * ((double)ut->getMaxEpRegeneration() / (double)100));
+			maxEpRegeneration += ((double)unit->getType()->getEpRegeneration() + ((double)max(maxEp,unit->getEp()) * ((double)ut->getMaxEpRegeneration() / (double)100)));
 		}
 	}
 	else {
@@ -583,7 +583,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	if(ut->getMaxHpIsMultiplier() == true) {
 		maxHp -= ((double)unit->getHp() * ((double)ut->getMaxHp() / (double)100));
 		if(ut->getMaxHpRegeneration() != 0) {
-			maxHpRegeneration -= ((double)unit->getType()->getHpRegeneration() * ((double)ut->getMaxHpRegeneration() / (double)100));
+			maxHpRegeneration -= ((double)unit->getType()->getHpRegeneration() + ((double)max(maxHp,unit->getHp()) * ((double)ut->getMaxHpRegeneration() / (double)100)));
 		}
 	}
 	else {
@@ -596,7 +596,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	if(ut->getMaxEpIsMultiplier() == true) {
 		maxEp -= ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
 		if(ut->getMaxEpRegeneration() != 0) {
-			maxEpRegeneration += ((double)unit->getType()->getEpRegeneration() * ((double)ut->getMaxEpRegeneration() / (double)100));
+			maxEpRegeneration += ((double)unit->getType()->getEpRegeneration() + ((double)max(maxEp,unit->getEp()) * ((double)ut->getMaxEpRegeneration() / (double)100)));
 		}
 	}
 	else {

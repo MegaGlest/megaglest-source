@@ -1731,11 +1731,16 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		//regenerate hp upgrade / or boost
 		if(totalUpgrade.getMaxHpRegeneration() != 0) {
 			checkItemInVault(&this->hp,this->hp);
+
+			//printf("BEFORE Apply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
+
 			hp += (totalUpgrade.getMaxHpRegeneration() - prevMaxHpRegen);
-			if(hp > totalUpgrade.getMaxHp()) {
-				hp = totalUpgrade.getMaxHp();
-			}
+			//if(hp > type->getTotalMaxHp(&totalUpgrade)) {
+			//	hp = type->getTotalMaxHp(&totalUpgrade);
+			//}
 			addItemToVault(&this->hp,this->hp);
+
+			//printf("AFTER Apply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
 		}
 
 		//printf("#2 wasAlive = %d hp = %d boosthp = %d\n",wasAlive,hp,boost->boostUpgrade.getMaxHp());
@@ -1810,11 +1815,16 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	//regenerate hp upgrade / or boost
 	if(totalUpgrade.getMaxHpRegeneration() != 0) {
 		checkItemInVault(&this->hp,this->hp);
+
+		//printf("BEFORE DeApply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
+
 		hp -= (totalUpgrade.getMaxHpRegeneration() - prevMaxHpRegen);
-		if(hp > totalUpgrade.getMaxHp()) {
-			hp = totalUpgrade.getMaxHp();
-		}
+		//if(hp > totalUpgrade.getMaxHp()) {
+		//	hp = totalUpgrade.getMaxHp();
+		//}
 		addItemToVault(&this->hp,this->hp);
+
+		//printf("AFTER DeApply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
 	}
 
 	if(wasAlive == true) {
@@ -2101,10 +2111,10 @@ string Unit::getDesc() const {
 
 	//str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade)) + " [" + floatToStr(getHpRatio()) + "] [" + floatToStr(animProgress) + "]";
 	str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade));
-	if(type->getHpRegeneration() != 0) {
+	if(type->getHpRegeneration() != 0 || totalUpgrade.getMaxHpRegeneration() != 0) {
 		str+= " (" + lang.get("Regeneration") + ": " + intToStr(type->getHpRegeneration());
-		if(type->getTotalMaxHpRegeneration(&totalUpgrade) != 0) {
-			str+= "/" + intToStr(type->getTotalMaxHpRegeneration(&totalUpgrade));
+		if(totalUpgrade.getMaxHpRegeneration() != 0) {
+			str+= "+" + intToStr(totalUpgrade.getMaxHpRegeneration());
 		}
 		str+= ")";
 	}
@@ -2113,10 +2123,10 @@ string Unit::getDesc() const {
 	if(getType()->getMaxEp()!=0){
 		str+= "\n" + lang.get("Ep")+ ": " + intToStr(ep) + "/" + intToStr(type->getTotalMaxEp(&totalUpgrade));
 	}
-	if(type->getEpRegeneration() != 0) {
+	if(type->getEpRegeneration() != 0 || totalUpgrade.getMaxEpRegeneration() != 0) {
 		str+= " (" + lang.get("Regeneration") + ": " + intToStr(type->getEpRegeneration());
-		if(type->getTotalMaxEpRegeneration(&totalUpgrade) != 0) {
-			str += "/" + intToStr(type->getTotalMaxEpRegeneration(&totalUpgrade));
+		if(totalUpgrade.getMaxEpRegeneration() != 0) {
+			str += "+" + intToStr(totalUpgrade.getMaxEpRegeneration());
 		}
 		str+= ")";
 	}
