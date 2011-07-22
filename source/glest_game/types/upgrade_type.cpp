@@ -38,6 +38,8 @@ namespace Glest{ namespace Game{
 // ==================== get ====================
 
 const string VALUE_PERCENT_MULTIPLIER_KEY_NAME = "value-percent-multiplier";
+const string VALUE_REGEN_KEY_NAME = "regeneration";
+
 
 void UpgradeTypeBase::load(const XmlNode *upgradeNode) {
 	//values
@@ -48,6 +50,13 @@ void UpgradeTypeBase::load(const XmlNode *upgradeNode) {
 
 		//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
 	}
+	maxHpRegeneration = 0;
+	//maxHpRegenerationIsMultiplier = false;
+	if(upgradeNode->getChild("max-hp")->getAttribute(VALUE_REGEN_KEY_NAME,false) != NULL) {
+		maxHpRegeneration = upgradeNode->getChild("max-hp")->getAttribute(VALUE_REGEN_KEY_NAME)->getIntValue();
+
+		//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
+	}
 
 	maxEpIsMultiplier = false;
 	maxEp= upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
@@ -55,6 +64,13 @@ void UpgradeTypeBase::load(const XmlNode *upgradeNode) {
 		maxEpIsMultiplier = upgradeNode->getChild("max-ep")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 		//printf("Found maxEpIsMultiplier = %d\n",maxEpIsMultiplier);
+	}
+	maxEpRegeneration = 0;
+	//maxEpRegenerationIsMultiplier = false;
+	if(upgradeNode->getChild("max-ep")->getAttribute(VALUE_REGEN_KEY_NAME,false) != NULL) {
+		maxEpRegeneration = upgradeNode->getChild("max-ep")->getAttribute(VALUE_REGEN_KEY_NAME)->getIntValue();
+
+		//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
 	}
 
 	sightIsMultiplier = false;
@@ -317,29 +333,76 @@ string UpgradeType::getReqDesc() const{
 		}
 	}
 
-	if(maxHp!=0){
-        str+= lang.get("Hp")+" +"+intToStr(maxHp);
+	if(maxHp != 0) {
+		if(maxHpIsMultiplier) {
+			str += lang.get("Hp") + " *" + intToStr(maxHp);
+		}
+		else {
+			str += lang.get("Hp") + " +" + intToStr(maxHp);
+		}
+
+		if(maxHpRegeneration != 0) {
+			str += " [" + intToStr(maxHpRegeneration) + "]";
+		}
 	}
-	if(sight!=0){
-        str+= lang.get("Sight")+" +"+intToStr(sight);
+	if(sight != 0) {
+		if(sightIsMultiplier) {
+			str+= lang.get("Sight") + " *" + intToStr(sight);
+		}
+		else {
+			str+= lang.get("Sight") + " +" + intToStr(sight);
+		}
 	}
-	if(maxEp!=0){
-		str+= lang.get("Ep")+" +"+intToStr(maxEp)+"\n";
+	if(maxEp != 0) {
+		if(maxEpIsMultiplier) {
+			str+= lang.get("Ep") + " *" + intToStr(maxEp)+"\n";
+		}
+		else {
+			str+= lang.get("Ep") + " +" + intToStr(maxEp)+"\n";
+		}
+		if(maxEpRegeneration != 0) {
+			str += " [" + intToStr(maxEpRegeneration) + "]";
+		}
 	}
-	if(attackStrength!=0){
-        str+= lang.get("AttackStrenght")+" +"+intToStr(attackStrength)+"\n";
+	if(attackStrength != 0) {
+		if(attackStrengthIsMultiplier) {
+			str+= lang.get("AttackStrenght") + " *" + intToStr(attackStrength)+"\n";
+		}
+		else {
+			str+= lang.get("AttackStrenght") + " +" + intToStr(attackStrength)+"\n";
+		}
 	}
-	if(attackRange!=0){
-        str+= lang.get("AttackDistance")+" +"+intToStr(attackRange)+"\n";
+	if(attackRange != 0) {
+		if(attackRangeIsMultiplier) {
+			str+= lang.get("AttackDistance") + " *" + intToStr(attackRange)+"\n";
+		}
+		else {
+			str+= lang.get("AttackDistance") + " +" + intToStr(attackRange)+"\n";
+		}
 	}
-	if(armor!=0){
-		str+= lang.get("Armor")+" +"+intToStr(armor)+"\n";
+	if(armor != 0) {
+		if(armorIsMultiplier) {
+			str+= lang.get("Armor") + " *" + intToStr(armor)+"\n";
+		}
+		else {
+			str+= lang.get("Armor") + " +" + intToStr(armor)+"\n";
+		}
 	}
-	if(moveSpeed!=0){
-		str+= lang.get("WalkSpeed")+"+ "+intToStr(moveSpeed)+"\n";
+	if(moveSpeed != 0) {
+		if(moveSpeedIsMultiplier) {
+			str+= lang.get("WalkSpeed") + " *" + intToStr(moveSpeed)+"\n";
+		}
+		else {
+			str+= lang.get("WalkSpeed") + " +" + intToStr(moveSpeed)+"\n";
+		}
 	}
-	if(prodSpeed!=0){
-		str+= lang.get("ProductionSpeed")+" +"+intToStr(prodSpeed)+"\n";
+	if(prodSpeed != 0) {
+		if(prodSpeedIsMultiplier) {
+			str+= lang.get("ProductionSpeed") + " *" + intToStr(prodSpeed)+"\n";
+		}
+		else {
+			str+= lang.get("ProductionSpeed") + " +" + intToStr(prodSpeed)+"\n";
+		}
 	}
 
     return str;
@@ -357,13 +420,30 @@ TotalUpgrade::TotalUpgrade() {
 
 void TotalUpgrade::reset() {
     maxHp= 0;
+    maxHpIsMultiplier=false;
+    maxHpRegeneration = 0;
+
     maxEp= 0;
+    maxEpIsMultiplier = false;
+    maxEpRegeneration = 0;
+
     sight=0;
+    sightIsMultiplier=false;
+
 	armor= 0;
+	armorIsMultiplier=false;
+
     attackStrength= 0;
+    attackStrengthIsMultiplier=false;
+
     attackRange= 0;
+    attackRangeIsMultiplier=false;
+
     moveSpeed= 0;
+    moveSpeedIsMultiplier=false;
+
     prodSpeed=0;
+    prodSpeedIsMultiplier=false;
 }
 
 void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
@@ -379,18 +459,30 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 	if(ut->getMaxHpIsMultiplier() == true) {
 		//printf("#1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 		maxHp += ((double)unit->getHp() * ((double)ut->getMaxHp() / (double)100));
+		if(ut->getMaxHpRegeneration() != 0) {
+			maxHpRegeneration += ((double)unit->getType()->getHpRegeneration() * ((double)ut->getMaxHpRegeneration() / (double)100));
+		}
 		//printf("#1.1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 	}
 	else {
 		//printf("#2 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 		maxHp += ut->getMaxHp();
+		if(ut->getMaxHpRegeneration() != 0) {
+			maxHpRegeneration += ut->getMaxHpRegeneration();
+		}
 	}
 
 	if(ut->getMaxEpIsMultiplier() == true) {
 		maxEp += ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
+		if(ut->getMaxHpRegeneration() != 0) {
+			maxEpRegeneration += ((double)unit->getType()->getEpRegeneration() * ((double)ut->getMaxEpRegeneration() / (double)100));
+		}
 	}
 	else {
 		maxEp += ut->getMaxEp();
+		if(ut->getMaxEpRegeneration() != 0) {
+			maxEpRegeneration += ut->getMaxEpRegeneration();
+		}
 	}
 
 	if(ut->getSightIsMultiplier() == true) {
@@ -490,16 +582,28 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 
 	if(ut->getMaxHpIsMultiplier() == true) {
 		maxHp -= ((double)unit->getHp() * ((double)ut->getMaxHp() / (double)100));
+		if(ut->getMaxHpRegeneration() != 0) {
+			maxHpRegeneration -= ((double)unit->getType()->getHpRegeneration() * ((double)ut->getMaxHpRegeneration() / (double)100));
+		}
 	}
 	else {
 		maxHp -= ut->getMaxHp();
+		if(ut->getMaxHpRegeneration() != 0) {
+			maxHpRegeneration -= ut->getMaxHpRegeneration();
+		}
 	}
 
 	if(ut->getMaxEpIsMultiplier() == true) {
 		maxEp -= ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
+		if(ut->getMaxEpRegeneration() != 0) {
+			maxEpRegeneration += ((double)unit->getType()->getEpRegeneration() * ((double)ut->getMaxEpRegeneration() / (double)100));
+		}
 	}
 	else {
 		maxEp -= ut->getMaxEp();
+		if(ut->getMaxEpRegeneration() != 0) {
+			maxEpRegeneration += ut->getMaxEpRegeneration();
+		}
 	}
 
 	if(ut->getSightIsMultiplier() == true) {

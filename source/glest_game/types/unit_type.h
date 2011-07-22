@@ -188,7 +188,9 @@ public:
 
 	//get totals
 	int getTotalMaxHp(const TotalUpgrade *totalUpgrade) const;
+	int getTotalMaxHpRegeneration(const TotalUpgrade *totalUpgrade) const;
 	int getTotalMaxEp(const TotalUpgrade *totalUpgrade) const;
+	int getTotalMaxEpRegeneration(const TotalUpgrade *totalUpgrade) const;
 	int getTotalArmor(const TotalUpgrade *totalUpgrade) const;
 	int getTotalSight(const TotalUpgrade *totalUpgrade) const;
 

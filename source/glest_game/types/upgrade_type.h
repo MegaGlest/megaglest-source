@@ -41,12 +41,16 @@ class UpgradeTypeBase {
 protected:
     int maxHp;
     bool maxHpIsMultiplier;
+	int maxHpRegeneration;
+	//bool maxHpRegenerationIsMultiplier;
 
     int sight;
     bool sightIsMultiplier;
 
     int maxEp;
     bool maxEpIsMultiplier;
+	int maxEpRegeneration;
+	//bool maxEpRegenerationIsMultiplier;
 
     int armor;
     bool armorIsMultiplier;
@@ -72,10 +76,17 @@ protected:
 public:
 	int getMaxHp() const			{return maxHp;}
 	bool getMaxHpIsMultiplier() const			{return maxHpIsMultiplier;}
+	int getMaxHpRegeneration() const			{return maxHpRegeneration;}
+	//bool getMaxHpRegenerationIsMultiplier() const			{return maxHpRegenerationIsMultiplier;}
+
 	int getSight() const			{return sight;}
 	bool getSightIsMultiplier() const			{return sightIsMultiplier;}
+
 	int getMaxEp() const			{return maxEp;}
 	bool getMaxEpIsMultiplier() const			{return maxEpIsMultiplier;}
+	int getMaxEpRegeneration() const			{return maxEpRegeneration;}
+	//bool getMaxEpRegenerationIsMultiplier() const			{return maxEpRegenerationIsMultiplier;}
+
 	int getArmor() const			{return armor;}
 	bool getArmorIsMultiplier() const			{return armorIsMultiplier;}
 
@@ -95,10 +106,17 @@ public:
 
 		result += "maxHp = " + intToStr(maxHp);
 		result += "maxHpIsMultiplier = " + intToStr(maxHpIsMultiplier);
+		result += "maxHpRegeneration = " + intToStr(maxHpRegeneration);
+		//result += "maxHpRegenerationIsMultiplier = " + intToStr(maxHpRegenerationIsMultiplier);
+
 		result += " sight = " + intToStr(sight);
 		result += "sightIsMultiplier = " + intToStr(sightIsMultiplier);
+
 		result += " maxEp = " + intToStr(maxEp);
 		result += "maxEpIsMultiplier = " + intToStr(maxEpIsMultiplier);
+		result += " maxEpRegeneration = " + intToStr(maxEpRegeneration);
+		//result += "maxEpRegenerationIsMultiplier = " + intToStr(maxEpRegenerationIsMultiplier);
+
 		result += " armor = " + intToStr(armor);
 		result += "armorIsMultiplier = " + intToStr(armorIsMultiplier);
 		result += " attackStrength = " + intToStr(attackStrength);
