@@ -202,18 +202,22 @@ Quad2i GameCamera::computeVisibleQuad() const {
 	//const float farDist= 90.f;
 	//const float dist= 20.f;
 
+//	float nearDist = 20.f;
+//	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
+//	float farDist = 90.f * (pos.y > 20.f ? pos.y / 15.f : 1.f);
 	float nearDist = 20.f;
-	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
-	float farDist = 90.f * (pos.y > 20.f ? pos.y / 15.f : 1.f);
+	float dist = pos.y > nearDist ? pos.y * 1.2f : nearDist;
+	float farDist = 90.f * (pos.y > nearDist ? pos.y / 15.f : 1.f);
+	const float viewDegree = 180.f;
 
 #ifdef USE_STREFLOP
-	Vec2f v(streflop::sinf(degToRad(180 - hAng)), streflop::cosf(degToRad(180 - hAng)));
-	Vec2f v1(streflop::sinf(degToRad(180 - hAng - fov)), streflop::cosf(degToRad(180 - hAng - fov)));
-	Vec2f v2(streflop::sinf(degToRad(180 - hAng + fov)), streflop::cosf(degToRad(180 - hAng + fov)));
+	Vec2f v(streflop::sinf(degToRad(viewDegree - hAng)), streflop::cosf(degToRad(viewDegree - hAng)));
+	Vec2f v1(streflop::sinf(degToRad(viewDegree - hAng - fov)), streflop::cosf(degToRad(viewDegree - hAng - fov)));
+	Vec2f v2(streflop::sinf(degToRad(viewDegree - hAng + fov)), streflop::cosf(degToRad(viewDegree - hAng + fov)));
 #else
-	Vec2f v(sinf(degToRad(180 - hAng)), cosf(degToRad(180 - hAng)));
-	Vec2f v1(sinf(degToRad(180 - hAng - fov)), cosf(degToRad(180 - hAng - fov)));
-	Vec2f v2(sinf(degToRad(180 - hAng + fov)), cosf(degToRad(180 - hAng + fov)));
+	Vec2f v(sinf(degToRad(viewDegree - hAng)), cosf(degToRad(viewDegree - hAng)));
+	Vec2f v1(sinf(degToRad(viewDegree - hAng - fov)), cosf(degToRad(viewDegree - hAng - fov)));
+	Vec2f v2(sinf(degToRad(viewDegree - hAng + fov)), cosf(degToRad(viewDegree - hAng + fov)));
 #endif
 
 	v.normalize();
@@ -226,19 +230,8 @@ Quad2i GameCamera::computeVisibleQuad() const {
 	Vec2i p3(static_cast<int>(p.x + v2.x * nearDist), static_cast<int>(p.y + v2.y * nearDist));
 	Vec2i p4(static_cast<int>(p.x + v2.x * farDist), static_cast<int>(p.y + v2.y * farDist));
 
-	const int adjustPerfectSquareX = 15;
-	const bool adjustQuadToPerfectSquare = true;
 	Quad2i result;
 	if (hAng >= 135 && hAng <= 225) {
-		if(adjustQuadToPerfectSquare) {
-			//p1.y -= 10;
-			//p3.y -= 10;
-			//p2.y += 10;
-			//p4.y += 10;
-
-			//p3.x = p4.x + adjustPerfectSquareX;
-			//p3.x -= adjustPerfectSquareX;
-		}
 		result = Quad2i(p1, p2, p3, p4);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
@@ -246,52 +239,20 @@ Quad2i GameCamera::computeVisibleQuad() const {
 		}
 	}
 	else if (hAng >= 45 && hAng <= 135) {
-		if(adjustQuadToPerfectSquare) {
-			//p3.y -= 10;
-			//p4.y -= 10;
-			//p1.y += 10;
-			//p2.y += 10;
-
-			//p4.x = p2.x + adjustPerfectSquareX;
-			//p4.x -= adjustPerfectSquareX;
-		}
-
 		result = Quad2i(p3, p1, p4, p2);
-
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
 			cacheVisibleQuad[fov][hAng][pos] = result;
 		}
 	}
 	else if (hAng >= 225 && hAng <= 315) {
-		if(adjustQuadToPerfectSquare) {
-			//p2.y -= 10;
-			//p1.y -= 10;
-			//p4.y += 10;
-			//p3.y += 10;
-
-			//p1.x = p3.x + adjustPerfectSquareX;
-			//p1.x -= adjustPerfectSquareX;
-		}
-
 		result = Quad2i(p2, p4, p1, p3);
-
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
 			cacheVisibleQuad[fov][hAng][pos] = result;
 		}
 	}
 	else {
-		if(adjustQuadToPerfectSquare && hAng == 0) {
-			//p4.y -= 10;
-			//p2.y -= 10;
-			//p1.y += 10;
-			//p3.y += 10;
-
-			//p2.x = p1.x + adjustPerfectSquareX;
-			p2.x -= adjustPerfectSquareX;
-		}
-
 		result = Quad2i(p4, p3, p2, p1);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
