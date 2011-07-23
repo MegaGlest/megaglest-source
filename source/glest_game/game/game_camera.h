@@ -98,7 +98,7 @@ public:
 	float getVAng() const		{return vAng;}
 	State getState() const		{return state;}
 	const Vec3f &getPos() const	{return pos;}
-
+	float getFov() const 		{return fov;}
     //set
 	void setRotate(float rotate){this->rotate= rotate;}
 	void setPos(Vec2f pos);

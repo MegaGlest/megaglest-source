@@ -1868,12 +1868,16 @@ void Game::render3d(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [reset3d]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-	renderer.computeVisibleQuad();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [computeVisibleQuad]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+//	renderer.computeVisibleQuad();
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [computeVisibleQuad]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	renderer.loadGameCameraMatrix();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [loadGameCameraMatrix]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+	renderer.computeVisibleQuad();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [computeVisibleQuad]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	renderer.setupLighting();
@@ -2147,6 +2151,12 @@ void Game::render2d(){
 				renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 			}
 		}
+
+//		renderer.renderText3D("#1", coreData.getMenuFontNormal3D(), Vec3f(1.0f), renderer.getVisibleQuad().p[0].x, renderer.getVisibleQuad().p[0].y, false);
+//		renderer.renderText3D("#2", coreData.getMenuFontNormal3D(), Vec3f(1.0f), renderer.getVisibleQuad().p[1].x, renderer.getVisibleQuad().p[1].y, false);
+//		renderer.renderText3D("#3", coreData.getMenuFontNormal3D(), Vec3f(1.0f), renderer.getVisibleQuad().p[2].x, renderer.getVisibleQuad().p[2].y, false);
+//		renderer.renderText3D("#4", coreData.getMenuFontNormal3D(), Vec3f(1.0f), renderer.getVisibleQuad().p[3].x, renderer.getVisibleQuad().p[3].y, false);
+
 	}
 
 	//network status
