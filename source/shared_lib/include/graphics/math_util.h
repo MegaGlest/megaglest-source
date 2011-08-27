@@ -12,6 +12,7 @@
 #ifndef _SHARED_GRAPHICS_MATHUTIL_H_
 #define _SHARED_GRAPHICS_MATHUTIL_H_
 
+#include "math_wrapper.h"
 #include "vec.h"
 #include "leak_dumper.h"
 
@@ -265,6 +266,21 @@ template<typename T>
 inline T radToDeg(T rad){
 	return (rad*360)/(2*pi);
 }
+
+template<typename T>
+inline T truncateDecimal(const T &value, int precision=6) {
+	int iSigned = value >= 0 ? 1: -1;
+
+#ifdef USE_STREFLOP
+	unsigned int uiTemp = (value * streflop::pow((streflop::Simple)10, (streflop::Simple)precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
+	T result = (((double)uiTemp) / streflop::pow((streflop::Simple)10,(streflop::Simple)precision) * iSigned);
+#else
+	unsigned int uiTemp = (value * pow(10, precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
+	T result = (((double)uiTemp) / pow(10,precision) * iSigned);
+#endif
+	return result;
+}
+
 
 }}//end namespace
 

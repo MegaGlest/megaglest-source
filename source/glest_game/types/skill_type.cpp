@@ -226,6 +226,16 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
 				unitParticleSystemType->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
 						loadedFileList,parentLoader,tt->getPath());
+
+				if(particleNode->getAttribute("start-time",false) != NULL) {
+					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
+					unitParticleSystemType->setStartTime(particleNode->getAttribute("start-time")->getFloatValue());
+				}
+				if(particleNode->getAttribute("end-time",false) != NULL) {
+					//printf("*NOTE particle system type has end-time [%f]\n",particleNode->getAttribute("end-time")->getFloatValue());
+					unitParticleSystemType->setEndTime(particleNode->getAttribute("end-time")->getFloatValue());
+				}
+
 				loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
