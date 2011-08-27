@@ -382,6 +382,7 @@ Unit::~Unit() {
 	}
 
 	// fade(and by this remove) all unit particle systems
+	queuedUnitParticleSystemTypes.clear();
 	while(unitParticleSystems.empty() == false) {
 		unitParticleSystems.back()->fade();
 		unitParticleSystems.pop_back();
@@ -753,10 +754,12 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		throw runtime_error(szBuf);
 	}
 
-	if(currSkill->getClass() != this->currSkill->getClass()) {
+	if(currSkill->getClass() != this->currSkill->getClass() ||
+			currSkill->getName() != this->currSkill->getName()) {
 		animProgress= 0;
 		lastAnimProgress= 0;
 
+		queuedUnitParticleSystemTypes.clear();
 		while(unitParticleSystems.empty() == false) {
 			unitParticleSystems.back()->fade();
 			unitParticleSystems.pop_back();
@@ -764,13 +767,24 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 	}
 	if(showUnitParticles && (currSkill->unitParticleSystemTypes.empty() == false) &&
 		(unitParticleSystems.empty() == true) ) {
+		//printf("START - particle system type\n");
+
 		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin(); it != currSkill->unitParticleSystemTypes.end(); ++it) {
-			UnitParticleSystem *ups = new UnitParticleSystem(200);
-			(*it)->setValues(ups);
-			ups->setPos(getCurrVector());
-			ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-			unitParticleSystems.push_back(ups);
-			Renderer::getInstance().manageParticleSystem(ups, rsGame);
+			if((*it)->getStartTime() == 0.0) {
+				//printf("Adding NON-queued particle system type [%s] [%f] [%f]\n",(*it)->getType().c_str(),(*it)->getStartTime(),(*it)->getEndTime());
+
+				UnitParticleSystem *ups = new UnitParticleSystem(200);
+				(*it)->setValues(ups);
+				ups->setPos(getCurrVector());
+				ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				unitParticleSystems.push_back(ups);
+				Renderer::getInstance().manageParticleSystem(ups, rsGame);
+			}
+			else {
+				//printf("Adding queued particle system type [%s] [%f] [%f]\n",(*it)->getType().c_str(),(*it)->getStartTime(),(*it)->getEndTime());
+
+				queuedUnitParticleSystemTypes.push_back(*it);
+			}
 		}
 	}
 	progress2= 0;
@@ -1396,6 +1410,50 @@ bool Unit::needToUpdate() {
 		}
 	}
 	return return_value;
+}
+
+void Unit::updateTimedParticles() {
+	//!!!
+	// Start new particle systems based on start time
+	for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
+		UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
+		if(pst != NULL) {
+			if(truncateDecimal<float>(pst->getStartTime()) <= truncateDecimal<float>(animProgress)) {
+				//printf("STARTING queued particle system type [%s] [%f] [%f] [%f] [%f]\n",pst->getType().c_str(),truncateDecimal<float>(pst->getStartTime()),truncateDecimal<float>(pst->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
+
+				UnitParticleSystem *ups = new UnitParticleSystem(200);
+				pst->setValues(ups);
+				ups->setPos(getCurrVector());
+				ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				unitParticleSystems.push_back(ups);
+				Renderer::getInstance().manageParticleSystem(ups, rsGame);
+
+				queuedUnitParticleSystemTypes.erase(queuedUnitParticleSystemTypes.begin() + i);
+			}
+		}
+		else {
+			queuedUnitParticleSystemTypes.erase(queuedUnitParticleSystemTypes.begin() + i);
+		}
+	}
+
+	// End existing systems based on end time
+	for(int i = unitParticleSystems.size() - 1; i >= 0; i--) {
+		UnitParticleSystem *ps = unitParticleSystems[i];
+		if(ps != NULL) {
+			if(truncateDecimal<float>(ps->getStartTime()) != 0.0 || truncateDecimal<float>(ps->getEndTime()) != 1.0) {
+				//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
+
+				if(truncateDecimal<float>(animProgress) >= 0.99 ||
+						truncateDecimal<float>(animProgress) >= truncateDecimal<float>(ps->getEndTime())) {
+					//printf("ENDING particle system [%d]\n",ps->shape);
+
+					ps->fade();
+					unitParticleSystems.erase(unitParticleSystems.begin() + i);
+				}
+			}
+		}
+	}
+
 }
 
 bool Unit::update() {

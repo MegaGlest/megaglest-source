@@ -103,6 +103,8 @@ public:
     void setMaxHp(int value) { maxHp=value;}
     void setMinmaxIsPercent(bool value) { minmaxIsPercent=value; }
 
+    string getType() const { return type; };
+
 protected:
 
 };

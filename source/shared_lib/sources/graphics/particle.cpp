@@ -553,6 +553,9 @@ UnitParticleSystem::UnitParticleSystem(int particleCount):
 	
 	delay = 0; // none
 	lifetime = -1; // forever
+
+	startTime = 0;
+	endTime = 1;
 }
 
 UnitParticleSystem::~UnitParticleSystem(){

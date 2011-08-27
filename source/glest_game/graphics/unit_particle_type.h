@@ -61,14 +61,24 @@ protected:
 	bool radiusBasedStartenergy;
 	int delay;
 	int lifetime;
+	float startTime;
+	float endTime;
 
 public:
+	UnitParticleSystemType();
+
 	void load(const XmlNode *particleSystemNode, const string &dir,
 			RendererInterface *newTexture, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);
 	void load(const XmlNode *particleFileNode, const string &dir, const string &path, RendererInterface *newTexture,
 			std::map<string,vector<pair<string, string> > > &loadedFileList,string parentLoader,
 			string techtreePath);
+
+	void setStartTime(float startTime) { this->startTime = startTime; }
+	float getStartTime() const { return this->startTime; }
+	void setEndTime(float endTime) { this->endTime = endTime; }
+	float getEndTime() const { return this->endTime; }
+
 	const void setValues (UnitParticleSystem *uts);
 	bool hasTexture() const { return(texture != NULL); }
 };

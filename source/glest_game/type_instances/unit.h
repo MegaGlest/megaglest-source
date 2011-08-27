@@ -330,6 +330,8 @@ private:
     Commands commands;
 	Observers observers;
 	vector<UnitParticleSystem*> unitParticleSystems;
+	vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
+
 	UnitParticleSystems damageParticleSystems;
 	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
 
@@ -579,6 +581,7 @@ public:
 	bool getUsePathfinderExtendedMaxNodes() const { return usePathfinderExtendedMaxNodes; }
 	void setUsePathfinderExtendedMaxNodes(bool value) { usePathfinderExtendedMaxNodes = value; }
 
+	void updateTimedParticles();
 private:
 	float computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();

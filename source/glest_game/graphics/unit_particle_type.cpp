@@ -30,6 +30,24 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class UnitParticleSystemType
 // =====================================================
+UnitParticleSystemType::UnitParticleSystemType() : ParticleSystemType() {
+	shape = UnitParticleSystem::sLinear;
+	angle = 0;
+	radius = 0;
+	minRadius = 0;
+	emissionRateFade = 0;
+    relative = false;
+    relativeDirection = false;
+    fixed = false;
+    staticParticleCount = 0;
+	isVisibleAtNight = false;
+	isVisibleAtDay = false;
+	radiusBasedStartenergy = false;
+	delay = 0;
+	lifetime = 0;
+	startTime = 0;
+	endTime = 1;
+}
 
 void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const string &dir,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
@@ -217,6 +235,9 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 		direction.z= 0.0f;
 		ups->setDirection(direction);
 	}
+
+	ups->setStartTime(startTime);
+	ups->setEndTime(endTime);
 }
 
 void UnitParticleSystemType::load(const XmlNode *particleFileNode, const string &dir, const string &path,

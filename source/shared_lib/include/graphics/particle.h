@@ -277,6 +277,8 @@ private:
 	Vec3f fixedAddition;
     Vec3f oldPosition;
     bool energyUp;
+	float startTime;
+	float endTime;
     
 public:
 	enum Shape{
@@ -314,6 +316,11 @@ public:
 	virtual bool getVisible() const;
 	virtual void fade();
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
+
+	virtual void setStartTime(float startTime) { this->startTime = startTime; }
+	virtual float getStartTime() const { return this->startTime; }
+	virtual void setEndTime(float endTime) { this->endTime = endTime; }
+	virtual float getEndTime() const { return this->endTime; }
 
 	//set params
 	void setRadius(float radius)					{this->radius= radius;}
