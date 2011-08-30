@@ -1914,14 +1914,26 @@ void MenuStateMods::render() {
                 string progressLabelPrefix = lang.get("ModDownloading") + " " + extractFileFromDirectoryPath(iterMap->first) + " ";
                 //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nRendering file progress with the following prefix [%s]\n",progressLabelPrefix.c_str());
 
-                renderer.renderProgressBar(
-                    iterMap->second.first,
-                    //10,
-                    //yLocation,
-                    xLocation,
-                    yLocation,
-                    CoreData::getInstance().getDisplayFontSmall(),
-                    185,progressLabelPrefix,false);
+                if(Renderer::renderText3DEnabled) {
+					renderer.renderProgressBar3D(
+						iterMap->second.first,
+						//10,
+						//yLocation,
+						xLocation,
+						yLocation,
+						CoreData::getInstance().getDisplayFontSmall3D(),
+						185,progressLabelPrefix,false);
+                }
+                else {
+					renderer.renderProgressBar(
+						iterMap->second.first,
+						//10,
+						//yLocation,
+						xLocation,
+						yLocation,
+						CoreData::getInstance().getDisplayFontSmall(),
+						185,progressLabelPrefix,false);
+                }
 
                 yLocation -= 14;
             }
