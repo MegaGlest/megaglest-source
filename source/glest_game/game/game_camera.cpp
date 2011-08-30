@@ -205,7 +205,7 @@ Quad2i GameCamera::computeVisibleQuad() const {
 //	float nearDist = 20.f;
 //	float dist = pos.y > 20.f ? pos.y * 1.2f : 20.f;
 //	float farDist = 90.f * (pos.y > 20.f ? pos.y / 15.f : 1.f);
-	float nearDist = 20.f;
+	float nearDist = 15.f;
 	float dist = pos.y > nearDist ? pos.y * 1.2f : nearDist;
 	float farDist = 90.f * (pos.y > nearDist ? pos.y / 15.f : 1.f);
 	const float viewDegree = 180.f;
@@ -230,8 +230,12 @@ Quad2i GameCamera::computeVisibleQuad() const {
 	Vec2i p3(static_cast<int>(p.x + v2.x * nearDist), static_cast<int>(p.y + v2.y * nearDist));
 	Vec2i p4(static_cast<int>(p.x + v2.x * farDist), static_cast<int>(p.y + v2.y * farDist));
 
+	const bool debug = false;
+
 	Quad2i result;
 	if (hAng >= 135 && hAng <= 225) {
+		if(debug) printf("Line %d  hAng [%f] fov [%f]\n",__LINE__,hAng,fov);
+
 		result = Quad2i(p1, p2, p3, p4);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
@@ -239,6 +243,8 @@ Quad2i GameCamera::computeVisibleQuad() const {
 		}
 	}
 	else if (hAng >= 45 && hAng <= 135) {
+		if(debug) printf("Line %d  hAng [%f] fov [%f]\n",__LINE__,hAng,fov);
+
 		result = Quad2i(p3, p1, p4, p2);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
@@ -246,6 +252,8 @@ Quad2i GameCamera::computeVisibleQuad() const {
 		}
 	}
 	else if (hAng >= 225 && hAng <= 315) {
+		if(debug) printf("Line %d  hAng [%f] fov [%f]\n",__LINE__,hAng,fov);
+
 		result = Quad2i(p2, p4, p1, p3);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
@@ -253,6 +261,8 @@ Quad2i GameCamera::computeVisibleQuad() const {
 		}
 	}
 	else {
+		if(debug) printf("Line %d  hAng [%f] fov [%f]\n",__LINE__,hAng,fov);
+
 		result = Quad2i(p4, p3, p2, p1);
 		if(MaxVisibleQuadItemCache != 0 &&
 		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {

@@ -2055,13 +2055,27 @@ void Game::render2d(){
 
 		//visible quad
 		Quad2i visibleQuad= renderer.getVisibleQuad();
+		Quad2i visibleQuadCamera= renderer.getVisibleQuadFromCamera();
 
-		str+= "Visible quad: ";
+		str+= "Visible quad:        ";
 		for(int i= 0; i<4; ++i){
 			str+= "(" + intToStr(visibleQuad.p[i].x) + "," +intToStr(visibleQuad.p[i].y) + ") ";
 		}
 		str+= "\n";
-		str+= "Visible quad area: " + floatToStr(visibleQuad.area()) +"\n";
+		str+= "Visible quad camera: ";
+		for(int i= 0; i<4; ++i){
+			str+= "(" + intToStr(visibleQuadCamera.p[i].x) + "," +intToStr(visibleQuadCamera.p[i].y) + ") ";
+		}
+		str+= "\n";
+
+		str+= "Visible quad area:        " + floatToStr(visibleQuad.area()) +"\n";
+		str+= "Visible quad camera area: " + floatToStr(visibleQuadCamera.area()) +"\n";
+
+//		Rect2i boundingRect= visibleQuad.computeBoundingRect();
+//		Rect2i scaledRect= boundingRect/Map::cellScale;
+//		scaledRect.clamp(0, 0, world.getMap()->getSurfaceW()-1, world.getMap()->getSurfaceH()-1);
+//		renderer.renderText3D("#1", coreData.getMenuFontNormal3D(), Vec3f(1.0f), scaledRect.p[0].x, scaledRect.p[0].y, false);
+//		renderer.renderText3D("#2", coreData.getMenuFontNormal3D(), Vec3f(1.0f), scaledRect.p[1].x, scaledRect.p[1].y, false);
 
 		int totalUnitcount = 0;
 		for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -2151,12 +2165,6 @@ void Game::render2d(){
 				renderer.renderUnitTitles(coreData.getMenuFontNormal(),Vec3f(1.0f));
 			}
 		}
-
-//		renderer.renderText3D("#1", coreData.getMenuFontNormal3D(), Vec3f(1.0f), renderer.getVisibleQuad().p[0].x, renderer.getVisibleQuad().p[0].y, false);
-//		renderer.renderText3D("#2", coreData.getMenuFontNormal3D(), Vec3f(1.0f), renderer.getVisibleQuad().p[1].x, renderer.getVisibleQuad().p[1].y, false);
-//		renderer.renderText3D("#3", coreData.getMenuFontNormal3D(), Vec3f(1.0f), renderer.getVisibleQuad().p[2].x, renderer.getVisibleQuad().p[2].y, false);
-//		renderer.renderText3D("#4", coreData.getMenuFontNormal3D(), Vec3f(1.0f), renderer.getVisibleQuad().p[3].x, renderer.getVisibleQuad().p[3].y, false);
-
 	}
 
 	//network status

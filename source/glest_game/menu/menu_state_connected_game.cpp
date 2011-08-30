@@ -2153,14 +2153,16 @@ void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 						char szCharText[20]="";
 						sprintf(szCharText,"%c",key);
 						char *utfStr = String::ConvertToUTF8(&szCharText[0]);
-						text.insert(text.end() -1, utfStr[0]);
-						delete [] utfStr;
+						if(utfStr != NULL) {
+							text.insert(text.end() -1, utfStr[0]);
+							delete [] utfStr;
 
-						activeInputLabel->setText(text);
+							activeInputLabel->setText(text);
 
-						switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
-			            needToSetChangedGameSettings = true;
-			            lastSetChangedGameSettings   = time(NULL);
+							switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
+				            needToSetChangedGameSettings = true;
+				            lastSetChangedGameSettings   = time(NULL);
+						}
 					}
 				}
 			}

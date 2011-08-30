@@ -218,6 +218,7 @@ private:
 	int triangleCount;
 	int pointCount;
 	Quad2i visibleQuad;
+	Quad2i visibleQuadFromCamera;
 	Vec4f nearestLightPos;
 	VisibleQuadContainerCache quadCache;
 
@@ -466,6 +467,7 @@ public:
 	void loadConfig();
 	void saveScreen(const string &path);
 	Quad2i getVisibleQuad() const		{return visibleQuad;}
+	Quad2i getVisibleQuadFromCamera() const		{return visibleQuadFromCamera;}
 	void renderTeamColorPlane();
 	void renderTeamColorCircle();
 
