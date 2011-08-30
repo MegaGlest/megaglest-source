@@ -714,48 +714,57 @@ void Renderer::loadCameraMatrix(const Camera *camera) {
 	glTranslatef(-position.x, -position.y, -position.z);
 }
 
-static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble* projection,const GLint* viewport,const bool roundDown, const char* label=NULL) {
-	Vec3d nearClipWorld,farClipWorld;
-	gluUnProject(pt.x,viewport[3]-pt.y,0,model,projection,viewport,&nearClipWorld.x,&nearClipWorld.y,&nearClipWorld.z);
-	gluUnProject(pt.x,viewport[3]-pt.y,1,model,projection,viewport,&farClipWorld.x,&farClipWorld.y,&farClipWorld.z);
+enum PROJECTION_TO_INFINITY { D_IS_ZERO, N_OVER_D_IS_OUTSIDE };
+
+static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble* projection,const GLint* viewport,const char* label=NULL) {
+	Vec3d a,b;
+	gluUnProject(pt.x,viewport[3]-pt.y,0,model,projection,viewport,&a.x,&a.y,&a.z);
+	gluUnProject(pt.x,viewport[3]-pt.y,1,model,projection,viewport,&b.x,&b.y,&b.z);
 	// junk values if you were looking parallel to the XZ plane; this shouldn't happen as the camera can't do this?
-	const Vec3f	start(nearClipWorld.x,nearClipWorld.y,nearClipWorld.z),
-	            stop(farClipWorld.x,farClipWorld.y,farClipWorld.z),
-	            plane(0,0,0),
-	            norm(0,1,0),
-	            u = stop-start,
-	            w = start-plane;
+	const Vec3f
+		start(a.x,a.y,a.z),
+		stop(b.x,b.y,b.z),
+		plane(0,0,0),
+		norm(0,1,0),
+		u = stop-start,
+		w = start-plane;
+	const float d = norm.x*u.x + norm.y*u.y + norm.z*u.z;
+#ifdef USE_STREFLOP
+	if(streflop::fabs(d) < 0.00001)
+#else
+	if(fabs(d) < 0.00001)
+#endif
+		throw D_IS_ZERO;
 
-	const float	d = norm.x * u.x + norm.y * u.y + norm.z * u.z,
-	            n = -(norm.x * w.x + norm.y * w.y + norm.z * w.z);
-	const Vec3f i = start + u * (n / d);
+	const float nd = -(norm.x*w.x + norm.y*w.y + norm.z*w.z) / d;
+	if(nd < 0.0 || nd >= 1.0)
+		throw N_OVER_D_IS_OUTSIDE;
 
-	//printf("Will stuff: d = %f n = %f\n",d,n);
+	const Vec3f i = start + u*nd;
+	//const Vec2i pos(i.x,i.z);
 
-	Vec2i pos(i.x,i.z);
-//#ifdef USE_STREFLOP
-//	if(roundDown == true) {
-//		pos = Vec2i(streflop::floor(i.x),streflop::floor(i.z));
-//	}
-//	else {
-//		pos = Vec2i(streflop::ceil(i.x),streflop::ceil(i.z));
-//	}
-//#else
-//	if(roundDown == true) {
-//		pos = Vec2i(floor(i.x),streflop::floor(i.z));
-//	}
-//	else {
-//		pos = Vec2i(ceil(i.x),streflop::ceil(i.z));
-//	}
-//#endif
+	Vec2i pos;
+	if(strcmp(label,"tl") == 0) {
+		pos = Vec2i(streflop::floor(i.x),streflop::floor(i.z));
+	}
+	else if(strcmp(label,"tr") == 0) {
+		pos = Vec2i(streflop::ceil(i.x),streflop::floor(i.z));
+	}
+	else if(strcmp(label,"bl") == 0) {
+		pos = Vec2i(streflop::floor(i.x),streflop::ceil(i.z));
+	}
+	else if(strcmp(label,"br") == 0) {
+		pos = Vec2i(streflop::ceil(i.x),streflop::ceil(i.z));
+	}
+
 	if(false) { // print debug info
 		if(label) printf("%s ",label);
 		printf("%d,%d -> %f,%f,%f -> %f,%f,%f -> %f,%f,%f -> %d,%d\n",
-		  pt.x,pt.y,
-		  start.x,start.y,start.z,
-		  stop.x,stop.y,stop.z,
-		  i.x,i.y,i.z,
-		  pos.x,pos.y);
+			pt.x,pt.y,
+			start.x,start.y,start.z,
+			stop.x,stop.y,stop.z,
+			i.x,i.y,i.z,
+			pos.x,pos.y);
 	}
 	return pos;
 }
@@ -764,39 +773,125 @@ void Renderer::computeVisibleQuad() {
 	const GameCamera *gameCamera = game->getGameCamera();
 	visibleQuad = gameCamera->computeVisibleQuad();
 
-//	const bool debug = false;
-//	if(debug) {
-//		visibleQuad = gameCamera->computeVisibleQuad();
-//		printf("Camera: %d,%d %d,%d %d,%d %d,%d hAng [%f] fov [%f]\n",
-//		  visibleQuad.p[0].x,visibleQuad.p[0].y,
-//		  visibleQuad.p[1].x,visibleQuad.p[1].y,
-//		  visibleQuad.p[2].x,visibleQuad.p[2].y,
-//		  visibleQuad.p[3].x,visibleQuad.p[3].y,
-//		  gameCamera->getHAng(),
-//		  gameCamera->getFov());
-//	}
-//	// compute the four corners using OpenGL
-//	GLdouble model[16], projection[16];
-//	GLint viewport[4];
-//	glGetDoublev(GL_MODELVIEW_MATRIX,model);
-//	glGetDoublev(GL_PROJECTION_MATRIX,projection);
-//	glGetIntegerv(GL_VIEWPORT,viewport);
-//	const Vec2i
-//	tl = _unprojectMap(Vec2i(0,0),model,projection,viewport,true, "tl"),
-//	tr = _unprojectMap(Vec2i(viewport[2],0),model,projection,viewport,false, "tr"),
-//	br = _unprojectMap(Vec2i(viewport[2],viewport[3]),model,projection,viewport,false, "br"),
-//	bl = _unprojectMap(Vec2i(0,viewport[3]),model,projection,viewport,true, "bl");
-//	// set it as the frustum
-//	visibleQuad = Quad2i(tl,bl,tr,br); // strange order
-//	if(debug) {
-//		printf("Will:   %d,%d %d,%d %d,%d %d,%d\n",
-//		  visibleQuad.p[0].x,visibleQuad.p[0].y,
-//		  visibleQuad.p[1].x,visibleQuad.p[1].y,
-//		  visibleQuad.p[2].x,visibleQuad.p[2].y,
-//		  visibleQuad.p[3].x,visibleQuad.p[3].y);
-//	}
+	const bool newVisibleQuadCalc = false;
+	if(newVisibleQuadCalc) {
+		const bool debug = false;
+		try {
+			if(debug) {
+				visibleQuad = gameCamera->computeVisibleQuad();
+				printf("Camera: %d,%d %d,%d %d,%d %d,%d\n",
+					visibleQuad.p[0].x,visibleQuad.p[0].y,
+					visibleQuad.p[1].x,visibleQuad.p[1].y,
+					visibleQuad.p[2].x,visibleQuad.p[2].y,
+					visibleQuad.p[3].x,visibleQuad.p[3].y);
+			}
+			// compute the four corners using OpenGL
+			GLdouble model[16], projection[16];
+			GLint viewport[4];
+			glGetDoublev(GL_MODELVIEW_MATRIX,model);
+			glGetDoublev(GL_PROJECTION_MATRIX,projection);
+			glGetIntegerv(GL_VIEWPORT,viewport);
+			Vec2i
+				tl = _unprojectMap(Vec2i(0,0),model,projection,viewport,"tl"),
+				tr = _unprojectMap(Vec2i(viewport[2],0),model,projection,viewport,"tr"),
+				br = _unprojectMap(Vec2i(viewport[2],viewport[3]),model,projection,viewport,"br"),
+				bl = _unprojectMap(Vec2i(0,viewport[3]),model,projection,viewport,"bl");
+			// orientate it for map iterator
+			bool swapRequiredX = false;
+			bool swapRequiredY = false;
+			int const cellBuffer = 4;
+			if((tl.x > tr.x) || (bl.x > br.x)) {
+				if(debug) printf("Swap X???\n");
 
-	//visibleQuad = gameCamera->computeVisibleQuad();
+				//std::swap(tl,bl);
+				//std::swap(tr,br);
+				if(tl.x > tr.x) {
+					if(debug) printf("Swap X1???\n");
+
+					tr.x += cellBuffer;
+					tl.x -= cellBuffer;
+
+					std::swap(tl.x,tr.x);
+					swapRequiredX = true;
+				}
+				else {
+					tl.x += cellBuffer;
+					tr.x -= cellBuffer;
+				}
+				if(bl.x > br.x) {
+					if(debug) printf("Swap X2???\n");
+
+					bl.x += cellBuffer;
+					br.x -= cellBuffer;
+
+					std::swap(bl.x,br.x);
+					swapRequiredX = true;
+				}
+				else {
+					br.x += cellBuffer;
+					bl.x -= cellBuffer;
+				}
+			}
+
+			if((tl.y > bl.y) || (tr.y > br.y)) {
+				visibleQuad = game->getGameCamera()->computeVisibleQuad();
+
+				if(debug) printf("Swap Y???\n");
+
+				if(tl.y > bl.y) {
+					if(debug) printf("Swap Y1???\n");
+
+					tl.y += cellBuffer;
+					bl.y -= cellBuffer;
+
+					std::swap(tl.y,bl.y);
+					swapRequiredY = true;
+				}
+				else {
+					bl.y += cellBuffer;
+					tl.y -= cellBuffer;
+				}
+				if(tr.y > br.y) {
+					if(debug) printf("Swap Y2???\n");
+
+					tr.y += cellBuffer;
+					br.y -= cellBuffer;
+
+					std::swap(tr.y,br.y);
+					swapRequiredY = true;
+				}
+				else {
+					br.y += cellBuffer;
+					tr.y -= cellBuffer;
+				}
+
+
+				//std::swap(tl,tr);
+				//std::swap(bl,br);
+			}
+			if(swapRequiredY == false) {
+				tl.y -= cellBuffer;
+				tr.y -= cellBuffer;
+				bl.y += cellBuffer;
+				br.y += cellBuffer;
+			}
+
+			// set it as the frustum
+			visibleQuad = Quad2i(tl,bl,tr,br); // strange order
+			if(debug) {
+				printf("Will:   %d,%d %d,%d %d,%d %d,%d\n",
+					visibleQuad.p[0].x,visibleQuad.p[0].y,
+					visibleQuad.p[1].x,visibleQuad.p[1].y,
+					visibleQuad.p[2].x,visibleQuad.p[2].y,
+					visibleQuad.p[3].x,visibleQuad.p[3].y);
+			}
+		}
+		catch(PROJECTION_TO_INFINITY e) {
+			if(debug) printf("hmm staring at the horizon %d\n",(int)e);
+			// use historic code solution
+			visibleQuad = game->getGameCamera()->computeVisibleQuad();
+		}
+	}
 }
 
 // =======================================

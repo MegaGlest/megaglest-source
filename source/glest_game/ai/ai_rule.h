@@ -84,7 +84,7 @@ public:
 	AiRuleRefreshHarvester(Ai *ai);
 	
 	virtual int getTestInterval() const	{return 20000;}
-	virtual string getName() const		{return "Worker reasigned to needed resource";}
+	virtual string getName() const		{return "Worker reassigned to needed resource";}
 
 	virtual bool test();
 	virtual void execute();
