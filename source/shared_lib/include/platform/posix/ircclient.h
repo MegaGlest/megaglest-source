@@ -36,6 +36,8 @@ enum IRCEventType {
     IRC_evt_exitThread = 1
 };
 
+void normalizeNick(char *nick);
+
 class IRCCallbackInterface {
 public:
     virtual void IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count) = 0;

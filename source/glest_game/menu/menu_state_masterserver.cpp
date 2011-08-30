@@ -253,6 +253,8 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     string netPlayerName=Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
     string ircname=netPlayerName.substr(0,9);
     sprintf(szIRCNick,"MG_%s_%d",ircname.c_str(),randomNickId);
+    normalizeNick(szIRCNick);
+
     currentIrcNick=ircname;
     consoleIRC.setStringToHighlight(currentIrcNick);
 

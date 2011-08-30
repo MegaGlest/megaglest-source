@@ -555,4 +555,51 @@ void IRCThread::execute() {
 	delete this;
 }
 
+void normalizeNick(char *nick) {
+	// http://tools.ietf.org/html/rfc1459#section-2.3.1
+//	<target>     ::= <to> [ "," <target> ]
+//	   <to>         ::= <channel> | <user> '@' <servername> | <nick> | <mask>
+//	   <channel>    ::= ('#' | '&') <chstring>
+//	   <servername> ::= <host>
+//	   <host>       ::= see RFC 952 [DNS:4] for details on allowed hostnames
+//	   <nick>       ::= <letter> { <letter> | <number> | <special> }
+//	   <mask>       ::= ('#' | '$') <chstring>
+//	   <chstring>   ::= <any 8bit code except SPACE, BELL, NUL, CR, LF and
+//	                     comma (',')>
+//
+//	   Other parameter syntaxes are:
+//
+//	   <user>       ::= <nonwhite> { <nonwhite> }
+//	   <letter>     ::= 'a' ... 'z' | 'A' ... 'Z'
+//	   <number>     ::= '0' ... '9'
+//	   <special>    ::= '-' | '[' | ']' | '\' | '`' | '^' | '{' | '}'
+
+	if(nick != NULL && strlen(nick) > 0) {
+		char *newNick = new char[strlen(nick)+1];
+		memset(newNick,0,strlen(nick)+1);
+		bool nickChanged = false;
+
+		for(int i = 0; i < strlen(nick); ++i) {
+			if(nick[i] == '-' || nick[i] == '[' || nick[i] == ']' || nick[i] == '_' ||
+			   nick[i] == '\\' || nick[i] == '`' || nick[i] == '^' ||
+			   nick[i] == '{' || nick[i] == '}' ||
+			   (nick[i] >= '0' && nick[i] <= '9') ||
+			   (nick[i] >= 'a' && nick[i] <= 'z') ||
+			   (nick[i] >= 'A' && nick[i] <= 'Z')) {
+				strncat(newNick,&nick[i],1);
+			}
+			else {
+				strcat(newNick,"-");
+				nickChanged = true;
+			}
+		}
+
+		if(nickChanged == true) {
+			strcpy(nick,newNick);
+		}
+
+		delete [] newNick;
+	}
+}
+
 }}//end namespace
