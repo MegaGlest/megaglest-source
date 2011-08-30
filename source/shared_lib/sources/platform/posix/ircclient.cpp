@@ -329,9 +329,9 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
                                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC: user joined channel realNick [%s] tokens[j] [%s]\n", realNick,tokens[j].c_str());
 
                                 // Only show Megaglest users in the user list
-                                if(strncmp(&realNick[0],"MG_",3) == 0) {
-                                	nickList.push_back(realNick);
-                                }
+                                //if(strncmp(&realNick[0],"MG_",3) == 0) {
+                                nickList.push_back(realNick);
+                                //}
                             }
                         }
                     }
