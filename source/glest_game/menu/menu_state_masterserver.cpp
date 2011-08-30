@@ -480,7 +480,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     	}
 	    if(!clicked && userScrollBar.getElementCount()!=0){
 	    	for(int i = userScrollBar.getVisibleStart(); i <= userScrollBar.getVisibleEnd(); ++i) {
-	       		if(userButtons[i]->mouseClick(x, y)) {
+	       		if(userButtons[i]->getEnabled() == true && userButtons[i]->mouseClick(x, y)) {
 	       			clicked=true;
 	     			if(!chatManager.getEditEnabled())
 	     			{
@@ -523,7 +523,9 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
     }
     if(userScrollBar.getElementCount()!=0 ) {
     	for(int i = userScrollBar.getVisibleStart(); i <= userScrollBar.getVisibleEnd(); ++i) {
-    		userButtons[i]->mouseMove(x, y);
+    		if(userButtons[i]->getEnabled() == true) {
+    			userButtons[i]->mouseMove(x, y);
+    		}
     	}
     }
 
@@ -684,6 +686,13 @@ void MenuStateMasterserver::update() {
 					button->setFont(CoreData::getInstance().getDisplayFontSmall());
 					button->setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 					button->setText(nickList[i]);
+					if(strncmp(&nickList[i][0],"MG_",3) != 0) {
+						button->setEnabled(false);
+						button->setEditable(false);
+						button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+						button->setUseCustomTexture(true);
+					}
+
 	                userButtons.push_back(button);
 	        }
 	        userScrollBar.setElementCount(userButtons.size());
