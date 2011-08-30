@@ -1633,6 +1633,8 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 		//pos.y += (lineHeight / 2.f); // y starts at the middle of the render position, so only move up 1/2 the font height
 
 		if(lineHeight < h) {
+			//printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
+
 			//int realHeight = lineHeight + (h - lineHeight);
 			// First go to top of bounding box
 			pos.y += (h - lineHeight);
@@ -1642,6 +1644,15 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			// Now calculate till we get text to middle
 			//pos.y -= (realHeight / 2);
 			//pos.y += (lineHeight / 2);
+		}
+		else if(lineHeight > h) {
+			//printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
+
+#ifdef USE_STREFLOP
+			pos.y += (streflop::ceil((float)lineHeight - (float)h));
+#else
+			pos.y += (ceil(lineHeight - h));
+#endif
 		}
 	}
 	return pos;
@@ -5804,7 +5815,7 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 void Renderer::renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth,
 		string prefixLabel,bool centeredText) {
 
-	int progressbarHeight	= 10;
+	int progressbarHeight	= 12;
     int currentSize     	= size;
     int maxSize         	= maxProgressBar;
     string renderText   	= intToStr(static_cast<int>(size)) + "%";

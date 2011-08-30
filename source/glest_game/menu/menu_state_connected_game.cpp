@@ -1023,12 +1023,22 @@ void MenuStateConnectedGame::render() {
                 string progressLabelPrefix = lang.get("ModDownloading") + " " + iterMap->first + " ";
                 //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nRendering file progress with the following prefix [%s]\n",progressLabelPrefix.c_str());
 
-                renderer.renderProgressBar(
-                    iterMap->second.first,
-                    10,
-                    yLocation,
-                    CoreData::getInstance().getDisplayFontSmall(),
-                    350,progressLabelPrefix);
+                if(Renderer::renderText3DEnabled) {
+					renderer.renderProgressBar3D(
+						iterMap->second.first,
+						10,
+						yLocation,
+						CoreData::getInstance().getDisplayFontSmall3D(),
+						350,progressLabelPrefix);
+                }
+                else {
+					renderer.renderProgressBar(
+						iterMap->second.first,
+						10,
+						yLocation,
+						CoreData::getInstance().getDisplayFontSmall(),
+						350,progressLabelPrefix);
+                }
 
                 yLocation -= 10;
             }
