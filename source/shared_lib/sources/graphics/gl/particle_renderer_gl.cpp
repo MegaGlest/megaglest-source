@@ -265,7 +265,7 @@ void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
 		float t = ps->getTween();
 
 		if(t < 0.0f || t > 1.0f) {
-			printf("ERROR setting tween to [%f]\n",t);
+			printf("In [%s::%s Line: %d] ERROR setting tween to [%f]\n",__FILE__,__FUNCTION__,__LINE__,t);
 			assert(t >= 0.0f && t <= 1.0f);
 		}
 		model->updateInterpolationData(t, false);
