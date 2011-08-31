@@ -404,49 +404,50 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,
 	if(settings == NULL) {
 		result = "";
 	}
-	string mapName			= settings->getMap();
-	string tilesetName		= settings->getTileset();
-	string techName			= settings->getTech();
-	string scenarioName		= settings->getScenario();
-	bool loadingImageUsed	= false;
+	else {
+		string mapName			= settings->getMap();
+		string tilesetName		= settings->getTileset();
+		string techName			= settings->getTech();
+		string scenarioName		= settings->getScenario();
+		bool loadingImageUsed	= false;
 
-	if(logger != NULL) {
-		logger->setState(Lang::getInstance().get("Loading"));
+		if(logger != NULL) {
+			logger->setState(Lang::getInstance().get("Loading"));
 
-		if(scenarioName.empty()) {
-			logger->setSubtitle(formatString(mapName) + " - " +
-					formatString(tilesetName) + " - " + formatString(techName));
-		}
-		else {
-			logger->setSubtitle(formatString(scenarioName));
-		}
-	}
-
-	string scenarioDir = "";
-	bool skipCustomLoadScreen = false;
-	if(skipCustomLoadScreen == false) {
-		scenarioDir = extractScenarioLogoFile(settings, result, loadingImageUsed,
-				logger, factionLogoFilter);
-	}
-	// try to use a faction related loading screen
-	if(skipCustomLoadScreen == false && loadingImageUsed == false) {
-		for(int i=0; i < settings->getFactionCount(); ++i ) {
-			if( settings->getFactionControl(i) == ctHuman ||
-				(settings->getFactionControl(i) == ctNetwork && settings->getThisFactionIndex() == i)) {
-
-				result = extractFactionLogoFile(loadingImageUsed, settings->getFactionTypeName(i),
-					scenarioDir, techName, logger, factionLogoFilter);
-				break;
+			if(scenarioName.empty()) {
+				logger->setSubtitle(formatString(mapName) + " - " +
+						formatString(tilesetName) + " - " + formatString(techName));
+			}
+			else {
+				logger->setSubtitle(formatString(scenarioName));
 			}
 		}
-	}
 
-	// try to use a tech related loading screen
-	if(skipCustomLoadScreen == false && loadingImageUsed == false){
-		result = extractTechLogoFile(scenarioDir, techName,
-				loadingImageUsed, logger, factionLogoFilter);
-	}
+		string scenarioDir = "";
+		bool skipCustomLoadScreen = false;
+		if(skipCustomLoadScreen == false) {
+			scenarioDir = extractScenarioLogoFile(settings, result, loadingImageUsed,
+					logger, factionLogoFilter);
+		}
+		// try to use a faction related loading screen
+		if(skipCustomLoadScreen == false && loadingImageUsed == false) {
+			for(int i=0; i < settings->getFactionCount(); ++i ) {
+				if( settings->getFactionControl(i) == ctHuman ||
+					(settings->getFactionControl(i) == ctNetwork && settings->getThisFactionIndex() == i)) {
 
+					result = extractFactionLogoFile(loadingImageUsed, settings->getFactionTypeName(i),
+						scenarioDir, techName, logger, factionLogoFilter);
+					break;
+				}
+			}
+		}
+
+		// try to use a tech related loading screen
+		if(skipCustomLoadScreen == false && loadingImageUsed == false){
+			result = extractTechLogoFile(scenarioDir, techName,
+					loadingImageUsed, logger, factionLogoFilter);
+		}
+	}
 	return result;
 }
 

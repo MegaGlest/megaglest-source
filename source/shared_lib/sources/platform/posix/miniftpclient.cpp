@@ -99,6 +99,13 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
 
         out->isValidXfer = true;
     }
+    else if(out == NULL) {
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> #2 FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> #2 FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
+        SystemFlags::OutputDebug(SystemFlags::debugError,"===> #2 FTP Client thread FAILED to open file for writing [%s]\n",fullFilePath.c_str());
+        return -1; /* failure, can't open file to write */
+    }
+
     size_t result = fwrite(buffer, size, nmemb, out->stream);
     if(result != nmemb) {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Client thread FAILED to write data chunk to file [%s] nmemb = %lu, result = %lu\n",fullFilePath.c_str(),nmemb,result);

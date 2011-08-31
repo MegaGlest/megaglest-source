@@ -2312,7 +2312,8 @@ void BroadCastSocketThread::execute() {
     PLATFORM_SOCKET bcfd[MAX_NIC_COUNT];                // The socket used for the broadcast.
     bool one = true;            // Parameter for "setscokopt".
     int pn=0;                     // The number of the packet broadcasted.
-    char buff[1024]="";            // Buffers the data to be broadcasted.
+    const int buffMaxSize=1024;
+    char buff[buffMaxSize]="";            // Buffers the data to be broadcasted.
     char myhostname[100]="";       // hostname of local machine
     //char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
     struct hostent* myhostent=NULL;
@@ -2375,14 +2376,16 @@ void BroadCastSocketThread::execute() {
 					// Send this machine's host name and address in hostname:n.n.n.n format
 					sprintf(buff,"%s",myhostname);
 					for(unsigned int idx1 = 0; idx1 < ipList.size(); idx1++) {
-						sprintf(buff,"%s:%s",buff,ipList[idx1].c_str());
+						//sprintf(buff,"%s:%s",buff,ipList[idx1].c_str());
+						strcat(buff,":");
+						strcat(buff,ipList[idx1].c_str());
 					}
 
 					if(difftime(time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
 						elapsed = time(NULL);
 						// Broadcast the packet to the subnet
 						//if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
-						if( sendto( bcfd[idx], buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 ) {
+						if( sendto( bcfd[idx], buff, buffMaxSize, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) ) != buffMaxSize ) {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %s\n", getLastSocketErrorFormattedText().c_str());
 						}
 						else {

@@ -59,7 +59,7 @@ namespace Shared { namespace Util {
         wcstombs_s(&i, &b[0], l, v, l);
         #endif
         append(b);
-        delete b;
+        delete [] b;
         return *this;
     }
 

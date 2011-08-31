@@ -823,6 +823,8 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		FileHeader fileHeader;
 		size_t readBytes = fread(&fileHeader, sizeof(FileHeader), 1, f);
 		if(strncmp(reinterpret_cast<char*>(fileHeader.id), "G3D", 3) != 0) {
+			fclose(f);
+			f = NULL;
 		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",__FILE__,__FUNCTION__,path.c_str(),reinterpret_cast<char*>(fileHeader.id),fileHeader.id[0]);
 			throw runtime_error("Not a valid G3D model");
 		}
