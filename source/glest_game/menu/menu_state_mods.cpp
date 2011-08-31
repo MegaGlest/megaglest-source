@@ -90,38 +90,38 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	//create
 	techInfoXPos = 10;
 	keyTechScrollBarTitle1.registerGraphicComponent(containerName,"keyTechScrollBarTitle1");
-	keyTechScrollBarTitle1.init(techInfoXPos,scrollListsYPos + 20,labelWidth,20);
+	keyTechScrollBarTitle1.init(techInfoXPos,scrollListsYPos + 25,labelWidth,20);
 	keyTechScrollBarTitle1.setText(lang.get("TechTitle1"));
 	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTechScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	keyTechScrollBarTitle2.registerGraphicComponent(containerName,"keyTechScrollBarTitle2");
-	keyTechScrollBarTitle2.init(techInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
+	keyTechScrollBarTitle2.init(techInfoXPos + 200,scrollListsYPos + 25,labelWidth,20);
 	keyTechScrollBarTitle2.setText(lang.get("TechTitle2"));
 	keyTechScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
 	keyTechScrollBarTitle2.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	mapInfoXPos = 270;
 	keyMapScrollBarTitle1.registerGraphicComponent(containerName,"keyMapScrollBarTitle1");
-	keyMapScrollBarTitle1.init(mapInfoXPos,scrollListsYPos + 20,labelWidth,20);
+	keyMapScrollBarTitle1.init(mapInfoXPos,scrollListsYPos + 25,labelWidth,20);
 	keyMapScrollBarTitle1.setText(lang.get("MapTitle1"));
 	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyMapScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	keyMapScrollBarTitle2.registerGraphicComponent(containerName,"keyMapScrollBarTitle2");
-	keyMapScrollBarTitle2.init(mapInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
+	keyMapScrollBarTitle2.init(mapInfoXPos + 200,scrollListsYPos + 25,labelWidth,20);
 	keyMapScrollBarTitle2.setText(lang.get("MapTitle2"));
 	keyMapScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
 	keyMapScrollBarTitle2.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	tilesetInfoXPos = 530;
 	keyTilesetScrollBarTitle1.registerGraphicComponent(containerName,"keyTilesetScrollBarTitle1");
-	keyTilesetScrollBarTitle1.init(tilesetInfoXPos,scrollListsYPos + 20,labelWidth,20);
+	keyTilesetScrollBarTitle1.init(tilesetInfoXPos,scrollListsYPos + 25,labelWidth,20);
 	keyTilesetScrollBarTitle1.setText(lang.get("TilesetTitle1"));
 	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTilesetScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	scenarioInfoXPos = 760;
 	keyScenarioScrollBarTitle1.registerGraphicComponent(containerName,"keyScenarioScrollBarTitle1");
-	keyScenarioScrollBarTitle1.init(scenarioInfoXPos,scrollListsYPos + 20,labelWidth,20);
+	keyScenarioScrollBarTitle1.init(scenarioInfoXPos,scrollListsYPos + 25,labelWidth,20);
 	keyScenarioScrollBarTitle1.setText(lang.get("ScenarioTitle1"));
 	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyScenarioScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -148,6 +148,32 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	lineVerticalReturn.init(buttonReturn.getX() - 10, returnLineY-80, 5, 81);
 	lineVerticalReturn.setHorizontal(false);
+
+	int buttonposY= returnLineY+40;
+	buttonInstalled.registerGraphicComponent(containerName,"buttonInstalled");
+	buttonInstalled.init(10, buttonposY, 200);
+	buttonInstalled.setText(lang.get("ModInstalled"));
+	buttonInstalled.setUseCustomTexture(true);
+	buttonInstalled.setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+	buttonInstalled.setEnabled(false);
+
+	buttonAvailable.registerGraphicComponent(containerName,"buttonAvailable");
+	buttonAvailable.init(250, buttonposY, 200);
+	buttonAvailable.setUseCustomTexture(true);
+	buttonAvailable.setCustomTexture(CoreData::getInstance().getOnServerTexture());
+	buttonAvailable.setText(lang.get("ModAvailable"));
+
+	buttonOnlyLocal.registerGraphicComponent(containerName,"buttonOnlyLocal");
+	buttonOnlyLocal.init(10, buttonposY-30, 200);
+	buttonOnlyLocal.setUseCustomTexture(true);
+	buttonOnlyLocal.setCustomTexture(CoreData::getInstance().getNotOnServerTexture());
+	buttonOnlyLocal.setText(lang.get("ModOnlyLocal"));
+
+	buttonConflict.registerGraphicComponent(containerName,"buttonConflict");
+	buttonConflict.init(250, buttonposY-30, 200);
+	buttonConflict.setUseCustomTexture(true);
+	buttonConflict.setCustomTexture(CoreData::getInstance().getOnServerDifferentTexture());
+	buttonConflict.setText(lang.get("ModHasConflict"));
 
 	buttonInstallTech.registerGraphicComponent(containerName,"buttonInstallTech");
 	buttonInstallTech.init(techInfoXPos + 40, installButtonYPos, 125);
@@ -1777,6 +1803,11 @@ void MenuStateMods::render() {
 		renderer.renderButton(&buttonRemoveMap);
 		renderer.renderButton(&buttonInstallScenario);
 		renderer.renderButton(&buttonRemoveScenario);
+
+		renderer.renderButton(&buttonInstalled);
+		renderer.renderButton(&buttonAvailable);
+		//renderer.renderButton(&buttonConflict);
+		renderer.renderButton(&buttonOnlyLocal);
 
 		renderer.renderLabel(&modDescrLabel);
 		string tempImage = getPreviewImageFileForMod(&modInfoSelected);
