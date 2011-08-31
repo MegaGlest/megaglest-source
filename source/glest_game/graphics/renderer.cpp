@@ -6076,26 +6076,28 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 
 		for(int idx = 0; idx < visibleFrameUnitList.size(); idx++) {
 			const Unit *unit = visibleFrameUnitList[idx];
-			if(unit != NULL && unit->getVisible() == true) {
-				if(unit != NULL && unit->getCurrentUnitTitle() != "") {
-					//get the screen coordinates
-					Vec3f screenPos = unit->getScreenPos();
+			if(unit != NULL) {
+				if(unit->getVisible() == true) {
+					if(unit != NULL && unit->getCurrentUnitTitle() != "") {
+						//get the screen coordinates
+						Vec3f screenPos = unit->getScreenPos();
 	#ifdef USE_STREFLOP
-					renderText3D(unit->getCurrentUnitTitle(), font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+						renderText3D(unit->getCurrentUnitTitle(), font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
 	#else
-					renderText3D(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+						renderText3D(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
 	#endif
 
-					unitRenderedList[unit->getId()] = true;
-				}
-				else {
-					string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
-					Vec3f screenPos = unit->getScreenPos();
+						unitRenderedList[unit->getId()] = true;
+					}
+					else {
+						string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
+						Vec3f screenPos = unit->getScreenPos();
 	#ifdef USE_STREFLOP
-					renderText3D(str, font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+						renderText3D(str, font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
 	#else
-					renderText3D(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+						renderText3D(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
 	#endif
+					}
 				}
 			}
 		}
