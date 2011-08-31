@@ -1401,24 +1401,27 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			//if(Window::isKeyDown() == false)
 			if(!camLeftButtonDown && !camRightButtonDown && !camUpButtonDown && !camDownButtonDown)
 			{
-				if (y < 10) {
-					gameCamera.setMoveZ(-scrollSpeed);
-				}
-				else if (y > metrics.getVirtualH() - 10) {
-					gameCamera.setMoveZ(scrollSpeed);
-				}
-				else {
-					gameCamera.setMoveZ(0);
-				}
+				bool mouseMoveScrollsWorld = Config::getInstance().getBool("MouseMoveScrollsWorld","true");
+				if(mouseMoveScrollsWorld == true) {
+					if (y < 10) {
+						gameCamera.setMoveZ(-scrollSpeed);
+					}
+					else if (y > metrics.getVirtualH() - 10) {
+						gameCamera.setMoveZ(scrollSpeed);
+					}
+					else {
+						gameCamera.setMoveZ(0);
+					}
 
-				if (x < 10) {
-					gameCamera.setMoveX(-scrollSpeed);
-				}
-				else if (x > metrics.getVirtualW() - 10) {
-					gameCamera.setMoveX(scrollSpeed);
-				}
-				else {
-					gameCamera.setMoveX(0);
+					if (x < 10) {
+						gameCamera.setMoveX(-scrollSpeed);
+					}
+					else if (x > metrics.getVirtualW() - 10) {
+						gameCamera.setMoveX(scrollSpeed);
+					}
+					else {
+						gameCamera.setMoveX(0);
+					}
 				}
 			}
 
