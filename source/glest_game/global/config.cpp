@@ -116,10 +116,15 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     	fileName.second = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.second;
     }
 
-    bool foundPath = false;
+    string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
+  	bool foundPath = tryCustomPath(cfgType, fileName, currentpath);
+
 #if defined(CUSTOM_DATA_INSTALL_PATH)
-    foundPath = tryCustomPath(cfgType, fileName, CUSTOM_DATA_INSTALL_PATH);
+  	if(foundPath == false) {
+  		foundPath = tryCustomPath(cfgType, fileName, CUSTOM_DATA_INSTALL_PATH);
+  	}
 #endif
+
     // Look in standard linux shared paths for ini files
 #if defined(__linux__)
     if(foundPath == false) {
@@ -137,7 +142,7 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 #endif
 
     if(fileMustExist.first == true && fileExists(fileName.first) == false) {
-    	string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
+    	//string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
     	fileName.first = currentpath + fileName.first;
     }
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= About to load fileName.first = [%s]\n",fileName.first.c_str());
