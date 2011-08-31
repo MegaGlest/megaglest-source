@@ -86,9 +86,9 @@ void MainMenu::init() {
 //asynchronus render update
 void MainMenu::render() {
 
-	Config &config= Config::getInstance();
+	//Config &config= Config::getInstance();
 	Renderer &renderer= Renderer::getInstance();
-	CoreData &coreData= CoreData::getInstance();
+	//CoreData &coreData= CoreData::getInstance();
 
 	//fps++;
 	canRender();

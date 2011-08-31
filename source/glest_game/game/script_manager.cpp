@@ -220,7 +220,7 @@ void ScriptManager::onTimerTriggerEvent() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size());
 
 	for(std::map<int,TimerTriggerEvent>::iterator iterMap = TimerTriggerEventList.begin();
-		iterMap != TimerTriggerEventList.end(); iterMap++) {
+		iterMap != TimerTriggerEventList.end(); ++iterMap) {
 
 		TimerTriggerEvent &event = iterMap->second;
 
@@ -251,7 +251,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 	inCellTriggerEvent = true;
 	if(movingUnit != NULL) {
 		for(std::map<int,CellTriggerEvent>::iterator iterMap = CellTriggerEventList.begin();
-			iterMap != CellTriggerEventList.end(); iterMap++) {
+			iterMap != CellTriggerEventList.end(); ++iterMap) {
 			CellTriggerEvent &event = iterMap->second;
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s\n",
@@ -642,7 +642,7 @@ void ScriptManager::unregisterCellTriggerEvent(int eventId) {
 	}
 
 	if(inCellTriggerEvent == false) {
-		if(unRegisterCellTriggerEventList.size() > 0) {
+		if(unRegisterCellTriggerEventList.empty() == false) {
 			for(int i = 0; i < unRegisterCellTriggerEventList.size(); ++i) {
 				int delayedEventId = unRegisterCellTriggerEventList[i];
 				if(CellTriggerEventList.find(delayedEventId) != CellTriggerEventList.end()) {

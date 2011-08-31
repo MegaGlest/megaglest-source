@@ -552,7 +552,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	renderer->renderParticleManager();
 	glCanvas->SwapBuffers();
 
-	bool haveLoadedParticles = (particleProjectilePathList.size() > 0 || particleSplashPathList.size() > 0);
+	bool haveLoadedParticles = (particleProjectilePathList.empty() == false || particleSplashPathList.empty() == false);
 
 	if(autoScreenShotAndExit == true) {
 		printf("Auto exiting app...\n");
@@ -563,7 +563,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		Close();
 		return;
 	}
-	else if((modelPathList.size() > 0) && resetAnimation && haveLoadedParticles) {
+	else if((modelPathList.empty() == false) && resetAnimation && haveLoadedParticles) {
 		if(anim >= resetAnim && resetAnim > 0) {
 			printf("RESETTING EVERYTHING [%f][%f]...\n",anim,resetAnim);
 			fflush(stdout);
@@ -647,7 +647,7 @@ void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
 
 		onPaint(paintEvent);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -664,7 +664,7 @@ void MainWindow::onMouseWheelUp(wxMouseEvent &event) {
 
 		onPaint(paintEvent);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -699,7 +699,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 		lastX= x;
 		lastY= y;
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -729,7 +729,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 		}
 		isControlKeyPressed = false;
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -763,7 +763,7 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 		}
 		isControlKeyPressed = false;
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -797,7 +797,7 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 		}
 		isControlKeyPressed = false;
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -832,7 +832,7 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 		}
 		isControlKeyPressed = false;
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -858,7 +858,7 @@ void MainWindow::OnChangeColor(wxCommandEvent &event) {
 			renderer->setBackgroundColor(col.Red()/255.0f, col.Green()/255.0f, col.Blue()/255.0f);
 		}
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -870,7 +870,7 @@ void MainWindow::onMenumFileToggleScreenshotTransparent(wxCommandEvent &event) {
         renderer->setAlphaColor(alpha);
         //printf("alpha = %f\n",alpha);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -942,7 +942,7 @@ void MainWindow::saveScreenshot() {
 			}
 		}
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -990,7 +990,7 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 
 		if(timer) timer->Start(100);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1123,7 +1123,7 @@ void MainWindow::loadUnit(string path, string skillName) {
 		SetTitle(ToUnicode(titlestring));
 	}
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1157,7 +1157,7 @@ void MainWindow::loadModel(string path) {
         }
         SetTitle(ToUnicode(titlestring));
     }
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1182,7 +1182,7 @@ void MainWindow::loadParticle(string path) {
 	}
 
 	try{
-	if(this->particlePathList.size() > 0) {
+	if(this->particlePathList.empty() == false) {
         string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
 			string particlePath = this->particlePathList[idx];
@@ -1198,8 +1198,8 @@ void MainWindow::loadParticle(string path) {
 
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
-			int size   = -1;
-			int height = -1;
+			//int size   = -1;
+			//int height = -1;
 
 			if(fileExists(unitXML) == true) {
 				XmlTree xmlTree;
@@ -1207,9 +1207,9 @@ void MainWindow::loadParticle(string path) {
 				const XmlNode *unitNode= xmlTree.getRootNode();
 				const XmlNode *parametersNode= unitNode->getChild("parameters");
 				//size
-				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
+				int size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
 				//height
-				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
+				int height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 
 
                 // std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
@@ -1247,7 +1247,7 @@ void MainWindow::loadParticle(string path) {
 		SetTitle(ToUnicode(titlestring));
 	}
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1273,7 +1273,7 @@ void MainWindow::loadProjectileParticle(string path) {
 	}
 
 	try {
-	if(this->particleProjectilePathList.size() > 0) {
+	if(this->particleProjectilePathList.empty() == false) {
         string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
 			string particlePath = this->particleProjectilePathList[idx];
@@ -1307,7 +1307,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			XmlTree xmlTree;
 			xmlTree.load(dir + folderDelimiter + particlePath,Properties::getTagReplacementValues());
-			const XmlNode *particleSystemNode= xmlTree.getRootNode();
+			//const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
@@ -1350,7 +1350,7 @@ void MainWindow::loadProjectileParticle(string path) {
 		}
 	}
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest projectile particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1376,7 +1376,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 	}
 
 	try {
-	if(this->particleSplashPathList.size() > 0) {
+	if(this->particleSplashPathList.empty() == false) {
         string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particleSplashPathList.size(); idx++) {
 			string particlePath = this->particleSplashPathList[idx];
@@ -1410,7 +1410,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 			XmlTree xmlTree;
 			xmlTree.load(dir + folderDelimiter + particlePath,Properties::getTagReplacementValues());
-			const XmlNode *particleSystemNode= xmlTree.getRootNode();
+			//const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
 
@@ -1453,7 +1453,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 		}
 	}
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest projectile particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1465,7 +1465,7 @@ void MainWindow::onMenuModeNormals(wxCommandEvent &event){
 		renderer->toggleNormals();
 		menuMode->Check(miModeNormals, renderer->getNormals());
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1476,7 +1476,7 @@ void MainWindow::onMenuModeWireframe(wxCommandEvent &event){
 		renderer->toggleWireframe();
 		menuMode->Check(miModeWireframe, renderer->getWireframe());
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1487,7 +1487,7 @@ void MainWindow::onMenuModeGrid(wxCommandEvent &event){
 		renderer->toggleGrid();
 		menuMode->Check(miModeGrid, renderer->getGrid());
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1503,7 +1503,7 @@ void MainWindow::onMenuSpeedSlower(wxCommandEvent &event){
 		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1519,7 +1519,7 @@ void MainWindow::onMenuSpeedFaster(wxCommandEvent &event){
 		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0 ) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1538,7 +1538,7 @@ void MainWindow::onMenuColorRed(wxCommandEvent &event) {
 		menuCustomColor->Check(miColorOrange, false);
 		menuCustomColor->Check(miColorMagenta, false);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1556,7 +1556,7 @@ void MainWindow::onMenuColorBlue(wxCommandEvent &event) {
 		menuCustomColor->Check(miColorOrange, false);
 		menuCustomColor->Check(miColorMagenta, false);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1574,7 +1574,7 @@ void MainWindow::onMenuColorGreen(wxCommandEvent &event) {
 		menuCustomColor->Check(miColorOrange, false);
 		menuCustomColor->Check(miColorMagenta, false);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1592,7 +1592,7 @@ void MainWindow::onMenuColorYellow(wxCommandEvent &event) {
 		menuCustomColor->Check(miColorOrange, false);
 		menuCustomColor->Check(miColorMagenta, false);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1610,7 +1610,7 @@ void MainWindow::onMenuColorWhite(wxCommandEvent &event) {
 		menuCustomColor->Check(miColorOrange, false);
 		menuCustomColor->Check(miColorMagenta, false);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1628,7 +1628,7 @@ void MainWindow::onMenuColorCyan(wxCommandEvent &event) {
 		menuCustomColor->Check(miColorOrange, false);
 		menuCustomColor->Check(miColorMagenta, false);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1646,7 +1646,7 @@ void MainWindow::onMenuColorOrange(wxCommandEvent &event) {
 		menuCustomColor->Check(miColorOrange, true);
 		menuCustomColor->Check(miColorMagenta, false);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1664,7 +1664,7 @@ void MainWindow::onMenuColorMagenta(wxCommandEvent &event) {
 		menuCustomColor->Check(miColorOrange, false);
 		menuCustomColor->Check(miColorMagenta, true);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1764,7 +1764,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 
 		std::cout << "pressed " << e.GetKeyCode() << std::endl;
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}
@@ -1795,7 +1795,7 @@ void MainWindow::onMenuRestart(wxCommandEvent &event) {
         }
         if(timer) timer->Start(100);
 	}
-	catch(std::runtime_error e) {
+	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Error"), wxOK | wxICON_ERROR).ShowModal();
 	}

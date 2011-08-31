@@ -55,6 +55,8 @@ ProgramState::ProgramState(Program *program) {
 	this->mouse2dAnim = 0;
 	this->fps= 0;
 	this->lastFps= 0;
+	this->startX=0;
+	this->startY=0;
 }
 
 void ProgramState::incrementFps() {
@@ -546,7 +548,8 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//lang
-	Lang &lang= Lang::getInstance();
+	//Lang &lang= Lang::getInstance();
+	Lang::getInstance();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

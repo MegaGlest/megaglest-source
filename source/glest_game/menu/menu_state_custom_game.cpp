@@ -186,7 +186,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 
 	string ipText = "none";
 	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
-	if(ipList.size() > 0) {
+	if(ipList.empty() == false) {
 		ipText = "";
 		for(int idx = 0; idx < ipList.size(); idx++) {
 			string ip = ipList[idx];
@@ -481,12 +481,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
         //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
         findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
 
-        if(results.size() > 0) {
+        if(results.empty() == false) {
             break;
         }
     }
 
-    if(results.size() == 0) {
+    if(results.empty() == true) {
         //throw runtime_error("(1)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
 		showGeneralError=true;
 		generalErrorToShow = "[#1] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
@@ -2052,7 +2052,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 
             CURL *handle = SystemFlags::initHTTP();
             for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
-                iterMap != newPublishToServerInfo.end(); iterMap++) {
+                iterMap != newPublishToServerInfo.end(); ++iterMap) {
 
                 request += iterMap->first;
                 request += "=";
@@ -2713,12 +2713,12 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
         //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
         findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
 
-        if(results.size() > 0) {
+        if(results.empty() == false) {
             break;
         }
     }
 
-    if(results.size() == 0) {
+    if(results.empty() == true) {
         //throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
 		showGeneralError=true;
 		generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";

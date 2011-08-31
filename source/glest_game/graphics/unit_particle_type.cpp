@@ -185,7 +185,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	// whilst we extend ParticleSystemType we don't use ParticleSystemType::setValues()
 	// add instances of all children; some settings will cascade to all children
-	for(Children::iterator i=children.begin(); i!=children.end(); i++){
+	for(Children::iterator i=children.begin(); i!=children.end(); ++i){
 		UnitParticleSystem *child = new UnitParticleSystem();
 		(*i)->setValues(child);
 		ups->addChild(child);

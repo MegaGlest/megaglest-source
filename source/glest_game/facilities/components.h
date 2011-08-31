@@ -314,9 +314,9 @@ public:
 
 
 	bool getHorizontal() const		{return horizontal;}
-	int getLength();
+	int getLength() const;
 	void setLength(int length)	{horizontal?setW(length):setH(length);}
-	int getThickness();
+	int getThickness() const;
 
 
 	bool getLighted() const			{return lighted;}

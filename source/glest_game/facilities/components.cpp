@@ -101,7 +101,7 @@ void GraphicComponent::applyAllCustomProperties(std::string containerName) {
 	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
 	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
 		for(std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.begin();
-				iterFind2 != iterFind1->second.end(); iterFind2++) {
+				iterFind2 != iterFind1->second.end(); ++iterFind2) {
 			iterFind2->second->applyCustomProperties(containerName);
 		}
 	}
@@ -146,7 +146,7 @@ bool GraphicComponent::saveAllCustomProperties(std::string containerName) {
 	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
 	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
 		for(std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.begin();
-				iterFind2 != iterFind1->second.end(); iterFind2++) {
+				iterFind2 != iterFind1->second.end(); ++iterFind2) {
 			bool saved = iterFind2->second->saveCustomProperties(containerName);
 			foundPropertiesToSave = (saved || foundPropertiesToSave);
 		}
@@ -545,8 +545,8 @@ void GraphicScrollBar::init(int x, int y, bool horizontal,int length, int thickn
 	this->elementCount=1;
 	this->visibleSize=1;
 	this->visibleStart=0;
-	int visibleCompPosStart=0;
-	int visibleCompPosEnd=length;
+	this->visibleCompPosStart=0;
+	this->visibleCompPosEnd=length;
 	lighted= false;
 }
 
@@ -628,11 +628,11 @@ bool GraphicScrollBar::mouseMove(int x, int y){
     return b;
 }
 
-int GraphicScrollBar::getLength() {
+int GraphicScrollBar::getLength() const {
 	return horizontal?getW():getH();
 }
 
-int GraphicScrollBar::getThickness() {
+int GraphicScrollBar::getThickness() const {
 	return horizontal?getH():getW();
 }
 

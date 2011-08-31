@@ -74,6 +74,11 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 	minVAng = -Config::getInstance().getFloat("CameraMaxYaw","77.5");
 	maxVAng = -Config::getInstance().getFloat("CameraMinYaw","20");
 	fov = Config::getInstance().getFloat("CameraFov","45");
+
+	lastHAng=0;
+	lastVAng=0;
+	limitX=0;
+	limitY=0;
 }
 
 GameCamera::~GameCamera() {

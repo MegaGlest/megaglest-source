@@ -47,6 +47,7 @@ Text::Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int ti
 	this->time= time;
 	this->texture= texture;
 	this->font= NULL;
+	this->font3D=NULL;
 }
 
 // =====================================================

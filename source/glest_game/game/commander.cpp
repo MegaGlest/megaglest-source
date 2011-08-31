@@ -85,7 +85,7 @@ void CommanderNetworkThread::execute() {
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		unsigned int idx = 0;
+		//unsigned int idx = 0;
 		for(;this->commanderInterface != NULL;) {
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -135,6 +135,7 @@ Commander::Commander() {
 	//this->networkThread = new CommanderNetworkThread(this);
 	//this->networkThread->setUniqueID(__FILE__);
 	//this->networkThread->start();
+	world=NULL;
 }
 
 Commander::~Commander() {
@@ -709,7 +710,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
-	    std::string worldLog = world->DumpWorldToLog();
+	    //std::string worldLog = world->DumpWorldToLog();
+	    world->DumpWorldToLog();
 
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
         if(gameNetworkInterface != NULL && gameNetworkInterface->isConnected() == true) {
@@ -769,7 +771,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
 
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
-	    std::string worldLog = world->DumpWorldToLog();
+	    //std::string worldLog = world->DumpWorldToLog();
+	    world->DumpWorldToLog();
 
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
         if(gameNetworkInterface != NULL) {

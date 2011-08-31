@@ -46,6 +46,43 @@ Game::Game() : ProgramState(NULL) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	originalDisplayMsgCallback = NULL;
 	aiInterfaces.clear();
+
+	mouse2d=0;
+	mouseX=0;
+	mouseY=0;
+	updateFps=0;
+	lastUpdateFps=0;
+	avgUpdateFps=0;
+	totalRenderFps=0;
+	renderFps=0;
+	lastRenderFps=0;
+	avgRenderFps=0;
+	currentAvgRenderFpsTotal=0;
+	paused=false;
+	gameOver=false;
+	renderNetworkStatus=false;
+	showFullConsole=false;
+	mouseMoved=false;
+	scrollSpeed=0;
+	camLeftButtonDown=false;
+	camRightButtonDown=false;
+	camUpButtonDown=false;
+	camDownButtonDown=false;
+	speed=sNormal;
+	weatherParticleSystem=NULL;
+	isFirstRender=false;
+	quitTriggeredIndicator=false;
+	original_updateFps=0;
+	original_cameraFps=0;
+	captureAvgTestStatus=false;
+	updateFpsAvgTest=0;
+	renderFpsAvgTest=0;
+	renderExtraTeamColor=0;
+	photoModeEnabled=false;
+	visibleHUD=false;
+	withRainEffect=false;
+	program=NULL;
+	gameStarted=false;
 }
 
 Game::Game(Program *program, const GameSettings *gameSettings):
@@ -222,7 +259,7 @@ string Game::extractScenarioLogoFile(const GameSettings *settings, string &resul
 
 		vector<string> loadScreenList;
 		findAll(scenarioDir + factionLogoFilter, loadScreenList, false, false);
-		if(loadScreenList.size() > 0) {
+		if(loadScreenList.empty() == false) {
 			string senarioLogo = scenarioDir + loadScreenList[0];
 			if(fileExists(senarioLogo) == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found scenario loading screen '%s'\n",__FILE__,__FUNCTION__,senarioLogo.c_str());
@@ -288,7 +325,7 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 
 				vector<string> loadScreenList;
 				findAll(path + factionLogoFilter, loadScreenList, false, false);
-				if(loadScreenList.size() > 0) {
+				if(loadScreenList.empty() == false) {
 					string factionLogo = path + loadScreenList[0];
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
@@ -332,7 +369,7 @@ string Game::extractTechLogoFile(string scenarioDir, string techName,
 
 			vector<string> loadScreenList;
 			findAll(path + factionLogoFilter, loadScreenList, false, false);
-			if(loadScreenList.size() > 0) {
+			if(loadScreenList.empty() == false) {
 				string factionLogo = path + loadScreenList[0];
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
 
@@ -379,7 +416,7 @@ void Game::loadHudTexture(const GameSettings *settings)
 			string path= currentPath + techName + "/" + "factions" + "/" + factionName;
 			endPathWithSlash(path);
 			findAll(path + "hud.*", hudList, false, false);
-			if(hudList.size() > 0){
+			if(hudList.empty() == false){
 				string hudImageFileName= path + hudList[0];
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for a HUD '%s'\n",__FILE__,__FUNCTION__,__LINE__,hudImageFileName.c_str());
@@ -464,7 +501,7 @@ vector<Texture2D *> Game::processTech(string techName) {
 			endPathWithSlash(techPath);
 			findAll(techPath + techName + "/factions/*.", factions, false, false);
 
-			if(factions.size() > 0) {
+			if(factions.empty() == false) {
 				for(unsigned int factionIdx = 0; factionIdx < factions.size(); ++factionIdx) {
 					bool loadingImageUsed = false;
 					string factionLogo = "";
@@ -1950,7 +1987,7 @@ void Game::render3d(){
 
 void Game::render2d(){
 	Renderer &renderer= Renderer::getInstance();
-	Config &config= Config::getInstance();
+	//Config &config= Config::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 
 	//init
@@ -2126,9 +2163,9 @@ void Game::render2d(){
 
 	if(renderer.getShowDebugUI() == true) {
 		const Metrics &metrics= Metrics::getInstance();
-		int mx= metrics.getMinimapX();
-		int my= metrics.getMinimapY();
-		int mw= metrics.getMinimapW();
+		//int mx= metrics.getMinimapX();
+		//int my= metrics.getMinimapY();
+		//int mw= metrics.getMinimapW();
 		int mh= metrics.getMinimapH();
 		const Vec4f fontColor=getGui()->getDisplay()->getColor();
 
@@ -2176,9 +2213,9 @@ void Game::render2d(){
 		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
 			const Metrics &metrics= Metrics::getInstance();
 			int mx= metrics.getMinimapX();
-			int my= metrics.getMinimapY();
+			//int my= metrics.getMinimapY();
 			int mw= metrics.getMinimapW();
-			int mh= metrics.getMinimapH();
+			//int mh= metrics.getMinimapH();
 			const Vec4f fontColor=getGui()->getDisplay()->getColor();
 
 			if(Renderer::renderText3DEnabled == true) {

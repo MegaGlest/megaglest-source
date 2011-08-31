@@ -270,7 +270,11 @@ private:
 
 	class SurfaceData {
 	public:
-		SurfaceData(){};
+		SurfaceData() {
+			uniqueId=0;
+			bufferCount=0;
+			textureHandle=0;
+		}
 		static uint32 nextUniqueId;
 		uint32 uniqueId;
 		int bufferCount;

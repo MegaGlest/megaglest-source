@@ -80,7 +80,7 @@ void BattleEnd::update() {
 
 void BattleEnd::render() {
 	Renderer &renderer= Renderer::getInstance();
-	CoreData &coreData= CoreData::getInstance();
+	//CoreData &coreData= CoreData::getInstance();
 
 	canRender();
 	incrementFps();
@@ -146,7 +146,7 @@ void BattleEnd::render() {
 				continue;
 			}
 
-			int team= stats.getTeam(i) + 1;
+			//int team= stats.getTeam(i) + 1;
 			int kills= stats.getKills(i);
 			if(kills > bestKills) {
 				bestKills 	= kills;
