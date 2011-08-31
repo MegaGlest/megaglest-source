@@ -308,6 +308,8 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			}
 		}
 		else{
+			if(f) fclose(f);
+
 			throw runtime_error("Can't open file");
 		}
 		fclose(f);
