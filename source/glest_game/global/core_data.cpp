@@ -78,6 +78,15 @@ void CoreData::load() {
 	customTexture= renderer.newTexture2D(rsGlobal);
 	customTexture->getPixmap()->load(dir+"/menu/textures/custom_texture.tga");
 
+	notOnServerTexture= renderer.newTexture2D(rsGlobal);
+	notOnServerTexture->getPixmap()->load(dir+"/menu/textures/not_on_server.tga");
+	onServerDifferentTexture= renderer.newTexture2D(rsGlobal);
+	onServerDifferentTexture->getPixmap()->load(dir+"/menu/textures/on_server_different.tga");
+	onServerTexture= renderer.newTexture2D(rsGlobal);
+	onServerTexture->getPixmap()->load(dir+"/menu/textures/on_server.tga");
+	onServerInstalledTexture= renderer.newTexture2D(rsGlobal);
+	onServerInstalledTexture->getPixmap()->load(dir+"/menu/textures/on_server_installed.tga");
+
 	logoTexture= renderer.newTexture2D(rsGlobal);
 	logoTexture->setMipmap(false);
 	logoTexture->getPixmap()->load(dir+"/menu/textures/logo.tga");
