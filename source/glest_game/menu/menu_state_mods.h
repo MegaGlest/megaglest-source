@@ -122,6 +122,11 @@ private:
 	ModInfo modInfoSelected;
 	map<string,bool> displayModPreviewImage;
 
+	GraphicButton buttonInstalled;
+	GraphicButton buttonAvailable;
+	GraphicButton buttonConflict;
+	GraphicButton buttonOnlyLocal;
+
 	int keyButtonsToRender;
 	int keyButtonsYBase;
 	int keyButtonsXBase;
