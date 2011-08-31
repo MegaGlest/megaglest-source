@@ -1873,9 +1873,13 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 #endif
 
 	if(fp1 == NULL) {
+		if(fp2) fclose(fp2);
+
 		throw runtime_error("cannot open input file [" + fileName + "]");
 	}
 	if(fp2 == NULL) {
+		if(fp1) fclose(fp1);
+
 		throw runtime_error("cannot open output file [" + tempfileName + "]");
 	}
 

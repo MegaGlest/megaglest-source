@@ -456,9 +456,9 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 	if(resourceNear == false && resourceClickPos != NULL) {
 		std::vector<FindBestPos> bestPosList;
 
-		if(resourceClickPos) {
+		//if(resourceClickPos) {
 			//printf("^^^^^ unit [%s - %d]\n",unit->getFullName().c_str(),unit->getId());
-		}
+		//}
 
 		for(int i = -1; i <= 1; ++i) {
 			for(int j = -1; j <= 1; ++j) {

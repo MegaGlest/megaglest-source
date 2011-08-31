@@ -720,7 +720,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
             gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
 
         }
-        else {
+        else if(gameNetworkInterface != NULL) {
             char szMsg[1024]="";
             sprintf(szMsg,"Player detected an error: Connection lost, possible Unit / Faction mismatch for unitId: %d",networkCommand->getUnitId());
             gameNetworkInterface->sendTextMessage(szMsg,-1, true,"");

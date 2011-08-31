@@ -1800,33 +1800,30 @@ void MenuStateConnectedGame::update() {
 					labelPlayerStatus[i].setText("");
 				}
 
-				if(hasFactions == true) {
-					for(int i=0; i<gameSettings->getFactionCount(); ++i){
+				if(hasFactions == true && gameSettings != NULL) {
+					for(int i=0; i < gameSettings->getFactionCount(); ++i){
 						int slot = gameSettings->getStartLocationIndex(i);
 
-						if(gameSettings != NULL) {
-							if(	gameSettings->getFactionControl(i) == ctNetwork ||
-								gameSettings->getFactionControl(i) == ctHuman) {
-								switch(gameSettings->getNetworkPlayerStatuses(i)) {
-									case npst_BeRightBack:
-										labelPlayerStatus[slot].setText(lang.get("PlayerStatusBeRightBack"));
-										labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.8f, 0.f));
-										break;
-									case npst_Ready:
-										labelPlayerStatus[slot].setText(lang.get("PlayerStatusReady"));
-										labelPlayerStatus[slot].setTextColor(Vec3f(0.f, 1.f, 0.f));
-										break;
-									case npst_PickSettings:
-										labelPlayerStatus[slot].setText(lang.get("PlayerStatusSetup"));
-										labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.f, 0.f));
-										break;
-									default:
-										labelPlayerStatus[slot].setText("");
-										break;
-								}
+						if(	gameSettings->getFactionControl(i) == ctNetwork ||
+							gameSettings->getFactionControl(i) == ctHuman) {
+							switch(gameSettings->getNetworkPlayerStatuses(i)) {
+								case npst_BeRightBack:
+									labelPlayerStatus[slot].setText(lang.get("PlayerStatusBeRightBack"));
+									labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.8f, 0.f));
+									break;
+								case npst_Ready:
+									labelPlayerStatus[slot].setText(lang.get("PlayerStatusReady"));
+									labelPlayerStatus[slot].setTextColor(Vec3f(0.f, 1.f, 0.f));
+									break;
+								case npst_PickSettings:
+									labelPlayerStatus[slot].setText(lang.get("PlayerStatusSetup"));
+									labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.f, 0.f));
+									break;
+								default:
+									labelPlayerStatus[slot].setText("");
+									break;
 							}
 						}
-
 
 						listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
 						listBoxRMultiplier[slot].setSelectedItemIndex((gameSettings->getResourceMultiplierIndex(i)));
