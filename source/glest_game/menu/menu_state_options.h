@@ -114,6 +114,9 @@ private:
 	GraphicLabel labelDisableScreenshotConsoleText;
 	GraphicCheckBox checkBoxDisableScreenshotConsoleText;
 
+	GraphicLabel labelMouseMoveScrollsWorld;
+	GraphicCheckBox checkBoxMouseMoveScrollsWorld;
+
 	GraphicLabel labelVisibleHud;
 	GraphicCheckBox checkBoxVisibleHud;
 
