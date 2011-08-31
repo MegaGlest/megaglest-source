@@ -61,6 +61,11 @@ private:
 	Texture2D *checkBoxTexture;
 	Texture2D *checkedCheckBoxTexture;
 	Texture2D *gameWinnerTexture;
+    Texture2D *notOnServerTexture;
+    Texture2D *onServerDifferentTexture;
+    Texture2D *onServerTexture;
+    Texture2D *onServerInstalledTexture;
+
 
     Font2D *displayFont;
 	Font2D *menuFontNormal;
@@ -95,6 +100,10 @@ public:
 	Texture2D *getVerticalLineTexture() const	{return verticalLineTexture;}
 	Texture2D *getCheckBoxTexture() const		{return checkBoxTexture;}
 	Texture2D *getCheckedCheckBoxTexture() const	{return checkedCheckBoxTexture;}
+	Texture2D *getNotOnServerTexture() const			{return notOnServerTexture;}
+	Texture2D *getOnServerDifferentTexture() const			{return onServerDifferentTexture;}
+	Texture2D *getOnServerTexture() const			{return onServerTexture;}
+	Texture2D *getOnServerInstalledTexture() const			{return onServerInstalledTexture;}
 
 	Texture2D *getGameWinnerTexture() const		{return gameWinnerTexture;}
 

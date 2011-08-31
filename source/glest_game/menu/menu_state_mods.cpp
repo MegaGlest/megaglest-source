@@ -92,7 +92,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyTechScrollBarTitle1.registerGraphicComponent(containerName,"keyTechScrollBarTitle1");
 	keyTechScrollBarTitle1.init(techInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTechScrollBarTitle1.setText(lang.get("TechTitle1"));
-	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTechScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 	keyTechScrollBarTitle2.registerGraphicComponent(containerName,"keyTechScrollBarTitle2");
 	keyTechScrollBarTitle2.init(techInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
@@ -104,7 +104,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyMapScrollBarTitle1.registerGraphicComponent(containerName,"keyMapScrollBarTitle1");
 	keyMapScrollBarTitle1.init(mapInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyMapScrollBarTitle1.setText(lang.get("MapTitle1"));
-	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyMapScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 	keyMapScrollBarTitle2.registerGraphicComponent(containerName,"keyMapScrollBarTitle2");
 	keyMapScrollBarTitle2.init(mapInfoXPos + 200,scrollListsYPos + 20,labelWidth,20);
@@ -116,14 +116,14 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyTilesetScrollBarTitle1.registerGraphicComponent(containerName,"keyTilesetScrollBarTitle1");
 	keyTilesetScrollBarTitle1.init(tilesetInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyTilesetScrollBarTitle1.setText(lang.get("TilesetTitle1"));
-	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTilesetScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	scenarioInfoXPos = 760;
 	keyScenarioScrollBarTitle1.registerGraphicComponent(containerName,"keyScenarioScrollBarTitle1");
 	keyScenarioScrollBarTitle1.init(scenarioInfoXPos,scrollListsYPos + 20,labelWidth,20);
 	keyScenarioScrollBarTitle1.setText(lang.get("ScenarioTitle1"));
-	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyScenarioScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	mainMessageBoxState = ftpmsg_None;
@@ -1255,7 +1255,6 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 				Config &config = Config::getInstance();
 				string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + selectedTechName + string("/*");
 				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
-
 				if( strToInt(modInfo.crc) != 0 &&
 					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
@@ -1812,11 +1811,21 @@ void MenuStateMods::render() {
 				else if(alreadyHasTech == true) {
 					Vec4f buttonColor = WHITE;
 					buttonColor.w = 0.75f;
+					bool remoteHasTech = (techCacheList.find(keyTechButtons[i]->getText()) != techCacheList.end());
+					if(remoteHasTech)
+					{
+						keyTechButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+					}
+					else
+					{
+						keyTechButtons[i]->setCustomTexture(CoreData::getInstance().getNotOnServerTexture());
+					}
 					renderer.renderButton(keyTechButtons[i],&buttonColor);
 				}
 				else {
 					Vec4f fontColor=Vec4f(200.0f/255.0f, 187.0f/255.0f, 190.0f/255.0f, 0.75f);
 					//Vec4f fontColor=Vec4f(1.0f, 0.0f, 0.0f, 0.75f);
+					keyTechButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerTexture());
 					renderer.renderButton(keyTechButtons[i],&fontColor);
 				}
 				renderer.renderLabel(labelsTech[i]);
@@ -1837,10 +1846,20 @@ void MenuStateMods::render() {
 				else if(alreadyHasTileset == true) {
 					Vec4f buttonColor = WHITE;
 					buttonColor.w = 0.75f;
+					bool remoteHasTileset= (tilesetCacheList.find(keyTilesetButtons[i]->getText()) != tilesetCacheList.end());
+					if(remoteHasTileset)
+					{
+						keyTilesetButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+					}
+					else
+					{
+						keyTilesetButtons[i]->setCustomTexture(CoreData::getInstance().getNotOnServerTexture());
+					}
 					renderer.renderButton(keyTilesetButtons[i],&buttonColor);
 				}
 				else {
 					Vec4f fontColor=Vec4f(200.0f/255.0f, 187.0f/255.0f, 190.0f/255.0f, 0.75f);
+					keyTilesetButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerTexture());
 					renderer.renderButton(keyTilesetButtons[i],&fontColor);
 				}
 			}
@@ -1862,10 +1881,20 @@ void MenuStateMods::render() {
 				else if(alreadyHasMap == true) {
 					Vec4f buttonColor = WHITE;
 					buttonColor.w = 0.75f;
+					bool remoteHasMap = (mapCacheList.find(keyMapButtons[i]->getText()) != mapCacheList.end());
+					if(remoteHasMap)
+					{
+						keyMapButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+					}
+					else
+					{
+						keyMapButtons[i]->setCustomTexture(CoreData::getInstance().getNotOnServerTexture());
+					}
 					renderer.renderButton(keyMapButtons[i],&buttonColor);
 				}
 				else {
 					Vec4f fontColor=Vec4f(200.0f/255.0f, 187.0f/255.0f, 190.0f/255.0f, 0.75f);
+					keyMapButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerTexture());
 					renderer.renderButton(keyMapButtons[i],&fontColor);
 				}
 				renderer.renderLabel(labelsMap[i]);
@@ -1891,10 +1920,20 @@ void MenuStateMods::render() {
 				else if(alreadyHasScenario == true) {
 					Vec4f buttonColor = WHITE;
 					buttonColor.w = 0.75f;
+					bool remoteHasScenario= (scenarioCacheList.find(keyScenarioButtons[i]->getText()) != scenarioCacheList.end());
+					if(remoteHasScenario)
+					{
+						keyScenarioButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+					}
+					else
+					{
+						keyScenarioButtons[i]->setCustomTexture(CoreData::getInstance().getNotOnServerTexture());
+					}
 					renderer.renderButton(keyScenarioButtons[i],&buttonColor);
 				}
 				else {
 					Vec4f fontColor=Vec4f(200.0f/255.0f, 187.0f/255.0f, 190.0f/255.0f, 0.75f);
+					keyScenarioButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerTexture());
 					renderer.renderButton(keyScenarioButtons[i],&fontColor);
 				}
 			}
