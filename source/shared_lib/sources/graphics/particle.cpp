@@ -506,7 +506,7 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 			}
 		}
 		if(tween < 0.0f || tween > 1.0f) {
-			printf("ERROR setting tween to [%f]\n",tween);
+			printf("In [%s::%s Line: %d] ERROR setting tween to [%f]\n",__FILE__,__FUNCTION__,__LINE__,tween);
 			assert(tween >= 0.0f && tween <= 1.0f);
 		}
 
