@@ -350,6 +350,16 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	checkBoxDisableScreenshotConsoleText.setValue(!config.getBool("DisableScreenshotConsoleText","false"));
 
 	currentLine-=lineOffset;
+
+	labelMouseMoveScrollsWorld.registerGraphicComponent(containerName,"labelMouseMoveScrollsWorld");
+	labelMouseMoveScrollsWorld.init(currentLabelStart ,currentLine);
+	labelMouseMoveScrollsWorld.setText(lang.get("MouseScrollsWorld"));
+
+	checkBoxMouseMoveScrollsWorld.registerGraphicComponent(containerName,"checkBoxMouseMoveScrollsWorld");
+	checkBoxMouseMoveScrollsWorld.init(currentColumnStart ,currentLine );
+	checkBoxMouseMoveScrollsWorld.setValue(config.getBool("MouseMoveScrollsWorld","true"));
+
+	currentLine-=lineOffset;
 	currentLine-=lineOffset;
 	currentLine-=lineOffset;
 
@@ -640,7 +650,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         listBoxScreenShotType.mouseClick(x, y);
 
         checkBoxDisableScreenshotConsoleText.mouseClick(x, y);
-        checkBoxVisibleHud.mouseClick(x, y);
+        checkBoxMouseMoveScrollsWorld.mouseClick(x, y);
+            checkBoxVisibleHud.mouseClick(x, y);
         checkBoxRainEffect.mouseClick(x,y);
 	}
 }
@@ -678,8 +689,9 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxEnablePrivacy.mouseMove(x, y);
 	checkBoxEnableTextureCompression.mouseMove(x, y);
 	listBoxScreenShotType.mouseMove(x, y);
-    checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
-    checkBoxVisibleHud.mouseMove(x, y);
+	checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
+	checkBoxMouseMoveScrollsWorld.mouseMove(x, y);
+	    checkBoxVisibleHud.mouseMove(x, y);
     checkBoxRainEffect.mouseMove(x, y);
 }
 
@@ -821,6 +833,9 @@ void MenuStateOptions::render(){
         renderer.renderLabel(&labelDisableScreenshotConsoleText);
         renderer.renderCheckBox(&checkBoxDisableScreenshotConsoleText);
 
+        renderer.renderLabel(&labelMouseMoveScrollsWorld);
+        renderer.renderCheckBox(&checkBoxMouseMoveScrollsWorld);
+
         renderer.renderLabel(&labelVisibleHud);
         renderer.renderCheckBox(&checkBoxVisibleHud);
 
@@ -877,6 +892,7 @@ void MenuStateOptions::saveConfig(){
     config.setString("ScreenShotFileType", listBoxScreenShotType.getSelectedItem());
 
     config.setBool("DisableScreenshotConsoleText", !checkBoxDisableScreenshotConsoleText.getValue());
+    config.setBool("MouseMoveScrollsWorld", checkBoxMouseMoveScrollsWorld.getValue());
     config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
     config.setBool("RainEffect", checkBoxRainEffect.getValue());
 
