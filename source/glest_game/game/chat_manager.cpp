@@ -43,6 +43,7 @@ ChatManager::ChatManager() {
 	maxTextLenght=64;
 	font=CoreData::getInstance().getConsoleFont();
 	font3D=CoreData::getInstance().getConsoleFont3D();
+	inMenu=false;
 }
 
 void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu, string manualPlayerNameOverride) {
@@ -207,7 +208,7 @@ void ChatManager::updateNetwork() {
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 		//string text;
 		//string sender;
-		Config &config= Config::getInstance();
+		//Config &config= Config::getInstance();
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
 

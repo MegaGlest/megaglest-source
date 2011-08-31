@@ -89,9 +89,11 @@ void AiRuleScoutPatrol::execute(){
 AiRuleRepair::AiRuleRepair(Ai *ai):
 	AiRule(ai)
 {
+	damagedUnitIndex = 0;
+	damagedUnitIsCastle = false;
 }
 
-double AiRuleRepair::getMinCastleHpRatio() {
+double AiRuleRepair::getMinCastleHpRatio() const {
 	return 0.6;
 }
 
@@ -145,8 +147,8 @@ bool AiRuleRepair::test(){
 				}
 			}
 
-			int candidatedamagedUnitIndex=-1;
 			if(unitCanProduceWorker == true) {
+				int candidatedamagedUnitIndex=-1;
 				int unitCountAlreadyRepairingDamagedUnit = 0;
 				// Now check if any other unit is able to repair this unit
 				for(int i1 = 0; i1 < aiInterface->getMyUnitCount(); ++i1) {
@@ -354,6 +356,7 @@ void AiRuleReturnBase::execute(){
 AiRuleMassiveAttack::AiRuleMassiveAttack(Ai *ai):
 	AiRule(ai)
 {
+	ultraAttack=false;
 }
 
 bool AiRuleMassiveAttack::test(){
@@ -512,6 +515,7 @@ void AiRuleAddTasks::execute(){
 AiRuleBuildOneFarm::AiRuleBuildOneFarm(Ai *ai):
 	AiRule(ai)
 {
+	farm=NULL;
 }
 
 bool AiRuleBuildOneFarm::test(){
@@ -557,6 +561,7 @@ AiRuleProduceResourceProducer::AiRuleProduceResourceProducer(Ai *ai):
 	AiRule(ai)
 {
 	interval= shortInterval;
+	rt=NULL;
 }
 
 bool AiRuleProduceResourceProducer::test(){
@@ -785,7 +790,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				int lowestCommandCount=1000000;
 				int currentProducerIndex=producers[randomstart];
 				int bestIndex=-1;
-				int besti=0;
+				//int besti=0;
 				int currentCommandCount=0;
 				for(unsigned int i=randomstart; i<producers.size()+randomstart; i++) {
 					int prIndex = i;
@@ -817,7 +822,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					{
 						lowestCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
 						bestIndex=currentProducerIndex;
-						besti=i%(producers.size());
+						//besti=i%(producers.size());
 					}
 				}
 				if(	aiInterface->getMyUnit(bestIndex)->getCommandSize() > 2) {
@@ -1173,9 +1178,9 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 				const int enemySightDistanceToAvoid = 18;
 				vector<Unit*> enemies;
 				ai->getAiInterface()->getWorld()->getUnitUpdater()->findEnemiesForCell(searchPos,bt->getUnitType()->getSize(),enemySightDistanceToAvoid,ai->getAiInterface()->getMyFaction(),enemies,true);
-				if(enemies.size() > 0) {
-					for(int i1 = 0; i1 < 25 && enemies.size() > 0; ++i1) {
-						for(int j1 = 0; j1 < 25 && enemies.size() > 0; ++j1) {
+				if(enemies.empty() == false) {
+					for(int i1 = 0; i1 < 25 && enemies.empty() == false; ++i1) {
+						for(int j1 = 0; j1 < 25 && enemies.empty() == false; ++j1) {
 							Vec2i tryPos = searchPos + Vec2i(i1,j1);
 
 							const int spacing = 1;
@@ -1189,9 +1194,9 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 						}
 					}
 				}
-				if(enemies.size() > 0) {
-					for(int i1 = -1; i1 >= -25 && enemies.size() > 0; --i1) {
-						for(int j1 = -1; j1 >= -25 && enemies.size() > 0; --j1) {
+				if(enemies.empty() == false) {
+					for(int i1 = -1; i1 >= -25 && enemies.empty() == false; --i1) {
+						for(int j1 = -1; j1 >= -25 && enemies.empty() == false; --j1) {
 							Vec2i tryPos = searchPos + Vec2i(i1,j1);
 
 							const int spacing = 1;

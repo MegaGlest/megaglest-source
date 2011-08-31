@@ -74,8 +74,8 @@ public:
 	const Texture2D *getUpImage(int index) const	{return upImages[index];}
 	const Texture2D *getDownImage(int index) const	{return downImages[index];}
 	bool getDownLighted(int index) const			{return downLighted[index];}
-	const CommandType *getCommandType(int i)		{return commandTypes[i];}
-	CommandClass getCommandClass(int i)				{return commandClasses[i];}
+	const CommandType *getCommandType(int i) const	{return commandTypes[i];}
+	CommandClass getCommandClass(int i)	const		{return commandClasses[i];}
 	Vec4f getColor() const;
 	int getProgressBar() const						{return progressBar;}
 	int getDownSelectedPos() const					{return downSelectedPos;}
@@ -97,7 +97,7 @@ public:
 	//misc
 	void clear();
 	void switchColor();
-	int computeDownIndex(int x, int y);
+	int computeDownIndex(int x, int y) const;
 	int computeDownX(int index) const;
 	int computeDownY(int index) const;
 	int computeUpX(int index) const;

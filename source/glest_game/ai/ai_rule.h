@@ -115,7 +115,7 @@ private:
     bool damagedUnitIsCastle;
 
 	int getMinUnitsToRepairCastle();
-	double getMinCastleHpRatio();
+	double getMinCastleHpRatio() const;
 
 public:
 	AiRuleRepair(Ai *ai);

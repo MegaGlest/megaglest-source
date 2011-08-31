@@ -80,6 +80,11 @@ private:
 public:
 
     GameSettings() {
+    	defaultUnits=false;
+    	defaultResources=false;
+    	defaultVictoryConditions=false;
+    	mapFilterIndex						= 0;
+    	factionCount						= 0;
     	thisFactionIndex					= 0;
     	fogOfWar 							= true;
     	allowObservers						= false;
@@ -131,7 +136,7 @@ public:
 				}
 			}
 		}
-		if(languageList.size() == 0) {
+		if(languageList.empty() == true) {
 			languageList.push_back("");
 		}
 		return languageList;

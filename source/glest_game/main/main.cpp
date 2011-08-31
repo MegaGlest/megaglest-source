@@ -1365,14 +1365,14 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 }
 
 void runTechValidationForPath(string techPath, string techName,
-		const std::vector<string> filteredFactionList, World &world,
+		const std::vector<string> &filteredFactionList, World &world,
 		bool purgeUnusedFiles,bool purgeDuplicateFiles, bool showDuplicateFiles,
 		bool svnPurgeFiles,double &purgedMegaBytes) {
-	Config &config = Config::getInstance();
+	//Config &config = Config::getInstance();
 	vector<string> factionsList;
 	findDirs(techPath + techName + "/factions/", factionsList, false, false);
 
-	if(factionsList.size() > 0) {
+	if(factionsList.empty() == false) {
 		Checksum checksum;
 		set<string> factions;
 		for(int j = 0; j < factionsList.size(); ++j) {
@@ -1391,7 +1391,7 @@ void runTechValidationForPath(string techPath, string techName,
 			}
 		}
 
-		if(factions.size() > 0) {
+		if(factions.empty() == false) {
 			bool techtree_errors = false;
 
 			std::map<string,vector<pair<string, string> >  > loadedFileList;
@@ -1425,7 +1425,7 @@ void runTechValidationForPath(string techPath, string techName,
 
 			// Validate the faction setup to ensure we don't have any bad associations
 			std::vector<std::string> resultErrors = world.validateFactionTypes();
-			if(resultErrors.size() > 0) {
+			if(resultErrors.empty() == false) {
 				techtree_errors = true;
 				// Display the validation errors
 				string errorText = "\nErrors were detected:\n=====================\n";
@@ -1448,7 +1448,7 @@ void runTechValidationForPath(string techPath, string techName,
 			}
 
 			resultErrors = world.validateResourceTypes();
-			if(resultErrors.size() > 0) {
+			if(resultErrors.empty() == false) {
 				techtree_errors = true;
 				// Display the validation errors
 				string errorText = "\nErrors were detected:\n=====================\n";
@@ -1559,7 +1559,7 @@ void runTechValidationForPath(string techPath, string techName,
 				std::map<int32,vector<string> > mapDuplicateFiles;
 				// Now check for duplicate data content
 				for(std::map<string,vector<pair<string, string> > >::iterator iterMap = loadedFileList.begin();
-					iterMap != loadedFileList.end(); iterMap++) {
+					iterMap != loadedFileList.end(); ++iterMap) {
 					string fileName = iterMap->first;
 					Checksum checksum;
 					checksum.addFile(fileName);
@@ -1583,7 +1583,7 @@ void runTechValidationForPath(string techPath, string techName,
 
 				bool foundDuplicates = false;
 				for(std::map<int32,vector<string> >::iterator iterMap = mapDuplicateFiles.begin();
-					iterMap != mapDuplicateFiles.end(); iterMap++) {
+					iterMap != mapDuplicateFiles.end(); ++iterMap) {
 					vector<string> &fileList = iterMap->second;
 					if(fileList.size() > 1) {
 						if(foundDuplicates == false) {
@@ -1614,7 +1614,7 @@ void runTechValidationForPath(string techPath, string techName,
 						}
 
 						for(map<string,int>::iterator iterMap1 = parentList.begin();
-								iterMap1 != parentList.end(); iterMap1++) {
+								iterMap1 != parentList.end(); ++iterMap1) {
 
 							if(iterMap1 == parentList.begin()) {
 								printf("\tParents:\n");
@@ -1878,7 +1878,7 @@ void runTechValidationReport(int argc, char** argv) {
             string factionList = paramPartTokens[1];
             Tokenize(factionList,filteredFactionList,",");
 
-            if(filteredFactionList.size() > 0) {
+            if(filteredFactionList.empty() == false) {
                 printf("Filtering factions and only looking for the following:\n");
                 for(int idx = 0; idx < filteredFactionList.size(); ++idx) {
                     filteredFactionList[idx] = trim(filteredFactionList[idx]);
@@ -1909,7 +1909,7 @@ void runTechValidationReport(int argc, char** argv) {
             string techtreeList = paramPartTokens[1];
             Tokenize(techtreeList,filteredTechTreeList,",");
 
-            if(filteredTechTreeList.size() > 0) {
+            if(filteredTechTreeList.empty() == false) {
                 printf("Filtering techtrees and only looking for the following:\n");
                 for(int idx = 0; idx < filteredTechTreeList.size(); ++idx) {
                     filteredTechTreeList[idx] = trim(filteredTechTreeList[idx]);
@@ -2017,7 +2017,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
                 string tokenList = paramPartTokens[1];
                 Tokenize(tokenList,filteredPropertyList,",");
 
-                if(filteredPropertyList.size() > 0) {
+                if(filteredPropertyList.empty() == false) {
                     printf("Filtering properties and only looking for the following:\n");
                     for(int idx = 0; idx < filteredPropertyList.size(); ++idx) {
                         filteredPropertyList[idx] = trim(filteredPropertyList[idx]);
@@ -2038,7 +2038,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
             const pair<string,string> &nameValue = mergedMainSettings[i];
 
             bool displayProperty = false;
-            if(filteredPropertyList.size() > 0) {
+            if(filteredPropertyList.empty() == false) {
                 if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
                     displayProperty = true;
                 }
@@ -2061,7 +2061,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
             const pair<string,string> &nameValue = mergedKeySettings[i];
 
             bool displayProperty = false;
-            if(filteredPropertyList.size() > 0) {
+            if(filteredPropertyList.empty() == false) {
                 if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
                     displayProperty = true;
                 }
@@ -2086,7 +2086,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
             const pair<string,string> &nameValue = mergedMainSettings[i];
 
             bool displayProperty = false;
-            if(filteredPropertyList.size() > 0) {
+            if(filteredPropertyList.empty() == false) {
                 if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
                     displayProperty = true;
                 }
@@ -2114,7 +2114,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
             const pair<string,string> &nameValue = mergedKeySettings[i];
 
             bool displayProperty = false;
-            if(filteredPropertyList.size() > 0) {
+            if(filteredPropertyList.empty() == false) {
                 if(find(filteredPropertyList.begin(),filteredPropertyList.end(),nameValue.first) != filteredPropertyList.end()) {
                     displayProperty = true;
                 }
@@ -2178,7 +2178,7 @@ void CheckForDuplicateData() {
 	        }
 	    }
 	}
-	if(duplicateMapsToRename.size() > 0) {
+	if(duplicateMapsToRename.empty() == false) {
 		string errorMsg = "Warning duplicate maps were detected and renamed:\n";
 		for(int i = 0; i < duplicateMapsToRename.size(); ++i) {
 			string currentPath = mapPaths[1];
@@ -2236,7 +2236,7 @@ void CheckForDuplicateData() {
 	        }
 	    }
 	}
-	if(duplicateTilesetsToRename.size() > 0) {
+	if(duplicateTilesetsToRename.empty() == false) {
 		string errorMsg = "Warning duplicate tilesets were detected and renamed:\n";
 
 		for(int i = 0; i < duplicateTilesetsToRename.size(); ++i) {
@@ -2262,7 +2262,7 @@ void CheckForDuplicateData() {
 				newFile = newFile + "/" + tilesetName + "_custom.xml";
 
 				//printf("\n\n\n###### RENAME [%s] to [%s]\n\n",oldFile.c_str(),newFile.c_str());
-				int result2 = rename(oldFile.c_str(),newFile.c_str());
+				rename(oldFile.c_str(),newFile.c_str());
 			}
 			errorMsg += szBuf;
 		}
@@ -2298,7 +2298,7 @@ void CheckForDuplicateData() {
 	        }
 	    }
 	}
-	if(duplicateTechtreesToRename.size() > 0) {
+	if(duplicateTechtreesToRename.empty() == false) {
 		string errorMsg = "Warning duplicate techtrees were detected and renamed:\n";
 
 		for(int i = 0; i < duplicateTechtreesToRename.size(); ++i) {
@@ -2324,7 +2324,7 @@ void CheckForDuplicateData() {
 				newFile = newFile + "/" + tilesetName + "_custom.xml";
 
 				//printf("\n\n\n###### RENAME [%s] to [%s]\n\n",oldFile.c_str(),newFile.c_str());
-				int result2 = rename(oldFile.c_str(),newFile.c_str());
+				rename(oldFile.c_str(),newFile.c_str());
 			}
 			errorMsg += szBuf;
 		}

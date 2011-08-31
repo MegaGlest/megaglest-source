@@ -94,7 +94,7 @@ void Display::switchColor(){
 	currentColor= (currentColor+1) % colorCount;
 }
 
-int Display::computeDownIndex(int x, int y){
+int Display::computeDownIndex(int x, int y) const {
 	y= y-(downY-cellSideCount*imageSize);
 	
 	if(y>imageSize*cellSideCount || y < 0){

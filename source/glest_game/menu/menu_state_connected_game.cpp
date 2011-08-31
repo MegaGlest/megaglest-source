@@ -429,7 +429,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
         vector<string> mapPathList = config.getPathListForType(ptMaps);
         std::pair<string,string> mapsPath;
-        if(mapPathList.size() > 0) {
+        if(mapPathList.empty() == false) {
             mapsPath.first = mapPathList[0];
         }
         if(mapPathList.size() > 1) {
@@ -437,7 +437,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         }
         std::pair<string,string> tilesetsPath;
         vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
-        if(tilesetsList.size() > 0) {
+        if(tilesetsList.empty() == false) {
             tilesetsPath.first = tilesetsList[0];
             if(tilesetsList.size() > 1) {
                 tilesetsPath.second = tilesetsList[1];
@@ -446,7 +446,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
         std::pair<string,string> techtreesPath;
         vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
-        if(techtreesList.size() > 0) {
+        if(techtreesList.empty() == false) {
         	techtreesPath.first = techtreesList[0];
             if(techtreesList.size() > 1) {
             	techtreesPath.second = techtreesList[1];
@@ -455,7 +455,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
         std::pair<string,string> scenariosPath;
         vector<string> scenariosList = Config::getInstance().getPathListForType(ptScenarios);
-        if(scenariosList.size() > 0) {
+        if(scenariosList.empty() == false) {
         	scenariosPath.first = scenariosList[0];
             if(scenariosList.size() > 1) {
             	scenariosPath.second = scenariosList[1];
@@ -588,7 +588,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
 	else if(buttonCancelDownloads.mouseClick(x,y)) {
-        if(ftpClientThread != NULL && fileFTPProgressList.size() > 0) {
+        if(ftpClientThread != NULL && fileFTPProgressList.empty() == false) {
     	    ftpClientThread->setCallBackObject(NULL);
     	    if(ftpClientThread->shutdownAndWait() == true) {
                 delete ftpClientThread;
@@ -612,7 +612,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
             Config &config = Config::getInstance();
             vector<string> mapPathList = config.getPathListForType(ptMaps);
             std::pair<string,string> mapsPath;
-            if(mapPathList.size() > 0) {
+            if(mapPathList.empty() == false) {
                 mapsPath.first = mapPathList[0];
             }
             if(mapPathList.size() > 1) {
@@ -620,7 +620,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
             std::pair<string,string> tilesetsPath;
             vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
-            if(tilesetsList.size() > 0) {
+            if(tilesetsList.empty() == false) {
                 tilesetsPath.first = tilesetsList[0];
                 if(tilesetsList.size() > 1) {
                     tilesetsPath.second = tilesetsList[1];
@@ -629,7 +629,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
             std::pair<string,string> techtreesPath;
             vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
-            if(techtreesList.size() > 0) {
+            if(techtreesList.empty() == false) {
             	techtreesPath.first = techtreesList[0];
                 if(techtreesList.size() > 1) {
                 	techtreesPath.second = techtreesList[1];
@@ -638,7 +638,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
             std::pair<string,string> scenariosPath;
             vector<string> scenariosList = Config::getInstance().getPathListForType(ptScenarios);
-            if(scenariosList.size() > 0) {
+            if(scenariosList.empty() == false) {
             	scenariosPath.first = scenariosList[0];
                 if(scenariosList.size() > 1) {
                 	scenariosPath.second = scenariosList[1];
@@ -1014,7 +1014,7 @@ void MenuStateConnectedGame::render() {
 		renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-        if(fileFTPProgressList.size() > 0) {
+        if(fileFTPProgressList.empty() == false) {
         	Lang &lang= Lang::getInstance();
         	renderer.renderButton(&buttonCancelDownloads);
             int yLocation = buttonCancelDownloads.getY() - 20;
@@ -1192,11 +1192,11 @@ void MenuStateConnectedGame::update() {
 	    			factionCRCList.clear();
 	    			for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
 	    				string factionName = factionFiles[factionIdx];
-	    				int32 factionCRC   = 0;
 	    				if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
 	    					factionName != GameConstants::OBSERVER_SLOTNAME &&
 	    					factionName != ITEM_MISSING) {
 
+	    					int32 factionCRC   = 0;
 	                    	time_t now = time(NULL);
 	                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml");
 
@@ -1417,7 +1417,7 @@ void MenuStateConnectedGame::update() {
 								}
 
 								if(mismatchedFactionText != "") {
-									if(mismatchedFactionTextList.size() > 0) {
+									if(mismatchedFactionTextList.empty() == false) {
 										if(mismatchedFactionText != "") {
 											mismatchedFactionText += ".";
 											mismatchedFactionTextList.push_back(mismatchedFactionText);
@@ -1583,7 +1583,7 @@ void MenuStateConnectedGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		try {
-			bool mustSwitchPlayerName = false;
+			//bool mustSwitchPlayerName = false;
 			if(clientInterface->getGameSettingsReceived()) {
 				updateDataSynchDetailText = true;
 				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
@@ -1868,7 +1868,7 @@ void MenuStateConnectedGame::update() {
 						needToSetChangedGameSettings = true;
 						lastSetChangedGameSettings   = time(NULL);
 
-						mustSwitchPlayerName = true;
+						//mustSwitchPlayerName = true;
 					}
 				}
 
@@ -1992,7 +1992,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 
 	if(gameSettings->getTech() != "") {
 		Config &config = Config::getInstance();
-		Lang &lang= Lang::getInstance();
+		//Lang &lang= Lang::getInstance();
 
 		vector<string> techPaths = config.getPathListForType(ptTechs);
 		for(int idx = 0; idx < techPaths.size(); idx++) {
@@ -2000,7 +2000,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			endPathWithSlash(techPath);
 			//findAll(techPath + gameSettings->getTech() + "/factions/*.", results, false, false);
 			findDirs(techPath + gameSettings->getTech() + "/factions/", results, false, false);
-			if(results.size() > 0) {
+			if(results.empty() == false) {
 				break;
 			}
 		}
@@ -2064,7 +2064,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 				listBoxFactions[i].setItems(results);
 			}
 
-			foundFactions = (results.size() > 0);
+			foundFactions = (results.empty() == false);
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2427,7 +2427,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result, void *userdata) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    Lang &lang= Lang::getInstance();
+    //Lang &lang= Lang::getInstance();
     if(type == ftp_cct_DownloadProgress) {
         FTPClientCallbackInterface::FtpProgressStats *stats = (FTPClientCallbackInterface::FtpProgressStats *)userdata;
         if(stats != NULL) {

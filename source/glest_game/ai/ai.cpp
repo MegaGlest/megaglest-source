@@ -441,7 +441,7 @@ void Ai::sendScoutPatrol(){
 
 		for(int i= 0; i < tt->getResourceTypeCount(); ++i){
 			const ResourceType *rt_= tt->getResourceType(i);
-			const Resource *r= aiInterface->getResource(rt);
+			//const Resource *r= aiInterface->getResource(rt);
 
 			if(rt_->getClass() == rcTech){
 				rt=rt_;
@@ -640,9 +640,7 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 void Ai::returnBase(int unitIndex) {
     Vec2i pos;
     CommandResult r;
-    int fi;
-
-    fi= aiInterface->getFactionIndex();
+    int fi= aiInterface->getFactionIndex();
     pos= Vec2i(
 		random.randRange(-villageRadius, villageRadius), random.randRange(-villageRadius, villageRadius)) +
 		getRandomHomePosition();
@@ -804,17 +802,17 @@ void Ai::unblockUnits() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	if(signalAdjacentUnits.size() > 0) {
+	if(signalAdjacentUnits.empty() == false) {
 		//printf("#2 AI units ARE BLOCKED about to unblock\n");
 
 		int unitGroupCommandId = -1;
 
 		for(std::map<float, std::map<int, const Unit *> >::reverse_iterator iterMap = signalAdjacentUnits.rbegin();
-			iterMap != signalAdjacentUnits.rend(); iterMap++) {
+			iterMap != signalAdjacentUnits.rend(); ++iterMap) {
 
 			for(std::map<int, const Unit *>::iterator iterMap2 = iterMap->second.begin();
-				iterMap2 != iterMap->second.end(); iterMap2++) {
-				int idx = iterMap2->first;
+				iterMap2 != iterMap->second.end(); ++iterMap2) {
+				//int idx = iterMap2->first;
 				const Unit *adjacentUnit = iterMap2->second;
 				if(adjacentUnit != NULL && adjacentUnit->getType()->getFirstCtOfClass(ccMove) != NULL) {
 					const CommandType *ct = adjacentUnit->getType()->getFirstCtOfClass(ccMove);
@@ -844,7 +842,7 @@ void Ai::unblockUnits() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
-bool Ai::outputAIBehaviourToConsole() {
+bool Ai::outputAIBehaviourToConsole() const {
 	return false;
 }
 

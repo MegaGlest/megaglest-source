@@ -112,6 +112,12 @@ Gui::Gui(){
 	minQuadSize=20;
 	selectedResourceObject=NULL;
 	hudTexture=NULL;
+	commander=NULL;
+	world=NULL;
+	game=NULL;
+	gameCamera=NULL;
+	console=NULL;
+	choosenBuildingType=NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -640,7 +646,7 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay){
 
 
 string Gui::computeDefaultInfoString() {
-	Lang &lang= Lang::getInstance();
+	//Lang &lang= Lang::getInstance();
 
 	string result="";
 	//printf("\n\n\n\n********* selection.isCommandable() [%d] selection.isUniform() [%d]\n\n",selection.isCommandable(),selection.isUniform());
@@ -972,7 +978,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 		activeCommandType= NULL;
 
 		//select all units of the same type if double click
-		if(doubleClick && units.size()>0){
+		if(doubleClick && units.empty() == false){
 			const Unit *refUnit= getRelevantObjectFromSelection(&units);
 			int factionIndex= refUnit->getFactionIndex();
 			for(int i=0; i<world->getFaction(factionIndex)->getUnitCount(); ++i){

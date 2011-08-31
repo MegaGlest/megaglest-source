@@ -77,7 +77,7 @@ ParticleSystemType::~ParticleSystemType() {
 		memoryObjectList[this]--;
 		assert(memoryObjectList[this] == 0);
 	}
-	for(Children::iterator it = children.begin(); it != children.end(); it++)
+	for(Children::iterator it = children.begin(); it != children.end(); ++it)
 		delete *it;
 }
 
@@ -101,7 +101,7 @@ void ParticleSystemType::copyAll(const ParticleSystemType &src) {
 	this->teamcolorNoEnergy	= src.teamcolorNoEnergy;
 	this->teamcolorEnergy	= src.teamcolorEnergy;
 	this->alternations		= src.alternations;
-	for(Children::iterator it = children.begin(); it != children.end(); it++) {
+	for(Children::iterator it = children.begin(); it != children.end(); ++it) {
 		UnitParticleSystemType *child = *it;
 
 		// Deep copy the child particles
@@ -265,7 +265,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 
 void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	// add instances of all children; some settings will cascade to all children
-	for(Children::iterator i=children.begin(); i!=children.end(); i++){
+	for(Children::iterator i=children.begin(); i!=children.end(); ++i){
 		UnitParticleSystem *child = new UnitParticleSystem();
 		(*i)->setValues(child);
 		ats->addChild(child);

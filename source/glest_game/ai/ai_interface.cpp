@@ -533,7 +533,7 @@ bool AiInterface::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i
 bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i &pos,
 											Vec2i &resultPos, bool usableResourceTypeOnly) {
 	Faction *faction = world->getFaction(factionIndex);
-	float tmpDist=0;
+	//float tmpDist=0;
 	float nearestDist= infinity;
 	bool anyResource= false;
 	resultPos.x = -1;
@@ -572,7 +572,7 @@ bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i 
 		}
 		else {
 			const Map *map		= world->getMap();
-			Faction *faction 	= world->getFaction(factionIndex);
+			//Faction *faction 	= world->getFaction(factionIndex);
 
 			for(int i = 0; i < map->getW(); ++i) {
 				for(int j = 0; j < map->getH(); ++j) {
@@ -587,7 +587,7 @@ bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i 
 						//if resource cell
 						if(r != NULL) {
 							if(r->getType() == rt) {
-								tmpDist= pos.dist(resPos);
+								float tmpDist= pos.dist(resPos);
 								if(tmpDist < nearestDist) {
 									anyResource= true;
 									nearestDist= tmpDist;

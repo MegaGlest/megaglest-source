@@ -188,7 +188,7 @@ public:
     bool haveBlockedUnits();
     void unblockUnits();
 
-    bool outputAIBehaviourToConsole();
+    bool outputAIBehaviourToConsole() const;
 };
 
 }}//end namespace
