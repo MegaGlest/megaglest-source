@@ -377,7 +377,7 @@ void DebugRenderer::renderArrow(
 	const float arrowEndSize = 0.5f;
 
 	Vec3f dir = Vec3f(_pos2 - pos1);
-	float len = dir.length();
+	//float len = dir.length();
 	float alphaFactor = 0.3f;
 
 	dir.normalize();

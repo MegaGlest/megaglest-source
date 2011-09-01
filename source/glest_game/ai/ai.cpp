@@ -640,7 +640,7 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 void Ai::returnBase(int unitIndex) {
     Vec2i pos;
     CommandResult r;
-    int fi= aiInterface->getFactionIndex();
+    aiInterface->getFactionIndex();
     pos= Vec2i(
 		random.randRange(-villageRadius, villageRadius), random.randRange(-villageRadius, villageRadius)) +
 		getRandomHomePosition();

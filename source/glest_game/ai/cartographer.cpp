@@ -41,7 +41,7 @@ Cartographer::Cartographer(World *world)
 	Logger::getInstance().add("Cartographer", true);
 
 	cellMap = world->getMap();
-	int w = cellMap->getW(), h = cellMap->getH();
+	//int w = cellMap->getW(), h = cellMap->getH();
 
 	routePlanner = world->getRoutePlanner();
 	masterMap = new AnnotatedMap(world);	

@@ -128,17 +128,17 @@ void BattleEnd::render() {
 		renderer.reset2d();
 		renderer.renderBackground(CoreData::getInstance().getBackgroundTexture());
 		
-		int winnerIndex 	= -1;
+		//int winnerIndex 	= -1;
 		int bestScore 		= -1;
-		int mostKillsIndex 	= -1;
+		//int mostKillsIndex 	= -1;
 		int bestKills 		= -1;
-		int mostEnemyKillsIndex = -1;
+		//int mostEnemyKillsIndex = -1;
 		int bestEnemyKills 		= -1;
-		int leastDeathsIndex 	= -1;
+		//int leastDeathsIndex 	= -1;
 		int leastDeaths			= -1;
-		int mostUnitsProducedIndex 	= -1;
+		//int mostUnitsProducedIndex 	= -1;
 		int bestUnitsProduced 		= -1;
-		int mostResourcesHarvestedIndex 	= -1;
+		//int mostResourcesHarvestedIndex 	= -1;
 		int bestResourcesHarvested 			= -1;
 
 		for(int i=0; i<stats.getFactionCount(); ++i) {
@@ -150,38 +150,38 @@ void BattleEnd::render() {
 			int kills= stats.getKills(i);
 			if(kills > bestKills) {
 				bestKills 	= kills;
-				mostKillsIndex = i;
+				//mostKillsIndex = i;
 			}
 
 			int enemykills= stats.getEnemyKills(i);
 			if(enemykills > bestEnemyKills) {
 				bestEnemyKills 	= enemykills;
-				mostEnemyKillsIndex = i;
+				//mostEnemyKillsIndex = i;
 			}
 
 			int deaths= stats.getDeaths(i);
 			if(deaths < leastDeaths || leastDeaths < 0) {
 				leastDeaths 	 = deaths;
-				leastDeathsIndex = i;
+				//leastDeathsIndex = i;
 			}
 
 			int unitsProduced= stats.getUnitsProduced(i);
 			if(unitsProduced > bestUnitsProduced) {
 				bestUnitsProduced 	   = unitsProduced;
-				mostUnitsProducedIndex = i;
+				//mostUnitsProducedIndex = i;
 			}
 
 			int resourcesHarvested = stats.getResourcesHarvested(i);
 			if(resourcesHarvested > bestResourcesHarvested) {
 				bestResourcesHarvested 	   = resourcesHarvested;
-				mostResourcesHarvestedIndex = i;
+				//mostResourcesHarvestedIndex = i;
 			}
 
 			int score= enemykills*100 + unitsProduced*50 + resourcesHarvested/10;
 
 			if(score > bestScore) {
 				bestScore 	= score;
-				winnerIndex = i;
+				//winnerIndex = i;
 			}
 		}
 

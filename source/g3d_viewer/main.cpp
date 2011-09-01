@@ -587,7 +587,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 			}
 		}
 	}
-	else if(modelPathList.size() == 0 && haveLoadedParticles) {
+	else if(modelPathList.empty() == true && haveLoadedParticles) {
 		if(renderer->hasActiveParticleSystem(ParticleSystem::pst_ProjectileParticleSystem) == false &&
 		   renderer->hasActiveParticleSystem(ParticleSystem::pst_SplashParticleSystem) == false) {
 

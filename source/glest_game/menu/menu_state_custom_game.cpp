@@ -1523,7 +1523,7 @@ void MenuStateCustomGame::update() {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		Lang& lang= Lang::getInstance();
 
-		bool haveAtLeastOneNetworkClientConnected = false;
+		//bool haveAtLeastOneNetworkClientConnected = false;
 		bool hasOneNetworkSlotOpen = false;
 		int currentConnectionCount=0;
 		Config &config = Config::getInstance();
@@ -1696,7 +1696,7 @@ void MenuStateCustomGame::update() {
 
 					//printf("FYI we have at least 1 client connected, slot = %d'\n",i);
 
-					haveAtLeastOneNetworkClientConnected = true;
+					//haveAtLeastOneNetworkClientConnected = true;
 					if(serverInterface->getSlot(i) != NULL &&
                        serverInterface->getSlot(i)->getConnectHasHandshaked()) {
 						currentConnectionCount++;
@@ -2023,7 +2023,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
         //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - B\n");
 
         MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor(),string(__FILE__) + "_" + intToStr(__LINE__));
-        bool republish                                  = (needToRepublishToMasterserver == true  && publishToServerInfo.size() != 0);
+        bool republish                                  = (needToRepublishToMasterserver == true  && publishToServerInfo.empty() == false);
         needToRepublishToMasterserver                   = false;
         std::map<string,string> newPublishToServerInfo  = publishToServerInfo;
         publishToServerInfo.clear();
@@ -2336,11 +2336,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 					factionCRCList.clear();
 					for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
 						string factionName = factionFiles[factionIdx];
-						int32 factionCRC   = 0;
 						if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
 							factionName != GameConstants::OBSERVER_SLOTNAME) {
 							//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
-							factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
+							int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
 							if(factionCRC == 0) {
 								factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 							}

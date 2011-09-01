@@ -2005,7 +2005,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			}
 		}
 
-		if(results.size() == 0) {
+		if(results.empty() == true) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			NetworkManager &networkManager= NetworkManager::getInstance();
