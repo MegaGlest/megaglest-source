@@ -81,6 +81,22 @@ MainWindow::MainWindow(string appPath)
         , glCanvas(NULL)
         , program(NULL), boxsizer(NULL), startupSettingsInited(false) {
 
+	menuFile=NULL;
+	menuEdit=NULL;
+	menuEditMirror=NULL;
+	menuView=NULL;
+	menuBrush=NULL;
+	menuBrushHeight=NULL;
+	menuBrushGradient=NULL;
+	menuBrushSurface=NULL;
+	menuBrushObject=NULL;
+	menuBrushResource=NULL;
+	menuBrushStartLocation=NULL;
+	menuRadius=NULL;
+	fileDialog=NULL;
+	resourceUnderMouse=0;
+	objectUnderMouse=0;
+
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
 
@@ -523,12 +539,11 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 		return;
 	}
 	bool repaint = false;
-	int dif;
 	if (event.LeftIsDown()) {
 		change(x, y);
 		repaint = true;
 	} else if (event.MiddleIsDown()) {
-		dif = (y - lastY);
+		int dif = (y - lastY);
 		if (dif != 0) {
 			program->incCellSize(dif / abs(dif));
 			repaint = true;

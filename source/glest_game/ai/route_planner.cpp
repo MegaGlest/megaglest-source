@@ -107,6 +107,9 @@ RoutePlanner::RoutePlanner(World *world)
 		, nodeStore(NULL)
 		, tSearchEngine(NULL)
 		, tNodeStore(NULL) {
+#ifdef	_GAE_DEBUG_EDITION_
+	debug_texture_action=SHOW_PATH_ONLY;
+#endif
 	const int &w = world->getMap()->getW();
 	const int &h = world->getMap()->getH();
 
@@ -420,7 +423,7 @@ HAAStarResult RoutePlanner::findWaypointPathUnExplored(Unit *unit, const Vec2i &
 	if (res == hsrFailed) {
 		return hsrFailed;
 	}
-	bool startTrap = res == hsrStartTrap;
+	//bool startTrap = res == hsrStartTrap;
 	UnexploredGoal goal(world->getMap(), unit->getTeam());
 	UnexploredCost cost(unit->getCurrField(), unit->getType()->getSize(), unit->getTeam(), world->getMap());
 	TransitionHeuristic heuristic(dest);
@@ -848,7 +851,7 @@ TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Ve
 	}
 
 	UnitPath &path = *advPath;
-	WaypointPath &wpPath = *unit->getWaypointPath();
+	//WaypointPath &wpPath = *unit->getWaypointPath();
 	const Vec2i &start = unit->getPos();
 
 	// setup search

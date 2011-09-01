@@ -1376,7 +1376,7 @@ void runTechValidationForPath(string techPath, string techName,
 		Checksum checksum;
 		set<string> factions;
 		for(int j = 0; j < factionsList.size(); ++j) {
-			if(	filteredFactionList.size() == 0 ||
+			if(	filteredFactionList.empty() == true ||
 				std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
 				factions.insert(factionsList[j]);
 			}
@@ -1385,7 +1385,7 @@ void runTechValidationForPath(string techPath, string techName,
 		printf("\n----------------------------------------------------------------");
 		printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),(int)factionsList.size());
 		for(int j = 0; j < factionsList.size(); ++j) {
-			if(	filteredFactionList.size() == 0 ||
+			if(	filteredFactionList.empty() == true ||
 				std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
 				printf("Using faction [%s]\n",factionsList[j].c_str());
 			}
@@ -1989,7 +1989,7 @@ void runTechValidationReport(int argc, char** argv) {
         for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
             string &techName = techTreeFiles[idx2];
 
-            if(	filteredTechTreeList.size() == 0 ||
+            if(	filteredTechTreeList.empty() == true ||
                 std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
 
             	runTechValidationForPath(techPath, techName, filteredFactionList,

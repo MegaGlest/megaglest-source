@@ -2147,7 +2147,7 @@ string Unit::getDescExtension() const{
 				str+= "\n" + lang.get("OrdersOnQueue") + ": ";
 			}
 			str+= "\n#" + intToStr(i + 1) + " " + ct->getName();
-			it++;
+			++it;
 		}
 	}
 

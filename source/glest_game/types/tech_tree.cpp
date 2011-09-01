@@ -208,12 +208,12 @@ std::vector<std::string> TechTree::validateFactionTypes() {
 	std::vector<std::string> results;
 	for (int i = 0; i < factionTypes.size(); ++i) {
 		std::vector<std::string> factionResults = factionTypes[i].validateFactionType();
-		if(factionResults.size() > 0) {
+		if(factionResults.empty() == false) {
 			results.insert(results.end(), factionResults.begin(), factionResults.end());
 		}
 
 		factionResults = factionTypes[i].validateFactionTypeUpgradeTypes();
-		if(factionResults.size() > 0) {
+		if(factionResults.empty() == false) {
 			results.insert(results.end(), factionResults.begin(), factionResults.end());
 		}
 	}
@@ -228,7 +228,7 @@ std::vector<std::string> TechTree::validateResourceTypes() {
 		//printf("Validating [%d / %d] faction [%s]\n",i,(int)factionTypes.size(),factionTypes[i].getName().c_str());
 
 		std::vector<std::string> factionResults = factionTypes[i].validateFactionTypeResourceTypes(resourceTypes);
-		if(factionResults.size() > 0) {
+		if(factionResults.empty() == false) {
 			results.insert(results.end(), factionResults.begin(), factionResults.end());
 		}
 
@@ -245,7 +245,7 @@ std::vector<std::string> TechTree::validateResourceTypes() {
 		}
 	}
 
-	if(resourceTypesNotUsed.size() > 0) {
+	if(resourceTypesNotUsed.empty() == false) {
 		//printf("FOUND unused resource Types [%d]\n",(int)resourceTypesNotUsed.size());
 
 		for (unsigned int i = 0; i < resourceTypesNotUsed.size(); ++i) {

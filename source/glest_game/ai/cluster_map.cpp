@@ -80,7 +80,7 @@ ClusterMap::~ClusterMap() {
 #define LOG(x) {}
 
 void ClusterMap::assertValid() {
-	bool valid[fieldCount];
+	//bool valid[fieldCount];
 	bool inUse[fieldCount];
 	int numNodes[fieldCount];
 	int numEdges[fieldCount];
@@ -94,7 +94,7 @@ void ClusterMap::assertValid() {
 
 		TKMap tkMap;
 
-		valid[f] = true;
+		//valid[f] = true;
 		numNodes[f] = 0;
 		numEdges[f] = 0;
 		inUse[f] = aMap->maxClearance[f] != 0;
@@ -111,13 +111,13 @@ void ClusterMap::assertValid() {
 				const Transition *t = b->transitions[f].transitions[j]; 
 				if (tSet.find(t) != tSet.end()) {
 					LOG("single transition on multiple borders.\n");
-					valid[f] = false;
+					//valid[f] = false;
 				} else {
 					tSet.insert(t);
 					TKey key(t->nwPos, t->vertical);
 					if (tkMap.find(key) != tkMap.end()) {
 						LOG("seperate transitions of same orientation on same cell.\n");
-						valid[f] = false;
+						//valid[f] = false;
 					} else {
 						tkMap[key] = t;
 					}
@@ -131,13 +131,13 @@ void ClusterMap::assertValid() {
 				const Transition *t = b->transitions[f].transitions[j]; 
 				if (tSet.find(t) != tSet.end()) {
 					LOG("single transition on multiple borders.\n");
-					valid[f] = false;
+					//valid[f] = false;
 				} else {
 					tSet.insert(t);
 					TKey key(t->nwPos, t->vertical);
 					if (tkMap.find(key) != tkMap.end()) {
 						LOG("seperate transitions of same orientation on same cell.\n");
-						valid[f] = false;
+						//valid[f] = false;
 					} else {
 						tkMap[key] = t;
 					}
@@ -153,11 +153,11 @@ void ClusterMap::assertValid() {
 				TSet::iterator it2 = tSet.find((*eit)->transition());
 				if (it2 == tSet.end()) {
 					LOG("Invalid edge.\n");
-					valid[f] = false;
+					//valid[f] = false;
 				} else {
 					if (*it == *it2) {
 						LOG("self referential transition.\n");
-						valid[f] = false;
+						//valid[f] = false;
 					}
 				}
 				++numEdges[f];
@@ -507,7 +507,7 @@ void ClusterMap::update() {
 /** compute intra-cluster path lengths */
 void ClusterMap::evalCluster(const Vec2i &cluster) {
 	//_PROFILE_FUNCTION();
-	int linePathSuccess = 0, linePathFail = 0;
+	//int linePathSuccess = 0, linePathFail = 0;
 	SearchEngine<NodePool> *se = carto->getRoutePlanner()->getSearchEngine();
 	se->getNeighbourFunc().setSearchCluster(cluster);
 	Transitions transitions;

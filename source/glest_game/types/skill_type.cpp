@@ -52,7 +52,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		bool destUnitMightApply = false;
 		// All units are affected (including enemies)
 		if(targetType == abtAll) {
-			destUnitMightApply = (boostUnitList.size() == 0);
+			destUnitMightApply = (boostUnitList.empty() == true);
 
 			// Specify which units are affected
 			for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
@@ -66,10 +66,10 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		}
 		// Only same faction units are affected
 		else if(targetType == abtFaction) {
-			//if(boostUnitList.size() == 0) {
+			//if(boostUnitList.empty() == true) {
 			if(source->getFactionIndex() == dest->getFactionIndex()) {
 				//destUnitMightApply = true;
-				destUnitMightApply = (boostUnitList.size() == 0);
+				destUnitMightApply = (boostUnitList.empty() == true);
 
 				// Specify which units are affected
 				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
@@ -85,10 +85,10 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		}
 		// Only ally units are affected
 		else if(targetType == abtAlly) {
-			//if(boostUnitList.size() == 0) {
+			//if(boostUnitList.empty() == true) {
 			if(source->isAlly(dest) == true) {
 				//destUnitMightApply = true;
-				destUnitMightApply = (boostUnitList.size() == 0);
+				destUnitMightApply = (boostUnitList.empty() == true);
 
 				// Specify which units are affected
 				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
@@ -103,10 +103,10 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		}
 		// Only foe units are affected
 		else if(targetType == abtFoe) {
-			//if(boostUnitList.size() == 0) {
+			//if(boostUnitList.empty() == true) {
 			if(source->isAlly(dest) == false) {
 				//destUnitMightApply = true;
-				destUnitMightApply = (boostUnitList.size() == 0);
+				destUnitMightApply = (boostUnitList.empty() == true);
 
 				// Specify which units are affected
 				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
@@ -209,7 +209,7 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] WARNING CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
 		}
 	}
-	if(animations.size() <= 0) {
+	if(animations.empty() == true) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
 		throw runtime_error(szBuf);

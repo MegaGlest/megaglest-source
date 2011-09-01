@@ -2909,7 +2909,7 @@ void Renderer::MapRenderer::render(const Map* map,float coordStep,VisibleQuadCon
 }
 
 void Renderer::MapRenderer::destroy() {
-	while(layers.size()) {
+	while(layers.empty() == false) {
 		delete layers.back();
 		layers.pop_back();
 	}
@@ -5370,7 +5370,7 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 
 //render objects for selection purposes
 void Renderer::renderObjectsFast(bool renderingShadows, bool resourceOnly) {
-	const World *world= game->getWorld();
+	//const World *world= game->getWorld();
 	//const Map *map= world->getMap();
 
     assertGl();
@@ -6077,7 +6077,7 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 			const Unit *unit = visibleFrameUnitList[idx];
 			if(unit != NULL) {
 				if(unit->getVisible() == true) {
-					if(unit != NULL && unit->getCurrentUnitTitle() != "") {
+					if(unit->getCurrentUnitTitle() != "") {
 						//get the screen coordinates
 						Vec3f screenPos = unit->getScreenPos();
 	#ifdef USE_STREFLOP

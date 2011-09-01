@@ -1280,7 +1280,7 @@ void World::initFactionTypes(GameSettings *gs) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(factions.size() > 0) {
+	if(factions.empty() == false) {
 		thisTeamIndex= getFaction(thisFactionIndex)->getTeam();
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

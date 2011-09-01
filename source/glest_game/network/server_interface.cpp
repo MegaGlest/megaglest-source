@@ -1780,7 +1780,7 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 
 					CURL *handle = SystemFlags::initHTTP();
 					for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
-						iterMap != newPublishToServerInfo.end(); iterMap++) {
+						iterMap != newPublishToServerInfo.end(); ++iterMap) {
 
 						request += iterMap->first;
 						request += "=";
