@@ -714,7 +714,7 @@ void Properties::setString(const string &key, const string &value){
 string Properties::toString(){
 	string rStr;
 
-	for(PropertyMap::iterator pi= propertyMap.begin(); pi!=propertyMap.end(); pi++)
+	for(PropertyMap::iterator pi= propertyMap.begin(); pi!=propertyMap.end(); ++pi)
 		rStr+= pi->first + "=" + pi->second + "\n";
 
 	return rStr;

@@ -115,7 +115,7 @@ std::string UnitPathBasic::toString() const {
 	std::string result = "";
 
 	result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(pathQueue.size());
-	for(int idx = 0; idx < pathQueue.size(); idx++) {
+	for(int idx = 0; idx < pathQueue.size(); ++idx) {
 		result += " index = " + intToStr(idx) + " " + pathQueue[idx].getString();
 	}
 
@@ -161,7 +161,7 @@ UnitReference::UnitReference(){
 	faction= NULL;
 }
 
-void UnitReference::operator=(const Unit *unit){
+UnitReference & UnitReference::operator=(const Unit *unit){
 	if(unit==NULL){
 		id= -1;
 		faction= NULL;
@@ -170,6 +170,8 @@ void UnitReference::operator=(const Unit *unit){
 		id= unit->getId();
 		faction= unit->getFaction();
 	}
+
+	return *this;
 }
 
 Unit *UnitReference::getUnit() const{
@@ -1283,7 +1285,7 @@ void Unit::undertake() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
 
 	// Remove any units that were previously in attack-boost range
-	if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() > 0 && currentAttackBoostOriginatorEffect.skillType != NULL) {
+	if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false && currentAttackBoostOriginatorEffect.skillType != NULL) {
 		for(unsigned int i = 0; i < currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size(); ++i) {
 			// Remove attack boost upgrades from unit
 			int findUnitId = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
@@ -1615,7 +1617,7 @@ bool Unit::update() {
 		}
 
 		// Remove any units that were previously in range
-		if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() > 0 && currentAttackBoostOriginatorEffect.skillType != NULL) {
+		if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false && currentAttackBoostOriginatorEffect.skillType != NULL) {
 			for(unsigned int i = 0; i < currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size(); ++i) {
 				// Remove attack boost upgrades from unit
 
@@ -1650,7 +1652,7 @@ bool Unit::update() {
 			}
 
 			if(showUnitParticles == true) {
-				if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() > 0) {
+				if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false) {
 					if(attackBoost->unitParticleSystemTypeForSourceUnit != NULL) {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect = new UnitAttackBoostEffect();
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst = new UnitParticleSystemType();
@@ -1702,7 +1704,7 @@ bool Unit::update() {
 			}
 
 			if(showUnitParticles == true) {
-				if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() > 0) {
+				if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false) {
 					if( attackBoost->unitParticleSystemTypeForSourceUnit != NULL &&
 						currentAttackBoostOriginatorEffect.currentAppliedEffect == NULL) {
 
@@ -2592,7 +2594,7 @@ void Unit::stopDamageParticles(bool force) {
 		// stop additional particles
 
 
-		if(smokeParticleSystems.size() > 0) {
+		if(smokeParticleSystems.empty() == false) {
 			for(int i = smokeParticleSystems.size()-1; i >= 0; --i) {
 				UnitParticleSystem *ps = smokeParticleSystems[i];
 				ps->fade();
@@ -2600,7 +2602,7 @@ void Unit::stopDamageParticles(bool force) {
 			}
 		}
 
-		if(damageParticleSystems.size() > 0) {
+		if(damageParticleSystems.empty() == false) {
 			for(int i = damageParticleSystems.size()-1; i >= 0; --i) {
 				UnitParticleSystem *ps = damageParticleSystems[i];
 				UnitParticleSystemType *pst = NULL;
@@ -2629,7 +2631,7 @@ void Unit::stopDamageParticles(bool force) {
 
 void Unit::checkCustomizedParticleTriggers(bool force) {
 	// Now check if we have special hp triggered particles
-	if(damageParticleSystems.size() > 0) {
+	if(damageParticleSystems.empty() == false) {
 		for(int i = damageParticleSystems.size()-1; i >= 0; --i) {
 			UnitParticleSystem *ps = damageParticleSystems[i];
 			UnitParticleSystemType *pst = NULL;
@@ -2941,7 +2943,7 @@ void Unit::cleanupOldBadHarvestPos() {
 			}
 		}
 
-		if(purgeList.size() > 0) {
+		if(purgeList.empty() == false) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"[cleaning old bad harvest targets] purgeList.size() [%ld]",purgeList.size());
 			logSynchData(__FILE__,__LINE__,szBuf);

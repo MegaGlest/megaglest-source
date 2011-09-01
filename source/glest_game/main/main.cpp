@@ -320,7 +320,7 @@ public:
         int line=-1;
         const int maxbufSize = 1024;
         static char buf[maxbufSize+1]="";
-        char *p=NULL;
+        //char *p=NULL;
 
         // prepare command to be executed
         // our program need to be passed after the -e parameter

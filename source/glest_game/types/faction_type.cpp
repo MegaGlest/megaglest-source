@@ -47,7 +47,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
     name= lastDir(currentPath);
 
     // Add special Observer Faction
-    Lang &lang= Lang::getInstance();
+    //Lang &lang= Lang::getInstance();
     if(name == formatString(GameConstants::OBSERVER_SLOTNAME)) {
     	personalityType = fpt_Observer;
     }

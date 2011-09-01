@@ -77,6 +77,7 @@ string RequirableType::getReqDesc() const{
 
 ProducibleType::ProducibleType(){
 	cancelImage= NULL;
+	productionTime=0;
 }
 
 ProducibleType::~ProducibleType(){

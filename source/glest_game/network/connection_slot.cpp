@@ -150,7 +150,7 @@ void ConnectionSlotThread::execute() {
 		//setRunningStatus(true);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		unsigned int idx = 0;
+		//unsigned int idx = 0;
 		for(;this->slotInterface != NULL;) {
 			if(getQuitStatus() == true) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -233,6 +233,8 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->currentLagCount	= 0;
 	this->gotLagCountWarning = false;
 	this->lastReceiveCommandListTime	= 0;
+	this->receivedNetworkGameStatus = false;
+
 	this->socket		   	= NULL;
 	this->slotThreadWorker 	= NULL;
 	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
@@ -879,7 +881,7 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
 	vector<NetworkCommand> ret;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
-    if(vctPendingNetworkCommandList.size() > 0) {
+    if(vctPendingNetworkCommandList.empty() == false) {
     	ret = vctPendingNetworkCommandList;
 		if(clearList == true) {
 			vctPendingNetworkCommandList.clear();
@@ -893,7 +895,7 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
 void ConnectionSlot::clearPendingNetworkCommandList() {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
-	if(vctPendingNetworkCommandList.size() > 0) {
+	if(vctPendingNetworkCommandList.empty() == false) {
 		vctPendingNetworkCommandList.clear();
 	}
     safeMutexSlot.ReleaseLock();

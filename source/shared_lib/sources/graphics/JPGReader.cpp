@@ -60,7 +60,7 @@ static void term_source (j_decompress_ptr cinfo) {
 	//static const string extensions[] = {"jpg", "jpeg", ""};
 static inline std::vector<string> getExtensions() {
 	static std::vector<string> extensions;
-	if(extensions.size() == 0) {
+	if(extensions.empty() == true) {
 		extensions.push_back("jpg");
 		extensions.push_back("jpeg");
 	}

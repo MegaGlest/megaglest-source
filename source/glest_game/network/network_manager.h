@@ -45,7 +45,7 @@ public:
 	GameNetworkInterface* getGameNetworkInterface(bool throwErrorOnNull=true);
 	ServerInterface* getServerInterface(bool throwErrorOnNull=true);
 	ClientInterface* getClientInterface(bool throwErrorOnNull=true);
-	NetworkRole getNetworkRole() { return networkRole; }
+	NetworkRole getNetworkRole() const { return networkRole; }
 };
 
 }}//end namespace

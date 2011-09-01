@@ -87,6 +87,7 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 StopCommandType::StopCommandType(){
     commandTypeClass= ccStop;
     clicks= cOne;
+    stopSkillType=NULL;
 }
 
 void StopCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -130,6 +131,7 @@ void StopCommandType::load(int id, const XmlNode *n, const string &dir,
 MoveCommandType::MoveCommandType(){
     commandTypeClass= ccMove;
     clicks= cTwo;
+    moveSkillType=NULL;
 }
 
 void MoveCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -180,6 +182,8 @@ string MoveCommandType::toString() const{
 AttackCommandType::AttackCommandType(){
     commandTypeClass= ccAttack;
     clicks= cTwo;
+    moveSkillType=NULL;
+    attackSkillType=NULL;
 }
 
 void AttackCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -273,6 +277,8 @@ string AttackCommandType::toString() const{
 AttackStoppedCommandType::AttackStoppedCommandType(){
     commandTypeClass= ccAttackStopped;
     clicks= cOne;
+    stopSkillType=NULL;
+    attackSkillType=NULL;
 }
 
 void AttackStoppedCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -355,6 +361,8 @@ string AttackStoppedCommandType::toString() const {
 BuildCommandType::BuildCommandType() {
     commandTypeClass= ccBuild;
     clicks= cTwo;
+    moveSkillType=NULL;
+    buildSkillType=NULL;
 }
 
 BuildCommandType::~BuildCommandType() {
@@ -455,6 +463,12 @@ string BuildCommandType::toString() const{
 HarvestCommandType::HarvestCommandType(){
     commandTypeClass= ccHarvest;
     clicks= cTwo;
+    moveSkillType=NULL;
+    moveLoadedSkillType=NULL;
+    harvestSkillType=NULL;
+    stopLoadedSkillType=NULL;
+    maxLoad=0;
+    hitsPerUnit=0;
 }
 
 void HarvestCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -533,6 +547,8 @@ bool HarvestCommandType::canHarvest(const ResourceType *resourceType) const{
 RepairCommandType::RepairCommandType(){
     commandTypeClass= ccRepair;
     clicks= cTwo;
+    moveSkillType=NULL;
+    repairSkillType=NULL;
 }
 
 RepairCommandType::~RepairCommandType(){
@@ -610,6 +626,8 @@ bool RepairCommandType::isRepairableUnitType(const UnitType *unitType) const {
 ProduceCommandType::ProduceCommandType(){
     commandTypeClass= ccProduce;
     clicks= cOne;
+    produceSkillType=NULL;
+    producedUnit=NULL;
 }
 
 void ProduceCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -675,6 +693,8 @@ const ProducibleType *ProduceCommandType::getProduced() const{
 UpgradeCommandType::UpgradeCommandType(){
     commandTypeClass= ccUpgrade;
     clicks= cOne;
+    upgradeSkillType=NULL;
+    producedUpgrade=NULL;
 }
 
 void UpgradeCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -732,6 +752,9 @@ const ProducibleType *UpgradeCommandType::getProduced() const{
 MorphCommandType::MorphCommandType(){
     commandTypeClass= ccMorph;
     clicks= cOne;
+    morphSkillType=NULL;
+    morphUnit=NULL;
+    discount=0;
 }
 
 void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {

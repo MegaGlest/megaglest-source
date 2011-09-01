@@ -827,7 +827,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                 announcementLoaded=true;
             }
 
-            Lang &lang= Lang::getInstance();
+            //Lang &lang= Lang::getInstance();
             try {
                 if(Config::getInstance().getString("Masterserver","") != "") {
 
@@ -943,7 +943,7 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START  ipString='%s'\n",__FILE__,__FUNCTION__,ipString.c_str());
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
-	Config& config= Config::getInstance();
+	//Config& config= Config::getInstance();
 	Ip serverIp(ipString);
 
 	//int serverPort = Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());

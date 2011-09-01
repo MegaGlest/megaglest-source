@@ -635,7 +635,7 @@ public:
 	void addSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags |= flag;}
 	void clearSwitchFlag(SwitchSetupRequestFlagType flag) { data.switchFlags &= ~flag;}
 
-	int getNetworkPlayerStatus()			{ return data.networkPlayerStatus; }
+	int getNetworkPlayerStatus() const		{ return data.networkPlayerStatus; }
 	string getNetworkPlayerLanguage() const	{ return data.language.getString(); }
 
 	virtual bool receive(Socket* socket);

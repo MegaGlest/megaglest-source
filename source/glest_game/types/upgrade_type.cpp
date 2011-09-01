@@ -322,13 +322,13 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 string UpgradeType::getReqDesc() const{
 
     string str;
-    int i;
+    //int i;
 	Lang &lang= Lang::getInstance();
 
     str= ProducibleType::getReqDesc();
 	if(getEffectCount()>0){
 		str+= "\n"+ lang.get("Upgrades")+":\n";
-		for(i=0; i<getEffectCount(); ++i){
+		for(int i=0; i<getEffectCount(); ++i){
 			str+= getEffect(i)->getName()+"\n";
 		}
 	}

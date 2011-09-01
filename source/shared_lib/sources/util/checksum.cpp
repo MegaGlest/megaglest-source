@@ -153,7 +153,7 @@ bool Checksum::addFileToSum(const string &path) {
 			memset(buf,0,bufSize);
 			if(fgets(buf, bufSize, file) != NULL) {
 				//addByte(byte);
-			    for(int i = 0; buf[i] != 0 && i < bufSize; i++) {
+			    for(int i = 0; i < bufSize && buf[i] != 0; i++) {
 			    	// Ignore Spaces in XML files as they are
 			    	// ONLY for formatting
 			    	if(isXMLFile == true) {
@@ -196,7 +196,7 @@ int32 Checksum::getSum() {
 
 		Checksum newResult;
 		for(std::map<string,int32>::iterator iterMap = fileList.begin();
-			iterMap != fileList.end(); iterMap++) {
+			iterMap != fileList.end(); ++iterMap) {
 
 			MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 			if(Checksum::fileListCache.find(iterMap->first) == Checksum::fileListCache.end()) {

@@ -75,6 +75,11 @@ World::World(){
 	scriptManager= NULL;
 	this->game = NULL;
 
+	thisFactionIndex=0;
+	thisTeamIndex=0;
+	fogOfWar=false;
+	perfTimerEnabled=false;
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -105,13 +110,13 @@ World::~World() {
 	routePlanner = 0;
 
 	for(std::map<string,StaticSound *>::iterator iterMap = staticSoundList.begin();
-		iterMap != staticSoundList.end(); iterMap++) {
+		iterMap != staticSoundList.end(); ++iterMap) {
 		delete iterMap->second;
 	}
 	staticSoundList.clear();
 
 	for(std::map<string,StrSound *>::iterator iterMap = streamSoundList.begin();
-		iterMap != streamSoundList.end(); iterMap++) {
+		iterMap != streamSoundList.end(); ++iterMap) {
 		delete iterMap->second;
 	}
 	streamSoundList.clear();
@@ -299,7 +304,7 @@ void World::updateAllFactionUnits() {
 
 				unitListToSort.push_back(new CommandGroupSorter(unit));
 			}
-			if(unitListToSort.size() > 0) {
+			if(unitListToSort.empty() == false) {
 				std::sort(unitListToSort.begin(),unitListToSort.end());
 			}
 		}
@@ -1359,8 +1364,8 @@ void World::initMap() {
 // ==================== exploration ====================
 
 void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
-	bool cacheLookupPosResult 	= false;
-	bool cacheLookupSightResult = false;
+	//bool cacheLookupPosResult 	= false;
+	//bool cacheLookupSightResult = false;
 
 	// cache lookup of previously calculated cells + sight range
 	if(MaxExploredCellsLookupItemCache > 0) {
@@ -1392,11 +1397,11 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 		// cache if already found
 		std::map<Vec2i, std::map<int, ExploredCellsLookupItem> >::iterator iterFind = ExploredCellsLookupItemCache.find(newPos);
 		if(iterFind != ExploredCellsLookupItemCache.end()) {
-			cacheLookupPosResult = true;
+			//cacheLookupPosResult = true;
 
 			std::map<int, ExploredCellsLookupItem>::iterator iterFind2 = iterFind->second.find(sightRange);
 			if(iterFind2 != iterFind->second.end()) {
-				cacheLookupSightResult = true;
+				//cacheLookupSightResult = true;
 
 				std::vector<SurfaceCell *> &cellList = iterFind2->second.exploredCellList;
 				for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {

@@ -236,6 +236,11 @@ private:
 public:
     FileTransferInfo()
     {
+        hostType    = eClient;
+        serverIP    = "";
+        serverPort  = 0;
+        opType      = eSend;
+        fileName    = "";
     }
     FileTransferInfo(const FileTransferInfo &obj)
     {

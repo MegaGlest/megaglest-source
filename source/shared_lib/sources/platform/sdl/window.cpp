@@ -370,7 +370,7 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, newStencilBits);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, newDepthBits);
 
-	const SDL_VideoInfo *info = SDL_GetVideoInfo();
+	//const SDL_VideoInfo *info = SDL_GetVideoInfo();
 #ifdef SDL_GL_SWAP_CONTROL
     if(Window::tryVSynch == true) {
     	/* we want vsync for smooth scrolling */
@@ -424,10 +424,10 @@ void Window::toggleFullscreen() {
 		SDL_Surface *sf = SDL_GetVideoSurface();
 		SDL_Surface **surface = &sf;
 		uint32 *flags = NULL;
-		void *pixels = NULL;
-		SDL_Color *palette = NULL;
+		//void *pixels = NULL;
+		//SDL_Color *palette = NULL;
 		SDL_Rect clip;
-		int ncolors = 0;
+		//int ncolors = 0;
 		Uint32 tmpflags = 0;
 		int w = 0;
 		int h = 0;

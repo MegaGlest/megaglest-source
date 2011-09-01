@@ -110,7 +110,7 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
 }
 
 void NetworkInterface::clearChatInfo() {
-	if(chatTextList.size() > 0) {
+	if(chatTextList.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
 		chatTextList.clear();
 	}
@@ -296,7 +296,7 @@ void FileTransferSocketThread::execute()
                       outFile.write(data, 512);
                       if(outFile.bad())
                       {
-                          int ii = 0;
+                          //int ii = 0;
                       }
                       //if(!WriteFile(file,data,512,&written,NULL))
                       //   ; //write error
@@ -310,7 +310,7 @@ void FileTransferSocketThread::execute()
                     outFile.write(data, remain);
                     if(outFile.bad())
                     {
-                        int ii = 0;
+                        //int ii = 0;
                     }
 
                     //if(!WriteFile(file,data,remain,&written,NULL))
@@ -325,7 +325,7 @@ void FileTransferSocketThread::execute()
                     int32 crc = checksum.getSum();
                     if(file.filecrc != crc)
                     {
-                        int ii = 0;
+                        //int ii = 0;
                     }
 
                     //if(calc_crc(file)!=info.crc)

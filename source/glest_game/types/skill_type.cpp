@@ -501,6 +501,12 @@ AttackSkillType::AttackSkillType() {
 	for(int i = 0; i < fieldCount; ++i) {
 		attackFields[i]= false;
 	}
+
+	attackStrength=0;
+	attackVar=0;
+	attackRange=0;
+	attackStartTime=0;
+	splashDamageAll=false;
 }
 
 AttackSkillType::~AttackSkillType() {
@@ -672,6 +678,7 @@ string RepairSkillType::toString() const{
 
 ProduceSkillType::ProduceSkillType(){
     skillClass= scProduce;
+    animProgressBound=false;
 }
 
 void ProduceSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
@@ -704,6 +711,7 @@ int ProduceSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
 
 UpgradeSkillType::UpgradeSkillType(){
     skillClass= scUpgrade;
+    animProgressBound=false;
 }
 
 void UpgradeSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
@@ -735,6 +743,7 @@ int UpgradeSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
 
 BeBuiltSkillType::BeBuiltSkillType(){
     skillClass= scBeBuilt;
+    animProgressBound=false;
 }
 
 void BeBuiltSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
@@ -764,6 +773,7 @@ string BeBuiltSkillType::toString() const{
 
 MorphSkillType::MorphSkillType(){
     skillClass= scMorph;
+    animProgressBound=false;
 }
 
 void MorphSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
@@ -795,6 +805,7 @@ int MorphSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
 
 DieSkillType::DieSkillType(){
     skillClass= scDie;
+    fade=false;
 }
 
 void DieSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,

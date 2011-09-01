@@ -293,7 +293,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 					UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
 
 					//Texture2D *newTexture = Renderer::getInstance().newTexture2D(rsGame);
-					Texture2D *newTexture = NULL;
+					//Texture2D *newTexture = NULL;
 
 					unitParticleSystemType->load(particleFileNode, dir, currentPath + path,
 							&Renderer::getInstance(),loadedFileList, sourceXMLFile,
