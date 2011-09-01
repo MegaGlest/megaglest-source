@@ -2320,7 +2320,7 @@ void BroadCastSocketThread::execute() {
 
     /* get my host name */
     gethostname(myhostname,100);
-    struct hostent*myhostent = gethostbyname(myhostname);
+    //struct hostent*myhostent = gethostbyname(myhostname);
 
     // get all host IP addresses
     std::vector<std::string> ipList = Socket::getLocalIPAddressList();

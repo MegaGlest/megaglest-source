@@ -107,7 +107,7 @@ RoutePlanner::RoutePlanner(World *world)
 		, nodeStore(NULL)
 		, tSearchEngine(NULL)
 		, tNodeStore(NULL) {
-#ifdef	_GAE_DEBUG_EDITION_
+#ifdef DEBUG_SEARCH_TEXTURES
 	debug_texture_action=SHOW_PATH_ONLY;
 #endif
 	const int &w = world->getMap()->getW();
