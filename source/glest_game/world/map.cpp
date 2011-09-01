@@ -66,6 +66,11 @@ SurfaceCell::SurfaceCell() {
 	surfaceType= -1;
 	surfaceTexture= NULL;
 	nearSubmerged = false;
+
+	for(int i = 0; i < GameConstants::maxPlayers + GameConstants::specialFactions; ++i) {
+		visible[i] = false;
+		explored[i] = false;
+	}
 }
 
 SurfaceCell::~SurfaceCell() {
@@ -913,7 +918,7 @@ std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,cons
 	}
 
 	std::pair<float,Vec2i> result(-1,Vec2i(0));
-	int unitId= unit->getId();
+	//int unitId= unit->getId();
 	Vec2i unitPos= computeDestPos(unit->getPos(), unit->getPos(), pos);
 
 	Vec2i start = pos - Vec2i(1);
@@ -958,7 +963,7 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 
 	for(int i = 0; i < selection->getCount(); ++i) {
 		const Unit *unit = selection->getUnit(i);
-		int unitId= unit->getId();
+		//int unitId= unit->getId();
 		Vec2i unitBuilderPos= computeDestPos(refPos, unit->getPos(), pos);
 
 		for(int i = start.x; i <= end.x; ++i) {
@@ -1011,7 +1016,7 @@ bool Map::isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 								const Vec2i &testPos) const {
 	bool isInsideDestUnitCells = isInUnitTypeCells(ut, pos,testPos);
 	if(isInsideDestUnitCells == false) {
-		Cell *testCell = getCell(testPos);
+		//Cell *testCell = getCell(testPos);
 		for(int i=-1; i <= ut->getSize(); ++i){
 			for(int j = -1; j <= ut->getSize(); ++j) {
 				Vec2i currPos = pos + Vec2i(i, j);
@@ -1316,7 +1321,7 @@ void Map::computeInterpolatedHeights(){
 
 void Map::smoothSurface(Tileset *tileset) {
 	float *oldHeights = new float[getSurfaceCellArraySize()];
-	int arraySize=getSurfaceCellArraySize();
+	//int arraySize=getSurfaceCellArraySize();
 
 	for (int i = 0; i < getSurfaceCellArraySize(); ++i) {
 		oldHeights[i] = surfaceCells[i].getHeight();

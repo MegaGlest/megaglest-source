@@ -43,10 +43,12 @@ private:
 
 public:
 	NetworkString()					  {memset(buffer, 0, S);}
-	void operator=(const string& str) {
+	NetworkString & operator=(const string& str) {
 		// ensure we don't have a buffer overflow
 		int maxBufferSize = sizeof(buffer) / sizeof(buffer[0]);
 		strncpy(buffer, str.c_str(), min(S-1,maxBufferSize-1));
+
+		return *this;
 	}
 	void nullTerminate() {
 		int maxBufferSize = sizeof(buffer) / sizeof(buffer[0]);

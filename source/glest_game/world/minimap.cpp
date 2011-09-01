@@ -36,6 +36,8 @@ Minimap::Minimap() {
 	fowPixmap1= NULL;
 	fogOfWar= true;//Config::getInstance().getBool("FogOfWar");
 	gameSettings= NULL;
+	tex=NULL;
+	fowTex=NULL;
 }
 
 void Minimap::init(int w, int h, const World *world, bool fogOfWar) {

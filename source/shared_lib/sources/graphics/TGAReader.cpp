@@ -56,7 +56,7 @@ static const int tgaUncompressedBw= 3;
 static inline std::vector<string> getExtensionStrings() {
 	//static const string extensions[] = {"tga", ""};
 	static std::vector<string> extensions;
-	if(extensions.size() == 0) {
+	if(extensions.empty() == true) {
 		extensions.push_back("tga");
 	}
 

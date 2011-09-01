@@ -81,7 +81,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
     //scenario listbox
 	findDirs(dirList, results);
     scenarioFiles = results;
-	if(results.size() == 0) {
+	if(results.empty() == true) {
         throw runtime_error("There are no scenarios found to load");
 	}
 	for(int i= 0; i<results.size(); ++i){
@@ -476,7 +476,7 @@ void MenuStateScenario::keyDown(SDL_KeyboardEvent key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 	//if(key == configKeys.getCharKey("SaveGUILayout")) {
 	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
-		bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+		GraphicComponent::saveAllCustomProperties(containerName);
 		//Lang &lang= Lang::getInstance();
 		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
 	}

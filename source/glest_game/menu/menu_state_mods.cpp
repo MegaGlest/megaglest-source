@@ -82,6 +82,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyButtonsYBase			= scrollListsYPos;
 	keyButtonsToRender		= listBoxLength / keyButtonsLineHeight;
 	labelWidth				= 5;
+	keyButtonsXBase			= 0;
 
 	int installButtonYPos = scrollListsYPos-listBoxLength-20;
 
@@ -245,7 +246,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	vector<string> mapPathList = config.getPathListForType(ptMaps);
 	std::pair<string,string> mapsPath;
-	if(mapPathList.size() > 0) {
+	if(mapPathList.empty() == false) {
 		mapsPath.first = mapPathList[0];
 	}
 	if(mapPathList.size() > 1) {
@@ -253,7 +254,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	}
 	std::pair<string,string> tilesetsPath;
 	vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
-	if(tilesetsList.size() > 0) {
+	if(tilesetsList.empty() == false) {
 		tilesetsPath.first = tilesetsList[0];
 		if(tilesetsList.size() > 1) {
 			tilesetsPath.second = tilesetsList[1];
@@ -262,7 +263,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	std::pair<string,string> techtreesPath;
 	vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
-	if(techtreesList.size() > 0) {
+	if(techtreesList.empty() == false) {
 		techtreesPath.first = techtreesList[0];
 		if(techtreesList.size() > 1) {
 			techtreesPath.second = techtreesList[1];
@@ -271,7 +272,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
     std::pair<string,string> scenariosPath;
     vector<string> scenariosList = Config::getInstance().getPathListForType(ptScenarios);
-    if(scenariosList.size() > 0) {
+    if(scenariosList.empty() == false) {
     	scenariosPath.first = scenariosList[0];
         if(scenariosList.size() > 1) {
         	scenariosPath.second = scenariosList[1];
@@ -995,7 +996,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 		soundRenderer.playFx(coreData.getClickSoundA());
 
-		if(fileFTPProgressList.size() > 0) {
+		if(fileFTPProgressList.empty() == false) {
 			mainMessageBoxState = ftpmsg_Quit;
 			mainMessageBox.init(lang.get("Yes"),lang.get("No"));
 			char szBuf[1024]="";
@@ -1431,7 +1432,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 				ModInfo &modInfo = mapCacheList[selectedMapName];
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
 
-				Config &config = Config::getInstance();
+				//Config &config = Config::getInstance();
 				Checksum checksum;
 				string file = Map::getMapPath(selectedMapName,"",false);
 				checksum.addFile(file);
@@ -1974,7 +1975,7 @@ void MenuStateMods::render() {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
 		if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
-        if(fileFTPProgressList.size() > 0) {
+        if(fileFTPProgressList.empty() == false) {
         	Lang &lang= Lang::getInstance();
         	int xLocation = buttonReturn.getX();
             int yLocation = buttonReturn.getY() - 12;
@@ -2028,7 +2029,7 @@ void MenuStateMods::update() {
 	Chrono chrono;
 	chrono.start();
 
-	Lang &lang= Lang::getInstance();
+	//Lang &lang= Lang::getInstance();
 
 	// Tech List
 	if (keyTechScrollBar.getElementCount() != 0) {

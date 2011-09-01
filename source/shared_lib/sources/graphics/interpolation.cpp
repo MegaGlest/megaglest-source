@@ -52,17 +52,17 @@ InterpolationData::~InterpolationData(){
 
 
 	for(std::map<float, std::map<bool, Vec3f *> >::iterator iterVert = cacheVertices.begin();
-		iterVert != cacheVertices.end(); iterVert++) {
+		iterVert != cacheVertices.end(); ++iterVert) {
 		for(std::map<bool, Vec3f *>::iterator iterVert2 = iterVert->second.begin();
-			iterVert2 != iterVert->second.end(); iterVert2++) {
+			iterVert2 != iterVert->second.end(); ++iterVert2) {
 			delete [] iterVert2->second;
 		}
 	}
 
 	for(std::map<float, std::map<bool, Vec3f *> >::iterator iterVert = cacheNormals.begin();
-		iterVert != cacheNormals.end(); iterVert++) {
+		iterVert != cacheNormals.end(); ++iterVert) {
 		for(std::map<bool, Vec3f *>::iterator iterVert2 = iterVert->second.begin();
-			iterVert2 != iterVert->second.end(); iterVert2++) {
+			iterVert2 != iterVert->second.end(); ++iterVert2) {
 			delete [] iterVert2->second;
 		}
 	}

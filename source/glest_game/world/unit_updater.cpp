@@ -54,6 +54,7 @@ UnitUpdater::UnitUpdater() {
 	this->routePlanner = NULL;
 	this->pathFinder = NULL;
 	//UnitRangeCellsLookupItemCacheTimerCount = 0;
+	attackWarnRange=0;
 }
 
 void UnitUpdater::init(Game *game){
@@ -872,7 +873,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	Vec2i targetPos(-1);
 
 	TravelState tsValue = tsImpossible;
-	UnitPathInterface *path= unit->getPath();
+	//UnitPathInterface *path= unit->getPath();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -1536,7 +1537,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] repaired = %p, nextToRepaired = %d, unit->getCurrSkill()->getClass() = %d\n",__FILE__,__FUNCTION__,__LINE__,repaired,nextToRepaired,unit->getCurrSkill()->getClass());
 
-	UnitPathInterface *path= unit->getPath();
+	//UnitPathInterface *path= unit->getPath();
 
 	if(unit->getCurrSkill()->getClass() != scRepair ||
 		(nextToRepaired == false && peerUnitBuilder == NULL)) {
@@ -2150,10 +2151,10 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	Vec2i center 		= unit->getPos();
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
-	bool foundInCache = true;
+	//bool foundInCache = true;
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
 							  unit,commandTarget) == false) {
-		foundInCache = false;
+		//foundInCache = false;
 		//nearby cells
 		UnitRangeCellsLookupItem cacheItem;
 		for(int i = center.x - range; i < center.x + range + size; ++i) {
@@ -2232,17 +2233,17 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 */
 
 	if(result == true) {
-		const Unit* teamUnit	= NULL;
+		//const Unit* teamUnit	= NULL;
 		const Unit* enemyUnit	= NULL;
 		bool onlyEnemyUnits		= true;
 
 		if(unit->getTeam() == world->getThisTeamIndex()) {
-			teamUnit		= unit;
+			//teamUnit		= unit;
 			enemyUnit		= enemySeen;
 			onlyEnemyUnits	= false;
 		}
 		else if(enemySeen->getTeam() == world->getThisTeamIndex()) {
-			teamUnit		= enemySeen;
+			//teamUnit		= enemySeen;
 			enemyUnit		= unit;
 			onlyEnemyUnits	= false;
 		}
@@ -2332,10 +2333,10 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 	Vec2i center 		= unit->getPos();
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
-	bool foundInCache = true;
+	//bool foundInCache = true;
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
 							  unit,commandTarget) == false) {
-		foundInCache = false;
+		//foundInCache = false;
 		//nearby cells
 		UnitRangeCellsLookupItem cacheItem;
 		for(int i = center.x - range; i < center.x + range + size; ++i) {

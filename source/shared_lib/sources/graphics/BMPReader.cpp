@@ -57,7 +57,7 @@ static inline std::vector<string> getExtensionsBmp() {
 	//static const string extensions[] = {"bmp", ""};
 	static std::vector<string> extensions;
 
-	if(extensions.size() == 0) {
+	if(extensions.empty() == true) {
 		extensions.push_back("bmp");
 	}
 

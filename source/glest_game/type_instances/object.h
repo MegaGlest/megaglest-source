@@ -73,7 +73,7 @@ public:
 	Vec3f getPos() const				{return pos;}
 	bool isVisible() const				{return visible;}
 	const Vec3f & getConstPos() const	{return pos;}
-	float getRotation()					{return rotation;}	
+	float getRotation() const			{return rotation;}
 	const Model *getModel() const;
 	Model *getModelPtr() const;
 	bool getWalkable() const;

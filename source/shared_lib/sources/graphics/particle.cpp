@@ -409,7 +409,7 @@ GameParticleSystem::GameParticleSystem(int particleCount):
 {}
 
 GameParticleSystem::~GameParticleSystem(){
-	for(Children::iterator it= children.begin(); it != children.end(); it++){
+	for(Children::iterator it= children.begin(); it != children.end(); ++it){
 		(*it)->setParent(NULL);
 		(*it)->fade();
 	}
@@ -512,7 +512,7 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 
 		tween= clamp(tween, 0.0f, 1.0f);
 	}
-	for(Children::iterator it= children.begin(); it != children.end(); it++)
+	for(Children::iterator it= children.begin(); it != children.end(); ++it)
 		(*it)->setTween(relative,absolute);
 }
 
@@ -580,7 +580,7 @@ void UnitParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr) {
 
 void UnitParticleSystem::setRotation(float rotation){
 	this->rotation= rotation;
-	for(Children::iterator it= children.begin(); it != children.end(); it++)
+	for(Children::iterator it= children.begin(); it != children.end(); ++it)
 		(*it)->setRotation(rotation);
 }
 
@@ -998,7 +998,7 @@ void ProjectileParticleSystem::rotateChildren() {
 	float rotation = atan2(direction.x, direction.z);
 #endif	
 	rotation = radToDeg(rotation);
-	for(Children::iterator it = children.begin(); it != children.end(); it++)
+	for(Children::iterator it = children.begin(); it != children.end(); ++it)
 		(*it)->setRotation(rotation);
 }
 
@@ -1169,14 +1169,14 @@ void ParticleManager::render(ParticleRenderer *pr, ModelRenderer *mr) const{
 bool ParticleManager::hasActiveParticleSystem(ParticleSystem::ParticleSystemType type) const{
 	bool result= false;
 
-	size_t particleSystemCount= particleSystems.size();
-	int currentParticleCount= 0;
+	//size_t particleSystemCount= particleSystems.size();
+	//int currentParticleCount= 0;
 
 	vector<ParticleSystem *> cleanupParticleSystemsList;
 	for(unsigned int i= 0; i < particleSystems.size(); i++){
 		ParticleSystem *ps= particleSystems[i];
 		if(ps != NULL){
-			currentParticleCount+= ps->getAliveParticleCount();
+			//currentParticleCount+= ps->getAliveParticleCount();
 
 			bool showParticle= true;
 			if(dynamic_cast<UnitParticleSystem *> (ps) != NULL || dynamic_cast<FireParticleSystem *> (ps) != NULL){

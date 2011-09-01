@@ -187,7 +187,7 @@ void XmlTree::load(const string &path, std::map<string,string> mapTagReplacement
 	Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
 	MutexSafeWrapper safeMutex(&mutex);
 
-	for(LoadStack::iterator it= loadStack.begin(); it!= loadStack.end(); it++){
+	for(LoadStack::iterator it= loadStack.begin(); it!= loadStack.end(); ++it){
 		if((*it)->loadPath == path){
 			throw runtime_error(path + " recursively included");
 		}
@@ -363,7 +363,7 @@ bool XmlNode::hasChild(const string &childName) const {
 }
 	
 bool XmlNode::hasChildNoSuper(const string &childName) const {
-	int count= 0;
+	//int count= 0;
 	for(unsigned int j = 0; j < children.size(); ++j) {
 		if(children[j]->getName() == childName) {
             return true;

@@ -173,7 +173,7 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	autoConnectToServer = false;
 	buttonAutoFindServers.setEnabled(true);
 	buttonConnect.setEnabled(true);
-	if(serverList.size() > 0) {
+	if(serverList.empty() == false) {
 		string bestIPMatch = "";
 		std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
 
@@ -513,7 +513,7 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 	if(clientInterface->isConnected() == false)	{
 		int maxTextSize= 16;
 
-		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 		SDLKey key = extractKeyPressed(c);
 

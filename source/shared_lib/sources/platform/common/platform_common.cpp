@@ -238,7 +238,7 @@ void findDirs(string path, vector<string> &results, bool errorOnNotFound,bool ke
 	string searchpath = currentPath + "*.";
 	vector<string> current_results;
 	findAll(searchpath, current_results, false, errorOnNotFound);
-	if(current_results.size() > 0) {
+	if(current_results.empty() == false) {
 		for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
 			const string current_folder = current_results[folder_index];
 			const string current_folder_path = currentPath + current_folder;
@@ -263,7 +263,7 @@ void findDirs(const vector<string> &paths, vector<string> &results, bool errorOn
         string path = currentPath + "*.";
         vector<string> current_results;
         findAll(path, current_results, false, errorOnNotFound);
-        if(current_results.size() > 0) {
+        if(current_results.empty() == false) {
             for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
                 const string current_folder = current_results[folder_index];
                 const string current_folder_path = currentPath + current_folder;
@@ -290,7 +290,7 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
     	string path = currentPath + fileFilter;
         vector<string> current_results;
         findAll(path, current_results, cutExtension, errorOnNotFound);
-        if(current_results.size() > 0) {
+        if(current_results.empty() == false) {
             for(unsigned int folder_index = 0; folder_index < current_results.size(); folder_index++) {
                 string current_file = current_results[folder_index];
                 if(keepDuplicates == true || std::find(results.begin(),results.end(),current_file) == results.end()) {
@@ -347,7 +347,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 
 		globfree(&globbuf);
 
-		if(results.size() == 0 && errorOnNotFound == true) {
+		if(results.empty() == true && errorOnNotFound == true) {
 			throw runtime_error("No files found in: " + mypath);
 		}
 

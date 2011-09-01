@@ -715,7 +715,6 @@ void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 	if(activeInputLabel!=NULL) {
 	    //printf("[%d]\n",c); fflush(stdout);
-		int maxTextSize= 16;
 		if(&labelPlayerName==activeInputLabel) {
 			SDLKey key = extractKeyPressed(c);
 			//if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
@@ -724,6 +723,7 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 				// (use Shared::Platform::charSet in shared_lib/include/platform/sdl/gl_wrap.h ?)
 				//(c=='-')||(c=='(')||(c==')')){
 			if(isAllowedInputTextKey(key)) {
+				const int maxTextSize= 16;
 				if(activeInputLabel->getText().size()<maxTextSize){
 					string text= activeInputLabel->getText();
 					//text.insert(text.end()-1, key);
@@ -742,7 +742,7 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 		//if(c == configKeys.getCharKey("SaveGUILayout")) {
 		if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
-			bool saved = GraphicComponent::saveAllCustomProperties(containerName);
+			GraphicComponent::saveAllCustomProperties(containerName);
 			//Lang &lang= Lang::getInstance();
 			//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
 		}
@@ -914,7 +914,7 @@ void MenuStateOptions::saveConfig(){
     SoundRenderer &soundRenderer= SoundRenderer::getInstance();
     soundRenderer.stopAllSounds();
     program->stopSoundSystem();
-    bool initOk = soundRenderer.init(program->getWindow());
+    soundRenderer.init(program->getWindow());
     soundRenderer.loadConfig();
     soundRenderer.setMusicVolume(CoreData::getInstance().getMenuMusic());
     program->startSoundSystem();

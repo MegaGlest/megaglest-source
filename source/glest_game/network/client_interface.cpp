@@ -157,7 +157,7 @@ void ClientInterface::update() {
 	// Possible cause of out of synch since we have more commands that need
 	// to be sent in this frame
 	if(requestedCommands.empty() == false) {
-		char szBuf[4096]="";
+		//char szBuf[4096]="";
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
         string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());

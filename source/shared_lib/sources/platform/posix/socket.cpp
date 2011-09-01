@@ -591,7 +591,7 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
                next = next->Next;
             }
          }
-         char buf[128];
+         //char buf[128];
          if (name == NULL)
          {
             //sprintf(buf, "unnamed-%i", i);
@@ -901,7 +901,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
 
         PLATFORM_SOCKET imaxsocket = 0;
         for(std::map<PLATFORM_SOCKET,bool>::iterator itermap = socketTriggeredList.begin();
-            itermap != socketTriggeredList.end(); itermap++)
+            itermap != socketTriggeredList.end(); ++itermap)
         {
         	PLATFORM_SOCKET socket = itermap->first;
             if(Socket::isSocketValid(&socket) == true)
@@ -933,7 +933,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
                 bResult = true;
 
                 for(std::map<PLATFORM_SOCKET,bool>::iterator itermap = socketTriggeredList.begin();
-                    itermap != socketTriggeredList.end(); itermap++)
+                    itermap != socketTriggeredList.end(); ++itermap)
                 {
                 	PLATFORM_SOCKET socket = itermap->first;
                     if (FD_ISSET(socket, &rfds))
@@ -1741,10 +1741,9 @@ void BroadCastClientSocketThread::execute() {
     struct sockaddr_in bcSender; // local socket address for the broadcast.
     struct sockaddr_in bcaddr;  // The broadcast address for the receiver.
     PLATFORM_SOCKET bcfd;                // The file descriptor used for the broadcast.
-    bool one = true;            // Parameter for "setscokopt".
+    //bool one = true;            // Parameter for "setscokopt".
     char buff[10024];            // Buffers the data to be broadcasted.
     socklen_t alen;
-    int nb;                     // The number of bytes read.
 
     port = htons( Socket::getBroadCastPort() );
 
@@ -1780,6 +1779,7 @@ void BroadCastClientSocketThread::execute() {
 				// Keep getting packets forever.
 				for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
 					alen = sizeof(struct sockaddr);
+					int nb=0;                     // The number of bytes read.
 					bool gotData = (nb = recvfrom(bcfd, buff, 10024, 0, (struct sockaddr *) &bcSender, &alen)) > 0;
 
 					if(gotData == false) {
@@ -2316,11 +2316,11 @@ void BroadCastSocketThread::execute() {
     char buff[buffMaxSize]="";            // Buffers the data to be broadcasted.
     char myhostname[100]="";       // hostname of local machine
     //char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
-    struct hostent* myhostent=NULL;
+    //struct hostent* myhostent=NULL;
 
     /* get my host name */
     gethostname(myhostname,100);
-    myhostent = gethostbyname(myhostname);
+    struct hostent*myhostent = gethostbyname(myhostname);
 
     // get all host IP addresses
     std::vector<std::string> ipList = Socket::getLocalIPAddressList();

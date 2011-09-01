@@ -159,7 +159,7 @@ void FactionThread::execute() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
-		unsigned int idx = 0;
+		//unsigned int idx = 0;
 		for(;this->faction != NULL;) {
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -253,12 +253,20 @@ Faction::Faction() {
 	cachingDisabled=false;
 	factionDisconnectHandled=false;
 	workerThread = NULL;
+
+	world=NULL;
+	scriptManager=NULL;
+	factionType=NULL;
+	index=0;
+	teamIndex=0;
+	startLocationIndex=0;
+	thisFaction=false;
 }
 
 Faction::~Faction() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Renderer &renderer= Renderer::getInstance();
+	//Renderer &renderer= Renderer::getInstance();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -667,7 +675,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 	}
 
 	// Apply consumable resource usage
-	if(resourceIntervalUsage.size() > 0) {
+	if(resourceIntervalUsage.empty() == false) {
 		for(std::map<const ResourceType *, std::pair<int, std::vector<Unit *> > >::iterator iter = resourceIntervalUsage.begin();
 																							iter != resourceIntervalUsage.end();
 																							++iter) {
@@ -837,7 +845,7 @@ bool Faction::isResourceTargetInCache(const Vec2i &pos, bool incrementUseCounter
 	bool result = false;
 
 	if(cachingDisabled == false) {
-		if(cacheResourceTargetList.size() > 0) {
+		if(cacheResourceTargetList.empty() == false) {
 			std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
 
 			result = (iter != cacheResourceTargetList.end());
@@ -876,7 +884,7 @@ void Faction::addResourceTargetToCache(const Vec2i &pos,bool incrementUseCounter
 
 void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
 	if(cachingDisabled == false) {
-		if(cacheResourceTargetList.size() > 0) {
+		if(cacheResourceTargetList.empty() == false) {
 			std::map<Vec2i,int>::iterator iter = cacheResourceTargetList.find(pos);
 
 			if(iter != cacheResourceTargetList.end()) {
@@ -928,7 +936,7 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 	Vec2i result(-1);
 
 	if(cachingDisabled == false) {
-		if(cacheResourceTargetList.size() > 0) {
+		if(cacheResourceTargetList.empty() == false) {
 			std::vector<Vec2i> deleteList;
 
 			const int harvestDistance = 5;
@@ -1025,7 +1033,7 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 				}
 			}
 
-			if(deleteList.size() > 0) {
+			if(deleteList.empty() == false) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[4096]="";
 								sprintf(szBuf,"[cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld] result [%s]",
@@ -1048,7 +1056,7 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type) {
 	Vec2i result(-1);
 	if(cachingDisabled == false) {
-		if(cacheResourceTargetList.size() > 0) {
+		if(cacheResourceTargetList.empty() == false) {
 			//std::vector<Vec2i> deleteList;
 
 			const int harvestDistance = 5;
@@ -1147,7 +1155,7 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
 			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
 
-			//if(deleteList.size() > 0) {
+			//if(deleteList.empty() == false) {
 			//	cleanupResourceTypeTargetCache(&deleteList);
 			//}
 		}
@@ -1158,7 +1166,7 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 
 void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) {
 	if(cachingDisabled == false) {
-		if(cacheResourceTargetList.size() > 0) {
+		if(cacheResourceTargetList.empty() == false) {
 			const int cleanupInterval = (GameConstants::updateFps * 5);
 			bool needToCleanup = (getFrameCount() % cleanupInterval == 0);
 
@@ -1185,7 +1193,7 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 					}
 				}
 
-				if(deleteList.size() > 0) {
+				if(deleteList.empty() == false) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 						char szBuf[4096]="";
 									sprintf(szBuf,"[cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld], needToCleanup [%d]",
@@ -1333,7 +1341,7 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 
 				const CommandType *cmdType = curUnit->getType()->getFirstCtOfClass(cmdClass);
 				bool isUnitPossibleCandidate = (cmdType != NULL);
-				if(skillClassList.size() > 0) {
+				if(skillClassList.empty() == false) {
 					isUnitPossibleCandidate = false;
 
 					for(int j = 0; j < skillClassList.size(); ++j) {
@@ -1372,7 +1380,7 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 				isUnitPossibleCandidate = false;
 			}
 
-			if(isUnitPossibleCandidate == true && skillClassList.size() > 0) {
+			if(isUnitPossibleCandidate == true && skillClassList.empty() == false) {
 				isUnitPossibleCandidate = false;
 
 				for(int j = 0; j < skillClassList.size(); ++j) {

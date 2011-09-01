@@ -1322,7 +1322,8 @@ void Pixmap3D::loadSlicePng(const string &path, int slice) {
 	this->path = path;
 
 	//deletePixels();
-	Pixmap3D *pixmap = FileReader<Pixmap3D>::readPath(path,this);
+	//Pixmap3D *pixmap = FileReader<Pixmap3D>::readPath(path,this);
+	FileReader<Pixmap3D>::readPath(path,this);
 	//printf("Loading 3D pixmap PNG [%s] pixmap [%p] this [%p]\n",path.c_str(),pixmap, this);
 }
 

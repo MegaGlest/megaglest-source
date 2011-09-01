@@ -231,7 +231,7 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        if(userProperties.size() > 0) {
+        if(userProperties.empty() == false) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 			string userKeysFile = configKeys.getFileName(true);
 	        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s] userProperties.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());

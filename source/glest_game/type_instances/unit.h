@@ -95,7 +95,7 @@ private:
 public:
 	UnitReference();
 
-	void operator=(const Unit *unit);
+	UnitReference & operator=(const Unit *unit);
 	Unit *getUnit() const;
 
 	int getUnitId() const			{ return id; }

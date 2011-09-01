@@ -337,7 +337,7 @@ void SystemFlags::Close() {
 		}
 
 		for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList->begin();
-			iterMap != SystemFlags::debugLogFileList->end(); iterMap++) {
+			iterMap != SystemFlags::debugLogFileList->end(); ++iterMap) {
 			SystemFlags::SystemFlagsType &currentDebugLog = iterMap->second;
 			currentDebugLog.Close();
 		}
@@ -451,7 +451,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
         	// If the file is already open (shared) by another debug type
         	// do not over-write the file but share the stream pointer
         	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList->begin();
-        		iterMap != SystemFlags::debugLogFileList->end(); iterMap++) {
+        		iterMap != SystemFlags::debugLogFileList->end(); ++iterMap) {
         		SystemFlags::SystemFlagsType &currentDebugLog2 = iterMap->second;
 
         		if(	iterMap->first != type &&
@@ -739,7 +739,7 @@ bool fileExists(const string &path) {
 		return true;
 	}
 	else {
-		int fileErrno = errno;
+		//int fileErrno = errno;
 #ifdef WIN32
 		DWORD error = GetLastError();
 		string strError = "Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";

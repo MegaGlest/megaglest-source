@@ -48,7 +48,7 @@ static void user_flush_data(png_structp png_ptr) {}
 static inline std::vector<string> getExtensionsPng() {
 	//static const string extensions[] = {"png", ""};
 	static std::vector<string> extensions;
-	if(extensions.size() == 0) {
+	if(extensions.empty() == true) {
 		extensions.push_back("png");
 	}
 	return extensions;
@@ -63,7 +63,7 @@ PNGReader::PNGReader(): FileReader<Pixmap2D>(getExtensionsPng()) {}
 Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const {
 	//Read file
 	is.seekg(0, ios::end);
-	size_t length = is.tellg();
+	//size_t length = is.tellg();
 	is.seekg(0, ios::beg);
 	uint8 *buffer = new uint8[8];
 	is.read((char*)buffer, 8);
@@ -96,7 +96,7 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	int width = info_ptr->width;
 	int height = info_ptr->height;
 	int color_type = info_ptr->color_type;
-	int bit_depth = info_ptr->bit_depth;
+	//int bit_depth = info_ptr->bit_depth;
 
 	//We want RGB, 24 bit
 	if (color_type == PNG_COLOR_TYPE_PALETTE || (color_type == PNG_COLOR_TYPE_GRAY && info_ptr->bit_depth < 8) || (info_ptr->valid & PNG_INFO_tRNS)) {
@@ -107,7 +107,8 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 		png_set_gray_to_rgb(png_ptr);
 	}
 
-	int number_of_passes = png_set_interlace_handling(png_ptr);
+	//int number_of_passes = png_set_interlace_handling(png_ptr);
+	png_set_interlace_handling(png_ptr);
 	png_read_update_info(png_ptr, info_ptr);
 	png_bytep* row_pointers = new png_bytep[height];
 
@@ -199,7 +200,7 @@ PNGReader3D::PNGReader3D(): FileReader<Pixmap3D>(getExtensionsPng()) {}
 Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) const {
 	//Read file
 	is.seekg(0, ios::end);
-	size_t length = is.tellg();
+	//size_t length = is.tellg();
 	is.seekg(0, ios::beg);
 	uint8 *buffer = new uint8[8];
 	is.read((char*)buffer, 8);
@@ -232,7 +233,7 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 	int width = info_ptr->width;
 	int height = info_ptr->height;
 	int color_type = info_ptr->color_type;
-	int bit_depth = info_ptr->bit_depth;
+	//int bit_depth = info_ptr->bit_depth;
 
 	//We want RGB, 24 bit
 	if (color_type == PNG_COLOR_TYPE_PALETTE || (color_type == PNG_COLOR_TYPE_GRAY && info_ptr->bit_depth < 8) || (info_ptr->valid & PNG_INFO_tRNS)) {
@@ -243,7 +244,8 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 		png_set_gray_to_rgb(png_ptr);
 	}
 
-	int number_of_passes = png_set_interlace_handling(png_ptr);
+	//int number_of_passes = png_set_interlace_handling(png_ptr);
+	png_set_interlace_handling(png_ptr);
 	png_read_update_info(png_ptr, info_ptr);
 	png_bytep* row_pointers = new png_bytep[height];
 

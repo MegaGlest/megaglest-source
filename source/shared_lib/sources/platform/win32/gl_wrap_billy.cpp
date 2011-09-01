@@ -52,7 +52,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	DWORD dwErrorGL = 0;
 	HDC hDC = 0;
 	static std::vector<std::string> systemFontList;
-	if(systemFontList.size() == 0) {
+	if(systemFontList.empty() == true) {
 		LOGFONT lf;
 		//POSITION pos;
 		//lf.lfCharSet = ANSI_CHARSET;

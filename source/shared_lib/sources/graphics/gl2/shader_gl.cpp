@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Marti�o Figueroa
+//	Copyright (C) 2001-2005 Marti�o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -68,7 +68,7 @@ bool ShaderProgramGl::link(string &messages){
 	assertGl();
 
 	//bind attributes
-	for(unsigned int i=0; i<attributes.size(); ++i){
+	for(int i=0; i<attributes.size(); ++i){
 		//int a= attributes[i].second;
 		string s= attributes[i].first;
 		glBindAttribLocationARB(handle, attributes[i].second, attributes[i].first.c_str());
@@ -104,12 +104,6 @@ bool ShaderProgramGl::link(string &messages){
 void ShaderProgramGl::activate(){
 	assertGl();
 	glUseProgramObjectARB(handle);
-	assertGl();
-}
-
-void ShaderProgramGl::deactivate(){
-	assertGl();
-	glUseProgramObjectARB(0);
 	assertGl();
 }
 
@@ -186,7 +180,7 @@ bool ShaderGl::compile(string &messages){
 	messages= "Compiling shader: " + source.getPathInfo() + "\n";
 
 	//load source
-	GLint length= (GLint)source.getCode().size();
+	GLint length= source.getCode().size();
 	const GLcharARB *csource= source.getCode().c_str();
 	glShaderSourceARB(handle, 1, &csource, &length);
 

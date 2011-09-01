@@ -133,7 +133,7 @@ public:
 
     void update(bool checkForNewClients,int lockedSlotIndex);
 	void setPlayerIndex(int value) { playerIndex = value; }
-	int getPlayerIndex() {return playerIndex;}
+	int getPlayerIndex() const {return playerIndex;}
 
 	uint32 getConnectedRemoteIPAddress() const { return connectedRemoteIPAddress; }
 
@@ -148,7 +148,7 @@ public:
 	virtual void close();
 	//virtual bool getFogOfWar();
 
-	bool getReceivedNetworkGameStatus() { return receivedNetworkGameStatus; }
+	bool getReceivedNetworkGameStatus() const { return receivedNetworkGameStatus; }
 	void setReceivedNetworkGameStatus(bool value) { receivedNetworkGameStatus = value; }
 
 	bool hasValidSocketId();

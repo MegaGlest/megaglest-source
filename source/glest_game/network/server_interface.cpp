@@ -80,7 +80,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	if(Config::getInstance().getBool("EnableFTPServer","true") == true) {
 		std::pair<string,string> mapsPath;
 		vector<string> pathList = Config::getInstance().getPathListForType(ptMaps);
-		if(pathList.size() > 0) {
+		if(pathList.empty() == false) {
 			mapsPath.first = pathList[0];
 			if(pathList.size() > 1) {
 				mapsPath.second = pathList[1];
@@ -89,7 +89,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 
 		std::pair<string,string> tilesetsPath;
 		vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
-		if(tilesetsList.size() > 0) {
+		if(tilesetsList.empty() == false) {
 			tilesetsPath.first = tilesetsList[0];
 			if(tilesetsList.size() > 1) {
 				tilesetsPath.second = tilesetsList[1];
@@ -98,7 +98,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 
 		std::pair<string,string> techtreesPath;
 		vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
-		if(techtreesList.size() > 0) {
+		if(techtreesList.empty() == false) {
 			techtreesPath.first = techtreesList[0];
 			if(techtreesList.size() > 1) {
 				techtreesPath.second = techtreesList[1];
@@ -619,7 +619,7 @@ void ServerInterface::validateConnectedClients() {
 void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList,
 												 std::map<int,ConnectionSlotEvent> &eventList,
 												 std::map<int,bool> & mapSlotSignalledList) {
-	bool checkForNewClients = true;
+	//bool checkForNewClients = true;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],string(__FILE__) + "_" + intToStr(__LINE__) + "_" + intToStr(i));
 		ConnectionSlot* connectionSlot = slots[i];
@@ -651,7 +651,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 				try {
 					std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
 					// Collect any collected errors from threads
-					if(errorList.size() > 0) {
+					if(errorList.empty() == false) {
 						for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
 							string &sErr = errorList[iErrIdx];
 							if(sErr != "") {
@@ -703,7 +703,7 @@ void ServerInterface::checForLaggingClients(std::map<int,bool> &mapSlotSignalled
 				try {
 					std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
 					// Show any collected errors from threads
-					if(errorList.size() > 0) {
+					if(errorList.empty() == false) {
 						for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
 							string &sErr = errorList[iErrIdx];
 							if(sErr != "") {
@@ -812,7 +812,7 @@ void ServerInterface::executeNetworkCommandsFromClients() {
 			ConnectionSlot* connectionSlot= slots[i];
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				vector<NetworkCommand> pendingList = connectionSlot->getPendingNetworkCommandList(true);
-				if(pendingList.size() > 0) {
+				if(pendingList.empty() == false) {
 					for(int idx = 0; exitServer == false && idx < pendingList.size(); ++idx) {
 						NetworkCommand &cmd = pendingList[idx];
 						this->requestCommand(&cmd);
@@ -901,7 +901,7 @@ void ServerInterface::update() {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-		if(gameHasBeenInitiated == false || socketTriggeredList.size() > 0) {
+		if(gameHasBeenInitiated == false || socketTriggeredList.empty() == false) {
 			//printf("\nServerInterface::update -- E\n");
 
 			std::map<int,ConnectionSlotEvent> eventList;
@@ -975,7 +975,7 @@ void ServerInterface::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		errorMsgList.push_back(ex.what());
 	}
-	if(errorMsgList.size() > 0){
+	if(errorMsgList.empty() == false){
 		for(int iErrIdx = 0;iErrIdx < errorMsgList.size();++iErrIdx){
 			string & sErr = errorMsgList[iErrIdx];
 			if(sErr != ""){
@@ -1007,7 +1007,7 @@ void ServerInterface::updateKeyframe(int frameCount) {
 		// Possible cause of out of synch since we have more commands that need
 		// to be sent in this frame
 		if(requestedCommands.empty() == false) {
-			char szBuf[1024]="";
+			//char szBuf[1024]="";
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,requestedCommands.size());
 
@@ -1337,7 +1337,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 
 void ServerInterface::processBroadCastMessageQueue() {
 	MutexSafeWrapper safeMutexSlot(&broadcastMessageQueueThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
-	if(broadcastMessageQueue.size() > 0) {
+	if(broadcastMessageQueue.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] broadcastMessageQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,broadcastMessageQueue.size());
 	for(int i = 0; i < broadcastMessageQueue.size(); ++i) {
 		pair<const NetworkMessage *,int> &item = broadcastMessageQueue[i];
@@ -1361,7 +1361,7 @@ void ServerInterface::queueBroadcastMessage(const NetworkMessage *networkMessage
 
 void ServerInterface::processTextMessageQueue() {
 	MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
-	if(textMessageQueue.size() > 0) {
+	if(textMessageQueue.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] textMessageQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,textMessageQueue.size());
 		for(int i = 0; i < textMessageQueue.size(); ++i) {
 			TextMessageQueue &item = textMessageQueue[i];

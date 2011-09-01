@@ -94,7 +94,7 @@ void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
 		upgradesLookup.erase(upgradeType);
 
 		for(map<const UpgradeType *,int>::iterator iterMap = upgradesLookup.begin();
-			iterMap != upgradesLookup.end(); iterMap++) {
+			iterMap != upgradesLookup.end(); ++iterMap) {
 			if(iterMap->second >= upgrades.size()) {
 				iterMap->second--;
 			}
@@ -209,7 +209,7 @@ bool UpgradeManager::isUpgrading(const UpgradeType *upgradeType) const {
 
 void UpgradeManager::computeTotalUpgrade(const Unit *unit, TotalUpgrade *totalUpgrade) const {
 	totalUpgrade->reset();
-	for(Upgrades::const_iterator it= upgrades.begin(); it!=upgrades.end(); it++) {
+	for(Upgrades::const_iterator it= upgrades.begin(); it!=upgrades.end(); ++it) {
 		if((*it)->getFactionIndex() == unit->getFactionIndex()
 			&& (*it)->getType()->isAffected(unit->getType())
 			&& (*it)->getState()==usUpgraded)
