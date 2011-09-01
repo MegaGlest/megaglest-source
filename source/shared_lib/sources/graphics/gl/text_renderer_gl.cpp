@@ -523,10 +523,6 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 
 	//assertGl();
 
-	float scaleX = Font::scaleFontValue;
-	float scaleY = Font::scaleFontValue;
-	float scaleZ = 1.0;
-
 	//int scaleWidthX = (font->getTextHandler()->Advance(renderText.c_str()) * scaleX) / 2.0;
 	//glTranslatef(translatePos.x + scaleWidthX, translatePos.y, translatePos.z);
 	glTranslatef(translatePos.x, translatePos.y, translatePos.z);
@@ -544,6 +540,10 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 	// specialFTGLErrorCheckWorkaround(text);
 
 	if(font->getTextHandler() != NULL) {
+		float scaleX = Font::scaleFontValue;
+		float scaleY = Font::scaleFontValue;
+		float scaleZ = 1.0;
+
 		glScalef(scaleX, scaleY, scaleZ);
 		if(text.find("\n") == renderText.npos && renderText.find("\t") == renderText.npos) {
 			//assertGl();
