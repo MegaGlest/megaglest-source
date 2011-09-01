@@ -53,6 +53,7 @@ enum ControlType {
 	ctCpuUltra,
 	ctCpuMega,
 	ctNetwork,
+	ctNetworkUnassigned,
 	ctHuman,
 
 	ctNetworkCpuEasy,

@@ -22,6 +22,9 @@ using namespace Shared::Map;
 
 namespace Glest { namespace Game {
 
+class SwitchSetupRequest;
+class ServerInterface;
+
 // ===============================
 // 	class MenuStateCustomGame
 // ===============================
@@ -209,6 +212,11 @@ private:
 
 	int32 getNetworkPlayerStatus();
 	void setupUIFromGameSettings(const GameSettings &gameSettings);
+
+	void switchSetupForSlots(SwitchSetupRequest **switchSetupRequests,
+			ServerInterface *& serverInterface, int startIndex, int endIndex,
+			bool onlyNetworkUnassigned);
+
 };
 
 }}//end namespace

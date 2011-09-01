@@ -708,9 +708,13 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						case nmtSwitchSetupRequest:
 						{
+							//printf("Got nmtSwitchSetupRequest A\n");
+
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtSwitchSetupRequest gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
 
 							if(gotIntro == true) {
+								//printf("Got nmtSwitchSetupRequest B\n");
+
 								SwitchSetupRequest switchSetupRequest;
 								if(receiveMessage(&switchSetupRequest)) {
 									static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
@@ -725,6 +729,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									this->playerStatus = switchSetupRequest.getNetworkPlayerStatus();
 									this->name = switchSetupRequest.getNetworkPlayerName();
 									this->playerLanguage = switchSetupRequest.getNetworkPlayerLanguage();
+
+									//printf("Got nmtSwitchSetupRequest C\n");
+									//printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[factionIdx]->getNetworkPlayerName().c_str());
 
 									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[factionIdx]->getNetworkPlayerName().c_str());
 
