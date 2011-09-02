@@ -1833,7 +1833,7 @@ void MenuStateConnectedGame::update() {
 							if( gameSettings->getFactionControl(i) != ctNetworkUnassigned) {
 								continue;
 							}
-							else if(clientInterface->getPlayerIndex() != i) {
+							else if(clientInterface->getPlayerIndex() != slot) {
 								continue;
 							}
 						}
