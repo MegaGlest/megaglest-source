@@ -131,7 +131,12 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 	this->id= id;
 
 	try {
-		Logger::getInstance().add("Unit type: " + formatString(name), true);
+		Lang &lang= Lang::getInstance();
+		string unitTypeText = "Unit type: ";
+		if(lang.hasString("UnitType") == true) {
+			unitTypeText = lang.get("UnitType");
+		}
+		Logger::getInstance().add(unitTypeText + " " + formatString(name), true);
 
 		//file load
 		checksum->addFile(path);

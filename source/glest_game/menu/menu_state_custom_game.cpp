@@ -1638,7 +1638,14 @@ void MenuStateCustomGame::update() {
 			if(EndsWith(masterServererErrorToShow, "wrong router setup") == true) {
 				masterServererErrorToShow=lang.get("WrongRouterSetup");
 			}
-            masterServererErrorToShow += " (disabling publish)";
+
+			Lang &lang= Lang::getInstance();
+			string publishText = " (disabling publish)";
+			if(lang.hasString("PublishDisabled") == true) {
+				publishText = lang.get("PublishDisabled");
+			}
+
+            masterServererErrorToShow += publishText;
 			showMasterserverError=false;
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
