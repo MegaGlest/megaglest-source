@@ -717,7 +717,7 @@ void MapPreview::loadFromFile(const string &path) {
 #else
 	FILE *f1 = fopen(path.c_str(), "rb");
 #endif
-	//int fileErrno = errno;
+	int fileErrno = errno;
 	if (f1 != NULL) {
 
 		//read header
