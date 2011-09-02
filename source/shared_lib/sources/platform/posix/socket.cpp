@@ -591,7 +591,7 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
                next = next->Next;
             }
          }
-         //char buf[128];
+         char buf[128]="";
          if (name == NULL)
          {
             //sprintf(buf, "unnamed-%i", i);
