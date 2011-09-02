@@ -1541,7 +1541,7 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 							}
 
 							if(listBoxControls[switchFactionIdx].getSelectedItemIndex() == ctNetworkUnassigned) {
-								serverInterface->removeSlot(i);
+								serverInterface->removeSlot(switchFactionIdx);
 								listBoxControls[switchFactionIdx].setSelectedItemIndex(ctClosed);
 
 								labelPlayers[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
