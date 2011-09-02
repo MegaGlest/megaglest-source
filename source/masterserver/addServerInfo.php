@@ -67,7 +67,7 @@
 	// consider replacing this by a cron job
 	cleanupServerList();
 
-	$server_in_db = @mysql_query( 'SELECT ip, externalServerPort FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
+	$server_in_db = @mysql_query( 'SELECT ip, externalServerPort FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' AND externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
        	$server       = @mysql_fetch_row( $server_in_db );
 
 
