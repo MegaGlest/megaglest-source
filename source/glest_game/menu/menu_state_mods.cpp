@@ -1283,8 +1283,8 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 				string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + selectedTechName + string("/*");
 				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 				if( strToInt(modInfo.crc) != 0 &&
-					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
+					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
 
 					mainMessageBoxState = ftpmsg_ReplaceTechtree;
 					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
@@ -1361,8 +1361,8 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 
 				if( strToInt(modInfo.crc) != 0 &&
-					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
+					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
 
 					mainMessageBoxState = ftpmsg_ReplaceTileset;
 					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
@@ -2247,7 +2247,7 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            uint32 CRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL);
+            int32 CRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL);
 
             safeMutexFTPProgress.ReleaseLock();
             // END
@@ -2292,7 +2292,7 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            uint32 CRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL);
+            int32 CRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
 
             safeMutexFTPProgress.ReleaseLock();
             // END
@@ -2339,7 +2339,7 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            uint32 CRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), string("/") + itemName + string("/*"), ".xml", NULL);
+            int32 CRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
 
             safeMutexFTPProgress.ReleaseLock();
             // END
