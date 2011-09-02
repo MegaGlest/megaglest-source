@@ -60,6 +60,7 @@ public:
 	string description;
 	string count; // used for faction count for example
 	string crc;
+	string localCRC;
 	ModType type;
 public:
 	ModInfo();
@@ -167,9 +168,11 @@ private:
 	SimpleTaskThread *modHttpServerThread;
 
 	void getTechsLocalList();
+	string refreshTechModInfo(string techInfo);
 	void refreshTechs();
 
 	void getTilesetsLocalList();
+	string refreshTilesetModInfo(string tilesetInfo);
 	void refreshTilesets();
 
 	void getMapsLocalList();

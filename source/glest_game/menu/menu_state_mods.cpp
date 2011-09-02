@@ -150,58 +150,62 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	lineVerticalReturn.init(buttonReturn.getX() - 10, returnLineY-80, 5, 81);
 	lineVerticalReturn.setHorizontal(false);
 
-	int buttonposY= returnLineY+40;
+	int buttonLineUpY=installButtonYPos+10;
+	int buttonLineDownY=installButtonYPos-20;
+
+	int legendButtonY= buttonLineDownY-30;
 	buttonInstalled.registerGraphicComponent(containerName,"buttonInstalled");
-	buttonInstalled.init(10, buttonposY, 200);
+	buttonInstalled.init(techInfoXPos, legendButtonY, 200);
 	buttonInstalled.setText(lang.get("ModInstalled"));
 	buttonInstalled.setUseCustomTexture(true);
 	buttonInstalled.setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
 	buttonInstalled.setEnabled(false);
 
 	buttonAvailable.registerGraphicComponent(containerName,"buttonAvailable");
-	buttonAvailable.init(250, buttonposY, 200);
+	buttonAvailable.init(tilesetInfoXPos, legendButtonY, 200);
 	buttonAvailable.setUseCustomTexture(true);
 	buttonAvailable.setCustomTexture(CoreData::getInstance().getOnServerTexture());
 	buttonAvailable.setText(lang.get("ModAvailable"));
 
 	buttonOnlyLocal.registerGraphicComponent(containerName,"buttonOnlyLocal");
-	buttonOnlyLocal.init(10, buttonposY-30, 200);
+	buttonOnlyLocal.init(mapInfoXPos, legendButtonY, 200);
 	buttonOnlyLocal.setUseCustomTexture(true);
 	buttonOnlyLocal.setCustomTexture(CoreData::getInstance().getNotOnServerTexture());
 	buttonOnlyLocal.setText(lang.get("ModOnlyLocal"));
 
 	buttonConflict.registerGraphicComponent(containerName,"buttonConflict");
-	buttonConflict.init(250, buttonposY-30, 200);
+	buttonConflict.init(scenarioInfoXPos, legendButtonY, 200);
 	buttonConflict.setUseCustomTexture(true);
 	buttonConflict.setCustomTexture(CoreData::getInstance().getOnServerDifferentTexture());
 	buttonConflict.setText(lang.get("ModHasConflict"));
 
+
 	buttonInstallTech.registerGraphicComponent(containerName,"buttonInstallTech");
-	buttonInstallTech.init(techInfoXPos + 40, installButtonYPos, 125);
+	buttonInstallTech.init(techInfoXPos + 40, buttonLineUpY, 125);
 	buttonInstallTech.setText(lang.get("Install"));
 	buttonRemoveTech.registerGraphicComponent(containerName,"buttonRemoveTech");
-	buttonRemoveTech.init(techInfoXPos + 40, installButtonYPos-30, 125);
+	buttonRemoveTech.init(techInfoXPos + 40, buttonLineDownY, 125);
 	buttonRemoveTech.setText(lang.get("Remove"));
 
 	buttonInstallTileset.registerGraphicComponent(containerName,"buttonInstallTileset");
-	buttonInstallTileset.init(tilesetInfoXPos + 20, installButtonYPos, 125);
+	buttonInstallTileset.init(tilesetInfoXPos + 20, buttonLineUpY, 125);
 	buttonInstallTileset.setText(lang.get("Install"));
 	buttonRemoveTileset.registerGraphicComponent(containerName,"buttonRemoveTileset");
-	buttonRemoveTileset.init(tilesetInfoXPos + 20, installButtonYPos-30, 125);
+	buttonRemoveTileset.init(tilesetInfoXPos + 20, buttonLineDownY, 125);
 	buttonRemoveTileset.setText(lang.get("Remove"));
 
 	buttonInstallMap.registerGraphicComponent(containerName,"buttonInstallMap");
-	buttonInstallMap.init(mapInfoXPos + 40, installButtonYPos, 125);
+	buttonInstallMap.init(mapInfoXPos + 40, buttonLineUpY, 125);
 	buttonInstallMap.setText(lang.get("Install"));
 	buttonRemoveMap.registerGraphicComponent(containerName,"buttonRemoveMap");
-	buttonRemoveMap.init(mapInfoXPos + 40, installButtonYPos-30, 125);
+	buttonRemoveMap.init(mapInfoXPos + 40, buttonLineDownY, 125);
 	buttonRemoveMap.setText(lang.get("Remove"));
 
 	buttonInstallScenario.registerGraphicComponent(containerName,"buttonInstallScenario");
-	buttonInstallScenario.init(scenarioInfoXPos + 20, installButtonYPos, 125);
+	buttonInstallScenario.init(scenarioInfoXPos + 20, buttonLineUpY, 125);
 	buttonInstallScenario.setText(lang.get("Install"));
 	buttonRemoveScenario.registerGraphicComponent(containerName,"buttonRemoveScenario");
-	buttonRemoveScenario.init(scenarioInfoXPos + 20, installButtonYPos-30, 125);
+	buttonRemoveScenario.init(scenarioInfoXPos + 20, buttonLineDownY, 125);
 	buttonRemoveScenario.setText(lang.get("Remove"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -415,20 +419,11 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	getTilesetsLocalList();
 	for(unsigned int i=0; i < tilesetListRemote.size(); i++) {
-		string tilesetInfo = tilesetListRemote[i];
-		std::vector<std::string> tilesetInfoList;
-		Tokenize(tilesetInfo,tilesetInfoList,"|");
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetInfoList.size() [%d]\n",(int)tilesetInfoList.size());
-		if(tilesetInfoList.size() >= 4) {
+		string result=refreshTilesetModInfo(tilesetListRemote[i]);
+		if(result != "") {
 			ModInfo modinfo;
-			modinfo.name = tilesetInfoList[0];
-			modinfo.crc = tilesetInfoList[1];
-			modinfo.description = tilesetInfoList[2];
-			modinfo.url = tilesetInfoList[3];
-			modinfo.imageUrl = tilesetInfoList[4];
-			modinfo.type = mt_Tileset;
-
+			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
+			modinfo=tilesetCacheList[result];
 			//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),tilesetName) != tilesetFiles.end());
 			tilesetCacheList[modinfo.name] = modinfo;
 
@@ -471,23 +466,11 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	getTechsLocalList();
 	for(unsigned int i=0; i < techListRemote.size(); i++) {
-		string techInfo = techListRemote[i];
-		std::vector<std::string> techInfoList;
-		Tokenize(techInfo,techInfoList,"|");
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techInfoList.size() [%d]\n",(int)techInfoList.size());
-		if(techInfoList.size() >= 5) {
+		string result=refreshTechModInfo(techListRemote[i]);
+		if(result != "") {
 			ModInfo modinfo;
-			modinfo.name = techInfoList[0];
-			modinfo.count = techInfoList[1];
-			modinfo.crc = techInfoList[2];
-			modinfo.description = techInfoList[3];
-			modinfo.url = techInfoList[4];
-			modinfo.imageUrl = techInfoList[5];
-			modinfo.type = mt_Techtree;
-
 			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
-			techCacheList[modinfo.name] = modinfo;
+			modinfo=techCacheList[result];
 
 			GraphicButton *button=new GraphicButton();
 			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
@@ -753,23 +736,39 @@ void MenuStateMods::getTechsLocalList() {
 	}
 }
 
+string MenuStateMods::refreshTechModInfo(string techInfo) {
+	std::vector<std::string> techInfoList;
+	Tokenize(techInfo,techInfoList,"|");
+	if(techInfoList.size() >= 5) {
+		Config &config = Config::getInstance();
+		ModInfo modinfo;
+		modinfo.name = techInfoList[0];
+		modinfo.count = techInfoList[1];
+		modinfo.crc = techInfoList[2];
+		modinfo.description = techInfoList[3];
+		modinfo.url = techInfoList[4];
+		modinfo.imageUrl = techInfoList[5];
+		modinfo.type = mt_Techtree;
+		string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + modinfo.name + string("/*");
+		if(itemPath.empty()==false){
+		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   modinfo.localCRC=intToStr(crc);
+		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		}
+		else {
+			modinfo.localCRC="";
+		}
+		techCacheList[modinfo.name] = modinfo;
+		return modinfo.name;
+	}
+	return "";
+}
+
 void MenuStateMods::refreshTechs() {
 	getTechsLocalList();
 	for(int i=0; i < techListRemote.size(); i++) {
-		string techInfo = techListRemote[i];
-		std::vector<std::string> techInfoList;
-		Tokenize(techInfo,techInfoList,"|");
-		if(techInfoList.size() >= 5) {
-			ModInfo modinfo;
-			modinfo.name = techInfoList[0];
-			modinfo.count = techInfoList[1];
-			modinfo.crc = techInfoList[2];
-			modinfo.description = techInfoList[3];
-			modinfo.url = techInfoList[4];
-			modinfo.imageUrl = techInfoList[5];
-			modinfo.type = mt_Techtree;
-			techCacheList[modinfo.name] = modinfo;
-		}
+		refreshTechModInfo(techListRemote[i]);
 	}
 }
 
@@ -787,23 +786,40 @@ void MenuStateMods::getTilesetsLocalList() {
 	}
 }
 
+string MenuStateMods::refreshTilesetModInfo(string tilesetInfo) {
+	std::vector<std::string> tilesetInfoList;
+	Tokenize(tilesetInfo,tilesetInfoList,"|");
+	if(tilesetInfoList.size() >= 4) {
+		Config &config = Config::getInstance();
+		ModInfo modinfo;
+		modinfo.name = tilesetInfoList[0];
+		modinfo.crc = tilesetInfoList[1];
+		modinfo.description = tilesetInfoList[2];
+		modinfo.url = tilesetInfoList[3];
+		modinfo.imageUrl = tilesetInfoList[4];
+		modinfo.type = mt_Tileset;
+
+		string itemPath = config.getPathListForType(ptTilesets,"")[1] + "/" + modinfo.name + string("/*");
+		if(itemPath.empty()==false){
+		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   modinfo.localCRC=intToStr(crc);
+		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		}
+		else {
+			modinfo.localCRC="";
+		}
+
+		tilesetCacheList[modinfo.name] = modinfo;
+		return modinfo.name;
+	}
+	return "";
+}
+
 void MenuStateMods::refreshTilesets() {
 	getTilesetsLocalList();
 	for(int i=0; i < tilesetListRemote.size(); i++) {
-		string tilesetInfo = tilesetListRemote[i];
-		std::vector<std::string> tilesetInfoList;
-		Tokenize(tilesetInfo,tilesetInfoList,"|");
-		if(tilesetInfoList.size() >= 4) {
-			ModInfo modinfo;
-			modinfo.name = tilesetInfoList[0];
-			modinfo.crc = tilesetInfoList[1];
-			modinfo.description = tilesetInfoList[2];
-			modinfo.url = tilesetInfoList[3];
-			modinfo.imageUrl = tilesetInfoList[4];
-			modinfo.type = mt_Tileset;
-			tilesetCacheList[modinfo.name] = modinfo;
-
-		}
+		refreshTilesetModInfo(tilesetListRemote[i]);
 	}
 }
 
@@ -1807,7 +1823,7 @@ void MenuStateMods::render() {
 
 		renderer.renderButton(&buttonInstalled);
 		renderer.renderButton(&buttonAvailable);
-		//renderer.renderButton(&buttonConflict);
+		renderer.renderButton(&buttonConflict);
 		renderer.renderButton(&buttonOnlyLocal);
 
 		renderer.renderLabel(&modDescrLabel);
@@ -1846,7 +1862,14 @@ void MenuStateMods::render() {
 					bool remoteHasTech = (techCacheList.find(keyTechButtons[i]->getText()) != techCacheList.end());
 					if(remoteHasTech)
 					{
-						keyTechButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+						ModInfo &modInfo = techCacheList[keyTechButtons[i]->getText()];
+						if( modInfo.crc==modInfo.localCRC) {
+							keyTechButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+						}
+						else {
+							//printf("modInfo.name=%s modInfo.crc=%s modInfo.localCRC=%s\n",modInfo.name.c_str(),modInfo.crc.c_str(),modInfo.localCRC.c_str());
+							keyTechButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerDifferentTexture());
+						}
 					}
 					else
 					{
@@ -1881,7 +1904,15 @@ void MenuStateMods::render() {
 					bool remoteHasTileset= (tilesetCacheList.find(keyTilesetButtons[i]->getText()) != tilesetCacheList.end());
 					if(remoteHasTileset)
 					{
-						keyTilesetButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+						ModInfo &modInfo = tilesetCacheList[keyTilesetButtons[i]->getText()];
+
+						if( modInfo.crc==modInfo.localCRC) {
+							keyTilesetButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+						}
+						else {
+							//printf("modInfo.name=%s modInfo.crc=%s modInfo.localCRC=%s\n",modInfo.name.c_str(),modInfo.crc.c_str(),modInfo.localCRC.c_str());
+							keyTilesetButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerDifferentTexture());
+						}
 					}
 					else
 					{
