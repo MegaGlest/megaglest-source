@@ -1808,7 +1808,7 @@ void MenuStateConnectedGame::update() {
 				listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings->getNetworkFramePeriod()),false);
 
 				// Control
-				for(int i=0; i<GameConstants::maxPlayers; ++i){
+				for(int i=0; i<GameConstants::maxPlayers; ++i) {
 					listBoxControls[i].setSelectedItemIndex(ctClosed);
 					listBoxFactions[i].setEditable(false);
 					listBoxTeams[i].setEditable(false);
@@ -1817,11 +1817,33 @@ void MenuStateConnectedGame::update() {
 				}
 
 				if(hasFactions == true && gameSettings != NULL) {
-					for(int i=0; i < gameSettings->getFactionCount(); ++i){
+					NetworkManager &networkManager= NetworkManager::getInstance();
+					ClientInterface *clientInterface = networkManager.getClientInterface();
+
+					//for(int i=0; i < gameSettings->getFactionCount(); ++i){
+					for(int i=0; i < GameConstants::maxPlayers; ++i) {
 						int slot = gameSettings->getStartLocationIndex(i);
 
+						//printf("Control = %d\n",gameSettings->getFactionControl(i));
+//						if(gameSettings->getFactionControl(i) == ctNetworkUnassigned) {
+//							printf("#1 Index = %d, Control = %d, Count = %d, slot = %d, gameSettings->getThisFactionIndex() = %d\n",i,gameSettings->getFactionControl(i),gameSettings->getFactionCount(),slot,gameSettings->getThisFactionIndex());
+//						}
+
+						if(i >= gameSettings->getFactionCount()) {
+							if( gameSettings->getFactionControl(i) != ctNetworkUnassigned) {
+								continue;
+							}
+							else if(clientInterface->getPlayerIndex() != i) {
+								continue;
+							}
+						}
+
+//						if(gameSettings->getFactionControl(i) == ctNetworkUnassigned) {
+//							printf("#2 Index = %d, Control = %d, Count = %d, slot = %d, gameSettings->getThisFactionIndex() = %d\n",i,gameSettings->getFactionControl(i),gameSettings->getFactionCount(),slot,gameSettings->getThisFactionIndex());
+//						}
+
 						if(	gameSettings->getFactionControl(i) == ctNetwork ||
-							//gameSettings->getFactionControl(i) == ctNetworkUnassigned ||
+							gameSettings->getFactionControl(i) == ctNetworkUnassigned ||
 							gameSettings->getFactionControl(i) == ctHuman) {
 							switch(gameSettings->getNetworkPlayerStatuses(i)) {
 								case npst_BeRightBack:
@@ -1847,8 +1869,8 @@ void MenuStateConnectedGame::update() {
 						listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
 						//listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
 						listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);
-						if( gameSettings->getFactionControl(i) == ctNetwork) {
-							//gameSettings->getFactionControl(i) == ctNetworkUnassigned) {
+						if( gameSettings->getFactionControl(i) == ctNetwork ||
+							gameSettings->getFactionControl(i) == ctNetworkUnassigned) {
 							labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
 							if( gameSettings->getThisFactionIndex() != i &&
 								gameSettings->getNetworkPlayerName(i) != "" &&
@@ -1858,7 +1880,7 @@ void MenuStateConnectedGame::update() {
 						}
 
 						ControlType ct= gameSettings->getFactionControl(i);
-						if (ct == ctHuman || ct == ctNetwork || ct == ctNetworkUnassigned || ct == ctClosed) {
+						if (ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
 							listBoxRMultiplier[slot].setEnabled(false);
 							listBoxRMultiplier[slot].setVisible(false);
 						} else {
@@ -1869,8 +1891,11 @@ void MenuStateConnectedGame::update() {
 						if((gameSettings->getFactionControl(i) == ctNetwork ||
 							gameSettings->getFactionControl(i) == ctNetworkUnassigned) &&
 							gameSettings->getThisFactionIndex() == i) {
+
 							// set my current slot to ctHuman
-							listBoxControls[slot].setSelectedItemIndex(ctHuman);
+							if(gameSettings->getFactionControl(i) != ctNetworkUnassigned) {
+								listBoxControls[slot].setSelectedItemIndex(ctHuman);
+							}
 							listBoxFactions[slot].setEditable(true);
 							listBoxTeams[slot].setEditable(true);
 

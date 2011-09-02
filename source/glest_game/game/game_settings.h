@@ -158,7 +158,7 @@ public:
 	bool isNetworkGame() const {
 		bool result = false;
 		for(int idx = 0; idx < GameConstants::maxPlayers; ++idx) {
-			if(factionControls[idx] == ctNetwork) {
+			if(factionControls[idx] == ctNetwork || factionControls[idx] == ctNetworkUnassigned) {
 				result = true;
 				break;
 			}
