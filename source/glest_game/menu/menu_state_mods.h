@@ -176,9 +176,11 @@ private:
 	void refreshTilesets();
 
 	void getMapsLocalList();
+	string refreshMapModInfo(string mapInfo);
 	void refreshMaps();
 
 	void getScenariosLocalList();
+	string refreshScenarioModInfo(string scenarioInfo);
 	void refreshScenarios();
 
 	void showDesription(const ModInfo *modInfo);

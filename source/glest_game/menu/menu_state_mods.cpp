@@ -422,20 +422,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 		string result=refreshTilesetModInfo(tilesetListRemote[i]);
 		if(result != "") {
 			ModInfo modinfo;
-			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
 			modinfo=tilesetCacheList[result];
-			//bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),tilesetName) != tilesetFiles.end());
-			tilesetCacheList[modinfo.name] = modinfo;
-
 			GraphicButton *button=new GraphicButton();
 			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
 			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-
-			//if(alreadyHasTileset == true) {
-			//	button->setEnabled(false);
-			//}
 			keyTilesetButtons.push_back(button);
 		}
 	}
@@ -469,7 +461,6 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 		string result=refreshTechModInfo(techListRemote[i]);
 		if(result != "") {
 			ModInfo modinfo;
-			//bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),techName) != techTreeFiles.end());
 			modinfo=techCacheList[result];
 
 			GraphicButton *button=new GraphicButton();
@@ -478,9 +469,6 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
 
-			//if(alreadyHasTech == true) {
-			//	button->setEnabled(false);
-			//}
 			keyTechButtons.push_back(button);
 			GraphicLabel *label=new GraphicLabel();
 			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
@@ -527,23 +515,10 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	getMapsLocalList();
 	for(unsigned int i=0; i < mapListRemote.size(); i++) {
-		string mapInfo = mapListRemote[i];
-		std::vector<std::string> mapInfoList;
-		Tokenize(mapInfo,mapInfoList,"|");
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapInfoList.size() [%d]\n",(int)mapInfoList.size());
-		if(mapInfoList.size() >= 5) {
+		string result=refreshMapModInfo(mapListRemote[i]);
+		if(result != "") {
 			ModInfo modinfo;
-			modinfo.name = mapInfoList[0];
-			modinfo.count = mapInfoList[1];
-			modinfo.crc = mapInfoList[2];
-			modinfo.description = mapInfoList[3];
-			modinfo.url = mapInfoList[4];
-			modinfo.imageUrl = mapInfoList[5];
-			modinfo.type = mt_Map;
-
-			//bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),mapName) != mapFiles.end());
-			mapCacheList[modinfo.name] = modinfo;
+			modinfo=mapCacheList[result];
 
 			GraphicButton *button=new GraphicButton();
 			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
@@ -597,22 +572,10 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	getScenariosLocalList();
 	for(unsigned int i=0; i < scenarioListRemote.size(); i++) {
-		string scenarioInfo = scenarioListRemote[i];
-		std::vector<std::string> scenarioInfoList;
-		Tokenize(scenarioInfo,scenarioInfoList,"|");
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("scenarioInfoList.size() [%d]\n",(int)scenarioInfoList.size());
-		if(scenarioInfoList.size() >= 4) {
+		string result=refreshScenarioModInfo(scenarioListRemote[i]);
+		if(result != "") {
 			ModInfo modinfo;
-			modinfo.name = scenarioInfoList[0];
-			modinfo.crc = scenarioInfoList[1];
-			modinfo.description = scenarioInfoList[2];
-			modinfo.url = scenarioInfoList[3];
-			modinfo.imageUrl = scenarioInfoList[4];
-			modinfo.type = mt_Scenario;
-
-			scenarioCacheList[modinfo.name] = modinfo;
-
+			modinfo=scenarioCacheList[result];
 			GraphicButton *button=new GraphicButton();
 			button->init(scenarioInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
 			button->setText(modinfo.name);
@@ -858,26 +821,45 @@ void MenuStateMods::getMapsLocalList() {
 	}
 }
 
+string MenuStateMods::refreshMapModInfo(string mapInfo) {
+	std::vector<std::string> mapInfoList;
+	Tokenize(mapInfo,mapInfoList,"|");
+	if(mapInfoList.size() >= 5) {
+		Config &config = Config::getInstance();
+		ModInfo modinfo;
+		modinfo.name = mapInfoList[0];
+		modinfo.count = mapInfoList[1];
+		modinfo.crc = mapInfoList[2];
+		modinfo.description = mapInfoList[3];
+		modinfo.url = mapInfoList[4];
+		modinfo.imageUrl = mapInfoList[5];
+		modinfo.type = mt_Map;
+
+		string itemPath = config.getPathListForType(ptMaps,"")[1] + "/" + modinfo.name;
+		if(itemPath.empty()==false){
+			Checksum checksum;
+			string file = Map::getMapPath(modinfo.name,"",false);
+			checksum.addFile(file);
+			int crc=checksum.getSum();  //<--- somthing is broken with checksum calculation
+			modinfo.localCRC=intToStr(crc);
+		   printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		}
+		else {
+			modinfo.localCRC="";
+		}
+		mapCacheList[modinfo.name] = modinfo;
+		return modinfo.name;
+	}
+	return "";
+}
+
 void MenuStateMods::refreshMaps() {
 	getMapsLocalList();
 	for(int i=0; i < mapListRemote.size(); i++) {
 		string mapInfo = mapListRemote[i];
-		std::vector<std::string> mapInfoList;
-		Tokenize(mapInfo,mapInfoList,"|");
-		if(mapInfoList.size() >= 5) {
-			ModInfo modinfo;
-			modinfo.name = mapInfoList[0];
-			modinfo.count = mapInfoList[1];
-			modinfo.crc = mapInfoList[2];
-			modinfo.description = mapInfoList[3];
-			modinfo.url = mapInfoList[4];
-			modinfo.imageUrl = mapInfoList[5];
-			modinfo.type = mt_Map;
-			mapCacheList[modinfo.name] = modinfo;
-		}
+
 	}
 }
-
 
 void MenuStateMods::getScenariosLocalList() {
 	Config &config = Config::getInstance();
@@ -893,21 +875,39 @@ void MenuStateMods::getScenariosLocalList() {
 	}
 }
 
+string MenuStateMods::refreshScenarioModInfo(string scenarioInfo) {
+	std::vector<std::string> scenarioInfoList;
+	Tokenize(scenarioInfo,scenarioInfoList,"|");
+	if(scenarioInfoList.size() >= 4) {
+		Config &config = Config::getInstance();
+		ModInfo modinfo;
+		modinfo.name = scenarioInfoList[0];
+		modinfo.crc = scenarioInfoList[1];
+		modinfo.description = scenarioInfoList[2];
+		modinfo.url = scenarioInfoList[3];
+		modinfo.imageUrl = scenarioInfoList[4];
+		modinfo.type = mt_Scenario;
+
+		string itemPath = config.getPathListForType(ptScenarios,"")[1] + "/" + modinfo.name + string("/*");
+		if(itemPath.empty()==false){
+		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   modinfo.localCRC=intToStr(crc);
+		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		}
+		else {
+			modinfo.localCRC="";
+		}
+		scenarioCacheList[modinfo.name] = modinfo;
+		return modinfo.name;
+	}
+	return "";
+}
+
 void MenuStateMods::refreshScenarios() {
 	getScenariosLocalList();
 	for(int i=0; i < scenarioListRemote.size(); i++) {
-		string scenarioInfo = scenarioListRemote[i];
-		std::vector<std::string> scenarioInfoList;
-		Tokenize(scenarioInfo,scenarioInfoList,"|");
-		if(scenarioInfoList.size() >= 4) {
-			ModInfo modinfo;
-			modinfo.name = scenarioInfoList[0];
-			modinfo.crc = scenarioInfoList[1];
-			modinfo.description = scenarioInfoList[2];
-			modinfo.url = scenarioInfoList[3];
-			modinfo.imageUrl = scenarioInfoList[4];
-			modinfo.type = mt_Scenario;
-		}
+		refreshScenarioModInfo(scenarioListRemote[i]);
 	}
 }
 
@@ -1947,7 +1947,14 @@ void MenuStateMods::render() {
 					bool remoteHasMap = (mapCacheList.find(keyMapButtons[i]->getText()) != mapCacheList.end());
 					if(remoteHasMap)
 					{
-						keyMapButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+						ModInfo &modInfo = mapCacheList[keyMapButtons[i]->getText()];
+						if( modInfo.crc==modInfo.localCRC) {
+							keyMapButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+						}
+						else {
+							//printf("modInfo.name=%s modInfo.crc=%s modInfo.localCRC=%s\n",modInfo.name.c_str(),modInfo.crc.c_str(),modInfo.localCRC.c_str());
+							keyMapButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerDifferentTexture());
+						}
 					}
 					else
 					{
@@ -1986,7 +1993,14 @@ void MenuStateMods::render() {
 					bool remoteHasScenario= (scenarioCacheList.find(keyScenarioButtons[i]->getText()) != scenarioCacheList.end());
 					if(remoteHasScenario)
 					{
-						keyScenarioButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+						ModInfo &modInfo = scenarioCacheList[keyScenarioButtons[i]->getText()];
+						if( modInfo.crc==modInfo.localCRC) {
+							keyScenarioButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
+						}
+						else {
+							//printf("modInfo.name=%s modInfo.crc=%s modInfo.localCRC=%s\n",modInfo.name.c_str(),modInfo.crc.c_str(),modInfo.localCRC.c_str());
+							keyScenarioButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerDifferentTexture());
+						}
 					}
 					else
 					{
