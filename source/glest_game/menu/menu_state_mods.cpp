@@ -835,14 +835,14 @@ string MenuStateMods::refreshMapModInfo(string mapInfo) {
 		modinfo.imageUrl = mapInfoList[5];
 		modinfo.type = mt_Map;
 
-		string itemPath = config.getPathListForType(ptMaps,"")[1] + "/" + modinfo.name;
-		if(itemPath.empty()==false){
+		vector<string> mappaths=config.getPathListForType(ptMaps,"");
+		if(mappaths.size()>0){
 			Checksum checksum;
-			string file = Map::getMapPath(modinfo.name,"",false);
-			checksum.addFile(file);
-			int crc=checksum.getSum();  //<--- somthing is broken with checksum calculation
+			string itemPath = mappaths[1] + "/" + modinfo.name;
+			checksum.addFile(itemPath);
+			int crc=checksum.getSum();
 			modinfo.localCRC=intToStr(crc);
-		   printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		    printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
 		else {
 			modinfo.localCRC="";
