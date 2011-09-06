@@ -1820,7 +1820,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 
     if(unit->getCurrSkill()->getClass()!=scMorph){
 		//if not morphing, check space
-		if(map->isFreeCellsOrHasUnit(unit->getPos(), mct->getMorphUnit()->getSize(), unit->getCurrField(), unit, mct->getMorphUnit())){
+		if(map->isFreeCellsOrHasUnit(unit->getPos(), mct->getMorphUnit()->getSize(), mct->getMorphUnit()->getField(), unit, mct->getMorphUnit())){
 			unit->setCurrSkill(mct->getMorphSkillType());
 		}
 		else{
