@@ -564,9 +564,15 @@ bool Map::isFreeCell(const Vec2i &pos, Field field) const {
 
 bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const {
 	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
+		if(unit->getCurrField() != field) {
+			return isFreeCell(pos, field);
+		}
 		Cell *c= getCell(pos);
 		if(c->getUnit(unit->getCurrField()) == unit) {
 			if(unit->getCurrField() == fAir) {
+				if(field == fAir) {
+					return true;
+				}
 				const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
 				if(sc != NULL) {
 					if(getDeepSubmerged(sc) == true) {
