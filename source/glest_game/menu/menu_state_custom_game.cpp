@@ -2699,7 +2699,9 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getFactionCount());
 
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-		listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
+		if(gameSettings.getFactionControl(i) < listBoxControls[i].getItemCount()) {
+			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
+		}
 		updateResourceMultiplier(i);
 		listBoxRMultiplier[i].setSelectedItemIndex(gameSettings.getResourceMultiplierIndex(i));
 		listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
@@ -2710,7 +2712,12 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,factionName.c_str());
 
-		listBoxFactions[i].setSelectedItem(factionName);
+		if(listBoxFactions[i].hasItem(factionName) == true) {
+			listBoxFactions[i].setSelectedItem(factionName);
+		}
+		else {
+			listBoxFactions[i].setSelectedItem(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, gameSettings.getNetworkPlayerName(i) [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,gameSettings.getNetworkPlayerName(i).c_str());
 

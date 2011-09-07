@@ -205,6 +205,8 @@ public:
     void setSelectedItem(string item, bool errorOnMissing=true);
     void setEditable(bool editable);
 
+    bool hasItem(string item) const;
+
 	virtual void setY(int y);
     
     virtual bool mouseMove(int x, int y);
