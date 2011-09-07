@@ -334,6 +334,16 @@ void GraphicListBox::setEditable(bool editable){
     GraphicComponent::setEditable(editable);
 }
 
+bool GraphicListBox::hasItem(string item) const {
+	bool result = false;
+	vector<string>::const_iterator iter= find(items.begin(), items.end(), item);
+	if(iter != items.end()) {
+		result = true;
+	}
+
+	return result;
+}
+
 void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
 	vector<string>::iterator iter;
 
