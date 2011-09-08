@@ -184,7 +184,8 @@ private:
 	string refreshScenarioModInfo(string scenarioInfo);
 	void refreshScenarios();
 
-	void showDesription(const ModInfo *modInfo);
+	void showLocalDescription(string name);
+	void showRemoteDesription(const ModInfo *modInfo);
 
 	std::map<string,int32> mapCRCUpdateList;
 public:
