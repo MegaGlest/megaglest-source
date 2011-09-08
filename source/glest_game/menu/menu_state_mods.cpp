@@ -834,30 +834,38 @@ string MenuStateMods::refreshMapModInfo(string mapInfo) {
 		modinfo.url = mapInfoList[4];
 		modinfo.imageUrl = mapInfoList[5];
 		modinfo.type = mt_Map;
-
-		vector<string> mappaths=config.getPathListForType(ptMaps,"");
-		if(mappaths.size()>0){
-			Checksum checksum;
-			string itemPath = mappaths[1] + "/" + modinfo.name;
-			checksum.addFile(itemPath);
-			int crc=checksum.getSum();
-			modinfo.localCRC=intToStr(crc);
-		    printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
-		}
-		else {
-			modinfo.localCRC="";
-		}
+		modinfo.localCRC=getMapCRC(modinfo.name);
 		mapCacheList[modinfo.name] = modinfo;
 		return modinfo.name;
 	}
 	return "";
 }
 
+string MenuStateMods::getMapCRC(string mapName) {
+	Config &config = Config::getInstance();
+	vector<string> mappaths=config.getPathListForType(ptMaps,"");
+	string result="";
+	if(mappaths.size()>0 ){
+		Checksum checksum;
+		string itemPath = mappaths[1] + "/" + mapName;
+		if (fileExists(itemPath)){
+			checksum.addFile(itemPath);
+			int crc=checksum.getSum();
+			result=intToStr(crc);
+			//printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		}
+		else result="";
+	}
+	else {
+		result="";
+	}
+	return result;
+}
+
 void MenuStateMods::refreshMaps() {
 	getMapsLocalList();
 	for(int i=0; i < mapListRemote.size(); i++) {
-		string mapInfo = mapListRemote[i];
-
+		refreshMapModInfo(mapListRemote[i]);
 	}
 }
 
@@ -1446,17 +1454,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),selectedMapName) != mapFiles.end());
 			if(alreadyHasMap == true) {
 				ModInfo &modInfo = mapCacheList[selectedMapName];
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
-
-				//Config &config = Config::getInstance();
-				Checksum checksum;
-				string file = Map::getMapPath(selectedMapName,"",false);
-				checksum.addFile(file);
-
-				if( strToInt(modInfo.crc) != 0 &&
-					strToInt(modInfo.crc) != checksum.getSum()) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,checksum.getSum());
-
+				if( modInfo.crc != modInfo.localCRC ) {
 					mainMessageBoxState = ftpmsg_ReplaceMap;
 					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
 					char szBuf[1024]="";
@@ -2238,14 +2236,6 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
         if(result.first == ftp_crt_SUCCESS) {
         	refreshMaps();
-
-            // Clear the CRC file Cache
-            Checksum::clearFileCache();
-    		Checksum checksum;
-    		string file = Map::getMapPath(itemName,"",false);
-    		checksum.addFile(file);
-    		uint32 CRCMapValue = checksum.getSum();
-
 			char szBuf[1024]="";
 			sprintf(szBuf,lang.get("ModDownloadMapSuccess").c_str(),itemName.c_str());
             console.addLine(szBuf,true);
@@ -2276,25 +2266,6 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 			char szBuf[1024]="";
 			sprintf(szBuf,lang.get("ModDownloadTilesetSuccess").c_str(),itemName.c_str());
            	console.addLine(szBuf,true);
-
-            // START
-            // Clear the CRC Cache if it is populated
-            //
-            // Clear the CRC file Cache
-            safeMutexFTPProgress.Lock();
-            Checksum::clearFileCache();
-
-            vector<string> paths        = Config::getInstance().getPathListForType(ptTilesets);
-            string pathSearchString     = string("/") + itemName + string("/*");
-            const string filterFileExt  = ".xml";
-            clearFolderTreeContentsCheckSum(paths, pathSearchString, filterFileExt);
-            clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
-
-            // Refresh CRC
-            Config &config = Config::getInstance();
-            int32 CRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL);
-
-            safeMutexFTPProgress.ReleaseLock();
             // END
         }
         else {
@@ -2318,7 +2289,6 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         buttonInstallTech.setEnabled(true);
 
         if(result.first == ftp_crt_SUCCESS) {
-        	refreshTechs();
 
 			char szBuf[1024]="";
 			sprintf(szBuf,lang.get("ModDownloadTechSuccess").c_str(),itemName.c_str());
@@ -2338,8 +2308,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
             // Refresh CRC
             Config &config = Config::getInstance();
             int32 CRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
-
             safeMutexFTPProgress.ReleaseLock();
+
+        	refreshTechs();
             // END
         }
         else {
@@ -2363,8 +2334,6 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         buttonInstallTileset.setEnabled(true);
 
         if(result.first == ftp_crt_SUCCESS) {
-        	refreshScenarios();
-
 			char szBuf[1024]="";
 			sprintf(szBuf,lang.get("ModDownloadScenarioSuccess").c_str(),itemName.c_str());
            	console.addLine(szBuf,true);
@@ -2385,8 +2354,9 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
             // Refresh CRC
             Config &config = Config::getInstance();
             int32 CRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
-
             safeMutexFTPProgress.ReleaseLock();
+
+            refreshScenarios();
             // END
         }
         else {
