@@ -1605,7 +1605,13 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					selectedScenarioName	= "";
 					if(mapName != "") {
 						selectedMapName = mapName;
-						showDesription(&mapCacheList[selectedMapName]);
+						bool remoteHasMap = (mapCacheList.find(mapName) != mapCacheList.end());
+						if(remoteHasMap) {
+							showRemoteDesription(&mapCacheList[selectedMapName]);
+						}
+						else {
+							showLocalDescription(mapName);
+						}
 					}
 					break;
 				}
@@ -1622,7 +1628,13 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					selectedScenarioName	= "";
 					if(techName != "") {
 						selectedTechName = techName;
-						showDesription(&techCacheList[selectedTechName]);
+						bool remoteHasTech = (techCacheList.find(techName) != techCacheList.end());
+						if(remoteHasTech) {
+							showRemoteDesription(&techCacheList[techName]);
+						}
+						else {
+							showLocalDescription(techName);
+						}
 					}
 					break;
 				}
@@ -1639,7 +1651,13 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					selectedScenarioName	= "";
 					if(tilesetName != "") {
 						selectedTilesetName = tilesetName;
-						showDesription(&tilesetCacheList[selectedTilesetName]);
+						bool remoteHasTileset = (tilesetCacheList.find(tilesetName) != tilesetCacheList.end());
+						if(remoteHasTileset) {
+							showRemoteDesription(&tilesetCacheList[tilesetName]);
+						}
+						else {
+							showLocalDescription(tilesetName);
+						}
 					}
 					break;
 				}
@@ -1656,7 +1674,14 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					selectedScenarioName	= "";
 					if(scenarioName != "") {
 						selectedScenarioName = scenarioName;
-						showDesription(&scenarioCacheList[selectedScenarioName]);
+						bool remoteHasScenario = (scenarioCacheList.find(scenarioName) != scenarioCacheList.end());
+						if(remoteHasScenario) {
+							showRemoteDesription(&scenarioCacheList[scenarioName]);
+						}
+						else {
+							showLocalDescription(scenarioName);
+						}
+
 					}
 					break;
 				}
@@ -1664,8 +1689,6 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 
     }
-
-
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -1700,7 +1723,14 @@ string MenuStateMods::getPreviewImageFileForMod(const ModInfo *modInfo) {
 	return fileName;
 }
 
-void MenuStateMods::showDesription(const ModInfo *modInfo) {
+
+void MenuStateMods::showLocalDescription(string name) {
+	Lang &lang= Lang::getInstance();
+	cleanupPreviewTexture();
+	modDescrLabel.setText(lang.get("ModOnlyLocal")+":\n'"+name+"'");
+}
+
+void MenuStateMods::showRemoteDesription(const ModInfo *modInfo) {
 	//displayModPreviewImage = false;
 	modInfoSelected = *modInfo;
 
