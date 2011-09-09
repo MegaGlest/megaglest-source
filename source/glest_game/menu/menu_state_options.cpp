@@ -717,12 +717,10 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 	    //printf("[%d]\n",c); fflush(stdout);
 		if(&labelPlayerName==activeInputLabel) {
 			SDLKey key = extractKeyPressed(c);
-			//if((c>='0' && c<='9')||(c>='a' && c<='z')||(c>='A' && c<='Z')||
-				// (c>=(192-256) && c<=(255-256))||     // test some support for accented letters in names, is this ok? (latin1 signed char)
-				// no master server breaks, and a russian translation with game switched to KOI-8p encoding? probably irc too.
-				// (use Shared::Platform::charSet in shared_lib/include/platform/sdl/gl_wrap.h ?)
-				//(c=='-')||(c=='(')||(c==')')){
-			if(isAllowedInputTextKey(key)) {
+			if((key>='0' && key<='9')||(key>='a' && key<='z')||(key>='A' && key<='Z')||
+				 (key>=(192-256) && key<=(255-256))||
+				 (key=='-')||(key=='_')||(key=='(')||(key==')')){
+			//if(isAllowedInputTextKey(key)) {
 				const int maxTextSize= 16;
 				if(activeInputLabel->getText().size()<maxTextSize){
 					string text= activeInputLabel->getText();
