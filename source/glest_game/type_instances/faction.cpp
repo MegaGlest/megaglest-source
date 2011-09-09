@@ -50,16 +50,16 @@ bool CommandGroupSorter::compare(const CommandGroupSorter *l, const CommandGroup
 bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 	bool result = false;
 	// If comparer if null or dead
-//	if(j.unit == NULL || j.unit->isAlive() == false) {
-//		// if source is null or dead also
-//		if((this->unit == NULL || this->unit->isAlive() == false)) {
-//			return false;
-//		}
-//		return true;
-//	}
-//	else if((this->unit == NULL || this->unit->isAlive() == false)) {
-//		return false;
-//	}
+	if(j.unit == NULL || j.unit->isAlive() == false) {
+		// if source is null or dead also
+		if((this->unit == NULL || this->unit->isAlive() == false)) {
+			return false;
+		}
+		return true;
+	}
+	else if((this->unit == NULL || this->unit->isAlive() == false)) {
+		return false;
+	}
 
 	Command *command= this->unit->getCurrrentCommandThreadSafe();
 	Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
