@@ -1299,31 +1299,34 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(selectedTechName != "") {
 			bool alreadyHasTech = (std::find(techTreeFiles.begin(),techTreeFiles.end(),selectedTechName) != techTreeFiles.end());
 			if(alreadyHasTech == true) {
-				ModInfo &modInfo = techCacheList[selectedTechName];
+				bool remoteHasTech = (techCacheList.find(selectedTechName) != techCacheList.end());
+				if(remoteHasTech == true){
+					ModInfo &modInfo = techCacheList[selectedTechName];
 
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
 
-				Config &config = Config::getInstance();
-				string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + selectedTechName + string("/*");
-				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
-				if( strToInt(modInfo.crc) != 0 &&
-					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
+					Config &config = Config::getInstance();
+					string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + selectedTechName + string("/*");
+					bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+					if( strToInt(modInfo.crc) != 0 &&
+						strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
 
-					mainMessageBoxState = ftpmsg_ReplaceTechtree;
-					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
-					char szBuf[1024]="";
-					sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTechName.c_str());
-					showMessageBox(szBuf, lang.get("Notice"), true);
+						mainMessageBoxState = ftpmsg_ReplaceTechtree;
+						mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+						char szBuf[1024]="";
+						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTechName.c_str());
+						showMessageBox(szBuf, lang.get("Notice"), true);
+					}
+					else {
+						mainMessageBoxState = ftpmsg_None;
+						mainMessageBox.init(lang.get("Ok"));
+						char szBuf[1024]="";
+						sprintf(szBuf,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
+						showMessageBox(szBuf, lang.get("Notice"), true);
+					}
+					mapCRCUpdateList[itemPath] = true;
 				}
-				else {
-					mainMessageBoxState = ftpmsg_None;
-					mainMessageBox.init(lang.get("Ok"));
-					char szBuf[1024]="";
-					sprintf(szBuf,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
-					showMessageBox(szBuf, lang.get("Notice"), true);
-				}
-				mapCRCUpdateList[itemPath] = true;
 			}
 			else {
 				string techName = selectedTechName;
@@ -1377,29 +1380,32 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(selectedTilesetName != "") {
 			bool alreadyHasTileset = (std::find(tilesetFiles.begin(),tilesetFiles.end(),selectedTilesetName) != tilesetFiles.end());
 			if(alreadyHasTileset == true) {
-				ModInfo &modInfo = tilesetCacheList[selectedTilesetName];
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
+				bool remoteHasTileset = (tilesetCacheList.find(selectedTilesetName) != tilesetCacheList.end());
+				if(remoteHasTileset){
+					ModInfo &modInfo = tilesetCacheList[selectedTilesetName];
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
 
-				Config &config = Config::getInstance();
-				string itemPath = config.getPathListForType(ptTilesets,"")[1] + "/" + selectedTilesetName + string("/*");
-				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+					Config &config = Config::getInstance();
+					string itemPath = config.getPathListForType(ptTilesets,"")[1] + "/" + selectedTilesetName + string("/*");
+					bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 
-				if( strToInt(modInfo.crc) != 0 &&
-					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
+					if( strToInt(modInfo.crc) != 0 &&
+						strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
 
-					mainMessageBoxState = ftpmsg_ReplaceTileset;
-					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
-					char szBuf[1024]="";
-					sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTilesetName.c_str());
-					showMessageBox(szBuf, lang.get("Notice"), true);
-				}
-				else {
-					mainMessageBoxState = ftpmsg_None;
-					mainMessageBox.init(lang.get("Ok"));
-					char szBuf[1024]="";
-					sprintf(szBuf,lang.get("ModTilesetAlreadyInstalled").c_str(),selectedTilesetName.c_str());
-					showMessageBox(szBuf, lang.get("Notice"), true);
+						mainMessageBoxState = ftpmsg_ReplaceTileset;
+						mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+						char szBuf[1024]="";
+						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTilesetName.c_str());
+						showMessageBox(szBuf, lang.get("Notice"), true);
+					}
+					else {
+						mainMessageBoxState = ftpmsg_None;
+						mainMessageBox.init(lang.get("Ok"));
+						char szBuf[1024]="";
+						sprintf(szBuf,lang.get("ModTilesetAlreadyInstalled").c_str(),selectedTilesetName.c_str());
+						showMessageBox(szBuf, lang.get("Notice"), true);
+					}
 				}
 			}
 			else {
@@ -1453,20 +1459,23 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(selectedMapName != "") {
 			bool alreadyHasMap = (std::find(mapFiles.begin(),mapFiles.end(),selectedMapName) != mapFiles.end());
 			if(alreadyHasMap == true) {
-				ModInfo &modInfo = mapCacheList[selectedMapName];
-				if( modInfo.crc != modInfo.localCRC ) {
-					mainMessageBoxState = ftpmsg_ReplaceMap;
-					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
-					char szBuf[1024]="";
-					sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedMapName.c_str());
-					showMessageBox(szBuf, lang.get("Notice"), true);
-				}
-				else {
-					mainMessageBoxState = ftpmsg_None;
-					mainMessageBox.init(lang.get("Ok"));
-					char szBuf[1024]="";
-					sprintf(szBuf,lang.get("ModMapAlreadyInstalled").c_str(),selectedMapName.c_str());
-					showMessageBox(szBuf, lang.get("Notice"), true);
+				bool remoteHasMap = (mapCacheList.find(selectedMapName) != mapCacheList.end());
+				if(remoteHasMap){
+					ModInfo &modInfo = mapCacheList[selectedMapName];
+					if( modInfo.crc != modInfo.localCRC ) {
+						mainMessageBoxState = ftpmsg_ReplaceMap;
+						mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+						char szBuf[1024]="";
+						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedMapName.c_str());
+						showMessageBox(szBuf, lang.get("Notice"), true);
+					}
+					else {
+						mainMessageBoxState = ftpmsg_None;
+						mainMessageBox.init(lang.get("Ok"));
+						char szBuf[1024]="";
+						sprintf(szBuf,lang.get("ModMapAlreadyInstalled").c_str(),selectedMapName.c_str());
+						showMessageBox(szBuf, lang.get("Notice"), true);
+					}
 				}
 			}
 			else {
@@ -1520,29 +1529,32 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(selectedScenarioName != "") {
 			bool alreadyHasScenario = (std::find(scenarioFiles.begin(),scenarioFiles.end(),selectedScenarioName) != scenarioFiles.end());
 			if(alreadyHasScenario == true) {
-				ModInfo &modInfo = scenarioCacheList[selectedScenarioName];
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
+				bool remoteHasScenario = (scenarioCacheList.find(selectedScenarioName) != scenarioCacheList.end());
+				if(remoteHasScenario){
+					ModInfo &modInfo = scenarioCacheList[selectedScenarioName];
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] remote CRC [%s]\n",__FILE__,__FUNCTION__,__LINE__,modInfo.crc.c_str());
 
-				Config &config = Config::getInstance();
-				string itemPath = config.getPathListForType(ptScenarios,"")[1] + "/" + selectedScenarioName + string("/*");
-				bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+					Config &config = Config::getInstance();
+					string itemPath = config.getPathListForType(ptScenarios,"")[1] + "/" + selectedScenarioName + string("/*");
+					bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 
-				if( strToInt(modInfo.crc) != 0 &&
-					strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
+					if( strToInt(modInfo.crc) != 0 &&
+						strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
 
-					mainMessageBoxState = ftpmsg_ReplaceScenario;
-					mainMessageBox.init(lang.get("Yes"),lang.get("No"));
-					char szBuf[1024]="";
-					sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedScenarioName.c_str());
-					showMessageBox(szBuf, lang.get("Notice"), true);
-				}
-				else {
-					mainMessageBoxState = ftpmsg_None;
-					mainMessageBox.init(lang.get("Ok"));
-					char szBuf[1024]="";
-					sprintf(szBuf,lang.get("ModScenarioAlreadyInstalled").c_str(),selectedScenarioName.c_str());
-					showMessageBox(szBuf, lang.get("Notice"), true);
+						mainMessageBoxState = ftpmsg_ReplaceScenario;
+						mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+						char szBuf[1024]="";
+						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedScenarioName.c_str());
+						showMessageBox(szBuf, lang.get("Notice"), true);
+					}
+					else {
+						mainMessageBoxState = ftpmsg_None;
+						mainMessageBox.init(lang.get("Ok"));
+						char szBuf[1024]="";
+						sprintf(szBuf,lang.get("ModScenarioAlreadyInstalled").c_str(),selectedScenarioName.c_str());
+						showMessageBox(szBuf, lang.get("Notice"), true);
+					}
 				}
 			}
 			else {
