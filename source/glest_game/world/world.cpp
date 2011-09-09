@@ -281,7 +281,7 @@ void World::updateAllFactionUnits() {
 	// Prioritize grouped command units so closest units to target go first
 	// units
 	Config &config= Config::getInstance();
-	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","false");
+	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
 	std::map<int, std::vector<CommandGroupSorter *> > unitsInFactionsSorted;
 
 	int factionCount = getFactionCount();
@@ -305,7 +305,19 @@ void World::updateAllFactionUnits() {
 				unitListToSort.push_back(new CommandGroupSorter(unit));
 			}
 			if(unitListToSort.empty() == false) {
-				std::sort(unitListToSort.begin(),unitListToSort.end());
+				//printf("About to Sort...\n");
+				std::sort(unitListToSort.begin(),unitListToSort.end(),CommandGroupSorter::compare);
+			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				char szBuf[4096]="";
+
+				for(unsigned int x = 0; x < unitListToSort.size(); ++x) {
+					CommandGroupSorter *sorter = unitListToSort[x];
+
+					sprintf(szBuf,"List %d / %ld unit [%d - %s] cmd [%s]",x,unitListToSort.size(),sorter->unit->getId(),sorter->unit->getFullName().c_str(),(sorter->unit->getCurrCommand() == NULL ? "NULL" : sorter->unit->getCurrCommand()->toString().c_str()));
+					sorter->unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
 			}
 		}
 	}
