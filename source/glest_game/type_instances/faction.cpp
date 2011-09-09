@@ -38,48 +38,89 @@ CommandGroupSorter::CommandGroupSorter(Unit *unit) {
 	this->unit = unit;
 }
 
-bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
+bool CommandGroupSorter::operator< (const CommandGroupSorter *j) const {
+	return operator<(*j);
+}
 
-	if(j.unit == NULL || j.unit->isAlive() == false) {
-		return true;
-	}
-	else if((this->unit == NULL || this->unit->isAlive() == false)) {
-		return false;
-	}
+
+bool CommandGroupSorter::compare(const CommandGroupSorter *l, const CommandGroupSorter *r) {
+	return (*l < *r);
+}
+
+bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
+	bool result = false;
+	// If comparer if null or dead
+//	if(j.unit == NULL || j.unit->isAlive() == false) {
+//		// if source is null or dead also
+//		if((this->unit == NULL || this->unit->isAlive() == false)) {
+//			return false;
+//		}
+//		return true;
+//	}
+//	else if((this->unit == NULL || this->unit->isAlive() == false)) {
+//		return false;
+//	}
 
 	Command *command= this->unit->getCurrrentCommandThreadSafe();
+	Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
 	//Command *command= this->unit->getCurrCommand();
+
+	// Are we moving or attacking
 	if( command != NULL &&
 			(command->getCommandType()->getClass() == ccMove ||
 			 command->getCommandType()->getClass() == ccAttack)  &&
 		command->getUnitCommandGroupId() > 0) {
 		int curCommandGroupId = command->getUnitCommandGroupId();
 
-		Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
+		//Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
 		//Command *commandPeer = j.unit->getCurrCommand();
+
+		// is comparer a valid command
 		if(commandPeer == NULL) {
-			return true;
+			result = true;
 		}
+		// is comparer command the same type?
 		else if(commandPeer->getCommandType()->getClass() !=
 				command->getCommandType()->getClass()) {
-			return true;
+			result = true;
 		}
+		// is comparer command groupid invalid?
 		else if(commandPeer->getUnitCommandGroupId() < 0) {
-			return true;
+			result = true;
 		}
-		else if(curCommandGroupId > commandPeer->getUnitCommandGroupId()) {
-			return false;
+		// If comparer command group id is less than current group id
+		else if(curCommandGroupId != commandPeer->getUnitCommandGroupId()) {
+			result = curCommandGroupId < commandPeer->getUnitCommandGroupId();
 		}
 		else {
 			float unitDist = this->unit->getCenteredPos().dist(command->getPos());
 			float unitDistPeer = j.unit->getCenteredPos().dist(commandPeer->getPos());
 
-
-			return unitDist < unitDistPeer;
+			// Closest unit in commandgroup
+			result = (unitDist < unitDistPeer);
+		}
+	}
+	else if(command == NULL && j.unit->getCurrrentCommandThreadSafe() != NULL) {
+		result = false;
+	}
+//	else if(command == NULL && j.unit->getCurrrentCommandThreadSafe() == NULL) {
+//		return this->unit->getId() < j.unit->getId();
+//	}
+	else {
+		//Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
+		if( commandPeer != NULL &&
+			(commandPeer->getCommandType()->getClass() != ccMove &&
+			 commandPeer->getCommandType()->getClass() != ccAttack)) {
+			result = this->unit->getId() < j.unit->getId();
+		}
+		else {
+			result = (this->unit->getId() < j.unit->getId());
 		}
 	}
 
-	return false;
+	//printf("Sorting, unit [%d - %s] cmd [%s] | unit2 [%d - %s] cmd [%s] result = %d\n",this->unit->getId(),this->unit->getFullName().c_str(),(this->unit->getCurrCommand() == NULL ? "NULL" : this->unit->getCurrCommand()->toString().c_str()),j.unit->getId(),j.unit->getFullName().c_str(),(j.unit->getCurrCommand() == NULL ? "NULL" : j.unit->getCurrCommand()->toString().c_str()),result);
+
+	return result;
 }
 
 // =====================================================

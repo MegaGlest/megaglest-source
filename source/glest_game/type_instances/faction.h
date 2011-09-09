@@ -56,6 +56,8 @@ public:
 	CommandGroupSorter();
 	CommandGroupSorter(Unit *unit);
 	bool operator< (const CommandGroupSorter &j) const;
+	bool operator< (const CommandGroupSorter *j) const;
+	bool static compare(const CommandGroupSorter *l, const CommandGroupSorter *r);
 };
 
 class FactionThread : public BaseThread {
