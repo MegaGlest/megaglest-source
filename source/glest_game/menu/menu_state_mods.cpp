@@ -73,6 +73,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	selectedTilesetName		= "";
 	selectedMapName 		= "";
 	selectedScenarioName	= "";
+	modInfoSelected         = NULL;
 	showFullConsole			= false;
 	keyButtonsLineHeight	= 20;
 	keyButtonsHeight		= 20;
@@ -1738,13 +1739,14 @@ string MenuStateMods::getPreviewImageFileForMod(const ModInfo *modInfo) {
 
 void MenuStateMods::showLocalDescription(string name) {
 	Lang &lang= Lang::getInstance();
+	modInfoSelected=NULL;
 	cleanupPreviewTexture();
 	modDescrLabel.setText(lang.get("ModOnlyLocal")+":\n'"+name+"'");
 }
 
-void MenuStateMods::showRemoteDesription(const ModInfo *modInfo) {
+void MenuStateMods::showRemoteDesription(ModInfo *modInfo) {
 	//displayModPreviewImage = false;
-	modInfoSelected = *modInfo;
+	modInfoSelected = modInfo;
 
 	string modText = modInfo->description;
 	replaceAll(modText, "\\n", "\n");
@@ -1867,21 +1869,23 @@ void MenuStateMods::render() {
 		renderer.renderButton(&buttonOnlyLocal);
 
 		renderer.renderLabel(&modDescrLabel);
-		string tempImage = getPreviewImageFileForMod(&modInfoSelected);
-		if(displayModPreviewImage.find(tempImage) != displayModPreviewImage.end() &&
-			displayModPreviewImage[tempImage] == true) {
-			if(modPreviewImage == NULL) {
-				string tempImage = getPreviewImageFileForMod(&modInfoSelected);
+		if(modInfoSelected!=NULL){
+			string tempImage = getPreviewImageFileForMod(modInfoSelected);
+			if(displayModPreviewImage.find(tempImage) != displayModPreviewImage.end() &&
+				displayModPreviewImage[tempImage] == true) {
+				if(modPreviewImage == NULL) {
+					string tempImage = getPreviewImageFileForMod(modInfoSelected);
 
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### Render tempImage [%s] fileExists(tempImage) = %d\n",tempImage.c_str(),fileExists(tempImage));
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### Render tempImage [%s] fileExists(tempImage) = %d\n",tempImage.c_str(),fileExists(tempImage));
 
-				if(tempImage != "" && fileExists(tempImage) == true) {
-					cleanupPreviewTexture();
-					modPreviewImage = Renderer::findFactionLogoTexture(tempImage);
+					if(tempImage != "" && fileExists(tempImage) == true) {
+						cleanupPreviewTexture();
+						modPreviewImage = Renderer::findFactionLogoTexture(tempImage);
+					}
 				}
-			}
-			if(modPreviewImage != NULL) {
-				renderer.renderTextureQuad(508,90,485,325,modPreviewImage,1.0f);
+				if(modPreviewImage != NULL) {
+					renderer.renderTextureQuad(508,90,485,325,modPreviewImage,1.0f);
+				}
 			}
 		}
 
