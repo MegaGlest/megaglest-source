@@ -120,7 +120,7 @@ private:
 
 	GraphicLabel modDescrLabel;
 	Texture2D *modPreviewImage;
-	ModInfo modInfoSelected;
+	ModInfo *modInfoSelected;
 	map<string,bool> displayModPreviewImage;
 
 	GraphicButton buttonInstalled;
@@ -185,7 +185,7 @@ private:
 	void refreshScenarios();
 
 	void showLocalDescription(string name);
-	void showRemoteDesription(const ModInfo *modInfo);
+	void showRemoteDesription(ModInfo *modInfo);
 
 	std::map<string,int32> mapCRCUpdateList;
 public:
