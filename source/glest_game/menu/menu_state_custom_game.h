@@ -181,7 +181,7 @@ public:
 private:
 
     bool hasNetworkGameSettings();
-    void loadGameSettings(GameSettings *gameSettings);
+    void loadGameSettings(GameSettings *gameSettings, bool forceCloseUnusedSlots=false);
 	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview);
 	void cleanupMapPreviewTexture();
 

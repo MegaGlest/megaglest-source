@@ -1185,7 +1185,7 @@ void MenuStateCustomGame::PlayNow() {
 
 	safeMutex.ReleaseLock(true);
 	GameSettings gameSettings;
-	loadGameSettings(&gameSettings);
+	loadGameSettings(&gameSettings, true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
@@ -2272,7 +2272,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
+void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool forceCloseUnusedSlots) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	int factionCount= 0;
@@ -2316,6 +2316,17 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings) {
 	int AIPlayerCount = 0;
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+
+		if(forceCloseUnusedSlots == true && (ct == ctNetworkUnassigned || ct == ctNetwork)) {
+			if(serverInterface->getSlot(i) == NULL ||
+               serverInterface->getSlot(i)->isConnected() == false) {
+				//printf("Closed A [%d] [%s]\n",i,labelPlayerNames[i].getText().c_str());
+
+				listBoxControls[i].setSelectedItemIndex(ctClosed);
+				ct = ctClosed;
+			}
+		}
+
 		if(ct != ctClosed) {
 			int slotIndex = factionCount;
 
