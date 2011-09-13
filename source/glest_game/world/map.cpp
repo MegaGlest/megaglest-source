@@ -195,7 +195,11 @@ Cell *Map::getCell(int x, int y) const {
 
 Vec2i Map::getStartLocation(int locationIndex) const {
 	if(locationIndex >= maxPlayers) {
-		throw runtime_error("locationIndex >= maxPlayers");
+		char szBuf[4096]="";
+		sprintf(szBuf,"locationIndex >= maxPlayers [%d] [%d]",locationIndex, maxPlayers);
+		printf("%s\n",szBuf);
+		//throw runtime_error(szBuf);
+		assert(locationIndex < maxPlayers);
 	}
 	else if(startLocations == NULL) {
 		throw runtime_error("startLocations == NULL");

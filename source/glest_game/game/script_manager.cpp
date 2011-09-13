@@ -322,7 +322,9 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 			case ctet_FactionPos:
 			{
 				if(movingUnit->getFactionIndex() == event.sourceId) {
-					bool srcInDst = world->getMap()->isInUnitTypeCells(0, event.destPos,movingUnit->getPos());
+					//printf("ctet_FactionPos event.destPos = [%s], movingUnit->getPos() [%s]\n",event.destPos.getString().c_str(),movingUnit->getPos().getString().c_str());
+
+					bool srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), event.destPos,movingUnit->getPos());
 					if(srcInDst == true) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
