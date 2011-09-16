@@ -18,6 +18,7 @@ cp "$CURRENTDIR/../../mk/linux/megaglest.bmp" $RELEASEDIR
 cp "$CURRENTDIR/../../mk/linux/megaglest.desktop" $RELEASEDIR
 cp "$CURRENTDIR/../../mk/linux/megaglest.png" $RELEASEDIR
 cp "$CURRENTDIR/../../mk/linux/glest.ico" $RELEASEDIR
+cp "$CURRENTDIR/../../mk/linux/configuration.xml" $RELEASEDIR
 
 cp "$CURRENTDIR/../../data/glest_game/megaglest.ico" $RELEASEDIR
 cp "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" $RELEASEDIR
@@ -26,7 +27,7 @@ cp "$CURRENTDIR/../../data/glest_game/servers.ini" $RELEASEDIR
 cp "$CURRENTDIR/../../data/glest_game/glest.ini" $RELEASEDIR/glest_windows.ini
 cp "$CURRENTDIR/../../mk/linux/glest.ini" $RELEASEDIR/glest_linux.ini
 cp "$CURRENTDIR/../../data/glest_game/glestkeys.ini" $RELEASEDIR
-cp "$CURRENTDIR/../../data/glest_game/configuration.xml" $RELEASEDIR
+#cp "$CURRENTDIR/../../data/glest_game/configuration.xml" $RELEASEDIR
 
 mkdir -p "$RELEASEDIR/data/"
 svn export --force "$CURRENTDIR/../../data/glest_game/data" "$RELEASEDIR/data/"
