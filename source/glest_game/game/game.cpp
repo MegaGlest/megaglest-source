@@ -784,6 +784,10 @@ void Game::init(bool initForPreviewOnly)
 		Window::handleEvent();
 		SDL_PumpEvents();
 
+		if(world.getFactionCount() == 1 && world.getFaction(0)->getType()->getPersonalityType() == fpt_Observer) {
+			withRainEffect = false;
+		}
+
 		if(withRainEffect){
 			//weather particle systems
 			if(world.getTileset()->getWeather() == wRainy){
@@ -2296,7 +2300,17 @@ void Game::checkWinnerStandard() {
 			}
 
 			scriptManager.onGameOver(true);
-			showWinMessageBox();
+
+			if(world.getFactionCount() == 1 && world.getFaction(0)->getType()->getPersonalityType() == fpt_Observer) {
+				//printf("!!!!!!!!!!!!!!!!!!!!");
+
+				//gameCamera.setMoveY(100.0);
+				gameCamera.zoom(-300);
+				//gameCamera.update();
+			}
+			else {
+				showWinMessageBox();
+			}
 		}
 	}
 	else {
