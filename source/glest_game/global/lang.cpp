@@ -147,7 +147,9 @@ string Lang::get(const string &s, string language) {
 
 string Lang::getScenarioString(const string &s) {
 	try{
-		return scenarioStrings.getString(s);
+		string result = scenarioStrings.getString(s);
+		replaceAll(result, "\\n", "\n");
+		return result;
 	}
 	catch(exception &ex) {
 		if(scenarioStrings.getpath() != "") {
