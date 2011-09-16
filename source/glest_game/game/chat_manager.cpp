@@ -186,13 +186,34 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 	if(editEnabled && text.size() < maxTextLenght) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 		//space is the first meaningful code
-		SDLKey key = extractKeyPressed(c);
+//		SDLKey key = extractKeyPressed(c);
+//		if(isAllowedInputTextKey(key)) {
+		wchar_t key = extractKeyPressedUnicode(c);
 		if(isAllowedInputTextKey(key)) {
-			char szCharText[20]="";
-			sprintf(szCharText,"%c",key);
-			char *utfStr = String::ConvertToUTF8(&szCharText[0]);
-			text += utfStr;
-			delete [] utfStr;
+			//char szCharText[20]="";
+			//sprintf(szCharText,"%lc",key);
+			//char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+			//text += utfStr;
+
+			//wchar_t wc = 0x1234;
+			char buf[4] = {0};
+			if (key < 0x80) {
+				buf[0] = key;
+			}
+			else if (key < 0x800) {
+				buf[0] = (0xC0 | key >> 6);
+				buf[1] = (0x80 | key & 0x3F);
+			}
+			else {
+				buf[0] = (0xE0 | key >> 12);
+				buf[1] = (0x80 | key >> 6 & 0x3F);
+				buf[2] = (0x80 | key & 0x3F);
+			}
+			text += buf;
+
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d] szCharText [%s]\n",__FILE__,__FUNCTION__,__LINE__, key,text.c_str());
+
+			//delete [] utfStr;
 		}
 	}
 }

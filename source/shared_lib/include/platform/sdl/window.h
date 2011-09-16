@@ -199,6 +199,9 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input, bool modifiersAllo
 SDLKey extractKeyPressed(SDL_KeyboardEvent input);
 bool isAllowedInputTextKey(SDLKey key);
 
+wchar_t extractKeyPressedUnicode(SDL_KeyboardEvent input);
+bool isAllowedInputTextKey(wchar_t &key);
+
 }}//end namespace
 
 #endif
