@@ -47,11 +47,13 @@ struct FormatString {
 // 	class MenuStateCustomGame
 // =====================================================
 
-MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver, bool autostart) :
+MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver, bool autostart, GameSettings *settings) :
 		MenuState(program, mainMenu, "new-game")
 {
 	forceWaitForShutdown = true;
 	this->autostart = autostart;
+	this->autoStartSettings = settings;
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] autostart = %d\n",__FILE__,__FUNCTION__,__LINE__,autostart);
 
 	containerName = "CustomGame";
@@ -700,7 +702,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
         else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-            PlayNow();
+            PlayNow(true);
             return;
         }
         else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
@@ -1114,9 +1116,11 @@ void MenuStateCustomGame::RestoreLastGameSettings() {
 	}
 }
 
-void MenuStateCustomGame::PlayNow() {
+void MenuStateCustomGame::PlayNow(bool saveGame) {
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-	saveGameSettingsToFile("lastCustomGamSettings.mgg");
+	if(saveGame == true) {
+		saveGameSettingsToFile("lastCustomGamSettings.mgg");
+	}
 
 	forceWaitForShutdown = false;
 	closeUnusedSlots();
@@ -2041,9 +2045,18 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		if(autostart == true) {
+			autostart = false;
 			safeMutex.ReleaseLock();
-			RestoreLastGameSettings();
-			PlayNow();
+			if(autoStartSettings != NULL) {
+
+				setupUIFromGameSettings(*autoStartSettings);
+				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+				serverInterface->setGameSettings(autoStartSettings,false);
+			}
+			else {
+				RestoreLastGameSettings();
+			}
+			PlayNow((autoStartSettings == NULL));
 			return;
 		}
 	}
@@ -2289,9 +2302,17 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	gameSettings->setMap(getCurrentMapFile());
     gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
     gameSettings->setTech(techTreeFiles[listBoxTechTree.getSelectedItemIndex()]);
-	gameSettings->setDefaultUnits(true);
-	gameSettings->setDefaultResources(true);
-	gameSettings->setDefaultVictoryConditions(true);
+
+    if(autoStartSettings != NULL) {
+    	gameSettings->setDefaultUnits(autoStartSettings->getDefaultUnits());
+    	gameSettings->setDefaultResources(autoStartSettings->getDefaultResources());
+    	gameSettings->setDefaultVictoryConditions(autoStartSettings->getDefaultVictoryConditions());
+    }
+    else {
+		gameSettings->setDefaultUnits(true);
+		gameSettings->setDefaultResources(true);
+		gameSettings->setDefaultVictoryConditions(true);
+    }
 	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0 ||
 								listBoxFogOfWar.getSelectedItemIndex() == 1 );
 
@@ -2653,6 +2674,8 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	listBoxMapFilter.setSelectedItemIndex(gameSettings.getMapFilterIndex());
 	listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
 
+	printf("In [%s::%s line %d] map [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getMap().c_str());
+
 	string mapFile = gameSettings.getMap();
 	mapFile = formatString(mapFile);
 	listBoxMap.setSelectedItem(mapFile);
@@ -2683,11 +2706,14 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	if(gameSettings.getFogOfWar() == false){
 		listBoxFogOfWar.setSelectedItemIndex(2);
 	}
+
 	if((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
 		if(gameSettings.getFogOfWar() == true){
 			listBoxFogOfWar.setSelectedItemIndex(1);
 		}
 	}
+
+	//printf("In [%s::%s line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
@@ -2713,9 +2739,12 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		if(gameSettings.getFactionControl(i) < listBoxControls[i].getItemCount()) {
 			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
 		}
+
 		updateResourceMultiplier(i);
 		listBoxRMultiplier[i].setSelectedItemIndex(gameSettings.getResourceMultiplierIndex(i));
+
 		listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
+
 		lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
 
 		string factionName = gameSettings.getFactionTypeName(i);

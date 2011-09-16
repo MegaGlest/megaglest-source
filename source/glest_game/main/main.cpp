@@ -103,6 +103,7 @@ const char  *GAME_ARGS[] = {
 	"--connecthost",
 	"--starthost",
 	"--load-scenario",
+	"--preview-map",
 	"--version",
 	"--opengl-info",
 	"--sdl-info",
@@ -145,6 +146,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_CLIENT,
 	GAME_ARG_SERVER,
 	GAME_ARG_LOADSCENARIO,
+	GAME_ARG_PREVIEW_MAP,
 	GAME_ARG_VERSION,
 	GAME_ARG_OPENGL_INFO,
 	GAME_ARG_SDL_INFO,
@@ -1009,6 +1011,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\t\tAuto connects to a network server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
 	printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
 	printf("\n%s=x\t\tAuto loads the specified scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
+	printf("\n%s=x\t\tAuto Preview the specified map by map name.",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
 	printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
 	printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
@@ -3116,12 +3119,72 @@ int glestMain(int argc, char** argv) {
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+        GameSettings startupGameSettings;
+
 		//parse command line
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER]) == true) {
 			program->initServer(mainWindow,false,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME])) == true) {
 			program->initServer(mainWindow,true,false);
+		}
+		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_PREVIEW_MAP])) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_PREVIEW_MAP]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_PREVIEW_MAP]),&foundParamIndIndex);
+			}
+			string mapName = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(mapName,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string autoloadMapName = paramPartTokens[1];
+
+				GameSettings *gameSettings = &startupGameSettings;
+				int factionCount= 0;
+				gameSettings->setMap(autoloadMapName);
+				gameSettings->setTileset("forest");
+				gameSettings->setTech("megapack");
+				gameSettings->setDefaultUnits(false);
+				gameSettings->setDefaultResources(false);
+				gameSettings->setDefaultVictoryConditions(true);
+				gameSettings->setFogOfWar(false);
+				gameSettings->setAllowObservers(true);
+				gameSettings->setPathFinderType(pfBasic);
+
+				for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+					ControlType ct= ctClosed;
+
+					gameSettings->setNetworkPlayerStatuses(i, 0);
+					gameSettings->setFactionControl(i, ct);
+					gameSettings->setStartLocationIndex(i, i);
+					gameSettings->setResourceMultiplierIndex(i, 10);
+					gameSettings->setNetworkPlayerName(i, "Closed");
+				}
+
+				ControlType ct= ctHuman;
+
+				gameSettings->setNetworkPlayerStatuses(0, 0);
+				gameSettings->setFactionControl(0, ct);
+				gameSettings->setFactionTypeName(0, formatString(GameConstants::OBSERVER_SLOTNAME));
+				gameSettings->setTeam(0, GameConstants::maxPlayers + fpt_Observer - 1);
+				gameSettings->setStartLocationIndex(0, 0);
+				gameSettings->setNetworkPlayerName(0, GameConstants::OBSERVER_SLOTNAME);
+
+				gameSettings->setFactionCount(1);
+
+				Config &config = Config::getInstance();
+				gameSettings->setEnableServerControlledAI(config.getBool("ServerControlledAI","true"));
+				gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
+
+				program->initServer(mainWindow,gameSettings);
+			}
+			else {
+				printf("\nInvalid map name specified on commandline [%s] map [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				delete mainWindow;
+				return -1;
+			}
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT])) == true) {
 			int foundParamIndIndex = -1;

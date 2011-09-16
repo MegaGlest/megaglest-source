@@ -190,6 +190,15 @@ void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots)
 	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, openNetworkSlots, false, autostart));
 }
 
+void Program::initServer(WindowGl *window, GameSettings *settings) {
+	MainMenu* mainMenu= NULL;
+
+	init(window);
+	mainMenu= new MainMenu(this);
+	setState(mainMenu);
+	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, false, false, true, settings));
+}
+
 void Program::initClient(WindowGl *window, const Ip &serverIp) {
 	MainMenu* mainMenu= NULL;
 

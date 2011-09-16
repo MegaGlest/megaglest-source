@@ -147,6 +147,8 @@ private:
 	Texture2D *mapPreviewTexture;
 
 	bool autostart;
+	GameSettings *autoStartSettings;
+
 	std::map<int,int> lastSelectedTeamIndex;
 	float rMultiplierOffset;
 	bool hasCheckedForUPNP;
@@ -162,7 +164,7 @@ private:
     bool forceWaitForShutdown;
 
 public:
-	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false);
+	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false,GameSettings *settings=NULL);
 	virtual ~MenuStateCustomGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
@@ -205,7 +207,7 @@ private:
 	void loadFactionTexture(string filepath);
 
 	void RestoreLastGameSettings();
-	void PlayNow();
+	void PlayNow(bool saveGame);
 
 	void SetActivePlayerNameEditor();
 	void cleanup();

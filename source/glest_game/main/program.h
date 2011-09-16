@@ -35,6 +35,7 @@ namespace Glest{ namespace Game{
 
 class Program;
 class MainWindow;
+class GameSettings;
 
 // =====================================================
 // 	class ProgramState
@@ -152,6 +153,7 @@ public:
     GraphicMessageBox * getMsgBox() { return &msgBox; }
 	void initNormal(WindowGl *window);
 	void initServer(WindowGl *window,bool autostart=false,bool openNetworkSlots=false);
+	void initServer(WindowGl *window, GameSettings *settings);
 	void initClient(WindowGl *window, const Ip &serverIp);
 	void initScenario(WindowGl *window, string autoloadScenarioName);
 
