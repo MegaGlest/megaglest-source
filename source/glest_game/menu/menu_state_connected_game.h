@@ -169,6 +169,11 @@ private:
     std::map<string,pair<int,string> > fileFTPProgressList;
     GraphicButton buttonCancelDownloads;
 
+	GraphicLabel labelEnableSwitchTeamMode;
+	GraphicListBox listBoxEnableSwitchTeamMode;
+	GraphicLabel labelAISwitchTeamAcceptPercent;
+	GraphicListBox listBoxAISwitchTeamAcceptPercent;
+
 public:
 
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);

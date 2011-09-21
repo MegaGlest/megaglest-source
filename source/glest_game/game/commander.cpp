@@ -459,6 +459,15 @@ void Commander::trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const {
 	pushNetworkCommand(&command);
 }
 
+void Commander::trySwitchTeam(const Faction* faction, int teamIndex) const {
+	NetworkCommand command(this->world,nctSwitchTeam, faction->getIndex(), teamIndex);
+	pushNetworkCommand(&command);
+}
+
+void Commander::trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) const {
+	NetworkCommand command(this->world,nctSwitchTeamVote, faction->getIndex(), vote->factionIndex,Vec2i(0),vote->allowSwitchTeam);
+	pushNetworkCommand(&command);
+}
 
 // ==================== PRIVATE ====================
 
@@ -660,6 +669,138 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
                 }
                     break;
+
+                case nctSwitchTeam: {
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+
+                	int factionIndex = networkCommand->getUnitId();
+                	int newTeam = networkCommand->getCommandTypeId();
+
+                	// Auto join empty team or ask players to join
+                	bool autoJoinTeam = true;
+                	for(int i = 0; i < world->getFactionCount(); ++i) {
+                		if(newTeam == world->getFaction(i)->getTeam()) {
+                			autoJoinTeam = false;
+                			break;
+                		}
+                	}
+
+                	if(autoJoinTeam == true) {
+                		Faction *faction = world->getFaction(factionIndex);
+                		int oldTeam = faction->getTeam();
+                		faction->setTeam(newTeam);
+                		GameSettings *settings = world->getGameSettingsPtr();
+                		settings->setTeam(factionIndex,newTeam);
+
+                		if(factionIndex == world->getThisFactionIndex()) {
+                			world->setThisTeamIndex(newTeam);
+							GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+							if(gameNetworkInterface != NULL) {
+								char szMsg[1024]="";
+								sprintf(szMsg,"Player %s switched from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,newTeam);
+								gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
+							}
+                		}
+                	}
+                	else {
+                		for(int i = 0; i < world->getFactionCount(); ++i) {
+							if(newTeam == world->getFaction(i)->getTeam()) {
+								Faction *faction = world->getFaction(factionIndex);
+
+								SwitchTeamVote vote;
+								vote.factionIndex = factionIndex;
+								vote.allowSwitchTeam = false;
+								vote.oldTeam = faction->getTeam();
+								vote.newTeam = newTeam;
+								vote.voted = false;
+
+								world->getFaction(i)->setSwitchTeamVote(vote);
+							}
+                		}
+                	}
+
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                }
+                    break;
+
+                case nctSwitchTeamVote: {
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+
+                	int votingFactionIndex = networkCommand->getUnitId();
+                	int factionIndex = networkCommand->getCommandTypeId();
+                	bool allowSwitchTeam = networkCommand->getUnitTypeId();
+
+                	Faction *faction = world->getFaction(votingFactionIndex);
+
+    				SwitchTeamVote *vote = faction->getSwitchTeamVote(factionIndex);
+    				if(vote == NULL) {
+    					throw runtime_error("vote == NULL");
+    				}
+    				vote->voted = true;
+    				vote->allowSwitchTeam = allowSwitchTeam;
+
+                	// Join the new team if > 50 % said yes
+    				int newTeamTotalMemberCount=0;
+    				int newTeamVotedYes=0;
+    				int newTeamVotedNo=0;
+
+                	for(int i = 0; i < world->getFactionCount(); ++i) {
+                		if(vote->newTeam == world->getFaction(i)->getTeam()) {
+                			newTeamTotalMemberCount++;
+
+                			SwitchTeamVote *teamVote = world->getFaction(i)->getSwitchTeamVote(factionIndex);
+                			if(teamVote != NULL && teamVote->voted == true) {
+                				if(teamVote->allowSwitchTeam == true) {
+                					newTeamVotedYes++;
+                				}
+                				else {
+                					newTeamVotedNo++;
+                				}
+                			}
+                		}
+                	}
+
+                	// If > 50% of team vote yes, switch th eplayers team
+                	if(newTeamVotedYes / newTeamTotalMemberCount > 0.5) {
+                		Faction *faction = world->getFaction(factionIndex);
+                		int oldTeam = faction->getTeam();
+                		faction->setTeam(vote->newTeam);
+                		GameSettings *settings = world->getGameSettingsPtr();
+                		settings->setTeam(factionIndex,vote->newTeam);
+
+                		if(factionIndex == world->getThisFactionIndex()) {
+                			world->setThisTeamIndex(vote->newTeam);
+							GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+							if(gameNetworkInterface != NULL) {
+								char szMsg[1024]="";
+								sprintf(szMsg,"Player %s switched from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
+								gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
+							}
+                		}
+                	}
+                	else if(newTeamTotalMemberCount == (newTeamVotedYes + newTeamVotedNo)) {
+                		if(factionIndex == world->getThisFactionIndex()) {
+                			GameSettings *settings = world->getGameSettingsPtr();
+                    		Faction *faction = world->getFaction(factionIndex);
+                    		int oldTeam = faction->getTeam();
+
+							GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+							if(gameNetworkInterface != NULL) {
+								char szMsg[1024]="";
+								sprintf(szMsg,"Player %s was denied the request to switch from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
+								gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
+							}
+                		}
+                	}
+
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                }
+                    break;
+
                 default:
                     assert(false);
             }

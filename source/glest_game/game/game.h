@@ -127,6 +127,15 @@ private:
 
 	time_t lastMaxUnitCalcTime;
 
+	PopupMenu popupMenu;
+	PopupMenu popupMenuSwitchTeams;
+
+	std::map<int,int> switchTeamIndexMap;
+	GraphicMessageBox switchTeamConfirmMessageBox;
+
+	int exitGamePopupMenuIndex;
+	int joinTeamPopupMenuIndex;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings);
@@ -223,6 +232,8 @@ private:
 	void ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role);
 	void calcCameraMoveX();
 	void calcCameraMoveZ();
+
+	int getFirstUnusedTeamNumber();
 };
 
 }}//end namespace

@@ -189,6 +189,28 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxEnableObserverMode.setEditable(false);
 	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
 
+	// Allow Switch Team Mode
+	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
+	labelEnableSwitchTeamMode.init(xoffset+150, aHeadPos+40, 80);
+	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
+
+	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
+	listBoxEnableSwitchTeamMode.init(xoffset+150, aPos+40, 80);
+	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
+	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
+	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
+
+	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
+	labelAISwitchTeamAcceptPercent.init(xoffset+250, aHeadPos+40, 80);
+	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
+
+	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
+	listBoxAISwitchTeamAcceptPercent.init(xoffset+250, aPos+40, 80);
+	for(int i = 0; i <= 100; i = i + 10) {
+		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
+	}
+	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
+
 	labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
 	labelPathFinderType.init(xoffset+450, aHeadPos, 80);
 	labelPathFinderType.setText(lang.get("PathFinderType"));
@@ -1019,6 +1041,9 @@ void MenuStateConnectedGame::render() {
 		renderer.renderLabel(&labelEnableObserverMode);
 		renderer.renderLabel(&labelPathFinderType);
 
+		renderer.renderLabel(&labelEnableSwitchTeamMode);
+		renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
+
 		renderer.renderListBox(&listBoxEnableObserverMode);
 		renderer.renderListBox(&listBoxPathFinderType);
 
@@ -1028,6 +1053,9 @@ void MenuStateConnectedGame::render() {
 		renderer.renderListBox(&listBoxNetworkFramePeriod);
 		renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
 		renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
+
+		renderer.renderListBox(&listBoxEnableSwitchTeamMode);
+		renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         if(fileFTPProgressList.empty() == false) {
@@ -1779,6 +1807,14 @@ void MenuStateConnectedGame::update() {
 				{
 					listBoxAllowObservers.setSelectedItemIndex(0);
 				}
+
+				if((gameSettings->getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching){
+					listBoxEnableSwitchTeamMode.setSelectedItemIndex(0);
+				}
+				else {
+					listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
+				}
+				listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings->getAiAcceptSwitchTeamPercentChance()));
 
 				if(gameSettings->getEnableObserverModeAtEndGame()) {
 					listBoxEnableObserverMode.setSelectedItemIndex(0);

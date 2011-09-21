@@ -150,8 +150,13 @@ public:
 	//get
 	int getMaxPlayers() const						{return map.getMaxPlayers();}
 	int getThisFactionIndex() const					{return thisFactionIndex;}
+
 	int getThisTeamIndex() const					{return thisTeamIndex;}
+	void setThisTeamIndex(int team) 				{ thisTeamIndex=team;}
+
 	const Faction *getThisFaction() const			{return &factions[thisFactionIndex];}
+	Faction *getThisFactionPtr() 					{return &factions[thisFactionIndex];}
+
 	int getFactionCount() const						{return factions.size();}
 	const Map *getMap() const 						{return &map;}
 	const Tileset *getTileset() const 				{return &tileset;}
@@ -222,6 +227,8 @@ public:
 
 	Game * getGame() { return game; }
 	const GameSettings * getGameSettings() const;
+
+	GameSettings * getGameSettingsPtr();
 
 	std::vector<std::string> validateFactionTypes();
 	std::vector<std::string> validateResourceTypes();

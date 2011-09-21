@@ -42,6 +42,9 @@ Game *thisGamePtr = NULL;
 
 const float PHOTO_MODE_MAXHEIGHT = 500.0;
 
+const int CREATE_NEW_TEAM = -100;
+const int CANCEL_SWITCH_TEAM = -1;
+
 Game::Game() : ProgramState(NULL) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	originalDisplayMsgCallback = NULL;
@@ -83,6 +86,10 @@ Game::Game() : ProgramState(NULL) {
 	withRainEffect=false;
 	program=NULL;
 	gameStarted=false;
+
+	switchTeamConfirmMessageBox.setEnabled(false);
+	exitGamePopupMenuIndex = -1;
+	joinTeamPopupMenuIndex = -1;
 }
 
 Game::Game(Program *program, const GameSettings *gameSettings):
@@ -109,6 +116,10 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
+
+	switchTeamConfirmMessageBox.setEnabled(false);
+	exitGamePopupMenuIndex = -1;
+	joinTeamPopupMenuIndex = -1;
 
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
@@ -879,6 +890,26 @@ void Game::init(bool initForPreviewOnly)
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled) SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"================ STARTING GAME ================\n");
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled) SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"PathFinderType: %s\n", (getGameSettings()->getPathFinderType() ? "RoutePlanner" : "PathFinder"));
 
+
+	//PopupMenu popupMenu;
+	std::vector<string> menuItems;
+	menuItems.push_back(lang.get("ExitGame?"));
+	exitGamePopupMenuIndex = menuItems.size()-1;
+
+	if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching) {
+		menuItems.push_back(lang.get("JoinOtherTeam"));
+		joinTeamPopupMenuIndex = menuItems.size()-1;
+	}
+	menuItems.push_back(lang.get("Exit"));
+	popupMenu.setW(200);
+	popupMenu.setH(200);
+	popupMenu.init(lang.get("GameMenuTitle"),menuItems);
+	popupMenu.setEnabled(false);
+	popupMenu.setVisible(false);
+
+	popupMenuSwitchTeams.setEnabled(false);
+	popupMenuSwitchTeams.setVisible(false);
+
 	gameStarted = true;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
@@ -902,6 +933,20 @@ void Game::update() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			quitTriggeredIndicator = true;
 			return;
+		}
+
+		if(world.getThisFaction()->getFirstSwitchTeamVote() != NULL) {
+			const SwitchTeamVote *vote = world.getThisFaction()->getFirstSwitchTeamVote();
+			GameSettings *settings = world.getGameSettingsPtr();
+			char szBuf[1024]="";
+			sprintf(szBuf,"Allow player [%s] to join your team\n(changing from team# %d to team# %d)?",settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+
+			Lang &lang= Lang::getInstance();
+			switchTeamConfirmMessageBox.setText(szBuf);
+			switchTeamConfirmMessageBox.init(lang.get("Yes"), lang.get("No"));
+			switchTeamConfirmMessageBox.setEnabled(true);
+
+			world.getThisFactionPtr()->setCurrentSwitchTeamVoteFactionIndex(vote->factionIndex);
 		}
 
 		//misc
@@ -1173,6 +1218,24 @@ void Game::tick() {
 
 // ==================== events ====================
 
+int Game::getFirstUnusedTeamNumber() {
+	std::map<int,bool> uniqueTeamNumbersUsed;
+	for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
+		Faction *faction = world.getFaction(i);
+		uniqueTeamNumbersUsed[faction->getTeam()]=true;
+	}
+
+	int result = -1;
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		if(uniqueTeamNumbersUsed.find(i) == uniqueTeamNumbersUsed.end()) {
+			result = i;
+			break;
+		}
+	}
+
+	return result;
+}
+
 void Game::mouseDownLeft(int x, int y) {
 	try {
 		if(gameStarted == false) {
@@ -1184,6 +1247,106 @@ void Game::mouseDownLeft(int x, int y) {
 		const Metrics &metrics= Metrics::getInstance();
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		bool messageBoxClick= false;
+
+		if(popupMenu.mouseClick(x, y)) {
+			std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
+			//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
+
+			popupMenu.setEnabled(false);
+			popupMenu.setVisible(false);
+
+			// Exit game
+			if(result.first == exitGamePopupMenuIndex) {
+				showMessageBox(Lang::getInstance().get("ExitGame?"), "", true);
+			}
+			else if(result.first == joinTeamPopupMenuIndex) {
+				switchTeamIndexMap.clear();
+				std::map<int,bool> uniqueTeamNumbersUsed;
+				std::vector<string> menuItems;
+				for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					if(uniqueTeamNumbersUsed.find(faction->getTeam()) == uniqueTeamNumbersUsed.end()) {
+						uniqueTeamNumbersUsed[faction->getTeam()] = true;
+					}
+
+					if(world.getThisFaction()->getIndex() != faction->getIndex() &&
+							world.getThisFaction()->getTeam() != faction->getTeam()) {
+						char szBuf[1024]="";
+						sprintf(szBuf,"Join player #%d - %s on Team: %d",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+
+						menuItems.push_back(szBuf);
+
+						switchTeamIndexMap[menuItems.size()-1] = faction->getTeam();
+					}
+				}
+				if(uniqueTeamNumbersUsed.size() < 8) {
+					menuItems.push_back("Create New Team");
+					switchTeamIndexMap[menuItems.size()-1] = CREATE_NEW_TEAM;
+				}
+				menuItems.push_back("Cancel");
+				switchTeamIndexMap[menuItems.size()-1] = CANCEL_SWITCH_TEAM;
+
+				popupMenuSwitchTeams.setW(400);
+				popupMenuSwitchTeams.setH(400);
+				popupMenuSwitchTeams.init("Switch Teams",menuItems);
+				popupMenuSwitchTeams.setEnabled(true);
+				popupMenuSwitchTeams.setVisible(true);
+			}
+		}
+		else if(popupMenuSwitchTeams.mouseClick(x, y)) {
+			//popupMenuSwitchTeams
+			std::pair<int,string> result = popupMenuSwitchTeams.mouseClickedMenuItem(x, y);
+			//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
+
+			popupMenuSwitchTeams.setEnabled(false);
+			popupMenuSwitchTeams.setVisible(false);
+
+			bool isNetworkGame = this->gameSettings.isNetworkGame();
+
+			int teamIndex = switchTeamIndexMap[result.first];
+			switch(teamIndex) {
+				case CREATE_NEW_TEAM:
+					{
+					int newTeam = getFirstUnusedTeamNumber();
+					if(isNetworkGame == true) {
+						const Faction *faction = world.getThisFaction();
+						commander.trySwitchTeam(faction,newTeam);
+					}
+					else {
+						const Faction *faction = world.getThisFaction();
+						commander.trySwitchTeam(faction,newTeam);
+					}
+					}
+					break;
+				case CANCEL_SWITCH_TEAM:
+					break;
+				default:
+					if(isNetworkGame == true) {
+						const Faction *faction = world.getThisFaction();
+						commander.trySwitchTeam(faction,teamIndex);
+					}
+					else {
+						const Faction *faction = world.getThisFaction();
+						commander.trySwitchTeam(faction,teamIndex);
+					}
+
+					break;
+			}
+		}
+
+		if(switchTeamConfirmMessageBox.getEnabled() == true) {
+			int button= -1;
+			if(switchTeamConfirmMessageBox.mouseClick(x,y,button)) {
+				switchTeamConfirmMessageBox.setEnabled(false);
+
+				SwitchTeamVote *vote = world.getThisFactionPtr()->getSwitchTeamVote(world.getThisFaction()->getCurrentSwitchTeamVoteFactionIndex());
+				vote->voted = true;
+				vote->allowSwitchTeam = (button == 1);
+
+				const Faction *faction = world.getThisFaction();
+				commander.trySwitchTeamVote(faction,vote);
+			}
+		}
 
 		//scrip message box, only if the exit box is not enabled
 		if( mainMessageBox.getEnabled() == false &&
@@ -1408,6 +1571,9 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			return;
 		}
 
+		popupMenu.mouseMove(x, y);
+		popupMenuSwitchTeams.mouseMove(x, y);
+
 		const Metrics &metrics = Metrics::getInstance();
 
 		mouseX = x;
@@ -1465,6 +1631,10 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 						gameCamera.setMoveX(0);
 					}
 				}
+			}
+
+			if(switchTeamConfirmMessageBox.getEnabled() == true) {
+				switchTeamConfirmMessageBox.mouseMove(x,y);
 			}
 
 			if (mainMessageBox.getEnabled()) {
@@ -1672,7 +1842,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//exit
 			//else if(key == configKeys.getCharKey("ExitKey")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key, false) == true) {
-				showMessageBox(lang.get("ExitGame?"), "", true);
+				//showMessageBox(lang.get("ExitGame?"), "", true);
+
+				popupMenu.setEnabled(!popupMenu.getEnabled());
+				popupMenu.setVisible(popupMenu.getEnabled());
 			}
 			//group
 			//else if(key>='0' && key<'0'+Selection::maxGroups){
@@ -2012,6 +2185,10 @@ void Game::render2d(){
     //selection
 	renderer.renderSelectionQuad();
 
+	if(switchTeamConfirmMessageBox.getEnabled() == true) {
+		renderer.renderMessageBox(&switchTeamConfirmMessageBox);
+	}
+
 	//exit message box
 	if(errorMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&errorMessageBox);
@@ -2042,6 +2219,9 @@ void Game::render2d(){
 				Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 680, false);
 		}
 	}
+
+	renderer.renderPopupMenu(&popupMenu);
+	renderer.renderPopupMenu(&popupMenuSwitchTeams);
 
 	if(program != NULL) program->renderProgramMsgBox();
 

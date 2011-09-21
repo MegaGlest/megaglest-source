@@ -117,6 +117,13 @@ bool AiInterface::executeCommandOverNetwork() {
 	return faction->getCpuControl(enableServerControlledAI,isNetworkGame,role);
 }
 
+CommandResult AiInterface::giveCommandSwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) {
+	assert(this->gameSettings != NULL);
+
+	commander->trySwitchTeamVote(faction,vote);
+	return crSuccess;
+}
+
 CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos){
 	assert(this->gameSettings != NULL);
 

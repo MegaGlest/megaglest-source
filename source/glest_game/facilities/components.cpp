@@ -646,5 +646,123 @@ int GraphicScrollBar::getThickness() const {
 	return horizontal?getH():getW();
 }
 
+// ===========================================================
+// 	class PopupMenu
+// ===========================================================
+
+const int PopupMenu::defH= 240;
+const int PopupMenu::defW= 350;
+
+PopupMenu::PopupMenu() {
+	h= defH;
+	w= defW;
+}
+
+PopupMenu::~PopupMenu() {
+
+}
+
+void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
+	header = menuHeader;
+
+	font= CoreData::getInstance().getMenuFontNormal();
+	font3D= CoreData::getInstance().getMenuFontNormal3D();
+
+	buttons.clear();
+
+	const Metrics &metrics= Metrics::getInstance();
+
+	x= (metrics.getVirtualW()-w)/2;
+	y= (metrics.getVirtualH()-h)/2;
+
+	int maxButtonWidth = -1;
+	for(unsigned int i = 0; i < menuItems.size(); ++i) {
+		int currentButtonWidth = -1;
+		if(font3D != NULL) {
+			FontMetrics *fontMetrics= font3D->getMetrics();
+			currentButtonWidth = fontMetrics->getTextWidth(menuItems[i]);
+		}
+		else {
+			FontMetrics *fontMetrics= font->getMetrics();
+			currentButtonWidth = fontMetrics->getTextWidth(menuItems[i]);
+		}
+
+		if(maxButtonWidth < 0 || currentButtonWidth > maxButtonWidth) {
+			maxButtonWidth = currentButtonWidth + 5;
+		}
+	}
+
+	int textHeight = 30;
+	int yStartOffset = y + (h/2) + (textHeight/2);
+	for(unsigned int i = 0; i < menuItems.size(); ++i) {
+		GraphicButton button;
+		button.init(x+(w-maxButtonWidth)/2, yStartOffset - (i*textHeight));
+		button.setText(menuItems[i]);
+		button.setW(maxButtonWidth);
+
+		buttons.push_back(button);
+	}
+}
+
+void PopupMenu::setX(int x) {
+	this->x= x;
+
+	for(unsigned int i = 0; i < buttons.size(); ++i) {
+		GraphicButton &button = buttons[i];
+		button.init(x+(w-GraphicButton::defW)/4, y+25 + (i*25));
+	}
+}
+
+void PopupMenu::setY(int y) {
+	this->y= y;
+
+	for(unsigned int i = 0; i < buttons.size(); ++i) {
+		GraphicButton &button = buttons[i];
+		button.init(x+(w-GraphicButton::defW)/4, y+25 + (i*25));
+	}
+}
+
+bool PopupMenu::mouseMove(int x, int y){
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	for(unsigned int i = 0; i < buttons.size(); ++i) {
+		GraphicButton &button = buttons[i];
+		if(button.mouseMove(x, y)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool PopupMenu::mouseClick(int x, int y) {
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	for(unsigned int i = 0; i < buttons.size(); ++i) {
+		GraphicButton &button = buttons[i];
+		if(button.mouseClick(x, y)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+std::pair<int,string> PopupMenu::mouseClickedMenuItem(int x, int y) {
+	std::pair<int,string> result;
+	for(unsigned int i = 0; i < buttons.size(); ++i) {
+		GraphicButton &button = buttons[i];
+		if(button.mouseClick(x, y)) {
+			result.first = i;
+			result.second = buttons[i].getText();
+			break;
+		}
+	}
+
+	return result;
+}
 
 }}//end namespace

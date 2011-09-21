@@ -6793,4 +6793,107 @@ void Renderer::renderFPSWhenEnabled(int lastFps) {
 	}
 }
 
+void Renderer::renderPopupMenu(PopupMenu *menu) {
+	if(menu->getVisible() == false || menu->getEnabled() == false) {
+		return;
+	}
+
+	//background
+	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glEnable(GL_BLEND);
+
+	glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
+	glBegin(GL_TRIANGLE_STRIP);
+		glVertex2i(menu->getX(), menu->getY() + 9 * menu->getH() / 10);
+		glVertex2i(menu->getX(), menu->getY());
+		glVertex2i(menu->getX() + menu->getW(), menu->getY() + 9 * menu->getH() / 10);
+		glVertex2i(menu->getX() + menu->getW(), menu->getY());
+	glEnd();
+
+	glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
+	glBegin(GL_TRIANGLE_STRIP);
+		glVertex2i(menu->getX(), menu->getY() + menu->getH());
+		glVertex2i(menu->getX(), menu->getY() + 9 * menu->getH() / 10);
+		glVertex2i(menu->getX() + menu->getW(), menu->getY() + menu->getH());
+		glVertex2i(menu->getX() + menu->getW(), menu->getY() + 9 * menu->getH() / 10);
+	glEnd();
+
+	glBegin(GL_LINE_LOOP);
+		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
+		glVertex2i(menu->getX(), menu->getY());
+
+		glColor4f(0.0f, 0.0f, 0.0f, 0.25f) ;
+		glVertex2i(menu->getX() + menu->getW(), menu->getY());
+
+		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
+		glVertex2i(menu->getX() + menu->getW(), menu->getY() + menu->getH());
+
+		glColor4f(0.25f, 0.25f, 0.25f, 0.25f) ;
+		glVertex2i(menu->getX(), menu->getY() + menu->getH());
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+		glColor4f(1.0f, 1.0f, 1.0f, 0.25f) ;
+		glVertex2i(menu->getX(), menu->getY() + 90*menu->getH()/100);
+
+		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
+		glVertex2i(menu->getX()+ menu->getW(), menu->getY() + 90*menu->getH()/100);
+	glEnd();
+
+	glPopAttrib();
+
+	Vec4f fontColor;
+	//if(game!=NULL){
+	//	fontColor=game->getGui()->getDisplay()->getColor();
+	//}
+	//else {
+		// white shadowed is default ( in the menu for example )
+		fontColor=Vec4f(1.f, 1.f, 1.f, 1.0f);
+	//}
+
+	if(renderText3DEnabled == true) {
+		//text
+		renderTextBoundingBox3D(
+				menu->getHeader(), menu->getFont3D(),fontColor,
+				menu->getX(), menu->getY()+93*menu->getH()/100,menu->getW(),0,
+			true,false );
+
+	}
+	else {
+		//text
+		renderTextShadow(
+				menu->getHeader(), menu->getFont(),fontColor,
+			menu->getX()+15, menu->getY()+93*menu->getH()/100,
+			true);
+	}
+
+	//buttons
+//	int maxButtonWidth = -1;
+	std::vector<GraphicButton> &menuItems = menu->getMenuItems();
+//	for(unsigned int i = 0; i < menuItems.size(); ++i) {
+//		GraphicButton *button = &menuItems[i];
+//		int currentButtonWidth = -1;
+//		if(renderText3DEnabled == true) {
+//			FontMetrics *fontMetrics= menu->getFont3D()->getMetrics();
+//			currentButtonWidth = fontMetrics->getTextWidth(button->getText());
+//		}
+//		else {
+//			FontMetrics *fontMetrics= menu->getFont()->getMetrics();
+//			currentButtonWidth = fontMetrics->getTextWidth(button->getText());
+//		}
+//
+//		if(maxButtonWidth < 0 || currentButtonWidth > maxButtonWidth) {
+//			maxButtonWidth = currentButtonWidth + 5;
+//		}
+//	}
+
+	for(unsigned int i = 0; i < menuItems.size(); ++i) {
+		GraphicButton *button = &menuItems[i];
+
+		//button->setW(maxButtonWidth);
+		renderButton(button);
+	}
+
+}
+
 }}//end namespace

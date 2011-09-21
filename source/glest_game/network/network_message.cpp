@@ -230,6 +230,7 @@ NetworkMessageLaunch::NetworkMessageLaunch() {
 		data.factionNameList[i] = "";
 		data.factionCRCList[i] = 0;
 	}
+	data.aiAcceptSwitchTeamPercentChance = 0;
 }
 
 NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType) {
@@ -278,6 +279,8 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 		data.teams[i]= gameSettings->getTeam(i);
 		data.startLocationIndex[i]= gameSettings->getStartLocationIndex(i);
 	}
+
+	data.aiAcceptSwitchTeamPercentChance = gameSettings->getAiAcceptSwitchTeamPercentChance();
 }
 
 void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
@@ -322,6 +325,8 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 		gameSettings->setTeam(i, data.teams[i]);
 		gameSettings->setStartLocationIndex(i, data.startLocationIndex[i]);
 	}
+
+	gameSettings->setAiAcceptSwitchTeamPercentChance(data.aiAcceptSwitchTeamPercentChance);
 }
 
 vector<pair<string,int32> > NetworkMessageLaunch::getFactionCRCList() const {

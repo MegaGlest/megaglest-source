@@ -232,6 +232,8 @@ private:
 		int8 networkPauseGameForLaggedClients;
 		int8 pathFinderType;
 		uint32 flagTypes1;
+
+		int8 aiAcceptSwitchTeamPercentChance;
 	};
 
 private:

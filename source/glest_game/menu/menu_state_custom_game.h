@@ -102,6 +102,11 @@ private:
 	GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
 	GraphicListBox listBoxPlayerStatus;
 
+	GraphicLabel labelEnableSwitchTeamMode;
+	GraphicListBox listBoxEnableSwitchTeamMode;
+	GraphicLabel labelAISwitchTeamAcceptPercent;
+	GraphicListBox listBoxAISwitchTeamAcceptPercent;
+
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
 	time_t lastMasterserverPublishing;

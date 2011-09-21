@@ -34,6 +34,7 @@ class Command;
 class CommandType;
 class NetworkCommand;
 class Game;
+class SwitchTeamVote;
 
 // =====================================================
 // 	class Commander
@@ -98,6 +99,9 @@ public:
     CommandResult tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit= NULL, bool tryQueue = false, int unitCommandGroupId = -1) const;
 	CommandResult tryCancelCommand(const Selection *selection) const;
 	void trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const;
+	void trySwitchTeam(const Faction* faction, int teamIndex) const;
+	void trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) const;
+
 	CommandResult pushNetworkCommand(const NetworkCommand* networkCommand) const;
 	//void giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const;
 

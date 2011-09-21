@@ -306,7 +306,7 @@ void World::updateAllFactionUnits() {
 			}
 			if(unitListToSort.empty() == false) {
 				//printf("About to Sort...\n");
-				std::sort(unitListToSort.begin(),unitListToSort.end(),CommandGroupSorter::compare);
+				std::sort(unitListToSort.begin(),unitListToSort.end(),CommandGroupSorter::comparePtr);
 			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
@@ -332,8 +332,8 @@ void World::updateAllFactionUnits() {
 		}
 
 		if(sortedUnitsAllowed == true) {
-			std::vector<CommandGroupSorter *> &unitListSorted = unitsInFactionsSorted[faction->getIndex()];
-			faction->signalWorkerThread(frameCount,&unitListSorted);
+			std::vector<CommandGroupSorter *> *unitListSorted = &unitsInFactionsSorted[faction->getIndex()];
+			faction->signalWorkerThread(frameCount,unitListSorted);
 		}
 		else {
 			faction->signalWorkerThread(frameCount,NULL);
@@ -394,11 +394,6 @@ void World::updateAllFactionUnits() {
 			}
 
 			unitUpdater.updateUnit(unit);
-
-			if(sortedUnitsAllowed == true) {
-				delete (*unitListSorted)[j];
-				(*unitListSorted)[j] = NULL;
-			}
 		}
 
 //		int unitCount = faction->getUnitCount();
@@ -412,7 +407,31 @@ void World::updateAllFactionUnits() {
 //		}
 	}
 
-	unitsInFactionsSorted.clear();
+	if(sortedUnitsAllowed == true) {
+		if(workThreadsFinished == false) {
+			sleep(0);
+		}
+		for(int i = 0; i < factionCount; ++i) {
+			Faction *faction = getFaction(i);
+			if(faction == NULL) {
+				throw runtime_error("faction == NULL");
+			}
+
+			std::vector<CommandGroupSorter *> *unitListSorted = &unitsInFactionsSorted[faction->getIndex()];
+			unsigned int unitCount = unitListSorted->size();
+
+			for(int j = 0; j < unitCount; ++j) {
+				Unit *unit = (*unitListSorted)[j]->unit;
+				if(unit == NULL) {
+					throw runtime_error("unit == NULL");
+				}
+
+				delete (*unitListSorted)[j];
+				(*unitListSorted)[j] = NULL;
+			}
+		}
+		unitsInFactionsSorted.clear();
+	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 20) printf("In [%s::%s Line: %d] *** Faction MAIN thread processing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);
 }
@@ -1711,6 +1730,10 @@ void World::computeFow(int factionIdxToTick) {
 			}
 		}
 	}
+}
+
+GameSettings * World::getGameSettingsPtr() {
+    return (game != NULL ? game->getGameSettings() : NULL);
 }
 
 const GameSettings * World::getGameSettings() const {
