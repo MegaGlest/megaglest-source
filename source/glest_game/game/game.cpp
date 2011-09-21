@@ -938,10 +938,17 @@ void Game::update() {
 		if(world.getThisFaction()->getFirstSwitchTeamVote() != NULL) {
 			const SwitchTeamVote *vote = world.getThisFaction()->getFirstSwitchTeamVote();
 			GameSettings *settings = world.getGameSettingsPtr();
-			char szBuf[1024]="";
-			sprintf(szBuf,"Allow player [%s] to join your team\n(changing from team# %d to team# %d)?",settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
 
-			Lang &lang= Lang::getInstance();
+	    	Lang &lang= Lang::getInstance();
+
+			char szBuf[1024]="";
+			if(lang.hasString("AllowPlayerJoinTeam") == true) {
+				sprintf(szBuf,lang.get("AllowPlayerJoinTeam").c_str(),settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+			}
+			else {
+				sprintf(szBuf,"Allow player [%s] to join your team\n(changing from team# %d to team# %d)?",settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+			}
+
 			switchTeamConfirmMessageBox.setText(szBuf);
 			switchTeamConfirmMessageBox.init(lang.get("Yes"), lang.get("No"));
 			switchTeamConfirmMessageBox.setEnabled(true);
@@ -1260,6 +1267,8 @@ void Game::mouseDownLeft(int x, int y) {
 				showMessageBox(Lang::getInstance().get("ExitGame?"), "", true);
 			}
 			else if(result.first == joinTeamPopupMenuIndex) {
+
+				Lang &lang= Lang::getInstance();
 				switchTeamIndexMap.clear();
 				std::map<int,bool> uniqueTeamNumbersUsed;
 				std::vector<string> menuItems;
@@ -1272,23 +1281,29 @@ void Game::mouseDownLeft(int x, int y) {
 					if(world.getThisFaction()->getIndex() != faction->getIndex() &&
 							world.getThisFaction()->getTeam() != faction->getTeam()) {
 						char szBuf[1024]="";
-						sprintf(szBuf,"Join player #%d - %s on Team: %d",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+						if(lang.hasString("JoinPlayerTeam") == true) {
+							sprintf(szBuf,lang.get("JoinPlayerTeam").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+						}
+						else {
+							sprintf(szBuf,"Join player #%d - %s on Team: %d",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+						}
 
 						menuItems.push_back(szBuf);
 
 						switchTeamIndexMap[menuItems.size()-1] = faction->getTeam();
 					}
 				}
+
 				if(uniqueTeamNumbersUsed.size() < 8) {
-					menuItems.push_back("Create New Team");
+					menuItems.push_back(lang.get("CreateNewTeam"));
 					switchTeamIndexMap[menuItems.size()-1] = CREATE_NEW_TEAM;
 				}
-				menuItems.push_back("Cancel");
+				menuItems.push_back(lang.get("Cancel"));
 				switchTeamIndexMap[menuItems.size()-1] = CANCEL_SWITCH_TEAM;
 
 				popupMenuSwitchTeams.setW(400);
 				popupMenuSwitchTeams.setH(400);
-				popupMenuSwitchTeams.init("Switch Teams",menuItems);
+				popupMenuSwitchTeams.init(lang.get("SwitchTeams"),menuItems);
 				popupMenuSwitchTeams.setEnabled(true);
 				popupMenuSwitchTeams.setVisible(true);
 			}

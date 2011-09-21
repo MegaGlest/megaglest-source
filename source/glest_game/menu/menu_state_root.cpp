@@ -100,7 +100,7 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 	if(popupMenu.mouseClick(x, y)) {
 		std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
 
-		printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
+		//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
 	}
 	else if(mainMessageBox.getEnabled() == false && buttonNewGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
