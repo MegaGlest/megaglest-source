@@ -78,6 +78,17 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
 	mainMessageBox.setEnabled(false);
 
+	//PopupMenu popupMenu;
+	std::vector<string> menuItems;
+	menuItems.push_back("1");
+	menuItems.push_back("2");
+	menuItems.push_back("3");
+	popupMenu.setW(100);
+	popupMenu.setH(100);
+	popupMenu.init("Test Menu",menuItems);
+	popupMenu.setEnabled(false);
+	popupMenu.setVisible(false);
+
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
@@ -86,7 +97,12 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 	CoreData &coreData=  CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	if(mainMessageBox.getEnabled() == false && buttonNewGame.mouseClick(x, y)){
+	if(popupMenu.mouseClick(x, y)) {
+		std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
+
+		printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
+	}
+	else if(mainMessageBox.getEnabled() == false && buttonNewGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
     }
@@ -125,6 +141,7 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 }
 
 void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
+	popupMenu.mouseMove(x, y);
 	buttonNewGame.mouseMove(x, y);
     buttonMods.mouseMove(x, y);
     buttonOptions.mouseMove(x, y);
@@ -187,6 +204,7 @@ void MenuStateRoot::render() {
 
 		currentX += extraLogo->getPixmap()->getW();
 	}
+
 	renderer.renderButton(&buttonNewGame);
 	renderer.renderButton(&buttonMods);
 	renderer.renderButton(&buttonOptions);
@@ -196,10 +214,13 @@ void MenuStateRoot::render() {
 
 	renderer.renderConsole(&console,false,true);
 
+	renderer.renderPopupMenu(&popupMenu);
+
 	//exit message box
 	if(mainMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
+
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

@@ -27,8 +27,8 @@ namespace Glest{ namespace Game{
 
 enum FlagTypes1 {
     ft1_none                = 0x00,
-    ft1_show_map_resources  = 0x01
-    //ft1_xx                  = 0x02,
+    ft1_show_map_resources  = 0x01,
+    ft1_allow_team_switching  = 0x02
     //ft1_xx                  = 0x04,
     //ft1_xx                  = 0x08,
     //ft1_xx                  = 0x10,
@@ -77,6 +77,8 @@ private:
     int32 techCRC;
     vector<pair<string,int32> > factionCRCList;
 
+    int aiAcceptSwitchTeamPercentChance;
+
 public:
 
     GameSettings() {
@@ -111,6 +113,7 @@ public:
 		tilesetCRC  = 0;
 		techCRC     = 0;
 		factionCRCList.clear();
+		aiAcceptSwitchTeamPercentChance = 30;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -231,6 +234,9 @@ public:
 
 	void setFactionCRCList(vector<pair<string,int32> > value) { factionCRCList = value; }
 
+	int getAiAcceptSwitchTeamPercentChance() const 					{ return aiAcceptSwitchTeamPercentChance;}
+	void setAiAcceptSwitchTeamPercentChance(int value)				{ aiAcceptSwitchTeamPercentChance = value; }
+
 	string toString() const {
 		string result = "";
 
@@ -274,6 +280,8 @@ public:
 		for(unsigned int i = 0; i < factionCRCList.size(); ++i) {
 			result += "factionCRCList name [" + factionCRCList[i].first + "] CRC = " + intToStr(factionCRCList[i].second) + "\n";
 		}
+
+		result += "aiAcceptSwitchTeamPercentChance = " + intToStr(aiAcceptSwitchTeamPercentChance) + "\n";
 
 		return result;
 	}

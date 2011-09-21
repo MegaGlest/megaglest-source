@@ -54,10 +54,17 @@ public:
 	Unit *unit;
 
 	CommandGroupSorter();
+	~CommandGroupSorter();
 	CommandGroupSorter(Unit *unit);
+	CommandGroupSorter(const CommandGroupSorter &obj);
+	CommandGroupSorter(const CommandGroupSorter *obj);
+	CommandGroupSorter & operator=(const CommandGroupSorter &obj);
 	bool operator< (const CommandGroupSorter &j) const;
-	bool operator< (const CommandGroupSorter *j) const;
-	bool static compare(const CommandGroupSorter *l, const CommandGroupSorter *r);
+	static bool comparePtr(const CommandGroupSorter *l, const CommandGroupSorter *r);
+	static bool compare(const CommandGroupSorter &l, const CommandGroupSorter &r);
+
+protected:
+	void copyAll(const CommandGroupSorter &obj);
 };
 
 class FactionThread : public BaseThread {
@@ -78,6 +85,16 @@ public:
     virtual void execute();
     void signalPathfinder(int frameIndex,std::vector<CommandGroupSorter *> *unitsInFactionsSorted);
     bool isSignalPathfinderCompleted(int frameIndex);
+};
+
+class SwitchTeamVote {
+public:
+
+	int factionIndex;
+	int oldTeam;
+	int newTeam;
+	bool voted;
+	bool allowSwitchTeam;
 };
 
 class Faction {
@@ -119,6 +136,9 @@ private:
 	RandomGen random;
 	FactionThread *workerThread;
 
+	std::map<int,SwitchTeamVote> switchTeamVotes;
+	int currentSwitchTeamVoteFactionIndex;
+
 public:
 	Faction();
 	~Faction();
@@ -137,7 +157,16 @@ public:
 	int getStoreAmount(const ResourceType *rt) const;
 	const FactionType *getType() const					{return factionType;}
 	int getIndex() const								{return index;}
+
 	int getTeam() const									{return teamIndex;}
+	void setTeam(int team) 								{teamIndex=team;}
+
+	const SwitchTeamVote * getFirstSwitchTeamVote() const;
+	SwitchTeamVote * getSwitchTeamVote(int factionIndex);
+	void setSwitchTeamVote(SwitchTeamVote &vote);
+	int getCurrentSwitchTeamVoteFactionIndex() const { return currentSwitchTeamVoteFactionIndex; }
+	void setCurrentSwitchTeamVoteFactionIndex(int index) { currentSwitchTeamVoteFactionIndex = index; }
+
 	bool getCpuControl(bool enableServerControlledAI, bool isNetworkGame, NetworkRole role) const;
 	bool getCpuControl() const;
 	bool getCpuEasyControl() const						{return control==ctCpuEasy;}

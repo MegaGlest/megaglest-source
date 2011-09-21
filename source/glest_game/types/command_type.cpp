@@ -819,6 +819,62 @@ const ProducibleType *MorphCommandType::getProduced() const{
 }
 
 // =====================================================
+// 	class SwitchTeamCommandType
+// =====================================================
+
+//varios
+SwitchTeamCommandType::SwitchTeamCommandType(){
+    commandTypeClass= ccSwitchTeam;
+    clicks= cOne;
+}
+
+void SwitchTeamCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateSwitchTeam(unit, frameIndex);
+}
+
+void SwitchTeamCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader) {
+	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
+
+	//morph skill
+   	//string skillName= n->getChild("morph-skill")->getAttribute("value")->getRestrictedValue();
+	//morphSkillType= static_cast<const MorphSkillType*>(ut.getSkillType(skillName, scMorph));
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+string SwitchTeamCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+    string str= name+"\n";
+	Lang &lang= Lang::getInstance();
+
+    //prod speed
+    //str+= lang.get("MorphSpeed")+": "+ intToStr(morphSkillType->getSpeed())+"\n";
+
+    //mpcost
+//	if(morphSkillType->getEpCost()!=0){
+//        str+= lang.get("EpCost")+": "+intToStr(morphSkillType->getEpCost())+"\n";
+//	}
+//		if(morphSkillType->getHpCost()!=0){
+//        str+= lang.get("HpCost")+": "+intToStr(morphSkillType->getHpCost())+"\n";
+//	}
+//
+//    //discount
+//	if(discount!=0){
+//        str+= lang.get("Discount")+": "+intToStr(discount)+"%\n";
+//	}
+//
+//    str+= "\n"+getProduced()->getReqDesc();
+
+    return str;
+}
+
+string SwitchTeamCommandType::toString() const{
+	Lang &lang= Lang::getInstance();
+	return lang.get("SwitchTeam");
+}
+
+// =====================================================
 // 	class CommandFactory
 // =====================================================
 
@@ -833,6 +889,7 @@ CommandTypeFactory::CommandTypeFactory(){
 	registerClass<ProduceCommandType>("produce");
 	registerClass<UpgradeCommandType>("upgrade");
 	registerClass<MorphCommandType>("morph");
+	registerClass<SwitchTeamCommandType>("switch_team");
 }
 
 CommandTypeFactory &CommandTypeFactory::getInstance(){

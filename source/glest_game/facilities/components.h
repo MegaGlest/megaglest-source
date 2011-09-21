@@ -336,5 +336,36 @@ public:
 	int getVisibleCompPosEnd() const		{return visibleCompPosEnd;}
 };
 
+// ===========================================================
+// 	class PopupMenu
+// ===========================================================
+
+class PopupMenu: public GraphicComponent {
+public:
+	static const int defH;
+	static const int defW;
+
+private:
+	std::vector<GraphicButton> buttons;
+	string header;
+
+public:
+	PopupMenu();
+	~PopupMenu();
+	void init(string menuHeader, std::vector<string> menuItems);
+
+	std::vector<GraphicButton> & getMenuItems() {return buttons;}
+	string getHeader() const				{return header;}
+
+	virtual void setX(int x);
+	virtual void setY(int y);
+
+	void setHeader(string header)			{this->header= header;}
+
+    virtual bool mouseMove(int x, int y);
+    virtual bool mouseClick(int x, int y);
+    std::pair<int,string> mouseClickedMenuItem(int x, int y);
+};
+
 }}//end namespace
 #endif

@@ -1882,6 +1882,62 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
+
+// ==================== updateMove ====================
+void UnitUpdater::updateSwitchTeam(Unit *unit, int frameIndex) {
+//	Chrono chrono;
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+//
+//    Command *command= unit->getCurrCommand();
+//    const MoveCommandType *mct= static_cast<const MoveCommandType*>(command->getCommandType());
+//
+//	Vec2i pos= command->getUnit()!=NULL? command->getUnit()->getCenteredPos(): command->getPos();
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+//		char szBuf[4096]="";
+//		sprintf(szBuf,"[updateMove] pos [%s] unit [%d - %s] cmd [%s]",pos.getString().c_str(),unit->getId(),unit->getFullName().c_str(),command->toString().c_str());
+//		unit->logSynchData(__FILE__,__LINE__,szBuf);
+//	}
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+//
+//	TravelState tsValue = tsImpossible;
+//	switch(this->game->getGameSettings()->getPathFinderType()) {
+//		case pfBasic:
+//			tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
+//			break;
+//		case pfRoutePlanner:
+//			tsValue = routePlanner->findPath(unit, pos);
+//			break;
+//		default:
+//			throw runtime_error("detected unsupported pathfinder type!");
+//    }
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+//
+//	if(frameIndex < 0) {
+//		switch (tsValue) {
+//		case tsMoving:
+//			unit->setCurrSkill(mct->getMoveSkillType());
+//			break;
+//
+//		case tsBlocked:
+//			unit->setCurrSkill(scStop);
+//			if(unit->getPath()->isBlocked()){
+//				unit->finishCommand();
+//			}
+//			break;
+//
+//		default:
+//			unit->finishCommand();
+//		}
+//	}
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+}
+
+
+// ==================== updateAttack ====================
+
 // ==================== PRIVATE ====================
 
 // ==================== attack ====================

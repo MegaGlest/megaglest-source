@@ -34,17 +34,60 @@ CommandGroupSorter::CommandGroupSorter() {
 	this->unit = NULL;
 }
 
+CommandGroupSorter::~CommandGroupSorter() {
+	this->unit = NULL;
+}
+
 CommandGroupSorter::CommandGroupSorter(Unit *unit) {
 	this->unit = unit;
 }
 
-bool CommandGroupSorter::operator< (const CommandGroupSorter *j) const {
-	return operator<(*j);
+CommandGroupSorter::CommandGroupSorter(const CommandGroupSorter &obj) {
+	copyAll(obj);
+}
+
+CommandGroupSorter::CommandGroupSorter(const CommandGroupSorter *obj) {
+	if(obj != NULL) {
+		copyAll(*obj);
+	}
+}
+
+CommandGroupSorter & CommandGroupSorter::operator=(const CommandGroupSorter &obj) {
+	copyAll(obj);
+	return *this;
 }
 
 
-bool CommandGroupSorter::compare(const CommandGroupSorter *l, const CommandGroupSorter *r) {
-	return (*l < *r);
+void CommandGroupSorter::copyAll(const CommandGroupSorter &obj) {
+	if(this != &obj) {
+		this->unit = obj.unit;
+	}
+}
+
+bool CommandGroupSorter::comparePtr(const CommandGroupSorter *l, const CommandGroupSorter *r) {
+	if(!l) {
+		printf("Error l == NULL\n");
+	}
+	if(!r) {
+		printf("Error r == NULL\n");
+	}
+
+	assert(l && r);
+
+	if(l->unit == NULL || r->unit == NULL)
+	printf("Unit l [%s - %d] r [%s - %d]\n",
+			(l->unit != NULL ? l->unit->getType()->getName().c_str() : "null"),
+			(l->unit != NULL ? l->unit->getId() : -1),
+			(r->unit != NULL ? r->unit->getType()->getName().c_str() : "null"),
+			(r->unit != NULL ? r->unit->getId() : -1));
+
+	const CommandGroupSorter &lRef = *l;
+	const CommandGroupSorter &rRef = *r;
+	return (lRef < rRef);
+}
+
+bool CommandGroupSorter::compare(const CommandGroupSorter &l, const CommandGroupSorter &r) {
+	return (l < r);
 }
 
 bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
@@ -1454,6 +1497,35 @@ int Faction::getFrameCount() {
 	}
 
 	return frameCount;
+}
+
+const SwitchTeamVote * Faction::getFirstSwitchTeamVote() const {
+	const SwitchTeamVote *vote = NULL;
+	if(switchTeamVotes.size() > 0) {
+		for(std::map<int,SwitchTeamVote>::const_iterator iterMap = switchTeamVotes.begin();
+				iterMap != switchTeamVotes.end(); ++iterMap) {
+			const SwitchTeamVote &curVote = iterMap->second;
+			if(curVote.voted == false) {
+				vote = &curVote;
+				break;
+			}
+		}
+	}
+
+	return vote;
+}
+
+SwitchTeamVote * Faction::getSwitchTeamVote(int factionIndex) {
+	SwitchTeamVote *vote = NULL;
+	if(switchTeamVotes.find(factionIndex) != switchTeamVotes.end()) {
+		vote = &switchTeamVotes[factionIndex];
+	}
+
+	return vote;
+}
+
+void Faction::setSwitchTeamVote(SwitchTeamVote &vote) {
+	switchTeamVotes[vote.factionIndex] = vote;
 }
 
 std::string Faction::toString() const {

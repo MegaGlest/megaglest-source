@@ -111,6 +111,7 @@ public:
     void updateProduce(Unit *unit, int frameIndex);
     void updateUpgrade(Unit *unit, int frameIndex);
 	void updateMorph(Unit *unit, int frameIndex);
+	void updateSwitchTeam(Unit *unit, int frameIndex);
 
 	void clearUnitPrecache(Unit *unit);
 	void removeUnitPrecache(Unit *unit);

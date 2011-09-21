@@ -157,6 +157,42 @@ void Ai::update() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+	if(aiInterface->getMyFaction()->getFirstSwitchTeamVote() != NULL) {
+		const SwitchTeamVote *vote = aiInterface->getMyFaction()->getFirstSwitchTeamVote();
+		aiInterface->getMyFaction()->setCurrentSwitchTeamVoteFactionIndex(vote->factionIndex);
+
+		factionSwitchTeamRequestCount[vote->factionIndex]++;
+		int factionSwitchTeamRequestCountCurrent = factionSwitchTeamRequestCount[vote->factionIndex];
+
+		//int allowJoinTeam = random.randRange(0, 100);
+		srand(time(NULL) + aiInterface->getMyFaction()->getIndex());
+		int allowJoinTeam = rand() % 100;
+
+		SwitchTeamVote *voteResult = aiInterface->getMyFaction()->getSwitchTeamVote(vote->factionIndex);
+		voteResult->voted = true;
+		voteResult->allowSwitchTeam = false;
+
+		const GameSettings *settings =  aiInterface->getWorld()->getGameSettings();
+		// Can only ask the AI player 2 times max per game
+		if(factionSwitchTeamRequestCountCurrent <= 2) {
+			// x% chance the AI will answer yes
+			if(settings->getAiAcceptSwitchTeamPercentChance() >= 100) {
+				voteResult->allowSwitchTeam = true;
+			}
+			else if(settings->getAiAcceptSwitchTeamPercentChance() <= 0) {
+				voteResult->allowSwitchTeam = false;
+			}
+			else {
+				voteResult->allowSwitchTeam = (allowJoinTeam >= (100 - settings->getAiAcceptSwitchTeamPercentChance()));
+			}
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] AI for faction# %d voted %s [%d] factionSwitchTeamRequestCountCurrent [%d] settings->getAiAcceptSwitchTeamPercentChance() [%d]\n",__FILE__,__FUNCTION__,__LINE__,aiInterface->getMyFaction()->getIndex(),(voteResult->allowSwitchTeam ? "Yes" : "No"),allowJoinTeam,factionSwitchTeamRequestCountCurrent,settings->getAiAcceptSwitchTeamPercentChance());
+		//printf("AI for faction# %d voted %s [%d] factionSwitchTeamRequestCountCurrent [%d]\n",aiInterface->getMyFaction()->getIndex(),(voteResult->allowSwitchTeam ? "Yes" : "No"),allowJoinTeam,factionSwitchTeamRequestCountCurrent);
+
+		aiInterface->giveCommandSwitchTeamVote(aiInterface->getMyFaction(),voteResult);
+	}
+
 	//process ai rules
 	for(int ruleIdx = 0; ruleIdx < aiRules.size(); ++ruleIdx) {
 		AiRule *rule = aiRules[ruleIdx];
@@ -412,7 +448,7 @@ void Ai::addExpansion(const Vec2i &pos){
 	}
 }
 
-Vec2i Ai::getRandomHomePosition(){
+Vec2i Ai::getRandomHomePosition() {
 
 	if(expansionPositions.empty() || random.randRange(0, 1) == 0){
 		return aiInterface->getHomeLocation();

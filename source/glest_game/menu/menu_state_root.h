@@ -22,6 +22,7 @@ namespace Glest{ namespace Game{
 // ===============================
 
 class GraphicMessageBox;
+class PopupMenu;
 
 class MenuStateRoot: public MenuState {
 private:
@@ -33,6 +34,8 @@ private:
 	GraphicLabel labelVersion;
 
 	GraphicMessageBox mainMessageBox;
+
+	PopupMenu popupMenu;
 
 public:
 	MenuStateRoot(Program *program, MainMenu *mainMenu);

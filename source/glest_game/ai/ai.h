@@ -144,6 +144,7 @@ private:
 	Tasks tasks;
 	Positions expansionPositions;
 	RandomGen random;
+	std::map<int,int> factionSwitchTeamRequestCount;
 
 	bool getAdjacentUnits(std::map<float, std::map<int, const Unit *> > &signalAdjacentUnits, const Unit *unit);
 

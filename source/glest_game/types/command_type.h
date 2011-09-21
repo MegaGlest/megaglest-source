@@ -42,6 +42,7 @@ enum CommandClass {
 	ccProduce,
 	ccUpgrade,
 	ccMorph,
+	ccSwitchTeam,
 
 	ccCount,
 	ccNull
@@ -379,6 +380,24 @@ public:
 	const MorphSkillType *getMorphSkillType() const		{return morphSkillType;}
 	const UnitType *getMorphUnit() const				{return morphUnit;}
 	int getDiscount() const								{return discount;}
+};
+
+// ===============================
+// 	class SwitchTeamCommandType
+// ===============================
+
+class SwitchTeamCommandType: public CommandType {
+private:
+
+
+public:
+	SwitchTeamCommandType();
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
+    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+	virtual string toString() const;
 };
 
 // ===============================

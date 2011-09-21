@@ -65,7 +65,9 @@ public:
 enum NetworkCommandType {
 	nctGiveCommand,
 	nctCancelCommand,
-	nctSetMeetingPoint
+	nctSetMeetingPoint,
+	nctSwitchTeam,
+	nctSwitchTeamVote
 	//nctNetworkCommand
 };
 

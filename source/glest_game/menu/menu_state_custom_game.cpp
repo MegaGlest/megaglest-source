@@ -305,6 +305,28 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
 	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItemIndex(0);
 
+	// Allow Switch Team Mode
+	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
+	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+40, 80);
+	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
+
+	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
+	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+40, 80);
+	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
+	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
+	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
+
+	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
+	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+40, 80);
+	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
+
+	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
+	listBoxAISwitchTeamAcceptPercent.init(xoffset+460, aPos+40, 80);
+	for(int i = 0; i <= 100; i = i + 10) {
+		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
+	}
+	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
+
 	// Which Pathfinder
 	labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
 	labelPathFinderType.init(xoffset+650, aHeadPos, 80);
@@ -756,6 +778,32 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
             }
         }
         else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
+            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+                needToRepublishToMasterserver = true;
+            }
+
+            if(hasNetworkGameSettings() == true)
+            {
+                needToSetChangedGameSettings = true;
+                lastSetChangedGameSettings   = time(NULL);
+            }
+        }
+        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
             MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
             if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1309,6 +1357,9 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 		//labelNetworkFramePeriod.mouseMove(x, y);
 		//listBoxNetworkFramePeriod.mouseMove(x, y);
 
+		listBoxEnableSwitchTeamMode.mouseMove(x, y);
+		listBoxAISwitchTeamAcceptPercent.mouseMove(x, y);
+
 		labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
 		listBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
 
@@ -1443,10 +1494,16 @@ void MenuStateCustomGame::render() {
 				renderer.renderLabel(&labelEnableObserverMode);
 				renderer.renderLabel(&labelPathFinderType);
 
+				renderer.renderLabel(&labelEnableSwitchTeamMode);
+				renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
+
 				renderer.renderListBox(&listBoxFogOfWar);
 				renderer.renderListBox(&listBoxAllowObservers);
 				renderer.renderListBox(&listBoxEnableObserverMode);
 				renderer.renderListBox(&listBoxPathFinderType);
+
+				renderer.renderListBox(&listBoxEnableSwitchTeamMode);
+				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
 			}
 			renderer.renderLabel(&labelTileset);
 			renderer.renderLabel(&labelMapFilter);
@@ -1746,6 +1803,8 @@ void MenuStateCustomGame::update() {
 
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
+
+		listBoxAISwitchTeamAcceptPercent.setEnabled(listBoxEnableSwitchTeamMode.getSelectedItemIndex() == 0);
 
 		int factionCount = 0;
 		for(int i= 0; i< mapInfo.players; ++i) {
@@ -2332,6 +2391,17 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
+	valueFlags1 = gameSettings->getFlagTypes1();
+	if(listBoxEnableSwitchTeamMode.getSelectedItemIndex() == 0) {
+        valueFlags1 |= ft1_allow_team_switching;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_team_switching;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
+
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
 	int AIPlayerCount = 0;
@@ -2555,6 +2625,9 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	saveGameFile << "FlagTypes1=" << gameSettings.getFlagTypes1() << std::endl;
 
 	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings.getEnableObserverModeAtEndGame() << std::endl;
+
+	saveGameFile << "AiAcceptSwitchTeamPercentChance=" << gameSettings.getAiAcceptSwitchTeamPercentChance() << std::endl;
+
 	saveGameFile << "PathFinderType=" << gameSettings.getPathFinderType() << std::endl;
 	saveGameFile << "EnableServerControlledAI=" << gameSettings.getEnableServerControlledAI() << std::endl;
 	saveGameFile << "NetworkFramePeriod=" << gameSettings.getNetworkFramePeriod() << std::endl;
@@ -2626,6 +2699,9 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
         gameSettings.setFlagTypes1(properties.getInt("FlagTypes1","0"));
 
 		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
+
+		gameSettings.setAiAcceptSwitchTeamPercentChance(properties.getInt("AiAcceptSwitchTeamPercentChance","30"));
+
 		gameSettings.setPathFinderType(static_cast<PathFinderType>(properties.getInt("PathFinderType",intToStr(pfBasic).c_str())));
 		gameSettings.setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","true"));
 		gameSettings.setNetworkFramePeriod(properties.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str()));
@@ -2717,6 +2793,10 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
+
+	listBoxEnableSwitchTeamMode.setSelectedItem((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching ? lang.get("Yes") : lang.get("No"));
+	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
+
 	listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 
 	//listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));

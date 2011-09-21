@@ -435,6 +435,7 @@ public:
     void renderScrollBar(const GraphicScrollBar *sb);
     void renderListBox(GraphicListBox *listBox);
 	void renderMessageBox(GraphicMessageBox *listBox);
+	void renderPopupMenu(PopupMenu *menu);
 
     //complex rendering
     void renderSurface(const int renderFps);
