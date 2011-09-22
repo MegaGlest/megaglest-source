@@ -281,8 +281,7 @@ void World::updateAllFactionUnits() {
 	// Prioritize grouped command units so closest units to target go first
 	// units
 	Config &config= Config::getInstance();
-	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","false");
-	std::map<int, std::vector<CommandGroupSorter *> > unitsInFactionsSorted;
+	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
 
 	int factionCount = getFactionCount();
 	if(sortedUnitsAllowed == true) {
@@ -292,37 +291,10 @@ void World::updateAllFactionUnits() {
 				throw runtime_error("faction == NULL");
 			}
 
-			std::vector<CommandGroupSorter *> &unitListToSort = unitsInFactionsSorted[faction->getIndex()];
-			unitListToSort.clear();
-
-			int unitCount = faction->getUnitCount();
-			for(int j = 0; j < unitCount; ++j) {
-				Unit *unit = faction->getUnit(j);
-				if(unit == NULL) {
-					throw runtime_error("unit == NULL");
-				}
-
-				unitListToSort.push_back(new CommandGroupSorter(unit));
-			}
-			if(unitListToSort.empty() == false) {
-				//printf("About to Sort...\n");
-				std::sort(unitListToSort.begin(),unitListToSort.end(),CommandGroupSorter::comparePtr);
-			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-				char szBuf[4096]="";
-
-				for(unsigned int x = 0; x < unitListToSort.size(); ++x) {
-					CommandGroupSorter *sorter = unitListToSort[x];
-
-					sprintf(szBuf,"List %d / %ld unit [%d - %s] cmd [%s]",x,unitListToSort.size(),sorter->unit->getId(),sorter->unit->getFullName().c_str(),(sorter->unit->getCurrCommand() == NULL ? "NULL" : sorter->unit->getCurrCommand()->toString().c_str()));
-					sorter->unit->logSynchData(__FILE__,__LINE__,szBuf);
-				}
-			}
+			// Sort units by command groups
+			faction->sortUnitsByCommandGroups();
 		}
 	}
-
-	//sortedUnitsAllowed = false;
 
 	// Signal the faction threads to do any pre-processing
 	for(int i = 0; i < factionCount; ++i) {
@@ -330,14 +302,7 @@ void World::updateAllFactionUnits() {
 		if(faction == NULL) {
 			throw runtime_error("faction == NULL");
 		}
-
-		if(sortedUnitsAllowed == true) {
-			std::vector<CommandGroupSorter *> *unitListSorted = &unitsInFactionsSorted[faction->getIndex()];
-			faction->signalWorkerThread(frameCount,unitListSorted);
-		}
-		else {
-			faction->signalWorkerThread(frameCount,NULL);
-		}
+		faction->signalWorkerThread(frameCount);
 	}
 
 	bool workThreadsFinished = false;
@@ -374,63 +339,15 @@ void World::updateAllFactionUnits() {
 			throw runtime_error("faction == NULL");
 		}
 
-		std::vector<CommandGroupSorter *> *unitListSorted = NULL;
 		int unitCount = faction->getUnitCount();
-		if(sortedUnitsAllowed == true) {
-			unitListSorted = &unitsInFactionsSorted[faction->getIndex()];
-			unitCount = unitListSorted->size();
-		}
-
 		for(int j = 0; j < unitCount; ++j) {
-			Unit *unit = NULL;
-			if(sortedUnitsAllowed == true) {
-				unit = (*unitListSorted)[j]->unit;
-			}
-			else {
-				unit = faction->getUnit(j);
-			}
+			Unit *unit = faction->getUnit(j);
 			if(unit == NULL) {
 				throw runtime_error("unit == NULL");
 			}
 
 			unitUpdater.updateUnit(unit);
 		}
-
-//		int unitCount = faction->getUnitCount();
-//		for(int j = 0; j < unitCount; ++j) {
-//			Unit *unit = faction->getUnit(j);
-//			if(unit == NULL) {
-//				throw runtime_error("unit == NULL");
-//			}
-//
-//			unitUpdater.updateUnit(unit);
-//		}
-	}
-
-	if(sortedUnitsAllowed == true) {
-		if(workThreadsFinished == false) {
-			sleep(0);
-		}
-		for(int i = 0; i < factionCount; ++i) {
-			Faction *faction = getFaction(i);
-			if(faction == NULL) {
-				throw runtime_error("faction == NULL");
-			}
-
-			std::vector<CommandGroupSorter *> *unitListSorted = &unitsInFactionsSorted[faction->getIndex()];
-			unsigned int unitCount = unitListSorted->size();
-
-			for(int j = 0; j < unitCount; ++j) {
-				Unit *unit = (*unitListSorted)[j]->unit;
-				if(unit == NULL) {
-					throw runtime_error("unit == NULL");
-				}
-
-				delete (*unitListSorted)[j];
-				(*unitListSorted)[j] = NULL;
-			}
-		}
-		unitsInFactionsSorted.clear();
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 20) printf("In [%s::%s Line: %d] *** Faction MAIN thread processing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);

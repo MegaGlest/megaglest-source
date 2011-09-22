@@ -30,41 +30,7 @@ using Shared::Util::RandomGen;
 
 namespace Glest { namespace Game {
 
-CommandGroupSorter::CommandGroupSorter() {
-	this->unit = NULL;
-}
-
-CommandGroupSorter::~CommandGroupSorter() {
-	this->unit = NULL;
-}
-
-CommandGroupSorter::CommandGroupSorter(Unit *unit) {
-	this->unit = unit;
-}
-
-CommandGroupSorter::CommandGroupSorter(const CommandGroupSorter &obj) {
-	copyAll(obj);
-}
-
-CommandGroupSorter::CommandGroupSorter(const CommandGroupSorter *obj) {
-	if(obj != NULL) {
-		copyAll(*obj);
-	}
-}
-
-CommandGroupSorter & CommandGroupSorter::operator=(const CommandGroupSorter &obj) {
-	copyAll(obj);
-	return *this;
-}
-
-
-void CommandGroupSorter::copyAll(const CommandGroupSorter &obj) {
-	if(this != &obj) {
-		this->unit = obj.unit;
-	}
-}
-
-bool CommandGroupSorter::comparePtr(const CommandGroupSorter *l, const CommandGroupSorter *r) {
+bool CommandGroupUnitSorter::compare(const Unit *l, const Unit *r) {
 	if(!l) {
 		printf("Error l == NULL\n");
 	}
@@ -74,38 +40,32 @@ bool CommandGroupSorter::comparePtr(const CommandGroupSorter *l, const CommandGr
 
 	assert(l && r);
 
-	if(l->unit == NULL || r->unit == NULL)
-	printf("Unit l [%s - %d] r [%s - %d]\n",
-			(l->unit != NULL ? l->unit->getType()->getName().c_str() : "null"),
-			(l->unit != NULL ? l->unit->getId() : -1),
-			(r->unit != NULL ? r->unit->getType()->getName().c_str() : "null"),
-			(r->unit != NULL ? r->unit->getId() : -1));
+	if(l == NULL || r == NULL)
+		printf("Unit l [%s - %d] r [%s - %d]\n",
+			(l != NULL ? l->getType()->getName().c_str() : "null"),
+			(l != NULL ? l->getId() : -1),
+			(r != NULL ? r->getType()->getName().c_str() : "null"),
+			(r != NULL ? r->getId() : -1));
 
-	const CommandGroupSorter &lRef = *l;
-	const CommandGroupSorter &rRef = *r;
-	return (lRef < rRef);
-}
 
-bool CommandGroupSorter::compare(const CommandGroupSorter &l, const CommandGroupSorter &r) {
-	return (l < r);
-}
-
-bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 	bool result = false;
 	// If comparer if null or dead
-	if(j.unit == NULL || j.unit->isAlive() == false) {
+	if(r == NULL || r->isAlive() == false) {
 		// if source is null or dead also
-		if((this->unit == NULL || this->unit->isAlive() == false)) {
+		if((l == NULL || l->isAlive() == false)) {
 			return false;
 		}
 		return true;
 	}
-	else if((this->unit == NULL || this->unit->isAlive() == false)) {
+	else if((l == NULL || l->isAlive() == false)) {
 		return false;
 	}
 
-	Command *command= this->unit->getCurrrentCommandThreadSafe();
-	Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
+//	const Command *command= l->getCurrrentCommandThreadSafe();
+//	const Command *commandPeer = r->getCurrrentCommandThreadSafe();
+	const Command *command= l->getCurrCommand();
+	const Command *commandPeer = r->getCurrCommand();
+
 	//Command *command= this->unit->getCurrCommand();
 
 	// Are we moving or attacking
@@ -136,14 +96,14 @@ bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 			result = curCommandGroupId < commandPeer->getUnitCommandGroupId();
 		}
 		else {
-			float unitDist = this->unit->getCenteredPos().dist(command->getPos());
-			float unitDistPeer = j.unit->getCenteredPos().dist(commandPeer->getPos());
+			float unitDist = l->getCenteredPos().dist(command->getPos());
+			float unitDistPeer = r->getCenteredPos().dist(commandPeer->getPos());
 
 			// Closest unit in commandgroup
 			result = (unitDist < unitDistPeer);
 		}
 	}
-	else if(command == NULL && j.unit->getCurrrentCommandThreadSafe() != NULL) {
+	else if(command == NULL && commandPeer != NULL) {
 		result = false;
 	}
 //	else if(command == NULL && j.unit->getCurrrentCommandThreadSafe() == NULL) {
@@ -154,10 +114,10 @@ bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 		if( commandPeer != NULL &&
 			(commandPeer->getCommandType()->getClass() != ccMove &&
 			 commandPeer->getCommandType()->getClass() != ccAttack)) {
-			result = this->unit->getId() < j.unit->getId();
+			result = l->getId() < r->getId();
 		}
 		else {
-			result = (this->unit->getId() < j.unit->getId());
+			result = (l->getId() < r->getId());
 		}
 	}
 
@@ -166,13 +126,16 @@ bool CommandGroupSorter::operator< (const CommandGroupSorter &j) const {
 	return result;
 }
 
+void Faction::sortUnitsByCommandGroups() {
+	std::sort(units.begin(),units.end(),CommandGroupUnitSorter::compare);
+}
+
 // =====================================================
 //	class FactionThread
 // =====================================================
 
 FactionThread::FactionThread(Faction *faction) : BaseThread() {
 	this->faction = faction;
-	this->unitsInFactionsSorted = NULL;
 }
 
 void FactionThread::setQuitStatus(bool value) {
@@ -180,20 +143,19 @@ void FactionThread::setQuitStatus(bool value) {
 
 	BaseThread::setQuitStatus(value);
 	if(value == true) {
-		signalPathfinder(-1,NULL);
+		signalPathfinder(-1);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void FactionThread::signalPathfinder(int frameIndex, std::vector<CommandGroupSorter *> *unitsInFactionsSorted) {
+void FactionThread::signalPathfinder(int frameIndex) {
 	if(frameIndex >= 0) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
 		this->frameIndex.first = frameIndex;
 		this->frameIndex.second = false;
 
-		this->unitsInFactionsSorted = unitsInFactionsSorted;
 		safeMutex.ReleaseLock();
 	}
 	semTaskSignalled.signal();
@@ -205,7 +167,6 @@ void FactionThread::setTaskCompleted(int frameIndex) {
 		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
 		if(this->frameIndex.first == frameIndex) {
 			this->frameIndex.second = true;
-			this->unitsInFactionsSorted = NULL;
 		}
 		safeMutex.ReleaseLock();
 	}
@@ -270,36 +231,17 @@ void FactionThread::execute() {
 
 				World *world = faction->getWorld();
 
-				if(this->unitsInFactionsSorted != NULL) {
-					//std::vector<CommandGroupSorter> *unitsInFactionsSorted
-					int unitCount = unitsInFactionsSorted->size();
-					for(int j = 0; j < unitCount; ++j) {
-						Unit *unit = (*unitsInFactionsSorted)[j]->unit;
-						if(unit == NULL) {
-							throw runtime_error("unit == NULL");
-						}
-
-						bool update = unit->needToUpdate();
-						//update = true;
-						if(update == true) {
-							world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
-						}
+				int unitCount = faction->getUnitCount();
+				for(int j = 0; j < unitCount; ++j) {
+					Unit *unit = faction->getUnit(j);
+					if(unit == NULL) {
+						throw runtime_error("unit == NULL");
 					}
-					//this->unitsInFactionsSorted = NULL;
-				}
-				else {
-					int unitCount = faction->getUnitCount();
-					for(int j = 0; j < unitCount; ++j) {
-						Unit *unit = faction->getUnit(j);
-						if(unit == NULL) {
-							throw runtime_error("unit == NULL");
-						}
 
-						bool update = unit->needToUpdate();
-						//update = true;
-						if(update == true) {
-							world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
-						}
+					bool update = unit->needToUpdate();
+					//update = true;
+					if(update == true) {
+						world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
 					}
 				}
 
@@ -371,9 +313,9 @@ Faction::~Faction() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Faction::signalWorkerThread(int frameIndex, std::vector<CommandGroupSorter *> *unitsInFactionsSorted) {
+void Faction::signalWorkerThread(int frameIndex) {
 	if(workerThread != NULL) {
-		workerThread->signalPathfinder(frameIndex,unitsInFactionsSorted);
+		workerThread->signalPathfinder(frameIndex);
 	}
 }
 
