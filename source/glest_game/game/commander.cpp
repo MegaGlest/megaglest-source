@@ -489,20 +489,24 @@ CommandResult Commander::computeResult(const CommandResultContainer &results) co
 
 CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand) const {
 	GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-	const Unit* unit= world->findUnitById(networkCommand->getUnitId());
 	CommandResult cr= crSuccess;
 
 	//validate unit
-	if(unit == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s - %d] Command refers to non existent unit id = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
-        GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-        if(gameNetworkInterface != NULL) {
-            char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Command refers to non existent unit id = %d. Game out of synch.",networkCommand->getUnitId());
-            gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
-        }
-		throw runtime_error(szBuf);
+	const Unit* unit = NULL;
+	if( networkCommand->getNetworkCommandType() != nctSwitchTeam &&
+		networkCommand->getNetworkCommandType() != nctSwitchTeamVote) {
+		unit= world->findUnitById(networkCommand->getUnitId());
+		if(unit == NULL) {
+			char szBuf[1024]="";
+			sprintf(szBuf,"In [%s::%s - %d] Command refers to non existent unit id = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+			if(gameNetworkInterface != NULL) {
+				char szMsg[1024]="";
+				sprintf(szMsg,"Player detected an error: Command refers to non existent unit id = %d. Game out of synch.",networkCommand->getUnitId());
+				gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
+			}
+			throw runtime_error(szBuf);
+		}
 	}
 
 	//add the command to the interface
