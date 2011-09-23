@@ -30,7 +30,7 @@ using Shared::Util::RandomGen;
 
 namespace Glest { namespace Game {
 
-bool CommandGroupUnitSorter::compare(const Unit *l, const Unit *r) {
+bool CommandGroupUnitSorter::operator()(const Unit *l, const Unit *r) {
 	if(!l) {
 		printf("Error l == NULL\n");
 	}
@@ -127,7 +127,7 @@ bool CommandGroupUnitSorter::compare(const Unit *l, const Unit *r) {
 }
 
 void Faction::sortUnitsByCommandGroups() {
-	std::sort(units.begin(),units.end(),CommandGroupUnitSorter::compare);
+	std::sort(units.begin(),units.end(),CommandGroupUnitSorter());
 }
 
 // =====================================================
