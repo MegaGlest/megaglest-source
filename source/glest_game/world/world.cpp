@@ -281,7 +281,7 @@ void World::updateAllFactionUnits() {
 	// Prioritize grouped command units so closest units to target go first
 	// units
 	Config &config= Config::getInstance();
-	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
+	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","false");
 
 	int factionCount = getFactionCount();
 	if(sortedUnitsAllowed == true) {
