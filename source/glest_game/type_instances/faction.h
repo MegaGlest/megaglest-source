@@ -49,9 +49,8 @@ class Faction;
 ///	Each of the game players
 // =====================================================
 
-class CommandGroupUnitSorter {
-public:
-	static bool compare(const Unit *l, const Unit *r);
+struct CommandGroupUnitSorter {
+	bool operator()(const Unit *l, const Unit *r);
 };
 
 class FactionThread : public BaseThread {
