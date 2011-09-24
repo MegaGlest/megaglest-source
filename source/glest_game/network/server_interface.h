@@ -79,6 +79,8 @@ private:
     Mutex inBroadcastMessageThreadAccessor;
     bool inBroadcastMessage;
 
+    bool masterserverAdminRequestLaunch;
+
 public:
 	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
@@ -118,6 +120,12 @@ public:
     bool launchGame(const GameSettings *gameSettings);
     void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck);
     void broadcastGameSetup(const GameSettings *gameSettings);
+
+    int getGameSettingsUpdateCount() const { return gameSettingsUpdateCount; }
+
+    bool getMasterserverAdminRequestLaunch() const { return masterserverAdminRequestLaunch; }
+    void setMasterserverAdminRequestLaunch(bool value) { masterserverAdminRequestLaunch = value; }
+
     void updateListen();
     virtual bool getConnectHasHandshaked() const
     {
@@ -183,6 +191,7 @@ private:
     int64 getNextEventId();
     void processTextMessageQueue();
     void processBroadCastMessageQueue();
+
 protected:
     void signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
     void checkForCompletedClients(std::map<int,bool> & mapSlotSignalledList,std::vector <string> &errorMsgList,std::map<int,ConnectionSlotEvent> &eventList);

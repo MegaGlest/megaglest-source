@@ -1247,4 +1247,30 @@ string ClientInterface::getHumanPlayerName(int index) {
 	return result;
 }
 
+
+void ClientInterface::setGameSettings(GameSettings *serverGameSettings) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
+	//MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	gameSettings = *serverGameSettings;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+}
+
+void ClientInterface::broadcastGameSetup(const GameSettings *gameSettings) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	NetworkMessageLaunch networkMessageLaunch(gameSettings, nmtBroadCastSetup);
+	//broadcastMessage(&networkMessageLaunch);
+	sendMessage(&networkMessageLaunch);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void ClientInterface::broadcastGameStart(const GameSettings *gameSettings) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	NetworkMessageLaunch networkMessageLaunch(gameSettings, nmtLaunch);
+	//broadcastMessage(&networkMessageLaunch);
+	sendMessage(&networkMessageLaunch);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 }}//end namespace

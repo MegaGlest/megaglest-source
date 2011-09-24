@@ -28,7 +28,7 @@ namespace Glest{ namespace Game{
 //	class ClientInterface
 // =====================================================
 
-class ClientInterface: public GameNetworkInterface{
+class ClientInterface: public GameNetworkInterface {
 private:
 	static const int messageWaitTimeout;
 	static const int waitSleepTime;
@@ -108,6 +108,12 @@ public:
 	virtual string getHumanPlayerName(int index=-1);
 	virtual int getHumanPlayerIndex() const {return playerIndex;}
 	int getServerFTPPort() const { return serverFTPPort; }
+
+	int getSessionKey() const { return sessionKey; }
+
+    void setGameSettings(GameSettings *serverGameSettings);
+    void broadcastGameSetup(const GameSettings *gameSettings);
+    void broadcastGameStart(const GameSettings *gameSettings);
 
 protected:
 

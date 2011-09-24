@@ -152,7 +152,7 @@ public:
 
     GraphicMessageBox * getMsgBox() { return &msgBox; }
 	void initNormal(WindowGl *window);
-	void initServer(WindowGl *window,bool autostart=false,bool openNetworkSlots=false);
+	void initServer(WindowGl *window,bool autostart=false,bool openNetworkSlots=false,bool masterserverMode=false);
 	void initServer(WindowGl *window, GameSettings *settings);
 	void initClient(WindowGl *window, const Ip &serverIp);
 	void initScenario(WindowGl *window, string autoloadScenarioName);

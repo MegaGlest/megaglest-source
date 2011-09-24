@@ -47,9 +47,17 @@ struct FormatString {
 // 	class MenuStateCustomGame
 // =====================================================
 
-MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, bool openNetworkSlots,bool parentMenuIsMasterserver, bool autostart, GameSettings *settings) :
+MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
+		bool openNetworkSlots,bool parentMenuIsMasterserver, bool autostart,
+		GameSettings *settings, bool masterserverMode) :
 		MenuState(program, mainMenu, "new-game")
 {
+	this->masterserverMode = masterserverMode;
+	this->lastMasterServerSettingsUpdateCount = 0;
+	this->masterserverModeMinimalResources = true;
+
+	//printf("this->masterserverMode = %d [%d]\n",this->masterserverMode,masterserverMode);
+
 	forceWaitForShutdown = true;
 	this->autostart = autostart;
 	this->autoStartSettings = settings;
@@ -1374,6 +1382,11 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 	listBoxAdvanced.mouseMove(x, y);
 }
 
+bool MenuStateCustomGame::isMasterserverMode() const {
+	//return (this->masterserverMode == true && this->masterserverModeMinimalResources == true);
+	return false;
+}
+
 void MenuStateCustomGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
@@ -1520,7 +1533,6 @@ void MenuStateCustomGame::render() {
 			renderer.renderListBox(&listBoxMapFilter);
 			renderer.renderListBox(&listBoxTechTree);
 			renderer.renderListBox(&listBoxAdvanced);
-
 
 			if(listBoxPublishServer.getEditable())
 			{
@@ -1726,6 +1738,22 @@ void MenuStateCustomGame::update() {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+		if(this->masterserverMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
+				serverInterface->getGameSettings() != NULL) {
+			const GameSettings *settings = serverInterface->getGameSettings();
+
+			lastMasterServerSettingsUpdateCount = serverInterface->getGameSettingsUpdateCount();
+			//printf("#2 custom menu got map [%s]\n",settings->getMap().c_str());
+
+			setupUIFromGameSettings(*settings);
+		}
+		if(this->masterserverMode == true && serverInterface->getMasterserverAdminRequestLaunch() == true) {
+			safeMutex.ReleaseLock();
+
+			PlayNow(false);
+			return;
+		}
 
 		// handle setting changes from clients
 		SwitchSetupRequest ** switchSetupRequests = serverInterface->getSwitchSetupRequests();
@@ -2042,8 +2070,10 @@ void MenuStateCustomGame::update() {
 						needToPublishDelayed=false;
 					}
 				}
-		if(!needToPublishDelayed){
+		if(needToPublishDelayed == false || masterserverMode == true) {
 			bool broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= 2);
+
+			//printf("broadCastSettings = %d\n",broadCastSettings);
 
 			if(broadCastSettings == true) {
 				needToBroadcastServerSettings=true;
@@ -2210,6 +2240,9 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
         std::map<string,string> newPublishToServerInfo  = publishToServerInfo;
         publishToServerInfo.clear();
         bool broadCastSettings                          = needToBroadcastServerSettings;
+
+        //printf("simpleTask broadCastSettings = %d\n",broadCastSettings);
+
         needToBroadcastServerSettings                   = false;
         bool hasClientConnection                        = false;
 
@@ -2284,6 +2317,9 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
             }
 
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+            //printf("simpleTask broadCastSettings = %d hasClientConnection = %d\n",broadCastSettings,hasClientConnection);
+
             GameSettings gameSettings;
             loadGameSettings(&gameSettings);
 
@@ -2351,6 +2387,16 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(this->masterserverMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
+			serverInterface->getGameSettings() != NULL) {
+		const GameSettings *settings = serverInterface->getGameSettings();
+
+		lastMasterServerSettingsUpdateCount = serverInterface->getGameSettingsUpdateCount();
+		//printf("#1 custom menu got map [%s]\n",settings->getMap().c_str());
+
+		setupUIFromGameSettings(*settings);
+	}
 
     // Test flags values
     //gameSettings->setFlagTypes1(ft1_show_map_resources);
@@ -2579,6 +2625,37 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			gameSettings->setMapCRC(lastCheckedCRCMapValue);
 		}
 	}
+
+	//printf("this->masterserverMode = %d\n",this->masterserverMode);
+
+	if(this->masterserverMode == true) {
+		time_t clientConnectedTime = 0;
+
+		//printf("mapInfo.players [%d]\n",mapInfo.players);
+
+		for(int i= 0; i < mapInfo.players; ++i) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(	serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->isConnected()) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+					//printf("slot = %d serverInterface->getSlot(i)->getConnectedTime() = %d\n",i,serverInterface->getSlot(i)->getConnectedTime());
+
+					if(clientConnectedTime == 0 || serverInterface->getSlot(i)->getConnectedTime() < clientConnectedTime) {
+						clientConnectedTime = serverInterface->getSlot(i)->getConnectedTime();
+						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());
+
+						//printf("slot = %d, admin key [%d]\n",i,gameSettings->getMasterserver_admin());
+					}
+				}
+			}
+		}
+
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -2750,7 +2827,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	listBoxMapFilter.setSelectedItemIndex(gameSettings.getMapFilterIndex());
 	listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
 
-	printf("In [%s::%s line %d] map [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getMap().c_str());
+	//printf("In [%s::%s line %d] map [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getMap().c_str());
 
 	string mapFile = gameSettings.getMap();
 	mapFile = formatString(mapFile);

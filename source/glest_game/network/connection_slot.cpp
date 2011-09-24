@@ -555,6 +555,51 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						}
 						break;
 
+				        case nmtLaunch:
+				        case nmtBroadCastSetup:
+				        {
+				        	if(this->serverInterface->getGameSettings() == NULL ||
+				        		sessionKey != this->serverInterface->getGameSettings()->getMasterserver_admin()) {
+								string playerNameStr = name;
+								string sErr = "Client has invalid admin sessionid for player [" + playerNameStr + "]";
+								printf("%s\n",sErr.c_str());
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
+
+								close();
+								return;
+				        	}
+
+				            NetworkMessageLaunch networkMessageLaunch;
+				            if(receiveMessage(&networkMessageLaunch)) {
+				            	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+				            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+				            	}
+				            	else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+				            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
+				            	}
+				            	else {
+				            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+
+									char szBuf[1024]="";
+									snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+									throw runtime_error(szBuf);
+				            	}
+
+				            	GameSettings gameSettings;
+				                networkMessageLaunch.buildGameSettings(&gameSettings);
+
+				                //printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
+
+				                this->serverInterface->setGameSettings(&gameSettings,false);
+				                this->serverInterface->broadcastGameSetup(&gameSettings);
+
+				                if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+				                	this->serverInterface->setMasterserverAdminRequestLaunch(true);
+				                }
+				            }
+				        }
+				        break;
+
 						//process datasynch messages
 						case nmtSynchNetworkGameDataStatus:
 						{

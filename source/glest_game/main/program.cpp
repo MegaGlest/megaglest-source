@@ -181,13 +181,14 @@ void Program::initNormal(WindowGl *window){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots) {
+void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots,
+		bool masterserverMode) {
 	MainMenu* mainMenu= NULL;
 
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
-	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, openNetworkSlots, false, autostart));
+	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, openNetworkSlots, false, autostart, NULL, masterserverMode));
 }
 
 void Program::initServer(WindowGl *window, GameSettings *settings) {
