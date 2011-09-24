@@ -234,7 +234,7 @@ void MenuStateScenario::update() {
 void MenuStateScenario::launchGame() {
 	GameSettings gameSettings;
     loadGameSettings(&scenarioInfo, &gameSettings);
-	program->setState(new Game(program, &gameSettings));
+	program->setState(new Game(program, &gameSettings, false));
 }
 
 void MenuStateScenario::setScenario(int i) {

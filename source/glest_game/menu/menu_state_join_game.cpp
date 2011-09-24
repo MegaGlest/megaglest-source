@@ -448,7 +448,7 @@ void MenuStateJoinGame::update()
 
 				abortAutoFind = true;
 				clientInterface->stopServerDiscovery();
-				program->setState(new Game(program, clientInterface->getGameSettings()));
+				program->setState(new Game(program, clientInterface->getGameSettings(),false));
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - C\n",__FILE__,__FUNCTION__);
 			}

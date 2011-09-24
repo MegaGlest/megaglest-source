@@ -136,9 +136,11 @@ private:
 	int exitGamePopupMenuIndex;
 	int joinTeamPopupMenuIndex;
 
+	bool masterserverMode;
+
 public:
 	Game();
-    Game(Program *program, const GameSettings *gameSettings);
+    Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
     ~Game();
 
     //get

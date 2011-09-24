@@ -553,7 +553,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	//init controllers
 	if(serverInitError == false) {
-		listBoxControls[0].setSelectedItemIndex(ctHuman);
+		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		if(this->masterserverMode == true) {
+			listBoxControls[0].setSelectedItemIndex(ctNetwork);
+		}
+		else {
+			listBoxControls[0].setSelectedItemIndex(ctHuman);
+		}
 		labelPlayerNames[0].setText("");
 		labelPlayerNames[0].setText(getHumanPlayerName());
 
@@ -573,7 +579,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		// Ensure we have set the gamesettings at least once
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
-		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+
 		serverInterface->setGameSettings(&gameSettings,false);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1321,7 +1327,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			cleanup();
-			Game *newGame = new Game(program, &gameSettings);
+			Game *newGame = new Game(program, &gameSettings, this->masterserverMode);
 			forceWaitForShutdown = false;
 			program->setState(newGame);
 			return;
@@ -3115,9 +3121,11 @@ void MenuStateCustomGame::updateControlers() {
 		}
 
 		if(humanPlayer == false) {
-			listBoxControls[0].setSelectedItemIndex(ctHuman);
-			labelPlayerNames[0].setText("");
-			labelPlayerNames[0].setText(getHumanPlayerName());
+			if(this->masterserverMode == false) {
+				listBoxControls[0].setSelectedItemIndex(ctHuman);
+				labelPlayerNames[0].setText("");
+				labelPlayerNames[0].setText(getHumanPlayerName());
+			}
 		}
 
 		for(int i= mapInfo.players; i < GameConstants::maxPlayers; ++i) {
