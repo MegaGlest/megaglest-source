@@ -2112,7 +2112,9 @@ bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vect
 	bool result = false;
 	//return result;
 
+	MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
 	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterFind = UnitRangeCellsLookupItemCache.find(center);
+
 	if(iterFind != UnitRangeCellsLookupItemCache.end()) {
 		std::map<int, std::map<int, UnitRangeCellsLookupItem > >::iterator iterFind3 = iterFind->second.find(size);
 		if(iterFind3 != iterFind->second.end()) {
@@ -2129,6 +2131,7 @@ bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vect
 			}
 		}
 	}
+	safeMutex.ReleaseLock();
 
 	return result;
 }
@@ -2231,6 +2234,8 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 		// Ok update our caches with the latest info
 		if(cacheItem.rangeCellList.size() > 0) {
+			MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
+
 			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
 			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
 		}
@@ -2413,6 +2418,8 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 
 		// Ok update our caches with the latest info
 		if(cacheItem.rangeCellList.size() > 0) {
+			MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
+
 			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
 			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
 		}
