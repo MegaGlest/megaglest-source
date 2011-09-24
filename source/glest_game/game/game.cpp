@@ -2077,6 +2077,10 @@ Stats Game::quitGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	endStats = *(world.getStats());
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	if(networkManager.getNetworkRole() == nrServer && gameSettings.getMasterserver_admin() != -1) {
+		endStats.setIsMasterserverMode(true);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

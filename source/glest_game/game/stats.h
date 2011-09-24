@@ -78,6 +78,7 @@ private:
 	time_t timePlayed;
 	int maxConcurrentUnitCount;
 	int totalEndGameConcurrentUnitCount;
+	bool isMasterserverMode;
 
 public:
 
@@ -91,6 +92,7 @@ public:
 		framesToCalculatePlaytime		= 0;
 		maxConcurrentUnitCount			= 0;
 		totalEndGameConcurrentUnitCount	= 0;
+		isMasterserverMode				= false;
 	}
 
 	void init(int factionCount, int thisFactionIndex, const string &description);
@@ -118,6 +120,9 @@ public:
 	int getResourcesHarvested(int factionIndex) const			{return playerStats[factionIndex].resourcesHarvested;}
 	string getPlayerName(int factionIndex) const				{return playerStats[factionIndex].playerName;}
 	Vec3f getPlayerColor(int factionIndex) const				{ return playerStats[factionIndex].playerColor;}
+
+	bool getIsMasterserverMode() const							{ return isMasterserverMode; }
+	void setIsMasterserverMode(bool value) 						{ isMasterserverMode = value; }
 
 	void setDescription(const string& description)							{this->description = description;}
 	void setWorldTimeElapsed(float value)  				{this->worldTimeElapsed = value;}
