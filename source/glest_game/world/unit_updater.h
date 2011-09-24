@@ -80,6 +80,7 @@ private:
 	float attackWarnRange;
 	AttackWarnings attackWarnings;
 
+	Mutex mutexUnitRangeCellsLookupItemCache;
 	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 	//std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
 	//int UnitRangeCellsLookupItemCacheTimerCount;
