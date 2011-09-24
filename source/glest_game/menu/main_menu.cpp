@@ -94,24 +94,26 @@ void MainMenu::render() {
 	canRender();
 	incrementFps();
 
-	renderer.clearBuffers();
+	if(state->isMasterserverMode() == false) {
+		renderer.clearBuffers();
 
-	//3d
-	renderer.reset3dMenu();
+		//3d
+		renderer.reset3dMenu();
 
-	renderer.clearZBuffer();
-	renderer.loadCameraMatrix(menuBackground.getCamera());
-	renderer.renderMenuBackground(&menuBackground);
-	renderer.renderParticleManager(rsMenu);
+		renderer.clearZBuffer();
+		renderer.loadCameraMatrix(menuBackground.getCamera());
+		renderer.renderMenuBackground(&menuBackground);
+		renderer.renderParticleManager(rsMenu);
 
-	//2d
-	renderer.reset2d();
-	state->render();
-    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+		//2d
+		renderer.reset2d();
+		state->render();
+		renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 
-	renderer.renderFPSWhenEnabled(lastFps);
+		renderer.renderFPSWhenEnabled(lastFps);
 
-	renderer.swapBuffers();
+		renderer.swapBuffers();
+	}
 }
 
 //syncronus update

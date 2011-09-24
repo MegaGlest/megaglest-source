@@ -78,6 +78,7 @@ private:
     vector<pair<string,int32> > factionCRCList;
 
     int aiAcceptSwitchTeamPercentChance;
+    int masterserver_admin;
 
 public:
 
@@ -114,6 +115,7 @@ public:
 		techCRC     = 0;
 		factionCRCList.clear();
 		aiAcceptSwitchTeamPercentChance = 30;
+		masterserver_admin = -1;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -237,6 +239,9 @@ public:
 	int getAiAcceptSwitchTeamPercentChance() const 					{ return aiAcceptSwitchTeamPercentChance;}
 	void setAiAcceptSwitchTeamPercentChance(int value)				{ aiAcceptSwitchTeamPercentChance = value; }
 
+	int getMasterserver_admin() const 								{ return masterserver_admin;}
+	void setMasterserver_admin(int value)							{ masterserver_admin = value; }
+
 	string toString() const {
 		string result = "";
 
@@ -282,6 +287,7 @@ public:
 		}
 
 		result += "aiAcceptSwitchTeamPercentChance = " + intToStr(aiAcceptSwitchTeamPercentChance) + "\n";
+		result += "masterserver_admin = " + intToStr(masterserver_admin) + "\n";
 
 		return result;
 	}

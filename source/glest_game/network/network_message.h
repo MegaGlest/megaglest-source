@@ -234,6 +234,7 @@ private:
 		uint32 flagTypes1;
 
 		int8 aiAcceptSwitchTeamPercentChance;
+		int32 masterserver_admin;
 	};
 
 private:

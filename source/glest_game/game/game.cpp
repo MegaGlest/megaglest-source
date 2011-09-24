@@ -1151,7 +1151,27 @@ void Game::render() {
 
 	renderFps++;
 	totalRenderFps++;
-	renderWorker();
+
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	if(networkManager.getNetworkRole() != nrServer || gameSettings.getMasterserver_admin() == -1) {
+		renderWorker();
+	}
+	else {
+		// In masterserver mode quit game if no network players left
+		ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+		int connectedClients=0;
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			Faction *faction = world.getFaction(i);
+			ConnectionSlot *slot = server->getSlot(faction->getStartLocationIndex());
+			if(slot != NULL && slot->isConnected() == true) {
+				connectedClients++;
+			}
+		}
+
+		if(connectedClients == 0) {
+			quitTriggeredIndicator = true;
+		}
+	}
 }
 
 void Game::renderWorker() {

@@ -199,6 +199,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
 	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
+	listBoxEnableSwitchTeamMode.setEditable(false);
 
 	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
 	labelAISwitchTeamAcceptPercent.init(xoffset+250, aHeadPos+40, 80);
@@ -210,6 +211,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
 	}
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
+	listBoxAISwitchTeamAcceptPercent.setEditable(false);
 
 	labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
 	labelPathFinderType.init(xoffset+450, aHeadPos, 80);
@@ -432,6 +434,45 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	//init controllers
 	listBoxControls[0].setSelectedItemIndex(ctHuman);
 
+
+    //map listBox
+	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
+	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+	set<string> allMaps;
+    findAll(config.getPathListForType(ptMaps), "*.gbm", results, true, false);
+	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
+	results.clear();
+    findAll(config.getPathListForType(ptMaps), "*.mgm", results, true, false);
+	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
+	results.clear();
+
+	if (allMaps.empty()) {
+        throw runtime_error("No maps were found!");
+	}
+	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+	mapFiles = results;
+
+	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
+	copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
+	std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
+
+	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+		loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false);
+		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
+		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
+		formattedMapFiles.push_back(formatString(mapFiles.at(i)));
+		//if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
+		//	initialMapSelection= i;
+		//}
+	}
+    //listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+	listBoxMap.setItems(formattedMapFiles);
+
+	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
+	buttonPlayNow.init(200, 180, 125);
+	buttonPlayNow.setText(lang.get("PlayNow"));
+	buttonPlayNow.setVisible(false);
+
 	chatManager.init(&console, -1,true);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
@@ -439,7 +480,23 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	//tileset listBox
     findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
 
+    std::vector<string> tilesetsFormatted = tilesetFiles;
+	std::for_each(tilesetsFormatted.begin(), tilesetsFormatted.end(), FormatString());
+	listBoxTileset.setItems(tilesetsFormatted);
+
     findDirs(config.getPathListForType(ptTechs), techTreeFiles);
+
+    //reloadFactions(true);
+    int initialTechSelection=0;
+    std::vector<string> techsFormatted = techTreeFiles;
+	for(int i= 0; i < techsFormatted.size(); i++){
+		techsFormatted.at(i)= formatString(techsFormatted.at(i));
+		if(config.getString("InitialTechTree", "Megapack") == techsFormatted.at(i)){
+			initialTechSelection= i;
+		}
+	}
+    listBoxTechTree.setItems(techsFormatted);
+    listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
 
     if(config.getBool("EnableFTPXfer","true") == true) {
@@ -722,20 +779,20 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	if (initialSettingsReceivedFromServer == false) return;
 
 	// Only allow changes after we get game settings from the server
-	if(clientInterface->isConnected() == true){
+	if(clientInterface->isConnected() == true) {
 		int myCurrentIndex= -1;
-		for(int i= 0; i < GameConstants::maxPlayers; ++i){// find my current index by looking at editable listBoxes
-			if(listBoxFactions[i].getEditable()){
+		for(int i= 0; i < GameConstants::maxPlayers; ++i) {// find my current index by looking at editable listBoxes
+			if(listBoxFactions[i].getEditable() && clientInterface->getGameSettings()->getThisFactionIndex() == i) {
 				myCurrentIndex= i;
 			}
 		}
 		if(myCurrentIndex != -1)
-			for(int i= 0; i < GameConstants::maxPlayers; ++i){
-				if(listBoxFactions[i].getEditable()){
-					if(listBoxFactions[i].mouseClick(x, y)){
+			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+				if(listBoxFactions[i].getEditable() && clientInterface->getGameSettings()->getThisFactionIndex() == i) {
+					if(listBoxFactions[i].mouseClick(x, y)) {
 						soundRenderer.playFx(coreData.getClickSoundA());
 						ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
-						if(clientInterface->isConnected()){
+						if(clientInterface->isConnected()) {
 							clientInterface->setGameSettingsReceived(false);
 							clientInterface->sendSwitchSetupRequest(
 									listBoxFactions[i].getSelectedItem(),
@@ -751,7 +808,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						break;
 					}
 				}
-				if(listBoxTeams[i].getEditable()){
+				if(listBoxTeams[i].getEditable() && clientInterface->getGameSettings()->getThisFactionIndex() == i) {
 					if(listBoxTeams[i].mouseClick(x, y)){
 						soundRenderer.playFx(coreData.getClickSoundA());
 						if(clientInterface->isConnected()){
@@ -840,8 +897,781 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 				switchSetupRequestFlagType=ssrft_None;
 			}
 		}
+
+		if(isMasterserverAdmin() == true) {
+			//printf("#1 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
+			mouseClickAdmin(x, y, mouseButton);
+		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool MenuStateConnectedGame::isMasterserverAdmin() {
+	bool result = false;
+
+	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
+	if(clientInterface != NULL && clientInterface->isConnected()) {
+		const GameSettings *settings = clientInterface->getGameSettings();
+		if(settings != NULL) {
+			//printf("#1 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
+
+			if(settings->getMasterserver_admin() == clientInterface->getSessionKey()) {
+				result = true;
+			}
+		}
+	}
+
+	return result;
+}
+
+void MenuStateConnectedGame::broadCastGameSettingsToMasterserver() {
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	ClientInterface *clientInterface = networkManager.getClientInterface();
+
+	GameSettings gameSettings = *clientInterface->getGameSettings();
+	loadGameSettings(&gameSettings);
+
+	//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
+
+    //clientInterface->setGameSettings(&gameSettings);
+    clientInterface->broadcastGameSetup(&gameSettings);
+
+}
+
+void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButton) {
+
+    try {
+        CoreData &coreData= CoreData::getInstance();
+        SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+        //int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
+
+        if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+            PlayNow(true);
+            return;
+        }
+//        else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
+//            RestoreLastGameSettings();
+//        }
+//        else
+        else if(listBoxMap.mouseClick(x, y)){
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
+
+            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+            loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
+            labelMapInfo.setText(mapInfo.desc);
+            //updateControlers();
+            //updateNetworkSlots();
+
+            //if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+            //    needToRepublishToMasterserver = true;
+            //}
+
+            //if(hasNetworkGameSettings() == true) {
+            	//delay publishing for 5 seconds
+            //	needToPublishDelayed=true;
+            //	mapPublishingDelayTimer=time(NULL);
+            //}
+
+            broadCastGameSettingsToMasterserver();
+        }
+        else if(listBoxFogOfWar.mouseClick(x, y)) {
+            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+//            cleanupMapPreviewTexture();
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            if(hasNetworkGameSettings() == true) {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+
+        	broadCastGameSettingsToMasterserver();
+        }
+        else if(listBoxAllowObservers.mouseClick(x, y)) {
+//            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            reloadFactions(true);
+//
+//            if(hasNetworkGameSettings() == true) {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+
+        	broadCastGameSettingsToMasterserver();
+        }
+        else if(listBoxEnableObserverMode.mouseClick(x, y)) {
+            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            if(hasNetworkGameSettings() == true)
+//            {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+
+        	broadCastGameSettingsToMasterserver();
+        }
+        else if (listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
+            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            if(hasNetworkGameSettings() == true)
+//            {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+
+        	broadCastGameSettingsToMasterserver();
+        }
+        else if(listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
+            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            if(hasNetworkGameSettings() == true)
+//            {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+
+        	broadCastGameSettingsToMasterserver();
+        }
+//        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
+//            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            if(hasNetworkGameSettings() == true)
+//            {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+//        }
+//        else if (listBoxAdvanced.mouseClick(x, y)) {
+//            //TODO
+//        }
+        else if(listBoxTileset.mouseClick(x, y)) {
+            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//            if(hasNetworkGameSettings() == true)
+//            {
+//
+//            	//delay publishing for 5 seconds
+//            	needToPublishDelayed=true;
+//            	mapPublishingDelayTimer=time(NULL);
+//            }
+
+        	broadCastGameSettingsToMasterserver();
+        }
+//        else if(listBoxMapFilter.mouseClick(x, y)){
+//            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//            switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
+//
+//            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
+//
+//            loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+//            labelMapInfo.setText(mapInfo.desc);
+//            updateControlers();
+//            updateNetworkSlots();
+//
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            if(hasNetworkGameSettings() == true)
+//            {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+//        }
+        else if(listBoxTechTree.mouseClick(x, y)) {
+            reloadFactions(false);
+
+            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+            //if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+            //    needToRepublishToMasterserver = true;
+            //}
+
+            //if(hasNetworkGameSettings() == true)
+            //{
+            //    needToSetChangedGameSettings = true;
+            //    lastSetChangedGameSettings   = time(NULL);
+            //}
+
+            broadCastGameSettingsToMasterserver();
+        }
+//        else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
+//            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//            needToRepublishToMasterserver = true;
+//            soundRenderer.playFx(coreData.getClickSoundC());
+//
+//            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+//            serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
+//        }
+        else if(listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)) {
+//            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//            if(hasNetworkGameSettings() == true)
+//            {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+
+            soundRenderer.playFx(coreData.getClickSoundC());
+
+            broadCastGameSettingsToMasterserver();
+        }
+        else {
+        	NetworkManager &networkManager= NetworkManager::getInstance();
+        	ClientInterface* clientInterface= networkManager.getClientInterface();
+
+            for(int i=0; i<mapInfo.players; ++i) {
+                //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+                //if (listBoxAdvanced.getSelectedItemIndex() == 1) {
+                    // set multiplier
+                    if(listBoxRMultiplier[i].mouseClick(x, y)) {
+                    	broadCastGameSettingsToMasterserver();
+                    }
+                //}
+
+                //ensure thet only 1 human player is present
+                if(listBoxControls[i].mouseClick(x, y)) {
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+                    //look for human players
+//                    int humanIndex1= -1;
+//                    int humanIndex2= -1;
+//                    for(int j=0; j<GameConstants::maxPlayers; ++j) {
+//                        ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
+//                        if(ct == ctHuman) {
+//                            if(humanIndex1 == -1) {
+//                                humanIndex1= j;
+//                            }
+//                            else {
+//                                humanIndex2= j;
+//                            }
+//                        }
+//                    }
+//
+//                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",__FILE__,__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
+//
+//                    //no human
+//                    if(humanIndex1 == -1 && humanIndex2 == -1) {
+//                        listBoxControls[i].setSelectedItemIndex(ctHuman);
+//                        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
+//                    }
+//                    //2 humans
+//                    else if(humanIndex1 != -1 && humanIndex2 != -1) {
+//                        int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
+//                        int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
+//
+//                        string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+//
+//                        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",__FILE__,__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
+//
+//                        listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
+//                        labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
+//                    }
+//                    updateNetworkSlots();
+//
+//                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                        needToRepublishToMasterserver = true;
+//                    }
+//
+//                    if(hasNetworkGameSettings() == true) {
+//                        needToSetChangedGameSettings = true;
+//                        lastSetChangedGameSettings   = time(NULL);
+//                    }
+//                    updateResourceMultiplier(i);
+
+                	broadCastGameSettingsToMasterserver();
+                }
+//                else if(buttonClearBlockedPlayers.mouseClick(x, y)) {
+//                	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+//                	if(serverInterface != NULL) {
+//						ServerSocket *serverSocket = serverInterface->getServerSocket();
+//						if(serverSocket != NULL) {
+//							serverSocket->clearBlockedIPAddress();
+//						}
+//                	}
+//                }
+//                else if(buttonBlockPlayers[i].mouseClick(x, y)) {
+//                	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+//                	if(serverInterface != NULL) {
+//						if(serverInterface->getSlot(i) != NULL &&
+//		                   serverInterface->getSlot(i)->isConnected()) {
+//
+//							ServerSocket *serverSocket = serverInterface->getServerSocket();
+//							if(serverSocket != NULL) {
+//								serverSocket->addIPAddressToBlockedList(serverInterface->getSlot(i)->getIpAddress());
+//
+//						    	Lang &lang= Lang::getInstance();
+//						    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+//						    	for(unsigned int j = 0; j < languageList.size(); ++j) {
+//									char szMsg[1024]="";
+//									if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
+//										sprintf(szMsg,lang.get("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i)->getIpAddress().c_str());
+//									}
+//									else {
+//										sprintf(szMsg,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i)->getIpAddress().c_str());
+//									}
+//
+//									serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
+//						    	}
+//						    	sleep(1);
+//						    	serverInterface->getSlot(i)->close();
+//							}
+//						}
+//                	}
+//                }
+                else if(clientInterface->getGameSettings()->getThisFactionIndex() != i && listBoxFactions[i].mouseClick(x, y)) {
+                    // Disallow CPU players to be observers
+        			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+        				(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+        				 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
+        				listBoxFactions[i].setSelectedItemIndex(0);
+        			}
+        			//
+
+//                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                        needToRepublishToMasterserver = true;
+//                    }
+//
+//                    if(hasNetworkGameSettings() == true)
+//                    {
+//                        needToSetChangedGameSettings = true;
+//                        lastSetChangedGameSettings   = time(NULL);
+//                    }
+
+        			broadCastGameSettingsToMasterserver();
+                }
+                else if(clientInterface->getGameSettings()->getThisFactionIndex() != i && listBoxTeams[i].mouseClick(x, y)) {
+                    if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+                        if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+                            //lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+                        }
+                    }
+                    else {
+                        //lastSelectedTeamIndex[i] = -1;
+                    }
+
+//                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                        needToRepublishToMasterserver = true;
+//                    }
+//
+//                    if(hasNetworkGameSettings() == true)
+//                    {
+//                        needToSetChangedGameSettings = true;
+//                        lastSetChangedGameSettings   = time(NULL);;
+//                    }
+
+                    broadCastGameSettingsToMasterserver();
+                }
+//                else if(labelPlayerNames[i].mouseClick(x, y)) {
+//                    SetActivePlayerNameEditor();
+//                }
+            }
+        }
+//
+//		if(hasNetworkGameSettings() == true && listBoxPlayerStatus.mouseClick(x,y)) {
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//
+//			soundRenderer.playFx(coreData.getClickSoundC());
+//			if(getNetworkPlayerStatus()==npst_PickSettings)
+//			{
+//				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.0f,0.0f));
+//				listBoxPlayerStatus.setLighted(true);
+//			}
+//			else if(getNetworkPlayerStatus()==npst_BeRightBack)
+//			{
+//				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,1.0f,0.0f));
+//				listBoxPlayerStatus.setLighted(true);
+//			}
+//			else if(getNetworkPlayerStatus()==npst_Ready)
+//			{
+//				listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+//				listBoxPlayerStatus.setLighted(false);
+//			}
+//
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//
+//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            if(hasNetworkGameSettings() == true) {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+//		}
+    }
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+		//showGeneralError=true;
+		//generalErrorToShow = szBuf;
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateConnectedGame::PlayNow(bool saveGame) {
+	if(saveGame == true) {
+		//saveGameSettingsToFile("lastCustomGamSettings.mgg");
+	}
+
+	//forceWaitForShutdown = false;
+	//closeUnusedSlots();
+	CoreData &coreData= CoreData::getInstance();
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	soundRenderer.playFx(coreData.getClickSoundC());
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	ClientInterface *clientInterface = networkManager.getClientInterface();
+
+	GameSettings gameSettings = *clientInterface->getGameSettings();
+	loadGameSettings(&gameSettings);
+
+	//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
+
+    //clientInterface->setGameSettings(&gameSettings);
+    clientInterface->broadcastGameStart(&gameSettings);
+}
+
+string MenuStateConnectedGame::getCurrentMapFile() {
+	//int i=listBoxMapFilter.getSelectedItemIndex();
+	//int mapIndex=listBoxMap.getSelectedItemIndex();
+	//return playerSortedMaps[i].at(mapIndex);
+	int mapIndex=listBoxMap.getSelectedItemIndex();
+	return mapFiles[mapIndex];
+}
+
+void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem) {
+	vector<string> results;
+    Config &config = Config::getInstance();
+
+    vector<string> techPaths = config.getPathListForType(ptTechs);
+    for(int idx = 0; idx < techPaths.size(); idx++) {
+        string &techPath = techPaths[idx];
+        endPathWithSlash(techPath);
+        //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+        findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
+
+        if(results.empty() == false) {
+            break;
+        }
+    }
+
+    if(results.empty() == true) {
+        //throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+		//showGeneralError=true;
+		//generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
+    }
+
+    results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+
+    // Add special Observer Faction
+    //Lang &lang= Lang::getInstance();
+    if(listBoxAllowObservers.getSelectedItemIndex() == 1) {
+    	results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+    }
+
+    factionFiles= results;
+    for(int i= 0; i<results.size(); ++i){
+        results[i]= formatString(results[i]);
+
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
+    }
+
+    for(int i=0; i<GameConstants::maxPlayers; ++i){
+    	int originalIndex = listBoxFactions[i].getSelectedItemIndex();
+    	//printf("[a] i = %d, originalIndex = %d\n",i,originalIndex);
+
+    	string originalValue = (listBoxFactions[i].getItemCount() > 0 ? listBoxFactions[i].getSelectedItem() : "");
+
+    	//printf("[a1] i = %d, originalValue = [%s]\n",i,originalValue.c_str());
+
+    	listBoxFactions[i].setItems(results);
+        if( keepExistingSelectedItem == false ||
+        	(listBoxAllowObservers.getSelectedItemIndex() == 0 &&
+        			originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
+        	listBoxFactions[i].setSelectedItemIndex(i % results.size());
+
+        	if( originalValue == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+        		listBoxFactions[i].getSelectedItem() != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+    			if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
+    				listBoxTeams[i].setSelectedItem(intToStr(1));
+    			}
+        	}
+        	//printf("[b] i = %d, listBoxFactions[i].getSelectedItemIndex() = %d\n",i,listBoxFactions[i].getSelectedItemIndex());
+        }
+        else if(originalIndex < results.size()) {
+        	listBoxFactions[i].setSelectedItemIndex(originalIndex);
+
+        	//printf("[c] i = %d, originalIndex = %d\n",i,originalIndex);
+        }
+    }
+}
+
+void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	int factionCount= 0;
+	//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+    // Test flags values
+    //gameSettings->setFlagTypes1(ft1_show_map_resources);
+    //
+
+	//gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
+	gameSettings->setDescription(formatString(getCurrentMapFile()));
+	gameSettings->setMap(getCurrentMapFile());
+    gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
+    gameSettings->setTech(techTreeFiles[listBoxTechTree.getSelectedItemIndex()]);
+
+	gameSettings->setDefaultUnits(true);
+	gameSettings->setDefaultResources(true);
+	gameSettings->setDefaultVictoryConditions(true);
+
+	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0 ||
+								listBoxFogOfWar.getSelectedItemIndex() == 1 );
+
+	gameSettings->setAllowObservers(listBoxAllowObservers.getSelectedItemIndex() == 1);
+
+	uint32 valueFlags1 = gameSettings->getFlagTypes1();
+	if(listBoxFogOfWar.getSelectedItemIndex() == 1 ||
+		listBoxFogOfWar.getSelectedItemIndex() == 2 ) {
+        valueFlags1 |= ft1_show_map_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_show_map_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
+	gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
+	gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
+
+	valueFlags1 = gameSettings->getFlagTypes1();
+	if(listBoxEnableSwitchTeamMode.getSelectedItemIndex() == 0) {
+        valueFlags1 |= ft1_allow_team_switching;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_team_switching;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
+
+	// First save Used slots
+    //for(int i=0; i<mapInfo.players; ++i)
+	int AIPlayerCount = 0;
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+
+		if(ct != ctClosed) {
+			int slotIndex = factionCount;
+
+			gameSettings->setFactionControl(slotIndex, ct);
+			if(ct == ctHuman) {
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, slotIndex = %d, getHumanPlayerName(i) [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,slotIndex,getHumanPlayerName(i).c_str());
+
+				gameSettings->setThisFactionIndex(slotIndex);
+				//gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
+				gameSettings->setNetworkPlayerStatuses(slotIndex, getNetworkPlayerStatus());
+				Lang &lang= Lang::getInstance();
+				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());
+			}
+			//else if(serverInterface->getSlot(i) != NULL) {
+			//	gameSettings->setNetworkPlayerLanguages(slotIndex, serverInterface->getSlot(i)->getNetworkPlayerLanguage());
+			//}
+			gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
+
+			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
+			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
+				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers + fpt_Observer));
+			}
+//			else if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
+//				if(lastSelectedTeamIndex[i] >= 0 && lastSelectedTeamIndex[i] + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+//					if(lastSelectedTeamIndex[i] == 0) {
+//						lastSelectedTeamIndex[i] = GameConstants::maxPlayers-1;
+//					}
+//					else if(lastSelectedTeamIndex[i] == GameConstants::maxPlayers-1) {
+//						lastSelectedTeamIndex[i] = 0;
+//					}
+//
+//					listBoxTeams[i].setSelectedItemIndex(lastSelectedTeamIndex[i]);
+//				}
+//				else {
+//					listBoxTeams[i].setSelectedItem(intToStr(1));
+//				}
+//			}
+
+			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
+			gameSettings->setStartLocationIndex(slotIndex, i);
+
+
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+//				if(serverInterface->getSlot(i) != NULL &&
+//                   serverInterface->getSlot(i)->isConnected()) {
+//
+//					gameSettings->setNetworkPlayerStatuses(slotIndex,serverInterface->getSlot(i)->getNetworkPlayerStatus());
+//
+//					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, connectionSlot->getName() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,serverInterface->getSlot(i)->getName().c_str());
+//
+//					gameSettings->setNetworkPlayerName(slotIndex, serverInterface->getSlot(i)->getName());
+//					labelPlayerNames[i].setText(serverInterface->getSlot(i)->getName());
+//				}
+//				else {
+//					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, playername unconnected\n",__FILE__,__FUNCTION__,__LINE__,i);
+//
+//					gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
+//					labelPlayerNames[i].setText("");
+//				}
+			}
+			else if (listBoxControls[i].getSelectedItemIndex() != ctHuman) {
+				AIPlayerCount++;
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, playername is AI (blank)\n",__FILE__,__FUNCTION__,__LINE__,i);
+
+				gameSettings->setNetworkPlayerName(slotIndex, string("AI") + intToStr(AIPlayerCount));
+				labelPlayerNames[i].setText("");
+			}
+
+			factionCount++;
+		}
+		else {
+			//gameSettings->setNetworkPlayerName("");
+			gameSettings->setNetworkPlayerStatuses(factionCount, 0);
+			labelPlayerNames[i].setText("");
+		}
+    }
+
+	// Next save closed slots
+	int closedCount = 0;
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+		if(ct == ctClosed) {
+			int slotIndex = factionCount + closedCount;
+
+			gameSettings->setFactionControl(slotIndex, ct);
+			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
+			gameSettings->setStartLocationIndex(slotIndex, i);
+			gameSettings->setResourceMultiplierIndex(slotIndex, 10);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
+
+			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
+			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
+
+			closedCount++;
+		}
+    }
+
+	gameSettings->setFactionCount(factionCount);
+
+	Config &config = Config::getInstance();
+	gameSettings->setEnableServerControlledAI(config.getBool("ServerControlledAI","true"));
+	gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
+	gameSettings->setNetworkPauseGameForLaggedClients(((listBoxNetworkPauseGameForLaggedClients.getSelectedItemIndex() != 0)));
+
+	if(hasNetworkGameSettings() == true) {
+		if( gameSettings->getTileset() != "") {
+			if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
+				//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
+				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+				lastCheckedCRCTilesetName = gameSettings->getTileset();
+			}
+			gameSettings->setTilesetCRC(lastCheckedCRCTilesetValue);
+		}
+
+		if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
+			if(gameSettings->getTech() != "") {
+				if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
+					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
+					lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+					if(lastCheckedCRCTechtreeValue == 0) {
+						lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
+					}
+
+					reloadFactions(true);
+					factionCRCList.clear();
+					for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
+						string factionName = factionFiles[factionIdx];
+						if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
+							factionName != GameConstants::OBSERVER_SLOTNAME) {
+							//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+							int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
+							if(factionCRC == 0) {
+								factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+							}
+							factionCRCList.push_back(make_pair(factionName,factionCRC));
+						}
+					}
+					//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
+					lastCheckedCRCTechtreeName = gameSettings->getTech();
+				}
+
+				gameSettings->setFactionCRCList(factionCRCList);
+				gameSettings->setTechCRC(lastCheckedCRCTechtreeValue);
+			}
+		}
+
+		if(gameSettings->getMap() != "") {
+			if(lastCheckedCRCMapName != gameSettings->getMap()) {
+				Checksum checksum;
+				string file = Map::getMapPath(gameSettings->getMap(),"",false);
+				//console.addLine("Checking map CRC [" + file + "]");
+				checksum.addFile(file);
+				lastCheckedCRCMapValue = checksum.getSum();
+				lastCheckedCRCMapName = gameSettings->getMap();
+			}
+			gameSettings->setMapCRC(lastCheckedCRCMapValue);
+		}
+	}
+
+    //replace server player by network
+    for(int i= 0; i< gameSettings->getFactionCount(); ++i) {
+        //replace by network
+        if(gameSettings->getFactionControl(i)==ctHuman) {
+            gameSettings->setFactionControl(i, ctNetwork);
+        }
+    }
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateConnectedGame::returnToJoinMenu() {
@@ -899,6 +1729,8 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPlayerStatus.mouseMove(x,y);
+
+	buttonPlayNow.mouseMove(x, y);
 }
 
 void MenuStateConnectedGame::render() {
@@ -1057,6 +1889,8 @@ void MenuStateConnectedGame::render() {
 		renderer.renderListBox(&listBoxEnableSwitchTeamMode);
 		renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
 
+		renderer.renderButton(&buttonPlayNow);
+
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         if(fileFTPProgressList.empty() == false) {
         	Lang &lang= Lang::getInstance();
@@ -1135,6 +1969,28 @@ void MenuStateConnectedGame::update() {
     //
 
 	if(clientInterface != NULL && clientInterface->isConnected()) {
+		//printf("#2 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
+
+		listBoxMap.setEditable(isMasterserverAdmin());
+		buttonPlayNow.setVisible(isMasterserverAdmin());
+		listBoxTechTree.setEditable(isMasterserverAdmin());
+		listBoxTileset.setEditable(isMasterserverAdmin());
+		listBoxEnableSwitchTeamMode.setEditable(isMasterserverAdmin());
+		listBoxAISwitchTeamAcceptPercent.setEditable(isMasterserverAdmin());
+		listBoxFogOfWar.setEditable(isMasterserverAdmin());
+		listBoxEnableObserverMode.setEditable(isMasterserverAdmin());
+		listBoxAllowObservers.setEditable(isMasterserverAdmin());
+		listBoxNetworkPauseGameForLaggedClients.setEditable(isMasterserverAdmin());
+
+		if(isMasterserverAdmin() == true) {
+			for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+				listBoxControls[i].setEditable(isMasterserverAdmin());
+				listBoxRMultiplier[i].setEditable(isMasterserverAdmin());
+				listBoxFactions[i].setEditable(isMasterserverAdmin());
+				listBoxTeams[i].setEditable(isMasterserverAdmin());
+			}
+		}
+
 		if(difftime(time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1641,10 +2497,14 @@ void MenuStateConnectedGame::update() {
 				if(getMissingTilesetFromFTPServerInProgress == false &&
 					gameSettings->getTileset() != "") {
                     // tileset
+					tilesets = tilesetFiles;
+					std::for_each(tilesets.begin(), tilesets.end(), FormatString());
+
                     if(std::find(tilesetFiles.begin(),tilesetFiles.end(),gameSettings->getTileset()) != tilesetFiles.end()) {
                         lastMissingTileSet = "";
                         getMissingTilesetFromFTPServer = "";
-                        tilesets.push_back(formatString(gameSettings->getTileset()));
+                        //tilesets.push_back(formatString(gameSettings->getTileset()));
+                        listBoxTileset.setSelectedItem(formatString(gameSettings->getTileset()));
                     }
                     else {
                         // try to get the tileset via ftp
@@ -1686,17 +2546,25 @@ void MenuStateConnectedGame::update() {
 								clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
             		    	}
                         }
+
+                        listBoxTileset.setItems(tilesets);
+                        listBoxTileset.setSelectedItem(ITEM_MISSING);
                     }
-                    listBoxTileset.setItems(tilesets);
+
 				}
 
 				if(getMissingTechtreeFromFTPServerInProgress == false &&
 					gameSettings->getTech() != "") {
                     // techtree
+					techtree = techTreeFiles;
+					std::for_each(techtree.begin(), techtree.end(), FormatString());
+
                     if(std::find(techTreeFiles.begin(),techTreeFiles.end(),gameSettings->getTech()) != techTreeFiles.end()) {
                         lastMissingTechtree = "";
                         getMissingTechtreeFromFTPServer = "";
-                        techtree.push_back(formatString(gameSettings->getTech()));
+                        //techtree.push_back(formatString(gameSettings->getTech()));
+                        reloadFactions(true);
+                        listBoxTechTree.setSelectedItem(formatString(gameSettings->getTech()));
                     }
                     else {
                         // try to get the tileset via ftp
@@ -1738,8 +2606,9 @@ void MenuStateConnectedGame::update() {
 								clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
             		    	}
                         }
+                        listBoxTechTree.setItems(techtree);
+                        listBoxTechTree.setSelectedItem(ITEM_MISSING);
                     }
-                    listBoxTechTree.setItems(techtree);
 
 					// techtree
 					//techtree.push_back(formatString(gameSettings->getTech()));
@@ -1762,12 +2631,16 @@ void MenuStateConnectedGame::update() {
 				if(getMissingMapFromFTPServerInProgress == false &&
 					gameSettings->getMap() != "") {
                     // map
-                    if(currentMap != gameSettings->getMap()) {// load the setup again
+					maps = formattedMapFiles;
+
+					if(currentMap != gameSettings->getMap()) {// load the setup again
                         currentMap = gameSettings->getMap();
                     }
                     bool mapLoaded = loadMapInfo(Map::getMapPath(currentMap,"",false), &mapInfo, true);
                     if(mapLoaded == true) {
-                        maps.push_back(formatString(gameSettings->getMap()));
+                    	if(find(maps.begin(),maps.end(),formatString(gameSettings->getMap())) == maps.end()) {
+                    		maps.push_back(formatString(gameSettings->getMap()));
+                    	}
                     }
                     else {
                         // try to get the map via ftp
@@ -1784,7 +2657,13 @@ void MenuStateConnectedGame::update() {
                         }
                         maps.push_back(ITEM_MISSING);
                     }
+
                     listBoxMap.setItems(maps);
+
+                    string mapFile = gameSettings->getMap();
+                	mapFile = formatString(mapFile);
+                	listBoxMap.setSelectedItem(mapFile);
+
                     labelMapInfo.setText(mapInfo.desc);
 				}
 
@@ -1846,8 +2725,11 @@ void MenuStateConnectedGame::update() {
 				// Control
 				for(int i=0; i<GameConstants::maxPlayers; ++i) {
 					listBoxControls[i].setSelectedItemIndex(ctClosed);
-					listBoxFactions[i].setEditable(false);
-					listBoxTeams[i].setEditable(false);
+
+					if(isMasterserverAdmin() == false) {
+						listBoxFactions[i].setEditable(false);
+						listBoxTeams[i].setEditable(false);
+					}
 
 					labelPlayerStatus[i].setText("");
 				}

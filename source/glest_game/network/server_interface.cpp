@@ -57,6 +57,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	ftpServer 						= NULL;
 	inBroadcastMessage				= false;
 	lastGlobalLagCheckTime			= 0;
+	masterserverAdminRequestLaunch	= false;
 
 	maxFrameCountLagAllowed 				= Config::getInstance().getInt("MaxFrameCountLagAllowed", intToStr(maxFrameCountLagAllowed).c_str());
 	maxFrameCountLagAllowedEver 			= Config::getInstance().getInt("MaxFrameCountLagAllowedEver", intToStr(maxFrameCountLagAllowedEver).c_str());
@@ -1696,8 +1697,8 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 			}
 		}
 
-		gameSettingsUpdateCount++;
 	}
+	gameSettingsUpdateCount++;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 

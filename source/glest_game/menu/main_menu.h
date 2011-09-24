@@ -139,6 +139,7 @@ public:
 	virtual void keyPress(SDL_KeyboardEvent c){};
 	virtual void keyUp(SDL_KeyboardEvent key){};
 
+	virtual bool isMasterserverMode() const {return false;}
 	const Camera *getCamera() const			{return &camera;}
 
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }

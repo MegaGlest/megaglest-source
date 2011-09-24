@@ -167,9 +167,14 @@ private:
     vector<pair<string,int32> > factionCRCList;
 
     bool forceWaitForShutdown;
+    bool masterserverMode;
+    bool masterserverModeMinimalResources;
+    int lastMasterServerSettingsUpdateCount;
 
 public:
-	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,bool openNetworkSlots= false, bool parentMenuIsMasterserver=false, bool autostart=false,GameSettings *settings=NULL);
+	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
+			bool openNetworkSlots= false, bool parentMenuIsMasterserver=false,
+			bool autostart=false,GameSettings *settings=NULL,bool masterserverMode=false);
 	virtual ~MenuStateCustomGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
@@ -184,6 +189,7 @@ public:
 
     virtual void simpleTask(BaseThread *callingThread);
     virtual bool isInSpecialKeyCaptureEvent();
+    virtual bool isMasterserverMode() const;
 
 private:
 

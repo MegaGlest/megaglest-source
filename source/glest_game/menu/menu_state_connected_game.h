@@ -145,6 +145,10 @@ private:
 	vector<string> tilesetFiles;
 	vector<string> factionFiles;
 
+	vector<string> playerSortedMaps[GameConstants::maxPlayers+1];
+	vector<string> formattedPlayerSortedMaps[GameConstants::maxPlayers+1];
+	vector<string> formattedMapFiles;
+
     GraphicMessageBox ftpMessageBox;
     FTPClientThread *ftpClientThread;
     FTPMessageType ftpMissingDataType;
@@ -173,6 +177,8 @@ private:
 	GraphicListBox listBoxEnableSwitchTeamMode;
 	GraphicLabel labelAISwitchTeamAcceptPercent;
 	GraphicListBox listBoxAISwitchTeamAcceptPercent;
+
+	GraphicButton buttonPlayNow;
 
 public:
 
@@ -208,6 +214,14 @@ private:
 
     int32 getNetworkPlayerStatus();
     void cleanupMapPreviewTexture();
+
+    void mouseClickAdmin(int x, int y, MouseButton mouseButton);
+    string getCurrentMapFile();
+    void loadGameSettings(GameSettings *gameSettings);
+    void reloadFactions(bool keepExistingSelectedItem);
+    void PlayNow(bool saveGame);
+    bool isMasterserverAdmin();
+    void broadCastGameSettingsToMasterserver();
 };
 
 }}//end namespace

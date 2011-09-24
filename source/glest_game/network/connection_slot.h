@@ -183,6 +183,9 @@ public:
 
 	string getNetworkPlayerLanguage() const { return playerLanguage; }
 
+	time_t getConnectedTime() const { return connectedTime; }
+	int getSessionKey() const { return sessionKey; }
+
 protected:
 
 	Mutex * getServerSynchAccessor();
