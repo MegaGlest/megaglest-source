@@ -2918,7 +2918,7 @@ void MenuStateConnectedGame::update() {
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-					program->setState(new Game(program, clientInterface->getGameSettings()));
+					program->setState(new Game(program, clientInterface->getGameSettings(),false));
 					return;
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -87,17 +87,25 @@ Game::Game() : ProgramState(NULL) {
 	program=NULL;
 	gameStarted=false;
 
+	popupMenu.setEnabled(false);
+	popupMenu.setVisible(false);
+
+	popupMenuSwitchTeams.setEnabled(false);
+	popupMenuSwitchTeams.setVisible(false);
+
 	switchTeamConfirmMessageBox.setEnabled(false);
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
+	masterserverMode = false;
 }
 
-Game::Game(Program *program, const GameSettings *gameSettings):
+Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverMode):
 	ProgramState(program), lastMousePos(0), isFirstRender(true)
 {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	this->masterserverMode = masterserverMode;
 	this->program = program;
 	Unit::setGame(this);
 	gameStarted = false;
@@ -116,6 +124,12 @@ Game::Game(Program *program, const GameSettings *gameSettings):
 	quitTriggeredIndicator = false;
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
+
+	popupMenu.setEnabled(false);
+	popupMenu.setVisible(false);
+
+	popupMenuSwitchTeams.setEnabled(false);
+	popupMenuSwitchTeams.setVisible(false);
 
 	switchTeamConfirmMessageBox.setEnabled(false);
 	exitGamePopupMenuIndex = -1;
@@ -848,15 +862,17 @@ void Game::init(bool initForPreviewOnly)
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",__FILE__,__FUNCTION__,__LINE__);
 		logger.add("Starting music stream", true);
 
-		if(world.getThisFaction() == NULL) {
-			throw runtime_error("world.getThisFaction() == NULL");
+		if(this->masterserverMode == false) {
+			if(world.getThisFaction() == NULL) {
+				throw runtime_error("world.getThisFaction() == NULL");
+			}
+			if(world.getThisFaction()->getType() == NULL) {
+				throw runtime_error("world.getThisFaction()->getType() == NULL");
+			}
+			//if(world.getThisFaction()->getType()->getMusic() == NULL) {
+			//	throw runtime_error("world.getThisFaction()->getType()->getMusic() == NULL");
+			//}
 		}
-		if(world.getThisFaction()->getType() == NULL) {
-			throw runtime_error("world.getThisFaction()->getType() == NULL");
-		}
-		//if(world.getThisFaction()->getType()->getMusic() == NULL) {
-		//	throw runtime_error("world.getThisFaction()->getType()->getMusic() == NULL");
-		//}
 
 		//sounds
 		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -878,8 +894,10 @@ void Game::init(bool initForPreviewOnly)
 			soundRenderer.playAmbient(ambientSounds->getSnow());
 		}
 
-		StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
-		soundRenderer.playMusic(gameMusic);
+		if(this->masterserverMode == false) {
+			StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
+			soundRenderer.playMusic(gameMusic);
+		}
 
 		logger.add("Launching game");
 	}
@@ -935,25 +953,27 @@ void Game::update() {
 			return;
 		}
 
-		if(world.getThisFaction()->getFirstSwitchTeamVote() != NULL) {
-			const SwitchTeamVote *vote = world.getThisFaction()->getFirstSwitchTeamVote();
-			GameSettings *settings = world.getGameSettingsPtr();
+		if(this->masterserverMode == false) {
+			if(world.getThisFaction()->getFirstSwitchTeamVote() != NULL) {
+				const SwitchTeamVote *vote = world.getThisFaction()->getFirstSwitchTeamVote();
+				GameSettings *settings = world.getGameSettingsPtr();
 
-	    	Lang &lang= Lang::getInstance();
+				Lang &lang= Lang::getInstance();
 
-			char szBuf[1024]="";
-			if(lang.hasString("AllowPlayerJoinTeam") == true) {
-				sprintf(szBuf,lang.get("AllowPlayerJoinTeam").c_str(),settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+				char szBuf[1024]="";
+				if(lang.hasString("AllowPlayerJoinTeam") == true) {
+					sprintf(szBuf,lang.get("AllowPlayerJoinTeam").c_str(),settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+				}
+				else {
+					sprintf(szBuf,"Allow player [%s] to join your team\n(changing from team# %d to team# %d)?",settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+				}
+
+				switchTeamConfirmMessageBox.setText(szBuf);
+				switchTeamConfirmMessageBox.init(lang.get("Yes"), lang.get("No"));
+				switchTeamConfirmMessageBox.setEnabled(true);
+
+				world.getThisFactionPtr()->setCurrentSwitchTeamVoteFactionIndex(vote->factionIndex);
 			}
-			else {
-				sprintf(szBuf,"Allow player [%s] to join your team\n(changing from team# %d to team# %d)?",settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
-			}
-
-			switchTeamConfirmMessageBox.setText(szBuf);
-			switchTeamConfirmMessageBox.init(lang.get("Yes"), lang.get("No"));
-			switchTeamConfirmMessageBox.setEnabled(true);
-
-			world.getThisFactionPtr()->setCurrentSwitchTeamVoteFactionIndex(vote->factionIndex);
 		}
 
 		//misc
@@ -1153,10 +1173,13 @@ void Game::render() {
 	totalRenderFps++;
 
 	NetworkManager &networkManager= NetworkManager::getInstance();
-	if(networkManager.getNetworkRole() != nrServer || gameSettings.getMasterserver_admin() == -1) {
+	if(this->masterserverMode == false) {
 		renderWorker();
 	}
 	else {
+		// Titi, uncomment this to watch the game on the masterserver
+		//renderWorker();
+
 		// In masterserver mode quit game if no network players left
 		ServerInterface *server = NetworkManager::getInstance().getServerInterface();
 		int connectedClients=0;
@@ -1791,19 +1814,22 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//Toggle music
 			//else if(key == configKeys.getCharKey("ToggleMusic")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ToggleMusic"),key, false) == true) {
-				Config &config = Config::getInstance();
-				StrSound *gameMusic = world.getThisFaction()->getType()->getMusic();
-				if(gameMusic != NULL) {
-					float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
-					float currentVolume = gameMusic->getVolume();
-					if(currentVolume > 0) {
-						gameMusic->setVolume(0);
-						console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
-					}
-					else {
-						//If the config says zero, use the default music volume
-						gameMusic->setVolume(configVolume ? configVolume : 0.9);
-						console.addLine(lang.get("GameMusic"));
+
+				if(this->masterserverMode == false) {
+					Config &config = Config::getInstance();
+					StrSound *gameMusic = world.getThisFaction()->getType()->getMusic();
+					if(gameMusic != NULL) {
+						float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+						float currentVolume = gameMusic->getVolume();
+						if(currentVolume > 0) {
+							gameMusic->setVolume(0);
+							console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+						}
+						else {
+							//If the config says zero, use the default music volume
+							gameMusic->setVolume(configVolume ? configVolume : 0.9);
+							console.addLine(lang.get("GameMusic"));
+						}
 					}
 				}
 			}
@@ -2078,7 +2104,7 @@ Stats Game::quitGame() {
 
 	endStats = *(world.getStats());
 	NetworkManager &networkManager= NetworkManager::getInstance();
-	if(networkManager.getNetworkRole() == nrServer && gameSettings.getMasterserver_admin() != -1) {
+	if(this->masterserverMode == true) {
 		endStats.setIsMasterserverMode(true);
 	}
 
@@ -2458,7 +2484,9 @@ void Game::render2d(){
 
     //resource info
 	if(photoModeEnabled == false) {
-        renderer.renderResourceStatus();
+		if(this->masterserverMode == false) {
+			renderer.renderResourceStatus();
+		}
 		renderer.renderConsole(&console,showFullConsole);
     }
 
@@ -2487,7 +2515,7 @@ void Game::checkWinner() {
 }
 
 void Game::checkWinnerStandard() {
-	if(world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
+	if(this->masterserverMode == true || world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
 		// lookup int is team #, value is players alive on team
 		std::map<int,int> teamsAlive;
 		for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -2728,7 +2756,7 @@ void Game::showLoseMessageBox() {
 void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 
-	if(world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
+	if(this->masterserverMode == true || world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
 		showMessageBox(lang.get("GameOver")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
 	}
 	else {
