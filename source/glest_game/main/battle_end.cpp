@@ -76,6 +76,13 @@ void BattleEnd::update() {
 		AutoTest::getInstance().updateBattleEnd(program);
 	}
 	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
+
+	if(this->stats.getIsMasterserverMode() == true) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//program->setState(new MainMenu(program));
+		program->initServer(program->getWindow(),false,true,true);
+		return;
+	}
 }
 
 void BattleEnd::render() {
