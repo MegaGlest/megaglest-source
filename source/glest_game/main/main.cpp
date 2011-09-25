@@ -102,7 +102,7 @@ const char  *GAME_ARGS[] = {
 	"--autostart-lastgame",
 	"--connecthost",
 	"--starthost",
-	"--masterserver-mode",
+	"--headless-server-mode",
 	"--load-scenario",
 	"--preview-map",
 	"--version",
