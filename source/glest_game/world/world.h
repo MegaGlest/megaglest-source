@@ -84,7 +84,7 @@ public:
 
 class World{
 private:
-	typedef vector<Faction> Factions;
+	typedef vector<Faction *> Factions;
 
 	std::map<Vec2i, std::map<int, ExploredCellsLookupItem > > ExploredCellsLookupItemCache;
 	std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
@@ -124,6 +124,7 @@ private:
 	int thisTeamIndex;
 	int frameCount;
 	//int nextUnitId;
+	Mutex mutexFactionNextUnitId;
 	std::map<int,int> mapFactionNextUnitId;
 
 	//config
@@ -154,8 +155,8 @@ public:
 	int getThisTeamIndex() const					{return thisTeamIndex;}
 	void setThisTeamIndex(int team) 				{ thisTeamIndex=team;}
 
-	const Faction *getThisFaction() const			{return &factions[thisFactionIndex];}
-	Faction *getThisFactionPtr() 					{return &factions[thisFactionIndex];}
+	const Faction *getThisFaction() const			{return factions[thisFactionIndex];}
+	Faction *getThisFactionPtr() 					{return factions[thisFactionIndex];}
 
 	int getFactionCount() const						{return factions.size();}
 	const Map *getMap() const 						{return &map;}
@@ -167,8 +168,8 @@ public:
 	Map *getMap() 									{return &map;}
 	Cartographer* getCartographer()					{return cartographer;}
 	RoutePlanner* getRoutePlanner()					{return routePlanner;}
-	const Faction *getFaction(int i) const			{return &factions[i];}
-	Faction *getFaction(int i) 						{return &factions[i];}
+	const Faction *getFaction(int i) const			{return factions[i];}
+	Faction *getFaction(int i) 						{return factions[i];}
 	const Minimap *getMinimap() const				{return &minimap;}
 	Minimap *getMiniMapObject() 					{return &minimap;}
 	const Stats *getStats() const					{return &stats;};
