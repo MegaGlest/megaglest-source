@@ -179,7 +179,7 @@ void Faction::sortUnitsByCommandGroups() {
 			printf("#1 Error unitId not found for id = %d [%s] factionIndex = %d\n",unitId,units[i]->getType()->getName().c_str(),this->getIndex());
 
 			for(unsigned int j = 0; j < units.size(); ++j) {
-				printf("%d / %d id = %d [%s]\n",j,units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
+				printf("%d / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
 			}
 		}
 		unitIds.push_back(unitId);
@@ -196,7 +196,7 @@ void Faction::sortUnitsByCommandGroups() {
 			printf("#2 Error unitId not found for id = %d factionIndex = %d\n",unitId,this->getIndex());
 
 			for(unsigned int j = 0; j < units.size(); ++j) {
-				printf("%d / %d id = %d [%s]\n",j,units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
+				printf("%d / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
 			}
 		}
 
