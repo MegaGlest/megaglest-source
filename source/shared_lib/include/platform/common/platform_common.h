@@ -12,9 +12,7 @@
 #define _SHARED_PLATFORM_PLATFORMCOMMON_H_
 
 #ifdef WIN32
-
 #include <windows.h>
-
 #endif
 
 #include <string>
@@ -28,6 +26,10 @@
 #include <SDL.h>
 #include <map>
 #include "leak_dumper.h"
+
+#if (defined WIN32) && !(defined snprintf)
+#define snprintf _snprintf
+#endif
 
 using std::string;
 using std::vector;

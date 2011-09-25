@@ -579,7 +579,7 @@ void normalizeNick(char *nick) {
 		memset(newNick,0,strlen(nick)+1);
 		bool nickChanged = false;
 
-		for(int i = 0; i < strlen(nick); ++i) {
+		for(unsigned int i = 0; i < strlen(nick); ++i) {
 			if(nick[i] == '-' || nick[i] == '[' || nick[i] == ']' || nick[i] == '_' ||
 			   nick[i] == '\\' || nick[i] == '`' || nick[i] == '^' ||
 			   nick[i] == '{' || nick[i] == '}' ||
