@@ -2648,13 +2648,14 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				if(	serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->isConnected()) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-					//printf("slot = %d serverInterface->getSlot(i)->getConnectedTime() = %d\n",i,serverInterface->getSlot(i)->getConnectedTime());
+					//printf("slot = %d serverInterface->getSlot(i)->getConnectedTime() = %d session key [%d]\n",i,serverInterface->getSlot(i)->getConnectedTime(),serverInterface->getSlot(i)->getSessionKey());
 
-					if(clientConnectedTime == 0 || serverInterface->getSlot(i)->getConnectedTime() < clientConnectedTime) {
+					if(clientConnectedTime == 0 ||
+							(serverInterface->getSlot(i)->getConnectedTime() > 0 && serverInterface->getSlot(i)->getConnectedTime() < clientConnectedTime)) {
 						clientConnectedTime = serverInterface->getSlot(i)->getConnectedTime();
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());
 
-						//printf("slot = %d, admin key [%d]\n",i,gameSettings->getMasterserver_admin());
+						//printf("slot = %d, admin key [%d] slot connected time[%lu] clientConnectedTime [%lu]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
 					}
 				}
 			}
@@ -2836,21 +2837,25 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	//printf("In [%s::%s line %d] map [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getMap().c_str());
 
 	string mapFile = gameSettings.getMap();
-	mapFile = formatString(mapFile);
-	listBoxMap.setSelectedItem(mapFile);
+	if(find(mapFiles.begin(),mapFiles.end(),mapFile) != mapFiles.end()) {
+		mapFile = formatString(mapFile);
+		listBoxMap.setSelectedItem(mapFile);
 
-	loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
-	labelMapInfo.setText(mapInfo.desc);
+		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+		labelMapInfo.setText(mapInfo.desc);
+	}
 
 	string tilesetFile = gameSettings.getTileset();
-	tilesetFile = formatString(tilesetFile);
-
-	listBoxTileset.setSelectedItem(tilesetFile);
+	if(find(tilesetFiles.begin(),tilesetFiles.end(),tilesetFile) != tilesetFiles.end()) {
+		tilesetFile = formatString(tilesetFile);
+		listBoxTileset.setSelectedItem(tilesetFile);
+	}
 
 	string techtreeFile = gameSettings.getTech();
-	techtreeFile = formatString(techtreeFile);
-
-	listBoxTechTree.setSelectedItem(techtreeFile);
+	if(find(techTreeFiles.begin(),techTreeFiles.end(),techtreeFile) != techTreeFiles.end()) {
+		techtreeFile = formatString(techtreeFile);
+		listBoxTechTree.setSelectedItem(techtreeFile);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
