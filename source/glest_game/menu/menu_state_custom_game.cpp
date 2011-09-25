@@ -1389,8 +1389,8 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
 }
 
 bool MenuStateCustomGame::isMasterserverMode() const {
-	//return (this->masterserverMode == true && this->masterserverModeMinimalResources == true);
-	return false;
+	return (this->masterserverMode == true && this->masterserverModeMinimalResources == true);
+	//return false;
 }
 
 void MenuStateCustomGame::render() {
