@@ -1384,9 +1384,11 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem) {
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
         endPathWithSlash(techPath);
-        //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
-        findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
 
+        if(listBoxTechTree.getSelectedItemIndex() >= 0 && listBoxTechTree.getSelectedItemIndex() < techTreeFiles.size()) {
+			//findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+			findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
+        }
         if(results.empty() == false) {
             break;
         }
@@ -2560,6 +2562,9 @@ void MenuStateConnectedGame::update() {
 					std::for_each(techtree.begin(), techtree.end(), FormatString());
 
                     if(std::find(techTreeFiles.begin(),techTreeFiles.end(),gameSettings->getTech()) != techTreeFiles.end()) {
+
+                    	//printf("gameSettings->getTech() [%s]\n",gameSettings->getTech().c_str());
+
                         lastMissingTechtree = "";
                         getMissingTechtreeFromFTPServer = "";
                         //techtree.push_back(formatString(gameSettings->getTech()));
@@ -2631,6 +2636,9 @@ void MenuStateConnectedGame::update() {
 				if(getMissingMapFromFTPServerInProgress == false &&
 					gameSettings->getMap() != "") {
                     // map
+                    string mapFile = gameSettings->getMap();
+                	mapFile = formatString(mapFile);
+
 					maps = formattedMapFiles;
 
 					if(currentMap != gameSettings->getMap()) {// load the setup again
@@ -2656,14 +2664,12 @@ void MenuStateConnectedGame::update() {
                             }
                         }
                         maps.push_back(ITEM_MISSING);
+                        mapFile = ITEM_MISSING;
                     }
 
                     listBoxMap.setItems(maps);
 
-                    string mapFile = gameSettings->getMap();
-                	mapFile = formatString(mapFile);
                 	listBoxMap.setSelectedItem(mapFile);
-
                     labelMapInfo.setText(mapInfo.desc);
 				}
 

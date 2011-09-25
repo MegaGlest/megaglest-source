@@ -362,8 +362,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				//send intro message when connected
 				if(socket != NULL) {
-					RandomGen random;
-					sessionKey = random.randRange(-100000, 100000);
+					//RandomGen random;
+					//sessionKey = random.randRange(-100000, 100000);
+					srand(time(NULL));
+					sessionKey = rand() % 1000000;
+
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] accepted new client connection, serverInterface->getOpenSlotCount() = %d, sessionKey = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount(),sessionKey);
 
 					if(hasOpenSlots == false) {
