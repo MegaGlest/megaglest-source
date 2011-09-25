@@ -14,14 +14,9 @@
 #include <assert.h>
 
 #include "noimpl.h"
+#include "platform_common.h"
 
 using namespace std;
-
-#ifdef WIN32
-
-#define snprintf _snprintf
-
-#endif
 
 namespace Shared{ namespace Platform{
 

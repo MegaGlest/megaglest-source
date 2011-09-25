@@ -14,12 +14,8 @@
 #include <stdexcept>
 #include <cstdio>
 #include <cstdlib>
-
+#include "platform_common.h"
 #include "leak_dumper.h"
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
 
 using namespace std;
 
