@@ -51,6 +51,12 @@ class Faction;
 
 struct CommandGroupUnitSorter {
 	bool operator()(const Unit *l, const Unit *r);
+	bool compare(const Unit *l, const Unit *r);
+};
+
+struct CommandGroupUnitSorterId {
+	Faction *faction;
+	bool operator()(const int l, const int r);
 };
 
 class FactionThread : public BaseThread {
@@ -96,6 +102,8 @@ private:
     Resources resources;
     Store store;
 	Allies allies;
+
+	Mutex *unitsMutex;
 	Units units;
 	UnitMap unitMap;
 	World *world;
@@ -158,8 +166,11 @@ public:
 	bool getCpuUltraControl() const						{return control==ctCpuUltra;}
 	bool getCpuMegaControl() const						{return control==ctCpuMega;}
 	ControlType getControlType() const					{return control;}
-	Unit *getUnit(int i) const							{return units[i];}
-	int getUnitCount() const							{return units.size();}		
+
+	Unit *getUnit(int i) const;
+	int getUnitCount() const;
+	Mutex * getUnitMutex() {return unitsMutex;}
+
 	const UpgradeManager *getUpgradeManager() const		{return &upgradeManager;}
 	const Texture2D *getTexture() const					{return texture;}
 	int getStartLocationIndex() const					{return startLocationIndex;}

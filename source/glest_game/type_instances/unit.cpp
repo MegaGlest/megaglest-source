@@ -35,6 +35,9 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+//Mutex Unit::mutexDeletedUnits;
+//map<void *,bool> Unit::deletedUnits;
+
 const int UnitPathBasic::maxBlockCount= GameConstants::updateFps / 2;
 
 UnitPathBasic::UnitPathBasic() {
@@ -344,6 +347,11 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	addItemToVault(&this->hp,this->hp);
 	addItemToVault(&this->ep,this->ep);
 
+//	if(isUnitDeleted(this) == true) {
+//		MutexSafeWrapper safeMutex(&mutexDeletedUnits,string(__FILE__) + "_" + intToStr(__LINE__));
+//		deletedUnits.erase(this);
+//	}
+
 	logSynchData(__FILE__,__LINE__);
 }
 
@@ -406,7 +414,19 @@ Unit::~Unit() {
 
 	Renderer &renderer= Renderer::getInstance();
 	renderer.removeUnitFromQuadCache(this);
+
+	//MutexSafeWrapper safeMutex1(&mutexDeletedUnits,string(__FILE__) + "_" + intToStr(__LINE__));
+	//deletedUnits[this]=true;
 }
+
+//bool Unit::isUnitDeleted(void *unit) {
+//	bool result = false;
+//	MutexSafeWrapper safeMutex(&mutexDeletedUnits,string(__FILE__) + "_" + intToStr(__LINE__));
+//	if(deletedUnits.find(unit) != deletedUnits.end()) {
+//		result = true;
+//	}
+//	return result;
+//}
 
 void Unit::setModelFacing(CardinalDir value) {
 	modelFacing = value;

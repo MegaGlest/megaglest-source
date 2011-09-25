@@ -30,7 +30,36 @@ using Shared::Util::RandomGen;
 
 namespace Glest { namespace Game {
 
+bool CommandGroupUnitSorterId::operator()(const int l, const int r) {
+	const Unit *lUnit = faction->findUnit(l);
+	const Unit *rUnit = faction->findUnit(r);
+
+	if(!lUnit) {
+		printf("Error lUnit == NULL for id = %d factionIndex = %d\n",l,faction->getIndex());
+
+		for(unsigned int i = 0; i < faction->getUnitCount(); ++i) {
+			printf("%d / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName().c_str());
+		}
+	}
+	if(!rUnit) {
+		printf("Error rUnit == NULL for id = %d factionIndex = %d\n",r,faction->getIndex());
+
+		for(unsigned int i = 0; i < faction->getUnitCount(); ++i) {
+			printf("%d / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName().c_str());
+		}
+	}
+
+	CommandGroupUnitSorter sorter;
+	return sorter.compare(lUnit, rUnit);
+}
+
 bool CommandGroupUnitSorter::operator()(const Unit *l, const Unit *r) {
+	return compare(l, r);
+}
+
+bool CommandGroupUnitSorter::compare(const Unit *l, const Unit *r) {
+	//printf("l [%p] r [%p] <>",l,r);
+
 	if(!l) {
 		printf("Error l == NULL\n");
 	}
@@ -49,7 +78,7 @@ bool CommandGroupUnitSorter::operator()(const Unit *l, const Unit *r) {
 
 
 	bool result = false;
-	// If comparer if null or dead
+	// If comparer is null or dead
 	if(r == NULL || r->isAlive() == false) {
 		// if source is null or dead also
 		if((l == NULL || l->isAlive() == false)) {
@@ -69,7 +98,7 @@ bool CommandGroupUnitSorter::operator()(const Unit *l, const Unit *r) {
 	//Command *command= this->unit->getCurrCommand();
 
 	// Are we moving or attacking
-	if( command != NULL &&
+	if( command != NULL && command->getCommandType() != NULL &&
 			(command->getCommandType()->getClass() == ccMove ||
 			 command->getCommandType()->getClass() == ccAttack)  &&
 		command->getUnitCommandGroupId() > 0) {
@@ -79,7 +108,7 @@ bool CommandGroupUnitSorter::operator()(const Unit *l, const Unit *r) {
 		//Command *commandPeer = j.unit->getCurrCommand();
 
 		// is comparer a valid command
-		if(commandPeer == NULL) {
+		if(commandPeer == NULL || commandPeer->getCommandType() == NULL) {
 			result = true;
 		}
 		// is comparer command the same type?
@@ -111,7 +140,7 @@ bool CommandGroupUnitSorter::operator()(const Unit *l, const Unit *r) {
 //	}
 	else {
 		//Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
-		if( commandPeer != NULL &&
+		if( commandPeer != NULL && commandPeer->getCommandType() != NULL &&
 			(commandPeer->getCommandType()->getClass() != ccMove &&
 			 commandPeer->getCommandType()->getClass() != ccAttack)) {
 			result = l->getId() < r->getId();
@@ -127,7 +156,53 @@ bool CommandGroupUnitSorter::operator()(const Unit *l, const Unit *r) {
 }
 
 void Faction::sortUnitsByCommandGroups() {
-	std::sort(units.begin(),units.end(),CommandGroupUnitSorter());
+	MutexSafeWrapper safeMutex(unitsMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+	//printf("====== sortUnitsByCommandGroups for faction # %d [%s] unitCount = %d\n",this->getIndex(),this->getType()->getName().c_str(),units.size());
+	//for(unsigned int i = 0; i < units.size(); ++i) {
+	//	printf("%d / %d [%p] <>",i,units.size(),&units[i]);
+//	//	printf("i = %d [%p]\n",i,&units[i]);
+//		if(Unit::isUnitDeleted(units[i]) == true) {
+//			printf("i = %d [%p]\n",i,&units[i]);
+//			throw runtime_error("unit already deleted!");
+//		}
+	//}
+	//printf("\nSorting\n");
+
+	//std::sort(units.begin(),units.end(),CommandGroupUnitSorter());
+
+	//printf("====== Done sorting for faction # %d [%s] unitCount = %d\n",this->getIndex(),this->getType()->getName().c_str(),units.size());
+
+	std::vector<int> unitIds;
+	for(unsigned int i = 0; i < units.size(); ++i) {
+		int unitId = units[i]->getId();
+		if(this->findUnit(unitId) == NULL) {
+			printf("#1 Error unitId not found for id = %d [%s] factionIndex = %d\n",unitId,units[i]->getType()->getName().c_str(),this->getIndex());
+
+			for(unsigned int j = 0; j < units.size(); ++j) {
+				printf("%d / %d id = %d [%s]\n",j,units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
+			}
+		}
+		unitIds.push_back(unitId);
+	}
+	CommandGroupUnitSorterId sorter;
+	sorter.faction = this;
+	std::stable_sort(unitIds.begin(),unitIds.end(),sorter);
+
+	units.clear();
+	for(unsigned int i = 0; i < unitIds.size(); ++i) {
+
+		int unitId = unitIds[i];
+		if(this->findUnit(unitId) == NULL) {
+			printf("#2 Error unitId not found for id = %d factionIndex = %d\n",unitId,this->getIndex());
+
+			for(unsigned int j = 0; j < units.size(); ++j) {
+				printf("%d / %d id = %d [%s]\n",j,units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
+			}
+		}
+
+		units.push_back(this->findUnit(unitId));
+	}
+
 }
 
 // =====================================================
@@ -231,6 +306,13 @@ void FactionThread::execute() {
 
 				World *world = faction->getWorld();
 
+				Config &config= Config::getInstance();
+				bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
+				if(sortedUnitsAllowed) {
+					faction->sortUnitsByCommandGroups();
+				}
+
+				MutexSafeWrapper safeMutex(faction->getUnitMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
 				int unitCount = faction->getUnitCount();
 				for(int j = 0; j < unitCount; ++j) {
 					Unit *unit = faction->getUnit(j);
@@ -244,6 +326,7 @@ void FactionThread::execute() {
 						world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
 					}
 				}
+				safeMutex.ReleaseLock();
 
 				setTaskCompleted(frameIndex.first);
             }
@@ -274,6 +357,7 @@ void FactionThread::execute() {
 // =====================================================
 
 Faction::Faction() {
+	unitsMutex = new Mutex();
 	texture = NULL;
 	//lastResourceTargettListPurge = 0;
 	cachingDisabled=false;
@@ -311,6 +395,21 @@ Faction::~Faction() {
 	//delete texture;
 	texture = NULL;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	delete unitsMutex;
+	unitsMutex = NULL;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+Unit * Faction::getUnit(int i) const {
+	Unit *result = units[i];
+	return result;
+}
+
+int Faction::getUnitCount() const {
+	int result = units.size();
+	return result;
 }
 
 void Faction::signalWorkerThread(int frameIndex) {
@@ -384,7 +483,10 @@ void Faction::end() {
 		workerThread = NULL;
 	}
 
+	MutexSafeWrapper safeMutex(unitsMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 	deleteValues(units.begin(), units.end());
+	safeMutex.ReleaseLock();
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -798,12 +900,15 @@ Unit *Faction::findUnit(int id) const {
 	return itFound->second;
 }
 
-void Faction::addUnit(Unit *unit){
+void Faction::addUnit(Unit *unit) {
+	MutexSafeWrapper safeMutex(unitsMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 	units.push_back(unit);
 	unitMap[unit->getId()] = unit;
 }
 
 void Faction::removeUnit(Unit *unit){
+	MutexSafeWrapper safeMutex(unitsMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+
 	assert(units.size()==unitMap.size());
 
 	int unitId = unit->getId();

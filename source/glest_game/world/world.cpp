@@ -93,10 +93,13 @@ World::~World() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	for(int i= 0; i<factions.size(); ++i){
-		factions[i].end();
+		factions[i]->end();
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	for(int i= 0; i<factions.size(); ++i){
+		delete factions[i];
+	}
 	factions.clear();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -137,9 +140,13 @@ void World::end(){
     FowAlphaCellsLookupItemCache.clear();
 
 	for(int i= 0; i<factions.size(); ++i){
-		factions[i].end();
+		factions[i]->end();
+	}
+	for(int i= 0; i<factions.size(); ++i){
+		delete factions[i];
 	}
 	factions.clear();
+
 	fogOfWarOverride = false;
 
 	map.end();
@@ -280,21 +287,23 @@ void World::updateAllFactionUnits() {
 
 	// Prioritize grouped command units so closest units to target go first
 	// units
-	Config &config= Config::getInstance();
-	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","false");
-
 	int factionCount = getFactionCount();
-	if(sortedUnitsAllowed == true) {
-		for(int i = 0; i < factionCount; ++i) {
-			Faction *faction = getFaction(i);
-			if(faction == NULL) {
-				throw runtime_error("faction == NULL");
-			}
 
-			// Sort units by command groups
-			faction->sortUnitsByCommandGroups();
-		}
-	}
+//	Config &config= Config::getInstance();
+//	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
+//
+//	int factionCount = getFactionCount();
+//	if(sortedUnitsAllowed == true) {
+//		for(int i = 0; i < factionCount; ++i) {
+//			Faction *faction = getFaction(i);
+//			if(faction == NULL) {
+//				throw runtime_error("faction == NULL");
+//			}
+//
+//			// Sort units by command groups
+//			faction->sortUnitsByCommandGroups();
+//		}
+//	}
 
 	// Signal the faction threads to do any pre-processing
 	for(int i = 0; i < factionCount; ++i) {
@@ -771,7 +780,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unitName [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 
 	if(factionIndex < factions.size()) {
-		Faction* faction= &factions[factionIndex];
+		Faction* faction= factions[factionIndex];
 
 		if(faction->getIndex() != factionIndex) {
 			throw runtime_error("faction->getIndex() != factionIndex");
@@ -818,7 +827,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 
 void World::giveResource(const string &resourceName, int factionIndex, int amount) {
 	if(factionIndex < factions.size()) {
-		Faction* faction= &factions[factionIndex];
+		Faction* faction= factions[factionIndex];
 		const ResourceType* rt= techTree->getResourceType(resourceName);
 		faction->incResourceAmount(rt, amount);
 	}
@@ -1041,7 +1050,7 @@ void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 
 int World::getResourceAmount(const string &resourceName, int factionIndex) {
 	if(factionIndex < factions.size()) {
-		Faction* faction= &factions[factionIndex];
+		Faction* faction= factions[factionIndex];
 		const ResourceType* rt= techTree->getResourceType(resourceName);
 		return faction->getResource(rt)->getAmount();
 	}
@@ -1052,7 +1061,7 @@ int World::getResourceAmount(const string &resourceName, int factionIndex) {
 
 Vec2i World::getStartLocation(int factionIndex) {
 	if(factionIndex < factions.size()) {
-		Faction* faction= &factions[factionIndex];
+		Faction* faction= factions[factionIndex];
 		return map.getStartLocation(faction->getStartLocationIndex());
 	}
 	else {
@@ -1078,7 +1087,7 @@ int World::getUnitFactionIndex(int unitId) {
 
 int World::getUnitCount(int factionIndex) {
 	if(factionIndex < factions.size()) {
-		Faction* faction= &factions[factionIndex];
+		Faction* faction= factions[factionIndex];
 		int count= 0;
 
 		for(int i= 0; i < faction->getUnitCount(); ++i) {
@@ -1096,7 +1105,7 @@ int World::getUnitCount(int factionIndex) {
 
 int World::getUnitCountOfType(int factionIndex, const string &typeName) {
 	if(factionIndex < factions.size()) {
-		Faction* faction= &factions[factionIndex];
+		Faction* faction= factions[factionIndex];
 		int count= 0;
 
 		for(int i= 0; i< faction->getUnitCount(); ++i) {
@@ -1205,7 +1214,11 @@ void World::initFactionTypes(GameSettings *gs) {
 
 	//create factions
 	this->thisFactionIndex= gs->getThisFactionIndex();
-	factions.resize(gs->getFactionCount());
+	//factions.resize(gs->getFactionCount());
+	for(int i= 0; i < gs->getFactionCount(); ++i){
+		Faction *newFaction = new Faction();
+		factions.push_back(newFaction);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factions.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,factions.size());
 
@@ -1214,7 +1227,7 @@ void World::initFactionTypes(GameSettings *gs) {
 		if(ft == NULL) {
 			throw runtime_error("ft == NULL");
 		}
-		factions[i].init(ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
+		factions[i]->init(ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
 						 gs->getStartLocationIndex(i), i==thisFactionIndex, gs->getDefaultResources());
 
 		stats.setTeam(i, gs->getTeam(i));
@@ -1250,7 +1263,7 @@ void World::initUnits() {
 
 	//put starting units
 	for(int i = 0; i < getFactionCount(); ++i) {
-		Faction *f= &factions[i];
+		Faction *f= factions[i];
 		const FactionType *ft= f->getType();
 
 		for(int j = 0; j < ft->getStartingUnitCount(); ++j) {
@@ -1664,6 +1677,7 @@ const GameSettings * World::getGameSettings() const {
 // Calculates the unit unit ID for each faction
 //
 int World::getNextUnitId(Faction *faction)	{
+	MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 	if(mapFactionNextUnitId.find(faction->getIndex()) == mapFactionNextUnitId.end()) {
 		mapFactionNextUnitId[faction->getIndex()] = faction->getIndex() * 100000;
 	}

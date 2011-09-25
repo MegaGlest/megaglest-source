@@ -383,9 +383,17 @@ private:
 
 	Mutex mutexCommands;
 
+	//static Mutex mutexDeletedUnits;
+	//static std::map<void *,bool> deletedUnits;
+
 public:
+	Unit() : id(-1) {
+		assert(false);
+	}
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
+
+    //static bool isUnitDeleted(void *unit);
 
     static void setGame(Game *value) { game=value;}
 
