@@ -37,6 +37,7 @@ const int Logger::logLineCount= 15;
 // ===================== PUBLIC ========================
 
 Logger::Logger() {
+	masterserverMode = false;
 	string logs_path = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
 	if(logs_path != "") {
 		fileName= logs_path + "log.txt";
@@ -76,7 +77,7 @@ void Logger::add(const string str,  bool renderScreen, const string statusText) 
 	this->current= str;
 	this->statusText = statusText;
 
-	if(renderScreen == true) {
+	if(renderScreen == true && masterserverMode == false) {
 		renderLoadingScreen();
 	}
 }
