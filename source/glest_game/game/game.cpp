@@ -1287,6 +1287,10 @@ int Game::getFirstUnusedTeamNumber() {
 }
 
 void Game::mouseDownLeft(int x, int y) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	try {
 		if(gameStarted == false) {
 			Logger::getInstance().handleMouseClick(x, y);
@@ -1498,6 +1502,10 @@ void Game::mouseDownLeft(int x, int y) {
 }
 
 void Game::mouseDownRight(int x, int y) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	try {
 		if(gameStarted == false) {
 			Logger::getInstance().handleMouseClick(x, y);
@@ -1547,6 +1555,10 @@ void Game::mouseDownRight(int x, int y) {
 }
 
  void Game::mouseUpCenter(int x, int y) {
+		if(this->masterserverMode == true) {
+			return;
+		}
+
 	if(gameStarted == false) {
 		return;
 	}
@@ -1560,6 +1572,10 @@ void Game::mouseDownRight(int x, int y) {
 }
 
 void Game::mouseUpLeft(int x, int y) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	try {
 		if(gameStarted == false) {
 			return;
@@ -1586,6 +1602,10 @@ void Game::mouseUpLeft(int x, int y) {
 }
 
 void Game::mouseDoubleClickLeft(int x, int y) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	try {
 		if(gameStarted == false) {
 			return;
@@ -1624,6 +1644,10 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 }
 
 void Game::mouseMove(int x, int y, const MouseState *ms) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	try {
 		if(gameStarted == false) {
 			return;
@@ -1771,6 +1795,10 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 }
 
 void Game::keyDown(SDL_KeyboardEvent key) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d] gameStarted [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym, gameStarted);
 		if(gameStarted == false) {
@@ -1987,6 +2015,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 }
 
 void Game::keyUp(SDL_KeyboardEvent key) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	try {
 		if(gameStarted == false) {
 			return;
@@ -2083,6 +2115,10 @@ void Game::calcCameraMoveZ(){
 }
 
 void Game::keyPress(SDL_KeyboardEvent c) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	if(gameStarted == false) {
 		return;
 	}
