@@ -68,6 +68,8 @@ public:
 	void setHeight(float height)		{this->height= height;}
 
 	bool isFree(Field field) const;
+
+	bool isFreeOrMightBeFreeSoon(Vec2i originPos, Vec2i cellPos, Field field) const;
 };
 
 // =====================================================
@@ -255,6 +257,10 @@ public:
 	static Vec2i toSurfCoords(const Vec2i &unitPos)		{return unitPos / cellScale;}
 	static Vec2i toUnitCoords(const Vec2i &surfPos)		{return surfPos * cellScale;}
 	static string getMapPath(const string &mapName, string scenarioDir="", bool errorOnNotFound=true);
+
+	bool isFreeCellOrMightBeFreeSoon(Vec2i originPos, const Vec2i &pos, Field field) const;
+	bool isAproxFreeCellOrMightBeFreeSoon(Vec2i originPos,const Vec2i &pos, Field field, int teamIndex) const;
+	bool aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
 
 private:
 	//compute

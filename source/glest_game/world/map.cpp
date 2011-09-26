@@ -52,7 +52,28 @@ Cell::Cell() {
 
 //returns if the cell is free
 bool Cell::isFree(Field field) const {
-	return getUnit(field) == NULL || getUnit(field)->isPutrefacting();
+	bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
+
+	if(result == false) {
+		//printf("[%s] Line: %d returning false, unit id = %d [%s]\n",__FUNCTION__,__LINE__,getUnit(field)->getId(),getUnit(field)->getType()->getName().c_str());
+	}
+
+	return result;
+}
+
+//returns if the cell is free
+bool Cell::isFreeOrMightBeFreeSoon(Vec2i originPos, Vec2i cellPos, Field field) const {
+	bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
+
+	if(result == false) {
+		if(originPos.dist(cellPos) > 5 && getUnit(field)->getType()->isMobile() == true) {
+			result = true;
+		}
+
+		//printf("[%s] Line: %d returning false, unit id = %d [%s]\n",__FUNCTION__,__LINE__,getUnit(field)->getId(),getUnit(field)->getType()->getName().c_str());
+	}
+
+	return result;
 }
 
 // =====================================================
@@ -85,7 +106,12 @@ void SurfaceCell::end(){
 
 
 bool SurfaceCell::isFree() const {
-	return object==NULL || object->getWalkable();
+	bool result = object==NULL || object->getWalkable();
+
+	if(result == false) {
+		//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+	}
+	return result;
 }
 
 void SurfaceCell::deleteResource() {
@@ -566,6 +592,15 @@ bool Map::isFreeCell(const Vec2i &pos, Field field) const {
 		(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
 }
 
+bool Map::isFreeCellOrMightBeFreeSoon(Vec2i originPos, const Vec2i &pos, Field field) const {
+	return
+		isInside(pos) &&
+		isInsideSurface(toSurfCoords(pos)) &&
+		getCell(pos)->isFreeOrMightBeFreeSoon(originPos,pos,field) &&
+		(field==fAir || getSurfaceCell(toSurfCoords(pos))->isFree()) &&
+		(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
+}
+
 bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const {
 	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
 		if(unit->getCurrField() != field) {
@@ -615,6 +650,27 @@ bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const {
 			return true;
 		}
 	}
+
+	//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+	return false;
+}
+
+bool Map::isAproxFreeCellOrMightBeFreeSoon(Vec2i originPos,const Vec2i &pos, Field field, int teamIndex) const {
+	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
+		const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
+
+		if(sc->isVisible(teamIndex)) {
+			return isFreeCellOrMightBeFreeSoon(originPos, pos, field);
+		}
+		else if(sc->isExplored(teamIndex)) {
+			return field==fLand? sc->isFree() && !getDeepSubmerged(getCell(pos)): true;
+		}
+		else {
+			return true;
+		}
+	}
+
+	//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 	return false;
 }
 
@@ -760,6 +816,8 @@ bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::m
 bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > *lookupCache) const {
 	if(isInside(pos1) == false || isInsideSurface(toSurfCoords(pos1)) == false ||
 	   isInside(pos2) == false || isInsideSurface(toSurfCoords(pos2)) == false) {
+
+		//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 		return false;
 	}
 
@@ -779,6 +837,9 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 						std::map<Field,bool>::const_iterator iterFind5 = iterFind4->second.find(field);
 						if(iterFind5 != iterFind4->second.end()) {
 							// Found this result in the cache
+							if(iterFind5->second == false) {
+								//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+							}
 							return iterFind5->second;
 						}
 					}
@@ -793,6 +854,8 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 			if(lookupCache != NULL) {
 				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 			}
+
+			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 			return false;
 		}
 		if(pos1.x != pos2.x && pos1.y != pos2.y) {
@@ -801,6 +864,11 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 					(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 				}
 
+				//Unit *cellUnit = getCell(Vec2i(pos1.x, pos2.y))->getUnit(field);
+				//Object * obj = getSurfaceCell(toSurfCoords(Vec2i(pos1.x, pos2.y)))->getObject();
+
+				//printf("[%s] Line: %d returning false cell [%s] free [%d] cell unitid = %d object class = %d\n",__FUNCTION__,__LINE__,Vec2i(pos1.x, pos2.y).getString().c_str(),this->isFreeCell(Vec2i(pos1.x, pos2.y),field),(cellUnit != NULL ? cellUnit->getId() : -1),(obj != NULL ? obj->getType()->getClass() : -1));
+				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 				return false;
 			}
 			if(isAproxFreeCell(Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
@@ -808,6 +876,7 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 					(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 				}
 
+				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 				return false;
 			}
 		}
@@ -828,6 +897,7 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 			}
 
+			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 			return false;
 		}
 
@@ -850,6 +920,7 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 								(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 							}
 
+							//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 							return false;
 						}
 					}
@@ -860,6 +931,7 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 						(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 					}
 
+					//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 					return false;
 				}
 			}
@@ -881,12 +953,112 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 			}
 
+			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 			return false;
 		}
 
 		if(lookupCache != NULL) {
 			(*lookupCache)[pos1][pos2][teamIndex][size][field]=true;
 		}
+	}
+	return true;
+}
+
+//checks if a unit can move from between 2 cells using only visible cells (for pathfinding)
+bool Map::aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const {
+	if(isInside(pos1) == false || isInsideSurface(toSurfCoords(pos1)) == false ||
+	   isInside(pos2) == false || isInsideSurface(toSurfCoords(pos2)) == false) {
+
+		//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+		return false;
+	}
+
+	int size= unit->getType()->getSize();
+	int teamIndex= unit->getTeam();
+	Field field= unit->getCurrField();
+
+	//single cell units
+	if(size == 1) {
+		if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),pos2, field, teamIndex) == false) {
+
+			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+			return false;
+		}
+		if(pos1.x != pos2.x && pos1.y != pos2.y) {
+			if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),Vec2i(pos1.x, pos2.y), field, teamIndex) == false) {
+
+				//Unit *cellUnit = getCell(Vec2i(pos1.x, pos2.y))->getUnit(field);
+				//Object * obj = getSurfaceCell(toSurfCoords(Vec2i(pos1.x, pos2.y)))->getObject();
+
+				//printf("[%s] Line: %d returning false cell [%s] free [%d] cell unitid = %d object class = %d\n",__FUNCTION__,__LINE__,Vec2i(pos1.x, pos2.y).getString().c_str(),this->isFreeCell(Vec2i(pos1.x, pos2.y),field),(cellUnit != NULL ? cellUnit->getId() : -1),(obj != NULL ? obj->getType()->getClass() : -1));
+				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+				return false;
+			}
+			if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
+				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+				return false;
+			}
+		}
+
+		bool isBadHarvestPos = false;
+		if(unit != NULL) {
+			Command *command= unit->getCurrCommand();
+			if(command != NULL) {
+				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+				if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+					isBadHarvestPos = true;
+				}
+			}
+		}
+
+		if(unit == NULL || isBadHarvestPos == true) {
+
+			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+			return false;
+		}
+
+		return true;
+	}
+	//multi cell units
+	else {
+		for(int i = pos2.x; i < pos2.x + size; ++i) {
+			for(int j = pos2.y; j < pos2.y + size; ++j) {
+
+				Vec2i cellPos = Vec2i(i,j);
+				if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
+					if(getCell(cellPos)->getUnit(unit->getCurrField()) != unit) {
+						if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),cellPos, field, teamIndex) == false) {
+
+							//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+							return false;
+						}
+					}
+				}
+				else {
+
+					//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+					return false;
+				}
+			}
+		}
+
+		bool isBadHarvestPos = false;
+		if(unit != NULL) {
+			Command *command= unit->getCurrCommand();
+			if(command != NULL) {
+				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+				if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+					isBadHarvestPos = true;
+				}
+			}
+		}
+
+		if(unit == NULL || isBadHarvestPos == true) {
+
+			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+			return false;
+		}
+
 	}
 	return true;
 }
