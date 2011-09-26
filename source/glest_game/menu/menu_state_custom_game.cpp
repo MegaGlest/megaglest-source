@@ -702,7 +702,10 @@ void MenuStateCustomGame::returnToParentMenu() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton){
+void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
+	if(isMasterserverMode() == true) {
+		return;
+	}
 
     try {
         CoreData &coreData= CoreData::getInstance();
@@ -1338,7 +1341,11 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	}
 }
 
-void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms){
+void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
+	if(isMasterserverMode() == true) {
+		return;
+	}
+
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
 	}
@@ -3242,6 +3249,10 @@ void MenuStateCustomGame::updateNetworkSlots() {
 }
 
 void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
+	if(isMasterserverMode() == true) {
+		return;
+	}
+
 	if(activeInputLabel != NULL) {
 		string text = activeInputLabel->getText();
 		//if(key == vkBack && text.length() > 0) {
@@ -3307,6 +3318,10 @@ void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
 }
 
 void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
+	if(isMasterserverMode() == true) {
+		return;
+	}
+
 	if(activeInputLabel != NULL) {
 		int maxTextSize= 16;
 	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
@@ -3344,6 +3359,10 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 }
 
 void MenuStateCustomGame::keyUp(SDL_KeyboardEvent key) {
+	if(isMasterserverMode() == true) {
+		return;
+	}
+
 	if(activeInputLabel==NULL) {
 		if(hasNetworkGameSettings() == true) {
 			chatManager.keyUp(key);
