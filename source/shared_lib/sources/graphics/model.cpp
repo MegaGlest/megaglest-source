@@ -34,6 +34,8 @@ namespace Shared{ namespace Graphics{
 
 using namespace Util;
 
+bool Model::masterserverMode = false;
+
 // =====================================================
 //	class Mesh
 // =====================================================
@@ -777,6 +779,9 @@ void Model::load(const string &path, bool deletePixMapAfterLoad,
 	this->sourceLoader = (sourceLoader != NULL ? *sourceLoader : "");
 	this->fileName = path;
 
+	if(this->masterserverMode == true) {
+		return;
+	}
 	string extension= path.substr(path.find_last_of('.') + 1);
 	if(extension=="g3d" || extension=="G3D") {
 		loadG3d(path,deletePixMapAfterLoad,loadedFileList, this->sourceLoader);
