@@ -16,12 +16,15 @@
 
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Sound{
+namespace Shared { namespace Sound {
+
+bool Sound::masterserverMode = false;
+
 // =====================================================
 //	class SoundInfo
 // =====================================================
 
-SoundInfo::SoundInfo(){
+SoundInfo::SoundInfo() {
 	channels= 0;
 	samplesPerSecond= 0;
 	bitsPerSample= 0;
@@ -33,7 +36,7 @@ SoundInfo::SoundInfo(){
 //	class Sound
 // =====================================================
 
-Sound::Sound(){
+Sound::Sound() {
 	volume= 0.0f;
 	fileName = "";
 }
@@ -42,17 +45,17 @@ Sound::Sound(){
 //	class StaticSound
 // =====================================================
 
-StaticSound::StaticSound(){
+StaticSound::StaticSound() {
 	samples= NULL;
 	soundFileLoader = NULL;
 	fileName = "";
 }
 
-StaticSound::~StaticSound(){
+StaticSound::~StaticSound() {
 	close();
 }
 
-void StaticSound::close(){
+void StaticSound::close() {
 	if(samples != NULL) {
 		delete [] samples;
 		samples = NULL;
@@ -65,11 +68,14 @@ void StaticSound::close(){
 	}
 }
 
-void StaticSound::load(const string &path){
+void StaticSound::load(const string &path) {
 	close();
 
 	fileName = path;
 
+	if(this->masterserverMode == true) {
+		return;
+	}
 	string ext= path.substr(path.find_last_of('.')+1);
 	soundFileLoader= SoundFileLoaderFactory::getInstance()->newInstance(ext);
 
@@ -89,20 +95,24 @@ void StaticSound::load(const string &path){
 //	class StrSound
 // =====================================================
 
-StrSound::StrSound(){
+StrSound::StrSound() {
 	soundFileLoader= NULL;
 	next= NULL;
 	fileName = "";
 }
 
-StrSound::~StrSound(){
+StrSound::~StrSound() {
 	close();
 }
 
-void StrSound::open(const string &path){
+void StrSound::open(const string &path) {
 	close();
 
 	fileName = path;
+
+	if(this->masterserverMode == true) {
+		return;
+	}
 
 	string ext= path.substr(path.find_last_of('.')+1);
 
@@ -111,11 +121,15 @@ void StrSound::open(const string &path){
 }
 
 uint32 StrSound::read(int8 *samples, uint32 size){
+	if(this->masterserverMode == true) {
+		return 0;
+	}
+
 	return soundFileLoader->read(samples, size);
 }
 
 void StrSound::close(){
-	if(soundFileLoader!=NULL){
+	if(soundFileLoader != NULL) {
 		soundFileLoader->close();
 		delete soundFileLoader;
 		soundFileLoader= NULL;
@@ -123,6 +137,10 @@ void StrSound::close(){
 }
 
 void StrSound::restart(){
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	soundFileLoader->restart();
 }
 

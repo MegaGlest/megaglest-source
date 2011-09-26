@@ -39,6 +39,7 @@
 #include <iterator>
 #include "core_data.h"
 #include "font_text.h"
+//#include "sound.h"
 //#include "unicode/uclean.h"
 
 // For gcc backtrace on crash!
@@ -2534,6 +2535,8 @@ int glestMain(int argc, char** argv) {
 	    	config.setString("FactorySound","None");
 	    	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
 	    		Logger::getInstance().setMasterserverMode(true);
+	    		Model::setMasterserverMode(true);
+	    		Shared::Sound::Sound::setMasterserverMode(true);
 	    	}
 	    }
 

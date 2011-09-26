@@ -54,16 +54,20 @@ public:
 //	class Sound
 // =====================================================
 
-class Sound{
+class Sound {
 protected:
 	SoundFileLoader *soundFileLoader;
 	SoundInfo info;
 	float volume;
 	string fileName;
 	
+	static bool masterserverMode;
+
 public:
 	Sound();
 	virtual ~Sound(){};
+
+	static void setMasterserverMode(bool value) { masterserverMode=value; }
 
 	const SoundInfo *getInfo() const	{return &info;}
 	float getVolume() const				{return volume;}
