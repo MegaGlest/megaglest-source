@@ -86,6 +86,9 @@ void BattleEnd::update() {
 }
 
 void BattleEnd::render() {
+	if(this->stats.getIsMasterserverMode() == true) {
+		return;
+	}
 	Renderer &renderer= Renderer::getInstance();
 	//CoreData &coreData= CoreData::getInstance();
 
