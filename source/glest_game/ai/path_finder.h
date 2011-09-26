@@ -28,6 +28,12 @@ namespace Glest { namespace Game {
 class Map;
 class Unit;
 
+// The order of directions is:
+// N, NE, E, SE, S, SW, W, NW
+typedef unsigned char direction;
+#define NO_DIRECTION 8
+typedef unsigned char directionset;
+
 // =====================================================
 // 	class PathFinder
 //
@@ -119,6 +125,21 @@ private:
 	bool processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached, int maxNodeCount);
 	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
 	int getPathFindExtendRefreshNodeCount(int factionIndex);
+
+
+	bool contained(Vec2i c);
+	direction directionOfMove(Vec2i to, Vec2i from);
+	direction directionWeCameFrom(Vec2i node, Vec2i nodeFrom);
+	bool isEnterable(Vec2i coord);
+	Vec2i adjustInDirection(Vec2i c, int dir);
+	bool directionIsDiagonal(direction dir);
+	directionset forcedNeighbours(Vec2i coord,direction dir);
+	bool implies (bool a, bool b);
+	directionset addDirectionToSet (directionset dirs, direction dir);
+	directionset naturalNeighbours(direction dir);
+	direction nextDirectionInSet (directionset *dirs);
+	Vec2i jump(Vec2i dest, direction dir, Vec2i start,std::vector<Vec2i> &path,int pathLength);
+	bool addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i sucPos, bool &nodeLimitReached,int maxNodeCount,Node **newNodeAdded,bool bypassChecks);
 };
 
 }}//end namespace

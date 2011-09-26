@@ -418,6 +418,212 @@ bool PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i,
 	return result;
 }
 
+bool PathFinder::addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i sucPos, bool &nodeLimitReached,int maxNodeCount,Node **newNodeAdded, bool bypassChecks) {
+	bool result = false;
+
+	*newNodeAdded=NULL;
+	//Vec2i sucPos= node->pos + Vec2i(i, j);
+	if(bypassChecks == true ||
+		(map->aproxCanMoveSoon(unit, node->pos, sucPos) == true && openPos(sucPos, factions[unit->getFactionIndex()]) == false)) {
+		//if node is not open and canMove then generate another node
+		Node *sucNode= newNode(factions[unit->getFactionIndex()],maxNodeCount);
+		if(sucNode != NULL) {
+			sucNode->pos= sucPos;
+			sucNode->heuristic= heuristic(sucNode->pos, finalPos);
+			sucNode->prev= node;
+			sucNode->next= NULL;
+			sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
+			if(factions[unit->getFactionIndex()].openNodesList.find(sucNode->heuristic) == factions[unit->getFactionIndex()].openNodesList.end()) {
+				factions[unit->getFactionIndex()].openNodesList[sucNode->heuristic].clear();
+			}
+			factions[unit->getFactionIndex()].openNodesList[sucNode->heuristic].push_back(sucNode);
+			factions[unit->getFactionIndex()].openPosList[sucNode->pos] = true;
+
+			*newNodeAdded=sucNode;
+			result = true;
+		}
+		else {
+			nodeLimitReached= true;
+		}
+	}
+	return result;
+}
+
+
+direction PathFinder::directionOfMove(Vec2i to, Vec2i from) {
+	if (from.x == to.x) {
+		if (from.y == to.y)
+			return -1;
+		else if (from.y < to.y)
+			return 4;
+		else // from.y > to.y
+			return 0;
+	}
+	else if (from.x < to.x) {
+		if (from.y == to.y)
+			return 2;
+		else if (from.y < to.y)
+			return 3;
+		else // from.y > to.y
+			return 1;
+	}
+	else { // from.x > to.x
+		if (from.y == to.y)
+			return 6;
+		else if (from.y < to.y)
+			return 5;
+		else // from.y > to.y
+			return 7;
+	}
+
+}
+
+direction PathFinder::directionWeCameFrom(Vec2i node, Vec2i nodeFrom) {
+	direction result = NO_DIRECTION;
+	if(nodeFrom.x >= 0 && nodeFrom.y >= 0) {
+		result = directionOfMove(node, nodeFrom);
+	}
+
+	//printf("directionWeCameFrom node [%s] nodeFrom [%s] result = %d\n",node.getString().c_str(),nodeFrom.getString().c_str(),result);
+
+	return result;
+}
+
+// is this coordinate contained within the map bounds?
+bool PathFinder::contained(Vec2i c) {
+	return (map->isInside(c) == true && map->isInsideSurface(map->toSurfCoords(c)) == true);
+}
+
+// is this coordinate within the map bounds, and also walkable?
+bool PathFinder::isEnterable(Vec2i coord) {
+	//node node = getIndex (astar->bounds, coord);
+	//return contained(coord) && astar->grid[node];
+	return contained(coord);
+}
+// the coordinate one tile in the given direction
+Vec2i PathFinder::adjustInDirection(Vec2i c, int dir) {
+	// we want to implement "rotation" - that is, for instance, we can
+	// subtract 2 from the direction "north" and get "east"
+	// C's modulo operator doesn't quite behave the right way to do this,
+	// but for our purposes this kluge should be good enough
+	switch ((dir + 65536) % 8) {
+	case 0: return (Vec2i) {c.x, c.y - 1};
+	case 1: return (Vec2i) {c.x + 1, c.y - 1};
+	case 2: return (Vec2i) {c.x + 1, c.y };
+	case 3: return (Vec2i) {c.x + 1, c.y + 1};
+	case 4: return (Vec2i) {c.x, c.y + 1};
+	case 5: return (Vec2i) {c.x - 1, c.y + 1};
+	case 6: return (Vec2i) {c.x - 1, c.y};
+	case 7: return (Vec2i) {c.x - 1, c.y - 1};
+	}
+	return (Vec2i) { -1, -1 };
+}
+
+bool PathFinder::directionIsDiagonal(direction dir) {
+	return (dir % 2) != 0;
+}
+
+// logical implication operator
+bool PathFinder::implies (bool a, bool b) {
+	return a ? b : true;
+}
+
+directionset PathFinder::addDirectionToSet (directionset dirs, direction dir) {
+	return dirs | 1 << dir;
+}
+
+directionset PathFinder::forcedNeighbours(Vec2i coord,direction dir) {
+	if (dir == NO_DIRECTION)
+		return 0;
+
+	directionset dirs = 0;
+#define ENTERABLE(n) isEnterable(adjustInDirection(coord, (dir + (n)) % 8))
+	if (directionIsDiagonal(dir)) {
+		if (!implies (ENTERABLE (6), ENTERABLE (5)))
+			dirs = addDirectionToSet (dirs, (dir + 6) % 8);
+		if (!implies (ENTERABLE (2), ENTERABLE (3)))
+			dirs = addDirectionToSet (dirs, (dir + 2) % 8);
+	}
+	else {
+		if (!implies (ENTERABLE (7), ENTERABLE (6)))
+			dirs = addDirectionToSet (dirs, (dir + 7) % 8);
+		if (!implies (ENTERABLE (1), ENTERABLE (2)))
+			dirs = addDirectionToSet (dirs, (dir + 1) % 8);
+	}
+#undef ENTERABLE
+	return dirs;
+}
+
+directionset PathFinder::naturalNeighbours(direction dir) {
+	if (dir == NO_DIRECTION)
+		return 255;
+
+	directionset dirs = 0;
+	dirs = addDirectionToSet (dirs, dir);
+	if (directionIsDiagonal (dir)) {
+		dirs = addDirectionToSet (dirs, (dir + 1) % 8);
+		dirs = addDirectionToSet (dirs, (dir + 7) % 8);
+	}
+	return dirs;
+}
+
+// return and remove a direction from the set
+// returns NO_DIRECTION if the set was empty
+direction PathFinder::nextDirectionInSet (directionset *dirs) {
+	for (int i = 0; i < 8; i++) {
+		char bit = 1 << i;
+		if (*dirs & bit) {
+			*dirs ^= bit;
+			return i;
+		}
+	}
+	return NO_DIRECTION;
+}
+
+// directly translated from "algorithm 2" in the paper
+Vec2i PathFinder::jump(Vec2i dest, direction dir, Vec2i start,std::vector<Vec2i> &path, int pathLength) {
+	Vec2i coord = adjustInDirection(start, dir);
+	//printf("jump dir [%u] start [%s] coord [%s] dest [%s]\n",dir,start.getString().c_str(),coord.getString().c_str(),dest.getString().c_str());
+
+	if (!isEnterable(coord))
+		return Vec2i(-1,-1);
+
+	if(path.size() > max(250,pathLength*2)) {
+	//if(path.size() > 2000) {
+		//printf("path.size() > pathLength [%d]\n",pathLength);
+		//return Vec2i(-1,-1);
+		return coord;
+	}
+	path.push_back(coord);
+
+	//int node = getIndex (astar->bounds, coord);
+	if (coord == dest || forcedNeighbours(coord, dir)) {
+		//path.push_back(coord);
+		//printf("jump #1 = %d [%d]\n",(int)path.size(),pathLength);
+		return coord;
+	}
+
+	if(directionIsDiagonal(dir)) {
+		Vec2i next = jump(dest, (dir + 7) % 8, coord,path,pathLength);
+		if (next.x >= 0) {
+			//path.push_back(coord);
+			//printf("jump #2 = %d [%d]\n",(int)path.size(),pathLength);
+			return coord;
+		}
+		next = jump(dest, (dir + 1) % 8, coord, path,pathLength);
+		if (next.x >= 0) {
+			//path.push_back(coord);
+			//printf("jump #3 = %d [%d]\n",(int)path.size(),pathLength);
+			return coord;
+		}
+	}
+	//else {
+	//path.push_back(coord);
+	//}
+	return jump(dest, dir, coord, path,pathLength);
+}
+
+
 //route a unit using A* algorithm
 TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout,
 		int frameIndex, int maxNodeCount) {
@@ -459,7 +665,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					if(i < pathFindRefresh ||
 						(factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
 						 i < getPathFindExtendRefreshNodeCount(unit->getFactionIndex()))) {
-						if(map->aproxCanMove(unit, lastPos, nodePos) == false) {
+						//!!! Test MV
+						if(map->aproxCanMoveSoon(unit, lastPos, nodePos) == false) {
 							canMoveToCells = false;
 							break;
 						}
@@ -696,7 +903,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			for(int j = -1; j <= 1; ++j) {
 				Vec2i pos = unitPos + Vec2i(i, j);
 				if(pos != unitPos) {
-					bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
+					//!!! Test MV
+					bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, unitPos, pos);
 					if(canUnitMoveToCell == false) {
 						failureCount++;
 					}
@@ -722,7 +930,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				for(int j = -1; j <= 1; ++j) {
 					Vec2i pos = finalPos + Vec2i(i, j);
 					if(pos != finalPos) {
-						bool canUnitMoveToCell = map->aproxCanMove(unit, pos, finalPos);
+						//!!! Test MV
+						bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, pos, finalPos);
 						if(canUnitMoveToCell == false) {
 							failureCount++;
 						}
@@ -743,15 +952,28 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	//
 
 	// START
+	//Vec2i cameFrom= unit->getPos();
+	//Vec2i cameFrom(-1,-1);
+	std::map<std::pair<Vec2i,Vec2i> ,bool> canAddNode;
+	std::map<Vec2i,bool> closedNodes;
+	std::map<Vec2i,Vec2i> cameFrom;
+	cameFrom[unitPos] = Vec2i(-1,-1);
+	//cameFrom[unitPos] = unit->getPos();
+
 	// Do the a-star base pathfind work if required
 	int whileLoopCount = 0;
 	if(nodeLimitReached == false) {
+		//printf("\n\n\n====== START AStar-JPS Pathfinder start [%s] end [%s]\n",unitPos.getString().c_str(),finalPos.getString().c_str());
+
+		const bool tryJPSPathfinder = true;
+
 		while(nodeLimitReached == false) {
 			whileLoopCount++;
 
 			//b1) is open nodes is empty => failed to find the path
 			if(factions[unit->getFactionIndex()].openNodesList.empty() == true) {
 				//printf("$$$$ Path for Unit [%d - %s] inBailout = %d BLOCKED\n",unit->getId(),unit->getFullName().c_str(),inBailout);
+				//printf("Path blocked\n");
 				pathFound= false;
 				break;
 			}
@@ -759,11 +981,17 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			//b2) get the minimum heuristic node
 			//Nodes::iterator it = minHeuristic();
 			node = minHeuristicFastLookup(factions[unit->getFactionIndex()]);
+			//printf("current node [%s]\n",node->pos.getString().c_str());
 
 			//b3) if minHeuristic is the finalNode, or the path is no more explored => path was found
 			if(node->pos == finalPos || node->exploredCell == false) {
+				//printf("Path found\n");
 				pathFound= true;
 				break;
+			}
+
+			if(tryJPSPathfinder) {
+				closedNodes[node->pos]=true;
 			}
 
 			//printf("$$$$ Path for Unit [%d - %s] node [%s] whileLoopCount = %d nodePoolCount = %d inBailout = %d\n",unit->getId(),unit->getFullName().c_str(), node->pos.getString().c_str(), whileLoopCount,factions[unit->getFactionIndex()].nodePoolCount,inBailout);
@@ -776,47 +1004,190 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			factions[unit->getFactionIndex()].closedNodesList[node->heuristic].push_back(node);
 			factions[unit->getFactionIndex()].openPosList[node->pos] = true;
 
-			int failureCount = 0;
-			int cellCount = 0;
+			if(tryJPSPathfinder) {
+				Vec2i cameFromPos(-1,-1);
+				if(cameFrom.find(node->pos) != cameFrom.end()) {
+					cameFromPos = cameFrom[node->pos];
+				}
+				direction from = directionWeCameFrom(node->pos,cameFromPos);
+				directionset dirs = forcedNeighbours(node->pos, from) | naturalNeighbours(from);
 
-			int tryDirection = factions[unit->getFactionIndex()].random.randRange(0,3);
-			if(tryDirection == 3) {
-				for(int i = 1; i >= -1 && nodeLimitReached == false; --i) {
-					for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
-						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
-							failureCount++;
+				//printf("JPS #1 node->pos [%s] from = %u dirs = %u\n",node->pos.getString().c_str(),from,dirs);
+
+				bool canAddEntirePath = false;
+				bool foundQuickRoute = false;
+				for (int dir = nextDirectionInSet(&dirs); dir != NO_DIRECTION; dir = nextDirectionInSet(&dirs)) {
+				//for (int dir = 0; dir < 8; dir++) {
+					std::vector<Vec2i> path;
+					Vec2i newNode = jump(finalPos, dir, node->pos,path,(int)node->pos.dist(finalPos));
+					//Vec2i newNode = adjustInDirection(node->pos, dir);
+
+					//printf("examine node from [%u][%u] - current node [%s] next possible node [%s]\n",from,dirs,node->pos.getString().c_str(),newNode.getString().c_str());
+
+					//coord_t newCoord = getCoord (bounds, newNode);
+
+					// this'll also bail out if jump() returned -1
+					if (!contained(newNode))
+						continue;
+
+					if(closedNodes.find(newNode) != closedNodes.end())
+						continue;
+					//if(factions[unit->getFactionIndex()].closedNodesList.find(node->heuristic) == factions[unit->getFactionIndex()].closedNodesList.end()) {
+
+					//addToOpenSet (&astar, newNode, node);
+					//printf("JPS #2 node->pos [%s] newNode [%s] path.size() [%d] pos [%s]\n",node->pos.getString().c_str(),newNode.getString().c_str(),(int)path.size(),path[0].getString().c_str());
+
+					//for(unsigned int ipath = 0; ipath < path.size(); ++ipath) {
+					//for(unsigned int ipath = 0; ipath < 1; ++ipath) {
+						Vec2i newPath = path[0];
+
+						//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, newPath);
+						//bool posOpen = (openPos(newPath, factions[unit->getFactionIndex()]) == false);
+						//bool isFreeCell = map->isFreeCell(newPath,unit->getType()->getField());
+
+						if(canAddNode.find(make_pair(node->pos,newPath)) == canAddNode.end()) {
+							Node *newNode=NULL;
+							if(addToOpenSet(unit, node, finalPos, newPath, nodeLimitReached, maxNodeCount,&newNode,false) == true) {
+								//cameFrom = node->pos;
+								cameFrom[newPath]=node->pos;
+								foundQuickRoute = true;
+
+								if(path.size() > 1) {
+									canAddEntirePath = true;
+									for(unsigned int x = 1; x < path.size(); ++x) {
+										Vec2i futureNode = path[x];
+
+										bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, newNode->pos, futureNode);
+										if(canUnitMoveToCell != true || openPos(futureNode, factions[unit->getFactionIndex()]) == true) {
+											canAddEntirePath = false;
+											canAddNode[make_pair(node->pos,futureNode)]=false;
+											//printf("COULD NOT ADD ENTIRE PATH! canUnitMoveToCell = %d\n",canUnitMoveToCell);
+											break;
+										}
+									}
+									if(canAddEntirePath == true) {
+										//printf("add node - ENTIRE PATH!\n");
+
+										for(unsigned int x = 1; x < path.size(); ++x) {
+											Vec2i futureNode = path[x];
+
+											Node *newNode2=NULL;
+											addToOpenSet(unit, newNode, finalPos, futureNode, nodeLimitReached, maxNodeCount,&newNode2, true);
+											newNode=newNode2;
+										}
+
+										//Node *result = factions[unit->getFactionIndex()].openNodesList.begin()->second[0];
+										//if(result->pos == finalPos || result->exploredCell == false) {
+										//	printf("Will break out of pathfinding now!\n");
+										//}
+									}
+								}
+								//printf("add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
+							}
+							else {
+								//printf("COULD NOT add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
+								canAddNode[make_pair(node->pos,newPath)]=false;
+							}
 						}
-						cellCount++;
+
+					//}
+
+					if(canAddEntirePath == true) {
+						break;
 					}
 				}
-			}
-			else if(tryDirection == 2) {
-				for(int i = -1; i <= 1 && nodeLimitReached == false; ++i) {
-					for(int j = 1; j >= -1 && nodeLimitReached == false; --j) {
-						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
-							failureCount++;
-						}
-						cellCount++;
-					}
-				}
-			}
-			else if(tryDirection == 1) {
-				for(int i = -1; i <= 1 && nodeLimitReached == false; ++i) {
-					for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
-						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
-							failureCount++;
-						}
-						cellCount++;
+
+				if(foundQuickRoute == false) {
+					for (int dir = 0; dir < 8; dir++) {
+						Vec2i newNode = adjustInDirection(node->pos, dir);
+
+						//printf("examine node from [%u][%u] - current node [%s] next possible node [%s]\n",from,dirs,node->pos.getString().c_str(),newNode.getString().c_str());
+
+						//coord_t newCoord = getCoord (bounds, newNode);
+
+						// this'll also bail out if jump() returned -1
+						if (!contained(newNode))
+							continue;
+
+						if(closedNodes.find(newNode) != closedNodes.end())
+							continue;
+						//if(factions[unit->getFactionIndex()].closedNodesList.find(node->heuristic) == factions[unit->getFactionIndex()].closedNodesList.end()) {
+
+						//addToOpenSet (&astar, newNode, node);
+						//printf("JPS #3 node->pos [%s] newNode [%s]\n",node->pos.getString().c_str(),newNode.getString().c_str());
+
+						//for(unsigned int ipath = 0; ipath < path.size(); ++ipath) {
+						//for(unsigned int ipath = 0; ipath < 1; ++ipath) {
+							Vec2i newPath = newNode;
+
+							//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, newPath);
+							//bool posOpen = (openPos(newPath, factions[unit->getFactionIndex()]) == false);
+							//bool isFreeCell = map->isFreeCell(newPath,unit->getType()->getField());
+
+							if(canAddNode.find(make_pair(node->pos,newPath)) == canAddNode.end()) {
+								Node *newNode=NULL;
+								if(addToOpenSet(unit, node, finalPos, newPath, nodeLimitReached, maxNodeCount,&newNode, false) == true) {
+									//cameFrom = node->pos;
+									cameFrom[newPath]=node->pos;
+									foundQuickRoute = true;
+
+									//printf("#2 add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
+								}
+								else {
+									//printf("#2 COULD NOT add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
+									canAddNode[make_pair(node->pos,newPath)]=false;
+								}
+							}
+						//}
 					}
 				}
 			}
 			else {
-				for(int i = 1; i >= -1 && nodeLimitReached == false; --i) {
-					for(int j = 1; j >= -1 && nodeLimitReached == false; --j) {
-						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
-							failureCount++;
+				int failureCount = 0;
+				int cellCount = 0;
+
+				int tryDirection = factions[unit->getFactionIndex()].random.randRange(0,3);
+				if(tryDirection == 3) {
+					for(int i = 1; i >= -1 && nodeLimitReached == false; --i) {
+						for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+								failureCount++;
+							}
+							cellCount++;
 						}
-						cellCount++;
+					}
+				}
+				else if(tryDirection == 2) {
+					for(int i = -1; i <= 1 && nodeLimitReached == false; ++i) {
+						for(int j = 1; j >= -1 && nodeLimitReached == false; --j) {
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+								failureCount++;
+							}
+
+							cellCount++;
+						}
+					}
+				}
+				else if(tryDirection == 1) {
+					for(int i = -1; i <= 1 && nodeLimitReached == false; ++i) {
+						for(int j = -1; j <= 1 && nodeLimitReached == false; ++j) {
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+								failureCount++;
+							}
+
+							cellCount++;
+						}
+					}
+				}
+				else {
+					for(int i = 1; i >= -1 && nodeLimitReached == false; --i) {
+						for(int j = 1; j >= -1 && nodeLimitReached == false; --j) {
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+								failureCount++;
+							}
+
+							cellCount++;
+						}
 					}
 				}
 			}
@@ -921,6 +1292,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			path->clear();
 		}
 
+		if(pathFound == true) {
+			//printf("FULL PATH FOUND from [%s] to [%s]\n",unitPos.getString().c_str(),finalPos.getString().c_str());
+		}
+
 		UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
 		currNode= firstNode;
@@ -929,6 +1304,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
 				throw runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 			}
+
+			//printf("nodePos [%s]\n",nodePos.getString().c_str());
 
 			if(frameIndex >= 0) {
 				factions[unit->getFactionIndex()].precachedPath[unit->getId()].push_back(nodePos);
