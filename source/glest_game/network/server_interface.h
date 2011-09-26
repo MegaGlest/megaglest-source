@@ -121,7 +121,7 @@ public:
     void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck);
     void broadcastGameSetup(const GameSettings *gameSettings);
 
-    int getGameSettingsUpdateCount() const { return gameSettingsUpdateCount; }
+    int getGameSettingsUpdateCount();
 
     bool getMasterserverAdminRequestLaunch() const { return masterserverAdminRequestLaunch; }
     void setMasterserverAdminRequestLaunch(bool value) { masterserverAdminRequestLaunch = value; }

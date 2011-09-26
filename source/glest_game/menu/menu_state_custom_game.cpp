@@ -2343,12 +2343,15 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
             }
             ServerInterface *serverInterface= NetworkManager::getInstance().getServerInterface(false);
             if(serverInterface != NULL) {
-                serverInterface->setGameSettings(&gameSettings,false);
-            }
 
-            if(hasClientConnection == true && serverInterface != NULL) {
-            	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                serverInterface->broadcastGameSetup(&gameSettings);
+            	if(this->masterserverMode == false || (serverInterface->getGameSettingsUpdateCount() <= lastMasterServerSettingsUpdateCount)) {
+					serverInterface->setGameSettings(&gameSettings,false);
+
+					if(hasClientConnection == true) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						serverInterface->broadcastGameSetup(&gameSettings);
+					}
+            	}
             }
         }
 

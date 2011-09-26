@@ -1639,6 +1639,15 @@ int ServerInterface::getOpenSlotCount() {
 	return openSlotCount;
 }
 
+int ServerInterface::getGameSettingsUpdateCount() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount);
+	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+
+	int result = gameSettingsUpdateCount;
+	safeMutex.ReleaseLock();
+	return result;
+}
+
 void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
 	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
