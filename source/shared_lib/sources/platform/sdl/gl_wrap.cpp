@@ -65,55 +65,57 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 	int resW = PlatformCommon::Private::ScreenWidth;
 	int resH = PlatformCommon::Private::ScreenHeight;
 
-#ifndef WIN32
-	string mg_icon_file = "";
-#if defined(CUSTOM_DATA_INSTALL_PATH_VALUE)
-	if(fileExists(CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp")) {
-		mg_icon_file = CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp";
-	}
-#endif
-
-	if(mg_icon_file == "" && fileExists("megaglest.bmp")) {
-		mg_icon_file = "megaglest.bmp";
-	}
-	if(mg_icon_file != "") {
-
-		if(icon != NULL) {
-			SDL_FreeSurface(icon);
-			icon = NULL;
-		}
-
-		icon = SDL_LoadBMP(mg_icon_file.c_str());
-	//SDL_Surface *icon = IMG_Load("megaglest.ico");
-
-
-//#if !defined(MACOSX)
-	// Set Icon (must be done before any sdl_setvideomode call)
-	// But don't set it on OS X, as we use a nicer external icon there.
-//#if WORDS_BIGENDIAN
-//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,8,128,0xff000000,0x00ff0000,0x0000ff00,0);
-//#else
-//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,32,128,0x000000ff,0x0000ff00,0x00ff0000,0xff000000);
-//#endif
-
-		//printf("In [%s::%s Line: %d] icon = %p\n",__FILE__,__FUNCTION__,__LINE__,icon);
-		if(icon == NULL) {
-			printf("Error: %s\n", SDL_GetError());
-		}
-		if(icon != NULL) {
-			SDL_WM_SetIcon(icon, NULL);
-		}
-	}
-#endif
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",__FILE__,__FUNCTION__,__LINE__,resW,resH,colorBits);
-
-	if(screen != NULL) {
-		SDL_FreeSurface(screen);
-		screen = NULL;
-	}
-
 	if(Window::getMasterserverMode() == false) {
+
+	#ifndef WIN32
+		string mg_icon_file = "";
+	#if defined(CUSTOM_DATA_INSTALL_PATH_VALUE)
+		if(fileExists(CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp")) {
+			mg_icon_file = CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp";
+		}
+	#endif
+
+		if(mg_icon_file == "" && fileExists("megaglest.bmp")) {
+			mg_icon_file = "megaglest.bmp";
+		}
+		if(mg_icon_file != "") {
+
+			if(icon != NULL) {
+				SDL_FreeSurface(icon);
+				icon = NULL;
+			}
+
+			icon = SDL_LoadBMP(mg_icon_file.c_str());
+		//SDL_Surface *icon = IMG_Load("megaglest.ico");
+
+
+	//#if !defined(MACOSX)
+		// Set Icon (must be done before any sdl_setvideomode call)
+		// But don't set it on OS X, as we use a nicer external icon there.
+	//#if WORDS_BIGENDIAN
+	//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,8,128,0xff000000,0x00ff0000,0x0000ff00,0);
+	//#else
+	//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,32,128,0x000000ff,0x0000ff00,0x00ff0000,0xff000000);
+	//#endif
+
+			//printf("In [%s::%s Line: %d] icon = %p\n",__FILE__,__FUNCTION__,__LINE__,icon);
+			if(icon == NULL) {
+				printf("Error: %s\n", SDL_GetError());
+			}
+			if(icon != NULL) {
+				SDL_WM_SetIcon(icon, NULL);
+			}
+		}
+	#endif
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",__FILE__,__FUNCTION__,__LINE__,resW,resH,colorBits);
+
+		if(screen != NULL) {
+			SDL_FreeSurface(screen);
+			screen = NULL;
+		}
+
+
 		screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
 		if(screen == 0) {
 			std::ostringstream msg;
