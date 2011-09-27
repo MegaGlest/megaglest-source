@@ -222,6 +222,7 @@ private:
     void PlayNow(bool saveGame);
     bool isMasterserverAdmin();
     void broadCastGameSettingsToMasterserver();
+    void updateResourceMultiplier(const int index);
 };
 
 }}//end namespace
