@@ -64,6 +64,8 @@
 #include "leak_dumper.h"
 
 #ifndef WIN32
+  #include <poll.h>
+
   #define stricmp strcasecmp
   #define strnicmp strncasecmp
   #define _strnicmp strncasecmp
@@ -623,7 +625,7 @@ void handleSIGSEGV(int sig) {
 // 	class MainWindow
 // =====================================================
 
-MainWindow::MainWindow(Program *program){
+MainWindow::MainWindow(Program *program) : WindowGl() {
 	this->program= program;
 }
 
@@ -3450,8 +3452,47 @@ int glestMain(int argc, char** argv) {
 		//printf("[%s]",test.c_str());
 
 		//time_t lastTextureLoadEvent = time(NULL);
+
+		// Check for commands being input from stdin
+		string command="";
+		#ifndef WIN32
+		pollfd cinfd[1];
+		// Theoretically this should always be 0, but one fileno call isn't going to hurt, and if
+		// we try to run somewhere that stdin isn't fd 0 then it will still just work
+		cinfd[0].fd = fileno(stdin);
+		cinfd[0].events = POLLIN;
+		#else
+	    HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
+		#endif
+
+	    if(isMasterServerModeEnabled == true) {
+	    	printf("Headless server is now running...\n");
+	    }
+
 		//main loop
 		while(Window::handleEvent()) {
+			if(isMasterServerModeEnabled == true) {
+				#ifndef WIN32
+				if(poll(cinfd, 1, 0))
+				#else
+				// This is problematic because input on Windows is not line-buffered so this will return
+				// even if getline may block.  I haven't found a good way to fix it, so for the moment
+				// I just strongly suggest only running the server from the Python frontend, which does
+				// line buffer input.  This does work okay as long as the user doesn't enter characters
+				// without pressing enter, and then try to end the server another way (say a remote
+				// console command), in which case we'll still be waiting for the stdin EOL and hang.
+				if (WaitForSingleObject(h, 0) == WAIT_OBJECT_0)
+				#endif
+				{
+					getline(cin, command);
+					printf("server command [%s]\n",command.c_str());
+					if(command == "quit") {
+						break;
+					}
+				}
+				//printf("looping\n");
+			}
+
 			program->loop();
 			// Because OpenGL really doesn't do multi-threading well
 //			if(difftime(time(NULL),lastTextureLoadEvent) >= 3) {
@@ -3467,6 +3508,10 @@ int glestMain(int argc, char** argv) {
 //				}
 //			}
 		}
+
+	    if(isMasterServerModeEnabled == true) {
+	    	printf("\nHeadless server is about to quit...\n");
+	    }
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] starting normal application shutdown\n",__FILE__,__FUNCTION__,__LINE__);
 

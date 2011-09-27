@@ -2288,6 +2288,10 @@ BroadCastSocketThread::BroadCastSocketThread() : BaseThread() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+BroadCastSocketThread::~BroadCastSocketThread() {
+
+}
+
 bool BroadCastSocketThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 	bool ret = (getExecutingTask() == false);
 	if(ret == false && deleteSelfIfShutdownDelayed == true) {

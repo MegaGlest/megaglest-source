@@ -40,7 +40,7 @@ namespace Glest{ namespace Game{
 
 const int UnitPathBasic::maxBlockCount= GameConstants::updateFps / 2;
 
-UnitPathBasic::UnitPathBasic() {
+UnitPathBasic::UnitPathBasic() : UnitPathInterface() {
 	this->blockCount = 0;
 	this->pathQueue.clear();
 	this->lastPathCacheQueue.clear();
@@ -249,6 +249,7 @@ set<Unit*> Unit::livingUnitsp;
 Game *Unit::game = NULL;
 
 Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
+	lastSynchDataString="";
 	modelFacing = CardinalDir::NORTH;
 	lastStuckFrame = 0;
 	lastStuckPos = Vec2i(0,0);

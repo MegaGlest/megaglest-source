@@ -84,11 +84,13 @@ void ProgramState::render() {
 	canRender();
 	incrementFps();
 
-	renderer.clearBuffers();
-	renderer.reset2d();
-	renderer.renderMessageBox(program->getMsgBox());
-	renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
-	renderer.swapBuffers();
+	if(renderer.isMasterserverMode() == false) {
+		renderer.clearBuffers();
+		renderer.reset2d();
+		renderer.renderMessageBox(program->getMsgBox());
+		renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+		renderer.swapBuffers();
+	}
 }
 
 void ProgramState::update() {
@@ -419,7 +421,7 @@ void Program::renderProgramMsgBox() {
 	}
 }
 
-void Program::setState(ProgramState *programState, bool cleanupOldState)
+void Program::setState(ProgramState *programStateNew, bool cleanupOldState)
 {
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -427,13 +429,13 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		bool msgBoxEnabled = msgBox.getEnabled();
 
 		bool showingOSCursor = isCursorShowing();
-		if(dynamic_cast<Game *>(programState) != NULL) {
+		if(dynamic_cast<Game *>(programStateNew) != NULL) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			int X = 0;
 			int Y = 0;
 			SDL_GetMouseState(&X,&Y);
-			programState->setStartXY(X,Y);
+			programStateNew->setStartXY(X,Y);
 			Logger::getInstance().setProgress(0);
 			Logger::getInstance().setState("");
 
@@ -447,7 +449,7 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		}
 
 		if(cleanupOldState == true) {
-			if(this->programState != programState) {
+			if(this->programState != programStateNew) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				delete this->programState;
@@ -471,13 +473,13 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 		updateTimer.init(GameConstants::updateFps, maxTimes);
 		updateCameraTimer.init(GameConstants::cameraFps, maxTimes);
 
-		this->programState= programState;
-		assert(programState != NULL);
-		programState->load();
+		this->programState= programStateNew;
+		assert(programStateNew != NULL);
+		programStateNew->load();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		programState->init();
+		programStateNew->init();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -492,7 +494,7 @@ void Program::setState(ProgramState *programState, bool cleanupOldState)
 			}
 			sleep(0);
 
-			if(dynamic_cast<Intro *>(programState) != NULL && msgBoxEnabled == true) {
+			if(dynamic_cast<Intro *>(programStateNew) != NULL && msgBoxEnabled == true) {
 				showCursor(true);
 			}
 		}

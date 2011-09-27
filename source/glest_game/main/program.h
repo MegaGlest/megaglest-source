@@ -173,7 +173,7 @@ public:
 	bool isMessageShowing();
 
 	//misc
-	void setState(ProgramState *programState,bool cleanupOldState=true);
+	void setState(ProgramState *programStateNew,bool cleanupOldState=true);
 	ProgramState * getState() { return programState;}
 	WindowGl * getWindow() { return window; }
 	void init(WindowGl *window, bool initSound=true, bool toggleFullScreen=false);

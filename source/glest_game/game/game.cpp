@@ -106,6 +106,11 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->masterserverMode = masterserverMode;
+
+	if(this->masterserverMode == true) {
+		printf("Starting a new game...\n");
+	}
+
 	this->program = program;
 	Unit::setGame(this);
 	gameStarted = false;
@@ -929,6 +934,10 @@ void Game::init(bool initForPreviewOnly)
 	popupMenuSwitchTeams.setVisible(false);
 
 	gameStarted = true;
+
+	if(this->masterserverMode == true) {
+		printf("New game has started...\n");
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== START GAME ====\n");

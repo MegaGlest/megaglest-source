@@ -5108,104 +5108,109 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 // ==================== gl wrap ====================
 
 string Renderer::getGlInfo(){
-	string infoStr;
+	string infoStr="";
 	Lang &lang= Lang::getInstance();
 
-	infoStr+= lang.get("OpenGlInfo")+":\n";
-	infoStr+= "   "+lang.get("OpenGlVersion")+": ";
-    infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
-    infoStr+= "   "+lang.get("OpenGlRenderer")+": ";
-    infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
-    infoStr+= "   "+lang.get("OpenGlVendor")+": ";
-    infoStr+= string((getGlVendor() != NULL ? getGlVendor() : "?"))+"\n";
-	infoStr+= "   "+lang.get("OpenGlMaxLights")+": ";
-    infoStr+= intToStr(getGlMaxLights())+"\n";
-	infoStr+= "   "+lang.get("OpenGlMaxTextureSize")+": ";
-    infoStr+= intToStr(getGlMaxTextureSize())+"\n";
-	infoStr+= "   "+lang.get("OpenGlMaxTextureUnits")+": ";
-    infoStr+= intToStr(getGlMaxTextureUnits())+"\n";
-	infoStr+= "   "+lang.get("OpenGlModelviewStack")+": ";
-    infoStr+= intToStr(getGlModelviewMatrixStackDepth())+"\n";
-	infoStr+= "   "+lang.get("OpenGlProjectionStack")+": ";
-    infoStr+= intToStr(getGlProjectionMatrixStackDepth())+"\n";
-
+	if(this->masterserverMode == false) {
+		infoStr+= lang.get("OpenGlInfo")+":\n";
+		infoStr+= "   "+lang.get("OpenGlVersion")+": ";
+		infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
+		infoStr+= "   "+lang.get("OpenGlRenderer")+": ";
+		infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
+		infoStr+= "   "+lang.get("OpenGlVendor")+": ";
+		infoStr+= string((getGlVendor() != NULL ? getGlVendor() : "?"))+"\n";
+		infoStr+= "   "+lang.get("OpenGlMaxLights")+": ";
+		infoStr+= intToStr(getGlMaxLights())+"\n";
+		infoStr+= "   "+lang.get("OpenGlMaxTextureSize")+": ";
+		infoStr+= intToStr(getGlMaxTextureSize())+"\n";
+		infoStr+= "   "+lang.get("OpenGlMaxTextureUnits")+": ";
+		infoStr+= intToStr(getGlMaxTextureUnits())+"\n";
+		infoStr+= "   "+lang.get("OpenGlModelviewStack")+": ";
+		infoStr+= intToStr(getGlModelviewMatrixStackDepth())+"\n";
+		infoStr+= "   "+lang.get("OpenGlProjectionStack")+": ";
+		infoStr+= intToStr(getGlProjectionMatrixStackDepth())+"\n";
+	}
 	return infoStr;
 }
 
 string Renderer::getGlMoreInfo(){
-	string infoStr;
+	string infoStr="";
 	Lang &lang= Lang::getInstance();
 
-	//gl extensions
-	infoStr+= lang.get("OpenGlExtensions")+":\n   ";
+	if(this->masterserverMode == false) {
+		//gl extensions
+		infoStr+= lang.get("OpenGlExtensions")+":\n   ";
 
-	string extensions= getGlExtensions();
-	int charCount= 0;
-	for(int i=0; i<extensions.size(); ++i){
-		infoStr+= extensions[i];
-		if(charCount>120 && extensions[i]==' '){
-			infoStr+= "\n   ";
-			charCount= 0;
+		string extensions= getGlExtensions();
+		int charCount= 0;
+		for(int i=0; i<extensions.size(); ++i){
+			infoStr+= extensions[i];
+			if(charCount>120 && extensions[i]==' '){
+				infoStr+= "\n   ";
+				charCount= 0;
+			}
+			++charCount;
 		}
-		++charCount;
-	}
 
-	//platform extensions
-	infoStr+= "\n\n";
-	infoStr+= lang.get("OpenGlPlatformExtensions")+":\n   ";
+		//platform extensions
+		infoStr+= "\n\n";
+		infoStr+= lang.get("OpenGlPlatformExtensions")+":\n   ";
 
-	charCount= 0;
-	string platformExtensions= getGlPlatformExtensions();
-	for(int i=0; i<platformExtensions.size(); ++i){
-		infoStr+= platformExtensions[i];
-		if(charCount>120 && platformExtensions[i]==' '){
-			infoStr+= "\n   ";
-			charCount= 0;
+		charCount= 0;
+		string platformExtensions= getGlPlatformExtensions();
+		for(int i=0; i<platformExtensions.size(); ++i){
+			infoStr+= platformExtensions[i];
+			if(charCount>120 && platformExtensions[i]==' '){
+				infoStr+= "\n   ";
+				charCount= 0;
+			}
+			++charCount;
 		}
-		++charCount;
 	}
 
 	return infoStr;
 }
 
-void Renderer::autoConfig(){
+void Renderer::autoConfig() {
+	if(this->masterserverMode == false) {
+		Config &config= Config::getInstance();
 
-	Config &config= Config::getInstance();
-	bool nvidiaCard= toLower(getGlVendor()).find("nvidia")!=string::npos;
-	bool atiCard= toLower(getGlVendor()).find("ati")!=string::npos;
-	//bool shadowExtensions = isGlExtensionSupported("GL_ARB_shadow") && isGlExtensionSupported("GL_ARB_shadow_ambient");
-	bool shadowExtensions = isGlExtensionSupported("GL_ARB_shadow");
+		bool nvidiaCard= toLower(getGlVendor()).find("nvidia")!=string::npos;
+		bool atiCard= toLower(getGlVendor()).find("ati")!=string::npos;
+		//bool shadowExtensions = isGlExtensionSupported("GL_ARB_shadow") && isGlExtensionSupported("GL_ARB_shadow_ambient");
+		bool shadowExtensions = isGlExtensionSupported("GL_ARB_shadow");
 
-	//3D textures
-	config.setBool("Textures3D", isGlExtensionSupported("GL_EXT_texture3D"));
+		//3D textures
+		config.setBool("Textures3D", isGlExtensionSupported("GL_EXT_texture3D"));
 
-	//shadows
-	string shadows;
-	if(getGlMaxTextureUnits()>=3){
-		if(nvidiaCard && shadowExtensions){
-			shadows= shadowsToStr(sShadowMapping);
+		//shadows
+		string shadows="";
+		if(getGlMaxTextureUnits()>=3){
+			if(nvidiaCard && shadowExtensions){
+				shadows= shadowsToStr(sShadowMapping);
+			}
+			else{
+				shadows= shadowsToStr(sProjected);
+			}
 		}
 		else{
-			shadows= shadowsToStr(sProjected);
+			shadows=shadowsToStr(sDisabled);
 		}
-	}
-	else{
-		shadows=shadowsToStr(sDisabled);
-	}
-	config.setString("Shadows", shadows);
+		config.setString("Shadows", shadows);
 
-	//lights
-	config.setInt("MaxLights", atiCard? 1: 4);
+		//lights
+		config.setInt("MaxLights", atiCard? 1: 4);
 
-	//filter
-	config.setString("Filter", "Bilinear");
+		//filter
+		config.setString("Filter", "Bilinear");
+	}
 }
 
-void Renderer::clearBuffers(){
+void Renderer::clearBuffers() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::clearZBuffer(){
+void Renderer::clearZBuffer() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 

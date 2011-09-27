@@ -53,6 +53,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		MenuState(program, mainMenu, "new-game")
 {
 	this->masterserverMode = masterserverMode;
+	if(this->masterserverMode == true) {
+		printf("Waiting for players to join and start a game...\n");
+	}
+
 	this->lastMasterServerSettingsUpdateCount = 0;
 	this->masterserverModeMinimalResources = true;
 
