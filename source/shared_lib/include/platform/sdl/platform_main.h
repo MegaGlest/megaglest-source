@@ -119,7 +119,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\tAutomatically starts a game with the last game settings you played.",GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME]);
 	printf("\n%s=x\t\t\tAuto connects to a network server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
 	printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
-	printf("\n%s\t\t\tRun as a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]);
+
+	printf("\n%s=x\t\t\tRun as a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]);
+	printf("\n                     \t\tWhere x is an option command: exit which quits the application after a game has no more connected players.");
+
 	printf("\n%s=x\t\tAuto loads the specified scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
 	printf("\n%s=x\t\tAuto Preview the specified map by map name.",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
 	printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
@@ -265,7 +268,7 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 #define MAIN_FUNCTION(X) int main(int argc, char **argv)                     \
 {																			 \
 	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) { \
-	     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0)  {                                 \
+	     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0)  {                                 \
 	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";  \
 	        return 1;                                                            \
 	     }                                                                        \

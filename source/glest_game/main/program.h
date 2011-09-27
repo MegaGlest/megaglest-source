@@ -145,6 +145,8 @@ private:
     int skipRenderFrameCount;
 
     bool masterserverMode;
+    bool shutdownApplicationEnabled;
+    static bool wantShutdownApplicationAfterGame;
 
 public:
     Program();
@@ -152,7 +154,12 @@ public:
 
     static Program *getInstance()	{return singleton;}
 
+    static void setWantShutdownApplicationAfterGame(bool value) { wantShutdownApplicationAfterGame = value; }
+    static bool getWantShutdownApplicationAfterGame() { return wantShutdownApplicationAfterGame; }
+
     bool isMasterserverMode() const;
+    bool isShutdownApplicationEnabled() const { return shutdownApplicationEnabled; }
+    void setShutdownApplicationEnabled(bool value) { shutdownApplicationEnabled = value; }
 
     GraphicMessageBox * getMsgBox() { return &msgBox; }
 	void initNormal(WindowGl *window);
