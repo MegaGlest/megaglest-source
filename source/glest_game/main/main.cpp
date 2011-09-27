@@ -3259,6 +3259,8 @@ int glestMain(int argc, char** argv) {
 				#endif
 				{
 					getline(cin, command);
+					cin.clear();
+
 					printf("server command [%s]\n",command.c_str());
 					if(command == "quit") {
 						break;
