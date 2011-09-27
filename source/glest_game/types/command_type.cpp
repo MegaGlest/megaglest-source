@@ -57,7 +57,9 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
-	image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
+	if(image) {
+		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
+	}
 	loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(parentLoader,imageNode->getAttribute("path")->getRestrictedValue()));
 
 	//unit requirements

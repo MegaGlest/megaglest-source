@@ -453,7 +453,9 @@ void Faction::init(
 
 	texture= Renderer::getInstance().newTexture2D(rsGame);
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	texture->load(data_path + "data/core/faction_textures/faction"+intToStr(startLocationIndex)+".tga");
+	if(texture) {
+		texture->load(data_path + "data/core/faction_textures/faction"+intToStr(startLocationIndex)+".tga");
+	}
 
 	if( game->getGameSettings()->getPathFinderType() == pfBasic &&
 		Config::getInstance().getBool("EnableFactionWorkerThreads","true") == true) {

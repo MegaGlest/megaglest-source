@@ -95,24 +95,27 @@ void MainMenu::render() {
 	incrementFps();
 
 	if(state->isMasterserverMode() == false) {
-		renderer.clearBuffers();
+		if(renderer.isMasterserverMode() == false) {
+			renderer.clearBuffers();
 
-		//3d
-		renderer.reset3dMenu();
+			//3d
+			renderer.reset3dMenu();
 
-		renderer.clearZBuffer();
-		renderer.loadCameraMatrix(menuBackground.getCamera());
-		renderer.renderMenuBackground(&menuBackground);
-		renderer.renderParticleManager(rsMenu);
+			renderer.clearZBuffer();
+			renderer.loadCameraMatrix(menuBackground.getCamera());
+			renderer.renderMenuBackground(&menuBackground);
+			renderer.renderParticleManager(rsMenu);
 
-		//2d
-		renderer.reset2d();
+			//2d
+			renderer.reset2d();
+		}
 		state->render();
-		renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 
-		renderer.renderFPSWhenEnabled(lastFps);
-
-		renderer.swapBuffers();
+		if(renderer.isMasterserverMode() == false) {
+			renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+			renderer.renderFPSWhenEnabled(lastFps);
+			renderer.swapBuffers();
+		}
 	}
 }
 

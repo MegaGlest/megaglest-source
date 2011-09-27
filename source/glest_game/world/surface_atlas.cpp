@@ -87,22 +87,28 @@ void SurfaceAtlas::addSurface(SurfaceInfo *si) {
 	if(it == surfaceInfos.end()) {
 		//add new texture
 		Texture2D *t= Renderer::getInstance().newTexture2D(rsGame);
-		if(t == NULL) {
-			throw runtime_error("Could not create new texture (NULL)");
+		if(t) {
+		//if(t == NULL) {
+		//	throw runtime_error("Could not create new texture (NULL)");
+		//}
+			t->setWrapMode(Texture::wmClampToEdge);
+			t->getPixmap()->init(surfaceSize, surfaceSize, 3);
 		}
-		t->setWrapMode(Texture::wmClampToEdge);
-		t->getPixmap()->init(surfaceSize, surfaceSize, 3);
 		
 		si->setCoord(Vec2f(0.f, 0.f));
 		si->setTexture(t);
 		surfaceInfos.push_back(*si);
 		
 		//copy texture to pixmap
-		if(si->getCenter()!=NULL){
-			t->getPixmap()->copy(si->getCenter());
+		if(si->getCenter() != NULL) {
+			if(t) {
+				t->getPixmap()->copy(si->getCenter());
+			}
 		}
-		else{
-			t->getPixmap()->splat(si->getLeftUp(), si->getRightUp(), si->getLeftDown(), si->getRightDown());
+		else {
+			if(t) {
+				t->getPixmap()->splat(si->getLeftUp(), si->getRightUp(), si->getLeftDown(), si->getRightDown());
+			}
 		}
 	}
 	else{
@@ -116,6 +122,10 @@ float SurfaceAtlas::getCoordStep() const {
 }
 
 void SurfaceAtlas::checkDimensions(const Pixmap2D *p) {
+	if(Renderer::getInstance().isMasterserverMode() == true) {
+		return;
+	}
+
 	if(p == NULL) {
 		throw runtime_error("Bad surface texture pixmap (NULL)");
 	}

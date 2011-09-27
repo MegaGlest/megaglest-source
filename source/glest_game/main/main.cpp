@@ -95,6 +95,7 @@ static string application_binary="";
 static string mg_app_name = "";
 static string mailStringSupport = "";
 static bool sdl_quitCalled = false;
+static bool isMasterServerModeEnabled = false;
 
 FileCRCPreCacheThread *preCacheThread=NULL;
 
@@ -209,8 +210,11 @@ void cleanupCRCThread() {
 
 static void cleanupProcessObjects() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    showCursor(true);
-    restoreVideoMode(true);
+
+	if(isMasterServerModeEnabled == false) {
+		showCursor(true);
+		restoreVideoMode(true);
+	}
 
     cleanupCRCThread();
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -487,7 +491,7 @@ public:
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 program->showMessage(errMsg.c_str());
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                for(;program->isMessageShowing();) {
+                for(;isMasterServerModeEnabled == false && program->isMessageShowing();) {
                     //program->getState()->render();
                     Window::handleEvent();
                     program->loop();
@@ -497,7 +501,7 @@ public:
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 program->showMessage(errMsg.c_str());
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                for(;program->isMessageShowing();) {
+                for(;isMasterServerModeEnabled == false && program->isMessageShowing();) {
                     //program->renderProgramMsgBox();
                     Window::handleEvent();
                     program->loop();
@@ -535,8 +539,10 @@ public:
 
 #ifdef WIN32
 
-        showCursor(true);
-        restoreVideoMode(true);
+        if(isMasterServerModeEnabled == false) {
+        	showCursor(true);
+        	restoreVideoMode(true);
+        }
 
 		runtimeErrorMsg = errMsg;
 		throw runtimeErrorMsg;
@@ -2423,6 +2429,9 @@ int glestMain(int argc, char** argv) {
 		return -1;
 	}
 
+    if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
+    	isMasterServerModeEnabled = true;
+    }
 
 	//off_t fileSize = getFileSize(argv[0]);
 	//double fSize = ((double)fileSize / 1048576.0);
@@ -3136,6 +3145,7 @@ int glestMain(int argc, char** argv) {
 			program->initServer(mainWindow,false,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
+			Renderer &renderer= Renderer::getInstance(true);
 			program->initServer(mainWindow,false,true,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME])) == true) {
@@ -3394,7 +3404,9 @@ int glestMain(int argc, char** argv) {
         	string playerTexture = data_path + "data/core/faction_textures/faction" + intToStr(index) + ".tga";
         	if(fileExists(playerTexture) == true) {
         		Texture2D *texture = Renderer::getInstance().newTexture2D(rsGlobal);
-        		texture->load(playerTexture);
+        		if(texture) {
+        			texture->load(playerTexture);
+        		}
         		crcPlayerTextureCache[index] = texture;
         	}
         	else {

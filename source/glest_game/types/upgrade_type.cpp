@@ -228,7 +228,9 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		//image
 		const XmlNode *imageNode= upgradeNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
-		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true));
+		if(image) {
+			image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true));
+		}
 		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(make_pair(sourceXMLFile,imageNode->getAttribute("path")->getRestrictedValue()));
 
 		//if(fileExists(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)) == false) {
@@ -238,7 +240,9 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		//image cancel
 		const XmlNode *imageCancelNode= upgradeNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
-		cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true));
+		if(cancelImage) {
+			cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true));
+		}
 		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(make_pair(sourceXMLFile,imageCancelNode->getAttribute("path")->getRestrictedValue()));
 
 		//if(fileExists(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)) == false) {

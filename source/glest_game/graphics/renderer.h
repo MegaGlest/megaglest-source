@@ -266,6 +266,8 @@ private:
 
 	//std::map<Vec3f,Vec3f> worldToScreenPosCache;
 
+	bool masterserverMode;
+
 	std::map<uint32,VisibleQuadContainerVBOCache > mapSurfaceVBOCache;
 
 	class SurfaceData {
@@ -332,12 +334,13 @@ private:
 		Quad2i lastVisibleQuad;
 	} mapRenderer;
 private:
-	Renderer();
+	Renderer(bool masterserverMode=false);
 	~Renderer();
 
 public:
-	static Renderer &getInstance();
+	static Renderer &getInstance(bool masterserverMode=false);
 	static bool isEnded();
+	bool isMasterserverMode() const { return masterserverMode; }
 
 	void reinitAll();
 

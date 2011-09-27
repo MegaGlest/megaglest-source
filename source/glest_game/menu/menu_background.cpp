@@ -51,8 +51,10 @@ MenuBackground::MenuBackground(){
 
 		//water texture
 		waterTexture= renderer.newTexture2D(rsMenu);
-		waterTexture->getPixmap()->init(4);
-		waterTexture->getPixmap()->load(data_path + "data/core/menu/textures/water.tga");
+		if(waterTexture) {
+			waterTexture->getPixmap()->init(4);
+			waterTexture->getPixmap()->load(data_path + "data/core/menu/textures/water.tga");
+		}
 	}
 
 	//fog
@@ -104,12 +106,16 @@ MenuBackground::MenuBackground(){
 
 	//load main model
 	mainModel= renderer.newModel(rsMenu);
-	mainModel->load(data_path + "data/core/menu/main_model/menu_main.g3d");
+	if(mainModel) {
+		mainModel->load(data_path + "data/core/menu/main_model/menu_main.g3d");
+	}
 
 	//models
 	for(int i=0; i<5; ++i){
 		characterModels[i]= renderer.newModel(rsMenu);
-		characterModels[i]->load(data_path + "data/core/menu/about_models/character"+intToStr(i)+".g3d");
+		if(characterModels[i]) {
+			characterModels[i]->load(data_path + "data/core/menu/about_models/character"+intToStr(i)+".g3d");
+		}
 	}
 
 	//about position

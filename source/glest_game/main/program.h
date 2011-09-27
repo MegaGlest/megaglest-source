@@ -144,11 +144,15 @@ private:
     GraphicMessageBox msgBox;
     int skipRenderFrameCount;
 
+    bool masterserverMode;
+
 public:
     Program();
     ~Program();
 
     static Program *getInstance()	{return singleton;}
+
+    bool isMasterserverMode() const;
 
     GraphicMessageBox * getMsgBox() { return &msgBox; }
 	void initNormal(WindowGl *window);

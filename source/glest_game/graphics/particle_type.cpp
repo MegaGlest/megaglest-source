@@ -126,16 +126,20 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 
 	if(textureEnabled){
 		texture= renderer->newTexture2D(rsGame);
-		if(textureNode->getAttribute("luminance")->getBoolValue()){
-			texture->setFormat(Texture::fAlpha);
-			texture->getPixmap()->init(1);
-		}
-		else{
-			texture->getPixmap()->init(4);
+		if(texture) {
+			if(textureNode->getAttribute("luminance")->getBoolValue()){
+				texture->setFormat(Texture::fAlpha);
+				texture->getPixmap()->init(1);
+			}
+			else{
+				texture->getPixmap()->init(4);
+			}
 		}
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
-		texture->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+		if(texture) {
+			texture->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+		}
 		loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(parentLoader,textureNode->getAttribute("path")->getRestrictedValue()));
 	}
 	else {
@@ -152,8 +156,9 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 
 			string path= modelNode->getAttribute("path")->getRestrictedValue(currentPath);
 			model= renderer->newModel(rsGame);
-
-			model->load(path, false, &loadedFileList, &parentLoader);
+			if(model) {
+				model->load(path, false, &loadedFileList, &parentLoader);
+			}
 			loadedFileList[path].push_back(make_pair(parentLoader,modelNode->getAttribute("path")->getRestrictedValue()));
 			
 			if(modelNode->hasChild("cycles")) {

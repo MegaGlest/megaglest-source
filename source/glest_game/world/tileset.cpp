@@ -262,17 +262,23 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		//water
 		const XmlNode *waterNode= parametersNode->getChild("water");
 		waterTex= renderer.newTexture3D(rsGame);
-		waterTex->setMipmap(false);
-		waterTex->setWrapMode(Texture::wmRepeat);
+		if(waterTex) {
+			waterTex->setMipmap(false);
+			waterTex->setWrapMode(Texture::wmRepeat);
+		}
 		waterEffects= waterNode->getAttribute("effects")->getBoolValue();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		int waterFrameCount= waterNode->getChildCount();
-		waterTex->getPixmap()->init(waterFrameCount, 4);
+		if(waterTex) {
+			waterTex->getPixmap()->init(waterFrameCount, 4);
+		}
 		for(int i=0; i<waterFrameCount; ++i){
 			const XmlNode *waterFrameNode= waterNode->getChild("texture", i);
-			waterTex->getPixmap()->loadSlice(waterFrameNode->getAttribute("path")->getRestrictedValue(currentPath), i);
+			if(waterTex) {
+				waterTex->getPixmap()->loadSlice(waterFrameNode->getAttribute("path")->getRestrictedValue(currentPath), i);
+			}
 			loadedFileList[waterFrameNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,waterFrameNode->getAttribute("path")->getRestrictedValue()));
 		}
 

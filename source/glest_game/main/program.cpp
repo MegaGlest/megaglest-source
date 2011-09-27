@@ -158,6 +158,7 @@ void Program::ShowMessageProgramState::update() {
 // ===================== PUBLIC ========================
 
 Program::Program() {
+	this->masterserverMode = false;
 	skipRenderFrameCount = 0;
 	programState= NULL;
 	singleton = this;
@@ -167,6 +168,10 @@ Program::Program() {
 	Lang &lang= Lang::getInstance();
 	msgBox.init(lang.get("Ok"));
 	msgBox.setEnabled(false);
+}
+
+bool Program::isMasterserverMode() const {
+	return this->masterserverMode;
 }
 
 void Program::initNormal(WindowGl *window){
@@ -185,6 +190,7 @@ void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots,
 		bool masterserverMode) {
 	MainMenu* mainMenu= NULL;
 
+	this->masterserverMode = masterserverMode;
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
