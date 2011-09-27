@@ -151,7 +151,10 @@ const int OBJECT_SELECT_OFFSET=100000000;
 
 // ==================== constructor and destructor ====================
 
-Renderer::Renderer() {
+Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
+	this->masterserverMode = masterserverMode;
+	//printf("this->masterserverMode = %d\n",this->masterserverMode);
+
 	Renderer::rendererEnded = false;
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
@@ -179,8 +182,6 @@ Renderer::Renderer() {
 		fontManager[i] = NULL;
 	}
 
-	GraphicsInterface &gi= GraphicsInterface::getInstance();
-	FactoryRepository &fr= FactoryRepository::getInstance();
 	Config &config= Config::getInstance();
 
 	Renderer::perspFarPlane = config.getFloat("PerspectiveFarPlane",floatToStr(Renderer::perspFarPlane).c_str());
@@ -189,21 +190,27 @@ Renderer::Renderer() {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Renderer::perspFarPlane [%f] this->no2DMouseRendering [%d] this->maxConsoleLines [%d]\n",__FILE__,__FUNCTION__,__LINE__,Renderer::perspFarPlane,this->no2DMouseRendering,this->maxConsoleLines);
 
+	GraphicsInterface &gi= GraphicsInterface::getInstance();
+	FactoryRepository &fr= FactoryRepository::getInstance();
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
 
-	modelRenderer= graphicsFactory->newModelRenderer();
-	textRenderer= graphicsFactory->newTextRenderer2D();
-	textRenderer3D = graphicsFactory->newTextRenderer3D();
-	particleRenderer= graphicsFactory->newParticleRenderer();
+	if(this->masterserverMode == false) {
+		modelRenderer= graphicsFactory->newModelRenderer();
+		textRenderer= graphicsFactory->newTextRenderer2D();
+		textRenderer3D = graphicsFactory->newTextRenderer3D();
+		particleRenderer= graphicsFactory->newParticleRenderer();
+	}
 
 	//resources
 	for(int i=0; i< rsCount; ++i) {
-		modelManager[i]= graphicsFactory->newModelManager();
-		textureManager[i]= graphicsFactory->newTextureManager();
-		modelManager[i]->setTextureManager(textureManager[i]);
+		if(this->masterserverMode == false) {
+			modelManager[i]= graphicsFactory->newModelManager();
+			textureManager[i]= graphicsFactory->newTextureManager();
+			modelManager[i]->setTextureManager(textureManager[i]);
+			fontManager[i]= graphicsFactory->newFontManager();
+		}
 		particleManager[i]= graphicsFactory->newParticleManager();
-		fontManager[i]= graphicsFactory->newFontManager();
 	}
 
 	saveScreenShotThread = new SimpleTaskThread(this,0,25);
@@ -295,13 +302,16 @@ bool Renderer::isEnded() {
 	return Renderer::rendererEnded;
 }
 
-Renderer &Renderer::getInstance() {
-	static Renderer renderer;
+Renderer &Renderer::getInstance(bool masterserverMode) {
+	static Renderer renderer(masterserverMode);
 	return renderer;
 }
 
 void Renderer::reinitAll() {
 	//resources
+	if(this->masterserverMode == true) {
+		return;
+	}
 	for(int i=0; i<rsCount; ++i){
 		//modelManager[i]->init();
 		textureManager[i]->init(true);
@@ -323,6 +333,10 @@ void Renderer::init() {
 		config.setBool("FirstTime", false);
 		autoConfig();
 		config.save();
+	}
+
+	if(this->masterserverMode == true) {
+		return;
 	}
 
 	modelManager[rsGlobal]->init();
@@ -358,6 +372,10 @@ void Renderer::initGame(const Game *game){
 	waterAnim= 0;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(this->masterserverMode == true) {
+		return;
+	}
 
 	//shadows
 	if(shadows == sProjected || shadows == sShadowMapping) {
@@ -417,6 +435,10 @@ void Renderer::initMenu(const MainMenu *mm) {
 	this->menu = mm;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(this->masterserverMode == true) {
+		return;
+	}
 
 	modelManager[rsMenu]->init();
 	textureManager[rsMenu]->init();
@@ -493,6 +515,10 @@ void Renderer::end() {
 void Renderer::endGame() {
 	game= NULL;
 
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	//delete resources
 	modelManager[rsGame]->end();
 	textureManager[rsGame]->end();
@@ -512,6 +538,11 @@ void Renderer::endGame() {
 
 void Renderer::endMenu() {
 	this->menu = NULL;
+
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	//delete resources
 	modelManager[rsMenu]->end();
 	textureManager[rsMenu]->end();
@@ -522,6 +553,10 @@ void Renderer::endMenu() {
 }
 
 void Renderer::reloadResources() {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	for(int i=0; i<rsCount; ++i) {
 		modelManager[i]->end();
 		textureManager[i]->end();
@@ -538,6 +573,10 @@ void Renderer::reloadResources() {
 // ==================== engine interface ====================
 
 void Renderer::initTexture(ResourceScope rs, Texture *texture) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	textureManager[rs]->initTexture(texture);
 }
 
@@ -545,6 +584,10 @@ void Renderer::endTexture(ResourceScope rs, Texture *texture, bool mustExistInLi
 	string textureFilename = texture->getPath();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] free texture from manager [%s]\n",__FILE__,__FUNCTION__,__LINE__,textureFilename.c_str());
+
+	if(this->masterserverMode == true) {
+		return;
+	}
 
 	textureManager[rs]->endTexture(texture,mustExistInList);
 
@@ -559,33 +602,65 @@ void Renderer::endTexture(ResourceScope rs, Texture *texture, bool mustExistInLi
 	}
 }
 void Renderer::endLastTexture(ResourceScope rs, bool mustExistInList) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	textureManager[rs]->endLastTexture(mustExistInList);
 }
 
 Model *Renderer::newModel(ResourceScope rs){
+	if(this->masterserverMode == true) {
+		return NULL;
+	}
+
 	return modelManager[rs]->newModel();
 }
 
 void Renderer::endModel(ResourceScope rs, Model *model,bool mustExistInList) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	modelManager[rs]->endModel(model,mustExistInList);
 }
 void Renderer::endLastModel(ResourceScope rs, bool mustExistInList) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	modelManager[rs]->endLastModel(mustExistInList);
 }
 
 Texture2D *Renderer::newTexture2D(ResourceScope rs){
+	if(this->masterserverMode == true) {
+		return NULL;
+	}
+
 	return textureManager[rs]->newTexture2D();
 }
 
 Texture3D *Renderer::newTexture3D(ResourceScope rs){
+	if(this->masterserverMode == true) {
+		return NULL;
+	}
+
 	return textureManager[rs]->newTexture3D();
 }
 
 Font2D *Renderer::newFont(ResourceScope rs){
+	if(this->masterserverMode == true) {
+		return NULL;
+	}
+
 	return fontManager[rs]->newFont2D();
 }
 
 Font3D *Renderer::newFont3D(ResourceScope rs){
+	if(this->masterserverMode == true) {
+		return NULL;
+	}
+
 	return fontManager[rs]->newFont3D();
 }
 
@@ -627,6 +702,10 @@ void Renderer::swapBuffers() {
 
 //places all the opengl lights
 void Renderer::setupLighting() {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
     int lightCount= 0;
 	const World *world= game->getWorld();
 	const GameCamera *gameCamera= game->getGameCamera();
@@ -5150,9 +5229,12 @@ void Renderer::loadConfig() {
 	//load filter settings
 	Texture2D::Filter textureFilter= strToTextureFilter(config.getString("Filter"));
 	int maxAnisotropy= config.getInt("FilterMaxAnisotropy");
-	for(int i=0; i<rsCount; ++i){
-		textureManager[i]->setFilter(textureFilter);
-		textureManager[i]->setMaxAnisotropy(maxAnisotropy);
+
+	if(this->masterserverMode == false) {
+		for(int i=0; i<rsCount; ++i){
+			textureManager[i]->setFilter(textureFilter);
+			textureManager[i]->setMaxAnisotropy(maxAnisotropy);
+		}
 	}
 }
 
@@ -6741,9 +6823,11 @@ Texture2D * Renderer::preloadTexture(string logoFilename) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
 			Renderer &renderer= Renderer::getInstance();
 			result = renderer.newTexture2D(rsGlobal);
-			result->setMipmap(true);
-			result->load(logoFilename);
-			//renderer.initTexture(rsGlobal,result);
+			if(result) {
+				result->setMipmap(true);
+				result->load(logoFilename);
+				//renderer.initTexture(rsGlobal,result);
+			}
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] add texture to manager and cache [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
 

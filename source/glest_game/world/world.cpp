@@ -1236,7 +1236,9 @@ void World::initFactionTypes(GameSettings *gs) {
 		stats.setControl(i, gs->getFactionControl(i));
 		stats.setResourceMultiplier(i,(gs->getResourceMultiplierIndex(i)+5)*0.1f);
 		stats.setPlayerName(i,gs->getNetworkPlayerName(i));
-		stats.setPlayerColor(i,getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0));
+		if(getFaction(i)->getTexture()) {
+			stats.setPlayerColor(i,getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0));
+		}
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

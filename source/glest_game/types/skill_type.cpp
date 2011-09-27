@@ -192,7 +192,9 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 		string path= animationList[i]->getAttribute("path")->getRestrictedValue(currentPath);
 		if(fileExists(path) == true) {
 			Model *animation= Renderer::getInstance().newModel(rsGame);
-			animation->load(path, false, &loadedFileList, &parentLoader);
+			if(animation) {
+				animation->load(path, false, &loadedFileList, &parentLoader);
+			}
 			loadedFileList[path].push_back(make_pair(parentLoader,animationList[i]->getAttribute("path")->getRestrictedValue()));
 
 			animations.push_back(animation);

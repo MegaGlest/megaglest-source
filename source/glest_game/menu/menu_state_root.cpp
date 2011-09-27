@@ -153,7 +153,15 @@ void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 
 }
 
+bool MenuStateRoot::isMasterserverMode() const {
+	Renderer &renderer= Renderer::getInstance();
+	return renderer.isMasterserverMode();
+}
+
 void MenuStateRoot::render() {
+	if(isMasterserverMode() == true) {
+		return;
+	}
 	Renderer &renderer= Renderer::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();

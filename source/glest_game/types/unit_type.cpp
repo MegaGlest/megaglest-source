@@ -418,13 +418,17 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		//image
 		const XmlNode *imageNode= parametersNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);
-		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
+		if(image) {
+			image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
+		}
 		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,imageNode->getAttribute("path")->getRestrictedValue()));
 
 		//image cancel
 		const XmlNode *imageCancelNode= parametersNode->getChild("image-cancel");
 		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
-		cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath));
+		if(cancelImage) {
+			cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath));
+		}
 		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,imageCancelNode->getAttribute("path")->getRestrictedValue()));
 
 		//meeting point
@@ -432,7 +436,9 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		meetingPoint= meetingPointNode->getAttribute("value")->getBoolValue();
 		if(meetingPoint) {
 			meetingPointImage= Renderer::getInstance().newTexture2D(rsGame);
-			meetingPointImage->load(meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath));
+			if(meetingPointImage) {
+				meetingPointImage->load(meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath));
+			}
 			loadedFileList[meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,meetingPointNode->getAttribute("image-path")->getRestrictedValue()));
 		}
 

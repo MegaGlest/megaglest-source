@@ -56,40 +56,57 @@ void CoreData::load() {
 
 	//textures
 	backgroundTexture= renderer.newTexture2D(rsGlobal);
-	backgroundTexture->setMipmap(false);
-	backgroundTexture->getPixmap()->load(dir+"/menu/textures/back.tga");
+	if(backgroundTexture) {
+		backgroundTexture->setMipmap(false);
+		backgroundTexture->getPixmap()->load(dir+"/menu/textures/back.tga");
+	}
 
 	fireTexture= renderer.newTexture2D(rsGlobal);
-	fireTexture->setFormat(Texture::fAlpha);
-	fireTexture->getPixmap()->init(1);
-	fireTexture->getPixmap()->load(dir+"/misc_textures/fire_particle.tga");
+	if(fireTexture) {
+		fireTexture->setFormat(Texture::fAlpha);
+		fireTexture->getPixmap()->init(1);
+		fireTexture->getPixmap()->load(dir+"/misc_textures/fire_particle.tga");
+	}
 
 	teamColorTexture= renderer.newTexture2D(rsGlobal);
-	teamColorTexture->setFormat(Texture::fAlpha);
-	teamColorTexture->getPixmap()->init(1);
-	teamColorTexture->getPixmap()->load(dir+"/misc_textures/team_color_texture.tga");
+	if(teamColorTexture) {
+		teamColorTexture->setFormat(Texture::fAlpha);
+		teamColorTexture->getPixmap()->init(1);
+		teamColorTexture->getPixmap()->load(dir+"/misc_textures/team_color_texture.tga");
+	}
 
 	snowTexture= renderer.newTexture2D(rsGlobal);
-	snowTexture->setMipmap(false);
-	snowTexture->setFormat(Texture::fAlpha);
-	snowTexture->getPixmap()->init(1);
-	snowTexture->getPixmap()->load(dir+"/misc_textures/snow_particle.tga");
+	if(snowTexture) {
+		snowTexture->setMipmap(false);
+		snowTexture->setFormat(Texture::fAlpha);
+		snowTexture->getPixmap()->init(1);
+		snowTexture->getPixmap()->load(dir+"/misc_textures/snow_particle.tga");
+	}
 
 	customTexture= renderer.newTexture2D(rsGlobal);
-	customTexture->getPixmap()->load(dir+"/menu/textures/custom_texture.tga");
+	if(customTexture) {
+		customTexture->getPixmap()->load(dir+"/menu/textures/custom_texture.tga");
+	}
 
 	notOnServerTexture= renderer.newTexture2D(rsGlobal);
-	notOnServerTexture->getPixmap()->load(dir+"/menu/textures/not_on_server.tga");
+	if(notOnServerTexture) {
+		notOnServerTexture->getPixmap()->load(dir+"/menu/textures/not_on_server.tga");
+	}
+
 	onServerDifferentTexture= renderer.newTexture2D(rsGlobal);
-	onServerDifferentTexture->getPixmap()->load(dir+"/menu/textures/on_server_different.tga");
-	onServerTexture= renderer.newTexture2D(rsGlobal);
-	onServerTexture->getPixmap()->load(dir+"/menu/textures/on_server.tga");
-	onServerInstalledTexture= renderer.newTexture2D(rsGlobal);
-	onServerInstalledTexture->getPixmap()->load(dir+"/menu/textures/on_server_installed.tga");
+	if(onServerDifferentTexture) {
+		onServerDifferentTexture->getPixmap()->load(dir+"/menu/textures/on_server_different.tga");
+		onServerTexture= renderer.newTexture2D(rsGlobal);
+		onServerTexture->getPixmap()->load(dir+"/menu/textures/on_server.tga");
+		onServerInstalledTexture= renderer.newTexture2D(rsGlobal);
+		onServerInstalledTexture->getPixmap()->load(dir+"/menu/textures/on_server_installed.tga");
+	}
 
 	logoTexture= renderer.newTexture2D(rsGlobal);
-	logoTexture->setMipmap(false);
-	logoTexture->getPixmap()->load(dir+"/menu/textures/logo.tga");
+	if(logoTexture) {
+		logoTexture->setMipmap(false);
+		logoTexture->getPixmap()->load(dir+"/menu/textures/logo.tga");
+	}
 
 	logoTextureList.clear();
 	string logosPath= dir+"/menu/textures/logo*.*";
@@ -99,44 +116,62 @@ void CoreData::load() {
     	string logo = logoFilenames[i];
     	if(strcmp("logo.tga",logo.c_str()) != 0) {
     		Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
-    		logoTextureExtra->setMipmap(true);
-    		logoTextureExtra->getPixmap()->load(dir+"/menu/textures/" + logo);
-    		logoTextureList.push_back(logoTextureExtra);
+    		if(logoTextureExtra) {
+				logoTextureExtra->setMipmap(true);
+				logoTextureExtra->getPixmap()->load(dir+"/menu/textures/" + logo);
+				logoTextureList.push_back(logoTextureExtra);
+    		}
     	}
     }
 
 	waterSplashTexture= renderer.newTexture2D(rsGlobal);
-	waterSplashTexture->setFormat(Texture::fAlpha);
-	waterSplashTexture->getPixmap()->init(1);
-	waterSplashTexture->getPixmap()->load(dir+"/misc_textures/water_splash.tga");
+	if(waterSplashTexture) {
+		waterSplashTexture->setFormat(Texture::fAlpha);
+		waterSplashTexture->getPixmap()->init(1);
+		waterSplashTexture->getPixmap()->load(dir+"/misc_textures/water_splash.tga");
+	}
 
 	buttonSmallTexture= renderer.newTexture2D(rsGlobal);
-	buttonSmallTexture->setForceCompressionDisabled(true);
-	buttonSmallTexture->getPixmap()->load(dir+"/menu/textures/button_small.tga");
+	if(buttonSmallTexture) {
+		buttonSmallTexture->setForceCompressionDisabled(true);
+		buttonSmallTexture->getPixmap()->load(dir+"/menu/textures/button_small.tga");
+	}
 
 	buttonBigTexture= renderer.newTexture2D(rsGlobal);
-	buttonBigTexture->setForceCompressionDisabled(true);
-	buttonBigTexture->getPixmap()->load(dir+"/menu/textures/button_big.tga");
+	if(buttonBigTexture) {
+		buttonBigTexture->setForceCompressionDisabled(true);
+		buttonBigTexture->getPixmap()->load(dir+"/menu/textures/button_big.tga");
+	}
 
 	horizontalLineTexture= renderer.newTexture2D(rsGlobal);
-	horizontalLineTexture->setForceCompressionDisabled(true);
-	horizontalLineTexture->getPixmap()->load(dir+"/menu/textures/line_horizontal.tga");
+	if(horizontalLineTexture) {
+		horizontalLineTexture->setForceCompressionDisabled(true);
+		horizontalLineTexture->getPixmap()->load(dir+"/menu/textures/line_horizontal.tga");
+	}
 
 	verticalLineTexture= renderer.newTexture2D(rsGlobal);
-	verticalLineTexture->setForceCompressionDisabled(true);
-	verticalLineTexture->getPixmap()->load(dir+"/menu/textures/line_vertical.tga");
+	if(verticalLineTexture) {
+		verticalLineTexture->setForceCompressionDisabled(true);
+		verticalLineTexture->getPixmap()->load(dir+"/menu/textures/line_vertical.tga");
+	}
 
 	checkBoxTexture= renderer.newTexture2D(rsGlobal);
-	checkBoxTexture->setForceCompressionDisabled(true);
-	checkBoxTexture->getPixmap()->load(dir+"/menu/textures/checkbox.tga");
+	if(checkBoxTexture) {
+		checkBoxTexture->setForceCompressionDisabled(true);
+		checkBoxTexture->getPixmap()->load(dir+"/menu/textures/checkbox.tga");
+	}
 
 	checkedCheckBoxTexture= renderer.newTexture2D(rsGlobal);
-	checkedCheckBoxTexture->setForceCompressionDisabled(true);
-	checkedCheckBoxTexture->getPixmap()->load(dir+"/menu/textures/checkbox_checked.tga");
+	if(checkedCheckBoxTexture) {
+		checkedCheckBoxTexture->setForceCompressionDisabled(true);
+		checkedCheckBoxTexture->getPixmap()->load(dir+"/menu/textures/checkbox_checked.tga");
+	}
 
 	gameWinnerTexture= renderer.newTexture2D(rsGlobal);
-	gameWinnerTexture->setForceCompressionDisabled(true);
-	gameWinnerTexture->getPixmap()->load(dir+"/misc_textures/game_winner.png");
+	if(gameWinnerTexture) {
+		gameWinnerTexture->setForceCompressionDisabled(true);
+		gameWinnerTexture->getPixmap()->load(dir+"/misc_textures/game_winner.png");
+	}
 
 	Lang &lang= Lang::getInstance();
 
@@ -164,14 +199,18 @@ void CoreData::load() {
 	string displayFontName = displayFontNamePrefix + intToStr(displayFontSize) + displayFontNamePostfix;
 
 	displayFont= renderer.newFont(rsGlobal);
-	displayFont->setType(displayFontName,config.getString("FontDisplay",""));
-	displayFont->setSize(displayFontSize);
-	//displayFont->setYOffsetFactor(config.getFloat("FontDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(displayFont) {
+		displayFont->setType(displayFontName,config.getString("FontDisplay",""));
+		displayFont->setSize(displayFontSize);
+		//displayFont->setYOffsetFactor(config.getFloat("FontDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	displayFont3D= renderer.newFont3D(rsGlobal);
-	displayFont3D->setType(displayFontName,config.getString("FontDisplay",""));
-	displayFont3D->setSize(displayFontSize);
-	//displayFont3D->setYOffsetFactor(config.getFloat("FontDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(displayFont3D) {
+		displayFont3D->setType(displayFontName,config.getString("FontDisplay",""));
+		displayFont3D->setSize(displayFontSize);
+		//displayFont3D->setYOffsetFactor(config.getFloat("FontDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontName = [%s] displayFontSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontName.c_str(),displayFontSize);
 
@@ -193,14 +232,18 @@ void CoreData::load() {
 	string displayFontNameSmall = displayFontNameSmallPrefix + intToStr(displayFontNameSmallSize) + displayFontNameSmallPostfix;
 
 	displayFontSmall= renderer.newFont(rsGlobal);
-	displayFontSmall->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""));
-	displayFontSmall->setSize(displayFontNameSmallSize);
-	//displayFontSmall->setYOffsetFactor(config.getFloat("FontSmallDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(displayFontSmall) {
+		displayFontSmall->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""));
+		displayFontSmall->setSize(displayFontNameSmallSize);
+		//displayFontSmall->setYOffsetFactor(config.getFloat("FontSmallDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	displayFontSmall3D= renderer.newFont3D(rsGlobal);
-	displayFontSmall3D->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""));
-	displayFontSmall3D->setSize(displayFontNameSmallSize);
-	//displayFontSmall3D->setYOffsetFactor(config.getFloat("FontSmallDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(displayFontSmall3D) {
+		displayFontSmall3D->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""));
+		displayFontSmall3D->setSize(displayFontNameSmallSize);
+		//displayFontSmall3D->setYOffsetFactor(config.getFloat("FontSmallDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontSmallName = [%s] displayFontSmallNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontNameSmall.c_str(),displayFontNameSmallSize);
 
@@ -221,16 +264,20 @@ void CoreData::load() {
 	string menuFontNameNormal= menuFontNameNormalPrefix + intToStr(menuFontNameNormalSize) + menuFontNameNormalPostfix;
 
 	menuFontNormal= renderer.newFont(rsGlobal);
-	menuFontNormal->setType(menuFontNameNormal,config.getString("FontMenuNormal",""));
-	menuFontNormal->setSize(menuFontNameNormalSize);
-	menuFontNormal->setWidth(Font::wBold);
-	//menuFontNormal->setYOffsetFactor(config.getFloat("FontMenuNormalYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(menuFontNormal) {
+		menuFontNormal->setType(menuFontNameNormal,config.getString("FontMenuNormal",""));
+		menuFontNormal->setSize(menuFontNameNormalSize);
+		menuFontNormal->setWidth(Font::wBold);
+		//menuFontNormal->setYOffsetFactor(config.getFloat("FontMenuNormalYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	menuFontNormal3D= renderer.newFont3D(rsGlobal);
-	menuFontNormal3D->setType(menuFontNameNormal,config.getString("FontMenuNormal",""));
-	menuFontNormal3D->setSize(menuFontNameNormalSize);
-	menuFontNormal3D->setWidth(Font::wBold);
-	//menuFontNormal3D->setYOffsetFactor(config.getFloat("FontMenuNormalYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(menuFontNormal3D) {
+		menuFontNormal3D->setType(menuFontNameNormal,config.getString("FontMenuNormal",""));
+		menuFontNormal3D->setSize(menuFontNameNormalSize);
+		menuFontNormal3D->setWidth(Font::wBold);
+		//menuFontNormal3D->setYOffsetFactor(config.getFloat("FontMenuNormalYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNormalName = [%s] menuFontNormalNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameNormal.c_str(),menuFontNameNormalSize);
 
@@ -251,14 +298,18 @@ void CoreData::load() {
 	string menuFontNameBig= menuFontNameBigPrefix+intToStr(menuFontNameBigSize)+menuFontNameBigPostfix;
 
 	menuFontBig= renderer.newFont(rsGlobal);
-	menuFontBig->setType(menuFontNameBig,config.getString("FontMenuBig",""));
-	menuFontBig->setSize(menuFontNameBigSize);
-	//menuFontBig->setYOffsetFactor(config.getFloat("FontMenuBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(menuFontBig) {
+		menuFontBig->setType(menuFontNameBig,config.getString("FontMenuBig",""));
+		menuFontBig->setSize(menuFontNameBigSize);
+		//menuFontBig->setYOffsetFactor(config.getFloat("FontMenuBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	menuFontBig3D= renderer.newFont3D(rsGlobal);
-	menuFontBig3D->setType(menuFontNameBig,config.getString("FontMenuBig",""));
-	menuFontBig3D->setSize(menuFontNameBigSize);
-	//menuFontBig3D->setYOffsetFactor(config.getFloat("FontMenuBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(menuFontBig3D) {
+		menuFontBig3D->setType(menuFontNameBig,config.getString("FontMenuBig",""));
+		menuFontBig3D->setSize(menuFontNameBigSize);
+		//menuFontBig3D->setYOffsetFactor(config.getFloat("FontMenuBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameBig = [%s] menuFontNameBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameBig.c_str(),menuFontNameBigSize);
 
@@ -279,14 +330,18 @@ void CoreData::load() {
 	string menuFontNameVeryBig= menuFontNameVeryBigPrefix + intToStr(menuFontNameVeryBigSize) + menuFontNameVeryBigPostfix;
 
 	menuFontVeryBig= renderer.newFont(rsGlobal);
-	menuFontVeryBig->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""));
-	menuFontVeryBig->setSize(menuFontNameVeryBigSize);
-	//menuFontVeryBig->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(menuFontVeryBig) {
+		menuFontVeryBig->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""));
+		menuFontVeryBig->setSize(menuFontNameVeryBigSize);
+		//menuFontVeryBig->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	menuFontVeryBig3D= renderer.newFont3D(rsGlobal);
-	menuFontVeryBig3D->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""));
-	menuFontVeryBig3D->setSize(menuFontNameVeryBigSize);
-	//menuFontVeryBig3D->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(menuFontVeryBig3D) {
+		menuFontVeryBig3D->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""));
+		menuFontVeryBig3D->setSize(menuFontNameVeryBigSize);
+		//menuFontVeryBig3D->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	//printf("CoreData menuFontVeryBig3D [%d] menuFontVeryBig3D [%p]\n",menuFontVeryBig3D->getSize(),menuFontVeryBig3D);
 
@@ -310,14 +365,18 @@ void CoreData::load() {
 	string consoleFontName= consoleFontNamePrefix + intToStr(consoleFontNameSize) + consoleFontNamePostfix;
 
 	consoleFont= renderer.newFont(rsGlobal);
-	consoleFont->setType(consoleFontName,config.getString("FontConsole",""));
-	consoleFont->setSize(consoleFontNameSize);
-	//consoleFont->setYOffsetFactor(config.getFloat("FontConsoleYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(consoleFont) {
+		consoleFont->setType(consoleFontName,config.getString("FontConsole",""));
+		consoleFont->setSize(consoleFontNameSize);
+		//consoleFont->setYOffsetFactor(config.getFloat("FontConsoleYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	consoleFont3D= renderer.newFont3D(rsGlobal);
-	consoleFont3D->setType(consoleFontName,config.getString("FontConsole",""));
-	consoleFont3D->setSize(consoleFontNameSize);
-	//consoleFont3D->setYOffsetFactor(config.getFloat("FontConsoleYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	if(consoleFont3D) {
+		consoleFont3D->setType(consoleFontName,config.getString("FontConsole",""));
+		consoleFont3D->setSize(consoleFontNameSize);
+		//consoleFont3D->setYOffsetFactor(config.getFloat("FontConsoleYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consoleFontName = [%s] consoleFontNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,consoleFontName.c_str(),consoleFontNameSize);
 
@@ -335,7 +394,9 @@ void CoreData::load() {
 
 	for(int i=0; i<6; ++i){
 		waterSounds[i]= new StaticSound();
-		waterSounds[i]->load(dir+"/water_sounds/water"+intToStr(i)+".wav");
+		if(waterSounds[i]) {
+			waterSounds[i]->load(dir+"/water_sounds/water"+intToStr(i)+".wav");
+		}
 	}
 
 }

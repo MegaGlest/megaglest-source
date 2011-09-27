@@ -107,6 +107,9 @@ void Intro::update(){
 
 void Intro::render() {
 	Renderer &renderer= Renderer::getInstance();
+	if(renderer.isMasterserverMode() == true) {
+		return;
+	}
 	int difTime=0;
 
 	canRender();

@@ -680,11 +680,15 @@ void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 		int currentButtonWidth = -1;
 		if(font3D != NULL) {
 			FontMetrics *fontMetrics= font3D->getMetrics();
-			currentButtonWidth = fontMetrics->getTextWidth(menuItems[i]);
+			if(fontMetrics) {
+				currentButtonWidth = fontMetrics->getTextWidth(menuItems[i]);
+			}
 		}
-		else {
+		else if(font) {
 			FontMetrics *fontMetrics= font->getMetrics();
-			currentButtonWidth = fontMetrics->getTextWidth(menuItems[i]);
+			if(fontMetrics) {
+				currentButtonWidth = fontMetrics->getTextWidth(menuItems[i]);
+			}
 		}
 
 		if(maxButtonWidth < 0 || currentButtonWidth > maxButtonWidth) {

@@ -78,7 +78,9 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		//image
 		const XmlNode *imageNode= resourceNode->getChild("image");
 		image= renderer.newTexture2D(rsGame);
-		image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
+		if(image) {
+			image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath));
+		}
 		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,imageNode->getAttribute("path")->getRestrictedValue()));
 
 		//type
@@ -94,7 +96,9 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
                 string modelPath= modelNode->getAttribute("path")->getRestrictedValue(currentPath);
 
                 model= renderer.newModel(rsGame);
-                model->load(modelPath, false, &loadedFileList, &sourceXMLFile);
+                if(model) {
+                	model->load(modelPath, false, &loadedFileList, &sourceXMLFile);
+                }
                 loadedFileList[modelPath].push_back(make_pair(sourceXMLFile,modelNode->getAttribute("path")->getRestrictedValue()));
 
                 if(modelNode->hasChild("particles")){
