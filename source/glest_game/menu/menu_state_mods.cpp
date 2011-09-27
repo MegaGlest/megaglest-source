@@ -902,7 +902,7 @@ string MenuStateMods::refreshScenarioModInfo(string scenarioInfo) {
 		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
 		   modinfo.localCRC=intToStr(crc);
-		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		   //printf(" itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
 		else {
 			modinfo.localCRC="";
@@ -2027,6 +2027,7 @@ void MenuStateMods::render() {
 					throw runtime_error(szBuf);
 				}
 				bool alreadyHasScenario = (std::find(scenarioFiles.begin(),scenarioFiles.end(),keyScenarioButtons[i]->getText()) != scenarioFiles.end());
+
 				if(keyScenarioButtons[i]->getText() == selectedScenarioName) {
 					bool lightedOverride = true;
 					renderer.renderButton(keyScenarioButtons[i],&WHITE,&lightedOverride);
@@ -2376,8 +2377,8 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock(true);
 
-        selectedTilesetName = "";
-        buttonInstallTileset.setEnabled(true);
+        selectedScenarioName = "";
+        buttonInstallScenario.setEnabled(true);
 
         if(result.first == ftp_crt_SUCCESS) {
 			char szBuf[1024]="";
@@ -2399,7 +2400,7 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            int32 CRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+            int32 CRCScenarioValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
             safeMutexFTPProgress.ReleaseLock();
 
             refreshScenarios();
