@@ -798,7 +798,9 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 				UnitParticleSystem *ups = new UnitParticleSystem(200);
 				(*it)->setValues(ups);
 				ups->setPos(getCurrVector());
-				ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				if(getFaction()->getTexture()) {
+					ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				}
 				unitParticleSystems.push_back(ups);
 				Renderer::getInstance().manageParticleSystem(ups, rsGame);
 			}
@@ -1446,7 +1448,9 @@ void Unit::updateTimedParticles() {
 				UnitParticleSystem *ups = new UnitParticleSystem(200);
 				pst->setValues(ups);
 				ups->setPos(getCurrVector());
-				ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				if(getFaction()->getTexture()) {
+					ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				}
 				unitParticleSystems.push_back(ups);
 				Renderer::getInstance().manageParticleSystem(ups, rsGame);
 
@@ -1682,7 +1686,9 @@ bool Unit::update() {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups = new UnitParticleSystem(200);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
-						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						if(getFaction()->getTexture()) {
+							currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						}
 						Renderer::getInstance().manageParticleSystem(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups, rsGame);
 
 						//printf("+ #1 APPLY ATTACK BOOST SELF PARTICLE to unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId());
@@ -1736,7 +1742,9 @@ bool Unit::update() {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups = new UnitParticleSystem(200);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
-						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						if(getFaction()->getTexture()) {
+							currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						}
 						Renderer::getInstance().manageParticleSystem(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups, rsGame);
 
 						//printf("+ #2 APPLY ATTACK BOOST SELF PARTICLE to unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId());
@@ -1834,7 +1842,9 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				effect->ups = new UnitParticleSystem(200);
 				effect->upst->setValues(effect->ups);
 				effect->ups->setPos(getCurrVector());
-				effect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				if(getFaction()->getTexture()) {
+					effect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				}
 				Renderer::getInstance().manageParticleSystem(effect->ups, rsGame);
 			}
 		}
@@ -2725,7 +2735,9 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
-					ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					if(getFaction()->getTexture()) {
+						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					}
 					damageParticleSystems.push_back(ups);
 					damageParticleSystemsInUse[i] = ups;
 					Renderer::getInstance().manageParticleSystem(ups, rsGame);
@@ -2746,7 +2758,9 @@ void Unit::startDamageParticles() {
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
-					ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					if(getFaction()->getTexture()) {
+						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					}
 					damageParticleSystems.push_back(ups);
 					damageParticleSystemsInUse[i] = ups;
 					Renderer::getInstance().manageParticleSystem(ups, rsGame);

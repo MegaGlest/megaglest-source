@@ -60,6 +60,8 @@ int Window::lastShowMouseState = 0;
 
 bool Window::tryVSynch = false;
 
+bool Window::masterserverMode = false;
+
 // ========== PUBLIC ==========
 
 Window::Window()  {
@@ -356,39 +358,41 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 	if(stencilBits >= 0)
 		newStencilBits = stencilBits;
 
-	if(fullscreen_anti_aliasing == true) {
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
-	}
-	if(hardware_acceleration == true) {
-		SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	}
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, newStencilBits);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, newDepthBits);
+	if(Window::masterserverMode == false) {
+		if(fullscreen_anti_aliasing == true) {
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+		}
+		if(hardware_acceleration == true) {
+			SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+		}
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
+		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
+		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
+		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, newStencilBits);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, newDepthBits);
 
-	//const SDL_VideoInfo *info = SDL_GetVideoInfo();
-#ifdef SDL_GL_SWAP_CONTROL
-    if(Window::tryVSynch == true) {
-    	/* we want vsync for smooth scrolling */
-    	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-    }
-#endif
+		//const SDL_VideoInfo *info = SDL_GetVideoInfo();
+	#ifdef SDL_GL_SWAP_CONTROL
+		if(Window::tryVSynch == true) {
+			/* we want vsync for smooth scrolling */
+			SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+		}
+	#endif
 
-	// setup LOD bias factor
-	//const float lodBias = std::max(std::min( configHandler->Get("TextureLODBias", 0.0f) , 4.0f), -4.0f);
-	const float lodBias = max(min(0.0f,4.0f),-4.0f);
-	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("\n\n\n\n\n$$$$ In [%s::%s Line: %d] lodBias = %f\n\n",__FILE__,__FUNCTION__,__LINE__,lodBias);
-#ifdef USE_STREFLOP
-	if (streflop::fabs(lodBias) > 0.01f) {
-#else
-	if (fabs(lodBias) > 0.01f) {
-#endif
-		glTexEnvf(GL_TEXTURE_FILTER_CONTROL,GL_TEXTURE_LOD_BIAS, lodBias );
-	}
+		// setup LOD bias factor
+		//const float lodBias = std::max(std::min( configHandler->Get("TextureLODBias", 0.0f) , 4.0f), -4.0f);
+		const float lodBias = max(min(0.0f,4.0f),-4.0f);
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("\n\n\n\n\n$$$$ In [%s::%s Line: %d] lodBias = %f\n\n",__FILE__,__FUNCTION__,__LINE__,lodBias);
+	#ifdef USE_STREFLOP
+		if (streflop::fabs(lodBias) > 0.01f) {
+	#else
+		if (fabs(lodBias) > 0.01f) {
+	#endif
+			glTexEnvf(GL_TEXTURE_FILTER_CONTROL,GL_TEXTURE_LOD_BIAS, lodBias );
+		}
+		}
 }
 
 #ifdef WIN32
@@ -416,59 +420,61 @@ void Window::toggleFullscreen() {
 	Use 0 for Height, Width, and Color Depth to keep the current values. */
 
 	if(Window::allowAltEnterFullscreenToggle == true) {
-		SDL_Surface *cur_surface = SDL_GetVideoSurface();
-		if(cur_surface != NULL) {
-			Window::isFullScreen = !((cur_surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN);
-		}
+		if(this->masterserverMode == false) {
+			SDL_Surface *cur_surface = SDL_GetVideoSurface();
+			if(cur_surface != NULL) {
+				Window::isFullScreen = !((cur_surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN);
+			}
 
-		SDL_Surface *sf = SDL_GetVideoSurface();
-		SDL_Surface **surface = &sf;
-		uint32 *flags = NULL;
-		//void *pixels = NULL;
-		//SDL_Color *palette = NULL;
-		SDL_Rect clip;
-		//int ncolors = 0;
-		Uint32 tmpflags = 0;
-		int w = 0;
-		int h = 0;
-		int bpp = 0;
+			SDL_Surface *sf = SDL_GetVideoSurface();
+			SDL_Surface **surface = &sf;
+			uint32 *flags = NULL;
+			//void *pixels = NULL;
+			//SDL_Color *palette = NULL;
+			SDL_Rect clip;
+			//int ncolors = 0;
+			Uint32 tmpflags = 0;
+			int w = 0;
+			int h = 0;
+			int bpp = 0;
 
-		if ( (!surface) || (!(*surface)) )  // don't bother if there's no surface.
-			return;
+			if ( (!surface) || (!(*surface)) )  // don't bother if there's no surface.
+				return;
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		tmpflags = (*surface)->flags;
-		w = (*surface)->w;
-		h = (*surface)->h;
-		bpp = (*surface)->format->BitsPerPixel;
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n w = %d, h = %d, bpp = %d",__FILE__,__FUNCTION__,__LINE__,w,h,bpp);
-
-		if (flags == NULL)  // use the surface's flags.
-			flags = &tmpflags;
-
-		//
-		if ( *flags & SDL_FULLSCREEN )
-			*flags &= ~SDL_FULLSCREEN;
-		//
-		else
-			*flags |= SDL_FULLSCREEN;
-
-		SDL_GetClipRect(*surface, &clip);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		*surface = SDL_SetVideoMode(w, h, bpp, (*flags));
-
-		if (*surface == NULL) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			*surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
-		} // if
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			tmpflags = (*surface)->flags;
+			w = (*surface)->w;
+			h = (*surface)->h;
+			bpp = (*surface)->format->BitsPerPixel;
 
-		SDL_SetClipRect(*surface, &clip);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n w = %d, h = %d, bpp = %d",__FILE__,__FUNCTION__,__LINE__,w,h,bpp);
+
+			if (flags == NULL)  // use the surface's flags.
+				flags = &tmpflags;
+
+			//
+			if ( *flags & SDL_FULLSCREEN )
+				*flags &= ~SDL_FULLSCREEN;
+			//
+			else
+				*flags |= SDL_FULLSCREEN;
+
+			SDL_GetClipRect(*surface, &clip);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			*surface = SDL_SetVideoMode(w, h, bpp, (*flags));
+
+			if (*surface == NULL) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				*surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
+			} // if
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			SDL_SetClipRect(*surface, &clip);
+		}
 	}
 	else {
 		HWND handle = GetSDLWindow();
@@ -489,10 +495,13 @@ void Window::toggleFullscreen() {
 #else
 	if(Window::allowAltEnterFullscreenToggle == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		SDL_Surface *cur_surface = SDL_GetVideoSurface();
-		if(cur_surface != NULL) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			SDL_WM_ToggleFullScreen(cur_surface);
+
+		if(Window::masterserverMode == false) {
+			SDL_Surface *cur_surface = SDL_GetVideoSurface();
+			if(cur_surface != NULL) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				SDL_WM_ToggleFullScreen(cur_surface);
+			}
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}

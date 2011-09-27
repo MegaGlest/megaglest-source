@@ -113,50 +113,52 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 		screen = NULL;
 	}
 
-	screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
-	if(screen == 0) {
-		std::ostringstream msg;
-		msg << "Couldn't set video mode "
-			<< resW << "x" << resH << " (" << colorBits
-			<< "bpp " << stencilBits << " stencil "
-			<< depthBits << " depth-buffer). SDL Error is: " << SDL_GetError();
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg.str().c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg.str().c_str());
-
-		for(int i = 32; i >= 8; i-=8) {
-			// try different color bits
-			screen = SDL_SetVideoMode(resW, resH, i, flags);
-			if(screen != 0) {
-				break;
-			}
-		}
-
+	if(Window::getMasterserverMode() == false) {
+		screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
 		if(screen == 0) {
+			std::ostringstream msg;
+			msg << "Couldn't set video mode "
+				<< resW << "x" << resH << " (" << colorBits
+				<< "bpp " << stencilBits << " stencil "
+				<< depthBits << " depth-buffer). SDL Error is: " << SDL_GetError();
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg.str().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,msg.str().c_str());
+
 			for(int i = 32; i >= 8; i-=8) {
-				// try to revert to 800x600
-				screen = SDL_SetVideoMode(800, 600, i, flags);
+				// try different color bits
+				screen = SDL_SetVideoMode(resW, resH, i, flags);
 				if(screen != 0) {
 					break;
 				}
 			}
-		}
-		if(screen == 0) {
-			for(int i = 32; i >= 8; i-=8) {
-				// try to revert to 640x480
-				screen = SDL_SetVideoMode(640, 480, i, flags);
-				if(screen != 0) {
-					break;
+
+			if(screen == 0) {
+				for(int i = 32; i >= 8; i-=8) {
+					// try to revert to 800x600
+					screen = SDL_SetVideoMode(800, 600, i, flags);
+					if(screen != 0) {
+						break;
+					}
 				}
+			}
+			if(screen == 0) {
+				for(int i = 32; i >= 8; i-=8) {
+					// try to revert to 640x480
+					screen = SDL_SetVideoMode(640, 480, i, flags);
+					if(screen != 0) {
+						break;
+					}
+				}
+			}
+
+			if(screen == 0) {
+				throw std::runtime_error(msg.str());
 			}
 		}
 
-		if(screen == 0) {
-			throw std::runtime_error(msg.str());
-		}
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
 	}
-
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
 
 void PlatformContextGl::end() {
@@ -185,7 +187,9 @@ void PlatformContextGl::makeCurrent() {
 }
 
 void PlatformContextGl::swapBuffers() {
-	SDL_GL_SwapBuffers();
+	if(Window::getMasterserverMode() == false) {
+		SDL_GL_SwapBuffers();
+	}
 }
 	
 	

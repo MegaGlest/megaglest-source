@@ -2431,6 +2431,7 @@ int glestMain(int argc, char** argv) {
 
     if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
     	isMasterServerModeEnabled = true;
+    	Window::setMasterserverMode(isMasterServerModeEnabled);
     }
 
 	//off_t fileSize = getFileSize(argv[0]);
