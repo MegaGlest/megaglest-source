@@ -320,7 +320,10 @@ void SystemFlags::Close() {
 			//sleep(150);
 		}
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if(threadLogger->canShutdown(true)) {
+//		if(threadLogger->canShutdown(false)) {
+//			Sleep(0);
+//		}
+		if(threadLogger->shutdownAndWait() == true) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			delete threadLogger;
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
