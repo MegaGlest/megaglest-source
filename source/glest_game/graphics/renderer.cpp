@@ -325,6 +325,10 @@ void Renderer::init() {
 	Config &config= Config::getInstance();
 	loadConfig();
 
+	if(this->masterserverMode == true) {
+		return;
+	}
+
 	if(config.getBool("CheckGlCaps")){
 		checkGlCaps();
 	}
@@ -333,10 +337,6 @@ void Renderer::init() {
 		config.setBool("FirstTime", false);
 		autoConfig();
 		config.save();
-	}
-
-	if(this->masterserverMode == true) {
-		return;
 	}
 
 	modelManager[rsGlobal]->init();
@@ -364,9 +364,6 @@ void Renderer::initGame(const Game *game){
 	this->game= game;
 	//worldToScreenPosCache.clear();
 
-	//check gl caps
-	checkGlOptionalCaps();
-
 	//vars
 	shadowMapFrame= 0;
 	waterAnim= 0;
@@ -376,6 +373,9 @@ void Renderer::initGame(const Game *game){
 	if(this->masterserverMode == true) {
 		return;
 	}
+
+	//check gl caps
+	checkGlOptionalCaps();
 
 	//shadows
 	if(shadows == sProjected || shadows == sShadowMapping) {

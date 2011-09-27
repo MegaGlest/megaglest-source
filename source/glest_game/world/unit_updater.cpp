@@ -2041,7 +2041,9 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		psProj->setPath(startPos, endPos);
 		psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
 		psProj->setVisible(visible);
-		psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+		if(unit->getFaction()->getTexture()) {
+			psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+		}
 		renderer.manageParticleSystem(psProj, rsGame);
 	}
 	else{
@@ -2053,7 +2055,9 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		psSplash= pstSplash->create();
 		psSplash->setPos(endPos);
 		psSplash->setVisible(visible);
-		psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+		if(unit->getFaction()->getTexture()) {
+			psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+		}
 		renderer.manageParticleSystem(psSplash, rsGame);
 		if(pstProj!=NULL){
 			psProj->link(psSplash);
