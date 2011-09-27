@@ -464,9 +464,11 @@ void Ai::sendScoutPatrol(){
 	int unit;
 	bool possibleTargetFound= false;
 
-	if((aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType() == ctNetworkCpuMega)
-	        && random.randRange(0, 1) == 1)
-			{
+	bool ultraResourceAttack= (aiInterface->getControlType() == ctCpuUltra || aiInterface->getControlType() == ctNetworkCpuUltra)
+	        && random.randRange(0, 2) == 1;
+	bool megaResourceAttack=(aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType() == ctNetworkCpuMega)
+			&& random.randRange(0, 1) == 1;
+	if( megaResourceAttack || ultraResourceAttack) {
 		Map *map= aiInterface->getMap();
 
 		const TechTree *tt= aiInterface->getTechTree();
