@@ -2194,6 +2194,20 @@ int glestMain(int argc, char** argv) {
     if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
     	isMasterServerModeEnabled = true;
     	Window::setMasterserverMode(isMasterServerModeEnabled);
+
+    	int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]),&foundParamIndIndex);
+		}
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string exitHeadless = paramPartTokens[1];
+			printf("Forcing quit after game has compelted [%s]\n",exitHeadless.c_str());
+			Program::setWantShutdownApplicationAfterGame(true);
+		}
     }
 
 	//off_t fileSize = getFileSize(argv[0]);
@@ -3230,7 +3244,7 @@ int glestMain(int argc, char** argv) {
 	    }
 
 		//main loop
-		while(Window::handleEvent()) {
+		while(program->isShutdownApplicationEnabled() == false && Window::handleEvent()) {
 			if(isMasterServerModeEnabled == true) {
 				#ifndef WIN32
 				if(poll(cinfd, 1, 0))

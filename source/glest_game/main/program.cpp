@@ -43,6 +43,8 @@ const int Program::maxTimes= 10;
 Program *Program::singleton = NULL;
 const int SOUND_THREAD_UPDATE_MILLISECONDS = 25;
 
+bool Program::wantShutdownApplicationAfterGame = false;
+
 // =====================================================
 // 	class Program::CrashProgramState
 // =====================================================
@@ -161,10 +163,11 @@ void Program::ShowMessageProgramState::update() {
 
 Program::Program() {
 	this->masterserverMode = false;
-	skipRenderFrameCount = 0;
-	programState= NULL;
-	singleton = this;
-	soundThreadManager = NULL;
+	this->shutdownApplicationEnabled = false;
+	this->skipRenderFrameCount = 0;
+	this->programState= NULL;
+	this->singleton = this;
+	this->soundThreadManager = NULL;
 
 	//mesage box
 	Lang &lang= Lang::getInstance();

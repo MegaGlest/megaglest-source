@@ -78,6 +78,10 @@ void BattleEnd::update() {
 	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
 
 	if(this->stats.getIsMasterserverMode() == true) {
+		if(program->getWantShutdownApplicationAfterGame() == true) {
+			program->setShutdownApplicationEnabled(true);
+			return;
+		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//program->setState(new MainMenu(program));
 		program->initServer(program->getWindow(),false,true,true);

@@ -40,6 +40,7 @@ private:
 public:
 	BattleEnd(Program *program, const Stats *stats);
 	~BattleEnd();
+
 	virtual void update();
 	virtual void render();
 	virtual void keyDown(char key);
