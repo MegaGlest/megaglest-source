@@ -113,9 +113,19 @@ void cleanupCRCThread() {
 			difftime(time(NULL),elapsed) <= 45;) {
 			//sleep(150);
 		}
-		if(preCacheThread->canShutdown(true)) {
-			delete preCacheThread;
+		if(preCacheThread->canShutdown(false)) {
+			if(preCacheThread->shutdownAndWait() == true) {
+				delete preCacheThread;
+			}
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		else {
+			if(preCacheThread->shutdownAndWait() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				delete preCacheThread;
+
+				//printf("Stopping broadcast thread [%p] - C\n",broadCastThread);
+			}
 		}
 		preCacheThread = NULL;
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -1868,23 +1868,38 @@ ServerSocket::~ServerSocket() {
         UPNP_Tools::enabledUPNP = false;
 	}
 
+	if(urls.controlURL && urls.ipcondescURL && urls.controlURL_CIF) {
+		FreeUPNPUrls(&urls);
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerSocket::stopBroadCastThread() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("Stopping broadcast thread [%p]\n",broadCastThread);
+
 	if(broadCastThread != NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(broadCastThread->canShutdown(true) == true) {
+		//printf("Stopping broadcast thread [%p] - A\n",broadCastThread);
+
+		if(broadCastThread->canShutdown(false) == true) {
+			sleep(0);
+		}
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//printf("Stopping broadcast thread [%p] - B\n",broadCastThread);
+
+		if(broadCastThread->shutdownAndWait() == true) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-            if(broadCastThread->shutdownAndWait() == true) {
-            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                delete broadCastThread;
-            }
+			delete broadCastThread;
+
+			//printf("Stopping broadcast thread [%p] - C\n",broadCastThread);
 		}
 		broadCastThread = NULL;
+		//printf("Stopping broadcast thread [%p] - D\n",broadCastThread);
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
@@ -1897,6 +1912,9 @@ void ServerSocket::startBroadCastThread() {
 	stopBroadCastThread();
 
 	broadCastThread = new BroadCastSocketThread();
+
+	//printf("Start broadcast thread [%p]\n",broadCastThread);
+
 	broadCastThread->setUniqueID(string(__FILE__) + string("_") + string(__FUNCTION__));
 	broadCastThread->start();
 
@@ -2286,10 +2304,12 @@ void UPNP_Tools::NETremRedirects(int ext_port) {
 //
 BroadCastSocketThread::BroadCastSocketThread() : BaseThread() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//printf("new broadcast thread [%p]\n",this);
 }
 
 BroadCastSocketThread::~BroadCastSocketThread() {
-
+	//printf("delete broadcast thread [%p]\n",this);
 }
 
 bool BroadCastSocketThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
