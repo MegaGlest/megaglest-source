@@ -507,16 +507,16 @@ Vec2i PathFinder::adjustInDirection(Vec2i c, int dir) {
 	// C's modulo operator doesn't quite behave the right way to do this,
 	// but for our purposes this kluge should be good enough
 	switch ((dir + 65536) % 8) {
-	case 0: return (Vec2i) {c.x, c.y - 1};
-	case 1: return (Vec2i) {c.x + 1, c.y - 1};
-	case 2: return (Vec2i) {c.x + 1, c.y };
-	case 3: return (Vec2i) {c.x + 1, c.y + 1};
-	case 4: return (Vec2i) {c.x, c.y + 1};
-	case 5: return (Vec2i) {c.x - 1, c.y + 1};
-	case 6: return (Vec2i) {c.x - 1, c.y};
-	case 7: return (Vec2i) {c.x - 1, c.y - 1};
+	case 0: return Vec2i(c.x, c.y - 1);
+	case 1: return Vec2i(c.x + 1, c.y - 1);
+	case 2: return Vec2i(c.x + 1, c.y );
+	case 3: return Vec2i(c.x + 1, c.y + 1);
+	case 4: return Vec2i(c.x, c.y + 1);
+	case 5: return Vec2i(c.x - 1, c.y + 1);
+	case 6: return Vec2i(c.x - 1, c.y);
+	case 7: return Vec2i(c.x - 1, c.y - 1);
 	}
-	return (Vec2i) { -1, -1 };
+	return Vec2i( -1, -1 );
 }
 
 bool PathFinder::directionIsDiagonal(direction dir) {
