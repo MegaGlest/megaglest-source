@@ -21,10 +21,12 @@
 #include "game_constants.h"
 #include "command_type.h"
 #include "base_thread.h"
+#include <set>
 #include "leak_dumper.h"
 
 using std::map;
 using std::vector;
+using std::set;
 
 using Shared::Graphics::Texture2D;
 using namespace Shared::PlatformCommon;
@@ -132,9 +134,19 @@ private:
 	std::map<int,SwitchTeamVote> switchTeamVotes;
 	int currentSwitchTeamVoteFactionIndex;
 
+	set<int> livingUnits;
+	set<Unit*> livingUnitsp;
+
 public:
 	Faction();
 	~Faction();
+
+	void addLivingUnits(int id) { livingUnits.insert(id); }
+	void addLivingUnitsp(Unit *unit) { livingUnitsp.insert(unit); }
+
+	bool isUnitInLivingUnitsp(Unit *unit) { return (livingUnitsp.find(unit) != livingUnitsp.end()); }
+	void deleteLivingUnits(int id) { livingUnits.erase(id); }
+	void deleteLivingUnitsp(Unit *unit) { livingUnitsp.erase(unit); }
 
     void init(
 		FactionType *factionType, ControlType control, TechTree *techTree, Game *game,

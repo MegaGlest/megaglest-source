@@ -83,6 +83,7 @@ PathFinder::~PathFinder() {
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		factions[i].nodePool.clear();
 	}
+	factions.clear();
 	map=NULL;
 }
 

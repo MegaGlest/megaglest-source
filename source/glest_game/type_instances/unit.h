@@ -16,7 +16,6 @@
 #include "particle.h"
 #include "skill_type.h"
 #include "game_constants.h"
-#include <set>
 #include "platform_common.h"
 #include <vector>
 #include "leak_dumper.h"
@@ -32,8 +31,6 @@ using Shared::Graphics::Vec2i;
 using Shared::Graphics::Model;
 using Shared::PlatformCommon::Chrono;
 using Shared::PlatformCommon::ValueCheckerVault;
-
-using std::set;
 
 class Map;
 class Faction;
@@ -270,10 +267,6 @@ public:
 	static const int maxDeadCount;
 	static const float highlightTime;
 	static const int invalidId;
-
-	static set<int> livingUnits;
-	static set<Unit*> livingUnitsp;
-
 
 private:
 	const int id;

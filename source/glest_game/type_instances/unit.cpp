@@ -241,8 +241,8 @@ const int Unit::maxDeadCount= 1000;	//time in until the corpse disapears - shoul
 const float Unit::highlightTime= 0.5f;
 const int Unit::invalidId= -1;
 
-set<int> Unit::livingUnits;
-set<Unit*> Unit::livingUnitsp;
+//set<int> Unit::livingUnits;
+//set<Unit*> Unit::livingUnitsp;
 
 // ============================ Constructor & destructor =============================
 
@@ -342,8 +342,8 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	this->currSkill = getType()->getFirstStOfClass(scStop);
 	this->currentAttackBoostOriginatorEffect.skillType = this->currSkill;
 
-	livingUnits.insert(id);
-	livingUnitsp.insert(this);
+	this->faction->addLivingUnits(id);
+	this->faction->addLivingUnitsp(this);
 
 	addItemToVault(&this->hp,this->hp);
 	addItemToVault(&this->ep,this->ep);
@@ -359,17 +359,9 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 Unit::~Unit() {
 	badHarvestPosList.clear();
 
-	//Just to be sure, should already be removed
-	if (livingUnits.erase(id)) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		//Only an error if not called at end
-	}
+	this->faction->deleteLivingUnits(id);
+	this->faction->deleteLivingUnitsp(this);
 
-	//Just to be sure, should already be removed
-	if (livingUnitsp.erase(this)) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	}
 	//remove commands
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
@@ -1206,7 +1198,7 @@ CommandResult Unit::finishCommand() {
 	this->unitPath->clear();
 
 	while (commands.empty() == false) {
-		if (commands.front()->getUnit() != NULL && livingUnitsp.find(commands.front()->getUnit()) == livingUnitsp.end()) {
+		if (commands.front()->getUnit() != NULL && this->faction->isUnitInLivingUnitsp(commands.front()->getUnit()) == false) {
 			safeMutex.Lock();
 			delete commands.front();
 			commands.erase(commands.begin());
@@ -1326,8 +1318,8 @@ void Unit::undertake() {
 	//unitUpdater->clearUnitPrecache(this);
 	unitUpdater->removeUnitPrecache(this);
 
-	livingUnits.erase(id);
-	livingUnitsp.erase(this);
+	this->faction->deleteLivingUnits(id);
+	this->faction->deleteLivingUnitsp(this);
 	faction->removeUnit(this);
 }
 
