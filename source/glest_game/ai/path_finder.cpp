@@ -965,7 +965,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	if(nodeLimitReached == false) {
 		//printf("\n\n\n====== START AStar-JPS Pathfinder start [%s] end [%s]\n",unitPos.getString().c_str(),finalPos.getString().c_str());
 
-		const bool tryJPSPathfinder = true;
+		const bool tryJPSPathfinder = false;
 
 		while(nodeLimitReached == false) {
 			whileLoopCount++;
