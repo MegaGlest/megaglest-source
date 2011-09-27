@@ -207,6 +207,7 @@ private:
 
 public:
 	BroadCastSocketThread();
+	virtual ~BroadCastSocketThread();
     virtual void execute();
     virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 };

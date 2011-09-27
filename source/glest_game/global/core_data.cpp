@@ -40,7 +40,8 @@ CoreData &CoreData::getInstance() {
 }
 
 CoreData::~CoreData() {
-	deleteValues(waterSounds.getSounds().begin(), waterSounds.getSounds().end());
+	deleteValues(waterSounds.getSoundsPtr()->begin(), waterSounds.getSoundsPtr()->end());
+	waterSounds.getSoundsPtr()->clear();
 }
 
 void CoreData::load() {
