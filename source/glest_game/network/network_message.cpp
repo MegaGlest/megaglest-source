@@ -270,7 +270,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	data.pathFinderType = gameSettings->getPathFinderType();
 	data.flagTypes1 = gameSettings->getFlagTypes1();
 
-	for(int i= 0; i<data.factionCount; ++i) {
+	for(int i= 0; i < data.factionCount; ++i) {
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
 		data.networkPlayerNames[i]= gameSettings->getNetworkPlayerName(i);
 		data.networkPlayerStatuses[i] = gameSettings->getNetworkPlayerStatuses(i);
@@ -279,6 +279,16 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 		data.resourceMultiplierIndex[i]= gameSettings->getResourceMultiplierIndex(i);
 		data.teams[i]= gameSettings->getTeam(i);
 		data.startLocationIndex[i]= gameSettings->getStartLocationIndex(i);
+	}
+	for(int i= data.factionCount; i < GameConstants::maxPlayers; ++i) {
+		data.factionTypeNames[i]= "";
+		data.networkPlayerNames[i]= "";
+		data.networkPlayerStatuses[i] = 0;
+		data.networkPlayerLanguages[i] = "";
+		data.factionControls[i]= 0;
+		data.resourceMultiplierIndex[i]= 0;
+		data.teams[i]= -1;
+		data.startLocationIndex[i]= 0;
 	}
 
 	data.aiAcceptSwitchTeamPercentChance = gameSettings->getAiAcceptSwitchTeamPercentChance();

@@ -14,16 +14,23 @@
 #include <assert.h>
 
 #include "noimpl.h"
+#include <algorithm>
 #include "platform_common.h"
 
 using namespace std;
 
-namespace Shared{ namespace Platform{
+namespace Shared { namespace Platform {
+
+Mutex Thread::mutexthreadList;
+std::vector<Thread *> Thread::threadList;
 
 // =====================================
 //          Threads
 // =====================================
 Thread::Thread() {
+	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
+	Thread::threadList.push_back(this);
+	safeMutex.ReleaseLock();
 	thread = NULL;
 }
 
@@ -32,6 +39,19 @@ Thread::~Thread() {
 		SDL_WaitThread(thread, NULL);
 		thread = NULL;
 	}
+
+	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
+	std::vector<Thread *>::iterator iterFind = std::find(Thread::threadList.begin(),Thread::threadList.end(),this);
+	Thread::threadList.erase(iterFind);
+	safeMutex.ReleaseLock();
+}
+
+std::vector<Thread *> Thread::getThreadList() {
+	std::vector<Thread *> result;
+	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
+	result = threadList;
+	safeMutex.ReleaseLock();
+	return result;
 }
 
 void Thread::start() {
