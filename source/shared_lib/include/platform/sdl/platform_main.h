@@ -265,19 +265,22 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 	return result;
 }
 
-#define MAIN_FUNCTION(X) int main(int argc, char **argv)                     \
-{																			 \
-	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) { \
-	     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0)  {                                 \
-	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";  \
-	        return 1;                                                            \
-	     }                                                                        \
-	}																		 \
-	else {																	 \
-		 if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {                                 \
-			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";  \
-			return 1;                                                            \
-		 }                                                                        \
+#define MAIN_FUNCTION(X) int main(int argc, char **argv)                                       \
+{																			                   \
+	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_HELP])) == true    ||           \
+	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VERSION])) == true ||           \
+	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])) == true || \
+	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) { \
+	     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0)  {                               \
+	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";                \
+	        return 1;                                                                          \
+	     }                                                                                     \
+	}																		                   \
+	else {																	                   \
+		 if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {                                              \
+			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";                \
+			return 1;                                                                          \
+		 }                                                                                     \
 	}																		 \
 	SDL_EnableUNICODE(1);													 \
     int result = X(argc, argv);                                              \
