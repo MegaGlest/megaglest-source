@@ -1191,8 +1191,15 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 //}
 
                 //ensure thet only 1 human player is present
-                if(listBoxControls[i].mouseClick(x, y)) {
+                int oldSelectedIndex = listBoxControls[i].getSelectedItemIndex();
+                if(clientInterface != NULL && clientInterface->getGameSettings() != NULL &&
+                	clientInterface->getGameSettings()->getThisFactionIndex() != i &&
+                		listBoxControls[i].mouseClick(x, y)) {
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+                	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+                		listBoxControls[i].mouseClick(x, y);
+                	}
 
                     //look for human players
 //                    int humanIndex1= -1;
