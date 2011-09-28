@@ -79,8 +79,8 @@ start compiling it:
 If the configure script can't find some of the libraries, make sure that you
 also have the -dev packages installed that some distributions provide.
 
-At this point I'd like to thank all the authors of these helpful libraries that
-made our development easy and straight forward.
+At this point we would like to thank all the authors of these helpful libraries 
+who made our development easy and straight forward.
 
 
 2.2 Building
