@@ -160,6 +160,13 @@ static void cleanupProcessObjects() {
 	//deleteMapValues(crcFactionPreviewTextureCache.begin(),crcFactionPreviewTextureCache.end());
 	crcFactionPreviewTextureCache.clear();
 
+	time_t elapsed = time(NULL);
+    for(;Thread::getThreadList().size() > 0 &&
+    	 difftime(time(NULL),elapsed) <= 10;) {
+    	sleep(0);
+    }
+
+    SystemFlags::globalCleanupHTTP();
 	CacheManager::cleanupMutexes();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

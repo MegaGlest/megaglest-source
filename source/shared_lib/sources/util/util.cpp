@@ -177,6 +177,7 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 CURL *SystemFlags::initHTTP() {
 	if(SystemFlags::curl_global_init_called == false) {
 		SystemFlags::curl_global_init_called = true;
+		//printf("HTTP init\n");
 		CURLcode result = curl_global_init(CURL_GLOBAL_ALL);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
 		//printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
@@ -188,6 +189,15 @@ CURL *SystemFlags::initHTTP() {
 	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
 	return handle;
+}
+
+void SystemFlags::globalCleanupHTTP() {
+	if(SystemFlags::curl_global_init_called == true) {
+		SystemFlags::curl_global_init_called = false;
+		//printf("HTTP cleanup\n");
+		curl_global_cleanup();
+		//printf("In [%s::%s Line %d] curl_global_cleanup called\n",__FILE__,__FUNCTION__,__LINE__);
+	}
 }
 
 SystemFlags::SystemFlagsType & SystemFlags::getSystemSettingType(DebugType type) {
@@ -269,14 +279,6 @@ inline bool acquire_file_lock(int hnd)
 
 SystemFlags::SystemFlags() {
 
-}
-
-void SystemFlags::globalCleanupHTTP() {
-	if(SystemFlags::curl_global_init_called == true) {
-		SystemFlags::curl_global_init_called = false;
-		curl_global_cleanup();
-		//printf("In [%s::%s Line %d] curl_global_cleanup called\n",__FILE__,__FUNCTION__,__LINE__);
-	}
 }
 
 void SystemFlags::cleanupHTTP(CURL **handle, bool globalCleanup) {
@@ -374,8 +376,6 @@ void SystemFlags::Close() {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("END Closing logfiles\n");
 		}
 	}
-
-	SystemFlags::globalCleanupHTTP();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

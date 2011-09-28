@@ -23,6 +23,7 @@
 #endif
 
 //#include "util.h"
+#include <vector>
 #include "leak_dumper.h"
 
 // =====================================================
@@ -36,7 +37,9 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace Platform {
 
-class Thread{
+class Mutex;
+
+class Thread {
 public:
 	enum Priority {
 		pIdle = 0,
@@ -49,9 +52,14 @@ public:
 private:
 	SDL_Thread* thread;
 
+	static Mutex mutexthreadList;
+	static std::vector<Thread *> threadList;
+
 public:
 	Thread();
 	virtual ~Thread();
+
+	static std::vector<Thread *> getThreadList();
 
 	void start();
 	virtual void execute()=0;

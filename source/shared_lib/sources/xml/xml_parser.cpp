@@ -64,6 +64,7 @@ bool XmlIo::initialized= false;
 
 XmlIo::XmlIo() {
 	try{
+		//printf("XmlIo init\n");
 		XMLPlatformUtils::Initialize();
 
 		XmlIo::initialized= true;
@@ -93,6 +94,7 @@ XmlIo &XmlIo::getInstance() {
 void XmlIo::cleanup() {
 	if(XmlIo::initialized == true) {
 		XmlIo::initialized= false;
+		//printf("XmlIo cleanup\n");
 		XMLPlatformUtils::Terminate();
 	}
 }
