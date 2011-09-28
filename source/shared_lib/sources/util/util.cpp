@@ -271,17 +271,21 @@ SystemFlags::SystemFlags() {
 
 }
 
+void SystemFlags::globalCleanupHTTP() {
+	if(SystemFlags::curl_global_init_called == true) {
+		SystemFlags::curl_global_init_called = false;
+		curl_global_cleanup();
+		//printf("In [%s::%s Line %d] curl_global_cleanup called\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
 void SystemFlags::cleanupHTTP(CURL **handle, bool globalCleanup) {
 	if(handle != NULL && *handle != NULL) {
 		curl_easy_cleanup(*handle);
 		*handle = NULL;
 
 		if(globalCleanup == true) {
-			if(SystemFlags::curl_global_init_called == true) {
-				SystemFlags::curl_global_init_called = false;
-				curl_global_cleanup();
-				//printf("In [%s::%s Line %d] curl_global_cleanup called\n",__FILE__,__FUNCTION__,__LINE__);
-			}
+			SystemFlags::globalCleanupHTTP();
 		}
 	}
 }
@@ -297,9 +301,7 @@ SystemFlags::~SystemFlags() {
 		curl_handle = NULL;
 	}
 	if(SystemFlags::curl_global_init_called == true) {
-		SystemFlags::curl_global_init_called = false;
-		curl_global_cleanup();
-		//printf("In [%s::%s Line %d] curl_global_cleanup called\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::globalCleanupHTTP();
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -372,6 +374,8 @@ void SystemFlags::Close() {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("END Closing logfiles\n");
 		}
 	}
+
+	SystemFlags::globalCleanupHTTP();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

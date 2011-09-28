@@ -133,6 +133,7 @@ public:
 
 	static CURL *initHTTP();
 	static void cleanupHTTP(CURL **handle,bool globalCleanup=false);
+	static void globalCleanupHTTP();
 
     static bool getThreadedLoggerRunning();
     static std::size_t getLogEntryBufferCount();

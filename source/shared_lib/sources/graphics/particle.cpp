@@ -83,6 +83,9 @@ ParticleSystem::~ParticleSystem(){
 
 	//delete [] particles;
 	particles.clear();
+
+	delete particleObserver;
+	particleObserver = NULL;
 }
 
 // =============== VIRTUAL ======================

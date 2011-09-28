@@ -102,6 +102,12 @@ World::~World() {
 	}
 	factions.clear();
 
+#ifdef LEAK_CHECK_UNITS
+	printf("%s::%s\n",__FILE__,__FUNCTION__);
+	Unit::dumpMemoryList();
+	UnitPathBasic::dumpMemoryList();
+#endif
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete techTree;
@@ -146,6 +152,12 @@ void World::end(){
 		delete factions[i];
 	}
 	factions.clear();
+
+#ifdef LEAK_CHECK_UNITS
+	printf("%s::%s\n",__FILE__,__FUNCTION__);
+	Unit::dumpMemoryList();
+	UnitPathBasic::dumpMemoryList();
+#endif
 
 	fogOfWarOverride = false;
 
