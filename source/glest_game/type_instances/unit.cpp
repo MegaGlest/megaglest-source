@@ -40,7 +40,17 @@ namespace Glest{ namespace Game{
 
 const int UnitPathBasic::maxBlockCount= GameConstants::updateFps / 2;
 
+#ifdef LEAK_CHECK_UNITS
+std::map<UnitPathBasic *,bool> UnitPathBasic::mapMemoryList;
+std::map<Unit *,bool> Unit::mapMemoryList;
+std::map<UnitPathInterface *,int> Unit::mapMemoryList2;
+#endif
+
 UnitPathBasic::UnitPathBasic() : UnitPathInterface() {
+#ifdef LEAK_CHECK_UNITS
+	UnitPathBasic::mapMemoryList[this]=true;
+#endif
+
 	this->blockCount = 0;
 	this->pathQueue.clear();
 	this->lastPathCacheQueue.clear();
@@ -52,7 +62,25 @@ UnitPathBasic::~UnitPathBasic() {
 	this->pathQueue.clear();
 	this->lastPathCacheQueue.clear();
 	this->map = NULL;
+
+#ifdef LEAK_CHECK_UNITS
+	UnitPathBasic::mapMemoryList.erase(this);
+#endif
 }
+
+#ifdef LEAK_CHECK_UNITS
+void UnitPathBasic::dumpMemoryList() {
+	printf("===== START report of Unfreed UnitPathBasic pointers =====\n");
+	for(std::map<UnitPathBasic *,bool>::iterator iterMap = UnitPathBasic::mapMemoryList.begin();
+		iterMap != UnitPathBasic::mapMemoryList.end(); ++iterMap) {
+		printf("************** ==> Unfreed UnitPathBasic pointer [%p]\n",iterMap->first);
+
+		if(Unit::mapMemoryList2.find(iterMap->first) != Unit::mapMemoryList2.end()) {
+			printf("Found owner unit id [%d]\n",Unit::mapMemoryList2[iterMap->first]);
+		}
+	}
+}
+#endif
 
 bool UnitPathBasic::isEmpty() const {
 	return pathQueue.empty();
@@ -249,6 +277,10 @@ const int Unit::invalidId= -1;
 Game *Unit::game = NULL;
 
 Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
+#ifdef LEAK_CHECK_UNITS
+	Unit::mapMemoryList[this]=true;
+#endif
+
 	lastSynchDataString="";
 	modelFacing = CardinalDir::NORTH;
 	lastStuckFrame = 0;
@@ -263,6 +295,8 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	rotationZ=.0f;
 	rotationX=.0f;
 
+    this->unitPath = unitpath;
+    this->unitPath->setMap(map);
 
     RandomGen random;
 
@@ -270,8 +304,6 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 		throw runtime_error("#2 Invalid path position = " + pos.getString());
 	}
 
-    this->unitPath = unitpath;
-    this->unitPath->setMap(map);
 	this->pos=pos;
 	this->type=type;
     this->faction=faction;
@@ -402,6 +434,10 @@ Unit::~Unit() {
 	delete currentAttackBoostOriginatorEffect.currentAppliedEffect;
 	currentAttackBoostOriginatorEffect.currentAppliedEffect = NULL;
 
+#ifdef LEAK_CHECK_UNITS
+	Unit::mapMemoryList2[this->unitPath] = this->getId();
+#endif
+
 	delete this->unitPath;
 	this->unitPath = NULL;
 
@@ -410,7 +446,21 @@ Unit::~Unit() {
 
 	//MutexSafeWrapper safeMutex1(&mutexDeletedUnits,string(__FILE__) + "_" + intToStr(__LINE__));
 	//deletedUnits[this]=true;
+
+#ifdef LEAK_CHECK_UNITS
+	Unit::mapMemoryList.erase(this);
+#endif
 }
+
+#ifdef LEAK_CHECK_UNITS
+void Unit::dumpMemoryList() {
+	printf("===== START report of Unfreed Unit pointers =====\n");
+	for(std::map<Unit *,bool>::iterator iterMap = Unit::mapMemoryList.begin();
+		iterMap != Unit::mapMemoryList.end(); ++iterMap) {
+		printf("************** ==> Unfreed Unit pointer [%p]\n",iterMap->first);
+	}
+}
+#endif
 
 //bool Unit::isUnitDeleted(void *unit) {
 //	bool result = false;

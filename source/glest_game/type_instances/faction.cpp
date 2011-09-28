@@ -172,6 +172,8 @@ void Faction::sortUnitsByCommandGroups() {
 
 	//printf("====== Done sorting for faction # %d [%s] unitCount = %d\n",this->getIndex(),this->getType()->getName().c_str(),units.size());
 
+	unsigned int originalUnitSize = units.size();
+
 	std::vector<int> unitIds;
 	for(unsigned int i = 0; i < units.size(); ++i) {
 		int unitId = units[i]->getId();
@@ -203,6 +205,7 @@ void Faction::sortUnitsByCommandGroups() {
 		units.push_back(this->findUnit(unitId));
 	}
 
+	assert(originalUnitSize == units.size());
 }
 
 // =====================================================
@@ -392,12 +395,38 @@ Faction::~Faction() {
 		workerThread = NULL;
 	}
 
+	MutexSafeWrapper safeMutex(unitsMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+	deleteValues(units.begin(), units.end());
+	units.clear();
+
+	safeMutex.ReleaseLock();
+
 	//delete texture;
 	texture = NULL;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	delete unitsMutex;
 	unitsMutex = NULL;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Faction::end() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(workerThread != NULL) {
+		workerThread->signalQuit();
+		if(workerThread->shutdownAndWait() == true) {
+			delete workerThread;
+		}
+		workerThread = NULL;
+	}
+
+	MutexSafeWrapper safeMutex(unitsMutex,string(__FILE__) + "_" + intToStr(__LINE__));
+	deleteValues(units.begin(), units.end());
+	units.clear();
+
+	safeMutex.ReleaseLock();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -470,24 +499,6 @@ void Faction::init(
 		this->workerThread->setUniqueID(__FILE__);
 		this->workerThread->start();
 	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void Faction::end() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if(workerThread != NULL) {
-		workerThread->signalQuit();
-		if(workerThread->shutdownAndWait() == true) {
-			delete workerThread;
-		}
-		workerThread = NULL;
-	}
-
-	MutexSafeWrapper safeMutex(unitsMutex,string(__FILE__) + "_" + intToStr(__LINE__));
-	deleteValues(units.begin(), units.end());
-	safeMutex.ReleaseLock();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

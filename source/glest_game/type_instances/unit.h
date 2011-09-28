@@ -20,6 +20,8 @@
 #include <vector>
 #include "leak_dumper.h"
 
+//#define LEAK_CHECK_UNITS
+
 namespace Glest { namespace Game {
 
 using Shared::Graphics::ParticleSystem;
@@ -102,6 +104,8 @@ public:
 class UnitPathInterface {
 
 public:
+	UnitPathInterface() {}
+	virtual ~UnitPathInterface() {}
 
 	virtual bool isBlocked() const = 0;
 	virtual bool isEmpty() const = 0;
@@ -128,6 +132,10 @@ private:
 	static const int maxBlockCount;
 	Map *map;
 
+#ifdef LEAK_CHECK_UNITS
+	static std::map<UnitPathBasic *,bool> mapMemoryList;
+#endif
+
 private:
 	int blockCount;
 	vector<Vec2i> pathQueue;
@@ -136,6 +144,11 @@ private:
 public:
 	UnitPathBasic();
 	virtual ~UnitPathBasic();
+
+#ifdef LEAK_CHECK_UNITS
+	static void dumpMemoryList();
+#endif
+
 	virtual bool isBlocked() const;
 	virtual bool isEmpty() const;
 	virtual bool isStuck() const;
@@ -175,7 +188,7 @@ private:
 	Map *map;
 
 public:
-	UnitPath() : blockCount(0), map(NULL) {} /**< Construct path object */
+	UnitPath() : UnitPathInterface(), blockCount(0), map(NULL) {} /**< Construct path object */
 	virtual bool isBlocked() const	{return blockCount >= maxBlockCount;} /**< is this path blocked	   */
 	virtual bool isEmpty() const	{return list<Vec2i>::empty();}	/**< is path empty				  */
 	virtual bool isStuck() const	{return false; }
@@ -262,11 +275,20 @@ private:
 	typedef list<UnitObserver*> Observers;
 	typedef vector<UnitParticleSystem*> UnitParticleSystems;
 
+#ifdef LEAK_CHECK_UNITS
+	static std::map<Unit *,bool> mapMemoryList;
+#endif
+
 public:
 	static const float speedDivider;
 	static const int maxDeadCount;
 	static const float highlightTime;
 	static const int invalidId;
+
+#ifdef LEAK_CHECK_UNITS
+	static std::map<UnitPathInterface *,int> mapMemoryList2;
+	static void dumpMemoryList();
+#endif
 
 private:
 	const int id;

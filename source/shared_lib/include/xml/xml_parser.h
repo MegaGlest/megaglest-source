@@ -53,6 +53,8 @@ private:
 public:
 	static XmlIo &getInstance();
 	~XmlIo();
+	void cleanup();
+
 	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues);
 	void save(const string &path, const XmlNode *node);
 };

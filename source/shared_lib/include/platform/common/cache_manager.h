@@ -93,13 +93,16 @@ protected:
 public:
 
 	CacheManager() { }
-	~CacheManager() {
+	static void cleanupMutexes() {
 		for(std::map<string, Mutex *>::iterator iterMap = itemCacheMutexList.begin();
 			iterMap != itemCacheMutexList.end(); iterMap++) {
 			delete iterMap->second;
 			iterMap->second = NULL;
 		}
 		itemCacheMutexList.clear();
+	}
+	~CacheManager() {
+		CacheManager::cleanupMutexes();
 	}
 
 	template <typename T>

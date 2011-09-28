@@ -65,6 +65,8 @@ bool XmlIo::initialized= false;
 XmlIo::XmlIo() {
 	try{
 		XMLPlatformUtils::Initialize();
+
+		XmlIo::initialized= true;
 	}
 	catch(const XMLException &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system, msg %s\n",__FILE__,__FUNCTION__,__LINE__,e.getMessage());
@@ -83,13 +85,20 @@ XmlIo::XmlIo() {
 	}
 }
 
-XmlIo &XmlIo::getInstance(){
+XmlIo &XmlIo::getInstance() {
 	static XmlIo XmlIo;
 	return XmlIo;
 }
 
-XmlIo::~XmlIo(){
-	XMLPlatformUtils::Terminate();
+void XmlIo::cleanup() {
+	if(XmlIo::initialized == true) {
+		XmlIo::initialized= false;
+		XMLPlatformUtils::Terminate();
+	}
+}
+
+XmlIo::~XmlIo() {
+	cleanup();
 }
 
 XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplacementValues) {

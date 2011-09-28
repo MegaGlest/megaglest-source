@@ -150,6 +150,17 @@ static void cleanupProcessObjects() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SystemFlags::Close();
+	XmlIo::getInstance().cleanup();
+
+	std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+	//deleteMapValues(crcPlayerTextureCache.begin(),crcPlayerTextureCache.end());
+	crcPlayerTextureCache.clear();
+
+	std::map<string,Texture2D *> &crcFactionPreviewTextureCache = CacheManager::getCachedItem< std::map<string,Texture2D *> >(GameConstants::factionPreviewTextureCacheLookupKey);
+	//deleteMapValues(crcFactionPreviewTextureCache.begin(),crcFactionPreviewTextureCache.end());
+	crcFactionPreviewTextureCache.clear();
+
+	CacheManager::cleanupMutexes();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
