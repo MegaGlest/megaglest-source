@@ -420,7 +420,7 @@ void Window::toggleFullscreen() {
 	Use 0 for Height, Width, and Color Depth to keep the current values. */
 
 	if(Window::allowAltEnterFullscreenToggle == true) {
-		if(this->masterserverMode == false) {
+		if(Window::masterserverMode == false) {
 			SDL_Surface *cur_surface = SDL_GetVideoSurface();
 			if(cur_surface != NULL) {
 				Window::isFullScreen = !((cur_surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN);
