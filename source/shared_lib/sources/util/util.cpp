@@ -192,6 +192,13 @@ CURL *SystemFlags::initHTTP() {
 }
 
 void SystemFlags::globalCleanupHTTP() {
+
+	if(curl_handle != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::cleanupHTTP(&curl_handle, true);
+		curl_handle = NULL;
+	}
+
 	if(SystemFlags::curl_global_init_called == true) {
 		SystemFlags::curl_global_init_called = false;
 		//printf("HTTP cleanup\n");
@@ -297,14 +304,7 @@ SystemFlags::~SystemFlags() {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(curl_handle != NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		SystemFlags::cleanupHTTP(&curl_handle, true);
-		curl_handle = NULL;
-	}
-	if(SystemFlags::curl_global_init_called == true) {
-		SystemFlags::globalCleanupHTTP();
-	}
+	SystemFlags::globalCleanupHTTP();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
