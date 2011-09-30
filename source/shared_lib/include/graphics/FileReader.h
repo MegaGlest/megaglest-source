@@ -273,22 +273,15 @@ T* FileReader<T>::readPath(const string& filepath, T* object) {
 template <typename T>
 FileReader<T>::FileReader(std::vector<string> extensions): extensions(extensions) {
 	getFileReaders().push_back(this);
-	//string const * nextExtension = extensions;
 	std::vector<string> nextExtension = extensions;
-	//while (((*nextExtension) != "")) {
 	for(unsigned int i = 0; i < nextExtension.size(); ++i) {
-		//vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[*nextExtension];
 		vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[nextExtension[i]];
 		if (curPossibleReaders == NULL) {
-			//(getFileReadersMap())[*nextExtension] = (curPossibleReaders = new vector<FileReader<T> const *>());
 			(getFileReadersMap())[nextExtension[i]] = (curPossibleReaders = new vector<FileReader<T> const *>());
 		}
 		curPossibleReaders->push_back(this);
-		//++nextExtension;
 	}
 }
-
-
 
 /**Gives a quick estimation of whether the specified file
  * can be read or not depending on the filename*/

@@ -645,6 +645,7 @@ void MenuStateCustomGame::cleanup() {
         }
         else {
         	publishToMasterserverThread->signalQuit();
+        	sleep(0);
         	if(publishToMasterserverThread->canShutdown(true) == true &&
         		publishToMasterserverThread->shutdownAndWait() == true) {
         		delete publishToMasterserverThread;

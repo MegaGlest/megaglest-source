@@ -589,7 +589,7 @@ Vec2i PathFinder::jump(Vec2i dest, direction dir, Vec2i start,std::vector<Vec2i>
 	if (!isEnterable(coord))
 		return Vec2i(-1,-1);
 
-	if(path.size() > max(250,pathLength*2)) {
+	if(path.size() > max(300,pathLength*2)) {
 	//if(path.size() > 2000) {
 		//printf("path.size() > pathLength [%d]\n",pathLength);
 		//return Vec2i(-1,-1);
@@ -1038,64 +1038,60 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					//addToOpenSet (&astar, newNode, node);
 					//printf("JPS #2 node->pos [%s] newNode [%s] path.size() [%d] pos [%s]\n",node->pos.getString().c_str(),newNode.getString().c_str(),(int)path.size(),path[0].getString().c_str());
 
-					//for(unsigned int ipath = 0; ipath < path.size(); ++ipath) {
-					//for(unsigned int ipath = 0; ipath < 1; ++ipath) {
-						Vec2i newPath = path[0];
+					Vec2i newPath = path[0];
 
-						//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, newPath);
-						//bool posOpen = (openPos(newPath, factions[unit->getFactionIndex()]) == false);
-						//bool isFreeCell = map->isFreeCell(newPath,unit->getType()->getField());
+					//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, newPath);
+					//bool posOpen = (openPos(newPath, factions[unit->getFactionIndex()]) == false);
+					//bool isFreeCell = map->isFreeCell(newPath,unit->getType()->getField());
 
-						if(canAddNode.find(make_pair(node->pos,newPath)) == canAddNode.end()) {
-							Node *newNode=NULL;
-							if(addToOpenSet(unit, node, finalPos, newPath, nodeLimitReached, maxNodeCount,&newNode,false) == true) {
-								//cameFrom = node->pos;
-								cameFrom[newPath]=node->pos;
-								foundQuickRoute = true;
+					if(canAddNode.find(make_pair(node->pos,newPath)) == canAddNode.end()) {
+						Node *newNode=NULL;
+						if(addToOpenSet(unit, node, finalPos, newPath, nodeLimitReached, maxNodeCount,&newNode,false) == true) {
+							//cameFrom = node->pos;
+							cameFrom[newPath]=node->pos;
+							foundQuickRoute = true;
 
-								if(path.size() > 1) {
-									canAddEntirePath = true;
+							if(path.size() > 1 && path[path.size()-1] == finalPos) {
+								canAddEntirePath = true;
+								for(unsigned int x = 1; x < path.size(); ++x) {
+									Vec2i futureNode = path[x];
+
+									bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, newNode->pos, futureNode);
+									if(canUnitMoveToCell != true || openPos(futureNode, factions[unit->getFactionIndex()]) == true) {
+										canAddEntirePath = false;
+										canAddNode[make_pair(node->pos,futureNode)]=false;
+										//printf("COULD NOT ADD ENTIRE PATH! canUnitMoveToCell = %d\n",canUnitMoveToCell);
+										break;
+									}
+								}
+								if(canAddEntirePath == true) {
+									//printf("add node - ENTIRE PATH!\n");
+
 									for(unsigned int x = 1; x < path.size(); ++x) {
 										Vec2i futureNode = path[x];
 
-										bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, newNode->pos, futureNode);
-										if(canUnitMoveToCell != true || openPos(futureNode, factions[unit->getFactionIndex()]) == true) {
-											canAddEntirePath = false;
-											canAddNode[make_pair(node->pos,futureNode)]=false;
-											//printf("COULD NOT ADD ENTIRE PATH! canUnitMoveToCell = %d\n",canUnitMoveToCell);
-											break;
-										}
+										Node *newNode2=NULL;
+										addToOpenSet(unit, newNode, finalPos, futureNode, nodeLimitReached, maxNodeCount,&newNode2, true);
+										newNode=newNode2;
 									}
-									if(canAddEntirePath == true) {
-										//printf("add node - ENTIRE PATH!\n");
 
-										for(unsigned int x = 1; x < path.size(); ++x) {
-											Vec2i futureNode = path[x];
-
-											Node *newNode2=NULL;
-											addToOpenSet(unit, newNode, finalPos, futureNode, nodeLimitReached, maxNodeCount,&newNode2, true);
-											newNode=newNode2;
-										}
-
-										//Node *result = factions[unit->getFactionIndex()].openNodesList.begin()->second[0];
-										//if(result->pos == finalPos || result->exploredCell == false) {
-										//	printf("Will break out of pathfinding now!\n");
-										//}
-									}
+									//Node *result = factions[unit->getFactionIndex()].openNodesList.begin()->second[0];
+									//if(result->pos == finalPos || result->exploredCell == false) {
+									//	printf("Will break out of pathfinding now!\n");
+									//}
 								}
-								//printf("add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
 							}
-							else {
-								//printf("COULD NOT add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
-								canAddNode[make_pair(node->pos,newPath)]=false;
-							}
+							//printf("add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
 						}
-
-					//}
-
-					if(canAddEntirePath == true) {
-						break;
+						else {
+							//printf("COULD NOT add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
+							canAddNode[make_pair(node->pos,newPath)]=false;
+						}
 					}
+
+					//if(canAddEntirePath == true) {
+					//	break;
+					//}
 				}
 
 				if(foundQuickRoute == false) {
@@ -1117,29 +1113,26 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						//addToOpenSet (&astar, newNode, node);
 						//printf("JPS #3 node->pos [%s] newNode [%s]\n",node->pos.getString().c_str(),newNode.getString().c_str());
 
-						//for(unsigned int ipath = 0; ipath < path.size(); ++ipath) {
-						//for(unsigned int ipath = 0; ipath < 1; ++ipath) {
-							Vec2i newPath = newNode;
+						Vec2i newPath = newNode;
 
-							//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, newPath);
-							//bool posOpen = (openPos(newPath, factions[unit->getFactionIndex()]) == false);
-							//bool isFreeCell = map->isFreeCell(newPath,unit->getType()->getField());
+						//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, newPath);
+						//bool posOpen = (openPos(newPath, factions[unit->getFactionIndex()]) == false);
+						//bool isFreeCell = map->isFreeCell(newPath,unit->getType()->getField());
 
-							if(canAddNode.find(make_pair(node->pos,newPath)) == canAddNode.end()) {
-								Node *newNode=NULL;
-								if(addToOpenSet(unit, node, finalPos, newPath, nodeLimitReached, maxNodeCount,&newNode, false) == true) {
-									//cameFrom = node->pos;
-									cameFrom[newPath]=node->pos;
-									foundQuickRoute = true;
+						if(canAddNode.find(make_pair(node->pos,newPath)) == canAddNode.end()) {
+							Node *newNode=NULL;
+							if(addToOpenSet(unit, node, finalPos, newPath, nodeLimitReached, maxNodeCount,&newNode, false) == true) {
+								//cameFrom = node->pos;
+								cameFrom[newPath]=node->pos;
+								foundQuickRoute = true;
 
-									//printf("#2 add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
-								}
-								else {
-									//printf("#2 COULD NOT add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
-									canAddNode[make_pair(node->pos,newPath)]=false;
-								}
+								//printf("#2 add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
 							}
-						//}
+							else {
+								//printf("#2 COULD NOT add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
+								canAddNode[make_pair(node->pos,newPath)]=false;
+							}
+						}
 					}
 				}
 			}

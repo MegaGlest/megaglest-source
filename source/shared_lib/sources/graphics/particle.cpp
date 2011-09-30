@@ -561,6 +561,8 @@ UnitParticleSystem::UnitParticleSystem(int particleCount):
 
 	startTime = 0;
 	endTime = 1;
+
+	radiusBasedStartenergy = false;
 }
 
 UnitParticleSystem::~UnitParticleSystem(){
