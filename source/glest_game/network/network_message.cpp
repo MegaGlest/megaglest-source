@@ -270,7 +270,8 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	data.pathFinderType = gameSettings->getPathFinderType();
 	data.flagTypes1 = gameSettings->getFlagTypes1();
 
-	for(int i= 0; i < data.factionCount; ++i) {
+	//for(int i= 0; i < data.factionCount; ++i) {
+	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
 		data.networkPlayerNames[i]= gameSettings->getNetworkPlayerName(i);
 		data.networkPlayerStatuses[i] = gameSettings->getNetworkPlayerStatuses(i);
@@ -280,16 +281,16 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 		data.teams[i]= gameSettings->getTeam(i);
 		data.startLocationIndex[i]= gameSettings->getStartLocationIndex(i);
 	}
-	for(int i= data.factionCount; i < GameConstants::maxPlayers; ++i) {
-		data.factionTypeNames[i]= "";
-		data.networkPlayerNames[i]= "";
-		data.networkPlayerStatuses[i] = 0;
-		data.networkPlayerLanguages[i] = "";
-		data.factionControls[i]= 0;
-		data.resourceMultiplierIndex[i]= 0;
-		data.teams[i]= -1;
-		data.startLocationIndex[i]= 0;
-	}
+//	for(int i= data.factionCount; i < GameConstants::maxPlayers; ++i) {
+//		data.factionTypeNames[i]= "";
+//		data.networkPlayerNames[i]= "";
+//		data.networkPlayerStatuses[i] = 0;
+//		data.networkPlayerLanguages[i] = "";
+//		data.factionControls[i]= 0;
+//		data.resourceMultiplierIndex[i]= 0;
+//		data.teams[i]= -1;
+//		data.startLocationIndex[i]= 0;
+//	}
 
 	data.aiAcceptSwitchTeamPercentChance = gameSettings->getAiAcceptSwitchTeamPercentChance();
 	data.masterserver_admin = gameSettings->getMasterserver_admin();
@@ -327,7 +328,8 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 	}
 	gameSettings->setFactionCRCList(factionCRCList);
 
-	for(int i= 0; i < data.factionCount; ++i) {
+	//for(int i= 0; i < data.factionCount; ++i) {
+	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());
 		gameSettings->setNetworkPlayerName(i,data.networkPlayerNames[i].getString());
 		gameSettings->setNetworkPlayerStatuses(i, data.networkPlayerStatuses[i]);

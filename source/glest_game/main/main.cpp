@@ -167,7 +167,7 @@ static void cleanupProcessObjects() {
 	time_t elapsed = time(NULL);
     for(;Thread::getThreadList().size() > 0 &&
     	 difftime(time(NULL),elapsed) <= 10;) {
-    	sleep(10);
+    	//sleep(0);
     }
 
 	std::map<string, vector<FileReader<Pixmap2D> const * >* > &list2d = FileReader<Pixmap2D>::getFileReadersMap();

@@ -1763,11 +1763,18 @@ void MenuStateCustomGame::update() {
 		if(this->masterserverMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
 				serverInterface->getGameSettings() != NULL) {
 			const GameSettings *settings = serverInterface->getGameSettings();
+			//printf("\n\n\n\n=====#1 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),settings->toString().c_str());
 
 			lastMasterServerSettingsUpdateCount = serverInterface->getGameSettingsUpdateCount();
 			//printf("#2 custom menu got map [%s]\n",settings->getMap().c_str());
 
 			setupUIFromGameSettings(*settings);
+
+            GameSettings gameSettings;
+            loadGameSettings(&gameSettings);
+
+            //printf("\n\n\n\n=====#1.1 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),gameSettings.toString().c_str());
+
 		}
 		if(this->masterserverMode == true && serverInterface->getMasterserverAdminRequestLaunch() == true) {
 			safeMutex.ReleaseLock();
@@ -2341,11 +2348,6 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 
             //printf("simpleTask broadCastSettings = %d hasClientConnection = %d\n",broadCastSettings,hasClientConnection);
 
-            GameSettings gameSettings;
-            loadGameSettings(&gameSettings);
-
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
             if(callingThread->getQuitStatus() == true) {
                 return;
             }
@@ -2353,7 +2355,15 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
             if(serverInterface != NULL) {
 
             	if(this->masterserverMode == false || (serverInterface->getGameSettingsUpdateCount() <= lastMasterServerSettingsUpdateCount)) {
+                    GameSettings gameSettings;
+                    loadGameSettings(&gameSettings);
+
+                    //printf("\n\n\n\n=====#2 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),gameSettings.toString().c_str());
+
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 					serverInterface->setGameSettings(&gameSettings,false);
+					lastMasterServerSettingsUpdateCount = serverInterface->getGameSettingsUpdateCount();
 
 					if(hasClientConnection == true) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2415,6 +2425,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	if(this->masterserverMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
 			serverInterface->getGameSettings() != NULL) {
 		const GameSettings *settings = serverInterface->getGameSettings();
+		//printf("\n\n\n\n=====#3 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),settings->toString().c_str());
 
 		lastMasterServerSettingsUpdateCount = serverInterface->getGameSettingsUpdateCount();
 		//printf("#1 custom menu got map [%s]\n",settings->getMap().c_str());
@@ -2668,7 +2679,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 					//printf("slot = %d serverInterface->getSlot(i)->getConnectedTime() = %d session key [%d]\n",i,serverInterface->getSlot(i)->getConnectedTime(),serverInterface->getSlot(i)->getSessionKey());
 
-					if(clientConnectedTime == 0 ||
+					if(clientConnectedTime == 0 || clientConnectedTime == 0 ||
 							(serverInterface->getSlot(i)->getConnectedTime() > 0 && serverInterface->getSlot(i)->getConnectedTime() < clientConnectedTime)) {
 						clientConnectedTime = serverInterface->getSlot(i)->getConnectedTime();
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());
@@ -2678,7 +2689,6 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				}
 			}
 		}
-
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2918,36 +2928,40 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	reloadFactions(false);
+	//reloadFactions(true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getFactionCount());
 
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-		if(gameSettings.getFactionControl(i) < listBoxControls[i].getItemCount()) {
-			listBoxControls[i].setSelectedItemIndex(gameSettings.getFactionControl(i));
+		int slotIndex = gameSettings.getStartLocationIndex(i);
+		if(gameSettings.getFactionControl(i) < listBoxControls[slotIndex].getItemCount()) {
+			listBoxControls[slotIndex].setSelectedItemIndex(gameSettings.getFactionControl(i));
 		}
 
-		updateResourceMultiplier(i);
-		listBoxRMultiplier[i].setSelectedItemIndex(gameSettings.getResourceMultiplierIndex(i));
+		updateResourceMultiplier(slotIndex);
+		listBoxRMultiplier[slotIndex].setSelectedItemIndex(gameSettings.getResourceMultiplierIndex(i));
 
-		listBoxTeams[i].setSelectedItemIndex(gameSettings.getTeam(i));
+		listBoxTeams[slotIndex].setSelectedItemIndex(gameSettings.getTeam(i));
 
-		lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+		lastSelectedTeamIndex[slotIndex] = listBoxTeams[slotIndex].getSelectedItemIndex();
 
 		string factionName = gameSettings.getFactionTypeName(i);
 		factionName = formatString(factionName);
 
+		//printf("\n\n\n*** setupUIFromGameSettings A, i = %d, startLoc = %d, factioncontrol = %d, factionName [%s]\n",i,gameSettings.getStartLocationIndex(i),gameSettings.getFactionControl(i),factionName.c_str());
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factionName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,factionName.c_str());
 
-		if(listBoxFactions[i].hasItem(factionName) == true) {
-			listBoxFactions[i].setSelectedItem(factionName);
+		if(listBoxFactions[slotIndex].hasItem(factionName) == true) {
+			listBoxFactions[slotIndex].setSelectedItem(factionName);
 		}
 		else {
-			listBoxFactions[i].setSelectedItem(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+			listBoxFactions[slotIndex].setSelectedItem(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, gameSettings.getNetworkPlayerName(i) [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,gameSettings.getNetworkPlayerName(i).c_str());
 
-		labelPlayerNames[i].setText(gameSettings.getNetworkPlayerName(i));
+		labelPlayerNames[slotIndex].setText(gameSettings.getNetworkPlayerName(i));
 	}
 
 	//SetActivePlayerNameEditor();

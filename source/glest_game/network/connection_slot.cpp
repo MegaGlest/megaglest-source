@@ -592,6 +592,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				                networkMessageLaunch.buildGameSettings(&gameSettings);
 
 				                //printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
+				                //printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
 
 				                this->serverInterface->setGameSettings(&gameSettings,false);
 				                this->serverInterface->broadcastGameSetup(&gameSettings);
