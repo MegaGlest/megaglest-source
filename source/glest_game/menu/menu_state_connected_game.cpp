@@ -931,6 +931,8 @@ void MenuStateConnectedGame::broadCastGameSettingsToMasterserver() {
 	GameSettings gameSettings = *clientInterface->getGameSettings();
 	loadGameSettings(&gameSettings);
 
+	//printf("broadcast settings:\n%s\n",gameSettings.toString().c_str());
+
 	//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
 
     //clientInterface->setGameSettings(&gameSettings);
@@ -1547,7 +1549,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, slotIndex = %d, getHumanPlayerName(i) [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,slotIndex,getHumanPlayerName(i).c_str());
 
 				gameSettings->setThisFactionIndex(slotIndex);
-				//gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
+				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName());
 				gameSettings->setNetworkPlayerStatuses(slotIndex, getNetworkPlayerStatus());
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());
@@ -1581,7 +1583,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
-
+			//printf("!!! setStartLocationIndex #1 slotIndex = %d, i = %d\n",slotIndex, i);
 
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
 //				if(serverInterface->getSlot(i) != NULL &&
@@ -1613,7 +1615,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 		}
 		else {
 			//gameSettings->setNetworkPlayerName("");
-			gameSettings->setNetworkPlayerStatuses(factionCount, 0);
+			//gameSettings->setNetworkPlayerStatuses(factionCount, 0);
 			labelPlayerNames[i].setText("");
 		}
     }
@@ -1628,11 +1630,14 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			gameSettings->setFactionControl(slotIndex, ct);
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
+			//printf("!!! setStartLocationIndex #2 slotIndex = %d, i = %d\n",slotIndex, i);
+
 			gameSettings->setResourceMultiplierIndex(slotIndex, 10);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
+			gameSettings->setNetworkPlayerStatuses(slotIndex, 0);
 			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
 
 			closedCount++;
@@ -2527,6 +2532,8 @@ void MenuStateConnectedGame::update() {
 				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
 				vector<string> maps,tilesets,techtree;
 				const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+				//printf("got settings:\n%s\n",gameSettings->toString().c_str());
 
 				if(gameSettings == NULL) {
 					throw runtime_error("gameSettings == NULL");
