@@ -113,13 +113,14 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     enableMapPreview = config.getBool("MapPreview","true");
 
 	vector<string> teamItems, controlItems, results, rMultiplier, playerStatuses;
+	int labelOffset=23;
 	int setupPos=590;
 	int mapHeadPos=330;
-	int mapPos=mapHeadPos-30;
+	int mapPos=mapHeadPos-labelOffset;
 	int aHeadPos=245;
-	int aPos=aHeadPos-30;
+	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
-	int networkPos=networkHeadPos-30;
+	int networkPos=networkHeadPos-labelOffset;
 	int xoffset=0;
 
 	//state
@@ -268,7 +269,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxEnableServerControlledAI.setEditable(false);
 
 	xoffset=70;
-	int labelOffset=23;
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
@@ -277,7 +277,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxMap.setEditable(false);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
-	labelMapInfo.init(xoffset+100, mapPos-labelOffset, 200, 40);
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset-6, 200, 40);
     labelMapInfo.setText("?");
 
 	labelMap.registerGraphicComponent(containerName,"labelMap");
