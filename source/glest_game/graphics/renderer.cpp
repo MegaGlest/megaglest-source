@@ -1655,9 +1655,11 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, float a
 		getCentered3DPos(text, font, pos, w, h, centeredW, centeredH);
 	}
 
-	textRenderer3D->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
+	//textRenderer3D->begin(font);
 	textRenderer3D->render(text, pos.x, pos.y);
-	textRenderer3D->end();
+	//textRenderer3D->end();
+	safeTextRender.end();
 
 	glDisable(GL_BLEND);
 	glPopAttrib();
@@ -1671,9 +1673,11 @@ void Renderer::renderText3D(const string &text, Font3D *font, float alpha, int x
 	Vec2i pos= Vec2i(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer3D->begin(font);
+	//textRenderer3D->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y, centered);
-	textRenderer3D->end();
+	//textRenderer3D->end();
+	safeTextRender.end();
 
 	glDisable(GL_BLEND);
 	glPopAttrib();
@@ -1686,9 +1690,11 @@ void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, 
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer->begin(font);
+	//textRenderer->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	textRenderer->render(text, pos.x, pos.y);
-	textRenderer->end();
+	//textRenderer->end();
+	safeTextRender.end();
 
 	glPopAttrib();
 }
@@ -1725,7 +1731,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			//pos.y += (lineHeight / 2);
 		}
 		else if(lineHeight > h) {
-			//printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
+			printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
 
 #ifdef USE_STREFLOP
 			pos.y += (streflop::ceil((float)lineHeight - (float)h));
@@ -1748,9 +1754,11 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const V
 		getCentered3DPos(text, font, pos, w, h,centeredW,centeredH);
 	}
 
-	textRenderer3D->begin(font);
+	//textRenderer3D->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y);
-	textRenderer3D->end();
+	//textRenderer3D->end();
+	safeTextRender.end();
 
 	glPopAttrib();
 }
@@ -1762,9 +1770,11 @@ void Renderer::renderText3D(const string &text, Font3D *font, const Vec3f &color
 	Vec2i pos= Vec2i(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer3D->begin(font);
+	//textRenderer3D->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y, centered);
-	textRenderer3D->end();
+	//textRenderer3D->end();
+	safeTextRender.end();
 
 	glPopAttrib();
 }
@@ -1775,9 +1785,11 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, 
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer->begin(font);
+	//textRenderer->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	textRenderer->render(text, pos.x, pos.y);
-	textRenderer->end();
+	//textRenderer->end();
+	safeTextRender.end();
 
 	glPopAttrib();
 }
@@ -1794,9 +1806,11 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const V
 		getCentered3DPos(text, font, pos, w, h,centeredW,centeredH);
 	}
 
-	textRenderer3D->begin(font);
+	//textRenderer3D->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y);
-	textRenderer3D->end();
+	//textRenderer3D->end();
+	safeTextRender.end();
 
 	glDisable(GL_BLEND);
 	glPopAttrib();
@@ -1810,9 +1824,11 @@ void Renderer::renderText3D(const string &text, Font3D *font, const Vec4f &color
 	Vec2i pos= Vec2i(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer3D->begin(font);
+	//textRenderer3D->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y, centered);
-	textRenderer3D->end();
+	//textRenderer3D->end();
+	safeTextRender.end();
 
 	glDisable(GL_BLEND);
 	glPopAttrib();
@@ -1825,9 +1841,11 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec4f &color, 
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer->begin(font);
+	//textRenderer->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	textRenderer->render(text, pos.x, pos.y);
-	textRenderer->end();
+	//textRenderer->end();
+	safeTextRender.end();
 
 	glPopAttrib();
 }
@@ -1841,7 +1859,8 @@ void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer3D->begin(font);
+	//textRenderer3D->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	if(color.w < 0.5)	{
 		glColor3f(0.0f, 0.0f, 0.0f);
 
@@ -1850,7 +1869,8 @@ void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &
 	glColor3f(color.x,color.y,color.z);
 
 	textRenderer3D->render(text, pos.x, pos.y);
-	textRenderer3D->end();
+	//textRenderer3D->end();
+	safeTextRender.end();
 
 	glPopAttrib();
 }
@@ -1864,7 +1884,8 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	textRenderer->begin(font);
+	//textRenderer->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	if(color.w < 0.5)	{
 		glColor3f(0.0f, 0.0f, 0.0f);
 
@@ -1873,7 +1894,8 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 	glColor3f(color.x,color.y,color.z);
 
 	textRenderer->render(text, pos.x, pos.y);
-	textRenderer->end();
+	//textRenderer->end();
+	safeTextRender.end();
 
 	glPopAttrib();
 }
@@ -1932,10 +1954,11 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 			if(renderText3DEnabled == true) {
 				//renderText3D(lines[i], label->getFont3D(), (*color), textPos.x, textPos.y, label->getCentered());
 				//printf("Text Render3D [%s] font3d [%p]\n",lines[i].c_str(),label->getFont3D());
-
-				renderTextBoundingBox3D(lines[i], label->getFont3D(), (*color), x, y, w, h, label->getCentered(),label->getCentered());
+				//printf("Label render C\n");
+				renderTextBoundingBox3D(lines[i], label->getFont3D(), (*color), x, y, w, h, label->getCenteredW(),label->getCenteredH());
 			}
 			else {
+				//printf("Label render D\n");
 				renderText(lines[i], label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
 			}
 		}
@@ -1943,10 +1966,11 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 			if(renderText3DEnabled == true) {
 				//renderText3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
 				//printf("Text Render3D [%s] font3d [%p]\n",lines[i].c_str(),label->getFont3D());
-
-				renderTextBoundingBox3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), x, y, w, h, label->getCentered(),label->getCentered());
+				//printf("Label render E\n");
+				renderTextBoundingBox3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), x, y, w, h, label->getCenteredW(),label->getCenteredH());
 			}
 			else {
+				//printf("Label render F\n");
 				renderText(lines[i], label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
 			}
 		}
@@ -5991,14 +6015,16 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
 	//text
 	glColor3fv(defColor.ptr());
 
-	textRenderer->begin(font);
+	//textRenderer->begin(font);
+	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	if(centeredText == true) {
 		textRenderer->render(renderText.c_str(), x + maxSize / 2, y, centeredText);
 	}
 	else {
 		textRenderer->render(renderText.c_str(), x, y, centeredText);
 	}
-	textRenderer->end();
+	//textRenderer->end();
+	safeTextRender.end();
 }
 
 

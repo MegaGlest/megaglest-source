@@ -404,22 +404,26 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, bool center
 }
 
 void TextRenderer3DGl::specialFTGLErrorCheckWorkaround(string text) {
-	GLenum error = glGetError();
-	if(error) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nIn [%s::%s Line: %d] error = %d for text [%s]\n\n",__FILE__,__FUNCTION__,__LINE__,error,text.c_str());
 
-		if(currentFTGLErrorCount > 0) {
-			printf("\n**FTGL Error = %d [%s] for text [%s] currentFTGLErrorCount = %d\n\n",error,gluErrorString(error),text.c_str(),currentFTGLErrorCount);
-			fflush(stdout);
+	for(GLenum error = glGetError(); error != GL_NO_ERROR; error = glGetError()) {
+		//error = glGetError();
+		//if(error) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nIn [%s::%s Line: %d] error = %d for text [%s]\n\n",__FILE__,__FUNCTION__,__LINE__,error,text.c_str());
 
-			assertGlWithErrorNumber(error);
+			if(currentFTGLErrorCount > 0) {
+				printf("\n**FTGL Error = %d [%s] for text [%s] currentFTGLErrorCount = %d\n\n",error,gluErrorString(error),text.c_str(),currentFTGLErrorCount);
+				fflush(stdout);
+
+				assertGlWithErrorNumber(error);
+			}
+			else {
+				printf("\n**FTGL #2 Error = %d [%s] for text [%s] currentFTGLErrorCount = %d\n\n",error,gluErrorString(error),text.c_str(),currentFTGLErrorCount);
+				fflush(stdout);
+			}
+
+			currentFTGLErrorCount++;
 		}
-		else {
-			//printf("\n**FTGL #2 Error = %d for text [%s] currentFTGLErrorCount = %d\n\n",error,text.c_str(),currentFTGLErrorCount);
-		}
-
-		currentFTGLErrorCount++;
-	}
+	//}
 }
 
 void TextRenderer3DGl::internalRender(const string &text, float  x, float y, bool centered, Vec3f *color) {

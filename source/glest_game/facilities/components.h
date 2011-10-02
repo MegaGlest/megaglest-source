@@ -125,11 +125,22 @@ private:
 	Vec3f textColor;
 	bool wordWrap;
 
+	int centeredW;
+	int centeredH;
+
 public:
+	GraphicLabel();
 	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=Vec3f(1.f, 1.f, 1.f), bool wordWrap=false);
 
 	bool getCentered() const	{return centered;}
 	void setCentered(bool centered)	{this->centered= centered;}
+
+	bool getCenteredW() const;
+	void setCenteredW(bool centered);
+
+	bool getCenteredH() const;
+	void setCenteredH(bool centered);
+
 	Vec3f getTextColor() const	{return textColor;}
 	void setTextColor(Vec3f color)	{this->textColor= color;}
 

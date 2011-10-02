@@ -19,6 +19,7 @@ namespace Shared { namespace Graphics { namespace Gl {
 
 class Font2DGl;
 class Font3DGl;
+class TextRenderer2DGl;
 class TextRenderer3DGl;
 
 // =====================================================
@@ -62,6 +63,46 @@ public:
 	virtual void begin(Font3D *font);
 	virtual void render(const string &text, float x, float y, bool centered=false, Vec3f *color=NULL);
 	virtual void end();
+};
+
+
+
+class TextRendererSafeWrapper {
+protected:
+	TextRenderer *renderer;
+	Font *font;
+	bool mustEnd;
+
+public:
+
+	TextRendererSafeWrapper(TextRenderer *renderer,Font *font) {
+		mustEnd = false;
+		this->renderer = renderer;
+		this->font = font;
+		begin();
+	}
+	~TextRendererSafeWrapper() {
+		end();
+	}
+
+	void begin() {
+		if(this->renderer != NULL) {
+			if(dynamic_cast<TextRenderer2DGl *>(renderer) != NULL) {
+				dynamic_cast<TextRenderer2DGl *>(renderer)->begin(dynamic_cast<Font2D *>(this->font));
+				mustEnd = true;
+			}
+			if(dynamic_cast<TextRenderer3DGl *>(renderer) != NULL) {
+				mustEnd = true;
+				dynamic_cast<TextRenderer3DGl *>(renderer)->begin(dynamic_cast<Font3D *>(this->font));
+			}
+		}
+	}
+	void end() {
+		if(this->renderer != NULL && mustEnd == true) {
+			this->renderer->end();
+			mustEnd = false;
+		}
+	}
 };
 
 }}}//end namespace
