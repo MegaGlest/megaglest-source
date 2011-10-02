@@ -156,7 +156,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int setupPos=590;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-labelOffset;
-	int aHeadPos=mapHeadPos-80;
+	//int aHeadPos=mapHeadPos-80;
+	int aHeadPos=245;
 	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
 	int networkPos=networkHeadPos-labelOffset;
@@ -227,7 +228,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     listBoxMap.setSelectedItemIndex(initialMapSelection);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
-	labelMapInfo.init(xoffset+100, mapPos-labelOffset, 200, 40);
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset-6, 200, 40);
 
 	// MapFilter
 	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
