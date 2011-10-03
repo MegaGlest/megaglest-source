@@ -287,10 +287,11 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";                \
 			return 1;                                                                          \
 		 }                                                                                     \
-	}																		 \
-	SDL_EnableUNICODE(1);													 \
-    int result = X(argc, argv);                                              \
-    return result;                                                           \
+	}																		                   \
+	SDL_EnableUNICODE(1);													                   \
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);                \
+    int result = X(argc, argv);                                                                \
+    return result;                                                                             \
 }
 
 #endif
