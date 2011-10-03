@@ -2330,6 +2330,7 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
     }
 
 	Texture2D *selectTexture= coreData.getButtonBigTexture();
+	assert(selectTexture != NULL);
 
 	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(selectTexture)->getHandle());
 

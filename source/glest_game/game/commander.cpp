@@ -469,6 +469,16 @@ void Commander::trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) 
 	pushNetworkCommand(&command);
 }
 
+void Commander::tryPauseGame() const {
+	NetworkCommand command(this->world,nctPauseResume, true);
+	pushNetworkCommand(&command);
+}
+
+void Commander::tryResumeGame() const {
+	NetworkCommand command(this->world,nctPauseResume, false);
+	pushNetworkCommand(&command);
+}
+
 // ==================== PRIVATE ====================
 
 CommandResult Commander::computeResult(const CommandResultContainer &results) const {
@@ -494,7 +504,8 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 	//validate unit
 	const Unit* unit = NULL;
 	if( networkCommand->getNetworkCommandType() != nctSwitchTeam &&
-		networkCommand->getNetworkCommandType() != nctSwitchTeamVote) {
+		networkCommand->getNetworkCommandType() != nctSwitchTeamVote &&
+		networkCommand->getNetworkCommandType() != nctPauseResume) {
 		unit= world->findUnitById(networkCommand->getUnitId());
 		if(unit == NULL) {
 			char szBuf[1024]="";
@@ -675,7 +686,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                     break;
 
                 case nctSwitchTeam: {
-                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSwitchTeam\n",__FILE__,__FUNCTION__,__LINE__);
 
                 	int factionIndex = networkCommand->getUnitId();
                 	int newTeam = networkCommand->getCommandTypeId();
@@ -741,7 +752,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                     break;
 
                 case nctSwitchTeamVote: {
-                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSwitchTeamVote\n",__FILE__,__FUNCTION__,__LINE__);
 
                 	int votingFactionIndex = networkCommand->getUnitId();
                 	int factionIndex = networkCommand->getCommandTypeId();
@@ -832,6 +843,21 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 							}
                 		}
                 	}
+
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+                }
+                    break;
+
+                case nctPauseResume: {
+                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPauseResume\n",__FILE__,__FUNCTION__,__LINE__);
+
+                	bool pauseGame = networkCommand->getUnitId();
+               		Game *game = this->world->getGame();
+
+               		//printf("nctPauseResume pauseGame = %d\n",pauseGame);
+               		game->setPaused(pauseGame,true);
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 

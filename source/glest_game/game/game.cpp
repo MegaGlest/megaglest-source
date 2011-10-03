@@ -97,6 +97,7 @@ Game::Game() : ProgramState(NULL) {
 	switchTeamConfirmMessageBox.setEnabled(false);
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
+	pauseGamePopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 	masterserverMode = false;
 	currentUIState=NULL;
@@ -142,6 +143,7 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	switchTeamConfirmMessageBox.setEnabled(false);
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
+	pauseGamePopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 	currentUIState = NULL;
 
@@ -779,6 +781,7 @@ void Game::init(bool initForPreviewOnly)
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	NetworkRole role = nrIdle;
 	if(initForPreviewOnly == false) {
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
@@ -795,7 +798,7 @@ void Game::init(bool initForPreviewOnly)
 
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
-		NetworkRole role 				= networkManager.getNetworkRole();
+		role 							= networkManager.getNetworkRole();
 
 		deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 
@@ -928,6 +931,25 @@ void Game::init(bool initForPreviewOnly)
 		menuItems.push_back(lang.get("JoinOtherTeam"));
 		joinTeamPopupMenuIndex = menuItems.size()-1;
 	}
+
+	bool allowAdminMenuItems = false;
+	if(role == nrServer) {
+		allowAdminMenuItems = true;
+	}
+	else if(role == nrClient) {
+		ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
+
+		if(clientInterface != NULL &&
+			gameSettings.getMasterserver_admin() == clientInterface->getSessionKey()) {
+			allowAdminMenuItems = true;
+		}
+	}
+
+	if(allowAdminMenuItems == true) {
+		menuItems.push_back(lang.get("PauseResumeGame"));
+		pauseGamePopupMenuIndex = menuItems.size()-1;
+	}
+
 	menuItems.push_back(lang.get("Keyboardsetup"));
 	keyboardSetupPopupMenuIndex = menuItems.size()-1;
 	menuItems.push_back(lang.get("Cancel"));
@@ -1021,61 +1043,66 @@ void Game::update() {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after ReplaceDisconnectedNetworkPlayersWithAI]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-		if(updateLoops>0){
+		if(updateLoops > 0) {
 			// update the frame based timer in the stats with at least one step
 			world.getStats()->addFramesToCalculatePlaytime();
-		}
-		//update
-		for(int i = 0; i < updateLoops; ++i) {
-			chrono.start();
-			//AiInterface
-			for(int j = 0; j < world.getFactionCount(); ++j) {
-				Faction *faction = world.getFaction(j);
-				if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
-					scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",__FILE__,__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+			//update
+			for(int i = 0; i < updateLoops; ++i) {
+				chrono.start();
+				//AiInterface
+				for(int j = 0; j < world.getFactionCount(); ++j) {
+					Faction *faction = world.getFaction(j);
+					if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+						scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 
-					aiInterfaces[j]->update();
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",__FILE__,__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",__FILE__,__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+						aiInterfaces[j]->update();
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",__FILE__,__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+					}
 				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [AI updates]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+				//World
+				world.update();
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+				// Commander
+				//commander.updateNetwork();
+				commander.signalNetworkUpdate(this);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+				//Gui
+				gui.update();
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+				//Particle systems
+				if(weatherParticleSystem != NULL) {
+					weatherParticleSystem->setPos(gameCamera.getPos());
+				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+				Renderer &renderer= Renderer::getInstance();
+				renderer.updateParticleManager(rsGame,avgRenderFps);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+				//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [AI updates]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-			//World
-			world.update();
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-			// Commander
-			//commander.updateNetwork();
+		}
+		//else if(role == nrClient) {
+		else {
 			commander.signalNetworkUpdate(this);
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-			//Gui
-			gui.update();
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-			//Particle systems
-			if(weatherParticleSystem != NULL) {
-				weatherParticleSystem->setPos(gameCamera.getPos());
-			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-			Renderer &renderer= Renderer::getInstance();
-			renderer.updateParticleManager(rsGame,avgRenderFps);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-			//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
 		}
 
 		//call the chat manager
@@ -1410,6 +1437,17 @@ void Game::mouseDownLeft(int x, int y) {
 				MainMenu *newMenu = new MainMenu(program); // open keyboard shortcuts setup screen
 				currentUIState = newMenu;
 				newMenu->setState(new MenuStateKeysetup(program, newMenu,&currentUIState)); // open keyboard shortcuts setup screen
+			}
+			else if(result.first == pauseGamePopupMenuIndex) {
+				//this->setPaused(!paused);
+				//printf("popup paused = %d\n",paused);
+
+				if(paused == false) {
+					commander.tryPauseGame();
+				}
+				else {
+					commander.tryResumeGame();
+				}
 			}
 		}
 		else if(popupMenuSwitchTeams.mouseClick(x, y)) {
@@ -2848,11 +2886,13 @@ void Game::decSpeed() {
 	}
 }
 
-void Game::setPaused(bool value) {
+void Game::setPaused(bool value,bool forceAllowPauseStateChange) {
 	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
-	//printf("Toggle pause value = %d, speedChangesAllowed = %d\n",value,speedChangesAllowed);
+	//printf("Toggle pause value = %d, speedChangesAllowed = %d, forceAllowPauseStateChange = %d\n",value,speedChangesAllowed,forceAllowPauseStateChange);
 
-	if(speedChangesAllowed) {
+	if(forceAllowPauseStateChange == true || speedChangesAllowed == true) {
+		//printf("setPaused paused = %d, value = %d\n",paused,value);
+
 		Lang &lang= Lang::getInstance();
 		if(value == false) {
 			console.addLine(lang.get("GameResumed"));
@@ -2862,6 +2902,7 @@ void Game::setPaused(bool value) {
 			console.addLine(lang.get("GamePaused"));
 			paused= true;
 		}
+		//printf("setPaused new paused = %d\n",paused);
 	}
 }
 
