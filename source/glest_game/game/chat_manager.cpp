@@ -101,8 +101,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 			if (!inMenu) {
 				if (teamMode == true) {
 					teamMode = false;
-					console->addLine(lang.get("ChatMode") + ": " + lang.get(
-							"All"));
+					console->addLine(lang.get("ChatMode") + ": " + lang.get("All"));
 				} else {
 					teamMode = true;
 					console->addLine(lang.get("ChatMode") + ": " + lang.get("Team"));
@@ -132,10 +131,10 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 						int playerIndex 	= gameNetworkInterface->getHumanPlayerIndex();
 
 						if(this->manualPlayerNameOverride != "") {
-						    console->addLine(text,false,this->manualPlayerNameOverride);
+						    console->addLine(text,false,this->manualPlayerNameOverride,Vec3f(1.f, 1.f, 1.f),teamMode);
 						}
 						else {
-                            console->addLine(text,false,playerIndex);
+                            console->addLine(text,false,playerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
 						}
 
 						gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1, false, "");
@@ -245,7 +244,7 @@ void ChatManager::updateNetwork() {
 					//console->addLine(msg.chatSender + ": " + msg.chatText, true, msg.chatPlayerIndex);
 
 					if(msg.targetLanguage == "" || lang.isLanguageLocal(msg.targetLanguage) == true) {
-						console->addLine(msg.chatText, true, msg.chatPlayerIndex);
+						console->addLine(msg.chatText, true, msg.chatPlayerIndex,Vec3f(1.f, 1.f, 1.f),teamIndex == thisTeamIndex);
 					}
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);

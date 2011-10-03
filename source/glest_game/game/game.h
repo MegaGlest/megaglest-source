@@ -135,6 +135,8 @@ private:
 
 	int exitGamePopupMenuIndex;
 	int joinTeamPopupMenuIndex;
+	int keyboardSetupPopupMenuIndex;
+	ProgramState *currentUIState;
 
 	bool masterserverMode;
 

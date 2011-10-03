@@ -24,6 +24,7 @@
 #include "checksum.h"
 #include "auto_test.h"
 #include "FPUCheck.h"
+#include "menu_state_keysetup.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -96,7 +97,9 @@ Game::Game() : ProgramState(NULL) {
 	switchTeamConfirmMessageBox.setEnabled(false);
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
+	keyboardSetupPopupMenuIndex = -1;
 	masterserverMode = false;
+	currentUIState=NULL;
 }
 
 Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverMode):
@@ -139,6 +142,8 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	switchTeamConfirmMessageBox.setEnabled(false);
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
+	keyboardSetupPopupMenuIndex = -1;
+	currentUIState = NULL;
 
 	this->gameSettings= *gameSettings;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
@@ -923,7 +928,9 @@ void Game::init(bool initForPreviewOnly)
 		menuItems.push_back(lang.get("JoinOtherTeam"));
 		joinTeamPopupMenuIndex = menuItems.size()-1;
 	}
-	menuItems.push_back(lang.get("Exit"));
+	menuItems.push_back(lang.get("Keyboardsetup"));
+	keyboardSetupPopupMenuIndex = menuItems.size()-1;
+	menuItems.push_back(lang.get("Cancel"));
 	popupMenu.setW(200);
 	popupMenu.setH(200);
 	popupMenu.init(lang.get("GameMenuTitle"),menuItems);
@@ -948,6 +955,10 @@ void Game::init(bool initForPreviewOnly)
 //update
 void Game::update() {
 	try {
+		if(currentUIState != NULL) {
+			currentUIState->update();
+		}
+
 		Chrono chrono;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -1207,6 +1218,33 @@ void Game::render() {
 }
 
 void Game::renderWorker() {
+	if(currentUIState != NULL) {
+//		Renderer &renderer= Renderer::getInstance();
+//		renderer.clearBuffers();
+//
+//		//3d
+//		renderer.reset3dMenu();
+//
+//		renderer.clearZBuffer();
+//		//renderer.loadCameraMatrix(menuBackground.getCamera());
+//		//renderer.renderMenuBackground(&menuBackground);
+//		renderer.renderParticleManager(rsMenu);
+//
+//		//2d
+//		renderer.reset2d();
+//
+//		currentUIState->render();
+//
+//		if(renderer.isMasterserverMode() == false) {
+//			renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+//			renderer.renderFPSWhenEnabled(lastFps);
+//			renderer.swapBuffers();
+//		}
+
+		currentUIState->render();
+		return;
+	}
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -1300,6 +1338,11 @@ void Game::mouseDownLeft(int x, int y) {
 		return;
 	}
 
+	if(currentUIState != NULL) {
+		currentUIState->mouseDownLeft(x, y);
+		return;
+	}
+
 	try {
 		if(gameStarted == false) {
 			Logger::getInstance().handleMouseClick(x, y);
@@ -1362,6 +1405,11 @@ void Game::mouseDownLeft(int x, int y) {
 				popupMenuSwitchTeams.init(lang.get("SwitchTeams"),menuItems);
 				popupMenuSwitchTeams.setEnabled(true);
 				popupMenuSwitchTeams.setVisible(true);
+			}
+			else if(result.first == keyboardSetupPopupMenuIndex) {
+				MainMenu *newMenu = new MainMenu(program); // open keyboard shortcuts setup screen
+				currentUIState = newMenu;
+				newMenu->setState(new MenuStateKeysetup(program, newMenu,&currentUIState)); // open keyboard shortcuts setup screen
 			}
 		}
 		else if(popupMenuSwitchTeams.mouseClick(x, y)) {
@@ -1515,6 +1563,11 @@ void Game::mouseDownRight(int x, int y) {
 		return;
 	}
 
+	if(currentUIState != NULL) {
+		currentUIState->mouseDownRight(x, y);
+		return;
+	}
+
 	try {
 		if(gameStarted == false) {
 			Logger::getInstance().handleMouseClick(x, y);
@@ -1564,11 +1617,16 @@ void Game::mouseDownRight(int x, int y) {
 }
 
  void Game::mouseUpCenter(int x, int y) {
-		if(this->masterserverMode == true) {
-			return;
-		}
+	if(this->masterserverMode == true) {
+		return;
+	}
 
 	if(gameStarted == false) {
+		return;
+	}
+
+	if(currentUIState != NULL) {
+		currentUIState->mouseUpCenter(x, y);
 		return;
 	}
 
@@ -1587,6 +1645,11 @@ void Game::mouseUpLeft(int x, int y) {
 
 	try {
 		if(gameStarted == false) {
+			return;
+		}
+
+		if(currentUIState != NULL) {
+			currentUIState->mouseUpLeft(x, y);
 			return;
 		}
 
@@ -1617,6 +1680,10 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 
 	try {
 		if(gameStarted == false) {
+			return;
+		}
+		if(currentUIState != NULL) {
+			currentUIState->mouseDoubleClickLeft(x, y);
 			return;
 		}
 
@@ -1659,6 +1726,10 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 
 	try {
 		if(gameStarted == false) {
+			return;
+		}
+		if(currentUIState != NULL) {
+			currentUIState->mouseMove(x, y, ms);
 			return;
 		}
 
@@ -1779,6 +1850,15 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 }
 
 void Game::eventMouseWheel(int x, int y, int zDelta) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
+	if(currentUIState != NULL) {
+		currentUIState->eventMouseWheel(x, y, zDelta);
+		return;
+	}
+
 	try {
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//gameCamera.transitionXYZ(0.0f, -(float)zDelta / 30.0f, 0.0f);
@@ -1811,6 +1891,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d] gameStarted [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym, gameStarted);
 		if(gameStarted == false) {
+			return;
+		}
+		if(currentUIState != NULL) {
+			currentUIState->keyDown(key);
 			return;
 		}
 
@@ -2032,6 +2116,10 @@ void Game::keyUp(SDL_KeyboardEvent key) {
 		if(gameStarted == false) {
 			return;
 		}
+		if(currentUIState != NULL) {
+			currentUIState->keyUp(key);
+			return;
+		}
 
 		if(chatManager.getEditEnabled()) {
 			//send key to the chat manager
@@ -2129,6 +2217,10 @@ void Game::keyPress(SDL_KeyboardEvent c) {
 	}
 
 	if(gameStarted == false) {
+		return;
+	}
+	if(currentUIState != NULL) {
+		currentUIState->keyPress(c);
 		return;
 	}
 

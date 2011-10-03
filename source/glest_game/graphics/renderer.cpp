@@ -1214,6 +1214,7 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, int lineHeight,
 								Font3D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
 	Vec4f fontColor;
+	Lang &lang= Lang::getInstance();
 	//const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
@@ -1245,7 +1246,12 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 			//printf("playerName [%s], line [%s]\n",playerName.c_str(),line.c_str());
 
 			//string headerLine = "*" + playerName + ":";
-			string headerLine = playerName + ": ";
+			//string headerLine = playerName + ": ";
+			string headerLine = playerName;
+			if(lineInfo->teamMode == true) {
+				headerLine += " (" + lang.get("Team") + ")";
+			}
+			headerLine += ": ";
 
 			if(fontMetrics == NULL) {
 				throw runtime_error("fontMetrics == NULL");
@@ -1267,7 +1273,12 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 	}
 	else if(lineInfo->originalPlayerName != "") {
         string playerName = lineInfo->originalPlayerName;
-        string headerLine = playerName + ": ";
+        //string headerLine = playerName + ": ";
+		string headerLine = playerName;
+		if(lineInfo->teamMode == true) {
+			headerLine += " (" + lang.get("Team") + ")";
+		}
+		headerLine += ": ";
 
         if(fontMetrics == NULL) {
             throw runtime_error("fontMetrics == NULL");
@@ -1302,6 +1313,8 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight,
 								Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
 	Vec4f fontColor;
+	Lang &lang= Lang::getInstance();
+
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
@@ -1333,7 +1346,12 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 			//printf("playerName [%s], line [%s]\n",playerName.c_str(),line.c_str());
 
 			//string headerLine = "*" + playerName + ":";
-			string headerLine = playerName + ": ";
+			//string headerLine = playerName + ": ";
+			string headerLine = playerName;
+			if(lineInfo->teamMode == true) {
+				headerLine += " (" + lang.get("Team") + ")";
+			}
+			headerLine += ": ";
 
 			if(fontMetrics == NULL) {
 				throw runtime_error("fontMetrics == NULL");
@@ -1353,7 +1371,12 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 	}
 	else if(lineInfo->originalPlayerName != "") {
         string playerName = lineInfo->originalPlayerName;
-        string headerLine = playerName + ": ";
+        //string headerLine = playerName + ": ";
+        string headerLine = playerName;
+		if(lineInfo->teamMode == true) {
+			headerLine += " (" + lang.get("Team") + ")";
+		}
+		headerLine += ": ";
 
         if(fontMetrics == NULL) {
             throw runtime_error("fontMetrics == NULL");
@@ -1731,7 +1754,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			//pos.y += (lineHeight / 2);
 		}
 		else if(lineHeight > h) {
-			printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
+			//printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
 
 #ifdef USE_STREFLOP
 			pos.y += (streflop::ceil((float)lineHeight - (float)h));
