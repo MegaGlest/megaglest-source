@@ -67,7 +67,8 @@ enum NetworkCommandType {
 	nctCancelCommand,
 	nctSetMeetingPoint,
 	nctSwitchTeam,
-	nctSwitchTeamVote
+	nctSwitchTeamVote,
+	nctPauseResume
 	//nctNetworkCommand
 };
 

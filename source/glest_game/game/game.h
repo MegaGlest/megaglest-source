@@ -135,6 +135,7 @@ private:
 
 	int exitGamePopupMenuIndex;
 	int joinTeamPopupMenuIndex;
+	int pauseGamePopupMenuIndex;
 	int keyboardSetupPopupMenuIndex;
 	ProgramState *currentUIState;
 
@@ -161,7 +162,7 @@ public:
 	const World *getWorld() const			{return &world;}
 
 	bool getPaused() const					{ return paused;}
-	void setPaused(bool value);
+	void setPaused(bool value, bool forceAllowPauseStateChange=false);
 	const int getTotalRenderFps() const					{return totalRenderFps;}
 
 	void toggleTeamColorMarker();
