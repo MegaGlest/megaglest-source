@@ -57,8 +57,10 @@ private:
 	GraphicLabel labelTestTitle;
 	GraphicLabel labelTestValue;
 
+	ProgramState **parentUI;
+
 public:
-	MenuStateKeysetup(Program *program, MainMenu *mainMenu);
+	MenuStateKeysetup(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
 	virtual ~MenuStateKeysetup();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);

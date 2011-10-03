@@ -51,7 +51,7 @@ void Console::addStdScenarioMessage(const string &s) {
 	addLine(Lang::getInstance().getScenarioString(s));
 }
 
-void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textColor) {
+void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textColor, bool teamMode) {
 	try {
 		if(playSound == true) {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());
@@ -62,6 +62,7 @@ void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textCo
 		info.PlayerIndex        = playerIndex;
 		info.originalPlayerName	= "";
 		info.color				= textColor;
+		info.teamMode			= teamMode;
 		if(playerIndex >= 0) {
 			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 			if(gameNetworkInterface != NULL) {
@@ -90,7 +91,7 @@ void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textCo
 	}
 }
 
-void Console::addLine(string line, bool playSound, string playerName, Vec3f textColor) {
+void Console::addLine(string line, bool playSound, string playerName, Vec3f textColor, bool teamMode) {
 	try {
 		if(playSound == true) {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());
@@ -101,6 +102,7 @@ void Console::addLine(string line, bool playSound, string playerName, Vec3f text
 		info.PlayerIndex        = -1;
 		info.originalPlayerName	= "";
 		info.color				= textColor;
+		info.teamMode			= teamMode;
 		if(playerName != "") {
 			info.originalPlayerName	= playerName;
 		}

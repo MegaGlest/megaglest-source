@@ -29,13 +29,15 @@ namespace Glest{ namespace Game{
 // 	class MenuStateKeysetup
 // =====================================================
 
-MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu):
+MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
+		ProgramState **parentUI) :
 	MenuState(program, mainMenu, "config")
 {
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		containerName = "KeySetup";
 
+		this->parentUI = parentUI;
 		hotkeyIndex = -1;
 		hotkeyChar = SDLK_UNKNOWN;
 
@@ -207,6 +209,12 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		soundRenderer.playFx(coreData.getClickSoundB());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(this->parentUI != NULL) {
+			*this->parentUI = NULL;
+			delete *this->parentUI;
+		}
+
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
@@ -222,6 +230,11 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
         configKeys.reload();
+
+		if(this->parentUI != NULL) {
+			*this->parentUI = NULL;
+			delete *this->parentUI;
+		}
 
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -241,6 +254,11 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 			configKeys.save();
 			configKeys.reload();
         }
+
+		if(this->parentUI != NULL) {
+			*this->parentUI = NULL;
+			delete *this->parentUI;
+		}
 
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -279,11 +297,14 @@ void MenuStateKeysetup::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateKeysetup::render(){
 	Renderer &renderer= Renderer::getInstance();
 
+	//printf("MenuStateKeysetup::render A\n");
+
 	if(mainMessageBox.getEnabled()) {
+		//printf("MenuStateKeysetup::render B\n");
 		renderer.renderMessageBox(&mainMessageBox);
 	}
-	else
-	{
+	else {
+		//printf("MenuStateKeysetup::render C\n");
 		renderer.renderButton(&buttonReturn);
 		renderer.renderButton(&buttonDefaults);
 		renderer.renderButton(&buttonOk);
@@ -310,6 +331,8 @@ void MenuStateKeysetup::render(){
 }
 
 void MenuStateKeysetup::update() {
+	//printf("MenuStateKeysetup::update A\n");
+
 	if (keyScrollBar.getElementCount() != 0) {
 		for (int i = keyScrollBar.getVisibleStart(); i
 				<= keyScrollBar.getVisibleEnd(); ++i) {
