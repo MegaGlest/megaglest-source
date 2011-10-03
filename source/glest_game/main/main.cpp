@@ -336,6 +336,46 @@ public:
 
 	static void handleRuntimeError(const char *msg) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		string errorLogFile = "error.log";
+		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+			errorLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + errorLogFile;
+		}
+		else {
+	        string userData = Config::getInstance().getString("UserData_Root","");
+	        if(userData != "") {
+	        	endPathWithSlash(userData);
+	        }
+	        errorLogFile = userData + errorLogFile;
+		}
+#if defined(WIN32) && !defined(__MINGW32__)
+		FILE *fp = _wfopen(utf8_decode(errorLogFile).c_str(), L"w");
+		std::ofstream logFile(fp);
+#else
+		std::ofstream logFile;
+		logFile.open(errorLogFile.c_str(), ios_base::out | ios_base::trunc);
+#endif
+
+		if(logFile.is_open() == true) {
+			time_t curtime = time (NULL);
+			struct tm *loctime = localtime (&curtime);
+			char szBuf2[100]="";
+			strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+
+			logFile << "[" << szBuf2 << "] Runtime Error information:"  << std::endl;
+			logFile << "======================================================"  << std::endl;
+			logFile << (msg != NULL ? msg : "null") << std::endl;
+			logFile.close();
+
+#if defined(WIN32) && !defined(__MINGW32__)
+			if(fp) {
+				fclose(fp);
+			}
+#endif
+			printf("Error saved to logfile [%s]\n",errorLogFile.c_str());
+			fflush(stdout);
+		}
+
 		Program *program = Program::getInstance();
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] program = %p gameInitialized = %d msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,program,gameInitialized,msg);
@@ -3305,6 +3345,8 @@ int glestMain(int argc, char** argv) {
 	    if(isMasterServerModeEnabled == true) {
 	    	printf("Headless server is now running...\n");
 	    }
+
+	    //throw runtime_error("Test!");
 
 		//main loop
 		while(program->isShutdownApplicationEnabled() == false && Window::handleEvent()) {
