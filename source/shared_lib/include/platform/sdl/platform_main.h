@@ -61,6 +61,7 @@ const char  *GAME_ARGS[] = {
 	//"--windowed",
 
 	"--use-font",
+	"--font-basesize",
 	"--verbose"
 
 };
@@ -105,6 +106,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_USE_FULLSCREEN,
 
 	GAME_ARG_USE_FONT,
+	GAME_ARG_FONT_BASESIZE,
 	GAME_ARG_VERBOSE_MODE
 };
 
@@ -235,6 +237,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\t\toverride the font to use.",GAME_ARGS[GAME_ARG_USE_FONT]);
 	printf("\n                     \t\tWhere x is the path and name of a font file support by freetype2.");
 	printf("\n                     \t\texample: %s %s=$APPLICATIONDATAPATH/data/core/fonts/Vera.ttf",argv0,GAME_ARGS[GAME_ARG_USE_FONT]);
+
+	printf("\n%s=x\t\t\toverride the font base size.",GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
+	printf("\n                     \t\tWhere x is the numeric base font size to use.");
+	printf("\n                     \t\texample: %s %s=5",argv0,GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
 
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 
