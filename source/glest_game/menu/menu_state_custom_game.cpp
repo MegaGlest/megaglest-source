@@ -427,7 +427,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelPlayerStatus[i].init(10, setupPos-30-i*rowHeight, 60);
 
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset+0, setupPos-30-i*rowHeight);
+		labelPlayers[i].init(xoffset-20, setupPos-30-i*rowHeight);
 
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
 		labelPlayerNames[i].init(xoffset+50,setupPos-30-i*rowHeight);
