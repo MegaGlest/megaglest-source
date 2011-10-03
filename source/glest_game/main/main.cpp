@@ -334,9 +334,7 @@ public:
     }
 #endif
 
-	static void handleRuntimeError(const char *msg) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+    static void logError(const char *msg, bool confirmToConsole) {
 		string errorLogFile = "error.log";
 		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
 			errorLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + errorLogFile;
@@ -372,9 +370,17 @@ public:
 				fclose(fp);
 			}
 #endif
-			printf("Error saved to logfile [%s]\n",errorLogFile.c_str());
-			fflush(stdout);
+			if(confirmToConsole == true) {
+				printf("Error saved to logfile [%s]\n",errorLogFile.c_str());
+				fflush(stdout);
+			}
 		}
+    }
+
+	static void handleRuntimeError(const char *msg) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		logError(msg,true);
 
 		Program *program = Program::getInstance();
 
@@ -469,6 +475,8 @@ public:
         #endif
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+        logError(errMsg.c_str(),false);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
