@@ -207,6 +207,16 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 					mapAIBehaviorUnitCategories[aibcBuildingUnits].push_back(PairPUnitTypeInt(getUnitType(name), minimum));
 				}
 			}
+
+			if(aiNode->hasChild("upgrades") == true) {
+				const XmlNode *aiNodeUpgrades= aiNode->getChild("upgrades");
+				for(int i = 0; i < aiNodeUpgrades->getChildCount(); ++i) {
+					const XmlNode *upgradeNode= aiNodeUpgrades->getChild("upgrade", i);
+					string name= upgradeNode->getAttribute("name")->getRestrictedValue();
+
+					vctAIBehaviorUpgrades.push_back(getUpgradeType(name));
+				}
+			}
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
