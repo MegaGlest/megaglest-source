@@ -97,14 +97,20 @@ bool Config::tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<str
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= looking for file in possible location  [%s]\n",linuxPath.c_str());
 
 #if defined(__linux__)
-    	if(wasFound == false && fileExists(linuxPath + "linux_" + file.first) == true) {
-        	file.first = linuxPath + "linux_" + file.first;
+		string nixFile = linuxPath + "linux_" + file.first;
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= looking for linux specific file in possible location  [%s]\n",nixFile.c_str());
+
+    	if(wasFound == false && fileExists(nixFile) == true) {
+        	file.first = nixFile;
         	file.second = linuxPath + file.second;
         	wasFound = true;
     	}
-#elif defined(__WINDOWS__)
-    	if(wasFound == false && fileExists(linuxPath + "windows_" + file.first) == true) {
-        	file.first = linuxPath + "windows_" + file.first;
+#elif defined(__WIN32__)
+		string winFile = linuxPath + "windows_" + file.first;
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= looking for windows specific file in possible location  [%s]\n",winFile.c_str());
+
+		if(wasFound == false && fileExists(winFile) == true) {
+        	file.first = winFile;
         	file.second = linuxPath + file.second;
         	wasFound = true;
     	}
