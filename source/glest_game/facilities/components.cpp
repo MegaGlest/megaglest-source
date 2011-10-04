@@ -126,12 +126,14 @@ void GraphicComponent::applyCustomProperties(std::string containerName) {
 				ctl->y = config.getInt(containerName + "_" + iterFind2->first + "_y",intToStr(ctl->y).c_str());
 				ctl->w = config.getInt(containerName + "_" + iterFind2->first + "_w",intToStr(ctl->w).c_str());
 				ctl->h = config.getInt(containerName + "_" + iterFind2->first + "_h",intToStr(ctl->h).c_str());
+				ctl->visible = config.getBool(containerName + "_" + iterFind2->first + "_visible",boolToStr(ctl->visible).c_str());
 
 				// Now check language specific overrides
 				ctl->x = config.getInt(containerName + "_" + iterFind2->first + "_x_" + languageToken, intToStr(ctl->x).c_str());
 				ctl->y = config.getInt(containerName + "_" + iterFind2->first + "_y_" + languageToken, intToStr(ctl->y).c_str());
 				ctl->w = config.getInt(containerName + "_" + iterFind2->first + "_w_" + languageToken, intToStr(ctl->w).c_str());
 				ctl->h = config.getInt(containerName + "_" + iterFind2->first + "_h_" + languageToken, intToStr(ctl->h).c_str());
+				ctl->visible = config.getBool(containerName + "_" + iterFind2->first + "_visible_" + languageToken,boolToStr(ctl->visible).c_str());
 
 				//}
 			}
