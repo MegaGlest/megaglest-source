@@ -2694,8 +2694,6 @@ int glestMain(int argc, char** argv) {
 
         lang.loadStrings(language);
         if(	lang.hasString("FONT_BASE_SIZE")) {
-			// 256 for English
-			// 30000 for Chinese
 			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE"));
         }
 

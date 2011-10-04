@@ -42,11 +42,11 @@ bool Font::fontIsRightToLeft				= false;
 // in 3D render mode
 float Font::scaleFontValue					= 0.80;
 // This value is used for centering font text vertically (height)
-float Font::scaleFontValueCenterHFactor		= 3.0;
+float Font::scaleFontValueCenterHFactor		= 4.0;
 //float Font::scaleFontValue					= 1.0;
 //float Font::scaleFontValueCenterHFactor		= 4.0;
 
-int Font::baseSize							= 0;
+int Font::baseSize							= 3;
 
 #ifdef USE_FTGL
 
@@ -55,7 +55,7 @@ string Font::langHeightText					= TextFTGL::langHeightText;
 
 #else
 
-int Font::faceResolution					= 72;
+int Font::faceResolution					= 720;
 string Font::langHeightText					= "yW";
 
 #endif
