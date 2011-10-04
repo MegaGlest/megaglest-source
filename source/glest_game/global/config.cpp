@@ -95,7 +95,22 @@ bool Config::tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<str
 
     	string linuxPath = custom_path;
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= looking for file in possible location  [%s]\n",linuxPath.c_str());
-    	if(fileExists(linuxPath + file.first) == true) {
+
+#if defined(__linux__)
+    	if(wasFound == false && fileExists(linuxPath + "linux_" + file.first) == true) {
+        	file.first = linuxPath + "linux_" + file.first;
+        	file.second = linuxPath + file.second;
+        	wasFound = true;
+    	}
+#elif defined(__WINDOWS__)
+    	if(wasFound == false && fileExists(linuxPath + "windows_" + file.first) == true) {
+        	file.first = linuxPath + "windows_" + file.first;
+        	file.second = linuxPath + file.second;
+        	wasFound = true;
+    	}
+
+#endif
+    	if(wasFound == false && fileExists(linuxPath + file.first) == true) {
         	file.first = linuxPath + file.first;
         	file.second = linuxPath + file.second;
         	wasFound = true;
