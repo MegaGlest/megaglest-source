@@ -1393,6 +1393,40 @@ void AiRuleUpgrade::upgradeGeneric(const UpgradeTask *upgt){
 	//find upgrades that can be upgraded
 	UpgradeTypes upgrades;
 
+	if(aiInterface->getMyFactionType()->getAIBehaviorUpgrades().size() > 0) {
+		const std::vector<const UpgradeType*> &upgradeList = aiInterface->getMyFactionType()->getAIBehaviorUpgrades();
+		for(unsigned int i = 0; i < upgradeList.size(); ++i) {
+			const UpgradeType* priorityUpgrade = upgradeList[i];
+
+			//for each upgrade, upgrade it if possible
+			for(int k = 0; k < aiInterface->getMyUnitCount(); ++k) {
+
+				//for each command
+				const UnitType *ut= aiInterface->getMyUnit(k)->getType();
+				for(int j = 0; j < ut->getCommandTypeCount(); ++j) {
+					const CommandType *ct= ut->getCommandType(j);
+
+					//if the command is upgrade
+					if(ct->getClass() == ccUpgrade) {
+						const UpgradeCommandType *upgct= dynamic_cast<const UpgradeCommandType*>(ct);
+						if(upgct != NULL) {
+							const UpgradeType *upgrade= upgct->getProducedUpgrade();
+							if(upgrade == priorityUpgrade) {
+								if(aiInterface->reqsOk(upgct) == true &&
+									aiInterface->getMyFaction()->getUpgradeManager()->isUpgradingOrUpgraded(priorityUpgrade) == false) {
+									//if(ai->getRandom()->randRange(0, 1)==0) {
+									ai->addTask(new UpgradeTask(priorityUpgrade));
+									return;
+									//}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	//for each upgrade, upgrade it if possible
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 

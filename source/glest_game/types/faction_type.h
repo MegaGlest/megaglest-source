@@ -53,6 +53,7 @@ private:
 	FactionPersonalityType personalityType;
 
 	std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> > mapAIBehaviorUnitCategories;
+	std::vector<const UpgradeType*> vctAIBehaviorUpgrades;
 
 public:
 	//init
@@ -62,6 +63,7 @@ public:
 	~FactionType();
 
 	const std::vector<FactionType::PairPUnitTypeInt> getAIBehaviorUnits(AIBehaviorUnitCategory category) const;
+	const std::vector<const UpgradeType*> getAIBehaviorUpgrades() const { return vctAIBehaviorUpgrades; };
 
     //get
 	int getUnitTypeCount() const						{return unitTypes.size();}
