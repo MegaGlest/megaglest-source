@@ -27,8 +27,16 @@ namespace Glest{ namespace Game{
 ///	Each of the possible factions the user can select
 // =====================================================
 
+enum AIBehaviorUnitCategory {
+	aibcWorkerUnits,
+	aibcWarriorUnits,
+	aibcResourceProducerUnits,
+	aibcBuildingUnits
+};
+
+
 class FactionType {
-private:
+public:
 	typedef pair<const UnitType*, int> PairPUnitTypeInt;
 	typedef vector<UnitType> UnitTypes;
 	typedef vector<UpgradeType> UpgradeTypes;
@@ -44,12 +52,16 @@ private:
 	StrSound *music;
 	FactionPersonalityType personalityType;
 
+	std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> > mapAIBehaviorUnitCategories;
+
 public:
 	//init
 	FactionType();
     void load(const string &dir, const TechTree *techTree, Checksum* checksum,
     		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
 	~FactionType();
+
+	const std::vector<FactionType::PairPUnitTypeInt> getAIBehaviorUnits(AIBehaviorUnitCategory category) const;
 
     //get
 	int getUnitTypeCount() const						{return unitTypes.size();}
