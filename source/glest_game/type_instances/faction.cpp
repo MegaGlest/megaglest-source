@@ -1588,6 +1588,62 @@ void Faction::setSwitchTeamVote(SwitchTeamVote &vote) {
 	switchTeamVotes[vote.factionIndex] = vote;
 }
 
+bool Faction::canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProduce, bool checkMorph) const {
+	// Now check that at least 1 other unit can produce, build or morph this unit
+	bool foundUnit = false;
+	for(int l = 0; l < this->getUnitCount() && foundUnit == false; ++l) {
+		const UnitType *unitType2 = this->getUnit(l)->getType();
+
+		for(int j = 0; j < unitType2->getCommandTypeCount() && foundUnit == false; ++j) {
+			const CommandType *cmdType = unitType2->getCommandType(j);
+			if(cmdType != NULL) {
+				// Check if this is a produce command
+				if(checkProduce == true && cmdType->getClass() == ccProduce) {
+					const ProduceCommandType *produce = dynamic_cast<const ProduceCommandType *>(cmdType);
+					if(produce != NULL) {
+						const UnitType *produceUnit = produce->getProducedUnit();
+
+						if( produceUnit != NULL &&
+							ut->getId() != unitType2->getId() &&
+							ut->getName() == produceUnit->getName()) {
+							 foundUnit = true;
+							 break;
+						}
+					}
+				}
+				// Check if this is a build command
+				else if(checkBuild == true && cmdType->getClass() == ccBuild) {
+					const BuildCommandType *build = dynamic_cast<const BuildCommandType *>(cmdType);
+					for(int k = 0; k < build->getBuildingCount() && foundUnit == false; ++k) {
+						const UnitType *buildUnit = build->getBuilding(k);
+
+						if( buildUnit != NULL &&
+							ut->getId() != unitType2->getId() &&
+							ut->getName() == buildUnit->getName()) {
+							 foundUnit = true;
+							 break;
+						}
+					}
+				}
+				// Check if this is a morph command
+				else if(checkMorph == true && cmdType->getClass() == ccMorph) {
+					const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
+					const UnitType *morphUnit = morph->getMorphUnit();
+
+					if( morphUnit != NULL &&
+						ut->getId() != unitType2->getId() &&
+						ut->getName() == morphUnit->getName()) {
+						 foundUnit = true;
+						 break;
+					}
+				}
+			}
+		}
+	}
+
+	return foundUnit;
+}
+
 std::string Faction::toString() const {
 	std::string result = "";
 

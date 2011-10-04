@@ -248,6 +248,8 @@ public:
 
 	void sortUnitsByCommandGroups();
 
+	bool canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProduce, bool checkMorph) const;
+
 	std::string toString() const;
 
 private:

@@ -163,8 +163,61 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 			music->open(musicNode->getAttribute("path")->getRestrictedValue(currentPath));
 			loadedFileList[musicNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,musicNode->getAttribute("path")->getRestrictedValue()));
 		}
+
+		//read ai behavior
+		if(factionNode->hasChild("ai-behavior") == true) {
+			const XmlNode *aiNode= factionNode->getChild("ai-behavior");
+			if(aiNode->hasChild("worker-units") == true) {
+				const XmlNode *aiNodeUnits= aiNode->getChild("worker-units");
+				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+					const XmlNode *unitNode= aiNodeUnits->getChild("unit", i);
+					string name= unitNode->getAttribute("name")->getRestrictedValue();
+					int minimum= unitNode->getAttribute("minimum")->getIntValue();
+
+					mapAIBehaviorUnitCategories[aibcWorkerUnits].push_back(PairPUnitTypeInt(getUnitType(name), minimum));
+				}
+			}
+			if(aiNode->hasChild("warrior-units") == true) {
+				const XmlNode *aiNodeUnits= aiNode->getChild("warrior-units");
+				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+					const XmlNode *unitNode= aiNodeUnits->getChild("unit", i);
+					string name= unitNode->getAttribute("name")->getRestrictedValue();
+					int minimum= unitNode->getAttribute("minimum")->getIntValue();
+
+					mapAIBehaviorUnitCategories[aibcWarriorUnits].push_back(PairPUnitTypeInt(getUnitType(name), minimum));
+				}
+			}
+			if(aiNode->hasChild("resource-producer-units") == true) {
+				const XmlNode *aiNodeUnits= aiNode->getChild("resource-producer-units");
+				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+					const XmlNode *unitNode= aiNodeUnits->getChild("unit", i);
+					string name= unitNode->getAttribute("name")->getRestrictedValue();
+					int minimum= unitNode->getAttribute("minimum")->getIntValue();
+
+					mapAIBehaviorUnitCategories[aibcResourceProducerUnits].push_back(PairPUnitTypeInt(getUnitType(name), minimum));
+				}
+			}
+			if(aiNode->hasChild("building-units") == true) {
+				const XmlNode *aiNodeUnits= aiNode->getChild("building-units");
+				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+					const XmlNode *unitNode= aiNodeUnits->getChild("unit", i);
+					string name= unitNode->getAttribute("name")->getRestrictedValue();
+					int minimum= unitNode->getAttribute("minimum")->getIntValue();
+
+					mapAIBehaviorUnitCategories[aibcBuildingUnits].push_back(PairPUnitTypeInt(getUnitType(name), minimum));
+				}
+			}
+		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+const std::vector<FactionType::PairPUnitTypeInt> FactionType::getAIBehaviorUnits(AIBehaviorUnitCategory category) const {
+	std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> >::const_iterator iterFind = mapAIBehaviorUnitCategories.find(category);
+	if(iterFind != mapAIBehaviorUnitCategories.end()) {
+		return iterFind->second;
+	}
+	return std::vector<FactionType::PairPUnitTypeInt>();
 }
 
 FactionType::~FactionType(){
