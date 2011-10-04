@@ -953,8 +953,8 @@ void Game::init(bool initForPreviewOnly)
 	menuItems.push_back(lang.get("Keyboardsetup"));
 	keyboardSetupPopupMenuIndex = menuItems.size()-1;
 	menuItems.push_back(lang.get("Cancel"));
-	popupMenu.setW(200);
-	popupMenu.setH(200);
+	popupMenu.setW(100);
+	popupMenu.setH(100);
 	popupMenu.init(lang.get("GameMenuTitle"),menuItems);
 	popupMenu.setEnabled(false);
 	popupMenu.setVisible(false);
@@ -1427,8 +1427,8 @@ void Game::mouseDownLeft(int x, int y) {
 				menuItems.push_back(lang.get("Cancel"));
 				switchTeamIndexMap[menuItems.size()-1] = CANCEL_SWITCH_TEAM;
 
-				popupMenuSwitchTeams.setW(400);
-				popupMenuSwitchTeams.setH(400);
+				popupMenuSwitchTeams.setW(100);
+				popupMenuSwitchTeams.setH(100);
 				popupMenuSwitchTeams.init(lang.get("SwitchTeams"),menuItems);
 				popupMenuSwitchTeams.setEnabled(true);
 				popupMenuSwitchTeams.setVisible(true);
