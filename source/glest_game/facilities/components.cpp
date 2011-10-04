@@ -698,6 +698,9 @@ void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 	x= (metrics.getVirtualW()-w)/2;
 	y= (metrics.getVirtualH()-h)/2;
 
+	int textHeight = GraphicButton::defH;
+	int textHeightSpacing = 6;
+
 	int maxButtonWidth = -1;
 	for(unsigned int i = 0; i < menuItems.size(); ++i) {
 		int currentButtonWidth = -1;
@@ -715,15 +718,28 @@ void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 		}
 
 		if(maxButtonWidth < 0 || currentButtonWidth > maxButtonWidth) {
-			maxButtonWidth = currentButtonWidth + 5;
+			maxButtonWidth = currentButtonWidth + textHeightSpacing;
 		}
 	}
 
-	int textHeight = 30;
-	int yStartOffset = y + (h/2) + (textHeight/2);
+	int yStartOffset = y + h - (textHeight * 2);
+
+	if(maxButtonWidth >= w) {
+		w = maxButtonWidth + textHeightSpacing;
+		x= (metrics.getVirtualW()-w)/2;
+	}
+
+	int offsetH = (yStartOffset - y);
+	int maxH = (offsetH + ((menuItems.size() -1 ) * (textHeight + textHeightSpacing)));
+	if(maxH >= h) {
+		h = maxH;
+		y= (metrics.getVirtualH()-h)/2;
+		yStartOffset = y + h - (textHeight * 2);
+	}
+
 	for(unsigned int i = 0; i < menuItems.size(); ++i) {
 		GraphicButton button;
-		button.init(x+(w-maxButtonWidth)/2, yStartOffset - (i*textHeight));
+		button.init(x+(w-maxButtonWidth)/2, yStartOffset - (i*(textHeight + textHeightSpacing)));
 		button.setText(menuItems[i]);
 		button.setW(maxButtonWidth);
 
