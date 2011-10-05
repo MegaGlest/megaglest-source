@@ -55,7 +55,7 @@ string Font::langHeightText					= TextFTGL::langHeightText;
 
 #else
 
-int Font::faceResolution					= 720;
+int Font::faceResolution					= 72;
 string Font::langHeightText					= "yW";
 
 #endif
