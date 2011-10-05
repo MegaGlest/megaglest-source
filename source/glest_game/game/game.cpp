@@ -927,7 +927,8 @@ void Game::init(bool initForPreviewOnly)
 	menuItems.push_back(lang.get("ExitGame?"));
 	exitGamePopupMenuIndex = menuItems.size()-1;
 
-	if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching) {
+	if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
+		world.getThisFaction() != NULL && world.getThisFaction()->getType()->getPersonalityType() != fpt_Observer) {
 		menuItems.push_back(lang.get("JoinOtherTeam"));
 		joinTeamPopupMenuIndex = menuItems.size()-1;
 	}
@@ -1410,12 +1411,15 @@ void Game::mouseDownLeft(int x, int y) {
 				std::vector<string> menuItems;
 				for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
-					if(uniqueTeamNumbersUsed.find(faction->getTeam()) == uniqueTeamNumbersUsed.end()) {
+
+					if(faction->getType()->getPersonalityType() != fpt_Observer &&
+						uniqueTeamNumbersUsed.find(faction->getTeam()) == uniqueTeamNumbersUsed.end()) {
 						uniqueTeamNumbersUsed[faction->getTeam()] = true;
 					}
 
-					if(world.getThisFaction()->getIndex() != faction->getIndex() &&
-							world.getThisFaction()->getTeam() != faction->getTeam()) {
+					if(faction->getType()->getPersonalityType() != fpt_Observer &&
+						world.getThisFaction()->getIndex() != faction->getIndex() &&
+						world.getThisFaction()->getTeam() != faction->getTeam()) {
 						char szBuf[1024]="";
 						if(lang.hasString("JoinPlayerTeam") == true) {
 							sprintf(szBuf,lang.get("JoinPlayerTeam").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
