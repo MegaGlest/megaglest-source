@@ -380,6 +380,15 @@ public:
 	static void handleRuntimeError(const char *msg) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		static bool inErrorNow = false;
+		if(inErrorNow == true) {
+			printf("\n** Already in error handler, msg [%s]\n",msg);
+			fflush(stdout);
+			abort();
+			return;
+		}
+		inErrorNow = true;
+
 		logError(msg,true);
 
 		Program *program = Program::getInstance();
@@ -497,6 +506,8 @@ public:
                     //program->getState()->render();
                     Window::handleEvent();
                     program->loop();
+
+                    //printf("\nhandle error #1\n");
                 }
 			}
 			else {
@@ -507,6 +518,8 @@ public:
                     //program->renderProgramMsgBox();
                     Window::handleEvent();
                     program->loop();
+
+                    //printf("\nhandle error #2\n");
                 }
 			}
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -547,6 +560,7 @@ public:
         }
 
 		runtimeErrorMsg = errMsg;
+		inErrorNow = false;
 		throw runtimeErrorMsg;
 #endif
 		//printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
@@ -563,6 +577,8 @@ public:
 	    }
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		inErrorNow = false;
 
         abort();
 	}

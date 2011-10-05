@@ -74,6 +74,8 @@ public:
 			useMaxNodeCount = 0;
 			precachedTravelState.clear();
 			precachedPath.clear();
+			//mapFromToNodeList.clear();
+			//lastFromToNodeListFrame = -100;
 		}
 		std::map<Vec2i, bool> openPosList;
 		std::map<float, Nodes> openNodesList;
@@ -85,6 +87,9 @@ public:
 
 		std::map<int,TravelState> precachedTravelState;
 		std::map<int,std::vector<Vec2i> > precachedPath;
+
+		//int lastFromToNodeListFrame;
+		//std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > > mapFromToNodeList;
 	};
 	typedef vector<FactionState> FactionStateList;
 
