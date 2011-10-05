@@ -24,6 +24,7 @@
 #endif
 
 #include "platform_common.h"
+#include "opengl.h"
 #include "util.h"
 using namespace std;
 using namespace Shared::Util;
@@ -80,7 +81,15 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 	free((void*)fontFile);
 	fontFile = NULL;
 
-	ftFont->FaceSize(24,TextFTGL::faceResolution);
+	const unsigned int defSize = 24;
+	ftFont->FaceSize(defSize,TextFTGL::faceResolution);
+
+	GLenum error = glGetError();
+	if(error != GL_NO_ERROR) {
+		printf("\n[%s::%s] Line %d Error = %d [%s] for size = %d res = %d\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),defSize,TextFTGL::faceResolution);
+		fflush(stdout);
+	}
+
 	if(ftFont->Error())	{
 		char szBuf[1024]="";
 		sprintf(szBuf,"FTGL: error setting face size, #%d",ftFont->Error());
@@ -149,11 +158,15 @@ void TextFTGL::init(string fontName, int fontSize) {
 	free((void*)fontFile);
 	fontFile = NULL;
 
-	if(fontSize > 0) {
-		ftFont->FaceSize(fontSize,TextFTGL::faceResolution);
+	if(fontSize <= 0) {
+		fontSize = 24;
 	}
-	else {
-		ftFont->FaceSize(24,TextFTGL::faceResolution);
+	ftFont->FaceSize(fontSize,TextFTGL::faceResolution);
+
+	GLenum error = glGetError();
+	if(error != GL_NO_ERROR) {
+		printf("\n[%s::%s] Line %d Error = %d [%s] for size = %d res = %d\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),fontSize,TextFTGL::faceResolution);
+		fflush(stdout);
 	}
 
 	if(ftFont->Error())	{
@@ -179,6 +192,12 @@ void TextFTGL::init(string fontName, int fontSize) {
 	string preloadText = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890-=!@#$%^&*()_+:\"{}[]/?.,<>\\';";
 	ftFont->Advance(preloadText.c_str());
 
+	error = glGetError();
+	if(error != GL_NO_ERROR) {
+		printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),preloadText.c_str());
+		fflush(stdout);
+	}
+
 	if(ftFont->Error())	{
 		char szBuf[1024]="";
 		sprintf(szBuf,"FTGL: error advancing(a), #%d",ftFont->Error());
@@ -188,6 +207,13 @@ void TextFTGL::init(string fontName, int fontSize) {
 
 void TextFTGL::SetFaceSize(int value) {
 	ftFont->FaceSize(value,TextFTGL::faceResolution);
+
+	GLenum error = glGetError();
+	if(error != GL_NO_ERROR) {
+		printf("\n[%s::%s] Line %d Error = %d [%s] for facesize = %d\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),value);
+		fflush(stdout);
+	}
+
 	if(ftFont->Error())	{
 		char szBuf[1024]="";
 		sprintf(szBuf,"FTGL: error setting face size, #%d",ftFont->Error());
@@ -206,7 +232,14 @@ void TextFTGL::Render(const char* str, const int len) {
 	*/
 	if(len != 0) {
 		//printf("FTGL Render [%s] facesize = %d\n",str,ftFont->FaceSize());
+		assertGl();
 		ftFont->Render(str, len);
+		//assertGl();
+		GLenum error = glGetError();
+		if(error != GL_NO_ERROR) {
+			printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
+			fflush(stdout);
+		}
 
 		if(ftFont->Error())	{
 			char szBuf[1024]="";
@@ -218,6 +251,13 @@ void TextFTGL::Render(const char* str, const int len) {
 
 float TextFTGL::Advance(const char* str, const int len) {
 	float result = ftFont->Advance(str, len);
+
+	GLenum error = glGetError();
+	if(error != GL_NO_ERROR) {
+		printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
+		fflush(stdout);
+	}
+
 	if(ftFont->Error())	{
 		char szBuf[1024]="";
 		sprintf(szBuf,"FTGL: error trying to advance(b), #%d",ftFont->Error());
@@ -261,9 +301,22 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 	static float result = -1000;
 	if(result == -1000) {
 		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
+
+		GLenum error = glGetError();
+		if(error != GL_NO_ERROR) {
+			printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
+			fflush(stdout);
+		}
+
 		result = box.Upper().Y()- box.Lower().Y();
 		if(result == 0) {
 			result = ftFont->LineHeight();
+
+			GLenum error = glGetError();
+			if(error != GL_NO_ERROR) {
+				printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
+				fflush(stdout);
+			}
 		}
 		//printf("ftFont->BBox(''yW'')%f\n",result);
 	}
