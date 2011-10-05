@@ -15,6 +15,7 @@
 
 #include "font_textFTGL.h"
 
+#include "opengl.h"
 #include <stdexcept>
 #include <sys/stat.h>
 #include <FTGL/ftgl.h>
@@ -24,8 +25,8 @@
 #endif
 
 #include "platform_common.h"
-#include "opengl.h"
 #include "util.h"
+
 using namespace std;
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
