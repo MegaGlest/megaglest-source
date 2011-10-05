@@ -7000,10 +7000,16 @@ void Renderer::renderPopupMenu(PopupMenu *menu) {
 	}
 	else {
 		//text
+		int renderX = (menu->getX() + (menu->getW() / 2));
+		//int renderY = (menu->getY() + (menu->getH() / 2));
+		FontMetrics *fontMetrics= menu->getFont()->getMetrics();
+		int renderY = menu->getY() + menu->getH() - fontMetrics->getHeight();
 		renderTextShadow(
 				menu->getHeader(), menu->getFont(),fontColor,
-			menu->getX()+15, menu->getY()+93*menu->getH()/100,
+				renderX, renderY,
 			true);
+
+		//renderText(button->getText(), button->getFont(), color,x + (w / 2), y + (h / 2), true);
 	}
 
 	//buttons
