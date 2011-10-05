@@ -111,6 +111,14 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		clearUnitPrecache(unit);
 	}
 
+//	if(frameIndex != factions[unit->getFactionIndex()].lastFromToNodeListFrame) {
+//		if(factions[unit->getFactionIndex()].mapFromToNodeList.size() > 0) {
+//			printf("clear duplicate list = %lu for faction = %d frameIndex = %d\n",factions[unit->getFactionIndex()].mapFromToNodeList.size(),unit->getFactionIndex(),frameIndex);
+//			factions[unit->getFactionIndex()].mapFromToNodeList.clear();
+//		}
+//		factions[unit->getFactionIndex()].lastFromToNodeListFrame = frameIndex;
+//	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"[findPath] unit->getPos() [%s] finalPos [%s]",
@@ -394,8 +402,23 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 bool PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached,int maxNodeCount) {
 	bool result = false;
 	Vec2i sucPos= node->pos + Vec2i(i, j);
-	bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
-	if(canUnitMoveToCell == true && openPos(sucPos, factions[unit->getFactionIndex()]) == false) {
+
+//	std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > >::iterator iterFind1 = factions[unit->getFactionIndex()].mapFromToNodeList.find(unit->getType()->getId());
+//	if(iterFind1 != factions[unit->getFactionIndex()].mapFromToNodeList.end()) {
+//		std::map<Vec2i,std::map<Vec2i, bool> >::iterator iterFind2 = iterFind1->second.find(node->pos);
+//		if(iterFind2 != iterFind1->second.end()) {
+//			std::map<Vec2i, bool>::iterator iterFind3 = iterFind2->second.find(sucPos);
+//			if(iterFind3 != iterFind2->second.end()) {
+//				//printf("found duplicate check in processNode\n");
+//				return iterFind3->second;
+//			}
+//		}
+//	}
+
+	//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
+	//bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, node->pos, sucPos);
+	if(openPos(sucPos, factions[unit->getFactionIndex()]) == false &&
+			map->aproxCanMoveSoon(unit, node->pos, sucPos) == true) {
 		//if node is not open and canMove then generate another node
 		Node *sucNode= newNode(factions[unit->getFactionIndex()],maxNodeCount);
 		if(sucNode != NULL) {
@@ -416,6 +439,8 @@ bool PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i,
 			nodeLimitReached= true;
 		}
 	}
+
+//	factions[unit->getFactionIndex()].mapFromToNodeList[unit->getType()->getId()][node->pos][sucPos] = result;
 	return result;
 }
 
