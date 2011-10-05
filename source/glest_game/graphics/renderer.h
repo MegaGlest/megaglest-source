@@ -238,6 +238,7 @@ private:
 	GLuint list3d;
 	GLuint list2d;
 	GLuint list3dMenu;
+	GLuint *customlist3dMenu;
 
 	//shadows
 	GLuint shadowMapHandle;
@@ -520,6 +521,9 @@ public:
 	static Texture2D * findFactionLogoTexture(string logoFilename);
 	static Texture2D * preloadTexture(string logoFilename);
 	int getCachedSurfaceDataSize() const { return mapSurfaceData.size(); }
+
+	void setCustom3dMenuList(GLuint *customlist3dMenu) { this->customlist3dMenu = customlist3dMenu; }
+	GLuint * getCustom3dMenuList() const { return this->customlist3dMenu; }
 
 private:
 	//private misc
