@@ -471,7 +471,13 @@ void Renderer::reset2d() {
 void Renderer::reset3dMenu() {
 	assertGl();
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
-	glCallList(list3dMenu);
+	if(this->customlist3dMenu != NULL) {
+		glCallList(*this->customlist3dMenu);
+	}
+	else {
+		glCallList(list3dMenu);
+	}
+
 	assertGl();
 }
 
@@ -549,7 +555,12 @@ void Renderer::endMenu() {
 	fontManager[rsMenu]->end();
 	particleManager[rsMenu]->end();
 
-	glDeleteLists(list3dMenu, 1);
+	if(this->customlist3dMenu != NULL) {
+		glDeleteLists(*this->customlist3dMenu,1);
+	}
+	else {
+		glDeleteLists(list3dMenu, 1);
+	}
 }
 
 void Renderer::reloadResources() {
@@ -5782,11 +5793,21 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	list3dMenu= glGenLists(1);
+	if(this->customlist3dMenu != NULL) {
+		*this->customlist3dMenu = glGenLists(1);
+	}
+	else {
+		list3dMenu= glGenLists(1);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	glNewList(list3dMenu, GL_COMPILE);
+	if(this->customlist3dMenu != NULL) {
+		glNewList(*this->customlist3dMenu, GL_COMPILE);
+	}
+	else {
+		glNewList(list3dMenu, GL_COMPILE);
+	}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//misc

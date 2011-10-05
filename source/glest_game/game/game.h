@@ -137,6 +137,7 @@ private:
 	int joinTeamPopupMenuIndex;
 	int pauseGamePopupMenuIndex;
 	int keyboardSetupPopupMenuIndex;
+	GLuint statelist3dMenu;
 	ProgramState *currentUIState;
 
 	bool masterserverMode;

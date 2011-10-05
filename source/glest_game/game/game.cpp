@@ -1197,6 +1197,10 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 }
 
 void Game::updateCamera(){
+	if(currentUIState != NULL) {
+		currentUIState->updateCamera();
+		return;
+	}
 	gameCamera.update();
 }
 
@@ -1270,6 +1274,12 @@ void Game::renderWorker() {
 
 		currentUIState->render();
 		return;
+	}
+	else {
+		Renderer &renderer= Renderer::getInstance();
+		if(renderer.getCustom3dMenuList() != NULL) {
+			renderer.setCustom3dMenuList(NULL);
+		}
 	}
 
 	Chrono chrono;
@@ -1436,6 +1446,11 @@ void Game::mouseDownLeft(int x, int y) {
 			else if(result.first == keyboardSetupPopupMenuIndex) {
 				MainMenu *newMenu = new MainMenu(program); // open keyboard shortcuts setup screen
 				currentUIState = newMenu;
+				Renderer &renderer= Renderer::getInstance();
+				renderer.setCustom3dMenuList(&statelist3dMenu);
+				//currentUIState->load();
+				currentUIState->init();
+
 				newMenu->setState(new MenuStateKeysetup(program, newMenu,&currentUIState)); // open keyboard shortcuts setup screen
 			}
 			else if(result.first == pauseGamePopupMenuIndex) {
