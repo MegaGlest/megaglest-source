@@ -706,7 +706,7 @@ void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 	int maxButtonWidth = -1;
 	for(unsigned int i = 0; i < menuItems.size(); ++i) {
 		int currentButtonWidth = -1;
-		if(font3D != NULL) {
+		if(font3D != NULL && Font::forceLegacyFonts == false) {
 			FontMetrics *fontMetrics= font3D->getMetrics();
 			if(fontMetrics) {
 				currentButtonWidth = fontMetrics->getTextWidth(menuItems[i]);
