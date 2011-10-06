@@ -169,6 +169,7 @@ public:
 
 	void toggleTeamColorMarker();
     //init
+	void resetMembers();
     virtual void load(int loadTypes);
     virtual void load();
     virtual void init();

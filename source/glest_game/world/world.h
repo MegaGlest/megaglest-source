@@ -144,10 +144,12 @@ private:
 	uint32 nextCommandGroupId;
 
 	string queuedScenarioName;
+	bool queuedScenarioKeepFactions;
 
 public:
 	World();
 	~World();
+	void cleanup();
 	void end(); //to die before selection does
 	void endScenario(); //to die before selection does
 
@@ -196,8 +198,9 @@ public:
 			set<string> &factions, Checksum* checksum,std::map<string,vector<pair<string, string> > > &loadedFileList);
 	Checksum loadMap(const string &path, Checksum* checksum);
 	Checksum loadScenario(const string &path, Checksum* checksum,bool resetCurrentScenario=false);
-	void setQueuedScenario(string scenarioName);
+	void setQueuedScenario(string scenarioName,bool keepFactions);
 	string getQueuedScenario() const { return queuedScenarioName; }
+	bool getQueuedScenarioKeepFactions() const { return queuedScenarioKeepFactions; }
 
 	//misc
 	void update();

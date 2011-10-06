@@ -80,11 +80,12 @@ World::World(){
 	fogOfWar=false;
 	perfTimerEnabled=false;
 	queuedScenarioName="";
+	queuedScenarioKeepFactions=false;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-World::~World() {
+void World::cleanup() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	ExploredCellsLookupItemCache.clear();
@@ -135,6 +136,14 @@ World::~World() {
 
 	delete cartographer;
 	cartographer = 0;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+World::~World() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	cleanup();
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -326,8 +335,9 @@ Checksum World::loadScenario(const string &path, Checksum *checksum, bool resetC
 
 // ==================== misc ====================
 
-void World::setQueuedScenario(string scenarioName) {
+void World::setQueuedScenario(string scenarioName,bool keepFactions) {
 	queuedScenarioName = scenarioName;
+	queuedScenarioKeepFactions = keepFactions;
 }
 
 void World::updateAllFactionUnits() {

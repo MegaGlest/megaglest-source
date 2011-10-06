@@ -261,7 +261,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 	inCellTriggerEvent = true;
 	if(movingUnit != NULL) {
-		ScenarioInfo scenarioInfoStart = world->getScenario()->getInfo();
+		//ScenarioInfo scenarioInfoStart = world->getScenario()->getInfo();
 
 		for(std::map<int,CellTriggerEvent>::iterator iterMap = CellTriggerEventList.begin();
 				iterMap != CellTriggerEventList.end(); ++iterMap) {
@@ -358,10 +358,10 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 				luaScript.endCall();
 			}
 
-			ScenarioInfo scenarioInfoEnd = world->getScenario()->getInfo();
-			if(scenarioInfoStart.file != scenarioInfoEnd.file) {
-				break;
-			}
+//			ScenarioInfo scenarioInfoEnd = world->getScenario()->getInfo();
+//			if(scenarioInfoStart.file != scenarioInfoEnd.file) {
+//				break;
+//			}
 		}
 	}
 
@@ -858,13 +858,13 @@ int ScriptManager::getUnitCountOfType(int factionIndex, const string &typeName) 
 	return world->getUnitCountOfType(factionIndex, typeName);
 }
 
-void ScriptManager::loadScenario(const string &name) {
+void ScriptManager::loadScenario(const string &name, bool keepFactions) {
 	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
-	world->setQueuedScenario(name);
+	world->setQueuedScenario(name,keepFactions);
 /*
 	vector<string> results;
 	const vector<string> &dirList = Config::getInstance().getPathListForType(ptScenarios);
@@ -1385,7 +1385,7 @@ int ScriptManager::loadScenario(LuaHandle* luaHandle) {
 	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->loadScenario(luaArguments.getString(-1));
+	thisScriptManager->loadScenario(luaArguments.getString(-2),luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
 

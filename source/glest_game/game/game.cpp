@@ -48,6 +48,7 @@ const int CANCEL_SWITCH_TEAM = -1;
 
 Game::Game() : ProgramState(NULL) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	originalDisplayMsgCallback = NULL;
 	aiInterfaces.clear();
 
@@ -103,19 +104,7 @@ Game::Game() : ProgramState(NULL) {
 	currentUIState=NULL;
 }
 
-Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverMode):
-	ProgramState(program), lastMousePos(0), isFirstRender(true)
-{
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	this->masterserverMode = masterserverMode;
-
-	if(this->masterserverMode == true) {
-		printf("Starting a new game...\n");
-	}
-
-	this->program = program;
+void Game::resetMembers() {
 	Unit::setGame(this);
 	gameStarted = false;
 
@@ -147,7 +136,7 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	keyboardSetupPopupMenuIndex = -1;
 	currentUIState = NULL;
 
-	this->gameSettings= *gameSettings;
+	//this->gameSettings= NULL;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
@@ -182,6 +171,23 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 
     Logger &logger= Logger::getInstance();
 	logger.showProgress();
+}
+
+Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverMode):
+	ProgramState(program), lastMousePos(0), isFirstRender(true)
+{
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	this->masterserverMode = masterserverMode;
+
+	if(this->masterserverMode == true) {
+		printf("Starting a new game...\n");
+	}
+
+	this->program = program;
+	resetMembers();
+	this->gameSettings= *gameSettings;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1127,7 +1133,8 @@ void Game::update() {
 
 		if(world.getQueuedScenario() != "") {
 			string name = world.getQueuedScenario();
-			world.setQueuedScenario("");
+			bool keepFactions = world.getQueuedScenarioKeepFactions();
+			world.setQueuedScenario("",false);
 
 			vector<string> results;
 			const vector<string> &dirList = Config::getInstance().getPathListForType(ptScenarios);
@@ -1146,54 +1153,83 @@ void Game::update() {
 			//program->setState(new Game(program, &gameSettings, false));
 
 			//world->end();
-			this->setGameSettings(&gameSettings);
+
 			//world->getMapPtr()->end();
 			//world.end();
-			world.endScenario();
-			Renderer &renderer= Renderer::getInstance();
-			renderer.endScenario();
-			world.clearTileset();
-			//this->load(lgt_FactionPreview | lgt_TileSet | lgt_TechTree | lgt_Map | lgt_Scenario);
-			this->load(lgt_FactionPreview | lgt_TileSet | lgt_Map | lgt_Scenario);
+
+			if(keepFactions == false) {
+				world.end();
+				world.cleanup();
+				world.clearTileset();
+
+				SoundRenderer::getInstance().stopAllSounds();
+				deleteValues(aiInterfaces.begin(), aiInterfaces.end());
+				aiInterfaces.clear();
+				gui.end();		//selection must be cleared before deleting units
+				world.end();	//must die before selection because of referencers
+				// MUST DO THIS LAST!!!! Because objects above have pointers to things like
+				// unit particles and fade them out etc and this end method deletes the original
+				// object pointers.
+				Renderer &renderer= Renderer::getInstance();
+				renderer.endGame();
+
+				GameConstants::updateFps = original_updateFps;
+				GameConstants::cameraFps = original_cameraFps;
+
+				this->setGameSettings(&gameSettings);
+				this->resetMembers();
+				this->load();
+				this->init();
+			}
+			else {
+				world.endScenario();
+				Renderer &renderer= Renderer::getInstance();
+				renderer.endScenario();
+				world.clearTileset();
+				this->setGameSettings(&gameSettings);
+
+				this->load(lgt_FactionPreview | lgt_TileSet | lgt_Map | lgt_Scenario);
+
+				world.init(this, gameSettings.getDefaultUnits(),false);
+				Map *map= world.getMap();
+				gameCamera.init(map->getW(), map->getH());
+
+				// camera default height calculation
+				if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
+					gameCamera.setCalculatedDefault(map->getCameraHeight());
+				}
+				else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
+					gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
+				}
+
+				renderer.initGame(this);
+
+				//sounds
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				soundRenderer.stopAllSounds();
+				soundRenderer= SoundRenderer::getInstance();
+
+				Tileset *tileset= world.getTileset();
+				AmbientSounds *ambientSounds= tileset->getAmbientSounds();
+
+				//rain
+				if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
+					//logger.add("Starting ambient stream", true);
+					soundRenderer.playAmbient(ambientSounds->getRain());
+				}
+
+				//snow
+				if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
+					//logger.add("Starting ambient stream", true);
+					soundRenderer.playAmbient(ambientSounds->getSnow());
+				}
+
+				if(this->masterserverMode == false) {
+					StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
+					soundRenderer.playMusic(gameMusic);
+				}
+			}
 			//this->init();
-			world.init(this, gameSettings.getDefaultUnits(),false);
-			Map *map= world.getMap();
-			gameCamera.init(map->getW(), map->getH());
-
-			// camera default height calculation
-			if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
-				gameCamera.setCalculatedDefault(map->getCameraHeight());
-			}
-			else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
-				gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
-			}
-
-			renderer.initGame(this);
-
-			//sounds
-			SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-			soundRenderer.stopAllSounds();
-			soundRenderer= SoundRenderer::getInstance();
-
-			Tileset *tileset= world.getTileset();
-			AmbientSounds *ambientSounds= tileset->getAmbientSounds();
-
-			//rain
-			if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
-				//logger.add("Starting ambient stream", true);
-				soundRenderer.playAmbient(ambientSounds->getRain());
-			}
-
-			//snow
-			if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
-				//logger.add("Starting ambient stream", true);
-				soundRenderer.playAmbient(ambientSounds->getSnow());
-			}
-
-			if(this->masterserverMode == false) {
-				StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
-				soundRenderer.playMusic(gameMusic);
-			}
 
 			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 			//Checksum checksum;

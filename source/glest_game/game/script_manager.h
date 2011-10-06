@@ -242,7 +242,7 @@ private:
 
 	bool getGameWon();
 
-	void loadScenario(const string &name);
+	void loadScenario(const string &name, bool keepFactions);
 
 	//callbacks, commands
 	static int showMessage(LuaHandle* luaHandle);
