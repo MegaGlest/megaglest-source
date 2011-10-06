@@ -79,6 +79,7 @@ World::World(){
 	thisTeamIndex=0;
 	fogOfWar=false;
 	perfTimerEnabled=false;
+	queuedScenarioName="";
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -137,6 +138,22 @@ World::~World() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void World::endScenario() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    Logger::getInstance().add("World", true);
+
+    ExploredCellsLookupItemCache.clear();
+    ExploredCellsLookupItemCacheTimer.clear();
+    FowAlphaCellsLookupItemCache.clear();
+
+	fogOfWarOverride = false;
+
+	map.end();
+
+	//stats will be deleted by BattleEnd
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 void World::end(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     Logger::getInstance().add("World", true);
@@ -182,7 +199,11 @@ void World::setFogOfWar(bool value) {
 	}
 }
 
-void World::init(Game *game, bool createUnits){
+void World::clearTileset() {
+	tileset = Tileset();
+}
+
+void World::init(Game *game, bool createUnits, bool initFactions){
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -198,7 +219,9 @@ void World::init(Game *game, bool createUnits){
 		fogOfWar = gs->getFogOfWar();
 	}
 
-	initFactionTypes(gs);
+	if(initFactions == true) {
+		initFactionTypes(gs);
+	}
 	initCells(fogOfWar); //must be done after knowing faction number and dimensions
 	initMap();
 	initSplattedTextures();
@@ -282,10 +305,19 @@ Checksum World::loadMap(const string &path, Checksum *checksum) {
 }
 
 //load map
-Checksum World::loadScenario(const string &path, Checksum *checksum) {
+Checksum World::loadScenario(const string &path, Checksum *checksum, bool resetCurrentScenario) {
+	//printf("[%s:%s] Line: %d path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
     Checksum scenarioChecksum;
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	checksum->addFile(path);
+
+	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(resetCurrentScenario == true) {
+		scenario = Scenario();
+		scriptManager->init(this, this->getGame()->getGameCamera());
+	}
 
 	scenarioChecksum = scenario.load(path);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -293,6 +325,10 @@ Checksum World::loadScenario(const string &path, Checksum *checksum) {
 }
 
 // ==================== misc ====================
+
+void World::setQueuedScenario(string scenarioName) {
+	queuedScenarioName = scenarioName;
+}
 
 void World::updateAllFactionUnits() {
 	scriptManager->onTimerTriggerEvent();

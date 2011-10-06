@@ -3481,7 +3481,10 @@ __try {
     //printf("\n\nargv0 [%s] application_binary [%s]\n\n",argv[0],application_binary.c_str());
 
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
-    signal(SIGSEGV, handleSIGSEGV);
+
+	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DISABLE_SIGSEGV_HANDLER])) == false) {
+		signal(SIGSEGV, handleSIGSEGV);
+	}
 
     // http://developerweb.net/viewtopic.php?id=3013
     //signal(SIGPIPE, SIG_IGN);

@@ -49,6 +49,7 @@ const char  *GAME_ARGS[] = {
 	"--show-scenario-crc",
 	"--show-path-crc",
 	"--disable-backtrace",
+	"--disable-sigsegv-handler",
 	"--disable-vbo",
 	"--disable-sound",
 	"--enable-legacyfonts",
@@ -96,6 +97,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_SHOW_PATH_CRC,
 
 	GAME_ARG_DISABLE_BACKTRACE,
+	GAME_ARG_DISABLE_SIGSEGV_HANDLER,
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_DISABLE_SOUND,
 	GAME_ARG_ENABLE_LEGACYFONTS,
@@ -200,6 +202,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample: %s %s=techs/=megapack.7z",argv0,GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
 
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
+
+	printf("\n%s\t\tdisables the sigsegv error handler.",GAME_ARGS[GAME_ARG_DISABLE_SIGSEGV_HANDLER]);
+
+
 	printf("\n%s\t\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
 	printf("\n%s\t\t\tdisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
 

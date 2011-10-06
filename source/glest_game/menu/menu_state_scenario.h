@@ -23,14 +23,6 @@ namespace Glest{ namespace Game{
 
 class MenuStateScenario: public MenuState {
 private:
-    enum Difficulty {
-        dVeryEasy,
-        dEasy,
-        dMedium,
-        dHard,
-        dVeryHard,
-        dInsane
-    };
 
 	GraphicButton buttonReturn;
 	GraphicButton buttonPlayNow;
@@ -76,7 +68,6 @@ private:
     void loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings);
     void loadScenarioPreviewTexture();
 	Difficulty computeDifficulty(const ScenarioInfo *scenarioInfo);
-    ControlType strToControllerType(const string &str);
     void showMessageBox(const string &text, const string &header, bool toggle);
 
     void cleanupPreviewTexture();

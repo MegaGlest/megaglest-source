@@ -143,10 +143,13 @@ private:
 
 	uint32 nextCommandGroupId;
 
+	string queuedScenarioName;
+
 public:
 	World();
 	~World();
 	void end(); //to die before selection does
+	void endScenario(); //to die before selection does
 
 	//get
 	int getMaxPlayers() const						{return map.getMaxPlayers();}
@@ -160,6 +163,8 @@ public:
 
 	int getFactionCount() const						{return factions.size();}
 	const Map *getMap() const 						{return &map;}
+	Map *getMapPtr()  								{return &map;}
+
 	const Tileset *getTileset() const 				{return &tileset;}
 	const TechTree *getTechTree() const 			{return techTree;}
 	const Scenario *getScenario() const 			{return &scenario;}
@@ -181,15 +186,18 @@ public:
 	int getFrameCount() const						{return frameCount;}
 
 	//init & load
-	void init(Game *game, bool createUnits);
+	void init(Game *game, bool createUnits, bool initFactions=true);
 	Checksum loadTileset(const vector<string> pathList, const string &tilesetName,
 			Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
 	Checksum loadTileset(const string &dir, Checksum* checksum,
 			std::map<string,vector<pair<string, string> > > &loadedFileList);
+	void clearTileset();
 	Checksum loadTech(const vector<string> pathList, const string &techName,
 			set<string> &factions, Checksum* checksum,std::map<string,vector<pair<string, string> > > &loadedFileList);
 	Checksum loadMap(const string &path, Checksum* checksum);
-	Checksum loadScenario(const string &path, Checksum* checksum);
+	Checksum loadScenario(const string &path, Checksum* checksum,bool resetCurrentScenario=false);
+	void setQueuedScenario(string scenarioName);
+	string getQueuedScenario() const { return queuedScenarioName; }
 
 	//misc
 	void update();

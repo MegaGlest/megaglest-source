@@ -577,7 +577,7 @@ void Game::load() {
 	load(lgt_All);
 }
 
-void Game::load(LoadGameItem loadTypes) {
+void Game::load(int loadTypes) {
 	std::map<string,vector<pair<string, string> > > loadedFileList;
 	originalDisplayMsgCallback = NetworkInterface::getDisplayMessageFunction();
 	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
@@ -704,8 +704,7 @@ void Game::init() {
 	init(false);
 }
 
-void Game::init(bool initForPreviewOnly)
-{
+void Game::init(bool initForPreviewOnly) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initForPreviewOnly = %d\n",__FILE__,__FUNCTION__,__LINE__,initForPreviewOnly);
 
 	Lang &lang= Lang::getInstance();
@@ -1124,6 +1123,81 @@ void Game::update() {
 		//update auto test
 		if(Config::getInstance().getBool("AutoTest")){
 			AutoTest::getInstance().updateGame(this);
+		}
+
+		if(world.getQueuedScenario() != "") {
+			string name = world.getQueuedScenario();
+			world.setQueuedScenario("");
+
+			vector<string> results;
+			const vector<string> &dirList = Config::getInstance().getPathListForType(ptScenarios);
+			string scenarioFile = Scenario::getScenarioPath(dirList, name);
+
+			//printf("\nname [%s] scenarioFile [%s] results.size() = %lu\n",name.c_str(),scenarioFile.c_str(),results.size());
+			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			ScenarioInfo scenarioInfo;
+			Scenario::loadScenarioInfo(scenarioFile, &scenarioInfo);
+
+			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			GameSettings gameSettings;
+			Scenario::loadGameSettings(dirList,&scenarioInfo, &gameSettings, scenarioFile);
+
+			//Program *program = world->getGame()->getProgram();
+			//program->setState(new Game(program, &gameSettings, false));
+
+			//world->end();
+			this->setGameSettings(&gameSettings);
+			//world->getMapPtr()->end();
+			//world.end();
+			world.endScenario();
+			Renderer &renderer= Renderer::getInstance();
+			renderer.endScenario();
+			world.clearTileset();
+			//this->load(lgt_FactionPreview | lgt_TileSet | lgt_TechTree | lgt_Map | lgt_Scenario);
+			this->load(lgt_FactionPreview | lgt_TileSet | lgt_Map | lgt_Scenario);
+			//this->init();
+			world.init(this, gameSettings.getDefaultUnits(),false);
+			Map *map= world.getMap();
+			gameCamera.init(map->getW(), map->getH());
+
+			// camera default height calculation
+			if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
+				gameCamera.setCalculatedDefault(map->getCameraHeight());
+			}
+			else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
+				gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
+			}
+
+			renderer.initGame(this);
+
+			//sounds
+			SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+			soundRenderer.stopAllSounds();
+			soundRenderer= SoundRenderer::getInstance();
+
+			Tileset *tileset= world.getTileset();
+			AmbientSounds *ambientSounds= tileset->getAmbientSounds();
+
+			//rain
+			if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
+				//logger.add("Starting ambient stream", true);
+				soundRenderer.playAmbient(ambientSounds->getRain());
+			}
+
+			//snow
+			if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
+				//logger.add("Starting ambient stream", true);
+				soundRenderer.playAmbient(ambientSounds->getSnow());
+			}
+
+			if(this->masterserverMode == false) {
+				StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
+				soundRenderer.playMusic(gameMusic);
+			}
+
+			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			//Checksum checksum;
+			//world->loadScenario(scenarioFile, &checksum, true);
 		}
 	}
 	catch(const exception &ex) {

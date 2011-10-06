@@ -355,6 +355,7 @@ public:
 
 	//end
 	void end();
+	void endScenario();
 	void endMenu();
 	void endGame();
 
