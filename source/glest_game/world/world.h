@@ -201,6 +201,7 @@ public:
 	void setQueuedScenario(string scenarioName,bool keepFactions);
 	string getQueuedScenario() const { return queuedScenarioName; }
 	bool getQueuedScenarioKeepFactions() const { return queuedScenarioKeepFactions; }
+	void initUnitsForScenario();
 
 	//misc
 	void update();
