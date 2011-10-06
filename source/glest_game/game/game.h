@@ -148,7 +148,8 @@ public:
     ~Game();
 
     //get
-    GameSettings *getGameSettings() 	    {return &gameSettings;}
+    GameSettings *getGameSettings() 	    		{return &gameSettings;}
+    void setGameSettings(GameSettings *settings) 	{ gameSettings = *settings;}
 	const GameSettings *getReadOnlyGameSettings() const	{return &gameSettings;}
 
 	const GameCamera *getGameCamera() const	{return &gameCamera;}
@@ -168,7 +169,7 @@ public:
 
 	void toggleTeamColorMarker();
     //init
-    virtual void load(LoadGameItem loadTypes);
+    virtual void load(int loadTypes);
     virtual void load();
     virtual void init();
     virtual void init(bool initForPreviewOnly);

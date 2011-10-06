@@ -518,6 +518,30 @@ void Renderer::end() {
 	Renderer::rendererEnded = true;
 }
 
+void Renderer::endScenario() {
+	game= NULL;
+
+	if(this->masterserverMode == true) {
+		return;
+	}
+
+	//delete resources
+	//modelManager[rsGame]->end();
+	//textureManager[rsGame]->end();
+	//fontManager[rsGame]->end();
+	//particleManager[rsGame]->end();
+
+	if(shadows == sProjected || shadows == sShadowMapping) {
+		glDeleteTextures(1, &shadowMapHandle);
+	}
+
+	glDeleteLists(list3d, 1);
+
+	//worldToScreenPosCache.clear();
+	ReleaseSurfaceVBOs();
+	mapSurfaceData.clear();
+}
+
 void Renderer::endGame() {
 	game= NULL;
 

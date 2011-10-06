@@ -15,6 +15,7 @@
 #include "lang.h"
 #include "game_camera.h"
 #include "game.h"
+#include "config.h"
 
 #include "leak_dumper.h"
 
@@ -59,6 +60,14 @@ PlayerModifiers::PlayerModifiers(){
 ScriptManager* ScriptManager::thisScriptManager= NULL;
 const int ScriptManager::messageWrapCount= 30;
 const int ScriptManager::displayTextWrapCount= 64;
+
+ScriptManager::ScriptManager() {
+
+}
+
+ScriptManager::~ScriptManager() {
+
+}
 
 void ScriptManager::init(World* world, GameCamera *gameCamera){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -135,6 +144,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getUnitCountOfType, "unitCountOfType");
 
 	luaScript.registerFunction(getGameWon, "gameWon");
+
+	luaScript.registerFunction(loadScenario, "loadScenario");
 
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
@@ -250,8 +261,10 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 	inCellTriggerEvent = true;
 	if(movingUnit != NULL) {
+		ScenarioInfo scenarioInfoStart = world->getScenario()->getInfo();
+
 		for(std::map<int,CellTriggerEvent>::iterator iterMap = CellTriggerEventList.begin();
-			iterMap != CellTriggerEventList.end(); ++iterMap) {
+				iterMap != CellTriggerEventList.end(); ++iterMap) {
 			CellTriggerEvent &event = iterMap->second;
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s\n",
@@ -343,6 +356,11 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 				luaScript.beginCall("cellTriggerEvent");
 				luaScript.endCall();
+			}
+
+			ScenarioInfo scenarioInfoEnd = world->getScenario()->getInfo();
+			if(scenarioInfoStart.file != scenarioInfoEnd.file) {
+				break;
 			}
 		}
 	}
@@ -840,6 +858,48 @@ int ScriptManager::getUnitCountOfType(int factionIndex, const string &typeName) 
 	return world->getUnitCountOfType(factionIndex, typeName);
 }
 
+void ScriptManager::loadScenario(const string &name) {
+	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	world->setQueuedScenario(name);
+/*
+	vector<string> results;
+	const vector<string> &dirList = Config::getInstance().getPathListForType(ptScenarios);
+	//findDirs(dirList, results);
+	string scenarioFile = Scenario::getScenarioPath(dirList, name);
+
+	//printf("\nname [%s] scenarioFile [%s] results.size() = %lu\n",name.c_str(),scenarioFile.c_str(),results.size());
+
+	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	ScenarioInfo scenarioInfo;
+	Scenario::loadScenarioInfo(scenarioFile, &scenarioInfo);
+
+	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	GameSettings gameSettings;
+	Scenario::loadGameSettings(dirList,&scenarioInfo, &gameSettings, scenarioFile);
+
+	//Program *program = world->getGame()->getProgram();
+	//program->setState(new Game(program, &gameSettings, false));
+
+	//world->end();
+	world->getGame()->setGameSettings(&gameSettings);
+	//world->getMapPtr()->end();
+	world->end();
+	world->clearTileset();
+	world->getGame()->load();
+	world->getGame()->init();
+
+	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//Checksum checksum;
+	//world->loadScenario(scenarioFile, &checksum, true);
+
+	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	 */
+}
+
 // ========================== lua callbacks ===============================================
 
 int ScriptManager::showMessage(LuaHandle* luaHandle){
@@ -1321,5 +1381,12 @@ int ScriptManager::getGameWon(LuaHandle* luaHandle){
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::loadScenario(LuaHandle* luaHandle) {
+	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->loadScenario(luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
 
 }}//end namespace

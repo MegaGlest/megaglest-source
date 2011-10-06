@@ -39,28 +39,6 @@ public:
 	}
 };
 
-struct ScenarioInfo
-{
-	int difficulty;
-    ControlType factionControls[GameConstants::maxPlayers];
-    int teams[GameConstants::maxPlayers];
-    string factionTypeNames[GameConstants::maxPlayers];
-    float resourceMultipliers[GameConstants::maxPlayers];
-
-    string mapName;
-    string tilesetName;
-    string techTreeName;
-
-	bool defaultUnits;
-	bool defaultResources;
-	bool defaultVictoryConditions;
-
-    string desc;
-
-    bool fogOfWar;
-    bool fogOfWar_exploredFlag;
-};
-
 class MenuState;
 
 // =====================================================

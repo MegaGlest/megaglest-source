@@ -16,6 +16,8 @@
 #include <vector>
 #include "xml_parser.h"
 #include "checksum.h"
+#include "game_settings.h"
+
 #include "leak_dumper.h"
 
 using std::string;
@@ -26,6 +28,39 @@ using Shared::Xml::XmlNode;
 using namespace Shared::Util;
 
 namespace Glest { namespace Game {
+
+enum Difficulty {
+    dVeryEasy,
+    dEasy,
+    dMedium,
+    dHard,
+    dVeryHard,
+    dInsane
+};
+
+struct ScenarioInfo {
+	int difficulty;
+    ControlType factionControls[GameConstants::maxPlayers];
+    int teams[GameConstants::maxPlayers];
+    string factionTypeNames[GameConstants::maxPlayers];
+    float resourceMultipliers[GameConstants::maxPlayers];
+
+    string mapName;
+    string tilesetName;
+    string techTreeName;
+
+	bool defaultUnits;
+	bool defaultResources;
+	bool defaultVictoryConditions;
+
+    string desc;
+
+    bool fogOfWar;
+    bool fogOfWar_exploredFlag;
+
+    string file;
+    string name;
+};
 
 // =====================================================
 //	class Script
@@ -52,6 +87,7 @@ private:
 	typedef pair<string, string> NameScriptPair;
 	typedef vector<Script> Scripts;
 
+	ScenarioInfo info;
 	Scripts scripts;
 	Checksum checksumValue;
 
@@ -63,9 +99,15 @@ public:
 	int getScriptCount() const				{return scripts.size();}
 	const Script* getScript(int i) const	{return &scripts[i];}
 
+	ScenarioInfo getInfo() const { return info; }
+
 	static string getScenarioPath(const vector<string> dir, const string &scenarioName, bool getMatchingRootScenarioPathOnly=false);
 	static string getScenarioPath(const string &dir, const string &scenarioName);
 	static int getScenarioPathIndex(const vector<string> dirList, const string &scenarioName);
+
+	static void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
+	static ControlType strToControllerType(const string &str);
+	static void loadGameSettings(const vector<string> &dirList, const ScenarioInfo *scenarioInfo, GameSettings *gameSettings, string scenarioDescription);
 
 private:
 	string getFunctionName(const XmlNode *scriptNode);

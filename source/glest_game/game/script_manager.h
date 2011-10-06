@@ -102,7 +102,7 @@ public:
 
 };
 
-class ScriptManager{
+class ScriptManager {
 private:
 	typedef queue<ScriptManagerMessage> MessageQueue;
 
@@ -150,6 +150,9 @@ private:
 	static const int displayTextWrapCount;
 
 public:
+
+	ScriptManager();
+	~ScriptManager();
 	void init(World* world, GameCamera *gameCamera);
 
 	//message box functions
@@ -239,6 +242,8 @@ private:
 
 	bool getGameWon();
 
+	void loadScenario(const string &name);
+
 	//callbacks, commands
 	static int showMessage(LuaHandle* luaHandle);
 	static int setDisplayText(LuaHandle* luaHandle);
@@ -307,6 +312,8 @@ private:
 	static int getUnitCountOfType(LuaHandle* luaHandle);
 
 	static int getGameWon(LuaHandle* luaHandle);
+
+	static int loadScenario(LuaHandle* luaHandle);
 };
 
 }}//end namespace
