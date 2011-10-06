@@ -1191,6 +1191,7 @@ void Game::update() {
 				this->load(lgt_FactionPreview | lgt_TileSet | lgt_Map | lgt_Scenario);
 
 				world.init(this, gameSettings.getDefaultUnits(),false);
+				world.initUnitsForScenario();
 				Map *map= world.getMap();
 				gameCamera.init(map->getW(), map->getH());
 

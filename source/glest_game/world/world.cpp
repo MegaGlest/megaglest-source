@@ -1316,6 +1316,48 @@ void World::initMinimap() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void World::initUnitsForScenario() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	Logger::getInstance().add("Generate elements", true);
+
+	//put starting units
+	for(int i = 0; i < getFactionCount(); ++i) {
+		Faction *f= factions[i];
+		const FactionType *ft= f->getType();
+
+		for(int j = 0; j < f->getUnitCount(); ++j) {
+			Unit *unit = f->getUnit(j);
+
+			int startLocationIndex= f->getStartLocationIndex();
+
+			if(placeUnit(map.getStartLocation(startLocationIndex), generationArea, unit, true)) {
+				//unit->create(true);
+				//unit->born();
+			}
+			else {
+				string unitName = unit->getType()->getName();
+				delete unit;
+				unit = NULL;
+				throw runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
+			}
+
+			if (unit->getType()->hasSkillClass(scBeBuilt)) {
+				map.flatternTerrain(unit);
+				if(cartographer != NULL) {
+					cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
+				}
+			}
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
+		}
+
+		// Ensure Starting Resource Amount are adjusted to max store levels
+		//f->limitResourcesToStore();
+	}
+	map.computeNormals();
+	map.computeInterpolatedHeights();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 //place units randomly aroud start location
 void World::initUnits() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
