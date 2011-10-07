@@ -78,7 +78,10 @@ private:
 	Checksum checksum;
     string loadingText;
     int mouse2d;
-    int mouseX, mouseY; //coords win32Api
+    int mouseX;
+    int mouseY; //coords win32Api
+    Vec2i mouseCellPos;
+
 	int updateFps, lastUpdateFps, avgUpdateFps;
 	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps,currentAvgRenderFpsTotal;
 	Uint64 tickCount;
