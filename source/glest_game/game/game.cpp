@@ -1999,6 +1999,8 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 
 		lastMousePos.x = mouseX;
 		lastMousePos.y = mouseY;
+		Renderer::getInstance().computePosition(Vec2i(mouseX, mouseY), mouseCellPos);
+
 	}
 	catch(const exception &ex) {
 		char szBuf[4096]="";
@@ -2629,6 +2631,11 @@ void Game::render2d(){
 	if( renderer.getShowDebugUI() == true ||
 		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
 		str+= "MouseXY: "        + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
+
+		if(world.getMap()->isInsideSurface(world.getMap()->toSurfCoords(mouseCellPos)) == true) {
+			str+= "MouseXY cell coords: "        + intToStr(mouseCellPos.x) + "," + intToStr(mouseCellPos.y)+"\n";
+		}
+
 		str+= "PosObjWord: "     + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
 		str+= "Render FPS: "     + intToStr(lastRenderFps) + "[" + intToStr(avgRenderFps) + "]\n";
 		str+= "Update FPS: "     + intToStr(lastUpdateFps) + "[" + intToStr(avgUpdateFps) + "]\n";
