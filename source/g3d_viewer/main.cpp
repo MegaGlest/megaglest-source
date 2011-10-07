@@ -549,7 +549,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	particleLoopStart = 1;
 
 	if(resetAnimation == true || ((anim - lastanim) >= defaultspeed*2)) {
-		printf("anim [%f] [%f] [%f]\n",anim,lastanim,speed);
+		//printf("anim [%f] [%f] [%f]\n",anim,lastanim,speed);
 
 		for(int i=0; i< updateLoops; ++i) {
 			renderer->updateParticleManager();
