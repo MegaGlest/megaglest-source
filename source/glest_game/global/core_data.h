@@ -66,6 +66,7 @@ private:
     Texture2D *onServerTexture;
     Texture2D *onServerInstalledTexture;
 
+    std::vector<Texture2D *> miscTextureList;
 
     Font2D *displayFont;
 	Font2D *menuFontNormal;
@@ -109,6 +110,8 @@ public:
 
 	size_t getLogoTextureExtraCount() const {return logoTextureList.size();}
 	Texture2D *getLogoTextureExtra(int idx) const {return logoTextureList[idx];}
+
+	std::vector<Texture2D *> & getMiscTextureList() { return miscTextureList; }
 
 	StrSound *getIntroMusic() 				{return &introMusic;}
 	StrSound *getMenuMusic() 				{return &menuMusic;}

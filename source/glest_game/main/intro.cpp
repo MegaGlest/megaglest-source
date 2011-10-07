@@ -25,6 +25,7 @@
 
 using namespace Shared::Util;
 using namespace Shared::Graphics;
+using namespace	Shared::Xml;
 
 namespace Glest{ namespace Game{
 
@@ -54,15 +55,15 @@ Text::Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int ti
 // 	class Intro
 // =====================================================
 
-const int Intro::introTime= 24000;
-const int Intro::appearTime= 2500;
-const int Intro::showTime= 2500;
-const int Intro::disapearTime= 2500;
+int Intro::introTime	= 50000;
+int Intro::appearTime	= 2500;
+int Intro::showTime		= 3500;
+int Intro::disapearTime	= 2500;
 
 Intro::Intro(Program *program):
 	ProgramState(program)
 {
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();
@@ -73,9 +74,96 @@ Intro::Intro(Program *program):
 	mouseY = 0;
 	mouse2d = 0;
 
-	texts.push_back(Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), 4000));
-	texts.push_back(Text(glestVersionString, Vec2i(w/2+45, h/2-45), 4000, coreData.getMenuFontNormal(),coreData.getMenuFontNormal3D()));
-	texts.push_back(Text("www.megaglest.org", Vec2i(w/2, h/2), 12000, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	XmlTree xmlTree;
+	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	xmlTree.load(data_path + "data/core/menu/menu.xml",Properties::getTagReplacementValues());
+	const XmlNode *menuNode= xmlTree.getRootNode();
+	const XmlNode *introNode= menuNode->getChild("intro");
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	// intro info
+	const XmlNode *introTimeNode= introNode->getChild("intro-time");
+	Intro::introTime = introTimeNode->getAttribute("value")->getIntValue();
+	const XmlNode *appearTimeNode= introNode->getChild("appear-time");
+	Intro::appearTime = appearTimeNode->getAttribute("value")->getIntValue();
+	const XmlNode *showTimeNode= introNode->getChild("show-time");
+	Intro::showTime = showTimeNode->getAttribute("value")->getIntValue();
+	const XmlNode *disappearTimeNode= introNode->getChild("disappear-time");
+	Intro::disapearTime = disappearTimeNode->getAttribute("value")->getIntValue();
+	const XmlNode *showIntroPicturesNode= introNode->getChild("show-intro-pictures");
+	int showIntroPics = showIntroPicturesNode->getAttribute("value")->getIntValue();
+	int showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
+	bool showIntroPicsRandom = showIntroPicturesNode->getAttribute("random")->getBoolValue();
+
+	texts.push_back(Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), Intro::appearTime));
+	texts.push_back(Text(glestVersionString, Vec2i(w/2+45, h/2-45), Intro::appearTime, coreData.getMenuFontNormal(),coreData.getMenuFontNormal3D()));
+	texts.push_back(Text("www.megaglest.org", Vec2i(w/2, h/2), Intro::showTime+Intro::appearTime+Intro::disapearTime, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+
+	if(showIntroPics > 0 && coreData.getMiscTextureList().size() > 0) {
+		const int showMiscTime = showIntroPicsTime;
+
+		std::vector<Texture2D *> intoTexList;
+		if(showIntroPicsRandom == true) {
+			unsigned int seed = time(NULL);
+			srand(seed);
+			int failedLookups=0;
+			std::map<int,bool> usedIndex;
+			for(;intoTexList.size() < showIntroPics;) {
+				int picIndex = rand() % coreData.getMiscTextureList().size();
+				if(usedIndex.find(picIndex) != usedIndex.end()) {
+					failedLookups++;
+					seed = time(NULL) / failedLookups;
+					srand(seed);
+					continue;
+				}
+				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
+				intoTexList.push_back(coreData.getMiscTextureList()[picIndex]);
+				usedIndex[picIndex]=true;
+				seed = time(NULL) / intoTexList.size();
+				srand(seed);
+			}
+		}
+		else {
+			for(unsigned int i = 0;
+					i < coreData.getMiscTextureList().size() &&
+					i < showIntroPics; ++i) {
+				Texture2D *tex = coreData.getMiscTextureList()[i];
+				intoTexList.push_back(tex);
+			}
+		}
+
+		for(unsigned int i = 0; i < intoTexList.size(); ++i) {
+			Texture2D *tex = intoTexList[i];
+			//printf("tex # %d [%s]\n",i,tex->getPath().c_str());
+
+			if(i == 0) {
+				texts.push_back(Text(tex, Vec2i(1, h-tex->getTextureHeight()), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			}
+			if(i == 1) {
+				texts.push_back(Text(tex, Vec2i(1, 1), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			}
+			if(i == 2) {
+				texts.push_back(Text(tex, Vec2i(w-tex->getTextureWidth(), 1), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			}
+			if(i == 3) {
+				texts.push_back(Text(tex, Vec2i(w-tex->getTextureWidth(), h-tex->getTextureHeight()), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			}
+			if(i == 4) {
+				texts.push_back(Text(tex, Vec2i(w/2 - tex->getTextureWidth()/2, h-tex->getTextureHeight()), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			}
+			if(i == 5) {
+				texts.push_back(Text(tex, Vec2i(w/2 - tex->getTextureWidth()/2, 1), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			}
+			if(i == 6) {
+				texts.push_back(Text(tex, Vec2i(1, (h/2) - (tex->getTextureHeight()/2)), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			}
+			if(i == 7) {
+				texts.push_back(Text(tex, Vec2i(w-tex->getTextureWidth(), (h/2) - (tex->getTextureHeight()/2)), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			}
+		}
+	}
+
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
