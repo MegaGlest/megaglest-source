@@ -112,7 +112,7 @@ void CoreData::load() {
 	logoTextureList.clear();
 	string logosPath= dir+"/menu/textures/logo*.*";
 	vector<string> logoFilenames;
-    findAll(logosPath, logoFilenames);
+    findAll(logosPath, logoFilenames, false, false);
     for(int i = 0; i < logoFilenames.size(); ++i) {
     	string logo = logoFilenames[i];
     	if(strcmp("logo.tga",logo.c_str()) != 0) {
@@ -123,6 +123,22 @@ void CoreData::load() {
 				logoTextureList.push_back(logoTextureExtra);
     		}
     	}
+    }
+
+    miscTextureList.clear();
+	string introPath= dir+"/menu/textures/intro*.*";
+	vector<string> introFilenames;
+    findAll(introPath, introFilenames, false, false);
+    for(int i = 0; i < introFilenames.size(); ++i) {
+    	string logo = introFilenames[i];
+    	//if(strcmp("logo.tga",logo.c_str()) != 0) {
+    		Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
+    		if(logoTextureExtra) {
+				logoTextureExtra->setMipmap(true);
+				logoTextureExtra->getPixmap()->load(dir+"/menu/textures/" + logo);
+				miscTextureList.push_back(logoTextureExtra);
+    		}
+    	//}
     }
 
 	waterSplashTexture= renderer.newTexture2D(rsGlobal);
@@ -382,15 +398,31 @@ void CoreData::load() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consoleFontName = [%s] consoleFontNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,consoleFontName.c_str(),consoleFontNameSize);
 
 	//sounds
+	XmlTree xmlTree;
+	//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	xmlTree.load(data_path + "data/core/menu/menu.xml",Properties::getTagReplacementValues());
+	const XmlNode *menuNode= xmlTree.getRootNode();
+	const XmlNode *introNode= menuNode->getChild("intro");
+
     clickSoundA.load(dir+"/menu/sound/click_a.wav");
     clickSoundB.load(dir+"/menu/sound/click_b.wav");
     clickSoundC.load(dir+"/menu/sound/click_c.wav");
     attentionSound.load(dir+"/menu/sound/attention.wav");
     highlightSound.load(dir+"/menu/sound/highlight.wav");
-	introMusic.open(dir+"/menu/music/intro_music.ogg");
+
+	// intro info
+	const XmlNode *menuPathNode= introNode->getChild("menu-music-path");
+	string menuMusicPath = menuPathNode->getAttribute("value")->getRestrictedValue();
+	const XmlNode *menuIntroMusicNode= introNode->getChild("menu-intro-music");
+	string menuIntroMusicFile = menuIntroMusicNode->getAttribute("value")->getRestrictedValue();
+	const XmlNode *menuMusicNode= introNode->getChild("menu-music");
+	string menuMusicFile = menuMusicNode->getAttribute("value")->getRestrictedValue();
+
+	introMusic.open(dir + menuMusicPath + menuIntroMusicFile);
 	introMusic.setNext(&menuMusic);
-	menuMusic.open(dir+"/menu/music/menu_music.ogg");
+	menuMusic.open(dir + menuMusicPath + menuMusicFile);
 	menuMusic.setNext(&menuMusic);
+
 	waterSounds.resize(6);
 
 	for(int i=0; i<6; ++i){

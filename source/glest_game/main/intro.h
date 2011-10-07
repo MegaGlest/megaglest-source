@@ -66,10 +66,10 @@ public:
 
 class Intro: public ProgramState{
 private:
-	static const int introTime;
-	static const int appearTime;
-	static const int showTime;
-	static const int disapearTime;
+	static int introTime;
+	static int appearTime;
+	static int showTime;
+	static int disapearTime;
 
 private:
 	vector<Text> texts;
