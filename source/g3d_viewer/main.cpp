@@ -214,6 +214,8 @@ vector<string> autoScreenShotParams;
 
 const string MainWindow::winHeader= "G3D viewer " + g3dviewerVersionString;
 
+const float defaultspeed = 0.025f;
+
 MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 						const string modelPath,
 						const string particlePath,
@@ -246,6 +248,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	glCanvas->SetCurrent();
 #endif
 
+	lastanim = 0;
 	model= NULL;
 	unitPath = unitToLoad;
 
@@ -273,7 +276,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	zoom= defaultZoom;
 	playerColor= Renderer::pcRed;
 
-	speed= 0.025f;
+	speed= defaultspeed;
 
     //getGlPlatformExtensions();
 	menu= new wxMenuBar();
@@ -545,8 +548,12 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	int updateLoops = particleLoopStart;
 	particleLoopStart = 1;
 
-	for(int i=0; i< updateLoops; ++i) {
-		renderer->updateParticleManager();
+	if(resetAnimation == true || ((anim - lastanim) >= defaultspeed*2)) {
+		printf("anim [%f] [%f] [%f]\n",anim,lastanim,speed);
+
+		for(int i=0; i< updateLoops; ++i) {
+			renderer->updateParticleManager();
+		}
 	}
 
 	renderer->renderParticleManager();
@@ -602,6 +609,8 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 			onMenuRestart(event);
 		}
 	}
+
+	lastanim = anim;
 }
 
 void MainWindow::onClose(wxCloseEvent &event){
@@ -1274,6 +1283,8 @@ void MainWindow::loadProjectileParticle(string path) {
 
 	try {
 	if(this->particleProjectilePathList.empty() == false) {
+		printf("this->particleProjectilePathList.size() = %lu\n",this->particleProjectilePathList.size());
+
         string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
 			string particlePath = this->particleProjectilePathList[idx];
@@ -1305,11 +1316,13 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
+			{
 			XmlTree xmlTree;
 			xmlTree.load(dir + folderDelimiter + particlePath,Properties::getTagReplacementValues());
 			//const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
 			// std::cout << "Loaded successfully, loading values..." << std::endl;
+			}
 
 			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
@@ -1321,7 +1334,8 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			projectileParticleSystemTypes.push_back(projectileParticleSystemType);
 
-			for(std::vector<ParticleSystemTypeProjectile *>::const_iterator it= projectileParticleSystemTypes.begin(); it != projectileParticleSystemTypes.end(); ++it) {
+			for(std::vector<ParticleSystemTypeProjectile *>::const_iterator it= projectileParticleSystemTypes.begin();
+					it != projectileParticleSystemTypes.end(); ++it) {
 
 				ProjectileParticleSystem *ps = (*it)->create();
 
