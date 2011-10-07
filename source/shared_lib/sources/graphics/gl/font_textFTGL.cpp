@@ -299,7 +299,8 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 	//return ftFont->Ascender() + ftFont->Descender()*-1 - ftFont->LineHeight();
 	//return ftFont->LineHeight();
 
-	static float result = -1000;
+	//static float result = -1000;
+	float result = -1000;
 	if(result == -1000) {
 		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
 
@@ -321,6 +322,28 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 		}
 		//printf("ftFont->BBox(''yW'')%f\n",result);
 	}
+//	else {
+//		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
+//
+//		GLenum error = glGetError();
+//		if(error != GL_NO_ERROR) {
+//			printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
+//			fflush(stdout);
+//		}
+//
+//		int newresult = box.Upper().Y()- box.Lower().Y();
+//		if(newresult == 0) {
+//			newresult = ftFont->LineHeight();
+//
+//			GLenum error = glGetError();
+//			if(error != GL_NO_ERROR) {
+//				printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
+//				fflush(stdout);
+//			}
+//		}
+//
+//		printf("Height for [%s] result [%d] [%d]\n",str,result,newresult);
+//	}
 	if(ftFont->Error())	{
 		char szBuf[1024]="";
 		sprintf(szBuf,"FTGL: error trying to get lineheight, #%d",ftFont->Error());

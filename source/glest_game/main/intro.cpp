@@ -96,9 +96,16 @@ Intro::Intro(Program *program):
 	int showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
 	bool showIntroPicsRandom = showIntroPicturesNode->getAttribute("random")->getBoolValue();
 
-	texts.push_back(Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), Intro::appearTime));
-	texts.push_back(Text(glestVersionString, Vec2i(w/2+45, h/2-45), Intro::appearTime, coreData.getMenuFontNormal(),coreData.getMenuFontNormal3D()));
-	texts.push_back(Text("www.megaglest.org", Vec2i(w/2, h/2), Intro::showTime+Intro::appearTime+Intro::disapearTime, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	int displayItemNumber = 1;
+	int appear= Intro::appearTime;
+	int disappear= Intro::showTime+Intro::appearTime+Intro::disapearTime;
+
+	texts.push_back(new Text("based on the award winning Glest", Vec2i(w/2, h/2), appear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	texts.push_back(new Text("the MegaGlest team presents...", Vec2i(w/2, h/2), disappear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+
+	texts.push_back(new Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), disappear *(++displayItemNumber)));
+	texts.push_back(new Text(glestVersionString, Vec2i(w/2+45, h/2-45), disappear *(displayItemNumber++), coreData.getMenuFontNormal(),coreData.getMenuFontNormal3D()));
+	texts.push_back(new Text("www.megaglest.org", Vec2i(w/2, h/2), disappear *(displayItemNumber++), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
 
 	if(showIntroPics > 0 && coreData.getMiscTextureList().size() > 0) {
 		const int showMiscTime = showIntroPicsTime;
@@ -137,30 +144,33 @@ Intro::Intro(Program *program):
 			Texture2D *tex = intoTexList[i];
 			//printf("tex # %d [%s]\n",i,tex->getPath().c_str());
 
-			if(i == 0) {
-				texts.push_back(Text(tex, Vec2i(1, h-tex->getTextureHeight()), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			Vec2i texPlacement;
+			if(i == 0 || i % 9 == 0) {
+				texPlacement = Vec2i(1, h-tex->getTextureHeight());
 			}
-			if(i == 1) {
-				texts.push_back(Text(tex, Vec2i(1, 1), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			else if(i == 1 || i % 9 == 1) {
+				texPlacement = Vec2i(1, 1);
 			}
-			if(i == 2) {
-				texts.push_back(Text(tex, Vec2i(w-tex->getTextureWidth(), 1), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			else if(i == 2 || i % 9 == 2) {
+				texPlacement = Vec2i(w-tex->getTextureWidth(), 1);
 			}
-			if(i == 3) {
-				texts.push_back(Text(tex, Vec2i(w-tex->getTextureWidth(), h-tex->getTextureHeight()), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			else if(i == 3 || i % 9 == 3) {
+				texPlacement = Vec2i(w-tex->getTextureWidth(), h-tex->getTextureHeight());
 			}
-			if(i == 4) {
-				texts.push_back(Text(tex, Vec2i(w/2 - tex->getTextureWidth()/2, h-tex->getTextureHeight()), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			else if(i == 4 || i % 9 == 4) {
+				texPlacement = Vec2i(w/2 - tex->getTextureWidth()/2, h-tex->getTextureHeight());
 			}
-			if(i == 5) {
-				texts.push_back(Text(tex, Vec2i(w/2 - tex->getTextureWidth()/2, 1), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			else if(i == 5 || i % 9 == 5) {
+				texPlacement = Vec2i(w/2 - tex->getTextureWidth()/2, 1);
 			}
-			if(i == 6) {
-				texts.push_back(Text(tex, Vec2i(1, (h/2) - (tex->getTextureHeight()/2)), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			else if(i == 6 || i % 9 == 6) {
+				texPlacement = Vec2i(1, (h/2) - (tex->getTextureHeight()/2));
 			}
-			if(i == 7) {
-				texts.push_back(Text(tex, Vec2i(w-tex->getTextureWidth(), (h/2) - (tex->getTextureHeight()/2)), Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), Intro::showTime+Intro::appearTime+Intro::disapearTime+(showMiscTime*(i+1))));
+			else if(i == 7 || i % 9 == 7) {
+				texPlacement = Vec2i(w-tex->getTextureWidth(), (h/2) - (tex->getTextureHeight()/2));
 			}
+
+			texts.push_back(new Text(tex, texPlacement, Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), disappear *displayItemNumber+(showMiscTime*(i+1))));
 		}
 	}
 
@@ -173,9 +183,13 @@ Intro::Intro(Program *program):
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+Intro::~Intro() {
+	deleteValues(texts.begin(),texts.end());
+}
+
 void Intro::update(){
 	timer++;
-	if(timer>introTime*GameConstants::updateFps/1000){
+	if(timer > introTime * GameConstants::updateFps / 1000){
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		program->setState(new MainMenu(program));
@@ -205,20 +219,33 @@ void Intro::render() {
 
 	renderer.reset2d();
 	renderer.clearBuffers();
-	for(int i=0; i<texts.size(); ++i){
-		Text *text= &texts[i];
 
-		difTime= 1000*timer/GameConstants::updateFps-text->getTime();
+//	CoreData &coreData= CoreData::getInstance();
+//	renderer.renderTextureQuad(
+//		1, 1,
+//		1, 1,
+//		coreData.getLogoTexture(), 1.0);
 
-		if(difTime>0 && difTime<appearTime+showTime+disapearTime){
+//	renderer.renderFPSWhenEnabled(lastFps);
+
+//	renderer.renderText3D(
+//		"test 123", coreData.getMenuFontVeryBig3D(), 1.0,
+//		1, 1, true);
+
+	for(int i = 0; i < texts.size(); ++i) {
+		Text *text= texts[i];
+
+		difTime= 1000 * timer / GameConstants::updateFps - text->getTime();
+
+		if(difTime > 0 && difTime < appearTime + showTime + disapearTime) {
 			float alpha= 1.f;
-			if(difTime>0 && difTime<appearTime){
+			if(difTime > 0 && difTime < appearTime) {
 				//apearing
-				alpha= static_cast<float>(difTime)/appearTime;
+				alpha= static_cast<float>(difTime) / appearTime;
 			}
-			else if(difTime>0 && difTime<appearTime+showTime+disapearTime){
+			else if(difTime > 0 && difTime < appearTime + showTime + disapearTime) {
 				//disappearing
-				alpha= 1.f- static_cast<float>(difTime-appearTime-showTime)/disapearTime;
+				alpha= 1.f- static_cast<float>(difTime - appearTime - showTime) / disapearTime;
 			}
 
 			if(text->getText().empty() == false) {
