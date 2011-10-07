@@ -86,6 +86,7 @@ private:
 
 	float speed;
 	float anim;
+	float lastanim;
 	int particleLoopStart;
 	float rotX, rotY, zoom;
 	float backBrightness, gridBrightness, lightBrightness;
