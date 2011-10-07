@@ -1331,6 +1331,8 @@ void World::initUnitsForScenario() {
 			int startLocationIndex= f->getStartLocationIndex();
 
 			if(placeUnit(map.getStartLocation(startLocationIndex), generationArea, unit, true)) {
+				map.putUnitCells(unit, unit->getPos());
+				unit->setCurrSkill(scStop);
 				//unit->create(true);
 				//unit->born();
 			}
