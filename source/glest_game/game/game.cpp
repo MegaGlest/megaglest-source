@@ -1203,6 +1203,7 @@ void Game::update() {
 					gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
 				}
 
+				scriptManager.init(&world, &gameCamera);
 				renderer.initGame(this);
 
 				//sounds
