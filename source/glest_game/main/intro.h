@@ -72,7 +72,7 @@ private:
 	static int disapearTime;
 
 private:
-	vector<Text> texts;
+	vector<Text *> texts;
 	int timer;
 	int mouseX;
 	int mouseY;
@@ -80,6 +80,8 @@ private:
 
 public:
 	Intro(Program *program);
+	virtual ~Intro();
+
 	virtual void update();
 	virtual void render();
 	virtual void keyDown(char key);
