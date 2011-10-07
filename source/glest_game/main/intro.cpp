@@ -100,7 +100,7 @@ Intro::Intro(Program *program):
 	int appear= Intro::appearTime;
 	int disappear= Intro::showTime+Intro::appearTime+Intro::disapearTime;
 
-	texts.push_back(new Text("based on the award winning Glest", Vec2i(w/2, h/2), appear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	texts.push_back(new Text("based on the award winning game Glest", Vec2i(w/2, h/2), appear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
 	texts.push_back(new Text("the MegaGlest team presents...", Vec2i(w/2, h/2), disappear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
 
 	texts.push_back(new Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), disappear *(++displayItemNumber)));
