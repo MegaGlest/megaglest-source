@@ -24,6 +24,8 @@
 #include "game_util.h"
 #include "miniftpserver.h"
 #include "window.h"
+#include <set>
+
 #include "leak_dumper.h"
 
 using namespace std;
@@ -77,6 +79,37 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	serverSocket.setBindPort(Config::getInstance().getInt("ServerPort", intToStr(GameConstants::serverPort).c_str()));
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Config &config = Config::getInstance();
+	vector<string> results;
+	set<string> allMaps;
+    findAll(config.getPathListForType(ptMaps), "*.gbm", results, true, false);
+	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
+	results.clear();
+    findAll(config.getPathListForType(ptMaps), "*.mgm", results, true, false);
+	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
+	results.clear();
+	if (allMaps.empty()) {
+        throw runtime_error("No maps were found!");
+	}
+	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+	mapFiles = results;
+
+	//tileset listBox
+	results.clear();
+    findDirs(config.getPathListForType(ptTilesets), results);
+	if (results.empty()) {
+        throw runtime_error("No tile-sets were found!");
+	}
+    tilesetFiles= results;
+
+    //tech Tree listBox
+    results.clear();
+    findDirs(config.getPathListForType(ptTechs), results);
+	if(results.empty()) {
+        throw runtime_error("No tech-trees were found!");
+	}
+    techTreeFiles= results;
 
 	if(Config::getInstance().getBool("EnableFTPServer","true") == true) {
 		std::pair<string,string> mapsPath;
@@ -1651,6 +1684,32 @@ int ServerInterface::getGameSettingsUpdateCount() {
 void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
 	MutexSafeWrapper safeMutex(&serverSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+
+	string mapFile = serverGameSettings->getMap();
+	if(find(mapFiles.begin(),mapFiles.end(),mapFile) == mapFiles.end()) {
+		printf("Reverting map from [%s] to [%s]\n",serverGameSettings->getMap().c_str(),gameSettings.getMap().c_str());
+
+		serverGameSettings->setMapFilterIndex(gameSettings.getMapFilterIndex());
+		serverGameSettings->setMap(gameSettings.getMap());
+		serverGameSettings->setMapCRC(gameSettings.getMapCRC());
+	}
+
+	string tilesetFile = serverGameSettings->getTileset();
+	if(find(tilesetFiles.begin(),tilesetFiles.end(),tilesetFile) == tilesetFiles.end()) {
+		printf("Reverting tileset from [%s] to [%s]\n",serverGameSettings->getTileset().c_str(),gameSettings.getTileset().c_str());
+
+		serverGameSettings->setTileset(gameSettings.getTileset());
+		serverGameSettings->setTilesetCRC(gameSettings.getTilesetCRC());
+	}
+
+	string techtreeFile = serverGameSettings->getTech();
+	if(find(techTreeFiles.begin(),techTreeFiles.end(),techtreeFile) == techTreeFiles.end()) {
+		printf("Reverting tech from [%s] to [%s]\n",serverGameSettings->getTech().c_str(),gameSettings.getTech().c_str());
+
+		serverGameSettings->setTech(gameSettings.getTech());
+		serverGameSettings->setTechCRC(gameSettings.getTechCRC());
+	}
+
 	gameSettings = *serverGameSettings;
 	if(getAllowGameDataSynchCheck() == true) {
 		if(waitForClientAck == true && gameSettingsUpdateCount > 0) {
