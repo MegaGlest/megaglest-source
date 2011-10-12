@@ -574,10 +574,18 @@ void Renderer::endMenu() {
 	}
 
 	//delete resources
-	modelManager[rsMenu]->end();
-	textureManager[rsMenu]->end();
-	fontManager[rsMenu]->end();
-	particleManager[rsMenu]->end();
+	if(modelManager[rsMenu]) {
+		modelManager[rsMenu]->end();
+	}
+	if(textureManager[rsMenu]) {
+		textureManager[rsMenu]->end();
+	}
+	if(fontManager[rsMenu]) {
+		fontManager[rsMenu]->end();
+	}
+	if(particleManager[rsMenu]) {
+		particleManager[rsMenu]->end();
+	}
 
 	if(this->customlist3dMenu != NULL) {
 		glDeleteLists(*this->customlist3dMenu,1);
@@ -4737,7 +4745,7 @@ void Renderer::renderDisplay() {
 	glPopAttrib();
 }
 
-void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
+void Renderer::renderMenuBackground(const MenuBackground *menuBackground) {
 
 	assertGl();
 
@@ -4767,6 +4775,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.5f);
 	modelRenderer->begin(true, true, true);
+	menuBackground->getMainModelPtr()->updateInterpolationData(menuBackground->getAnim(), true);
 	modelRenderer->render(menuBackground->getMainModelPtr());
 	modelRenderer->end();
 	glDisable(GL_ALPHA_TEST);
@@ -4859,6 +4868,76 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground){
 			}
 		}
 	}
+
+	glPopAttrib();
+
+	assertGl();
+}
+
+void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel, vector<Model *> characterModels,const Vec3f characterPosition, float anim) {
+
+	assertGl();
+
+	const Vec3f &cameraPosition= camera->getConstPosition();
+
+	glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//clear
+	//Vec4f fogColor= Vec4f(0.4f, 0.4f, 0.4f, 1.f) * fade;
+	// Show black bacground
+	Vec4f fogColor= Vec4f(0.f, 0.f, 0.f, 1.f);
+	glClearColor(fogColor.x, fogColor.y, fogColor.z, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glFogfv(GL_FOG_COLOR, fogColor.ptr());
+
+	//light
+	Vec4f lightPos= Vec4f(10.f, 10.f, 10.f, 1.f)  * fade;
+	Vec4f diffLight= Vec4f(0.9f, 0.9f, 0.9f, 1.f) * fade;
+	Vec4f ambLight= Vec4f(0.3f, 0.3f, 0.3f, 1.f)  * fade;
+	Vec4f specLight= Vec4f(0.1f, 0.1f, 0.1f, 1.f) * fade;
+
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos.ptr());
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffLight.ptr());
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambLight.ptr());
+	glLightfv(GL_LIGHT0, GL_SPECULAR, specLight.ptr());
+
+	//main model
+	if(mainModel) {
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.5f);
+		modelRenderer->begin(true, true, true);
+		mainModel->updateInterpolationData(anim, true);
+		modelRenderer->render(mainModel);
+		modelRenderer->end();
+		glDisable(GL_ALPHA_TEST);
+	}
+
+	//characters
+	if(characterModels.size() > 0) {
+		float dist= characterPosition.dist(cameraPosition);
+		float minDist= 3.f;
+		if(dist < minDist) {
+			glAlphaFunc(GL_GREATER, 0.0f);
+			float alpha= clamp((minDist-dist) / minDist, 0.f, 1.f);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
+			modelRenderer->begin(true, true, false);
+
+			for(unsigned int i = 0; i < characterModels.size(); ++i) {
+				if(characterModels[i]) {
+					glMatrixMode(GL_MODELVIEW);
+					glPushMatrix();
+					glLoadIdentity();
+					glTranslatef(i*2.f-4.f, -1.4f, -7.5f);
+					characterModels[i]->updateInterpolationData(anim, true);
+					modelRenderer->render(characterModels[i]);
+					glPopMatrix();
+				}
+			}
+			modelRenderer->end();
+		}
+	}
+
 
 	glPopAttrib();
 
@@ -5813,7 +5892,11 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	const Metrics &metrics= Metrics::getInstance();
-	const MenuBackground *mb= mm->getConstMenuBackground();
+	//const MenuBackground *mb= mm->getConstMenuBackground();
+	const MenuBackground *mb = NULL;
+	if(mm != NULL) {
+		mb = mm->getConstMenuBackground();
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

@@ -107,7 +107,11 @@ MenuBackground::MenuBackground(){
 	//load main model
 	mainModel= renderer.newModel(rsMenu);
 	if(mainModel) {
-		mainModel->load(data_path + "data/core/menu/main_model/menu_main.g3d");
+		//mainModel->load(data_path + "data/core/menu/main_model/menu_main.g3d");
+		const XmlNode *mainMenuModelNode= menuNode->getChild("menu-background-model");
+		string mainModelFile = mainMenuModelNode->getAttribute("value")->getRestrictedValue();
+
+		mainModel->load(data_path + mainModelFile);
 	}
 
 	//models
