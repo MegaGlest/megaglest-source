@@ -2146,7 +2146,9 @@ int UPNP_Tools::upnp_init(void *param) {
 
 	if(UPNP_Tools::isUPNP) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Searching for UPnP devices for automatic port forwarding...\n");
-		devlist = upnpDiscover(2000, NULL, NULL, 0);
+
+		int ipv6 = 0;
+		devlist = upnpDiscover(2000, NULL, NULL, 0, ipv6, NULL);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device search finished.\n");
 
 		if (devlist) {
@@ -2240,9 +2242,9 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
 	sprintf(int_port_str, "%d", ports[1]);
 
 #ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
-	r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0);
+	r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0, NULL);
 #else
-	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0);
+	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0, NULL);
 #endif
 	if (r != UPNPCOMMAND_SUCCESS) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] AddPortMapping(%s, %s, %s) failed\n",__FILE__,__FUNCTION__,__LINE__,ext_port_str, int_port_str, lanaddr);

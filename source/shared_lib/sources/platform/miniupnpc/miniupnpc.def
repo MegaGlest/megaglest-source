@@ -26,6 +26,17 @@ EXPORTS
    UPNP_DeletePortMapping
    UPNP_GetPortMappingNumberOfEntries
    UPNP_GetSpecificPortMappingEntry
-   UPNP_GetGenericPortMappingEntry 
+   UPNP_GetGenericPortMappingEntry
+   UPNP_GetListOfPortMappings
+   UPNP_AddPinhole
+   UPNP_CheckPinholeWorking
+   UPNP_UpdatePinhole
+   UPNP_GetPinholePackets
+   UPNP_DeletePinhole
+   UPNP_GetFirewallStatus
+   UPNP_GetOutboundPinholeTimeout
 ; upnperrors
    strupnperror
+; portlistingparse
+   ParsePortListing
+   FreePortListing
