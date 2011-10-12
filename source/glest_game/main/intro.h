@@ -88,6 +88,8 @@ private:
 
 	//Model *mainModel;
 	int modelIndex;
+	float modelMinAnimSpeed;
+	float modelMaxAnimSpeed;
 	vector<Model *> models;
 	Camera nextCamera;
 	Camera camera;
