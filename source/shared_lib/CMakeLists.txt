@@ -173,6 +173,13 @@ ELSE()
         #set (FTGL_LINK_TARGETS )
 ENDIF(USE_FTGL)
 
+IF(MINIUPNPC_VERSION_PRE1_5)
+	ADD_DEFINITIONS(-DMINIUPNPC_VERSION_PRE1_5)
+ENDIF()
+IF(MINIUPNPC_VERSION_PRE1_6)
+	ADD_DEFINITIONS(-DMINIUPNPC_VERSION_PRE1_6)
+ENDIF()
+
 #########################################################################################
 # megaglest lib
 
