@@ -81,6 +81,10 @@ private:
 
     bool masterserverAdminRequestLaunch;
 
+	vector<string> mapFiles;
+	vector<string> techTreeFiles;
+	vector<string> tilesetFiles;
+
 public:
 	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
