@@ -2066,11 +2066,11 @@ void Unit::tick() {
 
 		checkItemInVault(&this->ep,this->ep);
 		//regenerate ep
-		ep += type->getEpRegeneration();
-		if(ep > type->getTotalMaxEp(&totalUpgrade)){
-			ep = type->getTotalMaxEp(&totalUpgrade);
-		}
-		addItemToVault(&this->ep,this->ep);
+//		ep += type->getEpRegeneration();
+//		if(ep > type->getTotalMaxEp(&totalUpgrade)){
+//			ep = type->getTotalMaxEp(&totalUpgrade);
+//		}
+//		addItemToVault(&this->ep,this->ep);
 
 		//regenerate ep upgrade / or boost
 		checkItemInVault(&this->ep,this->ep);
