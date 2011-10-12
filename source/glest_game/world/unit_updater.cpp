@@ -162,9 +162,40 @@ void UnitUpdater::updateUnit(Unit *unit) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after updateUnitCommand()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//if unit is out of EP, it stops
-		if(unit->computeEp()) {
+		if(unit->computeEp() == true) {
+			bool reQueueHoldPosition = false;
+			string holdPositionName = "";
+			if(unit->getCurrCommand() != NULL &&
+				unit->getCurrCommand()->getCommandType()->getClass() == ccAttackStopped) {
+				reQueueHoldPosition = true;
+				holdPositionName = unit->getCurrCommand()->getCommandType()->getName();
+			}
+
 			unit->setCurrSkill(scStop);
 			unit->cancelCommand();
+
+			if(reQueueHoldPosition == true) {
+				//Search for a command that can produce the unit
+				const UnitType *ut = unit->getType();
+				for(int i= 0; i < ut->getCommandTypeCount(); ++i) {
+					const CommandType* ct= ut->getCommandType(i);
+					if(ct != NULL && ct->getClass() == ccAttackStopped) {
+						const AttackStoppedCommandType *act= static_cast<const AttackStoppedCommandType*>(ct);
+						if(act != NULL && act->getName() == holdPositionName) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+							//printf("Re-Queing hold pos = %d, ep = %d skillep = %d skillname [%s]\n ",unit->getFaction()->reqsOk(act),unit->getEp(),act->getAttackSkillType()->getEpCost(),act->getName().c_str());
+							if(unit->getFaction()->reqsOk(act) == true &&
+								unit->getEp() >= act->getStopSkillType()->getEpCost()) {
+								unit->giveCommand(new Command(act),true);
+							}
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							break;
+						}
+					}
+				}
+			}
 		}
 		if(unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() != scAttack) {
 			// !!! Is this causing choppy network play somehow?
