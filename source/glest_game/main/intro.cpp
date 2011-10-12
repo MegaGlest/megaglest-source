@@ -129,6 +129,8 @@ Intro::Intro(Program *program):
 	const XmlNode *showIntroModelsNode= introNode->getChild("show-intro-models");
 	bool showIntroModels = showIntroModelsNode->getAttribute("value")->getBoolValue();
 	bool showIntroModelsRandom = showIntroModelsNode->getAttribute("random")->getBoolValue();
+	modelMinAnimSpeed = showIntroModelsNode->getAttribute("min-anim-speed")->getFloatValue();
+	modelMaxAnimSpeed = showIntroModelsNode->getAttribute("max-anim-speed")->getFloatValue();
 
 	//load main model
 	modelIndex = 0;
@@ -309,8 +311,11 @@ void Intro::update() {
 	}
 
 	//animation
-	const float minSpeed = 0.015f;
-	const float maxSpeed = 0.6f;
+	//const float minSpeed = 0.015f;
+	//const float minSpeed = 0.010f;
+	//const float maxSpeed = 0.6f;
+	const float minSpeed = modelMinAnimSpeed;
+	const float maxSpeed = modelMaxAnimSpeed;
 	anim += (maxSpeed / GameConstants::updateFps) / 5 + random.randRange(minSpeed, max(minSpeed + 0.0001f, (maxSpeed / GameConstants::updateFps) / 5.f));
 	if(anim > 1.f) {
 		anim = 0.f;
