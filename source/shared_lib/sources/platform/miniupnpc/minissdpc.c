@@ -8,7 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #if defined(WIN32) || defined(__amigaos__) || defined(__amigaos4__)
 #ifdef WIN32
@@ -16,7 +18,13 @@
 #include <ws2tcpip.h>
 #include <io.h>
 #include <winsock.h>
+#ifndef WIN32
 #include <stdint.h>
+#else
+//#include "types.h"
+#define uint16_t unsigned short
+typedef SSIZE_T ssize_t;
+#endif
 #endif
 #if defined(__amigaos__) || defined(__amigaos4__)
 #include <sys/socket.h>
