@@ -2148,7 +2148,11 @@ int UPNP_Tools::upnp_init(void *param) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Searching for UPnP devices for automatic port forwarding...\n");
 
 		int ipv6 = 0;
+#ifndef MINIUPNPC_VERSION_PRE1_6
 		devlist = upnpDiscover(2000, NULL, NULL, 0, ipv6, NULL);
+#else
+		devlist = upnpDiscover(2000, NULL, NULL, 0);
+#endif
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device search finished.\n");
 
 		if (devlist) {
@@ -2185,7 +2189,7 @@ int UPNP_Tools::upnp_init(void *param) {
 			}
 
             char externalIP[16]     = "";
-#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
+#ifndef MINIUPNPC_VERSION_PRE1_5
             UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIP);
 #else
             UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
@@ -2232,7 +2236,7 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
 	if (!urls.controlURL || urls.controlURL[0] == '\0')	{
 		return false;
 	}
-#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
+#ifndef MINIUPNPC_VERSION_PRE1_5
 	UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIP);
 #else
 	UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
@@ -2241,10 +2245,14 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
 	sprintf(ext_port_str, "%d", ports[0]);
 	sprintf(int_port_str, "%d", ports[1]);
 
-#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
-	r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0, NULL);
+#ifndef MINIUPNPC_VERSION_PRE1_5
+	#ifndef MINIUPNPC_VERSION_PRE1_6
+		r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0, NULL);
+	#else
+		r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0);
+	#endif
 #else
-	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0, NULL);
+	r = UPNP_AddPortMapping(urls.controlURL, data.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0);
 #endif
 	if (r != UPNPCOMMAND_SUCCESS) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] AddPortMapping(%s, %s, %s) failed\n",__FILE__,__FUNCTION__,__LINE__,ext_port_str, int_port_str, lanaddr);
@@ -2264,7 +2272,7 @@ void UPNP_Tools::upnp_rem_redirect(int ext_port) {
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 DEBUGGUNG urls.controlURL [%s]\n",urls.controlURL);
 
-	#ifndef MEGAGLEST_EMBEDDED_MINIUPNPC
+	#ifndef MINIUPNPC_VERSION_PRE1_5
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 DEBUGGUNG data.first.servicetype [%s]\n",data.first.servicetype);
 		UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, ext_port_str, "TCP", 0);
 	#else
