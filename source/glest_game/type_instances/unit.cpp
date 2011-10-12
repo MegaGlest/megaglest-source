@@ -1911,7 +1911,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
 				if(sound != NULL &&
 					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
-					 (game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer))) {
+					 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
 					SoundRenderer::getInstance().playFx(sound);
 				}
 
@@ -1980,7 +1980,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
 			if(sound != NULL &&
 				(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
-				 (game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer))) {
+				 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
 				SoundRenderer::getInstance().playFx(sound);
 			}
 
@@ -2032,7 +2032,7 @@ void Unit::tick() {
             StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
             if(sound != NULL &&
             	(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
-            	 (game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer))) {
+            	 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
                 SoundRenderer::getInstance().playFx(sound);
             }
 		}
@@ -2056,7 +2056,7 @@ void Unit::tick() {
             StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
             if(sound != NULL &&
             	(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
-            	 (game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer))) {
+            	 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
                 SoundRenderer::getInstance().playFx(sound);
             }
 		}

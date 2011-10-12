@@ -126,7 +126,7 @@ void UnitUpdater::updateUnit(Unit *unit) {
 		float soundStartTime= currSkill->getSoundStartTime();
 		if(soundStartTime >= unit->getLastAnimProgress() && soundStartTime < unit->getAnimProgress()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
-				(game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer)) {
+				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 				soundRenderer.playFx(currSkill->getSound(), unit->getCurrVector(), gameCamera->getPos());
 			}
 		}
@@ -806,7 +806,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 
 					//play start sound
 					if(unit->getFactionIndex() == world->getThisFactionIndex() ||
-						(game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer)) {
+						(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 						SoundRenderer::getInstance().playFx(
 							bct->getStartSound(),
 							unit->getCurrVector(),
@@ -878,7 +878,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 				builtUnit->born();
 				scriptManager->onUnitCreated(builtUnit);
 				if(unit->getFactionIndex() == world->getThisFactionIndex() ||
-					(game->getWorld()->getThisTeamIndex() == GameConstants::maxPlayers -1 + fpt_Observer)) {
+					(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 					SoundRenderer::getInstance().playFx(
 						bct->getBuiltSound(),
 						unit->getCurrVector(),
