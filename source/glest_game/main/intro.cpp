@@ -74,6 +74,12 @@ Intro::Intro(Program *program):
 	mouseY = 0;
 	mouse2d = 0;
 
+	Renderer &renderer= Renderer::getInstance();
+	//renderer.init3dListMenu(NULL);
+	renderer.initMenu(NULL);
+	fade= 0.f;
+	anim= 0.f;
+
 	XmlTree xmlTree;
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	xmlTree.load(data_path + "data/core/menu/menu.xml",Properties::getTagReplacementValues());
@@ -81,6 +87,30 @@ Intro::Intro(Program *program):
 	const XmlNode *introNode= menuNode->getChild("intro");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	targetCamera= NULL;
+	t= 0.f;
+
+	//camera
+	const XmlNode *cameraNode= introNode->getChild("camera");
+
+	//position
+	const XmlNode *positionNode= cameraNode->getChild("start-position");
+    startPosition.x= positionNode->getAttribute("x")->getFloatValue();
+	startPosition.y= positionNode->getAttribute("y")->getFloatValue();
+	startPosition.z= positionNode->getAttribute("z")->getFloatValue();
+	camera.setPosition(startPosition);
+
+	//rotation
+	const XmlNode *rotationNode= cameraNode->getChild("start-rotation");
+	Vec3f startRotation;
+    startRotation.x= rotationNode->getAttribute("x")->getFloatValue();
+	startRotation.y= rotationNode->getAttribute("y")->getFloatValue();
+	startRotation.z= rotationNode->getAttribute("z")->getFloatValue();
+	camera.setOrientation(Quaternion(EulerAngles(
+		degToRad(startRotation.x),
+		degToRad(startRotation.y),
+		degToRad(startRotation.z))));
 
 	// intro info
 	const XmlNode *introTimeNode= introNode->getChild("intro-time");
@@ -96,6 +126,52 @@ Intro::Intro(Program *program):
 	int showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
 	bool showIntroPicsRandom = showIntroPicturesNode->getAttribute("random")->getBoolValue();
 
+	const XmlNode *showIntroModelsNode= introNode->getChild("show-intro-models");
+	bool showIntroModels = showIntroModelsNode->getAttribute("value")->getBoolValue();
+	bool showIntroModelsRandom = showIntroModelsNode->getAttribute("random")->getBoolValue();
+
+	//load main model
+	modelIndex = 0;
+	models.clear();
+	if(showIntroModels == true) {
+		string introPath = data_path + "data/core/menu/main_model/intro*.g3d";
+		vector<string> introModels;
+		findAll(introPath, introModels, false, false);
+		for(int i = 0; i < introModels.size(); ++i) {
+			string logo = introModels[i];
+			Model *model= renderer.newModel(rsMenu);
+			if(model) {
+				model->load(data_path + "data/core/menu/main_model/" + logo);
+				models.push_back(model);
+				//printf("model [%s]\n",model->getFileName().c_str());
+			}
+		}
+
+		if(showIntroModelsRandom == true) {
+			std::vector<Model *> modelList;
+
+			unsigned int seed = time(NULL);
+			srand(seed);
+			int failedLookups=0;
+			std::map<int,bool> usedIndex;
+			for(;modelList.size() < models.size();) {
+				int index = rand() % models.size();
+				if(usedIndex.find(index) != usedIndex.end()) {
+					failedLookups++;
+					seed = time(NULL) / failedLookups;
+					srand(seed);
+					continue;
+				}
+				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
+				modelList.push_back(models[index]);
+				usedIndex[index]=true;
+				seed = time(NULL) / modelList.size();
+				srand(seed);
+			}
+			models = modelList;
+		}
+	}
+
 	int displayItemNumber = 1;
 	int appear= Intro::appearTime;
 	int disappear= Intro::showTime+Intro::appearTime+Intro::disapearTime;
@@ -106,6 +182,8 @@ Intro::Intro(Program *program):
 	texts.push_back(new Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), disappear *(++displayItemNumber)));
 	texts.push_back(new Text(glestVersionString, Vec2i(w/2+45, h/2-45), disappear *(displayItemNumber++), coreData.getMenuFontNormal(),coreData.getMenuFontNormal3D()));
 	texts.push_back(new Text("www.megaglest.org", Vec2i(w/2, h/2), disappear *(displayItemNumber++), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+
+	modelShowTime = disappear *(displayItemNumber);
 
 	if(showIntroPics > 0 && coreData.getMiscTextureList().size() > 0) {
 		const int showMiscTime = showIntroPicsTime;
@@ -187,12 +265,12 @@ Intro::~Intro() {
 	deleteValues(texts.begin(),texts.end());
 }
 
-void Intro::update(){
+void Intro::update() {
 	timer++;
 	if(timer > introTime * GameConstants::updateFps / 1000){
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		program->setState(new MainMenu(program));
+	    cleanup();
 		return;
 	}
 
@@ -205,6 +283,86 @@ void Intro::update(){
 	}
 
 	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
+
+	if(targetCamera != NULL) {
+		t+= ((0.01f+(1.f-t)/10.f)/20.f)*(60.f/GameConstants::updateFps);
+
+		//interpolate position
+		camera.setPosition(lastCamera.getPosition().lerp(t, targetCamera->getPosition()));
+
+		//interpolate orientation
+		Quaternion q= lastCamera.getOrientation().lerp(t, targetCamera->getOrientation());
+		camera.setOrientation(q);
+
+		if(t>=1.f){
+			targetCamera= NULL;
+			t= 0.f;
+		}
+	}
+
+	//fade
+	if(fade <= 1.f) {
+		fade += 0.6f / GameConstants::updateFps;
+		if(fade > 1.f){
+			fade = 1.f;
+		}
+	}
+
+	//animation
+	const float minSpeed = 0.015f;
+	const float maxSpeed = 0.6f;
+	anim += (maxSpeed / GameConstants::updateFps) / 5 + random.randRange(minSpeed, max(minSpeed + 0.0001f, (maxSpeed / GameConstants::updateFps) / 5.f));
+	if(anim > 1.f) {
+		anim = 0.f;
+	}
+}
+
+void Intro::renderModelBackground() {
+	// Black background
+	glClearColor(0, 0, 0, 1);
+
+	if(models.size() > 0) {
+		int difTime= 1000 * timer / GameConstants::updateFps - modelShowTime;
+		int totalModelShowTime = Intro::introTime - modelShowTime;
+		int individualModelShowTime = totalModelShowTime / models.size();
+
+		//printf("difTime = %d individualModelShowTime = %d modelIndex = %d\n",difTime,individualModelShowTime,modelIndex);
+
+		//int difTime= 1;
+		if(difTime > 0) {
+			if(difTime > ((modelIndex+1) * individualModelShowTime)) {
+				int oldmodelIndex = modelIndex;
+				if(modelIndex+1 < models.size()) {
+					modelIndex++;
+
+					//position
+					//nextCamera.setPosition(camera.getPosition());
+//					nextCamera.setPosition(Vec3f(84,-9,11));
+//
+//					//rotation
+//					//Vec3f startRotation(0,12,0);
+//					Vec3f startRotation(0,-80,0);
+//					nextCamera.setOrientation(Quaternion(EulerAngles(
+//						degToRad(startRotation.x),
+//						degToRad(startRotation.y),
+//						degToRad(startRotation.z))));
+//
+//					this->targetCamera = &nextCamera;
+//					this->lastCamera= camera;
+//					this->t= 0.f;
+
+				}
+				//printf("oldmodelIndex = %d, modelIndex = %d\n",oldmodelIndex,modelIndex);
+			}
+			Renderer &renderer= Renderer::getInstance();
+			vector<Model *> characterModels;
+			characterModels.push_back(NULL);
+			characterModels.push_back(NULL);
+			characterModels.push_back(models[modelIndex]);
+			const Vec3f characterPosition = startPosition;
+			renderer.renderMenuBackground(&camera, fade, NULL, characterModels,characterPosition,anim);
+		}
+	}
 }
 
 void Intro::render() {
@@ -217,20 +375,16 @@ void Intro::render() {
 	canRender();
 	incrementFps();
 
-	renderer.reset2d();
 	renderer.clearBuffers();
+	renderer.reset3dMenu();
 
-//	CoreData &coreData= CoreData::getInstance();
-//	renderer.renderTextureQuad(
-//		1, 1,
-//		1, 1,
-//		coreData.getLogoTexture(), 1.0);
+	renderer.clearZBuffer();
+	renderer.loadCameraMatrix(&camera);
 
-//	renderer.renderFPSWhenEnabled(lastFps);
+	renderModelBackground();
+	renderer.renderParticleManager(rsMenu);
 
-//	renderer.renderText3D(
-//		"test 123", coreData.getMenuFontVeryBig3D(), 1.0,
-//		1, 1, true);
+	renderer.reset2d();
 
 	for(int i = 0; i < texts.size(); ++i) {
 		Text *text= texts[i];
@@ -295,9 +449,13 @@ void Intro::mouseUpLeft(int x, int y){
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	program->setState(new MainMenu(program));
+	cleanup();
+}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+void Intro::cleanup() {
+	Renderer::getInstance().endMenu();
+
+	program->setState(new MainMenu(program));
 }
 
 void Intro::mouseMove(int x, int y, const MouseState *ms) {

@@ -18,6 +18,10 @@
 #include "font.h"
 #include "vec.h"
 #include "texture.h"
+#include "camera.h"
+#include "model.h"
+#include "randomgen.h"
+
 #include "leak_dumper.h"
 
 using std::vector;
@@ -28,6 +32,10 @@ using Shared::Graphics::Vec3f;
 using Shared::Graphics::Font2D;
 using Shared::Graphics::Font3D;
 using Shared::Graphics::Texture2D;
+
+using Shared::Graphics::Camera;
+using Shared::Graphics::Model;
+using Shared::Util::RandomGen;
 
 namespace Glest{ namespace Game{
 
@@ -64,7 +72,7 @@ public:
 ///	ProgramState representing the intro
 // =====================================================
 
-class Intro: public ProgramState{
+class Intro: public ProgramState {
 private:
 	static int introTime;
 	static int appearTime;
@@ -77,6 +85,23 @@ private:
 	int mouseX;
 	int mouseY;
 	int mouse2d;
+
+	//Model *mainModel;
+	int modelIndex;
+	vector<Model *> models;
+	Camera nextCamera;
+	Camera camera;
+	Camera lastCamera;
+	const Camera *targetCamera;
+	float t;
+	RandomGen random;
+	float anim;
+	float fade;
+	Vec3f startPosition;
+	int modelShowTime;
+
+	void cleanup();
+	void renderModelBackground();
 
 public:
 	Intro(Program *program);

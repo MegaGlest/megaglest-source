@@ -456,6 +456,7 @@ public:
     void renderDisplay();
 	void renderMenuBackground(const MenuBackground *menuBackground);
 	void renderMapPreview(const MapPreview *map, bool renderAll, int screenX, int screenY,Texture2D **renderToTexture=NULL);
+	void renderMenuBackground(Camera *camera, float fade, Model *mainModel, vector<Model *> characterModels,const Vec3f characterPosition, float anim);
 
 	//computing
     bool computePosition(const Vec2i &screenPos, Vec2i &worldPos);
@@ -526,6 +527,8 @@ public:
 	void setCustom3dMenuList(GLuint *customlist3dMenu) { this->customlist3dMenu = customlist3dMenu; }
 	GLuint * getCustom3dMenuList() const { return this->customlist3dMenu; }
 
+	void init3dListMenu(const MainMenu *mm);
+
 private:
 	//private misc
 	float computeSunAngle(float time);
@@ -547,7 +550,6 @@ private:
 	//gl init
 	void init3dList();
     void init2dList();
-	void init3dListMenu(const MainMenu *mm);
 
 	//misc
 	void loadProjectionMatrix();
