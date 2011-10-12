@@ -241,10 +241,9 @@ void ChatManager::updateNetwork() {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,msg.chatText.c_str(),teamIndex);
 
 				if(teamIndex == -1 || teamIndex == thisTeamIndex) {
-					//console->addLine(msg.chatSender + ": " + msg.chatText, true, msg.chatPlayerIndex);
-
 					if(msg.targetLanguage == "" || lang.isLanguageLocal(msg.targetLanguage) == true) {
-						console->addLine(msg.chatText, true, msg.chatPlayerIndex,Vec3f(1.f, 1.f, 1.f),teamIndex == thisTeamIndex);
+						bool teamMode = (teamIndex != -1 && teamIndex == thisTeamIndex);
+						console->addLine(msg.chatText, true, msg.chatPlayerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
 					}
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
