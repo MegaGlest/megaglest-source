@@ -30,7 +30,7 @@
 #if defined(__FreeBSD__)
     #include <sys/uio.h>
 #else
-    #include <sys/sendfile.h>
+    //#include <sys/sendfile.h>
 #endif
 
 #include <fcntl.h>
