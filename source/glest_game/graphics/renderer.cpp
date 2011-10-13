@@ -867,16 +867,32 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 
 	Vec2i pos;
 	if(strcmp(label,"tl") == 0) {
+#ifdef USE_STREFLOP
 		pos = Vec2i(streflop::floor(i.x),streflop::floor(i.z));
+#else
+		pos = Vec2i(floor(i.x),floor(i.z));
+#endif
 	}
 	else if(strcmp(label,"tr") == 0) {
+#ifdef USE_STREFLOP
 		pos = Vec2i(streflop::ceil(i.x),streflop::floor(i.z));
+#else
+		pos = Vec2i(ceil(i.x),floor(i.z));
+#endif
 	}
 	else if(strcmp(label,"bl") == 0) {
+#ifdef USE_STREFLOP
 		pos = Vec2i(streflop::floor(i.x),streflop::ceil(i.z));
+#else
+		pos = Vec2i(floor(i.x),ceil(i.z));
+#endif
 	}
 	else if(strcmp(label,"br") == 0) {
+#ifdef USE_STREFLOP
 		pos = Vec2i(streflop::ceil(i.x),streflop::ceil(i.z));
+#else
+		pos = Vec2i(ceil(i.x),ceil(i.z));
+#endif
 	}
 
 	if(false) { // print debug info
