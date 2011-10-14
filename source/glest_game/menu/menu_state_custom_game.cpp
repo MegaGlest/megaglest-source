@@ -941,7 +941,11 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                 //}
 
                 //ensure thet only 1 human player is present
-                if(listBoxControls[i].mouseClick(x, y)) {
+                ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+                ConnectionSlot *slot = serverInterface->getSlot(i);
+                if((listBoxControls[i].getSelectedItemIndex() != ctNetwork && listBoxControls[i].mouseClick(x, y)) ||
+                	(listBoxControls[i].getSelectedItemIndex() == ctNetwork && (slot == NULL || slot->isConnected() == false)
+                			&& listBoxControls[i].mouseClick(x, y))) {
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
                     //look for human players
@@ -2038,6 +2042,35 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+		if(mapInfo.players < GameConstants::maxPlayers) {
+			for(int i= mapInfo.players; i< GameConstants::maxPlayers; ++i) {
+				listBoxControls[i].setEditable(false);
+				listBoxControls[i].setEnabled(false);
+			}
+		}
+		else {
+			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+
+			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+				if(listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
+	                ConnectionSlot *slot = serverInterface->getSlot(i);
+	                if((listBoxControls[i].getSelectedItemIndex() != ctNetwork) ||
+	                	(listBoxControls[i].getSelectedItemIndex() == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
+						listBoxControls[i].setEditable(true);
+						listBoxControls[i].setEnabled(true);
+	                }
+					else {
+						listBoxControls[i].setEditable(false);
+						listBoxControls[i].setEnabled(false);
+					}
+				}
+				else {
+					listBoxControls[i].setEditable(false);
+					listBoxControls[i].setEnabled(false);
+				}
+			}
+		}
+
 		bool checkDataSynch = (serverInterface->getAllowGameDataSynchCheck() == true &&
 					needToSetChangedGameSettings == true &&
 					difftime(time(NULL),lastSetChangedGameSettings) >= 2);
@@ -2499,6 +2532,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				ct = ctClosed;
 			}
 		}
+		else if(ct == ctNetworkUnassigned && i < mapInfo.players) {
+			listBoxControls[i].setSelectedItemIndex(ctNetwork);
+			ct = ctNetwork;
+		}
 
 		if(ct != ctClosed) {
 			int slotIndex = factionCount;
@@ -2826,6 +2863,11 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 		//for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			gameSettings.setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i),intToStr(ctClosed).c_str()) );
+
+			if(gameSettings.getFactionControl(i) == ctNetworkUnassigned) {
+				gameSettings.setFactionControl(i,ctNetwork);
+			}
+
 			gameSettings.setResourceMultiplierIndex(i,properties.getInt(string("ResourceMultiplierIndex") + intToStr(i),"5"));
 			gameSettings.setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i),"0") );
 			gameSettings.setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i),intToStr(i).c_str()) );

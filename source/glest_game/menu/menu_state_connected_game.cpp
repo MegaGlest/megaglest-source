@@ -2909,6 +2909,11 @@ void MenuStateConnectedGame::update() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 			}
 
+//			for(int i= mapInfo.players; i< GameConstants::maxPlayers; ++i) {
+//				listBoxControls[i].setEditable(false);
+//				listBoxControls[i].setEnabled(false);
+//			}
+
 			//update lobby
 			clientInterface= NetworkManager::getInstance().getClientInterface();
 			if(clientInterface != NULL && clientInterface->isConnected()) {
