@@ -48,17 +48,8 @@ float Font::scaleFontValueCenterHFactor		= 4.0;
 
 int Font::baseSize							= 3;
 
-#ifdef USE_FTGL
-
-int Font::faceResolution					= TextFTGL::faceResolution;
-string Font::langHeightText					= TextFTGL::langHeightText;
-
-#else
-
 int Font::faceResolution					= 72;
 string Font::langHeightText					= "yW";
-
-#endif
 //
 
 // =====================================================
