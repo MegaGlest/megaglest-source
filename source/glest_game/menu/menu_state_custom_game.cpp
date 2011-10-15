@@ -1,4 +1,3 @@
-// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2005 Marti�o Figueroa
@@ -1816,6 +1815,7 @@ void MenuStateCustomGame::update() {
 
 		}
 		if(this->masterserverMode == true && serverInterface->getMasterserverAdminRequestLaunch() == true) {
+			serverInterface->setMasterserverAdminRequestLaunch(false);
 			safeMutex.ReleaseLock();
 
 			PlayNow(false);
