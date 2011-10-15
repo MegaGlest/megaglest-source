@@ -782,13 +782,18 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	if(clientInterface->isConnected() == true) {
 		int myCurrentIndex= -1;
 		for(int i= 0; i < GameConstants::maxPlayers; ++i) {// find my current index by looking at editable listBoxes
-			if(listBoxFactions[i].getEditable() && clientInterface->getGameSettings()->getThisFactionIndex() == i) {
+			if(listBoxFactions[i].getEditable() &&
+				clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) == i) {
 				myCurrentIndex= i;
 			}
 		}
+
+		//printf("myCurrentIndex = %d thisFactionIndex = %d\n",myCurrentIndex,clientInterface->getGameSettings()->getThisFactionIndex());
+
 		if(myCurrentIndex != -1)
 			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
-				if(listBoxFactions[i].getEditable() && clientInterface->getGameSettings()->getThisFactionIndex() == i) {
+				if(listBoxFactions[i].getEditable() &&
+					clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) == i) {
 					if(listBoxFactions[i].mouseClick(x, y)) {
 						soundRenderer.playFx(coreData.getClickSoundA());
 						ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
@@ -808,7 +813,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						break;
 					}
 				}
-				if(listBoxTeams[i].getEditable() && clientInterface->getGameSettings()->getThisFactionIndex() == i) {
+				if(listBoxTeams[i].getEditable() &&
+						clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) == i) {
 					if(listBoxTeams[i].mouseClick(x, y)){
 						soundRenderer.playFx(coreData.getClickSoundA());
 						if(clientInterface->isConnected()){
@@ -827,8 +833,12 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						break;
 					}
 				}
-				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) && (labelNetStatus[i].getText()
-				        == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)){
+				//if(grabSlotButton[i].mouseClick(x, y)) {
+				//	printf("Send slot switch request for slot = %d, myCurrentIndex = %d name [%s] control = %d\n",i,myCurrentIndex,labelNetStatus[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex());
+				//}
+
+				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
+					labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
 					if(grabSlotButton[i].mouseClick(x, y)) {
 						//printf("Send slot switch request for slot = %d, myCurrentIndex = %d\n",i,myCurrentIndex);
 
@@ -837,6 +847,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						settingsReceivedFromServer= false;
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] sending a switchSlot request from %d to %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getGameSettings()->getThisFactionIndex(),i);
+
+						//printf("Switch slot from %d to %d\n",myCurrentIndex,i);
 
 						clientInterface->sendSwitchSetupRequest(
 								listBoxFactions[myCurrentIndex].getSelectedItem(),
@@ -1195,7 +1207,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 //ensure thet only 1 human player is present
                 int oldSelectedIndex = listBoxControls[i].getSelectedItemIndex();
                 if(clientInterface != NULL && clientInterface->getGameSettings() != NULL &&
-                	clientInterface->getGameSettings()->getThisFactionIndex() != i &&
+                		clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxControls[i].mouseClick(x, y)) {
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1289,7 +1301,8 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //						}
 //                	}
 //                }
-                else if(clientInterface->getGameSettings()->getThisFactionIndex() != i && listBoxFactions[i].mouseClick(x, y)) {
+                else if(clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
+                		listBoxFactions[i].mouseClick(x, y)) {
                     // Disallow CPU players to be observers
         			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
         				(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
@@ -1310,7 +1323,8 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 
         			broadCastGameSettingsToMasterserver();
                 }
-                else if(clientInterface->getGameSettings()->getThisFactionIndex() != i && listBoxTeams[i].mouseClick(x, y)) {
+                else if(clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
+                		listBoxTeams[i].mouseClick(x, y)) {
                     if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
                         if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
                             //lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
