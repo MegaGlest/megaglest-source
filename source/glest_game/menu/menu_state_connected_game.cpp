@@ -940,6 +940,17 @@ void MenuStateConnectedGame::broadCastGameSettingsToMasterserver() {
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface *clientInterface = networkManager.getClientInterface();
 
+	for(int i = 0; i < mapInfo.players; ++i) {
+		if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+			listBoxControls[i].setSelectedItemIndex(ctNetwork);
+		}
+	}
+	for(int i = mapInfo.players; i < GameConstants::maxPlayers; ++i) {
+		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
+			listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+		}
+	}
+
 	GameSettings gameSettings = *clientInterface->getGameSettings();
 	loadGameSettings(&gameSettings);
 
@@ -1005,6 +1016,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 
             loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
             labelMapInfo.setText(mapInfo.desc);
+
             //updateControlers();
             //updateNetworkSlots();
 
