@@ -1292,6 +1292,40 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 		}
 	}
 
+	// Ensure we have no dangling network players
+	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+		if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+			mainMessageBoxState=1;
+
+			Lang &lang= Lang::getInstance();
+			char szMsg[1024]="";
+			if(lang.hasString("NetworkSlotUnassignedErrorUI") == true) {
+				sprintf(szMsg,lang.get("NetworkSlotUnassignedErrorUI").c_str());
+			}
+			else {
+				sprintf(szMsg,"Cannot start game.\nSome player(s) are not in a network game slot!");
+			}
+
+			showMessageBox(szMsg, "", false);
+
+	    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int j = 0; j < languageList.size(); ++j) {
+				char szMsg[1024]="";
+				if(lang.hasString("NetworkSlotUnassignedError",languageList[j]) == true) {
+					sprintf(szMsg,lang.get("NetworkSlotUnassignedError").c_str());
+				}
+				else {
+					sprintf(szMsg,"Cannot start game, some player(s) are not in a network game slot!");
+				}
+
+				serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
+	    	}
+
+			safeMutex.ReleaseLock();
+			return;
+		}
+	}
+
 	if(dataSynchCheckOk == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		mainMessageBoxState=1;
@@ -1610,7 +1644,7 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 		ServerInterface *& serverInterface, int startIndex, int endIndex, bool onlyNetworkUnassigned) {
     for(int i= startIndex; i < endIndex; ++i) {
 		if(switchSetupRequests[i] != NULL) {
-			//printf("Switch slot = %d\n",i);
+			//printf("Switch slot = %d control = %d newIndex = %d currentindex = %d\n",i,listBoxControls[i].getSelectedItemIndex(),switchSetupRequests[i]->getToFactionIndex(),switchSetupRequests[i]->getCurrentFactionIndex());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,switchSetupRequests[i]->getSwitchFlags());
 

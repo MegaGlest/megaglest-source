@@ -209,6 +209,10 @@ void FTPServerThread::execute() {
             ftpCreateAccount("lister", "", "./", FTP_ACC_LS);
             ftpCreateAccount("admin", "xxx", "./", FTP_ACC_RD | FTP_ACC_WR | FTP_ACC_LS | FTP_ACC_DIR);
 */
+            if(getQuitStatus() == true) {
+                return;
+            }
+
             ftpStart(portNumber);
             while(this->getQuitStatus() == false) {
                 ftpExecute();

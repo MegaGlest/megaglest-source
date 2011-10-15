@@ -153,7 +153,13 @@ static void cleanupProcessObjects() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SystemFlags::Close();
-	XmlIo::getInstance().cleanup();
+
+	printf("running threads = %lu\n",Thread::getThreadList().size());
+	time_t elapsed = time(NULL);
+    for(;Thread::getThreadList().size() > 0 &&
+    	 difftime(time(NULL),elapsed) <= 10;) {
+    	//sleep(0);
+    }
 
 	std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
 	//deleteMapValues(crcPlayerTextureCache.begin(),crcPlayerTextureCache.end());
@@ -163,19 +169,14 @@ static void cleanupProcessObjects() {
 	//deleteMapValues(crcFactionPreviewTextureCache.begin(),crcFactionPreviewTextureCache.end());
 	crcFactionPreviewTextureCache.clear();
 
-	printf("running threads = %lu\n",Thread::getThreadList().size());
-	time_t elapsed = time(NULL);
-    for(;Thread::getThreadList().size() > 0 &&
-    	 difftime(time(NULL),elapsed) <= 10;) {
-    	//sleep(0);
-    }
-
 	std::map<string, vector<FileReader<Pixmap2D> const * >* > &list2d = FileReader<Pixmap2D>::getFileReadersMap();
 	//printf("list2d = %lu\n",list2d.size());
 	deleteMapValues(list2d.begin(),list2d.end());
 	std::map<string, vector<FileReader<Pixmap3D> const * >* > &list3d = FileReader<Pixmap3D>::getFileReadersMap();
 	//printf("list3d = %lu\n",list3d.size());
 	deleteMapValues(list3d.begin(),list3d.end());
+
+	XmlIo::getInstance().cleanup();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
