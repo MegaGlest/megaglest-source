@@ -41,6 +41,8 @@ ChatManager::ChatManager() {
 	xPos=300;
 	yPos=150;
 	maxTextLenght=64;
+	textCharLength.clear();
+	text="";
 	font=CoreData::getInstance().getConsoleFont();
 	font3D=CoreData::getInstance().getConsoleFont3D();
 	inMenu=false;
@@ -72,6 +74,7 @@ void ChatManager::keyUp(SDL_KeyboardEvent key) {
 			//if(key == vkEscape || key == SDLK_ESCAPE) {
 			if(isKeyPressed(SDLK_ESCAPE,key,false) == true) {
 				text.clear();
+				textCharLength.clear();
 				editEnabled= false;
 			}
 		}
@@ -146,6 +149,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 						editEnabled= false;
 					}
 					text.clear();
+					textCharLength.clear();
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
@@ -158,8 +162,19 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 		else if(isKeyPressed(SDLK_BACKSPACE,key,false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
-			if(!text.empty()) {
-				text.erase(text.end() -1);
+			if(text.empty() == false) {
+				if(textCharLength.size() > 0) {
+					//printf("BEFORE DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
+
+					if(textCharLength[textCharLength.size()-1] > text.length()) {
+						textCharLength[textCharLength.size()-1] = text.length();
+					}
+					for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
+						text.erase(text.end() -1);
+					}
+					//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
+					textCharLength.pop_back();
+				}
 			}
 		}
 
@@ -177,6 +192,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 void ChatManager::switchOnEdit() {
 	editEnabled= true;
 	text.clear();
+	textCharLength.clear();
 }
 
 void ChatManager::keyPress(SDL_KeyboardEvent c) {
@@ -198,17 +214,25 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 			char buf[4] = {0};
 			if (key < 0x80) {
 				buf[0] = key;
+				textCharLength.push_back(1);
+				//printf("1 char, textCharLength = %d\n",textCharLength.size());
 			}
 			else if (key < 0x800) {
 				buf[0] = (0xC0 | key >> 6);
 				buf[1] = (0x80 | key & 0x3F);
+				textCharLength.push_back(2);
+				//printf("2 char, textCharLength = %d\n",textCharLength.size());
 			}
 			else {
 				buf[0] = (0xE0 | key >> 12);
 				buf[1] = (0x80 | key >> 6 & 0x3F);
 				buf[2] = (0x80 | key & 0x3F);
+				textCharLength.push_back(3);
+				//printf("3 char, textCharLength = %d\n",textCharLength.size());
 			}
 			text += buf;
+
+			printf("text length = %d\n",text.length());
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d] szCharText [%s]\n",__FILE__,__FUNCTION__,__LINE__, key,text.c_str());
 
