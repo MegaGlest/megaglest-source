@@ -15,9 +15,11 @@
 #include <string>
 #include "font.h"
 #include <SDL.h>
+#include <vector>
 #include "leak_dumper.h"
 
 using std::string;
+using std::vector;
 using Shared::Graphics::Font2D;
 using Shared::Graphics::Font3D;
 
@@ -37,6 +39,7 @@ private:
 	bool disableTeamMode;
 	Console* console;
 	string text;
+	vector<int> textCharLength;
 	int thisTeamIndex;
 	bool inMenu;
 	string manualPlayerNameOverride;
