@@ -25,13 +25,6 @@
 # include <string>
 #include "types.h"
 
-/*!
-** \brief Force the Use of the Boost functions
-*/
-# define TA3D_USE_BOOST  0
-
-
-
 //! \name Macros for Shared::Util::String
 //@{
 

@@ -40,9 +40,9 @@ bool Font::fontIsRightToLeft				= false;
 
 // This value is used to scale the font text rendering
 // in 3D render mode
-float Font::scaleFontValue					= 0.80;
+float Font::scaleFontValue					= 0.80f;
 // This value is used for centering font text vertically (height)
-float Font::scaleFontValueCenterHFactor		= 4.0;
+float Font::scaleFontValueCenterHFactor		= 4.0f;
 //float Font::scaleFontValue					= 1.0;
 //float Font::scaleFontValueCenterHFactor		= 4.0;
 
