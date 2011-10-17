@@ -18,21 +18,12 @@
 //#include "../stdafx.h"
 #include "string_utils.h"
 
-#if TA3D_USE_BOOST == 1
-#  include <boost/algorithm/string.hpp>
-#  include <boost/algorithm/string/trim.hpp>
-#  include <boost/algorithm/string/split.hpp>
-#else
-#  include <algorithm>
-#endif
+#include <algorithm>
 
 #include <assert.h>
-//#include "../logs/logs.h"
-
 
 namespace Shared { namespace Util {
 
-    #if TA3D_USE_BOOST != 1
     namespace
     {
         int stdLowerCase (int c)
@@ -45,7 +36,6 @@ namespace Shared { namespace Util {
             return toupper(c);
         }
     }
-    #endif
 
     String&
     String::operator << (const wchar_t* v)
@@ -66,22 +56,14 @@ namespace Shared { namespace Util {
     String&
     String::toLower()
     {
-        #if TA3D_USE_BOOST == 1
-        boost::to_lower(*this);
-        #else
         std::transform (this->begin(), this->end(), this->begin(), stdLowerCase);
-        #endif
         return *this;
     }
 
     String&
     String::toUpper()
     {
-        #if TA3D_USE_BOOST == 1
-        boost::to_upper(*this);
-        #else
         std::transform (this->begin(), this->end(), this->begin(), stdUpperCase);
-        #endif
         return *this;
     }
 
@@ -120,15 +102,6 @@ namespace Shared { namespace Util {
         // Empty the container
         if (emptyBefore)
             out.clear();
-        #if TA3D_USE_BOOST == 1
-        // TODO : Avoid string duplication
-        // Split
-        std::vector<std::string> v;
-        boost::algorithm::split(v, *this, boost::is_any_of(separators.c_str()));
-        // Copying
-        for(std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i)
-            out.push_back(*i);
-        #else
         // TODO This method should be rewritten for better performance
         String s(*this);
         while (!s.empty())
@@ -145,7 +118,6 @@ namespace Shared { namespace Util {
                 s = s.substr(i + 1, s.size() - i - 1);
             }
         }
-        #endif
     }
 
     void
@@ -154,15 +126,6 @@ namespace Shared { namespace Util {
         // Empty the container
         if (emptyBefore)
             out.clear();
-        #if TA3D_USE_BOOST == 1
-        // TODO : Avoid string duplication
-        // Split
-        std::vector<std::string> v;
-        boost::algorithm::split(v, *this, boost::is_any_of(separators.c_str()));
-        // Copying
-        for(std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i)
-            out.push_back(*i);
-        #else
         // TODO This method should be rewritten for better performance
         String s(*this);
         while (!s.empty())
@@ -179,7 +142,6 @@ namespace Shared { namespace Util {
                 s = s.substr(i + 1, s.size() - i - 1);
             }
         }
-        #endif
     }
 
 

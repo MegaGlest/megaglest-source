@@ -1299,10 +1299,12 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 			Lang &lang= Lang::getInstance();
 			char szMsg[1024]="";
 			if(lang.hasString("NetworkSlotUnassignedErrorUI") == true) {
-				sprintf(szMsg,lang.get("NetworkSlotUnassignedErrorUI").c_str());
+				//sprintf(szMsg,lang.get("NetworkSlotUnassignedErrorUI").c_str());
+				strcpy(szMsg,lang.get("NetworkSlotUnassignedErrorUI").c_str());
 			}
 			else {
-				sprintf(szMsg,"Cannot start game.\nSome player(s) are not in a network game slot!");
+				//sprintf(szMsg,"Cannot start game.\nSome player(s) are not in a network game slot!");
+				strcpy(szMsg,"Cannot start game.\nSome player(s) are not in a network game slot!");
 			}
 
 			showMessageBox(szMsg, "", false);
@@ -1311,10 +1313,12 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	    	for(unsigned int j = 0; j < languageList.size(); ++j) {
 				char szMsg[1024]="";
 				if(lang.hasString("NetworkSlotUnassignedError",languageList[j]) == true) {
-					sprintf(szMsg,lang.get("NetworkSlotUnassignedError").c_str());
+					//sprintf(szMsg,lang.get("NetworkSlotUnassignedError").c_str());
+					strcpy(szMsg,lang.get("NetworkSlotUnassignedError").c_str());
 				}
 				else {
-					sprintf(szMsg,"Cannot start game, some player(s) are not in a network game slot!");
+					//sprintf(szMsg,"Cannot start game, some player(s) are not in a network game slot!");
+					strcpy(szMsg,"Cannot start game, some player(s) are not in a network game slot!");
 				}
 
 				serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);

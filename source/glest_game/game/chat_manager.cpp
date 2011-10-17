@@ -232,7 +232,7 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 			}
 			text += buf;
 
-			printf("text length = %d\n",text.length());
+			//printf("text length = %d\n",text.length());
 
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d] szCharText [%s]\n",__FILE__,__FUNCTION__,__LINE__, key,text.c_str());
 
