@@ -64,6 +64,8 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
 
 	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward, &isValidClientType);
     VERBOSE_MODE_ENABLED        = SystemFlags::VERBOSE_MODE_ENABLED;
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("***FTP SERVER STARTED [%p]\n",this);
 }
 
 FTPServerThread::~FTPServerThread() {
@@ -77,6 +79,8 @@ FTPServerThread::~FTPServerThread() {
         UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort() + clientIndex);
     }
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("***FTP SERVER ENDED [%p]\n",this);
 }
 
 void FTPServerThread::signalQuit() {
