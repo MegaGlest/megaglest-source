@@ -153,13 +153,15 @@ static void cleanupProcessObjects() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SystemFlags::Close();
+	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
 
-	printf("running threads = %lu\n",Thread::getThreadList().size());
+	printf("start running threads = %lu\n",Thread::getThreadList().size());
 	time_t elapsed = time(NULL);
     for(;Thread::getThreadList().size() > 0 &&
     	 difftime(time(NULL),elapsed) <= 10;) {
     	//sleep(0);
     }
+    printf("end running threads = %lu\n",Thread::getThreadList().size());
 
 	std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
 	//deleteMapValues(crcPlayerTextureCache.begin(),crcPlayerTextureCache.end());
@@ -179,7 +181,7 @@ static void cleanupProcessObjects() {
 	XmlIo::getInstance().cleanup();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
+
 
 	SystemFlags::globalCleanupHTTP();
 	CacheManager::cleanupMutexes();
