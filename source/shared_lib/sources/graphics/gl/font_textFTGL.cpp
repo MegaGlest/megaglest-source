@@ -234,7 +234,6 @@ void TextFTGL::Render(const char* str, const int len) {
 	if(len != 0) {
 		//printf("FTGL Render [%s] facesize = %d\n",str,ftFont->FaceSize());
 		assertGl();
-
 		ftFont->Render(str, len);
 		//assertGl();
 		GLenum error = glGetError();

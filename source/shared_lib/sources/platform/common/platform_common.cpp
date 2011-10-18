@@ -60,6 +60,10 @@
 #include "utf8.h"
 #include "leak_dumper.h"
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+
 using namespace Shared::Platform;
 using namespace Shared::Util;
 using namespace std;

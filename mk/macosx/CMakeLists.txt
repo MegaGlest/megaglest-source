@@ -65,14 +65,14 @@ INSTALL(FILES
 #the SDL_LIBRARY is seen as a framework thus we need to remove the suffix...
 STRING(REGEX REPLACE ";.*" "" SDL_LIBRARY_DIR "${SDL_LIBRARY}")
 
-INSTALL(DIRECTORY 
-	${OGG_LIBRARY}
-	${XERCESC_LIBRARY}
-	${VORBIS_LIBRARY}
-	${SDL_LIBRARY_DIR}
-	${PNG_LIBRARY}
-    DESTINATION ../Frameworks
-  )
+#INSTALL(DIRECTORY 
+#	${OGG_LIBRARY}
+#	${XERCESC_LIBRARY}
+#	${VORBIS_LIBRARY}
+#	${SDL_LIBRARY_DIR}
+#	${PNG_LIBRARY}
+ #   DESTINATION ../Frameworks
+ # )
   
 include (CPack)
   

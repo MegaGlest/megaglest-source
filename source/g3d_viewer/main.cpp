@@ -1878,9 +1878,13 @@ GlCanvas::~GlCanvas() {
 }
 
 void GlCanvas::setCurrentGLContext() {
+#ifndef __APPLE__
 	if(this->context) {
 		this->SetCurrent(*this->context);
 	}
+#else
+	this->SetCurrent();
+#endif
 }
 
 // for the mousewheel

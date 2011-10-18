@@ -4,6 +4,11 @@
  * copyright (c) 2005-2011 Thomas Bernard
  * This software is subjet to the conditions detailed in the
  * provided LICENSE file. */
+
+#if defined(__APPLE__)
+#define MACOSX 1
+#define _DARWIN_C_SOURCE 1
+#endif
 #define __EXTENSIONS__ 1
 #if !defined(MACOSX) && !defined(__sun)
 #if !defined(_XOPEN_SOURCE) && !defined(__OpenBSD__) && !defined(__NetBSD__)

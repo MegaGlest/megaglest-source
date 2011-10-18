@@ -139,31 +139,31 @@ const char *getGlPlatformExtensions() {
 
 int getGlMaxLights() {
 	int i;
-	glGetIntegerv(GL_MAX_LIGHTS, &i);
+	glGetIntegerv(GL_MAX_LIGHTS, (GLint*)&i);
 	return i;
 }
 
 int getGlMaxTextureSize() {
 	int i;
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &i);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*)&i);
 	return i;
 }
 
 int getGlMaxTextureUnits() {
 	int i;
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &i);
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS, (GLint*)&i);
 	return i;
 }
 
 int getGlModelviewMatrixStackDepth() {
 	int i;
-	glGetIntegerv(GL_MAX_MODELVIEW_STACK_DEPTH, &i);
+	glGetIntegerv(GL_MAX_MODELVIEW_STACK_DEPTH, (GLint*)&i);
 	return i;
 }
 
 int getGlProjectionMatrixStackDepth() {
 	int i;
-	glGetIntegerv(GL_MAX_PROJECTION_STACK_DEPTH, &i);
+	glGetIntegerv(GL_MAX_PROJECTION_STACK_DEPTH, (GLint*)&i);
 	return i;
 }
 

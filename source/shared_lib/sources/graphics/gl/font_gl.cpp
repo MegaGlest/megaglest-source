@@ -32,7 +32,7 @@ void Font2DGl::init() {
 			handle= glGenLists(charCount);
 			assertGl();
 
-			createGlFontBitmaps(handle, type, size, width, charCount, metrics);
+			createGlFontBitmaps((Shared::Platform::uint32&)handle, type, size, width, charCount, metrics);
 			assertGl();
 		}
 		inited= true;
@@ -60,7 +60,7 @@ void Font3DGl::init() {
 		if(getTextHandler() == NULL) {
 			assertGl();
 			handle= glGenLists(charCount);
-			createGlFontOutlines(handle, type, width, depth, charCount, metrics);
+			createGlFontOutlines((Shared::Platform::uint32&)handle, type, width, depth, charCount, metrics);
 			assertGl();
 		}
 		inited= true;
