@@ -350,7 +350,7 @@ public:
 	        errorLogFile = userData + errorLogFile;
 		}
 
-		printf("Attempting to write error to file [%s]\n",errorLogFile.c_str());
+		//printf("Attempting to write error to file [%s]\n",errorLogFile.c_str());
 
 #if defined(WIN32) && !defined(__MINGW32__)
 		FILE *fp = _wfopen(utf8_decode(errorLogFile).c_str(), L"w");
@@ -378,6 +378,12 @@ public:
 #endif
 			if(confirmToConsole == true) {
 				printf("Error saved to logfile [%s]\n",errorLogFile.c_str());
+				fflush(stdout);
+			}
+		}
+		else {
+			if(confirmToConsole == true) {
+				printf("COULD NOT SAVE TO ERROR logfile [%s]\n",errorLogFile.c_str());
 				fflush(stdout);
 			}
 		}
