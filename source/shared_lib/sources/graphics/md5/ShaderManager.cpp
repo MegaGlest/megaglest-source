@@ -18,7 +18,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "Shader.h"
+#include "ShaderManager.h"
 #include "GlErrors.h"
 
 namespace Shared { namespace Graphics { namespace md5 {

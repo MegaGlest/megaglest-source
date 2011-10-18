@@ -21,6 +21,7 @@
 #ifdef _WIN32
 #define	WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <memory>
 #endif // _WIN32
 
 #include <string>
@@ -40,7 +41,9 @@ using std::string;
 using std::vector;
 using std::map;
 
-//using std::shared_ptr;
+#ifdef _WIN32
+using std::tr1::shared_ptr;
+#endif
 
 // Forward declarations
 class Md5Skeleton;

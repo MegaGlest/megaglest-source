@@ -1347,7 +1347,7 @@ ImagePNG::ImagePNG (const ImageBuffer &ibuff)
       memcpy (sig, reinterpret_cast<const png_byte*>(ibuff.data ()), 8);
 
       // Check for valid magic number
-      if (!png_check_sig (sig, 8))
+      if (!png_sig_cmp (sig, 0, 8))
 	throw ImageException ("Not a valid PNG file", _name);
 
       // Create PNG read struct
@@ -1381,7 +1381,7 @@ ImagePNG::ImagePNG (const ImageBuffer &ibuff)
       // Convert 1-2-4 bits grayscale images to 8 bits
       // grayscale.
       if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
-	png_set_gray_1_2_4_to_8 (png_ptr);
+	png_set_expand_gray_1_2_4_to_8(png_ptr);
 
       if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
 	png_set_tRNS_to_alpha (png_ptr);
