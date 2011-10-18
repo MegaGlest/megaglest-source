@@ -349,6 +349,9 @@ public:
 	        }
 	        errorLogFile = userData + errorLogFile;
 		}
+
+		printf("Attempting to write error to file [%s]\n",errorLogFile.c_str());
+
 #if defined(WIN32) && !defined(__MINGW32__)
 		FILE *fp = _wfopen(utf8_decode(errorLogFile).c_str(), L"w");
 		std::ofstream logFile(fp);
