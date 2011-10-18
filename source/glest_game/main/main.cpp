@@ -155,13 +155,13 @@ static void cleanupProcessObjects() {
 	SystemFlags::Close();
 	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
 
-	printf("start running threads = %lu\n",Thread::getThreadList().size());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("start running threads = %lu\n",Thread::getThreadList().size());
 	time_t elapsed = time(NULL);
     for(;Thread::getThreadList().size() > 0 &&
     	 difftime(time(NULL),elapsed) <= 10;) {
     	//sleep(0);
     }
-    printf("end running threads = %lu\n",Thread::getThreadList().size());
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("end running threads = %lu\n",Thread::getThreadList().size());
 
 	std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
 	//deleteMapValues(crcPlayerTextureCache.begin(),crcPlayerTextureCache.end());
