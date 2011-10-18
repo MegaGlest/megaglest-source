@@ -26,7 +26,7 @@ using namespace Shared::Platform;
 
 namespace Glest { namespace Game {
 
-const string mailString			= "contact@megaglest.org";
+const char *mailString				= " http://bugs.megaglest.org";
 const string glestVersionString 	= "v3.5.3-dev";
 #if defined(SVNVERSION)
 const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
@@ -143,7 +143,7 @@ string getAboutString1(int i) {
 string getAboutString2(int i){
 	switch(i){
 	case 0: return "Web: http://www.megaglest.org  http://glest.org";
-	case 1: return "Mail: " + mailString;
+	case 1: return "Bug reports: " + string(mailString);
 	case 2: return "Irc: irc://irc.freenode.net/glest";
 	}
 	return "";

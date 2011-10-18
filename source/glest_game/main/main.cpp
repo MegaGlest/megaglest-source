@@ -266,7 +266,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
 class ExceptionHandler: public PlatformExceptionHandler{
 public:
 	virtual void handle() {
-		string msg = "#1 An error occurred and " + string(mg_app_name) + " will close.\nPlease report this bug to "+mailString;
+		string msg = "#1 An error occurred and " + string(mg_app_name) + " will close.\nPlease report this bug to: " + string(mailString);
 #ifdef WIN32
 		msg += ", attaching the generated " + getCrashDumpFileName()+ " file.";
 #endif

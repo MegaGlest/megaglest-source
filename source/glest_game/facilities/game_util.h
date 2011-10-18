@@ -23,7 +23,7 @@ using Shared::Util::sharedLibVersionString;
 
 namespace Glest{ namespace Game{
 
-extern const string mailString;
+extern const char *mailString;
 extern const string glestVersionString;
 extern const string networkVersionString;
 
