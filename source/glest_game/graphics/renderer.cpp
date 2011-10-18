@@ -1613,24 +1613,29 @@ void Renderer::renderResourceStatus() {
 
 			bool isNegativeConsumableDisplayCycle = false;
 			if(rt->getClass() == rcConsumable) {
-				// Show in red font if negative
-				const double minWarnPercent = 25.0;
-				//if(r->getBalance() < 0) {
-				if(r->getBalance() < 0 &&
-					((thisFaction->getStoreAmount(rt) > 0 && (double)r->getAmount() / (double)thisFaction->getStoreAmount(rt) * 100.0 <= minWarnPercent) ||
-					 (thisFaction->getStoreAmount(rt) <= 0 && (double)r->getAmount() <= minWarnPercent))) {
+				// Show in yellow/orange/red font if negative
+				if(r->getBalance()*3+r->getAmount()<0){
 					if(time(NULL) % 2 == 0) {
 						isNegativeConsumableDisplayCycle = true;
-						glColor3f(RED.x,RED.y,RED.z);
-						resourceFontColor = RED;
+						if(r->getBalance()*1+r->getAmount()<0){
+							glColor3f(RED.x,RED.y,RED.z);
+							resourceFontColor = RED;
+						}
+						else if(r->getBalance()*2+r->getAmount()<0){
+							glColor3f(ORANGE.x,ORANGE.y,ORANGE.z);
+							resourceFontColor = ORANGE;
+						}
+						else if(r->getBalance()*3+r->getAmount()<0){
+							glColor3f(YELLOW.x,YELLOW.y,YELLOW.z);
+							resourceFontColor = YELLOW;
+						}
 					}
-					//printf("Balance is negative!");
 				}
 			}
+
 			if(isNegativeConsumableDisplayCycle == false) {
 				glColor3f(1.f, 1.f, 1.f);
 			}
-
 			renderQuad(j*100+200, metrics.getVirtualH()-30, 16, 16, rt->getImage());
 
 			if(rt->getClass() != rcStatic) {
