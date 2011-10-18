@@ -18,7 +18,7 @@ namespace Shared { namespace Graphics { namespace md5 {
 
 class Md5Object;
 
-class Real;
+//class Real;
 template <typename Real>
 class Matrix4x4;
 typedef Matrix4x4<float> Matrix4x4f;

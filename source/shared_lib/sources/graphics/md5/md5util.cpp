@@ -26,7 +26,7 @@
 #include "Md5Model.h"
 #include "TextureManager.h"
 #include "ArbProgram.h"
-#include "Shader.h"
+#include "ShaderManager.h"
 #include "md5util.h"
 
 namespace Shared { namespace Graphics { namespace md5 {

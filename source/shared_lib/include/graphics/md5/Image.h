@@ -20,11 +20,14 @@
 #ifdef _WIN32
 #define	WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <memory>
 #endif // _WIN32
 
 #include <GL/glew.h>
+#ifndef _WIN32
 //#include <boost/shared_ptr.hpp>
 #include <tr1/memory>
+#endif
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
@@ -39,10 +42,16 @@ using std::cout;
 using std::endl;
 using std::string;
 
+#ifdef _WIN32
+using std::tr1::shared_ptr;
+#endif
+
 namespace Shared { namespace Graphics { namespace md5 {
 
+#ifndef _WIN32
 //using boost::shared_ptr;
 using std::tr1::shared_ptr;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Image class diagram:

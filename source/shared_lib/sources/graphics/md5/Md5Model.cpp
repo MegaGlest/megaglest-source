@@ -28,7 +28,7 @@
 
 #include "Texture.h"
 #include "ArbProgram.h"
-#include "Shader.h"
+#include "ShaderManager.h"
 #include "Md5Model.h"
 
 namespace Shared { namespace Graphics { namespace md5 {
@@ -666,19 +666,15 @@ Md5Mesh::computeWeightTangents (Md5Skeleton *skel)
 // Compute mesh bounding box for a given skeleton.
 // --------------------------------------------------------------------------
 
-void
-Md5Mesh::computeBoundingBox (Md5Skeleton *skel)
-{
-  Vector3f max (-99999.0f, -99999.0f, -99999.0f);
-  Vector3f min ( 99999.0f,  99999.0f,  99999.0f);
+void Md5Mesh::computeBoundingBox (Md5Skeleton *skel) {
+  Vector3f maxValue(-99999.0f, -99999.0f, -99999.0f);
+  Vector3f minValue( 99999.0f,  99999.0f,  99999.0f);
 
-  for (int i = 0; i < _numVerts; ++i)
-    {
+  for (int i = 0; i < _numVerts; ++i) {
       Vector3f finalVertex = kZeroVectorf;
 
       // Calculate final vertex to draw with weights
-      for (int j = 0; j < _verts[i]->countWeight; ++j)
-	{
+      for (int j = 0; j < _verts[i]->countWeight; ++j) {
 	  const Md5Weight_t *pWeight
 	    = _weights[_verts[i]->startWeight + j].get ();
 	  const Md5Joint_t *pJoint
@@ -692,29 +688,28 @@ Md5Mesh::computeBoundingBox (Md5Skeleton *skel)
 	  finalVertex += (pJoint->pos + wv) * pWeight->bias;
 	}
 
-      if (finalVertex._x > max._x)
-	max._x = finalVertex._x;
+      if (finalVertex._x > maxValue._x)
+	maxValue._x = finalVertex._x;
 
-      if (finalVertex._x < min._x)
-	min._x = finalVertex._x;
+      if (finalVertex._x < minValue._x)
+	minValue._x = finalVertex._x;
 
-      if (finalVertex._y > max._y)
-	max._y = finalVertex._y;
+      if (finalVertex._y > maxValue._y)
+	maxValue._y = finalVertex._y;
 
-      if (finalVertex._y < min._y)
-	min._y = finalVertex._y;
+      if (finalVertex._y < minValue._y)
+	minValue._y = finalVertex._y;
 
-      if (finalVertex._z > max._z)
-	max._z = finalVertex._z;
+      if (finalVertex._z > maxValue._z)
+	maxValue._z = finalVertex._z;
 
-      if (finalVertex._z < min._z)
-	min._z = finalVertex._z;
+      if (finalVertex._z < minValue._z)
+	minValue._z = finalVertex._z;
     }
 
-  _boundingBox.min = min;
-  _boundingBox.max = max;
+  _boundingBox.min = minValue;
+  _boundingBox.max = maxValue;
 }
-
 
 // --------------------------------------------------------------------------
 // Md5Mesh::preRenderVertexArrays
@@ -1265,38 +1260,35 @@ Md5Model::anim (const string &name) const
 // Compute model's bounding box in bind-pose.
 // --------------------------------------------------------------------------
 
-void
-Md5Model::computeBindPoseBoundingBox ()
-{
-  Vector3f max (-99999.0f, -99999.0f, -99999.0f);
-  Vector3f min ( 99999.0f,  99999.0f,  99999.0f);
+void Md5Model::computeBindPoseBoundingBox() {
+  Vector3f maxValue(-99999.0f, -99999.0f, -99999.0f);
+  Vector3f minValue( 99999.0f,  99999.0f,  99999.0f);
 
   // Get the min and the max from all mesh bounding boxes
-  for (int i = 0; i < _numMeshes; ++i)
-    {
+  for (int i = 0; i < _numMeshes; ++i) {
       const BoundingBox_t &meshBox = _meshes[i]->boundingBox ();
 
-      if (meshBox.max._x > max._x)
-	max._x = meshBox.max._x;
+      if (meshBox.max._x > maxValue._x)
+	maxValue._x = meshBox.max._x;
 
-      if (meshBox.min._x < min._x)
-	min._x = meshBox.min._x;
+      if (meshBox.min._x < minValue._x)
+	minValue._x = meshBox.min._x;
 
-      if (meshBox.max._y > max._y)
-	max._y = meshBox.max._y;
+      if (meshBox.max._y > maxValue._y)
+	maxValue._y = meshBox.max._y;
 
-      if (meshBox.min._y < min._y)
-	min._y = meshBox.min._y;
+      if (meshBox.min._y < minValue._y)
+	minValue._y = meshBox.min._y;
 
-      if (meshBox.max._z > max._z)
-	max._z = meshBox.max._z;
+      if (meshBox.max._z > maxValue._z)
+	maxValue._z = meshBox.max._z;
 
-      if (meshBox.min._z < min._z)
-	min._z = meshBox.min._z;
+      if (meshBox.min._z < minValue._z)
+	minValue._z = meshBox.min._z;
     }
 
-  _bindPoseBox.min = min;
-  _bindPoseBox.max = max;
+  _bindPoseBox.min = minValue;
+  _bindPoseBox.max = maxValue;
 }
 
 
