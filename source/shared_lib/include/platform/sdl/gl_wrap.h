@@ -76,8 +76,14 @@ static DWORD charSet = DEFAULT_CHARSET;
 static int charSet = 1;
 #endif
 
+#if defined(__APPLE__)
+void inline createGlFontBitmaps(uint32 &base, const string &type, int size, int width, int charCount, FontMetrics &metrics) {}
+void inline createGlFontOutlines(uint32 &base, const string &type, int width, float depth, int charCount, FontMetrics &metrics){}
+#else
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width, int charCount, FontMetrics &metrics);
 void createGlFontOutlines(uint32 &base, const string &type, int width, float depth, int charCount, FontMetrics &metrics);
+#endif
+
 const char *getPlatformExtensions(const PlatformContextGl *pcgl);
 void* getGlProcAddress(const char *procName);
 

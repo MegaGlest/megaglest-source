@@ -18,7 +18,7 @@
 #include "sdl_private.h"
 #include "noimpl.h"
 #include "util.h"
-#include "window.h"
+//#include "window.h"
 #include <vector>
 //#include <SDL_image.h>
 #include "leak_dumper.h"

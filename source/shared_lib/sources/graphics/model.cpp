@@ -138,28 +138,28 @@ void Mesh::BuildVBOs() {
 			//printf("In [%s::%s Line: %d] setting up a VBO...\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// Generate And Bind The Vertex Buffer
-			glGenBuffersARB( 1, &m_nVBOVertices );					// Get A Valid Name
+			glGenBuffersARB( 1,(GLuint*) &m_nVBOVertices );					// Get A Valid Name
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOVertices );			// Bind The Buffer
 			// Load The Data
 			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, getInterpolationData()->getVertices(), GL_STATIC_DRAW_ARB );
 			glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
 			// Generate And Bind The Texture Coordinate Buffer
-			glGenBuffersARB( 1, &m_nVBOTexCoords );					// Get A Valid Name
+			glGenBuffersARB( 1, (GLuint*)&m_nVBOTexCoords );					// Get A Valid Name
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOTexCoords );		// Bind The Buffer
 			// Load The Data
 			glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f)*vertexCount, texCoords, GL_STATIC_DRAW_ARB );
 			glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
 			// Generate And Bind The Normal Buffer
-			glGenBuffersARB( 1, &m_nVBONormals );					// Get A Valid Name
+			glGenBuffersARB( 1, (GLuint*)&m_nVBONormals );					// Get A Valid Name
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBONormals );			// Bind The Buffer
 			// Load The Data
 			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, getInterpolationData()->getNormals(), GL_STATIC_DRAW_ARB );
 			glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
 			// Generate And Bind The Index Buffer
-			glGenBuffersARB( 1, &m_nVBOIndexes );					// Get A Valid Name
+			glGenBuffersARB( 1, (GLuint*)&m_nVBOIndexes );					// Get A Valid Name
 			glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, m_nVBOIndexes );			// Bind The Buffer
 			// Load The Data
 			glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB,  sizeof(uint32)*indexCount, indices, GL_STATIC_DRAW_ARB );
@@ -182,10 +182,10 @@ void Mesh::BuildVBOs() {
 void Mesh::ReleaseVBOs() {
 	if(getVBOSupported() == true) {
 		if(hasBuiltVBOs == true) {
-			glDeleteBuffersARB( 1, &m_nVBOVertices );					// Get A Valid Name
-			glDeleteBuffersARB( 1, &m_nVBOTexCoords );					// Get A Valid Name
-			glDeleteBuffersARB( 1, &m_nVBONormals );					// Get A Valid Name
-			glDeleteBuffersARB( 1, &m_nVBOIndexes );					// Get A Valid Name
+			glDeleteBuffersARB( 1, (GLuint*)&m_nVBOVertices );					// Get A Valid Name
+			glDeleteBuffersARB( 1, (GLuint*)&m_nVBOTexCoords );					// Get A Valid Name
+			glDeleteBuffersARB( 1, (GLuint*)&m_nVBONormals );					// Get A Valid Name
+			glDeleteBuffersARB( 1, (GLuint*)&m_nVBOIndexes );					// Get A Valid Name
 			hasBuiltVBOs = false;
 		}
 	}

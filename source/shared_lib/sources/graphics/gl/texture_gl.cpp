@@ -340,7 +340,7 @@ static std::string getSupportCompressedTextureFormatString(int format) {
 
 static int getNumCompressedTextureFormats() {
     int numCompressedTextureFormats = 0;
-    glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numCompressedTextureFormats);
+    glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, (GLint*)&numCompressedTextureFormats);
     return numCompressedTextureFormats;
 }
 
@@ -349,7 +349,7 @@ static std::vector<int> getSupportCompressedTextureFormats() {
 	int count = getNumCompressedTextureFormats();
 	if(count > 0) {
 		int *formats = new int[count];
-		glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS,&formats[0]);
+		glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS,(GLint*)&formats[0]);
 
 		for(int i = 0; i < count; ++i) {
 			result.push_back(formats[i]);

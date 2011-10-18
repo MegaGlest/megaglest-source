@@ -2635,7 +2635,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		VisibleQuadContainerVBOCache vboCache;
 
 		// Generate And Bind The Vertex Buffer
-		glGenBuffersARB( 1, &vboCache.m_nVBOVertices );					// Get A Valid Name
+		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOVertices );					// Get A Valid Name
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOVertices );			// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, vertices, GL_STATIC_DRAW_ARB );
@@ -2643,7 +2643,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 
 		assertGl();
 		// Generate And Bind The Texture Coordinate Buffer
-		glGenBuffersARB( 1, &vboCache.m_nVBOFowTexCoords );					// Get A Valid Name
+		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOFowTexCoords );					// Get A Valid Name
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOFowTexCoords );		// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoords, GL_STATIC_DRAW_ARB );
@@ -2651,7 +2651,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 
 		assertGl();
 		// Generate And Bind The Texture Coordinate Buffer
-		glGenBuffersARB( 1, &vboCache.m_nVBOSurfaceTexCoords );					// Get A Valid Name
+		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOSurfaceTexCoords );					// Get A Valid Name
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOSurfaceTexCoords );		// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoordsSurface, GL_STATIC_DRAW_ARB );
@@ -2659,7 +2659,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 
 		assertGl();
 		// Generate And Bind The Normal Buffer
-		glGenBuffersARB( 1, &vboCache.m_nVBONormals );					// Get A Valid Name
+		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBONormals );					// Get A Valid Name
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBONormals );			// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, normals, GL_STATIC_DRAW_ARB );
@@ -2685,10 +2685,10 @@ void Renderer::ReleaseSurfaceVBOs() {
 
 		VisibleQuadContainerVBOCache &item = iterFind->second;
 		if(item.hasBuiltVBOs == true) {
-			glDeleteBuffersARB( 1, &item.m_nVBOVertices );					// Get A Valid Name
-			glDeleteBuffersARB( 1, &item.m_nVBOFowTexCoords );					// Get A Valid Name
-			glDeleteBuffersARB( 1, &item.m_nVBOSurfaceTexCoords );					// Get A Valid Name
-			glDeleteBuffersARB( 1, &item.m_nVBONormals );					// Get A Valid Name
+			glDeleteBuffersARB( 1, (GLuint*)&item.m_nVBOVertices );					// Get A Valid Name
+			glDeleteBuffersARB( 1, (GLuint*)&item.m_nVBOFowTexCoords );					// Get A Valid Name
+			glDeleteBuffersARB( 1, (GLuint*)&item.m_nVBOSurfaceTexCoords );					// Get A Valid Name
+			glDeleteBuffersARB( 1, (GLuint*)&item.m_nVBONormals );					// Get A Valid Name
 			//glDeleteBuffersARB( 1, &item.m_nVBOIndexes );					// Get A Valid Name
 		}
 	}

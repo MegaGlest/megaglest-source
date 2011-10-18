@@ -1367,9 +1367,13 @@ GlCanvas::~GlCanvas() {
 }
 
 void GlCanvas::setCurrentGLContext() {
-	if(this->context) {
+#ifndef __APPLE__
+	if(this->context) { 
 		this->SetCurrent(*this->context);
 	}
+#else
+        this->SetCurrent();
+#endif
 }
 
 void translateCoords(wxWindow *wnd, int &x, int &y) {

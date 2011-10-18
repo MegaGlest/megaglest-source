@@ -31,7 +31,7 @@ namespace Shared { namespace Platform {
 // ======================================
 //	Global Fcs  
 // ======================================
-
+#if !defined(__APPLE__)
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 						 int charCount, FontMetrics &metrics) {
 
@@ -155,5 +155,6 @@ void createGlFontOutlines(uint32 &base, const string &type, int width,
 	NOIMPL;
 }
 
+#endif
 
 }}//end namespace 
