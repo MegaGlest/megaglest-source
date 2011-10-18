@@ -5,13 +5,24 @@ NUMCORES=`cat /proc/cpuinfo | grep -cE '^processor'`
 mkdir -p build
 cd build
 
-[[ -f "CMakeCache.txt" ]] && rm -f "CMakeCache.txt"
+if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
+
 # This is for regular developers and used by our installer
 cmake -DCMAKE_INSTALL_PREFIX= -DWANT_STATIC_LIBS=ON ..
+if [ $? -ne 0 ]; then 
+  echo 'ERROR: CMAKE failed.' >&2; exit 1
+fi
+
 make -j$NUMCORES
+if [ $? -ne 0 ]; then
+  echo 'ERROR: MAKE failed.' >&2; exit 2
+fi
 
 cd ..
-echo 'You may now launch MegaGlest from this directory like this:'
-echo 'mk/linux/megaglest --ini-path=mk/linux/ --data-path=mk/linux/'
-echo 'or from within the build directory:'
-echo '../mk/linux/megaglest --ini-path=../mk/linux/ --data-path=../mk/linux/'
+echo ''
+echo 'BUILD COMPLETE.'
+echo ''
+echo 'To launch MegaGlest from the current directory, use:'
+echo '  mk/linux/megaglest --ini-path=mk/linux/ --data-path=mk/linux/'
+echo 'To launch MegaGlest from within the build directory, use:'
+echo '  ../mk/linux/megaglest --ini-path=../mk/linux/ --data-path=../mk/linux/'
