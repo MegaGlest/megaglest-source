@@ -1583,43 +1583,62 @@ void Renderer::renderResourceStatus() {
 	const Metrics &metrics= Metrics::getInstance();
 	const World *world= game->getWorld();
 	const Faction *thisFaction= world->getFaction(world->getThisFactionIndex());
-	const Vec4f fontColor=game->getGui()->getDisplay()->getColor();
+	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
 	assertGl();
 
 	glPushAttrib(GL_ENABLE_BIT);
 
 	int j= 0;
-	for(int i= 0; i<world->getTechTree()->getResourceTypeCount(); ++i){
-		const ResourceType *rt= world->getTechTree()->getResourceType(i);
-		const Resource *r= thisFaction->getResource(rt);
+	for(int i= 0; i < world->getTechTree()->getResourceTypeCount(); ++i) {
+		const ResourceType *rt = world->getTechTree()->getResourceType(i);
+		const Resource *r = thisFaction->getResource(rt);
 
 		//if any unit produces the resource
 		bool showResource= false;
-		for(int k=0; k<thisFaction->getType()->getUnitTypeCount(); ++k){
-			const UnitType *ut= thisFaction->getType()->getUnitType(k);
-			if(ut->getCost(rt)!=NULL){
-				showResource= true;
+		for(int k=0; k < thisFaction->getType()->getUnitTypeCount(); ++k) {
+			const UnitType *ut = thisFaction->getType()->getUnitType(k);
+			if(ut->getCost(rt) != NULL) {
+				showResource = true;
 				break;
 			}
 		}
 
 		//draw resource status
-		if(showResource){
-
+		if(showResource) {
 			string str= intToStr(r->getAmount());
 
 			glEnable(GL_TEXTURE_2D);
-			glColor3f(1.f, 1.f, 1.f);
+
+			Vec4f resourceFontColor = fontColor;
+
+			bool isNegativeConsumableDisplayCycle = false;
+			if(rt->getClass() == rcConsumable) {
+				// Show in red font if negative
+				const double minWarnPercent = 25.0;
+				//if(r->getBalance() < 0) {
+				if(r->getBalance() < 0 &&
+					((thisFaction->getStoreAmount(rt) > 0 && (double)r->getAmount() / (double)thisFaction->getStoreAmount(rt) * 100.0 <= minWarnPercent) ||
+					 (thisFaction->getStoreAmount(rt) <= 0 && (double)r->getAmount() <= minWarnPercent))) {
+					if(time(NULL) % 2 == 0) {
+						isNegativeConsumableDisplayCycle = true;
+						glColor3f(RED.x,RED.y,RED.z);
+						resourceFontColor = RED;
+					}
+					//printf("Balance is negative!");
+				}
+			}
+			if(isNegativeConsumableDisplayCycle == false) {
+				glColor3f(1.f, 1.f, 1.f);
+			}
 
 			renderQuad(j*100+200, metrics.getVirtualH()-30, 16, 16, rt->getImage());
 
-			if(rt->getClass() != rcStatic)
-			{
+			if(rt->getClass() != rcStatic) {
 				str+= "/" + intToStr(thisFaction->getStoreAmount(rt));
 			}
-			if(rt->getClass()==rcConsumable){
+			if(rt->getClass() == rcConsumable) {
 				str+= "(";
-				if(r->getBalance()>0){
+				if(r->getBalance() > 0) {
 					str+= "+";
 				}
 				str+= intToStr(r->getBalance()) + ")";
@@ -1630,18 +1649,17 @@ void Renderer::renderResourceStatus() {
 			if(renderText3DEnabled == true) {
 				renderTextShadow3D(
 					str, CoreData::getInstance().getDisplayFontSmall3D(),
-					fontColor,
+					resourceFontColor,
 					j*100+220, metrics.getVirtualH()-30, false);
 			}
 			else {
 				renderTextShadow(
 					str, CoreData::getInstance().getDisplayFontSmall(),
-					fontColor,
+					resourceFontColor,
 					j*100+220, metrics.getVirtualH()-30, false);
 			}
 			++j;
 		}
-
 	}
 
 	glPopAttrib();

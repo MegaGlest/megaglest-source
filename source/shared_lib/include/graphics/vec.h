@@ -404,8 +404,15 @@ public:
 	T z;
 	T w;
 public:
-	Vec4(){
+	Vec4() {
 	};
+
+	explicit Vec4(const T *p){
+		this->x= p[0];
+		this->y= p[1];
+		this->z= p[2];
+		this->w= p[3];
+	}
 
 	explicit Vec4(T *p){
 		this->x= p[0];
