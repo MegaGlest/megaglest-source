@@ -382,6 +382,16 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		listBoxPublishServer.setSelectedItemIndex(1);
 	}
 
+	labelGameNameLabel.registerGraphicComponent(containerName,"labelGameNameLabel");
+	labelGameNameLabel.init(50, networkHeadPos-2*labelOffset-3,100);
+	labelGameNameLabel.setText(lang.get("MGGameTitle")+":");
+
+	labelGameName.registerGraphicComponent(containerName,"labelGameName");
+	labelGameName.init(110, networkHeadPos-2*labelOffset,100);
+	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
+	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelGameName.setText(defaultPlayerName+"'s game");
+
 	// Network Frame Period
 	//labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
 	//labelNetworkFramePeriod.init(xoffset+230, networkHeadPos, 80);
@@ -731,6 +741,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                 }
             }
         }
+        else if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y)))
+        {
+        	setActiveInputLabel(NULL);
+        }
         else if(buttonReturn.mouseClick(x,y) || serverInitError == true) {
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -915,6 +929,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
             ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
             serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
         }
+        else if(labelGameName.mouseClick(x, y) && listBoxPublishServer.getEditable()){
+        	setActiveInputLabel(&labelGameName);
+        }
         else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
             MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
@@ -1072,7 +1089,11 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                     }
                 }
                 else if(labelPlayerNames[i].mouseClick(x, y)) {
-                    SetActivePlayerNameEditor();
+                	ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+                	if(ct == ctHuman) {
+                		setActiveInputLabel(&labelPlayerNames[i]);
+                		break;
+                	}
                 }
             }
         }
@@ -1154,19 +1175,6 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 		}
 		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
 		listBoxRMultiplier[index].setVisible(listBoxRMultiplier[index].getEnabled());
-}
-
-
-
-
-void MenuStateCustomGame::SetActivePlayerNameEditor() {
-	for(int i = 0; i < mapInfo.players; ++i) {
-		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
-		if(ct == ctHuman) {
-			setActiveInputLabel(&labelPlayerNames[i]);
-			break;
-		}
-	}
 }
 
 void MenuStateCustomGame::RestoreLastGameSettings() {
@@ -1404,21 +1412,14 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 	buttonRestoreLastSettings.mouseMove(x, y);
 	buttonClearBlockedPlayers.mouseMove(x, y);
 
-	bool editingPlayerName = false;
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		listBoxRMultiplier[i].mouseMove(x, y);
         listBoxControls[i].mouseMove(x, y);
         buttonBlockPlayers[i].mouseMove(x, y);
         listBoxFactions[i].mouseMove(x, y);
 		listBoxTeams[i].mouseMove(x, y);
-
-		if(labelPlayerNames[i].mouseMove(x, y) == true) {
-			editingPlayerName = true;
-		}
     }
-	if(editingPlayerName == false) {
-		setActiveInputLabel(NULL);
-	}
+
 	listBoxMap.mouseMove(x, y);
 	if(listBoxAdvanced.getSelectedItemIndex() == 1) {
 		listBoxFogOfWar.mouseMove(x, y);
@@ -1601,7 +1602,8 @@ void MenuStateCustomGame::render() {
 			{
 				renderer.renderListBox(&listBoxPublishServer);
 				renderer.renderLabel(&labelPublishServer);
-
+				renderer.renderLabel(&labelGameName);
+				renderer.renderLabel(&labelGameNameLabel);
 				if(listBoxAdvanced.getSelectedItemIndex() == 1) {
 					//renderer.renderListBox(&listBoxEnableServerControlledAI);
 					//renderer.renderLabel(&labelEnableServerControlledAI);
@@ -2300,6 +2302,7 @@ void MenuStateCustomGame::publishToMasterserver() {
 
 	//game info:
 	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game";
+	publishToServerInfo["serverTitle"] = labelGameName.getText();
 	//ip is automatically set
 
 	//game setup info:
@@ -3430,32 +3433,33 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 
 	if(activeInputLabel != NULL) {
 		int maxTextSize= 16;
-	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-			if(&labelPlayerNames[i] == activeInputLabel) {
-				SDLKey key = extractKeyPressed(c);
-				//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
-				//   (c=='-') || (c=='(') || (c==')')) {
-				if(isAllowedInputTextKey(key)) {
-					if(activeInputLabel->getText().size() < maxTextSize) {
-						string text= activeInputLabel->getText();
-						//text.insert(text.end()-1, key);
-						char szCharText[20]="";
-						sprintf(szCharText,"%c",key);
-						char *utfStr = String::ConvertToUTF8(&szCharText[0]);
-						text.insert(text.end() -1, utfStr[0]);
-						delete [] utfStr;
+	if(&labelGameName == activeInputLabel) {
+		maxTextSize= 20;
+	}
 
-						activeInputLabel->setText(text);
+		SDLKey key = extractKeyPressed(c);
+		//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
+		//   (c=='-') || (c=='(') || (c==')')) {
+		if(isAllowedInputTextKey(key)) {
+			if(activeInputLabel->getText().size() < maxTextSize) {
+				string text= activeInputLabel->getText();
+				//text.insert(text.end()-1, key);
+				char szCharText[20]="";
+				sprintf(szCharText,"%c",key);
+				char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+				text.insert(text.end() -1, utfStr[0]);
+				delete [] utfStr;
 
-						MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				        if(hasNetworkGameSettings() == true) {
-				            needToSetChangedGameSettings = true;
-				            lastSetChangedGameSettings   = time(NULL);
-				        }
+				activeInputLabel->setText(text);
+				if(&labelGameName != activeInputLabel){
+					MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+					if(hasNetworkGameSettings() == true) {
+						needToSetChangedGameSettings = true;
+						lastSetChangedGameSettings   = time(NULL);
 					}
 				}
 			}
-	    }
+		}
 	}
 	else {
 		if(hasNetworkGameSettings() == true) {
