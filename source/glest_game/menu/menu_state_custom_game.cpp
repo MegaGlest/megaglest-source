@@ -390,11 +390,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelGameName.init(110, networkHeadPos-2*labelOffset,100);
 	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	if(Window::getMasterserverMode() == false) {
+	if(this->masterserverMode == false) {
 		labelGameName.setText(defaultPlayerName+"'s game");
 	}
 	else {
-		labelGameName.setText("headless("+defaultPlayerName+")");
+		labelGameName.setText("headless ("+defaultPlayerName+")");
 	}
 	// Network Frame Period
 	//labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
@@ -2776,9 +2776,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			}
 		}
 	}
-	if(!masterserver_admin_found)
-	{
-		labelGameName.setText("headless("+defaultPlayerName+")");
+
+	if(this->masterserverMode == true && !masterserver_admin_found) {
+		labelGameName.setText("headless ("+defaultPlayerName+")");
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
