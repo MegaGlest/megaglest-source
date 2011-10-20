@@ -46,7 +46,8 @@ private:
 	GraphicLabel labelEnableObserverMode;
 	//GraphicLabel labelEnableServerControlledAI;
 	GraphicLabel labelLocalIP;
-
+	GraphicLabel labelGameName;
+	GraphicLabel labelGameNameLabel;
 
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
