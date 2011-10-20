@@ -390,8 +390,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelGameName.init(110, networkHeadPos-2*labelOffset,100);
 	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelGameName.setText(defaultPlayerName+"'s game");
-
+	if(Window::getMasterserverMode() == false) {
+		labelGameName.setText(defaultPlayerName+"'s game");
+	}
+	else {
+		labelGameName.setText("headless("+defaultPlayerName+")");
+	}
 	// Network Frame Period
 	//labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
 	//labelNetworkFramePeriod.init(xoffset+230, networkHeadPos, 80);
@@ -2741,7 +2745,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	}
 
 	//printf("this->masterserverMode = %d\n",this->masterserverMode);
-
+	bool masterserver_admin_found=false;
 	if(this->masterserverMode == true) {
 		time_t clientConnectedTime = 0;
 
@@ -2762,14 +2766,20 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 							(serverInterface->getSlot(i)->getConnectedTime() > 0 && serverInterface->getSlot(i)->getConnectedTime() < clientConnectedTime)) {
 						clientConnectedTime = serverInterface->getSlot(i)->getConnectedTime();
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());
-
+						labelGameName.setText(serverInterface->getSlot(i)->getName()+" controls");
 						//printf("slot = %d, admin key [%d] slot connected time[%lu] clientConnectedTime [%lu]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
+					}
+					if(serverInterface->getSlot(i)->getSessionKey() == gameSettings->getMasterserver_admin()){
+						masterserver_admin_found=true;
 					}
 				}
 			}
 		}
 	}
-
+	if(!masterserver_admin_found)
+	{
+		labelGameName.setText("headless("+defaultPlayerName+")");
+	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
