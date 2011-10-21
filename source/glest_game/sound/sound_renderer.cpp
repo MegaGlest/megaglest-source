@@ -240,14 +240,14 @@ void SoundRenderer::stopAmbient(StrSound *strSound) {
 
 // ======================= Misc ============================
 
-void SoundRenderer::stopAllSounds() {
+void SoundRenderer::stopAllSounds(int64 fadeOff) {
     if(soundPlayer != NULL) {
         MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
     	if(runThreadSafe == true) {
     	    safeMutex.setMutex(&mutex);
     	}
 
-        soundPlayer->stopAllSounds();
+        soundPlayer->stopAllSounds(fadeOff);
     }
 }
 

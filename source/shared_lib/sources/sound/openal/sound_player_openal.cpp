@@ -505,7 +505,7 @@ void SoundPlayerOpenAL::stop(StrSound* strSound, int64 fadeOff) {
 	}
 }
 
-void SoundPlayerOpenAL::stopAllSounds() {
+void SoundPlayerOpenAL::stopAllSounds(int64 fadeOff) {
 	if(initOk == false) return;
 
 	for(StaticSoundSources::iterator i = staticSources.begin();
@@ -516,7 +516,7 @@ void SoundPlayerOpenAL::stopAllSounds() {
 	for(StreamSoundSources::iterator i = streamSources.begin();
 			i != streamSources.end(); ++i) {
 		StreamSoundSource* source = *i;
-		source->stop();
+		source->stop(fadeOff);
 	}
 }
 

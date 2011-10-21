@@ -427,12 +427,12 @@ void SoundPlayerDs8::stop(StrSound *strSound, int64 fadeOff){
 	}
 }
 
-void SoundPlayerDs8::stopAllSounds(){
+void SoundPlayerDs8::stopAllSounds(int64 fadeOff){
 	if(initOk == false) return;
 
 	for(unsigned int i=0; i<params.strBufferCount; ++i){
 		if(!strSoundBuffers[i].isFree()){
-			strSoundBuffers[i].stop(0);
+			strSoundBuffers[i].stop(fadeOff);
 			strSoundBuffers[i].end();
 		}
 	}

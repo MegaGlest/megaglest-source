@@ -34,8 +34,10 @@ namespace Glest{ namespace Game{
 // 	class BattleEnd  
 // =====================================================
 
-BattleEnd::BattleEnd(Program *program, const Stats *stats): ProgramState(program) {
+BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originState): ProgramState(program) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] stats = %p\n",__FILE__,__FUNCTION__,__LINE__,stats);
+
+	this->originState = originState;
 	if(stats != NULL) {
 		this->stats= *stats;
 	}
@@ -60,6 +62,9 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats): ProgramState(program
 
 BattleEnd::~BattleEnd() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	delete originState;
+	originState = NULL;
 
 	SoundRenderer::getInstance().playMusic(CoreData::getInstance().getMenuMusic());
 

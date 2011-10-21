@@ -34,11 +34,12 @@ private:
 	int mouse2d;
 	GraphicMessageBox mainMessageBox;
 	Texture2D *renderToTexture;
+	ProgramState *originState;
 
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
 public:
-	BattleEnd(Program *program, const Stats *stats);
+	BattleEnd(Program *program, const Stats *stats, ProgramState *originState);
 	~BattleEnd();
 
 	virtual void update();
