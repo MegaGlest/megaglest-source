@@ -201,6 +201,8 @@ public:
 
 	virtual void consoleAddLine(string line);
 
+	virtual SimpleTaskThread * getSoundThreadManager(bool takeOwnership);
+
 private:
 
 	void setDisplaySettings();

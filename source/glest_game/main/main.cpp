@@ -2400,6 +2400,10 @@ int glestMain(int argc, char** argv) {
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
 
+	const int shutdownFadeSoundMilliseconds = 3500;
+	Chrono chronoshutdownFadeSound;
+	SimpleTaskThread *soundThreadManager = NULL;
+
 	try {
         // Setup paths to game items (like data, logs, ini etc)
         int setupResult = setupGameItemPaths(argc, argv, NULL);
@@ -3430,6 +3434,15 @@ int glestMain(int argc, char** argv) {
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] starting normal application shutdown\n",__FILE__,__FUNCTION__,__LINE__);
 
+		if(isMasterServerModeEnabled == false) {
+			soundThreadManager = program->getSoundThreadManager(true);
+			if(soundThreadManager) {
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
+				chronoshutdownFadeSound.start();
+			}
+		}
+
 		cleanupCRCThread();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -3437,16 +3450,52 @@ int glestMain(int argc, char** argv) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	catch(const exception &e){
+	catch(const exception &e) {
+		if(isMasterServerModeEnabled == false) {
+			soundThreadManager = program->getSoundThreadManager(true);
+			if(soundThreadManager) {
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
+				chronoshutdownFadeSound.start();
+			}
+		}
+
 		ExceptionHandler::handleRuntimeError(e.what());
 	}
-	catch(const char *e){
+	catch(const char *e) {
+		if(isMasterServerModeEnabled == false) {
+			soundThreadManager = program->getSoundThreadManager(true);
+			if(soundThreadManager) {
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
+				chronoshutdownFadeSound.start();
+			}
+		}
+
 		ExceptionHandler::handleRuntimeError(e);
 	}
-	catch(const string &ex){
+	catch(const string &ex) {
+		if(isMasterServerModeEnabled == false) {
+			soundThreadManager = program->getSoundThreadManager(true);
+			if(soundThreadManager) {
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
+				chronoshutdownFadeSound.start();
+			}
+		}
+
 		ExceptionHandler::handleRuntimeError(ex.c_str());
 	}
-	catch(...){
+	catch(...) {
+		if(isMasterServerModeEnabled == false) {
+			soundThreadManager = program->getSoundThreadManager(true);
+			if(soundThreadManager) {
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
+				chronoshutdownFadeSound.start();
+			}
+		}
+
 		ExceptionHandler::handleRuntimeError("Unknown error!");
 	}
 
@@ -3469,6 +3518,17 @@ int glestMain(int argc, char** argv) {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(soundThreadManager) {
+		//printf("chronoshutdownFadeSound.getMillis() = %llu\n",chronoshutdownFadeSound.getMillis());
+		for(;chronoshutdownFadeSound.getMillis() <= shutdownFadeSoundMilliseconds;) {
+			sleep(10);
+		}
+
+		BaseThread::shutdownAndWait(soundThreadManager);
+		delete soundThreadManager;
+		soundThreadManager = NULL;
+	}
 
 	return 0;
 }
