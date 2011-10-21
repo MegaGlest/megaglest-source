@@ -145,6 +145,8 @@ private:
 
 	bool masterserverMode;
 
+	StrSound *currentAmbientSound;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
