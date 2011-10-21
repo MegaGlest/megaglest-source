@@ -46,7 +46,7 @@ const float PHOTO_MODE_MAXHEIGHT = 500.0;
 const int CREATE_NEW_TEAM = -100;
 const int CANCEL_SWITCH_TEAM = -1;
 
-const int fadeMusicMilliseconds = 3500;
+int fadeMusicMilliseconds = 3500;
 
 Game::Game() : ProgramState(NULL) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -106,6 +106,8 @@ Game::Game() : ProgramState(NULL) {
 	currentUIState=NULL;
 	currentAmbientSound=NULL;
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+
+	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 }
 
 void Game::resetMembers() {
@@ -173,6 +175,8 @@ void Game::resetMembers() {
 
 	currentAmbientSound=NULL;
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+
+	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 
 	Object::setStateCallback(&gui);
 
