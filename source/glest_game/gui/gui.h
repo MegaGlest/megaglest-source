@@ -97,9 +97,11 @@ class Gui : public ObjectStateInterface {
 public:
 	static const int maxSelBuff= 128*5;
 	static const int upgradeDisplayIndex= 8;
-	static const int cancelPos= 15;
+
 	static const int meetingPointPos= 14;
+	static const int cancelPos= 15;
 	static const int imageCount= 16;
+
 	static const int invalidPos= -1;
 	static const int doubleClickSelectionRadius= 20;
 
