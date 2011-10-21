@@ -712,4 +712,12 @@ void Program::consoleAddLine(string line) {
 	}
 }
 
+SimpleTaskThread * Program::getSoundThreadManager(bool takeOwnership) {
+	SimpleTaskThread *result = soundThreadManager;
+	if(takeOwnership) {
+		soundThreadManager = NULL;
+	}
+	return result;
+}
+
 }}//end namespace
