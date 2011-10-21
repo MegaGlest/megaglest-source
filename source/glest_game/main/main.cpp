@@ -2400,7 +2400,7 @@ int glestMain(int argc, char** argv) {
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
 
-	const int shutdownFadeSoundMilliseconds = 3500;
+	int shutdownFadeSoundMilliseconds = 1750;
 	Chrono chronoshutdownFadeSound;
 	SimpleTaskThread *soundThreadManager = NULL;
 
@@ -2414,6 +2414,8 @@ int glestMain(int argc, char** argv) {
 		// Attempt to read ini files
 		Config &config = Config::getInstance();
 		setupGameItemPaths(argc, argv, &config);
+
+		shutdownFadeSoundMilliseconds = config.getInt("ShutdownFadeSoundMilliseconds",intToStr(shutdownFadeSoundMilliseconds).c_str());
 
 	    string userData = config.getString("UserData_Root","");
 	    if(userData != "") {
