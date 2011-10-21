@@ -266,6 +266,7 @@ std::vector<std::string> FactionType::validateFactionType() {
     		}
     	}
 
+    	int morphCommandCount = 0;
     	for(int j = 0; j < unitType.getCommandTypeCount(); ++j) {
     		const CommandType *cmdType = unitType.getCommandType(j);
     		if(cmdType != NULL) {
@@ -362,6 +363,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 				if(cmdType->getClass() == ccMorph) {
 					const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
 					if(morph != NULL) {
+						morphCommandCount++;
 						const UnitType *morphUnit = morph->getMorphUnit();
 
 						// Now lets find the unit that we should be able to morph
@@ -384,6 +386,13 @@ std::vector<std::string> FactionType::validateFactionType() {
 				}
     		}
     	}
+
+    	const int maxMorphsAllowed = 6;
+		if(morphCommandCount > maxMorphsAllowed) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"The Unit [%s] in Faction [%s] has more than %d morph commands which is too many to display in the UI!",unitType.getName().c_str(),this->getName().c_str(),maxMorphsAllowed);
+			results.push_back(szBuf);
+		}
 
 		// Check every unit's unit requirements to validate that for every unit-requirements
 		// we have the units required in the faction.

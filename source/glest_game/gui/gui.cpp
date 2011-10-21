@@ -739,14 +739,14 @@ void Gui::computeDisplay(){
 
 	// ================ PART 1 ================
 
-	if(selection.isEmpty() && selectedResourceObject!=NULL){
+	if(selection.isEmpty() && selectedResourceObject != NULL) {
 		Resource *r = selectedResourceObject->getResource();
 		display.setTitle(r->getType()->getName());
 		display.setText(lang.get("Amount")+ ": "+intToStr(r->getAmount())+" / "+intToStr(r->getType()->getDefResPerPatch()));
 		//display.setProgressBar(r->);
 		display.setUpImage(0, r->getType()->getImage());
 	}
-	else{
+	else {
 		//title, text and progress bar
 		if(selection.getCount() == 1){
 			display.setTitle(selection.getFrontUnit()->getFullName());
@@ -766,7 +766,9 @@ void Gui::computeDisplay(){
 			display.setDownSelectedPos(activePos);
 		}
 
-		if(selection.isCommandable()){
+		//printf("computeDisplay selection.isCommandable() = %d\n",selection.isCommandable());
+
+		if(selection.isCommandable()) {
 			//printf("selection.isComandable()\n");
 
 			if(selectingBuilding == false){
@@ -774,7 +776,7 @@ void Gui::computeDisplay(){
 				//cancel button
 				const Unit *u= selection.getFrontUnit();
 				const UnitType *ut= u->getType();
-				if(selection.isCancelable()){
+				if(selection.isCancelable()) {
 					//printf("selection.isCancelable() commandcount = %d\n",selection.getUnit(0)->getCommandSize());
 					if(selection.getUnit(0)->getCommandSize() > 0){
 						//printf("Current Command [%s]\n",selection.getUnit(0)->getCurrCommand()->toString().c_str());
@@ -792,7 +794,10 @@ void Gui::computeDisplay(){
 					display.setDownLighted(meetingPointPos, true);
 				}
 
-				if(selection.isUniform()){
+
+				//printf("computeDisplay selection.isUniform() = %d\n",selection.isUniform());
+
+				if(selection.isUniform()) {
 					//printf("selection.isUniform()\n");
 
 					//uniform selection
@@ -803,11 +808,15 @@ void Gui::computeDisplay(){
 						for(int i= 0; i < ut->getCommandTypeCount(); ++i){
 							int displayPos= i;
 							const CommandType *ct= ut->getCommandType(i);
-							if(ct->getClass() == ccMorph){
+							if(ct->getClass() == ccMorph) {
 								displayPos= morphPos++;
 							}
+
+							//printf("computeDisplay i = %d displayPos = %d morphPos = %d ct->getClass() = %d [%s]\n",i,displayPos,morphPos,ct->getClass(),ct->getName().c_str());
+
 							display.setDownImage(displayPos, ct->getImage());
 							display.setCommandType(displayPos, ct);
+							display.setCommandClass(displayPos, ct->getClass());
 							display.setDownLighted(displayPos, u->getFaction()->reqsOk(ct));
 						}
 					}
@@ -819,6 +828,9 @@ void Gui::computeDisplay(){
 					int lastCommand= 0;
 					for(int i= 0; i < ccCount; ++i){
 						CommandClass cc= static_cast<CommandClass> (i);
+
+						//printf("computeDisplay i = %d cc = %d isshared = %d lastCommand = %d\n",i,cc,isSharedCommandClass(cc),lastCommand);
+
 						if(isSharedCommandClass(cc) && cc != ccBuild){
 							display.setDownLighted(lastCommand, true);
 							display.setDownImage(lastCommand, ut->getFirstCtOfClass(cc)->getImage());
@@ -857,45 +869,55 @@ void Gui::computeDisplay(){
 int Gui::computePosDisplay(int x, int y){
 	int posDisplay= display.computeDownIndex(x, y);
 
-	if(posDisplay<0 || posDisplay>=Display::downCellCount){
+	//printf("computePosDisplay x = %d y = %d posDisplay = %d Display::downCellCount = %d cc = %d ct = %p\n",x,y,posDisplay,Display::downCellCount,display.getCommandClass(posDisplay),display.getCommandType(posDisplay));
+
+	if(posDisplay < 0 || posDisplay >= Display::downCellCount) {
 		posDisplay= invalidPos;
+		//printf("In [%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	else if(selection.isCommandable()){
-		if(posDisplay!=cancelPos){
-			if(posDisplay!=meetingPointPos){
-				if(!selectingBuilding){
+	else if(selection.isCommandable()) {
+		if(posDisplay != cancelPos) {
+			if(posDisplay != meetingPointPos) {
+				if(selectingBuilding == false) {
 					//standard selection
-					if(display.getCommandClass(posDisplay)==ccNull && display.getCommandType(posDisplay)==NULL){
+					if(display.getCommandClass(posDisplay) == ccNull && display.getCommandType(posDisplay) == NULL) {
 						posDisplay= invalidPos;
+						//printf("In [%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 				}
-				else{
+				else {
 					//building selection
-					if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
+					if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild){
 						const BuildCommandType *bct= static_cast<const BuildCommandType*>(activeCommandType);
-						if(posDisplay>=bct->getBuildingCount()){
+						if(posDisplay >= bct->getBuildingCount()) {
 							posDisplay= invalidPos;
+							//printf("In [%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 						}
 					}
 				}
 			}
 			else{
 				//check meeting point
-				if(!selection.isMeetable()){
+				if(!selection.isMeetable()) {
 					posDisplay= invalidPos;
+					//printf("In [%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 				}
 			}
 		}
-		else{
+		else {
 			//check cancel button
-			if(!selection.isCancelable()){
+			if(selection.isCancelable() == false) {
 				posDisplay= invalidPos;
+				//printf("In [%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 		}
 	}
-	else{
+	else {
         posDisplay= invalidPos;
+        //printf("In [%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
     }
+
+	//printf("computePosDisplay returning = %d\n",posDisplay);
 
 	return posDisplay;
 }
