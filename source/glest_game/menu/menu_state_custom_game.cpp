@@ -2745,10 +2745,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	}
 
 	//printf("this->masterserverMode = %d\n",this->masterserverMode);
-	bool masterserver_admin_found=false;
+
 	if(this->masterserverMode == true) {
 		time_t clientConnectedTime = 0;
-
+		bool masterserver_admin_found=false;
 		//printf("mapInfo.players [%d]\n",mapInfo.players);
 
 		for(int i= 0; i < mapInfo.players; ++i) {
@@ -2775,11 +2775,12 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				}
 			}
 		}
+		if(!masterserver_admin_found)
+		{
+			labelGameName.setText("headless("+defaultPlayerName+")");
+		}
 	}
 
-	if(this->masterserverMode == true && !masterserver_admin_found) {
-		labelGameName.setText("headless ("+defaultPlayerName+")");
-	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
