@@ -586,6 +586,12 @@ upnpDiscover(int delay, const char * multicastif,
 		}
 		for(p = servinfo; p; p = p->ai_next) {
 			n = sendto(sudp, bufr, n, 0, p->ai_addr, p->ai_addrlen);
+
+#ifdef DEBUG
+			struct sockaddr_in *saddrin = (struct sockaddr_in *)p->ai_addr;
+			printf("sendto returned %d [%s] to host [%s]\n", n,bufr,inet_ntoa(saddrin->sin_addr));
+#endif
+
 			if (n < 0) {
 				PRINT_SOCKET_ERROR("sendto");
 				continue;
@@ -601,6 +607,11 @@ upnpDiscover(int delay, const char * multicastif,
 	}
 	/* Waiting for SSDP REPLY packet to M-SEARCH */
 	n = receivedata(sudp, bufr, sizeof(bufr), delay);
+
+#ifdef DEBUG
+	printf("receivedata returned %d [%s]\n", n,bufr);
+#endif
+
 	if (n < 0) {
 		/* error */
 		if(error)

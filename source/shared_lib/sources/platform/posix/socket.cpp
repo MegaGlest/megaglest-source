@@ -2147,15 +2147,34 @@ int UPNP_Tools::upnp_init(void *param) {
 	if(UPNP_Tools::isUPNP) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Searching for UPnP devices for automatic port forwarding...\n");
 
-		int ipv6 = 0;
+		int upnp_delay = 5000;
+		const char *upnp_multicastif = NULL;
+		const char *upnp_minissdpdsock = NULL;
+		int upnp_sameport = 0;
+		int upnp_ipv6 = 0;
+		int upnp_error = 0;
+
 #ifndef MINIUPNPC_VERSION_PRE1_6
-		devlist = upnpDiscover(2000, NULL, NULL, 0, ipv6, NULL);
+		devlist = upnpDiscover(upnp_delay, upnp_multicastif, upnp_minissdpdsock, upnp_sameport, upnp_ipv6, &upnp_error);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP discover returned upnp_error = %d.\n",upnp_error);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("UPnP discover returned upnp_error = %d.\n",upnp_error);
+
 #else
-		devlist = upnpDiscover(2000, NULL, NULL, 0);
+		devlist = upnpDiscover(upnp_delay, upnp_multicastif, upnp_minissdpdsock, upnp_sameport);
 #endif
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device search finished.\n");
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device search finished devlist = %p.\n",devlist);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("UPnP device search finished devlist = %p.\n",devlist);
 
 		if (devlist) {
+			dev = devlist;
+			while (dev) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP discover deviceList [%s].\n",(dev->st ? dev->st : "null"));
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("UPnP discover deviceList [%s].\n",(dev->st ? dev->st : "null"));
+
+				dev = dev->pNext;
+			}
+
 			dev = devlist;
 			while (dev) {
 				if (strstr(dev->st, "InternetGatewayDevice")) {
@@ -2168,9 +2187,11 @@ int UPNP_Tools::upnp_init(void *param) {
 			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device found: %s %s\n", dev->descURL, dev->st);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("UPnP device found: %s %s\n", dev->descURL, dev->st);
 
 			descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, sizeof(lanaddr));
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"LAN address: %s\n", lanaddr);
+
 			if (descXML) {
 				parserootdesc (descXML, descXMLsize, &data);
 				free (descXML); descXML = 0;
