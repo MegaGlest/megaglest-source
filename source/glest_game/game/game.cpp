@@ -104,6 +104,8 @@ Game::Game() : ProgramState(NULL) {
 	keyboardSetupPopupMenuIndex = -1;
 	masterserverMode = false;
 	currentUIState=NULL;
+	currentAmbientSound=NULL;
+	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
 }
 
 void Game::resetMembers() {
@@ -164,10 +166,13 @@ void Game::resetMembers() {
 	speed= sNormal;
 	showFullConsole= false;
 
-	 camLeftButtonDown=false;
-	 camRightButtonDown=false;
-	 camUpButtonDown=false;
-	 camDownButtonDown=false;
+	camLeftButtonDown=false;
+	camRightButtonDown=false;
+	camUpButtonDown=false;
+	camDownButtonDown=false;
+
+	currentAmbientSound=NULL;
+	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
 
 	Object::setStateCallback(&gui);
 
@@ -967,13 +972,17 @@ void Game::init(bool initForPreviewOnly) {
 		//rain
 		if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
 			logger.add("Starting ambient stream", true);
-			soundRenderer.playAmbient(ambientSounds->getRain());
+			currentAmbientSound = ambientSounds->getRain();
+			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+			soundRenderer.playAmbient(currentAmbientSound);
 		}
 
 		//snow
 		if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
 			logger.add("Starting ambient stream", true);
-			soundRenderer.playAmbient(ambientSounds->getSnow());
+			currentAmbientSound = ambientSounds->getSnow();
+			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+			soundRenderer.playAmbient(currentAmbientSound);
 		}
 
 		if(this->masterserverMode == false) {
@@ -1204,6 +1213,10 @@ void Game::update() {
 			const vector<string> &dirList = Config::getInstance().getPathListForType(ptScenarios);
 			string scenarioFile = Scenario::getScenarioPath(dirList, name);
 
+
+			try {
+				gameStarted = false;
+
 			//printf("\nname [%s] scenarioFile [%s] results.size() = %lu\n",name.c_str(),scenarioFile.c_str(),results.size());
 			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 			ScenarioInfo scenarioInfo;
@@ -1246,6 +1259,14 @@ void Game::update() {
 				this->init();
 			}
 			else {
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+				if(currentAmbientSound) {
+					soundRenderer.stopAmbient(currentAmbientSound);
+				}
+				//soundRenderer.stopAllSounds();
+				soundRenderer.stopAllSounds(fadeMusicMilliseconds);
+
 				world.endScenario();
 				Renderer &renderer= Renderer::getInstance();
 				renderer.endScenario();
@@ -1271,9 +1292,9 @@ void Game::update() {
 				renderer.initGame(this);
 
 				//sounds
-				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-				soundRenderer.stopAllSounds();
-				soundRenderer= SoundRenderer::getInstance();
+				//soundRenderer.stopAllSounds(fadeMusicMilliseconds);
+				//soundRenderer.stopAllSounds();
+				//soundRenderer= SoundRenderer::getInstance();
 
 				Tileset *tileset= world.getTileset();
 				AmbientSounds *ambientSounds= tileset->getAmbientSounds();
@@ -1281,25 +1302,37 @@ void Game::update() {
 				//rain
 				if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
 					//logger.add("Starting ambient stream", true);
-					soundRenderer.playAmbient(ambientSounds->getRain());
+					currentAmbientSound = ambientSounds->getRain();
+					//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+					soundRenderer.playAmbient(currentAmbientSound);
 				}
 
 				//snow
 				if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
 					//logger.add("Starting ambient stream", true);
-					soundRenderer.playAmbient(ambientSounds->getSnow());
+					currentAmbientSound = ambientSounds->getSnow();
+					//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+					soundRenderer.playAmbient(currentAmbientSound);
 				}
 
 				if(this->masterserverMode == false) {
 					StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
 					soundRenderer.playMusic(gameMusic);
 				}
+
+				gameStarted = true;
 			}
 			//this->init();
 
 			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 			//Checksum checksum;
 			//world->loadScenario(scenarioFile, &checksum, true);
+			}
+			catch(const exception &ex) {
+				gameStarted = true;
+
+				throw ex;
+			}
 		}
 	}
 	catch(const exception &ex) {
