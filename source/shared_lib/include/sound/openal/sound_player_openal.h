@@ -100,7 +100,7 @@ public:
 	virtual void play(StaticSound *staticSound);
 	virtual void play(StrSound *strSound, int64 fadeOn=0);
 	virtual void stop(StrSound *strSound, int64 fadeOff=0);
-	virtual void stopAllSounds();
+	virtual void stopAllSounds(int64 fadeOff=0);
 	virtual void updateStreams();	//updates str buffers if needed
 
 private:

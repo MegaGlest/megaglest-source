@@ -218,6 +218,8 @@ public:
 	virtual vector<Texture2D *> processTech(string techName);
 	virtual void consoleAddLine(string line);
 
+	void endGame();
+
 private:
 	//render
     void render3d();

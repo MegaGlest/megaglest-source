@@ -46,6 +46,8 @@ const float PHOTO_MODE_MAXHEIGHT = 500.0;
 const int CREATE_NEW_TEAM = -100;
 const int CANCEL_SWITCH_TEAM = -1;
 
+const int fadeMusicMilliseconds = 3500;
+
 Game::Game() : ProgramState(NULL) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -192,6 +194,67 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void Game::endGame() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Object::setStateCallback(NULL);
+	thisGamePtr = NULL;
+	if(originalDisplayMsgCallback != NULL) {
+		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    Logger &logger= Logger::getInstance();
+	Renderer &renderer= Renderer::getInstance();
+
+	logger.loadLoadingScreen("");
+	logger.setState(Lang::getInstance().get("Deleting"));
+	//logger.add("Game", true);
+	logger.add("Game", false);
+	logger.hideProgress();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	// Cannot Fade because sound files will be deleted below
+	SoundRenderer::getInstance().stopAllSounds(fadeMusicMilliseconds);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+//	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
+//	aiInterfaces.clear();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+//	gui.end();		//selection must be cleared before deleting units
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+//	world.end();	//must die before selection because of referencers
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,aiInterfaces.size());
+
+	// MUST DO THIS LAST!!!! Because objects above have pointers to things like
+	// unit particles and fade them out etc and this end method deletes the original
+	// object pointers.
+	renderer.endGame();
+
+	GameConstants::updateFps = original_updateFps;
+	GameConstants::cameraFps = original_cameraFps;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	Unit::setGame(NULL);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== END GAME ====\n");
+
+	//this->program->reInitGl();
+	//renderer.reinitAll();
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 Game::~Game() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -215,6 +278,7 @@ Game::~Game() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	// Cannot Fade because sound files will be deleted below
 	SoundRenderer::getInstance().stopAllSounds();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -591,7 +655,7 @@ void Game::load(int loadTypes) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] loadTypes = %d, gameSettings = [%s]\n",__FILE__,__FUNCTION__,__LINE__,loadTypes,this->gameSettings.toString().c_str());
 
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	soundRenderer.stopAllSounds();
+	soundRenderer.stopAllSounds(fadeMusicMilliseconds);
 
 	Config &config = Config::getInstance();
 	Logger &logger= Logger::getInstance();
@@ -894,7 +958,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		//sounds
 		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-		soundRenderer.stopAllSounds();
+		soundRenderer.stopAllSounds(fadeMusicMilliseconds);
 		soundRenderer= SoundRenderer::getInstance();
 
 		Tileset *tileset= world.getTileset();
@@ -1208,7 +1272,7 @@ void Game::update() {
 
 				//sounds
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-				soundRenderer.stopAllSounds();
+				soundRenderer.stopAllSounds(fadeMusicMilliseconds);
 				soundRenderer= SoundRenderer::getInstance();
 
 				Tileset *tileset= world.getTileset();
@@ -2435,11 +2499,16 @@ Stats Game::quitGame() {
 void Game::exitGameState(Program *program, Stats &endStats) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	ProgramState *newState = new BattleEnd(program, &endStats);
+	Game *game = dynamic_cast<Game *>(program->getState());
+	if(game) {
+		game->endGame();
+	}
+
+	ProgramState *newState = new BattleEnd(program, &endStats, game);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	program->setState(newState);
+	program->setState(newState, false);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

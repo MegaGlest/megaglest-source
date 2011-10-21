@@ -77,7 +77,7 @@ public:
 	void stopAmbient(StrSound *strSound);
 
 	//misc
-	void stopAllSounds();
+	void stopAllSounds(int64 fadeOff=0);
 	void loadConfig();
 
 	bool wasInitOk() const;
