@@ -1272,7 +1272,7 @@ void Game::update() {
 
 				//sounds
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-				soundRenderer.stopAllSounds(fadeMusicMilliseconds);
+				soundRenderer.stopAllSounds();
 				soundRenderer= SoundRenderer::getInstance();
 
 				Tileset *tileset= world.getTileset();
