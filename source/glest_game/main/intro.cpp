@@ -200,14 +200,20 @@ Intro::Intro(Program *program):
 
 	int displayItemNumber = 1;
 	int appear= Intro::appearTime;
-	int disappear= Intro::showTime+Intro::appearTime+Intro::disapearTime;
+	int disappear= Intro::showTime+Intro::appearTime+(Intro::disapearTime * 2);
 
-	texts.push_back(new Text("based on the award winning game Glest", Vec2i(w/2, h/2), appear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
-	texts.push_back(new Text("the MegaGlest team presents...", Vec2i(w/2, h/2), disappear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	string lineText = "Based on award-winning classic Glest";
+	texts.push_back(new Text(lineText, Vec2i(-1, -1), appear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	lineText = "the MegaGlest Team presents";
+	texts.push_back(new Text(lineText, Vec2i(-1, -1), disappear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	lineText = "a libre software real-time strategy game";
+	texts.push_back(new Text(lineText, Vec2i(-1, -1), disappear *(++displayItemNumber), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
 
 	texts.push_back(new Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), disappear *(++displayItemNumber)));
 	texts.push_back(new Text(glestVersionString, Vec2i(w/2+45, h/2-45), disappear *(displayItemNumber++), coreData.getMenuFontNormal(),coreData.getMenuFontNormal3D()));
-	texts.push_back(new Text("www.megaglest.org", Vec2i(w/2, h/2), disappear *(displayItemNumber++), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	lineText = "www.megaglest.org";
+	//texts.push_back(new Text(lineText, Vec2i(-1, -1), disappear *(displayItemNumber++), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+	texts.push_back(new Text(lineText, Vec2i(-1, h/2-45-18), disappear *(displayItemNumber-1), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
 
 	modelShowTime = disappear *(displayItemNumber);
 
@@ -495,15 +501,42 @@ void Intro::render() {
 			}
 
 			if(text->getText().empty() == false) {
+				int renderX = text->getPos().x;
+				int renderY = text->getPos().y;
+
 				if(Renderer::renderText3DEnabled) {
+					if(renderX < 0) {
+						const Metrics &metrics= Metrics::getInstance();
+						int w= metrics.getVirtualW();
+						renderX = (w / 2) - (text->getFont3D()->getMetrics()->getTextWidth(text->getText()) / 2);
+					}
+					if(renderY < 0) {
+						const Metrics &metrics= Metrics::getInstance();
+						int h= metrics.getVirtualH();
+						renderY = (h / 2) + (text->getFont3D()->getMetrics()->getHeight() / 2);
+					}
+
 					renderer.renderText3D(
 						text->getText(), text->getFont3D(), alpha,
-						text->getPos().x, text->getPos().y, true);
+						renderX, renderY, false);
 				}
 				else {
+					if(renderX < 0) {
+						const Metrics &metrics= Metrics::getInstance();
+						int w= metrics.getVirtualW();
+						//int h= metrics.getVirtualH();
+
+						renderX = (w / 2) - (text->getFont()->getMetrics()->getTextWidth(text->getText()) / 2);
+					}
+					if(renderY < 0) {
+						const Metrics &metrics= Metrics::getInstance();
+						int h= metrics.getVirtualH();
+						renderY = (h / 2) + (text->getFont()->getMetrics()->getHeight() / 2);
+					}
+
 					renderer.renderText(
 						text->getText(), text->getFont(), alpha,
-						text->getPos().x, text->getPos().y, true);
+						renderX, renderY, false);
 				}
 			}
 
