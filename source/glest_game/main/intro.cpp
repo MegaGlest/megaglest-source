@@ -551,8 +551,33 @@ void Intro::render() {
 
 	if(this->forceMouseRender == true) renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
 
-	renderer.renderFPSWhenEnabled(lastFps);
+	bool showIntroTiming = Config::getInstance().getBool("ShowIntroTiming","false");
+	if(showIntroTiming == true && Intro::introTime > 0) {
+		CoreData &coreData= CoreData::getInstance();
+		int difTime= 1000 * timer / GameConstants::updateFps;
+		string timingText = intToStr(difTime) + " / " + intToStr(Intro::introTime);
 
+		if(Renderer::renderText3DEnabled) {
+			const Metrics &metrics= Metrics::getInstance();
+			int w= metrics.getVirtualW();
+			int h= metrics.getVirtualH();
+
+			renderer.renderText3D(
+					timingText, coreData.getMenuFontVeryBig3D(), 1,
+				10, 20, false);
+		}
+		else {
+			const Metrics &metrics= Metrics::getInstance();
+			int w= metrics.getVirtualW();
+			int h= metrics.getVirtualH();
+
+			renderer.renderText(
+					timingText, coreData.getMenuFontVeryBig(), 1,
+				10, 20, false);
+		}
+	}
+
+	renderer.renderFPSWhenEnabled(lastFps);
 	renderer.swapBuffers();
 }
 
