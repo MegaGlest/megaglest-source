@@ -159,7 +159,6 @@ Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
 	this->game = NULL;
-	list2d = 0;
 	showDebugUI = false;
 	showDebugUILevel = debugui_fps;
 	modelRenderer = NULL;
@@ -173,6 +172,16 @@ Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
 
 	lastRenderFps=MIN_FPS_NORMAL_RENDERING;
 	shadowsOffDueToMinRender=false;
+	shadowMapHandle=0;
+	shadowMapHandleValid=false;
+
+	list3d=0;
+	list3dValid=false;
+	list2d=0;
+	list2dValid=false;
+	list3dMenu=0;
+	list3dMenuValid=false;
+	customlist3dMenu=NULL;
 
 	//resources
 	for(int i=0; i < rsCount; ++i) {
@@ -382,6 +391,7 @@ void Renderer::initGame(const Game *game){
 		static_cast<ModelRendererGl*>(modelRenderer)->setSecondaryTexCoordUnit(2);
 
 		glGenTextures(1, &shadowMapHandle);
+		shadowMapHandleValid=true;
 		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -510,9 +520,9 @@ void Renderer::end() {
 	}
 
 	//delete 2d list
-	if(list2d > 0) {
+	if(list2dValid == true) {
 		glDeleteLists(list2d, 1);
-		list2d = 0;
+		list2dValid=false;
 	}
 
 	Renderer::rendererEnded = true;
@@ -531,35 +541,47 @@ void Renderer::endScenario() {
 	//fontManager[rsGame]->end();
 	//particleManager[rsGame]->end();
 
-	if(shadows == sProjected || shadows == sShadowMapping) {
+	if(shadowMapHandleValid == true &&
+		(shadows == sProjected || shadows == sShadowMapping)) {
 		glDeleteTextures(1, &shadowMapHandle);
+		shadowMapHandleValid=false;
 	}
 
-	glDeleteLists(list3d, 1);
+	if(list3dValid == true) {
+		glDeleteLists(list3d, 1);
+		list3dValid=false;
+	}
 
 	//worldToScreenPosCache.clear();
 	ReleaseSurfaceVBOs();
 	mapSurfaceData.clear();
 }
 
-void Renderer::endGame() {
+void Renderer::endGame(bool isFinalEnd) {
 	game= NULL;
 
 	if(this->masterserverMode == true) {
 		return;
 	}
 
-	//delete resources
-	modelManager[rsGame]->end();
-	textureManager[rsGame]->end();
-	fontManager[rsGame]->end();
-	particleManager[rsGame]->end();
-
-	if(shadows == sProjected || shadows == sShadowMapping) {
-		glDeleteTextures(1, &shadowMapHandle);
+	if(isFinalEnd) {
+		//delete resources
+		modelManager[rsGame]->end();
+		textureManager[rsGame]->end();
+		fontManager[rsGame]->end();
+		particleManager[rsGame]->end();
 	}
 
-	glDeleteLists(list3d, 1);
+	if(shadowMapHandleValid == true &&
+		(shadows == sProjected || shadows == sShadowMapping)) {
+		glDeleteTextures(1, &shadowMapHandle);
+		shadowMapHandleValid=false;
+	}
+
+	if(list3dValid == true) {
+		glDeleteLists(list3d, 1);
+		list3dValid=false;
+	}
 
 	//worldToScreenPosCache.clear();
 	ReleaseSurfaceVBOs();
@@ -907,9 +929,37 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 	return pos;
 }
 
+//Matrix4 LookAt( Vector3 eye, Vector3 target, Vector3 up ) {
+//    Vector3 zaxis = normal(target - eye);    // The "look-at" vector.
+//    Vector3 xaxis = normal(cross(up, zaxis));// The "right" vector.
+//    Vector3 yaxis = cross(zaxis, xaxis);     // The "up" vector.
+//
+//    // Create a 4x4 orientation matrix from the right, up, and at vectors
+//    Matrix4 orientation = {
+//        xaxis.x, yaxis.x, zaxis.x, 0,
+//        xaxis.y, yaxis.y, zaxis.y, 0,
+//        xaxis.z, yaxis.z, zaxis.z, 0,
+//          0,       0,       0,     1
+//    };
+//
+//    // Create a 4x4 translation matrix by negating the eye position.
+//    Matrix4 translation = {
+//          1,      0,      0,     0,
+//          0,      1,      0,     0,
+//          0,      0,      1,     0,
+//        -eye.x, -eye.y, -eye.z,  1
+//    };
+//
+//    // Combine the orientation and translation to compute the view matrix
+//    return ( translation * orientation );
+//}
+
 void Renderer::computeVisibleQuad() {
 	const GameCamera *gameCamera = game->getGameCamera();
 	visibleQuad = gameCamera->computeVisibleQuad();
+
+	//Matrix4 LookAt( gameCamera->getPos(), gameCamera->getPos(), Vector3 up );
+	//gluLookAt
 
 	const bool newVisibleQuadCalc = false;
 	if(newVisibleQuadCalc) {
@@ -5782,6 +5832,8 @@ void Renderer::init3dList() {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	list3d= glGenLists(1);
+	assertGl();
+	list3dValid=true;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -5888,6 +5940,7 @@ void Renderer::init2dList() {
 	//this list sets the state for the 2d rendering
 	list2d= glGenLists(1);
 	assertGl();
+	list2dValid=true;
 
 	glNewList(list2d, GL_COMPILE);
 
@@ -5941,9 +5994,12 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 
 	if(this->customlist3dMenu != NULL) {
 		*this->customlist3dMenu = glGenLists(1);
+		assertGl();
 	}
 	else {
 		list3dMenu= glGenLists(1);
+		assertGl();
+		list3dMenuValid=true;
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
