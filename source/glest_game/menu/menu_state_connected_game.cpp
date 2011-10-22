@@ -56,6 +56,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
 	updateDataSynchDetailText = false;
 
+	needToBroadcastServerSettings=false;
+	broadcastServerSettingsDelayTimer=0;
+	lastGameSettingsReceivedCount=0;
+
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
 
@@ -936,31 +940,42 @@ bool MenuStateConnectedGame::isMasterserverAdmin() {
 	return result;
 }
 
-void MenuStateConnectedGame::broadCastGameSettingsToMasterserver() {
-	NetworkManager &networkManager= NetworkManager::getInstance();
-	ClientInterface *clientInterface = networkManager.getClientInterface();
-
-	for(int i = 0; i < mapInfo.players; ++i) {
-		if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-			listBoxControls[i].setSelectedItemIndex(ctNetwork);
-		}
-	}
-	for(int i = mapInfo.players; i < GameConstants::maxPlayers; ++i) {
-		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
-			listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
-		}
+void MenuStateConnectedGame::broadCastGameSettingsToMasterserver(bool forceNow) {
+	if(isMasterserverAdmin() == false) {
+		return;
 	}
 
-	GameSettings gameSettings = *clientInterface->getGameSettings();
-	loadGameSettings(&gameSettings);
+	if(forceNow == true ||
+		(needToBroadcastServerSettings == true && difftime(time(NULL),broadcastServerSettingsDelayTimer) >= 2)) {
+		//printf("In [%s:%s] Line: %d forceNow = %d broadcastServerSettingsDelayTimer = %lu, now =%lu\n",__FILE__,__FUNCTION__,__LINE__,forceNow,broadcastServerSettingsDelayTimer,time(NULL));
 
-	//printf("broadcast settings:\n%s\n",gameSettings.toString().c_str());
+		needToBroadcastServerSettings = false;
+		broadcastServerSettingsDelayTimer = time(NULL);
 
-	//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		ClientInterface *clientInterface = networkManager.getClientInterface();
 
-    //clientInterface->setGameSettings(&gameSettings);
-    clientInterface->broadcastGameSetup(&gameSettings);
+		for(int i = 0; i < mapInfo.players; ++i) {
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+				listBoxControls[i].setSelectedItemIndex(ctNetwork);
+			}
+		}
+		for(int i = mapInfo.players; i < GameConstants::maxPlayers; ++i) {
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
+				listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+			}
+		}
 
+		GameSettings gameSettings = *clientInterface->getGameSettings();
+		loadGameSettings(&gameSettings);
+
+		//printf("broadcast settings:\n%s\n",gameSettings.toString().c_str());
+
+		//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
+
+		//clientInterface->setGameSettings(&gameSettings);
+		clientInterface->broadcastGameSetup(&gameSettings);
+	}
 }
 
 void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
@@ -1030,7 +1045,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
             //	mapPublishingDelayTimer=time(NULL);
             //}
 
-            broadCastGameSettingsToMasterserver();
+            //broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxFogOfWar.mouseClick(x, y)) {
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1045,7 +1062,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //                lastSetChangedGameSettings   = time(NULL);
 //            }
 
-        	broadCastGameSettingsToMasterserver();
+        	//broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxAllowObservers.mouseClick(x, y)) {
 //            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1061,7 +1080,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //                lastSetChangedGameSettings   = time(NULL);
 //            }
 
-        	broadCastGameSettingsToMasterserver();
+        	//broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxEnableObserverMode.mouseClick(x, y)) {
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1076,7 +1097,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //                lastSetChangedGameSettings   = time(NULL);
 //            }
 
-        	broadCastGameSettingsToMasterserver();
+        	//broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if (listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1091,7 +1114,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //                lastSetChangedGameSettings   = time(NULL);
 //            }
 
-        	broadCastGameSettingsToMasterserver();
+        	//broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1106,7 +1131,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //                lastSetChangedGameSettings   = time(NULL);
 //            }
 
-        	broadCastGameSettingsToMasterserver();
+        	//broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
 //        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
 //            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1138,7 +1165,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //            	mapPublishingDelayTimer=time(NULL);
 //            }
 
-        	broadCastGameSettingsToMasterserver();
+        	//broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
 //        else if(listBoxMapFilter.mouseClick(x, y)){
 //            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1176,7 +1205,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
             //    lastSetChangedGameSettings   = time(NULL);
             //}
 
-            broadCastGameSettingsToMasterserver();
+            //broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
 //        else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
 //            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1200,7 +1231,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 
             soundRenderer.playFx(coreData.getClickSoundC());
 
-            broadCastGameSettingsToMasterserver();
+            //broadCastGameSettingsToMasterserver();
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else {
         	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -1212,7 +1245,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 //if (listBoxAdvanced.getSelectedItemIndex() == 1) {
                     // set multiplier
                     if(listBoxRMultiplier[i].mouseClick(x, y)) {
-                    	broadCastGameSettingsToMasterserver();
+                    	//broadCastGameSettingsToMasterserver();
+                    	needToBroadcastServerSettings=true;
+                    	broadcastServerSettingsDelayTimer=time(NULL);
                     }
                 //}
 
@@ -1273,7 +1308,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //                    }
                     updateResourceMultiplier(i);
 
-                	broadCastGameSettingsToMasterserver();
+                	//broadCastGameSettingsToMasterserver();
+                	needToBroadcastServerSettings=true;
+                	broadcastServerSettingsDelayTimer=time(NULL);
                 }
 //                else if(buttonClearBlockedPlayers.mouseClick(x, y)) {
 //                	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
@@ -1333,7 +1370,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //                        lastSetChangedGameSettings   = time(NULL);
 //                    }
 
-        			broadCastGameSettingsToMasterserver();
+        			//broadCastGameSettingsToMasterserver();
+                	needToBroadcastServerSettings=true;
+                	broadcastServerSettingsDelayTimer=time(NULL);
                 }
                 else if(clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxTeams[i].mouseClick(x, y)) {
@@ -1356,7 +1395,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //                        lastSetChangedGameSettings   = time(NULL);;
 //                    }
 
-                    broadCastGameSettingsToMasterserver();
+                    //broadCastGameSettingsToMasterserver();
+                	needToBroadcastServerSettings=true;
+                	broadcastServerSettingsDelayTimer=time(NULL);
                 }
 //                else if(labelPlayerNames[i].mouseClick(x, y)) {
 //                    SetActivePlayerNameEditor();
@@ -2039,6 +2080,7 @@ void MenuStateConnectedGame::update() {
 
 	if(clientInterface != NULL && clientInterface->isConnected()) {
 		//printf("#2 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
+		broadCastGameSettingsToMasterserver(false);
 
 		listBoxMap.setEditable(isMasterserverAdmin());
 		buttonPlayNow.setVisible(isMasterserverAdmin());
@@ -2553,7 +2595,11 @@ void MenuStateConnectedGame::update() {
 
 		try {
 			//bool mustSwitchPlayerName = false;
-			if(clientInterface->getGameSettingsReceived()) {
+			if(clientInterface->getGameSettingsReceived() &&
+					lastGameSettingsReceivedCount != clientInterface->getGameSettingsReceivedCount()) {
+				broadCastGameSettingsToMasterserver(needToBroadcastServerSettings);
+
+				lastGameSettingsReceivedCount = clientInterface->getGameSettingsReceivedCount();
 				updateDataSynchDetailText = true;
 				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
 				vector<string> maps,tilesets,techtree;
