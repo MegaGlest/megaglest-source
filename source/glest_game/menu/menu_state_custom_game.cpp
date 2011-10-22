@@ -951,7 +951,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
             soundRenderer.playFx(coreData.getClickSoundC());
         }
         else {
-            for(int i=0; i<mapInfo.players; ++i) {
+            for(int i = 0; i < mapInfo.players; ++i) {
                 MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
                 //if (listBoxAdvanced.getSelectedItemIndex() == 1) {
@@ -963,15 +963,30 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                 //ensure thet only 1 human player is present
                 ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
                 ConnectionSlot *slot = serverInterface->getSlot(i);
-                if((listBoxControls[i].getSelectedItemIndex() != ctNetwork && listBoxControls[i].mouseClick(x, y)) ||
-                	(listBoxControls[i].getSelectedItemIndex() == ctNetwork && (slot == NULL || slot->isConnected() == false)
-                			&& listBoxControls[i].mouseClick(x, y))) {
+
+                bool checkControTypeClicked = false;
+                int selectedControlItemIndex = listBoxControls[i].getSelectedItemIndex();
+                if(selectedControlItemIndex != ctNetwork ||
+                	(selectedControlItemIndex == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
+                	checkControTypeClicked = true;
+                }
+
+                //printf("checkControTypeClicked = %d selectedControlItemIndex = %d i = %d\n",checkControTypeClicked,selectedControlItemIndex,i);
+
+                if(checkControTypeClicked == true && listBoxControls[i].mouseClick(x, y)) {
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                	//printf("listBoxControls[i].mouseClick(x, y) is TRUE i = %d newcontrol = %d\n",i,listBoxControls[i].getSelectedItemIndex());
+
+                	// Skip over networkunassigned
+                	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned &&
+                		selectedControlItemIndex != ctNetworkUnassigned) {
+                		listBoxControls[i].mouseClick(x, y);
+                	}
 
                     //look for human players
                     int humanIndex1= -1;
                     int humanIndex2= -1;
-                    for(int j=0; j<GameConstants::maxPlayers; ++j) {
+                    for(int j = 0; j < GameConstants::maxPlayers; ++j) {
                         ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
                         if(ct == ctHuman) {
                             if(humanIndex1 == -1) {
@@ -989,6 +1004,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                     if(humanIndex1 == -1 && humanIndex2 == -1) {
                         listBoxControls[i].setSelectedItemIndex(ctHuman);
                         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
+
+                        //printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
                     }
                     //2 humans
                     else if(humanIndex1 != -1 && humanIndex2 != -1) {
@@ -998,6 +1015,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                         string origPlayName = labelPlayerNames[closeSlotIndex].getText();
 
                         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",__FILE__,__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
+                        //printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
 
                         listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
                         labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
