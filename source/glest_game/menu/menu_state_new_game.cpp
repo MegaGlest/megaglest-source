@@ -40,25 +40,46 @@ MenuStateNewGame::MenuStateNewGame(Program *program, MainMenu *mainMenu):
 	containerName = "NewGame";
 	Lang &lang= Lang::getInstance();
 
-	int yPos=385;
+	int yPos=550;
+//	GraphicLabel labelSinglePlayer;
+//	GraphicLabel labelMultiPlayer;
 
-	buttonCustomGame.registerGraphicComponent(containerName,"buttonCustomGame");
-	buttonCustomGame.init(425, yPos, 150);
+
+	labelSinglePlayer.registerGraphicComponent(containerName,"labelSinglePlayer");
+	labelSinglePlayer.init(425, yPos, 150);
+	labelSinglePlayer.setText(lang.get("SinglePlayer"));
+	labelSinglePlayer.setFont(CoreData::getInstance().getMenuFontBig());
+	labelSinglePlayer.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
 	yPos-=40;
+    buttonTutorial.registerGraphicComponent(containerName,"buttonTutorial");
+    buttonTutorial.init(425, yPos, 150);
+    yPos-=40;
 	buttonScenario.registerGraphicComponent(containerName,"buttonScenario");
     buttonScenario.init(425, yPos, 150);
     yPos-=40;
+	buttonCustomGame.registerGraphicComponent(containerName,"buttonCustomGame");
+	buttonCustomGame.init(425, yPos, 150);
+	yPos-=40;
+
+
+
+	yPos-=40;
+	labelMultiPlayer.registerGraphicComponent(containerName,"labelMultiPlayer");
+	labelMultiPlayer.init(425, yPos, 150);
+	labelMultiPlayer.setText(lang.get("MultiPlayer"));
+	labelMultiPlayer.setFont(CoreData::getInstance().getMenuFontBig());
+	labelMultiPlayer.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	yPos-=40;
     buttonMasterserverGame.registerGraphicComponent(containerName,"buttonMasterserverGame");
     buttonMasterserverGame.init(425, yPos, 150);
     yPos-=40;
 	buttonJoinGame.registerGraphicComponent(containerName,"buttonJoinGame");
     buttonJoinGame.init(425, yPos, 150);
-	yPos-=40;
-    buttonTutorial.registerGraphicComponent(containerName,"buttonTutorial");
-    buttonTutorial.init(425, yPos, 150);
-    yPos-=40;
+
     buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-    buttonReturn.init(425, yPos, 150);
+    buttonReturn.init(425, 80, 150);
 
 	buttonCustomGame.setText(lang.get("CustomGame"));
 	buttonScenario.setText(lang.get("Scenario"));
@@ -121,6 +142,9 @@ void MenuStateNewGame::render(){
 	renderer.renderButton(&buttonMasterserverGame);
 	renderer.renderButton(&buttonTutorial);
 	renderer.renderButton(&buttonReturn);
+
+	renderer.renderLabel(&labelSinglePlayer);
+	renderer.renderLabel(&labelMultiPlayer);
 
 	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
