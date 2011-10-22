@@ -524,19 +524,17 @@ void Intro::render() {
 					if(renderX < 0) {
 						const Metrics &metrics= Metrics::getInstance();
 						int w= metrics.getVirtualW();
-						//int h= metrics.getVirtualH();
-
-						renderX = (w / 2) - (text->getFont()->getMetrics()->getTextWidth(text->getText()) / 2);
+						renderX = (w / 2);
 					}
 					if(renderY < 0) {
 						const Metrics &metrics= Metrics::getInstance();
 						int h= metrics.getVirtualH();
-						renderY = (h / 2) + (text->getFont()->getMetrics()->getHeight() / 2);
+						renderY = (h / 2);
 					}
 
 					renderer.renderText(
 						text->getText(), text->getFont(), alpha,
-						renderX, renderY, false);
+						renderX, renderY, true);
 				}
 			}
 
