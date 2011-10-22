@@ -21,6 +21,11 @@ if ( $#ARGV != 1 ) {
 our %main;
 our @main_line;
 
+our $self = $0;
+$self =~ s;^.*/([^/]*)$;$1;g;
+# print "self: $self\n";
+# die;
+
 our $dir = $ARGV[0];
 our $main_lang = $ARGV[1];
 mkdir $dir;
@@ -114,7 +119,7 @@ LNGS: foreach my $file ( @files ) {
 		}
 		# new var not in lng-file, include it from main-lng
 		else {
-			print OUT "; Next line needs translation, include by $0 on $now\n";
+			print OUT "; Next line needs translation, include by $self on $now\n";
 			print OUT $main_line[ $row ];
 		}
 	}
