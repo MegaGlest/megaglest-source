@@ -236,12 +236,17 @@ private:
 
 	//state lists
 	GLuint list3d;
+	bool list3dValid;
 	GLuint list2d;
+	bool list2dValid;
 	GLuint list3dMenu;
+	bool list3dMenuValid;
 	GLuint *customlist3dMenu;
 
 	//shadows
 	GLuint shadowMapHandle;
+	bool shadowMapHandleValid;
+
 	Matrix4f shadowMapMatrix;
 	int shadowMapFrame;
 
@@ -357,7 +362,7 @@ public:
 	void end();
 	void endScenario();
 	void endMenu();
-	void endGame();
+	void endGame(bool isFinalEnd);
 
 	//get
 	int getTriangleCount() const	{return triangleCount;}

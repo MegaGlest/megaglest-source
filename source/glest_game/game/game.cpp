@@ -236,7 +236,7 @@ void Game::endGame() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-//	gui.end();		//selection must be cleared before deleting units
+	gui.end();		//selection must be cleared before deleting units
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -247,7 +247,7 @@ void Game::endGame() {
 	// MUST DO THIS LAST!!!! Because objects above have pointers to things like
 	// unit particles and fade them out etc and this end method deletes the original
 	// object pointers.
-	renderer.endGame();
+	renderer.endGame(false);
 
 	GameConstants::updateFps = original_updateFps;
 	GameConstants::cameraFps = original_cameraFps;
@@ -308,7 +308,7 @@ Game::~Game() {
 	// MUST DO THIS LAST!!!! Because objects above have pointers to things like
 	// unit particles and fade them out etc and this end method deletes the original
 	// object pointers.
-	renderer.endGame();
+	renderer.endGame(true);
 
 	GameConstants::updateFps = original_updateFps;
 	GameConstants::cameraFps = original_cameraFps;
@@ -1252,7 +1252,7 @@ void Game::update() {
 				// unit particles and fade them out etc and this end method deletes the original
 				// object pointers.
 				Renderer &renderer= Renderer::getInstance();
-				renderer.endGame();
+				renderer.endGame(true);
 
 				GameConstants::updateFps = original_updateFps;
 				GameConstants::cameraFps = original_cameraFps;
