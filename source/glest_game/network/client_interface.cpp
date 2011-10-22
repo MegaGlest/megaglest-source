@@ -53,7 +53,7 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	launchGame= false;
 	introDone= false;
 	playerIndex= -1;
-	gameSettingsReceived=false;
+	setGameSettingsReceived(false);
 	gotIntro = false;
 	lastNetworkCommandListSendTime = 0;
 	currentFrameCount = 0;
@@ -485,7 +485,7 @@ void ClientInterface::updateLobby() {
                 	launchGame= true;
                 }
                 else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
-                	gameSettingsReceived=true;
+                	setGameSettingsReceived(true);
                 }
             }
         }
@@ -1271,6 +1271,11 @@ void ClientInterface::broadcastGameStart(const GameSettings *gameSettings) {
 	//broadcastMessage(&networkMessageLaunch);
 	sendMessage(&networkMessageLaunch);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+void ClientInterface::setGameSettingsReceived(bool value) {
+	//printf("In [%s:%s] Line: %d gameSettingsReceived = %d value = %d, gameSettingsReceivedCount = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettingsReceived,value,gameSettingsReceivedCount);
+	gameSettingsReceived = value;
+	gameSettingsReceivedCount++;
 }
 
 }}//end namespace

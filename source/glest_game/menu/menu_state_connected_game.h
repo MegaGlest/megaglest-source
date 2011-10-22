@@ -180,6 +180,10 @@ private:
 
 	GraphicButton buttonPlayNow;
 
+	bool needToBroadcastServerSettings;
+	time_t broadcastServerSettingsDelayTimer;
+	int lastGameSettingsReceivedCount;
+
 public:
 
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
@@ -221,7 +225,7 @@ private:
     void reloadFactions(bool keepExistingSelectedItem);
     void PlayNow(bool saveGame);
     bool isMasterserverAdmin();
-    void broadCastGameSettingsToMasterserver();
+    void broadCastGameSettingsToMasterserver(bool forceNow);
     void updateResourceMultiplier(const int index);
 };
 

@@ -42,6 +42,7 @@ private:
 	bool launchGame;
 	int playerIndex;
 	bool gameSettingsReceived;
+	int gameSettingsReceivedCount;
 	time_t connectedTime;
 	bool gotIntro;
 
@@ -83,7 +84,10 @@ public:
 	bool getLaunchGame() const				{return launchGame;}
 	bool getIntroDone() const				{return introDone;}
 	bool getGameSettingsReceived() const	{return gameSettingsReceived;}
-	void setGameSettingsReceived(bool value)	{gameSettingsReceived=value;}
+	void setGameSettingsReceived(bool value);
+
+	int getGameSettingsReceivedCount() const { return gameSettingsReceivedCount; }
+
 	int getPlayerIndex() const				{return playerIndex;}
 	//const GameSettings *getGameSettings()	{return &gameSettings;}
 
