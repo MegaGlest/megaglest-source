@@ -74,8 +74,10 @@ FTPServerThread::~FTPServerThread() {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	// Remove any UPNP port forwarded ports
+	//printf("In [%s::%s] Line: %d ServerSocket::getFTPServerPort() = %d\n",__FILE__,__FUNCTION__,__LINE__,ServerSocket::getFTPServerPort());
     UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort());
     for(int clientIndex = 1; clientIndex <= maxPlayers; ++clientIndex) {
+    	//printf("In [%s::%s] Line: %d ServerSocket::getFTPServerPort()+ clientIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,ServerSocket::getFTPServerPort()+ clientIndex);
         UPNP_Tools::upnp_rem_redirect(ServerSocket::getFTPServerPort() + clientIndex);
     }
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -67,7 +67,8 @@ int ServerSocket::ftpServerPort = 61358;
 int ServerSocket::maxPlayerCount = -1;
 int ServerSocket::externalPort  = Socket::broadcast_portno;
 BroadCastClientSocketThread *ClientSocket::broadCastClientThread = NULL;
-
+SDL_Thread *ServerSocket::upnpdiscoverThread = NULL;
+Mutex ServerSocket::mutexUpnpdiscoverThread;
 //
 // UPnP - Start
 //
@@ -1846,9 +1847,13 @@ void BroadCastClientSocketThread::execute() {
 ServerSocket::ServerSocket() : Socket() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    upnpdiscoverThread = NULL;
+	MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,string(__FILE__) + "_" + intToStr(__LINE__));
+	ServerSocket::upnpdiscoverThread = NULL;
+	safeMutexUPNP.ReleaseLock();
+
 	portBound = false;
 	broadCastThread = NULL;
+	UPNP_Tools::enabledUPNP = false;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1856,16 +1861,23 @@ ServerSocket::ServerSocket() : Socket() {
 ServerSocket::~ServerSocket() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("In [%s::%s] Line: %d UPNP_Tools::enabledUPNP = %d\n",__FILE__,__FUNCTION__,__LINE__,UPNP_Tools::enabledUPNP);
+
 	stopBroadCastThread();
 
-    if(upnpdiscoverThread != NULL) {
-        SDL_WaitThread(upnpdiscoverThread, NULL);
-        upnpdiscoverThread = NULL;
+	//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
+	MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,string(__FILE__) + "_" + intToStr(__LINE__));
+    if(ServerSocket::upnpdiscoverThread != NULL) {
+        SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
+        ServerSocket::upnpdiscoverThread = NULL;
     }
+    safeMutexUPNP.ReleaseLock();
+    //printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
 
+    //printf("In [%s::%s] Line: %d UPNP_Tools::enabledUPNP = %d\n",__FILE__,__FUNCTION__,__LINE__,UPNP_Tools::enabledUPNP);
 	if (UPNP_Tools::enabledUPNP) {
         UPNP_Tools::NETremRedirects(ServerSocket::externalPort);
-        UPNP_Tools::enabledUPNP = false;
+        //UPNP_Tools::enabledUPNP = false;
 	}
 
 	if(urls.controlURL && urls.ipcondescURL && urls.controlURL_CIF) {
@@ -2068,14 +2080,18 @@ Socket *ServerSocket::accept() {
 void ServerSocket::NETdiscoverUPnPDevices() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] UPNP - Start\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(upnpdiscoverThread != NULL) {
-		SDL_WaitThread(upnpdiscoverThread, NULL);
-		upnpdiscoverThread = NULL;
+	//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
+	MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,string(__FILE__) + "_" + intToStr(__LINE__));
+	if(ServerSocket::upnpdiscoverThread != NULL) {
+		SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
+		ServerSocket::upnpdiscoverThread = NULL;
 	}
 
     // WATCH OUT! Because the thread takes void * as a parameter we MUST cast to the pointer type
     // used on the other side (inside the thread)
-	upnpdiscoverThread = SDL_CreateThread(&UPNP_Tools::upnp_init, dynamic_cast<UPNPInitInterface *>(this));
+	ServerSocket::upnpdiscoverThread = SDL_CreateThread(&UPNP_Tools::upnp_init, dynamic_cast<UPNPInitInterface *>(this));
+	safeMutexUPNP.ReleaseLock();
+	//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerSocket::UPNPInitStatus(bool result) {
@@ -2099,7 +2115,7 @@ void ServerSocket::UPNPInitStatus(bool result) {
             UPNPPortForwardList.push_back(this->getFTPServerPort() + clientIndex);
         }
 
-        UPNP_Tools::NETaddRedirects(UPNPPortForwardList);
+        UPNP_Tools::NETaddRedirects(UPNPPortForwardList,false);
     }
 }
 
@@ -2246,13 +2262,24 @@ int UPNP_Tools::upnp_init(void *param) {
 	}
 }
 
-bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
+bool UPNP_Tools::upnp_add_redirect(int ports[2],bool mutexLock) {
 	char externalIP[16]     = "";
 	char ext_port_str[16]   = "";
 	char int_port_str[16]   = "";
 	int r                   = 0;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_add_redir(%d : %d)\n",__FILE__,__FUNCTION__,__LINE__,ports[0],ports[1]);
+
+	if(mutexLock) {
+		//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
+		MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,string(__FILE__) + "_" + intToStr(__LINE__));
+		if(ServerSocket::upnpdiscoverThread != NULL) {
+			SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
+			ServerSocket::upnpdiscoverThread = NULL;
+		}
+		safeMutexUPNP.ReleaseLock();
+		//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
+	}
 
 	if (!urls.controlURL || urls.controlURL[0] == '\0')	{
 		return false;
@@ -2287,24 +2314,38 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2]) {
 void UPNP_Tools::upnp_rem_redirect(int ext_port) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__,ext_port);
 
+	//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
+	MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,string(__FILE__) + "_" + intToStr(__LINE__));
+    if(ServerSocket::upnpdiscoverThread != NULL) {
+        SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
+        ServerSocket::upnpdiscoverThread = NULL;
+    }
+    safeMutexUPNP.ReleaseLock();
+    //printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//printf("In [%s::%s] Line: %d ext_port = %d urls.controlURL = [%s]\n",__FILE__,__FUNCTION__,__LINE__,ext_port,urls.controlURL);
+
 	if (urls.controlURL && urls.controlURL[0] != '\0')	{
 		char ext_port_str[16]="";
 		sprintf(ext_port_str, "%d", ext_port);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 DEBUGGUNG urls.controlURL [%s]\n",urls.controlURL);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 DEBUGGING urls.controlURL [%s]\n",urls.controlURL);
 
+		int result = 0;
 	#ifndef MINIUPNPC_VERSION_PRE1_5
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 DEBUGGUNG data.first.servicetype [%s]\n",data.first.servicetype);
-		UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, ext_port_str, "TCP", 0);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 DEBUGGING data.first.servicetype [%s]\n",data.first.servicetype);
+		result = UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, ext_port_str, "TCP", 0);
 	#else
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 DEBUGGUNG data.servicetype [%s]\n",data.servicetype);
-		UPNP_DeletePortMapping(urls.controlURL, data.servicetype, ext_port_str, "TCP", 0);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 DEBUGGING data.servicetype [%s]\n",data.servicetype);
+		result = UPNP_DeletePortMapping(urls.controlURL, data.servicetype, ext_port_str, "TCP", 0);
 	#endif
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nresult = %d\n",result);
+		//printf("\n\nresult = %d\n",result);
 	}
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#2 DEBUGGUNG urls.controlURL [%s]\n",urls.controlURL);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#2 DEBUGGING urls.controlURL [%s]\n",urls.controlURL);
 }
 
-void UPNP_Tools::NETaddRedirects(std::vector<int> UPNPPortForwardList) {
+void UPNP_Tools::NETaddRedirects(std::vector<int> UPNPPortForwardList,bool mutexLock) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(UPNPPortForwardList.size() % 2 != 0) {
@@ -2314,7 +2355,7 @@ void UPNP_Tools::NETaddRedirects(std::vector<int> UPNPPortForwardList) {
 
     for(unsigned int clientIndex = 0; clientIndex < UPNPPortForwardList.size(); clientIndex += 2) {
         int ports[2] = { UPNPPortForwardList[clientIndex], UPNPPortForwardList[clientIndex+1] };
-        upnp_add_redirect(ports);
+        upnp_add_redirect(ports,mutexLock);
     }
 }
 

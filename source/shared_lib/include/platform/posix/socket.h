@@ -223,7 +223,6 @@ protected:
 
 	static int externalPort;
 	static int ftpServerPort;
-	SDL_Thread *upnpdiscoverThread;
 
 	static int maxPlayerCount;
 
@@ -262,6 +261,9 @@ public:
     void NETdiscoverUPnPDevices();
 
     static void setMaxPlayerCount(int value) { maxPlayerCount=value; }
+
+	static Mutex mutexUpnpdiscoverThread;
+	static SDL_Thread *upnpdiscoverThread;
 };
 
 // =====================================================
@@ -276,10 +278,10 @@ public:
 
     static int upnp_init(void *param);
 
-    static bool upnp_add_redirect(int ports[2]);
+    static bool upnp_add_redirect(int ports[2],bool mutexLock=true);
     static void upnp_rem_redirect(int ext_port);
 
-    static void NETaddRedirects(std::vector<int> UPNPPortForwardList);
+    static void NETaddRedirects(std::vector<int> UPNPPortForwardList, bool mutexLock=true);
     static void NETremRedirects(int ext_port);
 
     static void AddUPNPPortForward(int internalPort, int externalPort);
