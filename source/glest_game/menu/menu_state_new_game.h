@@ -30,9 +30,6 @@ private:
 	GraphicButton buttonTutorial;
 	GraphicButton buttonReturn;
 
-	GraphicLabel labelSinglePlayer;
-	GraphicLabel labelMultiPlayer;
-
 public:
 	MenuStateNewGame(Program *program, MainMenu *mainMenu);
 
