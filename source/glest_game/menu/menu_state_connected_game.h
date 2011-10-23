@@ -56,13 +56,13 @@ private:
 
 	GraphicLabel labelEnableObserverMode;
 	GraphicListBox listBoxEnableObserverMode;
-	GraphicLabel labelEnableServerControlledAI;
-	GraphicListBox listBoxEnableServerControlledAI;
-	GraphicLabel labelNetworkPauseGameForLaggedClients;
-	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
+	//GraphicLabel labelEnableServerControlledAI;
+	//GraphicListBox listBoxEnableServerControlledAI;
+	//GraphicLabel labelNetworkPauseGameForLaggedClients;
+	//GraphicListBox listBoxNetworkPauseGameForLaggedClients;
 
-	GraphicListBox listBoxNetworkFramePeriod;
-	GraphicLabel labelNetworkFramePeriod;
+	//GraphicListBox listBoxNetworkFramePeriod;
+	//GraphicLabel labelNetworkFramePeriod;
 
 	GraphicLabel labelPathFinderType;
 	GraphicListBox listBoxPathFinderType;

@@ -745,379 +745,380 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                 }
             }
         }
-        else if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y)))
-        {
-        	setActiveInputLabel(NULL);
-        }
-        else if(buttonReturn.mouseClick(x,y) || serverInitError == true) {
-        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-            soundRenderer.playFx(coreData.getClickSoundA());
-
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-            needToBroadcastServerSettings = false;
-            needToRepublishToMasterserver = false;
-            lastNetworkPing               = time(NULL);
-            safeMutex.ReleaseLock();
-
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-            returnToParentMenu();
-        }
-        else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
-        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-            PlayNow(true);
-            return;
-        }
-        else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
-            RestoreLastGameSettings();
-        }
-        else if(listBoxMap.mouseClick(x, y)){
-        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
-
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
-            labelMapInfo.setText(mapInfo.desc);
-            updateControlers();
-            updateNetworkSlots();
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true) {
-            	//delay publishing for 5 seconds
-            	needToPublishDelayed=true;
-            	mapPublishingDelayTimer=time(NULL);
-            }
-        }
-        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            cleanupMapPreviewTexture();
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true) {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-        }
-        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAllowObservers.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            reloadFactions(true);
-
-            if(hasNetworkGameSettings() == true) {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-        }
-        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true)
-            {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-        }
-        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true)
-            {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-        }
-        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true)
-            {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-        }
-        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true)
-            {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-        }
-        else if (listBoxAdvanced.mouseClick(x, y)) {
-            //TODO
-        }
-        else if(listBoxTileset.mouseClick(x, y)){
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-            if(hasNetworkGameSettings() == true)
-            {
-
-            	//delay publishing for 5 seconds
-            	needToPublishDelayed=true;
-            	mapPublishingDelayTimer=time(NULL);
-            }
-        }
-        else if(listBoxMapFilter.mouseClick(x, y)){
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-            switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
-
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
-
-            loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
-            labelMapInfo.setText(mapInfo.desc);
-            updateControlers();
-            updateNetworkSlots();
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true)
-            {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-        }
-        else if(listBoxTechTree.mouseClick(x, y)){
-            reloadFactions(false);
-
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true)
-            {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-        }
-        else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-            needToRepublishToMasterserver = true;
-            soundRenderer.playFx(coreData.getClickSoundC());
-
-            ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-            serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
-        }
-        else if(labelGameName.mouseClick(x, y) && listBoxPublishServer.getEditable()){
-        	setActiveInputLabel(&labelGameName);
-        }
-        else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
-            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                needToRepublishToMasterserver = true;
-            }
-            if(hasNetworkGameSettings() == true)
-            {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-
-            soundRenderer.playFx(coreData.getClickSoundC());
-        }
         else {
-            for(int i = 0; i < mapInfo.players; ++i) {
-                MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
+				setActiveInputLabel(NULL);
+			}
+			if(buttonReturn.mouseClick(x,y) || serverInitError == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-                //if (listBoxAdvanced.getSelectedItemIndex() == 1) {
-                    // set multiplier
-                    if(listBoxRMultiplier[i].mouseClick(x, y)) {
-                    }
-                //}
+				soundRenderer.playFx(coreData.getClickSoundA());
 
-                //ensure thet only 1 human player is present
-                ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-                ConnectionSlot *slot = serverInterface->getSlot(i);
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				needToBroadcastServerSettings = false;
+				needToRepublishToMasterserver = false;
+				lastNetworkPing               = time(NULL);
+				safeMutex.ReleaseLock();
 
-                bool checkControTypeClicked = false;
-                int selectedControlItemIndex = listBoxControls[i].getSelectedItemIndex();
-                if(selectedControlItemIndex != ctNetwork ||
-                	(selectedControlItemIndex == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
-                	checkControTypeClicked = true;
-                }
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-                //printf("checkControTypeClicked = %d selectedControlItemIndex = %d i = %d\n",checkControTypeClicked,selectedControlItemIndex,i);
+				returnToParentMenu();
+			}
+			else if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-                if(checkControTypeClicked == true && listBoxControls[i].mouseClick(x, y)) {
-                	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                	//printf("listBoxControls[i].mouseClick(x, y) is TRUE i = %d newcontrol = %d\n",i,listBoxControls[i].getSelectedItemIndex());
+				PlayNow(true);
+				return;
+			}
+			else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
+				RestoreLastGameSettings();
+			}
+			else if(listBoxMap.mouseClick(x, y)){
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-                	// Skip over networkunassigned
-                	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned &&
-                		selectedControlItemIndex != ctNetworkUnassigned) {
-                		listBoxControls[i].mouseClick(x, y);
-                	}
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-                    //look for human players
-                    int humanIndex1= -1;
-                    int humanIndex2= -1;
-                    for(int j = 0; j < GameConstants::maxPlayers; ++j) {
-                        ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
-                        if(ct == ctHuman) {
-                            if(humanIndex1 == -1) {
-                                humanIndex1= j;
-                            }
-                            else {
-                                humanIndex2= j;
-                            }
-                        }
-                    }
+				loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
+				labelMapInfo.setText(mapInfo.desc);
+				updateControlers();
+				updateNetworkSlots();
 
-                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",__FILE__,__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
 
-                    //no human
-                    if(humanIndex1 == -1 && humanIndex2 == -1) {
-                        listBoxControls[i].setSelectedItemIndex(ctHuman);
-                        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
+				if(hasNetworkGameSettings() == true) {
+					//delay publishing for 5 seconds
+					needToPublishDelayed=true;
+					mapPublishingDelayTimer=time(NULL);
+				}
+			}
+			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-                        //printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
-                    }
-                    //2 humans
-                    else if(humanIndex1 != -1 && humanIndex2 != -1) {
-                        int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
-                        int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
+				cleanupMapPreviewTexture();
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
 
-                        string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+				if(hasNetworkGameSettings() == true) {
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAllowObservers.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-                        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",__FILE__,__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
-                        //printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
 
-                        listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
-                        labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
-                    }
-                    updateNetworkSlots();
+				reloadFactions(true);
 
-                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                        needToRepublishToMasterserver = true;
-                    }
+				if(hasNetworkGameSettings() == true) {
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-                    if(hasNetworkGameSettings() == true) {
-                        needToSetChangedGameSettings = true;
-                        lastSetChangedGameSettings   = time(NULL);
-                    }
-                    updateResourceMultiplier(i);
-                }
-                else if(buttonClearBlockedPlayers.mouseClick(x, y)) {
-                	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-                	if(serverInterface != NULL) {
-						ServerSocket *serverSocket = serverInterface->getServerSocket();
-						if(serverSocket != NULL) {
-							serverSocket->clearBlockedIPAddress();
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if (listBoxAdvanced.mouseClick(x, y)) {
+				//TODO
+			}
+			else if(listBoxTileset.mouseClick(x, y)){
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+				if(hasNetworkGameSettings() == true)
+				{
+
+					//delay publishing for 5 seconds
+					needToPublishDelayed=true;
+					mapPublishingDelayTimer=time(NULL);
+				}
+			}
+			else if(listBoxMapFilter.mouseClick(x, y)){
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
+
+				loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+				labelMapInfo.setText(mapInfo.desc);
+				updateControlers();
+				updateNetworkSlots();
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if(listBoxTechTree.mouseClick(x, y)){
+				reloadFactions(false);
+
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				needToRepublishToMasterserver = true;
+				soundRenderer.playFx(coreData.getClickSoundC());
+
+				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+				serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
+			}
+			else if(labelGameName.mouseClick(x, y) && listBoxPublishServer.getEditable()){
+				setActiveInputLabel(&labelGameName);
+			}
+			else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+
+				soundRenderer.playFx(coreData.getClickSoundC());
+			}
+			else {
+				for(int i = 0; i < mapInfo.players; ++i) {
+					MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+					//if (listBoxAdvanced.getSelectedItemIndex() == 1) {
+						// set multiplier
+						if(listBoxRMultiplier[i].mouseClick(x, y)) {
 						}
-                	}
-                }
-                else if(buttonBlockPlayers[i].mouseClick(x, y)) {
-                	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-                	if(serverInterface != NULL) {
-						if(serverInterface->getSlot(i) != NULL &&
-		                   serverInterface->getSlot(i)->isConnected()) {
+					//}
 
-							ServerSocket *serverSocket = serverInterface->getServerSocket();
-							if(serverSocket != NULL) {
-								serverSocket->addIPAddressToBlockedList(serverInterface->getSlot(i)->getIpAddress());
+					//ensure thet only 1 human player is present
+					ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+					ConnectionSlot *slot = serverInterface->getSlot(i);
 
-						    	Lang &lang= Lang::getInstance();
-						    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
-						    	for(unsigned int j = 0; j < languageList.size(); ++j) {
-									char szMsg[1024]="";
-									if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
-										sprintf(szMsg,lang.get("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i)->getIpAddress().c_str());
-									}
-									else {
-										sprintf(szMsg,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i)->getIpAddress().c_str());
-									}
+					bool checkControTypeClicked = false;
+					int selectedControlItemIndex = listBoxControls[i].getSelectedItemIndex();
+					if(selectedControlItemIndex != ctNetwork ||
+						(selectedControlItemIndex == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
+						checkControTypeClicked = true;
+					}
 
-									serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
-						    	}
-						    	sleep(1);
-						    	serverInterface->getSlot(i)->close();
+					//printf("checkControTypeClicked = %d selectedControlItemIndex = %d i = %d\n",checkControTypeClicked,selectedControlItemIndex,i);
+
+					if(checkControTypeClicked == true && listBoxControls[i].mouseClick(x, y)) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						//printf("listBoxControls[i].mouseClick(x, y) is TRUE i = %d newcontrol = %d\n",i,listBoxControls[i].getSelectedItemIndex());
+
+						// Skip over networkunassigned
+						if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned &&
+							selectedControlItemIndex != ctNetworkUnassigned) {
+							listBoxControls[i].mouseClick(x, y);
+						}
+
+						//look for human players
+						int humanIndex1= -1;
+						int humanIndex2= -1;
+						for(int j = 0; j < GameConstants::maxPlayers; ++j) {
+							ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
+							if(ct == ctHuman) {
+								if(humanIndex1 == -1) {
+									humanIndex1= j;
+								}
+								else {
+									humanIndex2= j;
+								}
 							}
 						}
-                	}
-                }
-                else if(listBoxFactions[i].mouseClick(x, y)) {
-                    // Disallow CPU players to be observers
-        			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
-        				(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
-        				 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
-        				listBoxFactions[i].setSelectedItemIndex(0);
-        			}
-        			//
 
-                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                        needToRepublishToMasterserver = true;
-                    }
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",__FILE__,__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
 
-                    if(hasNetworkGameSettings() == true)
-                    {
-                        needToSetChangedGameSettings = true;
-                        lastSetChangedGameSettings   = time(NULL);
-                    }
-                }
-                else if(listBoxTeams[i].mouseClick(x, y))
-                {
-                    if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-                        if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
-                            lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
-                        }
-                    }
-                    else {
-                        lastSelectedTeamIndex[i] = -1;
-                    }
+						//no human
+						if(humanIndex1 == -1 && humanIndex2 == -1) {
+							listBoxControls[i].setSelectedItemIndex(ctHuman);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
 
-                    if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-                        needToRepublishToMasterserver = true;
-                    }
+							//printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
+						}
+						//2 humans
+						else if(humanIndex1 != -1 && humanIndex2 != -1) {
+							int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
+							int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
 
-                    if(hasNetworkGameSettings() == true)
-                    {
-                        needToSetChangedGameSettings = true;
-                        lastSetChangedGameSettings   = time(NULL);;
-                    }
-                }
-                else if(labelPlayerNames[i].mouseClick(x, y)) {
-                	ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
-                	if(ct == ctHuman) {
-                		setActiveInputLabel(&labelPlayerNames[i]);
-                		break;
-                	}
-                }
-            }
+							string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",__FILE__,__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
+							//printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
+
+							listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
+							labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
+						}
+						updateNetworkSlots();
+
+						if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+							needToRepublishToMasterserver = true;
+						}
+
+						if(hasNetworkGameSettings() == true) {
+							needToSetChangedGameSettings = true;
+							lastSetChangedGameSettings   = time(NULL);
+						}
+						updateResourceMultiplier(i);
+					}
+					else if(buttonClearBlockedPlayers.mouseClick(x, y)) {
+						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+						if(serverInterface != NULL) {
+							ServerSocket *serverSocket = serverInterface->getServerSocket();
+							if(serverSocket != NULL) {
+								serverSocket->clearBlockedIPAddress();
+							}
+						}
+					}
+					else if(buttonBlockPlayers[i].mouseClick(x, y)) {
+						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+						if(serverInterface != NULL) {
+							if(serverInterface->getSlot(i) != NULL &&
+							   serverInterface->getSlot(i)->isConnected()) {
+
+								ServerSocket *serverSocket = serverInterface->getServerSocket();
+								if(serverSocket != NULL) {
+									serverSocket->addIPAddressToBlockedList(serverInterface->getSlot(i)->getIpAddress());
+
+									Lang &lang= Lang::getInstance();
+									const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+									for(unsigned int j = 0; j < languageList.size(); ++j) {
+										char szMsg[1024]="";
+										if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
+											sprintf(szMsg,lang.get("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i)->getIpAddress().c_str());
+										}
+										else {
+											sprintf(szMsg,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i)->getIpAddress().c_str());
+										}
+
+										serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
+									}
+									sleep(1);
+									serverInterface->getSlot(i)->close();
+								}
+							}
+						}
+					}
+					else if(listBoxFactions[i].mouseClick(x, y)) {
+						// Disallow CPU players to be observers
+						if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+							(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+							 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
+							listBoxFactions[i].setSelectedItemIndex(0);
+						}
+						//
+
+						if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+							needToRepublishToMasterserver = true;
+						}
+
+						if(hasNetworkGameSettings() == true)
+						{
+							needToSetChangedGameSettings = true;
+							lastSetChangedGameSettings   = time(NULL);
+						}
+					}
+					else if(listBoxTeams[i].mouseClick(x, y))
+					{
+						if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+							if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+								lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+							}
+						}
+						else {
+							lastSelectedTeamIndex[i] = -1;
+						}
+
+						if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+							needToRepublishToMasterserver = true;
+						}
+
+						if(hasNetworkGameSettings() == true)
+						{
+							needToSetChangedGameSettings = true;
+							lastSetChangedGameSettings   = time(NULL);;
+						}
+					}
+					else if(labelPlayerNames[i].mouseClick(x, y)) {
+						ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+						if(ct == ctHuman) {
+							setActiveInputLabel(&labelPlayerNames[i]);
+							break;
+						}
+					}
+				}
+        }
         }
 
 		if(hasNetworkGameSettings() == true && listBoxPlayerStatus.mouseClick(x,y)) {
@@ -3467,6 +3468,11 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 	}
 
 		SDLKey key = extractKeyPressed(c);
+		if(isKeyPressed(SDLK_ESCAPE,c,false) == true || isKeyPressed(SDLK_RETURN,c,false) == true )
+		{
+			setActiveInputLabel(NULL);
+			return;
+		}
 		//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
 		//   (c=='-') || (c=='(') || (c==')')) {
 		if(isAllowedInputTextKey(key)) {
@@ -3559,8 +3565,10 @@ string MenuStateCustomGame::getCurrentMapFile(){
 }
 
 void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable) {
-
 	if(newLable != NULL) {
+		if( newLable==activeInputLabel){
+			return;
+		}
 		string text= newLable->getText();
 		size_t found = text.find_last_of("_");
 		if (found == string::npos) {
