@@ -207,6 +207,8 @@ void Game::endGame() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	quitGame();
+
 	Object::setStateCallback(NULL);
 	thisGamePtr = NULL;
 	if(originalDisplayMsgCallback != NULL) {
@@ -267,6 +269,8 @@ void Game::endGame() {
 Game::~Game() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	quitGame();
 
 	Object::setStateCallback(NULL);
 	thisGamePtr = NULL;
@@ -2519,6 +2523,7 @@ Stats Game::quitGame() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	NetworkManager::getInstance().end();
 	//sleep(0);
 
