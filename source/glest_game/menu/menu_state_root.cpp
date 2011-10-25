@@ -92,6 +92,26 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
+void MenuStateRoot::reloadUI() {
+	Lang &lang= Lang::getInstance();
+	if(EndsWith(glestVersionString, "-dev") == false){
+		labelVersion.setText(glestVersionString);
+	}
+	else {
+		labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
+	}
+
+	buttonNewGame.setText(lang.get("NewGame"));
+	buttonMods.setText(lang.get("Mods"));
+	buttonOptions.setText(lang.get("Options"));
+	buttonAbout.setText(lang.get("About"));
+	buttonExit.setText(lang.get("Exit"));
+
+	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 
 	CoreData &coreData=  CoreData::getInstance();

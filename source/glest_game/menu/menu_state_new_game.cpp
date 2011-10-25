@@ -72,6 +72,19 @@ MenuStateNewGame::MenuStateNewGame(Program *program, MainMenu *mainMenu):
 	NetworkManager::getInstance().end();
 }
 
+void MenuStateNewGame::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	buttonCustomGame.setText(lang.get("CustomGame"));
+	buttonScenario.setText(lang.get("Scenario"));
+	buttonJoinGame.setText(lang.get("JoinGame"));
+	buttonMasterserverGame.setText(lang.get("JoinInternetGame"));
+	buttonTutorial.setText(lang.get("Tutorial"));
+	buttonReturn.setText(lang.get("Return"));
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 void MenuStateNewGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 	CoreData &coreData=  CoreData::getInstance();

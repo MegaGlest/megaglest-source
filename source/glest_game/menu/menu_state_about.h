@@ -44,6 +44,8 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
 	virtual void keyDown(SDL_KeyboardEvent key);
+
+	virtual void reloadUI();
 };
 
 }}//end namespace

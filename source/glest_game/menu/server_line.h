@@ -69,6 +69,8 @@ public:
 	void setY(int y);
 	//void setIndex(int value);
 	void render();
+
+	virtual void reloadUI();
 };
 
 }}//end namespace

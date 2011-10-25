@@ -384,6 +384,8 @@ public:
 	Texture3D *newTexture3D(ResourceScope rs);
 	Font2D *newFont(ResourceScope rs);
 	Font3D *newFont3D(ResourceScope rs);
+	void endFont(Font *font, ResourceScope rs, bool mustExistInList=false);
+	void resetFontManager(ResourceScope rs);
 
 	TextRenderer2D *getTextRenderer() const	{return textRenderer;}
 	TextRenderer3D *getTextRenderer3D() const	{return textRenderer3D;}

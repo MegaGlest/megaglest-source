@@ -83,6 +83,41 @@ void get_nickname(const char *sourceNick,char *destNick,size_t maxDestBufferSize
 	irc_target_get_nick(sourceNickStr.c_str(),destNick,maxDestBufferSize);
 }
 
+void event_notice (irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
+	dump_event (session, event, origin, params, count);
+
+	if(origin == NULL) {
+		return;
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("NOTICE from '%s': %s", origin, params[1]);
+
+	if(strcasecmp (origin, "nickserv")) {
+		return;
+	}
+
+	if(strstr (params[1], "This nick is not registered") == params[1]) {
+		//std::string regcmd = "REGISTER " + gCfg.irc_nickserv_pass + " NOMAIL";
+		//gLog.Add (CLog::INFO, "Registering our nick with NICKSERV");
+		//irc_cmd_msg (session, "nickserv", regcmd.c_str());
+	}
+	else if(strstr (params[1], "This nickname is registered and protected") == params[1]) {
+		//std::string identcmd = "IDENTIFY " + gCfg.irc_nickserv_pass;
+		//gLog.Add (CLog::INFO, "Identifying our nick with NICKSERV");
+		//irc_cmd_msg (session, "nickserv", identcmd.c_str());
+
+//	    IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
+//		if(ctx != NULL) {
+//			if(ctx->getExecute_cmd_onconnect() != "") {
+//				irc_cmd_msg(session, "nickserv",  ctx->getExecute_cmd_onconnect().c_str());
+//			}
+//		}
+	}
+	else if(strstr (params[1], "Password accepted - you are now recognized") == params[1]) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Nickserv authentication succeed.");
+	}
+}
+
 void event_join(irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
 	dump_event (session, event, origin, params, count);
 
@@ -125,7 +160,18 @@ void event_connect (irc_session_t * session, const char * event, const char * or
 
 	dump_event(session, event, origin, params, count);
 
-    if(ctx != NULL) {
+	//IRC: Event "433", origin: "leguin.freenode.net", params: 3 [*|softcoder|Nickname is already in use.]
+//	printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+//	if(strstr (params[1], "Nickname is already in use") == params[1]) {
+//		IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
+//		if(ctx != NULL) {
+//			if(ctx->getExecute_cmd_onconnect() != "") {
+//				irc_cmd_msg(session, "nickserv",  ctx->getExecute_cmd_onconnect().c_str());
+//			}
+//		}
+//	}
+//	else
+	if(ctx != NULL) {
         irc_cmd_join(session, ctx->getChannel().c_str(), 0);
     }
 }
@@ -188,6 +234,9 @@ void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, 
 }
 
 void event_channel(irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
+	//IRC: Event "433", origin: "leguin.freenode.net", params: 3 [*|softcoder|Nickname is already in use.]
+	printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if ( count != 2 )
 		return;
 
@@ -309,8 +358,40 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
 			//irc_auto_rename_nick(session);
 			//IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
 			//if(ctx != NULL) {
-
+//			{
+//			//IRC: Event "433", origin: "leguin.freenode.net", params: 3 [*|softcoder|Nickname is already in use.]
+//			printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+//			//if(strstr (params[1], "Nickname is already in use") == params[1]) {
+//				IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
+//				if(ctx != NULL) {
+//					if(ctx->getExecute_cmd_onconnect() != "") {
+//						irc_cmd_msg(session, "nickserv",  ctx->getExecute_cmd_onconnect().c_str());
+//					}
+//				}
+//			//}
+//			}
 			break;
+
+		case LIBIRC_RFC_ERR_NOTREGISTERED :
+			//irc_auto_rename_nick(session);
+			//IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
+			//if(ctx != NULL) {
+//			{
+			//===> IRC: Event "451", origin: "leguin.freenode.net", params: 2 [*|You have not registered]
+//			printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+//			//if(strstr (params[1], "Nickname is already in use") == params[1]) {
+//				IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
+//				if(ctx != NULL) {
+//					//if(ctx->getExecute_cmd_onconnect() != "") {
+//						//irc_cmd_msg(session, "nickserv",  ctx->getExecute_cmd_onconnect().c_str());
+//						string cmd = "REGISTER " + ctx->getNick() + " NOMAIL";
+//						irc_cmd_msg (session, "nickserv", cmd.c_str());
+//					//}
+//				}
+//			//}
+//			}
+			break;
+
 		case LIBIRC_RFC_RPL_TOPIC :
 			break;
 		case LIBIRC_RFC_RPL_NAMREPLY :
@@ -462,7 +543,7 @@ void IRCThread::execute() {
             irc_callbacks_t	callbacks;
             ircSession=NULL;
 
-            if(argv.size() != 3) {
+            if(argv.size() != 5) {
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Usage: <server> <nick> <channel> : got params [%ld]\n",(long int)argv.size());
                 return;
             }
@@ -479,7 +560,7 @@ void IRCThread::execute() {
             callbacks.event_kick = dump_event;
             callbacks.event_channel = event_channel;
             callbacks.event_privmsg = event_privmsg;
-            callbacks.event_notice = dump_event;
+            callbacks.event_notice = event_notice;
             callbacks.event_invite = dump_event;
             callbacks.event_umode = dump_event;
             callbacks.event_ctcp_rep = dump_event;
@@ -500,6 +581,19 @@ void IRCThread::execute() {
                 return;
             }
 
+//            this->execute_cmd_onconnect = "";
+//            if(argv.size() >= 5) {
+//            	this->execute_cmd_onconnect = argv[4]; // /msg NickServ identify <password>.
+//            }
+
+//            this->password = "";
+//            if(argv.size() >= 5) {
+//            	this->password = argv[4];
+//            }
+            this->username = argv[1];
+            if(argv.size() >= 4) {
+            	this->username = argv[3];
+            }
             this->channel = argv[2];
             this->nick    = argv[1];
             irc_set_ctx(ircSession, this);
@@ -508,7 +602,7 @@ void IRCThread::execute() {
                 return;
             }
 
-            if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->nick.c_str(), "megaglest")) {
+            if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->username.c_str(), "megaglest")) {
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
                 return;
             }

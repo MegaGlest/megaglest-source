@@ -729,6 +729,19 @@ Font3D *Renderer::newFont3D(ResourceScope rs){
 	return fontManager[rs]->newFont3D();
 }
 
+void Renderer::endFont(Font *font, ResourceScope rs, bool mustExistInList) {
+	if(this->masterserverMode == true) {
+		return;
+	}
+
+	fontManager[rs]->endFont(font,mustExistInList);
+}
+
+void Renderer::resetFontManager(ResourceScope rs) {
+	fontManager[rs]->end();
+	fontManager[rsGlobal]->init();
+}
+
 void Renderer::manageParticleSystem(ParticleSystem *particleSystem, ResourceScope rs){
 	particleManager[rs]->manage(particleSystem);
 }

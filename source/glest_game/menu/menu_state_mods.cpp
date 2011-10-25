@@ -304,6 +304,60 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void MenuStateMods::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	keyTechScrollBarTitle1.setText(lang.get("TechTitle1"));
+	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
+	keyTechScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	keyTechScrollBarTitle2.setText(lang.get("TechTitle2"));
+	keyTechScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyTechScrollBarTitle2.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+
+	keyMapScrollBarTitle1.setText(lang.get("MapTitle1"));
+	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
+	keyMapScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	keyMapScrollBarTitle2.setText(lang.get("MapTitle2"));
+	keyMapScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
+	keyMapScrollBarTitle2.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+
+	keyTilesetScrollBarTitle1.setText(lang.get("TilesetTitle1"));
+	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
+	keyTilesetScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	keyScenarioScrollBarTitle1.setText(lang.get("ScenarioTitle1"));
+	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
+	keyScenarioScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+
+	modDescrLabel.setText("description is empty");
+
+	buttonReturn.setText(lang.get("Return"));
+
+	buttonInstalled.setText(lang.get("ModInstalled"));
+
+	buttonAvailable.setText(lang.get("ModAvailable"));
+
+	buttonOnlyLocal.setText(lang.get("ModOnlyLocal"));
+
+	buttonConflict.setText(lang.get("ModHasConflict"));
+
+	buttonInstallTech.setText(lang.get("Install"));
+	buttonRemoveTech.setText(lang.get("Remove"));
+
+	buttonInstallTileset.setText(lang.get("Install"));
+	buttonRemoveTileset.setText(lang.get("Remove"));
+
+	buttonInstallMap.setText(lang.get("Install"));
+	buttonRemoveMap.setText(lang.get("Remove"));
+
+	buttonInstallScenario.setText(lang.get("Install"));
+	buttonRemoveScenario.setText(lang.get("Remove"));
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

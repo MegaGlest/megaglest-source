@@ -62,6 +62,8 @@ public:
 
 	virtual void keyDown(SDL_KeyboardEvent key);
 
+	virtual void reloadUI();
+
 private:
 
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);

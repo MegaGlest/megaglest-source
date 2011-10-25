@@ -29,9 +29,14 @@ namespace Glest{ namespace Game{
 ///	Main program window
 // =====================================================
 
-class MainWindow: public WindowGl{
+class MainWindow: public WindowGl {
 private:
     Program* program;
+    PopupMenu popupMenu;
+    int cancelLanguageSelection;
+
+    void showLanguages();
+    void toggleLanguage(string language);
 
 public:
 	MainWindow(Program *program);
@@ -50,6 +55,8 @@ public:
 	virtual void eventActivate(bool active);
 	virtual void eventResize(SizeState sizeState);
 	virtual void eventClose();
+
+	virtual void render();
 };
 
 }}//end namespace

@@ -206,13 +206,30 @@ bool GraphicComponent::saveCustomProperties(std::string containerName) {
 	return savedChange;
 }
 
+void GraphicComponent::reloadFonts() {
+    font= CoreData::getInstance().getMenuFontNormal();
+    font3D= CoreData::getInstance().getMenuFontNormal3D();
+}
+
+void GraphicComponent::reloadFontsForRegisterGraphicComponents(std::string containerName) {
+	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
+	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
+		for(std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.begin();
+				iterFind2 != iterFind1->second.end(); ++iterFind2) {
+			GraphicComponent *ctl = dynamic_cast<GraphicComponent *>(iterFind2->second);
+			if(ctl) {
+				ctl->reloadFonts();
+			}
+		}
+	}
+}
+
 void GraphicComponent::init(int x, int y, int w, int h) {
     this->x= x;
     this->y= y;
     this->w= w;
     this->h= h;
-    font= CoreData::getInstance().getMenuFontNormal();
-    font3D= CoreData::getInstance().getMenuFontNormal3D();
+    reloadFonts();
 	enabled= true;
 }
 

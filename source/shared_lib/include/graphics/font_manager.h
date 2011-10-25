@@ -40,6 +40,8 @@ public:
 	Font2D *newFont2D();
 	Font3D *newFont3D();
 
+	void endFont(Font *font,bool mustExistInList=false);
+
 	void init();
 	void end();
 };

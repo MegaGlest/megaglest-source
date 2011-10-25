@@ -200,6 +200,8 @@ public:
 
     virtual bool isInSpecialKeyCaptureEvent();
 
+    virtual void reloadUI();
+
 private:
 
     bool hasNetworkGameSettings();

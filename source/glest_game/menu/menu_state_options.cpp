@@ -508,6 +508,132 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
+void MenuStateOptions::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	mainMessageBox.init(lang.get("Ok"));
+
+	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+	labelAudioSection.setText(lang.get("Audio"));
+
+	labelSoundFactory.setText(lang.get("SoundAndMusic"));
+
+	std::vector<string> listboxData;
+	listboxData.push_back("None");
+	listboxData.push_back("OpenAL");
+#ifdef WIN32
+	listboxData.push_back("DirectSound8");
+#endif
+
+	listBoxSoundFactory.setItems(listboxData);
+
+	labelVolumeFx.setText(lang.get("FxVolume"));
+
+	labelVolumeAmbient.setText(lang.get("AmbientVolume"));
+	labelVolumeMusic.setText(lang.get("MusicVolume"));
+
+	labelVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+	labelVideoSection.setText(lang.get("Video"));
+
+	labelScreenModes.setText(lang.get("Resolution"));
+
+	labelFullscreenWindowed.setText(lang.get("Windowed"));
+	labelFilter.setText(lang.get("Filter"));
+
+	listboxData.clear();
+	listboxData.push_back("Bilinear");
+	listboxData.push_back("Trilinear");
+	listBoxFilter.setItems(listboxData);
+
+	labelShadows.setText(lang.get("Shadows"));
+
+	listboxData.clear();
+	for(int i= 0; i<Renderer::sCount; ++i){
+		listboxData.push_back(lang.get(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
+	}
+	listBoxShadows.setItems(listboxData);
+
+	labelTextures3D.setText(lang.get("Textures3D"));
+
+	labelLights.setText(lang.get("MaxLights"));
+
+	labelUnitParticles.setText(lang.get("ShowUnitParticles"));
+
+	labelTilesetParticles.setText(lang.get("ShowTilesetParticles"));
+
+	labelMapPreview.setText(lang.get("ShowMapPreview"));
+
+	labelEnableTextureCompression.setText(lang.get("EnableTextureCompression"));
+
+	labelVisibleHud.setText(lang.get("VisibleHUD"));
+
+	labelRainEffect.setText(lang.get("RainEffect"));
+
+	labelMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+	labelMiscSection.setText(lang.get("Misc"));
+
+	labelLang.setText(lang.get("Language"));
+
+	labelPlayerNameLabel.setText(lang.get("Playername"));
+
+	labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
+	labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	labelFontSizeAdjustment.setText(lang.get("FontSizeAdjustment"));
+
+	labelScreenShotType.setText(lang.get("ScreenShotFileType"));
+
+	labelDisableScreenshotConsoleText.setText(lang.get("ScreenShotConsoleText"));
+
+	labelMouseMoveScrollsWorld.setText(lang.get("MouseScrollsWorld"));
+
+	labelNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
+	labelNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+	labelNetworkSettings.setText(lang.get("Network"));
+
+	labelServerPortLabel.setText(lang.get("ServerPort"));
+	Config &config= Config::getInstance();
+	string port = intToStr(config.getInt("ServerPort"));
+	if(port != "61357") {
+		port = port +" ("+lang.get("NonStandardPort")+"!!)";
+	}
+	else{
+		port = port +" ("+lang.get("StandardPort")+")";
+	}
+
+	labelServerPort.setText(port);
+
+	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
+
+	labelEnableFTP.setText(lang.get("EnableFTP"));
+
+	labelEnableFTPServer.setText(lang.get("EnableFTPServer"));
+
+	labelFTPServerPortLabel.setText(lang.get("FTPServerPort"));
+
+	labelFTPServerDataPortsLabel.setText(lang.get("FTPServerDataPort"));
+
+	labelEnableFTPServerInternetTilesetXfer.setText(lang.get("EnableFTPServerInternetTilesetXfer"));
+
+	labelEnableFTPServerInternetTechtreeXfer.setText(lang.get("EnableFTPServerInternetTechtreeXfer"));
+
+	labelEnablePrivacy.setText(lang.get("PrivacyPlease"));
+
+	buttonOk.setText(lang.get("Ok"));
+	buttonAbort.setText(lang.get("Abort"));
+
+	buttonAutoConfig.setText(lang.get("AutoConfig"));
+
+	buttonVideoInfo.setText(lang.get("VideoInfo"));
+
+	buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 void MenuStateOptions::showMessageBox(const string &text, const string &header, bool toggle){
 	if(!toggle){
 		mainMessageBox.setEnabled(false);

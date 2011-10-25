@@ -52,6 +52,34 @@ int Font::faceResolution					= 72;
 string Font::langHeightText					= "yW";
 //
 
+void Font::resetToDefaults() {
+	Font::charCount					= 256;
+	Font::fontTypeName 				= "Times New Roman";
+	Font::fontIsMultibyte 			= false;
+	Font::forceLegacyFonts			= false;
+	Font::fontIsRightToLeft			= false;
+
+	// This value is used to scale the font text rendering
+	// in 3D render mode
+	Font::scaleFontValue					= 0.80f;
+	// This value is used for centering font text vertically (height)
+	Font::scaleFontValueCenterHFactor		= 4.0f;
+	//float Font::scaleFontValue					= 1.0;
+	//float Font::scaleFontValueCenterHFactor		= 4.0;
+
+	Font::baseSize							= 3;
+
+	Font::faceResolution					= 72;
+	Font::langHeightText					= "yW";
+
+#if defined(WIN32)
+	string newEnvValue = "MEGAGLEST_FONT=";
+	_putenv(newEnvValue.c_str());
+#else
+	unsetenv("MEGAGLEST_FONT");
+#endif
+}
+
 // =====================================================
 //	class FontMetrics
 // =====================================================

@@ -62,11 +62,11 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 	//ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 	if(type == ftht_2D) {
 		ftFont = new FTGLPixmapFont(fontFile);
-		//printf("2D font [%s]\n",fontFile);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("2D font [%s]\n",fontFile);
 	}
 	else if(type == ftht_3D) {
 		ftFont = new FTGLTextureFont(fontFile);
-		//printf("3D font [%s]\n",fontFile);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("3D font [%s]\n",fontFile);
 	}
 	else {
 		throw runtime_error("font render type not set to a known value!");
@@ -234,6 +234,7 @@ void TextFTGL::Render(const char* str, const int len) {
 	if(len != 0) {
 		//printf("FTGL Render [%s] facesize = %d\n",str,ftFont->FaceSize());
 		assertGl();
+
 		ftFont->Render(str, len);
 		//assertGl();
 		GLenum error = glGetError();

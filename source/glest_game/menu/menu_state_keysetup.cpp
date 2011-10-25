@@ -159,6 +159,32 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 	}
 }
 
+void MenuStateKeysetup::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelTitle.setText(lang.get("Keyboardsetup"));
+
+	labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelTestTitle.setText(lang.get("KeyboardsetupTest"));
+
+	labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelTestValue.setText("");
+
+	// mainMassegeBox
+	mainMessageBox.init(lang.get("Ok"));
+
+	buttonOk.setText(lang.get("Ok"));
+
+	buttonDefaults.setText(lang.get("Defaults"));
+
+	buttonReturn.setText(lang.get("Abort"));
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
 
 void MenuStateKeysetup::cleanup() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

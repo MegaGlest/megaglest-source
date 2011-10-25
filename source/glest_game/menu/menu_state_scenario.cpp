@@ -110,6 +110,21 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 	}
 }
 
+void MenuStateScenario::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	mainMessageBox.init(lang.get("Ok"));
+	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
+	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+
+	buttonReturn.setText(lang.get("Return"));
+	buttonPlayNow.setText(lang.get("PlayNow"));
+
+    labelScenario.setText(lang.get("Scenario"));
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 MenuStateScenario::~MenuStateScenario() {
 	cleanupPreviewTexture();
 }

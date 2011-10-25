@@ -142,7 +142,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		int portNumber   = Config::getInstance().getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
 		ServerSocket::setFTPServerPort(portNumber);
-		printf("In [%s::%s] portNumber = %d ServerSocket::getFTPServerPort() = %d\n",__FILE__,__FUNCTION__,__LINE__,portNumber,ServerSocket::getFTPServerPort());
+		//printf("In [%s::%s] portNumber = %d ServerSocket::getFTPServerPort() = %d\n",__FILE__,__FUNCTION__,__LINE__,portNumber,ServerSocket::getFTPServerPort());
 
 		bool allowInternetTilesetFileTransfers = Config::getInstance().getBool("EnableFTPServerInternetTilesetXfer","true");
 		bool allowInternetTechtreeFileTransfers = Config::getInstance().getBool("EnableFTPServerInternetTechtreeXfer","true");

@@ -231,6 +231,7 @@ private:
 			ServerInterface *& serverInterface, int startIndex, int endIndex,
 			bool onlyNetworkUnassigned);
 
+	void reloadUI();
 };
 
 }}//end namespace

@@ -632,6 +632,178 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void MenuStateCustomGame::reloadUI() {
+	Lang &lang= Lang::getInstance();
+    Config &config = Config::getInstance();
+	mainMessageBox.init(lang.get("Ok"));
+
+	vector<string> teamItems, controlItems, results , rMultiplier;
+
+	string ipText = "none";
+	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
+	if(ipList.empty() == false) {
+		ipText = "";
+		for(int idx = 0; idx < ipList.size(); idx++) {
+			string ip = ipList[idx];
+			if(ipText != "") {
+				ipText += ", ";
+			}
+			ipText += ip;
+		}
+	}
+	string externalPort=config.getString("MasterServerExternalPort", "61357");
+	string serverPort=config.getString("ServerPort", "61357");
+	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
+
+	labelMap.setText(lang.get("Map")+":");
+
+	labelMapFilter.setText(lang.get("MapFilter")+":");
+
+	labelTileset.setText(lang.get("Tileset"));
+
+	labelTechTree.setText(lang.get("TechTree"));
+
+	labelFogOfWar.setText(lang.get("FogOfWar"));
+
+	std::vector<std::string> listBoxData;
+	listBoxData.push_back(lang.get("Enabled"));
+	listBoxData.push_back(lang.get("Explored"));
+	listBoxData.push_back(lang.get("Disabled"));
+	listBoxFogOfWar.setItems(listBoxData);
+
+	// Allow Observers
+	labelAllowObservers.setText(lang.get("AllowObservers"));
+
+	listBoxData.clear();
+	listBoxData.push_back(lang.get("No"));
+	listBoxData.push_back(lang.get("Yes"));
+	listBoxAllowObservers.setItems(listBoxData);
+
+	// View Map At End Of Game
+	listBoxData.clear();
+	listBoxData.push_back(lang.get("Yes"));
+	listBoxData.push_back(lang.get("No"));
+	listBoxEnableObserverMode.setItems(listBoxData);
+
+	// Allow Switch Team Mode
+	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
+
+	listBoxData.clear();
+	listBoxData.push_back(lang.get("Yes"));
+	listBoxData.push_back(lang.get("No"));
+	listBoxEnableSwitchTeamMode.setItems(listBoxData);
+
+	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
+
+	labelPathFinderType.setText(lang.get("PathFinderType"));
+
+	listBoxData.clear();
+	listBoxData.push_back(lang.get("PathFinderTypeRegular"));
+	if(config.getBool("EnableRoutePlannerPathfinder","false") == true) {
+		listBoxData.push_back(lang.get("PathFinderTypeRoutePlanner"));
+	}
+	listBoxPathFinderType.setItems(listBoxData);
+
+	// Advanced Options
+	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
+
+	listBoxData.clear();
+	listBoxData.push_back(lang.get("No"));
+	listBoxData.push_back(lang.get("Yes"));
+	listBoxAdvanced.setItems(listBoxData);
+
+	labelPublishServer.setText(lang.get("PublishServer"));
+
+	listBoxData.clear();
+	listBoxData.push_back(lang.get("Yes"));
+	listBoxData.push_back(lang.get("No"));
+	listBoxPublishServer.setItems(listBoxData);
+
+	labelGameNameLabel.setText(lang.get("MGGameTitle")+":");
+
+	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
+	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	if(this->masterserverMode == false) {
+		labelGameName.setText(defaultPlayerName+"'s game");
+	}
+	else {
+		labelGameName.setText("headless ("+defaultPlayerName+")");
+	}
+
+	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
+
+	listBoxData.clear();
+	listBoxData.push_back(lang.get("No"));
+	listBoxData.push_back(lang.get("Yes"));
+	listBoxNetworkPauseGameForLaggedClients.setItems(listBoxData);
+
+    for(int i=0; i < GameConstants::maxPlayers; ++i) {
+        buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
+    }
+
+	labelControl.setText(lang.get("Control"));
+
+    labelFaction.setText(lang.get("Faction"));
+
+    labelTeam.setText(lang.get("Team"));
+
+    labelControl.setFont(CoreData::getInstance().getMenuFontBig());
+    labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+    labelRMultiplier.setFont(CoreData::getInstance().getMenuFontBig());
+    labelRMultiplier.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
+	labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	//texts
+	buttonClearBlockedPlayers.setText(lang.get("BlockPlayerClear"));
+	buttonReturn.setText(lang.get("Return"));
+	buttonPlayNow.setText(lang.get("PlayNow"));
+	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
+
+    controlItems.push_back(lang.get("Closed"));
+	controlItems.push_back(lang.get("CpuEasy"));
+	controlItems.push_back(lang.get("Cpu"));
+    controlItems.push_back(lang.get("CpuUltra"));
+    controlItems.push_back(lang.get("CpuMega"));
+	controlItems.push_back(lang.get("Network"));
+	controlItems.push_back(lang.get("NetworkUnassigned"));
+	controlItems.push_back(lang.get("Human"));
+
+	if(config.getBool("EnableNetworkCpu","false") == true) {
+		controlItems.push_back(lang.get("NetworkCpuEasy"));
+		controlItems.push_back(lang.get("NetworkCpu"));
+	    controlItems.push_back(lang.get("NetworkCpuUltra"));
+	    controlItems.push_back(lang.get("NetworkCpuMega"));
+	}
+
+	for(int i=0; i < GameConstants::maxPlayers; ++i) {
+		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
+
+		listBoxControls[i].setItems(controlItems);
+    }
+
+    labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	vector<string> playerStatuses;
+	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.get("PlayerStatusReady"));
+	listBoxPlayerStatus.setItems(playerStatuses);
+
+	// write hint to console:
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+	console.addLine(lang.get("To switch off music press") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
+
+	chatManager.init(&console, -1,true);
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 void MenuStateCustomGame::cleanup() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
     if(publishToMasterserverThread != NULL) {

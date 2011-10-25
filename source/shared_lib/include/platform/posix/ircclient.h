@@ -49,6 +49,9 @@ protected:
     std::vector<string> argv;
     irc_session_t *ircSession;
 
+    string execute_cmd_onconnect;
+    //string password;
+    string username;
 	string channel;
 	string nick;
 
@@ -85,6 +88,9 @@ public:
 
 	string getChannel() const { return channel;}
 	string getNick() const { return nick;}
+
+	string getExecute_cmd_onconnect() const { return execute_cmd_onconnect; }
+	void setExecute_cmd_onconnect(string value) { execute_cmd_onconnect = value; }
 
     std::vector<string> getArgs() const { return argv;}
 

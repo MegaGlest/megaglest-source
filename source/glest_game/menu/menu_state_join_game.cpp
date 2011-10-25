@@ -155,6 +155,40 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	chatManager.init(&console, -1);
 }
 
+void MenuStateJoinGame::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	Config &config= Config::getInstance();
+
+	buttonReturn.setText(lang.get("Return"));
+	buttonConnect.setText(lang.get("Connect"));
+	buttonAutoFindServers.setText(lang.get("FindLANGames"));
+	labelServerType.setText(lang.get("ServerType") + ":");
+
+	std::vector<string> listboxData;
+	listboxData.push_back(lang.get("ServerTypeNew"));
+	listboxData.push_back(lang.get("ServerTypePrevious"));
+	listboxData.push_back(lang.get("ServerTypeFound"));
+	listBoxServerType.setItems(listboxData);
+
+	labelServer.setText(lang.get("Server") + ": ");
+
+	labelServerPortLabel.setText(lang.get("ServerPort"));
+
+	string port=intToStr(config.getInt("ServerPort"));
+	if(port != "61357") {
+		port = port +" ("+lang.get("NonStandardPort")+")";
+	}
+	else {
+		port = port +" ("+lang.get("StandardPort")+")";
+	}
+	labelServerPort.setText(port);
+
+	chatManager.init(&console, -1);
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 MenuStateJoinGame::~MenuStateJoinGame() {
 	abortAutoFind = true;
 }

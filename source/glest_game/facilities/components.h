@@ -102,6 +102,9 @@ public:
 	virtual void setEditable(bool editable)		{this->editable= editable;}
 	virtual void setVisible(bool value)			{this->visible = value;}
 
+	virtual void reloadFonts();
+	static void reloadFontsForRegisterGraphicComponents(std::string containerName);
+
     virtual bool mouseMove(int x, int y);
     virtual bool mouseClick(int x, int y);
 

@@ -35,6 +35,7 @@ private:
 	GraphicMessageBox mainMessageBox;
 	Texture2D *renderToTexture;
 	ProgramState *originState;
+	const char *containerName;
 
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
@@ -48,6 +49,7 @@ public:
 	virtual void mouseDownLeft(int x, int y);
 	virtual void mouseMove(int x, int y, const MouseState *ms);
 	//virtual void tick();
+	virtual void reloadUI();
 };
 
 }}//end namespace

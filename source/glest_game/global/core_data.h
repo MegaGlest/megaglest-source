@@ -35,7 +35,7 @@ using Shared::Sound::StaticSound;
 /// Data shared ammont all the ProgramStates
 // =====================================================
 
-class CoreData{
+class CoreData {
 private:
     StrSound introMusic;
     StrSound menuMusic;
@@ -83,10 +83,12 @@ private:
 	Font3D *consoleFont3D;
 
 public:
-	static CoreData &getInstance();
+
 	~CoreData();
+	static CoreData &getInstance();
 
     void load();
+    void loadFonts();
 
 	Texture2D *getBackgroundTexture() const		{return backgroundTexture;}
 	Texture2D *getFireTexture() const			{return fireTexture;}
@@ -137,7 +139,7 @@ public:
     Font3D *getConsoleFont3D() const			{return consoleFont3D;}
 
 private:
-	CoreData(){};
+    CoreData();
 
 	int computeFontSize(int size);
 };
