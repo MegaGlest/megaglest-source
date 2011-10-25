@@ -34,9 +34,10 @@ private:
     Program* program;
     PopupMenu popupMenu;
     int cancelLanguageSelection;
+    bool triggerLanguageToggle;
+    string triggerLanguage;
 
     void showLanguages();
-    void toggleLanguage(string language);
 
 public:
 	MainWindow(Program *program);
@@ -57,6 +58,10 @@ public:
 	virtual void eventClose();
 
 	virtual void render();
+	void toggleLanguage(string language);
+    bool getTriggerLanguageToggle() const { return triggerLanguageToggle; }
+    string getTriggerLanguage() const { return triggerLanguage; }
+
 };
 
 }}//end namespace
