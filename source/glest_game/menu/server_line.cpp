@@ -133,6 +133,32 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 
 }
 
+void ServerLine::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
+
+	platformLabel.setText(masterServerInfo.getPlatform());
+
+	serverTitleLabel.setText(masterServerInfo.getServerTitle());
+
+	country.setText(masterServerInfo.getCountry());
+
+	wrongVersionLabel.setText(lang.get("IncompatibleVersion"));
+
+	techLabel.setText(masterServerInfo.getTech());
+
+	mapLabel.setText(masterServerInfo.getMap());
+	activeSlotsLabel.setText(intToStr(masterServerInfo.getActiveSlots()) + "/" + intToStr(
+	        masterServerInfo.getNetworkSlots()) + "/" + intToStr(masterServerInfo.getConnectedClients()));
+
+	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
+
+	status.setText(lang.get("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 ServerLine::~ServerLine(){
 	//delete masterServerInfo;
 

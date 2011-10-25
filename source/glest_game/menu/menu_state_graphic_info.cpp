@@ -28,9 +28,13 @@ namespace Glest{ namespace Game{
 MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu):
 	MenuState(program, mainMenu, "info")
 {
+	Lang &lang= Lang::getInstance();
+
 	containerName = "GraphicInfo";
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(100, 540, 125);
+
+	buttonReturn.setText(lang.get("Return"));
 
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
 	labelInfo.init(100, 700);
@@ -73,6 +77,45 @@ MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu)
 	labelInternalInfo.setText(strInternalInfo);
 }
 
+void MenuStateGraphicInfo::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	buttonReturn.setText(lang.get("Return"));
+
+	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+	labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+
+	labelInternalInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+	labelInternalInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+
+	Renderer &renderer= Renderer::getInstance();
+
+	string glInfo= renderer.getGlInfo();
+	string glMoreInfo= renderer.getGlMoreInfo();
+	labelInfo.setText(glInfo);
+	labelMoreInfo.setText(glMoreInfo);
+
+	string strInternalInfo = "";
+	strInternalInfo += "VBOSupported: " + boolToStr(getVBOSupported());
+	if(getenv("MEGAGLEST_FONT") != NULL) {
+		char *tryFont = getenv("MEGAGLEST_FONT");
+		strInternalInfo += "\nMEGAGLEST_FONT: " + string(tryFont);
+	}
+	strInternalInfo += "\nforceLegacyFonts: " + boolToStr(Font::forceLegacyFonts);
+	strInternalInfo += "\nrenderText3DEnabled: " + boolToStr(Renderer::renderText3DEnabled);
+	strInternalInfo += "\nuseTextureCompression: " + boolToStr(Texture::useTextureCompression);
+	strInternalInfo += "\nfontIsRightToLeft: " + boolToStr(Font::fontIsRightToLeft);
+	strInternalInfo += "\nscaleFontValue: " + boolToStr(Font::scaleFontValue);
+	strInternalInfo += "\nscaleFontValueCenterHFactor: " + boolToStr(Font::scaleFontValueCenterHFactor);
+	strInternalInfo += "\nlangHeightText: " + Font::langHeightText;
+	strInternalInfo += "\nAllowAltEnterFullscreenToggle: " + boolToStr(Window::getAllowAltEnterFullscreenToggle());
+	strInternalInfo += "\nTryVSynch: " + boolToStr(Window::getTryVSynch());
+	strInternalInfo += "\nVERBOSE_MODE_ENABLED: " + boolToStr(SystemFlags::VERBOSE_MODE_ENABLED);
+	labelInternalInfo.setText(strInternalInfo);
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 void MenuStateGraphicInfo::mouseClick(int x, int y, MouseButton mouseButton){
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -91,8 +134,6 @@ void MenuStateGraphicInfo::render(){
 
 	Renderer &renderer= Renderer::getInstance();
 	Lang &lang= Lang::getInstance();
-
-	buttonReturn.setText(lang.get("Return"));
 
 	renderer.renderButton(&buttonReturn);
 	renderer.renderLabel(&labelInfo);

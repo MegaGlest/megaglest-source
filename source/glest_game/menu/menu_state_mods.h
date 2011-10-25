@@ -204,6 +204,8 @@ public:
 
     virtual void simpleTask(BaseThread *callingThread);
 
+    virtual void reloadUI();
+
 private:
 
     void cleanUp();

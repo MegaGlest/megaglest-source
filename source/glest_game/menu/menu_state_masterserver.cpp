@@ -270,9 +270,39 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	updateFromMasterserverThread->setUniqueID(__FILE__);
 	updateFromMasterserverThread->start();
 
-    ircArgs.push_back(IRC_SERVER);
-    ircArgs.push_back(szIRCNick);
-    ircArgs.push_back(IRC_CHANNEL);
+    if(Config::getInstance().getString("IRCServer","") != "") {
+    	ircArgs.push_back(Config::getInstance().getString("IRCServer"));
+    }
+    else {
+    	ircArgs.push_back(IRC_SERVER);
+    }
+
+    if(Config::getInstance().getString("IRCNick","") != "") {
+    	ircArgs.push_back(Config::getInstance().getString("IRCNick"));
+    }
+    else {
+    	ircArgs.push_back(szIRCNick);
+    }
+
+    if(Config::getInstance().getString("IRCChannel","") != "") {
+    	ircArgs.push_back(Config::getInstance().getString("IRCChannel"));
+    }
+    else {
+    	ircArgs.push_back(IRC_CHANNEL);
+    }
+
+    if(Config::getInstance().getString("IRCUsername","") != "") {
+    	ircArgs.push_back(Config::getInstance().getString("IRCUsername"));
+    }
+    else {
+    	ircArgs.push_back(szIRCNick);
+    }
+    if(Config::getInstance().getString("IRCPassword","") != "") {
+    	ircArgs.push_back("identify " + Config::getInstance().getString("IRCPassword"));
+    }
+    else {
+    	ircArgs.push_back("");
+    }
 
     MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
     ircClient = new IRCThread(ircArgs,this);
@@ -280,6 +310,63 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     ircClient->start();
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MenuStateMasterserver::reloadUI() {
+	Lang &lang= Lang::getInstance();
+
+	consoleIRC.setFont(CoreData::getInstance().getMenuFontNormal());
+	consoleIRC.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+
+	mainMessageBox.init(lang.get("Ok"));
+
+    announcementLabel.setFont(CoreData::getInstance().getMenuFontBig());
+    announcementLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+    versionInfoLabel.setFont(CoreData::getInstance().getMenuFontBig());
+    versionInfoLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelTitle.setText(lang.get("AvailableServers"));
+
+	if(Config::getInstance().getString("Masterserver","") == "") {
+		labelTitle.setText("*** " + lang.get("AvailableServers"));
+	}
+
+	glestVersionLabel.setText(lang.get("MGVersion"));
+
+	platformLabel.setText(lang.get("MGPlatform"));
+
+	serverTitleLabel.setText(lang.get("MGGameTitle"));
+
+	countryLabel.setText(lang.get("MGGameCountry"));
+
+	techLabel.setText(lang.get("TechTree"));
+
+	mapLabel.setText(lang.get("Map"));
+
+	activeSlotsLabel.setText(lang.get("MGGameSlots"));
+
+	externalConnectPort.setText(lang.get("Port"));
+
+	statusLabel.setText(lang.get("MGGameStatus"));
+
+	selectButton.setText(lang.get("MGJoinGameSlots"));
+
+	// Titles for current games - END
+
+	buttonRefresh.setText(lang.get("RefreshList"));
+	buttonReturn.setText(lang.get("Return"));
+	buttonCreateGame.setText(lang.get("CustomGame"));
+	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
+
+	ircOnlinePeopleLabel.setText(lang.get("IRCPeopleOnline"));
+
+    chatManager.setFont(CoreData::getInstance().getMenuFontNormal());
+    chatManager.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
 void MenuStateMasterserver::setConsolePos(int yPos){

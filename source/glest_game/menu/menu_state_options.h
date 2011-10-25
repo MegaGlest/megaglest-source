@@ -134,6 +134,9 @@ public:
     virtual void keyPress(SDL_KeyboardEvent c);
     virtual bool isInSpecialKeyCaptureEvent();
 
+    virtual void reloadUI();
+
+
 private:
 	void saveConfig();
 	void setActiveInputLable(GraphicLabel* newLable);

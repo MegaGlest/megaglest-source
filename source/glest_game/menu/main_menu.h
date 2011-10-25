@@ -88,7 +88,7 @@ public:
     int getMouseY() const {return mouseY;}
     int getMouse2dAnim() const {return mouse2dAnim;}
     virtual void consoleAddLine(string line);
-
+    virtual void reloadUI();
 };
 
 
@@ -122,6 +122,7 @@ public:
 
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 	virtual void consoleAddLine(string line);
+	virtual void reloadUI() {};
 };
 
 }}//end namespace

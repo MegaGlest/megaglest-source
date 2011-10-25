@@ -105,6 +105,8 @@ public:
 
 	int getSize() const;
 	void setSize(int size);
+
+	static void resetToDefaults();
 };
 
 // =====================================================

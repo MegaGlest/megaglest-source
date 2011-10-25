@@ -418,10 +418,18 @@ void Program::resize(SizeState sizeState){
 // ==================== misc ====================
 
 void Program::renderProgramMsgBox() {
+	Renderer &renderer= Renderer::getInstance();
 	if(msgBox.getEnabled()) {
-		Renderer &renderer= Renderer::getInstance();
 		renderer.renderMessageBox(&msgBox);
 	}
+
+	if(renderer.isMasterserverMode() == false && window) {
+		MainWindow *mainWindow = dynamic_cast<MainWindow *>(window);
+		if(mainWindow) {
+			mainWindow->render();
+		}
+	}
+
 }
 
 void Program::setState(ProgramState *programStateNew, bool cleanupOldState)
@@ -629,6 +637,12 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	NetworkInterface::setAllowDownloadDataSynch(Config::getInstance().getBool("AllowDownloadDataSynch","false"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Program::reloadUI() {
+	if(programState) {
+		programState->reloadUI();
+	}
 }
 
 void Program::setDisplaySettings(){

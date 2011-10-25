@@ -13,6 +13,7 @@
 
 #include "graphics_interface.h"
 #include "graphics_factory.h"
+#include <stdexcept>
 #include "leak_dumper.h"
 
 namespace Shared { namespace Graphics {
@@ -38,6 +39,26 @@ Font3D *FontManager::newFont3D() {
 	Font3D *font= GraphicsInterface::getInstance().getFactory()->newFont3D();
 	fonts.push_back(font);
 	return font;
+}
+
+void FontManager::endFont(Font *font,bool mustExistInList) {
+	if(font != NULL) {
+		bool found = false;
+		for(unsigned int i=0; i < fonts.size(); ++i) {
+			if(fonts[i] != NULL && font == fonts[i]) {
+				found = true;
+				fonts.erase(fonts.begin() + i);
+				break;
+			}
+		}
+		if(found == false && mustExistInList == true) {
+			throw std::runtime_error("found == false in endFont");
+		}
+		if(found == true) {
+			font->end();
+			delete font;
+		}
+	}
 }
 
 void FontManager::init() {

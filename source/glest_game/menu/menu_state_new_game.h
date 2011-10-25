@@ -38,6 +38,8 @@ public:
 	void update();
 	void render();
 	virtual void keyDown(SDL_KeyboardEvent key);
+
+	void reloadUI();
 };
 
 

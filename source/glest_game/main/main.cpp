@@ -655,8 +655,9 @@ void handleSIGSEGV(int sig) {
 
 MainWindow::MainWindow(Program *program) : WindowGl() {
 	this->program= program;
+	this->popupMenu.setEnabled(false);
+	this->popupMenu.setVisible(false);
 }
-
 MainWindow::~MainWindow(){
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	delete program;
@@ -673,6 +674,23 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
     	throw runtime_error("In [MainWindow::eventMouseDown] ERROR, program == NULL!");
     }
 
+    //printf("eventMouseDown popupMenu.getVisible() = %d\n",popupMenu.getVisible());
+	if(popupMenu.getVisible() == true && popupMenu.mouseClick(vx, vy)) {
+		std::pair<int,string> result = popupMenu.mouseClickedMenuItem(vx, vy);
+		//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
+
+		popupMenu.setEnabled(false);
+		popupMenu.setVisible(false);
+
+		//printf("result.first = %d [%s] cancelLanguageSelection = %d\n",result.first,result.second.c_str(),cancelLanguageSelection);
+
+		// Exit game
+		if(result.first != cancelLanguageSelection) {
+			toggleLanguage(result.second);
+		}
+
+		return;
+	}
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	switch(mouseButton) {
@@ -827,6 +845,79 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void MainWindow::render() {
+	if(popupMenu.getVisible() == true) {
+		Renderer &renderer= Renderer::getInstance();
+		renderer.renderPopupMenu(&popupMenu);
+
+		//printf("Render lang popup\n");
+	}
+}
+
+void MainWindow::showLanguages() {
+	Lang &lang= Lang::getInstance();
+	//PopupMenu popupMenu;
+	std::vector<string> menuItems;
+
+	vector<string> langResults;
+    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	findAll(data_path + "data/lang/*.lng", langResults, true);
+	if(langResults.empty()){
+        throw runtime_error("There is no lang file");
+	}
+
+	for(unsigned int i = 0; i < langResults.size(); ++i) {
+		string testLanguage = langResults[i];
+		menuItems.push_back(testLanguage);
+	}
+	menuItems.push_back(lang.get("ExitGame?"));
+	cancelLanguageSelection = menuItems.size()-1;
+
+	popupMenu.setW(100);
+	popupMenu.setH(100);
+	popupMenu.init(lang.get("GameMenuTitle"),menuItems);
+	popupMenu.setEnabled(true);
+	popupMenu.setVisible(true);
+}
+
+void MainWindow::toggleLanguage(string language) {
+	popupMenu.setEnabled(false);
+	popupMenu.setVisible(false);
+
+	Lang &lang= Lang::getInstance();
+	string currentLanguage = lang.getLanguage();
+
+	string newLanguageSelected = language;
+	if(language == "") {
+		newLanguageSelected = currentLanguage;
+
+		vector<string> langResults;
+	    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+		findAll(data_path + "data/lang/*.lng", langResults, true);
+		if(langResults.empty()){
+	        throw runtime_error("There is no lang file");
+		}
+
+		for(unsigned int i = 0; i < langResults.size(); ++i) {
+			string testLanguage = langResults[i];
+			if(testLanguage == currentLanguage) {
+				if( i+1 < langResults.size()) {
+					newLanguageSelected = langResults[i+1];
+				}
+				else {
+					newLanguageSelected = langResults[0];
+				}
+				break;
+			}
+		}
+	}
+	if(newLanguageSelected != currentLanguage) {
+		lang.loadStrings(newLanguageSelected);
+		program->reloadUI();
+		program->consoleAddLine(lang.get("Language") + " " + newLanguageSelected);
+	}
+}
+
 void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym);
 
@@ -837,6 +928,12 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 
     if(program == NULL) {
     	throw runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
+    }
+
+    if(popupMenu.getVisible() == true && isKeyPressed(SDLK_ESCAPE,key) == true) {
+    	this->popupMenu.setEnabled(false);
+    	this->popupMenu.setVisible(false);
+    	return;
     }
 
     //{
@@ -881,6 +978,15 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 			else {
 				bool showDebugUI = renderer.getShowDebugUI();
 				renderer.setShowDebugUI(!showDebugUI);
+			}
+		}
+		else if(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL) &&
+				isKeyPressed(configKeys.getSDLKey("SwitchLanguage"),key) == true) {
+			if(keystate.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+				toggleLanguage("");
+			}
+			else {
+				showLanguages();
 			}
 		}
 		//else if(key == configKeys.getCharKey("ReloadINI")) {
@@ -2727,110 +2833,10 @@ int glestMain(int argc, char** argv) {
     	}
 
         lang.loadStrings(language);
-        if(	lang.hasString("FONT_BASE_SIZE")) {
-			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE"));
-        }
-
-        if(	lang.hasString("FONT_SCALE_SIZE")) {
-        	Font::scaleFontValue = strToFloat(lang.get("FONT_SCALE_SIZE"));
-        }
-        if(	lang.hasString("FONT_SCALE_CENTERH_FACTOR")) {
-        	Font::scaleFontValueCenterHFactor = strToFloat(lang.get("FONT_SCALE_CENTERH_FACTOR"));
-        }
 
         if(	lang.hasString("FONT_HEIGHT_TEXT")) {
         	Font::langHeightText = config.getString("FONT_HEIGHT_TEXT",Font::langHeightText.c_str());
         }
-
-        if(	lang.hasString("FONT_CHARCOUNT")) {
-			// 256 for English
-			// 30000 for Chinese
-			Font::charCount    = strToInt(lang.get("FONT_CHARCOUNT"));
-		}
-        if(	lang.hasString("FONT_TYPENAME")) {
-			Font::fontTypeName = lang.get("FONT_TYPENAME");
-		}
-        if(	lang.hasString("FONT_CHARSET")) {
-			// Example values:
-			// DEFAULT_CHARSET (English) = 1
-			// GB2312_CHARSET (Chinese)  = 134
-			Shared::Platform::charSet = strToInt(lang.get("FONT_CHARSET"));
-		}
-        if(	lang.hasString("FONT_MULTIBYTE")) {
-        	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE"));
-        }
-
-        if(	lang.hasString("FONT_RIGHTTOLEFT")) {
-        	Font::fontIsRightToLeft	= strToBool(lang.get("FONT_RIGHTTOLEFT"));
-        }
-
-        if(	lang.hasString("MEGAGLEST_FONT")) {
-        	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
-#if defined(WIN32)
-			string newEnvValue = "MEGAGLEST_FONT=" + lang.get("MEGAGLEST_FONT");
-			_putenv(newEnvValue.c_str());
-#else
-        	setenv("MEGAGLEST_FONT",lang.get("MEGAGLEST_FONT").c_str(),0);
-#endif
-        }
-
-//        if(	lang.hasString("FONT_YOFFSET_FACTOR")) {
-//        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR"));
-//		}
-
-#if defined(WIN32)
-        // Win32 overrides for fonts (just in case they must be different)
-
-        if(	lang.hasString("FONT_BASE_SIZE_WINDOWS")) {
-			// 256 for English
-			// 30000 for Chinese
-			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE_WINDOWS"));
-        }
-
-        if(	lang.hasString("FONT_SCALE_SIZE_WINDOWS")) {
-        	Font::scaleFontValue = strToFloat(lang.get("FONT_SCALE_SIZE_WINDOWS"));
-        }
-        if(	lang.hasString("FONT_SCALE_CENTERH_FACTOR_WINDOWS")) {
-        	Font::scaleFontValueCenterHFactor = strToFloat(lang.get("FONT_SCALE_CENTERH_FACTOR_WINDOWS"));
-        }
-
-        if(	lang.hasString("FONT_HEIGHT_TEXT_WINDOWS")) {
-        	Font::langHeightText = config.getString("FONT_HEIGHT_TEXT_WINDOWS",Font::langHeightText.c_str());
-        }
-
-        if(	lang.hasString("FONT_CHARCOUNT_WINDOWS")) {
-			// 256 for English
-			// 30000 for Chinese
-			Font::charCount    = strToInt(lang.get("FONT_CHARCOUNT_WINDOWS"));
-		}
-        if(	lang.hasString("FONT_TYPENAME_WINDOWS")) {
-			Font::fontTypeName = lang.get("FONT_TYPENAME_WINDOWS");
-		}
-        if(	lang.hasString("FONT_CHARSET_WINDOWS")) {
-			// Example values:
-			// DEFAULT_CHARSET (English) = 1
-			// GB2312_CHARSET (Chinese)  = 134
-			Shared::Platform::charSet = strToInt(lang.get("FONT_CHARSET_WINDOWS"));
-		}
-        if(	lang.hasString("FONT_MULTIBYTE_WINDOWS")) {
-        	Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE_WINDOWS"));
-        }
-        if(	lang.hasString("FONT_RIGHTTOLEFT_WINDOWS")) {
-        	Font::fontIsRightToLeft	= strToBool(lang.get("FONT_RIGHTTOLEFT_WINDOWS"));
-        }
-
-        if(	lang.hasString("MEGAGLEST_FONT_WINDOWS")) {
-        	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
-			string newEnvValue = "MEGAGLEST_FONT=" + lang.get("MEGAGLEST_FONT_WINDOWS");
-			_putenv(newEnvValue.c_str());
-        }
-
-//        if(	lang.hasString("FONT_YOFFSET_FACTOR_WINDOWS")) {
-//        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR_WINDOWS"));
-//		}
-
-        // end win32
-#endif
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_FONT_BASESIZE]) == true) {
 			int foundParamIndIndex = -1;
@@ -3415,6 +3421,7 @@ int glestMain(int argc, char** argv) {
 			}
 
 			program->loop();
+
 			// Because OpenGL really doesn't do multi-threading well
 //			if(difftime(time(NULL),lastTextureLoadEvent) >= 3) {
 //				lastTextureLoadEvent = time(NULL);

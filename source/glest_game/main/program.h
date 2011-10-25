@@ -98,6 +98,8 @@ public:
 	virtual void setForceMouseRender(bool value) { forceMouseRender=value;}
 	virtual void consoleAddLine(string line) { };
 
+	virtual void reloadUI() {};
+
 protected:
 	virtual void incrementFps();
 };
@@ -202,6 +204,7 @@ public:
 	virtual void consoleAddLine(string line);
 
 	virtual SimpleTaskThread * getSoundThreadManager(bool takeOwnership);
+	virtual void reloadUI();
 
 private:
 

@@ -524,6 +524,127 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void MenuStateConnectedGame::reloadUI() {
+	Config &config = Config::getInstance();
+	Lang &lang= Lang::getInstance();
+
+	mainMessageBox.init(lang.get("Ok"));
+	ftpMessageBox.init(lang.get("Yes"),lang.get("No"));
+
+	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
+	labelInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	labelDataSynchInfo.setFont(CoreData::getInstance().getMenuFontBig());
+	labelDataSynchInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	buttonCancelDownloads.setText(lang.get("CancelDownloads"));
+
+	labelFogOfWar.setText(lang.get("FogOfWar"));
+
+	vector<string> fowItems;
+	fowItems.push_back(lang.get("Enabled"));
+	fowItems.push_back(lang.get("Explored"));
+	fowItems.push_back(lang.get("Disabled"));
+	listBoxFogOfWar.setItems(fowItems);
+
+	labelAllowObservers.setText(lang.get("AllowObservers"));
+
+	vector<string> observerItems;
+	observerItems.push_back(lang.get("No"));
+	observerItems.push_back(lang.get("Yes"));
+	listBoxAllowObservers.setItems(observerItems);
+
+	vector<string> observerModeItems;
+	observerModeItems.push_back(lang.get("Yes"));
+	observerModeItems.push_back(lang.get("No"));
+	listBoxEnableObserverMode.setItems(observerModeItems);
+
+	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
+
+	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
+
+	vector<string> switchteamModeItems;
+	switchteamModeItems.push_back(lang.get("Yes"));
+	switchteamModeItems.push_back(lang.get("No"));
+	listBoxEnableSwitchTeamMode.setItems(switchteamModeItems);
+
+	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
+
+	vector<string> aiswitchteamModeItems;
+	for(int i = 0; i <= 100; i = i + 10) {
+		aiswitchteamModeItems.push_back(intToStr(i));
+	}
+	listBoxAISwitchTeamAcceptPercent.setItems(aiswitchteamModeItems);
+
+	labelPathFinderType.setText(lang.get("PathFinderType"));
+
+	vector<string> pathfinderItems;
+	pathfinderItems.push_back(lang.get("PathFinderTypeRegular"));
+	if(config.getBool("EnableRoutePlannerPathfinder","false") == true) {
+		pathfinderItems.push_back(lang.get("PathFinderTypeRoutePlanner"));
+	}
+	listBoxPathFinderType.setItems(pathfinderItems);
+
+	labelMap.setText(lang.get("Map"));
+
+	labelTileset.setText(lang.get("Tileset"));
+
+	labelTechTree.setText(lang.get("TechTree"));
+
+	vector<string> playerstatusItems;
+	playerstatusItems.push_back(lang.get("PlayerStatusSetup"));
+	playerstatusItems.push_back(lang.get("PlayerStatusBeRightBack"));
+	playerstatusItems.push_back(lang.get("PlayerStatusReady"));
+	listBoxPlayerStatus.setItems(playerstatusItems);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	labelControl.setText(lang.get("Control"));
+
+    labelFaction.setText(lang.get("Faction"));
+
+	labelTeam.setText(lang.get("Team"));
+
+    labelControl.setFont(CoreData::getInstance().getMenuFontBig());
+    labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
+	labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
+	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	//texts
+	buttonDisconnect.setText(lang.get("Return"));
+
+	vector<string> controlItems;
+    controlItems.push_back(lang.get("Closed"));
+	controlItems.push_back(lang.get("CpuEasy"));
+	controlItems.push_back(lang.get("Cpu"));
+    controlItems.push_back(lang.get("CpuUltra"));
+    controlItems.push_back(lang.get("CpuMega"));
+	controlItems.push_back(lang.get("Network"));
+	controlItems.push_back(lang.get("NetworkUnassigned"));
+	controlItems.push_back(lang.get("Human"));
+
+	if(config.getBool("EnableNetworkCpu","false") == true) {
+		controlItems.push_back(lang.get("NetworkCpuEasy"));
+		controlItems.push_back(lang.get("NetworkCpu"));
+	    controlItems.push_back(lang.get("NetworkCpuUltra"));
+	    controlItems.push_back(lang.get("NetworkCpuMega"));
+	}
+
+	for(int i=0; i < GameConstants::maxPlayers; ++i) {
+		labelPlayers[i].setText(lang.get("Player") + " " + intToStr(i));
+		listBoxControls[i].setItems(controlItems);
+    }
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	buttonPlayNow.setText(lang.get("PlayNow"));
+
+	chatManager.init(&console, -1,true);
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
 MenuStateConnectedGame::~MenuStateConnectedGame() {
 	if(ftpClientThread != NULL) {
 	    ftpClientThread->setCallBackObject(NULL);

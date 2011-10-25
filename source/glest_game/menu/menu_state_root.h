@@ -48,6 +48,7 @@ public:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
 	virtual bool isMasterserverMode() const;
+	virtual void reloadUI();
 };
 
 

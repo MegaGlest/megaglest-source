@@ -76,6 +76,8 @@ public:
 
     virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
+    void reloadUI();
+
 private:
 	void connectToServer();
 	virtual void DiscoveredServers(std::vector<string> serverList);

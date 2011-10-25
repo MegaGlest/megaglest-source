@@ -62,6 +62,12 @@ MainMenu::MainMenu(Program *program):
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void MainMenu::reloadUI() {
+	if(state) {
+		state->reloadUI();
+	}
+}
+
 MainMenu::~MainMenu() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

@@ -76,6 +76,8 @@ public:
 
 	//static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
 
+	void reloadUI();
+
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	void clearUserButtons();

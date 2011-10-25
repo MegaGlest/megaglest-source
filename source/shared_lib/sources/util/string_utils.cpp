@@ -816,39 +816,71 @@ namespace Shared { namespace Util {
 	#define SWP(x,y) (x^=y, y^=x, x^=y)
 
 	void strrev_utf8(char *p) {
+	  //printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
+
 	  char *q = p;
 	  strrev(p); /* call base case */
 
+	  //printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
+
 	  /* Ok, now fix bass-ackwards UTF chars. */
 	  while(q && *q) ++q; /* find eos */
-	  while(p < --q)
+
+	  //printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
+	  while(p < --q) {
+		  //printf("In [%s::%s] Line: %d p [%s] q [%s]\n",__FILE__,__FUNCTION__,__LINE__,p,q); fflush(stdout);
+
 	    switch( (*q & 0xF0) >> 4 ) {
 	    case 0xF: /* U+010000-U+10FFFF: four bytes. */
+	    	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 	      SWP(*(q-0), *(q-3));
+	      //printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 	      SWP(*(q-1), *(q-2));
+	      //printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 	      q -= 3;
 	      break;
 	    case 0xE: /* U+000800-U+00FFFF: three bytes. */
+	    	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 	      SWP(*(q-0), *(q-2));
+	      //printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 	      q -= 2;
 	      break;
 	    case 0xC: /* fall-through */
 	    case 0xD: /* U+000080-U+0007FF: two bytes. */
+	    	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 	      SWP(*(q-0), *(q-1));
+	      //printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 	      q--;
 	      break;
 	    }
+
+	    //printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
+	  }
+	  //printf("In [%s::%s] Line: %d p [%s]\n",__FILE__,__FUNCTION__,__LINE__,p); fflush(stdout);
 	}
 
 	void strrev_utf8(std::string &p) {
-		int bufSize = p.size()+1;
-		char *szBuf = new char[bufSize];
-		strcpy(szBuf,p.c_str());
-		szBuf[bufSize] = '\0';
-		strrev_utf8(&szBuf[0]);
-		p = szBuf;
+		//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 
-		delete [] szBuf;
+		if(p.length() > 0) {
+			//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
+
+			int bufSize = p.length()*4;
+			char *szBuf = new char[bufSize];
+			memset(szBuf,0,bufSize);
+			strcpy(szBuf,p.c_str());
+			//szBuf[bufSize] = '\0';
+			strrev_utf8(szBuf);
+			//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
+			p = std::string(szBuf);
+
+			//printf("In [%s::%s] Line: %d bufSize = %d p.size() = %d p [%s]\n",__FILE__,__FUNCTION__,__LINE__,bufSize,p.length(),p.c_str()); fflush(stdout);
+
+			delete [] szBuf;
+
+			//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
+		}
+		//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 	}
 
 	bool is_string_all_ascii(std::string str) {

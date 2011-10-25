@@ -393,6 +393,11 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, bool center
 					//}
 					//if(isRLM == true) {
 					if(is_string_all_ascii(renderText) == false) {
+						//printf("\n\nORIGINAL TEXT [%s]\n\n",text.c_str());
+						//for(int i = 0; i < renderText.size(); ++i) {
+						//	printf("i = %d c [%c][%d][%X]\n",i,renderText[i],renderText[i],renderText[i]);
+						//}
+
 						strrev_utf8(renderText);
 					}
 				}

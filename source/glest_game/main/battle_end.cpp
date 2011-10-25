@@ -35,6 +35,9 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originState): ProgramState(program) {
+
+	containerName= "BattleEnd";
+
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] stats = %p\n",__FILE__,__FUNCTION__,__LINE__,stats);
 
 	this->originState = originState;
@@ -58,6 +61,16 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 	mainMessageBox.setEnabled(false);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	GraphicComponent::applyAllCustomProperties(containerName);
+}
+
+void BattleEnd::reloadUI() {
+	Lang &lang= Lang::getInstance();
+	buttonExit.setText(lang.get("Exit"));
+	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+
+	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
 BattleEnd::~BattleEnd() {

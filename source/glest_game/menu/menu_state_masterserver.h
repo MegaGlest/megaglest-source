@@ -128,6 +128,8 @@ public:
 
 	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
 
+	virtual void reloadUI();
+
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	bool connectToServer(string ipString, int port);
