@@ -657,7 +657,10 @@ MainWindow::MainWindow(Program *program) : WindowGl() {
 	this->program= program;
 	this->popupMenu.setEnabled(false);
 	this->popupMenu.setVisible(false);
+    this->triggerLanguageToggle = false;
+    this->triggerLanguage = "";
 }
+
 MainWindow::~MainWindow(){
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	delete program;
@@ -686,7 +689,9 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
 
 		// Exit game
 		if(result.first != cancelLanguageSelection) {
-			toggleLanguage(result.second);
+			//toggleLanguage(result.second);
+		    this->triggerLanguageToggle = true;
+		    this->triggerLanguage = result.second;
 		}
 
 		return;
@@ -883,6 +888,8 @@ void MainWindow::showLanguages() {
 void MainWindow::toggleLanguage(string language) {
 	popupMenu.setEnabled(false);
 	popupMenu.setVisible(false);
+    this->triggerLanguageToggle = false;
+    this->triggerLanguage = "";
 
 	Lang &lang= Lang::getInstance();
 	string currentLanguage = lang.getLanguage();
@@ -983,7 +990,9 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 		else if(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL) &&
 				isKeyPressed(configKeys.getSDLKey("SwitchLanguage"),key) == true) {
 			if(keystate.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
-				toggleLanguage("");
+				//toggleLanguage("");
+			    this->triggerLanguageToggle = true;
+			    this->triggerLanguage = "";
 			}
 			else {
 				showLanguages();

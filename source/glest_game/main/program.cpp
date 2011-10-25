@@ -310,6 +310,17 @@ void Program::loop() {
 void Program::loopWorker() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ================================= MAIN LOOP START ================================= \n",__FILE__,__FUNCTION__,__LINE__);
 
+	Renderer &renderer= Renderer::getInstance();
+	if(renderer.isMasterserverMode() == false && window) {
+		MainWindow *mainWindow = dynamic_cast<MainWindow *>(window);
+		if(mainWindow) {
+			//mainWindow->render();
+			if(mainWindow->getTriggerLanguageToggle()) {
+				mainWindow->toggleLanguage(mainWindow->getTriggerLanguage());
+			}
+		}
+	}
+
 	Chrono chronoLoop;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chronoLoop.start();
 
