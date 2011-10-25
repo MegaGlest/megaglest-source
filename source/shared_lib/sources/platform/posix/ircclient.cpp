@@ -92,9 +92,9 @@ void event_notice (irc_session_t * session, const char * event, const char * ori
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("NOTICE from '%s': %s", origin, params[1]);
 
-	if(strcasecmp (origin, "nickserv")) {
-		return;
-	}
+	//if(strcasecmp (origin, "nickserv")) {
+	//	return;
+	//}
 
 	if(strstr (params[1], "This nick is not registered") == params[1]) {
 		//std::string regcmd = "REGISTER " + gCfg.irc_nickserv_pass + " NOMAIL";
