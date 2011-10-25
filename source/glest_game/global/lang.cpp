@@ -117,7 +117,7 @@ void Lang::loadStrings(const string &language) {
 		}
 
 		if(	lang.hasString("FONT_HEIGHT_TEXT_WINDOWS")) {
-			Font::langHeightText = config.getString("FONT_HEIGHT_TEXT_WINDOWS",Font::langHeightText.c_str());
+			Font::langHeightText = lang.get("FONT_HEIGHT_TEXT_WINDOWS",Font::langHeightText.c_str());
 		}
 
 		if(	lang.hasString("FONT_CHARCOUNT_WINDOWS")) {
