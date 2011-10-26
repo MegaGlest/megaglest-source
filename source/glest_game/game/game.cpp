@@ -2863,10 +2863,15 @@ void Game::render2d(){
 			}
 
 			factionInfo +=	" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
-					" team: " + intToStr(this->gameSettings.getTeam(i)) + "] res: ";
-			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
-				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
-				factionInfo += " ";
+					" team: " + intToStr(this->gameSettings.getTeam(i)) + "]";
+
+			bool showResourceDebugInfo = false;
+			if(showResourceDebugInfo == true) {
+				factionInfo +=" res: ";
+				for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
+					factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
+					factionInfo += " ";
+				}
 			}
 
 			factionDebugInfo[i] = factionInfo;
