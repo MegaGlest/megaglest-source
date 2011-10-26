@@ -2277,17 +2277,28 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-		if(mapInfo.players < GameConstants::maxPlayers) {
-			for(int i= mapInfo.players; i< GameConstants::maxPlayers; ++i) {
-				listBoxControls[i].setEditable(false);
-				listBoxControls[i].setEnabled(false);
-			}
-		}
-		else {
-			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+//		if(mapInfo.players < GameConstants::maxPlayers) {
+//			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
+//
+//			}
+//			for(int i= mapInfo.players; i< GameConstants::maxPlayers; ++i) {
+//				listBoxControls[i].setEditable(false);
+//				listBoxControls[i].setEnabled(false);
+//
+//				printf("In [%s::%s] Line: %d i = %d mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,i,mapInfo.players);
+//			}
+//		}
+//		else {
+			//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
 			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
-				if(listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
+				if(i >= mapInfo.players) {
+					listBoxControls[i].setEditable(false);
+					listBoxControls[i].setEnabled(false);
+
+					//printf("In [%s::%s] Line: %d i = %d mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,i,mapInfo.players);
+				}
+				else if(listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
 	                ConnectionSlot *slot = serverInterface->getSlot(i);
 	                if((listBoxControls[i].getSelectedItemIndex() != ctNetwork) ||
 	                	(listBoxControls[i].getSelectedItemIndex() == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
@@ -2297,14 +2308,18 @@ void MenuStateCustomGame::update() {
 					else {
 						listBoxControls[i].setEditable(false);
 						listBoxControls[i].setEnabled(false);
+
+						//printf("In [%s::%s] Line: %d i = %d mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,i,mapInfo.players);
 					}
 				}
 				else {
 					listBoxControls[i].setEditable(false);
 					listBoxControls[i].setEnabled(false);
+
+					//printf("In [%s::%s] Line: %d i = %d mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,i,mapInfo.players);
 				}
 			}
-		}
+//		}
 
 		bool checkDataSynch = (serverInterface->getAllowGameDataSynchCheck() == true &&
 					needToSetChangedGameSettings == true &&
