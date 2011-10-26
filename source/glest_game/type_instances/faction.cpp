@@ -310,7 +310,8 @@ void FactionThread::execute() {
 				World *world = faction->getWorld();
 
 				Config &config= Config::getInstance();
-				bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
+				//bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
+				bool sortedUnitsAllowed = false;
 				if(sortedUnitsAllowed) {
 					faction->sortUnitsByCommandGroups();
 				}
