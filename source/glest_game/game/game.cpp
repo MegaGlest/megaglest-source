@@ -2286,31 +2286,31 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//else if(key == configKeys.getCharKey("PauseGame")) {
 			else if(isKeyPressed(configKeys.getSDLKey("PauseGame"),key, false) == true) {
 				//printf("Toggle pause paused = %d\n",paused);
-				setPaused(!paused);
+				//setPaused(!paused);
 
-//				bool allowAdminMenuItems = false;
-//				NetworkManager &networkManager= NetworkManager::getInstance();
-//				NetworkRole role = networkManager.getNetworkRole();
-//				if(role == nrServer) {
-//					allowAdminMenuItems = true;
-//				}
-//				else if(role == nrClient) {
-//					ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
-//
-//					if(clientInterface != NULL &&
-//						gameSettings.getMasterserver_admin() == clientInterface->getSessionKey()) {
-//						allowAdminMenuItems = true;
-//					}
-//				}
-//
-//				if(allowAdminMenuItems) {
-//					if(paused == false) {
-//						commander.tryPauseGame();
-//					}
-//					else {
-//						commander.tryResumeGame();
-//					}
-//				}
+				bool allowAdminMenuItems = false;
+				NetworkManager &networkManager= NetworkManager::getInstance();
+				NetworkRole role = networkManager.getNetworkRole();
+				if(role == nrServer) {
+					allowAdminMenuItems = true;
+				}
+				else if(role == nrClient) {
+					ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
+
+					if(clientInterface != NULL &&
+						gameSettings.getMasterserver_admin() == clientInterface->getSessionKey()) {
+						allowAdminMenuItems = true;
+					}
+				}
+
+				if(allowAdminMenuItems) {
+					if(paused == false) {
+						commander.tryPauseGame();
+					}
+					else {
+						commander.tryResumeGame();
+					}
+				}
 			}
 			else if(isKeyPressed(configKeys.getSDLKey("ExtraTeamColorMarker"),key, false) == true) {
 				//printf("Toggle ExtraTeamColorMarker\n");
