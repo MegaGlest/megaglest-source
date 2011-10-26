@@ -779,9 +779,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 						lastMillisCheck = (chrono.getMillis() / 1000);
 
 						char szBuf[1024]="";
-						string updateTextFormat = lang.get("NetworkGameClientLoadStatus");
-						if(updateTextFormat == "" || updateTextFormat[0] == '?') {
-							updateTextFormat =  "Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)";
+						string updateTextFormat = "Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)";
+						if(lang.hasString("NetworkGameClientLoadStatus") == true) {
+							updateTextFormat =  lang.get("NetworkGameClientLoadStatus");
 						}
 
 						string waitForHosts = "";
@@ -850,12 +850,15 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 							}
 						}
 
+						if(waitForHosts == "") {
+							waitForHosts = lang.get("Server");
+						}
 						sprintf(szBuf,updateTextFormat.c_str(),(long long int)lastMillisCheck,int(readyWaitTimeout / 1000));
 
 						char szBuf1[1024]="";
-						string statusTextFormat = lang.get("NetworkGameStatusWaiting");
-						if(statusTextFormat == "" || statusTextFormat[0] == '?') {
-							statusTextFormat =  "Waiting for players: %s";
+						string statusTextFormat =  "Waiting for players: %s";
+						if(lang.hasString("NetworkGameStatusWaiting") == true) {
+							statusTextFormat = lang.get("NetworkGameStatusWaiting");
 						}
 						sprintf(szBuf1,statusTextFormat.c_str(),waitForHosts.c_str());
 
