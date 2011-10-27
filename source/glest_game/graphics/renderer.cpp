@@ -154,6 +154,7 @@ const int OBJECT_SELECT_OFFSET=100000000;
 Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
 	this->masterserverMode = masterserverMode;
 	//printf("this->masterserverMode = %d\n",this->masterserverMode);
+	//assert(0==1);
 
 	Renderer::rendererEnded = false;
 	this->allowRenderUnitTitles = false;

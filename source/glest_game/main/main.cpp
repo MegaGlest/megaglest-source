@@ -2815,6 +2815,10 @@ int glestMain(int argc, char** argv) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**ENABLED OPENGL VSYNCH**\n");
         }
 
+		if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
+			Renderer &renderer= Renderer::getInstance(true);
+		}
+
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
 
@@ -3080,7 +3084,6 @@ int glestMain(int argc, char** argv) {
 			program->initServer(mainWindow,false,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-			Renderer &renderer= Renderer::getInstance(true);
 			program->initServer(mainWindow,false,true,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME])) == true) {
