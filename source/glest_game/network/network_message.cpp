@@ -394,16 +394,21 @@ NetworkMessageCommandList::NetworkMessageCommandList(int32 frameCount) {
 }
 
 bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand){
-	if(data.header.commandCount < maxCommandCount){
-		data.commands[static_cast<int>(data.header.commandCount)]= *networkCommand;
-		data.header.commandCount++;
-		return true;
-	}
-	else {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR too many commands in commandlist data.header.commandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.commandCount);
-	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] WARNING / ERROR too many commands in commandlist data.header.commandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.commandCount);
-	}
-	return false;
+//	if(data.header.commandCount < maxCommandCount){
+//		data.commands[static_cast<int>(data.header.commandCount)]= *networkCommand;
+//		data.header.commandCount++;
+//		return true;
+//	}
+//	else {
+//		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR too many commands in commandlist data.header.commandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.commandCount);
+//	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] WARNING / ERROR too many commands in commandlist data.header.commandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.commandCount);
+//	}
+//	return false;
+
+	data.commands.push_back(*networkCommand);
+	data.header.commandCount++;
+	return true;
+
 }
 
 bool NetworkMessageCommandList::receive(Socket* socket) {
@@ -468,8 +473,10 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 		//int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
 
 		if(data.header.commandCount > 0) {
+			data.commands.resize(data.header.commandCount);
+
 			int totalMsgSize = (sizeof(NetworkCommand) * data.header.commandCount);
-			result = NetworkMessage::receive(socket, &data.commands, totalMsgSize, true);
+			result = NetworkMessage::receive(socket, &data.commands[0], totalMsgSize, true);
 			if(result == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 					for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
@@ -498,7 +505,11 @@ void NetworkMessageCommandList::send(Socket* socket) const {
 
 	assert(data.header.messageType==nmtCommandList);
 	int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
-	NetworkMessage::send(socket, &data, totalMsgSize);
+	//NetworkMessage::send(socket, &data, totalMsgSize);
+	NetworkMessage::send(socket, &data.header, commandListHeaderSize);
+	if(data.header.commandCount > 0) {
+		NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * data.header.commandCount));
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
