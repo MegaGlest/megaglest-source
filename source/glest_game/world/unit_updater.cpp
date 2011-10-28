@@ -1188,7 +1188,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 					}
 
 					//world->changePosCells(unit,unit->getPos()+unit->getDest());
-					if(map->isNextTo(unit->getPos(), store)) {
+					if(map->isNextTo(unit, store)) {
 
 						//update resources
 						int resourceAmount= unit->getLoadCount();
@@ -1484,7 +1484,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 		}
 	}
 
-	bool nextToRepaired = repaired != NULL && map->isNextTo(unit->getPos(), repaired);
+	bool nextToRepaired = repaired != NULL && map->isNextTo(unit, repaired);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -1498,7 +1498,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] peerbuilder's unitid = %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder->getCurrCommand()->getUnit()->getId());
 
 				repaired = peerUnitBuilder->getCurrCommand()->getUnit();
-				nextToRepaired = repaired != NULL && map->isNextTo(unit->getPos(), repaired);
+				nextToRepaired = repaired != NULL && map->isNextTo(unit, repaired);
 			}
 			else {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1617,62 +1617,80 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-				TravelState ts;
-	    		switch(this->game->getGameSettings()->getPathFinderType()) {
-	    			case pfBasic:
-	    				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				// If the repair command has no move skill and we are not next to
+				// the unit we cannot repair it
+				if(rct->getMoveSkillType() == NULL) {
+					//printf("CANCEL REPAIR NOT NEXT TO REPAIR UNIT\n");
 
-	    				ts = pathFinder->findPath(unit, repairPos, NULL, frameIndex);
-	    				break;
-	    			case pfRoutePlanner:
-	    				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					//Vec2i repairPos = command->getPos();
+					//bool startRepairing = (repaired != NULL && rct->isRepairableUnitType(repaired->getType()) && repaired->isDamaged());
+					//bool nextToRepaired = repaired != NULL && map->isNextTo(unit, repaired);
 
-						if (repaired && !repaired->getType()->isMobile()) {
-							ts = routePlanner->findPathToBuildSite(unit, repaired->getType(), repaired->getPos(), repaired->getModelFacing());
-						}
-						else {
-							ts = routePlanner->findPath(unit, repairPos);
-						}
-	    				break;
-	    			default:
-	    				throw runtime_error("detected unsupported pathfinder type!");
-	    	    }
+					//printf("repairPos [%s] startRepairing = %d nextToRepaired = %d unit->getPos() [%s] repaired->getPos() [%s]\n",repairPos.getString().c_str(),startRepairing,nextToRepaired,unit->getPos().getString().c_str(),repaired->getPos().getString().c_str());
 
-	    		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] ts = %d\n",__FILE__,__FUNCTION__,__LINE__,ts);
+					console->addStdMessage("InvalidPosition");
+					unit->setCurrSkill(scStop);
+					unit->finishCommand();
+				}
+				else {
+					TravelState ts;
+					switch(this->game->getGameSettings()->getPathFinderType()) {
+						case pfBasic:
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+							ts = pathFinder->findPath(unit, repairPos, NULL, frameIndex);
+							break;
+						case pfRoutePlanner:
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				switch(ts) {
-				case tsMoving:
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsMoving\n",__FILE__,__FUNCTION__,__LINE__);
-					unit->setCurrSkill(rct->getMoveSkillType());
-					break;
-				case tsBlocked:
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsBlocked\n",__FILE__,__FUNCTION__,__LINE__);
-
-					if(unit->getPath()->isBlocked()) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
-
-						if(unit->getRetryCurrCommandCount() > 0) {
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] will retry command, unit->getRetryCurrCommandCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getRetryCurrCommandCount());
-
-							unit->setRetryCurrCommandCount(0);
-							unit->getPath()->clear();
-							updateUnitCommand(unit,-1);
-						}
-						else {
-							unit->finishCommand();
-						}
+							if (repaired && !repaired->getType()->isMobile()) {
+								ts = routePlanner->findPathToBuildSite(unit, repaired->getType(), repaired->getPos(), repaired->getModelFacing());
+							}
+							else {
+								ts = routePlanner->findPath(unit, repairPos);
+							}
+							break;
+						default:
+							throw runtime_error("detected unsupported pathfinder type!");
 					}
-					break;
-				default:
-					break;
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] ts = %d\n",__FILE__,__FUNCTION__,__LINE__,ts);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+					switch(ts) {
+					case tsMoving:
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsMoving\n",__FILE__,__FUNCTION__,__LINE__);
+						unit->setCurrSkill(rct->getMoveSkillType());
+						break;
+					case tsBlocked:
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsBlocked\n",__FILE__,__FUNCTION__,__LINE__);
+
+						if(unit->getPath()->isBlocked()) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
+
+							if(unit->getRetryCurrCommandCount() > 0) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] will retry command, unit->getRetryCurrCommandCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getRetryCurrCommandCount());
+
+								unit->setRetryCurrCommandCount(0);
+								unit->getPath()->clear();
+								updateUnitCommand(unit,-1);
+							}
+							else {
+								unit->finishCommand();
+							}
+						}
+						break;
+					default:
+						break;
+					}
 				}
 			}
         }
         else {
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
 
+        	console->addStdMessage("InvalidPosition");
        		unit->setCurrSkill(scStop);
        		unit->finishCommand();
        		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());

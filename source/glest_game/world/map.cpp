@@ -1382,6 +1382,27 @@ bool Map::isNextTo(const Vec2i &pos, const Unit *unit) const {
 }
 
 //return if unit is next to pos
+bool Map::isNextTo(const Unit *unit1, const Unit *unit2) const {
+	Vec2i pos = unit1->getPos();
+	const UnitType *ut = unit1->getType();
+	for (int y=-1; y < ut->getSize()+1; ++y) {
+		for (int x=-1; x < ut->getSize()+1; ++x) {
+			Vec2i cellPos = pos + Vec2i(x, y);
+			if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
+				if(getCell(cellPos)->getUnit(fLand) == unit2) {
+					return true;
+				}
+				else if(getCell(cellPos)->getUnitWithEmptyCellMap(fLand) == unit2) {
+					return true;
+				}
+			}
+		}
+	}
+
+    return false;
+}
+
+//return if unit is next to pos
 bool Map::isNextTo(const Vec2i &pos, const Vec2i &nextToPos) const {
 
 	for(int i=-1; i<=1; ++i) {
