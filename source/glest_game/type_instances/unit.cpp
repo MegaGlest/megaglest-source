@@ -399,6 +399,7 @@ Unit::~Unit() {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexCommands,mutexOwnerId);
 
+	changedActiveCommand = false;
 	while(commands.empty() == false) {
 		delete commands.back();
 		commands.pop_back();
@@ -1191,8 +1192,9 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		//empty command queue
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",__FILE__,__FUNCTION__,__LINE__);
 
-		changedActiveCommand = (commands.size() > 0);
+		bool willChangedActiveCommand = (commands.size() > 0);
 		clearCommands();
+		changedActiveCommand = willChangedActiveCommand;
 		//printf("In [%s::%s] Line: %d cleared existing commands\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1240,6 +1242,7 @@ CommandResult Unit::finishCommand() {
 	//is empty?
 	if(commands.empty()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+		changedActiveCommand = false;
 		return crFailUndefined;
 	}
 
@@ -1249,6 +1252,7 @@ CommandResult Unit::finishCommand() {
 
 	delete commands.front();
 	commands.erase(commands.begin());
+	changedActiveCommand = false;
 
 	safeMutex.ReleaseLock(true);
 
@@ -1290,6 +1294,7 @@ CommandResult Unit::cancelCommand() {
 
 	delete commands.back();
 	commands.pop_back();
+	changedActiveCommand = false;
 
 	safeMutex.ReleaseLock();
 
@@ -1458,6 +1463,11 @@ bool Unit::needToUpdate() {
 		//speed
 		int speed = currSkill->getTotalSpeed(&totalUpgrade);
 
+		if(changedActiveCommand) {
+			speed = 325;
+			//return_value = true;
+		}
+
 		//speed modifier
 		float diagonalFactor= 1.f;
 		float heightFactor= 1.f;
@@ -1549,6 +1559,11 @@ bool Unit::update() {
 
 	//speed
 	int speed= currSkill->getTotalSpeed(&totalUpgrade);
+
+	if(changedActiveCommand) {
+		speed = 325;
+		//return_value = true;
+	}
 
 	//speed modifier
 	float diagonalFactor = 1.f;
@@ -1810,15 +1825,6 @@ bool Unit::update() {
 				}
 			}
 		}
-	}
-
-	if(changedActiveCommand) {
-		changedActiveCommand = false;
-		highlight = 0.0f;
-		lastAnimProgress = 0.0f;
-		animProgress = 0.0f;
-		progress = 0.0f;
-		return_value = true;
 	}
 
 	return return_value;
@@ -2489,6 +2495,7 @@ void Unit::clearCommands() {
 
 		safeMutex.ReleaseLock();
 	}
+	changedActiveCommand = false;
 }
 
 void Unit::deleteQueuedCommand(Command *command) {
