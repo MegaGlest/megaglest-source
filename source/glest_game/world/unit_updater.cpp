@@ -1690,7 +1690,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
         else {
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to call [scStop]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        	console->addStdMessage("InvalidPosition");
+        	//console->addStdMessage("InvalidPosition");
        		unit->setCurrSkill(scStop);
        		unit->finishCommand();
        		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
