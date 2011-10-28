@@ -823,6 +823,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		throw runtime_error(szBuf);
 	}
 
+	changedActiveCommand = false;
 	if(currSkill->getClass() != this->currSkill->getClass() ||
 			currSkill->getName() != this->currSkill->getName()) {
 		animProgress= 0;
@@ -1197,6 +1198,9 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",__FILE__,__FUNCTION__,__LINE__);
 
 		bool willChangedActiveCommand = (commands.size() > 0);
+		if(willChangedActiveCommand && getCurrCommand()->getCommandType()->getClass() == command->getCommandType()->getClass()) {
+			willChangedActiveCommand = false;
+		}
 		clearCommands();
 		changedActiveCommand = willChangedActiveCommand;
 		//printf("In [%s::%s] Line: %d cleared existing commands\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1231,6 +1235,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	}
 	else {
 		delete command;
+		changedActiveCommand = false;
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1240,13 +1245,12 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 
 //pop front (used when order is done)
 CommandResult Unit::finishCommand() {
-
+	changedActiveCommand = false;
 	retryCurrCommandCount=0;
 	this->setCurrentUnitTitle("");
 	//is empty?
 	if(commands.empty()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
-		changedActiveCommand = false;
 		return crFailUndefined;
 	}
 
@@ -1256,7 +1260,6 @@ CommandResult Unit::finishCommand() {
 
 	delete commands.front();
 	commands.erase(commands.begin());
-	changedActiveCommand = false;
 
 	safeMutex.ReleaseLock(true);
 
@@ -1279,7 +1282,7 @@ CommandResult Unit::finishCommand() {
 
 //to cancel a command
 CommandResult Unit::cancelCommand() {
-
+	changedActiveCommand = false;
 	retryCurrCommandCount=0;
 	this->setCurrentUnitTitle("");
 
@@ -1298,7 +1301,6 @@ CommandResult Unit::cancelCommand() {
 
 	delete commands.back();
 	commands.pop_back();
-	changedActiveCommand = false;
 
 	safeMutex.ReleaseLock();
 
@@ -1469,7 +1471,6 @@ bool Unit::needToUpdate() {
 
 		if(changedActiveCommand) {
 			speed = CHANGE_COMMAND_SPEED;
-			//return_value = true;
 		}
 
 		//speed modifier
@@ -1566,7 +1567,6 @@ bool Unit::update() {
 
 	if(changedActiveCommand) {
 		speed = CHANGE_COMMAND_SPEED;
-		//return_value = true;
 	}
 
 	//speed modifier
