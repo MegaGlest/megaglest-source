@@ -1535,11 +1535,6 @@ void Unit::updateTimedParticles() {
 bool Unit::update() {
 	assert(progress <= 1.f);
 
-	if(changedActiveCommand) {
-		changedActiveCommand = false;
-		return true;
-	}
-
 	//highlight
 	if(highlight > 0.f) {
 		const Game *game = Renderer::getInstance().getGame();
@@ -1815,6 +1810,15 @@ bool Unit::update() {
 				}
 			}
 		}
+	}
+
+	if(changedActiveCommand) {
+		changedActiveCommand = false;
+		highlight = 0.0f;
+		lastAnimProgress = 0.0f;
+		animProgress = 0.0f;
+		progress = 0.0f;
+		return_value = true;
 	}
 
 	return return_value;
