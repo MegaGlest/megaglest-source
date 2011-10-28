@@ -35,6 +35,8 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+const float CHANGE_COMMAND_SPEED = 325.0;
+
 //Mutex Unit::mutexDeletedUnits;
 //map<void *,bool> Unit::deletedUnits;
 
@@ -1464,7 +1466,7 @@ bool Unit::needToUpdate() {
 		int speed = currSkill->getTotalSpeed(&totalUpgrade);
 
 		if(changedActiveCommand) {
-			speed = 325;
+			speed = CHANGE_COMMAND_SPEED;
 			//return_value = true;
 		}
 
@@ -1561,7 +1563,7 @@ bool Unit::update() {
 	int speed= currSkill->getTotalSpeed(&totalUpgrade);
 
 	if(changedActiveCommand) {
-		speed = 325;
+		speed = CHANGE_COMMAND_SPEED;
 		//return_value = true;
 	}
 
