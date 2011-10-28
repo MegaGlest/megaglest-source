@@ -268,7 +268,7 @@ public:
 #pragma pack(push, 1)
 class NetworkMessageCommandList: public NetworkMessage {
 private:
-	static const int maxCommandCount = 2496; // can be as large as 65535
+	//static const int maxCommandCount = 2496; // can be as large as 65535
 
 private:
 	struct DataHeader {
@@ -281,7 +281,8 @@ private:
 
 	struct Data {
 		DataHeader header;
-		NetworkCommand commands[maxCommandCount];
+		//NetworkCommand commands[maxCommandCount];
+		std::vector<NetworkCommand> commands;
 	};
 
 private:

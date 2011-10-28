@@ -1024,7 +1024,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 	chrono.start();
 
 	NetworkMessageType msg = nmtInvalid;
-	int waitLoopCount = 0;
+	uint64 waitLoopCount = 0;
 	while(msg == nmtInvalid) {
 		msg = getNextMessageType(true);
 		if(msg == nmtInvalid) {
@@ -1073,7 +1073,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 		waitLoopCount++;
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %d, msg = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount,msg);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %ull, msg = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount,msg);
 
 	return msg;
 }
