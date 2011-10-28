@@ -281,6 +281,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	Unit::mapMemoryList[this]=true;
 #endif
 
+	changedActiveCommand = false;
 	lastSynchDataString="";
 	modelFacing = CardinalDir::NORTH;
 	lastStuckFrame = 0;
@@ -1141,6 +1142,9 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+    //printf("In [%s::%s] Line: %d unit [%d - %s] command [%s] tryQueue = %d command->getCommandType()->isQueuable(tryQueue) = %d\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getType()->getName().c_str(), command->getCommandType()->getName().c_str(), tryQueue,command->getCommandType()->isQueuable(tryQueue));
+
+
 	if(command->getCommandType()->isQueuable(tryQueue)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1187,7 +1191,9 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		//empty command queue
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",__FILE__,__FUNCTION__,__LINE__);
 
+		changedActiveCommand = (commands.size() > 0);
 		clearCommands();
+		//printf("In [%s::%s] Line: %d cleared existing commands\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 	}
@@ -1198,6 +1204,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	CommandResult result= checkCommand(command);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 
+	//printf("In [%s::%s] Line: %d check command returned %d, commands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,result,commands.size());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -1527,6 +1534,11 @@ void Unit::updateTimedParticles() {
 
 bool Unit::update() {
 	assert(progress <= 1.f);
+
+	if(changedActiveCommand) {
+		changedActiveCommand = false;
+		return true;
+	}
 
 	//highlight
 	if(highlight > 0.f) {

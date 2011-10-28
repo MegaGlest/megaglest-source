@@ -401,6 +401,8 @@ private:
 	//static Mutex mutexDeletedUnits;
 	//static std::map<void *,bool> deletedUnits;
 
+	bool changedActiveCommand;
+
 public:
 	Unit() : id(-1) {
 		assert(false);
