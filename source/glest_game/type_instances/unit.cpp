@@ -1135,6 +1135,8 @@ int Unit::getCountOfProducedUnits(const UnitType *ut) const{
 CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"\n======================\nUnit Command tryQueue = %d\nUnit Info:\n%s\nCommand Info:\n%s\n",tryQueue,this->toString().c_str(),command->toString().c_str());
 
+	changedActiveCommand = false;
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
