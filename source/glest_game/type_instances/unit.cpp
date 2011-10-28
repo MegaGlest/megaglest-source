@@ -1831,6 +1831,10 @@ bool Unit::update() {
 		}
 	}
 
+	if(return_value) {
+		changedActiveCommand = false;
+	}
+
 	return return_value;
 }
 
