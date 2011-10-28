@@ -565,12 +565,15 @@ void RepairCommandType::load(int id, const XmlNode *n, const string &dir,
 		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader) {
 	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
 
-	//move
-   	string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
-	moveSkillType= static_cast<const MoveSkillType*>(ut.getSkillType(skillName, scMove));
+	// move skill (no longer required by means unit must already be beside unit to repair)
+	// for example a hospital
+	if(n->hasChild("move-skill") == true) {
+		string skillName= n->getChild("move-skill")->getAttribute("value")->getRestrictedValue();
+		moveSkillType= static_cast<const MoveSkillType*>(ut.getSkillType(skillName, scMove));
+	}
 
 	//repair
-   	skillName= n->getChild("repair-skill")->getAttribute("value")->getRestrictedValue();
+   	string skillName= n->getChild("repair-skill")->getAttribute("value")->getRestrictedValue();
 	repairSkillType= static_cast<const RepairSkillType*>(ut.getSkillType(skillName, scRepair));
 
 	//repaired units
