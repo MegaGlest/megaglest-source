@@ -199,7 +199,7 @@ void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots,
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
-	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, openNetworkSlots, false, autostart, NULL, masterserverMode));
+	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, openNetworkSlots, pNewGame, autostart, NULL, masterserverMode));
 }
 
 void Program::initServer(WindowGl *window, GameSettings *settings) {
@@ -208,7 +208,7 @@ void Program::initServer(WindowGl *window, GameSettings *settings) {
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
-	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, false, false, true, settings));
+	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, false, pNewGame, true, settings));
 }
 
 void Program::initClient(WindowGl *window, const Ip &serverIp) {

@@ -25,6 +25,12 @@ namespace Glest { namespace Game {
 class SwitchSetupRequest;
 class ServerInterface;
 
+enum ParentMenuState {
+	pNewGame,
+	pMasterServer,
+	pLanGame
+};
+
 // ===============================
 // 	class MenuStateCustomGame
 // ===============================
@@ -120,7 +126,7 @@ private:
 	std::map<string,string> publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
 
-	bool parentMenuIsMs;
+	ParentMenuState parentMenuState;
 	int soundConnectionCount;
 
 	bool showMasterserverError;
@@ -174,7 +180,7 @@ private:
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
-			bool openNetworkSlots= false, bool parentMenuIsMasterserver=false,
+			bool openNetworkSlots= false, ParentMenuState parentMenuState=pNewGame,
 			bool autostart=false,GameSettings *settings=NULL,bool masterserverMode=false);
 	virtual ~MenuStateCustomGame();
 

@@ -40,6 +40,8 @@ private:
 	GraphicButton buttonReturn;
 	GraphicButton buttonConnect;
 	GraphicButton buttonAutoFindServers;
+	GraphicButton buttonCreateGame;
+
 	GraphicLabel labelServer;
 	GraphicLabel labelServerType;
 	GraphicLabel labelServerIp;

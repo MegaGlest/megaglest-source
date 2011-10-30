@@ -15,6 +15,7 @@
 #include "config.h"
 #include "menu_state_new_game.h"
 #include "menu_state_masterserver.h"
+#include "menu_state_join_game.h"
 #include "metrics.h"
 #include "network_manager.h"
 #include "network_message.h"
@@ -47,7 +48,7 @@ struct FormatString {
 // =====================================================
 
 MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
-		bool openNetworkSlots,bool parentMenuIsMasterserver, bool autostart,
+		bool openNetworkSlots,ParentMenuState parentMenuState, bool autostart,
 		GameSettings *settings, bool masterserverMode) :
 		MenuState(program, mainMenu, "new-game")
 {
@@ -58,6 +59,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	this->lastMasterServerSettingsUpdateCount = 0;
 	this->masterserverModeMinimalResources = true;
+	this->parentMenuState=parentMenuState;
 
 	//printf("this->masterserverMode = %d [%d]\n",this->masterserverMode,masterserverMode);
 
@@ -123,8 +125,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    parentMenuIsMs=parentMenuIsMasterserver;
 
 	needToSetChangedGameSettings = false;
 	needToRepublishToMasterserver = false;
@@ -375,7 +375,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxPublishServer.init(50, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
-	if(openNetworkSlots) {
+	if(openNetworkSlots && parentMenuState!=pLanGame) {
 		listBoxPublishServer.setSelectedItemIndex(0);
 	}
 	else {
@@ -867,8 +867,7 @@ void MenuStateCustomGame::returnToParentMenu() {
 	needToBroadcastServerSettings = false;
 	needToRepublishToMasterserver = false;
 	lastNetworkPing               = time(NULL);
-	bool returnToMasterServerMenu = parentMenuIsMs;
-
+	ParentMenuState parentMenuState = this->parentMenuState;
 /*
 	if(publishToMasterserverThread != NULL &&
         publishToMasterserverThread->canShutdown() == true &&
@@ -882,10 +881,15 @@ void MenuStateCustomGame::returnToParentMenu() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	forceWaitForShutdown = false;
-	if(returnToMasterServerMenu) {
+	if(parentMenuState==pMasterServer) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		cleanup();
 		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
+	}
+	else if(parentMenuState==pLanGame) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		cleanup();
+		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
