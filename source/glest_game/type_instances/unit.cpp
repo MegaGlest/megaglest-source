@@ -238,13 +238,16 @@ UnitAttackBoostEffect::~UnitAttackBoostEffect() {
 	}
 
 	if(ups != NULL) {
-		ups->fade();
+		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame);
+		if(particleValid == true) {
+			ups->fade();
 
-		vector<UnitParticleSystem *> particleSystemToRemove;
-		particleSystemToRemove.push_back(ups);
+			vector<UnitParticleSystem *> particleSystemToRemove;
+			particleSystemToRemove.push_back(ups);
 
-		Renderer::getInstance().cleanupUnitParticleSystems(particleSystemToRemove,rsGame);
-		ups = NULL;
+			Renderer::getInstance().cleanupUnitParticleSystems(particleSystemToRemove,rsGame);
+			ups = NULL;
+		}
 	}
 
 	delete upst;
@@ -955,12 +958,18 @@ void Unit::setVisible(const bool visible) {
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 		UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
 		if(effect != NULL && effect->ups != NULL) {
-			effect->ups->setVisible(visible);
+			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(effect->ups,rsGame);
+			if(particleValid == true) {
+				effect->ups->setVisible(visible);
+			}
 		}
 	}
 	if(currentAttackBoostOriginatorEffect.currentAppliedEffect != NULL) {
 		if(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups != NULL) {
-			currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setVisible(visible);
+			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups,rsGame);
+			if(particleValid == true) {
+				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setVisible(visible);
+			}
 		}
 	}
 }
@@ -1663,14 +1672,20 @@ bool Unit::update() {
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 		UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
 		if(effect != NULL && effect->ups != NULL) {
-			effect->ups->setPos(getCurrVector());
-			effect->ups->setRotation(getRotation());
+			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(effect->ups,rsGame);
+			if(particleValid == true) {
+				effect->ups->setPos(getCurrVector());
+				effect->ups->setRotation(getRotation());
+			}
 		}
 	}
 	if(currentAttackBoostOriginatorEffect.currentAppliedEffect != NULL) {
 		if(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups != NULL) {
-			currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
-			currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
+			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups,rsGame);
+			if(particleValid == true) {
+				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
+				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
+			}
 		}
 	}
 
