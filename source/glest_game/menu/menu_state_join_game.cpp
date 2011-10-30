@@ -17,6 +17,7 @@
 #include "core_data.h"
 #include "config.h"
 #include "menu_state_new_game.h"
+#include "menu_state_custom_game.h"
 #include "metrics.h"
 #include "network_manager.h"
 #include "network_message.h"
@@ -73,6 +74,10 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	buttonConnect.registerGraphicComponent(containerName,"buttonConnect");
 	buttonConnect.init(450, 300, 125);
 	buttonConnect.setText(lang.get("Connect"));
+
+	buttonCreateGame.registerGraphicComponent(containerName,"buttonCreateGame");
+	buttonCreateGame.init(450, 250, 125);
+	buttonCreateGame.setText(lang.get("HostGame"));
 
 	buttonAutoFindServers.registerGraphicComponent(containerName,"buttonAutoFindServers");
 	buttonAutoFindServers.init(595, 300, 125);
@@ -162,6 +167,7 @@ void MenuStateJoinGame::reloadUI() {
 
 	buttonReturn.setText(lang.get("Return"));
 	buttonConnect.setText(lang.get("Connect"));
+	buttonCreateGame.setText(lang.get("HostGame"));
 	buttonAutoFindServers.setText(lang.get("FindLANGames"));
 	labelServerType.setText(lang.get("ServerType") + ":");
 
@@ -295,6 +301,18 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			connectToServer();
 		}
 	}
+    else if(buttonCreateGame.mouseClick(x, y)){
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		soundRenderer.playFx(coreData.getClickSoundB());
+		clientInterface->stopServerDiscovery();
+		if(clientInterface->getSocket() != NULL) {
+		    clientInterface->close();
+		}
+		abortAutoFind = true;
+		mainMenu->setState(new MenuStateCustomGame(program, mainMenu,true,pLanGame));
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    }
+
 	else if(buttonAutoFindServers.mouseClick(x, y) && buttonAutoFindServers.getEnabled() == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -308,6 +326,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 			buttonAutoFindServers.setEnabled(false);
 			buttonConnect.setEnabled(false);
+			buttonCreateGame.setEnabled(false);
 			clientInterface->discoverServers(this);
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -345,6 +364,8 @@ void MenuStateJoinGame::render(){
 	renderer.renderLabel(&labelServerPort);
 	renderer.renderLabel(&labelServerPortLabel);
 	renderer.renderButton(&buttonConnect);
+	renderer.renderButton(&buttonCreateGame);
+
 	renderer.renderButton(&buttonAutoFindServers);
 	renderer.renderListBox(&listBoxServerType);
 

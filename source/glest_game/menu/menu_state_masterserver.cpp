@@ -215,7 +215,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	buttonRefresh.setText(lang.get("RefreshList"));
 	buttonReturn.setText(lang.get("Return"));
-	buttonCreateGame.setText(lang.get("CustomGame"));
+	buttonCreateGame.setText(lang.get("HostGame"));
 	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
 
 	labelAutoRefresh.registerGraphicComponent(containerName,"labelAutoRefresh");
@@ -358,7 +358,7 @@ void MenuStateMasterserver::reloadUI() {
 
 	buttonRefresh.setText(lang.get("RefreshList"));
 	buttonReturn.setText(lang.get("Return"));
-	buttonCreateGame.setText(lang.get("CustomGame"));
+	buttonCreateGame.setText(lang.get("HostGame"));
 	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
 
 	ircOnlinePeopleLabel.setText(lang.get("IRCPeopleOnline"));
@@ -531,7 +531,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
         cleanup();
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		mainMenu->setState(new MenuStateCustomGame(program, mainMenu,true,true));
+		mainMenu->setState(new MenuStateCustomGame(program, mainMenu,true,pMasterServer));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
