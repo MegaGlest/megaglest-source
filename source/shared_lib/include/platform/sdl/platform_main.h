@@ -277,26 +277,53 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 	return result;
 }
 
-#define MAIN_FUNCTION(X) int main(int argc, char **argv)                                       \
-{																			                   \
-	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_HELP])) == true    ||           \
-	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VERSION])) == true ||           \
-	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])) == true || \
-	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) { \
-	     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0)  {                               \
-	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";                \
-	        return 1;                                                                          \
-	     }                                                                                     \
-	}																		                   \
-	else {																	                   \
-		 if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {                                              \
-			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";                \
-			return 1;                                                                          \
-		 }                                                                                     \
-	}																		                   \
-	SDL_EnableUNICODE(1);													                   \
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);                \
-    int result = X(argc, argv);                                                                \
+int mainSetup(int argc, char **argv) {
+    bool haveSpecialOutputCommandLineOption = false;
+
+	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||
+        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 				== true ||
+        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])    == true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true) {
+		haveSpecialOutputCommandLineOption = true;
+	}
+
+	if( haveSpecialOutputCommandLineOption == false) {
+#ifdef USE_STREFLOP
+#define STREFLOP_NO_DENORMALS
+	streflop_init<streflop::Simple>();
+#endif
+	}
+
+	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_HELP])) == true    ||
+	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VERSION])) == true ||
+	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])) == true ||
+	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
+	     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0)  {
+	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
+	        return 1;
+	     }
+	}
+	else {
+		 if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {
+			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
+			return 1;
+		 }
+	}
+	SDL_EnableUNICODE(1);
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+	return 0;
+}
+
+#define MAIN_FUNCTION(X) int main(int argc, char **argv) {                                     \
+	int result = mainSetup(argc,argv);														   \
+	if(result == 0) {																		   \
+		result = X(argc, argv);                                                                \
+	}																						   \
     return result;                                                                             \
 }
 

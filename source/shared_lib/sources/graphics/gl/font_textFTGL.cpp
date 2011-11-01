@@ -40,6 +40,7 @@ int TextFTGL::faceResolution 	= 72;
 //====================================================================
 TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 
+	//throw runtime_error("FTGL!");
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",0);
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/arphic/uming.ttc",0); // Chinese
 	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/arphic/ukai.ttc",0); // Chinese
