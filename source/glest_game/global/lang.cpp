@@ -45,7 +45,7 @@ Lang &Lang::getInstance() {
 	return lang;
 }
 
-void Lang::loadStrings(const string &language) {
+void Lang::loadStrings(const string &language, bool loadFonts) {
 	bool languageChanged = (language != this->language);
 	this->language= language;
 	loadStrings(language, strings, true);
@@ -154,8 +154,10 @@ void Lang::loadStrings(const string &language) {
 		// end win32
 	#endif
 
-		CoreData &coreData= CoreData::getInstance();
-		coreData.loadFonts();
+		if(loadFonts) {
+			CoreData &coreData= CoreData::getInstance();
+			coreData.loadFonts();
+		}
     }
 }
 

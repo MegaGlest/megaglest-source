@@ -42,7 +42,7 @@ private:
 public:
 	static Lang &getInstance();    
 
-	void loadStrings(const string &language);
+	void loadStrings(const string &language, bool loadFonts=true);
 	void loadScenarioStrings(const string &scenarioDir, const string &scenarioName);
 
 	string get(const string &s,string language="");

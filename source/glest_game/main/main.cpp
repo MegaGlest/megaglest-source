@@ -2846,12 +2846,7 @@ int glestMain(int argc, char** argv) {
     	}
 
     	Renderer &renderer= Renderer::getInstance();
-//#if defined(__APPLE__)
-		program= new Program();
-		mainWindow= new MainWindow(program);
-//#endif
-
-        lang.loadStrings(language);
+        lang.loadStrings(language,false);
 
         if(	lang.hasString("FONT_HEIGHT_TEXT")) {
         	Font::langHeightText = config.getString("FONT_HEIGHT_TEXT",Font::langHeightText.c_str());
@@ -2876,6 +2871,7 @@ int glestMain(int argc, char** argv) {
 	        else {
 	            printf("\nInvalid missing font base size specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
+
 	            return -1;
 	        }
     	}
@@ -2937,11 +2933,13 @@ int glestMain(int argc, char** argv) {
 				else {
 					printf("Map [%s] was NOT FOUND\n",itemName.c_str());
 				}
+
 				return -1;
 			}
 	        else {
 	            printf("\nInvalid missing map specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
+
 	            return -1;
 	        }
     	}
@@ -2964,11 +2962,13 @@ int glestMain(int argc, char** argv) {
 				else {
 					printf("Tileset [%s] was NOT FOUND\n",itemName.c_str());
 				}
+
 				return -1;
 			}
 	        else {
 	            printf("\nInvalid missing tileset specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
+
 	            return -1;
 	        }
     	}
@@ -2997,6 +2997,7 @@ int glestMain(int argc, char** argv) {
 	        else {
 	            printf("\nInvalid missing techtree specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
+
 	            return -1;
 	        }
     	}
@@ -3025,6 +3026,7 @@ int glestMain(int argc, char** argv) {
 	        else {
 	            printf("\nInvalid missing scenario specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
+
 	            return -1;
 	        }
     	}
@@ -3046,6 +3048,7 @@ int glestMain(int argc, char** argv) {
 				int32 crcValue = getFolderTreeContentsCheckSumRecursively(itemName, itemNameFilter, NULL, true);
 
 				printf("CRC value for path [%s] filter [%s] is [%d]\n",itemName.c_str(),itemNameFilter.c_str(),crcValue);
+
 				return -1;
 			}
 	        else {
@@ -3057,6 +3060,7 @@ int glestMain(int argc, char** argv) {
 	        	}
 
 	            //printParameterHelp(argv[0],false);
+
 	            return -1;
 	        }
     	}
@@ -3073,15 +3077,11 @@ int glestMain(int argc, char** argv) {
         //return -1;
         //
 
-		if(program == NULL) {
-			program= new Program();
-		}
+		program= new Program();
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(mainWindow == NULL) {
-			mainWindow= new MainWindow(program);
-		}
+		mainWindow= new MainWindow(program);
 
 		mainWindow->setUseDefaultCursorOnly(config.getBool("No2DMouseRendering","false"));
 
