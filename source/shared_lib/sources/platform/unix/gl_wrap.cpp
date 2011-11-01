@@ -41,7 +41,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("About to try font [%s]\n",type.c_str());
-	printf("About to try font [%s]\n",type.c_str());
+	//printf("About to try font [%s]\n",type.c_str());
 
 	XFontStruct* fontInfo = XLoadQueryFont(display, type.c_str());
 	if(fontInfo == NULL) {
@@ -49,7 +49,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 
 		//throw std::runtime_error("Font not found: [" + type + "]");
 		SystemFlags::OutputDebug(SystemFlags::debugError,"Font not found [%s] trying to fallback to [%s]\n",type.c_str(),default_font.c_str());
-		printf("Font not found [%s] trying to fallback to [%s]\n",type.c_str(),default_font.c_str());
+		//printf("Font not found [%s] trying to fallback to [%s]\n",type.c_str(),default_font.c_str());
 
 		fontInfo = XLoadQueryFont(display, default_font.c_str());
 		if(fontInfo == NULL) {
@@ -58,6 +58,8 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	}
 
 	// we need the height of 'a' which sould ~ be half ascent+descent
+	//printf("Font height [%s] = %d\n",type.c_str(),(fontInfo->ascent + fontInfo->descent) / 2);
+
 	metrics.setHeight(static_cast<float> 
 			(fontInfo->ascent + fontInfo->descent) / 2);
 
