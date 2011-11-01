@@ -2845,6 +2845,7 @@ int glestMain(int argc, char** argv) {
 	        }
     	}
 
+    	Renderer &renderer= Renderer::getInstance();
         lang.loadStrings(language);
 
         if(	lang.hasString("FONT_HEIGHT_TEXT")) {
@@ -3196,7 +3197,7 @@ int glestMain(int argc, char** argv) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         // Initialize Renderer
-		Renderer &renderer= Renderer::getInstance();
+		//Renderer &renderer= Renderer::getInstance();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
