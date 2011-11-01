@@ -326,7 +326,6 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 			buttonAutoFindServers.setEnabled(false);
 			buttonConnect.setEnabled(false);
-			buttonCreateGame.setEnabled(false);
 			clientInterface->discoverServers(this);
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -339,6 +338,7 @@ void MenuStateJoinGame::mouseMove(int x, int y, const MouseState *ms){
 	buttonReturn.mouseMove(x, y);
 	buttonConnect.mouseMove(x, y);
 	buttonAutoFindServers.mouseMove(x, y);
+	buttonCreateGame.mouseMove(x, y);
 	listBoxServerType.mouseMove(x, y);
 
 	//hide-show options depending on the selection
