@@ -26,12 +26,15 @@ using namespace Platform;
 string FontGl::default_fonttype = "fixed";
 
 void Font2DGl::init() {
+	//printf("In [%s::%s] Line: %d inited = %d\n",__FILE__,__FUNCTION__,__LINE__,inited);
 	if(inited == false) {
-		if(getTextHandler() == NULL) {
+		//printf("In [%s::%s] Line: %d inited = %d Font::forceLegacyFonts = %d\n",__FILE__,__FUNCTION__,__LINE__,inited,Font::forceLegacyFonts);
+		if(getTextHandler() == NULL || Font::forceLegacyFonts == true) {
 			assertGl();
 			handle= glGenLists(charCount);
 			assertGl();
 
+			//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 			createGlFontBitmaps((Shared::Platform::uint32&)handle, type, size, width, charCount, metrics);
 			assertGl();
 		}
@@ -41,7 +44,7 @@ void Font2DGl::init() {
 
 void Font2DGl::end() {
 	if(inited) {
-		if(getTextHandler() == NULL) {
+		if(getTextHandler() == NULL || Font::forceLegacyFonts == true) {
 			assertGl();
 			//assert(glIsList(handle));
 			glDeleteLists(handle, 1);
@@ -56,8 +59,9 @@ void Font2DGl::end() {
 // =====================================================
 
 void Font3DGl::init() {
+	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	if(inited == false) {
-		if(getTextHandler() == NULL) {
+		if(getTextHandler() == NULL || Font::forceLegacyFonts == true) {
 			assertGl();
 			handle= glGenLists(charCount);
 			createGlFontOutlines((Shared::Platform::uint32&)handle, type, width, depth, charCount, metrics);
@@ -69,7 +73,7 @@ void Font3DGl::init() {
 
 void Font3DGl::end() {
 	if(inited) {
-		if(getTextHandler() == NULL) {
+		if(getTextHandler() == NULL || Font::forceLegacyFonts == true) {
 			assertGl();
 			assert(glIsList(handle));
 			glDeleteLists(handle, 1);

@@ -56,7 +56,7 @@ void Font::resetToDefaults() {
 	Font::charCount					= 256;
 	Font::fontTypeName 				= "Times New Roman";
 	Font::fontIsMultibyte 			= false;
-	Font::forceLegacyFonts			= false;
+	//Font::forceLegacyFonts			= false;
 	Font::fontIsRightToLeft			= false;
 
 	// This value is used to scale the font text rendering

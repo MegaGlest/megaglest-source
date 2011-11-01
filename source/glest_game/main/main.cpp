@@ -2571,7 +2571,8 @@ int glestMain(int argc, char** argv) {
         if(config.getBool("EnableLegacyFonts","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]) == true) {
         	Font::forceLegacyFonts = true;
         	Renderer::renderText3DEnabled = false;
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Forcing Legacy Fonts Enabled\n");
+        	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Forcing Legacy Fonts Enabled\n");
+        	printf("**WARNING** Forcing Legacy Fonts Enabled\n");
         }
         else {
         	Renderer::renderText3DEnabled = config.getBool("Enable3DFontRendering",intToStr(Renderer::renderText3DEnabled).c_str());
