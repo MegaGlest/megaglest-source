@@ -2846,6 +2846,11 @@ int glestMain(int argc, char** argv) {
     	}
 
     	Renderer &renderer= Renderer::getInstance();
+//#if defined(__APPLE__)
+		program= new Program();
+		mainWindow= new MainWindow(program);
+//#endif
+
         lang.loadStrings(language);
 
         if(	lang.hasString("FONT_HEIGHT_TEXT")) {
@@ -3068,11 +3073,15 @@ int glestMain(int argc, char** argv) {
         //return -1;
         //
 
-		program= new Program();
+		if(program == NULL) {
+			program= new Program();
+		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		mainWindow= new MainWindow(program);
+		if(mainWindow == NULL) {
+			mainWindow= new MainWindow(program);
+		}
 
 		mainWindow->setUseDefaultCursorOnly(config.getBool("No2DMouseRendering","false"));
 
