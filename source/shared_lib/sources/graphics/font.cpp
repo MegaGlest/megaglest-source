@@ -154,6 +154,9 @@ Font::Font(FontTextHandlerType type) {
 
 	if(Font::forceLegacyFonts == false) {
 		try {
+			TextFTGL::faceResolution = Font::faceResolution;
+			TextFTGL::langHeightText = Font::langHeightText;
+
 			textHandler = NULL;
 			textHandler = new TextFTGL(type);
 			TextFTGL::faceResolution = Font::faceResolution;
