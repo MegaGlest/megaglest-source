@@ -185,6 +185,9 @@ bool Window::handleEvent() {
 
 					codeLocation = "i";
 					Window::isKeyPressedDown = true;
+#ifdef WIN32
+					event.key.keysym.mod = SDL_GetModState();
+#endif
 					keystate = event.key.keysym;
 
 					string keyName = SDL_GetKeyName(event.key.keysym.sym);
@@ -228,6 +231,10 @@ bool Window::handleEvent() {
 					codeLocation = "j";
 
 					Window::isKeyPressedDown = false;
+#ifdef WIN32
+					event.key.keysym.mod = SDL_GetModState();
+#endif
+
 					keystate = event.key.keysym;
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode);
