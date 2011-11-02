@@ -790,6 +790,7 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 		if( input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL) ||
 			input.keysym.mod & (KMOD_LALT | KMOD_RALT)) {
 			//input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] result *WOULD HAVE BEEN TRUE* but is false due to: modifiersAllowed = %d input.keysym.mod = %d\n",__FILE__,__FUNCTION__,__LINE__,modifiersAllowed,input.keysym.mod);
 				result = false;
 			}
 	}
