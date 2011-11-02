@@ -132,6 +132,7 @@ float FontMetrics::getTextWidth(const string &str) {
 
 float FontMetrics::getHeight() const {
 	if(textHandler != NULL) {
+		//printf("(textHandler->LineHeight(" ") = %f Font::scaleFontValue = %f\n",textHandler->LineHeight(" "),Font::scaleFontValue);
 		return (textHandler->LineHeight(" ") * Font::scaleFontValue);
 	}
 	else {
