@@ -74,10 +74,13 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 		if(centered) {
 			rasterPos.x= x - font->getTextHandler()->Advance(renderText.c_str()) / 2.f;
 			rasterPos.y= y + font->getTextHandler()->LineHeight(renderText.c_str()) / 2;
+			//printf("text [%s] x = %f, y = %f rasterPos [%s]\n",text.c_str(),x,y,rasterPos.getString().c_str());
 		}
 		else {
 			rasterPos= Vec2f(static_cast<float>(x), static_cast<float>(y));
-			rasterPos.y= y + font->getTextHandler()->LineHeight(renderText.c_str());
+			//rasterPos.y= y + font->getTextHandler()->LineHeight(renderText.c_str());
+			rasterPos.y= y;
+			//printf("text [%s] x = %f, y = %f rasterPos [%s]\n",text.c_str(),x,y,rasterPos.getString().c_str());
 		}
 	}
 	else {

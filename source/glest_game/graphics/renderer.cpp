@@ -1789,6 +1789,8 @@ Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 		x-metrics.toVirtualX(virtualX),
 		y-metrics.toVirtualY(virtualY));
 
+	//printf("text [%s] x = %d y = %d virtualX = %d virtualY = %d fontMetrics->getHeight() = %f\n",text.c_str(),x,y,virtualX,virtualY,fontMetrics->getHeight());
+
 	return textPos;
 }
 
