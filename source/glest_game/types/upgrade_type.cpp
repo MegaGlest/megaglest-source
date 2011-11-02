@@ -207,7 +207,9 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Logger::getInstance().add("Upgrade type: "+ formatString(name), true);
+	char szBuf[1024]="";
+	sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingUpgradeType","",true).c_str(),formatString(name).c_str());
+	Logger::getInstance().add(szBuf, true);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);

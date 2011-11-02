@@ -58,9 +58,11 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	treePath = currentPath;
 	name= lastDir(currentPath);
 
-    vector<string> filenames;
-	Logger::getInstance().add("TechTree: "+ formatString(name), true);
+	char szBuf[1024]="";
+	sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingTechtree","",true).c_str(),formatString(name).c_str());
+	Logger::getInstance().add(szBuf, true);
 
+	vector<string> filenames;
 	//load resources
 	string str= currentPath + "resources/*.";
 
@@ -201,7 +203,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 TechTree::~TechTree() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	Logger::getInstance().add("Tech tree", true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTechtree"), true);
 }
 
 std::vector<std::string> TechTree::validateFactionTypes() {

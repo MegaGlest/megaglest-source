@@ -43,6 +43,7 @@ string getCompileDateTime();
 string formatString(const string &str);
 
 string getGameReadWritePath(string lookupKey="");
+string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath);
 
 }}//end namespace
 

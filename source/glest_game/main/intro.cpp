@@ -106,7 +106,7 @@ Intro::Intro(Program *program):
 
 	XmlTree xmlTree;
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	xmlTree.load(data_path + "data/core/menu/menu.xml",Properties::getTagReplacementValues());
+	xmlTree.load(getGameCustomCoreDataPath(data_path, "data/core/menu/menu.xml"),Properties::getTagReplacementValues());
 	const XmlNode *menuNode= xmlTree.getRootNode();
 	const XmlNode *introNode= menuNode->getChild("intro");
 
@@ -160,16 +160,33 @@ Intro::Intro(Program *program):
 	modelIndex = 0;
 	models.clear();
 	if(showIntroModels == true) {
-		string introPath = data_path + "data/core/menu/main_model/intro*.g3d";
+
+		//getGameCustomCoreDataPath(data_path, "data/core/menu/menu.xml")
+		string introPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/main_model/intro*.g3d";
 		vector<string> introModels;
 		findAll(introPath, introModels, false, false);
 		for(int i = 0; i < introModels.size(); ++i) {
 			string logo = introModels[i];
 			Model *model= renderer.newModel(rsMenu);
 			if(model) {
-				model->load(data_path + "data/core/menu/main_model/" + logo);
+				model->load(introPath + "data/core/menu/main_model/" + logo);
 				models.push_back(model);
 				//printf("model [%s]\n",model->getFileName().c_str());
+			}
+		}
+
+		if(models.size() == 0) {
+			introPath = data_path + "data/core/menu/main_model/intro*.g3d";
+			//vector<string> introModels;
+			findAll(introPath, introModels, false, false);
+			for(int i = 0; i < introModels.size(); ++i) {
+				string logo = introModels[i];
+				Model *model= renderer.newModel(rsMenu);
+				if(model) {
+					model->load(data_path + "data/core/menu/main_model/" + logo);
+					models.push_back(model);
+					//printf("model [%s]\n",model->getFileName().c_str());
+				}
 			}
 		}
 
@@ -202,6 +219,144 @@ Intro::Intro(Program *program):
 	int appear= Intro::appearTime;
 	int disappear= Intro::showTime+Intro::appearTime+(Intro::disapearTime * 2);
 
+	const int maxIntroLines = 100;
+	Lang &lang= Lang::getInstance();
+	for(unsigned int i = 1; i < maxIntroLines; ++i) {
+		string introTagName 		= "IntroText" + intToStr(i);
+		string introTagTextureName 	= "IntroTexture" + intToStr(i);
+
+		if(lang.hasString(introTagName,"",true) == true ||
+			lang.hasString(introTagTextureName,"",true) == true) {
+			string lineText = "";
+
+			if(lang.hasString(introTagName,"",true) == true) {
+				lineText = lang.get(introTagName,"",true);
+			}
+
+			string showStartTime = "IntroStartMilliseconds" + intToStr(i);
+
+			int displayTime = appear;
+			if(lang.hasString(showStartTime,"",true) == true) {
+				displayTime = strToInt(lang.get(showStartTime,"",true));
+			}
+			else {
+				if(i == 1) {
+					displayTime = appear;
+				}
+				else if(i == 2) {
+					displayTime = disappear;
+				}
+				else if(i >= 3) {
+					displayTime = disappear *(++displayItemNumber);
+				}
+			}
+
+			// Is this a texture?
+			if(lang.hasString(introTagName,"",true) == false &&
+				lang.hasString(introTagTextureName,"",true) == true) {
+
+				string introTagTextureWidthName 	= "IntroTextureWidth" + intToStr(i);
+				string introTagTextureHeightName 	= "IntroTextureHeight" + intToStr(i);
+
+				lineText = lang.get(introTagTextureName,"",true);
+				Texture2D *logoTexture= renderer.newTexture2D(rsGlobal);
+				if(logoTexture) {
+					logoTexture->setMipmap(false);
+					logoTexture->getPixmap()->load(lineText);
+
+					renderer.initTexture(rsGlobal, logoTexture);
+				}
+
+
+				int textureWidth = logoTexture->getTextureWidth();
+				if(lang.hasString(introTagTextureWidthName,"",true) == true) {
+					textureWidth = strToInt(lang.get(introTagTextureWidthName,"",true));
+				}
+
+				int textureHeight = logoTexture->getTextureHeight();
+				if(lang.hasString(introTagTextureHeightName,"",true) == true) {
+					textureHeight = strToInt(lang.get(introTagTextureHeightName,"",true));
+				}
+
+				texts.push_back(new Text(logoTexture, Vec2i(w/2-(textureWidth/2), h/2-(textureHeight/2)), Vec2i(textureWidth, textureHeight), displayTime));
+			}
+			// This is a line of text
+			else {
+				string introTagTextXName 		= "IntroTextX" + intToStr(i);
+				string introTagTextYName 		= "IntroTextY" + intToStr(i);
+				string introTagTextFontTypeName = "IntroTextFontType" + intToStr(i);
+
+				int textX = -1;
+				if(lang.hasString(introTagTextXName,"",true) == true) {
+					string value = lang.get(introTagTextXName,"",true);
+					if(value.length() > 0 &&
+							(value[0] == '+' || value[0] == '-')) {
+						textX = w/2 + strToInt(value);
+					}
+					else {
+						textX = strToInt(value);
+					}
+				}
+
+				int textY = -1;
+				if(lang.hasString(introTagTextYName,"",true) == true) {
+					string value = lang.get(introTagTextYName,"",true);
+					if(value.length() > 0 &&
+							(value[0] == '+' || value[0] == '-')) {
+						textY = h/2 + strToInt(value);
+					}
+					else {
+						textY = strToInt(value);
+					}
+				}
+
+				Font2D *font = coreData.getMenuFontVeryBig();
+				Font3D *font3d = coreData.getMenuFontVeryBig3D();
+
+				if(lang.hasString(introTagTextFontTypeName,"",true) == true) {
+					string value =lang.get(introTagTextFontTypeName,"",true);
+					if(value == "displaynormal") {
+						font = coreData.getDisplayFont();
+						font3d = coreData.getDisplayFont3D();
+					}
+					else if(value == "displaysmall") {
+						font = coreData.getDisplayFontSmall();
+						font3d = coreData.getDisplayFontSmall3D();
+					}
+					else if(value == "menunormal") {
+						font = coreData.getMenuFontNormal();
+						font3d = coreData.getMenuFontNormal3D();
+					}
+					else if(value == "menubig") {
+						font = coreData.getMenuFontBig();
+						font3d = coreData.getMenuFontBig3D();
+					}
+					else if(value == "menuverybig") {
+						font = coreData.getMenuFontVeryBig();
+						font3d = coreData.getMenuFontVeryBig3D();
+					}
+					else if(value == "consolenormal") {
+						font = coreData.getConsoleFont();
+						font3d = coreData.getConsoleFont3D();
+					}
+
+				}
+				texts.push_back(new Text(lineText, Vec2i(textX, textY), displayTime, font,font3d));
+			}
+		}
+		else {
+			break;
+		}
+	}
+	modelShowTime = disappear *(displayItemNumber);
+	if(lang.hasString("IntroModelStartMilliseconds","",true) == true) {
+		modelShowTime = strToInt(lang.get("IntroModelStartMilliseconds","",true));
+	}
+	else {
+		modelShowTime = disappear *(displayItemNumber);
+	}
+
+/*
 	string lineText = "Based on award-winning classic Glest";
 	texts.push_back(new Text(lineText, Vec2i(-1, -1), appear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
 	lineText = "the MegaGlest Team presents";
@@ -214,8 +369,9 @@ Intro::Intro(Program *program):
 	lineText = "www.megaglest.org";
 	//texts.push_back(new Text(lineText, Vec2i(-1, -1), disappear *(displayItemNumber++), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
 	texts.push_back(new Text(lineText, Vec2i(-1, h/2-45-18), disappear *(displayItemNumber-1), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
+*/
 
-	modelShowTime = disappear *(displayItemNumber);
+
 
 	if(showIntroPics > 0 && coreData.getMiscTextureList().size() > 0) {
 		const int showMiscTime = showIntroPicsTime;
@@ -280,7 +436,12 @@ Intro::Intro(Program *program):
 				texPlacement = Vec2i(w-tex->getTextureWidth(), (h/2) - (tex->getTextureHeight()/2));
 			}
 
-			texts.push_back(new Text(tex, texPlacement, Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), disappear *displayItemNumber+(showMiscTime*(i+1))));
+			int textureStartTime = disappear * displayItemNumber;
+			if(lang.hasString("IntroTextureStartMilliseconds","",true) == true) {
+				textureStartTime = strToInt(lang.get("IntroTextureStartMilliseconds","",true));
+			}
+
+			texts.push_back(new Text(tex, texPlacement, Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), textureStartTime +(showMiscTime*(i+1))));
 		}
 	}
 
@@ -300,6 +461,7 @@ Intro::Intro(Program *program):
 Intro::~Intro() {
 	deleteValues(texts.begin(),texts.end());
 
+	//deleteValues(introTextureList.begin(),introTextureList.end());
 //	if(test) {
 //		glmDelete(test);
 //	}

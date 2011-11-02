@@ -866,14 +866,24 @@ void MainWindow::showLanguages() {
 
 	vector<string> langResults;
     string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	findAll(data_path + "data/lang/*.lng", langResults, true);
-	if(langResults.empty()){
-        throw runtime_error("There is no lang file");
-	}
 
+    string userDataPath = getGameCustomCoreDataPath(data_path, "");
+	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
 	for(unsigned int i = 0; i < langResults.size(); ++i) {
 		string testLanguage = langResults[i];
 		menuItems.push_back(testLanguage);
+	}
+
+	vector<string> langResults2;
+	findAll(data_path + "data/lang/*.lng", langResults2, true);
+	if(langResults2.empty() && langResults.empty()) {
+        throw runtime_error("There are no lang files");
+	}
+	for(unsigned int i = 0; i < langResults2.size(); ++i) {
+		string testLanguage = langResults2[i];
+		if(std::find(menuItems.begin(),menuItems.end(),testLanguage) == menuItems.end()) {
+			menuItems.push_back(testLanguage);
+		}
 	}
 	menuItems.push_back(lang.get("ExitGame?"));
 	cancelLanguageSelection = menuItems.size()-1;
@@ -900,9 +910,20 @@ void MainWindow::toggleLanguage(string language) {
 
 		vector<string> langResults;
 	    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-		findAll(data_path + "data/lang/*.lng", langResults, true);
-		if(langResults.empty()){
-	        throw runtime_error("There is no lang file");
+
+	    string userDataPath = getGameCustomCoreDataPath(data_path, "");
+		findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
+
+		vector<string> langResults2;
+		findAll(data_path + "data/lang/*.lng", langResults2, true);
+		if(langResults2.empty() && langResults.empty()) {
+	        throw runtime_error("There are no lang files");
+		}
+		for(unsigned int i = 0; i < langResults2.size(); ++i) {
+			string testLanguage = langResults2[i];
+			if(std::find(langResults.begin(),langResults.end(),testLanguage) == langResults.end()) {
+				langResults.push_back(testLanguage);
+			}
 		}
 
 		for(unsigned int i = 0; i < langResults.size(); ++i) {
@@ -2366,6 +2387,7 @@ int glestMain(int argc, char** argv) {
 	preCacheThread=NULL;
 
 	Properties::setApplicationPath(executable_path(argv[0]));
+	Properties::setGameVersion(glestVersionString);
 
     ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
     SystemFlags::VERBOSE_MODE_ENABLED  = false;
@@ -2736,7 +2758,6 @@ int glestMain(int argc, char** argv) {
 				return -1;
 			}
 		}
-
 
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
@@ -3484,7 +3505,7 @@ int glestMain(int argc, char** argv) {
 	}
 	catch(const exception &e) {
 		if(isMasterServerModeEnabled == false) {
-			soundThreadManager = program->getSoundThreadManager(true);
+			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
@@ -3496,7 +3517,7 @@ int glestMain(int argc, char** argv) {
 	}
 	catch(const char *e) {
 		if(isMasterServerModeEnabled == false) {
-			soundThreadManager = program->getSoundThreadManager(true);
+			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
@@ -3508,7 +3529,7 @@ int glestMain(int argc, char** argv) {
 	}
 	catch(const string &ex) {
 		if(isMasterServerModeEnabled == false) {
-			soundThreadManager = program->getSoundThreadManager(true);
+			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
@@ -3520,7 +3541,7 @@ int glestMain(int argc, char** argv) {
 	}
 	catch(...) {
 		if(isMasterServerModeEnabled == false) {
-			soundThreadManager = program->getSoundThreadManager(true);
+			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);

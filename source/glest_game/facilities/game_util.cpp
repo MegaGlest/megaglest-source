@@ -209,6 +209,28 @@ string formatString(const string &str){
 	return outStr;
 }
 
+string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath) {
+    if(originalBasePath != "") {
+    	endPathWithSlash(originalBasePath);
+    }
+
+	string result = originalBasePath + uniqueFilePath;
+	//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	Config &config = Config::getInstance();
+	string data_path = config.getString("UserData_Root","");
+    if(data_path != "") {
+    	endPathWithSlash(data_path);
+    }
+
+	if(data_path != "" &&
+			(uniqueFilePath == "" || fileExists(data_path + uniqueFilePath) == true)) {
+		result = data_path + uniqueFilePath;
+	}
+
+	//printf("data_path [%s] result [%s]\n",data_path.c_str(),result.c_str());
+    return result;
+}
+
 string getGameReadWritePath(string lookupKey) {
 	string path = "";
 
