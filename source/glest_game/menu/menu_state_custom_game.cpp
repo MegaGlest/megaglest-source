@@ -227,7 +227,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     listBoxMap.setSelectedItemIndex(initialMapSelection);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
-	labelMapInfo.init(xoffset+100, mapPos-labelOffset-6, 200, 40);
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
 
 	// MapFilter
 	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
@@ -1679,18 +1679,21 @@ void MenuStateCustomGame::render() {
 				const Metrics &metrics= Metrics::getInstance();
 				FontMetrics *fontMetrics= NULL;
 				if(Renderer::renderText3DEnabled == false) {
-					fontMetrics = CoreData::getInstance().getMenuFontNormal()->getMetrics();
+					fontMetrics = labelPlayers[i].getFont()->getMetrics();
 				}
 				else {
-					fontMetrics = CoreData::getInstance().getMenuFontNormal3D()->getMetrics();
+					fontMetrics = labelPlayers[i].getFont3D()->getMetrics();
 				}
 				if(fontMetrics == NULL) {
 					throw runtime_error("fontMetrics == NULL");
 				}
-				int curWidth = (metrics.toVirtualX(fontMetrics->getTextWidth(labelPlayers[i].getText())));
+				//int curWidth = (metrics.toVirtualX(fontMetrics->getTextWidth(labelPlayers[i].getText())));
+				int curWidth = (fontMetrics->getTextWidth(labelPlayers[i].getText()));
+				int newOffsetPosition = labelPlayers[i].getX() + curWidth + 2;
+
+				//printf("labelPlayers[i].getX() = %d curWidth = %d labelPlayerNames[i].getX() = %d offsetPosition = %d newOffsetPosition = %d [%s]\n",labelPlayers[i].getX(),curWidth,labelPlayerNames[i].getX(),offsetPosition,newOffsetPosition,labelPlayers[i].getText().c_str());
 
 				if(labelPlayers[i].getX() + curWidth >= labelPlayerNames[i].getX()) {
-					int newOffsetPosition = labelPlayers[i].getX() + curWidth + 2;
 					if(offsetPosition < newOffsetPosition) {
 						offsetPosition = newOffsetPosition;
 					}
