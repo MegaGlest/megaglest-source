@@ -1678,18 +1678,18 @@ void Renderer::renderResourceStatus() {
 			bool isNegativeConsumableDisplayCycle = false;
 			if(rt->getClass() == rcConsumable) {
 				// Show in yellow/orange/red font if negative
-				if(r->getBalance()*3+r->getAmount()<0){
+				if(r->getBalance()*5+r->getAmount()<0){
 					if(time(NULL) % 2 == 0) {
 						isNegativeConsumableDisplayCycle = true;
 						if(r->getBalance()*1+r->getAmount()<0){
 							glColor3f(RED.x,RED.y,RED.z);
 							resourceFontColor = RED;
 						}
-						else if(r->getBalance()*2+r->getAmount()<0){
+						else if(r->getBalance()*3+r->getAmount()<0){
 							glColor3f(ORANGE.x,ORANGE.y,ORANGE.z);
 							resourceFontColor = ORANGE;
 						}
-						else if(r->getBalance()*3+r->getAmount()<0){
+						else if(r->getBalance()*5+r->getAmount()<0){
 							glColor3f(YELLOW.x,YELLOW.y,YELLOW.z);
 							resourceFontColor = YELLOW;
 						}
