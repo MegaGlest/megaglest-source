@@ -255,9 +255,22 @@ bool Window::handleEvent() {
 							Window::isActive = true;
 #ifdef WIN32
 							HWND handle = GetSDLWindow();
-							ShowWindow(handle, SW_SHOW);
+							if(Window::isFullScreen == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
+								ShowWindow(handle, SW_MAXIMIZE);
+								//if(Window::getUseDefaultCursorOnly() == false) {
+								//	showCursor(false);
+								//}
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
+								ShowWindow(handle, SW_RESTORE);
+								//showCursor(true);
+							}
 #endif
 						}
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d \n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
 
@@ -276,9 +289,22 @@ bool Window::handleEvent() {
 							Window::isActive = true;
 #ifdef WIN32
 							HWND handle = GetSDLWindow();
-							ShowWindow(handle, SW_SHOW);
+							if(Window::isFullScreen == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
+								ShowWindow(handle, SW_MAXIMIZE);
+								//if(Window::getUseDefaultCursorOnly() == false) {
+								//	showCursor(false);
+								//}
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",__FILE__,__FUNCTION__,__LINE__,handle);
+								ShowWindow(handle, SW_RESTORE);
+								//showCursor(true);
+							}
 #endif
 						}
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d \n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
 						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
