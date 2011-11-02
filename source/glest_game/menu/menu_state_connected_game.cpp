@@ -244,7 +244,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxMap.setEditable(false);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
-	labelMapInfo.init(xoffset+100, mapPos-labelOffset-6, 200, 40);
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
     labelMapInfo.setText("?");
 
 	labelMap.registerGraphicComponent(containerName,"labelMap");

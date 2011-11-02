@@ -109,7 +109,9 @@ Text * FontMetrics::getTextHandler() {
 
 float FontMetrics::getTextWidth(const string &str) {
 	if(textHandler != NULL) {
-		return (textHandler->Advance(str.c_str()) * Font::scaleFontValue);
+		//printf("str [%s] textHandler->Advance = %f Font::scaleFontValue = %f\n",str.c_str(),textHandler->Advance(str.c_str()),Font::scaleFontValue);
+		//return (textHandler->Advance(str.c_str()) * Font::scaleFontValue);
+		return (textHandler->Advance(str.c_str()));
 	}
 	else {
 		float width= 0.f;
