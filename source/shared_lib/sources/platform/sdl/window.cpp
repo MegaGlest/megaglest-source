@@ -64,6 +64,20 @@ bool Window::masterserverMode = false;
 
 // ========== PUBLIC ==========
 
+#ifdef WIN32
+
+static HWND GetSDLWindow()
+{
+    SDL_SysWMinfo   info;
+
+    SDL_VERSION(&info.version);
+    if (SDL_GetWMInfo(&info) == -1)
+        return NULL;
+    return info.window;
+}
+
+#endif
+
 Window::Window()  {
 	for(int idx = 0; idx < mbCount; idx++) {
 		lastMouseDown[idx] = 0;
@@ -402,20 +416,6 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 		}
 		}
 }
-
-#ifdef WIN32
-
-static HWND GetSDLWindow()
-{
-    SDL_SysWMinfo   info;
-
-    SDL_VERSION(&info.version);
-    if (SDL_GetWMInfo(&info) == -1)
-        return NULL;
-    return info.window;
-}
-
-#endif
 
 void Window::toggleFullscreen() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
