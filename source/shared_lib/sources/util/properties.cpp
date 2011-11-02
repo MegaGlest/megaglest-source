@@ -44,6 +44,7 @@ using namespace Shared::Graphics;
 namespace Shared{ namespace Util{
 
 string Properties::applicationPath = "";
+string Properties::gameVersion = "";
 
 // =====================================================
 //	class Properties
@@ -506,6 +507,8 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	//mapTagReplacementValues["%%COMMONDATAPATH%%",	Properties::applicationPath + "/commondata/");
 #endif
 
+	mapTagReplacementValues["$GAMEVERSION"] = Properties::gameVersion;
+
 	//
 	// #2
 	// Next add the extra tags if passed in
@@ -597,6 +600,7 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 	//replaceAll(value, "%%COMMONDATAPATH%%",	Properties::applicationPath + "/commondata/");
 #endif
 
+	replaceAll(value, "$GAMEVERSION",		Properties::gameVersion);
 	}
 
 	//if(originalValue != value || originalValue.find("$APPLICATIONDATAPATH") != string::npos) {

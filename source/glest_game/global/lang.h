@@ -42,11 +42,11 @@ private:
 public:
 	static Lang &getInstance();    
 
-	void loadStrings(const string &language, bool loadFonts=true);
+	void loadStrings(const string &uselanguage, bool loadFonts=true);
 	void loadScenarioStrings(const string &scenarioDir, const string &scenarioName);
 
-	string get(const string &s,string language="");
-	bool hasString(const string &s, string language="");
+	string get(const string &s,string uselanguage="", bool fallbackToDefault=false);
+	bool hasString(const string &s, string uselanguage="", bool fallbackToDefault=false);
 	string getScenarioString(const string &s);
 
 	string getLanguage() const { return language; }

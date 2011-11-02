@@ -224,7 +224,7 @@ MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateNa
 
 	//camera
 	XmlTree xmlTree;
-	xmlTree.load(data_path + "data/core/menu/menu.xml",Properties::getTagReplacementValues());
+	xmlTree.load(getGameCustomCoreDataPath(data_path, "data/core/menu/menu.xml"),Properties::getTagReplacementValues());
 	const XmlNode *menuNode= xmlTree.getRootNode();
 	const XmlNode *cameraNode= menuNode->getChild("camera");
 

@@ -44,10 +44,14 @@ private:
 	PropertyMap propertyMap;
 	string path;
 	static string applicationPath;
+	static string gameVersion;
 
 public:
 	static void setApplicationPath(string value) { applicationPath=value; }
 	static string getApplicationPath() { return applicationPath; }
+
+	static void setGameVersion(string value) { gameVersion=value; }
+	static string getGameVersion() { return gameVersion; }
 
 	void clear();
 	void load(const string &path,bool clearCurrentProperties=true);

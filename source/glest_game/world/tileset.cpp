@@ -20,6 +20,7 @@
 #include "game_util.h"
 #include "leak_dumper.h"
 #include "properties.h"
+#include "lang.h"
 #include "platform_util.h"
 
 using namespace Shared::Util;
@@ -152,7 +153,10 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 	checksumValue.addFile(path);
 
 	try {
-		Logger::getInstance().add("Tileset: "+formatString(name), true);
+		char szBuf[1024]="";
+		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingTileset","",true).c_str(),formatString(name).c_str());
+		Logger::getInstance().add(szBuf, true);
+
 		Renderer &renderer= Renderer::getInstance();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -346,7 +350,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 }
 
 Tileset::~Tileset() {
-	Logger::getInstance().add("Tileset", true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTileset"), true);
 }
 
 const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const{

@@ -49,7 +49,10 @@ Checksum Scenario::load(const string &path) {
 		checksumValue.addFile(path);
 
 		string name= cutLastExt(lastDir(path));
-		Logger::getInstance().add("Scenario: " + formatString(name), true);
+
+		char szBuf[1024]="";
+		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingScenario","",true).c_str(),formatString(name).c_str());
+		Logger::getInstance().add(szBuf, true);
 
 		Scenario::loadScenarioInfo(path, &info);
 

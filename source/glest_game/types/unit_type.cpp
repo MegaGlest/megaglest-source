@@ -132,11 +132,10 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 
 	try {
 		Lang &lang= Lang::getInstance();
-		string unitTypeText = "Unit type: ";
-		if(lang.hasString("UnitType") == true) {
-			unitTypeText = lang.get("UnitType");
-		}
-		Logger::getInstance().add(unitTypeText + " " + formatString(name), true);
+
+		char szBuf[1024]="";
+		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingUnitType","",true).c_str(),formatString(name).c_str());
+		Logger::getInstance().add(szBuf, true);
 
 		//file load
 		checksum->addFile(path);

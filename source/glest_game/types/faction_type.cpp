@@ -52,7 +52,9 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
     	personalityType = fpt_Observer;
     }
 
-	Logger::getInstance().add("Faction type: "+ formatString(name), true);
+	char szBuf[1024]="";
+	sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingFactionType","",true).c_str(),formatString(name).c_str());
+	Logger::getInstance().add(szBuf, true);
 
 	if(personalityType == fpt_Normal) {
 		// a1) preload units

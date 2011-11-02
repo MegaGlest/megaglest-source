@@ -18,6 +18,7 @@
 #include "xml_parser.h"
 #include "game_util.h"
 #include "properties.h"
+#include "lang.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -58,7 +59,10 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 
 		name= lastDir(dir);
 
-		Logger::getInstance().add("Resource type: "+ formatString(name), true);
+		char szBuf[1024]="";
+		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingResourceType","",true).c_str(),formatString(name).c_str());
+		Logger::getInstance().add(szBuf, true);
+
 		string currentPath = dir;
 		endPathWithSlash(currentPath);
 		path= currentPath + name + ".xml";

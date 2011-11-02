@@ -40,7 +40,7 @@ MenuBackground::MenuBackground(){
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 
 	XmlTree xmlTree;
-	xmlTree.load(data_path + "data/core/menu/menu.xml",Properties::getTagReplacementValues());
+	xmlTree.load(getGameCustomCoreDataPath(data_path, "data/core/menu/menu.xml"),Properties::getTagReplacementValues());
 	const XmlNode *menuNode= xmlTree.getRootNode();
 
 	//water
@@ -53,7 +53,7 @@ MenuBackground::MenuBackground(){
 		waterTexture= renderer.newTexture2D(rsMenu);
 		if(waterTexture) {
 			waterTexture->getPixmap()->init(4);
-			waterTexture->getPixmap()->load(data_path + "data/core/menu/textures/water.tga");
+			waterTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/water.tga"));
 		}
 	}
 
@@ -111,14 +111,14 @@ MenuBackground::MenuBackground(){
 		const XmlNode *mainMenuModelNode= menuNode->getChild("menu-background-model");
 		string mainModelFile = mainMenuModelNode->getAttribute("value")->getRestrictedValue();
 
-		mainModel->load(data_path + mainModelFile);
+		mainModel->load(getGameCustomCoreDataPath(data_path, mainModelFile));
 	}
 
 	//models
 	for(int i=0; i<5; ++i){
 		characterModels[i]= renderer.newModel(rsMenu);
 		if(characterModels[i]) {
-			characterModels[i]->load(data_path + "data/core/menu/about_models/character"+intToStr(i)+".g3d");
+			characterModels[i]->load(getGameCustomCoreDataPath(data_path, "data/core/menu/about_models/character"+intToStr(i)+".g3d"));
 		}
 	}
 

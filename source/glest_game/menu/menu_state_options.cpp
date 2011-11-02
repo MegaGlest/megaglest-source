@@ -293,10 +293,22 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	vector<string> langResults;
 
     string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	findAll(data_path + "data/lang/*.lng", langResults, true);
-	if(langResults.empty()){
-        throw runtime_error("There is no lang file");
+
+    string userDataPath = getGameCustomCoreDataPath(data_path, "");
+	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
+
+	vector<string> langResults2;
+	findAll(data_path + "data/lang/*.lng", langResults2, true);
+	if(langResults2.empty() && langResults.empty()) {
+        throw runtime_error("There are no lang files");
 	}
+	for(unsigned int i = 0; i < langResults2.size(); ++i) {
+		string testLanguage = langResults2[i];
+		if(std::find(langResults.begin(),langResults.end(),testLanguage) == langResults.end()) {
+			langResults.push_back(testLanguage);
+		}
+	}
+
     listBoxLang.setItems(langResults);
 	listBoxLang.setSelectedItem(config.getString("Lang"));
 	currentLine-=lineOffset;

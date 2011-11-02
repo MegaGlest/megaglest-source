@@ -149,7 +149,7 @@ World::~World() {
 
 void World::endScenario() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    Logger::getInstance().add("World", true);
+    Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingWorld"), true);
 
     ExploredCellsLookupItemCache.clear();
     ExploredCellsLookupItemCacheTimer.clear();
@@ -165,7 +165,7 @@ void World::endScenario() {
 
 void World::end(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    Logger::getInstance().add("World", true);
+    Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingWorld"), true);
 
     ExploredCellsLookupItemCache.clear();
     ExploredCellsLookupItemCacheTimer.clear();
@@ -1187,7 +1187,7 @@ int World::getUnitCountOfType(int factionIndex, const string &typeName) {
 void World::initCells(bool fogOfWar) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Logger::getInstance().add("State cells", true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingStateCells"), true);
     for(int i=0; i< map.getSurfaceW(); ++i) {
         for(int j=0; j< map.getSurfaceH(); ++j) {
 
@@ -1255,7 +1255,7 @@ void World::initSplattedTextures() {
 //creates each faction looking at each faction name contained in GameSettings
 void World::initFactionTypes(GameSettings *gs) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	Logger::getInstance().add("Faction types", true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingFactionTypes"), true);
 
 	if(gs == NULL) {
 		throw runtime_error("gs == NULL");
@@ -1311,14 +1311,14 @@ void World::initMinimap() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	minimap.init(map.getW(), map.getH(), this, game->getGameSettings()->getFogOfWar());
-	Logger::getInstance().add("Compute minimap surface", true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingMinimapSurface"), true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void World::initUnitsForScenario() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	Logger::getInstance().add("Generate elements", true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingGenerateGameElements"), true);
 
 	//put starting units
 	for(int i = 0; i < getFactionCount(); ++i) {
@@ -1363,7 +1363,7 @@ void World::initUnitsForScenario() {
 //place units randomly aroud start location
 void World::initUnits() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	Logger::getInstance().add("Generate elements", true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingGenerateGameElements"), true);
 
 	//put starting units
 	for(int i = 0; i < getFactionCount(); ++i) {

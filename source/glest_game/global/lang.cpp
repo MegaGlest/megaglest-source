@@ -31,6 +31,7 @@ using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
+const char *DEFAULT_LANGUAGE = "english";
 // =====================================================
 // 	class Lang
 // =====================================================
@@ -45,10 +46,10 @@ Lang &Lang::getInstance() {
 	return lang;
 }
 
-void Lang::loadStrings(const string &language, bool loadFonts) {
-	bool languageChanged = (language != this->language);
-	this->language= language;
-	loadStrings(language, strings, true);
+void Lang::loadStrings(const string &uselanguage, bool loadFonts) {
+	bool languageChanged = (uselanguage != this->language);
+	this->language= uselanguage;
+	loadStrings(uselanguage, strings, true);
 
 	if(languageChanged == true) {
 		Font::resetToDefaults();
@@ -161,10 +162,11 @@ void Lang::loadStrings(const string &language, bool loadFonts) {
     }
 }
 
-void Lang::loadStrings(const string &language, Properties &properties, bool fileMustExist) {
+void Lang::loadStrings(const string &uselanguage, Properties &properties, bool fileMustExist) {
 	properties.clear();
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	string languageFile = data_path + "data/lang/" + language + ".lng";
+	//string languageFile = data_path + "data/lang/" + uselanguage + ".lng";
+	string languageFile = getGameCustomCoreDataPath(data_path, "data/lang/" + uselanguage + ".lng");
 	if(fileMustExist == false && fileExists(languageFile) == false) {
 		return;
 	}
@@ -209,41 +211,52 @@ void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenario
 	}
 }
 
-bool Lang::hasString(const string &s, string language) {
-	bool hasString = false;
+bool Lang::hasString(const string &s, string uselanguage, bool fallbackToDefault) {
+	bool result = false;
 	try {
-		if(language != "") {
-			if(otherLanguageStrings.find(language) == otherLanguageStrings.end()) {
-				loadStrings(language, otherLanguageStrings[language], false);
+		if(uselanguage != "") {
+			//printf("#a fallbackToDefault = %d [%s] uselanguage [%s] DEFAULT_LANGUAGE  [%s] this->language [%s]\n",fallbackToDefault,s.c_str(),uselanguage.c_str(),DEFAULT_LANGUAGE,this->language.c_str());
+			if(otherLanguageStrings.find(uselanguage) == otherLanguageStrings.end()) {
+				loadStrings(uselanguage, otherLanguageStrings[uselanguage], false);
 			}
-			string result = otherLanguageStrings[language].getString(s);
-			hasString = true;
+			string result2 = otherLanguageStrings[uselanguage].getString(s);
+			//printf("#b result2 [%s]\n",result2.c_str());
+
+			result = true;
 		}
 		else {
-			string result = strings.getString(s);
-			hasString = true;
+			string result2 = strings.getString(s);
+			result = true;
 		}
 	}
 	catch(exception &ex) {
 		if(strings.getpath() != "") {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] for language [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),language.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] for uselanguage [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),uselanguage.c_str());
+		}
+
+		//printf("#1 fallbackToDefault = %d [%s] uselanguage [%s] DEFAULT_LANGUAGE  [%s] this->language [%s]\n",fallbackToDefault,s.c_str(),uselanguage.c_str(),DEFAULT_LANGUAGE,this->language.c_str());
+		if(fallbackToDefault == true && uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
+			result = hasString(s, DEFAULT_LANGUAGE, false);
+		}
+		else {
+
 		}
 	}
-	return hasString;
+	return result;
 }
 
 bool Lang::isLanguageLocal(string compareLanguage) const {
 	return (compareLanguage == language);
 }
 
-string Lang::get(const string &s, string language) {
+string Lang::get(const string &s, string uselanguage, bool fallbackToDefault) {
 	try {
 		string result = "";
-		if(language != "") {
-			if(otherLanguageStrings.find(language) == otherLanguageStrings.end()) {
-				loadStrings(language, otherLanguageStrings[language], false);
+		if(uselanguage != "") {
+			if(otherLanguageStrings.find(uselanguage) == otherLanguageStrings.end()) {
+				loadStrings(uselanguage, otherLanguageStrings[uselanguage], false);
 			}
-			result = otherLanguageStrings[language].getString(s);
+			result = otherLanguageStrings[uselanguage].getString(s);
 			replaceAll(result, "\\n", "\n");
 		}
 		else {
@@ -254,8 +267,14 @@ string Lang::get(const string &s, string language) {
 	}
 	catch(exception &ex) {
 		if(strings.getpath() != "") {
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] language [%s] text [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),language.c_str(),s.c_str());
+			if(fallbackToDefault == false || SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] uselanguage [%s] text [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),uselanguage.c_str(),s.c_str());
 		}
+
+		//printf("#2 fallbackToDefault = %d [%s] uselanguage [%s] DEFAULT_LANGUAGE  [%s] this->language [%s]\n",fallbackToDefault,s.c_str(),uselanguage.c_str(),DEFAULT_LANGUAGE,this->language.c_str());
+		if(fallbackToDefault == true && uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
+			return get(s, DEFAULT_LANGUAGE, false);
+		}
+
 		return "???" + s + "???";
 	}
 }
