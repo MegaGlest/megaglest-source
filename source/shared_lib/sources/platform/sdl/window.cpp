@@ -243,13 +243,54 @@ bool Window::handleEvent() {
 					break;
 				case SDL_ACTIVEEVENT:
 				{
+//					codeLocation = "k";
+//					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT event.active.state = %d event.active. = %d\n",__FILE__,__FUNCTION__,__LINE__,event.active.state,event.active.gain);
+//
+//					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
+//
+//					// Check if the program has lost window focus
+//					if ((event.active.state & SDL_APPACTIVE) == SDL_APPACTIVE) {
+//						if (event.active.gain == 0) {
+//							Window::isActive = false;
+//						}
+//						else {
+//							Window::isActive = true;
+//						}
+//
+//						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d \n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
+//
+//						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
+//
+//						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+//						showCursor(willShowCursor);
+//					}
+//					// Check if the program has lost window focus
+//					if ((event.active.state & SDL_APPMOUSEFOCUS) != SDL_APPMOUSEFOCUS &&
+//						(event.active.state & SDL_APPINPUTFOCUS) != SDL_APPINPUTFOCUS &&
+//						(event.active.state & SDL_APPACTIVE) != SDL_APPACTIVE) {
+//						if (event.active.gain == 0) {
+//							Window::isActive = false;
+//						}
+//						//else if (event.active.gain == 1) {
+//						else {
+//							Window::isActive = true;
+//						}
+//
+//						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d \n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
+//
+//						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
+//						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
+//						showCursor(willShowCursor);
+//					}
+//				}
+
 					codeLocation = "k";
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT event.active.state = %d event.active. = %d\n",__FILE__,__FUNCTION__,__LINE__,event.active.state,event.active.gain);
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
 
 					// Check if the program has lost window focus
-					if ((event.active.state & SDL_APPACTIVE) == SDL_APPACTIVE) {
+					if ((event.active.state & (SDL_APPACTIVE | SDL_APPINPUTFOCUS))) {
 						if (event.active.gain == 0) {
 							Window::isActive = false;
 						}
@@ -261,24 +302,6 @@ bool Window::handleEvent() {
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
 
-						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
-						showCursor(willShowCursor);
-					}
-					// Check if the program has lost window focus
-					if ((event.active.state & SDL_APPMOUSEFOCUS) != SDL_APPMOUSEFOCUS &&
-						(event.active.state & SDL_APPINPUTFOCUS) != SDL_APPINPUTFOCUS &&
-						(event.active.state & SDL_APPACTIVE) != SDL_APPACTIVE) {
-						if (event.active.gain == 0) {
-							Window::isActive = false;
-						}
-						//else if (event.active.gain == 1) {
-						else {
-							Window::isActive = true;
-						}
-
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d \n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
-
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
 						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
 						showCursor(willShowCursor);
 					}
