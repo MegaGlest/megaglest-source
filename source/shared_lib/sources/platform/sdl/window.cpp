@@ -239,6 +239,10 @@ bool Window::handleEvent() {
 						}
 						else {
 							Window::isActive = true;
+#ifdef WIN32
+							HWND handle = GetSDLWindow();
+							ShowWindow(handle, SW_SHOW);
+#endif
 						}
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive);
@@ -256,6 +260,10 @@ bool Window::handleEvent() {
 						//else if (event.active.gain == 1) {
 						else {
 							Window::isActive = true;
+#ifdef WIN32
+							HWND handle = GetSDLWindow();
+							ShowWindow(handle, SW_SHOW);
+#endif
 						}
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::isActive,event.active.state);
