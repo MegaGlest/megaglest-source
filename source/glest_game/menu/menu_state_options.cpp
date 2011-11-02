@@ -728,7 +728,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonAutoConfig.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		Renderer::getInstance().autoConfig();
-		saveConfig();
+		//saveConfig();
 		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		return;
 	}
