@@ -34,8 +34,8 @@ int GameConstants::cameraFps						= 100;
 
 const float GameConstants::normalMultiplier			= 1.0f;
 const float GameConstants::easyMultiplier			= 0.5f;
-const float GameConstants::ultraMultiplier			= 2.0f;
-const float GameConstants::megaMultiplier			= 3.0f;
+const float GameConstants::ultraMultiplier			= 1.5f;
+const float GameConstants::megaMultiplier			= 2.5f;
 
 const char *GameConstants::folder_path_maps         = "maps";
 const char *GameConstants::folder_path_scenarios    = "scenarios";
