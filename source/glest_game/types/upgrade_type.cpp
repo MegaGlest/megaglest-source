@@ -608,7 +608,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	else {
 		maxEp -= ut->getMaxEp();
 		if(ut->getMaxEpRegeneration() != 0) {
-			maxEpRegeneration += ut->getMaxEpRegeneration();
+			maxEpRegeneration -= ut->getMaxEpRegeneration();
 		}
 	}
 
