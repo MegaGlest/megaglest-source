@@ -43,6 +43,11 @@ Console::Console() {
 	stringToHighlight="";
 }
 
+void Console::resetFonts() {
+	font=CoreData::getInstance().getConsoleFont();
+	font3D=CoreData::getInstance().getConsoleFont3D();
+}
+
 void Console::addStdMessage(const string &s) {
 	addLine(Lang::getInstance().get(s));
 }

@@ -307,6 +307,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 void MenuStateMods::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
+	console.resetFonts();
 	keyTechScrollBarTitle1.setText(lang.get("TechTitle1"));
 	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTechScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());

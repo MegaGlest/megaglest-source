@@ -528,6 +528,7 @@ void MenuStateConnectedGame::reloadUI() {
 	Config &config = Config::getInstance();
 	Lang &lang= Lang::getInstance();
 
+	console.resetFonts();
 	mainMessageBox.init(lang.get("Ok"));
 	ftpMessageBox.init(lang.get("Yes"),lang.get("No"));
 

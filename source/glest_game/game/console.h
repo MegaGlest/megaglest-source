@@ -88,7 +88,7 @@ public:
 	void setFont3D(Font3D *font)	{this->font3D= font;}
     string getStringToHighlight() const { return stringToHighlight;}
     void setStringToHighlight(string stringToHighlight) { this->stringToHighlight = stringToHighlight;}
-
+    void resetFonts();
 
 	
 	string getLine(int i) const;

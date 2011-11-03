@@ -523,6 +523,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 void MenuStateOptions::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
+	console.resetFonts();
 	mainMessageBox.init(lang.get("Ok"));
 
 	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());

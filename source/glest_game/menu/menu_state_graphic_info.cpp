@@ -80,6 +80,7 @@ MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu)
 void MenuStateGraphicInfo::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
+	console.resetFonts();
 	buttonReturn.setText(lang.get("Return"));
 
 	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
