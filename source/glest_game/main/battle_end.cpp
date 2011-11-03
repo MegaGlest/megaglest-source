@@ -67,6 +67,8 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 
 void BattleEnd::reloadUI() {
 	Lang &lang= Lang::getInstance();
+
+	console.resetFonts();
 	buttonExit.setText(lang.get("Exit"));
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
 

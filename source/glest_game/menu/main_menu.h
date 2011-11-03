@@ -122,7 +122,7 @@ public:
 
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 	virtual void consoleAddLine(string line);
-	virtual void reloadUI() {};
+	virtual void reloadUI();
 };
 
 }}//end namespace

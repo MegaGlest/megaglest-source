@@ -94,6 +94,9 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 
 void MenuStateRoot::reloadUI() {
 	Lang &lang= Lang::getInstance();
+
+	console.resetFonts();
+
 	if(EndsWith(glestVersionString, "-dev") == false){
 		labelVersion.setText(glestVersionString);
 	}
@@ -108,6 +111,7 @@ void MenuStateRoot::reloadUI() {
 	buttonExit.setText(lang.get("Exit"));
 
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+	console.resetFonts();
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }

@@ -113,6 +113,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 void MenuStateScenario::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
+	console.resetFonts();
 	mainMessageBox.init(lang.get("Ok"));
 	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());

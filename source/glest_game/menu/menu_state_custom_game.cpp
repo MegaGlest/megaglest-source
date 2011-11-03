@@ -635,6 +635,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 void MenuStateCustomGame::reloadUI() {
 	Lang &lang= Lang::getInstance();
     Config &config = Config::getInstance();
+
+    console.resetFonts();
 	mainMessageBox.init(lang.get("Ok"));
 
 	vector<string> teamItems, controlItems, results , rMultiplier;

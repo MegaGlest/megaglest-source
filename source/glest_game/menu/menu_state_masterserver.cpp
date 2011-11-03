@@ -315,6 +315,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 void MenuStateMasterserver::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
+	console.resetFonts();
 	consoleIRC.setFont(CoreData::getInstance().getMenuFontNormal());
 	consoleIRC.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 

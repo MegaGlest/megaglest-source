@@ -264,4 +264,8 @@ void MenuState::consoleAddLine(string line) {
 	console.addLine(line);
 }
 
+void MenuState::reloadUI() {
+	console.resetFonts();
+}
+
 }}//end namespace

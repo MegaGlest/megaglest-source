@@ -162,8 +162,9 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 
 void MenuStateJoinGame::reloadUI() {
 	Lang &lang= Lang::getInstance();
-
 	Config &config= Config::getInstance();
+
+	console.resetFonts();
 
 	buttonReturn.setText(lang.get("Return"));
 	buttonConnect.setText(lang.get("Connect"));

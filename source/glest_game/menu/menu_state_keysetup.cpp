@@ -162,6 +162,7 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 void MenuStateKeysetup::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
+	console.resetFonts();
 	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTitle.setText(lang.get("Keyboardsetup"));
