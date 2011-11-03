@@ -89,6 +89,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(setDisplayText, "setDisplayText");
 	luaScript.registerFunction(addConsoleText, "addConsoleText");
 	luaScript.registerFunction(DisplayFormattedText, "DisplayFormattedText");
+	luaScript.registerFunction(DisplayFormattedText, "displayFormattedText");
 	luaScript.registerFunction(clearDisplayText, "clearDisplayText");
 	luaScript.registerFunction(setCameraPosition, "setCameraPosition");
 	luaScript.registerFunction(createUnit, "createUnit");
