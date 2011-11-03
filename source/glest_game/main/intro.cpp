@@ -169,7 +169,7 @@ Intro::Intro(Program *program):
 			string logo = introModels[i];
 			Model *model= renderer.newModel(rsMenu);
 			if(model) {
-				model->load(introPath + "data/core/menu/main_model/" + logo);
+				model->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/main_model/" + logo);
 				models.push_back(model);
 				//printf("model [%s]\n",model->getFileName().c_str());
 			}

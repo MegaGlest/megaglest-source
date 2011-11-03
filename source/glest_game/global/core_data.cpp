@@ -161,7 +161,7 @@ void CoreData::load() {
     		Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
     		if(logoTextureExtra) {
 				logoTextureExtra->setMipmap(true);
-				logoTextureExtra->getPixmap()->load(logosPath + "data/core/menu/textures/" + logo);
+				logoTextureExtra->getPixmap()->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/textures/" + logo);
 				logoTextureList.push_back(logoTextureExtra);
     		}
     	}
@@ -195,7 +195,7 @@ void CoreData::load() {
     		Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
     		if(logoTextureExtra) {
 				logoTextureExtra->setMipmap(true);
-				logoTextureExtra->getPixmap()->load(introPath + "data/core/menu/textures/" + logo);
+				logoTextureExtra->getPixmap()->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/textures/" + logo);
 				miscTextureList.push_back(logoTextureExtra);
     		}
     	//}
