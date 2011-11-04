@@ -43,25 +43,31 @@ Software requirements:
 
 The MegaGlest Team currently provides builds and Installers for Linux and
 Windows. The Linux version is available in 32 and 64 bit variants which have
-been reported to run on Ubuntu 8.04 to 11.04, various versions of Debian,
+been reported to run on Ubuntu 8.04 to 11.10, various versions of Debian,
 OpenSuSE 11.1 to 11.3, and many other distributions. The Windows version runs
 on 32 and 64 bit variants of Windows and has been reported to run on Windows
 versions up to and including Windows 7.
 
-There are also distribution maintained or community provided distribution
-specific packages available for several Linux and BSD distributions and OS X.
+There are also packages available for several Linux and BSD distributions and 
+OS X, maintained by these distributions or the wider MegaGlest community. 
 Please see the website, forums and wiki for details.
 
 Graphics hardware and drivers:
-Current dedicated Nvidia and ATI hardware with vendor-supplied proprietary
-drivers installed will provide the best experience. MegaGlest also runs fine on
-most integrated Intel GMA, Nvidia and ATI GPUs, but you will feel an urge to 
-reduce effects.
+Current dedicated Nvidia and ATI hardware with up to date vendor-supplied 
+proprietary drivers installed usually provide the best experience. However, it
+is not unheard of that they may be difficult to get working on Linux and other
+open platforms (due to insufficient support by hardware vendors). If you 
+experience such issues, open source 3D drivers are now becoming usable for both
+many current and legacy GPUs, and may help with the proprietary drivers'
+shortcomings.
 
-Issues with proprietary drivers for 'legacy' ATI hardware have been and are
-continuously reported. On Linux, open source 3D drivers are now (Linux 2.6.38,
-Gallium 0.4 via DRI) starting to become usable for both many current and
-legacy GPUs, and may help with the proprietary drivers' shortcomings.
+Next to standard dedicated gaming video cards, MegaGlest also runs fine on most
+integrated Intel GMA, Nvidia and ATI GPUs, but you will feel an urge to reduce
+visual effects.
+
+To run MegaGlest in headless mode, neither video nor audio hardware and driver
+support are neccessary. For a good user experience, please ensure your system
+meets the other minimum hardware requirements, as listed above.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,20 +83,25 @@ After downloading the installer package, you need to make it executable. Use
 your file manager/browser to browse to the directory containing the downloaded
 file. Right-click the file, select the option to inspect and change this files'
 properties/permissions, and make the file executable by its owner. Now double-
-click the file to execute it.
+click the file to execute it. You need not and should not run the installer as
+the administrative user (root) or via sudo, but as a normal (restricted) user.
 
 The graphical installer will show up and display the MegaGlest license. Install
-the game into your home directory (default location) or a location of your 
-choice (within the boundaries of where your Linux user may write to, so
-probably anywhere below your home directory only). Once the installer
-completes, a MegaGlest starter/shortcut will show up on your window managers'
-application menu.
+the game into a directory below your home directory (the default location of
+~/.megaglest is fine) or any location of your choice (within the boundaries of
+where your Linux user may write to). Once the installer completes, a MegaGlest
+starter/shortcut will show up on your window managers' application menu.
 
 Windows:
 All you should need to do on Windows is to double-click the downloaded file.
 You may get to see a warning saying that this file you downloaded from the
 Internet may be unsafe. However, if you downloaded this file from a trusted
-source, such as http://megaglest.org/, it is safe to proceed.
+source, i.e. megaglest.org or *.mirror.sourceforge.net, it is generally safe 
+to proceed. However, we can not make any guarantees. You are encouraged to 
+scan the downloaded installer for viruses.
+
+Other platforms:
+Please refer to the packagers' installation guides.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,8 +109,8 @@ source, such as http://megaglest.org/, it is safe to proceed.
 3. Configuration
 
 MegaGlest can be configured in three ways:
-- in-game config menu: basic parameters
-- using the separate configuration utility
+- in-game config menu: most options
+- using the separate MegaGlest Configurator
 - manual editing of glestuser.ini (options) and glestuserkeys.ini (hotkeys)
 
 DO NOT directly edit glest.ini and glestkeys.ini but rather edit glestuser.ini
@@ -108,7 +119,13 @@ and glestuserkeys.ini and create your user over-ride values in these files.
 On Linux, these files are located in ~/.megaglest/. On Windows, these files are
 stored at %AppData%\megaglest (Windows XP) or %AppData%\roaming\megaglest (any
 later version). '%AppData%' is an environment variable which may point to a 
-different location depending on your login name and Windows version.
+different location depending on your login name and Windows version. The 
+MegaGlest installer places a shortcut to this directory in your start menu.
+Alternatively, you may access this location by pasting the above location
+(keeping the '%AppData%' variable as is) into Windows Explorers' location bar.
+
+The entire list of glestuser.ini options is available at
+http://wiki.megaglest.org/INI
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -217,9 +234,9 @@ megaglest                            => start game normally
 megaglest --version                  => display the version string
 megaglest --server                   => start in the custom game screen
                                         with all slots open
+megaglest --headless-server-mode     => start a headless server, the first
+                                        connecting user will manage it
 megaglest --client ServerIp          => start game connecting to a server
-
-On Windows, replace 'megaglest' by 'glest_game' for now.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -252,5 +269,5 @@ their own by reading up on available documentation before getting in touch.
 
 - Contact us on IRC:
   Network: irc.freenode.net
-  Channel: #glest
+  Channel: #megaglest
   Or use the webchat at http://chat.megaglest.org/
