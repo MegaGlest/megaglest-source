@@ -223,7 +223,7 @@ void Game::endGame() {
 	logger.loadLoadingScreen("");
 	logger.setState(Lang::getInstance().get("Deleting"));
 	//logger.add("Game", true);
-	logger.add(Lang::getInstance().get("LogScreenGameLoading"), false);
+	logger.add(Lang::getInstance().get("LogScreenGameLoading","",true), false);
 	logger.hideProgress();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -286,7 +286,7 @@ Game::~Game() {
 	logger.loadLoadingScreen("");
 	logger.setState(Lang::getInstance().get("Deleting"));
 	//logger.add("Game", true);
-	logger.add(Lang::getInstance().get("LogScreenGameLoading"), false);
+	logger.add(Lang::getInstance().get("LogScreenGameLoading","",true), false);
 	logger.hideProgress();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -913,14 +913,14 @@ void Game::init(bool initForPreviewOnly) {
 		if(withRainEffect){
 			//weather particle systems
 			if(world.getTileset()->getWeather() == wRainy) {
-				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingRainParticles"), true);
+				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingRainParticles","",true), true);
 				weatherParticleSystem= new RainParticleSystem();
 				weatherParticleSystem->setSpeed(12.f / GameConstants::updateFps);
 				weatherParticleSystem->setPos(gameCamera.getPos());
 				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
 			}
 			else if(world.getTileset()->getWeather() == wSnowy) {
-				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingSnowParticles"), true);
+				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingSnowParticles","",true), true);
 				weatherParticleSystem= new SnowParticleSystem(1200);
 				weatherParticleSystem->setSpeed(1.5f / GameConstants::updateFps);
 				weatherParticleSystem->setPos(gameCamera.getPos());
@@ -932,7 +932,7 @@ void Game::init(bool initForPreviewOnly) {
 
 	//init renderer state
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",__FILE__,__FUNCTION__);
-	logger.add(Lang::getInstance().get("LogScreenGameLoadingInitRenderer"), true);
+	logger.add(Lang::getInstance().get("LogScreenGameLoadingInitRenderer","",true), true);
 	renderer.initGame(this);
 
 	for(int i=0; i < world.getFactionCount(); ++i) {
@@ -951,13 +951,13 @@ void Game::init(bool initForPreviewOnly) {
 		SDL_PumpEvents();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
-		logger.add(Lang::getInstance().get("LogScreenGameLoadingWaitForNetworkPlayers"), true);
+		logger.add(Lang::getInstance().get("LogScreenGameLoadingWaitForNetworkPlayers","",true), true);
 		networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
 
 		//std::string worldLog = world.DumpWorldToLog(true);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",__FILE__,__FUNCTION__,__LINE__);
-		logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingMusic"), true);
+		logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingMusic","",true), true);
 
 		if(this->masterserverMode == false) {
 			if(world.getThisFaction() == NULL) {
@@ -981,7 +981,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		//rain
 		if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
-			logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingAmbient"), true);
+			logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingAmbient","",true), true);
 			currentAmbientSound = ambientSounds->getRain();
 			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
 			soundRenderer.playAmbient(currentAmbientSound);
@@ -989,7 +989,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		//snow
 		if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
-			logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingAmbient"), true);
+			logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingAmbient","",true), true);
 			currentAmbientSound = ambientSounds->getSnow();
 			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
 			soundRenderer.playAmbient(currentAmbientSound);
@@ -1000,7 +1000,7 @@ void Game::init(bool initForPreviewOnly) {
 			soundRenderer.playMusic(gameMusic);
 		}
 
-		logger.add(Lang::getInstance().get("LogScreenGameLoadingLaunchGame"));
+		logger.add(Lang::getInstance().get("LogScreenGameLoadingLaunchGame","",true));
 	}
 
 	logger.setCancelLoadingEnabled(false);
