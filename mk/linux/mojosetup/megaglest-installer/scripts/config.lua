@@ -1,5 +1,5 @@
 local GAME_INSTALL_SIZE = 680000000;
-local GAME_VERSION = "3.5.2";
+local GAME_VERSION = "3.5.3-beta1";
 
 local _ = MojoSetup.translate
 
