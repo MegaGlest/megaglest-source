@@ -155,7 +155,7 @@ Map::Map() {
 }
 
 Map::~Map() {
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingMapCells"), true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingMapCells","",true), true);
 
 	delete [] cells;
 	cells = NULL;
@@ -167,7 +167,7 @@ Map::~Map() {
 
 void Map::end(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingMap"), true);
+    Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingMap","",true), true);
 	//read heightmap
 	for(int j = 0; j < surfaceH; ++j) {
 		for(int i = 0; i < surfaceW; ++i) {
@@ -358,7 +358,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 }
 
 void Map::init(Tileset *tileset) {
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingMap"), true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingMap","",true), true);
 	maxMapHeight=0.0f;
 	smoothSurface(tileset);
 	computeNormals();

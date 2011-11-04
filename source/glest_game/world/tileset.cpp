@@ -350,7 +350,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 }
 
 Tileset::~Tileset() {
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTileset"), true);
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTileset","",true), true);
 }
 
 const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const{

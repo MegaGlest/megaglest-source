@@ -89,7 +89,7 @@ void CoreData::load() {
 	}
 
 	//const string dir = data_path + "data/core";
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenCoreDataLoading"));
+	Logger::getInstance().add(Lang::getInstance().get("LogScreenCoreDataLoading","",true));
 
 	Renderer &renderer= Renderer::getInstance();
 
