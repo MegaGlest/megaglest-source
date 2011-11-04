@@ -314,6 +314,17 @@ XmlAttribute *XmlNode::getAttribute(const string &name,bool mustExist) const {
 	return NULL;
 }
 
+bool XmlNode::hasAttribute(const string &name) const {
+	bool result = false;
+	for(unsigned int i = 0; i < attributes.size(); ++i) {
+		if(attributes[i]->getName() == name) {
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
 XmlNode *XmlNode::getChild(unsigned int i) const {
 	assert(!superNode);
 	if(i >= children.size()) {

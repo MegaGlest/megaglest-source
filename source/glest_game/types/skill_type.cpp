@@ -36,6 +36,7 @@ AttackBoost::AttackBoost() {
 	targetType = abtFaction;
 	unitParticleSystemTypeForSourceUnit = NULL;
 	unitParticleSystemTypeForAffectedUnit = NULL;
+	includeSelf 	= false;
 }
 
 AttackBoost::~AttackBoost() {
@@ -48,27 +49,16 @@ AttackBoost::~AttackBoost() {
 
 bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 	bool result = false;
-	if(enabled == true && source != NULL && dest != NULL && source != dest) {
+	if(enabled == true &&
+			source != NULL && dest != NULL &&
+			(includeSelf == true || source != dest)) {
 		bool destUnitMightApply = false;
-		// All units are affected (including enemies)
-		if(targetType == abtAll) {
-			destUnitMightApply = (boostUnitList.empty() == true);
-
-			// Specify which units are affected
-			for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-				const UnitType *ut = boostUnitList[i];
-				if(dest->getType()->getId() == ut->getId()) {
-					destUnitMightApply = true;
-					break;
-				}
-			}
-
+		if(source == dest && includeSelf == true) {
+			destUnitMightApply = true;
 		}
-		// Only same faction units are affected
-		else if(targetType == abtFaction) {
-			//if(boostUnitList.empty() == true) {
-			if(source->getFactionIndex() == dest->getFactionIndex()) {
-				//destUnitMightApply = true;
+		else {
+			// All units are affected (including enemies)
+			if(targetType == abtAll) {
 				destUnitMightApply = (boostUnitList.empty() == true);
 
 				// Specify which units are affected
@@ -81,15 +71,62 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				}
 
 			}
-			//}
-		}
-		// Only ally units are affected
-		else if(targetType == abtAlly) {
-			//if(boostUnitList.empty() == true) {
-			if(source->isAlly(dest) == true) {
-				//destUnitMightApply = true;
-				destUnitMightApply = (boostUnitList.empty() == true);
+			// Only same faction units are affected
+			else if(targetType == abtFaction) {
+				//if(boostUnitList.empty() == true) {
+				if(source->getFactionIndex() == dest->getFactionIndex()) {
+					//destUnitMightApply = true;
+					destUnitMightApply = (boostUnitList.empty() == true);
 
+					// Specify which units are affected
+					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+						const UnitType *ut = boostUnitList[i];
+						if(dest->getType()->getId() == ut->getId()) {
+							destUnitMightApply = true;
+							break;
+						}
+					}
+
+				}
+				//}
+			}
+			// Only ally units are affected
+			else if(targetType == abtAlly) {
+				//if(boostUnitList.empty() == true) {
+				if(source->isAlly(dest) == true) {
+					//destUnitMightApply = true;
+					destUnitMightApply = (boostUnitList.empty() == true);
+
+					// Specify which units are affected
+					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+						const UnitType *ut = boostUnitList[i];
+						if(dest->getType()->getId() == ut->getId()) {
+							destUnitMightApply = true;
+							break;
+						}
+					}
+				}
+				//}
+			}
+			// Only foe units are affected
+			else if(targetType == abtFoe) {
+				//if(boostUnitList.empty() == true) {
+				if(source->isAlly(dest) == false) {
+					//destUnitMightApply = true;
+					destUnitMightApply = (boostUnitList.empty() == true);
+
+					// Specify which units are affected
+					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+						const UnitType *ut = boostUnitList[i];
+						if(dest->getType()->getId() == ut->getId()) {
+							destUnitMightApply = true;
+							break;
+						}
+					}
+				}
+				//}
+			}
+			else if(targetType == abtUnitTypes) {
 				// Specify which units are affected
 				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
 					const UnitType *ut = boostUnitList[i];
@@ -97,35 +134,6 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 						destUnitMightApply = true;
 						break;
 					}
-				}
-			}
-			//}
-		}
-		// Only foe units are affected
-		else if(targetType == abtFoe) {
-			//if(boostUnitList.empty() == true) {
-			if(source->isAlly(dest) == false) {
-				//destUnitMightApply = true;
-				destUnitMightApply = (boostUnitList.empty() == true);
-
-				// Specify which units are affected
-				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-					const UnitType *ut = boostUnitList[i];
-					if(dest->getType()->getId() == ut->getId()) {
-						destUnitMightApply = true;
-						break;
-					}
-				}
-			}
-			//}
-		}
-		else if(targetType == abtUnitTypes) {
-			// Specify which units are affected
-			for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-				const UnitType *ut = boostUnitList[i];
-				if(dest->getType()->getId() == ut->getId()) {
-					destUnitMightApply = true;
-					break;
 				}
 			}
 		}
@@ -268,10 +276,16 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 		attackBoost.enabled = true;
 
 		const XmlNode *attackBoostNode = sn->getChild("attack-boost");
+		string targetType = attackBoostNode->getChild("target")->getAttribute("value")->getValue();
+
 		attackBoost.allowMultipleBoosts = attackBoostNode->getChild("allow-multiple-boosts")->getAttribute("value")->getBoolValue();
 		attackBoost.radius = attackBoostNode->getChild("radius")->getAttribute("value")->getIntValue();
 
-		string targetType = attackBoostNode->getChild("target")->getAttribute("value")->getValue();
+		attackBoost.includeSelf = false;
+		if(attackBoostNode->getChild("target")->hasAttribute("include-self") == true) {
+			attackBoost.includeSelf = attackBoostNode->getChild("target")->getAttribute("include-self")->getBoolValue();
+		}
+
 		if(targetType == "ally") {
 			attackBoost.targetType = abtAlly;
 
