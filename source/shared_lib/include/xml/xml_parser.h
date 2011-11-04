@@ -112,6 +112,8 @@ public:
 
 	XmlAttribute *getAttribute(unsigned int i) const;
 	XmlAttribute *getAttribute(const string &name,bool mustExist=true) const;
+	bool hasAttribute(const string &name) const;
+
 	XmlNode *getChild(unsigned int i) const;
 	XmlNode *getChild(const string &childName, unsigned int childIndex=0) const;
 	vector<XmlNode *> getChildList(const string &childName) const;

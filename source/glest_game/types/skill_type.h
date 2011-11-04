@@ -96,6 +96,8 @@ public:
 	UnitParticleSystemType *unitParticleSystemTypeForSourceUnit;
 	UnitParticleSystemType *unitParticleSystemTypeForAffectedUnit;
 
+	bool includeSelf;
+
 	bool isAffected(const Unit *source, const Unit *dest) const;
 };
 
