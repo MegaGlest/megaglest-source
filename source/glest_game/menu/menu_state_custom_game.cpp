@@ -156,7 +156,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-labelOffset;
 	//int aHeadPos=mapHeadPos-80;
-	int aHeadPos=245;
+	int aHeadPos=240;
 	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
 	int networkPos=networkHeadPos-labelOffset;
@@ -319,21 +319,21 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
-	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+40, 80);
+	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
 	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
-	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+40, 80);
+	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45, 80);
 	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
 	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
 
 	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
-	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+40, 80);
+	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+45, 80);
 	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
 
 	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
-	listBoxAISwitchTeamAcceptPercent.init(xoffset+460, aPos+40, 80);
+	listBoxAISwitchTeamAcceptPercent.init(xoffset+460, aPos+45, 80);
 	for(int i = 0; i <= 100; i = i + 10) {
 		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
 	}
@@ -387,7 +387,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelGameNameLabel.setText(lang.get("MGGameTitle")+":");
 
 	labelGameName.registerGraphicComponent(containerName,"labelGameName");
-	labelGameName.init(110, networkHeadPos-2*labelOffset,100);
+	labelGameName.init(150, networkHeadPos-2*labelOffset,100);
 	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	if(this->masterserverMode == false) {
@@ -440,10 +440,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelPlayerStatus[i].init(10, setupPos-30-i*rowHeight, 60);
 
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset-20, setupPos-30-i*rowHeight);
+		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight);
 
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+50,setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+70,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
         listBoxControls[i].init(xoffset+210, setupPos-30-i*rowHeight);

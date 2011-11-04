@@ -121,7 +121,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int setupPos=590;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-labelOffset;
-	int aHeadPos=245;
+	int aHeadPos=240;
 	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
 	int networkPos=networkHeadPos-labelOffset;
@@ -153,16 +153,15 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonCancelDownloads.init(10, 150, 125);
 	buttonCancelDownloads.setText(lang.get("CancelDownloads"));
 
-	xoffset=170;
 	// fog - o - war
 	// @350 ? 300 ?
-
+	xoffset=70;
 	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
-	labelFogOfWar.init(xoffset, aHeadPos, 130);
+	labelFogOfWar.init(xoffset+100, aHeadPos, 130);
 	labelFogOfWar.setText(lang.get("FogOfWar"));
 
 	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
-	listBoxFogOfWar.init(xoffset, aPos, 130);
+	listBoxFogOfWar.init(xoffset+100, aPos, 130);
 	listBoxFogOfWar.pushBackItem(lang.get("Enabled"));
 	listBoxFogOfWar.pushBackItem(lang.get("Explored"));
 	listBoxFogOfWar.pushBackItem(lang.get("Disabled"));
@@ -171,11 +170,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
 	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
-	labelAllowObservers.init(xoffset+150, aHeadPos, 80);
+	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
 	labelAllowObservers.setText(lang.get("AllowObservers"));
 
 	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
-	listBoxAllowObservers.init(xoffset+150, aPos, 80);
+	listBoxAllowObservers.init(xoffset+310, aPos, 80);
 	listBoxAllowObservers.pushBackItem(lang.get("No"));
 	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
 	listBoxAllowObservers.setSelectedItemIndex(0);
@@ -184,10 +183,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	// Enable Observer Mode
 	labelEnableObserverMode.registerGraphicComponent(containerName,"labelEnableObserverMode");
-	labelEnableObserverMode.init(xoffset+250, aHeadPos, 80);
+	labelEnableObserverMode.init(xoffset+460, aHeadPos, 80);
 
 	listBoxEnableObserverMode.registerGraphicComponent(containerName,"listBoxEnableObserverMode");
-	listBoxEnableObserverMode.init(xoffset+250, aPos, 110);
+	listBoxEnableObserverMode.init(xoffset+460, aPos, 80);
 	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
 	listBoxEnableObserverMode.setSelectedItemIndex(0);
@@ -196,22 +195,22 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
-	labelEnableSwitchTeamMode.init(xoffset+150, aHeadPos+40, 80);
+	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
 	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
-	listBoxEnableSwitchTeamMode.init(xoffset+150, aPos+40, 80);
+	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45, 80);
 	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
 	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
 	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
 	listBoxEnableSwitchTeamMode.setEditable(false);
 
 	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
-	labelAISwitchTeamAcceptPercent.init(xoffset+250, aHeadPos+40, 80);
+	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+45, 80);
 	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
 
 	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
-	listBoxAISwitchTeamAcceptPercent.init(xoffset+250, aPos+40, 80);
+	listBoxAISwitchTeamAcceptPercent.init(xoffset+460, aPos+45, 80);
 	for(int i = 0; i <= 100; i = i + 10) {
 		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
 	}
@@ -219,11 +218,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxAISwitchTeamAcceptPercent.setEditable(false);
 
 	labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
-	labelPathFinderType.init(xoffset+450, aHeadPos, 80);
+	labelPathFinderType.init(xoffset+650, aHeadPos, 80);
 	labelPathFinderType.setText(lang.get("PathFinderType"));
 
 	listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
-	listBoxPathFinderType.init(xoffset+450, aPos, 150);
+	listBoxPathFinderType.init(xoffset+650, aPos, 150);
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
 	if(config.getBool("EnableRoutePlannerPathfinder","false") == true) {
 		listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
@@ -254,13 +253,13 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     //tileset listBox
 	//listBoxTileset.init(500, 260, 150);
 	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
-	listBoxTileset.init(xoffset+350, mapPos, 150);
+	listBoxTileset.init(xoffset+460, mapPos, 150);
 	listBoxTileset.setEditable(false);
     //listBoxTileset.setItems(results);
 	//labelTileset.init(500, 290);
 
 	labelTileset.registerGraphicComponent(containerName,"labelTileset");
-	labelTileset.init(xoffset+350, mapHeadPos);
+	labelTileset.init(xoffset+460, mapHeadPos);
 	labelTileset.setText(lang.get("Tileset"));
 
 
@@ -271,10 +270,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	//labelTechTree.init(700, 290);
 
 	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
-	listBoxTechTree.init(xoffset+550, mapPos, 150);
+	listBoxTechTree.init(xoffset+650, mapPos, 150);
 
 	labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
-	labelTechTree.init(xoffset+550, mapHeadPos);
+	labelTechTree.init(xoffset+650, mapHeadPos);
 	labelTechTree.setText(lang.get("TechTree"));
 
 
@@ -297,11 +296,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		labelPlayerStatus[i].init(10, setupPos-30-i*rowHeight, 60);
 
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset-20, setupPos-30-i*rowHeight);
+		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight);
 		labelPlayers[i].setEditable(false);
 
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+50,setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+70,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
         listBoxControls[i].init(xoffset+210, setupPos-30-i*rowHeight);
