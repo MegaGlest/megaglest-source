@@ -426,7 +426,9 @@ Unit::~Unit() {
 	// fade(and by this remove) all unit particle systems
 	queuedUnitParticleSystemTypes.clear();
 	while(unitParticleSystems.empty() == false) {
-		unitParticleSystems.back()->fade();
+		if(Renderer::getInstance().validateParticleSystemStillExists(unitParticleSystems.back(),rsGame) == true) {
+			unitParticleSystems.back()->fade();
+		}
 		unitParticleSystems.pop_back();
 	}
 	stopDamageParticles(true);
@@ -834,7 +836,9 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 
 		queuedUnitParticleSystemTypes.clear();
 		while(unitParticleSystems.empty() == false) {
-			unitParticleSystems.back()->fade();
+			if(Renderer::getInstance().validateParticleSystemStillExists(unitParticleSystems.back(),rsGame) == true) {
+				unitParticleSystems.back()->fade();
+			}
 			unitParticleSystems.pop_back();
 		}
 	}
@@ -946,13 +950,19 @@ void Unit::setVisible(const bool visible) {
 	this->visible = visible;
 
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
-		(*it)->setVisible(visible);
+		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+			(*it)->setVisible(visible);
+		}
 	}
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
-		(*it)->setVisible(visible);
+		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+			(*it)->setVisible(visible);
+		}
 	}
 	for(UnitParticleSystems::iterator it= smokeParticleSystems.begin(); it != smokeParticleSystems.end(); ++it) {
-		(*it)->setVisible(visible);
+		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+			(*it)->setVisible(visible);
+		}
 	}
 
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
@@ -1540,15 +1550,17 @@ void Unit::updateTimedParticles() {
 	for(int i = unitParticleSystems.size() - 1; i >= 0; i--) {
 		UnitParticleSystem *ps = unitParticleSystems[i];
 		if(ps != NULL) {
-			if(truncateDecimal<float>(ps->getStartTime()) != 0.0 || truncateDecimal<float>(ps->getEndTime()) != 1.0) {
-				//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
+			if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+				if(truncateDecimal<float>(ps->getStartTime()) != 0.0 || truncateDecimal<float>(ps->getEndTime()) != 1.0) {
+					//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
 
-				if(truncateDecimal<float>(animProgress) >= 0.99 ||
-						truncateDecimal<float>(animProgress) >= truncateDecimal<float>(ps->getEndTime())) {
-					//printf("ENDING particle system [%d]\n",ps->shape);
+					if(truncateDecimal<float>(animProgress) >= 0.99 ||
+							truncateDecimal<float>(animProgress) >= truncateDecimal<float>(ps->getEndTime())) {
+						//printf("ENDING particle system [%d]\n",ps->shape);
 
-					ps->fade();
-					unitParticleSystems.erase(unitParticleSystems.begin() + i);
+						ps->fade();
+						unitParticleSystems.erase(unitParticleSystems.begin() + i);
+					}
 				}
 			}
 		}
@@ -1656,17 +1668,23 @@ bool Unit::update() {
 		fire->setPos(getCurrVector());
 	}
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
-		(*it)->setPos(getCurrVector());
-		(*it)->setRotation(getRotation());
+		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+			(*it)->setPos(getCurrVector());
+			(*it)->setRotation(getRotation());
+		}
 	}
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
-		(*it)->setPos(getCurrVector());
-		(*it)->setRotation(getRotation());
+		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+			(*it)->setPos(getCurrVector());
+			(*it)->setRotation(getRotation());
+		}
 	}
 
 	for(UnitParticleSystems::iterator it= smokeParticleSystems.begin(); it != smokeParticleSystems.end(); ++it) {
-		(*it)->setPos(getCurrVector());
-		(*it)->setRotation(getRotation());
+		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+			(*it)->setPos(getCurrVector());
+			(*it)->setRotation(getRotation());
+		}
 	}
 
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
@@ -2716,7 +2734,9 @@ void Unit::stopDamageParticles(bool force) {
 		if(smokeParticleSystems.empty() == false) {
 			for(int i = smokeParticleSystems.size()-1; i >= 0; --i) {
 				UnitParticleSystem *ps = smokeParticleSystems[i];
-				ps->fade();
+				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+					ps->fade();
+				}
 				smokeParticleSystems.pop_back();
 			}
 		}
@@ -2726,19 +2746,23 @@ void Unit::stopDamageParticles(bool force) {
 				UnitParticleSystem *ps = damageParticleSystems[i];
 				UnitParticleSystemType *pst = NULL;
 				int foundParticleIndexType = -2;
-				for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
-					iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
-					if(iterMap->second == ps) {
-						foundParticleIndexType = iterMap->first;
-						if(foundParticleIndexType >= 0) {
-							pst = type->damageParticleSystemTypes[foundParticleIndexType];
-							break;
+				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+					for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
+						iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
+						if(iterMap->second == ps) {
+							foundParticleIndexType = iterMap->first;
+							if(foundParticleIndexType >= 0) {
+								pst = type->damageParticleSystemTypes[foundParticleIndexType];
+								break;
+							}
 						}
 					}
 				}
 				if(force == true || ( pst !=NULL && pst->getMinmaxEnabled() == false )) {
 					damageParticleSystemsInUse.erase(foundParticleIndexType);
-					ps->fade();
+					if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+						ps->fade();
+					}
 					damageParticleSystems.pop_back();
 				}
 			}
@@ -2755,13 +2779,15 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 			UnitParticleSystem *ps = damageParticleSystems[i];
 			UnitParticleSystemType *pst = NULL;
 			int foundParticleIndexType = -2;
-			for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
-				iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
-				if(iterMap->second == ps) {
-					foundParticleIndexType = iterMap->first;
-					if(foundParticleIndexType >= 0) {
-						pst = type->damageParticleSystemTypes[foundParticleIndexType];
-						break;
+			if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+				for(std::map<int, UnitParticleSystem *>::iterator iterMap = damageParticleSystemsInUse.begin();
+					iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
+					if(iterMap->second == ps) {
+						foundParticleIndexType = iterMap->first;
+						if(foundParticleIndexType >= 0) {
+							pst = type->damageParticleSystemTypes[foundParticleIndexType];
+							break;
+						}
 					}
 				}
 			}
@@ -2788,7 +2814,9 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 					//printf("STOPPING customized particle trigger by HP [%d to %d] current hp = %d\n",pst->getMinHp(),pst->getMaxHp(),hp);
 
 					damageParticleSystemsInUse.erase(foundParticleIndexType);
-					ps->fade();
+					if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+						ps->fade();
+					}
 					damageParticleSystems.pop_back();
 				}
 			}
