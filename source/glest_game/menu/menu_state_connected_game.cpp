@@ -1490,8 +1490,46 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 	//gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
 	gameSettings->setDescription(formatString(getCurrentMapFile()));
 	gameSettings->setMap(getCurrentMapFile());
-    gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
-    gameSettings->setTech(techTreeFiles[listBoxTechTree.getSelectedItemIndex()]);
+	if(listBoxTileset.getSelectedItemIndex() >= 0 && listBoxTileset.getSelectedItemIndex() < tilesetFiles.size()) {
+		gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
+	}
+	else {
+    	Lang &lang= Lang::getInstance();
+    	NetworkManager &networkManager= NetworkManager::getInstance();
+    	ClientInterface *clientInterface = networkManager.getClientInterface();
+    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			char szMsg[1024]="";
+			if(lang.hasString("DataMissingTileset=Player",languageList[i]) == true) {
+				sprintf(szMsg,lang.get("DataMissingTileset=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxTileset.getSelectedItem().c_str());
+			}
+			else {
+				sprintf(szMsg,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),listBoxTileset.getSelectedItem().c_str());
+			}
+			bool localEcho = lang.isLanguageLocal(languageList[i]);
+			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+    	}
+	}
+	if(listBoxTechTree.getSelectedItemIndex() >= 0 && listBoxTechTree.getSelectedItemIndex() < techTreeFiles.size()) {
+		gameSettings->setTech(techTreeFiles[listBoxTechTree.getSelectedItemIndex()]);
+	}
+	else {
+    	Lang &lang= Lang::getInstance();
+    	NetworkManager &networkManager= NetworkManager::getInstance();
+    	ClientInterface *clientInterface = networkManager.getClientInterface();
+    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			char szMsg[1024]="";
+			if(lang.hasString("DataMissingTechtree=Player",languageList[i]) == true) {
+				sprintf(szMsg,lang.get("DataMissingTechtree=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxTechTree.getSelectedItem().c_str());
+			}
+			else {
+				sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),listBoxTechTree.getSelectedItem().c_str());
+			}
+			bool localEcho = lang.isLanguageLocal(languageList[i]);
+			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+    	}
+	}
 
 	gameSettings->setDefaultUnits(true);
 	gameSettings->setDefaultResources(true);
