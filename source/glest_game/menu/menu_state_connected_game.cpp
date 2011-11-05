@@ -1488,8 +1488,29 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
     //
 
 	//gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
-	gameSettings->setDescription(formatString(getCurrentMapFile()));
-	gameSettings->setMap(getCurrentMapFile());
+
+	if(listBoxMap.getSelectedItemIndex() >= 0 && listBoxMap.getSelectedItemIndex() < mapFiles.size()) {
+		gameSettings->setDescription(formatString(getCurrentMapFile()));
+		gameSettings->setMap(getCurrentMapFile());
+	}
+	else {
+    	Lang &lang= Lang::getInstance();
+    	NetworkManager &networkManager= NetworkManager::getInstance();
+    	ClientInterface *clientInterface = networkManager.getClientInterface();
+    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			char szMsg[1024]="";
+			if(lang.hasString("DataMissingMap=Player",languageList[i]) == true) {
+				sprintf(szMsg,lang.get("DataMissingMap=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxMap.getSelectedItem().c_str());
+			}
+			else {
+				sprintf(szMsg,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),listBoxMap.getSelectedItem().c_str());
+			}
+			bool localEcho = lang.isLanguageLocal(languageList[i]);
+			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+    	}
+	}
+
 	if(listBoxTileset.getSelectedItemIndex() >= 0 && listBoxTileset.getSelectedItemIndex() < tilesetFiles.size()) {
 		gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
 	}
