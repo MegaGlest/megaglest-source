@@ -236,18 +236,7 @@ void TextFTGL::Render(const char* str, const int len) {
 		//printf("FTGL Render [%s] facesize = %d\n",str,ftFont->FaceSize());
 		assertGl();
 
-//		glEnable(GL_ALPHA_TEST);
-//			glAlphaFunc(GL_LESS, 0.9f);
-		//glBlendFunc(GL_ONE,GL_ZERO);
-		//glDisable(GL_BLEND);
-//		glPushAttrib(GL_ALL_ATTRIB_BITS);
-//		glEnable(GL_BLEND);
-//		glBlendFunc(GL_ONE,GL_ONE);
 		ftFont->Render(str, len);
-//		glPopAttrib();
-
-		//glEnable(GL_BLEND);
-//		glDisable(GL_ALPHA_TEST);
 		//assertGl();
 		GLenum error = glGetError();
 		if(error != GL_NO_ERROR) {
