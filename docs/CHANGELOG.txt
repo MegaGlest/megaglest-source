@@ -4,6 +4,43 @@ MEGAGLEST CHANGELOG
 To see a timeline of detail changes please visit:
 http://sourceforge.net/apps/trac/megaglest/timeline
 
+
+v3.6.0( under construction ) v3.5.3-beta1
+
+- New font system and enhanced International language support (Chinese, Japanese, etc)
+- New intro
+- Enhanced AI plays smarter and responds more quickly
+- Improved mod menu which always checks for updates for all mods now and more
+- Modders can change intro, menus, faction AI behavior and many more things.
+- New ability to enable in game team-switching for defecting to other teams in game
+- Ability to toggle languages anywhere in the game using CTRL-L
+- Numerous bug fixes as reported in the bugs forum
+- Improved Megapack including better balanced Romans faction
+- New attack boost system (currently used by Romans faction) which allows new types of in game unit effects.
+- New headless server mode allows dedicated servers to host games for network players (command line option --headless-server-mode)
+- Added ability to 'pause' network games by press ESC in game to show a new popup-menu with in game options.
+- Hosts can now set a title for their game for network games.
+- Music fades in and out of game start/stop
+- New low food warning indicators tells players when they are running out of food
+- MacOSX support (thanks weltall)
+- Players are no longer dropped in game lobby when toggling maps (player status may show as unassigned network node if they are ina slot that is not applicable to the selected map)
+- Bugfixes for supported UPNP for auto router configuration when hosting games
+- many more...
+
+
+
+v3.5.2
+- Lots of work to make MegaGlest a Linux distro friendly package (Debian, Arch, etc)
+- Added Support for Russian and Ukrainian with proper fonts in Linux if installed.
+- Map editor now supports diagonal flipping
+- Windows users now have a shortcut to the mod folder in their MegaGlest programs Menu.
+- Bug fixes including:
+  - Fix corrupted g3d viewer screenshots, and automatic screenshot mode does not steal focus for Linux users
+  - Proper network disconnect detection when connection drops in an abnormal way
+  - Avoid crash when user has no soundcard installed
+  - Better video handling for buggy opengl drivers that don't properly handle non power of two textures
+  - Better support for non ASCII file paths (like Japanese, etc) for international users and Unicode enabled parts of the code
+
 3.5.1
 - Much better pathfinder performance
 - Allow servers to temporary block specified network players from the game lobby
