@@ -71,9 +71,16 @@ void ProgramState::tick() {
 }
 
 bool ProgramState::canRender(bool sleepIfCannotRender) {
-	if(lastFps > 800) {
+	int maxFPSCap = 800;
+	Renderer &renderer= Renderer::getInstance();
+	if(renderer.isMasterserverMode() == true) {
+		maxFPSCap = 250;
+	}
+
+	if(lastFps > maxFPSCap) {
 		if(sleepIfCannotRender == true) {
 			sleep(1);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sleeping because lastFps = %d, maxFPSCap = %d\n",__FILE__,__FUNCTION__,__LINE__,lastFps,maxFPSCap);
 		}
 		return false;
 	}
