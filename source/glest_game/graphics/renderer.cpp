@@ -6735,6 +6735,10 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 								 Texture2D **renderToTexture) {
 
 	static bool supportFBOs = Texture2DGl().supports_FBO_RBO();
+	if(Config::getInstance().getBool("LegacyMapPreviewRendering","false") == true) {
+		supportFBOs = false;
+	}
+
 	//static bool supportFBOs = false;
 	const Metrics &metrics= Metrics::getInstance();
 
