@@ -71,16 +71,18 @@ void ProgramState::tick() {
 }
 
 bool ProgramState::canRender(bool sleepIfCannotRender) {
-	int maxFPSCap = 800;
+	int maxFPSCap = Config::getInstance().getInt("RenderFPSCap","500");
+	int sleepMillis = Config::getInstance().getInt("RenderFPSCapSleepMillis","1");
 	Renderer &renderer= Renderer::getInstance();
 	if(renderer.isMasterserverMode() == true) {
-		maxFPSCap = 250;
+		maxFPSCap = Config::getInstance().getInt("RenderFPSCapHeadless","250");
+		sleepMillis = Config::getInstance().getInt("RenderFPSCapHeadlessSleepMillis","1");
 	}
 
 	if(lastFps > maxFPSCap) {
 		if(sleepIfCannotRender == true) {
-			sleep(1);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sleeping because lastFps = %d, maxFPSCap = %d\n",__FILE__,__FUNCTION__,__LINE__,lastFps,maxFPSCap);
+			sleep(sleepMillis);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sleeping because lastFps = %d, maxFPSCap = %d sleepMillis = %d\n",__FILE__,__FUNCTION__,__LINE__,lastFps,maxFPSCap,sleepMillis);
 		}
 		return false;
 	}
