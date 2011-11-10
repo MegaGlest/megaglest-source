@@ -660,10 +660,19 @@ bool Faction::applyCosts(const ProducibleType *p){
 	assert(p != NULL);
 	//for each unit cost spend it
     //pass 2, decrease resources, except negative static costs (ie: farms)
-	for(int i=0; i<p->getCostCount(); ++i)
-	{
-        const ResourceType *rt= p->getCost(i)->getType();
-		int cost= p->getCost(i)->getAmount();
+	for(int i=0; i<p->getCostCount(); ++i) {
+		const Resource *r= p->getCost(i);
+        if(r == NULL) {
+        	char szBuf[1024]="";
+        	sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName().c_str(),i,p->getCostCount());
+        }
+
+        const ResourceType *rt= r->getType();
+        if(rt == NULL) {
+        	char szBuf[1024]="";
+        	sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName().c_str(),i,p->getCostCount(),r->getDescription().c_str());
+        }
+		int cost= r->getAmount();
 		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
 		{
             incResourceAmount(rt, -(cost));
