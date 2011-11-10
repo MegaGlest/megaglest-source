@@ -665,12 +665,14 @@ bool Faction::applyCosts(const ProducibleType *p){
         if(r == NULL) {
         	char szBuf[1024]="";
         	sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName().c_str(),i,p->getCostCount());
+        	throw runtime_error(szBuf);
         }
 
         const ResourceType *rt= r->getType();
         if(rt == NULL) {
         	char szBuf[1024]="";
         	sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName().c_str(),i,p->getCostCount(),r->getDescription().c_str());
+        	throw runtime_error(szBuf);
         }
 		int cost= r->getAmount();
 		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)

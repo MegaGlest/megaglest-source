@@ -347,31 +347,52 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		std::map<string,int> sortedItems;
 
 		//unit requirements
+		bool hasDup = false;
 		const XmlNode *unitRequirementsNode= parametersNode->getChild("unit-requirements");
 		for(int i=0; i<unitRequirementsNode->getChildCount(); ++i){
 			const XmlNode *unitNode= 	unitRequirementsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
+
+			if(sortedItems.find(name) != sortedItems.end()) {
+				hasDup = true;
+			}
+
 			sortedItems[name] = 0;
 		}
+		if(hasDup) {
+			printf("WARNING, unit type [%s] has one or more duplicate unit requirements\n",this->getName().c_str());
+		}
+
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
 				iterMap != sortedItems.end(); ++iterMap) {
 			unitReqs.push_back(factionType->getUnitType(iterMap->first));
 		}
 		sortedItems.clear();
-
+		hasDup = false;
 
 		//upgrade requirements
 		const XmlNode *upgradeRequirementsNode= parametersNode->getChild("upgrade-requirements");
 		for(int i=0; i<upgradeRequirementsNode->getChildCount(); ++i){
 			const XmlNode *upgradeReqNode= upgradeRequirementsNode->getChild("upgrade", i);
 			string name= upgradeReqNode->getAttribute("name")->getRestrictedValue();
+
+			if(sortedItems.find(name) != sortedItems.end()) {
+				hasDup = true;
+			}
+
 			sortedItems[name] = 0;
 		}
+
+		if(hasDup) {
+			printf("WARNING, unit type [%s] has one or more duplicate upgrade requirements\n",this->getName().c_str());
+		}
+
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
 				iterMap != sortedItems.end(); ++iterMap) {
 			upgradeReqs.push_back(factionType->getUpgradeType(iterMap->first));
 		}
 		sortedItems.clear();
+		hasDup = false;
 
 		//resource requirements
 		const XmlNode *resourceRequirementsNode= parametersNode->getChild("resource-requirements");
@@ -380,8 +401,18 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			const XmlNode *resourceNode= resourceRequirementsNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
+
+			if(sortedItems.find(name) != sortedItems.end()) {
+				hasDup = true;
+			}
 			sortedItems[name] = amount;
 		}
+		//if(hasDup || sortedItems.size() != costs.size()) printf("Found duplicate resource requirement, costs.size() = %d sortedItems.size() = %d\n",costs.size(),sortedItems.size());
+
+		if(hasDup) {
+			printf("WARNING, unit type [%s] has one or more duplicate resource requirements\n",this->getName().c_str());
+		}
+
 		if(sortedItems.size() < costs.size()) {
 			costs.resize(sortedItems.size());
 		}
@@ -392,6 +423,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			index++;
 		}
 		sortedItems.clear();
+		hasDup = false;
 
 		//resources stored
 		const XmlNode *resourcesStoredNode= parametersNode->getChild("resources-stored");
@@ -400,8 +432,18 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			const XmlNode *resourceNode= resourcesStoredNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
+
+			if(sortedItems.find(name) != sortedItems.end()) {
+				hasDup = true;
+			}
+
 			sortedItems[name] = amount;
 		}
+
+		if(hasDup) {
+			printf("WARNING, unit type [%s] has one or more duplicate stored resources\n",this->getName().c_str());
+		}
+
 		if(sortedItems.size() < storedResources.size()) {
 			storedResources.resize(sortedItems.size());
 		}
