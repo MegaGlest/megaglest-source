@@ -97,6 +97,7 @@ public:
 	UnitParticleSystemType *unitParticleSystemTypeForAffectedUnit;
 
 	bool includeSelf;
+	string name;
 
 	bool isAffected(const Unit *source, const Unit *dest) const;
 };
@@ -131,17 +132,29 @@ protected:
 	RandomGen random;
 	AttackBoost attackBoost;
 
+	static int nextAttackBoostId;
+	static int getNextAttackBoostId() { return ++nextAttackBoostId; }
+
+	const XmlNode * findAttackBoostDetails(string attackBoostName,
+			const XmlNode *attackBoostsNode,const XmlNode *attackBoostNode);
+	void loadAttackBoost(const XmlNode *attackBoostsNode,
+			const XmlNode *attackBoostNode, const FactionType *ft,
+			string parentLoader, const string & dir, string currentPath,
+			std::map<string,vector<pair<string,string> > > & loadedFileList, const TechTree *tt);
+
 public:
 	UnitParticleSystemTypes unitParticleSystemTypes;
 
 public:
     //varios
     virtual ~SkillType();
-    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
     		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string parentLoader);
 		
     bool CanCycleNextRandomAnimation(const int *animationRandomCycleCount) const;
+
+    static void resetNextAttackBoostId() { nextAttackBoostId=0; }
 
     //get
 	const string &getName() const		{return name;}
@@ -213,7 +226,7 @@ private:
 public:
     AttackSkillType();
     ~AttackSkillType();
-    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
     		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string parentLoader);
 	virtual string toString() const;
@@ -285,7 +298,7 @@ private:
 public:
     ProduceSkillType();
     bool getAnimProgressBound() const	{return animProgressBound;}
-    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
 
@@ -304,7 +317,7 @@ private:
 public:
     UpgradeSkillType();
     bool getAnimProgressBound() const	{return animProgressBound;}
-    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
 
@@ -326,7 +339,7 @@ public:
     BeBuiltSkillType();
 	bool getAnimProgressBound() const	{return animProgressBound;}
 
-    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
     virtual string toString() const;
@@ -344,7 +357,7 @@ public:
     MorphSkillType();
 	bool getAnimProgressBound() const	{return animProgressBound;}
 
-    virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+    virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
 
@@ -364,7 +377,7 @@ public:
     DieSkillType();
     bool getFade() const	{return fade;}
 	
-	virtual void load(const XmlNode *sn, const string &dir, const TechTree *tt,
+	virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
 			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
 	virtual string toString() const;

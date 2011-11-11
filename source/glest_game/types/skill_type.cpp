@@ -28,6 +28,7 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
+int SkillType::nextAttackBoostId = 0;
 
 AttackBoost::AttackBoost() {
 	enabled = false;
@@ -163,8 +164,115 @@ SkillType::~SkillType() {
 	}
 }
 
-void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
-		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+const XmlNode * SkillType::findAttackBoostDetails(string attackBoostName,
+		const XmlNode *attackBoostsNode,const XmlNode *attackBoostNode) {
+	const XmlNode *result = attackBoostNode;
+
+	if(attackBoostsNode != NULL && attackBoostName != "") {
+		for(int i = 0; i < attackBoostsNode->getChildCount(); ++i) {
+			const XmlNode *abn= attackBoostsNode->getChild("attack-boost", i);
+
+			string sharedName = abn->getAttribute("name")->getRestrictedValue();
+			if(sharedName == attackBoostName) {
+				result = abn;
+				break;
+			}
+		}
+
+	}
+
+	return result;
+}
+
+void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *attackBoostNode,
+		const FactionType *ft, string parentLoader, const string & dir,
+		string currentPath, std::map<string,vector<pair<string,string> > > & loadedFileList,
+		const TechTree *tt) {
+
+	attackBoost.enabled = true;
+    if(attackBoostNode->hasAttribute("name") == true) {
+        attackBoost.name = attackBoostNode->getAttribute("name")->getRestrictedValue();
+
+        attackBoostNode = findAttackBoostDetails(attackBoost.name,attackBoostsNode,attackBoostNode);
+    }
+    else {
+        attackBoost.name = "attack-boost-autoname-" + intToStr(getNextAttackBoostId());
+    }
+    string targetType = attackBoostNode->getChild("target")->getAttribute("value")->getValue();
+    attackBoost.allowMultipleBoosts = attackBoostNode->getChild("allow-multiple-boosts")->getAttribute("value")->getBoolValue();
+    attackBoost.radius = attackBoostNode->getChild("radius")->getAttribute("value")->getIntValue();
+    attackBoost.includeSelf = false;
+
+    if(attackBoostNode->getChild("target")->hasAttribute("include-self") == true) {
+        attackBoost.includeSelf = attackBoostNode->getChild("target")->getAttribute("include-self")->getBoolValue();
+    }
+    if(targetType == "ally") {
+        attackBoost.targetType = abtAlly;
+        for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+            const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
+            attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+        }
+    }
+    else if(targetType == "foe") {
+		attackBoost.targetType = abtFoe;
+		for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
+			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+		}
+	}
+	else if(targetType == "faction") {
+		attackBoost.targetType = abtFaction;
+		for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
+			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+		}
+	}
+	else if(targetType == "unit-types") {
+		attackBoost.targetType = abtUnitTypes;
+		for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
+			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+		}
+	}
+	else if(targetType == "all") {
+		attackBoost.targetType = abtAll;
+		for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
+			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+		}
+	}
+	else {
+		char szBuf[4096] = "";
+		sprintf(szBuf, "Unsupported target [%s] specified for attack boost for skill [%s] in [%s]", targetType.c_str(), name.c_str(), parentLoader.c_str());
+		throw runtime_error(szBuf);
+	}
+
+    attackBoost.boostUpgrade.load(attackBoostNode);
+    if(attackBoostNode->hasChild("particles") == true) {
+        const XmlNode *particleNode = attackBoostNode->getChild("particles");
+        bool particleEnabled = particleNode->getAttribute("value")->getBoolValue();
+        if(particleEnabled == true) {
+            if(particleNode->hasChild("originator-particle-file") == true){
+                const XmlNode *particleFileNode = particleNode->getChild("originator-particle-file");
+                string path = particleFileNode->getAttribute("path")->getRestrictedValue();
+                attackBoost.unitParticleSystemTypeForSourceUnit = new UnitParticleSystemType();
+                attackBoost.unitParticleSystemTypeForSourceUnit->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(), loadedFileList, parentLoader, tt->getPath());
+                loadedFileList[currentPath + path].push_back(make_pair(parentLoader, particleFileNode->getAttribute("path")->getRestrictedValue()));
+            }
+            if(particleNode->hasChild("affected-particle-file") == true) {
+                const XmlNode *particleFileNode = particleNode->getChild("affected-particle-file");
+                string path = particleFileNode->getAttribute("path")->getRestrictedValue();
+                attackBoost.unitParticleSystemTypeForAffectedUnit = new UnitParticleSystemType();
+                attackBoost.unitParticleSystemTypeForAffectedUnit->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(), loadedFileList, parentLoader, tt->getPath());
+                loadedFileList[currentPath + path].push_back(make_pair(parentLoader, particleFileNode->getAttribute("path")->getRestrictedValue()));
+            }
+        }
+    }
+}
+
+void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
+		const string &dir, const TechTree *tt, const FactionType *ft,
+		std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
 	//name
 	name= sn->getChild("name")->getAttribute("value")->getRestrictedValue();
@@ -272,91 +380,8 @@ void SkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
 	// attack-boost
 	if(sn->hasChild("attack-boost") == true) {
 		//printf("$$FOUND ATTACK BOOST FOR [%s]\n",parentLoader.c_str());
-
-		attackBoost.enabled = true;
-
 		const XmlNode *attackBoostNode = sn->getChild("attack-boost");
-		string targetType = attackBoostNode->getChild("target")->getAttribute("value")->getValue();
-
-		attackBoost.allowMultipleBoosts = attackBoostNode->getChild("allow-multiple-boosts")->getAttribute("value")->getBoolValue();
-		attackBoost.radius = attackBoostNode->getChild("radius")->getAttribute("value")->getIntValue();
-
-		attackBoost.includeSelf = false;
-		if(attackBoostNode->getChild("target")->hasAttribute("include-self") == true) {
-			attackBoost.includeSelf = attackBoostNode->getChild("target")->getAttribute("include-self")->getBoolValue();
-		}
-
-		if(targetType == "ally") {
-			attackBoost.targetType = abtAlly;
-
-			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
-				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
-				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-			}
-		}
-		else if(targetType == "foe") {
-			attackBoost.targetType = abtFoe;
-
-			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
-				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
-				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-			}
-		}
-		else if(targetType == "faction") {
-			attackBoost.targetType = abtFaction;
-
-			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
-				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
-				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-			}
-		}
-		else if(targetType == "unit-types") {
-			attackBoost.targetType = abtUnitTypes;
-
-			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
-				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
-				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-			}
-		}
-		else if(targetType == "all") {
-			attackBoost.targetType = abtAll;
-
-			for(int i = 0; i < attackBoostNode->getChild("target")->getChildCount(); ++i) {
-				const XmlNode *boostUnitNode= attackBoostNode->getChild("target")->getChild("unit-type", i);
-				attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-			}
-		}
-		else {
-			char szBuf[4096]="";
-			sprintf(szBuf,"Unsupported target [%s] specified for attack boost for skill [%s] in [%s]",targetType.c_str(),name.c_str(),parentLoader.c_str());
-			throw runtime_error(szBuf);
-		}
-
-		attackBoost.boostUpgrade.load(attackBoostNode);
-
-		//particles
-		if(attackBoostNode->hasChild("particles") == true) {
-			const XmlNode *particleNode= attackBoostNode->getChild("particles");
-			bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-			if(particleEnabled == true) {
-				if(particleNode->hasChild("originator-particle-file") == true) {
-					const XmlNode *particleFileNode= particleNode->getChild("originator-particle-file");
-					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
-					attackBoost.unitParticleSystemTypeForSourceUnit = new UnitParticleSystemType();
-					attackBoost.unitParticleSystemTypeForSourceUnit->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
-							loadedFileList,parentLoader,tt->getPath());
-					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
-				}
-				if(particleNode->hasChild("affected-particle-file") == true) {
-					const XmlNode *particleFileNode= particleNode->getChild("affected-particle-file");
-					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
-					attackBoost.unitParticleSystemTypeForAffectedUnit = new UnitParticleSystemType();
-					attackBoost.unitParticleSystemTypeForAffectedUnit->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
-							loadedFileList,parentLoader,tt->getPath());
-					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
-				}
-			}
-		}
+		loadAttackBoost(attackBoostsNode, attackBoostNode, ft, parentLoader, dir, currentPath, loadedFileList, tt);
 	}
 }
 
@@ -534,10 +559,11 @@ AttackSkillType::~AttackSkillType() {
 	deleteValues(projSounds.getSounds().begin(), projSounds.getSounds().end());
 }
 
-void AttackSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
+		const string &dir, const TechTree *tt,
 		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
-    SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+    SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
@@ -697,10 +723,11 @@ ProduceSkillType::ProduceSkillType(){
     animProgressBound=false;
 }
 
-void ProduceSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+void ProduceSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
+		const string &dir, const TechTree *tt,
 		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
-	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+	SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
 
 	if(sn->hasChild("anim-progress-bound")){
 		animProgressBound= sn->getChild("anim-progress-bound")->getAttribute("value")->getBoolValue();
@@ -730,10 +757,11 @@ UpgradeSkillType::UpgradeSkillType(){
     animProgressBound=false;
 }
 
-void UpgradeSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+void UpgradeSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
+		const string &dir, const TechTree *tt,
 		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
-	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+	SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
 
 	if(sn->hasChild("anim-progress-bound")){
 		animProgressBound= sn->getChild("anim-progress-bound")->getAttribute("value")->getBoolValue();
@@ -762,10 +790,11 @@ BeBuiltSkillType::BeBuiltSkillType(){
     animProgressBound=false;
 }
 
-void BeBuiltSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+void BeBuiltSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
+		const string &dir, const TechTree *tt,
 		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
-	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+	SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
 
 	if(sn->hasChild("anim-progress-bound")){
 		animProgressBound= sn->getChild("anim-progress-bound")->getAttribute("value")->getBoolValue();
@@ -792,10 +821,11 @@ MorphSkillType::MorphSkillType(){
     animProgressBound=false;
 }
 
-void MorphSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+void MorphSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
+		const string &dir, const TechTree *tt,
 		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
-	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+	SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
 
 	if(sn->hasChild("anim-progress-bound")){
 		animProgressBound= sn->getChild("anim-progress-bound")->getAttribute("value")->getBoolValue();
@@ -824,10 +854,11 @@ DieSkillType::DieSkillType(){
     fade=false;
 }
 
-void DieSkillType::load(const XmlNode *sn, const string &dir, const TechTree *tt,
+void DieSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
+		const string &dir, const TechTree *tt,
 		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader) {
-	SkillType::load(sn, dir, tt, ft, loadedFileList, parentLoader);
+	SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
 
 	fade= sn->getChild("fade")->getAttribute("value")->getBoolValue();
 }

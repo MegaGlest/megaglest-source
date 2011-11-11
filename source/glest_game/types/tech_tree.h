@@ -53,6 +53,8 @@ public:
     		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
     void load(const string &dir, set<string> &factions, Checksum* checksum,
     		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
+
+    TechTree();
     ~TechTree();
     Checksum * getChecksumValue() { return &checksumValue; }
 

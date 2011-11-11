@@ -1875,7 +1875,7 @@ bool Unit::unitHasAttackBoost(const AttackBoost *boost, const Unit *source) cons
 	bool result = false;
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 		const UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
-		if( effect != NULL && effect->boost == boost &&
+		if( effect != NULL && effect->boost->name == boost->name &&
 			effect->source->getType()->getId() == source->getType()->getId()) {
 			result = true;
 			break;
