@@ -512,6 +512,12 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 		}
 
 		//skills
+
+		const XmlNode *attackBoostsNode= NULL;
+		if(unitNode->hasChild("attack-boosts") == true) {
+			attackBoostsNode=unitNode->getChild("attack-boosts");
+		}
+
 		const XmlNode *skillsNode= unitNode->getChild("skills");
 		skillTypes.resize(skillsNode->getChildCount());
 		for(int i = 0; i < skillTypes.size(); ++i) {
@@ -519,7 +525,8 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 			const XmlNode *typeNode= sn->getChild("type");
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
 			SkillType *skillType= SkillTypeFactory::getInstance().newInstance(classId);
-			skillType->load(sn, dir, techTree, factionType, loadedFileList,sourceXMLFile);
+
+			skillType->load(sn, attackBoostsNode, dir, techTree, factionType, loadedFileList,sourceXMLFile);
 			skillTypes[i]= skillType;
 		}
 

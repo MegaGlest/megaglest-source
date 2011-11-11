@@ -32,6 +32,18 @@ namespace Glest{ namespace Game{
 // 	class TechTree
 // =====================================================
 
+TechTree::TechTree() {
+	SkillType::resetNextAttackBoostId();
+
+	name="";
+	treePath="";
+
+    resourceTypes.clear();
+    factionTypes.clear();
+	armorTypes.clear();
+	attackTypes.clear();
+}
+
 Checksum TechTree::loadTech(const vector<string> pathList, const string &techName,
 		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 	name = "";
