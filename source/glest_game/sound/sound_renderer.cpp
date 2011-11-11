@@ -251,6 +251,10 @@ void SoundRenderer::stopAllSounds(int64 fadeOff) {
     }
 }
 
+bool SoundRenderer::isVolumeTurnedOff() const {
+	return (fxVolume <= 0 && musicVolume <= 0 && ambientVolume <= 0);
+}
+
 void SoundRenderer::loadConfig() {
 	Config &config= Config::getInstance();
 

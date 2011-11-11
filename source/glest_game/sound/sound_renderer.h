@@ -83,6 +83,8 @@ public:
 	bool wasInitOk() const;
 
 	bool runningThreaded() const { return runThreadSafe; }
+
+	bool isVolumeTurnedOff() const;
 };
 
 }}//end namespace

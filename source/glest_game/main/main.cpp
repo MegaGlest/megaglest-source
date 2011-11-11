@@ -2537,7 +2537,7 @@ int glestMain(int argc, char** argv) {
 	ExceptionHandler exceptionHandler;
 	exceptionHandler.install( getCrashDumpFileName() );
 
-	int shutdownFadeSoundMilliseconds = 1750;
+	int shutdownFadeSoundMilliseconds = 1000;
 	Chrono chronoshutdownFadeSound;
 	SimpleTaskThread *soundThreadManager = NULL;
 
@@ -3573,9 +3573,13 @@ int glestMain(int argc, char** argv) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(soundThreadManager) {
-		//printf("chronoshutdownFadeSound.getMillis() = %llu\n",chronoshutdownFadeSound.getMillis());
-		for(;chronoshutdownFadeSound.getMillis() <= shutdownFadeSoundMilliseconds;) {
-			sleep(10);
+		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+		if( Config::getInstance().getString("FactorySound","") != "None" &&
+			soundRenderer.isVolumeTurnedOff() == false) {
+			//printf("chronoshutdownFadeSound.getMillis() = %llu\n",chronoshutdownFadeSound.getMillis());
+			for(;chronoshutdownFadeSound.getMillis() <= shutdownFadeSoundMilliseconds;) {
+				sleep(10);
+			}
 		}
 
 		BaseThread::shutdownAndWait(soundThreadManager);
