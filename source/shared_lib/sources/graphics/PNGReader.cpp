@@ -93,13 +93,16 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	png_set_sig_bytes(png_ptr, 8);
 	png_read_info(png_ptr, info_ptr);
 	
-	int width = info_ptr->width;
-	int height = info_ptr->height;
-	int color_type = info_ptr->color_type;
+	int width = png_get_image_width(png_ptr,info_ptr);
+
+	int height = png_get_image_height(png_ptr,info_ptr);
+	int color_type = png_get_color_type(png_ptr,info_ptr);
 	//int bit_depth = info_ptr->bit_depth;
 
 	//We want RGB, 24 bit
-	if (color_type == PNG_COLOR_TYPE_PALETTE || (color_type == PNG_COLOR_TYPE_GRAY && info_ptr->bit_depth < 8) || (info_ptr->valid & PNG_INFO_tRNS)) {
+	if (color_type == PNG_COLOR_TYPE_PALETTE || 
+            (color_type == PNG_COLOR_TYPE_GRAY && png_get_bit_depth(png_ptr,info_ptr) < 8) || 
+            (png_get_valid(png_ptr, info_ptr,PNG_INFO_tRNS))) {
 		png_set_expand(png_ptr);
 	}
 
@@ -118,17 +121,17 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 		return NULL; //error during read_image
 	}
 	for (int y = 0; y < height; ++y) {
-		row_pointers[y] = new png_byte[info_ptr->rowbytes];
+		row_pointers[y] = new png_byte[png_get_rowbytes(png_ptr, info_ptr)];
 	}
 	png_read_image(png_ptr, row_pointers);
-	size_t fileComponents = info_ptr->rowbytes/info_ptr->width;
+	size_t fileComponents = png_get_rowbytes(png_ptr, info_ptr)/width;
 	size_t picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
 	//std::cout << "PNG-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << std::endl;
 	//picComponents = 4;
 	//Copy image
 	ret->init(width,height,(int)picComponents);
 	uint8* pixels = ret->getPixels();
-	const size_t rowbytes = info_ptr->rowbytes;
+	const size_t rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 	size_t location = 0;
 	for (int y = height-1; y >= 0; --y) { //you have to somehow invert the lines
 		if (picComponents == fileComponents) {
@@ -230,13 +233,15 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 	png_set_sig_bytes(png_ptr, 8);
 	png_read_info(png_ptr, info_ptr);
 
-	int width = info_ptr->width;
-	int height = info_ptr->height;
-	int color_type = info_ptr->color_type;
+	int width = png_get_image_width(png_ptr,info_ptr);
+	int height = png_get_image_height(png_ptr,info_ptr);
+	int color_type = png_get_color_type(png_ptr,info_ptr);
 	//int bit_depth = info_ptr->bit_depth;
 
 	//We want RGB, 24 bit
-	if (color_type == PNG_COLOR_TYPE_PALETTE || (color_type == PNG_COLOR_TYPE_GRAY && info_ptr->bit_depth < 8) || (info_ptr->valid & PNG_INFO_tRNS)) {
+	if (color_type == PNG_COLOR_TYPE_PALETTE || 
+            (color_type == PNG_COLOR_TYPE_GRAY && png_get_bit_depth(png_ptr,info_ptr) < 8) || 
+             (png_get_valid(png_ptr, info_ptr,PNG_INFO_tRNS))) {
 		png_set_expand(png_ptr);
 	}
 
@@ -255,10 +260,10 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 		return NULL; //error during read_image
 	}
 	for (int y = 0; y < height; ++y) {
-		row_pointers[y] = new png_byte[info_ptr->rowbytes];
+		row_pointers[y] = new png_byte[png_get_rowbytes(png_ptr, info_ptr)];
 	}
 	png_read_image(png_ptr, row_pointers);
-	size_t fileComponents = info_ptr->rowbytes/info_ptr->width;
+	size_t fileComponents = png_get_rowbytes(png_ptr, info_ptr)/width;
 	size_t picComponents = (ret->getComponents()==-1)?fileComponents:ret->getComponents();
  	const int d = ret->getD();
  	const int slice = ret->getSlice();
@@ -275,7 +280,7 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 		pixels = &pixels[slice*width*height*picComponents];
 	}
 
-	const size_t rowbytes = info_ptr->rowbytes;
+	const size_t rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 	size_t location = 0;
 	for (int y = height-1; y >= 0; --y) { //you have to somehow invert the lines
 		if (picComponents == fileComponents) {

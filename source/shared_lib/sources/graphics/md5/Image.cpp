@@ -1488,7 +1488,7 @@ ImagePNG::getTextureInfo (int color_type)
 void
 ImagePNG::read_callback (png_structp png_ptr, png_bytep data, png_size_t length)
 {
-  my_source_ptr src = static_cast<my_source_ptr>(png_ptr->io_ptr);
+  my_source_ptr src = static_cast<my_source_ptr>(png_get_io_ptr(png_ptr));
 
   // Copy data from image buffer
   memcpy (data, src->pibuff->data () + src->offset, length);
@@ -1501,7 +1501,7 @@ ImagePNG::read_callback (png_structp png_ptr, png_bytep data, png_size_t length)
 void
 ImagePNG::error_callback (png_structp png_ptr, png_const_charp error_msg)
 {
-  static_cast<string *>(png_ptr->error_ptr)->assign (error_msg);
+  static_cast<string *>(png_get_error_ptr(png_ptr))->assign (error_msg);
 
   longjmp (png_jmpbuf (png_ptr), 1);
 }
