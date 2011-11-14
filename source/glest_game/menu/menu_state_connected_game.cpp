@@ -931,7 +931,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
 					labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
-					if(grabSlotButton[i].mouseClick(x, y)) {
+					if(i < mapInfo.players && grabSlotButton[i].mouseClick(x, y)) {
 						//printf("Send slot switch request for slot = %d, myCurrentIndex = %d\n",i,myCurrentIndex);
 
 						soundRenderer.playFx(coreData.getClickSoundA());
@@ -1914,7 +1914,9 @@ void MenuStateConnectedGame::render() {
 
 				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) &&
 					(labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)) {
-					renderer.renderButton(&grabSlotButton[i]);
+					if(i < mapInfo.players) {
+						renderer.renderButton(&grabSlotButton[i]);
+					}
 				}
 				else if(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
 						listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned ||
