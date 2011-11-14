@@ -1175,7 +1175,14 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 	}
 
 	Lang &lang= Lang::getInstance();
+	uint64 waitLoopIterationCount = 0;
+	const uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 300;
 	while(exitServer == false && allReady == false && logger.getCancelLoading() == false) {
+		waitLoopIterationCount++;
+		if(waitLoopIterationCount > 0 && waitLoopIterationCount % MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
+			sleep(1);
+			waitLoopIterationCount = 0;
+		}
 		vector<string> waitingForHosts;
 		allReady= true;
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i)	{
