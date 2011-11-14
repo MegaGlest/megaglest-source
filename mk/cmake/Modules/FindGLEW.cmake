@@ -20,6 +20,13 @@ IF (WIN32)
 		${PROJECT_SOURCE_DIR}/src/nvgl/glew/lib
 		DOC "The GLEW library")
 ELSE (WIN32)
+
+	SET(GLEW_NAMES ${GLEW_NAMES} GLEW glew)
+	OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+	IF(WANT_STATIC_LIBS)
+		SET(GLEW_NAMES libGLEW.a libglew.a ${GLEW_NAMES})
+	ENDIF()
+
 	FIND_PATH( GLEW_INCLUDE_PATH GL/glew.h
 		/usr/include
 		/usr/local/include
@@ -27,7 +34,7 @@ ELSE (WIN32)
 		/opt/local/include
 		DOC "The directory where GL/glew.h resides")
 	FIND_LIBRARY( GLEW_LIBRARY
-		NAMES GLEW glew
+		NAMES ${GLEW_NAMES}
 		PATHS
 		/usr/lib64
 		/usr/lib
