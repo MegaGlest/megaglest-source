@@ -375,7 +375,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxPublishServer.init(50, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
-	if(openNetworkSlots && parentMenuState!=pLanGame) {
+	if(this->masterserverMode == true ||
+		(openNetworkSlots == true && parentMenuState != pLanGame)) {
 		listBoxPublishServer.setSelectedItemIndex(0);
 	}
 	else {
@@ -1999,7 +2000,9 @@ void MenuStateCustomGame::update() {
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
 
-			listBoxPublishServer.setSelectedItemIndex(1);
+			if(this->masterserverMode == false) {
+				listBoxPublishServer.setSelectedItemIndex(1);
+			}
 
             ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
             serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
@@ -2153,7 +2156,8 @@ void MenuStateCustomGame::update() {
 				}
 			}
 
-			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
+				listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
 				hasOneNetworkSlotOpen=true;
 
 				if(serverInterface->getSlot(i) != NULL &&
@@ -2353,13 +2357,26 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-		if(hasOneNetworkSlotOpen) {
-			//listBoxPublishServer.setSelectedItemIndex(0);
+		if(this->masterserverMode == true || hasOneNetworkSlotOpen == true) {
+			if(this->masterserverMode == true) {
+				listBoxPublishServer.setSelectedItemIndex(0);
+			}
 			listBoxPublishServer.setEditable(true);
 			//listBoxEnableServerControlledAI.setEditable(true);
+
+			// Masterserver always needs one network slot
+			if(this->masterserverMode == true && hasOneNetworkSlotOpen == false) {
+				for(int i= 0; i < mapInfo.players; ++i) {
+					if(listBoxControls[i].getSelectedItemIndex() != ctNetwork &&
+						listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
+						listBoxControls[i].setSelectedItemIndex(ctNetwork);
+					}
+				}
+
+				updateNetworkSlots();
+			}
 		}
-		else
-		{
+		else {
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
 

@@ -694,10 +694,20 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 	Lang &lang= Lang::getInstance();
     int64 lastMillisCheck = 0;
+
+	uint64 waitLoopIterationCount = 0;
+	const uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 300;
+
 	//wait until we get a ready message from the server
 	while(true)	{
 		// FOR TESTING ONLY - delay to see the client count up while waiting
 		//sleep(2000);
+
+		waitLoopIterationCount++;
+		if(waitLoopIterationCount > 0 && waitLoopIterationCount % MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
+			sleep(1);
+			waitLoopIterationCount = 0;
+		}
 
 		if(isConnected() == false) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
