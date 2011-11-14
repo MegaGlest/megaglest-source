@@ -200,7 +200,7 @@ void CoreData::load() {
     		}
     	//}
     }
-    if(logoTextureList.size() == 0) {
+    if(miscTextureList.size() == 0) {
 		introPath= data_path + "data/core/menu/textures/intro*.*";
 		vector<string> introFilenames;
 		findAll(introPath, introFilenames, false, false);
