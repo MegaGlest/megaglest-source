@@ -4905,19 +4905,29 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground) {
 
 			//
 			// Get the screen coordinates for each character model - START
-			std::vector<GLdouble> projection(16);
-			std::vector<GLdouble> modelview(16);
-			std::vector<GLdouble> screen_coords(3);
+			//std::vector<GLdouble> projection(16);
+			//std::vector<GLdouble> modelview(16);
+			//std::vector<GLdouble> screen_coords(3);
 
-			glGetDoublev(GL_PROJECTION_MATRIX, projection.data());
-			glGetDoublev(GL_MODELVIEW_MATRIX, modelview.data());
+			//glGetDoublev(GL_PROJECTION_MATRIX, projection.data());
+			//glGetDoublev(GL_MODELVIEW_MATRIX, modelview.data());
 
 			const Metrics &metrics= Metrics::getInstance();
 			GLint viewport[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
 
+			//get matrices
+			GLdouble projection[16];
+			glGetDoublev(GL_PROJECTION_MATRIX, projection);
+
+			GLdouble modelview[16];
+			glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+
+			//get the screen coordinates
+			GLdouble screen_coords[3];
+
 			gluProject(worldPos.x, worldPos.y, worldPos.z,
-			    modelview.data(), projection.data(), viewport,
-			    screen_coords.data(), screen_coords.data() + 1, screen_coords.data() + 2);
+			    modelview, projection, viewport,
+			    &screen_coords[0], &screen_coords[1], &screen_coords[2]);
 			characterMenuScreenPositionListCache.push_back(Vec3f(screen_coords[0],screen_coords[1],screen_coords[2]));
 			// Get the screen coordinates for each character model - END
 			//
