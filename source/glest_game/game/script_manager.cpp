@@ -88,6 +88,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(showMessage, "showMessage");
 	luaScript.registerFunction(setDisplayText, "setDisplayText");
 	luaScript.registerFunction(addConsoleText, "addConsoleText");
+	luaScript.registerFunction(addConsoleLangText, "addConsoleLangText");
 	luaScript.registerFunction(DisplayFormattedText, "DisplayFormattedText");
 	luaScript.registerFunction(DisplayFormattedText, "displayFormattedText");
 	luaScript.registerFunction(DisplayFormattedLangText, "DisplayFormattedLangText");
@@ -417,6 +418,24 @@ void ScriptManager::setDisplayText(const string &text){
 void ScriptManager::addConsoleText(const string &text){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->addConsoleText(text);
+}
+void ScriptManager::addConsoleLangText(const char *fmt, ...){
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	
+    va_list argList;
+    va_start(argList, fmt);
+
+    const int max_debug_buffer_size = 8096;
+    char szBuf[max_debug_buffer_size]="";
+    vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
+
+	//displayText= wrapString(Lang::getInstance().getScenarioString(text), displayTextWrapCount);
+	world->addConsoleTextWoLang(szBuf);
+	va_end(argList);
+	
 }
 
 void ScriptManager::DisplayFormattedText(const char *fmt, ...) {
@@ -1393,6 +1412,87 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 		lua_replace(L, idxs[0]); // Replace the initial argument with the new object.
 		return 0;
 */
+}
+int ScriptManager::addConsoleLangText(LuaHandle* luaHandle){
+if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	  //const char *ret;
+	  //lua_lock(luaHandle);
+	  //luaC_checkGC(luaHandle);
+
+	  const int max_args_allowed = 8;
+	  int args = lua_gettop(luaHandle);
+	  if(lua_checkstack(luaHandle, args+1)) {
+		LuaArguments luaArguments(luaHandle);
+		string fmt = luaArguments.getString(-args);
+	    //va_list argList;
+	    //va_start(argList, fmt.c_str() );
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
+
+		if(args == 1) {
+			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str());
+		}
+		else if(args == 2) {
+			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+					luaArguments.getGenericData(-args+1));
+		}
+		else if(args == 3) {
+			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2));
+		}
+		else if(args == 4) {
+			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3));
+		}
+		else if(args == 5) {
+			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3),
+					luaArguments.getGenericData(-args+4));
+		}
+		else if(args == 6) {
+			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3),
+					luaArguments.getGenericData(-args+4),
+					luaArguments.getGenericData(-args+5));
+		}
+		else if(args == 7) {
+			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3),
+					luaArguments.getGenericData(-args+4),
+					luaArguments.getGenericData(-args+5),
+					luaArguments.getGenericData(-args+6));
+		}
+		else if(args == max_args_allowed) {
+			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+					luaArguments.getGenericData(-args+1),
+					luaArguments.getGenericData(-args+2),
+					luaArguments.getGenericData(-args+3),
+					luaArguments.getGenericData(-args+4),
+					luaArguments.getGenericData(-args+5),
+					luaArguments.getGenericData(-args+6),
+					luaArguments.getGenericData(-args+7));
+		}
+		else {
+			char szBuf[1024]="";
+			sprintf(szBuf,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
+			throw runtime_error(szBuf);
+		}
+
+	    //va_end(argList);
+  	  }
+	  //lua_unlock(luaHandle);
+	  return 1;
+
 }
 int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

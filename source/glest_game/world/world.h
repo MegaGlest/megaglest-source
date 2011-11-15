@@ -229,6 +229,7 @@ public:
 	void moveToUnit(int unitId, int destUnitId);
 	void togglePauseGame(bool pauseStatus);
 	void addConsoleText(const string &text);
+	void addConsoleTextWoLang(const string &text);
 
 	void giveResource(const string &resourceName, int factionIndex, int amount);
 	int getResourceAmount(const string &resourceName, int factionIndex);
