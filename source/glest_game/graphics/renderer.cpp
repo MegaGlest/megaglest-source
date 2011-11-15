@@ -3970,18 +3970,14 @@ void Renderer::renderUnits(const int renderFps) {
 
 			glPopMatrix();
 			unit->setVisible(true);
+
 			if(	showDebugUI == true &&
 				(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
-				//unit->setScreenPos(computeScreenPosition(unit->getCurrVectorFlat()));
-				unit->setScreenPos(computeScreenPosition(unit->getCurrVector()));
+
+				unit->setScreenPos(computeScreenPosition(currVec));
 				visibleFrameUnitList.push_back(unit);
 				visibleFrameUnitListCameraKey = game->getGameCamera()->getCameraMovementKey();
 			}
-
-			//if(allowRenderUnitTitles == true) {
-				// Add to the pending render unit title list
-				//renderUnitTitleList.push_back(std::pair<Unit *,Vec3f>(unit,computeScreenPosition(unit->getCurrVectorFlat())) );
-			//}
 		}
 
 		if(modelRenderStarted == true) {
@@ -4851,7 +4847,6 @@ void Renderer::renderDisplay() {
 }
 
 void Renderer::renderMenuBackground(const MenuBackground *menuBackground) {
-
 	assertGl();
 
 	const Vec3f &cameraPosition= menuBackground->getCamera()->getConstPosition();
@@ -4893,15 +4888,43 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground) {
 		glAlphaFunc(GL_GREATER, 0.0f);
 		float alpha= clamp((minDist-dist) / minDist, 0.f, 1.f);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
+
+		std::vector<Vec3f> &characterMenuScreenPositionListCache =
+				CacheManager::getCachedItem< std::vector<Vec3f> >(GameConstants::characterMenuScreenPositionListCacheLookupKey);
+		characterMenuScreenPositionListCache.clear();
+
 		modelRenderer->begin(true, true, false);
 
 		for(int i=0; i < MenuBackground::characterCount; ++i) {
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glLoadIdentity();
-			glTranslatef(i*2.f-4.f, -1.4f, -7.5f);
+
+			Vec3f worldPos(i*2.f-4.f, -1.4f, -7.5f);
+			glTranslatef(worldPos.x,worldPos.y,worldPos.z);
+
+			//
+			// Get the screen coordinates for each character model - START
+			std::vector<GLdouble> projection(16);
+			std::vector<GLdouble> modelview(16);
+			std::vector<GLdouble> screen_coords(3);
+
+			glGetDoublev(GL_PROJECTION_MATRIX, projection.data());
+			glGetDoublev(GL_MODELVIEW_MATRIX, modelview.data());
+
+			const Metrics &metrics= Metrics::getInstance();
+			GLint viewport[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
+
+			gluProject(worldPos.x, worldPos.y, worldPos.z,
+			    modelview.data(), projection.data(), viewport,
+			    screen_coords.data(), screen_coords.data() + 1, screen_coords.data() + 2);
+			characterMenuScreenPositionListCache.push_back(Vec3f(screen_coords[0],screen_coords[1],screen_coords[2]));
+			// Get the screen coordinates for each character model - END
+			//
+
 			menuBackground->getCharacterModelPtr(i)->updateInterpolationData(menuBackground->getAnim(), true);
 			modelRenderer->render(menuBackground->getCharacterModelPtr(i));
+
 			glPopMatrix();
 		}
 		modelRenderer->end();
@@ -7149,6 +7172,8 @@ Texture2D * Renderer::findFactionLogoTexture(string logoFilename) {
 }
 
 void Renderer::cycleShowDebugUILevel() {
+	//printf("#1 showDebugUILevel = %d, debugui_fps = %d, debugui_unit_titles = %d\n",showDebugUILevel,debugui_fps,debugui_unit_titles);
+
 	if((showDebugUILevel & debugui_fps) != debugui_fps ||
 		(showDebugUILevel & debugui_unit_titles) != debugui_unit_titles) {
 		showDebugUILevel  |= debugui_fps;
@@ -7157,6 +7182,8 @@ void Renderer::cycleShowDebugUILevel() {
 	else {
 		showDebugUILevel  = debugui_fps;
 	}
+
+	//printf("#2 showDebugUILevel = %d, debugui_fps = %d, debugui_unit_titles = %d\n",showDebugUILevel,debugui_fps,debugui_unit_titles);
 }
 
 void Renderer::renderFPSWhenEnabled(int lastFps) {
