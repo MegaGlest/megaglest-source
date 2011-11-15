@@ -37,12 +37,12 @@ private:
 
 private:
 	Lang();
-	void loadStrings(const string &language, Properties &properties, bool fileMustExist);
+	void loadStrings(const string &language, Properties &properties, bool fileMustExist,bool fallbackToDefault=false);
 
 public:
 	static Lang &getInstance();    
 
-	void loadStrings(const string &uselanguage, bool loadFonts=true);
+	void loadStrings(const string &uselanguage, bool loadFonts=true, bool fallbackToDefault=false);
 	void loadScenarioStrings(const string &scenarioDir, const string &scenarioName);
 
 	string get(const string &s,string uselanguage="", bool fallbackToDefault=false);
