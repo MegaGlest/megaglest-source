@@ -463,7 +463,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		listBoxTeams[i].init(xoffset+590, setupPos-30-i*rowHeight, 60);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+670, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+655, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
+		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
     }
 
 	labelControl.registerGraphicComponent(containerName,"labelControl");

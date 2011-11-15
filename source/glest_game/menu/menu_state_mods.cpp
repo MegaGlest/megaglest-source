@@ -487,6 +487,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			keyTilesetButtons.push_back(button);
 		}
 	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
 	for(unsigned int i=0; i < tilesetFilesUserData.size(); i++) {
 		string tilesetName = tilesetFilesUserData[i];
 		bool alreadyHasTileset = (tilesetCacheList.find(tilesetName) != tilesetCacheList.end());
@@ -512,6 +518,11 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	techListRemote.clear();
 	Tokenize(techsMetaData,techListRemote,"\n");
 
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
 	getTechsLocalList();
 	for(unsigned int i=0; i < techListRemote.size(); i++) {
 		string result=refreshTechModInfo(techListRemote[i]);
@@ -532,6 +543,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			labelsTech.push_back(label);
 		}
 	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
 	for(unsigned int i=0; i < techTreeFilesUserData.size(); i++) {
 		string techName = techTreeFilesUserData[i];
 		bool alreadyHasTech = (techCacheList.find(techName) != techCacheList.end());
@@ -589,6 +606,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			labelsMap.push_back(label);
 		}
 	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
 	for(unsigned int i=0; i < mapFilesUserData.size(); i++) {
 		string mapName = mapFilesUserData[i];
 		bool alreadyHasMap = (mapCacheList.find(mapName) != mapCacheList.end());
@@ -640,6 +663,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			keyScenarioButtons.push_back(button);
 		}
 	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
 	for(unsigned int i=0; i < scenarioFilesUserData.size(); i++) {
 		string scenarioName = scenarioFilesUserData[i];
 		bool alreadyHasScenario = (scenarioCacheList.find(scenarioName) != scenarioCacheList.end());
