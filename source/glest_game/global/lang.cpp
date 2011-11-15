@@ -46,10 +46,11 @@ Lang &Lang::getInstance() {
 	return lang;
 }
 
-void Lang::loadStrings(const string &uselanguage, bool loadFonts) {
+void Lang::loadStrings(const string &uselanguage, bool loadFonts,
+		bool fallbackToDefault) {
 	bool languageChanged = (uselanguage != this->language);
 	this->language= uselanguage;
-	loadStrings(uselanguage, strings, true);
+	loadStrings(uselanguage, strings, true, fallbackToDefault);
 
 	if(languageChanged == true) {
 		Font::resetToDefaults();
@@ -155,20 +156,28 @@ void Lang::loadStrings(const string &uselanguage, bool loadFonts) {
 		// end win32
 	#endif
 
-		if(loadFonts) {
+		if(loadFonts == true) {
 			CoreData &coreData= CoreData::getInstance();
 			coreData.loadFonts();
 		}
     }
 }
 
-void Lang::loadStrings(const string &uselanguage, Properties &properties, bool fileMustExist) {
+void Lang::loadStrings(const string &uselanguage, Properties &properties, bool fileMustExist,
+		bool fallbackToDefault) {
 	properties.clear();
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	//string languageFile = data_path + "data/lang/" + uselanguage + ".lng";
 	string languageFile = getGameCustomCoreDataPath(data_path, "data/lang/" + uselanguage + ".lng");
 	if(fileMustExist == false && fileExists(languageFile) == false) {
 		return;
+	}
+	else if(fileExists(languageFile) == false && fallbackToDefault == true) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,languageFile.c_str());
+		//throw runtime_error("File NOT FOUND, can't open file: [" + languageFile + "]");
+		printf("Language file NOT FOUND, can't open file: [%s] switching to default language: %s\n",languageFile.c_str(),DEFAULT_LANGUAGE);
+
+		languageFile = getGameCustomCoreDataPath(data_path, "data/lang/" + string(DEFAULT_LANGUAGE) + ".lng");
 	}
 	is_utf8_language = valid_utf8_file(languageFile.c_str());
 	properties.load(languageFile);

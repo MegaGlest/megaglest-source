@@ -2869,7 +2869,7 @@ int glestMain(int argc, char** argv) {
     	}
 
     	Renderer &renderer= Renderer::getInstance();
-        lang.loadStrings(language,false);
+        lang.loadStrings(language,false, true);
 
         if(	lang.hasString("FONT_HEIGHT_TEXT")) {
         	Font::langHeightText = config.getString("FONT_HEIGHT_TEXT",Font::langHeightText.c_str());
