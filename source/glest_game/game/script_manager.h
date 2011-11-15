@@ -180,6 +180,7 @@ private:
 	void clearDisplayText();
 	void setDisplayText(const string &text);
 	void addConsoleText(const string &text);
+	void addConsoleLangText(const char *fmt,...);
 	void DisplayFormattedText(const char *fmt,...);
 	void DisplayFormattedLangText(const char *fmt,...);
 	void setCameraPosition(const Vec2i &pos);
@@ -249,6 +250,7 @@ private:
 	static int showMessage(LuaHandle* luaHandle);
 	static int setDisplayText(LuaHandle* luaHandle);
 	static int addConsoleText(LuaHandle* luaHandle);
+	static int addConsoleLangText(LuaHandle* luaHandle);
 	static int DisplayFormattedText(LuaHandle* luaHandle);
 	static int DisplayFormattedLangText(LuaHandle* luaHandle);
 	static int clearDisplayText(LuaHandle* luaHandle);
