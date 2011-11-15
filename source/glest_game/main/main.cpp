@@ -997,6 +997,7 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 		//if(key == configKeys.getCharKey("HotKeyShowDebug")) {
 		if(isKeyPressed(configKeys.getSDLKey("HotKeyShowDebug"),key) == true) {
+			//printf("debug key pressed keystate.mod = %d [%d]\n",keystate.mod,keystate.mod & (KMOD_LALT | KMOD_RALT));
 
 			Renderer &renderer= Renderer::getInstance();
 			//if(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
@@ -3235,6 +3236,7 @@ int glestMain(int argc, char** argv) {
 			renderer.setAllowRenderUnitTitles(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
 			SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"In [%s::%s Line: %d] renderer.setAllowRenderUnitTitles = %d\n",__FILE__,__FUNCTION__,__LINE__,SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
 		}
+		renderer.setAllowRenderUnitTitles(true);
 
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) == true) {
 			//Renderer &renderer= Renderer::getInstance();

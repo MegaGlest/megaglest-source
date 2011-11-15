@@ -52,7 +52,9 @@ const char *GameConstants::RANDOMFACTION_SLOTNAME	= "*Random*";
 
 const char *GameConstants::playerTextureCacheLookupKey  		= "playerTextureCache";
 const char *GameConstants::factionPreviewTextureCacheLookupKey  = "factionPreviewTextureCache";
+const char *GameConstants::characterMenuScreenPositionListCacheLookupKey  = "characterMenuScreenPositionListCache";
 const char *GameConstants::application_name				= "MegaGlest";
+
 
 const char *GameConstants::pathCacheLookupKey           = "pathCache_";
 const char *GameConstants::path_data_CacheLookupKey     = "data";
