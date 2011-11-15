@@ -1176,11 +1176,14 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 
 	Lang &lang= Lang::getInstance();
 	uint64 waitLoopIterationCount = 0;
-	const uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 300;
+	uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 100;
+	MAX_LOOP_COUNT_BEFORE_SLEEP = Config::getInstance().getInt("NetworkServerLoopGameLoadingCap",intToStr(MAX_LOOP_COUNT_BEFORE_SLEEP).c_str());
+	uint sleepMillis = Config::getInstance().getInt("NetworkServerLoopGameLoadingCapSleepMillis","1");
+
 	while(exitServer == false && allReady == false && logger.getCancelLoading() == false) {
 		waitLoopIterationCount++;
 		if(waitLoopIterationCount > 0 && waitLoopIterationCount % MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
-			sleep(1);
+			sleep(sleepMillis);
 			waitLoopIterationCount = 0;
 		}
 		vector<string> waitingForHosts;
