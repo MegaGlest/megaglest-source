@@ -696,7 +696,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
     int64 lastMillisCheck = 0;
 
 	uint64 waitLoopIterationCount = 0;
-	const uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 300;
+	uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 100;
+	MAX_LOOP_COUNT_BEFORE_SLEEP = Config::getInstance().getInt("NetworkClientLoopGameLoadingCap",intToStr(MAX_LOOP_COUNT_BEFORE_SLEEP).c_str());
+	uint sleepMillis = Config::getInstance().getInt("NetworkClientLoopGameLoadingCapSleepMillis","1");
 
 	//wait until we get a ready message from the server
 	while(true)	{
@@ -705,7 +707,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 		waitLoopIterationCount++;
 		if(waitLoopIterationCount > 0 && waitLoopIterationCount % MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
-			sleep(1);
+			sleep(sleepMillis);
 			waitLoopIterationCount = 0;
 		}
 
