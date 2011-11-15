@@ -319,10 +319,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		listBoxTeams[i].setEditable(false);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+670, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+655, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
+		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 		grabSlotButton[i].registerGraphicComponent(containerName,"grabSlotButton" + intToStr(i));
-		grabSlotButton[i].init(xoffset+670, setupPos-30-i*rowHeight, 30);
+		grabSlotButton[i].init(xoffset+660, setupPos-30-i*rowHeight, 30);
 		grabSlotButton[i].setText(">");
     }
 
