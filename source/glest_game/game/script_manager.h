@@ -128,6 +128,7 @@ private:
 	//last dead unit
 	string lastDeadUnitName;
 	int lastDeadUnitId;
+	int lastDeadUnitCauseOfDeath;
 
 	//last attacked unit
 	string lastAttackedUnitName;
@@ -251,6 +252,8 @@ private:
 
 	const string &getLastDeadUnitName();
 	int getLastDeadUnitId();
+	int getLastDeadUnitCauseOfDeath();
+
 
 	const string &getLastAttackedUnitName();
 	int getLastAttackedUnitId();
@@ -333,6 +336,7 @@ private:
 
 	static int getLastDeadUnitName(LuaHandle* luaHandle);
 	static int getLastDeadUnitId(LuaHandle* luaHandle);
+	static int getLastDeadUnitCauseOfDeath(LuaHandle* luaHandle);
 
 	static int getLastAttackedUnitName(LuaHandle* luaHandle);
 	static int getLastAttackedUnitId(LuaHandle* luaHandle);
