@@ -124,8 +124,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\t\tAuto connects to a network server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
 	printf("\n%s\t\t\tAuto creates a network server.",GAME_ARGS[GAME_ARG_SERVER]);
 
-	printf("\n%s=x\t\t\tRun as a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]);
-	printf("\n                     \t\tWhere x is an option command: exit which quits the application after a game has no more connected players.");
+	printf("\n%s=x,x\tRun as a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]);
+	printf("\n                     \t\tWhere x is an optional comma delimited command list of one or more of the following: ");
+	printf("\n                     \t\texit - which quits the application after a game has no more connected players.");
+	printf("\n                     \t\tvps  - which does NOT read commands from the local console (required for some vps's).");
 
 	printf("\n%s=x\t\tAuto loads the specified scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
 	printf("\n%s=x\t\tAuto Preview the specified map by map name.",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
