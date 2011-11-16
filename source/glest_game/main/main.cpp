@@ -3468,7 +3468,7 @@ int glestMain(int argc, char** argv) {
 
 #ifndef WIN32
 					if(pollresult < 0) {
-						printf("pollresult = %d errno = %d\n",pollresult,pollerror);
+						printf("pollresult = %d errno = %d [%s]\n",pollresult,pollerror,strerror(pollerror));
 
 						cinfd[0].fd = fileno(stdin);
 						cinfd[0].events = POLLIN;
