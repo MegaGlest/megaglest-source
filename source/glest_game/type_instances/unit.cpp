@@ -295,6 +295,9 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	lastPathfindFailedPos = Vec2i(0,0);
 	usePathfinderExtendedMaxNodes = false;
 	this->currentAttackBoostOriginatorEffect.skillType = NULL;
+	lastAttackerUnitId = -1;
+	lastAttackedUnitId = -1;
+	causeOfDeath = ucodNone;
 
 	targetRotationZ=.0f;
 	targetRotationX=.0f;
@@ -1911,6 +1914,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		effect->source = source;
 
 		bool wasAlive = alive;
+		int originalHp = hp;
 		int prevMaxHp = totalUpgrade.getMaxHp();
 		int prevMaxHpRegen = totalUpgrade.getMaxHpRegeneration();
 		//printf("#1 wasAlive = %d hp = %d boosthp = %d\n",wasAlive,hp,boost->boostUpgrade.getMaxHp());
@@ -1937,6 +1941,9 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			//printf("AFTER Apply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
 		}
 
+		if(originalHp < hp) {
+			this->setLastAttackerUnitId(source->getId());
+		}
 		//printf("#2 wasAlive = %d hp = %d boosthp = %d\n",wasAlive,hp,boost->boostUpgrade.getMaxHp());
 
 		if(showUnitParticles == true) {
@@ -1968,6 +1975,8 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 				stopDamageParticles(true);
 
+				this->setLastAttackerUnitId(source->getId());
+				this->setCauseOfDeath(ucodAttackBoost);
 				Unit::game->getWorld()->getStats()->die(getFactionIndex());
 				game->getScriptManager()->onUnitDied(this);
 
@@ -1999,6 +2008,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	//printf("DE-APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 
 	bool wasAlive = alive;
+	int originalHp = hp;
 	int prevMaxHp = totalUpgrade.getMaxHp();
 	int prevMaxHpRegen = totalUpgrade.getMaxHpRegeneration();
 	totalUpgrade.deapply(&boost->boostUpgrade, this);
@@ -2023,6 +2033,10 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		//printf("AFTER DeApply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
 	}
 
+	if(originalHp < hp) {
+		this->setLastAttackerUnitId(source->getId());
+	}
+
 	if(wasAlive == true) {
 		//printf("DE-APPLYING ATTACK BOOST wasalive = true to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 
@@ -2036,6 +2050,9 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			addItemToVault(&this->hp,this->hp);
 
 			stopDamageParticles(true);
+
+			this->setLastAttackerUnitId(source->getId());
+			this->setCauseOfDeath(ucodAttackBoost);
 
 			Unit::game->getWorld()->getStats()->die(getFactionIndex());
 			game->getScriptManager()->onUnitDied(this);
@@ -2089,6 +2106,8 @@ void Unit::tick() {
 		else {
             bool decHpResult = decHp(-type->getHpRegeneration());
             if(decHpResult) {
+				this->setCauseOfDeath(ucodStarvedRegeneration);
+
                 Unit::game->getWorld()->getStats()->die(getFactionIndex());
                 game->getScriptManager()->onUnitDied(this);
             }
@@ -2113,6 +2132,8 @@ void Unit::tick() {
 		else {
             bool decHpResult = decHp(-type->getTotalMaxHpRegeneration(&totalUpgrade));
             if(decHpResult) {
+            	this->setCauseOfDeath(ucodStarvedRegeneration);
+
                 Unit::game->getWorld()->getStats()->die(getFactionIndex());
                 game->getScriptManager()->onUnitDied(this);
             }
@@ -2183,38 +2204,42 @@ bool Unit::computeEp() {
 
     return false;
 }
-bool Unit::computeHp() {
 
-	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
-	}
-
-	if(!isBeingBuilt()){
-			//cost hp
-		if(currSkill->getHpCost() > 0) {
-			bool decHpResult = decHp(currSkill->getHpCost());
-            if(decHpResult) {
-                Unit::game->getWorld()->getStats()->die(getFactionIndex());
-                game->getScriptManager()->onUnitDied(this);
-            }
-		}
-		// If we have negative costs then add life
-		else {
-			checkItemInVault(&this->hp,this->hp);
-            hp += -currSkill->getHpCost();
-            if(hp > type->getTotalMaxHp(&totalUpgrade)) {
-                hp = type->getTotalMaxHp(&totalUpgrade);
-            }
-        	addItemToVault(&this->hp,this->hp);
-            
-		}
-	}
-	
-
-    return true;
-}
+//bool Unit::computeHp() {
+//
+//	if(currSkill == NULL) {
+//		char szBuf[4096]="";
+//		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+//		throw runtime_error(szBuf);
+//	}
+//
+//	if(isBeingBuilt() == false) {
+//			//cost hp
+//		if(currSkill->getHpCost() > 0) {
+//			bool decHpResult = decHp(currSkill->getHpCost());
+//            if(decHpResult) {
+//
+//            	this->setCauseOfDeath(???);
+//
+//                Unit::game->getWorld()->getStats()->die(getFactionIndex());
+//                game->getScriptManager()->onUnitDied(this);
+//            }
+//		}
+//		// If we have negative costs then add life
+//		else {
+//			checkItemInVault(&this->hp,this->hp);
+//            hp += -currSkill->getHpCost();
+//            if(hp > type->getTotalMaxHp(&totalUpgrade)) {
+//                hp = type->getTotalMaxHp(&totalUpgrade);
+//            }
+//        	addItemToVault(&this->hp,this->hp);
+//
+//		}
+//	}
+//
+//
+//    return true;
+//}
 
 bool Unit::repair(){
 

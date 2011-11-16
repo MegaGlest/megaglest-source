@@ -1999,12 +1999,15 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 	//hit attack positions
 	if(ast->getSplash()){
 		PosCircularIterator pci(map, targetPos, ast->getSplashRadius());
-		while(pci.next()){
+		while(pci.next()) {
 			Unit *attacked= map->getCell(pci.getPos())->getUnit(targetField);
-			if(attacked!=NULL){
+			if(attacked != NULL) {
 				if(ast->getSplashDamageAll()
-					|| !attacker->isAlly(attacked)
-					|| ( targetPos.x==pci.getPos().x && targetPos.y==pci.getPos().y )){
+					|| attacker->isAlly(attacked) == false
+					|| ( targetPos.x==pci.getPos().x && targetPos.y==pci.getPos().y )) {
+					attacker->setLastAttackedUnitId(attacked->getId());
+					scriptManager->onUnitAttacking(attacker);
+
 					damage(attacker, ast, attacked, pci.getPos().dist(attacker->getTargetPos()));
 			  	}
 			}
@@ -2018,7 +2021,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 	}
 }
 
-void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance){
+void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance) {
 	if(attacker == NULL) {
 		throw runtime_error("attacker == NULL");
 	}
@@ -2027,22 +2030,25 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	}
 
 	//get vars
-	float damage= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
-	int var= ast->getAttackVar();
-	int armor= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
-	float damageMultiplier= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
+	float damage			= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
+	int var					= ast->getAttackVar();
+	int armor				= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
+	float damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
 
 	//compute damage
-	damage+= random.randRange(-var, var);
-	damage/= distance+1;
-	damage-= armor;
-	damage*= damageMultiplier;
-	if(damage<1){
+	damage += random.randRange(-var, var);
+	damage /= distance+1;
+	damage -= armor;
+	damage *= damageMultiplier;
+
+	if(damage < 1) {
 		damage= 1;
 	}
 
+	attacked->setLastAttackerUnitId(attacker->getId());
+
 	//damage the unit
-	if(attacked->decHp(static_cast<int>(damage))){
+	if(attacked->decHp(static_cast<int>(damage))) {
 		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex(), attacker->getTeam() != attacked->getTeam());
 		attacker->incKills(attacked->getTeam());
 
@@ -2059,6 +2065,11 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	    }
 		scriptManager->onUnitDied(attacked);
 	}
+
+	if(attacked->isAlive() == true) {
+		scriptManager->onUnitAttacked(attacked);
+	}
+
 	// !!! Is this causing choppy network play somehow?
 	//attacker->computeHp();
 }

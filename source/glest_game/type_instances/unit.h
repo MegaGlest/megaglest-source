@@ -67,6 +67,14 @@ enum InterestingUnitType {
 	iutStore
 };
 
+enum CauseOfDeathType {
+	ucodNone,
+	ucodAttacked,
+	ucodAttackBoost,
+	ucodStarvedResource,
+	ucodStarvedRegeneration
+};
+
 // =====================================================
 // 	class UnitObserver
 // =====================================================
@@ -403,6 +411,10 @@ private:
 
 	bool changedActiveCommand;
 
+	int lastAttackerUnitId;
+	int lastAttackedUnitId;
+	CauseOfDeathType causeOfDeath;
+
 public:
 	Unit() : id(-1) {
 		assert(false);
@@ -460,6 +472,15 @@ public:
 	const UnitPathInterface *getPath() const	{return unitPath;}
 	UnitPathInterface *getPath()				{return unitPath;}
 	WaypointPath *getWaypointPath()				{return &waypointPath;}
+
+	int getLastAttackerUnitId() const { return lastAttackerUnitId; }
+	void setLastAttackerUnitId(int unitId) { lastAttackerUnitId = unitId; }
+
+	int getLastAttackedUnitId() const { return lastAttackedUnitId; }
+	void setLastAttackedUnitId(int unitId) { lastAttackedUnitId = unitId; }
+
+	CauseOfDeathType getCauseOfDeath() const { return causeOfDeath; }
+	void setCauseOfDeath(CauseOfDeathType cause) { causeOfDeath = cause; }
 
     //pos
 	Vec2i getPos() const				{return pos;}
@@ -531,7 +552,7 @@ public:
 	string getDesc() const;
 	string getDescExtension() const;
     bool computeEp();
-    bool computeHp();
+    //bool computeHp();
     bool repair();
     bool decHp(int i);
     int update2();
