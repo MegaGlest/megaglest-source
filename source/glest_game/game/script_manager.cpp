@@ -147,6 +147,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 
 	luaScript.registerFunction(getLastDeadUnitName, "lastDeadUnitName");
 	luaScript.registerFunction(getLastDeadUnitId, "lastDeadUnit");
+	luaScript.registerFunction(getLastDeadUnitCauseOfDeath, "lastDeadUnitCauseOfDeath");
 
 	luaScript.registerFunction(getLastAttackedUnitName, "lastAttackedUnitName");
 	luaScript.registerFunction(getLastAttackedUnitId, "lastAttackedUnit");
@@ -174,6 +175,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	//last created unit
 	lastCreatedUnitId= -1;
 	lastDeadUnitId= -1;
+	lastDeadUnitCauseOfDeath = ucodNone;
 
 	lastAttackedUnitName = "";
 	lastAttackedUnitId = -1;
@@ -231,6 +233,8 @@ void ScriptManager::onUnitDied(const Unit* unit){
 
 	lastDeadUnitName= unit->getType()->getName();
 	lastDeadUnitId= unit->getId();
+	lastDeadUnitCauseOfDeath = unit->getCauseOfDeath();
+
 	luaScript.beginCall("unitDied");
 	luaScript.endCall();
 }
@@ -929,6 +933,12 @@ int ScriptManager::getLastDeadUnitId() {
 	return lastDeadUnitId;
 }
 
+int ScriptManager::getLastDeadUnitCauseOfDeath() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return lastDeadUnitCauseOfDeath;
+}
+
 const string &ScriptManager::getLastAttackedUnitName() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -1366,6 +1376,12 @@ int ScriptManager::getLastDeadUnitName(LuaHandle* luaHandle){
 int ScriptManager::getLastDeadUnitId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getLastDeadUnitId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getLastDeadUnitCauseOfDeath(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getLastDeadUnitCauseOfDeath());
 	return luaArguments.getReturnCount();
 }
 
