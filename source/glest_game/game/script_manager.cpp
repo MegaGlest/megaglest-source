@@ -97,6 +97,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(setCameraPosition, "setCameraPosition");
 	luaScript.registerFunction(createUnit, "createUnit");
 	luaScript.registerFunction(destroyUnit, "destroyUnit");
+	luaScript.registerFunction(giveKills, "giveKills");
 	luaScript.registerFunction(morphToUnit, "morphToUnit");
 	luaScript.registerFunction(moveToUnit, "moveToUnit");
 	luaScript.registerFunction(playStaticSound, "playStaticSound");
@@ -140,10 +141,19 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getUnitPosition, "unitPosition");
 	luaScript.registerFunction(getUnitFaction, "unitFaction");
 	luaScript.registerFunction(getResourceAmount, "resourceAmount");
+
 	luaScript.registerFunction(getLastCreatedUnitName, "lastCreatedUnitName");
 	luaScript.registerFunction(getLastCreatedUnitId, "lastCreatedUnit");
+
 	luaScript.registerFunction(getLastDeadUnitName, "lastDeadUnitName");
 	luaScript.registerFunction(getLastDeadUnitId, "lastDeadUnit");
+
+	luaScript.registerFunction(getLastAttackedUnitName, "lastAttackedUnitName");
+	luaScript.registerFunction(getLastAttackedUnitId, "lastAttackedUnit");
+
+	luaScript.registerFunction(getLastAttackingUnitName, "lastAttackingUnitName");
+	luaScript.registerFunction(getLastAttackingUnitId, "lastAttackingUnit");
+
 	luaScript.registerFunction(getUnitCount, "unitCount");
 	luaScript.registerFunction(getUnitCountOfType, "unitCountOfType");
 
@@ -164,6 +174,12 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	//last created unit
 	lastCreatedUnitId= -1;
 	lastDeadUnitId= -1;
+
+	lastAttackedUnitName = "";
+	lastAttackedUnitId = -1;
+	lastAttackingUnitName = "";
+	lastAttackingUnitId = -1;
+
 	gameOver= false;
 	gameWon = false;
 
@@ -216,6 +232,24 @@ void ScriptManager::onUnitDied(const Unit* unit){
 	lastDeadUnitName= unit->getType()->getName();
 	lastDeadUnitId= unit->getId();
 	luaScript.beginCall("unitDied");
+	luaScript.endCall();
+}
+
+void ScriptManager::onUnitAttacked(const Unit* unit) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	lastAttackedUnitName= unit->getType()->getName();
+	lastAttackedUnitId= unit->getId();
+	luaScript.beginCall("unitAttacked");
+	luaScript.endCall();
+}
+
+void ScriptManager::onUnitAttacking(const Unit* unit) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	lastAttackingUnitName= unit->getType()->getName();
+	lastAttackingUnitId= unit->getId();
+	luaScript.beginCall("unitAttacking");
 	luaScript.endCall();
 }
 
@@ -496,6 +530,16 @@ void ScriptManager::destroyUnit(int unitId){
 		unit->kill();
 		// If called from an existing die event we get a stack overflow
 		//onUnitDied(unit);
+	}
+}
+void ScriptManager::giveKills (int unitId, int amount){
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitId);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	Unit *unit = world->findUnitById(unitId);
+	if(unit != NULL) {
+		for(int i = 1; i <= amount; i++) {
+		unit->incKills(-1);
+		}
 	}
 }
 
@@ -885,6 +929,30 @@ int ScriptManager::getLastDeadUnitId() {
 	return lastDeadUnitId;
 }
 
+const string &ScriptManager::getLastAttackedUnitName() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return lastAttackedUnitName;
+}
+
+int ScriptManager::getLastAttackedUnitId() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return lastAttackedUnitId;
+}
+
+const string &ScriptManager::getLastAttackingUnitName() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return lastAttackingUnitName;
+}
+
+int ScriptManager::getLastAttackingUnitId() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return lastAttackingUnitId;
+}
+
 int ScriptManager::getUnitCount(int factionIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -989,6 +1057,14 @@ int ScriptManager::destroyUnit(LuaHandle* luaHandle) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-1));
 
 	thisScriptManager->destroyUnit(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::giveKills(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-1));
+
+	thisScriptManager->giveKills(luaArguments.getInt(-2),luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
 
@@ -1290,6 +1366,30 @@ int ScriptManager::getLastDeadUnitName(LuaHandle* luaHandle){
 int ScriptManager::getLastDeadUnitId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getLastDeadUnitId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getLastAttackedUnitName(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnString(thisScriptManager->getLastAttackedUnitName());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getLastAttackedUnitId(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getLastAttackedUnitId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getLastAttackingUnitName(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnString(thisScriptManager->getLastAttackingUnitName());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getLastAttackingUnitId(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getLastAttackingUnitId());
 	return luaArguments.getReturnCount();
 }
 

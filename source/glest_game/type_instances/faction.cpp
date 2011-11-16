@@ -851,6 +851,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 					if(scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled() == true) {
 						bool decHpResult = unit->decHp(unit->getType()->getMaxHp() / 3);
 						if(decHpResult) {
+							unit->setCauseOfDeath(ucodStarvedResource);
 							world->getStats()->die(unit->getFactionIndex());
 							scriptManager->onUnitDied(unit);
 						}

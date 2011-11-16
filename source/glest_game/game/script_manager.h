@@ -129,6 +129,14 @@ private:
 	string lastDeadUnitName;
 	int lastDeadUnitId;
 
+	//last attacked unit
+	string lastAttackedUnitName;
+	int lastAttackedUnitId;
+
+	//last attacking unit
+	string lastAttackingUnitName;
+	int lastAttackingUnitId;
+
 	// end game state
 	bool gameOver;
 	bool gameWon;
@@ -168,6 +176,8 @@ public:
 	void onResourceHarvested();
 	void onUnitCreated(const Unit* unit);
 	void onUnitDied(const Unit* unit);
+	void onUnitAttacked(const Unit* unit);
+	void onUnitAttacking(const Unit* unit);
 	void onGameOver(bool won);
 	void onCellTriggerEvent(Unit *movingUnit);
 	void onTimerTriggerEvent();
@@ -187,6 +197,7 @@ private:
 	void createUnit(const string &unitName, int factionIndex, Vec2i pos);
 
 	void destroyUnit(int unitId);
+	void giveKills(int unitId, int amount);
 	void morphToUnit(int unitId,const string &morphName, int ignoreRequirements);
 	void moveToUnit(int unitId,int destUnitId);
 	void giveAttackStoppedCommand(int unitId, const string &valueName,int ignoreRequirements);
@@ -237,8 +248,16 @@ private:
 	int getResourceAmount(const string &resourceName, int factionIndex);
 	const string &getLastCreatedUnitName();
 	int getLastCreatedUnitId();
+
 	const string &getLastDeadUnitName();
 	int getLastDeadUnitId();
+
+	const string &getLastAttackedUnitName();
+	int getLastAttackedUnitId();
+
+	const string &getLastAttackingUnitName();
+	int getLastAttackingUnitId();
+
 	int getUnitCount(int factionIndex);
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
@@ -258,6 +277,7 @@ private:
 	static int createUnit(LuaHandle* luaHandle);
 
 	static int destroyUnit(LuaHandle* luaHandle);
+	static int giveKills(LuaHandle* luaHandle);
 	static int morphToUnit(LuaHandle* luaHandle);
 	static int moveToUnit(LuaHandle* luaHandle);
 	static int giveAttackStoppedCommand(LuaHandle* luaHandle);
@@ -310,8 +330,16 @@ private:
 	static int getResourceAmount(LuaHandle* luaHandle);
 	static int getLastCreatedUnitName(LuaHandle* luaHandle);
 	static int getLastCreatedUnitId(LuaHandle* luaHandle);
+
 	static int getLastDeadUnitName(LuaHandle* luaHandle);
 	static int getLastDeadUnitId(LuaHandle* luaHandle);
+
+	static int getLastAttackedUnitName(LuaHandle* luaHandle);
+	static int getLastAttackedUnitId(LuaHandle* luaHandle);
+
+	static int getLastAttackingUnitName(LuaHandle* luaHandle);
+	static int getLastAttackingUnitId(LuaHandle* luaHandle);
+
 	static int getUnitCount(LuaHandle* luaHandle);
 	static int getUnitCountOfType(LuaHandle* luaHandle);
 
