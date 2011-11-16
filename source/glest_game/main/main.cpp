@@ -3444,7 +3444,9 @@ int glestMain(int argc, char** argv) {
 		while(program->isShutdownApplicationEnabled() == false && Window::handleEvent()) {
 			if(isMasterServerModeEnabled == true) {
 				#ifndef WIN32
-				if(poll(cinfd, 1, 0))
+				int pollresult = poll(cinfd, 1, 0);
+				int pollerror = errno;
+				if(pollresult)
 				#else
 				// This is problematic because input on Windows is not line-buffered so this will return
 				// even if getline may block.  I haven't found a good way to fix it, so for the moment
@@ -3455,6 +3457,7 @@ int glestMain(int argc, char** argv) {
 				if (WaitForSingleObject(h, 0) == WAIT_OBJECT_0)
 				#endif
 				{
+
 					getline(cin, command);
 					cin.clear();
 
@@ -3462,6 +3465,15 @@ int glestMain(int argc, char** argv) {
 					if(command == "quit") {
 						break;
 					}
+
+#ifndef WIN32
+					if(pollresult < 0) {
+						printf("pollresult = %d errno = %d\n",pollresult,pollerror);
+
+						cinfd[0].fd = fileno(stdin);
+						cinfd[0].events = POLLIN;
+					}
+#endif
 				}
 				//printf("looping\n");
 			}
