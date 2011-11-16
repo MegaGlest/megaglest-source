@@ -93,6 +93,7 @@ using namespace Shared;
 
 namespace Glest{ namespace Game{
 
+bool disableheadless_console = false;
 bool disableBacktrace = false;
 bool gameInitialized = false;
 //static string application_binary="";
@@ -2457,9 +2458,22 @@ int glestMain(int argc, char** argv) {
 		vector<string> paramPartTokens;
 		Tokenize(paramValue,paramPartTokens,"=");
 		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-			string exitHeadless = paramPartTokens[1];
-			printf("Forcing quit after game has compelted [%s]\n",exitHeadless.c_str());
-			Program::setWantShutdownApplicationAfterGame(true);
+			string headless_command_list = paramPartTokens[1];
+
+			vector<string> paramHeadlessCommandList;
+			Tokenize(headless_command_list,paramHeadlessCommandList,",");
+
+			for(unsigned int i = 0; i < paramHeadlessCommandList.size(); ++i) {
+				string headless_command = paramHeadlessCommandList[i];
+				if(headless_command == "exit") {
+					printf("Forcing quit after game has compelted [%s]\n",headless_command.c_str());
+					Program::setWantShutdownApplicationAfterGame(true);
+				}
+				else if(headless_command == "vps") {
+					printf("Disabled reading from console [%s]\n",headless_command.c_str());
+					disableheadless_console = true;
+				}
+			}
 		}
     }
 
@@ -3424,15 +3438,22 @@ int glestMain(int argc, char** argv) {
 
 		// Check for commands being input from stdin
 		string command="";
-		#ifndef WIN32
+
+#ifndef WIN32
 		pollfd cinfd[1];
-		// Theoretically this should always be 0, but one fileno call isn't going to hurt, and if
-		// we try to run somewhere that stdin isn't fd 0 then it will still just work
-		cinfd[0].fd = fileno(stdin);
-		cinfd[0].events = POLLIN;
-		#else
-	    HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
-		#endif
+#else
+		HANDLE h = 0;
+#endif
+		if(disableheadless_console == false) {
+#ifndef WIN32
+			// Theoretically this should always be 0, but one fileno call isn't going to hurt, and if
+			// we try to run somewhere that stdin isn't fd 0 then it will still just work
+			cinfd[0].fd = fileno(stdin);
+			cinfd[0].events = POLLIN;
+#else
+			h = GetStdHandle(STD_INPUT_HANDLE);
+#endif
+		}
 
 	    if(isMasterServerModeEnabled == true) {
 	    	printf("Headless server is now running...\n");
@@ -3443,37 +3464,40 @@ int glestMain(int argc, char** argv) {
 		//main loop
 		while(program->isShutdownApplicationEnabled() == false && Window::handleEvent()) {
 			if(isMasterServerModeEnabled == true) {
+
+				if(disableheadless_console == false) {
 				#ifndef WIN32
-				int pollresult = poll(cinfd, 1, 0);
-				int pollerror = errno;
-				if(pollresult)
+					int pollresult = poll(cinfd, 1, 0);
+					int pollerror = errno;
+					if(pollresult)
 				#else
-				// This is problematic because input on Windows is not line-buffered so this will return
-				// even if getline may block.  I haven't found a good way to fix it, so for the moment
-				// I just strongly suggest only running the server from the Python frontend, which does
-				// line buffer input.  This does work okay as long as the user doesn't enter characters
-				// without pressing enter, and then try to end the server another way (say a remote
-				// console command), in which case we'll still be waiting for the stdin EOL and hang.
-				if (WaitForSingleObject(h, 0) == WAIT_OBJECT_0)
+					// This is problematic because input on Windows is not line-buffered so this will return
+					// even if getline may block.  I haven't found a good way to fix it, so for the moment
+					// I just strongly suggest only running the server from the Python frontend, which does
+					// line buffer input.  This does work okay as long as the user doesn't enter characters
+					// without pressing enter, and then try to end the server another way (say a remote
+					// console command), in which case we'll still be waiting for the stdin EOL and hang.
+					if (WaitForSingleObject(h, 0) == WAIT_OBJECT_0)
 				#endif
-				{
+					{
 
-					getline(cin, command);
-					cin.clear();
+						getline(cin, command);
+						cin.clear();
 
-					printf("server command [%s]\n",command.c_str());
-					if(command == "quit") {
-						break;
-					}
+						printf("server command [%s]\n",command.c_str());
+						if(command == "quit") {
+							break;
+						}
 
 #ifndef WIN32
-					if(pollresult < 0) {
-						printf("pollresult = %d errno = %d [%s]\n",pollresult,pollerror,strerror(pollerror));
+						if(pollresult < 0) {
+							printf("pollresult = %d errno = %d [%s]\n",pollresult,pollerror,strerror(pollerror));
 
-						cinfd[0].fd = fileno(stdin);
-						cinfd[0].events = POLLIN;
-					}
+							cinfd[0].fd = fileno(stdin);
+							cinfd[0].events = POLLIN;
+						}
 #endif
+					}
 				}
 				//printf("looping\n");
 			}
