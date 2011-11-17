@@ -126,7 +126,9 @@ void SoundRenderer::update() {
     	if(runThreadSafe == true) {
     	    safeMutex.setMutex(&mutex);
     	}
-        soundPlayer->updateStreams();
+		if(soundPlayer) {
+			soundPlayer->updateStreams();
+		}
     }
 }
 
@@ -142,7 +144,9 @@ void SoundRenderer::playMusic(StrSound *strSound) {
                 safeMutex.setMutex(&mutex);
             }
 
-			soundPlayer->play(strSound);
+			if(soundPlayer) {
+				soundPlayer->play(strSound);
+			}
 		}
 	}
 }
@@ -160,12 +164,14 @@ void SoundRenderer::stopMusic(StrSound *strSound) {
     	    safeMutex.setMutex(&mutex);
     	}
 
-        soundPlayer->stop(strSound);
-        if(strSound != NULL) {
-			if(strSound->getNext() != NULL) {
-				soundPlayer->stop(strSound->getNext());
+		if(soundPlayer) {
+			soundPlayer->stop(strSound);
+			if(strSound != NULL) {
+				if(strSound->getNext() != NULL) {
+					soundPlayer->stop(strSound->getNext());
+				}
 			}
-        }
+		}
     }
 }
 
@@ -191,7 +197,9 @@ void SoundRenderer::playFx(StaticSound *staticSound, Vec3f soundPos, Vec3f camPo
                     safeMutex.setMutex(&mutex);
                 }
 
-                soundPlayer->play(staticSound);
+				if(soundPlayer) {
+					soundPlayer->play(staticSound);
+				}
 			}
 		}
 	}
@@ -206,7 +214,9 @@ void SoundRenderer::playFx(StaticSound *staticSound) {
                 safeMutex.setMutex(&mutex);
             }
 
-            soundPlayer->play(staticSound);
+			if(soundPlayer) {
+				soundPlayer->play(staticSound);
+			}
 		}
 	}
 }
@@ -222,7 +232,9 @@ void SoundRenderer::playAmbient(StrSound *strSound) {
                 safeMutex.setMutex(&mutex);
             }
 
-			soundPlayer->play(strSound, ambientFade);
+			if(soundPlayer) {
+				soundPlayer->play(strSound, ambientFade);
+			}
 		}
 	}
 }
@@ -234,7 +246,9 @@ void SoundRenderer::stopAmbient(StrSound *strSound) {
     	    safeMutex.setMutex(&mutex);
     	}
 
-        soundPlayer->stop(strSound, ambientFade);
+		if(soundPlayer) {
+			soundPlayer->stop(strSound, ambientFade);
+		}
     }
 }
 
@@ -247,7 +261,9 @@ void SoundRenderer::stopAllSounds(int64 fadeOff) {
     	    safeMutex.setMutex(&mutex);
     	}
 
-        soundPlayer->stopAllSounds(fadeOff);
+		if(soundPlayer) {
+			soundPlayer->stopAllSounds(fadeOff);
+		}
     }
 }
 
