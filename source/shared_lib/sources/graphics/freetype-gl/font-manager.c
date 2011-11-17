@@ -30,7 +30,10 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+#ifdef HAVE_FONTCONFIG
 #include <fontconfig/fontconfig.h>
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 #include <wchar.h>
@@ -122,6 +125,7 @@ font_manager_get_from_description( FontManager *self,
 {
     assert( self );
 
+	{
     TextureFont *font;
     char *filename = font_manager_match_description( self, family, size, bold, italic );
     // fprintf(stderr, "Matched filename for %s: %s\n", family, filename);
@@ -132,6 +136,7 @@ font_manager_get_from_description( FontManager *self,
     font = font_manager_get_from_filename( self, filename, size );
     free( filename );
     return font;
+	}
 }
 
 TextureFont *
@@ -140,10 +145,12 @@ font_manager_get_from_markup( FontManager *self,
 {
     assert( self );
     assert( markup );
+	{
     TextureFont *font =
         font_manager_get_from_description( self, markup->family, markup->size,
                                            markup->bold,   markup->italic );
     return font;
+	}
 }
 
 
@@ -155,6 +162,8 @@ font_manager_match_description( FontManager *self,
                                 const int italic )
 {
     char *filename = 0;
+
+#ifdef HAVE_FONTCONFIG
     int weight = FC_WEIGHT_REGULAR;
     int slant = FC_SLANT_ROMAN;
     if ( bold )
@@ -196,6 +205,8 @@ font_manager_match_description( FontManager *self,
         }
     }
     FcPatternDestroy( match );
+#endif
+
     return filename;
 }
 

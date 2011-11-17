@@ -31,10 +31,14 @@
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
 #if defined(__APPLE__)
-    #include <Glut/glut.h>
+    //#include <Glut/glut.h>
 #else
-    #include <GL/glut.h>
+
+//#define	WIN32_LEAN_AND_MEAN
+//#include <windows.h>
+#include <GL/glew.h>
 #endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include "texture-font.h"
@@ -84,6 +88,7 @@ texture_glyph_render( TextureGlyph *self,
 {
     assert( self );
 
+	{
     int x  = pen->x + self->offset_x;
     int y  = pen->y + self->offset_y + markup->rise;
     int w  = self->width;
@@ -108,6 +113,7 @@ texture_glyph_render( TextureGlyph *self,
 
     pen->x += self->advance_x + markup->spacing;
     pen->y += self->advance_y;
+	}
 }
 
 
@@ -150,6 +156,8 @@ texture_glyph_add_to_vertex_buffer( const TextureGlyph *self,
         g = markup->background_color.g;
         b = markup->background_color.b;
         a = markup->background_color.a;
+
+		{
         GLuint index = buffer->vertices->size;
         GLuint indices[] = {index, index+1, index+2,
                             index, index+2, index+3};
@@ -159,6 +167,7 @@ texture_glyph_add_to_vertex_buffer( const TextureGlyph *self,
                                           { x1,y0,0,  u1,v0,  r,g,b,a } };
         vertex_buffer_push_back_indices( buffer, indices, 6 );
         vertex_buffer_push_back_vertices( buffer, vertices, 4 );
+		}
     }
 
     // Underline
@@ -177,6 +186,8 @@ texture_glyph_add_to_vertex_buffer( const TextureGlyph *self,
         b = markup->foreground_color.b;
         a = markup->foreground_color.a;
     }
+
+	{
     int x0  = (int)( pen->x + self->offset_x );
     int y0  = (int)( pen->y + self->offset_y + rise );
     int x1  = (int)( x0 + self->width );
@@ -197,6 +208,7 @@ texture_glyph_add_to_vertex_buffer( const TextureGlyph *self,
 
     pen->x += self->advance_x + spacing;
     pen->y += self->advance_y;
+	}
 }
 
 

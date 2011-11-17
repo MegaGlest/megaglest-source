@@ -63,6 +63,7 @@ vertex_buffer_new( const char *format )
     do
     {
         end = (char *) (strchr(start+1, ':'));
+		{
         char *desc = 0;
         if (end == NULL)
         {
@@ -72,14 +73,18 @@ vertex_buffer_new( const char *format )
         {
             desc = strndup(start, end-start);
         }
+
+		{
         VertexAttribute *attribute = vertex_attribute_parse( desc );
         start = end+1;
         free(desc);
         attribute->pointer = pointer;
         stride += attribute->size*GL_TYPE_SIZE( attribute->type );
-        pointer+= attribute->size*GL_TYPE_SIZE( attribute->type );
+        pointer = (char *)pointer + attribute->size*GL_TYPE_SIZE( attribute->type );
         self->attributes[index] = attribute;
         index++;
+		}
+		}
     } while ( end && (index < MAX_VERTEX_ATTRIBUTE) );
 
     for( i=0; i<index; ++i )
@@ -156,6 +161,7 @@ vertex_buffer_print( VertexBuffer * self )
 {
     assert(self);
 
+	{
     int i = 0;
 
     fprintf( stderr, "%ld vertices, %ld indices\n",
@@ -205,6 +211,7 @@ vertex_buffer_print( VertexBuffer * self )
 
         i += 1;
     }
+	}
 }
 
 
@@ -269,6 +276,7 @@ vertex_buffer_render ( VertexBuffer *self,
     glPushClientAttrib( GL_CLIENT_VERTEX_ARRAY_BIT );
     glBindBuffer( GL_ARRAY_BUFFER, self->vertices_id );
 
+	{
     size_t i;
     for( i=0; i<MAX_VERTEX_ATTRIBUTE; ++i )
     {
@@ -303,6 +311,7 @@ vertex_buffer_render ( VertexBuffer *self,
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
     glPopClientAttrib( );
+	}
 }
 
 
@@ -499,16 +508,22 @@ vertex_attribute_parse( char *format )
             int size, index;
             char ctype;
             sscanf( format, "%dgn%d%c", &index, &size, &ctype );
+
+			{
             GLenum type = GL_TYPE( ctype );
             return vertex_attribute_new( 0, index, size, type, GL_TRUE, 0, 0 );
+			}
         }
         else
         {
             int size, index;
             char ctype;
             sscanf( format, "%dg%d%c", &index, &size, &ctype );
+
+			{
             GLenum type = GL_TYPE( ctype );
             return vertex_attribute_new( 0, index, size, type, GL_FALSE, 0, 0 );
+			}
         }
     }
     
@@ -519,9 +534,12 @@ vertex_attribute_parse( char *format )
         int size;
         char ctarget, ctype;
         sscanf( format, "%c%d%c", &ctarget, &size, &ctype );
+
+		{
         GLenum type = GL_TYPE( ctype );
         GLenum target = GL_VERTEX_ATTRIBUTE_TARGET( ctarget );
         return vertex_attribute_new( target, 0, size, type, GL_FALSE, 0, 0 );
+		}
     }
 
     fprintf(stderr, "Vertex attribute format not understood\n");

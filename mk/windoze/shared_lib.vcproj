@@ -40,8 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/lpng141;&quot;../../source/win32_deps/jpeg-8a&quot;;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;../../source/shared_lib/include/platform/sdl;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/curl-7.21.3/include&quot;;../../source/shared_lib/include/map;../../source/shared_lib/include/platform/miniupnpc;../../source/shared_lib/include/libircclient/include;../../source/shared_lib/include/feathery_ftp;&quot;../../source/win32_deps/glew-1.7.0/include&quot;;../../source/shared_lib/include/graphics/md5"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;UNICODE;STATICLIB"
+				AdditionalIncludeDirectories="../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/lpng141;&quot;../../source/win32_deps/jpeg-8a&quot;;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;../../source/shared_lib/include/platform/sdl;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/curl-7.21.3/include&quot;;../../source/shared_lib/include/map;../../source/shared_lib/include/platform/miniupnpc;../../source/shared_lib/include/libircclient/include;../../source/shared_lib/include/feathery_ftp;&quot;../../source/win32_deps/glew-1.7.0/include&quot;;../../source/shared_lib/include/graphics/md5;&quot;../../source/shared_lib/include/graphics/freetype-gl&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;UNICODE;STATICLIB;GLEW_STATIC"
 				StringPooling="true"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -120,8 +120,8 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/lpng141;&quot;../../source/win32_deps/jpeg-8a&quot;;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;../../source/shared_lib/include/platform/sdl;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/curl-7.21.3/include&quot;;../../source/shared_lib/include/map;../../source/shared_lib/include/platform/miniupnpc;../../source/shared_lib/include/libircclient/include;../../source/shared_lib/include/feathery_ftp;&quot;../../source/win32_deps/ftgl-2.1.3-rc5/src&quot;;&quot;../../source/win32_deps/freetype-2.4.4/include&quot;;&quot;../../source/win32_deps/glew-1.7.0/include&quot;;../../source/shared_lib/include/graphics/md5;$(NOINHERIT)"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;UNICODE;USE_FTGL;TA3D_PLATFORM_MSVC;TA3D_PLATFORM_WINDOWS;STATICLIB"
+				AdditionalIncludeDirectories="../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;&quot;../../source/win32_deps/xerces-c-3.0.1/src&quot;;&quot;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude&quot;;../../source/win32_deps/lpng141;&quot;../../source/win32_deps/jpeg-8a&quot;;&quot;../../source/win32_deps/SDL-1.2.x/include&quot;;../../source/shared_lib/include/platform/sdl;&quot;../../source/win32_deps/openal-soft-1.12.854/include&quot;;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;&quot;../../source/win32_deps/curl-7.21.3/include&quot;;../../source/shared_lib/include/map;../../source/shared_lib/include/platform/miniupnpc;../../source/shared_lib/include/libircclient/include;../../source/shared_lib/include/feathery_ftp;&quot;../../source/win32_deps/ftgl-2.1.3-rc5/src&quot;;&quot;../../source/win32_deps/freetype-2.4.4/include&quot;;&quot;../../source/win32_deps/glew-1.7.0/include&quot;;../../source/shared_lib/include/graphics/md5;&quot;../../source/shared_lib/include/graphics/freetype-gl&quot;;$(NOINHERIT)"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;UNICODE;USE_FTGL;TA3D_PLATFORM_MSVC;TA3D_PLATFORM_WINDOWS;STATICLIB;GLEW_STATIC"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="0"
@@ -249,7 +249,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\edtaa3func.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\font-manager.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\shared_lib\sources\graphics\font_text.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\gl\font_text_freetypegl.cpp"
 				>
 			</File>
 			<File
@@ -377,6 +389,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\markup.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\shared_lib\sources\streflop\Random.cpp"
 				>
 			</File>
@@ -394,6 +410,26 @@
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\sources\util\string_utils.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\texture-atlas.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\texture-font.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\texture-glyph.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\vector.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\vertex-buffer.c"
 				>
 			</File>
 			<Filter
@@ -500,11 +536,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\graphics\texture.cpp"
+					RelativePath="..\..\source\shared_lib\sources\graphics\md5\Texture.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\graphics\md5\Texture.cpp"
+					RelativePath="..\..\source\shared_lib\sources\graphics\texture.cpp"
 					>
 				</File>
 				<File

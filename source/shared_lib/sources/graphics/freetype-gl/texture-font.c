@@ -34,7 +34,7 @@
 #include FT_FREETYPE_H
 // #include FT_ADVANCES_H
 #include FT_LCD_FILTER_H
-#include <stdint.h>
+//#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -83,6 +83,7 @@ texture_font_new( TextureAtlas *atlas,
     self->lcd_weights[3] = 0;
     self->lcd_weights[4] = 0;
 
+	{
     /* Get font metrics at high resolution */
     FT_Library library;
     FT_Face face;
@@ -91,6 +92,7 @@ texture_font_new( TextureAtlas *atlas,
         return self;
     }
 
+	{
     FT_Size_Metrics metrics = face->size->metrics; 
     self->ascender  = (metrics.ascender >> 6) / 100.0;
     self->descender = (metrics.descender >> 6) / 100.0;
@@ -98,6 +100,8 @@ texture_font_new( TextureAtlas *atlas,
     self->linegap   = self->height - self->ascender + self->descender;
 
     return self;
+	}
+	}
 }
 
 
@@ -224,6 +228,7 @@ texture_font_cache_glyphs( TextureFont *self,
     {
         glyph_index = FT_Get_Char_Index( face, charcodes[i] );
 
+		{
         // WARNING: We use texture-atlas depth to guess if user wants
         //          LCD subpixel rendering
         FT_Int32 flags = FT_LOAD_RENDER;
@@ -239,12 +244,16 @@ texture_font_cache_glyphs( TextureFont *self,
 
         if( depth == 3 )
         {
+#if ((FREETYPE_MAJOR <= 2) && ((FREETYPE_MINOR < 3)))
+//#error "Need FreeType 2.3.0 or newer"
+#else
             FT_Library_SetLcdFilter( library, FT_LCD_FILTER_LIGHT );
             flags |= FT_LOAD_TARGET_LCD;
             if( self->lcd_filter )
             {
                 FT_Library_SetLcdFilterWeights( library, self->lcd_weights );
             }
+#endif
         }
         error = FT_Load_Glyph( face, glyph_index, flags );
 
@@ -308,6 +317,7 @@ texture_font_cache_glyphs( TextureFont *self,
 
         vector_push_back( self->glyphs, glyph );
         texture_glyph_delete( glyph );
+		}
     }
     FT_Done_Face( face );
     FT_Done_FreeType( library );
@@ -350,8 +360,10 @@ texture_font_get_glyph( TextureFont *self,
 
     if( texture_font_cache_glyphs( self, buffer ) == 0 )
     {
+		free(buffer);
         return (TextureGlyph *) vector_back( self->glyphs );
     }
+	free(buffer);
     return NULL;
 }
 

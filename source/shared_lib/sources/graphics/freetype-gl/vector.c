@@ -44,6 +44,7 @@ vector_new( size_t item_size )
 {
     assert( item_size );
 
+	{
     Vector *self = (Vector *) malloc( sizeof(Vector) );
     if( !self )
     {
@@ -54,6 +55,7 @@ vector_new( size_t item_size )
     self->capacity  = 1;
     self->items     = malloc( self->item_size * self->capacity );
     return self;
+	}
 }
 
 
@@ -77,7 +79,8 @@ vector_get( const Vector *self,
     assert( self );
     assert( self->size );
     assert( index  < self->size );
-    return self->items + index * self->item_size;
+
+    return (char *)self->items + index * self->item_size;
 }
 
 
@@ -202,7 +205,7 @@ vector_set( Vector *self,
     assert( self );
     assert( self->size );
     assert( index  < self->size );
-    memcpy( self->items + index * self->item_size,
+    memcpy( (char *)self->items + index * self->item_size,
             item, self->item_size );
 }
 
@@ -223,8 +226,8 @@ vector_insert( Vector *self,
     }
     if( index < self->size )
     {
-        memmove( self->items + (index + 1) * self->item_size,
-                 self->items + (index + 0) * self->item_size,
+        memmove( (char *)self->items + (index + 1) * self->item_size,
+                 (char *)self->items + (index + 0) * self->item_size,
                  (self->size - index)  * self->item_size);
     }
     self->size++;
@@ -243,8 +246,8 @@ vector_erase_range( Vector *self,
     assert( first < self->size );
     assert( last  < self->size+1 );
     assert( first < last );
-    memmove( self->items + first * self->item_size,
-             self->items + last  * self->item_size,
+    memmove( (char *)self->items + first * self->item_size,
+             (char *)self->items + last  * self->item_size,
              (self->size - last)   * self->item_size);
     self->size -= (last-first);
 }
@@ -318,7 +321,7 @@ vector_push_back_data( Vector *self,
     {
         vector_reserve(self, self->size+count);
     }
-    memmove( self->items + self->size * self->item_size, data,
+    memmove( (char *)self->items + self->size * self->item_size, data,
              count*self->item_size );
     self->size += count;
 }
@@ -341,10 +344,10 @@ vector_insert_data( Vector *self,
     {
         vector_reserve(self, self->size+count);
     }
-    memmove( self->items + (index + count ) * self->item_size,
-             self->items + (index ) * self->item_size,
+    memmove( (char *)self->items + (index + count ) * self->item_size,
+             (char *)self->items + (index ) * self->item_size,
              count*self->item_size );
-    memmove( self->items + index * self->item_size, data,
+    memmove( (char *)self->items + index * self->item_size, data,
              count*self->item_size );
     self->size += count;
 }
