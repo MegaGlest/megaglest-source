@@ -12,7 +12,7 @@
 #ifdef USE_FREETYPEGL
 
 #include "font_text_freetypegl.h"
-#include "vector.h"
+#include "vectort.h"
 
 //#include "opengl.h"
 #include <stdexcept>
@@ -22,10 +22,12 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
+#include "platform_common.h"
 #include "util.h"
 
 using namespace std;
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace Graphics { namespace Gl {
 
@@ -67,7 +69,7 @@ void TextFreetypeGL::init(string fontName, int fontSize) {
     this->buffer  = vertex_buffer_new( "v3f:t2f:c4f" );
 
 	//font = texture_font_new( atlas, "Verdana", minsize );
-    this->font 	  = texture_font_new( atlas, fontFile, fontFaceSize );
+    this->font 	  = texture_font_new( atlas, fontFile, (float)fontFaceSize );
 	//font = texture_font_new( atlas, font_manager_match_description( 0, "Verdana", minsize, bold, italic ), minsize );
 
 	int missed = texture_font_cache_glyphs( font, cache );
@@ -95,10 +97,10 @@ void TextFreetypeGL::Render(const char* str, const int len) {
 
     vertex_buffer_clear( this->buffer );
 
-    float currentColor[4];
+    float currentColor[4] = { 0,0,0,1 };
     glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
-	Markup markup = { 0, this->fontFaceSize, 0, 0, 0.0, 0.0,
+	Markup markup = { 0, (float)this->fontFaceSize, 0, 0, 0.0, 0.0,
 					  {currentColor[0],currentColor[1],currentColor[2],currentColor[3]}, {0,0,0,0},
 					  0, {0,0,0,1}, 0, {0,0,0,1},
 					  0, {0,0,0,1}, 0, {0,0,0,1}, 0 };
@@ -118,10 +120,10 @@ void TextFreetypeGL::Render(const char* str, const int len) {
 		TextureGlyph *glyph = texture_font_get_glyph( this->font, thisChar );
 
 		// Take kerning into account if necessary
-		int kx = texture_glyph_get_kerning( glyph, prevChar );
+		float kx = texture_glyph_get_kerning( glyph, prevChar );
 
 		// Add glyph to the vertex buffer
-		texture_glyph_add_to_vertex_buffer( glyph, this->buffer, &markup, &pen, kx );
+		texture_glyph_add_to_vertex_buffer( glyph, this->buffer, &markup, &pen, (int)kx );
 	}
 
     //glBindTexture( GL_TEXTURE_2D, manager->atlas->texid );
@@ -130,6 +132,7 @@ void TextFreetypeGL::Render(const char* str, const int len) {
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glEnable( GL_TEXTURE_2D );
+
     vertex_buffer_render( this->buffer, GL_TRIANGLES, "vtc" );
 
     glDisable( GL_TEXTURE_2D );
@@ -149,10 +152,10 @@ void TextFreetypeGL::Render(const wchar_t* str, const int len) {
 
     vertex_buffer_clear( this->buffer );
 
-    float currentColor[4];
+	GLfloat currentColor[4] = { 0,0,0,1 };
     glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
-	Markup markup = { 0, this->fontFaceSize, 0, 0, 0.0, 0.0,
+	Markup markup = { 0, (float)this->fontFaceSize, 0, 0, 0.0, 0.0,
 					  {currentColor[0],currentColor[1],currentColor[2],currentColor[3]}, {0,0,0,0},
 					  0, {0,0,0,1}, 0, {0,0,0,1},
 					  0, {0,0,0,1}, 0, {0,0,0,1}, 0 };
@@ -163,10 +166,10 @@ void TextFreetypeGL::Render(const wchar_t* str, const int len) {
 		TextureGlyph *glyph = texture_font_get_glyph( this->font, text[i] );
 
 		// Take kerning into account if necessary
-		int kx = texture_glyph_get_kerning( glyph, text[i-1] );
+		float kx = texture_glyph_get_kerning( glyph, text[i-1] );
 
 		// Add glyph to the vertex buffer
-		texture_glyph_add_to_vertex_buffer( glyph, this->buffer, &markup, &pen, kx );
+		texture_glyph_add_to_vertex_buffer( glyph, this->buffer, &markup, &pen, (int)kx );
 	}
 
     //glBindTexture( GL_TEXTURE_2D, manager->atlas->texid );
@@ -202,7 +205,7 @@ float TextFreetypeGL::LineHeight(const char* str, const int len) {
 	float result = 0;
 	if(strlen(str) > 0) {
 		TextureGlyph *glyph = texture_font_get_glyph( font, str[0] );
-		result = glyph->height;
+		result = (float)glyph->height;
 	}
 	return result;
 }
@@ -211,7 +214,7 @@ float TextFreetypeGL::LineHeight(const wchar_t* str, const int len) {
 	float result = 0;
 	if(wcslen(str) > 0) {
 		TextureGlyph *glyph = texture_font_get_glyph( font, str[0] );
-		result = glyph->height;
+		result = (float)glyph->height;
 	}
 	return result;
 }

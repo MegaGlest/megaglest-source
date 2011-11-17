@@ -31,11 +31,19 @@
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
 #if defined(__APPLE__)
-    #include <Glut/glut.h>
+    //#include <Glut/glut.h>
 #else
-    #include <GL/glut.h>
+    //#include <GL/glut.h>
 #endif
-#include <stdlib.h>
+//#include <stdlib.h>
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+#include <GL/gl.h>
+#include <GL/glu.h>
+//#include <glprocs.h>
+
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
@@ -55,6 +63,7 @@ texture_atlas_new( size_t width, size_t height, size_t depth )
 {
     assert( (depth == 1) || (depth == 3) );
 
+	{
     TextureAtlas *self = (TextureAtlas *) malloc( sizeof(TextureAtlas) );
     if( !self )
     {
@@ -65,18 +74,22 @@ texture_atlas_new( size_t width, size_t height, size_t depth )
     self->width = width;
     self->height = height;
     self->depth = depth;
+
+	{
     Node node = {0,0,width};
     vector_push_back( self->nodes, &node );
     self->texid = 0;
     self->data = (unsigned char *)
         calloc( width*height*depth, sizeof(unsigned char) );
 
-
+	{
     // This is a special region that is used for background and underlined
     // decorations of glyphs
     int n = 4;
-    unsigned char buffer[n*n];
+    //unsigned char buffer[n*n];
+	unsigned char buffer[16];
     memset(buffer, 255, n*n);
+	{
     Region r = texture_atlas_get_region( self, n, n );
     texture_atlas_set_region( self, r.x, r.y, r.width, r.height, buffer, 1);
     self->black.x     = r.x + 1;
@@ -85,6 +98,10 @@ texture_atlas_new( size_t width, size_t height, size_t depth )
     self->black.height= r.height - 2;
 
     return self;
+	}
+	}
+	}
+	}
 }
 
 
@@ -149,6 +166,7 @@ texture_atlas_set_region( TextureAtlas *self,
     assert( (x + width) <= self->width);
     assert( y < self->height);
     assert( (y + height) <= self->height);
+	{
     size_t i;
     size_t depth = self->depth;
     size_t charsize = sizeof(char);
@@ -157,6 +175,7 @@ texture_atlas_set_region( TextureAtlas *self,
         memcpy( self->data+((y+i)*self->width + x ) * charsize * depth, 
                 data + (i*stride) * charsize, width * charsize * depth  );
     }
+	}
 }
 
 
@@ -224,6 +243,7 @@ texture_atlas_get_region( TextureAtlas *self,
     assert( width );
     assert( height );
 */
+	{
 	int y, best_height, best_width, best_index;
     Node *node, *prev;
     Region region = {0,0,width,height};
@@ -294,6 +314,7 @@ texture_atlas_get_region( TextureAtlas *self,
     texture_atlas_merge( self );
     self->used += width * height;
     return region;
+	}
 }
 
 
@@ -304,21 +325,28 @@ texture_atlas_clear( TextureAtlas *self )
 
     vector_clear( self->nodes );
     self->used = 0;
+	{
     Node node = {0,0,self->width};
     vector_push_back( self->nodes, &node );
 
     memset( self->data, 0, self->width*self->height*self->depth );
 
 
+	{
     // This is a special region that is used for background and underlined
     // decorations of glyphs
     int n = 4;
-    unsigned char buffer[n*n];
+    //unsigned char buffer[n*n];
+	unsigned char buffer[16];
     memset(buffer, 255, n*n);
+	{
     Region r = texture_atlas_get_region( self, n, n );
     texture_atlas_set_region( self, r.x, r.y, r.width, r.height, buffer, 1);
     self->black.x     = r.x + 1;
     self->black.y     = r.y + 1;
     self->black.width = r.width - 2;
     self->black.height= r.height - 2;
+	}
+	}
+	}
 }
