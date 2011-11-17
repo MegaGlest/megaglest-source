@@ -23,6 +23,12 @@ using namespace Shared::Graphics::Gl;
 
 #endif
 
+#ifdef USE_FREETYPEGL
+
+#include "font_text_freetypegl.h"
+
+#endif
+
 #include "util.h"
 #include "leak_dumper.h"
 
@@ -153,10 +159,15 @@ Font::Font(FontTextHandlerType type) {
 	size 		= 10;
 	textHandler = NULL;
 
-#ifdef USE_FTGL
+#if defined(USE_FTGL) || defined(USE_FREETYPEGL)
 
 	if(Font::forceLegacyFonts == false) {
 		try {
+#if defined(USE_FREETYPEGL)
+			textHandler = NULL;
+			textHandler = new TextFreetypeGL(type);
+
+#else
 			TextFTGL::faceResolution = Font::faceResolution;
 			TextFTGL::langHeightText = Font::langHeightText;
 
@@ -164,7 +175,7 @@ Font::Font(FontTextHandlerType type) {
 			textHandler = new TextFTGL(type);
 			TextFTGL::faceResolution = Font::faceResolution;
 			TextFTGL::langHeightText = Font::langHeightText;
-
+#endif
 			metrics.setTextHandler(this->textHandler);
 		}
 		catch(exception &ex) {

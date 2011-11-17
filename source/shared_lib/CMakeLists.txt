@@ -188,6 +188,11 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		ADD_DEFINITIONS(-DMINIUPNPC_VERSION_PRE1_6)
 	ENDIF()
 
+	OPTION(USE_FREETYPEGL "Use Freetype-GL for on-screen fonts" ON)
+	if(USE_FREETYPEGL)
+		ADD_DEFINITIONS(-DUSE_FREETYPEGL)
+	endif(USE_FREETYPEGL)
+
 	#########################################################################################
 	# megaglest lib
 
@@ -195,6 +200,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		feathery_ftp	
 		glew
 		graphics
+		graphics/freetype-gl
 		graphics/gl
 		graphics/md5
 		lua
