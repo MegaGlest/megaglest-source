@@ -131,6 +131,11 @@ void TextFreetypeGL::Render(const char* str, const int len) {
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glEnable( GL_TEXTURE_2D );
     vertex_buffer_render( this->buffer, GL_TRIANGLES, "vtc" );
+
+    glDisable( GL_TEXTURE_2D );
+    glDisable( GL_BLEND );
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void TextFreetypeGL::Render(const wchar_t* str, const int len) {
