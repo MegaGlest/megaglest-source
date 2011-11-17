@@ -640,7 +640,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	// work out where we start for our shape (set speed and pos)
 	switch(shape){
 	case sSpherical:
-		angle = random.randRange(0,360);
+		angle = (float)random.randRange(0,360);
 		// fall through
 	case sConical:{
 		Vec2f horiz = Vec2f(1,0).rotate(ang);
