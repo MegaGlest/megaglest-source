@@ -2063,6 +2063,8 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 			default:
 				throw runtime_error("detected unsupported pathfinder type!");
 	    }
+
+		attacked->setCauseOfDeath(ucodAttacked);
 		scriptManager->onUnitDied(attacked);
 	}
 

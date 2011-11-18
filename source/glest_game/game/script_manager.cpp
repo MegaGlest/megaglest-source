@@ -148,6 +148,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getLastDeadUnitName, "lastDeadUnitName");
 	luaScript.registerFunction(getLastDeadUnitId, "lastDeadUnit");
 	luaScript.registerFunction(getLastDeadUnitCauseOfDeath, "lastDeadUnitCauseOfDeath");
+	luaScript.registerFunction(getLastDeadUnitKillerName, "lastDeadUnitKillerName");
+	luaScript.registerFunction(getLastDeadUnitKillerId, "lastDeadUnitKiller");
 
 	luaScript.registerFunction(getLastAttackedUnitName, "lastAttackedUnitName");
 	luaScript.registerFunction(getLastAttackedUnitId, "lastAttackedUnit");
@@ -174,8 +176,11 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 
 	//last created unit
 	lastCreatedUnitId= -1;
+	lastDeadUnitName = "";
 	lastDeadUnitId= -1;
 	lastDeadUnitCauseOfDeath = ucodNone;
+	lastDeadUnitKillerName = "";
+	lastDeadUnitKillerId= -1;
 
 	lastAttackedUnitName = "";
 	lastAttackedUnitId = -1;
@@ -230,6 +235,25 @@ void ScriptManager::onUnitCreated(const Unit* unit){
 
 void ScriptManager::onUnitDied(const Unit* unit){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(unit->getLastAttackerUnitId() >= 0) {
+		Unit *killer = world->findUnitById(unit->getLastAttackerUnitId());
+
+		if(killer != NULL) {
+			lastAttackingUnitName= killer->getType()->getName();
+			lastAttackingUnitId= killer->getId();
+
+			lastDeadUnitKillerName= killer->getType()->getName();
+			lastDeadUnitKillerId= killer->getId();
+		}
+		else {
+			lastDeadUnitKillerName= "";
+			lastDeadUnitKillerId= -1;
+		}
+	}
+
+	lastAttackedUnitName= unit->getType()->getName();
+	lastAttackedUnitId= unit->getId();
 
 	lastDeadUnitName= unit->getType()->getName();
 	lastDeadUnitId= unit->getId();
@@ -939,6 +963,18 @@ int ScriptManager::getLastDeadUnitCauseOfDeath() {
 	return lastDeadUnitCauseOfDeath;
 }
 
+const string &ScriptManager::getLastDeadUnitKillerName() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return lastDeadUnitKillerName;
+}
+
+int ScriptManager::getLastDeadUnitKillerId() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return lastDeadUnitKillerId;
+}
+
 const string &ScriptManager::getLastAttackedUnitName() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -1382,6 +1418,18 @@ int ScriptManager::getLastDeadUnitId(LuaHandle* luaHandle){
 int ScriptManager::getLastDeadUnitCauseOfDeath(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getLastDeadUnitCauseOfDeath());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getLastDeadUnitKillerName(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnString(thisScriptManager->getLastDeadUnitKillerName());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getLastDeadUnitKillerId(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getLastDeadUnitKillerId());
 	return luaArguments.getReturnCount();
 }
 
