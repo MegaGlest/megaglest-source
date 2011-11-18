@@ -228,6 +228,8 @@ int TextFTGL::GetFaceSize() {
 }
 
 void TextFTGL::Render(const char* str, const int len) {
+	//printf("Render TextFTGL\n");
+
 	/*
 	  FTGL renders the whole string when len == 0
 	  but we don't want any text rendered then.

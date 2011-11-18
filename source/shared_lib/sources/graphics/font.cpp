@@ -168,6 +168,7 @@ Font::Font(FontTextHandlerType type) {
 			if(Font::forceFTGLFonts == false) {
 				textHandler = NULL;
 				textHandler = new TextFreetypeGL(type);
+				//printf("TextFreetypeGL is ON\n");
 			}
 
 			else
@@ -178,6 +179,8 @@ Font::Font(FontTextHandlerType type) {
 
 				textHandler = NULL;
 				textHandler = new TextFTGL(type);
+				//printf("TextFTGL is ON\n");
+
 				TextFTGL::faceResolution = Font::faceResolution;
 				TextFTGL::langHeightText = Font::langHeightText;
 			}

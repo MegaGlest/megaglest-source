@@ -93,6 +93,8 @@ void TextFreetypeGL::Render(const char* str, const int len) {
 		return;
 	}
 
+	//printf("Render TextFreetypeGL\n");
+
     Pen pen ;
     pen.x = 0; pen.y = 0;
 
@@ -196,11 +198,23 @@ float TextFreetypeGL::Advance(const wchar_t* str, const int len) {
 float TextFreetypeGL::Advance(const char* str, const int len) {
 	float result = 0;
 
-	for(unsigned int i = 0; i < strlen(str); ++i) {
-		TextureGlyph *glyph = texture_font_get_glyph( font, str[i] );
-		//result += glyph->width;
+//	for(unsigned int i = 0; i < strlen(str); ++i) {
+//		TextureGlyph *glyph = texture_font_get_glyph( font, str[i] );
+//		//result += glyph->width;
+//		result += glyph->advance_x;
+//	}
+    // for multibyte - we can't rely on sizeof(T) == character
+	FreetypeGLUnicodeStringItr<unsigned char> ustr((const unsigned char *)str);
+
+    for(int i = 0; (len < 0 && *ustr) || (len >= 0 && i < len); i++) {
+    	unsigned int prevChar = (i > 0 ? *ustr-1 : 0);
+    	unsigned int thisChar = *ustr++;
+    	unsigned int nextChar = *ustr;
+
+		// Get glyph (build it if needed
+		TextureGlyph *glyph = texture_font_get_glyph( this->font, thisChar );
 		result += glyph->advance_x;
-	}
+    }
 	return result;
 }
 
