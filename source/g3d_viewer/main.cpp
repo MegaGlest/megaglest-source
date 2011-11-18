@@ -490,6 +490,14 @@ void MainWindow::init() {
 #else
 	glCanvas->SetCurrent();
 #endif
+
+	 GLuint err = glewInit();
+	 if (GLEW_OK != err) {
+		fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
+		//return 1;
+		throw std::runtime_error((char *)glewGetErrorString(err));
+	 }
+
 	//renderer->init();
 
 	//wxCommandEvent event;
