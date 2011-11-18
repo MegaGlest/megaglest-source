@@ -80,7 +80,11 @@ vector_get( const Vector *self,
     assert( self->size );
     assert( index  < self->size );
 
+#ifdef _WIN32
     return (char *)self->items + index * self->item_size;
+#else
+    return self->items + index * self->item_size;
+#endif
 }
 
 
@@ -205,8 +209,15 @@ vector_set( Vector *self,
     assert( self );
     assert( self->size );
     assert( index  < self->size );
+
+#ifdef _WIN32
     memcpy( (char *)self->items + index * self->item_size,
             item, self->item_size );
+#else
+    memcpy( self->items + index * self->item_size,
+            item, self->item_size );
+
+#endif
 }
 
 
@@ -226,9 +237,16 @@ vector_insert( Vector *self,
     }
     if( index < self->size )
     {
+#ifdef _WIN32
         memmove( (char *)self->items + (index + 1) * self->item_size,
                  (char *)self->items + (index + 0) * self->item_size,
                  (self->size - index)  * self->item_size);
+#else
+        memmove( self->items + (index + 1) * self->item_size,
+                 self->items + (index + 0) * self->item_size,
+                 (self->size - index)  * self->item_size);
+
+#endif
     }
     self->size++;
     vector_set( self, index, item );
@@ -246,9 +264,16 @@ vector_erase_range( Vector *self,
     assert( first < self->size );
     assert( last  < self->size+1 );
     assert( first < last );
+
+#ifdef _WIN32
     memmove( (char *)self->items + first * self->item_size,
              (char *)self->items + last  * self->item_size,
              (self->size - last)   * self->item_size);
+#else
+    memmove( self->items + first * self->item_size,
+             self->items + last  * self->item_size,
+             (self->size - last)   * self->item_size);
+#endif
     self->size -= (last-first);
 }
 
@@ -321,8 +346,15 @@ vector_push_back_data( Vector *self,
     {
         vector_reserve(self, self->size+count);
     }
+
+#ifdef _WIN32
     memmove( (char *)self->items + self->size * self->item_size, data,
              count*self->item_size );
+#else
+    memmove( self->items + self->size * self->item_size, data,
+             count*self->item_size );
+#endif
+
     self->size += count;
 }
 
@@ -344,11 +376,22 @@ vector_insert_data( Vector *self,
     {
         vector_reserve(self, self->size+count);
     }
+
+#ifdef _WIN32
     memmove( (char *)self->items + (index + count ) * self->item_size,
              (char *)self->items + (index ) * self->item_size,
              count*self->item_size );
     memmove( (char *)self->items + index * self->item_size, data,
              count*self->item_size );
+#else
+    memmove( self->items + (index + count ) * self->item_size,
+             self->items + (index ) * self->item_size,
+             count*self->item_size );
+    memmove( self->items + index * self->item_size, data,
+             count*self->item_size );
+
+#endif
+
     self->size += count;
 }
 

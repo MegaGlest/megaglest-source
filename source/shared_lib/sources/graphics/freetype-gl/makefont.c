@@ -30,11 +30,24 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+/*
 #if defined(__APPLE__)
-    #include <Glut/glut.h>
+    //#include <Glut/glut.h>
 #else
-    #include <GL/glut.h>
+    //#include <GL/glut.h>
 #endif
+
+#if defined(_WIN32)
+
+#define	WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <GL/glew.h>
+
+#else
+    #include <GL/glew.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <wchar.h>
@@ -149,38 +162,38 @@ int main( int argc, char **argv )
     // Header
     // -------------
     fwprintf( file, 
-        L"/* =========================================================================\n"
-        L" * Freetype GL - A C OpenGL Freetype engine\n"
-        L" * Platform:    Any\n"
-        L" * WWW:         http://code.google.com/p/freetype-gl/\n"
-        L" * -------------------------------------------------------------------------\n"
-        L" * Copyright 2011 Nicolas P. Rougier. All rights reserved.\n"
-        L" *\n"
-        L" * Redistribution and use in source and binary forms, with or without\n"
-        L" * modification, are permitted provided that the following conditions are met:\n"
-        L" *\n"
-        L" *  1. Redistributions of source code must retain the above copyright notice,\n"
-        L" *     this list of conditions and the following disclaimer.\n"
-        L" *\n"
-        L" *  2. Redistributions in binary form must reproduce the above copyright\n"
-        L" *     notice, this list of conditions and the following disclaimer in the\n"
-        L" *     documentation and/or other materials provided with the distribution.\n"
-        L" *\n"
-        L" * THIS SOFTWARE IS PROVIDED BY NICOLAS P. ROUGIER ''AS IS'' AND ANY EXPRESS OR\n"
-        L" * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF\n"
-        L" * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO\n"
-        L" * EVENT SHALL NICOLAS P. ROUGIER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
-        L" * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
-        L" * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\n"
-        L" * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND\n"
-        L" * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
-        L" * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF\n"
-        L" * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
-        L" *\n"
-        L" * The views and conclusions contained in the software and documentation are\n"
-        L" * those of the authors and should not be interpreted as representing official\n"
-        L" * policies, either expressed or implied, of Nicolas P. Rougier.\n"
-        L" * ========================================================================= */\n" );
+        L"// =========================================================================\n"
+        L"// Freetype GL - A C OpenGL Freetype engine\n"
+        L"// Platform:    Any\n"
+        L"// WWW:         http://code.google.com/p/freetype-gl/\n"
+        L"// -------------------------------------------------------------------------\n"
+        L"// Copyright 2011 Nicolas P. Rougier. All rights reserved.\n"
+        L"//\n"
+        L"// Redistribution and use in source and binary forms, with or without\n"
+        L"// modification, are permitted provided that the following conditions are met:\n"
+        L"//\n"
+        L"//  1. Redistributions of source code must retain the above copyright notice,\n"
+        L"//     this list of conditions and the following disclaimer.\n"
+        L"//\n"
+        L"//  2. Redistributions in binary form must reproduce the above copyright\n"
+        L"//     notice, this list of conditions and the following disclaimer in the\n"
+        L"//     documentation and/or other materials provided with the distribution.\n"
+        L"//\n"
+        L"// THIS SOFTWARE IS PROVIDED BY NICOLAS P. ROUGIER ''AS IS'' AND ANY EXPRESS OR\n"
+        L"// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF\n"
+        L"// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO\n"
+        L"// EVENT SHALL NICOLAS P. ROUGIER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
+        L"// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
+        L"// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\n"
+        L"// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND\n"
+        L"// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
+        L"// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF\n"
+        L"// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
+        L"//\n"
+        L"// The views and conclusions contained in the software and documentation are\n"
+        L"// those of the authors and should not be interpreted as representing official\n"
+        L"// policies, either expressed or implied, of Nicolas P. Rougier.\n"
+        L"// ========================================================================= \n" );
 
 
 
@@ -269,38 +282,36 @@ int main( int argc, char **argv )
     {
         TextureGlyph *glyph = (TextureGlyph *) vector_get( font->glyphs, i );
 
-/*
-        // Debugging information
-        wprintf( L"glyph : '%lc'\n",
-                 glyph->charcode );
-        wprintf( L"  size       : %dx%d\n",
-                 glyph->width, glyph->height );
-        wprintf( L"  offset     : %+d%+d\n",
-                 glyph->offset_x, glyph->offset_y );
-        wprintf( L"  advance    : %f, %f\n",
-                 glyph->advance_x, glyph->advance_y );
-        wprintf( L"  tex coords.: %f, %f, %f, %f\n", 
-                 glyph->u0, glyph->v0, glyph->u1, glyph->v1 );
-
-        wprintf( L"  kerning    : " );
-        if( glyph->kerning_count )
-        {
-            for( j=0; j < glyph->kerning_count; ++j )
-            {
-                wprintf( L"('%lc', %f)", 
-                         glyph->kerning[j].charcode, glyph->kerning[j].kerning );
-                if( j < (glyph->kerning_count-1) )
-                {
-                    wprintf( L", " );
-                }
-            }
-        }
-        else
-        {
-            wprintf( L"None" );
-        }
-        wprintf( L"\n\n" );
-*/
+//        // Debugging information
+//        wprintf( L"glyph : '%lc'\n",
+//                 glyph->charcode );
+//        wprintf( L"  size       : %dx%d\n",
+//                 glyph->width, glyph->height );
+//        wprintf( L"  offset     : %+d%+d\n",
+//                 glyph->offset_x, glyph->offset_y );
+//        wprintf( L"  advance    : %f, %f\n",
+//                 glyph->advance_x, glyph->advance_y );
+//        wprintf( L"  tex coords.: %f, %f, %f, %f\n",
+//                 glyph->u0, glyph->v0, glyph->u1, glyph->v1 );
+//
+//        wprintf( L"  kerning    : " );
+//        if( glyph->kerning_count )
+//        {
+//            for( j=0; j < glyph->kerning_count; ++j )
+//            {
+//                wprintf( L"('%lc', %f)",
+//                         glyph->kerning[j].charcode, glyph->kerning[j].kerning );
+//                if( j < (glyph->kerning_count-1) )
+//                {
+//                    wprintf( L", " );
+//                }
+//            }
+//        }
+//        else
+//        {
+//            wprintf( L"None" );
+//        }
+//        wprintf( L"\n\n" );
 
         // TextureFont
         if( (glyph->charcode == L'\'' ) || (glyph->charcode == L'\\' ) )
@@ -347,3 +358,4 @@ int main( int argc, char **argv )
 
     return 0;
 }
+*/

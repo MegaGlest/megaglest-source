@@ -33,20 +33,22 @@
 #ifndef __VERTEX_BUFFER_H__
 #define __VERTEX_BUFFER_H__
 
-#if defined(__APPLE__)
-    //#include <Glut/glut.h>
-#elif defined(_WIN32)
+#if defined(_WIN32)
 
 #define	WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <GL/glew.h>
 
 #else
-    //#include <GL/glut.h>
+    #include <GL/glu.h>
 #endif
 #include "vector.h"
 
 #define MAX_VERTEX_ATTRIBUTE 64
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 /**
  *  Generic vertex attribute.
@@ -469,6 +471,11 @@ vertex_attribute_new( GLenum target,
  */
   char *
   GL_TYPE_STRING( GLenum gtype );
+
+
+#ifdef	__cplusplus
+}
+#endif
 
 
 #endif /* __VERTEX_BUFFER_H__ */

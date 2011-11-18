@@ -244,11 +244,12 @@ texture_font_cache_glyphs( TextureFont *self,
 
         if( depth == 3 )
         {
+            FT_Library_SetLcdFilter( library, FT_LCD_FILTER_LIGHT );
+            flags |= FT_LOAD_TARGET_LCD;
 #if ((FREETYPE_MAJOR <= 2) && ((FREETYPE_MINOR < 3)))
 //#error "Need FreeType 2.3.0 or newer"
 #else
-            FT_Library_SetLcdFilter( library, FT_LCD_FILTER_LIGHT );
-            flags |= FT_LOAD_TARGET_LCD;
+
             if( self->lcd_filter )
             {
                 FT_Library_SetLcdFilterWeights( library, self->lcd_weights );
@@ -360,10 +361,10 @@ texture_font_get_glyph( TextureFont *self,
 
     if( texture_font_cache_glyphs( self, buffer ) == 0 )
     {
-		free(buffer);
+		//free(buffer);
         return (TextureGlyph *) vector_back( self->glyphs );
     }
-	free(buffer);
+	//free(buffer);
     return NULL;
 }
 

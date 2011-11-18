@@ -80,7 +80,12 @@ vertex_buffer_new( const char *format )
         free(desc);
         attribute->pointer = pointer;
         stride += attribute->size*GL_TYPE_SIZE( attribute->type );
+
+#ifdef _WIN32
         pointer = (char *)pointer + attribute->size*GL_TYPE_SIZE( attribute->type );
+#else
+        pointer += attribute->size*GL_TYPE_SIZE( attribute->type );
+#endif
         self->attributes[index] = attribute;
         index++;
 		}
