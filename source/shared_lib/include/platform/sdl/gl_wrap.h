@@ -26,9 +26,10 @@
 
 #else
 
+#include <GL/glew.h>
 #include <SDL.h>
 #define GL_GLEXT_PROTOTYPES
-#include <SDL_opengl.h>
+//#include <SDL_opengl.h>
 
 #endif
 
