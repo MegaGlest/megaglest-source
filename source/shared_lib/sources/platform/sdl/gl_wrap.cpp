@@ -161,6 +161,14 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 	}
+
+	 GLuint err = glewInit();
+	 if (GLEW_OK != err) {
+		fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
+		//return 1;
+		throw std::runtime_error((char *)glewGetErrorString(err));
+	 }
+
 }
 
 void PlatformContextGl::end() {

@@ -12,6 +12,7 @@
 #ifndef _SHARED_GRAPHICS_GL_OPENGL_H_
 #define _SHARED_GRAPHICS_GL_OPENGL_H_
 
+#include <GL/glew.h>
 #include <cassert>
 #include <stdexcept>
 #include <string>

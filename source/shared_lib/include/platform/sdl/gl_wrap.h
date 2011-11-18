@@ -15,9 +15,12 @@
 
 #include <windows.h>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <glprocs.h>
+#include <GL/glew.h>
+//#include "gl.h"
+
+//#include <GL/gl.h>
+//#include <GL/glu.h>
+//#include <glprocs.h>
 
 #define GLEST_GLPROC(X, Y) inline X( static a= wglGetProcAddress(a); return a;)
 

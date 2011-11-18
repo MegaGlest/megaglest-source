@@ -41,8 +41,11 @@
 #include <windows.h>
 #endif
 
+//#include "gl.h"
+#include <GL/glew.h>
+
 //#include <GL/gl.h>
-#include <GL/glu.h>
+//#include <GL/glu.h>
 //#include <glprocs.h>
 
 #include <string.h>
