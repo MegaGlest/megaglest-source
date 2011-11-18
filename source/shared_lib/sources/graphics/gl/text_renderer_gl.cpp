@@ -557,7 +557,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 		float scaleZ = 1.0;
 
 		glScalef(scaleX, scaleY, scaleZ);
-		if(text.find("\n") == renderText.npos && renderText.find("\t") == renderText.npos) {
+		if(renderText.find("\n") == renderText.npos && renderText.find("\t") == renderText.npos) {
 			//assertGl();
 			font->getTextHandler()->Render(renderText.c_str());
 			specialFTGLErrorCheckWorkaround(renderText);
@@ -604,8 +604,13 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 						{
 						line++;
 						//assertGl();
-						float yLineValue = (font->getTextHandler()->LineHeight(parts[i].c_str()) * Font::scaleFontValue);
+						//float yLineValue = (font->getTextHandler()->LineHeight(parts[i].c_str()) * Font::scaleFontValue);
+						//float yLineValue = (font->getTextHandler()->LineHeight("W") * Font::scaleFontValue);
+						float yLineValue = font->getTextHandler()->LineHeight("W");
 						//assertGl();
+
+						//printf("Trying to render newline [%s] i = %d yLineValue = %f font->getTextHandler()->LineHeight(parts[i].c_str()) = %f\n",renderText.c_str(),i,yLineValue,font->getTextHandler()->LineHeight(parts[i].c_str()));
+
 						translatePos= Vec3f(translatePos.x, translatePos.y - yLineValue, translatePos.z);
 						needsRecursiveRender = true;
 						}
