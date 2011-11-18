@@ -24,6 +24,7 @@
 
 #include "platform_common.h"
 #include "util.h"
+#include "font.h"
 
 using namespace std;
 using namespace Shared::Util;
@@ -204,22 +205,30 @@ float TextFreetypeGL::Advance(const char* str, const int len) {
 }
 
 float TextFreetypeGL::LineHeight(const char* str, const int len) {
+	//Font::scaleFontValueCenterHFactor = 30.0;
+	//Font::scaleFontValue = 1.0;
+
 	float result = 0;
 
+	result = font->height - font->linegap;
+	//printf("#2 LineHeight [%s] height = %f linegap = %f ascender = %f descender = %f\n",str,font->height,font->linegap,font->ascender,font->descender);
+
+	//result += (result * Font::scaleFontValue);
+
     // for multibyte - we can't rely on sizeof(T) == character
-	FreetypeGLUnicodeStringItr<unsigned char> ustr((const unsigned char *)str);
-
-	int i = 0;
-    if((len < 0 && *ustr) || (len >= 0 && i < len)) {
-    	unsigned int prevChar = (i > 0 ? *ustr-1 : 0);
-    	unsigned int thisChar = *ustr++;
-    	unsigned int nextChar = *ustr;
-
-		TextureGlyph *glyph = texture_font_get_glyph( font, thisChar );
-		result = (float)glyph->height;
-
-		//printf("#1 LineHeight [%s] result = %f\n",str,result);
-	}
+//	FreetypeGLUnicodeStringItr<unsigned char> ustr((const unsigned char *)str);
+//
+//	int i = 0;
+//    if((len < 0 && *ustr) || (len >= 0 && i < len)) {
+//    	unsigned int prevChar = (i > 0 ? *ustr-1 : 0);
+//    	unsigned int thisChar = *ustr++;
+//    	unsigned int nextChar = *ustr;
+//
+//		TextureGlyph *glyph = texture_font_get_glyph( font, thisChar );
+//		//result = (float)glyph->height;
+//
+//		printf("#1 LineHeight [%s] result = %f glyph->height = %d glyph->advance_y = %f\n",str,result,glyph->height,glyph->advance_y);
+//	}
 
 //    if(str[0] == '\n') {
 //		TextureGlyph *glyph2 = texture_font_get_glyph( font, str[0] );
@@ -232,12 +241,17 @@ float TextFreetypeGL::LineHeight(const char* str, const int len) {
 }
 
 float TextFreetypeGL::LineHeight(const wchar_t* str, const int len) {
+	//Font::scaleFontValueCenterHFactor = 2.0;
+
 	float result = 0;
-	if(wcslen(str) > 0) {
-		TextureGlyph *glyph = texture_font_get_glyph( font, str[0] );
-		result = (float)glyph->height;
-		//result = (float)glyph->advance_y;
-	}
+
+	result = font->height - font->linegap;
+
+//	if(wcslen(str) > 0) {
+//		TextureGlyph *glyph = texture_font_get_glyph( font, str[0] );
+//		result = (float)glyph->height;
+//		//result = (float)glyph->advance_y;
+//	}
 	return result;
 }
 
