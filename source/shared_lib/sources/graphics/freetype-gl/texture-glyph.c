@@ -30,13 +30,14 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
-#if defined(__APPLE__)
-    //#include <Glut/glut.h>
-#else
+#if defined(_WIN32)
 
-//#define	WIN32_LEAN_AND_MEAN
-//#include <windows.h>
+#define	WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <GL/glew.h>
+
+#else
+    #include <GL/glu.h>
 #endif
 
 #include <assert.h>

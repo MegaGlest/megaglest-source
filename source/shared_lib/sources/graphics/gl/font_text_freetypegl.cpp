@@ -12,7 +12,7 @@
 #ifdef USE_FREETYPEGL
 
 #include "font_text_freetypegl.h"
-#include "vectort.h"
+#include "vector.h"
 
 //#include "opengl.h"
 #include <stdexcept>
