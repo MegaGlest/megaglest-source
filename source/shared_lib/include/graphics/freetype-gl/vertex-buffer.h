@@ -37,7 +37,13 @@
 
 #define	WIN32_LEAN_AND_MEAN
 #include <windows.h>
+//#include "gl.h"
 #include <GL/glew.h>
+
+//#include <GL/glu.h>
+//#include "glext.h"
+//typedef char GLchar;		/* native character */
+//#define GL_BOOL 0x8B56
 
 #else
     #include <GL/glu.h>

@@ -33,7 +33,7 @@
 #include <GL/gl.h>
 
 #include "Mathlib.h"
-#include "Texture.h"
+#include "md5Texture.h"
 
 namespace Shared { namespace Graphics { namespace md5 {
 

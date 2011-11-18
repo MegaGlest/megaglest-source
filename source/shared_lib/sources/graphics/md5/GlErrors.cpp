@@ -20,8 +20,11 @@
 #include <windows.h>
 #endif // _WIN32
 
-#include <GL/gl.h>
-#include <GL/glu.h>
+//#include "gl.h"
+#include <GL/glew.h>
+
+//#include <GL/gl.h>
+//#include <GL/glu.h>
 #include <iostream>
 
 #include "GlErrors.h"

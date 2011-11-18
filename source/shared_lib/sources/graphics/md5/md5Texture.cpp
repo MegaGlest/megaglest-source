@@ -25,7 +25,7 @@
 #include <stdexcept>
 
 #include "GlErrors.h"
-#include "Texture.h"
+#include "md5Texture.h"
 #include "Image.h"
 
 namespace Shared { namespace Graphics { namespace md5 {
@@ -219,8 +219,8 @@ Texture2D::create (const Image *img, TextureFlags flags)
 				  mipWidth, mipHeight, 0, mipSize,
 				  img->pixels () + offset);
 
-	  mipWidth = std::max (mipWidth >> 1, 1);
-	  mipHeight = std::max (mipHeight >> 1, 1);
+	  mipWidth = max (mipWidth >> 1, 1);
+	  mipHeight = max (mipHeight >> 1, 1);
 
 	  offset += mipSize;
 	}
@@ -492,8 +492,8 @@ TextureCubeMap::create (const vector<ImagePtr> &faces, TextureFlags flags)
 				      mipWidth, mipHeight, 0, mipSize,
 				      img->pixels () + offset);
 
-	      mipWidth = std::max (mipWidth >> 1, 1);
-	      mipHeight = std::max (mipHeight >> 1, 1);
+	      mipWidth = max (mipWidth >> 1, 1);
+	      mipHeight = max (mipHeight >> 1, 1);
 
 	      offset += mipSize;
 	    }

@@ -35,6 +35,7 @@
 #define	WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <GL/glew.h>
+//#include "gl.h"
 
 #else
     #include <GL/glu.h>

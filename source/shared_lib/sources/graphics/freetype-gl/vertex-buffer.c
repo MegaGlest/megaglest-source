@@ -36,7 +36,21 @@
 #include <stdio.h>
 #include "vertex-buffer.h"
 
+#ifdef _WIN32
 
+char * strndup(const char *old, size_t sz)
+{
+    size_t len = strnlen (old, sz);
+    char *t    = malloc(len + 1);
+
+    if (t != NULL) {
+	memcpy (t, old, len);
+	t[len] = '\0';
+    }
+    return t;
+}
+
+#endif
 
 // ----------------------------------------------------------------------------
 VertexBuffer *

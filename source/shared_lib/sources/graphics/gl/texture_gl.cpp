@@ -25,6 +25,8 @@
 using namespace std;
 
 // Define FBO's (Frame Buffer Objects) for win32
+
+/*
 #ifdef WIN32
 
 #define GL_FRAMEBUFFER_EXT 0x8D40
@@ -63,6 +65,7 @@ PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT = NULL;
 PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT = NULL;
 
 #endif
+*/
 
 namespace Shared { namespace Graphics { namespace Gl {
 

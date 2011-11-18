@@ -18,7 +18,7 @@
 #define __TEXTUREMANAGER_H__
 
 #include "DataManager.h"
-#include "Texture.h"
+#include "md5Texture.h"
 
 namespace Shared { namespace Graphics { namespace md5 {
 

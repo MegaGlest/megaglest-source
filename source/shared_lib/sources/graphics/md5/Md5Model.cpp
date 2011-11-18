@@ -26,7 +26,7 @@
 #include <iterator>
 #include <algorithm>
 
-#include "Texture.h"
+#include "md5Texture.h"
 #include "ArbProgram.h"
 #include "ShaderManager.h"
 #include "Md5Model.h"
