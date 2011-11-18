@@ -1891,15 +1891,26 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 		if(lineHeight < h) {
 			//printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
 
-			//int realHeight = lineHeight + (h - lineHeight);
-			// First go to top of bounding box
-			pos.y += (h - lineHeight);
+			if(Font::forceFTGLFonts == true) {
+				// First go to top of bounding box
+				pos.y += (h - lineHeight);
+				pos.y -= ((h - lineHeight) / Font::scaleFontValueCenterHFactor);
+			}
+			else {
+				pos.y += (float)(((float)h) / 2.0);
+				float heightGap = (float)(((float)h - lineHeight) / 2.0);
+#ifdef USE_STREFLOP
+				pos.y -= streflop::ceil(heightGap);
+#else
+				pos.y -= ceil(heightGap);
+#endif
 
-			pos.y -= ((h - lineHeight) / Font::scaleFontValueCenterHFactor);
+			//printf("h = %d lineHeight = %f heightGap = %f\n",h,lineHeight,heightGap);
 
 			// Now calculate till we get text to middle
 			//pos.y -= (realHeight / 2);
 			//pos.y += (lineHeight / 2);
+			}
 		}
 		else if(lineHeight > h) {
 			//printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());

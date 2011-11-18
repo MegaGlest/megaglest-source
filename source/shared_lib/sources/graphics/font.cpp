@@ -43,6 +43,7 @@ std::string Font::fontTypeName 				= "Times New Roman";
 bool Font::fontIsMultibyte 					= false;
 bool Font::forceLegacyFonts					= false;
 bool Font::fontIsRightToLeft				= false;
+bool Font::forceFTGLFonts					= false;
 
 // This value is used to scale the font text rendering
 // in 3D render mode
@@ -164,18 +165,23 @@ Font::Font(FontTextHandlerType type) {
 	if(Font::forceLegacyFonts == false) {
 		try {
 #if defined(USE_FREETYPEGL)
-			textHandler = NULL;
-			textHandler = new TextFreetypeGL(type);
+			if(Font::forceFTGLFonts == false) {
+				textHandler = NULL;
+				textHandler = new TextFreetypeGL(type);
+			}
 
-#else
-			TextFTGL::faceResolution = Font::faceResolution;
-			TextFTGL::langHeightText = Font::langHeightText;
-
-			textHandler = NULL;
-			textHandler = new TextFTGL(type);
-			TextFTGL::faceResolution = Font::faceResolution;
-			TextFTGL::langHeightText = Font::langHeightText;
+			else
 #endif
+			{
+				TextFTGL::faceResolution = Font::faceResolution;
+				TextFTGL::langHeightText = Font::langHeightText;
+
+				textHandler = NULL;
+				textHandler = new TextFTGL(type);
+				TextFTGL::faceResolution = Font::faceResolution;
+				TextFTGL::langHeightText = Font::langHeightText;
+			}
+
 			metrics.setTextHandler(this->textHandler);
 		}
 		catch(exception &ex) {

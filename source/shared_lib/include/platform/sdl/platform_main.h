@@ -55,6 +55,7 @@ const char  *GAME_ARGS[] = {
 	"--disable-vbo",
 	"--disable-sound",
 	"--enable-legacyfonts",
+	"--force-ftglfonts",
 //	"--use-video-settings",
 
 	"--resolution",
@@ -103,6 +104,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_VBO,
 	GAME_ARG_DISABLE_SOUND,
 	GAME_ARG_ENABLE_LEGACYFONTS,
+	GAME_ARG_FORCE_FTGLFONTS,
 	//GAME_ARG_USE_VIDEO_SETTINGS,
 	GAME_ARG_USE_RESOLUTION,
 	GAME_ARG_USE_COLORBITS,
@@ -215,6 +217,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 	printf("\n%s\t\t\tenables using the legacy font system.",GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]);
 
+	printf("\n%s\t\t\tforces use of the FTGL font system.",GAME_ARGS[GAME_ARG_FORCE_FTGLFONTS]);
 
 //	printf("\n%s=x\t\t\toverride video settings.",GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
 //	printf("\n                     \t\tWhere x is a string with the following format:");

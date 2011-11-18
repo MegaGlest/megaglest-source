@@ -2605,6 +2605,15 @@ int glestMain(int argc, char** argv) {
 	    	TextureGl::setEnableATIHacks(enableATIHacks);
 	    }
 
+        if(config.getBool("ForceFTGLFonts","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_FORCE_FTGLFONTS]) == true) {
+        	Font::forceFTGLFonts = true;
+        	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Forcing Legacy Fonts Enabled\n");
+        	printf("**WARNING** Forcing use of FTGL Fonts\n");
+        }
+        else {
+        	Renderer::renderText3DEnabled = config.getBool("Enable3DFontRendering",intToStr(Renderer::renderText3DEnabled).c_str());
+        }
+
         if(config.getBool("EnableLegacyFonts","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]) == true) {
         	Font::forceLegacyFonts = true;
         	Renderer::renderText3DEnabled = false;
