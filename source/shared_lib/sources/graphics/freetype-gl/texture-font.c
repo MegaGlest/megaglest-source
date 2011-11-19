@@ -93,12 +93,14 @@ texture_font_new( TextureAtlas *atlas,
     }
 
 	{
-    FT_Size_Metrics metrics = face->size->metrics; 
+    FT_Size_Metrics metrics = face->size->metrics;
     self->ascender  = (metrics.ascender >> 6) / 100.0;
     self->descender = (metrics.descender >> 6) / 100.0;
     self->height    = (metrics.height >> 6) / 100.0;
     self->linegap   = self->height - self->ascender + self->descender;
 
+	//printf("filename [%s] size = %f metrics.ascender = %ld metrics.descender = %ld metrics.height = %ld self->linegap = %f\n",filename,size,metrics.ascender,metrics.descender,metrics.height,self->linegap);
+	//printf("self->ascender = %f self->descender = %f self->height = %f self->linegap = %f\n",self->ascender,self->descender,self->height,self->linegap);
     return self;
 	}
 	}
