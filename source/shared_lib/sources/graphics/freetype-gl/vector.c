@@ -36,8 +36,6 @@
 #include <stdio.h>
 #include "vector.h"
 
-
-
 /* ------------------------------------------------------------------------- */
 Vector *
 vector_new( size_t item_size )

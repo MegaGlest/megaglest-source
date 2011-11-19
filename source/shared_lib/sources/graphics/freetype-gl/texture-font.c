@@ -34,7 +34,6 @@
 #include FT_FREETYPE_H
 // #include FT_ADVANCES_H
 #include FT_LCD_FILTER_H
-//#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
