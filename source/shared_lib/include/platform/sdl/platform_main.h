@@ -182,8 +182,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample: %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 
 	printf("\n%s=x\t\tforce the language to be the language specified by x.",GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
-	printf("\n                     \t\tWhere x is a supported language (such as english).");
+	printf("\n                     \t\tWhere x is a supported language filename or ISO639-1 code.");
 	printf("\n                     \t\texample: %s %s=english",argv0,GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
+	printf("\n                     \t\texample: %s %s=en",argv0,GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
 
 
 	printf("\n%s=x\t\tshow the calculated CRC for the map named x.",GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
