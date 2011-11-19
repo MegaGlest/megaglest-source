@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include "vertex-buffer.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(___APPLE__)
 
 char * strndup(const char *old, size_t sz)
 {
