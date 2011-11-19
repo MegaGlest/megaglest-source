@@ -18,13 +18,14 @@
 #include "sdl_private.h"
 #include "noimpl.h"
 #include "util.h"
-//#include "window.h"
+#include "window.h"
 #include <vector>
 //#include <SDL_image.h>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics::Gl;
 using namespace Shared::Util;
+using namespace Shared::Graphics;
 
 namespace Shared{ namespace Platform{
 	
@@ -181,7 +182,7 @@ BOOL makeGLDisplayListFirst(unichar first, int count, GLint base, NSFont *font, 
 }
 
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
-						 int charCount, Shared::Graphics::FontMetrics &metrics) {
+						 int charCount, FontMetrics &metrics) {
 	
 	
 	//@FF@ keep the reduction ratio ???
@@ -200,7 +201,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 }
 
 void createGlFontOutlines(uint32 &base, const string &type, int width,
-						  float depth, int charCount, Shared::Graphics::FontMetrics &metrics) {
+						  float depth, int charCount, FontMetrics &metrics) {
 	NOIMPL;
 }
 }}//end namespace 
