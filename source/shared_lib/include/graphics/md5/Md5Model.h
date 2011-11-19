@@ -30,7 +30,7 @@
 #include <fstream>
 #include <stdexcept>
 //#include <tr1/memory>
-#include <GL/gl.h>
+#include <GL/glew.h>
 
 #include "Mathlib.h"
 #include "md5Texture.h"

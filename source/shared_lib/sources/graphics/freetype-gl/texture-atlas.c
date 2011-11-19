@@ -30,23 +30,12 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
-#if defined(__APPLE__)
-    //#include <Glut/glut.h>
-#else
-    //#include <GL/glut.h>
-#endif
-//#include <stdlib.h>
 
 #ifdef WIN32
 #include <windows.h>
 #endif
 
-//#include "gl.h"
 #include <GL/glew.h>
-
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-//#include <glprocs.h>
 
 #include <string.h>
 #include <assert.h>

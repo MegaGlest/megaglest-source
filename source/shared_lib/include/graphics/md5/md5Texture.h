@@ -22,10 +22,7 @@
 #include <windows.h>
 #endif // _WIN32
 
-#include <GL/gl.h>
-#ifndef _WIN32
-#include <GL/glext.h>
-#endif
+#include <GL/glew.h>
 #include <memory>
 #include <stdexcept>
 #include <string>

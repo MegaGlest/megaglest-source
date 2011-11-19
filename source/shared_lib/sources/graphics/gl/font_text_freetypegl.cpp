@@ -14,7 +14,6 @@
 #include "font_text_freetypegl.h"
 #include "vector.h"
 
-//#include "opengl.h"
 #include <stdexcept>
 #include <sys/stat.h>
 
@@ -31,10 +30,6 @@ using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace Graphics { namespace Gl {
-
-
-//string TextFreetypeGL::langHeightText = "yW";
-//int TextFreetypeGL::faceResolution 	= 72;
 
 //====================================================================
 TextFreetypeGL::TextFreetypeGL(FontTextHandlerType type) : Text(type) {

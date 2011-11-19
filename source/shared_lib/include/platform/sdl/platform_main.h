@@ -13,7 +13,6 @@
 
 #include <SDL.h>
 #include <iostream>
-//#include "gl.h"
 #include <GL/glew.h>
 #include "leak_dumper.h"
 
