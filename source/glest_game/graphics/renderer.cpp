@@ -1901,7 +1901,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 				float heightGap = (float)(((float)h - lineHeight) / 2.0);
 				pos.y -= heightGap;
 
-			//printf("h = %d lineHeight = %f heightGap = %f\n",h,lineHeight,heightGap);
+				//printf("h = %d lineHeight = %f heightGap = %f\n",h,lineHeight,heightGap);
 
 			// Now calculate till we get text to middle
 			//pos.y -= (realHeight / 2);
