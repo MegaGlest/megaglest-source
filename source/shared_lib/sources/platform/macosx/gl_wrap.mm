@@ -183,7 +183,7 @@ BOOL makeGLDisplayListFirst(unichar first, int count, GLint base, NSFont *font, 
 }
 
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
-						 int charCount, FontMetrics &metrics) {
+						 int charCount, Shared::Graphics::FontMetrics &metrics) {
 	
 	
 	//@FF@ keep the reduction ratio ???
@@ -202,7 +202,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 }
 
 void createGlFontOutlines(uint32 &base, const string &type, int width,
-						  float depth, int charCount, FontMetrics &metrics) {
+						  float depth, int charCount, Shared::Graphics::FontMetrics &metrics) {
 	NOIMPL;
 }
 }}//end namespace 
