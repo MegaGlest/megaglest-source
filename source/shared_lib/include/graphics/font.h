@@ -139,6 +139,8 @@ public:
 
 Font3D *ConvertFont2DTo3D(Font2D *font);
 
+const char* findFont(const char *firstFontToTry=NULL);
+
 }}//end namespace
 
 #endif
