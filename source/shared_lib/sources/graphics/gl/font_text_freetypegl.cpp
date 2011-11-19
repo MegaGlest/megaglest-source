@@ -224,7 +224,8 @@ float TextFreetypeGL::LineHeight(const char* str, const int len) {
 
 	float result = 0;
 
-	result = font->height - font->linegap;
+	//result = font->height - font->linegap;
+	result = font->ascender - font->descender - font->linegap;
 	//printf("#2 LineHeight [%s] height = %f linegap = %f ascender = %f descender = %f\n",str,font->height,font->linegap,font->ascender,font->descender);
 
 	//result += (result * Font::scaleFontValue);

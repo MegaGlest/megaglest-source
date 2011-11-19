@@ -1899,11 +1899,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			else {
 				pos.y += (float)(((float)h) / 2.0);
 				float heightGap = (float)(((float)h - lineHeight) / 2.0);
-#ifdef USE_STREFLOP
-				pos.y -= streflop::ceil(heightGap);
-#else
-				pos.y -= ceil(heightGap);
-#endif
+				pos.y -= heightGap;
 
 			//printf("h = %d lineHeight = %f heightGap = %f\n",h,lineHeight,heightGap);
 
