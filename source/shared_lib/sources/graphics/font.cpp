@@ -29,10 +29,13 @@ using namespace Shared::Graphics::Gl;
 #endif
 
 #include "util.h"
+#include "platform_common.h"
+
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace Graphics {
 
