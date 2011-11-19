@@ -54,19 +54,15 @@ public:
 	virtual float LineHeight(const wchar_t* = L" ", const int = -1);
 
 private:
-	//FTFont *ftFont;
+
 	VertexBuffer *buffer;
 	TextureAtlas *atlas;
     TextureFont *font;
-    //TextureGlyph *glyph;
     FontManager *manager;
-    //Markup markup;
     int fontFaceSize;
 
     string fontName;
 	const char* fontFile;
-
-	const char* findFont(const char *firstFontToTry=NULL);
 
 	void cleanupFont();
 };

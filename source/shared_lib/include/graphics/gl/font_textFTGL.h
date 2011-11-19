@@ -48,10 +48,7 @@ public:
 
 private:
 	FTFont *ftFont;
-	//FTGLPixmapFont *ftFont;
 	const char* fontFile;
-
-	const char* findFont(const char *firstFontToTry=NULL);
 
 	void cleanupFont();
 };
