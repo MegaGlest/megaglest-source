@@ -246,8 +246,8 @@ texture_font_cache_glyphs( TextureFont *self,
         {
             FT_Library_SetLcdFilter( library, FT_LCD_FILTER_LIGHT );
             flags |= FT_LOAD_TARGET_LCD;
-#if ((FREETYPE_MAJOR <= 2) && ((FREETYPE_MINOR < 3)))
-//#error "Need FreeType 2.3.0 or newer"
+#if ((FREETYPE_MAJOR <= 2) && ((FREETYPE_MINOR < 4)))
+//#error "Need FreeType 2.4.0 or newer"
 #else
 
             if( self->lcd_filter )
