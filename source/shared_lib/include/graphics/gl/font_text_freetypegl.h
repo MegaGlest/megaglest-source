@@ -24,6 +24,7 @@
 #include "font-manager.h"
 
 #include "font_text.h"
+#include "vec.h"
 
 namespace Shared { namespace Graphics { namespace Gl {
 
@@ -54,6 +55,9 @@ public:
 	virtual float LineHeight(const wchar_t* = L" ", const int = -1);
 
 private:
+
+	string lastTextRendered;
+	Vec4f lastTextColorRendered;
 
 	VertexBuffer *buffer;
 	TextureAtlas *atlas;

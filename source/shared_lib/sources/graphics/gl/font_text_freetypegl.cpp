@@ -89,39 +89,44 @@ void TextFreetypeGL::Render(const char* str, const int len) {
 	}
 
 	//printf("Render TextFreetypeGL\n");
+    //float currentColor[4] = { 0,0,0,1 };
+	Vec4f currentColor;
+    glGetFloatv(GL_CURRENT_COLOR,currentColor.ptr());
 
-    Pen pen ;
-    pen.x = 0; pen.y = 0;
+	if(lastTextRendered != str || lastTextColorRendered != currentColor) {
+	    Pen pen ;
+	    pen.x = 0; pen.y = 0;
 
-    vertex_buffer_clear( this->buffer );
+		Markup markup = { 0, (float)this->fontFaceSize, 0, 0, 0.0, 0.0,
+						  {currentColor.x,currentColor.y,currentColor.z,currentColor.w}, {0,0,0,0},
+						  0, {0,0,0,1}, 0, {0,0,0,1},
+						  0, {0,0,0,1}, 0, {0,0,0,1}, 0 };
 
-    float currentColor[4] = { 0,0,0,1 };
-    glGetFloatv(GL_CURRENT_COLOR,currentColor);
+	    // Add glyph one by one to the vertex buffer
+	    // Expand totalBox by each glyph in string
 
-	Markup markup = { 0, (float)this->fontFaceSize, 0, 0, 0.0, 0.0,
-					  {currentColor[0],currentColor[1],currentColor[2],currentColor[3]}, {0,0,0,0},
-					  0, {0,0,0,1}, 0, {0,0,0,1},
-					  0, {0,0,0,1}, 0, {0,0,0,1}, 0 };
+		vertex_buffer_clear( this->buffer );
 
-    // Add glyph one by one to the vertex buffer
-    // Expand totalBox by each glyph in string
+		// for multibyte - we can't rely on sizeof(T) == character
+		FreetypeGLUnicodeStringItr<unsigned char> ustr((const unsigned char *)str);
 
-    // for multibyte - we can't rely on sizeof(T) == character
-	FreetypeGLUnicodeStringItr<unsigned char> ustr((const unsigned char *)str);
+		for(int i = 0; (len < 0 && *ustr) || (len >= 0 && i < len); i++) {
+			unsigned int prevChar = (i > 0 ? *ustr-1 : 0);
+			unsigned int thisChar = *ustr++;
+			unsigned int nextChar = *ustr;
 
-    for(int i = 0; (len < 0 && *ustr) || (len >= 0 && i < len); i++) {
-    	unsigned int prevChar = (i > 0 ? *ustr-1 : 0);
-    	unsigned int thisChar = *ustr++;
-    	unsigned int nextChar = *ustr;
+			// Get glyph (build it if needed
+			TextureGlyph *glyph = texture_font_get_glyph( this->font, thisChar );
 
-		// Get glyph (build it if needed
-		TextureGlyph *glyph = texture_font_get_glyph( this->font, thisChar );
+			// Take kerning into account if necessary
+			float kx = texture_glyph_get_kerning( glyph, prevChar );
 
-		// Take kerning into account if necessary
-		float kx = texture_glyph_get_kerning( glyph, prevChar );
+			// Add glyph to the vertex buffer
+			texture_glyph_add_to_vertex_buffer( glyph, this->buffer, &markup, &pen, (int)kx );
+		}
 
-		// Add glyph to the vertex buffer
-		texture_glyph_add_to_vertex_buffer( glyph, this->buffer, &markup, &pen, (int)kx );
+		lastTextRendered = str;
+		lastTextColorRendered = currentColor;
 	}
 
     //glBindTexture( GL_TEXTURE_2D, manager->atlas->texid );
