@@ -46,8 +46,11 @@ Lang &Lang::getInstance() {
 	return lang;
 }
 
-void Lang::loadStrings(const string &uselanguage, bool loadFonts,
+void Lang::loadStrings(string uselanguage, bool loadFonts,
 		bool fallbackToDefault) {
+	if(uselanguage.length() == 2) {
+		uselanguage = getLanguageFile(uselanguage);
+	}
 	bool languageChanged = (uselanguage != this->language);
 	this->language= uselanguage;
 	loadStrings(uselanguage, strings, true, fallbackToDefault);
@@ -163,7 +166,7 @@ void Lang::loadStrings(const string &uselanguage, bool loadFonts,
     }
 }
 
-void Lang::loadStrings(const string &uselanguage, Properties &properties, bool fileMustExist,
+void Lang::loadStrings(string uselanguage, Properties &properties, bool fileMustExist,
 		bool fallbackToDefault) {
 	properties.clear();
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
@@ -187,7 +190,7 @@ bool Lang::isUTF8Language() const {
 	return is_utf8_language;
 }
 
-void Lang::loadScenarioStrings(const string &scenarioDir, const string &scenarioName){
+void Lang::loadScenarioStrings(string scenarioDir, string scenarioName){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scenarioDir = [%s] scenarioName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());
 
 	string currentPath = scenarioDir;
@@ -300,6 +303,53 @@ string Lang::getScenarioString(const string &s) {
 		}
 		return "???" + s + "???";
 	}
+}
+
+bool Lang::fileMatchesISO630Code(string uselanguage, string testLanguageFile) {
+	bool result = false;
+	Properties stringsTest;
+	stringsTest.load(testLanguageFile);
+
+	try {
+		string iso639 = stringsTest.getString("ISO639-1");
+		if(iso639 == uselanguage) {
+			result = true;
+		}
+	}
+	catch(exception &ex) {
+	}
+
+	return result;
+}
+
+string Lang::getLanguageFile(string uselanguage) {
+	bool foundMatch = false;
+	string result = uselanguage;
+
+    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+
+    vector<string> langResults;
+    string userDataPath = getGameCustomCoreDataPath(data_path, "");
+	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
+	for(unsigned int i = 0; i < langResults.size() && foundMatch == false ; ++i) {
+		string testLanguageFile = userDataPath + "data/lang/" + langResults[i] + ".lng";
+		foundMatch = fileMatchesISO630Code(uselanguage, testLanguageFile);
+		if(foundMatch == true) {
+			result = langResults[i];
+		}
+	}
+	if(foundMatch == false) {
+		langResults.clear();
+		findAll(data_path + "data/lang/*.lng", langResults, true);
+		for(unsigned int i = 0; i < langResults.size() && foundMatch == false ; ++i) {
+			string testLanguageFile = data_path + "data/lang/" + langResults[i] + ".lng";
+			foundMatch = fileMatchesISO630Code(uselanguage, testLanguageFile);
+			if(foundMatch == true) {
+				result = langResults[i];
+			}
+		}
+	}
+	return result;
 }
 
 }}//end namespace
