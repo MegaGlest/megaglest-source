@@ -180,7 +180,7 @@ BOOL makeGLDisplayListFirst(unichar first, int count, GLint base, NSFont *font, 
    return retval;
 }
 
-void createGlFontBitmaps(GLuint32 &base, const string &type, int size, int width,
+void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 						 int charCount, Shared::Graphics::FontMetrics &metrics) {
 	
 	
@@ -199,7 +199,7 @@ void createGlFontBitmaps(GLuint32 &base, const string &type, int size, int width
 
 }
 
-void createGlFontOutlines(GLuint32 &base, const string &type, int width,
+void createGlFontOutlines(uint32 &base, const string &type, int width,
 						  float depth, int charCount, Shared::Graphics::FontMetrics &metrics) {
 	NOIMPL;
 }
