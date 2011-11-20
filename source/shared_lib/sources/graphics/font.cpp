@@ -167,13 +167,13 @@ Font::Font(FontTextHandlerType type) {
 	if(Font::forceLegacyFonts == false) {
 		try {
 #if defined(USE_FREETYPEGL)
-			if(Font::forceFTGLFonts == false) {
-				textHandler = NULL;
-				textHandler = new TextFreetypeGL(type);
+			//if(Font::forceFTGLFonts == false) {
+			//	textHandler = NULL;
+			//	textHandler = new TextFreetypeGL(type);
 				//printf("TextFreetypeGL is ON\n");
-			}
+			//}
 
-			else
+			//else
 #endif
 			{
 				TextFTGL::faceResolution = Font::faceResolution;
