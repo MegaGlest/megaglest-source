@@ -435,9 +435,9 @@ void BattleEnd::render() {
 	renderer.swapBuffers();
 }
 
-void BattleEnd::keyDown(char key){
+void BattleEnd::keyDown(SDL_KeyboardEvent key){
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	if(key == vkEscape || key == SDLK_ESCAPE) {
+	if(isKeyPressed(SDLK_ESCAPE,key) == true) {
 		//program->setState(new MainMenu(program));
 
 		if(mainMessageBox.getEnabled()) {
@@ -448,7 +448,7 @@ void BattleEnd::keyDown(char key){
 			showMessageBox(lang.get("ExitGame?"), "", true);
 		}
 	}
-	else if(key == vkReturn && mainMessageBox.getEnabled()) {
+	else if(isKeyPressed(SDLK_RETURN,key) && mainMessageBox.getEnabled()) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		program->setState(new MainMenu(program));
 	}
