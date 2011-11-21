@@ -119,7 +119,7 @@ public:
 
 	virtual void update();
 	virtual void render();
-	virtual void keyDown(char key);
+	virtual void keyDown(SDL_KeyboardEvent key);
 	virtual void mouseUpLeft(int x, int y);
 	void mouseMove(int x, int y, const MouseState *ms);
 };

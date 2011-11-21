@@ -743,11 +743,11 @@ void Intro::render() {
 	renderer.swapBuffers();
 }
 
-void Intro::keyDown(char key){
+void Intro::keyDown(SDL_KeyboardEvent key) {
 	mouseUpLeft(0, 0);
 }
 
-void Intro::mouseUpLeft(int x, int y){
+void Intro::mouseUpLeft(int x, int y) {
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

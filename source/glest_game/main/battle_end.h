@@ -45,7 +45,7 @@ public:
 
 	virtual void update();
 	virtual void render();
-	virtual void keyDown(char key);
+	virtual void keyDown(SDL_KeyboardEvent key);
 	virtual void mouseDownLeft(int x, int y);
 	virtual void mouseMove(int x, int y, const MouseState *ms);
 	//virtual void tick();
