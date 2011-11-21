@@ -182,16 +182,16 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
 	// Enable Observer Mode
-	labelEnableObserverMode.registerGraphicComponent(containerName,"labelEnableObserverMode");
-	labelEnableObserverMode.init(xoffset+460, aHeadPos, 80);
+	//labelEnableObserverMode.registerGraphicComponent(containerName,"labelEnableObserverMode");
+	//labelEnableObserverMode.init(xoffset+460, aHeadPos, 80);
 
-	listBoxEnableObserverMode.registerGraphicComponent(containerName,"listBoxEnableObserverMode");
-	listBoxEnableObserverMode.init(xoffset+460, aPos, 80);
-	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
-	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
-	listBoxEnableObserverMode.setSelectedItemIndex(0);
-	listBoxEnableObserverMode.setEditable(false);
-	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
+//	listBoxEnableObserverMode.registerGraphicComponent(containerName,"listBoxEnableObserverMode");
+//	listBoxEnableObserverMode.init(xoffset+460, aPos, 80);
+//	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
+//	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
+//	listBoxEnableObserverMode.setSelectedItemIndex(0);
+//	listBoxEnableObserverMode.setEditable(false);
+//	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
 
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
@@ -556,12 +556,12 @@ void MenuStateConnectedGame::reloadUI() {
 	observerItems.push_back(lang.get("Yes"));
 	listBoxAllowObservers.setItems(observerItems);
 
-	vector<string> observerModeItems;
-	observerModeItems.push_back(lang.get("Yes"));
-	observerModeItems.push_back(lang.get("No"));
-	listBoxEnableObserverMode.setItems(observerModeItems);
+	//vector<string> observerModeItems;
+	//observerModeItems.push_back(lang.get("Yes"));
+	//observerModeItems.push_back(lang.get("No"));
+	//listBoxEnableObserverMode.setItems(observerModeItems);
 
-	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
+	//labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
 
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
@@ -1174,7 +1174,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-        else if(listBoxEnableObserverMode.mouseClick(x, y)) {
+        //else if(listBoxEnableObserverMode.mouseClick(x, y)) {
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 //            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1188,9 +1188,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //            }
 
         	//broadCastGameSettingsToMasterserver();
-        	needToBroadcastServerSettings=true;
-        	broadcastServerSettingsDelayTimer=time(NULL);
-        }
+        //	needToBroadcastServerSettings=true;
+        //	broadcastServerSettingsDelayTimer=time(NULL);
+        //}
         else if (listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
@@ -1574,7 +1574,8 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 
-	gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
+	//gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
+	gameSettings->setEnableObserverModeAtEndGame(true);
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
 	valueFlags1 = gameSettings->getFlagTypes1();
@@ -1965,13 +1966,13 @@ void MenuStateConnectedGame::render() {
 		renderer.renderListBox(&listBoxTileset);
 		renderer.renderListBox(&listBoxTechTree);
 
-		renderer.renderLabel(&labelEnableObserverMode);
+		//renderer.renderLabel(&labelEnableObserverMode);
 		renderer.renderLabel(&labelPathFinderType);
 
 		renderer.renderLabel(&labelEnableSwitchTeamMode);
 		renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
 
-		renderer.renderListBox(&listBoxEnableObserverMode);
+		//renderer.renderListBox(&listBoxEnableObserverMode);
 		renderer.renderListBox(&listBoxPathFinderType);
 
 		renderer.renderListBox(&listBoxEnableSwitchTeamMode);
@@ -2067,7 +2068,7 @@ void MenuStateConnectedGame::update() {
 		listBoxEnableSwitchTeamMode.setEditable(isMasterserverAdmin());
 		listBoxAISwitchTeamAcceptPercent.setEditable(isMasterserverAdmin());
 		listBoxFogOfWar.setEditable(isMasterserverAdmin());
-		listBoxEnableObserverMode.setEditable(isMasterserverAdmin());
+		//listBoxEnableObserverMode.setEditable(isMasterserverAdmin());
 		listBoxAllowObservers.setEditable(isMasterserverAdmin());
 
 		if(isMasterserverAdmin() == true) {
@@ -2793,12 +2794,12 @@ void MenuStateConnectedGame::update() {
 				}
 				listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings->getAiAcceptSwitchTeamPercentChance()));
 
-				if(gameSettings->getEnableObserverModeAtEndGame()) {
-					listBoxEnableObserverMode.setSelectedItemIndex(0);
-				}
-				else {
-					listBoxEnableObserverMode.setSelectedItemIndex(1);
-				}
+//				if(gameSettings->getEnableObserverModeAtEndGame()) {
+//					listBoxEnableObserverMode.setSelectedItemIndex(0);
+//				}
+//				else {
+//					listBoxEnableObserverMode.setSelectedItemIndex(1);
+//				}
 				if(gameSettings->getPathFinderType() == pfBasic) {
 					listBoxPathFinderType.setSelectedItemIndex(0);
 				}

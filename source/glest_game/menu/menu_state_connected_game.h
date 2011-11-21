@@ -54,8 +54,8 @@ private:
 	GraphicLabel labelInfo;
 
 
-	GraphicLabel labelEnableObserverMode;
-	GraphicListBox listBoxEnableObserverMode;
+	//GraphicLabel labelEnableObserverMode;
+	//GraphicListBox listBoxEnableObserverMode;
 	//GraphicLabel labelEnableServerControlledAI;
 	//GraphicListBox listBoxEnableServerControlledAI;
 	//GraphicLabel labelNetworkPauseGameForLaggedClients;
