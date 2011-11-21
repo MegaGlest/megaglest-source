@@ -49,7 +49,7 @@ private:
 	GraphicLabel labelTechTree;
 	GraphicLabel labelTileset;
 	GraphicLabel labelMapInfo;
-	GraphicLabel labelEnableObserverMode;
+	//GraphicLabel labelEnableObserverMode;
 	//GraphicLabel labelEnableServerControlledAI;
 	GraphicLabel labelLocalIP;
 	GraphicLabel labelGameName;
@@ -59,7 +59,7 @@ private:
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;
-	GraphicListBox listBoxEnableObserverMode;
+	//GraphicListBox listBoxEnableObserverMode;
 	//GraphicListBox listBoxEnableServerControlledAI;
 
 	vector<string> mapFiles;
