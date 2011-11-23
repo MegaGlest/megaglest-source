@@ -173,7 +173,7 @@ Mutex UPNP_Tools::mutexUPNP;
 		return rhs1.nID < rhs2.nID;
 	}
 
-	const int kNumMessages = sizeof(gaErrorList) / sizeof(ErrorEntry[0]);
+	const int kNumMessages = sizeof(gaErrorList) / sizeof(ErrorEntry);
 
 	//// WSAGetLastErrorMessage ////////////////////////////////////////////
 	// A function similar in spirit to Unix's perror() that tacks a canned
