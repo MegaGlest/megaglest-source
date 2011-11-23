@@ -2544,6 +2544,33 @@ int glestMain(int argc, char** argv) {
 		return -1;
 	}
 
+	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MOD])) == true) {
+
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MOD]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MOD]),&foundParamIndIndex);
+		}
+		string scenarioName = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(scenarioName,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string autoloadModName = paramPartTokens[1];
+			if(Properties::applyTagsToValue(autoloadModName) == true) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Property key [%s] now has value [%s]\n",Config::ACTIVE_MOD_PROPERTY_NAME,autoloadModName.c_str());
+			}
+
+			Config::setCustomRuntimeProperty(Config::ACTIVE_MOD_PROPERTY_NAME,autoloadModName);
+
+			printf("Setting mod active [%s]\n",autoloadModName.c_str());
+		}
+		else {
+			printf("\nInvalid mod pathname specified on commandline [%s] mod [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+			printParameterHelp(argv[0],foundInvalidArgs);
+			return -1;
+		}
+	}
+
 	SystemFlags::init(haveSpecialOutputCommandLineOption);
 	//SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled  = true;
 	//SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled = true;

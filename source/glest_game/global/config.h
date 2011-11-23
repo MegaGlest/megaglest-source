@@ -37,6 +37,7 @@ enum ConfigType {
 
 class Config {
 private:
+
 	std::pair<Properties,Properties> properties;
 	std::pair<ConfigType,ConfigType> cfgType;
 	std::pair<string,string> fileNameParameter;
@@ -48,11 +49,17 @@ private:
     static const char *glest_ini_filename;
     static const char *glestuser_ini_filename;
 
+    static map<string,string> customRuntimeProperties;
+
 public:
+
     static const char *glestkeys_ini_filename;
     static const char *glestuserkeys_ini_filename;
 
+    static const char *ACTIVE_MOD_PROPERTY_NAME;
+
 protected:
+
 	Config();
 	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist);
 	bool tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path);
@@ -60,6 +67,7 @@ protected:
 	vector<pair<string,string> > getPropertiesFromContainer(const Properties &propertiesObj) const;
 
 public:
+
     static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame) ,
 				std::pair<string,string> file = std::make_pair(glest_ini_filename,glestuser_ini_filename) ,
 				std::pair<bool,bool> fileMustExist = std::make_pair(true,false) );
@@ -92,12 +100,12 @@ public:
 
     string getFileName(bool userFilename) const;
 
-    //char translateStringToCharKey(const string &value) const;
-    //SDLKey translateSpecialStringToSDLKey(char c) const;
-
     SDLKey translateStringToSDLKey(const string &value) const;
 
 	string toString();
+
+	static string getCustomRuntimeProperty(string key) 				{ return customRuntimeProperties[key]; }
+	static void setCustomRuntimeProperty(string key, string value) 	{ customRuntimeProperties[key] = value; }
 };
 
 }}//end namespace

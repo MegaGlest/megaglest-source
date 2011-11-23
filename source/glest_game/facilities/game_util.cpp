@@ -222,21 +222,40 @@ string formatString(string str) {
 }
 
 string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath) {
+	// original file path setup
     if(originalBasePath != "") {
     	endPathWithSlash(originalBasePath);
     }
+    //
 
-	string result = originalBasePath + uniqueFilePath;
-	//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	// mydata user data override
 	Config &config = Config::getInstance();
 	string data_path = config.getString("UserData_Root","");
     if(data_path != "") {
     	endPathWithSlash(data_path);
     }
+    //
 
-	if(data_path != "" &&
-			(uniqueFilePath == "" || fileExists(data_path + uniqueFilePath) == true)) {
+    // if set this is the current active mod
+    string custom_mod_path = config.getCustomRuntimeProperty(Config::ACTIVE_MOD_PROPERTY_NAME);
+    if(custom_mod_path != "") {
+    	endPathWithSlash(custom_mod_path);
+    }
+    //
+
+    // decide which file to use
+    string result = "";
+
+	if(custom_mod_path != "" &&
+		(uniqueFilePath == "" || fileExists(custom_mod_path + uniqueFilePath) == true)) {
+		result = custom_mod_path + uniqueFilePath;
+	}
+	else if(data_path != "" &&
+		(uniqueFilePath == "" || fileExists(data_path + uniqueFilePath) == true)) {
 		result = data_path + uniqueFilePath;
+	}
+	else {
+		result = originalBasePath + uniqueFilePath;
 	}
 
 	//printf("data_path [%s] result [%s]\n",data_path.c_str(),result.c_str());
