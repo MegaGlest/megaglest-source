@@ -103,58 +103,87 @@ Intro::Intro(Program *program):
 	renderer.initMenu(NULL);
 	fade= 0.f;
 	anim= 0.f;
-
-	XmlTree xmlTree;
-	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	xmlTree.load(getGameCustomCoreDataPath(data_path, "data/core/menu/menu.xml"),Properties::getTagReplacementValues());
-	const XmlNode *menuNode= xmlTree.getRootNode();
-	const XmlNode *introNode= menuNode->getChild("intro");
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	targetCamera= NULL;
 	t= 0.f;
 
-	//camera
-	const XmlNode *cameraNode= introNode->getChild("camera");
-
-	//position
-	const XmlNode *positionNode= cameraNode->getChild("start-position");
-    startPosition.x= positionNode->getAttribute("x")->getFloatValue();
-	startPosition.y= positionNode->getAttribute("y")->getFloatValue();
-	startPosition.z= positionNode->getAttribute("z")->getFloatValue();
+	startPosition.x= 5;;
+	startPosition.y= 10;
+	startPosition.z= 40;
 	camera.setPosition(startPosition);
 
-	//rotation
-	const XmlNode *rotationNode= cameraNode->getChild("start-rotation");
 	Vec3f startRotation;
-    startRotation.x= rotationNode->getAttribute("x")->getFloatValue();
-	startRotation.y= rotationNode->getAttribute("y")->getFloatValue();
-	startRotation.z= rotationNode->getAttribute("z")->getFloatValue();
+	startRotation.x= 0;
+	startRotation.y= 0;
+	startRotation.z= 0;
+
 	camera.setOrientation(Quaternion(EulerAngles(
 		degToRad(startRotation.x),
 		degToRad(startRotation.y),
 		degToRad(startRotation.z))));
 
-	// intro info
-	const XmlNode *introTimeNode= introNode->getChild("intro-time");
-	Intro::introTime = introTimeNode->getAttribute("value")->getIntValue();
-	const XmlNode *appearTimeNode= introNode->getChild("appear-time");
-	Intro::appearTime = appearTimeNode->getAttribute("value")->getIntValue();
-	const XmlNode *showTimeNode= introNode->getChild("show-time");
-	Intro::showTime = showTimeNode->getAttribute("value")->getIntValue();
-	const XmlNode *disappearTimeNode= introNode->getChild("disappear-time");
-	Intro::disapearTime = disappearTimeNode->getAttribute("value")->getIntValue();
-	const XmlNode *showIntroPicturesNode= introNode->getChild("show-intro-pictures");
-	int showIntroPics = showIntroPicturesNode->getAttribute("value")->getIntValue();
-	int showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
-	bool showIntroPicsRandom = showIntroPicturesNode->getAttribute("random")->getBoolValue();
+	Intro::introTime = 3000;
+	Intro::appearTime = 500;
+	Intro::showTime = 500;
+	Intro::disapearTime = 500;
+	int showIntroPics = 0;
+	int showIntroPicsTime = 0;
+	bool showIntroPicsRandom = false;
+	bool showIntroModels = false;
+	bool showIntroModelsRandom = false;
+	modelMinAnimSpeed = 0;
+	modelMaxAnimSpeed = 0;
 
-	const XmlNode *showIntroModelsNode= introNode->getChild("show-intro-models");
-	bool showIntroModels = showIntroModelsNode->getAttribute("value")->getBoolValue();
-	bool showIntroModelsRandom = showIntroModelsNode->getAttribute("random")->getBoolValue();
-	modelMinAnimSpeed = showIntroModelsNode->getAttribute("min-anim-speed")->getFloatValue();
-	modelMaxAnimSpeed = showIntroModelsNode->getAttribute("max-anim-speed")->getFloatValue();
+	XmlTree xmlTree;
+	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	xmlTree.load(getGameCustomCoreDataPath(data_path, "data/core/menu/menu.xml"),Properties::getTagReplacementValues());
+	const XmlNode *menuNode= xmlTree.getRootNode();
+
+	if(menuNode->hasChild("intro") == true) {
+		const XmlNode *introNode= menuNode->getChild("intro");
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		//camera
+		const XmlNode *cameraNode= introNode->getChild("camera");
+
+		//position
+		const XmlNode *positionNode= cameraNode->getChild("start-position");
+		startPosition.x= positionNode->getAttribute("x")->getFloatValue();
+		startPosition.y= positionNode->getAttribute("y")->getFloatValue();
+		startPosition.z= positionNode->getAttribute("z")->getFloatValue();
+		camera.setPosition(startPosition);
+
+		//rotation
+		const XmlNode *rotationNode= cameraNode->getChild("start-rotation");
+		Vec3f startRotation;
+		startRotation.x= rotationNode->getAttribute("x")->getFloatValue();
+		startRotation.y= rotationNode->getAttribute("y")->getFloatValue();
+		startRotation.z= rotationNode->getAttribute("z")->getFloatValue();
+		camera.setOrientation(Quaternion(EulerAngles(
+			degToRad(startRotation.x),
+			degToRad(startRotation.y),
+			degToRad(startRotation.z))));
+
+		// intro info
+		const XmlNode *introTimeNode= introNode->getChild("intro-time");
+		Intro::introTime = introTimeNode->getAttribute("value")->getIntValue();
+		const XmlNode *appearTimeNode= introNode->getChild("appear-time");
+		Intro::appearTime = appearTimeNode->getAttribute("value")->getIntValue();
+		const XmlNode *showTimeNode= introNode->getChild("show-time");
+		Intro::showTime = showTimeNode->getAttribute("value")->getIntValue();
+		const XmlNode *disappearTimeNode= introNode->getChild("disappear-time");
+		Intro::disapearTime = disappearTimeNode->getAttribute("value")->getIntValue();
+		const XmlNode *showIntroPicturesNode= introNode->getChild("show-intro-pictures");
+		int showIntroPics = showIntroPicturesNode->getAttribute("value")->getIntValue();
+		int showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
+		bool showIntroPicsRandom = showIntroPicturesNode->getAttribute("random")->getBoolValue();
+
+		const XmlNode *showIntroModelsNode= introNode->getChild("show-intro-models");
+		showIntroModels = showIntroModelsNode->getAttribute("value")->getBoolValue();
+		showIntroModelsRandom = showIntroModelsNode->getAttribute("random")->getBoolValue();
+		modelMinAnimSpeed = showIntroModelsNode->getAttribute("min-anim-speed")->getFloatValue();
+		modelMaxAnimSpeed = showIntroModelsNode->getAttribute("max-anim-speed")->getFloatValue();
+	}
 
 	//load main model
 	modelIndex = 0;
