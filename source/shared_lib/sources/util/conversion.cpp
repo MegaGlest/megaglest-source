@@ -72,7 +72,7 @@ bool strToBool(const string &s, bool *b){
 	return false;
 }
 
-bool strToInt(const string &s, int *i){
+bool strToInt(const string &s, int *i) {
 	char *endChar;
 
 	setlocale(LC_NUMERIC, "C");
@@ -84,7 +84,7 @@ bool strToInt(const string &s, int *i){
 	return true;
 }
 
-bool strToFloat(const string &s, float *f){
+bool strToFloat(const string &s, float *f) {
 	char *endChar;
 	setlocale(LC_NUMERIC, "C");
 	*f= static_cast<float>(strtod(s.c_str(), &endChar));
@@ -107,29 +107,28 @@ string boolToStr(bool b) {
 string intToStr(int64 i) {
 	char str[strSize]="";
 	snprintf(str, strSize-1, "%lld", (long long int)i);
-	return str;
+	return (str[0] != '\0' ? str : "");
 }
 
 string intToHex(int i){
 	char str[strSize]="";
 	snprintf(str, strSize-1, "%x", i);
-	return str;
+	return (str[0] != '\0' ? str : "");
 }
 
 string floatToStr(float f,int precsion) {
 	char str[strSize]="";
 	snprintf(str, strSize-1, "%.*f", precsion,f);
-	return str;
+	return (str[0] != '\0' ? str : "");
 }
 
 string doubleToStr(double d,int precsion) {
 	char str[strSize]="";
 	snprintf(str, strSize-1, "%.*f", precsion,d);
-	return str;
+	return (str[0] != '\0' ? str : "");
 }
 
-bool IsNumeric(const char *p, bool  allowNegative)
-{
+bool IsNumeric(const char *p, bool  allowNegative) {
   int index = 0;
   for ( ; *p; p++) {
     if (*p < '0' || *p > '9') {

@@ -42,7 +42,8 @@ string getCrashDumpFileName(){
 }
 
 string getPlatformNameString() {
-	string platform = "";
+	static string platform = "";
+	if(platform == "") {
 #if defined(WIN32)
 	platform = "Windows";
 	#if defined(__MINGW32__)
@@ -66,7 +67,7 @@ string getPlatformNameString() {
 #if defined(_M_X64) || defined(_M_IA64) || defined(_M_AMD64) || defined(__x86_64__) || defined(_WIN64)
 	platform += "_64bit";
 #endif
-
+	}
 	return platform;
 }
 
@@ -75,7 +76,8 @@ string getSVNRevisionString() {
 }
 
 string getCompilerNameString() {
-	string version = "";
+	static string version = "";
+	if(version == "") {
 #if defined(WIN32) && defined(_MSC_VER)
 	version = "VC++: " + intToStr(_MSC_VER);
 
@@ -109,22 +111,32 @@ version += " [DEBUG]";
 #if defined(_M_X64) || defined(_M_IA64) || defined(_M_AMD64) || defined(__x86_64__) || defined(_WIN64)
 	version += " [64bit]";
 #endif
-
+	}
 	return version;
 }
 
 string getNetworkVersionString() {
-	string version = glestVersionString+"-"+getCompilerNameString()+"-"+getCompileDateTime();
+	static string version = "";
+	if(version == "") {
+		version = glestVersionString+"-"+getCompilerNameString()+"-"+getCompileDateTime();
+	}
 	return version;
 }
 
 string getNetworkVersionSVNString() {
-	string version = glestVersionString + "-" + getCompilerNameString() + "-" + getSVNRevisionString();
+	static string version = "";
+	if(version == "") {
+			version = glestVersionString + "-" + getCompilerNameString() + "-" + getSVNRevisionString();
+	}
 	return version;
 }
 
 string getCompileDateTime() {
-	return string(__DATE__) + " " + string(__TIME__);
+	static string result = "";
+	if(result == "") {
+		result = string(__DATE__) + " " + string(__TIME__);
+	}
+	return result;
 }
 
 string getNetworkPlatformFreeVersionString() {
@@ -132,7 +144,7 @@ string getNetworkPlatformFreeVersionString() {
 }
 
 string getAboutString1(int i) {
-	switch(i){
+	switch(i) {
 	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return "Built: " + string(__DATE__) + " " + SVN_Rev;
 	case 2: return "Copyright 2001-2011 The MegaGlest Team";
@@ -140,8 +152,8 @@ string getAboutString1(int i) {
 	return "";
 }
 
-string getAboutString2(int i){
-	switch(i){
+string getAboutString2(int i) {
+	switch(i) {
 	case 0: return "Web: http://www.megaglest.org  http://glest.org";
 	case 1: return "Bug reports: " + string(mailString);
 	case 2: return "Irc: irc://irc.freenode.net/glest";
@@ -186,7 +198,7 @@ string getTeammateRole(int i) {
 	return "";
 }
 
-string formatString(const string &str){
+string formatString(string str) {
 	string outStr = str;
 
 	if(!outStr.empty()){
@@ -258,6 +270,17 @@ string getGameReadWritePath(string lookupKey) {
     }
 
     return path;
+}
+
+void initSpecialStrings() {
+	getCrashDumpFileName();
+	getPlatformNameString();
+	getSVNRevisionString();
+	getCompilerNameString();
+	getNetworkVersionString();
+	getNetworkVersionSVNString();
+	getNetworkPlatformFreeVersionString();
+	getCompileDateTime();
 }
 
 }}//end namespace

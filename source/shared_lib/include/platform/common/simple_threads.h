@@ -69,6 +69,9 @@ public:
 class SimpleTaskCallbackInterface {
 public:
 	virtual void simpleTask(BaseThread *callingThread) = 0;
+
+	virtual void setupTask(BaseThread *callingThread) {}
+	virtual void shutdownTask(BaseThread *callingThread) {}
 };
 
 class SimpleTaskThread : public BaseThread
@@ -87,11 +90,12 @@ protected:
 	time_t lastExecuteTimestamp;
 
 public:
-	SimpleTaskThread();
 	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface,
 					 unsigned int executionCount=0,
 					 unsigned int millisecsBetweenExecutions=0,
 					 bool needTaskSignal = false);
+	virtual ~SimpleTaskThread();
+
     virtual void execute();
     virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 

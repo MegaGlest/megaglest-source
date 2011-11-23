@@ -41,6 +41,11 @@ using Shared::Util::Checksum;
 
 namespace Shared { namespace PlatformCommon {
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define CODE_AT_LINE __FILE__ ":" TOSTRING(__LINE__)
+#define CODE_AT_LINE_X(x) __FILE__ ":" TOSTRING(__LINE__) ":" TOSTRING(x)
+
 static const int IGNORE_CMD_RESULT_VALUE = -999999;
 
 // keycode constants (unfortunately designed after DirectInput and therefore not

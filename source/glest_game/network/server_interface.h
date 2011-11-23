@@ -85,6 +85,8 @@ private:
 	vector<string> techTreeFiles;
 	vector<string> tilesetFiles;
 
+	map<string,pair<uint64,time_t> > badClientConnectIPList;
+
 public:
 	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
@@ -176,6 +178,8 @@ public:
 
     void setPublishEnabled(bool value);
 
+    bool getGameHasBeenInitiated() const { return gameHasBeenInitiated; }
+
 public:
     Mutex *getServerSynchAccessor() {
         return &serverSynchAccessor;
@@ -184,6 +188,7 @@ public:
     virtual void simpleTask(BaseThread *callingThread);
     void addClientToServerIPAddress(uint32 clientIp, uint32 ServerIp);
     virtual int isValidClientType(uint32 clientIp);
+    void notifyBadClientConnectAttempt(string ipAddress);
 
 private:
     void broadcastMessage(const NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);

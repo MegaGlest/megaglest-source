@@ -42,7 +42,9 @@ private:
 	char buffer[S];
 
 public:
-	NetworkString()					  {memset(buffer, 0, S);}
+	NetworkString()	{
+		memset(buffer, 0, S);
+	}
 	NetworkString & operator=(const string& str) {
 		// ensure we don't have a buffer overflow
 		int maxBufferSize = sizeof(buffer) / sizeof(buffer[0]);
@@ -55,7 +57,7 @@ public:
 		buffer[maxBufferSize-1] = '\0';
 	}
 
-	string getString() const		  {return buffer;}
+	string getString() const { return (buffer[0] != '\0' ? buffer : ""); }
 };
 
 // =====================================================

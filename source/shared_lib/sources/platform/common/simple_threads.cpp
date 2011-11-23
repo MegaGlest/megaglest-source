@@ -302,6 +302,12 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
 	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	lastExecuteTimestamp = time(NULL);
+
+	this->simpleTaskInterface->setupTask(this);
+}
+
+SimpleTaskThread::~SimpleTaskThread() {
+	this->simpleTaskInterface->shutdownTask(this);
 }
 
 bool SimpleTaskThread::isThreadExecutionLagging() {

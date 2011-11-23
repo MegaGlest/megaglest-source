@@ -97,11 +97,12 @@ public:
     	networkPauseGameForLaggedClients 	= false;
     	pathFinderType						= pfBasic;
 
+    	static const string DEFAULT_LANG = "english";
     	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
     		factionTypeNames[i] = "";
     		networkPlayerNames[i] = "";
     		networkPlayerStatuses[i] = 0;
-    		networkPlayerLanguages[i] = "english";
+    		networkPlayerLanguages[i] = DEFAULT_LANG;
     		factionControls[i] = ctClosed;
     		resourceMultiplierIndex[i] = 1.0f;
     		teams[i] = 0;

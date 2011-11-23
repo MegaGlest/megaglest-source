@@ -130,9 +130,8 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	mainMessageBoxState = ftpmsg_None;
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+	mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
 	mainMessageBox.setEnabled(false);
-
 
 	lineHorizontal.init(0,installButtonYPos-60);
 	lineVertical.init(500,returnLineY, 5,  installButtonYPos-60-returnLineY);
@@ -330,7 +329,7 @@ void MenuStateMods::reloadUI() {
 	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyScenarioScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
-	mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+	mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
 
 	modDescrLabel.setText("description is empty");
 
@@ -379,7 +378,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	bool findArchive = executeShellCommand(fileArchiveExtractCommand,expectedResult);
 	if(findArchive == false) {
 		mainMessageBoxState = ftpmsg_None;
-		mainMessageBox.init(lang.get("Ok"));
+		mainMessageBox.init(lang.get("Ok"),450);
 		showMessageBox(lang.get("ModRequires7z"), lang.get("Notice"), true);
 	}
 
@@ -1107,7 +1106,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 		if(fileFTPProgressList.empty() == false) {
 			mainMessageBoxState = ftpmsg_Quit;
-			mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+			mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
 			char szBuf[1024]="";
 			sprintf(szBuf,lang.get("ModDownloadInProgressCancelQuestion").c_str(),fileFTPProgressList.size());
 			showMessageBox(szBuf, lang.get("Question"), true);
@@ -1123,7 +1122,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(mainMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
 			mainMessageBox.setEnabled(false);
-			mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+			mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
 			if(button == 1) {
 			    if(mainMessageBoxState == ftpmsg_Quit) {
 			    	mainMessageBoxState = ftpmsg_None;
@@ -1398,14 +1397,14 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
 
 						mainMessageBoxState = ftpmsg_ReplaceTechtree;
-						mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
 						char szBuf[1024]="";
 						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTechName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					else {
 						mainMessageBoxState = ftpmsg_None;
-						mainMessageBox.init(lang.get("Ok"));
+						mainMessageBox.init(lang.get("Ok"),450);
 						char szBuf[1024]="";
 						sprintf(szBuf,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
@@ -1428,7 +1427,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
-			mainMessageBox.init(lang.get("Ok"));
+			mainMessageBox.init(lang.get("Ok"),450);
 			showMessageBox(lang.get("ModSelectTechToInstall"), lang.get("Notice"), true);
 		}
 	}
@@ -1445,7 +1444,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
-				mainMessageBox.init(lang.get("Ok"));
+				mainMessageBox.init(lang.get("Ok"),450);
 
 				char szBuf[1024]="";
 				sprintf(szBuf,lang.get("ModCannotRemoveTechNotInstalled").c_str(),selectedTechName.c_str());
@@ -1454,7 +1453,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
-			mainMessageBox.init(lang.get("Ok"));
+			mainMessageBox.init(lang.get("Ok"),450);
 
 			showMessageBox(lang.get("ModSelectTechToRemove"), lang.get("Notice"), true);
 		}
@@ -1479,14 +1478,14 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
 
 						mainMessageBoxState = ftpmsg_ReplaceTileset;
-						mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
 						char szBuf[1024]="";
 						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTilesetName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					else {
 						mainMessageBoxState = ftpmsg_None;
-						mainMessageBox.init(lang.get("Ok"));
+						mainMessageBox.init(lang.get("Ok"),450);
 						char szBuf[1024]="";
 						sprintf(szBuf,lang.get("ModTilesetAlreadyInstalled").c_str(),selectedTilesetName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
@@ -1508,7 +1507,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
-			mainMessageBox.init(lang.get("Ok"));
+			mainMessageBox.init(lang.get("Ok"),450);
 			showMessageBox(lang.get("ModSelectTilesetToInstall"), lang.get("Notice"), true);
 		}
 	}
@@ -1525,7 +1524,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
-				mainMessageBox.init(lang.get("Ok"));
+				mainMessageBox.init(lang.get("Ok"),450);
 
 				char szBuf[1024]="";
 				sprintf(szBuf,lang.get("ModCannotRemoveTilesetNotInstalled").c_str(),selectedTilesetName.c_str());
@@ -1534,7 +1533,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
-			mainMessageBox.init(lang.get("Ok"));
+			mainMessageBox.init(lang.get("Ok"),450);
 			showMessageBox(lang.get("ModSelectTilesetToRemove"), lang.get("Notice"), true);
 		}
 	}
@@ -1549,14 +1548,14 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					ModInfo &modInfo = mapCacheList[selectedMapName];
 					if( modInfo.crc != modInfo.localCRC ) {
 						mainMessageBoxState = ftpmsg_ReplaceMap;
-						mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
 						char szBuf[1024]="";
 						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedMapName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					else {
 						mainMessageBoxState = ftpmsg_None;
-						mainMessageBox.init(lang.get("Ok"));
+						mainMessageBox.init(lang.get("Ok"),450);
 						char szBuf[1024]="";
 						sprintf(szBuf,lang.get("ModMapAlreadyInstalled").c_str(),selectedMapName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
@@ -1578,7 +1577,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
-			mainMessageBox.init(lang.get("Ok"));
+			mainMessageBox.init(lang.get("Ok"),450);
 			showMessageBox(lang.get("ModSelectMapToInstall"), lang.get("Notice"), true);
 		}
 	}
@@ -1595,7 +1594,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
-				mainMessageBox.init(lang.get("Ok"));
+				mainMessageBox.init(lang.get("Ok"),450);
 
 				char szBuf[1024]="";
 				sprintf(szBuf,lang.get("ModCannotRemoveMapNotInstalled").c_str(),selectedMapName.c_str());
@@ -1604,7 +1603,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
-			mainMessageBox.init(lang.get("Ok"));
+			mainMessageBox.init(lang.get("Ok"),450);
 			showMessageBox(lang.get("ModSelectMapToRemove"), lang.get("Notice"), true);
 		}
 	}
@@ -1628,14 +1627,14 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
 
 						mainMessageBoxState = ftpmsg_ReplaceScenario;
-						mainMessageBox.init(lang.get("Yes"),lang.get("No"));
+						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
 						char szBuf[1024]="";
 						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedScenarioName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					else {
 						mainMessageBoxState = ftpmsg_None;
-						mainMessageBox.init(lang.get("Ok"));
+						mainMessageBox.init(lang.get("Ok"),450);
 						char szBuf[1024]="";
 						sprintf(szBuf,lang.get("ModScenarioAlreadyInstalled").c_str(),selectedScenarioName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
@@ -1659,7 +1658,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
-			mainMessageBox.init(lang.get("Ok"));
+			mainMessageBox.init(lang.get("Ok"),450);
 			showMessageBox(lang.get("ModSelectScenarioToInstall"), lang.get("Notice"), true);
 		}
 	}
@@ -1676,7 +1675,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
-				mainMessageBox.init(lang.get("Ok"));
+				mainMessageBox.init(lang.get("Ok"),450);
 
 				char szBuf[1024]="";
 				sprintf(szBuf,lang.get("ModCannotRemoveScenarioNotInstalled").c_str(),selectedScenarioName.c_str());
@@ -1685,7 +1684,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		else {
 			mainMessageBoxState = ftpmsg_None;
-			mainMessageBox.init(lang.get("Ok"));
+			mainMessageBox.init(lang.get("Ok"),450);
 			showMessageBox(lang.get("ModSelectScenarioToRemove"), lang.get("Notice"), true);
 		}
 	}
@@ -2294,11 +2293,11 @@ void MenuStateMods::keyUp(SDL_KeyboardEvent key) {
 }
 
 void MenuStateMods::showMessageBox(const string &text, const string &header, bool toggle) {
-	if(!toggle){
+	if(toggle == false) {
 		mainMessageBox.setEnabled(false);
 	}
 
-	if(!mainMessageBox.getEnabled()){
+	if(mainMessageBox.getEnabled() == false) {
 		mainMessageBox.setText(text);
 		mainMessageBox.setHeader(header);
 		mainMessageBox.setEnabled(true);

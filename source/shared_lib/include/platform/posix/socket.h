@@ -204,12 +204,17 @@ protected:
 class BroadCastSocketThread : public BaseThread
 {
 private:
+	Mutex mutexPauseBroadcast;
+	bool pauseBroadcast;
 
 public:
 	BroadCastSocketThread();
 	virtual ~BroadCastSocketThread();
     virtual void execute();
     virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
+
+    bool getPauseBroadcast();
+    void setPauseBroadcast(bool value);
 };
 
 // =====================================================
@@ -229,6 +234,7 @@ protected:
     virtual void UPNPInitStatus(bool result);
 	BroadCastSocketThread *broadCastThread;
 	void startBroadCastThread();
+	void resumeBroadcast();
 	bool isBroadCastThreadRunning();
 	vector<string> blockIPList;
 
@@ -239,6 +245,8 @@ public:
 	void listen(int connectionQueueSize= SOMAXCONN);
 	Socket *accept();
 	void stopBroadCastThread();
+    void pauseBroadcast();
+
 
 	void addIPAddressToBlockedList(string value);
 	bool isIPAddressBlocked(string value) const;
@@ -275,6 +283,7 @@ public:
 
     static bool isUPNP;
     static bool enabledUPNP;
+    static Mutex mutexUPNP;
 
     static int upnp_init(void *param);
 

@@ -27,6 +27,7 @@ extern const char *mailString;
 extern const string glestVersionString;
 extern const string networkVersionString;
 
+void initSpecialStrings();
 string getCrashDumpFileName();
 string getPlatformNameString();
 string getSVNRevisionString();
@@ -40,7 +41,7 @@ string getTeammateName(int i);
 string getTeammateRole(int i);
 string getCompileDateTime();
 
-string formatString(const string &str);
+string formatString(string str);
 
 string getGameReadWritePath(string lookupKey="");
 string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath);

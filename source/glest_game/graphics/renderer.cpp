@@ -876,8 +876,55 @@ enum PROJECTION_TO_INFINITY { D_IS_ZERO, N_OVER_D_IS_OUTSIDE };
 
 static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble* projection,const GLint* viewport,const char* label=NULL) {
 	Vec3d a,b;
-	gluUnProject(pt.x,viewport[3]-pt.y,0,model,projection,viewport,&a.x,&a.y,&a.z);
-	gluUnProject(pt.x,viewport[3]-pt.y,1,model,projection,viewport,&b.x,&b.y,&b.z);
+	/*  note viewport[3] is height of window in pixels  */
+	GLint realy = viewport[3] - (GLint) pt.y;
+	gluUnProject(pt.x,realy,0,model,projection,viewport,&a.x,&a.y,&a.z);
+	gluUnProject(pt.x,realy,1,model,projection,viewport,&b.x,&b.y,&b.z);
+
+/*
+	//We could use some vector3d class, but this will do fine for now
+	//ray
+	b.x -= a.x;
+	b.y -= a.y;
+	b.z -= a.z;
+	float rayLength = streflop::sqrtf(a.x*a.x + a.y*a.y + a.z*a.z);
+	//normalize
+	b.x /= rayLength;
+	b.y /= rayLength;
+	b.z /= rayLength;
+
+	//T = [planeNormal.(pointOnPlane - rayOrigin)]/planeNormal.rayDirection;
+	//pointInPlane = rayOrigin + (rayDirection * T);
+
+	float dot1, dot2;
+
+	float pointInPlaneX = 0;
+	float pointInPlaneY = 0;
+	float pointInPlaneZ = 0;
+	float planeNormalX = 0;
+	float planeNormalY = 0;
+	float planeNormalZ = -1;
+
+	pointInPlaneX -= a.x;
+	pointInPlaneY -= a.y;
+	pointInPlaneZ -= a.z;
+
+	dot1 = (planeNormalX * pointInPlaneX) + (planeNormalY * pointInPlaneY) + (planeNormalZ * pointInPlaneZ);
+	dot2 = (planeNormalX * b.x) + (planeNormalY * b.y) + (planeNormalZ * b.z);
+
+	float t = dot1/dot2;
+
+	b.x *= t;
+	b.y *= t;
+	//b.z *= t;
+	//we don't need the z coordinate in my case
+
+	//return Vec2i(b.x + a.x, b.z + a.z);
+	return Vec2i(b.x + a.x, b.z + a.z);
+*/
+
+
+
 	// junk values if you were looking parallel to the XZ plane; this shouldn't happen as the camera can't do this?
 	const Vec3f
 		start(a.x,a.y,a.z),
@@ -941,6 +988,7 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 			pos.x,pos.y);
 	}
 	return pos;
+
 }
 
 //Matrix4 LookAt( Vector3 eye, Vector3 target, Vector3 up ) {
@@ -975,6 +1023,16 @@ void Renderer::computeVisibleQuad() {
 	//Matrix4 LookAt( gameCamera->getPos(), gameCamera->getPos(), Vector3 up );
 	//gluLookAt
 
+	//const Metrics &metrics= Metrics::getInstance();
+	//float Hnear = 2.0 * streflop::tanf(gameCamera->getFov() / 2.0) * perspNearPlane;
+	//float Hnear = 2.0 * streflop::tanf(perspFov / 2.0) * perspNearPlane;
+	//float Wnear = Hnear * metrics.getAspectRatio();
+	//The same reasoning can be applied to the far plane:
+	//float Hfar = 2.0 * streflop::tanf(perspFov / 2.0) * perspFarPlane;
+	//float Hfar = 2.0 * streflop::tanf(gameCamera->getFov() / 2.0) * perspFarPlane;
+	//float Wfar = Hfar * metrics.getAspectRatio();
+	//printf("Hnear = %f, Wnear = %f, Hfar = %f, Wfar = %f\n",Hnear,Wnear,Hfar,Wfar);
+
 	const bool newVisibleQuadCalc = false;
 	if(newVisibleQuadCalc) {
 		const bool debug = false;
@@ -987,6 +1045,8 @@ void Renderer::computeVisibleQuad() {
 					visibleQuad.p[2].x,visibleQuad.p[2].y,
 					visibleQuad.p[3].x,visibleQuad.p[3].y);
 			}
+
+
 			// compute the four corners using OpenGL
 			GLdouble model[16], projection[16];
 			GLint viewport[4];
@@ -998,6 +1058,8 @@ void Renderer::computeVisibleQuad() {
 				tr = _unprojectMap(Vec2i(viewport[2],0),model,projection,viewport,"tr"),
 				br = _unprojectMap(Vec2i(viewport[2],viewport[3]),model,projection,viewport,"br"),
 				bl = _unprojectMap(Vec2i(0,viewport[3]),model,projection,viewport,"bl");
+
+
 			// orientate it for map iterator
 			//bool swapRequiredX = false;
 			bool swapRequiredY = false;
@@ -3629,8 +3691,9 @@ void Renderer::renderObjects(const int renderFps) {
 
     assertGl();
 
-	const Texture2D *fowTex= NULL;
-	Vec3f baseFogColor;
+	const Texture2D *fowTex = world->getMinimap()->getFowTexture();
+	const Pixmap2D *fowTexPixmap = fowTex->getPixmapConst();
+	Vec3f baseFogColor = world->getTileset()->getFogColor() * computeLightColor(world->getTimeFlow()->getTime());
 
     bool modelRenderStarted = false;
 
@@ -3645,12 +3708,9 @@ void Renderer::renderObjects(const int renderFps) {
 		if(modelRenderStarted == false) {
 			modelRenderStarted = true;
 
-			fowTex= world->getMinimap()->getFowTexture();
-			baseFogColor= world->getTileset()->getFogColor() * computeLightColor(world->getTimeFlow()->getTime());
-
 			glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 
-			if(!shadowsOffDueToMinRender &&
+			if(shadowsOffDueToMinRender == false &&
 				shadows == sShadowMapping) {
 				glActiveTexture(shadowTexUnit);
 				glEnable(GL_TEXTURE_2D);
@@ -3669,7 +3729,6 @@ void Renderer::renderObjects(const int renderFps) {
 		}
 		//ambient and diffuse color is taken from cell color
 
-		const Pixmap2D *fowTexPixmap = fowTex->getPixmapConst();
 		float fowFactor= fowTexPixmap->getPixelf(o->getMapPos().x / Map::cellScale, o->getMapPos().y / Map::cellScale);
 		Vec4f color= Vec4f(Vec3f(fowFactor), 1.f);
 		glColor4fv(color.ptr());
@@ -6682,10 +6741,12 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				}
 				quadCache.clearNonVolatileCacheData();
 
+				//int loops1=0;
 				PosQuadIterator pqi(map,visibleQuad, Map::cellScale);
 				while(pqi.next()) {
 					const Vec2i &pos= pqi.getPos();
 					if(map->isInside(pos)) {
+						//loops1++;
 						const Vec2i &mapPos = Map::toSurfCoords(pos);
 
 						//quadCache.visibleCellList.push_back(mapPos);
@@ -6709,15 +6770,20 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 					}
 				}
 
+				//printf("Frame # = %d loops1 = %d\n",world->getFrameCount(),loops1);
+
+				//int loops2=0;
 				const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
 				Quad2i scaledQuad = visibleQuad / Map::cellScale;
 				PosQuadIterator pqis(map,scaledQuad);
 				while(pqis.next()) {
 					const Vec2i &pos= pqis.getPos();
 					if(mapBounds.isInside(pos)) {
+						//loops2++;
 						quadCache.visibleScaledCellList.push_back(pos);
 					}
 				}
+				//printf("Frame # = %d loops2 = %d\n",world->getFrameCount(),loops2);
 			}
 			quadCache.cacheFrame = world->getFrameCount();
 			quadCache.lastVisibleQuad = visibleQuad;

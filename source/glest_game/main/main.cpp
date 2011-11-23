@@ -644,8 +644,9 @@ void handleSIGSEGV(int sig) {
     char szBuf[4096]="";
     sprintf(szBuf, "In [%s::%s Line: %d] Error detected: signal %d:\n",__FILE__,__FUNCTION__,__LINE__, sig);
     printf("%s",szBuf);
+    //abort();
 
-    ExceptionHandler::handleRuntimeError(szBuf);
+    //ExceptionHandler::handleRuntimeError(szBuf);
 }
 #endif
 
@@ -3638,7 +3639,6 @@ int glestMain(int argc, char** argv) {
 }
 
 int glestMainWrapper(int argc, char** argv) {
-
 	//setlocale(LC_ALL, "zh_TW.UTF-8");
 	//setlocale(LC_ALL, "");
 
@@ -3666,6 +3666,7 @@ __try {
     //signal(SIGPIPE, SIG_IGN);
 #endif
 
+	initSpecialStrings();
 	int result = glestMain(argc, argv);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

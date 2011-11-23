@@ -60,8 +60,7 @@ void ConnectionSlotThread::setQuitStatus(bool value) {
 
 void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 	if(event != NULL) {
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+		MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
 		eventList.push_back(*event);
 		safeMutex.ReleaseLock();
 	}
@@ -70,8 +69,7 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 
 void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	if(eventId > 0) {
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+		MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
 		//event->eventCompleted = true;
 		for(int i = 0; i < eventList.size(); ++i) {
 		    ConnectionSlotEvent &slotEvent = eventList[i];
@@ -86,15 +84,13 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 }
 
 void ConnectionSlotThread::purgeAllEvents() {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-    MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
     eventList.clear();
     safeMutex.ReleaseLock();
 }
 
 void ConnectionSlotThread::setAllEventsCompleted() {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-    MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
     for(int i = 0; i < eventList.size(); ++i) {
         ConnectionSlotEvent &slotEvent = eventList[i];
         if(slotEvent.eventCompleted == false) {
@@ -105,8 +101,7 @@ void ConnectionSlotThread::setAllEventsCompleted() {
 }
 
 void ConnectionSlotThread::purgeCompletedEvents() {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-    MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+    MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
     //event->eventCompleted = true;
     for(int i = eventList.size() - 1; i >= 0; i--) {
         ConnectionSlotEvent &slotEvent = eventList[i];
@@ -128,8 +123,7 @@ bool ConnectionSlotThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+	MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
 	bool result = false;
     if(event != NULL) {
         for(int i = 0; i < eventList.size(); ++i) {
@@ -140,8 +134,27 @@ bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
             }
         }
     }
-	safeMutex.ReleaseLock();
+	//safeMutex.ReleaseLock();
 	return result;
+}
+
+void ConnectionSlotThread::slotUpdateTask(ConnectionSlotEvent *event) {
+	if(event != NULL) {
+		if(event->eventType == eSendSocketData) {
+			if(event->connectionSlot != NULL) {
+				event->connectionSlot->sendMessage(event->networkMessage);
+			}
+		}
+		else if(event->eventType == eReceiveSocketData) {
+			//updateSlot(event);
+			if(event->connectionSlot != NULL) {
+				event->connectionSlot->updateSlot(event);
+			}
+		}
+		else {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+	}
 }
 
 void ConnectionSlotThread::execute() {
@@ -164,8 +177,7 @@ void ConnectionSlotThread::execute() {
 				break;
 			}
 
-			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-            MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+            MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
             int eventCount = eventList.size();
             if(eventCount > 0) {
                 ConnectionSlotEvent eventCopy;
@@ -188,7 +200,8 @@ void ConnectionSlotThread::execute() {
 
                 if(eventCopy.eventId > 0) {
                     ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
-                    this->slotInterface->slotUpdateTask(&eventCopy);
+                    //this->slotInterface->slotUpdateTask(&eventCopy);
+                    this->slotUpdateTask(&eventCopy);
                     setTaskCompleted(eventCopy.eventId);
                 }
             }
@@ -235,7 +248,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->lastReceiveCommandListTime	= 0;
 	this->receivedNetworkGameStatus = false;
 
-	this->socket		   	= NULL;
+	this->setSocket(NULL);
 	this->slotThreadWorker 	= NULL;
 	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
 	this->slotThreadWorker->setUniqueID(__FILE__);
@@ -255,6 +268,8 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 }
 
 ConnectionSlot::~ConnectionSlot() {
+	//printf("===> Destructor for ConnectionSlot = %d\n",playerIndex);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] START\n",__FILE__,__FUNCTION__,__LINE__);
 
 	close();
@@ -271,6 +286,42 @@ ConnectionSlot::~ConnectionSlot() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
+void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
+	Chrono chrono;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+
+	if(event != NULL) {
+		bool &socketTriggered = event->socketTriggered;
+		bool checkForNewClients = true;
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+		if((serverInterface->getGameHasBeenInitiated() == false ||
+			(this->getSocket() != NULL && socketTriggered == true))) {
+			if(this->isConnected() == false || socketTriggered == true) {
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+				this->update(checkForNewClients,event->triggerId);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+				// This means no clients are trying to connect at the moment
+				if(this->getSocket() == NULL) {
+					checkForNewClients = false;
+				}
+			}
+			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+		}
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+}
+
 void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 	//Chrono chrono;
 	//chrono.start();
@@ -283,7 +334,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-		if(socket == NULL) {
+		if(this->getSocket() == NULL) {
 			if(networkGameDataSynchCheckOkMap) networkGameDataSynchCheckOkMap  = false;
 			if(networkGameDataSynchCheckOkTile) networkGameDataSynchCheckOkTile = false;
 			if(networkGameDataSynchCheckOkTech) networkGameDataSynchCheckOkTech = false;
@@ -313,7 +364,12 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					if(newSocket != NULL) {
 						// Set Socket as non-blocking
 						newSocket->setBlock(false);
-						socket = newSocket;
+
+						//printf("Got new connection for slot = %d\n",playerIndex);
+
+						MutexSafeWrapper safeMutex(&mutexCloseConnection,CODE_AT_LINE);
+						this->setSocket(newSocket);
+						safeMutex.ReleaseLock();
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -329,10 +385,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-						MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
+						MutexSafeWrapper safeMutexSlot1(&mutexPendingNetworkCommandList,CODE_AT_LINE);
 						this->vctPendingNetworkCommandList.clear();
-						safeMutexSlot.ReleaseLock();
+						safeMutexSlot1.ReleaseLock();
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -361,7 +416,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				//send intro message when connected
-				if(socket != NULL) {
+				if(this->getSocket() != NULL) {
 					//RandomGen random;
 					//sessionKey = random.randRange(-100000, 100000);
 					srand(time(NULL) / (this->playerIndex + 1));
@@ -372,7 +427,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					if(hasOpenSlots == false) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
-						if(socket != NULL) {
+						if(this->getSocket() != NULL) {
 							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHostName(), playerIndex, nmgstNoSlots, 0, ServerSocket::getFTPServerPort(),"");
 							sendMessage(&networkMessageIntro);
 						}
@@ -384,7 +439,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					else {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
-						if(socket != NULL) {
+						if(this->getSocket() != NULL) {
 							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort(),"");
 							sendMessage(&networkMessageIntro);
 
@@ -400,14 +455,14 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(socket != NULL && socket->isConnected()) {
+			if(this->getSocket() != NULL && this->getSocket()->isConnected()) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				this->clearChatInfo();
 
 				bool gotTextMsg = true;
-				for(;socket != NULL && socket->hasDataToRead() == true && gotTextMsg == true;) {
+				for(;this->getSocket() != NULL && this->getSocket()->hasDataToRead() == true && gotTextMsg == true;) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
 					NetworkMessageType networkMessageType= getNextMessageType(true);
@@ -434,6 +489,12 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 									lastPingInfo = networkMessagePing;
 								}
+								else {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+									close();
+									return;
+								}
 							//}
 						}
 						break;
@@ -449,6 +510,18 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									this->addChatInfo(msg);
 									gotTextMsg = true;
 								}
+								else {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+									close();
+									return;
+								}
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+								close();
+								return;
 							}
 						}
 						break;
@@ -467,13 +540,24 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									lastReceiveCommandListTime = time(NULL);
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
-									static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-									MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
+									MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,CODE_AT_LINE);
 									for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
 									safeMutexSlot.ReleaseLock();
 								}
+								else {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+									close();
+									return;
+								}
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+								close();
+								return;
 							}
 						}
 						break;
@@ -496,64 +580,71 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 								if(msgSessionId != sessionKey) {
 									string playerNameStr = name;
-									string sErr = "Client gave invalid sessionid for player [" + playerNameStr + "]";
+									string sErr = "Client gave invalid sessionid for player [" + playerNameStr + "] actual [" + intToStr(msgSessionId) + "] expected [" + intToStr(sessionKey) + "]";
 									printf("%s\n",sErr.c_str());
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 
 									close();
 									return;
 								}
+								else {
+									//check consistency
+									bool compatible = checkVersionComptability(getNetworkVersionSVNString(), networkMessageIntro.getVersionString());
+									if(compatible == false) {
+										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-								//check consistency
-								bool compatible = checkVersionComptability(getNetworkVersionSVNString(), networkMessageIntro.getVersionString());
-								if(compatible == false) {
+										bool versionMatched = false;
+										string platformFreeVersion = getNetworkPlatformFreeVersionString();
+										string sErr = "";
+
+										if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
+											string playerNameStr = name;
+											sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +  getNetworkVersionSVNString() +
+													"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
+											printf("%s\n",sErr.c_str());
+
+											serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true,"",lockedSlotIndex);
+											serverInterface->sendTextMessage(" Server:" + getNetworkVersionSVNString(),-1, true,"",lockedSlotIndex);
+											serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true,"",lockedSlotIndex);
+											serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,"",lockedSlotIndex);
+										}
+										else {
+											versionMatched = true;
+
+											string playerNameStr = name;
+											sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionSVNString() +
+													"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
+											//printf("%s\n",sErr.c_str());
+											if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
+										}
+
+										if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
+										   versionMatched == false) { // error message and disconnect only if checked
+											if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
+											close();
+											if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
+											return;
+										}
+									}
+
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+									gotIntro = true;
 
-									bool versionMatched = false;
-									string platformFreeVersion = getNetworkPlatformFreeVersionString();
-									string sErr = "";
+									this->serverInterface->addClientToServerIPAddress(this->getSocket()->getConnectedIPAddress(this->getSocket()->getIpAddress()),this->connectedRemoteIPAddress);
 
-									if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
-										string playerNameStr = name;
-										sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +  getNetworkVersionSVNString() +
-												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
-										printf("%s\n",sErr.c_str());
+									if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL) {
+										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
 
-										serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true,"",lockedSlotIndex);
-										serverInterface->sendTextMessage(" Server:" + getNetworkVersionSVNString(),-1, true,"",lockedSlotIndex);
-										serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true,"",lockedSlotIndex);
-										serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,"",lockedSlotIndex);
-									}
-									else {
-										versionMatched = true;
-
-										string playerNameStr = name;
-										sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionSVNString() +
-												"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
-										//printf("%s\n",sErr.c_str());
-										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
-									}
-
-									if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
-									   versionMatched == false) { // error message and disconnect only if checked
-										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
-										close();
-										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
-										return;
+										NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData(serverInterface->getGameSettings());
+										sendMessage(&networkMessageSynchNetworkGameData);
 									}
 								}
-
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-								gotIntro = true;
-
-                                this->serverInterface->addClientToServerIPAddress(this->getSocket()->getConnectedIPAddress(this->getSocket()->getIpAddress()),this->connectedRemoteIPAddress);
-
-								if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL) {
-									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
-
-									NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData(serverInterface->getGameSettings());
-									sendMessage(&networkMessageSynchNetworkGameData);
-								}
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+								close();
+								return;
 							}
 						}
 						break;
@@ -561,46 +652,60 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				        case nmtLaunch:
 				        case nmtBroadCastSetup:
 				        {
-				        	if(this->serverInterface->getGameSettings() == NULL ||
-				        		sessionKey != this->serverInterface->getGameSettings()->getMasterserver_admin()) {
-								string playerNameStr = name;
-								string sErr = "Client has invalid admin sessionid for player [" + playerNameStr + "]";
-								printf("%s\n",sErr.c_str());
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
+				        	if(gotIntro == true) {
+								if(this->serverInterface->getGameSettings() == NULL ||
+									sessionKey != this->serverInterface->getGameSettings()->getMasterserver_admin()) {
+									string playerNameStr = name;
+									string sErr = "Client has invalid admin sessionid for player [" + playerNameStr + "]";
+									printf("%s\n",sErr.c_str());
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
 
+									close();
+									return;
+								}
+
+								NetworkMessageLaunch networkMessageLaunch;
+								if(receiveMessage(&networkMessageLaunch)) {
+									if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+									}
+									else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
+									}
+									else {
+										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+
+										char szBuf[1024]="";
+										snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+										throw runtime_error(szBuf);
+									}
+
+									GameSettings gameSettings;
+									networkMessageLaunch.buildGameSettings(&gameSettings);
+
+									//printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
+									//printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
+
+									this->serverInterface->setGameSettings(&gameSettings,false);
+									this->serverInterface->broadcastGameSetup(&gameSettings);
+
+									if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+										this->serverInterface->setMasterserverAdminRequestLaunch(true);
+									}
+								}
+								else {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+									close();
+									return;
+								}
+				        	}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
 								close();
 								return;
-				        	}
-
-				            NetworkMessageLaunch networkMessageLaunch;
-				            if(receiveMessage(&networkMessageLaunch)) {
-				            	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
-				            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
-				            	}
-				            	else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
-				            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
-				            	}
-				            	else {
-				            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
-
-									char szBuf[1024]="";
-									snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
-									throw runtime_error(szBuf);
-				            	}
-
-				            	GameSettings gameSettings;
-				                networkMessageLaunch.buildGameSettings(&gameSettings);
-
-				                //printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
-				                //printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
-
-				                this->serverInterface->setGameSettings(&gameSettings,false);
-				                this->serverInterface->broadcastGameSetup(&gameSettings);
-
-				                if(networkMessageLaunch.getMessageType() == nmtLaunch) {
-				                	this->serverInterface->setMasterserverAdminRequestLaunch(true);
-				                }
-				            }
+							}
 				        }
 				        break;
 
@@ -713,6 +818,18 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									receivedNetworkGameStatus = true;
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 								}
+								else {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+									close();
+									return;
+								}
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+								close();
+								return;
 							}
 						}
 						break;
@@ -730,6 +847,18 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck(vctFileList.size(), fileIndex, vctFileList[fileIndex-1].second, vctFileList[fileIndex-1].first);
 									sendMessage(&networkMessageSynchNetworkGameDataFileCRCCheck);
 								}
+								else {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+									close();
+									return;
+								}
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+								close();
+								return;
 							}
 						}
 						break;
@@ -751,6 +880,18 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									FileTransferSocketThread *fileXferThread = new FileTransferSocketThread(fileInfo);
 									fileXferThread->start();
 								}
+								else {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+									close();
+									return;
+								}
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+								close();
+								return;
 							}
 						}
 						break;
@@ -766,8 +907,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 								SwitchSetupRequest switchSetupRequest;
 								if(receiveMessage(&switchSetupRequest)) {
-									static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-									MutexSafeWrapper safeMutex(getServerSynchAccessor(),mutexOwnerId);
+									MutexSafeWrapper safeMutex(getServerSynchAccessor(),CODE_AT_LINE);
 
 									int factionIdx = switchSetupRequest.getCurrentFactionIndex();
 									if(serverInterface->getSwitchSetupRequests()[factionIdx] == NULL) {
@@ -786,7 +926,20 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getNetworkPlayerStatus() = %d, switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getNetworkPlayerStatus(),switchSetupRequest.getSwitchFlags());
 								}
+								else {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+									close();
+									return;
+								}
 							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+								close();
+								return;
+							}
+
 							break;
 						}
 						case nmtReady:
@@ -811,7 +964,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got invalid message type before intro, disconnecting socket.\n",__FILE__,__FUNCTION__,__LINE__);
+
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
 									close();
+									return;
 								}
 							}
 					}
@@ -864,13 +1021,10 @@ void ConnectionSlot::close() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutex(&mutexCloseConnection,mutexOwnerId);
+	MutexSafeWrapper safeMutex(&mutexCloseConnection,CODE_AT_LINE);
 
-	bool updateServerListener = (socket != NULL);
-	delete socket;
-	socket= NULL;
-
+	bool updateServerListener = (this->getSocket() != NULL);
+	this->deleteSocket();
 	safeMutex.ReleaseLock();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -887,7 +1041,7 @@ void ConnectionSlot::close() {
 }
 
 bool ConnectionSlot::hasValidSocketId() {
-    bool result = (socket != NULL && socket->getSocketId() > 0);
+    bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
     return result;
 }
 
@@ -912,8 +1066,7 @@ bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 }
 
 void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutex(&socketSynchAccessor,mutexOwnerId);
+	MutexSafeWrapper safeMutex(&socketSynchAccessor,CODE_AT_LINE);
 
 	// Skip text messages not intended for the players preferred language
 	const NetworkMessageText *textMsg = dynamic_cast<const NetworkMessageText *>(networkMessage);
@@ -935,8 +1088,7 @@ string ConnectionSlot::getHumanPlayerName(int index) {
 
 vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearList) {
 	vector<NetworkCommand> ret;
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
+	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,CODE_AT_LINE);
     if(vctPendingNetworkCommandList.empty() == false) {
     	ret = vctPendingNetworkCommandList;
 		if(clearList == true) {
@@ -949,12 +1101,36 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
 }
 
 void ConnectionSlot::clearPendingNetworkCommandList() {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,mutexOwnerId);
+	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,CODE_AT_LINE);
 	if(vctPendingNetworkCommandList.empty() == false) {
 		vctPendingNetworkCommandList.clear();
 	}
     safeMutexSlot.ReleaseLock();
+}
+
+bool ConnectionSlot::isConnected() {
+    bool result = false;
+    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+    if(socket != NULL && socket->isConnected() == true) {
+    	result = true;
+    }
+	return result;
+}
+
+Socket* ConnectionSlot::getSocket()	{
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	return socket;
+}
+
+void ConnectionSlot::setSocket(Socket *newSocket) {
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	socket = newSocket;
+}
+
+void ConnectionSlot::deleteSocket() {
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	delete socket;
+	socket = NULL;
 }
 
 }}//end namespace

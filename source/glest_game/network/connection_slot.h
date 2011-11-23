@@ -83,6 +83,8 @@ protected:
 	virtual void setTaskCompleted(int eventId);
 	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 
+	void slotUpdateTask(ConnectionSlotEvent *event);
+
 public:
 	ConnectionSlotThread(int slotIndex);
 	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
@@ -103,6 +105,8 @@ public:
 class ConnectionSlot: public NetworkInterface {
 private:
 	ServerInterface* serverInterface;
+
+	Mutex mutexSocket;
 	Socket* socket;
 	int playerIndex;
 	string name;
@@ -142,8 +146,7 @@ public:
 	void setName(string value)      {name = value;}
 	bool isReady() const			{return ready;}
 
-	virtual Socket* getSocket()				{return socket;}
-	virtual Socket* getSocket() const		{return socket;}
+	virtual Socket* getSocket();
 
 	virtual void close();
 	//virtual bool getFogOfWar();
@@ -186,12 +189,17 @@ public:
 	time_t getConnectedTime() const { return connectedTime; }
 	int getSessionKey() const { return sessionKey; }
 
+	void updateSlot(ConnectionSlotEvent *event);
+	virtual bool isConnected();
+
 protected:
 
 	Mutex * getServerSynchAccessor();
 	std::vector<std::string> threadErrorList;
 	Mutex socketSynchAccessor;
 
+	void setSocket(Socket *newSocket);
+	void deleteSocket();
 	virtual void update() {}
 };
 

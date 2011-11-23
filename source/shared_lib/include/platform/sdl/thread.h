@@ -77,10 +77,13 @@ private:
 
 class Mutex {
 private:
+
 	SDL_mutex* mutex;
 	int refCount;
 	string ownerId;
 	string deleteownerId;
+
+	SDL_mutex* mutexAccessor;
 
 public:
 	Mutex(string ownerId="");
