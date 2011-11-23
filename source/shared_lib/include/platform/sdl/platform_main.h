@@ -29,6 +29,7 @@ const char  *GAME_ARGS[] = {
 	"--starthost",
 	"--headless-server-mode",
 	"--load-scenario",
+	"--load-mod",
 	"--preview-map",
 	"--version",
 	"--opengl-info",
@@ -55,13 +56,11 @@ const char  *GAME_ARGS[] = {
 	"--disable-sound",
 	"--enable-legacyfonts",
 	"--force-ftglfonts",
-//	"--use-video-settings",
 
 	"--resolution",
 	"--colorbits",
 	"--depthbits",
 	"--fullscreen",
-	//"--windowed",
 
 	"--use-font",
 	"--font-basesize",
@@ -76,6 +75,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_SERVER,
 	GAME_ARG_MASTERSERVER_MODE,
 	GAME_ARG_LOADSCENARIO,
+	GAME_ARG_MOD,
 	GAME_ARG_PREVIEW_MAP,
 	GAME_ARG_VERSION,
 	GAME_ARG_OPENGL_INFO,
@@ -104,7 +104,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_SOUND,
 	GAME_ARG_ENABLE_LEGACYFONTS,
 	GAME_ARG_FORCE_FTGLFONTS,
-	//GAME_ARG_USE_VIDEO_SETTINGS,
+
 	GAME_ARG_USE_RESOLUTION,
 	GAME_ARG_USE_COLORBITS,
 	GAME_ARG_USE_DEPTHBITS,
@@ -133,6 +133,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tvps  - which does NOT read commands from the local console (required for some vps's).");
 
 	printf("\n%s=x\t\tAuto loads the specified scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
+	printf("\n%s=x\t\tAuto loads the specified mod by mod pathname.",GAME_ARGS[GAME_ARG_MOD]);
+
 	printf("\n%s=x\t\tAuto Preview the specified map by map name.",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
 	printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
 	printf("\n%s\t\t\tdisplays your video driver's OpenGL information.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
