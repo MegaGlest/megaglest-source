@@ -124,10 +124,10 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	labelServerPort.registerGraphicComponent(containerName,"labelServerPort");
 	labelServerPort.init(465,430);
 	string port=intToStr(config.getInt("ServerPort"));
-	if(port!="61357"){
+	if(port != intToStr(GameConstants::serverPort)){
 		port=port +" ("+lang.get("NonStandardPort")+")";
 	}
-	else{
+	else {
 		port=port +" ("+lang.get("StandardPort")+")";
 	}
 	labelServerPort.setText(port);
@@ -183,7 +183,7 @@ void MenuStateJoinGame::reloadUI() {
 	labelServerPortLabel.setText(lang.get("ServerPort"));
 
 	string port=intToStr(config.getInt("ServerPort"));
-	if(port != "61357") {
+	if(port != intToStr(GameConstants::serverPort)) {
 		port = port +" ("+lang.get("NonStandardPort")+")";
 	}
 	else {

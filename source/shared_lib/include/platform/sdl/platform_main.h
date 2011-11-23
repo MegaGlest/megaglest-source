@@ -24,10 +24,13 @@
 
 const char  *GAME_ARGS[] = {
 	"--help",
+
 	"--autostart-lastgame",
 	"--connecthost",
 	"--starthost",
 	"--headless-server-mode",
+	"--use-ports",
+
 	"--load-scenario",
 	"--load-mod",
 	"--preview-map",
@@ -70,10 +73,13 @@ const char  *GAME_ARGS[] = {
 
 enum GAME_ARG_TYPE {
 	GAME_ARG_HELP = 0,
+
 	GAME_ARG_AUTOSTART_LASTGAME,
 	GAME_ARG_CLIENT,
 	GAME_ARG_SERVER,
 	GAME_ARG_MASTERSERVER_MODE,
+	GAME_ARG_USE_PORTS,
+
 	GAME_ARG_LOADSCENARIO,
 	GAME_ARG_MOD,
 	GAME_ARG_PREVIEW_MAP,
@@ -131,6 +137,11 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is an optional comma delimited command list of one or more of the following: ");
 	printf("\n                     \t\texit - which quits the application after a game has no more connected players.");
 	printf("\n                     \t\tvps  - which does NOT read commands from the local console (required for some vps's).");
+
+	printf("\n%s=x,y\tForce hosted games to listen internally on port x, externally on port y.",GAME_ARGS[GAME_ARG_USE_PORTS]);
+	printf("\n                     \t\tWhere x is the internal port # on the local machine to listen for connects");
+	printf("\n                     \t\t      y is the external port # on the router/proxy to forward connection from to the internal port #");
+	printf("\n                     \t\t*NOTE: If enabled the FTP Server port #'s will be set to x+1 to x+9");
 
 	printf("\n%s=x\t\tAuto loads the specified scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
 	printf("\n%s=x\t\tAuto loads the specified mod by mod pathname.",GAME_ARGS[GAME_ARG_MOD]);

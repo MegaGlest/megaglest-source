@@ -2652,61 +2652,6 @@ int glestMain(int argc, char** argv) {
         	Renderer::renderText3DEnabled = config.getBool("Enable3DFontRendering",intToStr(Renderer::renderText3DEnabled).c_str());
         }
 
-//        if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]) == true) {
-//			int foundParamIndIndex = -1;
-//			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]) + string("="),&foundParamIndIndex);
-//			if(foundParamIndIndex < 0) {
-//				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]),&foundParamIndIndex);
-//			}
-//			string paramValue = argv[foundParamIndIndex];
-//			vector<string> paramPartTokens;
-//			Tokenize(paramValue,paramPartTokens,"=");
-//			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-//				string settings = paramPartTokens[1];
-//				printf("Forcing video settings [%s]\n",settings.c_str());
-//
-//				paramPartTokens.clear();
-//				Tokenize(settings,paramPartTokens,"x");
-//				if(paramPartTokens.size() >= 2) {
-//					int newScreenWidth 	= strToInt(paramPartTokens[0]);
-//					config.setInt("ScreenWidth",newScreenWidth);
-//
-//					int newScreenHeight = strToInt(paramPartTokens[1]);
-//					config.setInt("ScreenHeight",newScreenHeight);
-//
-//					if(paramPartTokens.size() >= 3) {
-//						if(paramPartTokens[2] != "*") {
-//							int newColorBits = strToInt(paramPartTokens[2]);
-//							config.setInt("ColorBits",newColorBits);
-//						}
-//					}
-//					if(paramPartTokens.size() >= 4) {
-//						if(paramPartTokens[3] != "*") {
-//							int newDepthBits = strToInt(paramPartTokens[3]);
-//							config.setInt("DepthBits",newDepthBits);
-//						}
-//					}
-//					if(paramPartTokens.size() >= 5) {
-//						if(paramPartTokens[4] != "*") {
-//							bool newFullScreenMode = strToBool(paramPartTokens[4]);
-//							config.setBool("Windowed",!newFullScreenMode);
-//						}
-//					}
-//				}
-//				else {
-//		            printf("\nInvalid missing video settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-//		            //printParameterHelp(argv[0],false);
-//		            return -1;
-//				}
-//			}
-//	        else {
-//	            printf("\nInvalid missing video settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-//	            //printParameterHelp(argv[0],false);
-//	            return -1;
-//	        }
-//        }
-
-
         if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_RESOLUTION]) == true) {
 			int foundParamIndIndex = -1;
 			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_RESOLUTION]) + string("="),&foundParamIndIndex);
@@ -2892,6 +2837,43 @@ int glestMain(int argc, char** argv) {
 		if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
 			Renderer &renderer= Renderer::getInstance(true);
 		}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_PORTS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_PORTS]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string portsToUse = paramPartTokens[1];
+
+				vector<string> paramPartPortsTokens;
+				Tokenize(portsToUse,paramPartPortsTokens,",");
+				if(paramPartPortsTokens.size() >= 2 && paramPartPortsTokens[1].length() > 0) {
+					int internalPort = strToInt(paramPartPortsTokens[0]);
+					int externalPort = strToInt(paramPartPortsTokens[1]);
+
+					printf("Forcing internal port# %d, external port# %d\n",internalPort,externalPort);
+
+					config.setInt("ServerPort",internalPort);
+					config.setInt("MasterServerExternalPort",externalPort);
+					config.setInt("FTPServerPort",internalPort+1);
+				}
+				else {
+		            printf("\nInvalid ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+		            //printParameterHelp(argv[0],false);
+		            return -1;
+				}
+			}
+	        else {
+	            printf("\nInvalid missing ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+    	}
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
