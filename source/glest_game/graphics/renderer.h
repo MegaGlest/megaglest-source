@@ -118,10 +118,16 @@ public:
 		visibleUnitList.clear();
 		visibleQuadUnitList.clear();
 		//inVisibleUnitList.clear();
+
+		visibleUnitList.reserve(500);
+		visibleQuadUnitList.reserve(500);
 	}
 	void clearNonVolatileCacheData() {
 		visibleObjectList.clear();
 		visibleScaledCellList.clear();
+
+		visibleObjectList.reserve(500);
+		visibleScaledCellList.reserve(500);
 	}
 
 	int cacheFrame;

@@ -195,6 +195,9 @@ public:
 
 
     virtual void simpleTask(BaseThread *callingThread);
+	virtual void setupTask(BaseThread *callingThread);
+	virtual void shutdownTask(BaseThread *callingThread);
+
     virtual bool isInSpecialKeyCaptureEvent();
     virtual bool isMasterserverMode() const;
 

@@ -109,7 +109,6 @@ public:
 	virtual ~NetworkInterface(){}
 
 	virtual Socket* getSocket()= 0;
-	virtual const Socket* getSocket() const= 0;
 	virtual void close()= 0;
 	virtual string getHumanPlayerName(int index=-1) = 0;
 	virtual int getHumanPlayerIndex() const = 0;
@@ -124,7 +123,7 @@ public:
 	NetworkMessageType getNextMessageType(bool checkHasDataFirst = false);
 	bool receiveMessage(NetworkMessage* networkMessage);
 
-	bool isConnected();
+	virtual bool isConnected();
 
 	const virtual GameSettings * getGameSettings() { return &gameSettings; }
 

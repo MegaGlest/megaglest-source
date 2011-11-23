@@ -54,11 +54,14 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) {
 
 }
 
-Object::~Object(){
+Object::~Object() {
 	Renderer &renderer= Renderer::getInstance();
 	// fade(and by this remove) all unit particle systems
 	while(unitParticleSystems.empty() == false) {
-		unitParticleSystems.back()->fade();
+		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(unitParticleSystems.back(),rsGame);
+		if(particleValid == true) {
+			unitParticleSystems.back()->fade();
+		}
 		unitParticleSystems.pop_back();
 	}
 	renderer.removeObjectFromQuadCache(this);
@@ -68,24 +71,27 @@ Object::~Object(){
 	delete resource;
 }
 
-void Object::end(){
+void Object::end() {
 	// set Objects to fading and remove them from list.
 	// its needed because otherwise they will be accessed from the destructor
 	while(unitParticleSystems.empty() == false) {
-		unitParticleSystems.back()->fade();
+		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(unitParticleSystems.back(),rsGame);
+		if(particleValid == true) {
+			unitParticleSystems.back()->fade();
+		}
 		unitParticleSystems.pop_back();
 	}
 }
 
-void Object::initParticles(){
-	if(this->objectType==NULL) return;
-	if(this->objectType->getTilesetModelType(variation)->hasParticles()){
+void Object::initParticles() {
+	if(this->objectType == NULL) return;
+	if(this->objectType->getTilesetModelType(variation)->hasParticles()) {
 		ModelParticleSystemTypes *particleTypes= this->objectType->getTilesetModelType(variation)->getParticleTypes();
 		initParticlesFromTypes(particleTypes);
 	}
 }
 
-void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleTypes){
+void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleTypes) {
 	if(Config::getInstance().getBool("TilesetParticles", "true") && (particleTypes->empty() == false)
 	        && (unitParticleSystems.empty() == true)){
 		for(ObjectParticleSystemTypes::const_iterator it= particleTypes->begin(); it != particleTypes->end(); ++it){
@@ -101,12 +107,14 @@ void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleType
 	}
 }
 
-
 void Object::setHeight(float height){
 	pos.y=height;
 
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
-		(*it)->setPos(this->pos);
+		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame);
+		if(particleValid == true) {
+			(*it)->setPos(this->pos);
+		}
 	}
 }
 
@@ -156,8 +164,11 @@ void Object::setVisible( bool visible)
 {
 	this->visible=visible;
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
+		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame);
+		if(particleValid == true) {
 			(*it)->setVisible(visible);
 		}
+	}
 }
 
 }}//end namespace

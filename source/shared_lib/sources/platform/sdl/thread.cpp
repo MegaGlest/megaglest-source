@@ -92,7 +92,39 @@ void Thread::resume() {
 //          Mutex
 // =====================================
 
+class SDLMutexSafeWrapper {
+protected:
+	SDL_mutex *mutex;
+
+public:
+
+	SDLMutexSafeWrapper(SDL_mutex *mutex) {
+		this->mutex = mutex;
+		Lock();
+	}
+	~SDLMutexSafeWrapper() {
+		ReleaseLock();
+	}
+
+	void Lock() {
+		if(this->mutex != NULL) {
+			SDL_mutexP(this->mutex);
+		}
+	}
+	void ReleaseLock(bool keepMutex=false) {
+		if(this->mutex != NULL) {
+			SDL_mutexV(this->mutex);
+
+			if(keepMutex == false) {
+				this->mutex = NULL;
+			}
+		}
+	}
+};
+
 Mutex::Mutex(string ownerId) {
+	mutexAccessor  = SDL_CreateMutex();
+	SDLMutexSafeWrapper safeMutex(mutexAccessor);
     refCount=0;
     this->ownerId = ownerId;
 	mutex = SDL_CreateMutex();
@@ -106,6 +138,7 @@ Mutex::Mutex(string ownerId) {
 }
 
 Mutex::~Mutex() {
+	SDLMutexSafeWrapper safeMutex(mutexAccessor);
 	if(mutex == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());

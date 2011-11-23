@@ -243,8 +243,8 @@ private:
 	string header;
 
 public:
-	void init(const string &button1Str, const string &button2Str);
-	void init(const string &button1Str);
+	void init(const string &button1Str, const string &button2Str, int newWidth=-1,int newHeight=-1);
+	void init(const string &button1Str, int newWidth=-1,int newHeight=-1);
 
 	int getButtonCount() const				{return buttonCount;}
 	GraphicButton *getButton1() 			{return &button1;}

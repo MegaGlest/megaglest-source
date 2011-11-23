@@ -50,6 +50,8 @@ protected:
 	virtual void setQuitStatus(bool value);
 	void deleteSelfIfRequired();
 
+	void *genericData;
+
 public:
 	BaseThread();
 	virtual ~BaseThread();
@@ -83,6 +85,11 @@ public:
     Mutex * getMutexThreadOwnerValid();
 
     Mutex * getMutexThreadObjectAccessor() { return &mutexThreadObjectAccessor; }
+
+    template <typename T>
+    T * getGenericData() { return genericData; }
+    template <typename T>
+    void setGenericData(T *value) { genericData = value; }
 };
 
 class RunningStatusSafeWrapper {

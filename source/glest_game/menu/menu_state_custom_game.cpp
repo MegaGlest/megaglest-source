@@ -2570,6 +2570,15 @@ void MenuStateCustomGame::publishToMasterserver() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void MenuStateCustomGame::setupTask(BaseThread *callingThread) {
+	CURL *handle = SystemFlags::initHTTP();
+	callingThread->setGenericData<CURL>(handle);
+}
+void MenuStateCustomGame::shutdownTask(BaseThread *callingThread) {
+	CURL *handle = callingThread->getGenericData<CURL>();
+	SystemFlags::cleanupHTTP(&handle);
+}
+
 void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 
     try {
@@ -2613,7 +2622,8 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 
             string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
 
-            CURL *handle = SystemFlags::initHTTP();
+            //CURL *handle = SystemFlags::initHTTP();
+            CURL *handle = callingThread->getGenericData<CURL>();
             for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
                 iterMap != newPublishToServerInfo.end(); ++iterMap) {
 
@@ -2629,7 +2639,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
             safeMutexThreadOwner.ReleaseLock();
 
             std::string serverInfo = SystemFlags::getHTTP(request,handle);
-            SystemFlags::cleanupHTTP(&handle);
+            //SystemFlags::cleanupHTTP(&handle);
 
             MutexSafeWrapper safeMutexThreadOwner2(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
             if(callingThread->getQuitStatus() == true || safeMutexThreadOwner2.isValidMutex() == false) {

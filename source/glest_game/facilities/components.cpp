@@ -450,8 +450,8 @@ bool GraphicListBox::mouseClick(int x, int y){
 const int GraphicMessageBox::defH= 240;
 const int GraphicMessageBox::defW= 350;
 
-void GraphicMessageBox::init(const string &button1Str, const string &button2Str) {
-	init(button1Str);
+void GraphicMessageBox::init(const string &button1Str, const string &button2Str, int newWidth,int newHeight) {
+	init(button1Str,newWidth,newHeight);
 
 	button1.init(x+(w-GraphicButton::defW)/4, y+25);
 	button1.setText(button1Str);
@@ -474,12 +474,12 @@ void GraphicMessageBox::setY(int y) {
 	button2.init(x+3*(w-GraphicButton::defW)/4, y+25);
 }
 
-void GraphicMessageBox::init(const string &button1Str) {
+void GraphicMessageBox::init(const string &button1Str, int newWidth,int newHeight) {
 	font= CoreData::getInstance().getMenuFontNormal();
 	font3D= CoreData::getInstance().getMenuFontNormal3D();
 
-	h= defH;
-	w= defW;
+	h= (newHeight >= 0 ? newHeight : defH);
+	w= (newWidth >= 0 ? newWidth : defW);
 
 	const Metrics &metrics= Metrics::getInstance();
 

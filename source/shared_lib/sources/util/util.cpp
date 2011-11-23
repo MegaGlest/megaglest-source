@@ -415,12 +415,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
     else {
         // Get the current time.
         time_t curtime = time (NULL);
-        // Convert it to local time representation.
-        struct tm *loctime = localtime (&curtime);
-        char szBuf2[100]="";
-        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
-
-        logDebugEntry(type, szBuf, curtime);
+        logDebugEntry(type, (szBuf[0] != '\0' ? szBuf : ""), curtime);
     }
 }
 
