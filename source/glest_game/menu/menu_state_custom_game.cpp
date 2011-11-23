@@ -210,8 +210,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 			ipText += ip;
 		}
 	}
-	string externalPort=config.getString("MasterServerExternalPort", "61357");
-	string serverPort=config.getString("ServerPort", "61357");
+	string externalPort=config.getString("MasterServerExternalPort", intToStr(GameConstants::serverPort).c_str());
+	string serverPort=config.getString("ServerPort", intToStr(GameConstants::serverPort).c_str());
 	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 	ServerSocket::setExternalPort(strToInt(externalPort));
 
@@ -656,8 +656,8 @@ void MenuStateCustomGame::reloadUI() {
 			ipText += ip;
 		}
 	}
-	string externalPort=config.getString("MasterServerExternalPort", "61357");
-	string serverPort=config.getString("ServerPort", "61357");
+	string externalPort=config.getString("MasterServerExternalPort", intToStr(GameConstants::serverPort).c_str());
+	string serverPort=config.getString("ServerPort", intToStr(GameConstants::serverPort).c_str());
 	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 
 	labelMap.setText(lang.get("Map")+":");
@@ -2558,7 +2558,7 @@ void MenuStateCustomGame::publishToMasterserver() {
 	publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
 	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
 
-	string externalport = config.getString("MasterServerExternalPort", "61357");
+	string externalport = config.getString("MasterServerExternalPort", intToStr(GameConstants::serverPort).c_str());
 	publishToServerInfo["externalconnectport"] = externalport;
 	publishToServerInfo["privacyPlease"] = intToStr(config.getBool("PrivacyPlease","false"));
 

@@ -387,7 +387,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelServerPortLabel.setText(lang.get("ServerPort"));
 	labelServerPort.init(currentColumnStart,currentLine);
 	string port=intToStr(config.getInt("ServerPort"));
-	if(port!="61357"){
+	if(port != intToStr(GameConstants::serverPort)){
 		port=port +" ("+lang.get("NonStandardPort")+"!!)";
 	}
 	else{
@@ -410,7 +410,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	std::vector<std::string> externalPortList;
 	Tokenize(supportExternalPortList,externalPortList,",");
 
-	string currentPort=config.getString("MasterServerExternalPort", "61357");
+	string currentPort=config.getString("MasterServerExternalPort", intToStr(GameConstants::serverPort).c_str());
 	int masterServerExternalPortSelectionIndex=0;
 	for(int idx = 0; idx < externalPortList.size(); idx++) {
 		if(externalPortList[idx] != "" && IsNumeric(externalPortList[idx].c_str(),false)) {
@@ -610,7 +610,7 @@ void MenuStateOptions::reloadUI() {
 	labelServerPortLabel.setText(lang.get("ServerPort"));
 	Config &config= Config::getInstance();
 	string port = intToStr(config.getInt("ServerPort"));
-	if(port != "61357") {
+	if(port != intToStr(GameConstants::serverPort).c_str()) {
 		port = port +" ("+lang.get("NonStandardPort")+"!!)";
 	}
 	else{
