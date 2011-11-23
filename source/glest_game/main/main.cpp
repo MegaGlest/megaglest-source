@@ -646,7 +646,7 @@ void handleSIGSEGV(int sig) {
     printf("%s",szBuf);
     //abort();
 
-    //ExceptionHandler::handleRuntimeError(szBuf);
+    ExceptionHandler::handleRuntimeError(szBuf);
 }
 #endif
 

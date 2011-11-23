@@ -269,26 +269,32 @@ void CoreData::load() {
 	loadFonts();
 
 	//sounds
+	clickSoundA.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_a.wav"));
+	clickSoundB.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_b.wav"));
+	clickSoundC.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_c.wav"));
+	attentionSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/attention.wav"));
+	highlightSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/highlight.wav"));
+
 	XmlTree xmlTree;
 	//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	xmlTree.load(getGameCustomCoreDataPath(data_path, "data/core/menu/menu.xml"),Properties::getTagReplacementValues());
 	const XmlNode *menuNode= xmlTree.getRootNode();
-	const XmlNode *introNode= menuNode->getChild("intro");
 
-    clickSoundA.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_a.wav"));
-    clickSoundB.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_b.wav"));
-    clickSoundC.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_c.wav"));
-    attentionSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/attention.wav"));
-    highlightSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/highlight.wav"));
+	string menuMusicPath 		= "/menu/music/";
+	string menuIntroMusicFile 	= "intro_music.ogg";
+	string menuMusicFile 		= "menu_music.ogg";
 
-	// intro info
-	const XmlNode *menuPathNode= introNode->getChild("menu-music-path");
-	string menuMusicPath = menuPathNode->getAttribute("value")->getRestrictedValue();
-	const XmlNode *menuIntroMusicNode= introNode->getChild("menu-intro-music");
-	string menuIntroMusicFile = menuIntroMusicNode->getAttribute("value")->getRestrictedValue();
-	const XmlNode *menuMusicNode= introNode->getChild("menu-music");
-	string menuMusicFile = menuMusicNode->getAttribute("value")->getRestrictedValue();
+	if(menuNode->hasChild("intro") == true) {
+		const XmlNode *introNode= menuNode->getChild("intro");
 
+		// intro info
+		const XmlNode *menuPathNode= introNode->getChild("menu-music-path");
+		menuMusicPath = menuPathNode->getAttribute("value")->getRestrictedValue();
+		const XmlNode *menuIntroMusicNode= introNode->getChild("menu-intro-music");
+		menuIntroMusicFile = menuIntroMusicNode->getAttribute("value")->getRestrictedValue();
+		const XmlNode *menuMusicNode= introNode->getChild("menu-music");
+		menuMusicFile = menuMusicNode->getAttribute("value")->getRestrictedValue();
+	}
 	introMusic.open(getGameCustomCoreDataPath(data_path, "data/core/" + menuMusicPath + menuIntroMusicFile));
 	introMusic.setNext(&menuMusic);
 	menuMusic.open(getGameCustomCoreDataPath(data_path, "data/core/" + menuMusicPath + menuMusicFile));
