@@ -648,9 +648,11 @@ void ServerInterface::updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 		ConnectionSlot* connectionSlot= slots[i];
-		if(connectionSlot != NULL && connectionSlot->getSocket() != NULL &&
-			connectionSlot->getSocket()->isSocketValid() == true) {
-			socketTriggeredList[connectionSlot->getSocket()->getSocketId()] = false;
+		if(connectionSlot != NULL) {
+			PLATFORM_SOCKET clientSocket = connectionSlot->getSocketId();
+			if(Socket::isSocketValid(&clientSocket) == true) {
+				socketTriggeredList[clientSocket] = false;
+			}
 		}
 	}
 }
@@ -659,7 +661,6 @@ void ServerInterface::validateConnectedClients() {
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 		ConnectionSlot* connectionSlot = slots[i];
-
 		if(connectionSlot != NULL) {
 			connectionSlot->validateConnection();
 		}
@@ -675,8 +676,12 @@ void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> 
 		ConnectionSlot* connectionSlot = slots[i];
 
 		bool socketTriggered = false;
-		if(connectionSlot != NULL && connectionSlot->getSocket() != NULL) {
-			socketTriggered = socketTriggeredList[connectionSlot->getSocket()->getSocketId()];
+
+		if(connectionSlot != NULL) {
+			PLATFORM_SOCKET clientSocket = connectionSlot->getSocketId();
+			if(Socket::isSocketValid(&clientSocket)) {
+				socketTriggered = socketTriggeredList[clientSocket];
+			}
 		}
 		ConnectionSlotEvent &event = eventList[i];
 		mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
@@ -806,8 +811,9 @@ void ServerInterface::checForLaggingClients(std::map<int,bool> &mapSlotSignalled
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
 
 									bool socketTriggered = false;
-									if(connectionSlot->getSocket() != NULL && connectionSlot->getSocket()->getSocketId() > 0) {
-										socketTriggered = socketTriggeredList[connectionSlot->getSocket()->getSocketId()];
+									PLATFORM_SOCKET clientSocket = connectionSlot->getSocketId();
+									if(clientSocket > 0) {
+										socketTriggered = socketTriggeredList[clientSocket];
 									}
 									ConnectionSlotEvent &event = eventList[i];
 									mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);

@@ -313,9 +313,27 @@ string Ip::getString() const{
 # include <ifaddrs.h>
 #endif
 
-static uint32 SockAddrToUint32(struct sockaddr * a)
-{
-   return ((a)&&(a->sa_family == AF_INET)) ? ntohl(((struct sockaddr_in *)a)->sin_addr.s_addr) : 0;
+static uint32 SockAddrToUint32(struct in_addr * a) {
+	uint32 result = 0;
+
+	//printf("a [%p]\n",a);
+	if(a != NULL) {
+		result = ntohl(a->s_addr);
+	}
+
+	return result;
+}
+
+static uint32 SockAddrToUint32(struct sockaddr * a) {
+	uint32 result = 0;
+
+	//printf("a [%p] family = %d\n",a,(a ? a->sa_family : -1));
+	if(a != NULL && (a->sa_family == AF_INET || a->sa_family == AF_UNSPEC)) {
+		//result = SockAddrToUint32((((struct sockaddr_in *)a)->sin_addr.s_addr);
+		result = SockAddrToUint32(&((struct sockaddr_in *)a)->sin_addr);
+	}
+
+	return result;
 }
 
 // convert a numeric IP address into its string representation
@@ -651,12 +669,17 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	if(myhostent) {
 		// get all host IP addresses (Except for loopback)
 		char myhostaddr[101] = "";
-		int ipIdx = 0;
-		while (myhostent->h_addr_list[ipIdx] != 0) {
+		//int ipIdx = 0;
+		//while (myhostent->h_addr_list[ipIdx] != 0) {
+		for(int ipIdx = 0; myhostent->h_addr_list[ipIdx] != NULL; ++ipIdx) {
 		   //sprintf(myhostaddr, "%s",inet_ntoa(*(struct in_addr *)myhostent->h_addr_list[ipIdx]));
-			Inet_NtoA(SockAddrToUint32((struct sockaddr *)&myhostent->h_addr_list[ipIdx]), myhostaddr);
+			//struct sockaddr_in SockAddr;
+			//memcpy(&(SockAddr.sin_addr),&myhostent->h_addr[ipIdx],myhostent->h_length);
+			//SockAddr.sin_family = myhostent->h_addrtype;
+			//Inet_NtoA(SockAddrToUint32((sockaddr *)&SockAddr), myhostaddr);
+			Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
 
-		   //printf("%s\n",myhostaddr);
+		   //printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
 		   if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
 
 		   if(strlen(myhostaddr) > 0 &&
@@ -664,7 +687,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			  strncmp(myhostaddr,"0.",2) != 0) {
 			   ipList.push_back(myhostaddr);
 		   }
-		   ipIdx++;
+		   //ipIdx++;
 		}
 	}
 
@@ -710,7 +733,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 				struct sockaddr_in *pSockAddr = (struct sockaddr_in *)&ifr.ifr_addr;
 				if(pSockAddr != NULL) {
 					//sprintf(myhostaddr, "%s",inet_ntoa(pSockAddr->sin_addr));
-					Inet_NtoA(SockAddrToUint32((struct sockaddr *)&pSockAddr->sin_addr), myhostaddr);
+					Inet_NtoA(SockAddrToUint32(&pSockAddr->sin_addr), myhostaddr);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
 
 					// Now only include interfaces that are both UP and running
@@ -1794,7 +1817,9 @@ void BroadCastClientSocketThread::execute() {
 					else {
 						//string fromIP = inet_ntoa(bcSender.sin_addr);
 						char szHostFrom[100]="";
-						Inet_NtoA(SockAddrToUint32((struct sockaddr *)&bcSender.sin_addr), szHostFrom);
+						Inet_NtoA(SockAddrToUint32(&bcSender.sin_addr), szHostFrom);
+						//printf("Client szHostFrom [%s]\n",szHostFrom);
+
 						string fromIP = szHostFrom;
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"broadcast message received: [%s] from: [%s]\n", buff,fromIP.c_str() );
 
@@ -2500,6 +2525,8 @@ void BroadCastSocketThread::execute() {
     std::vector<std::string> ipSubnetMaskList;
 	for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
 		string broadCastAddress = getNetworkInterfaceBroadcastAddress(ipList[idx]);
+		//printf("idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
+
 		//strcpy(subnetmask[idx], broadCastAddress.c_str());
 		if(broadCastAddress != "" && std::find(ipSubnetMaskList.begin(),ipSubnetMaskList.end(),broadCastAddress) == ipSubnetMaskList.end()) {
 			ipSubnetMaskList.push_back(broadCastAddress);

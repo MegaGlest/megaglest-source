@@ -311,9 +311,9 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				// This means no clients are trying to connect at the moment
-				if(this->getSocket() == NULL) {
-					checkForNewClients = false;
-				}
+				//if(this->getSocket() == NULL) {
+				//	checkForNewClients = false;
+				//}
 			}
 			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 		}
@@ -416,7 +416,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				//send intro message when connected
-				if(this->getSocket() != NULL) {
+				if(this->isConnected() == true) {
 					//RandomGen random;
 					//sessionKey = random.randRange(-100000, 100000);
 					srand(time(NULL) / (this->playerIndex + 1));
@@ -427,10 +427,10 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					if(hasOpenSlots == false) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
-						if(this->getSocket() != NULL) {
+						//if(this->getSocket() != NULL) {
 							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHostName(), playerIndex, nmgstNoSlots, 0, ServerSocket::getFTPServerPort(),"");
 							sendMessage(&networkMessageIntro);
-						}
+						//}
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -439,12 +439,12 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					else {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
-						if(this->getSocket() != NULL) {
+						//if(this->getSocket() != NULL) {
 							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort(),"");
 							sendMessage(&networkMessageIntro);
 
 							//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
-						}
+						//}
 					}
 				}
 			}
@@ -455,14 +455,14 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(this->getSocket() != NULL && this->getSocket()->isConnected()) {
+			if(this->isConnected()) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				this->clearChatInfo();
 
 				bool gotTextMsg = true;
-				for(;this->getSocket() != NULL && this->getSocket()->hasDataToRead() == true && gotTextMsg == true;) {
+				for(;this->hasDataToRead() == true && gotTextMsg == true;) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
 					NetworkMessageType networkMessageType= getNextMessageType(true);
@@ -1041,8 +1041,15 @@ void ConnectionSlot::close() {
 }
 
 bool ConnectionSlot::hasValidSocketId() {
-    bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
-    return result;
+    //bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
+    //return result;
+    bool result = false;
+    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+    if(socket != NULL && socket->getSocketId() > 0) {
+    	result = true;
+    }
+	return result;
+
 }
 
 Mutex * ConnectionSlot::getServerSynchAccessor() {
@@ -1117,6 +1124,15 @@ bool ConnectionSlot::isConnected() {
 	return result;
 }
 
+PLATFORM_SOCKET ConnectionSlot::getSocketId() {
+	PLATFORM_SOCKET result = 0;
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	if(socket != NULL) {
+		result = socket->getSocketId();
+	}
+	return result;
+}
+
 Socket* ConnectionSlot::getSocket()	{
 	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
 	return socket;
@@ -1131,6 +1147,16 @@ void ConnectionSlot::deleteSocket() {
 	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
 	delete socket;
 	socket = NULL;
+}
+
+bool ConnectionSlot::hasDataToRead() {
+    bool result = false;
+    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+
+	if(socket != NULL && socket->hasDataToRead() == true) {
+		result = true;
+	}
+	return result;
 }
 
 }}//end namespace
