@@ -50,6 +50,8 @@ private:
 	Font3D *font3D;
 	
 
+	void appendText(const wchar_t *addText, bool validateChars=true);
+
 public:
 	ChatManager();
 	void init(Console* console, int thisTeamIndex, const bool inMenu=false, string manualPlayerNameOverride="");

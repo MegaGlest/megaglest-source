@@ -192,6 +192,8 @@ public:
 	void updateSlot(ConnectionSlotEvent *event);
 	virtual bool isConnected();
 
+	PLATFORM_SOCKET getSocketId();
+
 protected:
 
 	Mutex * getServerSynchAccessor();
@@ -201,6 +203,8 @@ protected:
 	void setSocket(Socket *newSocket);
 	void deleteSocket();
 	virtual void update() {}
+
+	bool hasDataToRead();
 };
 
 }}//end namespace

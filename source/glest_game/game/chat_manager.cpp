@@ -112,7 +112,6 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 			}
 		}
 
-		//if(key==vkReturn) {
 		if(isKeyPressed(SDLK_RETURN,key, false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
@@ -158,7 +157,43 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 				}
 			}
 		}
-		//else if(key==vkBack) {
+		else if(isKeyPressed(SDLK_TAB,key, false) == true) {
+			// First find the prefix characters to auto-complete
+			string autoCompleteName = "";
+			if(text.empty() == false) {
+				int startPos = -1;
+				for(int i = text.size()-1; i >= 0; --i) {
+					if(text[i] != ' ') {
+						startPos = i;
+					}
+					else {
+						break;
+					}
+				}
+
+				if(startPos >= 0) {
+					autoCompleteName = text.substr(startPos);
+
+					// Now lookup the prefix for a match in playernames
+					string autoCompleteResult = "";
+					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+					const GameSettings *settings = gameNetworkInterface->getGameSettings();
+					for(unsigned int factionIndex = 0; factionIndex < settings->getFactionCount(); ++factionIndex) {
+						string playerName = settings->getNetworkPlayerName(factionIndex);
+						if(playerName.length() > autoCompleteName.length() &&
+							StartsWith(toLower(playerName), toLower(autoCompleteName)) == true) {
+							autoCompleteResult = playerName.substr(autoCompleteName.length());
+							break;
+						}
+					}
+
+					if(autoCompleteResult != "") {
+						WString addText(autoCompleteResult);
+						appendText(addText.cw_str(), false);
+					}
+				}
+			}
+		}
 		else if(isKeyPressed(SDLK_BACKSPACE,key,false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
@@ -195,6 +230,34 @@ void ChatManager::switchOnEdit() {
 	textCharLength.clear();
 }
 
+void ChatManager::appendText(const wchar_t *addText, bool validateChars) {
+	for(unsigned int i = 0; i < wcslen(addText); ++i) {
+		wchar_t key = addText[i];
+		if(validateChars == false || isAllowedInputTextKey(key)) {
+			char buf[4] = {0};
+			if (key < 0x80) {
+				buf[0] = key;
+				textCharLength.push_back(1);
+				//printf("1 char, textCharLength = %d\n",textCharLength.size());
+			}
+			else if (key < 0x800) {
+				buf[0] = (0xC0 | key >> 6);
+				buf[1] = (0x80 | key & 0x3F);
+				textCharLength.push_back(2);
+				//printf("2 char, textCharLength = %d\n",textCharLength.size());
+			}
+			else {
+				buf[0] = (0xE0 | key >> 12);
+				buf[1] = (0x80 | key >> 6 & 0x3F);
+				buf[2] = (0x80 | key & 0x3F);
+				textCharLength.push_back(3);
+				//printf("3 char, textCharLength = %d\n",textCharLength.size());
+			}
+			text += buf;
+		}
+	}
+}
+
 void ChatManager::keyPress(SDL_KeyboardEvent c) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 
@@ -203,6 +266,11 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 		//space is the first meaningful code
 //		SDLKey key = extractKeyPressed(c);
 //		if(isAllowedInputTextKey(key)) {
+
+		wchar_t key = extractKeyPressedUnicode(c);
+		wchar_t textAppend[] = { key, 0 };
+		appendText(textAppend);
+/*
 		wchar_t key = extractKeyPressedUnicode(c);
 		if(isAllowedInputTextKey(key)) {
 			//char szCharText[20]="";
@@ -238,6 +306,7 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 
 			//delete [] utfStr;
 		}
+*/
 	}
 }
 
