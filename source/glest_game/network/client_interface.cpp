@@ -175,7 +175,7 @@ std::string ClientInterface::getServerIpAddress() {
 }
 
 void ClientInterface::updateLobby() {
-    NetworkMessageType networkMessageType = getNextMessageType(true);
+    NetworkMessageType networkMessageType = getNextMessageType();
     switch(networkMessageType)
     {
         case nmtInvalid:
@@ -544,7 +544,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 		// END: Test simulating lag for the client
 
 		//check we have an expected message
-		//NetworkMessageType networkMessageType= getNextMessageType(true);
+		//NetworkMessageType networkMessageType= getNextMessageType();
 
 		switch(networkMessageType)
 		{
@@ -725,7 +725,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
             if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
             return;
 		}
-		NetworkMessageType networkMessageType = getNextMessageType(true);
+		NetworkMessageType networkMessageType = getNextMessageType();
 
 		// consume old messages from the lobby
 		bool discarded = shouldDiscardNetworkMessage(networkMessageType);
@@ -1036,11 +1036,11 @@ NetworkMessageType ClientInterface::waitForMessage()
 	chrono.start();
 
 	NetworkMessageType msg = nmtInvalid;
-	uint64 waitLoopCount = 0;
+	//uint64 waitLoopCount = 0;
 	while(msg == nmtInvalid) {
-		msg = getNextMessageType(true);
+		msg = getNextMessageType();
 		if(msg == nmtInvalid) {
-			if(chrono.getMillis() % 150 == 0 && isConnected() == false) {
+			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
 				if(quit == false) {
 					//throw runtime_error("Disconnected");
 					//sendTextMessage("Server has Disconnected.",-1);
@@ -1082,10 +1082,11 @@ NetworkMessageType ClientInterface::waitForMessage()
 
 			//sleep(waitSleepTime);
 		}
-		waitLoopCount++;
+		//waitLoopCount++;
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %ull, msg = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount,msg);
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %ull, msg = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount,msg);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, msg = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),msg);
 
 	return msg;
 }

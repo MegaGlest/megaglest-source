@@ -146,7 +146,7 @@ public:
 	void setName(string value)      {name = value;}
 	bool isReady() const			{return ready;}
 
-	virtual Socket* getSocket();
+	virtual Socket* getSocket(bool mutexLock=true);
 	pair<bool,Socket*> getSocketInfo();
 
 	virtual void close();

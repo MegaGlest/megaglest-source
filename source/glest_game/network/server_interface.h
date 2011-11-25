@@ -91,11 +91,11 @@ public:
 	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
 
-	virtual Socket* getSocket()				{return &serverSocket;}
+	virtual Socket* getSocket(bool mutexLock=true)				{return &serverSocket;}
 
-    const virtual Socket *getSocket() const {
-        return &serverSocket;
-    }
+    //const virtual Socket *getSocket() const {
+    //    return &serverSocket;
+    //}
 
     virtual void close();
     virtual void update();
@@ -140,6 +140,8 @@ public:
 
     virtual void slotUpdateTask(ConnectionSlotEvent *event);
     bool hasClientConnection();
+    bool isClientConnected(int index);
+
     int getCurrentFrameCount() const
     {
         return currentFrameCount;

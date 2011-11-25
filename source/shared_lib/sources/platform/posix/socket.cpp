@@ -1039,7 +1039,7 @@ int Socket::getDataToRead(bool wantImmediateReply) {
     //if(retval)
     if(isSocketValid() == true)
     {
-    	int loopCount = 1;
+    	//int loopCount = 1;
     	for(time_t elapsed = time(NULL); difftime(time(NULL),elapsed) < 1;) {
 			/* ioctl isn't posix, but the following seems to work on all modern
 			 * unixes */
@@ -1065,10 +1065,12 @@ int Socket::getDataToRead(bool wantImmediateReply) {
 				break;
 			}
 			else if(hasDataToRead() == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, (hasDataToRead() == true) err = %d, sock = %d, size = %lu, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, (hasDataToRead() == true) err = %d, sock = %d, size = %lu, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, (hasDataToRead() == true) err = %d, sock = %d, size = %lu\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size);
 			}
 			else {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, err = %d, sock = %d, size = %lu, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, err = %d, sock = %d, size = %lu, loopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size,loopCount);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING PEEKING SOCKET DATA, err = %d, sock = %d, size = %lu\n",__FILE__,__FUNCTION__,__LINE__,err,sock,size);
 				break;
 			}
 
@@ -1076,7 +1078,7 @@ int Socket::getDataToRead(bool wantImmediateReply) {
 				break;
 			}
 
-			loopCount++;
+			//loopCount++;
     	}
     }
 
@@ -1475,8 +1477,8 @@ bool Socket::isWritable() {
 
 	struct timeval tv;
 	tv.tv_sec= 0;
-	tv.tv_usec= 1;
-	//tv.tv_usec= 0;
+	//tv.tv_usec= 1;
+	tv.tv_usec= 0;
 
 	fd_set set;
 	FD_ZERO(&set);

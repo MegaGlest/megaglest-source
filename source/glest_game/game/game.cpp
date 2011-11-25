@@ -48,6 +48,9 @@ const int CANCEL_SWITCH_TEAM = -1;
 
 int fadeMusicMilliseconds = 3500;
 
+// Check every x seconds if we should switch disconnected players to AI
+const int NETWORK_PLAYER_CONNECTION_CHECK_SECONDS = 5;
+
 Game::Game() : ProgramState(NULL) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -108,6 +111,7 @@ Game::Game() : ProgramState(NULL) {
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
+	lastNetworkPlayerConnectionCheck = time(NULL);
 }
 
 void Game::resetMembers() {
@@ -177,6 +181,7 @@ void Game::resetMembers() {
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
+	lastNetworkPlayerConnectionCheck = time(NULL);
 
 	Object::setStateCallback(&gui);
 
@@ -1366,7 +1371,9 @@ void Game::update() {
 }
 
 void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role) {
-	if(role == nrServer && isNetworkGame == true) {
+	if(role == nrServer && isNetworkGame == true &&
+			difftime(time(NULL),lastNetworkPlayerConnectionCheck) >= NETWORK_PLAYER_CONNECTION_CHECK_SECONDS) {
+		lastNetworkPlayerConnectionCheck = time(NULL);
 		Logger &logger= Logger::getInstance();
 		ServerInterface *server = NetworkManager::getInstance().getServerInterface();
 
@@ -1378,8 +1385,10 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 				faction->getControlType() == ctNetworkCpu ||
 				faction->getControlType() == ctNetworkCpuUltra ||
 				faction->getControlType() == ctNetworkCpuMega)) {
-				ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
-				if(aiInterfaces[i] == NULL && (slot == NULL || slot->isConnected() == false)) {
+				//ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+				//if(aiInterfaces[i] == NULL && (slot == NULL || slot->isConnected() == false)) {
+				if(aiInterfaces[i] == NULL &&
+						server->isClientConnected(faction->getStartLocationIndex()) == false) {
 					faction->setFactionDisconnectHandled(true);
 
 					char szBuf[255]="";

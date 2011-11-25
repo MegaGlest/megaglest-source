@@ -108,7 +108,7 @@ public:
 public:
 	virtual ~NetworkInterface(){}
 
-	virtual Socket* getSocket()= 0;
+	virtual Socket* getSocket(bool mutexLock=true)= 0;
 	virtual void close()= 0;
 	virtual string getHumanPlayerName(int index=-1) = 0;
 	virtual int getHumanPlayerIndex() const = 0;
@@ -120,7 +120,7 @@ public:
 	string getHostName() const	{return Socket::getHostName();}
 
 	virtual void sendMessage(const NetworkMessage* networkMessage);
-	NetworkMessageType getNextMessageType(bool checkHasDataFirst = false);
+	NetworkMessageType getNextMessageType();
 	bool receiveMessage(NetworkMessage* networkMessage);
 
 	virtual bool isConnected();

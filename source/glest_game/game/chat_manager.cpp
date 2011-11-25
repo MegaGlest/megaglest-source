@@ -158,9 +158,10 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 			}
 		}
 		else if(isKeyPressed(SDLK_TAB,key, false) == true) {
-			// First find the prefix characters to auto-complete
-			string autoCompleteName = "";
 			if(text.empty() == false) {
+				// First find the prefix characters to auto-complete
+				string currentAutoCompleteName = "";
+
 				int startPos = -1;
 				for(int i = text.size()-1; i >= 0; --i) {
 					if(text[i] != ' ') {
@@ -172,45 +173,144 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 				}
 
 				if(startPos >= 0) {
-					autoCompleteName = text.substr(startPos);
+					currentAutoCompleteName = text.substr(startPos);
+				}
 
-					// Now lookup the prefix for a match in playernames
-					string autoCompleteResult = "";
-					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-					const GameSettings *settings = gameNetworkInterface->getGameSettings();
-					for(unsigned int factionIndex = 0; factionIndex < settings->getFactionCount(); ++factionIndex) {
-						string playerName = settings->getNetworkPlayerName(factionIndex);
-						if(playerName.length() > autoCompleteName.length() &&
-							StartsWith(toLower(playerName), toLower(autoCompleteName)) == true) {
+				//printf("TAB currentAutoCompleteName [%s] lastAutoCompleteSearchText [%s]\n",currentAutoCompleteName.c_str(),lastAutoCompleteSearchText.c_str());
+				string autoCompleteName = lastAutoCompleteSearchText;
+
+				// Now lookup the prefix for a match in playernames
+				string autoCompleteResult = "";
+
+				int replaceCurrentAutoCompleteName = -1;
+				vector<int> matchedIndexes;
+
+				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+				const GameSettings *settings = gameNetworkInterface->getGameSettings();
+				for(unsigned int factionIndex = 0; factionIndex < settings->getFactionCount(); ++factionIndex) {
+					string playerName = settings->getNetworkPlayerName(factionIndex);
+					if(playerName.length() > autoCompleteName.length() &&
+						StartsWith(toLower(playerName), toLower(autoCompleteName)) == true) {
+						if(toLower(playerName) == toLower(currentAutoCompleteName)) {
+							replaceCurrentAutoCompleteName = factionIndex;
+						}
+						else {
 							autoCompleteResult = playerName.substr(autoCompleteName.length());
+							matchedIndexes.push_back(factionIndex);
+						}
+					}
+				}
+				if(matchedIndexes.size() > 0) {
+					int newMatchedIndex = -1;
+					for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
+						int possibleMatchIndex = matchedIndexes[index];
+						if(replaceCurrentAutoCompleteName < 0 ||
+							(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex > replaceCurrentAutoCompleteName)) {
+							newMatchedIndex = possibleMatchIndex;
 							break;
 						}
 					}
-
-					if(autoCompleteResult != "") {
-						WString addText(autoCompleteResult);
-						appendText(addText.cw_str(), false);
+					if(newMatchedIndex < 0) {
+						for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
+							int possibleMatchIndex = matchedIndexes[index];
+							if(replaceCurrentAutoCompleteName < 0 ||
+								(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex < replaceCurrentAutoCompleteName)) {
+								newMatchedIndex = possibleMatchIndex;
+								break;
+							}
+						}
 					}
+
+					if(newMatchedIndex >= 0) {
+						autoCompleteResult = settings->getNetworkPlayerName(newMatchedIndex).substr(autoCompleteName.length());
+					}
+				}
+
+				if(autoCompleteResult == "") {
+					replaceCurrentAutoCompleteName = -1;
+					matchedIndexes.clear();
+					for(unsigned int index = 0; index < autoCompleteTextList.size(); ++index) {
+						string autoText = autoCompleteTextList[index];
+
+						//printf("CHECKING #2 autoText.length() = %d [%s] autoCompleteName.length() = %d [%s]\n",autoText.length(),autoText.c_str(),autoCompleteName.length(),currentAutoCompleteName.c_str());
+
+						if(autoText.length() > autoCompleteName.length() &&
+							StartsWith(toLower(autoText), toLower(autoCompleteName)) == true) {
+
+							if(toLower(autoText) == toLower(currentAutoCompleteName)) {
+								replaceCurrentAutoCompleteName = index;
+								//printf("CHECKING #2 REPLACE\n");
+							}
+							else {
+								autoCompleteResult = autoText.substr(autoCompleteName.length());
+								//printf("CHECKING #2 autoCompleteResult [%s] autoCompleteName [%s]\n",autoCompleteResult.c_str(),autoCompleteName.c_str());
+								matchedIndexes.push_back(index);
+							}
+						}
+					}
+					if(matchedIndexes.size() > 0) {
+						int newMatchedIndex = -1;
+						for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
+							int possibleMatchIndex = matchedIndexes[index];
+							if(replaceCurrentAutoCompleteName < 0 ||
+								(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex > replaceCurrentAutoCompleteName)) {
+								newMatchedIndex = possibleMatchIndex;
+								break;
+							}
+						}
+						if(newMatchedIndex < 0) {
+							for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
+								int possibleMatchIndex = matchedIndexes[index];
+								if(replaceCurrentAutoCompleteName < 0 ||
+									(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex < replaceCurrentAutoCompleteName)) {
+									newMatchedIndex = possibleMatchIndex;
+									break;
+								}
+							}
+						}
+
+						if(newMatchedIndex >= 0) {
+							autoCompleteResult = autoCompleteTextList[newMatchedIndex].substr(autoCompleteName.length());
+						}
+					}
+				}
+
+				if(autoCompleteResult != "") {
+					if(replaceCurrentAutoCompleteName >= 0) {
+						deleteText(currentAutoCompleteName.length(), false);
+
+						autoCompleteResult = autoCompleteName + autoCompleteResult;
+
+						//printf("REPLACE: currentAutoCompleteName [%s] autoCompleteResult [%s] text [%s]\n",currentAutoCompleteName.c_str(),autoCompleteResult.c_str(),text.c_str());
+					}
+					else {
+						//printf("ADD: currentAutoCompleteName [%s] autoCompleteResult [%s] text [%s]\n",currentAutoCompleteName.c_str(),autoCompleteResult.c_str(),text.c_str());
+					}
+					WString addText(autoCompleteResult);
+					appendText(addText.cw_str(), false, false);
 				}
 			}
 		}
 		else if(isKeyPressed(SDLK_BACKSPACE,key,false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
-			if(text.empty() == false) {
-				if(textCharLength.size() > 0) {
-					//printf("BEFORE DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
-
-					if(textCharLength[textCharLength.size()-1] > text.length()) {
-						textCharLength[textCharLength.size()-1] = text.length();
-					}
-					for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
-						text.erase(text.end() -1);
-					}
-					//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
-					textCharLength.pop_back();
-				}
-			}
+//			if(text.empty() == false) {
+//				if(textCharLength.size() > 0) {
+//					//printf("BEFORE DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
+//
+//					if(textCharLength[textCharLength.size()-1] > text.length()) {
+//						textCharLength[textCharLength.size()-1] = text.length();
+//					}
+//					for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
+//						text.erase(text.end() -1);
+//					}
+//					//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
+//					textCharLength.pop_back();
+//
+//					updateAutoCompleteBuffer();
+//				}
+//			}
+			deleteText(1);
 		}
 
 	}
@@ -230,7 +330,31 @@ void ChatManager::switchOnEdit() {
 	textCharLength.clear();
 }
 
-void ChatManager::appendText(const wchar_t *addText, bool validateChars) {
+void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
+	if(text.empty() == false) {
+		for(unsigned int i = 0; i < deleteCount; ++i) {
+			if(textCharLength.size() > 0) {
+				//printf("BEFORE DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
+
+				if(textCharLength[textCharLength.size()-1] > text.length()) {
+					textCharLength[textCharLength.size()-1] = text.length();
+				}
+				for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
+					text.erase(text.end() -1);
+				}
+				//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
+				textCharLength.pop_back();
+
+				if(addToAutoCompleteBuffer == true) {
+					updateAutoCompleteBuffer();
+				}
+			}
+		}
+	}
+
+}
+
+void ChatManager::appendText(const wchar_t *addText, bool validateChars, bool addToAutoCompleteBuffer) {
 	for(unsigned int i = 0; i < wcslen(addText); ++i) {
 		wchar_t key = addText[i];
 		if(validateChars == false || isAllowedInputTextKey(key)) {
@@ -254,6 +378,28 @@ void ChatManager::appendText(const wchar_t *addText, bool validateChars) {
 				//printf("3 char, textCharLength = %d\n",textCharLength.size());
 			}
 			text += buf;
+
+			if(addToAutoCompleteBuffer == true) {
+				updateAutoCompleteBuffer();
+			}
+		}
+	}
+}
+
+void ChatManager::updateAutoCompleteBuffer() {
+	if(text.empty() == false) {
+		int startPos = -1;
+		for(int i = text.size()-1; i >= 0; --i) {
+			if(text[i] != ' ') {
+				startPos = i;
+			}
+			else {
+				break;
+			}
+		}
+
+		if(startPos >= 0) {
+			lastAutoCompleteSearchText = text.substr(startPos);
 		}
 	}
 }

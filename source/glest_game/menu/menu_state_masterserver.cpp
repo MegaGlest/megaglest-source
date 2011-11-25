@@ -786,7 +786,8 @@ void MenuStateMasterserver::update() {
 	                userButtons.push_back(button);
 	        }
 	        userScrollBar.setElementCount(userButtons.size());
-	        oldNickList=nickList;
+	        oldNickList = nickList;
+	        chatManager.setAutoCompleteTextList(oldNickList);
         }
         if(userScrollBar.getElementCount()!=0 ) {
         	for(int i = userScrollBar.getVisibleStart(); i <= userScrollBar.getVisibleEnd(); ++i) {
