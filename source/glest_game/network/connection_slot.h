@@ -78,6 +78,7 @@ protected:
 	Mutex triggerIdMutex;
 	vector<ConnectionSlotEvent> eventList;
 	int slotIndex;
+	ConnectionSlot *slot;
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int eventId);
@@ -86,8 +87,8 @@ protected:
 	void slotUpdateTask(ConnectionSlotEvent *event);
 
 public:
-	ConnectionSlotThread(int slotIndex);
-	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
+	ConnectionSlotThread(ConnectionSlot *slot);
+	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,ConnectionSlot *slot);
     virtual void execute();
     void signalUpdate(ConnectionSlotEvent *event);
     bool isSignalCompleted(ConnectionSlotEvent *event);

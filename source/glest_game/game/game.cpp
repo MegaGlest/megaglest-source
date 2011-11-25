@@ -3232,10 +3232,10 @@ void Game::showLoseMessageBox() {
 
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	if(networkManager.isNetworkGame() == true && networkManager.getNetworkRole() == nrServer) {
-		showMessageBox(lang.get("YouLose")+", "+lang.get("ExitGameServer?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.get("YouLose")+" "+lang.get("ExitGameServer?"), lang.get("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.get("YouLose")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.get("YouLose")+" "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
 	}
 }
 
@@ -3243,10 +3243,10 @@ void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 
 	if(this->masterserverMode == true || world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
-		showMessageBox(lang.get("GameOver")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.get("GameOver")+" "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.get("YouWin")+", "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.get("YouWin")+" "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
 	}
 }
 

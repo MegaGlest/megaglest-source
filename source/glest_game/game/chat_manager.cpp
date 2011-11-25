@@ -471,10 +471,13 @@ void ChatManager::updateNetwork() {
 
 		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameNetworkInterface->getChatText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameNetworkInterface->getChatText().c_str());
 
-		if(gameNetworkInterface != NULL && gameNetworkInterface->getChatTextList().empty() == false) {
+		if(gameNetworkInterface != NULL &&
+				gameNetworkInterface->getChatTextList(false).empty() == false) {
 			Lang &lang= Lang::getInstance();
-			for(int idx = 0; idx < gameNetworkInterface->getChatTextList().size(); idx++) {
-				const ChatMsgInfo &msg = gameNetworkInterface->getChatTextList()[idx];
+
+			std::vector<ChatMsgInfo> chatList = gameNetworkInterface->getChatTextList(true);
+			for(int idx = 0; idx < chatList.size(); idx++) {
+				const ChatMsgInfo msg = chatList[idx];
 				int teamIndex= msg.chatTeamIndex;
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] got nmtText [%s] for team = %d\n",__FILE__,__FUNCTION__,msg.chatText.c_str(),teamIndex);
@@ -491,7 +494,7 @@ void ChatManager::updateNetwork() {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			gameNetworkInterface->clearChatInfo();
+			//gameNetworkInterface->clearChatInfo();
 		}
 	}
 	catch(const std::exception &ex) {
