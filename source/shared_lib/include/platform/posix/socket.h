@@ -139,6 +139,10 @@ public:
     static bool hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList);
     static bool hasDataToRead(PLATFORM_SOCKET socket);
     bool hasDataToRead();
+
+    static bool hasDataToReadWithWait(PLATFORM_SOCKET socket,int waitMilliseconds);
+    bool hasDataToReadWithWait(int waitMilliseconds);
+
     virtual void disconnectSocket();
 
     PLATFORM_SOCKET getSocketId() const { return sock; }

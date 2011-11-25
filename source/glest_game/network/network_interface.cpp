@@ -44,25 +44,26 @@ void NetworkInterface::sendMessage(const NetworkMessage* networkMessage){
 	networkMessage->send(socket);
 }
 
-NetworkMessageType NetworkInterface::getNextMessageType()
+NetworkMessageType NetworkInterface::getNextMessageType(int waitMilliseconds)
 {
 	Socket* socket= getSocket(false);
 	int8 messageType= nmtInvalid;
 
     if(socket != NULL &&
-        socket->hasDataToRead() == true) {
+        socket->hasDataToReadWithWait(waitMilliseconds) == true) {
+
         //peek message type
-        int dataSize = socket->getDataToRead();
-        if(dataSize >= sizeof(messageType)) {
-        	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
+        //int dataSize = socket->getDataToRead();
+        //if(dataSize >= sizeof(messageType)) {
+        	//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
 
             int iPeek = socket->peek(&messageType, sizeof(messageType));
 
             if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
-        }
-		else {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
-		}
+        //}
+		//else {
+		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
+		//}
 
         //sanity check new message type
         if(messageType < 0 || messageType >= nmtCount) {
