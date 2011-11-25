@@ -147,6 +147,7 @@ public:
 	bool isReady() const			{return ready;}
 
 	virtual Socket* getSocket();
+	pair<bool,Socket*> getSocketInfo();
 
 	virtual void close();
 	//virtual bool getFogOfWar();
