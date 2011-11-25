@@ -232,8 +232,8 @@ void ConnectionSlotThread::execute() {
 			}
 
 			if(slotconnected == false) {
-				if(chrono.getMillis() % 5 == 0) {
-					sleep(25);
+				if(chrono.getMillis() % 10 == 0) {
+					sleep(100);
 				}
 			}
 			//else {
