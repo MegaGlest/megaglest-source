@@ -882,6 +882,110 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 	}
 }
 
+void ServerInterface::checkForLaggingClients(std::vector <string> &errorMsgList) {
+	bool lastGlobalLagCheckTimeUpdate = false;
+	time_t waitForClientsElapsed = time(NULL);
+	time_t waitForThreadElapsed = time(NULL);
+	std::map<int,bool> slotsWarnedList;
+	// Examine all threads for completion of delegation
+	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+		ConnectionSlot* connectionSlot = slots[i];
+		if(connectionSlot != NULL) {
+			try {
+				std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
+				// Show any collected errors from threads
+				if(errorList.empty() == false) {
+					for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+						string &sErr = errorList[iErrIdx];
+						if(sErr != "") {
+							errorMsgList.push_back(sErr);
+						}
+					}
+					connectionSlot->clearThreadErrorList();
+				}
+
+				// New lag check
+				std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
+				if( gameHasBeenInitiated == true &&
+					connectionSlot->isConnected() == true) {
+					clientLagExceededOrWarned = clientLagCheck(connectionSlot,slotsWarnedList[i]);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d, gameSettings.getNetworkPauseGameForLaggedClients() = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second,gameSettings.getNetworkPauseGameForLaggedClients());
+
+					if(clientLagExceededOrWarned.first == true) {
+						slotsWarnedList[i] = true;
+					}
+				}
+				// If the client has exceeded lag and the server wants
+				// to pause while they catch up, re-trigger the
+				// client reader thread
+//				if((clientLagExceededOrWarned.first == true && gameSettings.getNetworkPauseGameForLaggedClients() == true)) { // ||
+//					//(clientLagExceededOrWarned.second == true && slotsWarnedAndRetried[i] == false)) {
+//
+//					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d, difftime(time(NULL),waitForClientsElapsed) = %.2f, MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = %.2f\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second,difftime(time(NULL),waitForClientsElapsed),MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE);
+//
+//					if(difftime(time(NULL),waitForClientsElapsed) < MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE) {
+//						if(connectionSlot != NULL) {
+//							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
+//
+//							bool socketTriggered = false;
+//							PLATFORM_SOCKET clientSocket = connectionSlot->getSocketId();
+//							if(clientSocket > 0) {
+//								socketTriggered = socketTriggeredList[clientSocket];
+//							}
+//							ConnectionSlotEvent &event = eventList[i];
+//							mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+//							threadsDone = false;
+//						}
+//						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
+//					}
+//				}
+			}
+			catch(const exception &ex) {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+				errorMsgList.push_back(ex.what());
+			}
+		}
+
+		if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+			try {
+				if(gameHasBeenInitiated == true &&
+					difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+
+					//printf("\n\n\n^^^^^^^^^^^^^^ PART A\n\n\n");
+
+					// New lag check
+					std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
+					if( gameHasBeenInitiated == true && connectionSlot != NULL &&
+						connectionSlot->isConnected() == true) {
+						//printf("\n\n\n^^^^^^^^^^^^^^ PART B\n\n\n");
+
+						lastGlobalLagCheckTimeUpdate = true;
+						clientLagExceededOrWarned = clientLagCheck(connectionSlot,slotsWarnedList[i]);
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d, gameSettings.getNetworkPauseGameForLaggedClients() = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second,gameSettings.getNetworkPauseGameForLaggedClients());
+
+						if(clientLagExceededOrWarned.first == true) {
+							slotsWarnedList[i] = true;
+						}
+					}
+				}
+			}
+			catch(const exception &ex) {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+				errorMsgList.push_back(ex.what());
+			}
+		}
+	}
+
+	if(lastGlobalLagCheckTimeUpdate == true) {
+		lastGlobalLagCheckTime = time(NULL);
+	}
+}
+
 void ServerInterface::executeNetworkCommandsFromClients() {
 	if(gameHasBeenInitiated == true) {
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
@@ -905,14 +1009,15 @@ void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsg
 		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 		ConnectionSlot* connectionSlot= slots[i];
 		if(connectionSlot != NULL &&
-		   connectionSlot->getChatTextList().empty() == false) {
+		   connectionSlot->getChatTextList(false).empty() == false) {
 			try {
+				std::vector<ChatMsgInfo> chatList = connectionSlot->getChatTextList(true);
 				for(int chatIdx = 0;
-					exitServer == false && slots[i] != NULL &&
-					chatIdx < connectionSlot->getChatTextList().size(); chatIdx++) {
-					connectionSlot= slots[i];
-					if(connectionSlot != NULL) {
-						ChatMsgInfo msg(connectionSlot->getChatTextList()[chatIdx]);
+					exitServer == false &&
+					chatIdx < chatList.size(); chatIdx++) {
+					//connectionSlot= slots[i];
+					//if(connectionSlot != NULL) {
+						ChatMsgInfo msg(chatList[chatIdx]);
 						this->addChatInfo(msg);
 
 						string newChatText     = msg.chatText.c_str();
@@ -928,15 +1033,15 @@ void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsg
 						}
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
-					}
+					//}
 				}
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
 				// Its possible that the slot is disconnected here
 				// so check the original pointer again
-				if(slots[i] != NULL) {
-					slots[i]->clearChatInfo();
-				}
+				//if(slots[i] != NULL) {
+				//	slots[i]->clearChatInfo();
+				//}
 			}
 			catch(const exception &ex) {
 				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -970,41 +1075,44 @@ void ServerInterface::update() {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-		std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
+		//std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 		//update all slots
-		updateSocketTriggeredList(socketTriggeredList);
+		//updateSocketTriggeredList(socketTriggeredList);
 
 		//printf("\nServerInterface::update -- D\n");
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-		if(gameHasBeenInitiated == false || socketTriggeredList.empty() == false) {
+		//if(gameHasBeenInitiated == false || socketTriggeredList.empty() == false) {
+		{
 			//printf("\nServerInterface::update -- E\n");
 
-			std::map<int,ConnectionSlotEvent> eventList;
-			bool hasData = Socket::hasDataToRead(socketTriggeredList);
+			//std::map<int,ConnectionSlotEvent> eventList;
+			//bool hasData = Socket::hasDataToRead(socketTriggeredList);
 
-			if(hasData) if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] hasData == true\n",__FILE__,__FUNCTION__);
+			//if(hasData) if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] hasData == true\n",__FILE__,__FUNCTION__);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-			if(gameHasBeenInitiated == false || hasData == true) {
-				std::map<int,bool> mapSlotSignalledList;
+			//if(gameHasBeenInitiated == false || hasData == true) {
+			{
+				//std::map<int,bool> mapSlotSignalledList;
 
 				// Step #1 tell all connection slot worker threads to receive socket data
-				signalClientsToRecieveData(socketTriggeredList, eventList, mapSlotSignalledList);
+				//signalClientsToRecieveData(socketTriggeredList, eventList, mapSlotSignalledList);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #2\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				// Step #2 check all connection slot worker threads for completed status
-				checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
+				//checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				// Step #3 check clients for any lagging scenarios and try to deal with them
-				checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+				//checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+				checkForLaggingClients(errorMsgList);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #4\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1021,27 +1129,27 @@ void ServerInterface::update() {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
-			else if(gameHasBeenInitiated == true &&
-					difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
-				//printf("\nServerInterface::update -- E1\n");
-
-				//std::map<int,ConnectionSlotEvent> eventList;
-				std::map<int,bool> mapSlotSignalledList;
-
-				checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
-			}
+//			else if(gameHasBeenInitiated == true &&
+//					difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+//				//printf("\nServerInterface::update -- E1\n");
+//
+//				//std::map<int,ConnectionSlotEvent> eventList;
+//				std::map<int,bool> mapSlotSignalledList;
+//
+//				checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+//			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
-		else if(gameHasBeenInitiated == true &&
-				difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
-			//printf("\nServerInterface::update -- F\n");
-
-			std::map<int,ConnectionSlotEvent> eventList;
-			std::map<int,bool> mapSlotSignalledList;
-
-			checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
-		}
+//		else if(gameHasBeenInitiated == true &&
+//				difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+//			//printf("\nServerInterface::update -- F\n");
+//
+//			std::map<int,ConnectionSlotEvent> eventList;
+//			std::map<int,bool> mapSlotSignalledList;
+//
+//			checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+//		}
 
 		//printf("\nServerInterface::update -- G\n");
 	}

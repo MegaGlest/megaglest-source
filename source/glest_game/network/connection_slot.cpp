@@ -32,16 +32,18 @@ namespace Glest{ namespace Game{
 //	class ConnectionSlotThread
 // =====================================================
 
-ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
-	this->slotIndex = slotIndex;
+ConnectionSlotThread::ConnectionSlotThread(ConnectionSlot *slot) : BaseThread() {
+	this->slot = slot;
+	this->slotIndex = this->slot->getPlayerIndex();
 	this->slotInterface = NULL;
 	//this->event = NULL;
 	eventList.clear();
 	eventList.reserve(100);
 }
 
-ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
-	this->slotIndex = slotIndex;
+ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,ConnectionSlot *slot) : BaseThread() {
+	this->slot = slot;
+	this->slotIndex = this->slot->getPlayerIndex();
 	this->slotInterface = slotInterface;
 	//this->event = NULL;
 	eventList.clear();
@@ -163,6 +165,9 @@ void ConnectionSlotThread::execute() {
 		//setRunningStatus(true);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		Chrono chrono;
+		chrono.start();
+
 		//unsigned int idx = 0;
 		for(;this->slotInterface != NULL;) {
 			if(getQuitStatus() == true) {
@@ -170,13 +175,14 @@ void ConnectionSlotThread::execute() {
 				break;
 			}
 
-			semTaskSignalled.waitTillSignalled();
+			//semTaskSignalled.waitTillSignalled();
 
-			if(getQuitStatus() == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
-			}
+			//if(getQuitStatus() == true) {
+			//	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//	break;
+			//}
 
+/*
             MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
             int eventCount = eventList.size();
             if(eventCount > 0) {
@@ -208,10 +214,23 @@ void ConnectionSlotThread::execute() {
             else {
                 safeMutex.ReleaseLock();
             }
+*/
+			if(this->slot != NULL) {
+				ConnectionSlotEvent event;
+				event.triggerId = this->slotIndex;
+				event.socketTriggered = true;
+
+				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+				this->slot->updateSlot(&event);
+			}
 
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
+			}
+
+			if(chrono.getMillis() % 300 == 0) {
+				sleep(1);
 			}
 		}
 
@@ -250,7 +269,8 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 
 	this->setSocket(NULL);
 	this->slotThreadWorker 	= NULL;
-	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
+	//this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
+	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,this);
 	this->slotThreadWorker->setUniqueID(__FILE__);
 	this->slotThreadWorker->start();
 
@@ -290,19 +310,19 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-	if(event != NULL) {
-		bool &socketTriggered = event->socketTriggered;
+	//if(event != NULL) {
+		//bool &socketTriggered = event->socketTriggered;
 		bool checkForNewClients = (serverInterface->getGameHasBeenInitiated() == false);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-		if((serverInterface->getGameHasBeenInitiated() == false ||
+		//if((serverInterface->getGameHasBeenInitiated() == false ||
 			//(this->getSocket() != NULL && socketTriggered == true))) {
-			socketTriggered == true)) {
-			if(socketTriggered == true ||
-				(serverInterface->getGameHasBeenInitiated() == false && this->isConnected() == false)) {
+		//	socketTriggered == true)) {
+		//	if(socketTriggered == true ||
+		//		(serverInterface->getGameHasBeenInitiated() == false && this->isConnected() == false)) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -316,10 +336,10 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 				//if(this->getSocket() == NULL) {
 				//	checkForNewClients = false;
 				//}
-			}
+			//}
 			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
-		}
-	}
+		//}
+	//}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
@@ -330,9 +350,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 	try {
 		clearThreadErrorList();
 
-	    if(slotThreadWorker != NULL) {
-	        slotThreadWorker->purgeCompletedEvents();
-	    }
+	    //if(slotThreadWorker != NULL) {
+	    //    slotThreadWorker->purgeCompletedEvents();
+	    //}
 
 	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -464,7 +484,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-				this->clearChatInfo();
+				//this->clearChatInfo();
 
 				bool gotTextMsg = true;
 				for(;this->hasDataToRead() == true && gotTextMsg == true;) {
