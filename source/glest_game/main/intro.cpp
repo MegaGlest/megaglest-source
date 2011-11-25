@@ -174,9 +174,9 @@ Intro::Intro(Program *program):
 		const XmlNode *disappearTimeNode= introNode->getChild("disappear-time");
 		Intro::disapearTime = disappearTimeNode->getAttribute("value")->getIntValue();
 		const XmlNode *showIntroPicturesNode= introNode->getChild("show-intro-pictures");
-		int showIntroPics = showIntroPicturesNode->getAttribute("value")->getIntValue();
-		int showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
-		bool showIntroPicsRandom = showIntroPicturesNode->getAttribute("random")->getBoolValue();
+		showIntroPics = showIntroPicturesNode->getAttribute("value")->getIntValue();
+		showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
+		showIntroPicsRandom = showIntroPicturesNode->getAttribute("random")->getBoolValue();
 
 		const XmlNode *showIntroModelsNode= introNode->getChild("show-intro-models");
 		showIntroModels = showIntroModelsNode->getAttribute("value")->getBoolValue();
@@ -200,7 +200,7 @@ Intro::Intro(Program *program):
 			if(model) {
 				model->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/main_model/" + logo);
 				models.push_back(model);
-				//printf("model [%s]\n",model->getFileName().c_str());
+				//printf("#1 Intro model [%s]\n",model->getFileName().c_str());
 			}
 		}
 
@@ -214,7 +214,7 @@ Intro::Intro(Program *program):
 				if(model) {
 					model->load(data_path + "data/core/menu/main_model/" + logo);
 					models.push_back(model);
-					//printf("model [%s]\n",model->getFileName().c_str());
+					//printf("#2 Intro model [%s]\n",model->getFileName().c_str());
 				}
 			}
 		}
