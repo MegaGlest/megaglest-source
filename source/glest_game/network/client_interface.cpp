@@ -175,7 +175,7 @@ std::string ClientInterface::getServerIpAddress() {
 }
 
 void ClientInterface::updateLobby() {
-    NetworkMessageType networkMessageType = getNextMessageType(0);
+    NetworkMessageType networkMessageType = getNextMessageType();
     switch(networkMessageType)
     {
         case nmtInvalid:
@@ -725,7 +725,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
             if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
             return;
 		}
-		NetworkMessageType networkMessageType = getNextMessageType(0);
+		NetworkMessageType networkMessageType = getNextMessageType();
 
 		// consume old messages from the lobby
 		bool discarded = shouldDiscardNetworkMessage(networkMessageType);
@@ -1038,7 +1038,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 	NetworkMessageType msg = nmtInvalid;
 	//uint64 waitLoopCount = 0;
 	while(msg == nmtInvalid) {
-		msg = getNextMessageType(5);
+		msg = getNextMessageType();
 		if(msg == nmtInvalid) {
 			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
 				if(quit == false) {
