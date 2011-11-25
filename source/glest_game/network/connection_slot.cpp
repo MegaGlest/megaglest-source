@@ -299,8 +299,9 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 		if((serverInterface->getGameHasBeenInitiated() == false ||
-			(this->getSocket() != NULL && socketTriggered == true))) {
-			if(this->isConnected() == false || socketTriggered == true) {
+			//(this->getSocket() != NULL && socketTriggered == true))) {
+			socketTriggered == true)) {
+			if(socketTriggered == true || this->isConnected() == false) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -334,7 +335,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 	    //if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-		if(this->getSocket() == NULL) {
+	    pair<bool,Socket*> socketInfo = this->getSocketInfo();
+		if(socketInfo.second == NULL) {
 			if(networkGameDataSynchCheckOkMap) networkGameDataSynchCheckOkMap  = false;
 			if(networkGameDataSynchCheckOkTile) networkGameDataSynchCheckOkTile = false;
 			if(networkGameDataSynchCheckOkTech) networkGameDataSynchCheckOkTech = false;
@@ -359,7 +361,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+
 					Socket *newSocket = serverInterface->getServerSocket()->accept();
+
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] called accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 					if(newSocket != NULL) {
 						// Set Socket as non-blocking
@@ -416,7 +420,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				//send intro message when connected
-				if(this->isConnected() == true) {
+				if(hasData == true && this->isConnected() == true) {
 					//RandomGen random;
 					//sessionKey = random.randRange(-100000, 100000);
 					srand(time(NULL) / (this->playerIndex + 1));
@@ -455,7 +459,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(this->isConnected()) {
+			if(socketInfo.first == true) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -1040,18 +1044,6 @@ void ConnectionSlot::close() {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-bool ConnectionSlot::hasValidSocketId() {
-    //bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
-    //return result;
-    bool result = false;
-    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
-    if(socket != NULL && socket->getSocketId() > 0) {
-    	result = true;
-    }
-	return result;
-
-}
-
 Mutex * ConnectionSlot::getServerSynchAccessor() {
 	return (serverInterface != NULL ? serverInterface->getServerSynchAccessor() : NULL);
 }
@@ -1115,6 +1107,18 @@ void ConnectionSlot::clearPendingNetworkCommandList() {
     safeMutexSlot.ReleaseLock();
 }
 
+bool ConnectionSlot::hasValidSocketId() {
+    //bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
+    //return result;
+    bool result = false;
+    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+    if(socket != NULL && socket->getSocketId() > 0) {
+    	result = true;
+    }
+	return result;
+
+}
+
 bool ConnectionSlot::isConnected() {
     bool result = false;
     MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
@@ -1131,6 +1135,16 @@ PLATFORM_SOCKET ConnectionSlot::getSocketId() {
 		result = socket->getSocketId();
 	}
 	return result;
+}
+
+pair<bool,Socket*> ConnectionSlot::getSocketInfo()	{
+	pair<bool,Socket*> result;
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	result.first = (socket != NULL && socket->isConnected());
+	result.second = socket;
+
+	return result;
+
 }
 
 Socket* ConnectionSlot::getSocket()	{

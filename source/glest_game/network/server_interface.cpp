@@ -747,7 +747,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 	}
 }
 
-void ServerInterface::checForLaggingClients(std::map<int,bool> &mapSlotSignalledList,
+void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalledList,
 											std::map<int,ConnectionSlotEvent> &eventList,
 											std::map<PLATFORM_SOCKET,bool> &socketTriggeredList,
 											std::vector <string> &errorMsgList) {
@@ -994,7 +994,7 @@ void ServerInterface::update() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 				// Step #3 check clients for any lagging scenarios and try to deal with them
-				checForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+				checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #4\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1018,7 +1018,7 @@ void ServerInterface::update() {
 				//std::map<int,ConnectionSlotEvent> eventList;
 				std::map<int,bool> mapSlotSignalledList;
 
-				checForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+				checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1030,7 +1030,7 @@ void ServerInterface::update() {
 			std::map<int,ConnectionSlotEvent> eventList;
 			std::map<int,bool> mapSlotSignalledList;
 
-			checForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+			checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 		}
 
 		//printf("\nServerInterface::update -- G\n");
