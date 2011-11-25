@@ -292,7 +292,7 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 
 	if(event != NULL) {
 		bool &socketTriggered = event->socketTriggered;
-		bool checkForNewClients = true;
+		bool checkForNewClients = (serverInterface->getGameHasBeenInitiated() == false);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -301,7 +301,8 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 		if((serverInterface->getGameHasBeenInitiated() == false ||
 			//(this->getSocket() != NULL && socketTriggered == true))) {
 			socketTriggered == true)) {
-			if(socketTriggered == true || this->isConnected() == false) {
+			if(socketTriggered == true ||
+				(serverInterface->getGameHasBeenInitiated() == false && this->isConnected() == false)) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -469,7 +470,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				for(;this->hasDataToRead() == true && gotTextMsg == true;) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
-					NetworkMessageType networkMessageType= getNextMessageType(true);
+					NetworkMessageType networkMessageType= getNextMessageType();
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
@@ -1147,8 +1148,11 @@ pair<bool,Socket*> ConnectionSlot::getSocketInfo()	{
 
 }
 
-Socket* ConnectionSlot::getSocket()	{
-	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+Socket* ConnectionSlot::getSocket(bool mutexLock)	{
+	MutexSafeWrapper safeMutexSlot(NULL,CODE_AT_LINE);
+	if(mutexLock == true) {
+		safeMutexSlot.setMutex(&mutexSocket,CODE_AT_LINE);
+	}
 	return socket;
 }
 

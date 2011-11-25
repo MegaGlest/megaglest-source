@@ -48,9 +48,13 @@ private:
 	int maxTextLenght;
 	Font2D *font;
 	Font3D *font3D;
-	
 
-	void appendText(const wchar_t *addText, bool validateChars=true);
+	string lastAutoCompleteSearchText;
+	vector<string> autoCompleteTextList;
+
+	void appendText(const wchar_t *addText, bool validateChars=true,bool addToAutoCompleteBuffer=true);
+	void deleteText(int deleteCount,bool addToAutoCompleteBuffer=true);
+	void updateAutoCompleteBuffer();
 
 public:
 	ChatManager();
@@ -81,6 +85,8 @@ public:
 
 	bool getDisableTeamMode() const { return disableTeamMode; }
 	void setDisableTeamMode(bool value);
+
+	void setAutoCompleteTextList(vector<string> list) { autoCompleteTextList = list; }
 };
 
 }}//end namespace

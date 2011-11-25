@@ -61,8 +61,8 @@ public:
 	ClientInterface();
 	virtual ~ClientInterface();
 
-	virtual Socket* getSocket()					{return clientSocket;}
-	virtual const Socket* getSocket() const		{return clientSocket;}
+	virtual Socket* getSocket(bool mutexLock=true)					{return clientSocket;}
+	//virtual const Socket* getSocket() const		{return clientSocket;}
 	virtual void close();
 
 	//message processing

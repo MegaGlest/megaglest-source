@@ -346,14 +346,24 @@ void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
 }
 
 ConnectionSlot *ServerInterface::getSlot(int playerIndex) {
-	return slots[playerIndex];
+	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[playerIndex],CODE_AT_LINE_X(i));
+	ConnectionSlot *result = slots[playerIndex];
+	return result;
+}
+
+bool ServerInterface::isClientConnected(int index) {
+	bool result = false;
+	MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[index],CODE_AT_LINE_X(i));
+	if(slots[index] != NULL && slots[index]->isConnected() == true) {
+		result = true;
+	}
+	return result;
 }
 
 bool ServerInterface::hasClientConnection() {
 	bool result = false;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(&slotAccessorMutexes[i],CODE_AT_LINE_X(i));
-		if(slots[i] != NULL && slots[i]->isConnected() == true) {
+		if(isClientConnected(i) == true) {
 			result = true;
 			break;
 		}
@@ -1225,7 +1235,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 			ConnectionSlot* connectionSlot= slots[i];
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true)	{
 				if(connectionSlot->isReady() == false) {
-					NetworkMessageType networkMessageType= connectionSlot->getNextMessageType(true);
+					NetworkMessageType networkMessageType= connectionSlot->getNextMessageType();
 
 					// consume old messages from the lobby
 					bool discarded = shouldDiscardNetworkMessage(networkMessageType,connectionSlot);

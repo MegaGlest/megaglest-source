@@ -147,6 +147,8 @@ private:
 
 	StrSound *currentAmbientSound;
 
+	time_t lastNetworkPlayerConnectionCheck;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);

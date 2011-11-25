@@ -39,30 +39,29 @@ bool NetworkInterface::allowDownloadDataSynch   = false;
 DisplayMessageFunction NetworkInterface::pCB_DisplayMessage = NULL;
 
 void NetworkInterface::sendMessage(const NetworkMessage* networkMessage){
-	Socket* socket= getSocket();
+	Socket* socket= getSocket(false);
 
 	networkMessage->send(socket);
 }
 
-NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasDataFirst)
+NetworkMessageType NetworkInterface::getNextMessageType()
 {
-	Socket* socket= getSocket();
+	Socket* socket= getSocket(false);
 	int8 messageType= nmtInvalid;
 
-    if(checkHasDataFirst == false ||
-       (checkHasDataFirst == true &&
-        socket != NULL &&
-        socket->hasDataToRead() == true))
-    {
+    if(socket != NULL &&
+        socket->hasDataToRead() == true) {
         //peek message type
         int dataSize = socket->getDataToRead();
-        if(dataSize >= sizeof(messageType)){
+        if(dataSize >= sizeof(messageType)) {
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
+
             int iPeek = socket->peek(&messageType, sizeof(messageType));
+
             if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
         }
 		else {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d, checkHasDataFirst = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize,checkHasDataFirst);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
 		}
 
         //sanity check new message type
@@ -83,7 +82,7 @@ bool NetworkInterface::receiveMessage(NetworkMessage* networkMessage){
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",__FILE__,__FUNCTION__);
 
-	Socket* socket= getSocket();
+	Socket* socket= getSocket(false);
 
 	return networkMessage->receive(socket);
 }
@@ -119,8 +118,9 @@ void NetworkInterface::clearChatInfo() {
 std::string NetworkInterface::getIpAddress() {
 	std::string result = "";
 
-	if(getSocket() != NULL) {
-		result = getSocket()->getIpAddress();
+	Socket *socket = getSocket();
+	if(socket != NULL) {
+		result = socket->getIpAddress();
 	}
 	return result;
 }
