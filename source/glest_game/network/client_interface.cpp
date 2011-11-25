@@ -1038,7 +1038,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 	NetworkMessageType msg = nmtInvalid;
 	//uint64 waitLoopCount = 0;
 	while(msg == nmtInvalid) {
-		msg = getNextMessageType(200);
+		msg = getNextMessageType(5);
 		if(msg == nmtInvalid) {
 			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
 				if(quit == false) {
