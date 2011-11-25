@@ -464,17 +464,18 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-				this->clearChatInfo();
+				//this->clearChatInfo();
 
-				bool gotTextMsg = true;
-				for(;this->hasDataToRead() == true && gotTextMsg == true;) {
+				//bool gotTextMsg = true;
+				//for(;this->hasDataToRead() == true && gotTextMsg == true;) {
+				for(;this->hasDataToRead() == true;) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
-					NetworkMessageType networkMessageType= getNextMessageType();
+					NetworkMessageType networkMessageType= getNextMessageType(false);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
-					gotTextMsg = false;
+					//gotTextMsg = false;
 					//process incoming commands
 					switch(networkMessageType) {
 
@@ -513,7 +514,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&networkMessageText)) {
 									ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
 									this->addChatInfo(msg);
-									gotTextMsg = true;
+									//gotTextMsg = true;
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
