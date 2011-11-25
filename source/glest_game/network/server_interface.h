@@ -207,7 +207,6 @@ protected:
     void signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);
     void checkForCompletedClients(std::map<int,bool> & mapSlotSignalledList,std::vector <string> &errorMsgList,std::map<int,ConnectionSlotEvent> &eventList);
     void checkForLaggingClients(std::map<int,bool> &mapSlotSignalledList, std::map<int,ConnectionSlotEvent> &eventList, std::map<PLATFORM_SOCKET,bool> &socketTriggeredList,std::vector <string> &errorMsgList);
-    void checkForLaggingClients(std::vector <string> &errorMsgList);
     void executeNetworkCommandsFromClients();
     void dispatchPendingChatMessages(std::vector <string> &errorMsgList);
 };

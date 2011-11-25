@@ -93,7 +93,6 @@ protected:
 	string networkGameDataSynchCheckTechMismatchReport;
 	bool receivedDataSynchCheck;
 
-	Mutex mutexChatTextList;
 	std::vector<ChatMsgInfo> chatTextList;
 	NetworkMessagePing lastPingInfo;
 
@@ -121,7 +120,7 @@ public:
 	string getHostName() const	{return Socket::getHostName();}
 
 	virtual void sendMessage(const NetworkMessage* networkMessage);
-	NetworkMessageType getNextMessageType(int waitMilliseconds=100);
+	NetworkMessageType getNextMessageType();
 	bool receiveMessage(NetworkMessage* networkMessage);
 
 	virtual bool isConnected();
@@ -142,9 +141,9 @@ public:
     virtual bool getNetworkGameDataSynchCheckOkTile()           { return networkGameDataSynchCheckOkTile; }
     virtual bool getNetworkGameDataSynchCheckOkTech()           { return networkGameDataSynchCheckOkTech; }
 
-    std::vector<ChatMsgInfo> getChatTextList(bool clearAfterRetrieve);
+    std::vector<ChatMsgInfo> getChatTextList(bool clearList);
 	void clearChatInfo();
-	void addChatInfo(const ChatMsgInfo &msg);
+	void addChatInfo(const ChatMsgInfo &msg) { chatTextList.push_back(msg); }
 
 	virtual bool getConnectHasHandshaked() const= 0;
 

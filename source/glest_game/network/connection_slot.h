@@ -78,7 +78,6 @@ protected:
 	Mutex triggerIdMutex;
 	vector<ConnectionSlotEvent> eventList;
 	int slotIndex;
-	ConnectionSlot *slot;
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int eventId);
@@ -87,8 +86,8 @@ protected:
 	void slotUpdateTask(ConnectionSlotEvent *event);
 
 public:
-	ConnectionSlotThread(ConnectionSlot *slot);
-	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,ConnectionSlot *slot);
+	ConnectionSlotThread(int slotIndex);
+	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
     virtual void execute();
     void signalUpdate(ConnectionSlotEvent *event);
     bool isSignalCompleted(ConnectionSlotEvent *event);
@@ -136,7 +135,7 @@ public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
 
-    bool update(bool checkForNewClients,int lockedSlotIndex);
+    void update(bool checkForNewClients,int lockedSlotIndex);
 	void setPlayerIndex(int value) { playerIndex = value; }
 	int getPlayerIndex() const {return playerIndex;}
 
@@ -191,13 +190,10 @@ public:
 	time_t getConnectedTime() const { return connectedTime; }
 	int getSessionKey() const { return sessionKey; }
 
-	bool updateSlot(ConnectionSlotEvent *event);
+	void updateSlot(ConnectionSlotEvent *event);
 	virtual bool isConnected();
 
 	PLATFORM_SOCKET getSocketId();
-
-	bool hasDataToRead();
-	bool hasDataToReadWithWait(int waitMilliseconds);
 
 protected:
 
@@ -208,6 +204,8 @@ protected:
 	void setSocket(Socket *newSocket);
 	void deleteSocket();
 	virtual void update() {}
+
+	bool hasDataToRead();
 };
 
 }}//end namespace

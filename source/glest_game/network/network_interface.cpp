@@ -44,26 +44,25 @@ void NetworkInterface::sendMessage(const NetworkMessage* networkMessage){
 	networkMessage->send(socket);
 }
 
-NetworkMessageType NetworkInterface::getNextMessageType(int waitMilliseconds)
+NetworkMessageType NetworkInterface::getNextMessageType()
 {
 	Socket* socket= getSocket(false);
 	int8 messageType= nmtInvalid;
 
     if(socket != NULL &&
-        socket->hasDataToReadWithWait(waitMilliseconds) == true) {
-
+        socket->hasDataToRead() == true) {
         //peek message type
-        //int dataSize = socket->getDataToRead();
-        //if(dataSize >= sizeof(messageType)) {
-        	//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
+        int dataSize = socket->getDataToRead();
+        if(dataSize >= sizeof(messageType)) {
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
 
             int iPeek = socket->peek(&messageType, sizeof(messageType));
 
             if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
-        //}
-		//else {
-		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
-		//}
+        }
+		else {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
+		}
 
         //sanity check new message type
         if(messageType < 0 || messageType >= nmtCount) {
@@ -109,24 +108,19 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
     }
 }
 
-std::vector<ChatMsgInfo> NetworkInterface::getChatTextList(bool clearAfterRetrieve) {
+std::vector<ChatMsgInfo> NetworkInterface::getChatTextList(bool clearList) {
 	std::vector<ChatMsgInfo> result;
-	MutexSafeWrapper safeMutex(&mutexChatTextList,CODE_AT_LINE);
-	result = chatTextList;
-	if(clearAfterRetrieve == true) {
-		chatTextList.clear();
-	}
+	if(chatTextList.empty() == false) {
+		result = chatTextList;
 
+		if(clearList == true) {
+			chatTextList.clear();
+		}
+	}
 	return result;
 }
 
-void NetworkInterface::addChatInfo(const ChatMsgInfo &msg) {
-	MutexSafeWrapper safeMutex(&mutexChatTextList,CODE_AT_LINE);
-	chatTextList.push_back(msg);
-}
-
 void NetworkInterface::clearChatInfo() {
-	MutexSafeWrapper safeMutex(&mutexChatTextList,CODE_AT_LINE);
 	if(chatTextList.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
 		chatTextList.clear();
