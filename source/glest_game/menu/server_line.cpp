@@ -39,14 +39,22 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	masterServerInfo= *mServerInfo;
 	int i= 7;
 	this->baseY= baseY;
+	Vec3f color=Vec3f(1.0f,1.0f,1.0f);
+
+	if(masterServerInfo.getConnectedClients()==0){
+		color=Vec3f(0.6f,0.7f,1.0f);
+	}
+
 
 	//general info:
 	//i+= 10;
 	glestVersionLabel.init(i, baseY - lineOffset);
+	glestVersionLabel.setTextColor(color);
 	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
 
 	i+= 70;
 	platformLabel.init(i, baseY - lineOffset);
+	platformLabel.setTextColor(color);
 	platformLabel.setText(masterServerInfo.getPlatform());
 
 	//	i+=50;
@@ -58,10 +66,12 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	//game info:
 	i+= 130;
 	serverTitleLabel.init(i, baseY - lineOffset);
+	serverTitleLabel.setTextColor(color);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 
 	i+= 150;
 	country.init(i, baseY - lineOffset);
+	country.setTextColor(color);
 	country.setText(masterServerInfo.getCountry());
 
 	string data_path= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
@@ -95,14 +105,17 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	//	i+=100;
 
 	wrongVersionLabel.init(i, baseY - lineOffset);
+	wrongVersionLabel.setTextColor(Vec3f(1.0f,0.0f,0.0f));
 	wrongVersionLabel.setText(lang.get("IncompatibleVersion"));
 
 	//game setup info:
 	techLabel.init(i, baseY - lineOffset);
+	techLabel.setTextColor(color);
 	techLabel.setText(masterServerInfo.getTech());
 
 	i+= 120;
 	mapLabel.init(i, baseY - lineOffset);
+	mapLabel.setTextColor(color);
 	mapLabel.setText(masterServerInfo.getMap());
 	i+= 120;
 
@@ -111,15 +124,18 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	//	i+=100;
 
 	activeSlotsLabel.init(i, baseY - lineOffset);
+	activeSlotsLabel.setTextColor(color);
 	activeSlotsLabel.setText(intToStr(masterServerInfo.getActiveSlots()) + "/" + intToStr(
 	        masterServerInfo.getNetworkSlots()) + "/" + intToStr(masterServerInfo.getConnectedClients()));
 
 	i+= 50;
 	externalConnectPort.init(i, baseY - lineOffset);
+	externalConnectPort.setTextColor(color);
 	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
 
 	i+= 60;
 	status.init(i, baseY - lineOffset);
+	status.setTextColor(color);
 	status.setText(lang.get("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
 
 	i+= 130;
