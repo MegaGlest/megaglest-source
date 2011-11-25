@@ -496,15 +496,15 @@ bool ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				//this->clearChatInfo();
 
-				bool gotTextMsg = true;
-				for(;this->hasDataToReadWithWait(250) == true && gotTextMsg == true;) {
+				//bool gotTextMsg = true;
+				//for(;this->hasDataToReadWithWait(100) == true && gotTextMsg == true;) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
-					NetworkMessageType networkMessageType= getNextMessageType(200);
+					NetworkMessageType networkMessageType= getNextMessageType(100);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
-					gotTextMsg = false;
+					//gotTextMsg = false;
 					//process incoming commands
 					switch(networkMessageType) {
 
@@ -543,7 +543,7 @@ bool ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&networkMessageText)) {
 									ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
 									this->addChatInfo(msg);
-									gotTextMsg = true;
+									//gotTextMsg = true;
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
@@ -1007,7 +1007,7 @@ bool ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								}
 							}
 					}
-				}
+				//}
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
