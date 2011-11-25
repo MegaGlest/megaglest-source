@@ -121,7 +121,7 @@ public:
 	string getHostName() const	{return Socket::getHostName();}
 
 	virtual void sendMessage(const NetworkMessage* networkMessage);
-	NetworkMessageType getNextMessageType();
+	NetworkMessageType getNextMessageType(int waitMilliseconds=100);
 	bool receiveMessage(NetworkMessage* networkMessage);
 
 	virtual bool isConnected();

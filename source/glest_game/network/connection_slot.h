@@ -136,7 +136,7 @@ public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
 
-    void update(bool checkForNewClients,int lockedSlotIndex);
+    bool update(bool checkForNewClients,int lockedSlotIndex);
 	void setPlayerIndex(int value) { playerIndex = value; }
 	int getPlayerIndex() const {return playerIndex;}
 
@@ -191,10 +191,13 @@ public:
 	time_t getConnectedTime() const { return connectedTime; }
 	int getSessionKey() const { return sessionKey; }
 
-	void updateSlot(ConnectionSlotEvent *event);
+	bool updateSlot(ConnectionSlotEvent *event);
 	virtual bool isConnected();
 
 	PLATFORM_SOCKET getSocketId();
+
+	bool hasDataToRead();
+	bool hasDataToReadWithWait(int waitMilliseconds);
 
 protected:
 
@@ -205,8 +208,6 @@ protected:
 	void setSocket(Socket *newSocket);
 	void deleteSocket();
 	virtual void update() {}
-
-	bool hasDataToRead();
 };
 
 }}//end namespace

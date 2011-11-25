@@ -1343,7 +1343,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 			ConnectionSlot* connectionSlot= slots[i];
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true)	{
 				if(connectionSlot->isReady() == false) {
-					NetworkMessageType networkMessageType= connectionSlot->getNextMessageType();
+					NetworkMessageType networkMessageType= connectionSlot->getNextMessageType(0);
 
 					// consume old messages from the lobby
 					bool discarded = shouldDiscardNetworkMessage(networkMessageType,connectionSlot);

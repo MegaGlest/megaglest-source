@@ -1020,6 +1020,48 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
     return bResult;
 }
 
+bool Socket::hasDataToReadWithWait(int waitMilliseconds)
+{
+    return Socket::hasDataToReadWithWait(sock,waitMilliseconds) ;
+}
+
+bool Socket::hasDataToReadWithWait(PLATFORM_SOCKET socket,int waitMilliseconds)
+{
+    bool bResult = false;
+
+    Chrono chono;
+    chono.start();
+    if(Socket::isSocketValid(&socket) == true)
+    {
+        fd_set rfds;
+        struct timeval tv;
+
+        /* Watch stdin (fd 0) to see when it has input. */
+        FD_ZERO(&rfds);
+        FD_SET(socket, &rfds);
+
+        /* Wait up to 0 seconds. */
+        tv.tv_sec = 0;
+        tv.tv_usec = 1000 * waitMilliseconds;
+
+        int retval = 0;
+        {
+        	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
+        	retval = select((int)socket + 1, &rfds, NULL, NULL, &tv);
+        }
+        if(retval)
+        {
+            if (FD_ISSET(socket, &rfds))
+            {
+                bResult = true;
+            }
+        }
+    }
+
+    //printf("hasdata waited [%d] milliseconds [%d], bResult = %d\n",chono.getMillis(),waitMilliseconds,bResult);
+    return bResult;
+}
+
 int Socket::getDataToRead(bool wantImmediateReply) {
 	unsigned long size = 0;
 
