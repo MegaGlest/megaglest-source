@@ -48,7 +48,8 @@ public:
 
 private:
 	ConnectionSlot* slots[GameConstants::maxPlayers];
-	Mutex slotAccessorMutexes[GameConstants::maxPlayers];
+	//Mutex slotAccessorMutexes[GameConstants::maxPlayers];
+	ReadWriteMutex slotAccessorMutexes[GameConstants::maxPlayers];
 
 	ServerSocket serverSocket;
 	bool gameHasBeenInitiated;
