@@ -137,9 +137,14 @@ private:
 	set<int> livingUnits;
 	set<Unit*> livingUnitsp;
 
+	Semaphore semWorkerTaskCompleted;
+
 public:
 	Faction();
 	~Faction();
+
+	void signalWorkerTaskCompleted();
+	bool waitWorkerTaskCompleted(int waitMilliseconds=-1);
 
 	void addLivingUnits(int id) { livingUnits.insert(id); }
 	void addLivingUnitsp(Unit *unit) { livingUnitsp.insert(unit); }

@@ -474,6 +474,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	getTilesetsLocalList();
 	for(unsigned int i=0; i < tilesetListRemote.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
 		string result=refreshTilesetModInfo(tilesetListRemote[i]);
 		if(result != "") {
 			ModInfo modinfo;
@@ -493,6 +499,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     }
 
 	for(unsigned int i=0; i < tilesetFilesUserData.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
 		string tilesetName = tilesetFilesUserData[i];
 		bool alreadyHasTileset = (tilesetCacheList.find(tilesetName) != tilesetCacheList.end());
 		if(alreadyHasTileset == false) {
@@ -524,6 +536,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	getTechsLocalList();
 	for(unsigned int i=0; i < techListRemote.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
 		string result=refreshTechModInfo(techListRemote[i]);
 		if(result != "") {
 			ModInfo modinfo;
@@ -549,6 +567,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     }
 
 	for(unsigned int i=0; i < techTreeFilesUserData.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
 		string techName = techTreeFilesUserData[i];
 		bool alreadyHasTech = (techCacheList.find(techName) != techCacheList.end());
 		if(alreadyHasTech == false) {
@@ -587,6 +611,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	getMapsLocalList();
 	for(unsigned int i=0; i < mapListRemote.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
 		string result=refreshMapModInfo(mapListRemote[i]);
 		if(result != "") {
 			ModInfo modinfo;
@@ -612,6 +642,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     }
 
 	for(unsigned int i=0; i < mapFilesUserData.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
 		string mapName = mapFilesUserData[i];
 		bool alreadyHasMap = (mapCacheList.find(mapName) != mapCacheList.end());
 		if(alreadyHasMap == false) {
@@ -650,6 +686,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	getScenariosLocalList();
 	for(unsigned int i=0; i < scenarioListRemote.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
 		string result=refreshScenarioModInfo(scenarioListRemote[i]);
 		if(result != "") {
 			ModInfo modinfo;
@@ -669,6 +711,12 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     }
 
 	for(unsigned int i=0; i < scenarioFilesUserData.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
 		string scenarioName = scenarioFilesUserData[i];
 		bool alreadyHasScenario = (scenarioCacheList.find(scenarioName) != scenarioCacheList.end());
 		if(alreadyHasScenario == false) {

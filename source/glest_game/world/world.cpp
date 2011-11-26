@@ -372,30 +372,40 @@ void World::updateAllFactionUnits() {
 		faction->signalWorkerThread(frameCount);
 	}
 
-	bool workThreadsFinished = false;
 	Chrono chrono;
 	chrono.start();
 
 	const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
-	for(;chrono.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
-		workThreadsFinished = true;
-		for(int i = 0; i < factionCount; ++i) {
-			Faction *faction = getFaction(i);
-			if(faction == NULL) {
-				throw runtime_error("faction == NULL");
-			}
-			if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {
-				workThreadsFinished = false;
-				break;
-			}
+//	bool workThreadsFinished = false;
+//	for(;chrono.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
+//		workThreadsFinished = true;
+//		for(int i = 0; i < factionCount; ++i) {
+//			Faction *faction = getFaction(i);
+//			if(faction == NULL) {
+//				throw runtime_error("faction == NULL");
+//			}
+//			if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {
+//				workThreadsFinished = false;
+//				break;
+//			}
+//		}
+//		if(workThreadsFinished == false) {
+//			//sleep(0);
+//		}
+//		else {
+//			break;
+//		}
+//	}
+
+	// Wait for faction threads to finish
+	for(int i = 0; i < factionCount; ++i) {
+		Faction *faction = getFaction(i);
+		if(faction == NULL) {
+			throw runtime_error("faction == NULL");
 		}
-		if(workThreadsFinished == false) {
-			//sleep(0);
-		}
-		else {
-			break;
-		}
+		faction->waitWorkerTaskCompleted(MAX_FACTION_THREAD_WAIT_MILLISECONDS);
 	}
+	//
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 10) printf("In [%s::%s Line: %d] *** Faction thread preprocessing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);
 

@@ -110,7 +110,9 @@ private:
 	Semaphore semSlotWorkerTaskCompleted;
 
 	//Mutex mutexSocket;
+	ReadWriteMutex socketRWLMutex;
 	Socket* socket;
+
 	int playerIndex;
 	string name;
 	bool ready;
@@ -133,8 +135,6 @@ private:
 	uint32 connectedRemoteIPAddress;
 	int playerStatus;
 	string playerLanguage;
-
-	ReadWriteMutex socketRWLMutex;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
