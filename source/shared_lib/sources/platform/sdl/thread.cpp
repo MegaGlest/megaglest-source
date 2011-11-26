@@ -210,14 +210,59 @@ void Semaphore::signal() {
 	SDL_SemPost(semaphore);
 }
 
-int Semaphore::waitTillSignalled() {
+int Semaphore::waitTillSignalled(int waitMilliseconds) {
 	if(semaphore == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
 		throw runtime_error(szBuf);
 	}
-	int semValue = SDL_SemWait(semaphore);
+	int semValue = 0;
+	if(waitMilliseconds >= 0) {
+		semValue = SDL_SemWaitTimeout(semaphore,waitMilliseconds);
+	}
+	else {
+		semValue = SDL_SemWait(semaphore);
+	}
 	return semValue;
 }
+
+uint32 Semaphore::getSemValue() {
+	if(semaphore == NULL) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
+		throw runtime_error(szBuf);
+	}
+
+	return SDL_SemValue(semaphore);
+}
+
+ReadWriteMutex::ReadWriteMutex(int maxReaders) : semaphore(maxReaders) {
+	this->maxReadersCount = maxReaders;
+}
+
+void ReadWriteMutex::LockRead() {
+	semaphore.waitTillSignalled();
+}
+void ReadWriteMutex::UnLockRead() {
+	semaphore.signal();
+}
+void ReadWriteMutex::LockWrite() {
+	MutexSafeWrapper safeMutex(&mutex);
+	uint32 totalLocks = maxReaders();
+	for (int i = 0; i < totalLocks; ++i) {
+		semaphore.waitTillSignalled();
+	}
+}
+void ReadWriteMutex::UnLockWrite() {
+	uint32 totalLocks = maxReaders();
+	for (int i = 0; i < totalLocks; ++i) {
+		semaphore.signal();
+	}
+}
+int ReadWriteMutex::maxReaders() {
+	//return semaphore.getSemValue();
+	return this->maxReadersCount;
+}
+
 
 }}//end namespace

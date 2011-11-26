@@ -780,26 +780,25 @@ bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 }
 
 Socket::Socket(PLATFORM_SOCKET sock) {
-	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
+	ReadWriteMutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,true,CODE_AT_LINE);
 	inSocketDestructorSynchAccessor.setOwnerId(CODE_AT_LINE);
-	this->inSocketDestructor = false;
+	//this->inSocketDestructor = false;
 	//safeMutexSocketDestructorFlag.ReleaseLock();
 
 	//this->pingThread = NULL;
-	pingThreadAccessor.setOwnerId(CODE_AT_LINE);
-	dataSynchAccessorRead.setOwnerId(CODE_AT_LINE);
-	dataSynchAccessorWrite.setOwnerId(CODE_AT_LINE);
-
-
+	//pingThreadAccessor.setOwnerId(CODE_AT_LINE);
+	//dataSynchAccessorRead.setOwnerId(CODE_AT_LINE);
+	//dataSynchAccessorWrite.setOwnerId(CODE_AT_LINE);
+	dataSynchAccessorRWLMutex.setOwnerId(CODE_AT_LINE);
 
 	this->sock= sock;
 	this->connectedIpAddress = "";
 }
 
 Socket::Socket() {
-	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
+	ReadWriteMutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,true,CODE_AT_LINE);
 	inSocketDestructorSynchAccessor.setOwnerId(CODE_AT_LINE);
-	this->inSocketDestructor = false;
+	//this->inSocketDestructor = false;
 	//safeMutexSocketDestructorFlag.ReleaseLock();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -865,13 +864,13 @@ void Socket::simpleTask(BaseThread *callingThread)  {
 */
 
 Socket::~Socket() {
-	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
-	if(this->inSocketDestructor == true) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] this->inSocketDestructor == true\n",__FILE__,__FUNCTION__,__LINE__);
-		return;
-	}
+	ReadWriteMutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,false,CODE_AT_LINE);
+	//if(this->inSocketDestructor == true) {
+	//	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] this->inSocketDestructor == true\n",__FILE__,__FUNCTION__,__LINE__);
+	//	return;
+	//}
 	inSocketDestructorSynchAccessor.setOwnerId(CODE_AT_LINE);
-	this->inSocketDestructor = true;
+	//this->inSocketDestructor = true;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
@@ -880,12 +879,12 @@ Socket::~Socket() {
     disconnectSocket();
 
     // Allow other callers with a lock on the mutexes to let them go
-	for(time_t elapsed = time(NULL);
-		(dataSynchAccessorRead.getRefCount() > 0 ||
-		 dataSynchAccessorWrite.getRefCount() > 0) &&
-		 difftime(time(NULL),elapsed) <= 5;) {
+	//for(time_t elapsed = time(NULL);
+	//	(dataSynchAccessorRead.getRefCount() > 0 ||
+	//	 dataSynchAccessorWrite.getRefCount() > 0) &&
+	//	 difftime(time(NULL),elapsed) <= 5;) {
 		//sleep(0);
-	}
+	//}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
@@ -900,8 +899,9 @@ void Socket::disconnectSocket() {
     if(isSocketValid() == true) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] calling shutdown and close for socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
-        MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
-        MutexSafeWrapper safeMutex1(&dataSynchAccessorWrite,CODE_AT_LINE);
+        //MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+        //MutexSafeWrapper safeMutex1(&dataSynchAccessorWrite,CODE_AT_LINE);
+    	ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,false,CODE_AT_LINE);
         ::shutdown(sock,2);
 #ifndef WIN32
         ::close(sock);
@@ -910,8 +910,8 @@ void Socket::disconnectSocket() {
         ::closesocket(sock);
         sock = -1;
 #endif
-        safeMutex.ReleaseLock();
-        safeMutex1.ReleaseLock();
+        //safeMutex.ReleaseLock();
+        //safeMutex1.ReleaseLock();
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
@@ -1142,7 +1142,8 @@ int Socket::send(const void *data, int dataSize) {
 //    	inSocketDestructorSynchAccessor.setOwnerId(CODE_AT_LINE);
 //    	safeMutexSocketDestructorFlag.ReleaseLock();
 
-		MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,CODE_AT_LINE);
+		//MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,CODE_AT_LINE);
+		ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,false,CODE_AT_LINE);
 
 #ifdef __APPLE__
         bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
@@ -1159,7 +1160,7 @@ int Socket::send(const void *data, int dataSize) {
 	if(bytesSent < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR WRITING SOCKET DATA, err = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText().c_str());
 	}
-	else if(isConnected() == true && bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN)	{
+	else if(bytesSent < 0 && getLastSocketError() == PLATFORM_SOCKET_TRY_AGAIN && isConnected() == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
 		int attemptCount = 0;
@@ -1180,7 +1181,8 @@ int Socket::send(const void *data, int dataSize) {
 //	        	inSocketDestructorSynchAccessor.setOwnerId(CODE_AT_LINE);
 //	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,CODE_AT_LINE);
+	        	//MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,CODE_AT_LINE);
+            	ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,false,CODE_AT_LINE);
 #ifdef __APPLE__
                 bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
 #else
@@ -1229,7 +1231,8 @@ int Socket::send(const void *data, int dataSize) {
 //	        	inSocketDestructorSynchAccessor.setOwnerId(CODE_AT_LINE);
 //	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
-                MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,CODE_AT_LINE);
+                //MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,CODE_AT_LINE);
+            	ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,false,CODE_AT_LINE);
 	        	const char *sendBuf = (const char *)data;
 #ifdef __APPLE__
 			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, SO_NOSIGPIPE);
@@ -1294,7 +1297,8 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 //    	inSocketDestructorSynchAccessor.setOwnerId(CODE_AT_LINE);
 //    	safeMutexSocketDestructorFlag.ReleaseLock();
 
-		MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+		//MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+		ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,true,CODE_AT_LINE);
 	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 	    safeMutex.ReleaseLock();
 	}
@@ -1323,7 +1327,8 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 //	        	inSocketDestructorSynchAccessor.setOwnerId(CODE_AT_LINE);
 //	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+	        	//MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+	        	ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,true,CODE_AT_LINE);
                 bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
                 safeMutex.ReleaseLock();
 
@@ -1382,7 +1387,8 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 //    	safeMutexSocketDestructorFlag.ReleaseLock();
 
 		//MutexSafeWrapper safeMutex(&dataSynchAccessor,CODE_AT_LINE + "_" + intToStr(sock) + "_" + intToStr(dataSize));
-		MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+		//MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+		ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,true,CODE_AT_LINE);
 
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -1421,7 +1427,8 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 //	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
 	        	//MutexSafeWrapper safeMutex(&dataSynchAccessor,CODE_AT_LINE + "_" + intToStr(sock) + "_" + intToStr(dataSize));
-	        	MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+	        	//MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+	        	ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,true,CODE_AT_LINE);
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
                 safeMutex.ReleaseLock();
 
@@ -1716,7 +1723,8 @@ void ClientSocket::connect(const Ip &ip, int port)
                FD_SET(sock, &myset);
 
                {
-            	   MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+            	   //MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+            	   ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,true,CODE_AT_LINE);
             	   err = select((int)sock + 1, NULL, &myset, NULL, &tv);
             	   //safeMutex.ReleaseLock();
                }
@@ -2132,7 +2140,8 @@ Socket *ServerSocket::accept() {
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
 	char client_host[100]="";
-	MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+	//MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
+	ReadWriteMutexSafeWrapper safeMutex(&dataSynchAccessorRWLMutex,true,CODE_AT_LINE);
 	PLATFORM_SOCKET newSock= ::accept(sock, (struct sockaddr *) &cli_addr, &clilen);
 	safeMutex.ReleaseLock();
 
