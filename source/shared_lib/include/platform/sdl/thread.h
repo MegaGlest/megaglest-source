@@ -24,6 +24,7 @@
 
 //#include "util.h"
 #include <vector>
+#include "types.h"
 #include "leak_dumper.h"
 
 // =====================================================
@@ -187,8 +188,130 @@ public:
 	Semaphore(Uint32 initialValue = 0);
 	~Semaphore();
 	void signal();
-	int waitTillSignalled();
+	int waitTillSignalled(int waitMilliseconds=-1);
+
+	uint32 getSemValue();
 };
+
+
+class ReadWriteMutex
+{
+public:
+	ReadWriteMutex(int maxReaders = 32);
+
+	void LockRead();
+	void UnLockRead();
+
+	void LockWrite();
+	void UnLockWrite();
+
+	int maxReaders();
+	void setOwnerId(string ownerId) { this->ownerId = ownerId; }
+
+private:
+	Semaphore semaphore;
+	Mutex mutex;
+	int maxReadersCount;
+
+	string ownerId;
+};
+
+
+class ReadWriteMutexSafeWrapper {
+protected:
+	ReadWriteMutex *mutex;
+	string ownerId;
+	bool isReadLock;
+
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+	Chrono chrono;
+#endif
+
+public:
+
+	ReadWriteMutexSafeWrapper(ReadWriteMutex *mutex,bool isReadLock=true, string ownerId="") {
+		this->mutex = mutex;
+		this->isReadLock = isReadLock;
+		this->ownerId = ownerId;
+		Lock();
+	}
+	~ReadWriteMutexSafeWrapper() {
+		ReleaseLock();
+	}
+
+    void setReadWriteMutex(ReadWriteMutex *mutex,bool isReadLock=true,string ownerId="") {
+		this->mutex = mutex;
+		this->isReadLock = isReadLock;
+		this->ownerId = ownerId;
+		Lock();
+    }
+    bool isValidReadWriteMutex() const {
+        return(this->mutex != NULL);
+    }
+
+	void Lock() {
+		if(this->mutex != NULL) {
+		    #ifdef DEBUG_MUTEXES
+            if(ownerId != "") {
+                printf("Locking Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            }
+            #endif
+
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+    		chrono.start();
+#endif
+
+    		if(this->isReadLock == true) {
+    			this->mutex->LockRead();
+    		}
+    		else {
+    			this->mutex->LockWrite();
+    		}
+
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+			if(chrono.getMillis() > 5) printf("In [%s::%s Line: %d] MUTEX LOCK took msecs: %lld, this->mutex->getRefCount() = %d ownerId [%s]\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),this->mutex->getRefCount(),ownerId.c_str());
+			chrono.start();
+#endif
+
+            #ifdef DEBUG_MUTEXES
+            if(ownerId != "") {
+                printf("Locked Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            }
+            #endif
+		}
+	}
+	void ReleaseLock(bool keepMutex=false) {
+		if(this->mutex != NULL) {
+		    #ifdef DEBUG_MUTEXES
+            if(ownerId != "") {
+                printf("UnLocking Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            }
+            #endif
+
+    		if(this->isReadLock == true) {
+    			this->mutex->UnLockRead();
+    		}
+    		else {
+    			this->mutex->UnLockWrite();
+    		}
+
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+			if(chrono.getMillis() > 100) printf("In [%s::%s Line: %d] MUTEX UNLOCKED and held locked for msecs: %lld, this->mutex->getRefCount() = %d ownerId [%s]\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),this->mutex->getRefCount(),ownerId.c_str());
+#endif
+
+            #ifdef DEBUG_MUTEXES
+            if(ownerId != "") {
+                printf("UnLocked Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            }
+            #endif
+
+			if(keepMutex == false) {
+				this->mutex = NULL;
+			}
+		}
+	}
+};
+
 
 }}//end namespace
 

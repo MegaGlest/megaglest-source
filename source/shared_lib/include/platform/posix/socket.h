@@ -116,13 +116,14 @@ protected:
 	//SimpleTaskThread *pingThread;
 	std::map<string,double> pingCache;
 	time_t lastThreadedPing;
-	Mutex pingThreadAccessor;
+	//Mutex pingThreadAccessor;
 
-	Mutex dataSynchAccessorRead;
-	Mutex dataSynchAccessorWrite;
+	//Mutex dataSynchAccessorRead;
+	//Mutex dataSynchAccessorWrite;
+	ReadWriteMutex dataSynchAccessorRWLMutex;
 
-	Mutex inSocketDestructorSynchAccessor;
-	bool inSocketDestructor;
+	ReadWriteMutex inSocketDestructorSynchAccessor;
+	//bool inSocketDestructor;
 
 public:
 	Socket(PLATFORM_SOCKET sock);

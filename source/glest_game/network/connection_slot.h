@@ -78,6 +78,7 @@ protected:
 	Mutex triggerIdMutex;
 	vector<ConnectionSlotEvent> eventList;
 	int slotIndex;
+	ConnectionSlot *slot;
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int eventId);
@@ -86,8 +87,8 @@ protected:
 	void slotUpdateTask(ConnectionSlotEvent *event);
 
 public:
-	ConnectionSlotThread(int slotIndex);
-	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
+	ConnectionSlotThread(ConnectionSlot *slot);
+	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,ConnectionSlot *slot);
     virtual void execute();
     void signalUpdate(ConnectionSlotEvent *event);
     bool isSignalCompleted(ConnectionSlotEvent *event);
@@ -106,7 +107,9 @@ class ConnectionSlot: public NetworkInterface {
 private:
 	ServerInterface* serverInterface;
 
-	Mutex mutexSocket;
+	Semaphore semSlotWorkerTaskCompleted;
+
+	//Mutex mutexSocket;
 	Socket* socket;
 	int playerIndex;
 	string name;
@@ -131,9 +134,14 @@ private:
 	int playerStatus;
 	string playerLanguage;
 
+	ReadWriteMutex socketRWLMutex;
+
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
+
+	void signalSlotWorkerTaskCompleted();
+	bool waitSlotWorkerTaskCompleted(int waitMilliseconds=-1);
 
     void update(bool checkForNewClients,int lockedSlotIndex);
 	void setPlayerIndex(int value) { playerIndex = value; }
@@ -155,7 +163,7 @@ public:
 	bool getReceivedNetworkGameStatus() const { return receivedNetworkGameStatus; }
 	void setReceivedNetworkGameStatus(bool value) { receivedNetworkGameStatus = value; }
 
-	bool hasValidSocketId();
+	//bool hasValidSocketId();
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }
 	std::vector<std::string> getThreadErrorList() const { return threadErrorList; }
 	void clearThreadErrorList() { threadErrorList.clear(); }
