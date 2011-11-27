@@ -118,12 +118,11 @@ protected:
 	time_t lastThreadedPing;
 	//Mutex pingThreadAccessor;
 
-	//Mutex dataSynchAccessorRead;
-	//Mutex dataSynchAccessorWrite;
-	ReadWriteMutex dataSynchAccessorRWLMutex;
+	Mutex dataSynchAccessorRead;
+	Mutex dataSynchAccessorWrite;
 
-	ReadWriteMutex inSocketDestructorSynchAccessor;
-	//bool inSocketDestructor;
+	Mutex inSocketDestructorSynchAccessor;
+	bool inSocketDestructor;
 
 public:
 	Socket(PLATFORM_SOCKET sock);

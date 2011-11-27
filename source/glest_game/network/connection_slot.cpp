@@ -32,18 +32,16 @@ namespace Glest{ namespace Game{
 //	class ConnectionSlotThread
 // =====================================================
 
-ConnectionSlotThread::ConnectionSlotThread(ConnectionSlot *slot) : BaseThread() {
-	this->slot = slot;
-	this->slotIndex = slot->getPlayerIndex();
+ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
+	this->slotIndex = slotIndex;
 	this->slotInterface = NULL;
 	//this->event = NULL;
 	eventList.clear();
 	eventList.reserve(100);
 }
 
-ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,ConnectionSlot *slot) : BaseThread() {
-	this->slot = slot;
-	this->slotIndex = slot->getPlayerIndex();
+ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
+	this->slotIndex = slotIndex;
 	this->slotInterface = slotInterface;
 	//this->event = NULL;
 	eventList.clear();
@@ -205,12 +203,10 @@ void ConnectionSlotThread::execute() {
                     //this->slotInterface->slotUpdateTask(&eventCopy);
                     this->slotUpdateTask(&eventCopy);
                     setTaskCompleted(eventCopy.eventId);
-                    this->slot->signalSlotWorkerTaskCompleted();
                 }
             }
             else {
                 safeMutex.ReleaseLock();
-                this->slot->signalSlotWorkerTaskCompleted();
             }
 
 			if(getQuitStatus() == true) {
@@ -223,14 +219,12 @@ void ConnectionSlotThread::execute() {
 	}
 	catch(const exception &ex) {
 		//setRunningStatus(false);
-		this->slot->signalSlotWorkerTaskCompleted();
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		throw runtime_error(ex.what());
 	}
-	this->slot->signalSlotWorkerTaskCompleted();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -256,7 +250,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 
 	this->setSocket(NULL);
 	this->slotThreadWorker 	= NULL;
-	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,this);
+	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
 	this->slotThreadWorker->setUniqueID(__FILE__);
 	this->slotThreadWorker->start();
 
@@ -290,15 +284,6 @@ ConnectionSlot::~ConnectionSlot() {
 	slotThreadWorker = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
-}
-
-void ConnectionSlot::signalSlotWorkerTaskCompleted() {
-	semSlotWorkerTaskCompleted.signal();
-}
-
-bool ConnectionSlot::waitSlotWorkerTaskCompleted(int waitMilliseconds) {
-	int result = semSlotWorkerTaskCompleted.waitTillSignalled(waitMilliseconds);
-	return (result == 0);
 }
 
 void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
@@ -479,18 +464,17 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-				//this->clearChatInfo();
+				this->clearChatInfo();
 
-				//bool gotTextMsg = true;
-				//for(;this->hasDataToRead() == true && gotTextMsg == true;) {
-				for(;this->hasDataToRead() == true;) {
+				bool gotTextMsg = true;
+				for(;this->hasDataToRead() == true && gotTextMsg == true;) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
-					NetworkMessageType networkMessageType= getNextMessageType(false);
+					NetworkMessageType networkMessageType= getNextMessageType();
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
-					//gotTextMsg = false;
+					gotTextMsg = false;
 					//process incoming commands
 					switch(networkMessageType) {
 
@@ -529,7 +513,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&networkMessageText)) {
 									ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
 									this->addChatInfo(msg);
-									//gotTextMsg = true;
+									gotTextMsg = true;
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
@@ -561,13 +545,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									lastReceiveCommandListTime = time(NULL);
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
-									if(networkMessageCommandList.getCommandCount() > 0) {
-										MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,CODE_AT_LINE);
-										for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
-											vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
-										}
-										safeMutexSlot.ReleaseLock();
+									MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,CODE_AT_LINE);
+									for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
+										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
+									safeMutexSlot.ReleaseLock();
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
@@ -1084,7 +1066,7 @@ bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 }
 
 void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
-	//MutexSafeWrapper safeMutex(&socketSynchAccessor,CODE_AT_LINE);
+	MutexSafeWrapper safeMutex(&socketSynchAccessor,CODE_AT_LINE);
 
 	// Skip text messages not intended for the players preferred language
 	const NetworkMessageText *textMsg = dynamic_cast<const NetworkMessageText *>(networkMessage);
@@ -1126,90 +1108,72 @@ void ConnectionSlot::clearPendingNetworkCommandList() {
     safeMutexSlot.ReleaseLock();
 }
 
-//bool ConnectionSlot::hasValidSocketId() {
-//    //bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
-//    //return result;
-//    bool result = false;
-//    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
-//    if(socket != NULL && socket->getSocketId() > 0) {
-//    	result = true;
-//    }
-//	return result;
-//
-//}
+bool ConnectionSlot::hasValidSocketId() {
+    //bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
+    //return result;
+    bool result = false;
+    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+    if(socket != NULL && socket->getSocketId() > 0) {
+    	result = true;
+    }
+	return result;
+
+}
 
 bool ConnectionSlot::isConnected() {
     bool result = false;
-    //MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
-    ReadWriteMutexSafeWrapper safeRWL(&socketRWLMutex,true,CODE_AT_LINE);
+    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
     if(socket != NULL && socket->isConnected() == true) {
     	result = true;
     }
-    //socketRWLMutex.unlockRead();
 	return result;
 }
 
 PLATFORM_SOCKET ConnectionSlot::getSocketId() {
 	PLATFORM_SOCKET result = 0;
-	//MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
-	ReadWriteMutexSafeWrapper safeRWL(&socketRWLMutex,true,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
 	if(socket != NULL) {
 		result = socket->getSocketId();
 	}
-	//socketRWLMutex.unlockRead();
 	return result;
 }
 
 pair<bool,Socket*> ConnectionSlot::getSocketInfo()	{
 	pair<bool,Socket*> result;
-	//MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
-	ReadWriteMutexSafeWrapper safeRWL(&socketRWLMutex,true,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
 	result.first = (socket != NULL && socket->isConnected());
 	result.second = socket;
-	//socketRWLMutex.unlockRead();
 
 	return result;
 
 }
 
 Socket* ConnectionSlot::getSocket(bool mutexLock)	{
-	Socket *result = NULL;
-	//MutexSafeWrapper safeMutexSlot(NULL,CODE_AT_LINE);
-	ReadWriteMutexSafeWrapper safeRWL(&socketRWLMutex,true,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(NULL,CODE_AT_LINE);
 	if(mutexLock == true) {
-		//safeMutexSlot.setMutex(&mutexSocket,CODE_AT_LINE);
+		safeMutexSlot.setMutex(&mutexSocket,CODE_AT_LINE);
 	}
-	result = socket;
-	//socketRWLMutex.unlockRead();
-
-	return result;
+	return socket;
 }
 
 void ConnectionSlot::setSocket(Socket *newSocket) {
-	//MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
-	ReadWriteMutexSafeWrapper safeRWL(&socketRWLMutex,false,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
 	socket = newSocket;
-	//socketRWLMutex.unlockWrite();
 }
 
 void ConnectionSlot::deleteSocket() {
-	//MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
-	ReadWriteMutexSafeWrapper safeRWL(&socketRWLMutex,false,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
 	delete socket;
 	socket = NULL;
-	//socketRWLMutex.unlockWrite();
 }
 
 bool ConnectionSlot::hasDataToRead() {
     bool result = false;
-    //MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
-    ReadWriteMutexSafeWrapper safeRWL(&socketRWLMutex,true,CODE_AT_LINE);
+    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
 
 	if(socket != NULL && socket->hasDataToRead() == true) {
 		result = true;
 	}
-	//socketRWLMutex.unlockRead();
-
 	return result;
 }
 

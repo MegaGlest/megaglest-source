@@ -333,10 +333,6 @@ void FactionThread::execute() {
 				safeMutex.ReleaseLock();
 
 				setTaskCompleted(frameIndex.first);
-				this->faction->signalWorkerTaskCompleted();
-            }
-            else {
-            	this->faction->signalWorkerTaskCompleted();
             }
 
 			if(getQuitStatus() == true) {
@@ -349,7 +345,6 @@ void FactionThread::execute() {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** ENDING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 	}
 	catch(const exception &ex) {
-		this->faction->signalWorkerTaskCompleted();
 		//setRunningStatus(false);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -357,7 +352,6 @@ void FactionThread::execute() {
 
 		throw runtime_error(ex.what());
 	}
-	this->faction->signalWorkerTaskCompleted();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -416,15 +410,6 @@ Faction::~Faction() {
 	unitsMutex = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-void Faction::signalWorkerTaskCompleted() {
-	semWorkerTaskCompleted.signal();
-}
-
-bool Faction::waitWorkerTaskCompleted(int waitMilliseconds) {
-	int result = semWorkerTaskCompleted.waitTillSignalled(waitMilliseconds);
-	return (result == 0);
 }
 
 void Faction::end() {

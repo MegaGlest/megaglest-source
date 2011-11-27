@@ -48,8 +48,7 @@ public:
 
 private:
 	ConnectionSlot* slots[GameConstants::maxPlayers];
-	//Mutex slotAccessorMutexes[GameConstants::maxPlayers];
-	ReadWriteMutex slotAccessorMutexes[GameConstants::maxPlayers];
+	Mutex slotAccessorMutexes[GameConstants::maxPlayers];
 
 	ServerSocket serverSocket;
 	bool gameHasBeenInitiated;
@@ -210,9 +209,6 @@ protected:
     void checkForLaggingClients(std::map<int,bool> &mapSlotSignalledList, std::map<int,ConnectionSlotEvent> &eventList, std::map<PLATFORM_SOCKET,bool> &socketTriggeredList,std::vector <string> &errorMsgList);
     void executeNetworkCommandsFromClients();
     void dispatchPendingChatMessages(std::vector <string> &errorMsgList);
-
-    void waitForSignalledClients(std::map<int,bool> &mapSlotSignalledList,std::vector <string> &errorMsgList);
-    void checkForLaggingClients(std::vector <string> &errorMsgList);
 };
 
 }}//end namespace

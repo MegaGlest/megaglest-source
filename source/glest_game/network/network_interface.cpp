@@ -44,33 +44,25 @@ void NetworkInterface::sendMessage(const NetworkMessage* networkMessage){
 	networkMessage->send(socket);
 }
 
-NetworkMessageType NetworkInterface::getNextMessageType(bool checkHasData)
+NetworkMessageType NetworkInterface::getNextMessageType()
 {
 	Socket* socket= getSocket(false);
 	int8 messageType= nmtInvalid;
 
-    if(socket != NULL && (checkHasData == false || socket->hasDataToRead() == true)) {
+    if(socket != NULL &&
+        socket->hasDataToRead() == true) {
         //peek message type
-    	bool peekForMessageType = !checkHasData;
-    	if(checkHasData == true) {
 			int dataSize = socket->getDataToRead();
 			if(dataSize >= sizeof(messageType)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
-				peekForMessageType = true;
-				//int iPeek = socket->peek(&messageType, sizeof(messageType));
 
-				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
-			}
-			else {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
-			}
-    	}
-
-    	if(peekForMessageType == true) {
 			int iPeek = socket->peek(&messageType, sizeof(messageType));
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
     	}
+		else {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
+		}
 
         //sanity check new message type
         if(messageType < 0 || messageType >= nmtCount) {
