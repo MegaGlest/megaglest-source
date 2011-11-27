@@ -44,10 +44,10 @@
   #include <netdb.h>
   #include <netinet/in.h>
   #include <net/if.h>
-
+  #include <netinet/tcp.h>
 #endif
 
-#include <netinet/tcp.h>
+
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -835,7 +835,7 @@ Socket::Socket() {
 		int bufsize 	 = 0;
 		socklen_t optlen = sizeof(bufsize);
 
-		int ret = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, &bufsize, &optlen);
+		int ret = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char *)&bufsize, &optlen);
 		printf("Original setsockopt(SO_SNDBUF) = [%d] new will be [%d]\n",bufsize,Socket::DEFAULT_SOCKET_SENDBUF_SIZE);
 
 		ret = setsockopt( sock, SOL_SOCKET, SO_SNDBUF, (char *) &Socket::DEFAULT_SOCKET_SENDBUF_SIZE, sizeof( int ) );
@@ -848,7 +848,7 @@ Socket::Socket() {
 		int bufsize 	 = 0;
 		socklen_t optlen = sizeof(bufsize);
 
-		int ret = getsockopt(sock, SOL_SOCKET, SO_RCVBUF, &bufsize, &optlen);
+		int ret = getsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char *)&bufsize, &optlen);
 		printf("Original setsockopt(SO_RCVBUF) = [%d] new will be [%d]\n",bufsize,Socket::DEFAULT_SOCKET_RECVBUF_SIZE);
 
 		ret = setsockopt( sock, SOL_SOCKET, SO_RCVBUF, (char *) &Socket::DEFAULT_SOCKET_RECVBUF_SIZE, sizeof( int ) );
