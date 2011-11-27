@@ -130,6 +130,10 @@ public:
 	Socket();
 	virtual ~Socket();
 
+	static bool disableNagle;
+	static int DEFAULT_SOCKET_SENDBUF_SIZE;
+	static int DEFAULT_SOCKET_RECVBUF_SIZE;
+
 	//virtual void simpleTask(BaseThread *callingThread);
 
 	static int getBroadCastPort() 			{ return broadcast_portno; }

@@ -47,6 +47,7 @@
 
 #endif
 
+#include <netinet/tcp.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -61,6 +62,10 @@ using namespace std;
 using namespace Shared::Util;
 
 namespace Shared{ namespace Platform{
+
+bool Socket::disableNagle = false;
+int Socket::DEFAULT_SOCKET_SENDBUF_SIZE = -1;
+int Socket::DEFAULT_SOCKET_RECVBUF_SIZE = -1;
 
 int Socket::broadcast_portno    = 61357;
 int ServerSocket::ftpServerPort = 61358;
@@ -816,6 +821,42 @@ Socket::Socket() {
     int set = 1;
     setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 #endif
+
+    /* Disable the Nagle (TCP No Delay) algorithm */
+    if(Socket::disableNagle == true) {
+		int flag = 1;
+		int ret = setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag) );
+		if (ret == -1) {
+		  printf("Couldn't setsockopt(TCP_NODELAY)\n");
+		}
+    }
+
+	if(Socket::DEFAULT_SOCKET_SENDBUF_SIZE >= 0) {
+		int bufsize 	 = 0;
+		socklen_t optlen = sizeof(bufsize);
+
+		int ret = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, &bufsize, &optlen);
+		printf("Original setsockopt(SO_SNDBUF) = [%d] new will be [%d]\n",bufsize,Socket::DEFAULT_SOCKET_SENDBUF_SIZE);
+
+		ret = setsockopt( sock, SOL_SOCKET, SO_SNDBUF, (char *) &Socket::DEFAULT_SOCKET_SENDBUF_SIZE, sizeof( int ) );
+		if (ret == -1) {
+		  printf("Couldn't setsockopt(SO_SNDBUF) [%d]\n",Socket::DEFAULT_SOCKET_SENDBUF_SIZE);
+		}
+	}
+
+	if(Socket::DEFAULT_SOCKET_RECVBUF_SIZE >= 0) {
+		int bufsize 	 = 0;
+		socklen_t optlen = sizeof(bufsize);
+
+		int ret = getsockopt(sock, SOL_SOCKET, SO_RCVBUF, &bufsize, &optlen);
+		printf("Original setsockopt(SO_RCVBUF) = [%d] new will be [%d]\n",bufsize,Socket::DEFAULT_SOCKET_RECVBUF_SIZE);
+
+		ret = setsockopt( sock, SOL_SOCKET, SO_RCVBUF, (char *) &Socket::DEFAULT_SOCKET_RECVBUF_SIZE, sizeof( int ) );
+		if (ret == -1) {
+		  printf("Couldn't setsockopt(SO_RCVBUF) [%d]\n",Socket::DEFAULT_SOCKET_RECVBUF_SIZE);
+		}
+	}
+
 }
 
 float Socket::getThreadedPingMS(std::string host) {

@@ -2595,6 +2595,19 @@ int glestMain(int argc, char** argv) {
 		Config &config = Config::getInstance();
 		setupGameItemPaths(argc, argv, &config);
 
+		Socket::disableNagle = config.getBool("DisableNagle","false");
+		if(Socket::disableNagle) {
+			printf("*WARNING users wants to disable the socket nagle algorithm.\n");
+		}
+		Socket::DEFAULT_SOCKET_SENDBUF_SIZE = config.getInt("DefaultSocketSendBufferSize",intToStr(Socket::DEFAULT_SOCKET_SENDBUF_SIZE).c_str());
+		if(Socket::DEFAULT_SOCKET_SENDBUF_SIZE >= 0) {
+			printf("*WARNING users wants to set default socket send buffer size to: %d\n",Socket::DEFAULT_SOCKET_SENDBUF_SIZE);
+		}
+		Socket::DEFAULT_SOCKET_RECVBUF_SIZE = config.getInt("DefaultSocketReceiveBufferSize",intToStr(Socket::DEFAULT_SOCKET_RECVBUF_SIZE).c_str());
+		if(Socket::DEFAULT_SOCKET_RECVBUF_SIZE >= 0) {
+			printf("*WARNING users wants to set default socket receive buffer size to: %d\n",Socket::DEFAULT_SOCKET_RECVBUF_SIZE);
+		}
+
 		shutdownFadeSoundMilliseconds = config.getInt("ShutdownFadeSoundMilliseconds",intToStr(shutdownFadeSoundMilliseconds).c_str());
 
 	    string userData = config.getString("UserData_Root","");
