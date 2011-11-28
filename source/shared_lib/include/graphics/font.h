@@ -51,7 +51,7 @@ public:
 	void setHeight(float height)		{this->height= height;}
 
 	float getTextWidth(const string &str);
-	float getHeight() const;
+	float getHeight(const string &str) const;
 };
 
 // =====================================================

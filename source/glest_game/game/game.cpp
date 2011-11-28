@@ -2896,7 +2896,7 @@ void Game::render2d(){
 	if(renderer.getShowDebugUI() == true) {
 		const Metrics &metrics= Metrics::getInstance();
 		//int mx= metrics.getMinimapX();
-		//int my= metrics.getMinimapY();
+		int my= metrics.getMinimapY();
 		//int mw= metrics.getMinimapW();
 		int mh= metrics.getMinimapH();
 		const Vec4f fontColor=getGui()->getDisplay()->getColor();
@@ -2910,6 +2910,14 @@ void Game::render2d(){
 					fontColor, 10, metrics.getVirtualH() - mh - 60, false);
 		}
 
+        vector<string> lineTokens;
+        Tokenize(str,lineTokens,"\n");
+        int fontHeightNormal = (Renderer::renderText3DEnabled == true ? coreData.getMenuFontNormal3D()->getMetrics()->getHeight("W") : coreData.getMenuFontNormal()->getMetrics()->getHeight("W"));
+        int fontHeightBig 	 = (Renderer::renderText3DEnabled == true ? coreData.getMenuFontBig3D()->getMetrics()->getHeight("W") : coreData.getMenuFontBig()->getMetrics()->getHeight("W"));
+        int playerPosY = lineTokens.size() * fontHeightNormal;
+
+        //printf("lineTokens.size() = %d\n",lineTokens.size());
+
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			string factionInfo = factionDebugInfo[i];
 			Vec3f playerColor = world.getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0);
@@ -2917,12 +2925,18 @@ void Game::render2d(){
 			if(Renderer::renderText3DEnabled == true) {
 				renderer.renderText3D(factionInfo, coreData.getMenuFontBig3D(),
 						Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
-						10, metrics.getVirtualH() - mh - 90 - 280 - (i * 16), false);
+						10,
+						//metrics.getVirtualH() - mh - 90 - 280 - (i * 16),
+						metrics.getVirtualH() - mh - 60 - playerPosY - (fontHeightBig * i),
+						false);
 			}
 			else {
 				renderer.renderText(factionInfo, coreData.getMenuFontBig(),
 						Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
-						10, metrics.getVirtualH() - mh - 90 - 280 - (i * 16), false);
+						10,
+						//metrics.getVirtualH() - mh - 90 - 280 - (i * 16),
+						metrics.getVirtualH() - mh - 60 - playerPosY - (fontHeightBig * i),
+						false);
 			}
 		}
 

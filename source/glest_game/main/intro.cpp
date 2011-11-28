@@ -704,7 +704,7 @@ void Intro::render() {
 					if(renderY < 0) {
 						const Metrics &metrics= Metrics::getInstance();
 						int h= metrics.getVirtualH();
-						renderY = (h / 2) + (text->getFont3D()->getMetrics()->getHeight() / 2);
+						renderY = (h / 2) + (text->getFont3D()->getMetrics()->getHeight(text->getText()) / 2);
 					}
 
 					renderer.renderText3D(

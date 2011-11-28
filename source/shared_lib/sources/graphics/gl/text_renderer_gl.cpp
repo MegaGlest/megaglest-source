@@ -88,7 +88,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 		metrics= font->getMetrics();
 		if(centered) {
 			rasterPos.x= x-metrics->getTextWidth(renderText)/2.f;
-			rasterPos.y= y+metrics->getHeight()/2.f;
+			rasterPos.y= y + metrics->getHeight(renderText)/2.f;
 		}
 		else {
 			rasterPos= Vec2f(static_cast<float>(x), static_cast<float>(y));
@@ -328,7 +328,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 					break;
 				case '\n':
 					line++;
-					rasterPos= Vec2f(static_cast<float>(x), y-(metrics->getHeight()*2.f)*line);
+					rasterPos= Vec2f(static_cast<float>(x), y-(metrics->getHeight("W")*2.f)*line);
 					glRasterPos2f(rasterPos.x, rasterPos.y);
 					break;
 				default:
@@ -511,7 +511,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 		if(centered) {
 			//glTranslatef(x-scale*metrics->getTextWidth(text)/2.f, y-scale*metrics->getHeight()/2.f, 0);
 			translatePos.x = x-scale*metrics->getTextWidth(renderText)/2.f;
-			translatePos.y = y-scale*metrics->getHeight()/2.f;
+			translatePos.y = y-scale*metrics->getHeight(renderText)/2.f;
 			translatePos.z = 0;
 		}
 		else {
