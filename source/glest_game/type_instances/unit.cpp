@@ -2093,56 +2093,66 @@ void Unit::tick() {
 			throw runtime_error(szBuf);
 		}
 
-		//regenerate hp
-		if(type->getHpRegeneration() >= 0) {
-			checkItemInVault(&this->hp,this->hp);
-            hp += type->getHpRegeneration();
-            if(hp > type->getTotalMaxHp(&totalUpgrade)) {
-                hp = type->getTotalMaxHp(&totalUpgrade);
-            }
-        	addItemToVault(&this->hp,this->hp);
-		}
-		// If we have negative regeneration then check if the unit should die
-		else {
-            bool decHpResult = decHp(-type->getHpRegeneration());
-            if(decHpResult) {
-				this->setCauseOfDeath(ucodStarvedRegeneration);
+		//if(this->getType()->getName() == "spearman") printf("Unit [%d - %s] start tick hp = %d\n",this->getId(),this->getType()->getName().c_str(),hp);
 
-                Unit::game->getWorld()->getStats()->die(getFactionIndex());
-                game->getScriptManager()->onUnitDied(this);
-            }
-            StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
-            if(sound != NULL &&
-            	(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
-            	 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
-                SoundRenderer::getInstance().playFx(sound);
-            }
-		}
 
 		//regenerate hp upgrade / or boost
-		if(type->getTotalMaxHpRegeneration(&totalUpgrade) >= 0) {
-			checkItemInVault(&this->hp,this->hp);
-			hp += type->getTotalMaxHpRegeneration(&totalUpgrade);
-            if(hp > type->getTotalMaxHp(&totalUpgrade)) {
-                hp = type->getTotalMaxHp(&totalUpgrade);
-            }
-        	addItemToVault(&this->hp,this->hp);
-		}
-		// If we have negative regeneration then check if the unit should die
-		else {
-            bool decHpResult = decHp(-type->getTotalMaxHpRegeneration(&totalUpgrade));
-            if(decHpResult) {
-            	this->setCauseOfDeath(ucodStarvedRegeneration);
+		if(type->getTotalMaxHpRegeneration(&totalUpgrade) != 0) {
+			if(type->getTotalMaxHpRegeneration(&totalUpgrade) >= 0) {
+				checkItemInVault(&this->hp,this->hp);
+				hp += type->getTotalMaxHpRegeneration(&totalUpgrade);
+				if(hp > type->getTotalMaxHp(&totalUpgrade)) {
+					hp = type->getTotalMaxHp(&totalUpgrade);
+				}
+				addItemToVault(&this->hp,this->hp);
 
-                Unit::game->getWorld()->getStats()->die(getFactionIndex());
-                game->getScriptManager()->onUnitDied(this);
-            }
-            StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
-            if(sound != NULL &&
-            	(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
-            	 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
-                SoundRenderer::getInstance().playFx(sound);
-            }
+				//if(this->getType()->getName() == "spearman") printf("tick hp#2 [type->getTotalMaxHpRegeneration(&totalUpgrade)] = %d type->getTotalMaxHp(&totalUpgrade) [%d] newhp = %d\n",type->getTotalMaxHpRegeneration(&totalUpgrade),type->getTotalMaxHp(&totalUpgrade),hp);
+			}
+			// If we have negative regeneration then check if the unit should die
+			else {
+				bool decHpResult = decHp(-type->getTotalMaxHpRegeneration(&totalUpgrade));
+				if(decHpResult) {
+					this->setCauseOfDeath(ucodStarvedRegeneration);
+
+					Unit::game->getWorld()->getStats()->die(getFactionIndex());
+					game->getScriptManager()->onUnitDied(this);
+				}
+				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+				if(sound != NULL &&
+					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
+					 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
+					SoundRenderer::getInstance().playFx(sound);
+				}
+			}
+		}
+		//regenerate hp
+		else {
+			if(type->getHpRegeneration() >= 0) {
+				checkItemInVault(&this->hp,this->hp);
+
+				hp += type->getHpRegeneration();
+				if(hp > type->getTotalMaxHp(&totalUpgrade)) {
+					hp = type->getTotalMaxHp(&totalUpgrade);
+				}
+				addItemToVault(&this->hp,this->hp);
+				//if(this->getType()->getName() == "spearman") printf("tick hp#1 [type->getHpRegeneration()] = %d type->getTotalMaxHp(&totalUpgrade) [%d] newhp = %d\n",type->getHpRegeneration(),type->getTotalMaxHp(&totalUpgrade),hp);
+			}
+			// If we have negative regeneration then check if the unit should die
+			else {
+				bool decHpResult = decHp(-type->getHpRegeneration());
+				if(decHpResult) {
+					this->setCauseOfDeath(ucodStarvedRegeneration);
+
+					Unit::game->getWorld()->getStats()->die(getFactionIndex());
+					game->getScriptManager()->onUnitDied(this);
+				}
+				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+				if(sound != NULL &&
+					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
+					 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
+					SoundRenderer::getInstance().playFx(sound);
+				}
+			}
 		}
 
 		//stop DamageParticles
