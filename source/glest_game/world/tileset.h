@@ -151,6 +151,7 @@ public:
 	const Vec3f &getSunLightColor() const			{return sunLightColor;}
 	const Vec3f &getMoonLightColor() const			{return moonLightColor;}
 	Weather getWeather() const						{return weather;}
+	void setWeather(Weather value) { weather = value; }
 
 	//surface textures
 	const Pixmap2D *getSurfPixmap(int type, int var) const;
