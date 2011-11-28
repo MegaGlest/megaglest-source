@@ -1845,7 +1845,7 @@ Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text)/2.f) : 5);
-	int virtualY = (fontMetrics->getHeight() > 0 ? static_cast<int>(fontMetrics->getHeight()/2.f) : 5);
+	int virtualY = (fontMetrics->getHeight(text) > 0 ? static_cast<int>(fontMetrics->getHeight(text)/2.f) : 5);
 
 	Vec2i textPos(
 		x-metrics.toVirtualX(virtualX),
@@ -1868,7 +1868,7 @@ Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text) / 2.f) : 5);
-	int virtualY = (fontMetrics->getHeight() > 0 ? static_cast<int>(fontMetrics->getHeight() / 2.f) : 5);
+	int virtualY = (fontMetrics->getHeight(text) > 0 ? static_cast<int>(fontMetrics->getHeight(text) / 2.f) : 5);
 
 	Vec2i textPos(
 		x-metrics.toVirtualX(virtualX),
@@ -7356,7 +7356,7 @@ void Renderer::renderPopupMenu(PopupMenu *menu) {
 		int renderX = (menu->getX() + (menu->getW() / 2));
 		//int renderY = (menu->getY() + (menu->getH() / 2));
 		FontMetrics *fontMetrics= menu->getFont()->getMetrics();
-		int renderY = menu->getY() + menu->getH() - fontMetrics->getHeight();
+		int renderY = menu->getY() + menu->getH() - fontMetrics->getHeight(menu->getHeader());
 		renderTextShadow(
 				menu->getHeader(), menu->getFont(),fontColor,
 				renderX, renderY,
