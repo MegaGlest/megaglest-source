@@ -915,7 +915,7 @@ void Game::init(bool initForPreviewOnly) {
 			withRainEffect = false;
 		}
 
-		if(withRainEffect){
+		if(withRainEffect) {
 			//weather particle systems
 			if(world.getTileset()->getWeather() == wRainy) {
 				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingRainParticles","",true), true);
@@ -932,6 +932,9 @@ void Game::init(bool initForPreviewOnly) {
 				weatherParticleSystem->setTexture(coreData.getSnowTexture());
 				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
 			}
+		}
+		else if(world.getTileset()->getWeather() == wRainy) {
+			world.getTileset()->setWeather(wSunny);
 		}
     }
 
