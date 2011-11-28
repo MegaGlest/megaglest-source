@@ -539,6 +539,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 	//glTranslatef(translatePos.x + scaleWidthX, translatePos.y, translatePos.z);
 	glTranslatef(translatePos.x, translatePos.y, translatePos.z);
 
+	Vec3f translatePosOriginal = translatePos;;
 	//assertGl();
 
 	//glScalef(scaleX, scaleY, scaleZ);
@@ -611,7 +612,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 
 						//printf("Trying to render newline [%s] i = %d yLineValue = %f font->getTextHandler()->LineHeight(parts[i].c_str()) = %f\n",renderText.c_str(),i,yLineValue,font->getTextHandler()->LineHeight(parts[i].c_str()));
 
-						translatePos= Vec3f(translatePos.x, translatePos.y - yLineValue, translatePos.z);
+						translatePos= Vec3f(translatePosOriginal.x, translatePos.y - yLineValue, translatePos.z);
 						needsRecursiveRender = true;
 						}
 						break;

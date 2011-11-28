@@ -66,16 +66,16 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 	}
 	else {
 		for(int i= 0; i < aboutStringCount1; ++i) {
-					labelAbout1[i].registerGraphicComponent(containerName, "labelAbout1" + intToStr(i));
-					labelAbout1[i].init(100, 700 - i * 20);
-					labelAbout1[i].setText(getAboutString1(i));
-				}
+			labelAbout1[i].registerGraphicComponent(containerName, "labelAbout1" + intToStr(i));
+			labelAbout1[i].init(100, 700 - i * 20);
+			labelAbout1[i].setText(getAboutString1(i));
+		}
 
-				for(int i= 0; i < aboutStringCount2; ++i) {
-					labelAbout2[i].registerGraphicComponent(containerName, "labelAbout2" + intToStr(i));
-					labelAbout2[i].init(100, 620 - i * 20);
-					labelAbout2[i].setText(getAboutString2(i));
-				}
+		for(int i= 0; i < aboutStringCount2; ++i) {
+			labelAbout2[i].registerGraphicComponent(containerName, "labelAbout2" + intToStr(i));
+			labelAbout2[i].init(100, 620 - i * 20);
+			labelAbout2[i].setText(getAboutString2(i));
+		}
 	}
 
 	for(int i= 0; i < teammateCount; ++i) {
@@ -141,7 +141,9 @@ string MenuStateAbout::loadAdditionalCredits(){
 		endPathWithSlash(data_path);
 	}
 	string result= "";
-	const string dir= data_path + "data/core/menu/credits.txt";
+	const string dir= getGameCustomCoreDataPath(data_path,"data/core/menu/credits.txt");
+	//printf("dir [%s]\n",dir.c_str());
+
 	if(fileExists(dir) == true) {
 #if defined(WIN32) && !defined(__MINGW32__)
 		FILE *fp = _wfopen(utf8_decode(dir).c_str(), L"r");
