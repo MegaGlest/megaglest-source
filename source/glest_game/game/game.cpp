@@ -2930,7 +2930,7 @@ void Game::render2d(){
 						Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
 						10,
 						//metrics.getVirtualH() - mh - 90 - 280 - (i * 16),
-						metrics.getVirtualH() - mh - 60 - playerPosY - (fontHeightBig * i),
+						metrics.getVirtualH() - mh - 60 - playerPosY - fontHeightBig - (fontHeightBig * i),
 						false);
 			}
 			else {
@@ -2938,7 +2938,7 @@ void Game::render2d(){
 						Vec4f(playerColor.x,playerColor.y,playerColor.z,1.0),
 						10,
 						//metrics.getVirtualH() - mh - 90 - 280 - (i * 16),
-						metrics.getVirtualH() - mh - 60 - playerPosY - (fontHeightBig * i),
+						metrics.getVirtualH() - mh - 60 - playerPosY - fontHeightBig - (fontHeightBig * i),
 						false);
 			}
 		}
