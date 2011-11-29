@@ -3634,6 +3634,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             // Reload tilesets for the UI
             findDirs(Config::getInstance().getPathListForType(ptTilesets), tilesetFiles);
+
+            std::vector<string> tilesetsFormatted = tilesetFiles;
+        	std::for_each(tilesetsFormatted.begin(), tilesetsFormatted.end(), FormatString());
+        	listBoxTileset.setItems(tilesetsFormatted);
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
@@ -3703,6 +3707,13 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             // Reload tilesets for the UI
             findDirs(Config::getInstance().getPathListForType(ptTechs), techTreeFiles);
+
+            int initialTechSelection=0;
+            std::vector<string> techsFormatted = techTreeFiles;
+        	for(int i= 0; i < techsFormatted.size(); i++){
+        		techsFormatted.at(i)= formatString(techsFormatted.at(i));
+        	}
+            listBoxTechTree.setItems(techsFormatted);
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
