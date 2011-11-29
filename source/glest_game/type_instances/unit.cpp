@@ -1219,12 +1219,34 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 		//empty command queue
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",__FILE__,__FUNCTION__,__LINE__);
 
-		bool willChangedActiveCommand = (commands.size() > 0);
-		if(willChangedActiveCommand && getCurrCommand()->getCommandType()->getClass() == command->getCommandType()->getClass()) {
-			willChangedActiveCommand = false;
+//		bool willChangedActiveCommand = (commands.size() > 0);
+//		if(willChangedActiveCommand && getCurrCommand()->getCommandType()->getClass() == command->getCommandType()->getClass()) {
+//			willChangedActiveCommand = false;
+//		}
+//		clearCommands();
+//		changedActiveCommand = willChangedActiveCommand;
+
+		bool willChangedActiveCommand= (commands.size() > 0);
+		if(willChangedActiveCommand){
+			CommandClass currCommandClass=getCurrCommand()->getCommandType()->getClass();
+			CommandClass commandClass=command->getCommandType()->getClass();
+			if(currCommandClass
+			        == commandClass){
+				willChangedActiveCommand= false;
+			}
+			else if(currCommandClass==ccAttack || currCommandClass==ccAttackStopped ||
+					commandClass==ccAttack || commandClass==ccAttackStopped){
+				willChangedActiveCommand= true;
+			}
+			else{
+				willChangedActiveCommand= false;
+			}
 		}
 		clearCommands();
-		changedActiveCommand = willChangedActiveCommand;
+		changedActiveCommand= willChangedActiveCommand;
+
+
+
 		//printf("In [%s::%s] Line: %d cleared existing commands\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -2098,44 +2120,48 @@ void Unit::tick() {
 
 		//regenerate hp upgrade / or boost
 		if(type->getTotalMaxHpRegeneration(&totalUpgrade) != 0) {
-			if(type->getTotalMaxHpRegeneration(&totalUpgrade) >= 0) {
-				checkItemInVault(&this->hp,this->hp);
-				hp += type->getTotalMaxHpRegeneration(&totalUpgrade);
-				if(hp > type->getTotalMaxHp(&totalUpgrade)) {
-					hp = type->getTotalMaxHp(&totalUpgrade);
-				}
-				addItemToVault(&this->hp,this->hp);
+			if( currSkill->getClass() != scBeBuilt){
+				if(type->getTotalMaxHpRegeneration(&totalUpgrade) >= 0) {
+					checkItemInVault(&this->hp,this->hp);
+					hp += type->getTotalMaxHpRegeneration(&totalUpgrade);
+					if(hp > type->getTotalMaxHp(&totalUpgrade)) {
+						hp = type->getTotalMaxHp(&totalUpgrade);
+					}
+					addItemToVault(&this->hp,this->hp);
 
-				//if(this->getType()->getName() == "spearman") printf("tick hp#2 [type->getTotalMaxHpRegeneration(&totalUpgrade)] = %d type->getTotalMaxHp(&totalUpgrade) [%d] newhp = %d\n",type->getTotalMaxHpRegeneration(&totalUpgrade),type->getTotalMaxHp(&totalUpgrade),hp);
-			}
-			// If we have negative regeneration then check if the unit should die
-			else {
-				bool decHpResult = decHp(-type->getTotalMaxHpRegeneration(&totalUpgrade));
-				if(decHpResult) {
-					this->setCauseOfDeath(ucodStarvedRegeneration);
-
-					Unit::game->getWorld()->getStats()->die(getFactionIndex());
-					game->getScriptManager()->onUnitDied(this);
+					//if(this->getType()->getName() == "spearman") printf("tick hp#2 [type->getTotalMaxHpRegeneration(&totalUpgrade)] = %d type->getTotalMaxHp(&totalUpgrade) [%d] newhp = %d\n",type->getTotalMaxHpRegeneration(&totalUpgrade),type->getTotalMaxHp(&totalUpgrade),hp);
 				}
-				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
-				if(sound != NULL &&
-					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
-					 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
-					SoundRenderer::getInstance().playFx(sound);
+				// If we have negative regeneration then check if the unit should die
+				else {
+					bool decHpResult = decHp(-type->getTotalMaxHpRegeneration(&totalUpgrade));
+					if(decHpResult) {
+						this->setCauseOfDeath(ucodStarvedRegeneration);
+
+						Unit::game->getWorld()->getStats()->die(getFactionIndex());
+						game->getScriptManager()->onUnitDied(this);
+					}
+					StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+					if(sound != NULL &&
+							(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
+									(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
+						SoundRenderer::getInstance().playFx(sound);
+					}
 				}
 			}
 		}
 		//regenerate hp
 		else {
 			if(type->getHpRegeneration() >= 0) {
-				checkItemInVault(&this->hp,this->hp);
+				if( currSkill->getClass() != scBeBuilt){
+					checkItemInVault(&this->hp,this->hp);
 
-				hp += type->getHpRegeneration();
-				if(hp > type->getTotalMaxHp(&totalUpgrade)) {
-					hp = type->getTotalMaxHp(&totalUpgrade);
+					hp += type->getHpRegeneration();
+					if(hp > type->getTotalMaxHp(&totalUpgrade)) {
+						hp = type->getTotalMaxHp(&totalUpgrade);
+					}
+					addItemToVault(&this->hp,this->hp);
+					//if(this->getType()->getName() == "spearman") printf("tick hp#1 [type->getHpRegeneration()] = %d type->getTotalMaxHp(&totalUpgrade) [%d] newhp = %d\n",type->getHpRegeneration(),type->getTotalMaxHp(&totalUpgrade),hp);
 				}
-				addItemToVault(&this->hp,this->hp);
-				//if(this->getType()->getName() == "spearman") printf("tick hp#1 [type->getHpRegeneration()] = %d type->getTotalMaxHp(&totalUpgrade) [%d] newhp = %d\n",type->getHpRegeneration(),type->getTotalMaxHp(&totalUpgrade),hp);
 			}
 			// If we have negative regeneration then check if the unit should die
 			else {
