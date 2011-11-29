@@ -70,11 +70,13 @@ typedef ip_t (*ftpFindExternalFTPServerIpType)(ip_t clientIp);
 typedef void (*ftpAddUPNPPortForwardType)(int internalPort, int externalPort);
 typedef void (*ftpRemoveUPNPPortForwardType)(int internalPort, int externalPort);
 typedef int (*ftpIsValidClientType)(ip_t clientIp);
+typedef int (*ftpIsClientAllowedToGetFileType)(ip_t clientIp, const char *username, const char *filename);
 
 ftpFindExternalFTPServerIpType	ftpFindExternalFTPServerIp;
 ftpAddUPNPPortForwardType		ftpAddUPNPPortForward;
 ftpRemoveUPNPPortForwardType	ftpRemoveUPNPPortForward;
 ftpIsValidClientType            ftpIsValidClient;
+ftpIsClientAllowedToGetFileType ftpIsClientAllowedToGetFile;
 
 #ifdef	__cplusplus
 }

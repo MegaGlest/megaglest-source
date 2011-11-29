@@ -1394,12 +1394,11 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						server->isClientConnected(faction->getStartLocationIndex()) == false) {
 					faction->setFactionDisconnectHandled(true);
 
-					char szBuf[255]="";
+					char szBuf[1024]="";
 					if(faction->getType()->getPersonalityType() != fpt_Observer) {
 						faction->setControlType(ctCpu);
 						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
-						char szBuf[1024]="";
 						sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 						logger.add(szBuf, true);
 

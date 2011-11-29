@@ -38,7 +38,9 @@
 extern "C" {
 #endif
 
-void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2, ftpRemoveUPNPPortForwardType cb3, ftpIsValidClientType cb4);
+void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2,
+		     ftpRemoveUPNPPortForwardType cb3, ftpIsValidClientType cb4,
+		     ftpIsClientAllowedToGetFileType cb5);
 int ftpCreateAccount(const char* name, const char* passw, const char* root, int accRights);
 int ftpDeleteAccount(const char* name);
 int ftpStart(int portNumber);

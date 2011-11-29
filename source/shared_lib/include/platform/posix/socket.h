@@ -54,6 +54,7 @@ namespace Shared { namespace Platform {
 class FTPClientValidationInterface {
 public:
 	virtual int isValidClientType(uint32 clientIp) = 0;
+	virtual int isClientAllowedToGetFile(uint32 clientIp, const char *username, const char *filename) = 0;
 };
 
 
@@ -83,6 +84,7 @@ public:
 	Ip();
 	Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned char byte3);
 	Ip(const string& ipString);
+	static void Inet_NtoA(uint32 addr, char * ipbuf);
 
 	unsigned char getByte(int byteIndex)	{return bytes[byteIndex];}
 	string getString() const;

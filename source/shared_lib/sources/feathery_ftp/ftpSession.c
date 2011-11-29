@@ -254,12 +254,17 @@ LOCAL int normalizePath(char* path)
  */
 const char* ftpGetRealPath(int id, const char* path, int normalize)
 {
-	const char* ftpRoot;
+	char ftpRoot[2048]="";
+	int ftpRootLen;
 	int len;
 
-	ftpRoot = ftpGetRoot(sessions[id].userId, &len);
+	strcpy(ftpRoot,ftpGetRoot(sessions[id].userId, &len));
+	ftpRootLen = strlen(ftpRoot);
+	if(ftpRootLen > 0 && ftpRoot[ftpRootLen-1] != '/') {
+		strcat(ftpRoot,"/");
+	}
 
-if(VERBOSE_MODE_ENABLED) printf("#1 ftpGetRealPath id = %d path [%s] ftpRoot [%s] sessions[id].workingDir [%s] normalize = %d\n", id, path, ftpRoot, sessions[id].workingDir,normalize);
+	if(VERBOSE_MODE_ENABLED) printf("#1 ftpGetRealPath id = %d path [%s] ftpRoot [%s] sessions[id].workingDir [%s] normalize = %d\n", id, path, ftpRoot, sessions[id].workingDir,normalize);
 
     pathScratchBuf[0]='\0';
 	if(path[0] == '/' || strcmp(path,sessions[id].workingDir) == 0)				// absolute path?

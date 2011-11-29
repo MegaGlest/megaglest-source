@@ -46,6 +46,17 @@ int isValidClientType(ip_t clientIp) {
     return result;
 }
 
+int isClientAllowedToGetFile(ip_t clientIp, const char *username, const char *filename) {
+    int result = 1;
+
+    //printf("In [%s::%s] Line: %d username [%s] file [%s]\n",__FILE__,__FUNCTION__,__LINE__,username,filename);
+    if(FTPServerThread::getFtpValidationIntf() != NULL) {
+        result = FTPServerThread::getFtpValidationIntf()->isClientAllowedToGetFile(clientIp,username,filename);
+        //printf("In [%s::%s] Line: %d username [%s] file [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,username,filename,result);
+    }
+    return result;
+}
+
 FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
 		std::pair<string,string> tilesetsPath, std::pair<string,string> techtreesPath,
 		bool internetEnabledFlag,
@@ -62,7 +73,8 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
     this->maxPlayers            = maxPlayers;
     this->ftpValidationIntf     = ftpValidationIntf;
 
-	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward, &isValidClientType);
+	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward,
+			&isValidClientType, &isClientAllowedToGetFile);
     VERBOSE_MODE_ENABLED        = SystemFlags::VERBOSE_MODE_ENABLED;
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("***FTP SERVER STARTED [%p]\n",this);

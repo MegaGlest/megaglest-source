@@ -342,7 +342,7 @@ static uint32 SockAddrToUint32(struct sockaddr * a) {
 }
 
 // convert a numeric IP address into its string representation
-static void Inet_NtoA(uint32 addr, char * ipbuf)
+void Ip::Inet_NtoA(uint32 addr, char * ipbuf)
 {
    sprintf(ipbuf, "%d.%d.%d.%d", (addr>>24)&0xFF, (addr>>16)&0xFF, (addr>>8)&0xFF, (addr>>0)&0xFF);
 }
@@ -384,9 +384,9 @@ static void PrintNetworkInterfaceInfos()
          uint32 dstAddr  = SockAddrToUint32(p->ifa_dstaddr);
          if (ifaAddr > 0)
          {
-            char ifaAddrStr[32];  Inet_NtoA(ifaAddr,  ifaAddrStr);
-            char maskAddrStr[32]; Inet_NtoA(maskAddr, maskAddrStr);
-            char dstAddrStr[32];  Inet_NtoA(dstAddr,  dstAddrStr);
+            char ifaAddrStr[32];  Ip::Inet_NtoA(ifaAddr,  ifaAddrStr);
+            char maskAddrStr[32]; Ip::Inet_NtoA(maskAddr, maskAddrStr);
+            char dstAddrStr[32];  Ip::Inet_NtoA(dstAddr,  dstAddrStr);
             printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", p->ifa_name, "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
          }
          p = p->ifa_next;
@@ -485,9 +485,9 @@ static void PrintNetworkInterfaceInfos()
          uint32 baddr   = ipAddr & netmask;
          if (row.dwBCastAddr) baddr |= ~netmask;
 
-         char ifaAddrStr[32];  Inet_NtoA(ipAddr,  ifaAddrStr);
-         char maskAddrStr[32]; Inet_NtoA(netmask, maskAddrStr);
-         char dstAddrStr[32];  Inet_NtoA(baddr,   dstAddrStr);
+         char ifaAddrStr[32];  Ip::Inet_NtoA(ipAddr,  ifaAddrStr);
+         char maskAddrStr[32]; Ip::Inet_NtoA(netmask, maskAddrStr);
+         char dstAddrStr[32];  Ip::Inet_NtoA(baddr,   dstAddrStr);
          printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", name, desc?desc:"unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
       }
 
@@ -522,9 +522,9 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
          {
         	 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-            char ifaAddrStr[32];  Inet_NtoA(ifaAddr,  ifaAddrStr);
-            char maskAddrStr[32]; Inet_NtoA(maskAddr, maskAddrStr);
-            char dstAddrStr[32];  Inet_NtoA(dstAddr,  dstAddrStr);
+            char ifaAddrStr[32];  Ip::Inet_NtoA(ifaAddr,  ifaAddrStr);
+            char maskAddrStr[32]; Ip::Inet_NtoA(maskAddr, maskAddrStr);
+            char dstAddrStr[32];  Ip::Inet_NtoA(dstAddr,  dstAddrStr);
             //printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", p->ifa_name, "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
 			if(strcmp(ifaAddrStr,ipAddress.c_str()) == 0) {
 				broadCastAddress = dstAddrStr;
@@ -628,9 +628,9 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
          uint32 baddr   = ipAddr & netmask;
          if (row.dwBCastAddr) baddr |= ~netmask;
 
-         char ifaAddrStr[32];  Inet_NtoA(ipAddr,  ifaAddrStr);
-         char maskAddrStr[32]; Inet_NtoA(netmask, maskAddrStr);
-         char dstAddrStr[32];  Inet_NtoA(baddr,   dstAddrStr);
+         char ifaAddrStr[32];  Ip::Inet_NtoA(ipAddr,  ifaAddrStr);
+         char maskAddrStr[32]; Ip::Inet_NtoA(netmask, maskAddrStr);
+         char dstAddrStr[32];  Ip::Inet_NtoA(baddr,   dstAddrStr);
          //printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", name, desc?desc:"unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
 		 if(strcmp(ifaAddrStr,ipAddress.c_str()) == 0) {
 			broadCastAddress = dstAddrStr;
@@ -682,7 +682,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			//memcpy(&(SockAddr.sin_addr),&myhostent->h_addr[ipIdx],myhostent->h_length);
 			//SockAddr.sin_family = myhostent->h_addrtype;
 			//Inet_NtoA(SockAddrToUint32((sockaddr *)&SockAddr), myhostaddr);
-			Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
+			Ip::Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
 
 		   //printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
 		   if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
@@ -738,7 +738,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 				struct sockaddr_in *pSockAddr = (struct sockaddr_in *)&ifr.ifr_addr;
 				if(pSockAddr != NULL) {
 					//sprintf(myhostaddr, "%s",inet_ntoa(pSockAddr->sin_addr));
-					Inet_NtoA(SockAddrToUint32(&pSockAddr->sin_addr), myhostaddr);
+					Ip::Inet_NtoA(SockAddrToUint32(&pSockAddr->sin_addr), myhostaddr);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
 
 					// Now only include interfaces that are both UP and running
@@ -1855,8 +1855,8 @@ void BroadCastClientSocketThread::execute() {
     struct sockaddr_in bcaddr;  // The broadcast address for the receiver.
     PLATFORM_SOCKET bcfd;                // The file descriptor used for the broadcast.
     //bool one = true;            // Parameter for "setscokopt".
-    char buff[10024];            // Buffers the data to be broadcasted.
-    socklen_t alen;
+    char buff[10024]="";            // Buffers the data to be broadcasted.
+    socklen_t alen=0;
 
     port = htons( Socket::getBroadCastPort() );
 
@@ -1892,8 +1892,10 @@ void BroadCastClientSocketThread::execute() {
 				// Keep getting packets forever.
 				for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
 					alen = sizeof(struct sockaddr);
-					int nb=0;                     // The number of bytes read.
+					int nb=0;// The number of bytes read.
 					bool gotData = (nb = recvfrom(bcfd, buff, 10024, 0, (struct sockaddr *) &bcSender, &alen)) > 0;
+
+					//printf("Broadcasting client nb = %d buff [%s] gotData = %d\n",nb,buff,gotData);
 
 					if(gotData == false) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"recvfrom failed: %s\n", getLastSocketErrorFormattedText().c_str());
@@ -1901,7 +1903,7 @@ void BroadCastClientSocketThread::execute() {
 					else {
 						//string fromIP = inet_ntoa(bcSender.sin_addr);
 						char szHostFrom[100]="";
-						Inet_NtoA(SockAddrToUint32(&bcSender.sin_addr), szHostFrom);
+						Ip::Inet_NtoA(SockAddrToUint32(&bcSender.sin_addr), szHostFrom);
 						//printf("Client szHostFrom [%s]\n",szHostFrom);
 
 						string fromIP = szHostFrom;
@@ -2190,7 +2192,7 @@ Socket *ServerSocket::accept() {
 
 	}
 	else {
-		Inet_NtoA(SockAddrToUint32((struct sockaddr *)&cli_addr), client_host);
+		Ip::Inet_NtoA(SockAddrToUint32((struct sockaddr *)&cli_addr), client_host);
 		//printf("client_host [%s]\n",client_host);
 		//sprintf(client_host, "%s",inet_ntoa(cli_addr.sin_addr));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
@@ -2547,7 +2549,7 @@ void UPNP_Tools::NETremRedirects(int ext_port) {
 //
 BroadCastSocketThread::BroadCastSocketThread() : BaseThread() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+	setPauseBroadcast(false);
 	//printf("new broadcast thread [%p]\n",this);
 }
 
@@ -2666,16 +2668,21 @@ void BroadCastSocketThread::execute() {
 					if(difftime(time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
 						elapsed = time(NULL);
 
-						if(getPauseBroadcast() == false) {
+						ssize_t send_res = 0;
+						bool pauseBroadCast = getPauseBroadcast();
+						if(pauseBroadCast == false) {
 							// Broadcast the packet to the subnet
 							//if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
-							if( sendto( bcfd[idx], buff, buffMaxSize, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) ) != buffMaxSize ) {
+							send_res = sendto( bcfd[idx], buff, buffMaxSize, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) );
+							if( send_res != buffMaxSize ) {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %s\n", getLastSocketErrorFormattedText().c_str());
 							}
 							else {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcasting on port [%d] the message: [%s]\n",Socket::getBroadCastPort(),buff);
 							}
 						}
+						//printf("Broadcasting server send_res = %d buff [%s] ip [%s] getPauseBroadcast() = %d\n",send_res,buff,ipSubnetMaskList[idx].c_str(),pauseBroadCast);
+
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 
