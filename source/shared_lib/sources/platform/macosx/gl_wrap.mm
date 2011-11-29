@@ -143,7 +143,7 @@ BOOL makeGLDisplayListFirst(unichar first, int count, GLint base, NSFont *font, 
 	theImage = [ [ [ NSImage alloc ] initWithSize:NSMakeSize( 0, 0 ) ]
 				autorelease ];
 	retval = TRUE;
-	float fontHeight = metrics.getHeight();
+	float fontHeight = metrics.getHeight("W");
 	float dy;
 	
    for( dListNum = base, currentUnichar = first; currentUnichar < first + count;
