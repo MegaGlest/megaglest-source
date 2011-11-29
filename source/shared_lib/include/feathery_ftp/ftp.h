@@ -139,6 +139,8 @@ extern void ftpCloseTransmission(int id);
 extern int ftpGetActiveTransCnt(void);
 
 extern int ftpFindAccount(const char* name);
+extern const char * ftpFindAccountById(int userid);
+
 extern int ftpCheckPassword(int userId, const char* passw);
 extern int ftpCheckAccRights(int userId, int accRights);
 extern const char* ftpGetRoot(int userId, int* len);

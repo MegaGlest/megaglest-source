@@ -129,6 +129,18 @@ int ftpFindAccount(const char* name)
 	return 0;
 }
 
+const char * ftpFindAccountById(int userid)
+{
+	if(userid == 0) {
+		return 0;
+	}
+	else if(ftpUsers[userid - 1].name[0] == '\0') {
+		return 0;
+	}
+
+	return ftpUsers[userid - 1].name;
+}
+
 /**
  *  @brief Checks the password of a user account
  *
@@ -143,12 +155,15 @@ int ftpFindAccount(const char* name)
  */
 int ftpCheckPassword(int userId, const char* passw)
 {
-	if(!userId)
+	if(userId == 0) {
 		return -1;
-	else if(ftpUsers[userId - 1].passw[0] == '\0')
+	}
+	else if(ftpUsers[userId - 1].passw[0] == '\0') {
 		return 0;
-	else
+	}
+	else {
 		return strncmp(ftpUsers[userId - 1].passw, passw, MAXLEN_PASSWORD);
+	}
 }
 
 /**

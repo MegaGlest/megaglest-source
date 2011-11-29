@@ -218,6 +218,56 @@ int ServerInterface::isValidClientType(uint32 clientIp) {
 	return result;
 }
 
+int ServerInterface::isClientAllowedToGetFile(uint32 clientIp, const char *username, const char *filename) {
+	int result = 1;
+
+	if(username != NULL && strlen(username) > 0 && filename != NULL && strlen(filename) > 0) {
+		string user = username;
+		string file = filename;
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d username [%s] file [%s]\n",__FILE__,__FUNCTION__,__LINE__,username,filename);
+
+		if(StartsWith(user,"tilesets") == true && EndsWith(file,"7z") == false) {
+			if(Config::getInstance().getBool("DisableFTPServerXferUncompressedTilesets","false") == true) {
+				result = 0;
+			}
+			else {
+				char szIP[100]="";
+				Ip::Inet_NtoA(clientIp,szIP);
+				string clientIP = szIP;
+				//string serverIP = serverSocket.getIp();
+				std::vector<std::string> serverList = Socket::getLocalIPAddressList();
+
+				result = 0;
+				for(unsigned int i = 0; i < serverList.size(); ++i) {
+					string serverIP = serverList[i];
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d clientIP [%s] serverIP [%s] %d / %d\n",__FILE__,__FUNCTION__,__LINE__,clientIP.c_str(),serverIP.c_str(),i,serverList.size());
+
+					vector<string> clientTokens;
+					Tokenize(clientIP,clientTokens,".");
+
+					vector<string> serverTokens;
+					Tokenize(serverIP,serverTokens,".");
+
+					if(clientTokens.size() == 4 && serverTokens.size() == 4) {
+						if( clientTokens[0] == serverTokens[0] ||
+							clientTokens[1] == serverTokens[1] ||
+							clientTokens[2] == serverTokens[2]) {
+							result = 1;
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d clientIP [%s] IS NOT BLOCKED\n",__FILE__,__FUNCTION__,__LINE__,clientIP.c_str());
+
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
 void ServerInterface::addClientToServerIPAddress(uint32 clientIp, uint32 ServerIp) {
 	FTPServerThread::addClientToServerIPAddress(clientIp, ServerIp);
 }
@@ -340,6 +390,8 @@ void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
 		for(unsigned int j = 0; j < languageList.size(); ++j) {
 			bool localEcho = lang.isLanguageLocal(languageList[j]);
 			queueTextMessage(msgList[j],-1, localEcho, languageList[j]);
+
+			//printf("j = %d [%s] localEcho = %d [%s]\n",j,msgList[j].c_str(),localEcho,languageList[j].c_str());
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
@@ -1461,6 +1513,9 @@ void ServerInterface::processTextMessageQueue() {
 
 void ServerInterface::queueTextMessage(const string & text, int teamIndex,
 		bool echoLocal, string targetLanguage) {
+
+	//printf("Line: %d text [%s]\n",__LINE__,text.c_str());
+
 	MutexSafeWrapper safeMutexSlot(&textMessageQueueThreadAccessor,CODE_AT_LINE);
 	TextMessageQueue item;
 	item.text = text;
@@ -1477,6 +1532,9 @@ void ServerInterface::sendTextMessage(const string & text, int teamIndex,
 
 void ServerInterface::sendTextMessage(const string& text, int teamIndex, bool echoLocal,
 		string targetLanguage, int lockedSlotIndex) {
+	//printf("Line: %d text [%s] echoLocal = %d\n",__LINE__,text.c_str(),echoLocal);
+	//assert(text.length() > 0);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] text [%s] teamIndex = %d, echoLocal = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),teamIndex,echoLocal,lockedSlotIndex);
 	NetworkMessageText networkMessageText(text, teamIndex, getHumanPlayerIndex(), targetLanguage);
 	broadcastMessage(&networkMessageText, -1, lockedSlotIndex);
