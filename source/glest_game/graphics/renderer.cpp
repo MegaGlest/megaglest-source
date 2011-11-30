@@ -371,6 +371,7 @@ void Renderer::init() {
 void Renderer::initGame(const Game *game){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	VisibleQuadContainerCache::enableFrustumCalcs = Config::getInstance().getBool("EnableFrustrumCalcs","false");
 	quadCache = VisibleQuadContainerCache();
 	quadCache.clearFrustrumData();
 
@@ -1027,8 +1028,8 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    //float   proj[16];
    //float   modl[16];
-	vector<float> proj(16);
-	vector<float> modl(16);
+	vector<float> proj(16,0);
+	vector<float> modl(16,0);
 
    float   clip[16];
    float   t=0;
@@ -1169,18 +1170,20 @@ void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 }
 
 bool Renderer::PointInFrustum(vector<vector<float> > &frustum, float x, float y, float z ) {
-   int p=0;
+   unsigned int p=0;
 
-   for( p = 0; p < 6; p++ )
-      if( frustum[p][0] * x + frustum[p][1] * y + frustum[p][2] * z + frustum[p][3] <= 0 )
+   for( p = 0; p < frustum.size(); p++ ) {
+      if( frustum[p][0] * x + frustum[p][1] * y + frustum[p][2] * z + frustum[p][3] <= 0 ) {
          return false;
+      }
+   }
    return true;
 }
 
 bool Renderer::CubeInFrustum(vector<vector<float> > &frustum, float x, float y, float z, float size ) {
-   int p=0;
+   unsigned int p=0;
 
-   for( p = 0; p < 6; p++ ) {
+   for( p = 0; p < frustum.size(); p++ ) {
       if( frustum[p][0] * (x - size) + frustum[p][1] * (y - size) + frustum[p][2] * (z - size) + frustum[p][3] > 0 )
          continue;
       if( frustum[p][0] * (x + size) + frustum[p][1] * (y - size) + frustum[p][2] * (z - size) + frustum[p][3] > 0 )
