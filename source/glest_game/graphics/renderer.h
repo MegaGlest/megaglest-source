@@ -359,7 +359,7 @@ private:
 		Quad2i lastVisibleQuad;
 	} mapRenderer;
 
-	void ExtractFrustum(VisibleQuadContainerCache &quadCacheItem);
+	bool ExtractFrustum(VisibleQuadContainerCache &quadCacheItem);
 	bool PointInFrustum(vector<vector<float> > &frustum, float x, float y, float z );
 	bool CubeInFrustum(vector<vector<float> > &frustum, float x, float y, float z, float size );
 

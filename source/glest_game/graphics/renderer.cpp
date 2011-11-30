@@ -1025,14 +1025,10 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 //    return ( translation * orientation );
 //}
 
-void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
-   //float   proj[16];
-   //float   modl[16];
-	vector<float> proj(16,0);
-	vector<float> modl(16,0);
-
-   float   clip[16];
-   float   t=0;
+bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
+   bool frustrumChanged = false;
+   vector<float> proj(16,0);
+   vector<float> modl(16,0);
 
    /* Get the current PROJECTION matrix from OpenGL */
    glGetFloatv( GL_PROJECTION_MATRIX, &proj[0] );
@@ -1040,133 +1036,153 @@ void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    /* Get the current MODELVIEW matrix from OpenGL */
    glGetFloatv( GL_MODELVIEW_MATRIX, &modl[0] );
 
-   if(quadCacheItem.proj == proj && quadCacheItem.modl == modl) {
-	   return;
+   for(unsigned int i = 0; i < proj.size(); ++i) {
+	   //printf("\ni = %d proj [%f][%f] modl [%f][%f]\n",i,proj[i],quadCacheItem.proj[i],modl[i],quadCacheItem.modl[i]);
+	   if(proj[i] != quadCacheItem.proj[i]) {
+		   frustrumChanged = true;
+		   break;
+	   }
+	   if(modl[i] != quadCacheItem.modl[i]) {
+		   frustrumChanged = true;
+		   break;
+	   }
    }
-   vector<vector<float> > &frustum = quadCacheItem.frustumData;
+   //if(quadCacheItem.proj != proj || quadCacheItem.modl != modl) {
+   if(frustrumChanged == true) {
+	   //frustrumChanged = true;
 
-   /* Combine the two matrices (multiply projection by modelview) */
-   clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
-   clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
-   clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
-   clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
+	   quadCacheItem.proj = proj;
+	   quadCacheItem.modl = modl;
 
-   clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
-   clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
-   clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
-   clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
+	   vector<vector<float> > &frustum = quadCacheItem.frustumData;
 
-   clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
-   clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
-   clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
-   clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
+	   float   clip[16];
+	   float   t=0;
 
-   clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
-   clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
-   clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
-   clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
+	   /* Combine the two matrices (multiply projection by modelview) */
+	   clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
+	   clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
+	   clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
+	   clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
 
-   /* Extract the numbers for the RIGHT plane */
-   frustum[0][0] = clip[ 3] - clip[ 0];
-   frustum[0][1] = clip[ 7] - clip[ 4];
-   frustum[0][2] = clip[11] - clip[ 8];
-   frustum[0][3] = clip[15] - clip[12];
+	   clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
+	   clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
+	   clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
+	   clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
 
-   /* Normalize the result */
-#ifdef USE_STREFLOP
-   t = streflop::sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
-#else
-   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
-#endif
-   frustum[0][0] /= t;
-   frustum[0][1] /= t;
-   frustum[0][2] /= t;
-   frustum[0][3] /= t;
+	   clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
+	   clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
+	   clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
+	   clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
 
-   /* Extract the numbers for the LEFT plane */
-   frustum[1][0] = clip[ 3] + clip[ 0];
-   frustum[1][1] = clip[ 7] + clip[ 4];
-   frustum[1][2] = clip[11] + clip[ 8];
-   frustum[1][3] = clip[15] + clip[12];
+	   clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
+	   clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
+	   clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
+	   clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
 
-   /* Normalize the result */
-#ifdef USE_STREFLOP
-   t = streflop::sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
-#else
-   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
-#endif
-   frustum[1][0] /= t;
-   frustum[1][1] /= t;
-   frustum[1][2] /= t;
-   frustum[1][3] /= t;
+	   /* Extract the numbers for the RIGHT plane */
+	   frustum[0][0] = clip[ 3] - clip[ 0];
+	   frustum[0][1] = clip[ 7] - clip[ 4];
+	   frustum[0][2] = clip[11] - clip[ 8];
+	   frustum[0][3] = clip[15] - clip[12];
 
-   /* Extract the BOTTOM plane */
-   frustum[2][0] = clip[ 3] + clip[ 1];
-   frustum[2][1] = clip[ 7] + clip[ 5];
-   frustum[2][2] = clip[11] + clip[ 9];
-   frustum[2][3] = clip[15] + clip[13];
+	   /* Normalize the result */
+	#ifdef USE_STREFLOP
+	   t = streflop::sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
+	#else
+	   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
+	#endif
+	   frustum[0][0] /= t;
+	   frustum[0][1] /= t;
+	   frustum[0][2] /= t;
+	   frustum[0][3] /= t;
 
-   /* Normalize the result */
-#ifdef USE_STREFLOP
-   t = streflop::sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
-#else
-   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
-#endif
-   frustum[2][0] /= t;
-   frustum[2][1] /= t;
-   frustum[2][2] /= t;
-   frustum[2][3] /= t;
+	   /* Extract the numbers for the LEFT plane */
+	   frustum[1][0] = clip[ 3] + clip[ 0];
+	   frustum[1][1] = clip[ 7] + clip[ 4];
+	   frustum[1][2] = clip[11] + clip[ 8];
+	   frustum[1][3] = clip[15] + clip[12];
 
-   /* Extract the TOP plane */
-   frustum[3][0] = clip[ 3] - clip[ 1];
-   frustum[3][1] = clip[ 7] - clip[ 5];
-   frustum[3][2] = clip[11] - clip[ 9];
-   frustum[3][3] = clip[15] - clip[13];
+	   /* Normalize the result */
+	#ifdef USE_STREFLOP
+	   t = streflop::sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
+	#else
+	   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
+	#endif
+	   frustum[1][0] /= t;
+	   frustum[1][1] /= t;
+	   frustum[1][2] /= t;
+	   frustum[1][3] /= t;
 
-   /* Normalize the result */
-#ifdef USE_STREFLOP
-   t = streflop::sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
-#else
-   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
-#endif
-   frustum[3][0] /= t;
-   frustum[3][1] /= t;
-   frustum[3][2] /= t;
-   frustum[3][3] /= t;
+	   /* Extract the BOTTOM plane */
+	   frustum[2][0] = clip[ 3] + clip[ 1];
+	   frustum[2][1] = clip[ 7] + clip[ 5];
+	   frustum[2][2] = clip[11] + clip[ 9];
+	   frustum[2][3] = clip[15] + clip[13];
 
-   /* Extract the FAR plane */
-   frustum[4][0] = clip[ 3] - clip[ 2];
-   frustum[4][1] = clip[ 7] - clip[ 6];
-   frustum[4][2] = clip[11] - clip[10];
-   frustum[4][3] = clip[15] - clip[14];
+	   /* Normalize the result */
+	#ifdef USE_STREFLOP
+	   t = streflop::sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
+	#else
+	   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
+	#endif
+	   frustum[2][0] /= t;
+	   frustum[2][1] /= t;
+	   frustum[2][2] /= t;
+	   frustum[2][3] /= t;
 
-   /* Normalize the result */
-#ifdef USE_STREFLOP
-   t = streflop::sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
-#else
-   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
-#endif
-   frustum[4][0] /= t;
-   frustum[4][1] /= t;
-   frustum[4][2] /= t;
-   frustum[4][3] /= t;
+	   /* Extract the TOP plane */
+	   frustum[3][0] = clip[ 3] - clip[ 1];
+	   frustum[3][1] = clip[ 7] - clip[ 5];
+	   frustum[3][2] = clip[11] - clip[ 9];
+	   frustum[3][3] = clip[15] - clip[13];
 
-   /* Extract the NEAR plane */
-   frustum[5][0] = clip[ 3] + clip[ 2];
-   frustum[5][1] = clip[ 7] + clip[ 6];
-   frustum[5][2] = clip[11] + clip[10];
-   frustum[5][3] = clip[15] + clip[14];
+	   /* Normalize the result */
+	#ifdef USE_STREFLOP
+	   t = streflop::sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
+	#else
+	   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
+	#endif
+	   frustum[3][0] /= t;
+	   frustum[3][1] /= t;
+	   frustum[3][2] /= t;
+	   frustum[3][3] /= t;
 
-   /* Normalize the result */
-#ifdef USE_STREFLOP
-   t = streflop::sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
-#else
-   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
-#endif
-   frustum[5][0] /= t;
-   frustum[5][1] /= t;
-   frustum[5][2] /= t;
-   frustum[5][3] /= t;
+	   /* Extract the FAR plane */
+	   frustum[4][0] = clip[ 3] - clip[ 2];
+	   frustum[4][1] = clip[ 7] - clip[ 6];
+	   frustum[4][2] = clip[11] - clip[10];
+	   frustum[4][3] = clip[15] - clip[14];
+
+	   /* Normalize the result */
+	#ifdef USE_STREFLOP
+	   t = streflop::sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
+	#else
+	   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
+	#endif
+	   frustum[4][0] /= t;
+	   frustum[4][1] /= t;
+	   frustum[4][2] /= t;
+	   frustum[4][3] /= t;
+
+	   /* Extract the NEAR plane */
+	   frustum[5][0] = clip[ 3] + clip[ 2];
+	   frustum[5][1] = clip[ 7] + clip[ 6];
+	   frustum[5][2] = clip[11] + clip[10];
+	   frustum[5][3] = clip[15] + clip[14];
+
+	   /* Normalize the result */
+	#ifdef USE_STREFLOP
+	   t = streflop::sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
+	#else
+	   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
+	#endif
+	   frustum[5][0] /= t;
+	   frustum[5][1] /= t;
+	   frustum[5][2] /= t;
+	   frustum[5][3] /= t;
+   }
+   return frustrumChanged;
 }
 
 bool Renderer::PointInFrustum(vector<vector<float> > &frustum, float x, float y, float z ) {
@@ -1222,17 +1238,25 @@ void Renderer::computeVisibleQuad() {
 	//float Wfar = Hfar * metrics.getAspectRatio();
 	//printf("Hnear = %f, Wnear = %f, Hfar = %f, Wfar = %f\n",Hnear,Wnear,Hfar,Wfar);
 
+	bool frustrumChanged = false;
 	if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
-		ExtractFrustum(quadCache);
+		frustrumChanged = ExtractFrustum(quadCache);
 	}
 
-//	for(unsigned int i = 0; i < 6; ++i) {
-//		printf("\nFrustrum #%d: ",i);
-//		for(unsigned int j = 0; j < 4; ++j) {
-//			printf("[%f]",quadCache.frustumData[i][j]);
-//		}
-//	}
+	if(frustrumChanged && SystemFlags::VERBOSE_MODE_ENABLED) {
+		printf("\nCamera: %d,%d %d,%d %d,%d %d,%d\n",
+			visibleQuad.p[0].x,visibleQuad.p[0].y,
+			visibleQuad.p[1].x,visibleQuad.p[1].y,
+			visibleQuad.p[2].x,visibleQuad.p[2].y,
+			visibleQuad.p[3].x,visibleQuad.p[3].y);
 
+		for(unsigned int i = 0; i < 6; ++i) {
+			printf("\nFrustrum #%d: ",i);
+			for(unsigned int j = 0; j < 4; ++j) {
+				printf("[%f]",quadCache.frustumData[i][j]);
+			}
+		}
+	}
 
 	const bool newVisibleQuadCalc = false;
 	if(newVisibleQuadCalc) {
