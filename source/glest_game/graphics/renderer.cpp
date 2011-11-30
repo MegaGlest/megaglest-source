@@ -371,6 +371,8 @@ void Renderer::init() {
 void Renderer::initGame(const Game *game){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	quadCache = VisibleQuadContainerCache();
+
 	SurfaceData::nextUniqueId = 1;
 	mapSurfaceData.clear();
 	this->game= game;
@@ -562,6 +564,8 @@ void Renderer::endScenario() {
 
 void Renderer::endGame(bool isFinalEnd) {
 	game= NULL;
+
+	quadCache = VisibleQuadContainerCache();
 
 	if(this->masterserverMode == true) {
 		return;
@@ -1066,7 +1070,11 @@ void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    frustum[0][3] = clip[15] - clip[12];
 
    /* Normalize the result */
+#ifdef USE_STREFLOP
    t = streflop::sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
+#else
+   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
+#endif
    frustum[0][0] /= t;
    frustum[0][1] /= t;
    frustum[0][2] /= t;
@@ -1079,7 +1087,11 @@ void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    frustum[1][3] = clip[15] + clip[12];
 
    /* Normalize the result */
+#ifdef USE_STREFLOP
    t = streflop::sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
+#else
+   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
+#endif
    frustum[1][0] /= t;
    frustum[1][1] /= t;
    frustum[1][2] /= t;
@@ -1092,7 +1104,11 @@ void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    frustum[2][3] = clip[15] + clip[13];
 
    /* Normalize the result */
+#ifdef USE_STREFLOP
    t = streflop::sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
+#else
+   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
+#endif
    frustum[2][0] /= t;
    frustum[2][1] /= t;
    frustum[2][2] /= t;
@@ -1105,7 +1121,11 @@ void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    frustum[3][3] = clip[15] - clip[13];
 
    /* Normalize the result */
+#ifdef USE_STREFLOP
    t = streflop::sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
+#else
+   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
+#endif
    frustum[3][0] /= t;
    frustum[3][1] /= t;
    frustum[3][2] /= t;
@@ -1118,7 +1138,11 @@ void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    frustum[4][3] = clip[15] - clip[14];
 
    /* Normalize the result */
+#ifdef USE_STREFLOP
    t = streflop::sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
+#else
+   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
+#endif
    frustum[4][0] /= t;
    frustum[4][1] /= t;
    frustum[4][2] /= t;
@@ -1131,7 +1155,11 @@ void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    frustum[5][3] = clip[15] + clip[14];
 
    /* Normalize the result */
+#ifdef USE_STREFLOP
    t = streflop::sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
+#else
+   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
+#endif
    frustum[5][0] /= t;
    frustum[5][1] /= t;
    frustum[5][2] /= t;
@@ -1189,7 +1217,7 @@ void Renderer::computeVisibleQuad() {
 	//float Wfar = Hfar * metrics.getAspectRatio();
 	//printf("Hnear = %f, Wnear = %f, Hfar = %f, Wfar = %f\n",Hnear,Wnear,Hfar,Wfar);
 
-	if(VisibleQuadContainerCache::enableFrustumCalcs) {
+	if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
 		ExtractFrustum(quadCache);
 	}
 

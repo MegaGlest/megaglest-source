@@ -132,7 +132,20 @@ public:
 		visibleObjectList.reserve(500);
 		visibleScaledCellList.reserve(500);
 	}
-
+	void clearFrustrumData() {
+		for(unsigned int i = 0; i < frustumData.size(); ++i) {
+			vector<float> &frustumDataInner = frustumData[i];
+			for(unsigned int j = 0; j < frustumDataInner.size(); ++j) {
+				frustumDataInner[j] = 0.0f;
+			}
+		}
+		for(unsigned int i = 0; i < proj.size(); ++i) {
+			proj[i]= 0.0f;
+		}
+		for(unsigned int i = 0; i < modl.size(); ++i) {
+			modl[i]= 0.0f;
+		}
+	}
 	int cacheFrame;
 	Quad2i lastVisibleQuad;
 	std::vector<Object *> visibleObjectList;
