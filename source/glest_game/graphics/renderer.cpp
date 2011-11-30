@@ -149,7 +149,7 @@ const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 25;
 
 const int OBJECT_SELECT_OFFSET=100000000;
 
-bool VisibleQuadContainerCache::enableFrustumCalcs = false;
+bool VisibleQuadContainerCache::enableFrustumCalcs = true;
 
 // ==================== constructor and destructor ====================
 
@@ -371,7 +371,7 @@ void Renderer::init() {
 void Renderer::initGame(const Game *game){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	VisibleQuadContainerCache::enableFrustumCalcs = Config::getInstance().getBool("EnableFrustrumCalcs","false");
+	VisibleQuadContainerCache::enableFrustumCalcs = Config::getInstance().getBool("EnableFrustrumCalcs","true");
 	quadCache = VisibleQuadContainerCache();
 	quadCache.clearFrustrumData();
 
@@ -1048,12 +1048,32 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 //	   }
 //   }
 
+   // Check the frustum cache
+   const bool useFrustumCache = Config::getInstance().getBool("EnableFrustrumCache","false");
+   pair<vector<float>,vector<float> > lookupKey;
+   if(useFrustumCache == true) {
+	   lookupKey = make_pair(proj,modl);
+	   map<pair<vector<float>,vector<float> >, vector<vector<float> > >::iterator iterFind = quadCacheItem.frustumDataCache.find(lookupKey);
+	   if(iterFind != quadCacheItem.frustumDataCache.end()) {
+		   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum found in cache\n");
+
+		   quadCacheItem.frustumData = iterFind->second;
+		   frustrumChanged = (quadCacheItem.proj != proj || quadCacheItem.modl != modl);
+		   if(frustrumChanged == true) {
+			   quadCacheItem.proj = proj;
+			   quadCacheItem.modl = modl;
+		   }
+
+		   return frustrumChanged;
+	   }
+   }
+
    if(quadCacheItem.proj != proj || quadCacheItem.modl != modl) {
    //if(frustrumChanged == true) {
 	   frustrumChanged = true;
 	   vector<vector<float> > &frustum = quadCacheItem.frustumData;
-	   assert(frustum.size() == 6);
-	   assert(frustum[0].size() == 4);
+	   //assert(frustum.size() == 6);
+	   //assert(frustum[0].size() == 4);
 
 	   quadCacheItem.proj = proj;
 	   quadCacheItem.modl = modl;
@@ -1222,6 +1242,10 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 
 		   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",5,frustum[5][0],frustum[5][1],frustum[5][2],frustum[5][3],t);
 	   }
+
+	   if(useFrustumCache == true) {
+		   quadCacheItem.frustumDataCache[lookupKey] = frustum;
+	   }
    }
    return frustrumChanged;
 }
@@ -1292,7 +1316,7 @@ void Renderer::computeVisibleQuad() {
 			visibleQuad.p[3].x,visibleQuad.p[3].y);
 
 		for(unsigned int i = 0; i < quadCache.frustumData.size(); ++i) {
-			printf("\nFrustrum #%d [%d]: ",i,quadCache.frustumData.size());
+			printf("\nFrustrum #%d [%lu]: ",i,quadCache.frustumData.size());
 			vector<float> &frustumDataInner = quadCache.frustumData[i];
 			for(unsigned int j = 0; j < frustumDataInner.size(); ++j) {
 				printf("[%f]",quadCache.frustumData[i][j]);

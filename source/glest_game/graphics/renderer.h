@@ -137,6 +137,7 @@ public:
 		frustumData = vector<vector<float> >(6,vector<float>(4,0));
 		proj = vector<float>(16,0);
 		modl = vector<float>(16,0);
+		frustumDataCache.clear();
 	}
 	int cacheFrame;
 	Quad2i lastVisibleQuad;
@@ -149,6 +150,7 @@ public:
 	vector<vector<float> > frustumData;
 	vector<float> proj;
 	vector<float> modl;
+	map<pair<vector<float>,vector<float> >, vector<vector<float> > > frustumDataCache;
 
 };
 
