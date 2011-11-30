@@ -94,11 +94,14 @@ protected:
 		visibleQuadUnitList = obj.visibleQuadUnitList;
 		visibleScaledCellList = obj.visibleScaledCellList;
 		lastVisibleQuad		= obj.lastVisibleQuad;
+		frustumData			= obj.frustumData;
+		proj				= obj.proj;
+		modl				= obj.modl;
 	}
 
 public:
 
-	VisibleQuadContainerCache() {
+	VisibleQuadContainerCache() : frustumData(6,vector<float>(4,0)), proj(16,0), modl(16,0) {
 		cacheFrame = 0;
 		clearCacheData();
 	}
@@ -136,6 +139,12 @@ public:
 	std::vector<Unit   *> visibleQuadUnitList;
 	std::vector<Unit   *> visibleUnitList;
 	std::vector<Vec2i> visibleScaledCellList;
+
+	static bool enableFrustumCalcs;
+	vector<vector<float> > frustumData;
+	vector<float> proj;
+	vector<float> modl;
+
 };
 
 class VisibleQuadContainerVBOCache {
@@ -345,6 +354,11 @@ private:
 		Layers layers;
 		Quad2i lastVisibleQuad;
 	} mapRenderer;
+
+	void ExtractFrustum(VisibleQuadContainerCache &quadCacheItem);
+	bool PointInFrustum(vector<vector<float> > &frustum, float x, float y, float z );
+	bool CubeInFrustum(vector<vector<float> > &frustum, float x, float y, float z, float size );
+
 private:
 	Renderer(bool masterserverMode=false);
 	~Renderer();

@@ -149,6 +149,8 @@ const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 25;
 
 const int OBJECT_SELECT_OFFSET=100000000;
 
+bool VisibleQuadContainerCache::enableFrustumCalcs = true;
+
 // ==================== constructor and destructor ====================
 
 Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
@@ -1016,6 +1018,160 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 //    return ( translation * orientation );
 //}
 
+void Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
+   //float   proj[16];
+   //float   modl[16];
+	vector<float> proj(16);
+	vector<float> modl(16);
+
+   float   clip[16];
+   float   t=0;
+
+   /* Get the current PROJECTION matrix from OpenGL */
+   glGetFloatv( GL_PROJECTION_MATRIX, &proj[0] );
+
+   /* Get the current MODELVIEW matrix from OpenGL */
+   glGetFloatv( GL_MODELVIEW_MATRIX, &modl[0] );
+
+   if(quadCacheItem.proj == proj && quadCacheItem.modl == modl) {
+	   return;
+   }
+   vector<vector<float> > &frustum = quadCacheItem.frustumData;
+
+   /* Combine the two matrices (multiply projection by modelview) */
+   clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
+   clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
+   clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
+   clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
+
+   clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
+   clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
+   clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
+   clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
+
+   clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
+   clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
+   clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
+   clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
+
+   clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
+   clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
+   clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
+   clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
+
+   /* Extract the numbers for the RIGHT plane */
+   frustum[0][0] = clip[ 3] - clip[ 0];
+   frustum[0][1] = clip[ 7] - clip[ 4];
+   frustum[0][2] = clip[11] - clip[ 8];
+   frustum[0][3] = clip[15] - clip[12];
+
+   /* Normalize the result */
+   t = streflop::sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
+   frustum[0][0] /= t;
+   frustum[0][1] /= t;
+   frustum[0][2] /= t;
+   frustum[0][3] /= t;
+
+   /* Extract the numbers for the LEFT plane */
+   frustum[1][0] = clip[ 3] + clip[ 0];
+   frustum[1][1] = clip[ 7] + clip[ 4];
+   frustum[1][2] = clip[11] + clip[ 8];
+   frustum[1][3] = clip[15] + clip[12];
+
+   /* Normalize the result */
+   t = streflop::sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
+   frustum[1][0] /= t;
+   frustum[1][1] /= t;
+   frustum[1][2] /= t;
+   frustum[1][3] /= t;
+
+   /* Extract the BOTTOM plane */
+   frustum[2][0] = clip[ 3] + clip[ 1];
+   frustum[2][1] = clip[ 7] + clip[ 5];
+   frustum[2][2] = clip[11] + clip[ 9];
+   frustum[2][3] = clip[15] + clip[13];
+
+   /* Normalize the result */
+   t = streflop::sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
+   frustum[2][0] /= t;
+   frustum[2][1] /= t;
+   frustum[2][2] /= t;
+   frustum[2][3] /= t;
+
+   /* Extract the TOP plane */
+   frustum[3][0] = clip[ 3] - clip[ 1];
+   frustum[3][1] = clip[ 7] - clip[ 5];
+   frustum[3][2] = clip[11] - clip[ 9];
+   frustum[3][3] = clip[15] - clip[13];
+
+   /* Normalize the result */
+   t = streflop::sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
+   frustum[3][0] /= t;
+   frustum[3][1] /= t;
+   frustum[3][2] /= t;
+   frustum[3][3] /= t;
+
+   /* Extract the FAR plane */
+   frustum[4][0] = clip[ 3] - clip[ 2];
+   frustum[4][1] = clip[ 7] - clip[ 6];
+   frustum[4][2] = clip[11] - clip[10];
+   frustum[4][3] = clip[15] - clip[14];
+
+   /* Normalize the result */
+   t = streflop::sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
+   frustum[4][0] /= t;
+   frustum[4][1] /= t;
+   frustum[4][2] /= t;
+   frustum[4][3] /= t;
+
+   /* Extract the NEAR plane */
+   frustum[5][0] = clip[ 3] + clip[ 2];
+   frustum[5][1] = clip[ 7] + clip[ 6];
+   frustum[5][2] = clip[11] + clip[10];
+   frustum[5][3] = clip[15] + clip[14];
+
+   /* Normalize the result */
+   t = streflop::sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
+   frustum[5][0] /= t;
+   frustum[5][1] /= t;
+   frustum[5][2] /= t;
+   frustum[5][3] /= t;
+}
+
+bool Renderer::PointInFrustum(vector<vector<float> > &frustum, float x, float y, float z ) {
+   int p=0;
+
+   for( p = 0; p < 6; p++ )
+      if( frustum[p][0] * x + frustum[p][1] * y + frustum[p][2] * z + frustum[p][3] <= 0 )
+         return false;
+   return true;
+}
+
+bool Renderer::CubeInFrustum(vector<vector<float> > &frustum, float x, float y, float z, float size ) {
+   int p=0;
+
+   for( p = 0; p < 6; p++ ) {
+      if( frustum[p][0] * (x - size) + frustum[p][1] * (y - size) + frustum[p][2] * (z - size) + frustum[p][3] > 0 )
+         continue;
+      if( frustum[p][0] * (x + size) + frustum[p][1] * (y - size) + frustum[p][2] * (z - size) + frustum[p][3] > 0 )
+         continue;
+      if( frustum[p][0] * (x - size) + frustum[p][1] * (y + size) + frustum[p][2] * (z - size) + frustum[p][3] > 0 )
+         continue;
+      if( frustum[p][0] * (x + size) + frustum[p][1] * (y + size) + frustum[p][2] * (z - size) + frustum[p][3] > 0 )
+         continue;
+      if( frustum[p][0] * (x - size) + frustum[p][1] * (y - size) + frustum[p][2] * (z + size) + frustum[p][3] > 0 )
+         continue;
+      if( frustum[p][0] * (x + size) + frustum[p][1] * (y - size) + frustum[p][2] * (z + size) + frustum[p][3] > 0 )
+         continue;
+      if( frustum[p][0] * (x - size) + frustum[p][1] * (y + size) + frustum[p][2] * (z + size) + frustum[p][3] > 0 )
+         continue;
+      if( frustum[p][0] * (x + size) + frustum[p][1] * (y + size) + frustum[p][2] * (z + size) + frustum[p][3] > 0 )
+         continue;
+      return false;
+   }
+   return true;
+}
+
 void Renderer::computeVisibleQuad() {
 	const GameCamera *gameCamera = game->getGameCamera();
 	visibleQuad = gameCamera->computeVisibleQuad();
@@ -1032,6 +1188,18 @@ void Renderer::computeVisibleQuad() {
 	//float Hfar = 2.0 * streflop::tanf(gameCamera->getFov() / 2.0) * perspFarPlane;
 	//float Wfar = Hfar * metrics.getAspectRatio();
 	//printf("Hnear = %f, Wnear = %f, Hfar = %f, Wfar = %f\n",Hnear,Wnear,Hfar,Wfar);
+
+	if(VisibleQuadContainerCache::enableFrustumCalcs) {
+		ExtractFrustum(quadCache);
+	}
+
+//	for(unsigned int i = 0; i < 6; ++i) {
+//		printf("\nFrustrum #%d: ",i);
+//		for(unsigned int j = 0; j < 4; ++j) {
+//			printf("[%f]",quadCache.frustumData[i][j]);
+//		}
+//	}
+
 
 	const bool newVisibleQuadCalc = false;
 	if(newVisibleQuadCalc) {
@@ -6714,19 +6882,38 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				for(int j = 0; j < faction->getUnitCount(); ++j) {
 					Unit *unit= faction->getUnit(j);
 
-					bool insideQuad 	= visibleQuad.isInside(unit->getPos());
-					bool renderInMap 	= world->toRenderUnit(unit);
-					if(insideQuad == true && renderInMap == true) {
-						quadCache.visibleQuadUnitList.push_back(unit);
+					if(VisibleQuadContainerCache::enableFrustumCalcs == false) {
+						bool insideQuad 	= visibleQuad.isInside(unit->getPos());
+						bool renderInMap 	= world->toRenderUnit(unit);
+						if(insideQuad == true && renderInMap == true) {
+							quadCache.visibleQuadUnitList.push_back(unit);
+						}
+						else {
+							unit->setVisible(false);
+							// Currently don't need this list
+							//quadCache.inVisibleUnitList.push_back(unit);
+						}
+
+						if(renderInMap == true) {
+							quadCache.visibleUnitList.push_back(unit);
+						}
 					}
 					else {
-						unit->setVisible(false);
-						// Currently don't need this list
-						//quadCache.inVisibleUnitList.push_back(unit);
-					}
+						//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
+						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z, unit->getType()->getSize());
+						bool renderInMap 	= world->toRenderUnit(unit);
+						if(insideQuad == true && renderInMap == true) {
+							quadCache.visibleQuadUnitList.push_back(unit);
+						}
+						else {
+							unit->setVisible(false);
+							// Currently don't need this list
+							//quadCache.inVisibleUnitList.push_back(unit);
+						}
 
-					if(renderInMap == true) {
-						quadCache.visibleUnitList.push_back(unit);
+						if(renderInMap == true) {
+							quadCache.visibleUnitList.push_back(unit);
+						}
 					}
 				}
 			}
@@ -6754,6 +6941,16 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 						SurfaceCell *sc = map->getSurfaceCell(mapPos);
 						Object *o = sc->getObject();
 
+						if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
+							if(o != NULL) {
+								//bool insideQuad 	= PointInFrustum(quadCache.frustumData, o->getPos().x, o->getPos().y, o->getPos().z );
+								bool insideQuad 	= CubeInFrustum(quadCache.frustumData, o->getPos().x, o->getPos().y, o->getPos().z, 1);
+								if(insideQuad == false) {
+									continue;
+								}
+							}
+						}
+
                         bool cellExplored = world->showWorldForPlayer(world->getThisFactionIndex());
                         if(cellExplored == false) {
                             cellExplored = sc->isExplored(world->getThisTeamIndex());
@@ -6773,6 +6970,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				//printf("Frame # = %d loops1 = %d\n",world->getFrameCount(),loops1);
 
 				//int loops2=0;
+
 				const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
 				Quad2i scaledQuad = visibleQuad / Map::cellScale;
 				PosQuadIterator pqis(map,scaledQuad);
@@ -6780,7 +6978,17 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 					const Vec2i &pos= pqis.getPos();
 					if(mapBounds.isInside(pos)) {
 						//loops2++;
-						quadCache.visibleScaledCellList.push_back(pos);
+						if(VisibleQuadContainerCache::enableFrustumCalcs == false) {
+							quadCache.visibleScaledCellList.push_back(pos);
+						}
+						else {
+							SurfaceCell *sc = map->getSurfaceCell(pos);
+							bool insideQuad 	= CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 1);
+							//bool insideQuad 	= PointInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z);
+							if(insideQuad == true) {
+								quadCache.visibleScaledCellList.push_back(pos);
+							}
+						}
 					}
 				}
 				//printf("Frame # = %d loops2 = %d\n",world->getFrameCount(),loops2);
@@ -7194,13 +7402,15 @@ void Renderer::setLastRenderFps(int value) {
 uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
 	uint64 result = 0;
 	for(int i = (rs == rsCount ? 0 : rs); i < rsCount; ++i) {
-		const Shared::Graphics::TextureContainer &textures = textureManager[i]->getTextures();
-		for(int j = 0; j < textures.size(); ++j) {
-			const Texture *texture = textures[j];
-			result += texture->getPixelByteCount();
-		}
-		if(rs != rsCount) {
-			break;
+		if(textureManager[i] != NULL) {
+			const Shared::Graphics::TextureContainer &textures = textureManager[i]->getTextures();
+			for(int j = 0; j < textures.size(); ++j) {
+				const Texture *texture = textures[j];
+				result += texture->getPixelByteCount();
+			}
+			if(rs != rsCount) {
+				break;
+			}
 		}
 	}
 
