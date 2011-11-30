@@ -289,28 +289,35 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	labelLang.setText(lang.get("Language"));
 
 	listBoxLang.registerGraphicComponent(containerName,"listBoxLang");
-	listBoxLang.init(currentColumnStart, currentLine, 170);
+	listBoxLang.init(currentColumnStart, currentLine, 260);
 	vector<string> langResults;
 
-    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-
-    string userDataPath = getGameCustomCoreDataPath(data_path, "");
-	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
-
-	vector<string> langResults2;
-	findAll(data_path + "data/lang/*.lng", langResults2, true);
-	if(langResults2.empty() && langResults.empty()) {
-        throw runtime_error("There are no lang files");
-	}
-	for(unsigned int i = 0; i < langResults2.size(); ++i) {
-		string testLanguage = langResults2[i];
-		if(std::find(langResults.begin(),langResults.end(),testLanguage) == langResults.end()) {
-			langResults.push_back(testLanguage);
-		}
+//    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+//
+//    string userDataPath = getGameCustomCoreDataPath(data_path, "");
+//	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
+//
+//	vector<string> langResults2;
+//	findAll(data_path + "data/lang/*.lng", langResults2, true);
+//	if(langResults2.empty() && langResults.empty()) {
+//        throw runtime_error("There are no lang files");
+//	}
+//	for(unsigned int i = 0; i < langResults2.size(); ++i) {
+//		string testLanguage = langResults2[i];
+//		if(std::find(langResults.begin(),langResults.end(),testLanguage) == langResults.end()) {
+//			langResults.push_back(testLanguage);
+//		}
+//	}
+	languageList = Lang::getInstance().getDiscoveredLanguageList();
+	for(map<string,string>::iterator iterMap = languageList.begin();
+		iterMap != languageList.end(); ++iterMap) {
+		langResults.push_back(iterMap->second + "-" + iterMap->first);
 	}
 
     listBoxLang.setItems(langResults);
-	listBoxLang.setSelectedItem(config.getString("Lang"));
+
+    pair<string,string> defaultLang = Lang::getInstance().getNavtiveNameFromLanguageName(config.getString("Lang"));
+	listBoxLang.setSelectedItem(defaultLang.second + "-" + defaultLang.first);
 	currentLine-=lineOffset;
 
 	//playerName
@@ -995,7 +1002,10 @@ void MenuStateOptions::saveConfig(){
 		config.setString("NetPlayerName", labelPlayerName.getText());
 	}
 	//Copy values
-	config.setString("Lang", listBoxLang.getSelectedItem());
+	map<string,string>::iterator iterMap = languageList.begin();
+	std::advance(iterMap, listBoxLang.getSelectedItemIndex());
+
+	config.setString("Lang", iterMap->second);
 	lang.loadStrings(config.getString("Lang"));
 
 	int index= listBoxShadows.getSelectedItemIndex();

@@ -123,6 +123,7 @@ private:
 	GraphicLabel labelRainEffect;
 	GraphicCheckBox checkBoxRainEffect;
 
+	map<string,string> languageList;
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);

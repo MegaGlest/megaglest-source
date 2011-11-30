@@ -40,6 +40,7 @@ private:
 	void loadStrings(string language, Properties &properties, bool fileMustExist,bool fallbackToDefault=false);
 	string getLanguageFile(string uselanguage);
 	bool fileMatchesISO630Code(string uselanguage, string testLanguageFile);
+	string getNativeLanguageName(string uselanguage, string testLanguageFile);
 
 public:
 	static Lang &getInstance();    
@@ -54,6 +55,8 @@ public:
 	string getLanguage() const { return language; }
 	bool isLanguageLocal(string compareLanguage) const;
 	bool isUTF8Language() const;
+	map<string,string> getDiscoveredLanguageList();
+	pair<string,string> getNavtiveNameFromLanguageName(string langName);
 };
 
 }}//end namespace
