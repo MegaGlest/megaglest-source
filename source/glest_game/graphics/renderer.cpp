@@ -372,6 +372,7 @@ void Renderer::initGame(const Game *game){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	quadCache = VisibleQuadContainerCache();
+	quadCache.clearFrustrumData();
 
 	SurfaceData::nextUniqueId = 1;
 	mapSurfaceData.clear();
@@ -566,6 +567,7 @@ void Renderer::endGame(bool isFinalEnd) {
 	game= NULL;
 
 	quadCache = VisibleQuadContainerCache();
+	quadCache.clearFrustrumData();
 
 	if(this->masterserverMode == true) {
 		return;
