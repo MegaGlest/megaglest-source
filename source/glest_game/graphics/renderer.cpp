@@ -1096,12 +1096,14 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	#else
 	   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
 	#endif
-	   frustum[0][0] /= t;
-	   frustum[0][1] /= t;
-	   frustum[0][2] /= t;
-	   frustum[0][3] /= t;
+	   if(t != 0.0) {
+		   frustum[0][0] /= t;
+		   frustum[0][1] /= t;
+		   frustum[0][2] /= t;
+		   frustum[0][3] /= t;
 
-	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",0,frustum[0][0],frustum[0][1],frustum[0][2],frustum[0][3],t);
+		   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",0,frustum[0][0],frustum[0][1],frustum[0][2],frustum[0][3],t);
+	   }
 
 	   /* Extract the numbers for the LEFT plane */
 	   frustum[1][0] = clip[ 3] + clip[ 0];
@@ -1117,12 +1119,14 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	#else
 	   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
 	#endif
-	   frustum[1][0] /= t;
-	   frustum[1][1] /= t;
-	   frustum[1][2] /= t;
-	   frustum[1][3] /= t;
+	   if(t != 0.0) {
+		   frustum[1][0] /= t;
+		   frustum[1][1] /= t;
+		   frustum[1][2] /= t;
+		   frustum[1][3] /= t;
 
-	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",1,frustum[1][0],frustum[1][1],frustum[1][2],frustum[1][3],t);
+		   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",1,frustum[1][0],frustum[1][1],frustum[1][2],frustum[1][3],t);
+	   }
 
 	   /* Extract the BOTTOM plane */
 	   frustum[2][0] = clip[ 3] + clip[ 1];
@@ -1138,12 +1142,14 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	#else
 	   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
 	#endif
-	   frustum[2][0] /= t;
-	   frustum[2][1] /= t;
-	   frustum[2][2] /= t;
-	   frustum[2][3] /= t;
+	   if(t != 0.0) {
+		   frustum[2][0] /= t;
+		   frustum[2][1] /= t;
+		   frustum[2][2] /= t;
+		   frustum[2][3] /= t;
 
-	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",2,frustum[2][0],frustum[2][1],frustum[2][2],frustum[2][3],t);
+		   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",2,frustum[2][0],frustum[2][1],frustum[2][2],frustum[2][3],t);
+	   }
 
 	   /* Extract the TOP plane */
 	   frustum[3][0] = clip[ 3] - clip[ 1];
@@ -1159,12 +1165,15 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	#else
 	   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
 	#endif
-	   frustum[3][0] /= t;
-	   frustum[3][1] /= t;
-	   frustum[3][2] /= t;
-	   frustum[3][3] /= t;
 
-	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",3,frustum[3][0],frustum[3][1],frustum[3][2],frustum[3][3],t);
+	   if(t != 0.0) {
+		   frustum[3][0] /= t;
+		   frustum[3][1] /= t;
+		   frustum[3][2] /= t;
+		   frustum[3][3] /= t;
+
+		   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",3,frustum[3][0],frustum[3][1],frustum[3][2],frustum[3][3],t);
+	   }
 
 	   /* Extract the FAR plane */
 	   frustum[4][0] = clip[ 3] - clip[ 2];
@@ -1180,12 +1189,15 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	#else
 	   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
 	#endif
-	   frustum[4][0] /= t;
-	   frustum[4][1] /= t;
-	   frustum[4][2] /= t;
-	   frustum[4][3] /= t;
 
-	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",4,frustum[4][0],frustum[4][1],frustum[4][2],frustum[4][3],t);
+	   if(t != 0.0) {
+		   frustum[4][0] /= t;
+		   frustum[4][1] /= t;
+		   frustum[4][2] /= t;
+		   frustum[4][3] /= t;
+
+		   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",4,frustum[4][0],frustum[4][1],frustum[4][2],frustum[4][3],t);
+	   }
 
 	   /* Extract the NEAR plane */
 	   frustum[5][0] = clip[ 3] + clip[ 2];
@@ -1202,14 +1214,14 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
 	#endif
 
-	   //printf("b5t = %f\n",t);
+	   if(t != 0.0) {
+		   frustum[5][0] /= t;
+		   frustum[5][1] /= t;
+		   frustum[5][2] /= t;
+		   frustum[5][3] /= t;
 
-	   frustum[5][0] /= t;
-	   frustum[5][1] /= t;
-	   frustum[5][2] /= t;
-	   frustum[5][3] /= t;
-
-	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",5,frustum[5][0],frustum[5][1],frustum[5][2],frustum[5][3],t);
+		   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",5,frustum[5][0],frustum[5][1],frustum[5][2],frustum[5][3],t);
+	   }
    }
    return frustrumChanged;
 }
