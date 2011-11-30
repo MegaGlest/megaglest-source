@@ -101,8 +101,9 @@ protected:
 
 public:
 
-	VisibleQuadContainerCache() : frustumData(6,vector<float>(4,0)), proj(16,0), modl(16,0) {
+	VisibleQuadContainerCache() {
 		cacheFrame = 0;
+		clearFrustrumData();
 		clearCacheData();
 	}
 	VisibleQuadContainerCache(const VisibleQuadContainerCache &obj) {

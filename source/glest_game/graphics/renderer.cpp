@@ -1036,25 +1036,27 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    /* Get the current MODELVIEW matrix from OpenGL */
    glGetFloatv( GL_MODELVIEW_MATRIX, &modl[0] );
 
-   for(unsigned int i = 0; i < proj.size(); ++i) {
-	   //printf("\ni = %d proj [%f][%f] modl [%f][%f]\n",i,proj[i],quadCacheItem.proj[i],modl[i],quadCacheItem.modl[i]);
-	   if(proj[i] != quadCacheItem.proj[i]) {
-		   frustrumChanged = true;
-		   break;
-	   }
-	   if(modl[i] != quadCacheItem.modl[i]) {
-		   frustrumChanged = true;
-		   break;
-	   }
-   }
-   //if(quadCacheItem.proj != proj || quadCacheItem.modl != modl) {
-   if(frustrumChanged == true) {
-	   //frustrumChanged = true;
+//   for(unsigned int i = 0; i < proj.size(); ++i) {
+//	   //printf("\ni = %d proj [%f][%f] modl [%f][%f]\n",i,proj[i],quadCacheItem.proj[i],modl[i],quadCacheItem.modl[i]);
+//	   if(proj[i] != quadCacheItem.proj[i]) {
+//		   frustrumChanged = true;
+//		   break;
+//	   }
+//	   if(modl[i] != quadCacheItem.modl[i]) {
+//		   frustrumChanged = true;
+//		   break;
+//	   }
+//   }
+
+   if(quadCacheItem.proj != proj || quadCacheItem.modl != modl) {
+   //if(frustrumChanged == true) {
+	   frustrumChanged = true;
+	   vector<vector<float> > &frustum = quadCacheItem.frustumData;
+	   assert(frustum.size() == 6);
+	   assert(frustum[0].size() == 4);
 
 	   quadCacheItem.proj = proj;
 	   quadCacheItem.modl = modl;
-
-	   vector<vector<float> > &frustum = quadCacheItem.frustumData;
 
 	   float   clip[16];
 	   float   t=0;
@@ -1086,6 +1088,8 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   frustum[0][2] = clip[11] - clip[ 8];
 	   frustum[0][3] = clip[15] - clip[12];
 
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%da: [%f][%f][%f][%f]\n",0,frustum[0][0],frustum[0][1],frustum[0][2],frustum[0][3]);
+
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
 	   t = streflop::sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
@@ -1097,11 +1101,15 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   frustum[0][2] /= t;
 	   frustum[0][3] /= t;
 
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",0,frustum[0][0],frustum[0][1],frustum[0][2],frustum[0][3],t);
+
 	   /* Extract the numbers for the LEFT plane */
 	   frustum[1][0] = clip[ 3] + clip[ 0];
 	   frustum[1][1] = clip[ 7] + clip[ 4];
 	   frustum[1][2] = clip[11] + clip[ 8];
 	   frustum[1][3] = clip[15] + clip[12];
+
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%da: [%f][%f][%f][%f]\n",1,frustum[1][0],frustum[1][1],frustum[1][2],frustum[1][3]);
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
@@ -1114,11 +1122,15 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   frustum[1][2] /= t;
 	   frustum[1][3] /= t;
 
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",1,frustum[1][0],frustum[1][1],frustum[1][2],frustum[1][3],t);
+
 	   /* Extract the BOTTOM plane */
 	   frustum[2][0] = clip[ 3] + clip[ 1];
 	   frustum[2][1] = clip[ 7] + clip[ 5];
 	   frustum[2][2] = clip[11] + clip[ 9];
 	   frustum[2][3] = clip[15] + clip[13];
+
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%da: [%f][%f][%f][%f]\n",2,frustum[2][0],frustum[2][1],frustum[2][2],frustum[2][3]);
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
@@ -1131,11 +1143,15 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   frustum[2][2] /= t;
 	   frustum[2][3] /= t;
 
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",2,frustum[2][0],frustum[2][1],frustum[2][2],frustum[2][3],t);
+
 	   /* Extract the TOP plane */
 	   frustum[3][0] = clip[ 3] - clip[ 1];
 	   frustum[3][1] = clip[ 7] - clip[ 5];
 	   frustum[3][2] = clip[11] - clip[ 9];
 	   frustum[3][3] = clip[15] - clip[13];
+
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%da: [%f][%f][%f][%f]\n",3,frustum[3][0],frustum[3][1],frustum[3][2],frustum[3][3]);
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
@@ -1148,11 +1164,15 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   frustum[3][2] /= t;
 	   frustum[3][3] /= t;
 
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",3,frustum[3][0],frustum[3][1],frustum[3][2],frustum[3][3],t);
+
 	   /* Extract the FAR plane */
 	   frustum[4][0] = clip[ 3] - clip[ 2];
 	   frustum[4][1] = clip[ 7] - clip[ 6];
 	   frustum[4][2] = clip[11] - clip[10];
 	   frustum[4][3] = clip[15] - clip[14];
+
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%da: [%f][%f][%f][%f]\n",4,frustum[4][0],frustum[4][1],frustum[4][2],frustum[4][3]);
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
@@ -1165,11 +1185,15 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   frustum[4][2] /= t;
 	   frustum[4][3] /= t;
 
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",4,frustum[4][0],frustum[4][1],frustum[4][2],frustum[4][3],t);
+
 	   /* Extract the NEAR plane */
 	   frustum[5][0] = clip[ 3] + clip[ 2];
 	   frustum[5][1] = clip[ 7] + clip[ 6];
 	   frustum[5][2] = clip[11] + clip[10];
 	   frustum[5][3] = clip[15] + clip[14];
+
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%da: [%f][%f][%f][%f]\n",5,frustum[5][0],frustum[5][1],frustum[5][2],frustum[5][3]);
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
@@ -1177,10 +1201,15 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	#else
 	   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
 	#endif
+
+	   //printf("b5t = %f\n",t);
+
 	   frustum[5][0] /= t;
 	   frustum[5][1] /= t;
 	   frustum[5][2] /= t;
 	   frustum[5][3] /= t;
+
+	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustrum #%db: [%f][%f][%f][%f] t = %f\n",5,frustum[5][0],frustum[5][1],frustum[5][2],frustum[5][3],t);
    }
    return frustrumChanged;
 }
@@ -1250,12 +1279,15 @@ void Renderer::computeVisibleQuad() {
 			visibleQuad.p[2].x,visibleQuad.p[2].y,
 			visibleQuad.p[3].x,visibleQuad.p[3].y);
 
-		for(unsigned int i = 0; i < 6; ++i) {
-			printf("\nFrustrum #%d: ",i);
-			for(unsigned int j = 0; j < 4; ++j) {
+		for(unsigned int i = 0; i < quadCache.frustumData.size(); ++i) {
+			printf("\nFrustrum #%d [%d]: ",i,quadCache.frustumData.size());
+			vector<float> &frustumDataInner = quadCache.frustumData[i];
+			for(unsigned int j = 0; j < frustumDataInner.size(); ++j) {
 				printf("[%f]",quadCache.frustumData[i][j]);
 			}
 		}
+
+		printf("\nEND\n");
 	}
 
 	const bool newVisibleQuadCalc = false;
