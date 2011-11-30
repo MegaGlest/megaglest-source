@@ -887,7 +887,7 @@ void MainWindow::showLanguages() {
 			menuItems.push_back(testLanguage);
 		}
 	}
-	menuItems.push_back(lang.get("ExitGame?"));
+	menuItems.push_back(lang.get("Exit"));
 	cancelLanguageSelection = menuItems.size()-1;
 
 	popupMenu.setW(100);

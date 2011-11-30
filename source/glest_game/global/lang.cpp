@@ -23,6 +23,7 @@
 #include "gl_wrap.h"
 #include "core_data.h"
 #include "renderer.h"
+#include <algorithm>
 #include "leak_dumper.h"
 
 using namespace std;
@@ -349,6 +350,72 @@ string Lang::getLanguageFile(string uselanguage) {
 			}
 		}
 	}
+	return result;
+}
+
+string Lang::getNativeLanguageName(string uselanguage, string testLanguageFile) {
+	string result = uselanguage;
+	Properties stringsTest;
+	stringsTest.load(testLanguageFile);
+
+	try {
+		result = stringsTest.getString("NativeLanguageName");
+	}
+	catch(exception &ex) {
+	}
+
+	return result;
+}
+
+pair<string,string> Lang::getNavtiveNameFromLanguageName(string langName) {
+	pair<string,string> result;
+
+	//printf("looking for language [%s]\n",langName.c_str());
+
+	map<string,string> nativeList = Lang::getDiscoveredLanguageList();
+	for(map<string,string>::iterator iterMap = nativeList.begin();
+		iterMap != nativeList.end(); ++iterMap) {
+		//printf("language [%s][%s]\n",iterMap->second.c_str(), iterMap->first.c_str());
+
+		if(iterMap->second == langName) {
+			result = make_pair(iterMap->first,iterMap->second);
+			break;
+		}
+	}
+	return result;
+}
+
+map<string,string> Lang::getDiscoveredLanguageList() {
+	map<string,string> result;
+
+	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+    string userDataPath = getGameCustomCoreDataPath(data_path, "");
+
+    vector<string> langResults;
+	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
+	for(unsigned int i = 0; i < langResults.size(); ++i) {
+		string testLanguage = langResults[i];
+		string testLanguageFile = userDataPath + "data/lang/" + testLanguage + ".lng";
+		string nativeName = getNativeLanguageName(testLanguage, testLanguageFile);
+		result[nativeName] = testLanguage;
+	}
+
+	vector<string> langResults2;
+	findAll(data_path + "data/lang/*.lng", langResults2, true);
+	if(langResults2.empty() && langResults.empty()) {
+        throw runtime_error("There are no lang files");
+	}
+	for(unsigned int i = 0; i < langResults2.size(); ++i) {
+		string testLanguage = langResults2[i];
+		if(std::find(langResults.begin(),langResults.end(),testLanguage) == langResults.end()) {
+			langResults.push_back(testLanguage);
+
+			string testLanguageFile = data_path + "data/lang/" + testLanguage + ".lng";
+			string nativeName = getNativeLanguageName(testLanguage, testLanguageFile);
+			result[nativeName] = testLanguage;
+		}
+	}
+
 	return result;
 }
 
