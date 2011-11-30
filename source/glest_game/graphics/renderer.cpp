@@ -149,7 +149,7 @@ const int MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD = 25;
 
 const int OBJECT_SELECT_OFFSET=100000000;
 
-bool VisibleQuadContainerCache::enableFrustumCalcs = true;
+bool VisibleQuadContainerCache::enableFrustumCalcs = false;
 
 // ==================== constructor and destructor ====================
 
