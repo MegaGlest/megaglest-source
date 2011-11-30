@@ -12,6 +12,11 @@
 # [RCL] FIXME: is it future proof with names like lua5.1? Kubuntu does not provide
 # a generic (version-independent) include directory for LUA...
 
+OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+IF(WANT_STATIC_LIBS)
+	OPTION(LUA_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
+ENDIF()
+
 IF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 	#SET(LUA_FIND_QUIETLY TRUE)
 ENDIF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
@@ -26,12 +31,22 @@ FIND_PATH(LUA_INCLUDE_DIR NAMES lua.hpp
 				$ENV{LUA_HOME}
 		)
 
-FIND_LIBRARY(LUA_LIBRARIES NAMES lua5.1 lua
+IF (LUA_STATIC AND NOT LUA_LIBRARIES)
+	FIND_LIBRARY(LUA_LIBRARIES NAMES liblua5.1.a liblua.a lua5.1 lua
 		PATHS 
                 IF(FreeBSD)
                        SET(PATHS "/usr/local/lib/lua51")
                 ENDIF()
                 $ENV{LUA_HOME})
+
+ELSE()
+	FIND_LIBRARY(LUA_LIBRARIES NAMES lua5.1 lua
+		PATHS 
+                IF(FreeBSD)
+                       SET(PATHS "/usr/local/lib/lua51")
+                ENDIF()
+                $ENV{LUA_HOME})
+ENDIF()
 
 MESSAGE(STATUS "LUA_INC: ${LUA_INCLUDE_DIR}")
 MESSAGE(STATUS "LUA_LIB: ${LUA_LIBRARIES}")
