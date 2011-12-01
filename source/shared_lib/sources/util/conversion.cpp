@@ -117,12 +117,16 @@ string intToHex(int i){
 }
 
 string floatToStr(float f,int precsion) {
+	setlocale(LC_NUMERIC, "C");
+
 	char str[strSize]="";
 	snprintf(str, strSize-1, "%.*f", precsion,f);
 	return (str[0] != '\0' ? str : "");
 }
 
 string doubleToStr(double d,int precsion) {
+	setlocale(LC_NUMERIC, "C");
+
 	char str[strSize]="";
 	snprintf(str, strSize-1, "%.*f", precsion,d);
 	return (str[0] != '\0' ? str : "");
