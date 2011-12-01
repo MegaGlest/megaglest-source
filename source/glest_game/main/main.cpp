@@ -3553,6 +3553,16 @@ int glestMain(int argc, char** argv) {
 						}
 
 #ifndef WIN32
+						if (cinfd[0].revents & POLLNVAL) {
+							printf("invalid file descriptor\n");
+						}
+						if (cinfd[0].revents & POLLERR) {
+							printf("error in file descriptor\n");
+						}
+						if (cinfd[0].revents & POLLHUP) {
+							printf("hang up in file descriptor\n");
+						}
+
 						if(pollresult < 0) {
 							printf("pollresult = %d errno = %d [%s]\n",pollresult,pollerror,strerror(pollerror));
 
