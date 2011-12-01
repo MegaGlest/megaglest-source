@@ -4,9 +4,16 @@ MEGAGLEST CHANGELOG
 To see a timeline of detail changes please visit:
 http://sourceforge.net/apps/trac/megaglest/timeline
 
-
-v3.6.0( under construction ) v3.5.3-beta1
-
+v3.6.0
+- bugfixes reported in the bugs forum from beta1 and 2
+- iso639-1 style language loading example: megaglest --use-language=zh and auto language detect on first time launch
+- new and updated translations (Greek, Japanese, Russian, Italian, Czech etc)
+- auto complete player names in chat mode using tab character
+- customized port # override via commandline (useful for multiple headless servers) example: megaglest --use-ports=x,y (x is internal port y is external port)
+- new commandline option to support standalone modes example: megaglest --load-mod=x (x is the path to the mod)
+- new lua functions added (to be documented on the MG wiki)
+- lower CPU / RAM requirements in headless server mode
+- attack-boosts can be named and shared for proper re-use and singleton usage.
 - New font system and enhanced International language support (Chinese, Japanese, etc)
 - New intro
 - Enhanced AI plays smarter and responds more quickly
@@ -26,8 +33,6 @@ v3.6.0( under construction ) v3.5.3-beta1
 - Players are no longer dropped in game lobby when toggling maps (player status may show as unassigned network node if they are ina slot that is not applicable to the selected map)
 - Bugfixes for supported UPNP for auto router configuration when hosting games
 - many more...
-
-
 
 v3.5.2
 - Lots of work to make MegaGlest a Linux distro friendly package (Debian, Arch, etc)
