@@ -43,6 +43,7 @@
 //#include "JPGReader.h"
 //#include "sound.h"
 //#include "unicode/uclean.h"
+#include <locale.h>
 
 // For gcc backtrace on crash!
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -2913,6 +2914,20 @@ int glestMain(int argc, char** argv) {
 	            return -1;
 	        }
     	}
+    	else {
+    		char *lang_locale = setlocale(LC_ALL,"");
+    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Locale is: [%s]\n", lang_locale);
+
+    		if(lang_locale != NULL && strlen(lang_locale) >= 2) {
+    			if(config.getBool("AutoLocaleLanguageDetect","true") == true) {
+    				language = lang_locale;
+    				language = language.substr(0,2);
+    				printf("Auto setting language [%s]\n",language.c_str());
+
+    				config.setBool("AutoLocaleLanguageDetect",false);
+    			}
+    		}
+    	}
 
     	Renderer &renderer= Renderer::getInstance();
         lang.loadStrings(language,false, true);
@@ -3661,6 +3676,7 @@ int glestMain(int argc, char** argv) {
 }
 
 int glestMainWrapper(int argc, char** argv) {
+
 	//setlocale(LC_ALL, "zh_TW.UTF-8");
 	//setlocale(LC_ALL, "");
 
