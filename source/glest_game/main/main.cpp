@@ -44,6 +44,7 @@
 //#include "sound.h"
 //#include "unicode/uclean.h"
 #include <locale.h>
+#include "string_utils.h"
 
 // For gcc backtrace on crash!
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -2915,7 +2916,21 @@ int glestMain(int argc, char** argv) {
 	        }
     	}
     	else {
-    		char *lang_locale = setlocale(LC_ALL,"");
+
+#ifdef _WIN32
+			int localeBufferSize = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME, NULL, 0);
+			wchar_t *sysLocale = new wchar_t[localeBufferSize];
+			GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME, sysLocale,localeBufferSize);
+
+			//String langValue(sysLocale);
+			//const char *lang_locale = langValue.c_str();
+		    char langValue[1024]="";
+		    wcstombs(langValue,sysLocale, 1023);
+			const char *lang_locale = &langValue[0];
+#else
+			const char *lang_locale = setlocale(LC_ALL,"");
+#endif
+
     		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Locale is: [%s]\n", lang_locale);
 
     		if(lang_locale != NULL && strlen(lang_locale) >= 2) {
@@ -2924,7 +2939,8 @@ int glestMain(int argc, char** argv) {
     				language = language.substr(0,2);
     				printf("Auto setting language [%s]\n",language.c_str());
 
-    				config.setBool("AutoLocaleLanguageDetect",false);
+    				config.setString("AutoLocaleLanguageDetect","false");
+					config.save();
     			}
     		}
     	}
