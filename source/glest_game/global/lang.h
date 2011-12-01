@@ -55,7 +55,7 @@ public:
 	string getLanguage() const { return language; }
 	bool isLanguageLocal(string compareLanguage) const;
 	bool isUTF8Language() const;
-	map<string,string> getDiscoveredLanguageList();
+	map<string,string> getDiscoveredLanguageList(bool searchKeyIsLangName=false);
 	pair<string,string> getNavtiveNameFromLanguageName(string langName);
 };
 
