@@ -372,20 +372,15 @@ pair<string,string> Lang::getNavtiveNameFromLanguageName(string langName) {
 
 	//printf("looking for language [%s]\n",langName.c_str());
 
-	map<string,string> nativeList = Lang::getDiscoveredLanguageList();
-	for(map<string,string>::iterator iterMap = nativeList.begin();
-		iterMap != nativeList.end(); ++iterMap) {
-		//printf("language [%s][%s]\n",iterMap->second.c_str(), iterMap->first.c_str());
-
-		if(iterMap->second == langName) {
-			result = make_pair(iterMap->first,iterMap->second);
-			break;
-		}
+	map<string,string> nativeList = Lang::getDiscoveredLanguageList(true);
+	map<string,string>::iterator iterMap = nativeList.find(langName);
+	if(iterMap != nativeList.end()) {
+		result = make_pair(iterMap->second,iterMap->first);
 	}
 	return result;
 }
 
-map<string,string> Lang::getDiscoveredLanguageList() {
+map<string,string> Lang::getDiscoveredLanguageList(bool searchKeyIsLangName) {
 	map<string,string> result;
 
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
@@ -397,7 +392,12 @@ map<string,string> Lang::getDiscoveredLanguageList() {
 		string testLanguage = langResults[i];
 		string testLanguageFile = userDataPath + "data/lang/" + testLanguage + ".lng";
 		string nativeName = getNativeLanguageName(testLanguage, testLanguageFile);
-		result[nativeName] = testLanguage;
+		if(searchKeyIsLangName == false) {
+			result[nativeName] = testLanguage;
+		}
+		else {
+			result[testLanguage] = nativeName;
+		}
 	}
 
 	vector<string> langResults2;
@@ -412,7 +412,12 @@ map<string,string> Lang::getDiscoveredLanguageList() {
 
 			string testLanguageFile = data_path + "data/lang/" + testLanguage + ".lng";
 			string nativeName = getNativeLanguageName(testLanguage, testLanguageFile);
-			result[nativeName] = testLanguage;
+			if(searchKeyIsLangName == false) {
+				result[nativeName] = testLanguage;
+			}
+			else {
+				result[testLanguage] = nativeName;
+			}
 		}
 	}
 

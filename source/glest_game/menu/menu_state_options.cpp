@@ -308,10 +308,10 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 //			langResults.push_back(testLanguage);
 //		}
 //	}
-	languageList = Lang::getInstance().getDiscoveredLanguageList();
+	languageList = Lang::getInstance().getDiscoveredLanguageList(true);
 	for(map<string,string>::iterator iterMap = languageList.begin();
 		iterMap != languageList.end(); ++iterMap) {
-		langResults.push_back(iterMap->second + "-" + iterMap->first);
+		langResults.push_back(iterMap->first + "-" + iterMap->second);
 	}
 
     listBoxLang.setItems(langResults);
@@ -1005,7 +1005,7 @@ void MenuStateOptions::saveConfig(){
 	map<string,string>::iterator iterMap = languageList.begin();
 	std::advance(iterMap, listBoxLang.getSelectedItemIndex());
 
-	config.setString("Lang", iterMap->second);
+	config.setString("Lang", iterMap->first);
 	lang.loadStrings(config.getString("Lang"));
 
 	int index= listBoxShadows.getSelectedItemIndex();
