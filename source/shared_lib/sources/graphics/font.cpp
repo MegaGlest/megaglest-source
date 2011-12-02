@@ -157,6 +157,8 @@ float FontMetrics::getHeight(const string &str) const {
 // ===============================================
 
 Font::Font(FontTextHandlerType type) {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	inited		= false;
 	this->type	= fontTypeName;
 	width		= 400;

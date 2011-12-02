@@ -153,8 +153,8 @@ bool VisibleQuadContainerCache::enableFrustumCalcs = true;
 
 // ==================== constructor and destructor ====================
 
-Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
-	this->masterserverMode = masterserverMode;
+Renderer::Renderer() : BaseRenderer() {
+	//this->masterserverMode = masterserverMode;
 	//printf("this->masterserverMode = %d\n",this->masterserverMode);
 	//assert(0==1);
 
@@ -211,7 +211,7 @@ Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
 	gi.setFactory(fr.getGraphicsFactory(config.getString("FactoryGraphics")));
 	GraphicsFactory *graphicsFactory= GraphicsInterface::getInstance().getFactory();
 
-	if(this->masterserverMode == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		modelRenderer= graphicsFactory->newModelRenderer();
 		textRenderer= graphicsFactory->newTextRenderer2D();
 		textRenderer3D = graphicsFactory->newTextRenderer3D();
@@ -220,7 +220,7 @@ Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
 
 	//resources
 	for(int i=0; i< rsCount; ++i) {
-		if(this->masterserverMode == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			modelManager[i]= graphicsFactory->newModelManager();
 			textureManager[i]= graphicsFactory->newTextureManager();
 			modelManager[i]->setTextureManager(textureManager[i]);
@@ -322,14 +322,14 @@ bool Renderer::isEnded() {
 	return Renderer::rendererEnded;
 }
 
-Renderer &Renderer::getInstance(bool masterserverMode) {
-	static Renderer renderer(masterserverMode);
+Renderer &Renderer::getInstance() {
+	static Renderer renderer;
 	return renderer;
 }
 
 void Renderer::reinitAll() {
 	//resources
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 	for(int i=0; i<rsCount; ++i){
@@ -345,7 +345,7 @@ void Renderer::init() {
 	Config &config= Config::getInstance();
 	loadConfig();
 
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -395,7 +395,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -462,7 +462,7 @@ void Renderer::initMenu(const MainMenu *mm) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -553,7 +553,7 @@ void Renderer::endScenario() {
 	quadCache = VisibleQuadContainerCache();
 	quadCache.clearFrustrumData();
 
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -586,16 +586,24 @@ void Renderer::endGame(bool isFinalEnd) {
 	quadCache = VisibleQuadContainerCache();
 	quadCache.clearFrustrumData();
 
-	if(this->masterserverMode == true) {
-		return;
-	}
-
 	if(isFinalEnd) {
 		//delete resources
-		modelManager[rsGame]->end();
-		textureManager[rsGame]->end();
-		fontManager[rsGame]->end();
-		particleManager[rsGame]->end();
+		if(modelManager[rsGame] != NULL) {
+			modelManager[rsGame]->end();
+		}
+		if(textureManager[rsGame] != NULL) {
+			textureManager[rsGame]->end();
+		}
+		if(fontManager[rsGame] != NULL) {
+			fontManager[rsGame]->end();
+		}
+		if(particleManager[rsGame] != NULL) {
+			particleManager[rsGame]->end();
+		}
+	}
+
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
 	}
 
 	if(shadowMapHandleValid == true &&
@@ -617,10 +625,6 @@ void Renderer::endGame(bool isFinalEnd) {
 void Renderer::endMenu() {
 	this->menu = NULL;
 
-	if(this->masterserverMode == true) {
-		return;
-	}
-
 	//delete resources
 	if(modelManager[rsMenu]) {
 		modelManager[rsMenu]->end();
@@ -635,6 +639,10 @@ void Renderer::endMenu() {
 		particleManager[rsMenu]->end();
 	}
 
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(this->customlist3dMenu != NULL) {
 		glDeleteLists(*this->customlist3dMenu,1);
 	}
@@ -644,7 +652,7 @@ void Renderer::endMenu() {
 }
 
 void Renderer::reloadResources() {
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -664,7 +672,7 @@ void Renderer::reloadResources() {
 // ==================== engine interface ====================
 
 void Renderer::initTexture(ResourceScope rs, Texture *texture) {
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -676,7 +684,7 @@ void Renderer::endTexture(ResourceScope rs, Texture *texture, bool mustExistInLi
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] free texture from manager [%s]\n",__FILE__,__FUNCTION__,__LINE__,textureFilename.c_str());
 
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -693,7 +701,7 @@ void Renderer::endTexture(ResourceScope rs, Texture *texture, bool mustExistInLi
 	}
 }
 void Renderer::endLastTexture(ResourceScope rs, bool mustExistInList) {
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -701,7 +709,7 @@ void Renderer::endLastTexture(ResourceScope rs, bool mustExistInList) {
 }
 
 Model *Renderer::newModel(ResourceScope rs){
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return NULL;
 	}
 
@@ -709,14 +717,14 @@ Model *Renderer::newModel(ResourceScope rs){
 }
 
 void Renderer::endModel(ResourceScope rs, Model *model,bool mustExistInList) {
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
 	modelManager[rs]->endModel(model,mustExistInList);
 }
 void Renderer::endLastModel(ResourceScope rs, bool mustExistInList) {
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -724,7 +732,7 @@ void Renderer::endLastModel(ResourceScope rs, bool mustExistInList) {
 }
 
 Texture2D *Renderer::newTexture2D(ResourceScope rs){
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return NULL;
 	}
 
@@ -732,7 +740,7 @@ Texture2D *Renderer::newTexture2D(ResourceScope rs){
 }
 
 Texture3D *Renderer::newTexture3D(ResourceScope rs){
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return NULL;
 	}
 
@@ -740,7 +748,7 @@ Texture3D *Renderer::newTexture3D(ResourceScope rs){
 }
 
 Font2D *Renderer::newFont(ResourceScope rs){
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return NULL;
 	}
 
@@ -748,7 +756,7 @@ Font2D *Renderer::newFont(ResourceScope rs){
 }
 
 Font3D *Renderer::newFont3D(ResourceScope rs){
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return NULL;
 	}
 
@@ -756,7 +764,7 @@ Font3D *Renderer::newFont3D(ResourceScope rs){
 }
 
 void Renderer::endFont(Font *font, ResourceScope rs, bool mustExistInList) {
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -806,7 +814,7 @@ void Renderer::swapBuffers() {
 
 //places all the opengl lights
 void Renderer::setupLighting() {
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -5785,7 +5793,7 @@ string Renderer::getGlInfo(){
 	string infoStr="";
 	Lang &lang= Lang::getInstance();
 
-	if(this->masterserverMode == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		infoStr+= lang.get("OpenGlInfo")+":\n";
 		infoStr+= "   "+lang.get("OpenGlVersion")+": ";
 		infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
@@ -5811,7 +5819,7 @@ string Renderer::getGlMoreInfo(){
 	string infoStr="";
 	Lang &lang= Lang::getInstance();
 
-	if(this->masterserverMode == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		//gl extensions
 		infoStr+= lang.get("OpenGlExtensions")+":\n   ";
 
@@ -5846,7 +5854,7 @@ string Renderer::getGlMoreInfo(){
 }
 
 void Renderer::autoConfig() {
-	if(this->masterserverMode == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		Config &config= Config::getInstance();
 
 		bool nvidiaCard= toLower(getGlVendor()).find("nvidia")!=string::npos;
@@ -5909,7 +5917,7 @@ void Renderer::loadConfig() {
 	Texture2D::Filter textureFilter= strToTextureFilter(config.getString("Filter"));
 	int maxAnisotropy= config.getInt("FilterMaxAnisotropy");
 
-	if(this->masterserverMode == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		for(int i=0; i<rsCount; ++i){
 			textureManager[i]->setFilter(textureFilter);
 			textureManager[i]->setMaxAnisotropy(maxAnisotropy);

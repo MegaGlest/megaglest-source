@@ -300,7 +300,7 @@ private:
 
 	//std::map<Vec3f,Vec3f> worldToScreenPosCache;
 
-	bool masterserverMode;
+	//bool masterserverMode;
 
 	std::map<uint32,VisibleQuadContainerVBOCache > mapSurfaceVBOCache;
 
@@ -373,13 +373,13 @@ private:
 	bool CubeInFrustum(vector<vector<float> > &frustum, float x, float y, float z, float size );
 
 private:
-	Renderer(bool masterserverMode=false);
+	Renderer();
 	~Renderer();
 
 public:
-	static Renderer &getInstance(bool masterserverMode=false);
+	static Renderer &getInstance();
 	static bool isEnded();
-	bool isMasterserverMode() const { return masterserverMode; }
+	//bool isMasterserverMode() const { return masterserverMode; }
 
 	void reinitAll();
 

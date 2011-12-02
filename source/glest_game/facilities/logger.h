@@ -51,7 +51,7 @@ private:
 	bool cancelSelected;
 	GraphicButton buttonCancel;
 
-	bool masterserverMode;
+	//bool masterserverMode;
 
 private:
 	Logger();
@@ -60,7 +60,7 @@ private:
 public:
 	static Logger & getInstance();
 
-	void setMasterserverMode(bool value) { masterserverMode = value; }
+	//void setMasterserverMode(bool value) { masterserverMode = value; }
 
 	void setFile(const string &fileName)		{this->fileName= fileName;}
 	void setState(const string &state)			{this->state= state;}

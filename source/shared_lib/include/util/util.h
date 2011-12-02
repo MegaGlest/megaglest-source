@@ -18,6 +18,7 @@
 #include "thread.h"
 #include <curl/curl.h>
 #include <cstdio>
+#include <assert.h>
 #include "leak_dumper.h"
 
 using std::string;
@@ -25,7 +26,21 @@ using namespace Shared::Platform;
 
 //#define UNDEF_DEBUG
 
-namespace Shared{ namespace Util{
+namespace Shared { namespace Util {
+
+class GlobalStaticFlags {
+public:
+	static bool getIsNonGraphicalModeEnabled() {
+		return isNonGraphicalMode;
+	}
+
+	static void setIsNonGraphicalModeEnabled(bool value) {
+		isNonGraphicalMode = value;
+	}
+
+protected:
+	static bool isNonGraphicalMode;
+};
 
 class SystemFlags
 {
@@ -228,6 +243,8 @@ public:
         return m_map;
     }
 };
+
+
 }}//end namespace
 
 #endif

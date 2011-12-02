@@ -176,7 +176,7 @@ private:
 	string fileName;
 	string sourceLoader;
 
-	static bool masterserverMode;
+	//static bool masterserverMode;
 
 public:
 	//constructor & destructor
@@ -185,7 +185,7 @@ public:
 	virtual void init()= 0;
 	virtual void end()= 0;
 
-	static void setMasterserverMode(bool value) { masterserverMode=value; }
+	//static void setMasterserverMode(bool value) { masterserverMode=value; }
 
 	//data
 	void updateInterpolationData(float t, bool cycle);

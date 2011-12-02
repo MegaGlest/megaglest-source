@@ -521,6 +521,7 @@ private:
 	vector<ParticleSystem *> particleSystems;
 
 public:
+	ParticleManager();
 	~ParticleManager();
 	void update(int renderFps=-1);
 	void render(ParticleRenderer *pr, ModelRenderer *mr) const;	

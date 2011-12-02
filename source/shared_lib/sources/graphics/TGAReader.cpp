@@ -14,7 +14,7 @@
 #include "pixmap.h"
 #include <stdexcept>
 #include <iostream>
-
+#include "util.h"
 #include "leak_dumper.h"
 
 using std::runtime_error;
@@ -66,6 +66,7 @@ static inline std::vector<string> getExtensionStrings() {
 TGAReader3D::TGAReader3D(): FileReader<Pixmap3D>(getExtensionStrings()) {}
 
 Pixmap3D* TGAReader3D::read(ifstream& in, const string& path, Pixmap3D* ret) const {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	//read header
 	TargaFileHeader fileHeader;
 	in.read((char*)&fileHeader, sizeof(TargaFileHeader));

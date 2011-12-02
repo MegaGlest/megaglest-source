@@ -104,7 +104,7 @@ void MainMenu::render() {
 	incrementFps();
 
 	if(state->isMasterserverMode() == false) {
-		if(renderer.isMasterserverMode() == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			renderer.clearBuffers();
 
 			//3d
@@ -120,7 +120,7 @@ void MainMenu::render() {
 		}
 		state->render();
 
-		if(renderer.isMasterserverMode() == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 			renderer.renderFPSWhenEnabled(lastFps);
 			renderer.swapBuffers();

@@ -146,7 +146,7 @@ private:
     GraphicMessageBox msgBox;
     int skipRenderFrameCount;
 
-    bool masterserverMode;
+    //bool masterserverMode;
     bool shutdownApplicationEnabled;
     static bool wantShutdownApplicationAfterGame;
 
@@ -159,7 +159,7 @@ public:
     static void setWantShutdownApplicationAfterGame(bool value) { wantShutdownApplicationAfterGame = value; }
     static bool getWantShutdownApplicationAfterGame() { return wantShutdownApplicationAfterGame; }
 
-    bool isMasterserverMode() const;
+    //bool isMasterserverMode() const;
     bool isShutdownApplicationEnabled() const { return shutdownApplicationEnabled; }
     void setShutdownApplicationEnabled(bool value) { shutdownApplicationEnabled = value; }
 

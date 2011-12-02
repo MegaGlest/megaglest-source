@@ -13,7 +13,7 @@
 #include "types.h"
 #include "pixmap.h"
 #include <stdexcept>
-
+#include "util.h"
 #include "leak_dumper.h"
 
 using std::runtime_error;
@@ -75,6 +75,8 @@ BMPReader::BMPReader(): FileReader<Pixmap2D>(getExtensionsBmp()) {}
   *Path is used for printing error messages
   *@return <code>NULL</code> if the Pixmap2D could not be read, else the pixmap*/
 Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	//read file header
 	BitmapFileHeader fileHeader;
 	in.read((char*)&fileHeader, sizeof(BitmapFileHeader));

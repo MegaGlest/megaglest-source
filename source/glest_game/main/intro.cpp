@@ -611,7 +611,7 @@ void Intro::renderModelBackground() {
 
 void Intro::render() {
 	Renderer &renderer= Renderer::getInstance();
-	if(renderer.isMasterserverMode() == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 	int difTime=0;

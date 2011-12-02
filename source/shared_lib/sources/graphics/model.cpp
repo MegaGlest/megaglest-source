@@ -34,7 +34,7 @@ namespace Shared{ namespace Graphics{
 
 using namespace Util;
 
-bool Model::masterserverMode = false;
+//bool Model::masterserverMode = false;
 
 // =====================================================
 //	class Mesh
@@ -711,6 +711,7 @@ void Mesh::deletePixels() {
 // ==================== constructor & destructor ====================
 
 Model::Model() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	meshCount		= 0;
 	meshes			= NULL;
 	textureManager	= NULL;
@@ -779,7 +780,7 @@ void Model::load(const string &path, bool deletePixMapAfterLoad,
 	this->sourceLoader = (sourceLoader != NULL ? *sourceLoader : "");
 	this->fileName = path;
 
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 	string extension= path.substr(path.find_last_of('.') + 1);

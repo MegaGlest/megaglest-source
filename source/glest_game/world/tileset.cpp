@@ -191,7 +191,9 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			for(int j=0; j<childCount; ++j){
 				const XmlNode *textureNode= surfaceNode->getChild("texture", j);
 				surfPixmaps[i][j].init(3);
-				surfPixmaps[i][j].load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+					surfPixmaps[i][j].load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+				}
 				loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
 
 				surfProbs[i][j]= textureNode->getAttribute("prob")->getFloatValue();

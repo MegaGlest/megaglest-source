@@ -61,13 +61,13 @@ protected:
 	float volume;
 	string fileName;
 	
-	static bool masterserverMode;
+	//static bool masterserverMode;
 
 public:
 	Sound();
 	virtual ~Sound(){};
 
-	static void setMasterserverMode(bool value) { masterserverMode=value; }
+	//static void setMasterserverMode(bool value) { masterserverMode=value; }
 
 	const SoundInfo *getInfo() const	{return &info;}
 	float getVolume() const				{return volume;}

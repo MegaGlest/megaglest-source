@@ -74,7 +74,7 @@ bool ProgramState::canRender(bool sleepIfCannotRender) {
 	int maxFPSCap = Config::getInstance().getInt("RenderFPSCap","500");
 	int sleepMillis = Config::getInstance().getInt("RenderFPSCapSleepMillis","1");
 	Renderer &renderer= Renderer::getInstance();
-	if(renderer.isMasterserverMode() == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		maxFPSCap = Config::getInstance().getInt("RenderFPSCapHeadless","250");
 		sleepMillis = Config::getInstance().getInt("RenderFPSCapHeadlessSleepMillis","1");
 	}
@@ -95,7 +95,7 @@ void ProgramState::render() {
 	canRender();
 	incrementFps();
 
-	if(renderer.isMasterserverMode() == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		renderer.clearBuffers();
 		renderer.reset2d();
 		renderer.renderMessageBox(program->getMsgBox());
@@ -171,7 +171,7 @@ void Program::ShowMessageProgramState::update() {
 // ===================== PUBLIC ========================
 
 Program::Program() {
-	this->masterserverMode = false;
+	//this->masterserverMode = false;
 	this->shutdownApplicationEnabled = false;
 	this->skipRenderFrameCount = 0;
 	this->programState= NULL;
@@ -184,9 +184,9 @@ Program::Program() {
 	msgBox.setEnabled(false);
 }
 
-bool Program::isMasterserverMode() const {
-	return this->masterserverMode;
-}
+//bool Program::isMasterserverMode() const {
+//	return this->masterserverMode;
+//}
 
 void Program::initNormal(WindowGl *window){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -204,7 +204,7 @@ void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots,
 		bool masterserverMode) {
 	MainMenu* mainMenu= NULL;
 
-	this->masterserverMode = masterserverMode;
+	//this->masterserverMode = masterserverMode;
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
@@ -322,7 +322,7 @@ void Program::loopWorker() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ================================= MAIN LOOP START ================================= \n",__FILE__,__FUNCTION__,__LINE__);
 
 	Renderer &renderer= Renderer::getInstance();
-	if(renderer.isMasterserverMode() == false && window) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && window) {
 		MainWindow *mainWindow = dynamic_cast<MainWindow *>(window);
 		if(mainWindow) {
 			//mainWindow->render();
@@ -445,7 +445,7 @@ void Program::renderProgramMsgBox() {
 		renderer.renderMessageBox(&msgBox);
 	}
 
-	if(renderer.isMasterserverMode() == false && window) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && window) {
 		MainWindow *mainWindow = dynamic_cast<MainWindow *>(window);
 		if(mainWindow) {
 			mainWindow->render();

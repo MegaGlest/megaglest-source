@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest Shared Library (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under 
 //	the terms of the GNU General Public License as published 
@@ -15,13 +15,20 @@
 
 #include "graphics_interface.h"
 #include "graphics_factory.h"
+#include "util.h"
 #include "leak_dumper.h"
+
+using namespace Shared::Util;
 
 namespace Shared{ namespace Graphics{
 
 // =====================================================
 //	class ShaderManager
 // =====================================================
+
+ShaderManager::ShaderManager() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+}
 
 ShaderManager::~ShaderManager(){
 }

@@ -35,7 +35,7 @@ protected:
 	string logString;
 
 public:
-	ShaderManager(){}
+	ShaderManager();
 	virtual ~ShaderManager();
 
 	ShaderProgram *newShaderProgram();
