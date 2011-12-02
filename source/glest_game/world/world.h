@@ -82,7 +82,7 @@ public:
 	static time_t lastDebug;
 };
 
-class World{
+class World {
 private:
 	typedef vector<Faction *> Factions;
 
@@ -257,6 +257,12 @@ public:
 	bool showWorldForPlayer(int factionIndex) const;
 
 	UnitUpdater * getUnitUpdater() { return &unitUpdater; }
+
+	void removeResourceTargetFromCache(const Vec2i &pos);
+
+	string getExploredCellsLookupItemCacheStats();
+	string getFowAlphaCellsLookupItemCacheStats();
+	string getAllFactionsCacheStats();
 
 private:
 

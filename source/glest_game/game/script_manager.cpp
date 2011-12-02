@@ -62,7 +62,20 @@ const int ScriptManager::messageWrapCount= 30;
 const int ScriptManager::displayTextWrapCount= 64;
 
 ScriptManager::ScriptManager() {
-
+	world = NULL;
+	gameCamera = NULL;
+	lastCreatedUnitId = -1;
+	lastDeadUnitId = 0;
+	lastDeadUnitCauseOfDeath = 0;
+	lastDeadUnitKillerId = 0;
+	lastAttackedUnitId = 0;
+	lastAttackingUnitId = 0;
+	gameOver = false;
+	gameWon = false;
+	currentTimerTriggeredEventId = 0;
+	currentCellTriggeredEventId = 0;
+	currentEventId = 0;
+	inCellTriggerEvent = false;
 }
 
 ScriptManager::~ScriptManager() {

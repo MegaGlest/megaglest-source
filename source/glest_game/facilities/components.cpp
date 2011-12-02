@@ -335,6 +335,12 @@ bool GraphicButton::mouseMove(int x, int y){
 const int GraphicListBox::defH= 22;
 const int GraphicListBox::defW= 140;
 
+GraphicListBox::GraphicListBox(std::string containerName, std::string objName)
+: GraphicComponent(containerName, objName) {
+    selectedItemIndex = 0;
+    lighted = false;
+}
+
 void GraphicListBox::init(int x, int y, int w, int h, Vec3f textColor){
 	GraphicComponent::init(x, y, w, h);
 
@@ -450,6 +456,13 @@ bool GraphicListBox::mouseClick(int x, int y){
 const int GraphicMessageBox::defH= 240;
 const int GraphicMessageBox::defW= 350;
 
+GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objName)
+: GraphicComponent(containerName, objName) {
+	buttonCount = 0;
+	header = "";
+}
+
+
 void GraphicMessageBox::init(const string &button1Str, const string &button2Str, int newWidth,int newHeight) {
 	init(button1Str,newWidth,newHeight);
 
@@ -546,6 +559,11 @@ bool GraphicMessageBox::mouseClick(int x, int y, int &clickedButton){
 const int GraphicLine::defH= 5;
 const int GraphicLine::defW= 1000;
 
+GraphicLine::GraphicLine(std::string containerName, std::string objName)
+: GraphicComponent(containerName, objName) {
+	horizontal = false;
+}
+
 void GraphicLine::init(int x, int y, int w, int h){
 	GraphicComponent::init(x, y, w, h);
 	horizontal=true;
@@ -557,6 +575,12 @@ void GraphicLine::init(int x, int y, int w, int h){
 
 const int GraphicCheckBox::defH= 22;
 const int GraphicCheckBox::defW= 22;
+
+GraphicCheckBox::GraphicCheckBox(std::string containerName, std::string objName)
+: GraphicComponent(containerName, objName) {
+	value = false;
+	lighted = false;
+}
 
 void GraphicCheckBox::init(int x, int y, int w, int h){
 	GraphicComponent::init(x, y, w, h);
@@ -590,6 +614,19 @@ bool GraphicCheckBox::mouseClick(int x, int y){
 
 const int GraphicScrollBar::defThickness=20;
 const int GraphicScrollBar::defLength= 200;
+
+GraphicScrollBar::GraphicScrollBar(std::string containerName, std::string objName)
+: GraphicComponent(containerName, objName) {
+	lighted = false;
+	horizontal = false;
+	elementCount = 0;
+	visibleSize = 0;
+	visibleStart = 0;
+
+	// position on component for renderer
+	visibleCompPosStart = 0;
+	visibleCompPosEnd = 0;
+}
 
 void GraphicScrollBar::init(int x, int y, bool horizontal,int length, int thickness){
 	GraphicComponent::init(x, y, horizontal?length:thickness,horizontal?thickness:length );

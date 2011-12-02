@@ -33,6 +33,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
+	this->triggerIdMutex = new Mutex();
 	this->slotIndex = slotIndex;
 	this->slotInterface = NULL;
 	//this->event = NULL;
@@ -41,10 +42,16 @@ ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
 }
 
 ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
+	this->triggerIdMutex = new Mutex();
 	this->slotIndex = slotIndex;
 	this->slotInterface = slotInterface;
 	//this->event = NULL;
 	eventList.clear();
+}
+
+ConnectionSlotThread::~ConnectionSlotThread() {
+	delete triggerIdMutex;
+	triggerIdMutex = NULL;
 }
 
 void ConnectionSlotThread::setQuitStatus(bool value) {
@@ -60,7 +67,7 @@ void ConnectionSlotThread::setQuitStatus(bool value) {
 
 void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 	if(event != NULL) {
-		MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
+		MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
 		eventList.push_back(*event);
 		safeMutex.ReleaseLock();
 	}
@@ -69,7 +76,7 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 
 void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	if(eventId > 0) {
-		MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
+		MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
 		//event->eventCompleted = true;
 		for(int i = 0; i < eventList.size(); ++i) {
 		    ConnectionSlotEvent &slotEvent = eventList[i];
@@ -84,13 +91,13 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 }
 
 void ConnectionSlotThread::purgeAllEvents() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
+    MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
     eventList.clear();
     safeMutex.ReleaseLock();
 }
 
 void ConnectionSlotThread::setAllEventsCompleted() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
+    MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
     for(int i = 0; i < eventList.size(); ++i) {
         ConnectionSlotEvent &slotEvent = eventList[i];
         if(slotEvent.eventCompleted == false) {
@@ -101,7 +108,7 @@ void ConnectionSlotThread::setAllEventsCompleted() {
 }
 
 void ConnectionSlotThread::purgeCompletedEvents() {
-    MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
+    MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
     //event->eventCompleted = true;
     for(int i = eventList.size() - 1; i >= 0; i--) {
         ConnectionSlotEvent &slotEvent = eventList[i];
@@ -123,7 +130,7 @@ bool ConnectionSlotThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
-	MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
+	MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
 	bool result = false;
     if(event != NULL) {
         for(int i = 0; i < eventList.size(); ++i) {
@@ -177,7 +184,7 @@ void ConnectionSlotThread::execute() {
 				break;
 			}
 
-            MutexSafeWrapper safeMutex(&triggerIdMutex,CODE_AT_LINE);
+            MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
             int eventCount = eventList.size();
             if(eventCount > 0) {
                 ConnectionSlotEvent eventCopy;
@@ -233,9 +240,12 @@ void ConnectionSlotThread::execute() {
 // =====================================================
 
 ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex) {
-
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+	this->mutexSocket = new Mutex();
+	this->mutexCloseConnection = new Mutex();
+	this->mutexPendingNetworkCommandList = new Mutex();
+	this->socketSynchAccessor = new Mutex();
     this->connectedRemoteIPAddress = 0;
 	this->sessionKey 		= 0;
 	this->serverInterface	= serverInterface;
@@ -282,6 +292,18 @@ ConnectionSlot::~ConnectionSlot() {
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	slotThreadWorker = NULL;
+
+	delete socketSynchAccessor;
+	socketSynchAccessor = NULL;
+
+	delete mutexPendingNetworkCommandList;
+	mutexPendingNetworkCommandList = NULL;
+
+	delete mutexCloseConnection;
+	mutexCloseConnection = NULL;
+
+	delete mutexSocket;
+	mutexSocket = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -372,7 +394,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						//printf("Got new connection for slot = %d\n",playerIndex);
 
-						MutexSafeWrapper safeMutex(&mutexCloseConnection,CODE_AT_LINE);
+						MutexSafeWrapper safeMutex(mutexCloseConnection,CODE_AT_LINE);
 						this->setSocket(newSocket);
 						safeMutex.ReleaseLock();
 
@@ -390,7 +412,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-						MutexSafeWrapper safeMutexSlot1(&mutexPendingNetworkCommandList,CODE_AT_LINE);
+						MutexSafeWrapper safeMutexSlot1(mutexPendingNetworkCommandList,CODE_AT_LINE);
 						this->vctPendingNetworkCommandList.clear();
 						safeMutexSlot1.ReleaseLock();
 
@@ -545,7 +567,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									lastReceiveCommandListTime = time(NULL);
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
-									MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,CODE_AT_LINE);
+									MutexSafeWrapper safeMutexSlot(mutexPendingNetworkCommandList,CODE_AT_LINE);
 									for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
@@ -1026,7 +1048,7 @@ void ConnectionSlot::close() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	MutexSafeWrapper safeMutex(&mutexCloseConnection,CODE_AT_LINE);
+	MutexSafeWrapper safeMutex(mutexCloseConnection,CODE_AT_LINE);
 
 	bool updateServerListener = (this->getSocket() != NULL);
 	this->deleteSocket();
@@ -1066,7 +1088,7 @@ bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 }
 
 void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
-	MutexSafeWrapper safeMutex(&socketSynchAccessor,CODE_AT_LINE);
+	MutexSafeWrapper safeMutex(socketSynchAccessor,CODE_AT_LINE);
 
 	// Skip text messages not intended for the players preferred language
 	const NetworkMessageText *textMsg = dynamic_cast<const NetworkMessageText *>(networkMessage);
@@ -1088,7 +1110,7 @@ string ConnectionSlot::getHumanPlayerName(int index) {
 
 vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearList) {
 	vector<NetworkCommand> ret;
-	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(mutexPendingNetworkCommandList,CODE_AT_LINE);
     if(vctPendingNetworkCommandList.empty() == false) {
     	ret = vctPendingNetworkCommandList;
 		if(clearList == true) {
@@ -1101,7 +1123,7 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
 }
 
 void ConnectionSlot::clearPendingNetworkCommandList() {
-	MutexSafeWrapper safeMutexSlot(&mutexPendingNetworkCommandList,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(mutexPendingNetworkCommandList,CODE_AT_LINE);
 	if(vctPendingNetworkCommandList.empty() == false) {
 		vctPendingNetworkCommandList.clear();
 	}
@@ -1112,7 +1134,7 @@ bool ConnectionSlot::hasValidSocketId() {
     //bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
     //return result;
     bool result = false;
-    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+    MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
     if(socket != NULL && socket->getSocketId() > 0) {
     	result = true;
     }
@@ -1122,7 +1144,7 @@ bool ConnectionSlot::hasValidSocketId() {
 
 bool ConnectionSlot::isConnected() {
     bool result = false;
-    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+    MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
     if(socket != NULL && socket->isConnected() == true) {
     	result = true;
     }
@@ -1131,7 +1153,7 @@ bool ConnectionSlot::isConnected() {
 
 PLATFORM_SOCKET ConnectionSlot::getSocketId() {
 	PLATFORM_SOCKET result = 0;
-	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
 	if(socket != NULL) {
 		result = socket->getSocketId();
 	}
@@ -1140,7 +1162,7 @@ PLATFORM_SOCKET ConnectionSlot::getSocketId() {
 
 pair<bool,Socket*> ConnectionSlot::getSocketInfo()	{
 	pair<bool,Socket*> result;
-	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
 	result.first = (socket != NULL && socket->isConnected());
 	result.second = socket;
 
@@ -1151,25 +1173,25 @@ pair<bool,Socket*> ConnectionSlot::getSocketInfo()	{
 Socket* ConnectionSlot::getSocket(bool mutexLock)	{
 	MutexSafeWrapper safeMutexSlot(NULL,CODE_AT_LINE);
 	if(mutexLock == true) {
-		safeMutexSlot.setMutex(&mutexSocket,CODE_AT_LINE);
+		safeMutexSlot.setMutex(mutexSocket,CODE_AT_LINE);
 	}
 	return socket;
 }
 
 void ConnectionSlot::setSocket(Socket *newSocket) {
-	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
 	socket = newSocket;
 }
 
 void ConnectionSlot::deleteSocket() {
-	MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
 	delete socket;
 	socket = NULL;
 }
 
 bool ConnectionSlot::hasDataToRead() {
     bool result = false;
-    MutexSafeWrapper safeMutexSlot(&mutexSocket,CODE_AT_LINE);
+    MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
 
 	if(socket != NULL && socket->hasDataToRead() == true) {
 		result = true;

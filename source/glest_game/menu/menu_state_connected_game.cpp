@@ -124,7 +124,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int aHeadPos=240;
 	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
-	int networkPos=networkHeadPos-labelOffset;
+	//int networkPos=networkHeadPos-labelOffset;
 	int xoffset=0;
 
 	//state
@@ -1100,8 +1100,8 @@ void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButton) {
 
     try {
-        CoreData &coreData= CoreData::getInstance();
-        SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+        //CoreData &coreData= CoreData::getInstance();
+        //SoundRenderer &soundRenderer= SoundRenderer::getInstance();
         //int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
 
         if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
@@ -1316,7 +1316,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 //}
 
                 //ensure thet only 1 human player is present
-                int oldSelectedIndex = listBoxControls[i].getSelectedItemIndex();
+                //int oldSelectedIndex = listBoxControls[i].getSelectedItemIndex();
                 if(clientInterface != NULL && clientInterface->getGameSettings() != NULL &&
                 		clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxControls[i].mouseClick(x, y)) {
@@ -3708,7 +3708,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             // Reload tilesets for the UI
             findDirs(Config::getInstance().getPathListForType(ptTechs), techTreeFiles);
 
-            int initialTechSelection=0;
+            //int initialTechSelection=0;
             std::vector<string> techsFormatted = techTreeFiles;
         	for(int i= 0; i < techsFormatted.size(); i++){
         		techsFormatted.at(i)= formatString(techsFormatted.at(i));

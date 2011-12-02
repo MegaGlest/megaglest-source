@@ -78,6 +78,10 @@ CoreData::CoreData() {
 }
 
 CoreData::~CoreData() {
+	cleanup();
+}
+
+void CoreData::cleanup() {
 	deleteValues(waterSounds.getSoundsPtr()->begin(), waterSounds.getSoundsPtr()->end());
 	waterSounds.getSoundsPtr()->clear();
 }
@@ -167,7 +171,7 @@ void CoreData::load() {
     	}
     }
 
-	if(logoTextureList.size() == 0) {
+	if(logoTextureList.empty() == true) {
 		logosPath= data_path + "data/core/menu/textures/logo*.*";
 		vector<string> logoFilenames;
 		findAll(logosPath, logoFilenames, false, false);
@@ -200,7 +204,7 @@ void CoreData::load() {
     		}
     	//}
     }
-    if(miscTextureList.size() == 0) {
+    if(miscTextureList.empty() == true) {
 		introPath= data_path + "data/core/menu/textures/intro*.*";
 		vector<string> introFilenames;
 		findAll(introPath, introFilenames, false, false);

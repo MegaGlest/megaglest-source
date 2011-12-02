@@ -33,7 +33,7 @@ using Shared::Graphics::Vec3f;
 
 typedef vector<ObjectParticleSystemType*> ModelParticleSystemTypes;
 
-class TilesetModelType{
+class TilesetModelType {
 private:
 	Model *model;
 	ModelParticleSystemTypes particleTypes;
@@ -41,6 +41,11 @@ private:
 	bool rotationAllowed;
 
 public:
+	TilesetModelType() {
+		model = NULL;
+		height = 0;
+		rotationAllowed = false;
+	}
 	~TilesetModelType();
 
 	void addParticleSystem(ObjectParticleSystemType *particleSystem);

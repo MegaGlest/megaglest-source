@@ -1277,7 +1277,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 							if (r->decAmount(1)) {
 								const ResourceType *rt = r->getType();
 								sc->deleteResource();
-								unit->getFaction()->removeResourceTargetFromCache(unitTargetPos);
+								world->removeResourceTargetFromCache(unitTargetPos);
 
 								switch(this->game->getGameSettings()->getPathFinderType()) {
 									case pfBasic:
@@ -2178,26 +2178,28 @@ bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vect
 	bool result = false;
 	//return result;
 
-	MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
-	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterFind = UnitRangeCellsLookupItemCache.find(center);
+	if(game->isMasterserverMode() == false) {
+		MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
+		std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterFind = UnitRangeCellsLookupItemCache.find(center);
 
-	if(iterFind != UnitRangeCellsLookupItemCache.end()) {
-		std::map<int, std::map<int, UnitRangeCellsLookupItem > >::iterator iterFind3 = iterFind->second.find(size);
-		if(iterFind3 != iterFind->second.end()) {
-			std::map<int, UnitRangeCellsLookupItem>::iterator iterFind4 = iterFind3->second.find(range);
-			if(iterFind4 != iterFind3->second.end()) {
-				result = true;
+		if(iterFind != UnitRangeCellsLookupItemCache.end()) {
+			std::map<int, std::map<int, UnitRangeCellsLookupItem > >::iterator iterFind3 = iterFind->second.find(size);
+			if(iterFind3 != iterFind->second.end()) {
+				std::map<int, UnitRangeCellsLookupItem>::iterator iterFind4 = iterFind3->second.find(range);
+				if(iterFind4 != iterFind3->second.end()) {
+					result = true;
 
-				std::vector<Cell *> &cellList = iterFind4->second.rangeCellList;
-				for(int idx = 0; idx < cellList.size(); ++idx) {
-					Cell *cell = cellList[idx];
+					std::vector<Cell *> &cellList = iterFind4->second.rangeCellList;
+					for(int idx = 0; idx < cellList.size(); ++idx) {
+						Cell *cell = cellList[idx];
 
-					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
+						findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
+					}
 				}
 			}
 		}
+		safeMutex.ReleaseLock();
 	}
-	safeMutex.ReleaseLock();
 
 	return result;
 }
@@ -2299,7 +2301,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 		}
 
 		// Ok update our caches with the latest info
-		if(cacheItem.rangeCellList.size() > 0) {
+		if(cacheItem.rangeCellList.empty() == false) {
 			MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
 
 			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
@@ -2483,7 +2485,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 		}
 
 		// Ok update our caches with the latest info
-		if(cacheItem.rangeCellList.size() > 0) {
+		if(cacheItem.rangeCellList.empty() == false) {
 			MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
 
 			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
@@ -2537,6 +2539,41 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 	return units;
 }
 
+string UnitUpdater::getUnitRangeCellsLookupItemCacheStats() {
+	string result = "";
+
+	int posCount = 0;
+	int sizeCount = 0;
+	int rangeCount = 0;
+	int rangeCountCellCount = 0;
+
+	Mutex mutexUnitRangeCellsLookupItemCache;
+	//std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
+	for(std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterMap1 = UnitRangeCellsLookupItemCache.begin();
+		iterMap1 != UnitRangeCellsLookupItemCache.end(); ++iterMap1) {
+		posCount++;
+
+		for(std::map<int, std::map<int, UnitRangeCellsLookupItem > >::iterator iterMap2 = iterMap1->second.begin();
+			iterMap2 != iterMap1->second.end(); ++iterMap2) {
+			sizeCount++;
+
+			for(std::map<int, UnitRangeCellsLookupItem>::iterator iterMap3 = iterMap2->second.begin();
+				iterMap3 != iterMap2->second.end(); ++iterMap3) {
+				rangeCount++;
+
+				rangeCountCellCount += iterMap3->second.rangeCellList.size();
+			}
+		}
+	}
+
+	uint64 totalBytes = rangeCountCellCount * sizeof(Cell *);
+	totalBytes /= 1000;
+
+	char szBuf[1024]="";
+	sprintf(szBuf,"pos [%d] size [%d] range [%d][%d] total KB: %s",posCount,sizeCount,rangeCount,rangeCountCellCount,formatNumber(totalBytes).c_str());
+	result = szBuf;
+	return result;
+}
 // =====================================================
 //	class ParticleDamager
 // =====================================================

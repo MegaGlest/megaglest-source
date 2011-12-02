@@ -28,7 +28,7 @@ class Gui;
 ///	List of selected units and groups
 // =====================================================
 
-class Selection: public UnitObserver{
+class Selection: public UnitObserver {
 public:
 	typedef vector<Unit*> UnitContainer;
 	typedef UnitContainer::const_iterator UnitIterator;
@@ -45,6 +45,11 @@ private:
 	Gui *gui;
 
 public:
+	Selection() : UnitObserver() {
+		factionIndex = 0;
+		teamIndex = 0;
+		gui = NULL;
+	}
 	void init(Gui *gui, int factionIndex, int teamIndex);
 	virtual ~Selection();
 

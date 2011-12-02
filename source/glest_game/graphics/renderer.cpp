@@ -162,6 +162,7 @@ Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
 	this->game = NULL;
+	this->gameCamera = NULL;
 	showDebugUI = false;
 	showDebugUILevel = debugui_fps;
 	modelRenderer = NULL;
@@ -172,6 +173,9 @@ Renderer::Renderer(bool masterserverMode) : BaseRenderer() {
 	mapSurfaceData.clear();
 	visibleFrameUnitList.clear();
 	visibleFrameUnitListCameraKey = "";
+
+	quadCache = VisibleQuadContainerCache();
+	quadCache.clearFrustrumData();
 
 	lastRenderFps=MIN_FPS_NORMAL_RENDERING;
 	shadowsOffDueToMinRender=false;
@@ -282,8 +286,12 @@ Renderer::~Renderer() {
     cleanupScreenshotThread();
 
 	mapSurfaceData.clear();
+	quadCache = VisibleQuadContainerCache();
+	quadCache.clearFrustrumData();
+
 	this->menu = NULL;
 	this->game = NULL;
+	this->gameCamera = NULL;
 }
 
 void Renderer::simpleTask(BaseThread *callingThread) {
@@ -368,9 +376,10 @@ void Renderer::init() {
 
 }
 
-void Renderer::initGame(const Game *game){
+void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	this->gameCamera = gameCamera;
 	VisibleQuadContainerCache::enableFrustumCalcs = Config::getInstance().getBool("EnableFrustrumCalcs","true");
 	quadCache = VisibleQuadContainerCache();
 	quadCache.clearFrustrumData();
@@ -501,6 +510,9 @@ void Renderer::reset3dMenu() {
 // ==================== end ====================
 
 void Renderer::end() {
+	quadCache = VisibleQuadContainerCache();
+	quadCache.clearFrustrumData();
+
 	if(Renderer::rendererEnded == true) {
 		return;
 	}
@@ -536,7 +548,10 @@ void Renderer::end() {
 }
 
 void Renderer::endScenario() {
-	game= NULL;
+	this->game= NULL;
+	this->gameCamera = NULL;
+	quadCache = VisibleQuadContainerCache();
+	quadCache.clearFrustrumData();
 
 	if(this->masterserverMode == true) {
 		return;
@@ -565,7 +580,8 @@ void Renderer::endScenario() {
 }
 
 void Renderer::endGame(bool isFinalEnd) {
-	game= NULL;
+	this->game= NULL;
+	this->gameCamera = NULL;
 
 	quadCache = VisibleQuadContainerCache();
 	quadCache.clearFrustrumData();
@@ -1287,8 +1303,7 @@ bool Renderer::CubeInFrustum(vector<vector<float> > &frustum, float x, float y, 
 }
 
 void Renderer::computeVisibleQuad() {
-	const GameCamera *gameCamera = game->getGameCamera();
-	visibleQuad = gameCamera->computeVisibleQuad();
+	visibleQuad = this->gameCamera->computeVisibleQuad();
 
 	//Matrix4 LookAt( gameCamera->getPos(), gameCamera->getPos(), Vector3 up );
 	//gluLookAt
@@ -1391,7 +1406,7 @@ void Renderer::computeVisibleQuad() {
 			}
 
 			if((tl.y > bl.y) || (tr.y > br.y)) {
-				visibleQuad = game->getGameCamera()->computeVisibleQuad();
+				visibleQuad = this->gameCamera->computeVisibleQuad();
 
 				if(debug) printf("Swap Y???\n");
 
@@ -1446,7 +1461,7 @@ void Renderer::computeVisibleQuad() {
 		catch(PROJECTION_TO_INFINITY e) {
 			if(debug) printf("hmm staring at the horizon %d\n",(int)e);
 			// use historic code solution
-			visibleQuad = game->getGameCamera()->computeVisibleQuad();
+			visibleQuad = this->gameCamera->computeVisibleQuad();
 		}
 	}
 }
@@ -5411,7 +5426,7 @@ void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel
 	}
 
 	//characters
-	if(characterModels.size() > 0) {
+	if(characterModels.empty() == false) {
 		float dist= characterPosition.dist(cameraPosition);
 		float minDist= 3.f;
 		if(dist < minDist) {

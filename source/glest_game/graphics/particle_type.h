@@ -121,6 +121,7 @@ private:
 	float trajectoryFrequency;
 
 public:
+	ParticleSystemTypeProjectile();
 	void load(const XmlNode *particleFileNode, const string &dir, const string &path,
 			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);
@@ -134,6 +135,8 @@ public:
 
 class ParticleSystemTypeSplash: public ParticleSystemType {
 public:
+
+	ParticleSystemTypeSplash();
 	void load(const XmlNode *particleFileNode, const string &dir, const string &path,
 			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);

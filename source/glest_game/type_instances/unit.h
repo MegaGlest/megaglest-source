@@ -404,7 +404,7 @@ private:
 
 	std::vector<UnitAttackBoostEffect *> currentAttackBoostEffects;
 
-	Mutex mutexCommands;
+	Mutex *mutexCommands;
 
 	//static Mutex mutexDeletedUnits;
 	//static std::map<void *,bool> deletedUnits;

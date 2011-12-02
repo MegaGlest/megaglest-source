@@ -35,7 +35,7 @@ using Shared::Graphics::Vec3f;
 typedef vector<ObjectParticleSystemType*> ObjectParticleSystemTypes;
 typedef vector<ObjectParticleSystemTypes> ObjectParticleVector;
 
-class ObjectType{
+class ObjectType {
 private:
 	typedef vector<TilesetModelType*> ModelTypes;
 private:
@@ -51,6 +51,11 @@ private:
 	int height;
 
 public:
+	ObjectType() {
+		objectClass = -1;
+		walkable = false;
+		height = 0;
+	}
 	~ObjectType();
 	void init(int modelCount, int objectClass, bool walkable, int height);
 

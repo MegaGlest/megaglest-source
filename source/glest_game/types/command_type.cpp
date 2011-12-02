@@ -851,7 +851,7 @@ void SwitchTeamCommandType::load(int id, const XmlNode *n, const string &dir,
 
 string SwitchTeamCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     string str= name+"\n";
-	Lang &lang= Lang::getInstance();
+	//Lang &lang= Lang::getInstance();
 
     //prod speed
     //str+= lang.get("MorphSpeed")+": "+ intToStr(morphSkillType->getSpeed())+"\n";

@@ -200,7 +200,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 						}
 					}
 				}
-				if(matchedIndexes.size() > 0) {
+				if(matchedIndexes.empty() == false) {
 					int newMatchedIndex = -1;
 					for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
 						int possibleMatchIndex = matchedIndexes[index];
@@ -248,7 +248,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 							}
 						}
 					}
-					if(matchedIndexes.size() > 0) {
+					if(matchedIndexes.empty() == false) {
 						int newMatchedIndex = -1;
 						for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
 							int possibleMatchIndex = matchedIndexes[index];
@@ -333,7 +333,7 @@ void ChatManager::switchOnEdit() {
 void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
 	if(text.empty() == false) {
 		for(unsigned int i = 0; i < deleteCount; ++i) {
-			if(textCharLength.size() > 0) {
+			if(textCharLength.empty() == false) {
 				//printf("BEFORE DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
 
 				if(textCharLength[textCharLength.size()-1] > text.length()) {

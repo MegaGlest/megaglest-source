@@ -75,7 +75,7 @@ protected:
 
 	ConnectionSlotCallbackInterface *slotInterface;
 	Semaphore semTaskSignalled;
-	Mutex triggerIdMutex;
+	Mutex *triggerIdMutex;
 	vector<ConnectionSlotEvent> eventList;
 	int slotIndex;
 
@@ -88,6 +88,8 @@ protected:
 public:
 	ConnectionSlotThread(int slotIndex);
 	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
+	virtual ~ConnectionSlotThread();
+
     virtual void execute();
     void signalUpdate(ConnectionSlotEvent *event);
     bool isSignalCompleted(ConnectionSlotEvent *event);
@@ -106,7 +108,7 @@ class ConnectionSlot: public NetworkInterface {
 private:
 	ServerInterface* serverInterface;
 
-	Mutex mutexSocket;
+	Mutex *mutexSocket;
 	Socket* socket;
 	int playerIndex;
 	string name;
@@ -116,9 +118,9 @@ private:
 	time_t connectedTime;
 	bool gotIntro;
 
-	Mutex mutexCloseConnection;
+	Mutex *mutexCloseConnection;
 
-	Mutex mutexPendingNetworkCommandList;
+	Mutex *mutexPendingNetworkCommandList;
 	vector<NetworkCommand> vctPendingNetworkCommandList;
 	ConnectionSlotThread* slotThreadWorker;
 	int currentFrameCount;
@@ -199,7 +201,7 @@ protected:
 
 	Mutex * getServerSynchAccessor();
 	std::vector<std::string> threadErrorList;
-	Mutex socketSynchAccessor;
+	Mutex *socketSynchAccessor;
 
 	void setSocket(Socket *newSocket);
 	void deleteSocket();

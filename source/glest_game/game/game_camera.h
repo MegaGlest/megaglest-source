@@ -85,6 +85,7 @@ private:
 
 	float calculatedDefault;
 
+	std::map<float, std::map<float, std::map<Vec3f, Quad2i> > > cacheVisibleQuad;
 	int MaxVisibleQuadItemCache;
 
 public:
@@ -117,7 +118,7 @@ public:
 
     //other
     void update();
-    Quad2i computeVisibleQuad() const;
+    Quad2i computeVisibleQuad();
 	void switchState();
 	void resetPosition();
 

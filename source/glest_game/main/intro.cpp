@@ -297,12 +297,18 @@ Intro::Intro(Program *program):
 				}
 
 
-				int textureWidth = logoTexture->getTextureWidth();
+				int textureWidth = 256;
+				if(logoTexture != NULL) {
+					textureWidth = logoTexture->getTextureWidth();
+				}
 				if(lang.hasString(introTagTextureWidthName,"",true) == true) {
 					textureWidth = strToInt(lang.get(introTagTextureWidthName,"",true));
 				}
 
-				int textureHeight = logoTexture->getTextureHeight();
+				int textureHeight = 128;
+				if(logoTexture != NULL) {
+					textureHeight = logoTexture->getTextureHeight();
+				}
 				if(lang.hasString(introTagTextureHeightName,"",true) == true) {
 					textureHeight = strToInt(lang.get(introTagTextureHeightName,"",true));
 				}
@@ -559,7 +565,7 @@ void Intro::renderModelBackground() {
 	// Black background
 	glClearColor(0, 0, 0, 1);
 
-	if(models.size() > 0) {
+	if(models.empty() == false) {
 		int difTime= 1000 * timer / GameConstants::updateFps - modelShowTime;
 		int totalModelShowTime = Intro::introTime - modelShowTime;
 		int individualModelShowTime = totalModelShowTime / models.size();
@@ -569,7 +575,7 @@ void Intro::renderModelBackground() {
 		//int difTime= 1;
 		if(difTime > 0) {
 			if(difTime > ((modelIndex+1) * individualModelShowTime)) {
-				int oldmodelIndex = modelIndex;
+				//int oldmodelIndex = modelIndex;
 				if(modelIndex+1 < models.size()) {
 					modelIndex++;
 
@@ -750,8 +756,8 @@ void Intro::render() {
 
 		if(Renderer::renderText3DEnabled) {
 			const Metrics &metrics= Metrics::getInstance();
-			int w= metrics.getVirtualW();
-			int h= metrics.getVirtualH();
+			//int w= metrics.getVirtualW();
+			//int h= metrics.getVirtualH();
 
 			renderer.renderText3D(
 					timingText, coreData.getMenuFontVeryBig3D(), 1,
@@ -759,8 +765,8 @@ void Intro::render() {
 		}
 		else {
 			const Metrics &metrics= Metrics::getInstance();
-			int w= metrics.getVirtualW();
-			int h= metrics.getVirtualH();
+			//int w= metrics.getVirtualW();
+			//int h= metrics.getVirtualH();
 
 			renderer.renderText(
 					timingText, coreData.getMenuFontVeryBig(), 1,

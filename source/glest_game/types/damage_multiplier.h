@@ -29,6 +29,9 @@ private:
 	int id;
 
 public:
+	AttackType() {
+		id = -1;
+	}
 	int getId() const					{return id;}
 	const string &getName() const		{return name;}
 
@@ -40,12 +43,15 @@ public:
 // 	class ArmorType  
 // ===============================
 
-class ArmorType{
+class ArmorType {
 private:
 	string name;
 	int id;
 
 public:
+	ArmorType() {
+		id = -1;
+	}
 	int getId() const					{return id;}
 	const string &getName() const		{return name;}
 

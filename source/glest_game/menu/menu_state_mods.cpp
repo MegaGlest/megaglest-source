@@ -957,7 +957,7 @@ string MenuStateMods::refreshMapModInfo(string mapInfo) {
 	std::vector<std::string> mapInfoList;
 	Tokenize(mapInfo,mapInfoList,"|");
 	if(mapInfoList.size() >= 5) {
-		Config &config = Config::getInstance();
+		//Config &config = Config::getInstance();
 		ModInfo modinfo;
 		modinfo.name = mapInfoList[0];
 		modinfo.count = mapInfoList[1];
@@ -977,7 +977,7 @@ string MenuStateMods::getMapCRC(string mapName) {
 	Config &config = Config::getInstance();
 	vector<string> mappaths=config.getPathListForType(ptMaps,"");
 	string result="";
-	if(mappaths.size()>0 ){
+	if(mappaths.empty() == false) {
 		Checksum checksum;
 		string itemPath = mappaths[1] + "/" + mapName;
 		if (fileExists(itemPath)){

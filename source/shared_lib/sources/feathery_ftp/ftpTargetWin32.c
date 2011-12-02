@@ -548,8 +548,8 @@ int getLastSocketError() {
 
 const char * getLastSocketErrorText(int *errNumber) {
 	int errId = (errNumber != NULL ? *errNumber : getLastSocketError());
-	//return WSAGetLastErrorMessage("",errId);
-	return "?";
+	return WSAGetLastErrorMessage("",errId);
+	//return "?";
 }
 
 #endif

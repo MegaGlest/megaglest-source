@@ -48,13 +48,13 @@ public:
 
 private:
 	ConnectionSlot* slots[GameConstants::maxPlayers];
-	Mutex slotAccessorMutexes[GameConstants::maxPlayers];
+	Mutex *slotAccessorMutexes[GameConstants::maxPlayers];
 
 	ServerSocket serverSocket;
 	bool gameHasBeenInitiated;
 	int gameSettingsUpdateCount;
 	SwitchSetupRequest* switchSetupRequests[GameConstants::maxPlayers];
-	Mutex serverSynchAccessor;
+	Mutex *serverSynchAccessor;
 	int currentFrameCount;
 
 	time_t gameStartTime;
@@ -62,7 +62,7 @@ private:
 	time_t lastGlobalLagCheckTime;
 
 	SimpleTaskThread *publishToMasterserverThread;
-	Mutex masterServerThreadAccessor;
+	Mutex *masterServerThreadAccessor;
 	time_t lastMasterserverHeartbeatTime;
 	bool needToRepublishToMasterserver;
 
@@ -70,13 +70,13 @@ private:
     bool exitServer;
     int64 nextEventId;
 
-    Mutex textMessageQueueThreadAccessor;
+    Mutex *textMessageQueueThreadAccessor;
     vector<TextMessageQueue> textMessageQueue;
 
-    Mutex broadcastMessageQueueThreadAccessor;
+    Mutex *broadcastMessageQueueThreadAccessor;
     vector<pair<const NetworkMessage *,int> > broadcastMessageQueue;
 
-    Mutex inBroadcastMessageThreadAccessor;
+    Mutex *inBroadcastMessageThreadAccessor;
     bool inBroadcastMessage;
 
     bool masterserverAdminRequestLaunch;
@@ -184,7 +184,7 @@ public:
 
 public:
     Mutex *getServerSynchAccessor() {
-        return &serverSynchAccessor;
+        return serverSynchAccessor;
     }
 
     virtual void simpleTask(BaseThread *callingThread);

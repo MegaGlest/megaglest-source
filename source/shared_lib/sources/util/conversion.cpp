@@ -15,6 +15,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include "platform_common.h"
+#include <sstream>
+#include <iostream>
+#include <locale>
 #include "leak_dumper.h"
 
 using namespace std;
@@ -143,6 +146,23 @@ bool IsNumeric(const char *p, bool  allowNegative) {
     index++;
   }
   return true;
+}
+
+class Comma: public numpunct<char>// own facet class
+{
+     protected:
+          char do_thousands_sep() const { return ','; }// use the comma
+          string do_grouping() const { return "\3"; }//group 3 digits
+};
+string formatNumber(uint64 f) {
+
+	locale myloc(  locale(),    // C++ default locale
+	          new Comma);// Own numeric facet
+
+	ostringstream out;
+	out.imbue(myloc);
+	out << f;
+	return out.str();
 }
 
 }}//end namespace

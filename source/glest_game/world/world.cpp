@@ -325,7 +325,7 @@ Checksum World::loadScenario(const string &path, Checksum *checksum, bool resetC
 
 	if(resetCurrentScenario == true) {
 		scenario = Scenario();
-		scriptManager->init(this, this->getGame()->getGameCamera());
+		scriptManager->init(this, this->getGame()->getGameCameraPtr());
 	}
 
 	scenarioChecksum = scenario.load(path);
@@ -1436,7 +1436,8 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 	//bool cacheLookupSightResult = false;
 
 	// cache lookup of previously calculated cells + sight range
-	if(MaxExploredCellsLookupItemCache > 0) {
+	if(MaxExploredCellsLookupItemCache > 0 && game->isMasterserverMode() == false) {
+	//if(MaxExploredCellsLookupItemCache > 0) {
 		if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
 			ExploredCellsLookupItem::lastDebug = time(NULL);
 			//printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
@@ -1540,7 +1541,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 
     // Ok update our caches with the latest info for this position, sight and team
     if(MaxExploredCellsLookupItemCache > 0) {
-		if(item.exploredCellList.size() > 0 || item.visibleCellList.size() > 0) {
+		if(item.exploredCellList.empty() == false || item.visibleCellList.empty() == false) {
 			//ExploredCellsLookupItemCache.push_back(item);
 			item.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
 			ExploredCellsLookupItemCache[newPos][sightRange] = item;
@@ -1701,7 +1702,9 @@ void World::computeFow(int factionIdxToTick) {
 	}
 
 	//compute texture
-	if(fogOfWar) {
+	//printf("Masterserver = %d\n",game->isMasterserverMode());
+
+	if(fogOfWar == true && game->isMasterserverMode() == false) {
 		for(int i=0; i<getFactionCount(); ++i) {
 			Faction *faction= getFaction(i);
 			if(faction->getTeam() == thisTeamIndex) {
@@ -1758,7 +1761,7 @@ void World::computeFow(int factionIdxToTick) {
 								itemCache.alphaList.push_back(alpha);
 							}
 
-							if(itemCache.surfPosList.size() > 0) {
+							if(itemCache.surfPosList.empty() == false) {
 								FowAlphaCellsLookupItemCache[unit->getPos()][sightRange] = itemCache;
 							}
 						}
@@ -1794,6 +1797,98 @@ int World::getNextUnitId(Faction *faction)	{
 // Get a unique commandid when sending commands to a group of units
 int World::getNextCommandGroupId() {
 	return ++nextCommandGroupId;
+}
+
+void World::removeResourceTargetFromCache(const Vec2i &pos) {
+	for(int i= 0; i < factions.size(); ++i) {
+		factions[i]->removeResourceTargetFromCache(pos);
+	}
+}
+
+string World::getExploredCellsLookupItemCacheStats() {
+	string result = "";
+
+	int posCount = 0;
+	int sightCount = 0;
+	int exploredCellCount = 0;
+	int visibleCellCount = 0;
+
+	//std::map<Vec2i, std::map<int, ExploredCellsLookupItem > > ExploredCellsLookupItemCache;
+	for(std::map<Vec2i, std::map<int, ExploredCellsLookupItem > >::iterator iterMap1 = ExploredCellsLookupItemCache.begin();
+		iterMap1 != ExploredCellsLookupItemCache.end(); ++iterMap1) {
+		posCount++;
+
+		for(std::map<int, ExploredCellsLookupItem >::iterator iterMap2 = iterMap1->second.begin();
+			iterMap2 != iterMap1->second.end(); ++iterMap2) {
+			sightCount++;
+
+			exploredCellCount += iterMap2->second.exploredCellList.size();
+			visibleCellCount += iterMap2->second.visibleCellList.size();
+		}
+	}
+
+	uint64 totalBytes = exploredCellCount * sizeof(SurfaceCell *);
+	totalBytes += visibleCellCount * sizeof(SurfaceCell *);
+
+	totalBytes /= 1000;
+
+	char szBuf[1024]="";
+	sprintf(szBuf,"pos [%d] sight [%d] [%d][%d] total KB: %s",posCount,sightCount,exploredCellCount,visibleCellCount,formatNumber(totalBytes).c_str());
+	result = szBuf;
+	return result;
+}
+
+string World::getFowAlphaCellsLookupItemCacheStats() {
+	string result = "";
+
+	int posCount = 0;
+	int sightCount = 0;
+	int surfPosCount = 0;
+	int alphaListCount = 0;
+
+	//std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > > FowAlphaCellsLookupItemCache;
+	for(std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > >::iterator iterMap1 = FowAlphaCellsLookupItemCache.begin();
+		iterMap1 != FowAlphaCellsLookupItemCache.end(); ++iterMap1) {
+		posCount++;
+
+		for(std::map<int, FowAlphaCellsLookupItem >::iterator iterMap2 = iterMap1->second.begin();
+			iterMap2 != iterMap1->second.end(); ++iterMap2) {
+			sightCount++;
+
+			surfPosCount += iterMap2->second.surfPosList.size();
+			alphaListCount += iterMap2->second.alphaList.size();
+		}
+	}
+
+	uint64 totalBytes = surfPosCount * sizeof(Vec2i);
+	totalBytes += alphaListCount * sizeof(float);
+
+	totalBytes /= 1000;
+
+	char szBuf[1024]="";
+	sprintf(szBuf,"pos [%d] sight [%d] [%d][%d] total KB: %s",posCount,sightCount,surfPosCount,alphaListCount,formatNumber(totalBytes).c_str());
+	result = szBuf;
+	return result;
+}
+
+string World::getAllFactionsCacheStats() {
+	string result = "";
+
+	uint64 totalBytes = 0;
+	uint64 totalCache1Size = 0;
+	uint64 totalCache2Size = 0;
+	for(int i = 0; i < getFactionCount(); ++i) {
+		uint64 cache1Size = 0;
+		uint64 cache2Size = 0;
+		totalBytes += getFaction(i)->getCacheKBytes(&cache1Size, &cache2Size);
+		totalCache1Size += cache1Size;
+		totalCache2Size += cache2Size;
+	}
+
+	char szBuf[1024]="";
+	sprintf(szBuf,"totalCache1Size [%lu] totalCache1Size [%lu] total KB: %s",totalCache1Size,totalCache2Size,formatNumber(totalBytes).c_str());
+	result = szBuf;
+	return result;
 }
 
 std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {

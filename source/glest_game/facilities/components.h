@@ -199,7 +199,8 @@ private:
     bool lighted;
 	Vec3f textColor;
 	
-public:       
+public:
+	GraphicListBox(std::string containerName="", std::string objName="");
     void init(int x, int y, int w=defW, int h=defH, Vec3f textColor=Vec3f(1.f, 1.f, 1.f));
     
 	int getItemCount() const				{return items.size();}
@@ -243,6 +244,7 @@ private:
 	string header;
 
 public:
+	GraphicMessageBox(std::string containerName="", std::string objName="");
 	void init(const string &button1Str, const string &button2Str, int newWidth=-1,int newHeight=-1);
 	void init(const string &button1Str, int newWidth=-1,int newHeight=-1);
 
@@ -274,6 +276,7 @@ private:
 	bool horizontal;	
 	
 public:
+	GraphicLine(std::string containerName="", std::string objName="");
 	void init(int x, int y, int w=defW, int h=defH);
 	bool getHorizontal() const		{return horizontal;}
 	void setHorizontal(bool horizontal) 		{this->horizontal= horizontal;}
@@ -293,6 +296,7 @@ private:
 	bool lighted;
 
 public:
+	GraphicCheckBox(std::string containerName="", std::string objName="");
 	void init(int x, int y, int w=defW, int h=defH);
 	bool getValue() const		{return value;}
 	void setValue(bool value) 		{this->value= value;}
@@ -323,6 +327,7 @@ private:
 	int visibleCompPosEnd;
 
 public:
+	GraphicScrollBar(std::string containerName="", std::string objName="");
 	void init(int x, int y, bool horizontal,int length=defLength, int thickness=defThickness);
 	virtual bool mouseDown(int x, int y);
 	virtual bool mouseMove(int x, int y);

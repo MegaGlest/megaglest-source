@@ -46,6 +46,9 @@ private:
 	int kills;
 
 public:
+	Level() {
+		kills = 0;
+	}
 	void init(string name, int kills);
 
 	const string &getName() const	{return name;}

@@ -66,7 +66,7 @@ protected:
 
 	Faction *faction;
 	Semaphore semTaskSignalled;
-	Mutex triggerIdMutex;
+	Mutex *triggerIdMutex;
 	std::pair<int,bool> frameIndex;
 
 	virtual void setQuitStatus(bool value);
@@ -75,6 +75,7 @@ protected:
 
 public:
 	FactionThread(Faction *faction);
+	virtual ~FactionThread();
     virtual void execute();
     void signalPathfinder(int frameIndex);
     bool isSignalPathfinderCompleted(int frameIndex);
@@ -249,6 +250,9 @@ public:
 	void sortUnitsByCommandGroups();
 
 	bool canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProduce, bool checkMorph) const;
+
+	string getCacheStats();
+	uint64 getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size);
 
 	std::string toString() const;
 

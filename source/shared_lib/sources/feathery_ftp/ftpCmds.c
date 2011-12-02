@@ -276,7 +276,6 @@ LOCAL int ftpCmdAbor(int sessionId, const char* args, int len)
 #define MLSD	8
 LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int format)
 {
-	int haveAnySuccessfulFiles = 0;
 	void *dir;
     const char monName[12][4] = {
             "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -286,11 +285,12 @@ LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int 
 	dir = ftpOpenDir(path);
 	if(dir)
 	{
-		const char* dirEntry;
-		int len;
+		const char* dirEntry = NULL;
+		int len = 0;
 		int err = 0;
     	ftpTime_S currTime = {0};
 		ftpPathInfo_S fileInfo;
+		int haveAnySuccessfulFiles = 0;
 
     	ftpGetLocalTime(&currTime);
 		ftpSendMsg(MSG_NORMAL, sessionId, 150, ftpMsg010);
@@ -1023,7 +1023,6 @@ void ftpParseCmd(int sessionId)
 {
 	ftpSession_S *pSession;
 	int len;
-	int c;
 	socket_t ctrlSocket;
 
 	pSession   = ftpGetSession(sessionId);
@@ -1033,6 +1032,7 @@ void ftpParseCmd(int sessionId)
 	if((pSession->rxBuf[len - 1] == '\n') &&
 	   (pSession->rxBuf[len - 2] == '\r') )		// command correctly terminated?
 	{
+		int c = 0;
 		pSession->rxBuf[len - 2] = '\0';
 		pSession->rxBufWriteIdx  = 0;
 

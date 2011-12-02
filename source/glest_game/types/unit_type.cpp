@@ -131,7 +131,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 	this->id= id;
 
 	try {
-		Lang &lang= Lang::getInstance();
+		//Lang &lang= Lang::getInstance();
 
 		char szBuf[1024]="";
 		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingUnitType","",true).c_str(),formatString(name).c_str());
