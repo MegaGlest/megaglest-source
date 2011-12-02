@@ -714,10 +714,10 @@ void MapPreview::loadFromFile(const string &path) {
 #ifdef WIN32
 	wstring wstr = utf8_decode(path);
 	FILE* f1= _wfopen(wstr.c_str(), L"rb");
+	int fileErrno = errno;
 #else
 	FILE *f1 = fopen(path.c_str(), "rb");
 #endif
-	//int fileErrno = errno;
 	if (f1 != NULL) {
 
 		//read header
