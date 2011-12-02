@@ -252,6 +252,7 @@ private:
 	void calcCameraMoveZ();
 
 	int getFirstUnusedTeamNumber();
+	void updateWorldStats();
 };
 
 }}//end namespace

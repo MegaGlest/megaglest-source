@@ -1457,6 +1457,8 @@ void Game::render() {
 	renderFps++;
 	totalRenderFps++;
 
+	updateWorldStats();
+
 	//NetworkManager &networkManager= NetworkManager::getInstance();
 	if(this->masterserverMode == false) {
 		renderWorker();
@@ -2601,6 +2603,16 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 		game->endGame();
 	}
 
+	if(game->isMasterserverMode() == true) {
+		printf("Game ending with stats:\n");
+		printf("-----------------------\n");
+
+		string gameStats = endStats.getStats();
+		printf("%s",gameStats.c_str());
+
+		printf("-----------------------\n");
+	}
+
 	ProgramState *newState = new BattleEnd(program, &endStats, game);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2701,7 +2713,27 @@ void Game::render3d(){
 	renderer.setLastRenderFps(lastRenderFps);
 }
 
-void Game::render2d(){
+void Game::updateWorldStats() {
+    world.getStats()->setWorldTimeElapsed(world.getTimeFlow()->getTime());
+
+    if(difftime(time(NULL),lastMaxUnitCalcTime) >= 1) {
+    	lastMaxUnitCalcTime = time(NULL);
+
+		int totalUnitcount = 0;
+		for(int i = 0; i < world.getFactionCount(); ++i) {
+			Faction *faction= world.getFaction(i);
+			totalUnitcount += faction->getUnitCount();
+		}
+
+		if(world.getStats()->getMaxConcurrentUnitCount() < totalUnitcount) {
+			world.getStats()->setMaxConcurrentUnitCount(totalUnitcount);
+		}
+		world.getStats()->setTotalEndGameConcurrentUnitCount(totalUnitcount);
+		world.getStats()->setFramesPlayed(world.getFrameCount());
+    }
+}
+
+void Game::render2d() {
 	Renderer &renderer= Renderer::getInstance();
 	//Config &config= Config::getInstance();
 	CoreData &coreData= CoreData::getInstance();
@@ -2775,24 +2807,6 @@ void Game::render2d(){
 
     string str="";
     std::map<int,string> factionDebugInfo;
-
-    world.getStats()->setWorldTimeElapsed(world.getTimeFlow()->getTime());
-
-    if(difftime(time(NULL),lastMaxUnitCalcTime) >= 1) {
-    	lastMaxUnitCalcTime = time(NULL);
-
-		int totalUnitcount = 0;
-		for(int i = 0; i < world.getFactionCount(); ++i) {
-			Faction *faction= world.getFaction(i);
-			totalUnitcount += faction->getUnitCount();
-		}
-
-		if(world.getStats()->getMaxConcurrentUnitCount() < totalUnitcount) {
-			world.getStats()->setMaxConcurrentUnitCount(totalUnitcount);
-		}
-		world.getStats()->setTotalEndGameConcurrentUnitCount(totalUnitcount);
-		world.getStats()->setFramesPlayed(world.getFrameCount());
-    }
 
 	if( renderer.getShowDebugUI() == true ||
 		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
