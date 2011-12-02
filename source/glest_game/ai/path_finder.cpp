@@ -476,7 +476,7 @@ bool PathFinder::addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i
 }
 
 
-direction PathFinder::directionOfMove(Vec2i to, Vec2i from) {
+direction PathFinder::directionOfMove(Vec2i to, Vec2i from) const {
 	if (from.x == to.x) {
 		if (from.y == to.y)
 			return -1;
@@ -545,16 +545,16 @@ Vec2i PathFinder::adjustInDirection(Vec2i c, int dir) {
 	return Vec2i( -1, -1 );
 }
 
-bool PathFinder::directionIsDiagonal(direction dir) {
+bool PathFinder::directionIsDiagonal(direction dir) const {
 	return (dir % 2) != 0;
 }
 
 // logical implication operator
-bool PathFinder::implies (bool a, bool b) {
+bool PathFinder::implies(bool a, bool b) const {
 	return a ? b : true;
 }
 
-directionset PathFinder::addDirectionToSet (directionset dirs, direction dir) {
+directionset PathFinder::addDirectionToSet(directionset dirs, direction dir) const {
 	return dirs | 1 << dir;
 }
 
@@ -595,7 +595,7 @@ directionset PathFinder::naturalNeighbours(direction dir) {
 
 // return and remove a direction from the set
 // returns NO_DIRECTION if the set was empty
-direction PathFinder::nextDirectionInSet (directionset *dirs) {
+direction PathFinder::nextDirectionInSet(directionset *dirs) const {
 	for (int i = 0; i < 8; i++) {
 		char bit = 1 << i;
 		if (*dirs & bit) {

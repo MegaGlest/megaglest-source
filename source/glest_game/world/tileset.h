@@ -72,6 +72,17 @@ private:
 	StaticSound nightStart;
 
 public:
+	AmbientSounds() {
+		enabledDay = false;
+		enabledNight = false;
+		enabledRain = false;
+		enabledSnow = false;
+		enabledDayStart = false;
+		enabledNightStart = false;
+		alwaysPlayDay = false;
+		alwaysPlayNight = false;
+	}
+
 	bool isEnabledDay() const			{return enabledDay;}
 	bool isEnabledNight() const			{return enabledNight;}
 	bool isEnabledRain() const			{return enabledRain;}
@@ -131,6 +142,13 @@ private:
 	Checksum checksumValue;
 
 public:
+	Tileset() {
+		waterTex = NULL;
+	    waterEffects = false;
+	    fog = false;
+	    fogMode = 0;
+		fogDensity = 0.0f;
+	}
     ~Tileset();
     Checksum loadTileset(const vector<string> pathList, const string &tilesetName,
     		Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList);

@@ -55,6 +55,7 @@ using namespace Shared::PlatformCommon;
 //non shared classes
 class Config;
 class Game;
+class GameCamera;
 class MainMenu;
 class Console;
 class MenuBackground;
@@ -67,11 +68,14 @@ class SurfaceCell;
 // 	class MeshCallbackTeamColor
 // =====================================================
 
-class MeshCallbackTeamColor: public MeshCallback{
+class MeshCallbackTeamColor: public MeshCallback {
 private:
 	const Texture *teamTexture;
 
 public:
+	MeshCallbackTeamColor() : MeshCallback() {
+		teamTexture = NULL;
+	}
 	void setTeamTexture(const Texture *teamTexture)	{this->teamTexture= teamTexture;}
 	virtual void execute(const Mesh *mesh);
 
@@ -97,6 +101,7 @@ protected:
 		frustumData			= obj.frustumData;
 		proj				= obj.proj;
 		modl				= obj.modl;
+		frustumDataCache	= obj.frustumDataCache;
 	}
 
 public:
@@ -234,6 +239,7 @@ private:
 
 	//game
 	const Game *game;
+	GameCamera *gameCamera;
 	const MainMenu *menu;
 
 	//misc
@@ -379,7 +385,7 @@ public:
 
     //init
 	void init();
-	void initGame(const Game *game);
+	void initGame(const Game *game, GameCamera *gameCamera);
 	void initMenu(const MainMenu *mm);
 	void reset3d();
 	void reset2d();

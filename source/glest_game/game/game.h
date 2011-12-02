@@ -154,13 +154,14 @@ public:
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
     ~Game();
 
+    bool isMasterserverMode() const { return masterserverMode; }
     //get
     GameSettings *getGameSettings() 	    		{return &gameSettings;}
     void setGameSettings(GameSettings *settings) 	{ gameSettings = *settings;}
 	const GameSettings *getReadOnlyGameSettings() const	{return &gameSettings;}
 
 	const GameCamera *getGameCamera() const	{return &gameCamera;}
-	GameCamera *getGameCamera()				{return &gameCamera;}
+	GameCamera *getGameCameraPtr()			{return &gameCamera;}
 	const Commander *getCommander() const	{return &commander;}
 	Gui *getGui()							{return &gui;}
 	const Gui *getGui() const				{return &gui;}

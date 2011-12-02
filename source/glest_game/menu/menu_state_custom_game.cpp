@@ -1682,7 +1682,7 @@ void MenuStateCustomGame::render() {
 			// START - this code ensure player title and player names don't overlap
 			int offsetPosition=0;
 		    for(int i=0; i < GameConstants::maxPlayers; ++i) {
-				const Metrics &metrics= Metrics::getInstance();
+				//const Metrics &metrics= Metrics::getInstance();
 				FontMetrics *fontMetrics= NULL;
 				if(Renderer::renderText3DEnabled == false) {
 					fontMetrics = labelPlayers[i].getFont()->getMetrics();

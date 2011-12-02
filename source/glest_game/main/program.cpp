@@ -82,7 +82,7 @@ bool ProgramState::canRender(bool sleepIfCannotRender) {
 	if(lastFps > maxFPSCap) {
 		if(sleepIfCannotRender == true) {
 			sleep(sleepMillis);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sleeping because lastFps = %d, maxFPSCap = %d sleepMillis = %d\n",__FILE__,__FUNCTION__,__LINE__,lastFps,maxFPSCap,sleepMillis);
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sleeping because lastFps = %d, maxFPSCap = %d sleepMillis = %d\n",__FILE__,__FUNCTION__,__LINE__,lastFps,maxFPSCap,sleepMillis);
 		}
 		return false;
 	}
@@ -246,6 +246,8 @@ Program::~Program(){
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Renderer::getInstance().end();
+	CoreData &coreData= CoreData::getInstance();
+    coreData.cleanup();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

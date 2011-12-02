@@ -300,6 +300,12 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 //	class ParticleSystemTypeProjectile
 // ===========================================================
 
+ParticleSystemTypeProjectile::ParticleSystemTypeProjectile() : ParticleSystemType() {
+	trajectorySpeed = 0.0f;
+	trajectoryScale = 0.0f;
+	trajectoryFrequency = 0.0f;
+}
+
 void ParticleSystemTypeProjectile::load(const XmlNode* particleFileNode, const string &dir, const string &path,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader, string techtreePath) {
@@ -372,6 +378,14 @@ ProjectileParticleSystem *ParticleSystemTypeProjectile::create() {
 // ===========================================================
 //	class ParticleSystemTypeSplash
 // ===========================================================
+
+ParticleSystemTypeSplash::ParticleSystemTypeSplash() {
+	emissionRateFade = 0.0f;
+	verticalSpreadA = 0.0f;
+	verticalSpreadB = 0.0f;
+	horizontalSpreadA = 0.0f;
+	horizontalSpreadB = 0.0f;
+}
 
 void ParticleSystemTypeSplash::load(const XmlNode* particleFileNode, const string &dir, const string &path,
 		RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,

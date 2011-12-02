@@ -151,7 +151,11 @@ static void cleanupProcessObjects() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    if(Renderer::isEnded() == false) Renderer::getInstance().end();
+    if(Renderer::isEnded() == false) {
+    	Renderer::getInstance().end();
+    	CoreData &coreData= CoreData::getInstance();
+        coreData.cleanup();
+    }
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -663,6 +667,7 @@ MainWindow::MainWindow(Program *program) : WindowGl() {
 	this->popupMenu.setVisible(false);
     this->triggerLanguageToggle = false;
     this->triggerLanguage = "";
+    this->cancelLanguageSelection = -1;
 }
 
 MainWindow::~MainWindow(){
@@ -2850,7 +2855,7 @@ int glestMain(int argc, char** argv) {
         }
 
 		if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-			Renderer &renderer= Renderer::getInstance(true);
+			Renderer::getInstance(true);
 		}
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
@@ -3212,7 +3217,7 @@ int glestMain(int argc, char** argv) {
 				string autoloadMapName = paramPartTokens[1];
 
 				GameSettings *gameSettings = &startupGameSettings;
-				int factionCount= 0;
+				//int factionCount= 0;
 				gameSettings->setMap(autoloadMapName);
 				gameSettings->setTileset("forest");
 				gameSettings->setTech("megapack");

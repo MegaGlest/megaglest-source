@@ -29,7 +29,7 @@ using Shared::Sound::StaticSound;
 /// Raises time related events (day/night cycle) 
 // =====================================================
 
-class TimeFlow{
+class TimeFlow {
 public:
 	static const float dusk;
 	static const float dawn;
@@ -42,6 +42,13 @@ private:
 	float timeInc;
 
 public:
+	TimeFlow() {
+		firstTime = false;
+		tileset = NULL;
+		time = 0.0f;
+		lastTime = 0.0f;
+		timeInc = 0.0f;
+	}
 	void init(Tileset *tileset);
 
 	float getTime() const				{return time;}

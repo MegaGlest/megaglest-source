@@ -213,7 +213,13 @@ void Faction::sortUnitsByCommandGroups() {
 // =====================================================
 
 FactionThread::FactionThread(Faction *faction) : BaseThread() {
+	this->triggerIdMutex = new Mutex();
 	this->faction = faction;
+}
+
+FactionThread::~FactionThread() {
+	delete triggerIdMutex;
+	triggerIdMutex = NULL;
 }
 
 void FactionThread::setQuitStatus(bool value) {
@@ -230,7 +236,7 @@ void FactionThread::setQuitStatus(bool value) {
 void FactionThread::signalPathfinder(int frameIndex) {
 	if(frameIndex >= 0) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+		MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
 		this->frameIndex.first = frameIndex;
 		this->frameIndex.second = false;
 
@@ -242,7 +248,7 @@ void FactionThread::signalPathfinder(int frameIndex) {
 void FactionThread::setTaskCompleted(int frameIndex) {
 	if(frameIndex >= 0) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-		MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+		MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
 		if(this->frameIndex.first == frameIndex) {
 			this->frameIndex.second = true;
 		}
@@ -265,7 +271,7 @@ bool FactionThread::isSignalPathfinderCompleted(int frameIndex) {
 		return true;
 	}
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+	MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
 	//bool result = (event != NULL ? event->eventCompleted : true);
 	bool result = (this->frameIndex.first == frameIndex && this->frameIndex.second == true);
 
@@ -297,7 +303,7 @@ void FactionThread::execute() {
 			}
 
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-            MutexSafeWrapper safeMutex(&triggerIdMutex,mutexOwnerId);
+            MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
             bool executeTask = (frameIndex.first >= 0);
 
             //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p executeTask = %d\n",__FILE__,__FUNCTION__,__LINE__,frameIndex.first, this, executeTask);
@@ -309,7 +315,7 @@ void FactionThread::execute() {
 
 				World *world = faction->getWorld();
 
-				Config &config= Config::getInstance();
+				//Config &config= Config::getInstance();
 				//bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
 				bool sortedUnitsAllowed = false;
 				if(sortedUnitsAllowed) {
@@ -375,6 +381,7 @@ Faction::Faction() {
 	teamIndex=0;
 	startLocationIndex=0;
 	thisFaction=false;
+	currentSwitchTeamVoteFactionIndex = -1;
 }
 
 Faction::~Faction() {
@@ -1574,7 +1581,7 @@ int Faction::getFrameCount() {
 
 const SwitchTeamVote * Faction::getFirstSwitchTeamVote() const {
 	const SwitchTeamVote *vote = NULL;
-	if(switchTeamVotes.size() > 0) {
+	if(switchTeamVotes.empty() == false) {
 		for(std::map<int,SwitchTeamVote>::const_iterator iterMap = switchTeamVotes.begin();
 				iterMap != switchTeamVotes.end(); ++iterMap) {
 			const SwitchTeamVote &curVote = iterMap->second;
@@ -1655,6 +1662,64 @@ bool Faction::canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProdu
 	}
 
 	return foundUnit;
+}
+
+uint64 Faction::getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size) {
+	uint64 cache1Count = 0;
+	uint64 cache2Count = 0;
+
+	//std::map<Vec2i,int> cacheResourceTargetList;
+	for(std::map<Vec2i,int>::iterator iterMap1 = cacheResourceTargetList.begin();
+		iterMap1 != cacheResourceTargetList.end(); ++iterMap1) {
+		cache1Count++;
+	}
+	//std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
+	for(std::map<Vec2i,bool>::iterator iterMap1 = cachedCloseResourceTargetLookupList.begin();
+		iterMap1 != cachedCloseResourceTargetLookupList.end(); ++iterMap1) {
+		cache2Count++;
+	}
+
+	if(cache1Size) {
+		*cache1Size = cache1Count;
+	}
+	if(cache2Size) {
+		*cache2Size = cache2Count;
+	}
+
+	uint64 totalBytes = cache1Count * sizeof(int);
+	totalBytes += cache2Count * sizeof(bool);
+
+	totalBytes /= 1000;
+
+	return totalBytes;
+}
+
+string Faction::getCacheStats() {
+	string result = "";
+
+	int cache1Count = 0;
+	int cache2Count = 0;
+
+	//std::map<Vec2i,int> cacheResourceTargetList;
+	for(std::map<Vec2i,int>::iterator iterMap1 = cacheResourceTargetList.begin();
+		iterMap1 != cacheResourceTargetList.end(); ++iterMap1) {
+		cache1Count++;
+	}
+	//std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
+	for(std::map<Vec2i,bool>::iterator iterMap1 = cachedCloseResourceTargetLookupList.begin();
+		iterMap1 != cachedCloseResourceTargetLookupList.end(); ++iterMap1) {
+		cache2Count++;
+	}
+
+	uint64 totalBytes = cache1Count * sizeof(int);
+	totalBytes += cache2Count * sizeof(bool);
+
+	totalBytes /= 1000;
+
+	char szBuf[1024]="";
+	sprintf(szBuf,"cache1Count [%d] cache2Count [%d] total KB: %s",cache1Count,cache2Count,formatNumber(totalBytes).c_str());
+	result = szBuf;
+	return result;
 }
 
 std::string Faction::toString() const {

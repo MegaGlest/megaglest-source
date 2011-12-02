@@ -88,6 +88,7 @@ public:
 	static CoreData &getInstance();
 
     void load();
+    void cleanup();
     void loadFonts();
 
 	Texture2D *getBackgroundTexture() const		{return backgroundTexture;}

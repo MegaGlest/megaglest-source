@@ -30,7 +30,7 @@ namespace Glest { namespace Game {
 // 	class GameCamera
 // =====================================================
 
-static std::map<float, std::map<float, std::map<Vec3f, Quad2i> > > cacheVisibleQuad;
+//static std::map<float, std::map<float, std::map<Vec3f, Quad2i> > > cacheVisibleQuad;
 
 // ================== PUBLIC =====================
 
@@ -187,7 +187,7 @@ void GameCamera::update(){
 	}
 }
 
-Quad2i GameCamera::computeVisibleQuad() const {
+Quad2i GameCamera::computeVisibleQuad() {
 	//printf("\n@@@ hAng [%f] vAng [%f] fov [%f]\n",hAng,vAng,fov);
 
 	if(MaxVisibleQuadItemCache != 0) {

@@ -126,6 +126,8 @@ public:
 	void findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &units);
 	vector<Unit*> findUnitsInRange(const Unit *unit, int radius);
 
+	string getUnitRangeCellsLookupItemCacheStats();
+
 private:
     //attack
     void hit(Unit *attacker);

@@ -941,7 +941,7 @@ void Game::init(bool initForPreviewOnly) {
 	//init renderer state
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",__FILE__,__FUNCTION__);
 	logger.add(Lang::getInstance().get("LogScreenGameLoadingInitRenderer","",true), true);
-	renderer.initGame(this);
+	renderer.initGame(this,this->getGameCameraPtr());
 
 	for(int i=0; i < world.getFactionCount(); ++i) {
 		Faction *faction= world.getFaction(i);
@@ -1307,7 +1307,7 @@ void Game::update() {
 				}
 
 				scriptManager.init(&world, &gameCamera);
-				renderer.initGame(this);
+				renderer.initGame(this,this->getGameCameraPtr());
 
 				//sounds
 				//soundRenderer.stopAllSounds(fadeMusicMilliseconds);
@@ -1349,7 +1349,7 @@ void Game::update() {
 			catch(const exception &ex) {
 				gameStarted = true;
 
-				throw ex;
+				throw;
 			}
 		}
 	}
@@ -1457,7 +1457,7 @@ void Game::render() {
 	renderFps++;
 	totalRenderFps++;
 
-	NetworkManager &networkManager= NetworkManager::getInstance();
+	//NetworkManager &networkManager= NetworkManager::getInstance();
 	if(this->masterserverMode == false) {
 		renderWorker();
 	}
@@ -1470,8 +1470,7 @@ void Game::render() {
 		int connectedClients=0;
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			Faction *faction = world.getFaction(i);
-			ConnectionSlot *slot = server->getSlot(faction->getStartLocationIndex());
-			if(slot != NULL && slot->isConnected() == true) {
+			if(server->isClientConnected(faction->getStartLocationIndex()) == true) {
 				connectedClients++;
 			}
 		}
@@ -2572,7 +2571,7 @@ Stats Game::quitGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	endStats = *(world.getStats());
-	NetworkManager &networkManager= NetworkManager::getInstance();
+	//NetworkManager &networkManager= NetworkManager::getInstance();
 	if(this->masterserverMode == true) {
 		endStats.setIsMasterserverMode(true);
 	}
@@ -2813,6 +2812,11 @@ void Game::render2d(){
             str+= "Log buffer count: " + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
 		}
 
+		str+= "UnitRangeCellsLookupItemCache: " + world.getUnitUpdater()->getUnitRangeCellsLookupItemCacheStats()+"\n";
+		str+= "ExploredCellsLookupItemCache: " 	+ world.getExploredCellsLookupItemCacheStats()+"\n";
+		str+= "FowAlphaCellsLookupItemCache: "  + world.getFowAlphaCellsLookupItemCacheStats()+"\n";
+		//str+= "AllFactionsCacheStats: "			+ world.getAllFactionsCacheStats()+"\n";
+
 		//str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";
 
 		str+= "Map: " + gameSettings.getMap() +"\n";
@@ -2831,15 +2835,15 @@ void Game::render2d(){
 		for(int i= 0; i<4; ++i){
 			str+= "(" + intToStr(visibleQuad.p[i].x) + "," +intToStr(visibleQuad.p[i].y) + ") ";
 		}
-		str+= "\n";
-		str+= "Visible quad camera: ";
-		for(int i= 0; i<4; ++i){
-			str+= "(" + intToStr(visibleQuadCamera.p[i].x) + "," +intToStr(visibleQuadCamera.p[i].y) + ") ";
-		}
+//		str+= "\n";
+//		str+= "Visible quad camera: ";
+//		for(int i= 0; i<4; ++i){
+//			str+= "(" + intToStr(visibleQuadCamera.p[i].x) + "," +intToStr(visibleQuadCamera.p[i].y) + ") ";
+//		}
 		str+= "\n";
 
 		str+= "Visible quad area:        " + floatToStr(visibleQuad.area()) +"\n";
-		str+= "Visible quad camera area: " + floatToStr(visibleQuadCamera.area()) +"\n";
+//		str+= "Visible quad camera area: " + floatToStr(visibleQuadCamera.area()) +"\n";
 
 //		Rect2i boundingRect= visibleQuad.computeBoundingRect();
 //		Rect2i scaledRect= boundingRect/Map::cellScale;
@@ -2898,7 +2902,7 @@ void Game::render2d(){
 	if(renderer.getShowDebugUI() == true) {
 		const Metrics &metrics= Metrics::getInstance();
 		//int mx= metrics.getMinimapX();
-		int my= metrics.getMinimapY();
+		//int my= metrics.getMinimapY();
 		//int mw= metrics.getMinimapW();
 		int mh= metrics.getMinimapH();
 		const Vec4f fontColor=getGui()->getDisplay()->getColor();

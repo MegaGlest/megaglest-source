@@ -1037,7 +1037,7 @@ Md5Model::Md5Model (const string &filename)
   while (!ifs.eof ())
     {
       string token, buffer;
-      int version;
+      int version = 0;
 
       // Read next token
       ifs >> token;
@@ -1377,8 +1377,8 @@ Md5Animation::Md5Animation (const string &filename)
   while (!ifs.eof ())
     {
       string token, buffer;
-      int version;
-      int i;
+      int version = 0;;
+      int i = 0;
 
       // Read next token
       ifs >> token;

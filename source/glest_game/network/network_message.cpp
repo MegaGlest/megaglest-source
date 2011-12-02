@@ -402,7 +402,7 @@ void NetworkMessageCommandList::send(Socket* socket) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
 
 	assert(data.header.messageType==nmtCommandList);
-	int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
+	//int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
 	//NetworkMessage::send(socket, &data, totalMsgSize);
 	NetworkMessage::send(socket, &data.header, commandListHeaderSize);
 	if(data.header.commandCount > 0) {

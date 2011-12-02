@@ -120,10 +120,10 @@ protected:
 	time_t lastThreadedPing;
 	//Mutex pingThreadAccessor;
 
-	Mutex dataSynchAccessorRead;
-	Mutex dataSynchAccessorWrite;
+	Mutex *dataSynchAccessorRead;
+	Mutex *dataSynchAccessorWrite;
 
-	Mutex inSocketDestructorSynchAccessor;
+	Mutex *inSocketDestructorSynchAccessor;
 	bool inSocketDestructor;
 
 public:
@@ -214,7 +214,7 @@ protected:
 class BroadCastSocketThread : public BaseThread
 {
 private:
-	Mutex mutexPauseBroadcast;
+	Mutex *mutexPauseBroadcast;
 	bool pauseBroadcast;
 
 public:

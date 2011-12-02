@@ -119,13 +119,14 @@ int ftpCreateAccount(const char* name, const char* passw, const char* root, int 
  */
 int ftpFindAccount(const char* name)
 {
-	int n;
-
-	if(name[0] != '\0')
-		for(n = 0; n < MAX_USERS; n++)
-			if(!strncmp(ftpUsers[n].name, name, MAXLEN_USERNAME))
+	if(name[0] != '\0') {
+		int n;
+		for(n = 0; n < MAX_USERS; n++) {
+			if(!strncmp(ftpUsers[n].name, name, MAXLEN_USERNAME)) {
 				return n + 1;
-
+			}
+		}
+	}
 	return 0;
 }
 

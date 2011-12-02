@@ -76,6 +76,7 @@ getHTTPResponse(int s, int * size)
 	int chunksize_buf_index;
 
 	header_buf = malloc(header_buf_len);
+	header_buf[0] = '\0';
 	content_buf = malloc(content_buf_len);
 	chunksize_buf[0] = '\0';
 	chunksize_buf_index = 0;

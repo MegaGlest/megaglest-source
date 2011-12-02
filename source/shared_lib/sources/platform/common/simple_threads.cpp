@@ -202,12 +202,12 @@ void FileCRCPreCacheThread::execute() {
 					        string &techPath = techDataPaths[idx];
 					        endPathWithSlash(techPath);
 					        findAll(techPath + techName + "/factions/*.", results, false, false);
-					        if(results.size() > 0) {
+					        if(results.empty() == false) {
 					            break;
 					        }
 					    }
 
-					    if(results.size() == 0) {
+					    if(results.empty() == true) {
 							for(unsigned int factionIdx = 0; factionIdx < results.size(); ++factionIdx) {
 								string factionName = results[factionIdx];
 								int32 factionCRC   = 0;

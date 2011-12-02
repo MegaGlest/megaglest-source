@@ -38,6 +38,8 @@ string doubleToStr(double f,int precsion=2);
 
 bool IsNumeric(const char *p, bool  allowNegative=true);
 
+string formatNumber(uint64 f);
+
 }}//end namespace
 
 #endif

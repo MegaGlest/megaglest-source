@@ -134,7 +134,7 @@ void MenuStateGraphicInfo::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateGraphicInfo::render(){
 
 	Renderer &renderer= Renderer::getInstance();
-	Lang &lang= Lang::getInstance();
+	//Lang &lang= Lang::getInstance();
 
 	renderer.renderButton(&buttonReturn);
 	renderer.renderLabel(&labelInfo);

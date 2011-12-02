@@ -124,7 +124,7 @@ Gui::Gui(){
 
 void Gui::init(Game *game){
 	this->commander= game->getCommander();
-	this->gameCamera= game->getGameCamera();
+	this->gameCamera= game->getGameCameraPtr();
 	this->console= game->getConsole();
 	this->world= game->getWorld();
 	this->game=game;
