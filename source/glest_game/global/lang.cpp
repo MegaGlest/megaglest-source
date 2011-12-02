@@ -280,7 +280,11 @@ string Lang::get(const string &s, string uselanguage, bool fallbackToDefault) {
 	}
 	catch(exception &ex) {
 		if(strings.getpath() != "") {
-			if(fallbackToDefault == false || SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] uselanguage [%s] text [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),uselanguage.c_str(),s.c_str());
+			if(fallbackToDefault == false || SystemFlags::VERBOSE_MODE_ENABLED) {
+				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] uselanguage [%s] text [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),uselanguage.c_str(),s.c_str());
+				}
+			}
 		}
 
 		//printf("#2 fallbackToDefault = %d [%s] uselanguage [%s] DEFAULT_LANGUAGE  [%s] this->language [%s]\n",fallbackToDefault,s.c_str(),uselanguage.c_str(),DEFAULT_LANGUAGE,this->language.c_str());
