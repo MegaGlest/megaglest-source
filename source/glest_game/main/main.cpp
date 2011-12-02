@@ -2469,7 +2469,7 @@ int glestMain(int argc, char** argv) {
 			for(unsigned int i = 0; i < paramHeadlessCommandList.size(); ++i) {
 				string headless_command = paramHeadlessCommandList[i];
 				if(headless_command == "exit") {
-					printf("Forcing quit after game has compelted [%s]\n",headless_command.c_str());
+					printf("Forcing quit after game has completed [%s]\n",headless_command.c_str());
 					Program::setWantShutdownApplicationAfterGame(true);
 				}
 				else if(headless_command == "vps") {
