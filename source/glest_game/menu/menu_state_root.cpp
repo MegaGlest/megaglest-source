@@ -178,8 +178,7 @@ void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 }
 
 bool MenuStateRoot::isMasterserverMode() const {
-	Renderer &renderer= Renderer::getInstance();
-	return renderer.isMasterserverMode();
+	return GlobalStaticFlags::getIsNonGraphicalModeEnabled();
 }
 
 void MenuStateRoot::render() {

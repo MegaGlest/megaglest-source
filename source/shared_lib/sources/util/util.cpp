@@ -43,6 +43,7 @@ using namespace Shared::Util;
 
 namespace Shared{ namespace Util{
 
+bool GlobalStaticFlags::isNonGraphicalMode = false;
 // Init statics
 std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType> *SystemFlags::debugLogFileList = NULL;
 int SystemFlags::lockFile								= -1;

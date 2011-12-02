@@ -122,7 +122,7 @@ float SurfaceAtlas::getCoordStep() const {
 }
 
 void SurfaceAtlas::checkDimensions(const Pixmap2D *p) {
-	if(Renderer::getInstance().isMasterserverMode() == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 

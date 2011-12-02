@@ -18,6 +18,7 @@
 #include <jpeglib.h>
 #include <setjmp.h>
 
+#include "util.h"
 #include "leak_dumper.h"
 
 using std::runtime_error;
@@ -71,6 +72,7 @@ static inline std::vector<string> getExtensions() {
 JPGReader::JPGReader(): FileReader<Pixmap2D>(getExtensions()) {}
 
 Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	//Read file
 	is.seekg(0, ios::end);
 	size_t length = is.tellg();

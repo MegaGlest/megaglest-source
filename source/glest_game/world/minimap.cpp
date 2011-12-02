@@ -57,7 +57,7 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
 	//fow pixmaps
 	float f= 0.f;
 
-	if(Renderer::getInstance().isMasterserverMode() == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		fowPixmap0= new Pixmap2D(potW, potH, 1);
 		fowPixmap1= new Pixmap2D(potW, potH, 1);
 

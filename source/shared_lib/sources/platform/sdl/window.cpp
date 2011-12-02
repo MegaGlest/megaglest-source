@@ -60,7 +60,7 @@ int Window::lastShowMouseState = 0;
 
 bool Window::tryVSynch = false;
 
-bool Window::masterserverMode = false;
+//bool Window::masterserverMode = false;
 
 // ========== PUBLIC ==========
 
@@ -408,7 +408,7 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 	if(stencilBits >= 0)
 		newStencilBits = stencilBits;
 
-	if(Window::masterserverMode == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		if(fullscreen_anti_aliasing == true) {
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
@@ -456,7 +456,7 @@ void Window::toggleFullscreen() {
 	Use 0 for Height, Width, and Color Depth to keep the current values. */
 
 	if(Window::allowAltEnterFullscreenToggle == true) {
-		if(Window::masterserverMode == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			SDL_Surface *cur_surface = SDL_GetVideoSurface();
 			if(cur_surface != NULL) {
 				Window::isFullScreen = !((cur_surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN);
@@ -532,7 +532,7 @@ void Window::toggleFullscreen() {
 	if(Window::allowAltEnterFullscreenToggle == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(Window::masterserverMode == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			SDL_Surface *cur_surface = SDL_GetVideoSurface();
 			if(cur_surface != NULL) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);

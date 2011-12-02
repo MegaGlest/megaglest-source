@@ -42,6 +42,8 @@ ParticleSystem::ParticleSystem(int particleCount) {
 		memoryObjectList[this]++;
 	}
 
+	//assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	//init particle vector
 	blendMode= bmOne;
 	//particles= new Particle[particleCount];
@@ -1160,7 +1162,11 @@ void SplashParticleSystem::updateParticle(Particle *p){
 //  ParticleManager
 // ===========================================================================
 
-ParticleManager::~ParticleManager(){
+ParticleManager::ParticleManager() {
+	//assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+}
+
+ParticleManager::~ParticleManager() {
 	end();
 }
 

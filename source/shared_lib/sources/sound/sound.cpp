@@ -13,12 +13,13 @@
 
 #include <fstream>
 #include <stdexcept>
-
+#include "util.h"
 #include "leak_dumper.h"
 
+using namespace Shared::Util;
 namespace Shared { namespace Sound {
 
-bool Sound::masterserverMode = false;
+//bool Sound::masterserverMode = false;
 
 // =====================================================
 //	class SoundInfo
@@ -73,7 +74,7 @@ void StaticSound::load(const string &path) {
 
 	fileName = path;
 
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 	string ext= path.substr(path.find_last_of('.')+1);
@@ -110,7 +111,7 @@ void StrSound::open(const string &path) {
 
 	fileName = path;
 
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
@@ -121,7 +122,7 @@ void StrSound::open(const string &path) {
 }
 
 uint32 StrSound::read(int8 *samples, uint32 size){
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return 0;
 	}
 
@@ -137,7 +138,7 @@ void StrSound::close(){
 }
 
 void StrSound::restart(){
-	if(this->masterserverMode == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 

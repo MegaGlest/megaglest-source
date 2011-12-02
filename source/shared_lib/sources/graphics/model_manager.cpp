@@ -15,8 +15,11 @@
 #include "graphics_factory.h"
 #include <cstdlib>
 #include <stdexcept>
+#include "util.h"
 
 #include "leak_dumper.h"
+
+using namespace Shared::Util;
 
 namespace Shared{ namespace Graphics{
 
@@ -25,6 +28,7 @@ namespace Shared{ namespace Graphics{
 // =====================================================
 
 ModelManager::ModelManager(){
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	textureManager= NULL;
 }
 

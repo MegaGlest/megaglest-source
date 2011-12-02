@@ -103,7 +103,7 @@ static string application_binary="";
 static string mg_app_name = "";
 static string mailStringSupport = "";
 static bool sdl_quitCalled = false;
-static bool isMasterServerModeEnabled = false;
+//static bool isMasterServerModeEnabled = false;
 
 FileCRCPreCacheThread *preCacheThread=NULL;
 
@@ -142,7 +142,7 @@ void cleanupCRCThread() {
 static void cleanupProcessObjects() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(isMasterServerModeEnabled == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		showCursor(true);
 		restoreVideoMode(true);
 	}
@@ -521,7 +521,7 @@ public:
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 program->showMessage(errMsg.c_str());
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                for(;isMasterServerModeEnabled == false && program->isMessageShowing();) {
+                for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && program->isMessageShowing();) {
                     //program->getState()->render();
                     Window::handleEvent();
                     program->loop();
@@ -533,7 +533,7 @@ public:
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                 program->showMessage(errMsg.c_str());
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                for(;isMasterServerModeEnabled == false && program->isMessageShowing();) {
+                for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && program->isMessageShowing();) {
                     //program->renderProgramMsgBox();
                     Window::handleEvent();
                     program->loop();
@@ -573,7 +573,7 @@ public:
 
 #ifdef WIN32
 
-        if(isMasterServerModeEnabled == false) {
+        if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
         	showCursor(true);
         	restoreVideoMode(true);
         }
@@ -2454,8 +2454,9 @@ int glestMain(int argc, char** argv) {
 	}
 
     if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-    	isMasterServerModeEnabled = true;
-    	Window::setMasterserverMode(isMasterServerModeEnabled);
+    	//isMasterServerModeEnabled = true;
+    	//Window::setMasterserverMode(isMasterServerModeEnabled);
+    	GlobalStaticFlags::setIsNonGraphicalModeEnabled(true);
 
     	int foundParamIndIndex = -1;
 		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]) + string("="),&foundParamIndIndex);
@@ -2641,9 +2642,9 @@ int glestMain(int argc, char** argv) {
 	    	hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
 	    	config.setString("FactorySound","None");
 	    	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-	    		Logger::getInstance().setMasterserverMode(true);
-	    		Model::setMasterserverMode(true);
-	    		Shared::Sound::Sound::setMasterserverMode(true);
+	    		//Logger::getInstance().setMasterserverMode(true);
+	    		//Model::setMasterserverMode(true);
+	    		//Shared::Sound::Sound::setMasterserverMode(true);
 	    	}
 	    }
 
@@ -2853,10 +2854,6 @@ int glestMain(int argc, char** argv) {
         	Window::setTryVSynch(true);
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**ENABLED OPENGL VSYNCH**\n");
         }
-
-		if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-			Renderer::getInstance(true);
-		}
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
 			int foundParamIndIndex = -1;
@@ -3523,7 +3520,7 @@ int glestMain(int argc, char** argv) {
 #endif
 		}
 
-	    if(isMasterServerModeEnabled == true) {
+	    if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 	    	printf("Headless server is now running...\n");
 	    }
 
@@ -3531,7 +3528,7 @@ int glestMain(int argc, char** argv) {
 
 		//main loop
 		while(program->isShutdownApplicationEnabled() == false && Window::handleEvent()) {
-			if(isMasterServerModeEnabled == true) {
+			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 
 				if(disableheadless_console == false) {
 				#ifndef WIN32
@@ -3597,13 +3594,13 @@ int glestMain(int argc, char** argv) {
 //			}
 		}
 
-	    if(isMasterServerModeEnabled == true) {
+	    if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 	    	printf("\nHeadless server is about to quit...\n");
 	    }
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] starting normal application shutdown\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(isMasterServerModeEnabled == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = program->getSoundThreadManager(true);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -3620,7 +3617,7 @@ int glestMain(int argc, char** argv) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &e) {
-		if(isMasterServerModeEnabled == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -3632,7 +3629,7 @@ int glestMain(int argc, char** argv) {
 		ExceptionHandler::handleRuntimeError(e.what());
 	}
 	catch(const char *e) {
-		if(isMasterServerModeEnabled == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -3644,7 +3641,7 @@ int glestMain(int argc, char** argv) {
 		ExceptionHandler::handleRuntimeError(e);
 	}
 	catch(const string &ex) {
-		if(isMasterServerModeEnabled == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -3656,7 +3653,7 @@ int glestMain(int argc, char** argv) {
 		ExceptionHandler::handleRuntimeError(ex.c_str());
 	}
 	catch(...) {
-		if(isMasterServerModeEnabled == false) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();

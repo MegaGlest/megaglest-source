@@ -17,7 +17,10 @@
 #include "graphics_interface.h"
 #include "graphics_factory.h"
 
+#include "util.h"
 #include "leak_dumper.h"
+
+using namespace Shared::Util;
 
 namespace Shared{ namespace Graphics{
 
@@ -25,7 +28,9 @@ namespace Shared{ namespace Graphics{
 //	class TextureManager
 // =====================================================
 
-TextureManager::TextureManager(){
+TextureManager::TextureManager() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	textureFilter= Texture::fBilinear;
 	maxAnisotropy= 1;
 }

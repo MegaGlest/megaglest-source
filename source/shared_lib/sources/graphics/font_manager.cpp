@@ -14,14 +14,17 @@
 #include "graphics_interface.h"
 #include "graphics_factory.h"
 #include <stdexcept>
+#include "util.h"
 #include "leak_dumper.h"
 
+using namespace Shared::Util;
 namespace Shared { namespace Graphics {
 
 // =====================================================
 //	class FontManager
 // =====================================================
 FontManager::FontManager() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	fonts.clear();
 }
 

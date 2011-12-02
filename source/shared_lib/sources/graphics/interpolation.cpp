@@ -29,7 +29,9 @@ namespace Shared{ namespace Graphics{
 //	class InterpolationData
 // =====================================================
 
-InterpolationData::InterpolationData(const Mesh *mesh){
+InterpolationData::InterpolationData(const Mesh *mesh) {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	vertices= NULL;
 	normals= NULL;
 	

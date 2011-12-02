@@ -111,7 +111,7 @@ private:
 
     static void setKeystate(SDL_keysym state)					{ keystate = state; }
 
-    static bool masterserverMode;
+    //static bool masterserverMode;
 
 protected:
 	int w, h;
@@ -132,8 +132,8 @@ public:
 	Window();
 	virtual ~Window();
 
-	static void setMasterserverMode(bool value) { Window::masterserverMode = value;}
-	static bool getMasterserverMode() { return Window::masterserverMode;}
+	//static void setMasterserverMode(bool value) { Window::masterserverMode = value;}
+	//static bool getMasterserverMode() { return Window::masterserverMode;}
 
 	static bool getTryVSynch() { return tryVSynch; }
 	static void setTryVSynch(bool value) { tryVSynch = value; }

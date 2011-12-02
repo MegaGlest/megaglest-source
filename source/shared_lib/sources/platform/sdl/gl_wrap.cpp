@@ -65,7 +65,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 	int resW = PlatformCommon::Private::ScreenWidth;
 	int resH = PlatformCommon::Private::ScreenHeight;
 
-	if(Window::getMasterserverMode() == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 
 	#ifndef WIN32
 		string mg_icon_file = "";
@@ -162,7 +162,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 	}
 
-	if(Window::getMasterserverMode() == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		 GLuint err = glewInit();
 		 if (GLEW_OK != err) {
 			fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
@@ -198,7 +198,7 @@ void PlatformContextGl::makeCurrent() {
 }
 
 void PlatformContextGl::swapBuffers() {
-	if(Window::getMasterserverMode() == false) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		SDL_GL_SwapBuffers();
 	}
 }

@@ -16,7 +16,7 @@
 #include <stdexcept>
 #include <png.h>
 #include <setjmp.h>
-
+#include "util.h"
 #include "leak_dumper.h"
 
 using std::runtime_error;
@@ -61,6 +61,7 @@ static inline std::vector<string> getExtensionsPng() {
 PNGReader::PNGReader(): FileReader<Pixmap2D>(getExtensionsPng()) {}
 
 Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	//Read file
 	is.seekg(0, ios::end);
 	//size_t length = is.tellg();

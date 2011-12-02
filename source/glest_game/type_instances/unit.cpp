@@ -343,7 +343,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType
 	showUnitParticles				= config.getBool("UnitParticles","true");
 	maxQueuedCommandDisplayCount 	= config.getInt("MaxQueuedCommandDisplayCount","15");
 
-	if(Renderer::getInstance().isMasterserverMode() == true) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		showUnitParticles = false;
 	}
 
