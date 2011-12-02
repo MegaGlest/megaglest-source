@@ -33,6 +33,8 @@ IF(CURL_FOUND)
     IF(CMAKE_CURL_CONFIG)
       OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
       OPTION(FORCE_CURL_DYNAMIC_LIBS "force the use of dynamic libs for CURL" OFF)
+      MESSAGE(STATUS "Force Curl dynamic: ${FORCE_CURL_DYNAMIC_LIBS}")
+
       IF(WANT_STATIC_LIBS AND NOT FORCE_CURL_DYNAMIC_LIBS)
 	# run the curl-config program to get --static-libs
 	EXEC_PROGRAM(sh
