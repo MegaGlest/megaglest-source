@@ -27,21 +27,7 @@ namespace Glest{ namespace Game{
 
 class PlayerStats {
 public:
-	PlayerStats() {
-		control = ctClosed;
-		resourceMultiplier=1.0f;
-		factionTypeName = "";
-		personalityType = fpt_Normal;
-		teamIndex = 0;
-		victory = false;
-		kills = 0;
-		enemykills = 0;
-		deaths = 0;
-		unitsProduced = 0;
-		resourcesHarvested = 0;
-		playerName = "";
-		playerColor = Vec3f(0,0,0);
-	}
+	PlayerStats();
 
 	ControlType control;
 	float resourceMultiplier;
@@ -56,6 +42,8 @@ public:
 	int resourcesHarvested;
 	string playerName;
 	Vec3f playerColor;
+
+	string getStats() const;
 };
 
 // =====================================================
@@ -145,6 +133,7 @@ public:
 
 	void addFramesToCalculatePlaytime()  		{this->framesToCalculatePlaytime++; }
 
+	string getStats() const;
 };
 
 }}//end namespace
