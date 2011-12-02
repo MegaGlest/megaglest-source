@@ -4,14 +4,15 @@
 
 MojoSetup.applocalization = {
     ["Uninstall complete"] = {
-     	en = "Uninstall complete. You may also delete '.megaglest' in your home directory to remove personal savegames and settings.",
-        de = "Deinstallation komplett.",
+     	en = "Uninstall complete. You may also delete '.megaglest' in your home directory to remove personal settings.",
+        de = "Deinstallation abgeschlossen. Um auch Deine MegaGlest-Konfiguration zu entfernen kannst Du jetzt noch das Verzeichnis '.megaglest' in Deinem Home-Verzeichnis löschen.",
         es = "Desinstalación completa.",
-        pl = "Usuwanie zakończone.",
+        pl = "Usuwanie zakończone. Możesz usunąć '.megaglest' w katalogu domowym by usunąć zapisane gry i ustawienia.",
         it = "Disinstallazione completata. Se desideri cancellare i salvataggi e le impostazione cancella '.megaglest' nella tua directory home.",
     };
 
     ["MegaGlest README"] = {
+        en = "MegaGlest README",
         de = "MegaGlest README-Datei",
         es = "LEEME",
         pl = "MegaGlest README",
@@ -25,7 +26,7 @@ MojoSetup.applocalization = {
         en = "MegaGlest Game Licence",
         de = "MegaGlest-Lizenz (Spiel)",
         es = "Licencia de uso de MegaGlest",
-        pl = "Licencja MegaGlest",
+        pl = "Licencja gry MegaGlest",
         it = "Licenza di MegaGlest",
     };
 
@@ -33,39 +34,39 @@ MojoSetup.applocalization = {
         en = "MegaGlest Data Licence",
         de = "MegaGlest-Lizenz (Daten)",
         es = "Licencia de uso de MegaGlest",
-        pl = "Licencja MegaGlest",
+        pl = "Licencja danych MegaGlest",
         it = "Licenza di MegaGlest",
     };
 
     ["MegaGlest Uninstall Title"] = {
         en = "Remove previous version",
-        de = "Remove previous version",
+        de = "Entfernen der vorherigen Version",
         es = "Remove previous version",
-        pl = "Remove previous version",
+        pl = "Usuń poprzednią wersję",
         it = "Remove previous version",
     };
 
     ["MegaGlest Uninstall Prompt"] = {
         en = "We have detected a previous installation of MegaGlest, should we remove it?",
-        de = "We have detected a previous installation of MegaGlest, should we remove it?",
+        de = "Es wurde eine frühere Installation von MegaGlest erkannt. Möchtest Du sie entfernen?",
         es = "We have detected a previous installation of MegaGlest, should we remove it?",
-        pl = "We have detected a previous installation of MegaGlest, should we remove it?",
+        pl = "Wykryto poprzednią instalację MegaGlest, usunąć ją?",
         it = "We have detected a previous installation of MegaGlest, should we remove it?",
     };
 
     ["MegaGlest Visit Website Title"] = {
         en = "Visit megaglest.org",
-        de = "Visit megaglest.org",
+        de = "Besuche megaglest.org",
         es = "Visit megaglest.org",
-        pl = "Visit megaglest.org",
+        pl = "Odwiedź megaglest.org",
         it = "Visit megaglest.org",
     };
 
     ["MegaGlest Visit Website Prompt"] = {
         en = "Would you like to view our getting started page on megaglest.org?",
-        de = "Would you like to view our getting started page on megaglest.org?",
+        de = "Möchtest Du unseren 'Getting Started'-Guide auf megaglest.org ansehen?",
         es = "Would you like to view our getting started page on megaglest.org?",
-        pl = "Would you like to view our getting started page on megaglest.org?",
+        pl = "Czy chcesz zobaczyć stronę z pierwszymi krokami na megaglest.org?",
         it = "Would you like to view our getting started page on megaglest.org?",
     };
 
