@@ -90,8 +90,8 @@ void TimeFlow::update() {
 	lastTime= time;
 }
 
-bool TimeFlow::isAproxTime(float time) const {
-	return (this->time>=time) && (this->time<time+timeInc);
-}
+//bool TimeFlow::isAproxTime(float time) const {
+//	return (this->time>=time) && (this->time<time+timeInc);
+//}
 
 }}//end namespace

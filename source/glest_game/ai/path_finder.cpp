@@ -504,7 +504,7 @@ direction PathFinder::directionOfMove(Vec2i to, Vec2i from) const {
 
 }
 
-direction PathFinder::directionWeCameFrom(Vec2i node, Vec2i nodeFrom) {
+direction PathFinder::directionWeCameFrom(Vec2i node, Vec2i nodeFrom) const {
 	direction result = NO_DIRECTION;
 	if(nodeFrom.x >= 0 && nodeFrom.y >= 0) {
 		result = directionOfMove(node, nodeFrom);
@@ -580,7 +580,7 @@ directionset PathFinder::forcedNeighbours(Vec2i coord,direction dir) {
 	return dirs;
 }
 
-directionset PathFinder::naturalNeighbours(direction dir) {
+directionset PathFinder::naturalNeighbours(direction dir) const {
 	if (dir == NO_DIRECTION)
 		return 255;
 

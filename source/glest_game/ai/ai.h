@@ -149,8 +149,15 @@ private:
 	bool getAdjacentUnits(std::map<float, std::map<int, const Unit *> > &signalAdjacentUnits, const Unit *unit);
 
 public: 
-	int minWarriors;
+	Ai() {
+	    aiInterface = NULL;
+	    startLoc = -1;
+	    randomMinWarriorsReached = false;
+	}
     ~Ai();
+
+    int minWarriors;
+
 	void init(AiInterface *aiInterface,int useStartLocation=-1);
     void update(); 
 

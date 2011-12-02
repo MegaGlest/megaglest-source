@@ -3159,7 +3159,7 @@ void Unit::cleanupOldBadHarvestPos() {
 		//printf("========================> cleanupOldBadHarvestPos() [%d] badHarvestPosList.size [%ld]\n",getFrameCount(),badHarvestPosList.size());
 
 		std::vector<Vec2i> purgeList;
-		for(std::map<Vec2i,int>::iterator iter = badHarvestPosList.begin(); iter != badHarvestPosList.end(); iter++) {
+		for(std::map<Vec2i,int>::iterator iter = badHarvestPosList.begin(); iter != badHarvestPosList.end(); ++iter) {
 			if(getFrameCount() - iter->second >= cleanupInterval) {
 				//printf("cleanupOldBadHarvestPos() [%d][%d]\n",getFrameCount(),iter->second);
 				purgeList.push_back(iter->first);

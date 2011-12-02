@@ -148,6 +148,7 @@ public:
 	    fog = false;
 	    fogMode = 0;
 		fogDensity = 0.0f;
+		weather= wSunny;
 	}
     ~Tileset();
     Checksum loadTileset(const vector<string> pathList, const string &tilesetName,
