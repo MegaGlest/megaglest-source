@@ -8,7 +8,7 @@ MojoSetup.applocalization = {
         de = "Deinstallation abgeschlossen. Um auch Deine MegaGlest-Konfiguration zu entfernen kannst Du jetzt noch das Verzeichnis '.megaglest' in Deinem Home-Verzeichnis löschen.",
         es = "Desinstalación completa.",
         pl = "Usuwanie zakończone. Możesz usunąć '.megaglest' w katalogu domowym by usunąć zapisane gry i ustawienia.",
-        it = "Disinstallazione completata. Se desideri cancellare i salvataggi e le impostazione cancella '.megaglest' nella tua directory home.",
+        it = "Disinstallazione completata. Se desideri cancellare i salvataggi e le impostazioni cancella '.megaglest' nella tua directory home.",
     };
 
     ["MegaGlest README"] = {
@@ -16,7 +16,7 @@ MojoSetup.applocalization = {
         de = "MegaGlest README-Datei",
         es = "LEEME",
         pl = "MegaGlest README",
-        it = "Informazioni su MegaGlest",
+         it = "Informazioni su MegaGlest",
     };
 
     ["docs/README"] = {
@@ -43,7 +43,7 @@ MojoSetup.applocalization = {
         de = "Entfernen der vorherigen Version",
         es = "Remove previous version",
         pl = "Usuń poprzednią wersję",
-        it = "Remove previous version",
+        it = "Rimuovere la versione precedente",
     };
 
     ["MegaGlest Uninstall Prompt"] = {
@@ -51,7 +51,7 @@ MojoSetup.applocalization = {
         de = "Es wurde eine frühere Installation von MegaGlest erkannt. Möchtest Du sie entfernen?",
         es = "We have detected a previous installation of MegaGlest, should we remove it?",
         pl = "Wykryto poprzednią instalację MegaGlest, usunąć ją?",
-        it = "We have detected a previous installation of MegaGlest, should we remove it?",
+        it = "E' stata trovata una versione meno recente di Megaglest, vuoi rimuoverla?",
     };
 
     ["MegaGlest Visit Website Title"] = {
@@ -59,7 +59,7 @@ MojoSetup.applocalization = {
         de = "Besuche megaglest.org",
         es = "Visit megaglest.org",
         pl = "Odwiedź megaglest.org",
-        it = "Visit megaglest.org",
+        it = "Visita megaglest.org",
     };
 
     ["MegaGlest Visit Website Prompt"] = {
@@ -67,7 +67,7 @@ MojoSetup.applocalization = {
         de = "Möchtest Du unseren 'Getting Started'-Guide auf megaglest.org ansehen?",
         es = "Would you like to view our getting started page on megaglest.org?",
         pl = "Czy chcesz zobaczyć stronę z pierwszymi krokami na megaglest.org?",
-        it = "Would you like to view our getting started page on megaglest.org?",
+        it = "Vorresti visualizzare la nostra pagina di benvenuto su megaglest.org?",
     };
 
     ["docs/LICENSE"] = {
