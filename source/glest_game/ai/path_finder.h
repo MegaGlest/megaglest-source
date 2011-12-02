@@ -134,14 +134,14 @@ private:
 
 	bool contained(Vec2i c);
 	direction directionOfMove(Vec2i to, Vec2i from) const;
-	direction directionWeCameFrom(Vec2i node, Vec2i nodeFrom);
+	direction directionWeCameFrom(Vec2i node, Vec2i nodeFrom) const;
 	bool isEnterable(Vec2i coord);
 	Vec2i adjustInDirection(Vec2i c, int dir);
 	bool directionIsDiagonal(direction dir) const;
 	directionset forcedNeighbours(Vec2i coord,direction dir);
 	bool implies(bool a, bool b) const;
 	directionset addDirectionToSet(directionset dirs, direction dir) const;
-	directionset naturalNeighbours(direction dir);
+	directionset naturalNeighbours(direction dir) const;
 	direction nextDirectionInSet(directionset *dirs) const;
 	Vec2i jump(Vec2i dest, direction dir, Vec2i start,std::vector<Vec2i> &path,int pathLength);
 	bool addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i sucPos, bool &nodeLimitReached,int maxNodeCount,Node **newNodeAdded,bool bypassChecks);

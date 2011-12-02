@@ -208,9 +208,9 @@ float TextFreetypeGL::Advance(const char* str, const int len) {
 	FreetypeGLUnicodeStringItr<unsigned char> ustr((const unsigned char *)str);
 
     for(int i = 0; (len < 0 && *ustr) || (len >= 0 && i < len); i++) {
-    	unsigned int prevChar = (i > 0 ? *ustr-1 : 0);
+    	//unsigned int prevChar = (i > 0 ? *ustr-1 : 0);
     	unsigned int thisChar = *ustr++;
-    	unsigned int nextChar = *ustr;
+    	//unsigned int nextChar = *ustr;
 
 		// Get glyph (build it if needed
 		TextureGlyph *glyph = texture_font_get_glyph( this->font, thisChar );

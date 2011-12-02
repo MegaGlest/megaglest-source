@@ -755,7 +755,7 @@ void Intro::render() {
 		string timingText = intToStr(difTime) + " / " + intToStr(Intro::introTime);
 
 		if(Renderer::renderText3DEnabled) {
-			const Metrics &metrics= Metrics::getInstance();
+			//const Metrics &metrics= Metrics::getInstance();
 			//int w= metrics.getVirtualW();
 			//int h= metrics.getVirtualH();
 
@@ -764,7 +764,7 @@ void Intro::render() {
 				10, 20, false);
 		}
 		else {
-			const Metrics &metrics= Metrics::getInstance();
+			//const Metrics &metrics= Metrics::getInstance();
 			//int w= metrics.getVirtualW();
 			//int h= metrics.getVirtualH();
 

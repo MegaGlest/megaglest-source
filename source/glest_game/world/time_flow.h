@@ -59,7 +59,7 @@ public:
 
 	void update();
 private:
-	bool isAproxTime(float time) const;
+	//bool isAproxTime(float time) const;
 };
 
 }} //end namespace
