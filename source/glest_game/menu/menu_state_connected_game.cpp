@@ -2776,6 +2776,7 @@ void MenuStateConnectedGame::update() {
         				listBoxFogOfWar.setSelectedItemIndex(1);
         			}
 				}
+				cleanupMapPreviewTexture();
 
 				// Allow Observers
 				if(gameSettings->getAllowObservers()) {

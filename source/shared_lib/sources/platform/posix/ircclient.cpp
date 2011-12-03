@@ -235,7 +235,7 @@ void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, 
 
 void event_channel(irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
 	//IRC: Event "433", origin: "leguin.freenode.net", params: 3 [*|softcoder|Nickname is already in use.]
-	printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if ( count != 2 )
 		return;
