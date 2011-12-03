@@ -32,8 +32,10 @@ using Shared::Sound::StaticSound;
 // =====================================================
 // 	class CoreData  
 //
-/// Data shared ammont all the ProgramStates
+/// Data shared among all the ProgramStates
 // =====================================================
+
+class GameSettings;
 
 class CoreData {
 private:
@@ -138,6 +140,9 @@ public:
     Font3D *getMenuFontBig3D() const			{return menuFontBig3D;}
 	Font3D *getMenuFontVeryBig3D() const		{return menuFontVeryBig3D;}
     Font3D *getConsoleFont3D() const			{return consoleFont3D;}
+
+    void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0);
+    void loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);
 
 private:
     CoreData();
