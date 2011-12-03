@@ -721,17 +721,23 @@ void PixmapIoJpg::write(uint8 *pixels) {
 
 // ===================== PUBLIC ========================
 
-Pixmap1D::Pixmap1D(){
+Pixmap1D::Pixmap1D() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
     w= -1;
 	components= -1;
     pixels= NULL;
 }
 
-Pixmap1D::Pixmap1D(int components){
+Pixmap1D::Pixmap1D(int components) {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	init(components);
 }
 
-Pixmap1D::Pixmap1D(int w, int components){
+Pixmap1D::Pixmap1D(int w, int components) {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	init(w, components);
 }
 
@@ -842,6 +848,7 @@ void Pixmap1D::loadTga(const string &path) {
 // ===================== PUBLIC ========================
 
 Pixmap2D::Pixmap2D() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
     h= -1;
     w= -1;
 	components= -1;
@@ -849,6 +856,7 @@ Pixmap2D::Pixmap2D() {
 }
 
 Pixmap2D::Pixmap2D(int components) {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
     h= -1;
     w= -1;
 	this->components= -1;
@@ -858,6 +866,7 @@ Pixmap2D::Pixmap2D(int components) {
 }
 
 Pixmap2D::Pixmap2D(int w, int h, int components) {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
     this->h= 0;
     this->w= -1;
     this->components= -1;
@@ -1239,6 +1248,8 @@ bool Pixmap2D::doDimensionsAgree(const Pixmap2D *pixmap){
 // =====================================================
 
 Pixmap3D::Pixmap3D() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	w= -1;
 	h= -1;
 	d= -1;
@@ -1247,13 +1258,15 @@ Pixmap3D::Pixmap3D() {
 	slice=0;
 }
 
-Pixmap3D::Pixmap3D(int w, int h, int d, int components){
+Pixmap3D::Pixmap3D(int w, int h, int d, int components) {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	pixels = NULL;
 	slice=0;
 	init(w, h, d, components);
 }
 
-Pixmap3D::Pixmap3D(int d, int components){
+Pixmap3D::Pixmap3D(int d, int components) {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	pixels = NULL;
 	slice=0;
 	init(d, components);
@@ -1379,6 +1392,13 @@ void Pixmap3D::loadSliceTga(const string &path, int slice){
 // =====================================================
 //	class PixmapCube
 // =====================================================
+PixmapCube::PixmapCube() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+}
+
+PixmapCube::~PixmapCube() {
+
+}
 
 void PixmapCube::init(int w, int h, int components) {
 	for(int i=0; i<6; ++i) {

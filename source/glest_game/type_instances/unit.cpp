@@ -856,8 +856,9 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 			unitParticleSystems.pop_back();
 		}
 	}
-	if(showUnitParticles && (currSkill->unitParticleSystemTypes.empty() == false) &&
-		(unitParticleSystems.empty() == true) ) {
+	if(showUnitParticles == true  &&
+		currSkill->unitParticleSystemTypes.empty() == false &&
+		unitParticleSystems.empty() == true) {
 		//printf("START - particle system type\n");
 
 		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin(); it != currSkill->unitParticleSystemTypes.end(); ++it) {
@@ -2897,7 +2898,8 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 
 	// Now check if we have special hp triggered particles
 	//start additional particles
-	if(showUnitParticles && (type->damageParticleSystemTypes.empty() == false)  &&
+	if(showUnitParticles &&
+		type->damageParticleSystemTypes.empty() == false  &&
 		force == false && alive == true) {
 		for(unsigned int i = 0; i < type->damageParticleSystemTypes.size(); ++i) {
 			UnitParticleSystemType *pst = type->damageParticleSystemTypes[i];
@@ -2939,7 +2941,8 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 void Unit::startDamageParticles() {
 	if(hp < type->getMaxHp() / 2 && hp > 0 && alive == true) {
 		//start additional particles
-		if( showUnitParticles && (!type->damageParticleSystemTypes.empty()) ) {
+		if( showUnitParticles &&
+			type->damageParticleSystemTypes.empty() == false ) {
 			for(unsigned int i = 0; i < type->damageParticleSystemTypes.size(); ++i) {
 				UnitParticleSystemType *pst = type->damageParticleSystemTypes[i];
 
@@ -2970,7 +2973,7 @@ void Unit::startDamageParticles() {
 			fireParticleSystems.push_back(fps);
 
 			Renderer::getInstance().manageParticleSystem(fps, rsGame);
-			if(showUnitParticles) {
+			if(showUnitParticles == true) {
 				// smoke
 				UnitParticleSystem *ups= new UnitParticleSystem(400);
 				ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));

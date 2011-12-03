@@ -118,7 +118,7 @@ public:
 
 public:
 	typedef vector<float> SurfProbs;
-	typedef vector<Pixmap2D> SurfPixmaps;
+	typedef vector<Pixmap2D *> SurfPixmaps;
 
 private:
 	SurfaceAtlas surfaceAtlas;

@@ -55,10 +55,10 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) {
 }
 
 Object::~Object() {
-	Renderer &renderer= Renderer::getInstance();
+	Renderer &renderer = Renderer::getInstance();
 	// fade(and by this remove) all unit particle systems
 	while(unitParticleSystems.empty() == false) {
-		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(unitParticleSystems.back(),rsGame);
+		bool particleValid = renderer.validateParticleSystemStillExists(unitParticleSystems.back(),rsGame);
 		if(particleValid == true) {
 			unitParticleSystems.back()->fade();
 		}
@@ -69,6 +69,7 @@ Object::~Object() {
 		stateCallback->removingObjectEvent(this);
 	}
 	delete resource;
+	resource = NULL;
 }
 
 void Object::end() {
@@ -84,7 +85,9 @@ void Object::end() {
 }
 
 void Object::initParticles() {
-	if(this->objectType == NULL) return;
+	if(this->objectType == NULL) {
+		return;
+	}
 	if(this->objectType->getTilesetModelType(variation)->hasParticles()) {
 		ModelParticleSystemTypes *particleTypes= this->objectType->getTilesetModelType(variation)->getParticleTypes();
 		initParticlesFromTypes(particleTypes);
@@ -92,8 +95,9 @@ void Object::initParticles() {
 }
 
 void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleTypes) {
-	if(Config::getInstance().getBool("TilesetParticles", "true") && (particleTypes->empty() == false)
-	        && (unitParticleSystems.empty() == true)){
+	bool showTilesetParticles = Config::getInstance().getBool("TilesetParticles", "true");
+	if(showTilesetParticles == true && GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+			particleTypes->empty() == false && unitParticleSystems.empty() == true) {
 		for(ObjectParticleSystemTypes::const_iterator it= particleTypes->begin(); it != particleTypes->end(); ++it){
 			UnitParticleSystem *ups= new UnitParticleSystem(200);
 			(*it)->setValues(ups);
@@ -107,7 +111,7 @@ void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleType
 	}
 }
 
-void Object::setHeight(float height){
+void Object::setHeight(float height) {
 	pos.y=height;
 
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
@@ -119,32 +123,26 @@ void Object::setHeight(float height){
 }
 
 Model *Object::getModelPtr() const {
-	Model* result;
-	if(objectType==NULL){
+	Model* result = NULL;
+	if(objectType==NULL) {
 		if(resource != NULL && resource->getType() != NULL){
-			result=resource->getType()->getModel();
+			result = resource->getType()->getModel();
 		}
-		else
-		{
-			result=NULL;
-		}
-	} else {
+	}
+	else {
 		result=objectType->getTilesetModelType(variation)->getModel();
 	}
 	return result;
 }
 
-const Model *Object::getModel() const{
-	Model* result;
-	if(objectType==NULL){
+const Model *Object::getModel() const {
+	Model* result = NULL;
+	if(objectType == NULL){
 		if(resource != NULL && resource->getType() != NULL){
 			result=resource->getType()->getModel();
 		}
-		else
-		{
-			result=NULL;
-		}
-	} else {
+	}
+	else {
 		result=objectType->getTilesetModelType(variation)->getModel();
 	}
 	return result;
@@ -155,6 +153,9 @@ bool Object::getWalkable() const{
 }
 
 void Object::setResource(const ResourceType *resourceType, const Vec2i &pos){
+	delete resource;
+	resource = NULL;
+
 	resource= new Resource();
 	resource->init(resourceType, pos);
 	initParticlesFromTypes(resourceType->getObjectParticleSystemTypes());

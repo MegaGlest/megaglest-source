@@ -229,9 +229,11 @@ Renderer::Renderer() : BaseRenderer() {
 		particleManager[i]= graphicsFactory->newParticleManager();
 	}
 
-	saveScreenShotThread = new SimpleTaskThread(this,0,25);
-	saveScreenShotThread->setUniqueID(__FILE__);
-	saveScreenShotThread->start();
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+		saveScreenShotThread = new SimpleTaskThread(this,0,25);
+		saveScreenShotThread->setUniqueID(__FILE__);
+		saveScreenShotThread->start();
+	}
 }
 
 void Renderer::cleanupScreenshotThread() {
@@ -772,6 +774,9 @@ void Renderer::endFont(Font *font, ResourceScope rs, bool mustExistInList) {
 }
 
 void Renderer::resetFontManager(ResourceScope rs) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 	fontManager[rs]->end();
 	fontManager[rsGlobal]->init();
 }
@@ -797,6 +802,10 @@ void Renderer::updateParticleManager(ResourceScope rs, int renderFps) {
 }
 
 void Renderer::renderParticleManager(ResourceScope rs){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_DEPTH_BUFFER_BIT  | GL_STENCIL_BUFFER_BIT);
 	glDepthFunc(GL_LESS);
 	particleRenderer->renderManager(particleManager[rs], modelRenderer);
@@ -804,6 +813,9 @@ void Renderer::renderParticleManager(ResourceScope rs){
 }
 
 void Renderer::swapBuffers() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 	//glFlush(); // should not be required - http://www.opengl.org/wiki/Common_Mistakes
 	glFlush();
 
@@ -1481,7 +1493,11 @@ void Renderer::computeVisibleQuad() {
 void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 	if(no2DMouseRendering == true) {
 			return;
-		}
+	}
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	float color1 = 0.0, color2 = 0.0;
 
 	float fadeFactor = fade + 1.f;
@@ -1566,6 +1582,10 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 }
 
 void Renderer::renderMouse3d() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(game == NULL) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s] Line: %d game == NULL",__FILE__,__FUNCTION__,__LINE__);
@@ -1672,6 +1692,10 @@ void Renderer::renderMouse3d() {
 }
 
 void Renderer::renderBackground(const Texture2D *texture) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	const Metrics &metrics= Metrics::getInstance();
 
 	assertGl();
@@ -1689,6 +1713,10 @@ void Renderer::renderBackground(const Texture2D *texture) {
 }
 
 void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha,const Vec3f *color) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
     assertGl();
 
 	glPushAttrib(GL_ENABLE_BIT);
@@ -1714,6 +1742,10 @@ void Renderer::renderTextureQuad(int x, int y, int w, int h, const Texture2D *te
 
 void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, int lineHeight,
 								Font3D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	Vec4f fontColor;
 	Lang &lang= Lang::getInstance();
 	//const Metrics &metrics= Metrics::getInstance();
@@ -1813,6 +1845,10 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 
 void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight,
 								Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	Vec4f fontColor;
 	Lang &lang= Lang::getInstance();
 
@@ -1910,6 +1946,10 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 
 void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 		const bool showMenuConsole, int overrideMaxConsoleLines){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(console == NULL) {
 		throw runtime_error("console == NULL");
 	}
@@ -1963,6 +2003,10 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 }
 
 void Renderer::renderChatManager(const ChatManager *chatManager) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	Vec4f fontColor;
 	Lang &lang= Lang::getInstance();
 
@@ -2022,6 +2066,10 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 }
 
 void Renderer::renderResourceStatus() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	const Metrics &metrics= Metrics::getInstance();
 	const World *world= game->getWorld();
 	const Faction *thisFaction= world->getFaction(world->getThisFactionIndex());
@@ -2115,6 +2163,10 @@ void Renderer::renderResourceStatus() {
 }
 
 void Renderer::renderSelectionQuad() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	const Gui *gui= game->getGui();
 	const SelectionQuad *sq= gui->getSelectionQuad();
 
@@ -2194,6 +2246,10 @@ Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
 }
 
 void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, float alpha, int x, int y, int w, int h, bool centeredW, bool centeredH) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
@@ -2215,6 +2271,10 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, float a
 }
 
 void Renderer::renderText3D(const string &text, Font3D *font, float alpha, int x, int y, bool centered) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
@@ -2233,6 +2293,10 @@ void Renderer::renderText3D(const string &text, Font3D *font, float alpha, int x
 }
 
 void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, int y, bool centered) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
@@ -2300,6 +2364,10 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 }
 
 void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, int w, int h, bool centeredW, bool centeredH) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_CURRENT_BIT);
 	glColor3fv(color.ptr());
 
@@ -2320,6 +2388,10 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const V
 }
 
 void Renderer::renderText3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, bool centered) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_CURRENT_BIT);
 	glColor3fv(color.ptr());
 
@@ -2336,6 +2408,10 @@ void Renderer::renderText3D(const string &text, Font3D *font, const Vec3f &color
 }
 
 void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, int x, int y, bool centered){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_CURRENT_BIT);
 	glColor3fv(color.ptr());
 
@@ -2351,6 +2427,10 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, 
 }
 
 void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, int w, int h, bool centeredW, bool centeredH) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(color.ptr());
@@ -2373,6 +2453,10 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const V
 }
 
 void Renderer::renderText3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, bool centered) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(color.ptr());
@@ -2391,6 +2475,10 @@ void Renderer::renderText3D(const string &text, Font3D *font, const Vec4f &color
 }
 
 void Renderer::renderText(const string &text, Font2D *font, const Vec4f &color, int x, int y, bool centered){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
 	glColor4fv(color.ptr());
@@ -2407,6 +2495,10 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec4f &color, 
 }
 
 void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &color, int x, int y, bool centered) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(font == NULL) {
 		throw runtime_error("font == NULL");
 	}
@@ -2432,6 +2524,10 @@ void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &
 }
 
 void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &color, int x, int y, bool centered){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(font == NULL) {
 		throw runtime_error("font == NULL");
 	}
@@ -2459,12 +2555,20 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 // ============= COMPONENTS =============================
 
 void Renderer::renderLabel(GraphicLabel *label) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	Vec3f labelColor=label->getTextColor();
 	Vec4f colorWithAlpha = Vec4f(labelColor.x,labelColor.y,labelColor.z,GraphicComponent::getFade());
 	renderLabel(label,&colorWithAlpha);
 }
 
 void Renderer::renderLabel(GraphicLabel *label,const Vec3f *color) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(color != NULL) {
 		Vec4f colorWithAlpha = Vec4f(*color);
 		colorWithAlpha.w = GraphicComponent::getFade();
@@ -2477,6 +2581,10 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec3f *color) {
 }
 
 void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(label->getVisible() == false) {
 		return;
 	}
@@ -2535,6 +2643,10 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 }
 
 void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverride, bool *lightedOverride) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(button->getVisible() == false) {
 		return;
 	}
@@ -2668,6 +2780,10 @@ void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverrid
 }
 
 void Renderer::renderCheckBox(const GraphicCheckBox *box) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(box->getVisible() == false) {
 		return;
 	}
@@ -2764,6 +2880,10 @@ void Renderer::renderCheckBox(const GraphicCheckBox *box) {
 
 
 void Renderer::renderLine(const GraphicLine *line) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(line->getVisible() == false) {
 		return;
 	}
@@ -2806,6 +2926,10 @@ void Renderer::renderLine(const GraphicLine *line) {
 }
 
 void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(sb->getVisible() == false) {
 		return;
 	}
@@ -2938,6 +3062,10 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
 }
 
 void Renderer::renderListBox(GraphicListBox *listBox) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(listBox->getVisible() == false) {
 		return;
 	}
@@ -3005,6 +3133,10 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 }
 
 void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(messageBox->getVisible() == false) {
 		return;
 	}
@@ -3299,6 +3431,10 @@ void Renderer::MapRenderer::loadVisibleLayers(float coordStep,VisibleQuadContain
 }
 
 void Renderer::MapRenderer::load(float coordStep) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	int totalCellCount = 0;
 	// we create a layer for each texture in the map
 	for(int y=0; y<map->getSurfaceH()-1; y++) {
@@ -3381,6 +3517,9 @@ template<typename T> void* _bindVBO(GLuint vbo,std::vector<T> buf,int target=GL_
 }
 
 void Renderer::MapRenderer::Layer::renderVisibleLayer() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	//glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
 	glClientActiveTexture(Renderer::fowTexUnit);
@@ -3426,6 +3565,10 @@ void Renderer::MapRenderer::Layer::renderVisibleLayer() {
 }
 
 void Renderer::MapRenderer::Layer::render(VisibleQuadContainerCache &qCache) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	const bool renderOnlyVisibleQuad = true;
 
 	if(renderOnlyVisibleQuad == true) {
@@ -3501,6 +3644,10 @@ void Renderer::MapRenderer::Layer::render(VisibleQuadContainerCache &qCache) {
 }
 
 void Renderer::MapRenderer::renderVisibleLayers(const Map* map,float coordStep,VisibleQuadContainerCache &qCache) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(map != this->map) {
 		//printf("New Map loading\n");
 		destroy(); // clear any previous map data
@@ -3539,6 +3686,10 @@ void Renderer::MapRenderer::renderVisibleLayers(const Map* map,float coordStep,V
 }
 
 void Renderer::MapRenderer::render(const Map* map,float coordStep,VisibleQuadContainerCache &qCache) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(map != this->map) {
 		destroy(); // clear any previous map data
 		this->map = map;
@@ -3577,6 +3728,10 @@ void Renderer::MapRenderer::destroy() {
 }
 
 void Renderer::renderSurface(const int renderFps) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	IF_DEBUG_EDITION(
 		if (getDebugRenderer().willRenderSurface()) {
 			getDebugRenderer().renderSurface(visibleQuad / Map::cellScale);
@@ -4002,6 +4157,10 @@ void Renderer::renderSurface(const int renderFps) {
 }
 
 void Renderer::renderObjects(const int renderFps) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
@@ -4077,6 +4236,9 @@ void Renderer::renderObjects(const int renderFps) {
 }
 
 void Renderer::renderWater() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	bool closed= false;
 	const World *world= game->getWorld();
@@ -4217,6 +4379,10 @@ void Renderer::renderWater() {
 }
 
 void Renderer::renderTeamColorCircle(){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitList.empty() == false) {
 
@@ -4242,6 +4408,10 @@ void Renderer::renderTeamColorCircle(){
 }
 
 void Renderer::renderTeamColorPlane(){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitList.empty() == false){
 		glPushAttrib(GL_ENABLE_BIT);
@@ -4265,6 +4435,10 @@ void Renderer::renderTeamColorPlane(){
 
 
 void Renderer::renderUnits(const int renderFps) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	//Unit *unit=NULL;
 	//const World *world= game->getWorld();
 	MeshCallbackTeamColor meshCallbackTeamColor;
@@ -4379,6 +4553,10 @@ void Renderer::renderUnits(const int renderFps) {
 }
 
 void Renderer::renderTeamColorEffect(Vec3f &v, int heigth, int size, Vec3f color, const Texture2D *texture) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	//GLUquadricObj *disc;
 	float halfSize=size;
 	//halfSize=halfSize;
@@ -4404,6 +4582,9 @@ void Renderer::renderTeamColorEffect(Vec3f &v, int heigth, int size, Vec3f color
 
 
 void Renderer::renderSelectionEffects() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
@@ -4587,6 +4768,10 @@ void Renderer::renderSelectionEffects() {
 }
 
 void Renderer::renderWaterEffects(){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	const World *world= game->getWorld();
 	const WaterEffects *we= world->getWaterEffects();
 	const Map *map= world->getMap();
@@ -4682,6 +4867,10 @@ void Renderer::renderWaterEffects(){
 }
 
 void Renderer::renderHud(){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	Texture2D *hudTexture=game->getGui()->getHudTexture();
 	if(hudTexture!=NULL){
 		const Metrics &metrics= Metrics::getInstance();
@@ -4690,6 +4879,10 @@ void Renderer::renderHud(){
 }
 
 void Renderer::renderMinimap(){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
     const World *world= game->getWorld();
 	const Minimap *minimap= world->getMinimap();
 	const GameCamera *gameCamera= game->getGameCamera();
@@ -5096,6 +5289,9 @@ void Renderer::renderMinimap(){
 }
 
 void Renderer::renderDisplay() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();
@@ -5229,6 +5425,10 @@ void Renderer::renderDisplay() {
 }
 
 void Renderer::renderMenuBackground(const MenuBackground *menuBackground) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	assertGl();
 
 	const Vec3f &cameraPosition= menuBackground->getCamera()->getConstPosition();
@@ -5395,6 +5595,9 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground) {
 }
 
 void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel, vector<Model *> characterModels,const Vec3f characterPosition, float anim) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	assertGl();
 
@@ -5467,7 +5670,6 @@ void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel
 // ==================== computing ====================
 
 bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos){
-
 	assertGl();
 	const Map* map= game->getWorld()->getMap();
 	const Metrics &metrics= Metrics::getInstance();
@@ -5608,6 +5810,10 @@ void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&
 // ==================== shadows ====================
 
 void Renderer::renderShadowsToTexture(const int renderFps){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(shadowsOffDueToMinRender == false &&
 		(shadows == sProjected || shadows == sShadowMapping)) {
 
@@ -6063,6 +6269,10 @@ Vec4f Renderer::computeWaterColor(float waterLevel, float cellHeight) {
 
 //render units for selection purposes
 void Renderer::renderUnitsFast(bool renderingShadows) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	assert(game != NULL);
 	const World *world= game->getWorld();
 	assert(world != NULL);
@@ -6139,6 +6349,10 @@ void Renderer::renderUnitsFast(bool renderingShadows) {
 
 //render objects for selection purposes
 void Renderer::renderObjectsFast(bool renderingShadows, bool resourceOnly) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	//const World *world= game->getWorld();
 	//const Map *map= world->getMap();
 
@@ -6209,6 +6423,10 @@ void Renderer::renderObjectsFast(bool renderingShadows, bool resourceOnly) {
 // ==================== gl caps ====================
 
 void Renderer::checkGlCaps() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	//opengl 1.3
 	if(!isGlVersionSupported(1, 3, 0)) {
 		string message;
@@ -6228,6 +6446,9 @@ void Renderer::checkGlCaps() {
 }
 
 void Renderer::checkGlOptionalCaps() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	//shadows
 	if(shadows == sProjected || shadows == sShadowMapping) {
@@ -6245,6 +6466,10 @@ void Renderer::checkGlOptionalCaps() {
 }
 
 void Renderer::checkExtension(const string &extension, const string &msg) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(!isGlExtensionSupported(extension.c_str())) {
 		string str= "OpenGL extension not supported: " + extension +  ", required for " + msg;
 		throw runtime_error(str);
@@ -6254,6 +6479,10 @@ void Renderer::checkExtension(const string &extension, const string &msg) {
 // ==================== init 3d lists ====================
 
 void Renderer::init3dList() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	const Metrics &metrics= Metrics::getInstance();
@@ -6366,6 +6595,10 @@ void Renderer::init3dList() {
 }
 
 void Renderer::init2dList() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	const Metrics &metrics= Metrics::getInstance();
 
 	//this list sets the state for the 2d rendering
@@ -6410,7 +6643,11 @@ void Renderer::init2dList() {
 }
 
 void Renderer::init3dListMenu(const MainMenu *mm) {
-    assertGl();
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	assertGl();
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -6510,6 +6747,10 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 // ==================== misc ====================
 
 void Renderer::loadProjectionMatrix() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	GLdouble clipping;
 	const Metrics &metrics= Metrics::getInstance();
 
@@ -6525,6 +6766,10 @@ void Renderer::loadProjectionMatrix() {
 }
 
 void Renderer::enableProjectiveTexturing() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	glTexGenfv(GL_S, GL_EYE_PLANE, &shadowMapMatrix[0]);
 	glTexGenfv(GL_T, GL_EYE_PLANE, &shadowMapMatrix[4]);
 	glTexGenfv(GL_R, GL_EYE_PLANE, &shadowMapMatrix[8]);
@@ -6538,6 +6783,10 @@ void Renderer::enableProjectiveTexturing() {
 // ==================== private aux drawing ====================
 
 void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thickness) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	GLUquadricObj *disc;
 
 	glMatrixMode(GL_MODELVIEW);
@@ -6555,6 +6804,10 @@ void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thic
 
 void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 						   const Vec3f &color, float width) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	const int tesselation= 3;
 	const float arrowEndSize= 0.4f;
 	const float maxlen= 25;
@@ -6602,6 +6855,9 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 
 void Renderer::renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth,
 		string prefixLabel,bool centeredText) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	int progressbarHeight	= 12;
     int currentSize     	= size;
@@ -6651,6 +6907,9 @@ void Renderer::renderProgressBar3D(int size, int x, int y, Font3D *font, int cus
 
 void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int customWidth,
 		string prefixLabel,bool centeredText) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
     int currentSize     = size;
     int maxSize         = maxProgressBar;
@@ -6707,6 +6966,9 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
 
 
 void Renderer::renderTile(const Vec2i &pos) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	const Map *map= game->getWorld()->getMap();
 	Vec2i scaledPos= pos * Map::cellScale;
@@ -6759,6 +7021,9 @@ void Renderer::renderTile(const Vec2i &pos) {
 }
 
 void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 /* Revert back to 3.4.0 render logic due to issues on some ATI cards
  *
@@ -6859,6 +7124,10 @@ void Renderer::setAllowRenderUnitTitles(bool value) {
 
 // This method renders titles for units
 void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	std::map<int,bool> unitRenderedList;
 
 	if(visibleFrameUnitList.empty() == false) {
@@ -6918,6 +7187,10 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 
 // This method renders titles for units
 void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	std::map<int,bool> unitRenderedList;
 
 	if(visibleFrameUnitList.empty() == false) {
@@ -7150,6 +7423,10 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 }
 
 void Renderer::beginRenderToTexture(Texture2D **renderToTexture) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	static bool supportFBOs = Texture2DGl().supports_FBO_RBO();
 
 	if(supportFBOs == true && renderToTexture != NULL) {
@@ -7180,6 +7457,10 @@ void Renderer::beginRenderToTexture(Texture2D **renderToTexture) {
 }
 
 void Renderer::endRenderToTexture(Texture2D **renderToTexture) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	static bool supportFBOs = Texture2DGl().supports_FBO_RBO();
 
 	if(supportFBOs == true && renderToTexture != NULL && *renderToTexture != NULL) {
@@ -7195,6 +7476,9 @@ void Renderer::endRenderToTexture(Texture2D **renderToTexture) {
 void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 								 int screenPosX, int screenPosY,
 								 Texture2D **renderToTexture) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
 
 	static bool supportFBOs = Texture2DGl().supports_FBO_RBO();
 	if(Config::getInstance().getBool("LegacyMapPreviewRendering","false") == true) {
@@ -7644,6 +7928,10 @@ void Renderer::renderFPSWhenEnabled(int lastFps) {
 }
 
 void Renderer::renderPopupMenu(PopupMenu *menu) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	if(menu->getVisible() == false || menu->getEnabled() == false) {
 		return;
 	}

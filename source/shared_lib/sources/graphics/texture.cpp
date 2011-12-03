@@ -27,6 +27,8 @@ const int Texture::defaultComponents = 4;
 bool Texture::useTextureCompression  = false;
 
 Texture::Texture() {
+	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+
 	mipmap= true;
 	pixmapInit= true;
 	wrapMode= wmRepeat;
