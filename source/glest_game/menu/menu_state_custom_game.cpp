@@ -145,16 +145,16 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	//create
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-	buttonReturn.init(250, 180, 125);
+	buttonReturn.init(240, 180, 125);
 
 	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
 	buttonClearBlockedPlayers.init(427, 590, 125);
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(250+130, 180, 200);
+	buttonRestoreLastSettings.init(250+130, 180, 220);
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(250+130+205, 180, 125);
+	buttonPlayNow.init(250+130+235, 180, 125);
 
 	int labelOffset=23;
 	int setupPos=590;

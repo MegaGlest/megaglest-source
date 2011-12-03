@@ -80,7 +80,7 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	buttonCreateGame.setText(lang.get("HostGame"));
 
 	buttonAutoFindServers.registerGraphicComponent(containerName,"buttonAutoFindServers");
-	buttonAutoFindServers.init(595, 300, 125);
+	buttonAutoFindServers.init(595, 300, 225);
 	buttonAutoFindServers.setText(lang.get("FindLANGames"));
 	buttonAutoFindServers.setEnabled(true);
 

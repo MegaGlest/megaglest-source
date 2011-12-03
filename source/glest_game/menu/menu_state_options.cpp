@@ -39,10 +39,10 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos,!config.getBool("Windowed"));
 	activeInputLabel=NULL;
 
-	int leftLabelStart=130;
-	int leftColumnStart=leftLabelStart+150;
-	int rightLabelStart=530;
-	int rightColumnStart=rightLabelStart+200;
+	int leftLabelStart=50;
+	int leftColumnStart=leftLabelStart+180;
+	int rightLabelStart=420;
+	int rightColumnStart=rightLabelStart+310;
 	int buttonRowPos=80;
 	int buttonStartPos=170;
 	int captionOffset=75;
@@ -522,7 +522,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 	buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
 	buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
-	buttonKeyboardSetup.init(buttonStartPos+520, buttonRowPos, 125);
+	buttonKeyboardSetup.init(buttonStartPos+520, buttonRowPos, 145);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 }

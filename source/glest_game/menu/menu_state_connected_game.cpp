@@ -131,7 +131,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	//state
 	labelStatus.registerGraphicComponent(containerName,"labelStatus");
-	labelStatus.init(350, networkHeadPos+30);
+	labelStatus.init(30, networkHeadPos);
 	labelStatus.setText("");
 
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
@@ -148,9 +148,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelDataSynchInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	//create
-	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
-	buttonDisconnect.init(350, 180, 125);
-
 	buttonCancelDownloads.registerGraphicComponent(containerName,"buttonCancelDownloads");
 	buttonCancelDownloads.init(10, 150, 125);
 	buttonCancelDownloads.setText(lang.get("CancelDownloads"));
@@ -440,12 +437,15 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxMap.setItems(formattedMapFiles);
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(200, 180, 125);
+	buttonPlayNow.init(220, 180, 125);
 	buttonPlayNow.setText(lang.get("PlayNow"));
 	buttonPlayNow.setVisible(false);
 
+	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
+	buttonDisconnect.init(350, 180, 125);
+
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(500, 180, 200);
+	buttonRestoreLastSettings.init(480, 180, 220);
 	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
 
 	chatManager.init(&console, -1,true);
