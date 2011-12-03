@@ -1486,7 +1486,7 @@ bool SimpleDialog::show(const string &title, bool wide) {
 // ===============================================
 
 bool App::OnInit() {
-	SystemFlags::VERBOSE_MODE_ENABLED  = true;
+	SystemFlags::VERBOSE_MODE_ENABLED  = false;
 	SystemFlags::ENABLE_THREADED_LOGGING = false;
 
 	string fileparam;
