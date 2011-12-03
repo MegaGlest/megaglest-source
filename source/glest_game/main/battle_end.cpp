@@ -235,7 +235,7 @@ void BattleEnd::render() {
 				continue;
 			}
 
-			int textX= lm+160+i*100;
+			int textX= lm + 60 + (i*110);
 			int team= stats.getTeam(i) + 1;
 			int kills= stats.getKills(i);
 			int enemykills= stats.getEnemyKills(i);
