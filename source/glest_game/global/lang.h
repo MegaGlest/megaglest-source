@@ -42,6 +42,8 @@ private:
 	bool fileMatchesISO630Code(string uselanguage, string testLanguageFile);
 	string getNativeLanguageName(string uselanguage, string testLanguageFile);
 
+	string parseResult(const string &key, const string &value);
+
 public:
 	static Lang &getInstance();    
 

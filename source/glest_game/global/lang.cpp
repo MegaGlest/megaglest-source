@@ -262,9 +262,17 @@ bool Lang::isLanguageLocal(string compareLanguage) const {
 	return (compareLanguage == language);
 }
 
+string Lang::parseResult(const string &key, const string &value) {
+	if(value != "$USE_DEFAULT_LANGUAGE_VALUE") {
+		return value;
+	}
+	string result = Lang::get(key, DEFAULT_LANGUAGE);
+	return result;
+}
 string Lang::get(const string &s, string uselanguage, bool fallbackToDefault) {
 	try {
 		string result = "";
+
 		if(uselanguage != "") {
 			if(otherLanguageStrings.find(uselanguage) == otherLanguageStrings.end()) {
 				loadStrings(uselanguage, otherLanguageStrings[uselanguage], false);
@@ -276,7 +284,8 @@ string Lang::get(const string &s, string uselanguage, bool fallbackToDefault) {
 			result = strings.getString(s);
 			replaceAll(result, "\\n", "\n");
 		}
-		return result;
+
+		return parseResult(s, result);;
 	}
 	catch(exception &ex) {
 		if(strings.getpath() != "") {
