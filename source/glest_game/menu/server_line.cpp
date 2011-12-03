@@ -51,11 +51,15 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	glestVersionLabel.init(i, baseY - lineOffset);
 	glestVersionLabel.setTextColor(color);
 	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
+	glestVersionLabel.setFont(CoreData::getInstance().getDisplayFontSmall());
+	glestVersionLabel.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 	i+= 70;
 	platformLabel.init(i, baseY - lineOffset);
 	platformLabel.setTextColor(color);
 	platformLabel.setText(masterServerInfo.getPlatform());
+	platformLabel.setFont(CoreData::getInstance().getDisplayFontSmall());
+	platformLabel.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 	//	i+=50;
 	//	registeredObjNameList.push_back("binaryCompileDateLabel" + intToStr(lineIndex));
