@@ -2767,6 +2767,7 @@ void MenuStateConnectedGame::update() {
 				}
 
 				// FogOfWar
+				int originalFOWValue = listBoxFogOfWar.getSelectedItemIndex();
 				listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
 				if(gameSettings->getFogOfWar() == false){
 					listBoxFogOfWar.setSelectedItemIndex(2);
@@ -2776,7 +2777,9 @@ void MenuStateConnectedGame::update() {
         				listBoxFogOfWar.setSelectedItemIndex(1);
         			}
 				}
-				cleanupMapPreviewTexture();
+				if(originalFOWValue != listBoxFogOfWar.getSelectedItemIndex()) {
+					cleanupMapPreviewTexture();
+				}
 
 				// Allow Observers
 				if(gameSettings->getAllowObservers()) {
