@@ -40,24 +40,25 @@ MenuStateNewGame::MenuStateNewGame(Program *program, MainMenu *mainMenu):
 	containerName = "NewGame";
 	Lang &lang= Lang::getInstance();
 
+	int buttonWidth = 200;
 	int yPos=465;
     buttonTutorial.registerGraphicComponent(containerName,"buttonTutorial");
-    buttonTutorial.init(425, yPos, 150);
+    buttonTutorial.init(425, yPos, buttonWidth);
     yPos-=40;
 	buttonScenario.registerGraphicComponent(containerName,"buttonScenario");
-    buttonScenario.init(425, yPos, 150);
+    buttonScenario.init(425, yPos, buttonWidth);
     yPos-=40;
 	buttonCustomGame.registerGraphicComponent(containerName,"buttonCustomGame");
-	buttonCustomGame.init(425, yPos, 150);
+	buttonCustomGame.init(425, yPos, buttonWidth);
 	yPos-=40;
     buttonMasterserverGame.registerGraphicComponent(containerName,"buttonMasterserverGame");
-    buttonMasterserverGame.init(425, yPos, 150);
+    buttonMasterserverGame.init(425, yPos, buttonWidth);
     yPos-=40;
 	buttonJoinGame.registerGraphicComponent(containerName,"buttonJoinGame");
-    buttonJoinGame.init(425, yPos, 150);
+    buttonJoinGame.init(425, yPos, buttonWidth);
 	yPos-=40;
     buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-    buttonReturn.init(425, yPos, 150);
+    buttonReturn.init(425, yPos, buttonWidth);
 
 	buttonCustomGame.setText(lang.get("CustomGame"));
 	buttonScenario.setText(lang.get("Scenario"));
