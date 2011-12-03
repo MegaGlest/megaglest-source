@@ -624,8 +624,8 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 void MainWindow::onClose(wxCloseEvent &event){
 	// release memory first (from onMenuFileClearAll)
 
-	printf("OnClose START\n");
-	fflush(stdout);
+	//printf("OnClose START\n");
+	//fflush(stdout);
 
 	modelPathList.clear();
 	particlePathList.clear();
@@ -646,8 +646,8 @@ void MainWindow::onClose(wxCloseEvent &event){
 	delete model;
 	model = NULL;
 
-	printf("OnClose about to END\n");
-	fflush(stdout);
+	//printf("OnClose about to END\n");
+	//fflush(stdout);
 
 	delete this;
 }
@@ -971,8 +971,8 @@ void MainWindow::onMenuFileSaveScreenshot(wxCommandEvent &event) {
 
 void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 	try {
-		printf("Start onMenuFileClearAll\n");
-		fflush(stdout);
+		//printf("Start onMenuFileClearAll\n");
+		//fflush(stdout);
 
 		modelPathList.clear();
 		particlePathList.clear();
@@ -1002,8 +1002,8 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 		GetStatusBar()->SetStatusText(ToUnicode(statusbarText.c_str()));
 		isControlKeyPressed = false;
 
-		printf("END onMenuFileClearAll\n");
-		fflush(stdout);
+		//printf("END onMenuFileClearAll\n");
+		//fflush(stdout);
 
 		if(timer) timer->Start(100);
 	}
@@ -1928,7 +1928,7 @@ END_EVENT_TABLE()
 // ===============================================
 
 bool App::OnInit() {
-	SystemFlags::VERBOSE_MODE_ENABLED  = true;
+	SystemFlags::VERBOSE_MODE_ENABLED  = false;
 
 	string modelPath="";
 	string particlePath="";
