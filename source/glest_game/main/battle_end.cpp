@@ -230,12 +230,14 @@ void BattleEnd::render() {
 		int lm= 20;
 		int bm= 100;
 
+		int realPlayerCount = 0;
 		for(int i = 0; i < stats.getFactionCount(); ++i) {
 			if(stats.getTeam(i) == GameConstants::maxPlayers -1 + fpt_Observer) {
 				continue;
 			}
 
-			int textX= lm + 60 + (i*110);
+			realPlayerCount++;
+			int textX= lm + 60 + (realPlayerCount*110);
 			int team= stats.getTeam(i) + 1;
 			int kills= stats.getKills(i);
 			int enemykills= stats.getEnemyKills(i);
