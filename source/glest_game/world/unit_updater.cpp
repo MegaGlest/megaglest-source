@@ -2178,7 +2178,8 @@ bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vect
 	bool result = false;
 	//return result;
 
-	if(game->isMasterserverMode() == false) {
+	//if(game->isMasterserverMode() == false) {
+	{
 		MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
 		std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterFind = UnitRangeCellsLookupItemCache.find(center);
 

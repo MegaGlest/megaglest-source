@@ -416,9 +416,6 @@ private:
 	CauseOfDeathType causeOfDeath;
 
 public:
-	Unit() : id(-1) {
-		assert(false);
-	}
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
 

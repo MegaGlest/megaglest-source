@@ -1436,8 +1436,8 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 	//bool cacheLookupSightResult = false;
 
 	// cache lookup of previously calculated cells + sight range
-	if(MaxExploredCellsLookupItemCache > 0 && game->isMasterserverMode() == false) {
-	//if(MaxExploredCellsLookupItemCache > 0) {
+	//if(MaxExploredCellsLookupItemCache > 0 && game->isMasterserverMode() == false) {
+	if(MaxExploredCellsLookupItemCache > 0) {
 		if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
 			ExploredCellsLookupItem::lastDebug = time(NULL);
 			//printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
@@ -1704,7 +1704,8 @@ void World::computeFow(int factionIdxToTick) {
 	//compute texture
 	//printf("Masterserver = %d\n",game->isMasterserverMode());
 
-	if(fogOfWar == true && game->isMasterserverMode() == false) {
+	//if(fogOfWar == true && game->isMasterserverMode() == false) {
+	if(fogOfWar == true) {
 		for(int i=0; i<getFactionCount(); ++i) {
 			Faction *faction= getFaction(i);
 			if(faction->getTeam() == thisTeamIndex) {
