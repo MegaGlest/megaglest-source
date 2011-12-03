@@ -779,6 +779,20 @@ void Intro::render() {
 }
 
 void Intro::keyDown(SDL_KeyboardEvent key) {
+	SDL_keysym keystate = key.keysym;
+	//printf("keystate.mod = %d key = unicode[%d] regular[%d] lalt [%d] ralt [%d] alt [%d]\n",keystate.mod,key.keysym.unicode,key.keysym.sym,(keystate.mod & KMOD_LALT),(keystate.mod & KMOD_RALT),(keystate.mod & KMOD_ALT));
+
+	if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
+		//printf("ALT KEY #1\n");
+
+		if(isKeyPressed(SDLK_RETURN,key) == true ||
+			isKeyPressed(SDLK_RALT,key) == true ||
+			isKeyPressed(SDLK_LALT,key) == true) {
+			return;
+		}
+	}
+
+	//printf("Exiting intro\n");
 	mouseUpLeft(0, 0);
 }
 
