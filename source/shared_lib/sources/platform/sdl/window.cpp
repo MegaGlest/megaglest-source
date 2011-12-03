@@ -185,9 +185,10 @@ bool Window::handleEvent() {
 
 					codeLocation = "i";
 					Window::isKeyPressedDown = true;
-#ifdef WIN32
+//#ifdef WIN32
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("KD mod = %d : %d\n",event.key.keysym.mod,SDL_GetModState());
 					event.key.keysym.mod = SDL_GetModState();
-#endif
+//#endif
 					keystate = event.key.keysym;
 
 					string keyName = SDL_GetKeyName(event.key.keysym.sym);
@@ -213,6 +214,7 @@ bool Window::handleEvent() {
 						//key = tolower(key);
 						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("******************* key [%d]\n",key);
 
+						//event.key.keysym.mod = SDL_GetModState();
 						global_window->eventKeyDown(event.key);
 						global_window->eventKeyPress(event.key);
 
@@ -231,9 +233,10 @@ bool Window::handleEvent() {
 					codeLocation = "j";
 
 					Window::isKeyPressedDown = false;
-#ifdef WIN32
+//#ifdef WIN32
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("KU mod = %d : %d\n",event.key.keysym.mod,SDL_GetModState());
 					event.key.keysym.mod = SDL_GetModState();
-#endif
+//#endif
 
 					keystate = event.key.keysym;
 
@@ -803,6 +806,8 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 	}
 	string compareKeyName = SDL_GetKeyName(compareKey);
 	string pressKeyName = SDL_GetKeyName((SDLKey)c);
+
+	//printf ("In [%s::%s Line: %d] compareKey [%d - %s] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,compareKey,compareKeyName.c_str(),c,pressKeyName.c_str(),result);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] compareKey [%d - %s] pressed key [%d - %s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,compareKey,compareKeyName.c_str(),c,pressKeyName.c_str(),result);
 	//printf ("ISPRESS compareKey [%d - %s] pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d result = %d\n",

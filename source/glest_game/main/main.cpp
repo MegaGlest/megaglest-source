@@ -960,6 +960,7 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 
 	//SDL_keysym keystate = Window::getKeystate();
 	SDL_keysym keystate = key.keysym;
+	//printf("keystate.mod = %d key = %d lalt [%d] ralt [%d] alt [%d]\n",keystate.mod,key.keysym.unicode,(keystate.mod & KMOD_LALT),(keystate.mod & KMOD_RALT),(keystate.mod & KMOD_ALT));
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
