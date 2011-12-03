@@ -52,7 +52,7 @@ private:
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelStatus;
 	GraphicLabel labelInfo;
-
+	GraphicButton buttonRestoreLastSettings;
 
 	//GraphicLabel labelEnableObserverMode;
 	//GraphicListBox listBoxEnableObserverMode;
@@ -229,6 +229,9 @@ private:
     bool isMasterserverAdmin();
     void broadCastGameSettingsToMasterserver(bool forceNow);
     void updateResourceMultiplier(const int index);
+
+    void RestoreLastGameSettings();
+    void setupUIFromGameSettings(const GameSettings *gameSettings, bool errorOnMissingData);
 };
 
 }}//end namespace

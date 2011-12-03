@@ -20,6 +20,7 @@
 #include "game_constants.h"
 #include "game_util.h"
 #include "lang.h"
+#include "game_settings.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Sound;
@@ -625,6 +626,137 @@ int CoreData::computeFontSize(int size) {
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize orginal %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
 	return rs;
+}
+
+void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings, int advancedIndex) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+    Config &config = Config::getInstance();
+    string userData = config.getString("UserData_Root","");
+    if(userData != "") {
+    	endPathWithSlash(userData);
+    }
+    fileName = userData + fileName;
+
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
+
+#if defined(WIN32) && !defined(__MINGW32__)
+	FILE *fp = _wfopen(utf8_decode(fileName).c_str(), L"w");
+	std::ofstream saveGameFile(fp);
+#else
+    std::ofstream saveGameFile;
+    saveGameFile.open(fileName.c_str(), ios_base::out | ios_base::trunc);
+#endif
+
+	saveGameFile << "Description=" << gameSettings->getDescription() << std::endl;
+	saveGameFile << "MapFilterIndex=" << gameSettings->getMapFilterIndex() << std::endl;
+	saveGameFile << "Map=" << gameSettings->getMap() << std::endl;
+	saveGameFile << "Tileset=" << gameSettings->getTileset() << std::endl;
+	saveGameFile << "TechTree=" << gameSettings->getTech() << std::endl;
+	saveGameFile << "DefaultUnits=" << gameSettings->getDefaultUnits() << std::endl;
+	saveGameFile << "DefaultResources=" << gameSettings->getDefaultResources() << std::endl;
+	saveGameFile << "DefaultVictoryConditions=" << gameSettings->getDefaultVictoryConditions() << std::endl;
+	saveGameFile << "FogOfWar=" << gameSettings->getFogOfWar() << std::endl;
+	saveGameFile << "AdvancedIndex=" << advancedIndex << std::endl;
+	saveGameFile << "AllowObservers=" << gameSettings->getAllowObservers() << std::endl;
+	saveGameFile << "FlagTypes1=" << gameSettings->getFlagTypes1() << std::endl;
+	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings->getEnableObserverModeAtEndGame() << std::endl;
+	saveGameFile << "AiAcceptSwitchTeamPercentChance=" << gameSettings->getAiAcceptSwitchTeamPercentChance() << std::endl;
+	saveGameFile << "PathFinderType=" << gameSettings->getPathFinderType() << std::endl;
+	saveGameFile << "EnableServerControlledAI=" << gameSettings->getEnableServerControlledAI() << std::endl;
+	saveGameFile << "NetworkFramePeriod=" << gameSettings->getNetworkFramePeriod() << std::endl;
+	saveGameFile << "NetworkPauseGameForLaggedClients=" << gameSettings->getNetworkPauseGameForLaggedClients() << std::endl;
+
+	saveGameFile << "FactionThisFactionIndex=" << gameSettings->getThisFactionIndex() << std::endl;
+	saveGameFile << "FactionCount=" << gameSettings->getFactionCount() << std::endl;
+
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		int slotIndex = gameSettings->getStartLocationIndex(i);
+
+		saveGameFile << "FactionControlForIndex" 		<< slotIndex << "=" << gameSettings->getFactionControl(i) << std::endl;
+		saveGameFile << "ResourceMultiplierIndex" 		<< slotIndex << "=" << gameSettings->getResourceMultiplierIndex(i) << std::endl;
+		saveGameFile << "FactionTeamForIndex" 			<< slotIndex << "=" << gameSettings->getTeam(i) << std::endl;
+		saveGameFile << "FactionStartLocationForIndex" 	<< slotIndex << "=" << gameSettings->getStartLocationIndex(i) << std::endl;
+		saveGameFile << "FactionTypeNameForIndex" 		<< slotIndex << "=" << gameSettings->getFactionTypeName(i) << std::endl;
+		saveGameFile << "FactionPlayerNameForIndex" 	<< slotIndex << "=" << gameSettings->getNetworkPlayerName(i) << std::endl;
+    }
+
+#if defined(WIN32) && !defined(__MINGW32__)
+	fclose(fp);
+#endif
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+    Config &config = Config::getInstance();
+    string userData = config.getString("UserData_Root","");
+    if(userData != "") {
+    	endPathWithSlash(userData);
+    }
+    fileName = userData + fileName;
+
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
+
+    if(fileExists(fileName) == false) {
+    	return;
+    }
+
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
+
+	Properties properties;
+	properties.load(fileName);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
+
+	gameSettings->setMapFilterIndex(properties.getInt("MapFilterIndex","0"));
+	gameSettings->setDescription(properties.getString("Description"));
+	gameSettings->setMap(properties.getString("Map"));
+	gameSettings->setTileset(properties.getString("Tileset"));
+	gameSettings->setTech(properties.getString("TechTree"));
+	gameSettings->setDefaultUnits(properties.getBool("DefaultUnits"));
+	gameSettings->setDefaultResources(properties.getBool("DefaultResources"));
+	gameSettings->setDefaultVictoryConditions(properties.getBool("DefaultVictoryConditions"));
+	gameSettings->setFogOfWar(properties.getBool("FogOfWar"));
+	//listBoxAdvanced.setSelectedItemIndex(properties.getInt("AdvancedIndex","0"));
+
+	gameSettings->setAllowObservers(properties.getBool("AllowObservers","false"));
+	gameSettings->setFlagTypes1(properties.getInt("FlagTypes1","0"));
+	gameSettings->setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
+	gameSettings->setAiAcceptSwitchTeamPercentChance(properties.getInt("AiAcceptSwitchTeamPercentChance","30"));
+
+	gameSettings->setPathFinderType(static_cast<PathFinderType>(properties.getInt("PathFinderType",intToStr(pfBasic).c_str())));
+	gameSettings->setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","true"));
+	gameSettings->setNetworkFramePeriod(properties.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str()));
+	gameSettings->setNetworkPauseGameForLaggedClients(properties.getBool("NetworkPauseGameForLaggedClients","false"));
+
+	gameSettings->setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
+	gameSettings->setFactionCount(properties.getInt("FactionCount"));
+
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		gameSettings->setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i),intToStr(ctClosed).c_str()) );
+
+		if(gameSettings->getFactionControl(i) == ctNetworkUnassigned) {
+			gameSettings->setFactionControl(i,ctNetwork);
+		}
+
+		gameSettings->setResourceMultiplierIndex(i,properties.getInt(string("ResourceMultiplierIndex") + intToStr(i),"5"));
+		gameSettings->setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i),"0") );
+		gameSettings->setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i),intToStr(i).c_str()) );
+		gameSettings->setFactionTypeName(i,properties.getString(string("FactionTypeNameForIndex") + intToStr(i),"?") );
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionTypeName [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,gameSettings->getFactionTypeName(i).c_str());
+
+		if(gameSettings->getFactionControl(i) == ctHuman) {
+			gameSettings->setNetworkPlayerName(i,properties.getString(string("FactionPlayerNameForIndex") + intToStr(i),"") );
+		}
+		else {
+			gameSettings->setNetworkPlayerName(i,"");
+		}
+	}
+
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ================== PRIVATE ========================

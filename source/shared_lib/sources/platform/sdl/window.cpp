@@ -79,8 +79,14 @@ static HWND GetSDLWindow()
 #endif
 
 Window::Window()  {
+	// Default to 1x1 until set by caller to avoid divide by 0
+	this->w = 1;
+	this->h = 1;
+
 	for(int idx = 0; idx < mbCount; idx++) {
-		lastMouseDown[idx] = 0;
+		lastMouseDown[idx]  = 0;
+		lastMouseX[idx]		= 0;
+		lastMouseY[idx]		= 0;
 	}
 
 	assert(global_window == 0);
