@@ -368,6 +368,9 @@ protected:
 	Checksum crc;
 
 public:
+	PixmapCube();
+	~PixmapCube();
+
 	//init
 	void init(int w, int h, int components);
 	void init(int components);

@@ -174,7 +174,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 		//surfaces
 		const XmlNode *surfacesNode= tilesetNode->getChild("surfaces");
-		for(int i=0; i<surfCount; ++i){
+		for(int i=0; i < surfCount; ++i) {
 			const XmlNode *surfaceNode;
 			if(surfacesNode->hasChildAtIndex("surface",i)){
 				surfaceNode= surfacesNode->getChild("surface", i);
@@ -188,11 +188,17 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			int childCount= surfaceNode->getChildCount();
 			surfPixmaps[i].resize(childCount);
 			surfProbs[i].resize(childCount);
-			for(int j=0; j<childCount; ++j){
+
+			for(int j = 0; j < childCount; ++j) {
+				surfPixmaps[i][j] = NULL;
+			}
+
+			for(int j = 0; j < childCount; ++j) {
 				const XmlNode *textureNode= surfaceNode->getChild("texture", j);
-				surfPixmaps[i][j].init(3);
 				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-					surfPixmaps[i][j].load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+					surfPixmaps[i][j] = new Pixmap2D();
+					surfPixmaps[i][j]->init(3);
+					surfPixmaps[i][j]->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
 				}
 				loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
 
@@ -352,12 +358,17 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 }
 
 Tileset::~Tileset() {
+	for(int i = 0; i < surfCount; ++i) {
+		deleteValues(surfPixmaps[i].begin(),surfPixmaps[i].end());
+		surfPixmaps[i].clear();
+	}
+
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTileset","",true), true);
 }
 
 const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const{
 	int vars= surfPixmaps[type].size();
-	return &surfPixmaps[type][var % vars];
+	return surfPixmaps[type][var % vars];
 }
 
 void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, Vec2f &coord, const Texture2D *&texture) {
