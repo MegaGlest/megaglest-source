@@ -78,6 +78,10 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
 	mainMessageBox.setEnabled(false);
 
+	errorMessageBox.registerGraphicComponent(containerName,"errorMessageBox");
+	errorMessageBox.init(lang.get("Ok"));
+	errorMessageBox.setEnabled(false);
+
 	//PopupMenu popupMenu;
 	std::vector<string> menuItems;
 	menuItems.push_back("1");
@@ -111,56 +115,73 @@ void MenuStateRoot::reloadUI() {
 	buttonExit.setText(lang.get("Exit"));
 
 	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+	errorMessageBox.init(lang.get("Ok"));
 	console.resetFonts();
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
 void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
+	try {
+		CoreData &coreData=  CoreData::getInstance();
+		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	CoreData &coreData=  CoreData::getInstance();
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+		if(popupMenu.mouseClick(x, y)) {
+			std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
 
-	if(popupMenu.mouseClick(x, y)) {
-		std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
-
-		//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
-	}
-	else if(mainMessageBox.getEnabled() == false && buttonNewGame.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
-    }
-	else if(mainMessageBox.getEnabled() == false && buttonMods.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateMods(program, mainMenu));
-    }
-    else if(mainMessageBox.getEnabled() == false && buttonOptions.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateOptions(program, mainMenu));
-    }
-    else if(mainMessageBox.getEnabled() == false && buttonAbout.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateAbout(program, mainMenu));
-    }
-    else if(buttonExit.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		program->exit();
-    }
-	//exit message box, has to be the last thing to do in this function
-    else if(mainMessageBox.getEnabled()){
-		int button= 1;
-		if(mainMessageBox.mouseClick(x, y, button)) {
-			if(button==1) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				soundRenderer.playFx(coreData.getClickSoundA());
-				program->exit();
-			}
-			else {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				//close message box
-				mainMessageBox.setEnabled(false);
+			//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
+		}
+		//exit message box, has to be the last thing to do in this function
+		else if(mainMessageBox.getEnabled()){
+			int button= 1;
+			if(mainMessageBox.mouseClick(x, y, button)) {
+				if(button==1) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					soundRenderer.playFx(coreData.getClickSoundA());
+					program->exit();
+				}
+				else {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					//close message box
+					mainMessageBox.setEnabled(false);
+				}
 			}
 		}
+		//exit message box, has to be the last thing to do in this function
+		else if(errorMessageBox.getEnabled()){
+			int button= 1;
+			if(mainMessageBox.mouseClick(x, y, button)) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//close message box
+				errorMessageBox.setEnabled(false);
+			}
+		}
+		else if(mainMessageBox.getEnabled() == false && buttonNewGame.mouseClick(x, y)){
+			soundRenderer.playFx(coreData.getClickSoundB());
+			mainMenu->setState(new MenuStateNewGame(program, mainMenu));
+		}
+		else if(mainMessageBox.getEnabled() == false && buttonMods.mouseClick(x, y)){
+			soundRenderer.playFx(coreData.getClickSoundB());
+			mainMenu->setState(new MenuStateMods(program, mainMenu));
+		}
+		else if(mainMessageBox.getEnabled() == false && buttonOptions.mouseClick(x, y)){
+			soundRenderer.playFx(coreData.getClickSoundB());
+			mainMenu->setState(new MenuStateOptions(program, mainMenu));
+		}
+		else if(mainMessageBox.getEnabled() == false && buttonAbout.mouseClick(x, y)){
+			soundRenderer.playFx(coreData.getClickSoundB());
+			mainMenu->setState(new MenuStateAbout(program, mainMenu));
+		}
+		else if(buttonExit.mouseClick(x, y)){
+			soundRenderer.playFx(coreData.getClickSoundA());
+			program->exit();
+		}
+	}
+	catch(exception &e) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s Line: %d]\nError in menu event:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		showErrorMessageBox(szBuf, "", true);
 	}
 }
 
@@ -174,7 +195,9 @@ void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
 	}
-
+	if (errorMessageBox.getEnabled()) {
+		errorMessageBox.mouseMove(x, y);
+	}
 }
 
 bool MenuStateRoot::isMasterserverMode() const {
@@ -251,6 +274,9 @@ void MenuStateRoot::render() {
 	if(mainMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
+	if(errorMessageBox.getEnabled()) {
+		renderer.renderMessageBox(&errorMessageBox);
+	}
 
 	if(program != NULL) program->renderProgramMsgBox();
 }
@@ -311,6 +337,21 @@ void MenuStateRoot::showMessageBox(const string &text, const string &header, boo
 	}
 	else{
 		mainMessageBox.setEnabled(false);
+	}
+}
+
+void MenuStateRoot::showErrorMessageBox(const string &text, const string &header, bool toggle){
+	if(!toggle){
+		errorMessageBox.setEnabled(false);
+	}
+
+	if(!errorMessageBox.getEnabled()){
+		errorMessageBox.setText(text);
+		errorMessageBox.setHeader(header);
+		errorMessageBox.setEnabled(true);
+	}
+	else{
+		errorMessageBox.setEnabled(false);
 	}
 }
 

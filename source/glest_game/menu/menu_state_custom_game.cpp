@@ -193,6 +193,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
 		loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false);
+
+		if(GameConstants::maxPlayers+1 <= mapInfo.players) {
+			char szBuf[1024]="";
+			sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d] for map [%s]",GameConstants::maxPlayers+1,mapInfo.players,mapInfo.desc.c_str());
+			throw runtime_error(szBuf);
+		}
 		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
 		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
 		if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
