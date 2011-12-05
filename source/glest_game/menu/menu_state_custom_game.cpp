@@ -196,7 +196,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 		if(GameConstants::maxPlayers+1 <= mapInfo.players) {
 			char szBuf[1024]="";
-			sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d] for map [%s]",GameConstants::maxPlayers+1,mapInfo.players,mapInfo.desc.c_str());
+			sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
 			throw runtime_error(szBuf);
 		}
 		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
