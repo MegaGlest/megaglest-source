@@ -15,12 +15,14 @@
 #include "util.h"
 #include "types.h"
 #include "randomgen.h"
+#include "vec.h"
 #include <vector>
 
 using Shared::Platform::int8;
 using Shared::Platform::int32;
 using Shared::Platform::float32;
 using Shared::Util::RandomGen;
+using Shared::Graphics::Vec2i;
 
 namespace Shared { namespace Map {
 
@@ -58,7 +60,14 @@ static const int DEFAULT_MAP_CELL_HEIGHT_FACTOR		= 3;
 static const int DEFAULT_MAP_WATER_DEPTH			= 4;
 static const int DEFAULT_CLIFF_HEIGHT				= 0;
 
-static const int MAP_FORMAT_VERSION=2;
+enum MapVersionType {
+	mapver_1 = 1,
+	mapver_2,
+
+	mapver_MAX
+};
+
+static const int MAP_FORMAT_VERSION = mapver_MAX - 1;
 
 struct MapFileHeader {
 	int32 version;
@@ -79,6 +88,20 @@ struct MapFileHeader {
 			int8 meta[116];
 		} version2;
 	};
+};
+
+class MapInfo {
+public:
+
+	Vec2i size;
+	int players;
+	string desc;
+
+	MapInfo() {
+		size 	= Vec2i(0,0);
+		players = 0;
+		desc 	= "";
+	}
 };
 
 // ===============================================
@@ -189,6 +212,12 @@ public:
 
 	bool hasFileLoaded() const {return fileLoaded;}
 	string getMapFileLoaded() const { return mapFileLoaded; }
+
+	static bool loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPlayersTitle,string i18nMapSizeTitle,bool errorOnInvalidMap=true);
+	static string getMapPath(const vector<string> &pathList, const string &mapName, string scenarioDir="", bool errorOnNotFound=true);
+	static vector<string> findAllValidMaps(const vector<string> &pathList,
+			string scenarioDir, bool getUserDataOnly=false, bool cutExtension=true,
+			vector<string> *invalidMapList=NULL);
 };
 
 }}// end namespace

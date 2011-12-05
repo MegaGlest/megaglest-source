@@ -776,6 +776,9 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 }
 
 MapInfo MenuStateMods::loadMapInfo(string file) {
+
+
+/*
 	Lang &lang= Lang::getInstance();
 
 	MapInfo mapInfo;
@@ -800,6 +803,20 @@ MapInfo MenuStateMods::loadMapInfo(string file) {
 
 			fclose(f);
 		}
+	}
+	catch(exception &e) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
+		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
+	}
+
+	return mapInfo;
+*/
+
+	MapInfo mapInfo;
+	//memset(&mapInfo,0,sizeof(mapInfo));
+	try{
+		Lang &lang= Lang::getInstance();
+		MapPreview::loadMapInfo(file, &mapInfo, lang.get("MaxPlayers"),lang.get("Size"),true);
 	}
 	catch(exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
@@ -919,6 +936,8 @@ void MenuStateMods::refreshTilesets() {
 }
 
 void MenuStateMods::getMapsLocalList() {
+
+/*
 	Config &config = Config::getInstance();
 	vector<string> results;
 	set<string> allMaps;
@@ -951,6 +970,21 @@ void MenuStateMods::getMapsLocalList() {
 		mapFilesUserData = results2;
 		//printf("\n\nMap path [%s] mapFilesUserData.size() = %d\n\n\n",path.c_str(),mapFilesUserData.size());
 	}
+*/
+
+	Config &config = Config::getInstance();
+  	string scenarioDir = "";
+  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+  	vector<string> invalidMapList;
+  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,false,&invalidMapList);
+	if (allMaps.empty()) {
+        throw runtime_error("No maps were found!");
+	}
+	vector<string> results;
+	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+	mapFiles = results;
+
+	mapFilesUserData = MapPreview::findAllValidMaps(pathList,scenarioDir,true,false,&invalidMapList);
 }
 
 string MenuStateMods::refreshMapModInfo(string mapInfo) {

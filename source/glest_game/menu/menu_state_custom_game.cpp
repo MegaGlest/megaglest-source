@@ -173,6 +173,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+
+/*
 	set<string> allMaps;
     findAll(config.getPathListForType(ptMaps), "*.gbm", results, true, false);
 	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
@@ -184,6 +186,19 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	if (allMaps.empty()) {
         throw runtime_error("No maps were found!");
 	}
+	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+	mapFiles = results;
+
+	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
+*/
+  	string scenarioDir = "";
+  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+  	vector<string> invalidMapList;
+  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
+	if (allMaps.empty()) {
+        throw runtime_error("No maps were found!");
+	}
+	results.clear();
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
 	mapFiles = results;
 
@@ -463,6 +478,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
         buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
         buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
         buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
+        buttonBlockPlayers[i].setFont(CoreData::getInstance().getDisplayFontSmall());
+        buttonBlockPlayers[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
         listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
         listBoxRMultiplier[i].init(xoffset+350, setupPos-30-i*rowHeight,70);
@@ -3383,6 +3400,9 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
 }
 
 void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
+
+
+/*
 	Lang &lang= Lang::getInstance();
 
 	try{
@@ -3441,7 +3461,47 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
 		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
 	}
+*/
 
+	try {
+		Lang &lang= Lang::getInstance();
+		if(MapPreview::loadMapInfo(file, mapInfo, lang.get("MaxPlayers"),lang.get("Size"),true) == true) {
+			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+				if(serverInterface->getSlot(i) != NULL &&
+					(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
+					listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned)) {
+					if(serverInterface->getSlot(i)->isConnected() == true) {
+						if(i+1 > mapInfo->players &&
+							listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
+							listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+						}
+					}
+				}
+
+				labelPlayers[i].setVisible(i+1 <= mapInfo->players);
+				labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
+				listBoxControls[i].setVisible(i+1 <= mapInfo->players);
+				listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
+				listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
+				labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+			}
+
+			// Not painting properly so this is on hold
+			if(loadMapPreview == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				mapPreview.loadFromFile(file.c_str());
+
+				//printf("Loading map preview MAP\n");
+				cleanupMapPreviewTexture();
+			}
+		}
+	}
+	catch(exception &e) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
+		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
+	}
 }
 
 void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
