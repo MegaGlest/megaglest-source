@@ -34,6 +34,7 @@ private:
 	GraphicLabel labelVersion;
 
 	GraphicMessageBox mainMessageBox;
+	GraphicMessageBox errorMessageBox;
 
 	PopupMenu popupMenu;
 
@@ -46,6 +47,8 @@ public:
 	void update();
 	virtual void keyDown(SDL_KeyboardEvent key);
 	void showMessageBox(const string &text, const string &header, bool toggle);
+
+	void showErrorMessageBox(const string &text, const string &header, bool toggle);
 
 	virtual bool isMasterserverMode() const;
 	virtual void reloadUI();

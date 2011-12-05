@@ -33,6 +33,7 @@ using namespace Shared::Platform;
 namespace Glest{ namespace Game{
 
 const char *DEFAULT_LANGUAGE = "english";
+
 // =====================================================
 // 	class Lang
 // =====================================================
@@ -45,6 +46,10 @@ Lang::Lang() {
 Lang &Lang::getInstance() {
 	static Lang lang;
 	return lang;
+}
+
+string Lang::getDefaultLanguage() const {
+	return DEFAULT_LANGUAGE;
 }
 
 void Lang::loadStrings(string uselanguage, bool loadFonts,
