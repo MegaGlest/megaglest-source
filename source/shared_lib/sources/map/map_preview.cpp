@@ -15,6 +15,7 @@
 #include "math_wrapper.h"
 #include <cstdlib>
 #include <stdexcept>
+#include <set>
 #include "platform_util.h"
 #include "conversion.h"
 
@@ -922,6 +923,169 @@ void MapPreview::decalRandomize(int strenght) {
 
 void MapPreview::applyNewHeight(float newHeight, int x, int y, int strenght) {
 	cells[x][y].height = static_cast<float>(((cells[x][y].height * strenght) + newHeight) / (strenght + 1));
+}
+
+bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPlayersTitle,string i18nMapSizeTitle,bool errorOnInvalidMap) {
+	bool validMap = false;
+	FILE *f = NULL;
+	try {
+#ifdef WIN32
+		f= _wfopen(utf8_decode(file).c_str(), L"rb");
+#else
+		f= fopen(file.c_str(), "rb");
+#endif
+		if(f == NULL) {
+			throw runtime_error("Can't open file");
+		}
+
+		MapFileHeader header;
+		size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
+		if(readBytes != 1) {
+			validMap = false;
+
+			if(errorOnInvalidMap == true) {
+				char szBuf[4096]="";
+				sprintf(szBuf,"In [%s::%s Line: %d]\nfile [%s]\nreadBytes != sizeof(MapFileHeader) [%lu] [%lu]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),readBytes,sizeof(MapFileHeader));
+				SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
+
+				throw runtime_error(szBuf);
+			}
+		}
+		else {
+			if(header.version < mapver_1 || header.version >= mapver_MAX) {
+				validMap = false;
+
+				if(errorOnInvalidMap == true) {
+					char szBuf[4096]="";
+					printf("In [%s::%s Line: %d]\file [%s]\nheader.version < mapver_1 || header.version >= mapver_MAX [%d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),header.version,mapver_MAX);
+					SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
+
+					throw runtime_error(szBuf);
+				}
+			}
+			else if(header.maxFactions <= 0 || header.maxFactions > MAX_MAP_FACTIONCOUNT) {
+				validMap = false;
+
+				if(errorOnInvalidMap == true) {
+					char szBuf[4096]="";
+					printf("In [%s::%s Line: %d]\file [%s]\nheader.maxFactions <= 0 || header.maxFactions > MAX_MAP_FACTIONCOUNT [%d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),header.maxFactions,MAX_MAP_FACTIONCOUNT);
+					SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
+
+					throw runtime_error(szBuf);
+				}
+			}
+			else {
+				mapInfo->size.x	= header.width;
+				mapInfo->size.y	= header.height;
+				mapInfo->players= header.maxFactions;
+
+				mapInfo->desc 	=  i18nMaxMapPlayersTitle 	+ ": " + intToStr(mapInfo->players) + "\n";
+				mapInfo->desc 	+= i18nMapSizeTitle 		+ ": " + intToStr(mapInfo->size.x) + " x " + intToStr(mapInfo->size.y);
+
+				validMap = true;
+			}
+		}
+
+		if(f) fclose(f);
+	}
+	catch(exception &e) {
+		if(f) fclose(f);
+
+		//assert(0);
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
+		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what() + " errno [" + intToStr(errno) + "] [" + strerror(errno) + "]");
+	}
+
+	return validMap;
+}
+
+// static
+string MapPreview::getMapPath(const vector<string> &pathList, const string &mapName,
+		string scenarioDir, bool errorOnNotFound) {
+    for(int idx = 0; idx < pathList.size(); idx++) {
+        string map_path = pathList[idx];
+    	endPathWithSlash(map_path);
+
+    	const string original 	= map_path + mapName;
+        const string mega 		= map_path + mapName + ".mgm";
+        const string glest 		= map_path + mapName + ".gbm";
+
+        if((EndsWith(original,".mgm") == true || EndsWith(original,".gbm") == true) &&
+        	fileExists(original)) {
+        	return original;
+        }
+        else if (fileExists(mega)) {
+            return mega;
+        }
+        else if (fileExists(glest)) {
+            return glest;
+        }
+    }
+
+	if(errorOnNotFound == true) {
+		throw runtime_error("Map [" + mapName + "] not found, scenarioDir [" + scenarioDir + "]");
+	}
+
+	return "";
+}
+
+vector<string> MapPreview::findAllValidMaps(const vector<string> &pathList,
+		string scenarioDir, bool getUserDataOnly, bool cutExtension,
+		vector<string> *invalidMapList) {
+	vector<string> results;
+
+	if(getUserDataOnly == true) {
+		if(pathList.size() > 1) {
+			string path = pathList[1];
+			endPathWithSlash(path);
+
+			vector<string> results2;
+			set<string> allMaps2;
+		    findAll(path + "*.gbm", results2, cutExtension, false);
+			copy(results2.begin(), results2.end(), std::inserter(allMaps2, allMaps2.begin()));
+
+			results2.clear();
+		    findAll(path + "*.mgm", results2, cutExtension, false);
+			copy(results2.begin(), results2.end(), std::inserter(allMaps2, allMaps2.begin()));
+
+			results2.clear();
+			copy(allMaps2.begin(), allMaps2.end(), std::back_inserter(results2));
+			results = results2;
+			//printf("\n\nMap path [%s] mapFilesUserData.size() = %d\n\n\n",path.c_str(),mapFilesUserData.size());
+		}
+	}
+	else {
+		set<string> allMaps;
+		findAll(pathList, "*.gbm", results, cutExtension, false);
+		copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
+
+		results.clear();
+		findAll(pathList, "*.mgm", results, cutExtension, false);
+		copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
+		results.clear();
+
+		copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+	}
+
+	vector<string> mapFiles = results;
+	results.clear();
+
+	MapInfo mapInfo;
+	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+		//loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPlayersTitle,string i18nMapSizeTitle,bool errorOnInvalidMap=true);
+		//printf("getMapPath [%s]\nmapFiles.at(i) [%s]\nscenarioDir [%s] getUserDataOnly = %d cutExtension = %d\n",getMapPath(pathList,mapFiles.at(i), scenarioDir, false).c_str(),mapFiles.at(i).c_str(),scenarioDir.c_str(), getUserDataOnly, cutExtension);
+
+		if(loadMapInfo(getMapPath(pathList,mapFiles.at(i), scenarioDir, false), &mapInfo, "", "", false) == true) {
+			results.push_back(mapFiles.at(i));
+		}
+		else {
+			if(invalidMapList != NULL) {
+				invalidMapList->push_back(getMapPath(pathList,mapFiles.at(i), scenarioDir, false));
+			}
+		}
+	}
+
+	return results;
 }
 
 }}// end namespace

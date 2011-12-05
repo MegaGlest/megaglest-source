@@ -603,6 +603,7 @@ public:
 	}
 
 	static int DisplayMessage(const char *msg, bool exitApp) {
+		//printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
@@ -2180,8 +2181,10 @@ void CheckForDuplicateData() {
     string duplicateWarnings="";
 
     {
-  	vector<string> maps;
-  	std::vector<std::string> results;
+//  	vector<string> maps;
+  	vector<string> results;
+
+/*
   	vector<string> mapPaths = config.getPathListForType(ptMaps);
 
     findAll(mapPaths, "*.gbm", results, false, false, true);
@@ -2197,6 +2200,26 @@ void CheckForDuplicateData() {
 	if(maps.empty()) {
         throw runtime_error("No maps were found!");
     }
+*/
+  	string scenarioDir = "";
+  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+  	vector<string> invalidMapList;
+  	vector<string> maps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
+	std::sort(maps.begin(),maps.end());
+
+	if(maps.empty() == true) {
+        throw runtime_error("No maps were found!");
+    }
+	else if(invalidMapList.size() > 0) {
+		string errorMsg = "Warning invalid maps were detected (will be ignored):\n";
+		for(int i = 0; i < invalidMapList.size(); ++i) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"map [%s]\n",invalidMapList[i].c_str());
+
+			errorMsg += szBuf;
+		}
+		duplicateWarnings += errorMsg;
+	}
 
 	vector<string> duplicateMapsToRename;
 	for(int i = 0; i < maps.size(); ++i) {
@@ -2218,7 +2241,7 @@ void CheckForDuplicateData() {
 	if(duplicateMapsToRename.empty() == false) {
 		string errorMsg = "Warning duplicate maps were detected and renamed:\n";
 		for(int i = 0; i < duplicateMapsToRename.size(); ++i) {
-			string currentPath = mapPaths[1];
+			string currentPath = pathList[1];
 			endPathWithSlash(currentPath);
 
 			string oldFile = currentPath + duplicateMapsToRename[i];

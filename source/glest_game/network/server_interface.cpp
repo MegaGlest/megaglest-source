@@ -25,12 +25,14 @@
 #include "miniftpserver.h"
 #include "window.h"
 #include <set>
+#include "map_preview.h"
 
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;
 using namespace Shared::Util;
+using namespace Shared::Map;
 
 namespace Glest { namespace Game {
 
@@ -89,6 +91,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	serverSocket.setBindPort(Config::getInstance().getInt("ServerPort", intToStr(GameConstants::serverPort).c_str()));
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+/*
 	Config &config = Config::getInstance();
 	vector<string> results;
 	set<string> allMaps;
@@ -103,6 +106,21 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	}
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
 	mapFiles = results;
+*/
+
+	Config &config = Config::getInstance();
+	vector<string> results;
+  	string scenarioDir = "";
+  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+  	vector<string> invalidMapList;
+  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
+	if (allMaps.empty()) {
+        throw runtime_error("No maps were found!");
+	}
+	results.clear();
+	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+	mapFiles = results;
+
 
 	//tileset listBox
 	results.clear();

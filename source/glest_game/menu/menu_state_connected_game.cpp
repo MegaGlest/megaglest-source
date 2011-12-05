@@ -406,6 +406,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+
+/*
 	set<string> allMaps;
     findAll(config.getPathListForType(ptMaps), "*.gbm", results, true, false);
 	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
@@ -419,19 +421,32 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	}
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
 	mapFiles = results;
+*/
+
+  	string scenarioDir = "";
+  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+  	vector<string> invalidMapList;
+  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
+	if (allMaps.empty()) {
+        throw runtime_error("No maps were found!");
+	}
+	results.clear();
+	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+	mapFiles = results;
 
 	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
 	copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
 	std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
 
 	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
-		loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false);
-		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
-		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
-		formattedMapFiles.push_back(formatString(mapFiles.at(i)));
-		//if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
-		//	initialMapSelection= i;
-		//}
+		if(loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false) == true) {
+			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
+			formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
+			formattedMapFiles.push_back(formatString(mapFiles.at(i)));
+			//if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
+			//	initialMapSelection= i;
+			//}
+		}
 	}
     //listBoxMap.setItems(formattedPlayerSortedMaps[0]);
 	listBoxMap.setItems(formattedMapFiles);
@@ -1126,8 +1141,12 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-            loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
-            labelMapInfo.setText(mapInfo.desc);
+            if(loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true) == true) {
+            	labelMapInfo.setText(mapInfo.desc);
+            }
+            else {
+            	labelMapInfo.setText("???");
+            }
 
             //updateControlers();
             //updateNetworkSlots();
@@ -2981,6 +3000,8 @@ void MenuStateConnectedGame::loadFactionTexture(string filepath) {
 
 bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
 
+
+/*
 	Lang &lang= Lang::getInstance();
 
 	bool mapLoaded = false;
@@ -3061,6 +3082,77 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 		            }
 					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 		    	}
+			}
+		}
+	}
+	catch(exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+
+		showMessageBox( "Error loading map file: "+file+'\n'+e.what(), "Error", false);
+	}
+
+	return mapLoaded;
+*/
+
+	bool mapLoaded = false;
+	try {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] map [%s]\n",__FILE__,__FUNCTION__,__LINE__,file.c_str());
+
+		if(file != "") {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			lastMissingMap = file;
+
+			Lang &lang= Lang::getInstance();
+			if(MapPreview::loadMapInfo(file, mapInfo, lang.get("MaxPlayers"),lang.get("Size"),true) == true) {
+				for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+					labelPlayers[i].setVisible(i+1 <= mapInfo->players);
+					labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
+					listBoxControls[i].setVisible(i+1 <= mapInfo->players);
+					listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
+					listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
+					labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+				}
+
+				// Not painting properly so this is on hold
+				if(loadMapPreview == true) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					if(mapPreview.getMapFileLoaded() != file) {
+						mapPreview.loadFromFile(file.c_str());
+						cleanupMapPreviewTexture();
+					}
+				}
+
+				mapLoaded = true;
+			}
+		}
+		else {
+			cleanupMapPreviewTexture();
+			mapInfo->desc = ITEM_MISSING;
+
+			NetworkManager &networkManager= NetworkManager::getInstance();
+			ClientInterface* clientInterface= networkManager.getClientInterface();
+			const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+			if(lastMissingMap != gameSettings->getMap()) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				lastMissingMap = gameSettings->getMap();
+
+				Lang &lang= Lang::getInstance();
+				const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+				for(unsigned int i = 0; i < languageList.size(); ++i) {
+
+					char szMsg[1024]="";
+					if(lang.hasString("DataMissingMap",languageList[i]) == true) {
+						sprintf(szMsg,lang.get("DataMissingMap",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+					}
+					else {
+						sprintf(szMsg,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+					}
+					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+				}
 			}
 		}
 	}

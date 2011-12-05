@@ -712,6 +712,10 @@ void Program::showMessage(const char *msg) {
 
 	msgBox.setText(msg);
 	msgBox.setEnabled(true);
+
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		printf("Message:\n%s\n",msg);
+	}
 }
 
 void Program::stopSoundSystem() {
