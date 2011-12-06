@@ -14,19 +14,42 @@ echo "Creating data package in $RELEASEDIR"
 mkdir -p "$RELEASEDIR"
 
 # copy data
-cp "$CURRENTDIR/../../mk/linux/megaglest.bmp" $RELEASEDIR
-cp "$CURRENTDIR/../../mk/linux/megaglest.desktop" $RELEASEDIR
-cp "$CURRENTDIR/../../mk/linux/megaglest.png" $RELEASEDIR
-cp "$CURRENTDIR/../../mk/linux/glest.ico" $RELEASEDIR
-cp "$CURRENTDIR/../../mk/linux/configuration.xml" $RELEASEDIR
+#cp "$CURRENTDIR/../../mk/linux/megaglest.bmp" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../mk/linux/megaglest.bmp" "$RELEASEDIR/megaglest.bmp"
 
-cp "$CURRENTDIR/../../data/glest_game/megaglest.ico" $RELEASEDIR
-cp "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" $RELEASEDIR
-cp "$CURRENTDIR/../../data/glest_game/editor.ico" $RELEASEDIR
-cp "$CURRENTDIR/../../data/glest_game/servers.ini" $RELEASEDIR
-cp "$CURRENTDIR/../../data/glest_game/glest.ini" $RELEASEDIR/glest_windows.ini
-cp "$CURRENTDIR/../../mk/linux/glest.ini" $RELEASEDIR/glest_linux.ini
-cp "$CURRENTDIR/../../data/glest_game/glestkeys.ini" $RELEASEDIR
+#cp "$CURRENTDIR/../../mk/linux/megaglest.desktop" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../mk/linux/megaglest.desktop" "$RELEASEDIR/megaglest.desktop"
+
+#cp "$CURRENTDIR/../../mk/linux/megaglest.png" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../mk/linux/megaglest.png" "$RELEASEDIR/megaglest.png"
+
+#cp "$CURRENTDIR/../../mk/linux/glest.ico" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../mk/linux/glest.ico" "$RELEASEDIR/glest.ico"
+
+#cp "$CURRENTDIR/../../mk/linux/configuration.xml" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../mk/linux/configuration.xml" "$RELEASEDIR/configuration.xml"
+
+#cp "$CURRENTDIR/../../data/glest_game/megaglest.ico" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../data/glest_game/megaglest.ico" "$RELEASEDIR/megaglest.ico"
+
+#cp "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" "$RELEASEDIR/g3dviewer.ico"
+
+#cp "$CURRENTDIR/../../data/glest_game/editor.ico" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../data/glest_game/editor.ico" "$RELEASEDIR/editor.ico"
+
+#cp "$CURRENTDIR/../../data/glest_game/servers.ini" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../data/glest_game/servers.ini" "$RELEASEDIR/servers.ini"
+
+#cp "$CURRENTDIR/../../data/glest_game/glest.ini" $RELEASEDIR/glest_windows.ini
+svn export --force "$CURRENTDIR/../../data/glest_game/glest.ini" "$RELEASEDIR/glest_windows.ini"
+
+#cp "$CURRENTDIR/../../mk/linux/glest.ini" $RELEASEDIR/glest_linux.ini
+svn export --force "$CURRENTDIR/../../mk/linux/glest.ini" "$RELEASEDIR/glest_linux.ini"
+
+#cp "$CURRENTDIR/../../data/glest_game/glestkeys.ini" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../data/glest_game/glestkeys.ini" "$RELEASEDIR/glestkeys.ini"
+
 #cp "$CURRENTDIR/../../data/glest_game/configuration.xml" $RELEASEDIR
 
 mkdir -p "$RELEASEDIR/data/"
@@ -48,7 +71,8 @@ svn export --force "$CURRENTDIR/../../data/glest_game/tutorials" "$RELEASEDIR/tu
 mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
 svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/data/core/misc_textures/flags/"
 
-cp -p "$CURRENTDIR/../../data/glest_game/CMakeLists.txt" $RELEASEDIR
+#cp -p "$CURRENTDIR/../../data/glest_game/CMakeLists.txt" $RELEASEDIR
+svn export --force "$CURRENTDIR/../../data/glest_game/CMakeLists.txt" "$RELEASEDIR/CMakeLists.txt"
 
 echo "creating $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
