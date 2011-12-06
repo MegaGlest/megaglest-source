@@ -72,49 +72,49 @@ bool isGlExtensionSupported(const char *extensionName) {
     return cacheExtensionCheckList[extensionName];
 }
 
-bool isGlVersionSupported(int major, int minor, int release) {
-
-	const char *strVersion= getGlVersion();
-
-	//major
-	const char *majorTok= strVersion;
-	int majorSupported= atoi(majorTok);
-
-	if(majorSupported<major) {
-		return false;
-	}
-	else if(majorSupported>major) {
-		return true;
-	}
-
-	//minor
-	int i=0;
-	while(strVersion[i]!='.') {
-		++i;
-	}
-	const char *minorTok= &strVersion[i]+1;
-	int minorSupported= atoi(minorTok);
-
-	if(minorSupported<minor) {
-		return false;
-	}
-	else if(minorSupported>minor) {
-		return true;
-	}
-
-	//release
-	++i;
-	while(strVersion[i]!='.') {
-		++i;
-	}
-	const char *releaseTok= &strVersion[i]+1;
-
-	if(atoi(releaseTok) < release) {
-		return false;
-	}
-
-	return true;
-}
+//bool isGlVersionSupported(int major, int minor, int release) {
+//
+//	const char *strVersion= getGlVersion();
+//
+//	//major
+//	const char *majorTok= strVersion;
+//	int majorSupported= atoi(majorTok);
+//
+//	if(majorSupported<major) {
+//		return false;
+//	}
+//	else if(majorSupported>major) {
+//		return true;
+//	}
+//
+//	//minor
+//	int i=0;
+//	while(strVersion[i]!='.') {
+//		++i;
+//	}
+//	const char *minorTok= &strVersion[i]+1;
+//	int minorSupported= atoi(minorTok);
+//
+//	if(minorSupported<minor) {
+//		return false;
+//	}
+//	else if(minorSupported>minor) {
+//		return true;
+//	}
+//
+//	//release
+//	++i;
+//	while(strVersion[i]!='.') {
+//		++i;
+//	}
+//	const char *releaseTok= &strVersion[i]+1;
+//
+//	if(atoi(releaseTok) < release) {
+//		return false;
+//	}
+//
+//	return true;
+//}
 
 const char *getGlVersion() {
 	return reinterpret_cast<const char *>(glGetString(GL_VERSION));
