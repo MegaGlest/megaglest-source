@@ -277,7 +277,7 @@ public:
 	UnitAttackBoostEffect *currentAppliedEffect;
 };
 
-class Unit : public ValueCheckerVault {
+class Unit : public BaseColorPickEntity, ValueCheckerVault {
 private:
     typedef list<Command*> Commands;
 	typedef list<UnitObserver*> Observers;
@@ -625,6 +625,8 @@ public:
 	void setUsePathfinderExtendedMaxNodes(bool value) { usePathfinderExtendedMaxNodes = value; }
 
 	void updateTimedParticles();
+
+	virtual string getUniquePickName() const;
 private:
 	float computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();

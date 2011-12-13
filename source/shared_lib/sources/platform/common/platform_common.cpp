@@ -116,7 +116,7 @@ void PerformanceTimer::reset(){
 //         Chrono
 // =====================================
 
-Chrono::Chrono() {
+Chrono::Chrono(bool autoStart) {
 	freq = 1000;
 	stopped= true;
 	accumCount= 0;
@@ -126,6 +126,10 @@ Chrono::Chrono() {
 	lastResult = 0;
 	lastMultiplier = 0;
 	lastStopped = false;
+
+	if(autoStart == true) {
+		start();
+	}
 }
 
 void Chrono::start() {
@@ -138,6 +142,16 @@ void Chrono::stop() {
 	endCount = SDL_GetTicks();
 	accumCount += endCount-startCount;
 	stopped= true;
+}
+
+void Chrono::reset() {
+	accumCount = 0;
+	lastStartCount = 0;
+	lastTickCount = 0;
+	lastResult = 0;
+	lastMultiplier = 0;
+
+	startCount = SDL_GetTicks();
 }
 
 int64 Chrono::getMicros() {

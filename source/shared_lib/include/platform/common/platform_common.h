@@ -119,9 +119,10 @@ private:
 	bool lastStopped;
 
 public:
-	Chrono();
+	Chrono(bool autoStart=false);
 	void start();
 	void stop();
+	void reset();
 	int64 getMicros();
 	int64 getMillis();
 	int64 getSeconds();

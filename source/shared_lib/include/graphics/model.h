@@ -216,6 +216,31 @@ private:
 	void buildInterpolationData() const;
 };
 
+class BaseColorPickEntity {
+private:
+	static const int COLOR_COMPONENTS = 3;
+    unsigned char uniqueColorID[COLOR_COMPONENTS];
+
+    static unsigned char nextColorID[COLOR_COMPONENTS];
+    static Mutex mutexNextColorID;
+
+public:
+
+    BaseColorPickEntity();
+    static void beginPicking();
+    static void endPicking();
+    static vector<int> getPickedList(int x,int y,int w,int h, const vector<BaseColorPickEntity *> &rendererModels);
+
+    void setUniquePickingColor() const;
+    bool isUniquePickingColor(unsigned char *pixel) const;
+
+    string getColorDescription() const;
+    virtual string getUniquePickName() const = 0;
+
+    ~BaseColorPickEntity() {};
+};
+
+
 }}//end namespace
 
 #endif
