@@ -959,10 +959,104 @@ void Model::deletePixels() {
 	}
 }
 
+bool PixelBufferWrapper::isPBOEnabled 	= false;
+int PixelBufferWrapper::index 			= 0;
+vector<unsigned int> PixelBufferWrapper::pboIds;
+
+PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
+	if(isGlExtensionSupported("GL_ARB_pixel_buffer_object")) {
+		PixelBufferWrapper::isPBOEnabled = true;
+		pboIds.reserve(pboCount);
+		glGenBuffersARB(pboCount, &pboIds[0]);
+
+		for(unsigned int i = 0; i < pboCount; ++i) {
+			// create pixel buffer objects, you need to delete them when program exits.
+			// glBufferDataARB with NULL pointer reserves only memory space.
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i]);
+			glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0, GL_STREAM_READ_ARB);
+		}
+		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+	}
+}
+
+Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int colorComponents) {
+	Pixmap2D *pixmapScreenShot = NULL;
+	if(PixelBufferWrapper::isPBOEnabled == true) {
+	    // increment current index first then get the next index
+	    // "index" is used to read pixels from a framebuffer to a PBO
+	    // "nextIndex" is used to process pixels in the other PBO
+	    index = (index + 1) % 2;
+
+	    // pbo index used for next frame
+	    int nextIndex = (index + 1) % 2;
+
+	    // read framebuffer ///////////////////////////////
+		// copy pixels from framebuffer to PBO
+		// Use offset instead of pointer.
+		// OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
+		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+
+		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		// measure the time reading framebuffer
+		//t1.stop();
+		//readTime = t1.getElapsedTimeInMilliSec();
+
+		// process pixel data /////////////////////////////
+		//t1.start();
+
+		// map the PBO that contain framebuffer pixels before processing it
+		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
+		//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+		GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
+		if(src) {
+			pixmapScreenShot = new Pixmap2D(w+1, h+1, colorComponents);
+			memcpy(pixmapScreenShot->getPixels(),src,pixmapScreenShot->getPixelByteCount());
+
+			glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
+
+			//pixmapScreenShot->save("debugPBO.png");
+		}
+
+		// measure the time reading framebuffer
+		//t1.stop();
+		//processTime = t1.getElapsedTimeInMilliSec();
+
+		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+	}
+
+	return pixmapScreenShot;
+}
+
+void PixelBufferWrapper::begin() {
+	if(PixelBufferWrapper::isPBOEnabled == true) {
+		// set the framebuffer to read
+		glReadBuffer(GL_FRONT);
+	}
+}
+
+void PixelBufferWrapper::end() {
+	if(PixelBufferWrapper::isPBOEnabled == true) {
+		// set the framebuffer to read
+		glReadBuffer(GL_BACK);
+	}
+}
+
+PixelBufferWrapper::~PixelBufferWrapper() {
+	if(PixelBufferWrapper::isPBOEnabled == true) {
+		if(pboIds.empty() == false) {
+			glDeleteBuffersARB(pboIds.size(), &pboIds[0]);
+			pboIds.clear();
+		}
+	}
+}
 
 //unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = {1, 1, 1, 1};
 unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1 };
 Mutex BaseColorPickEntity::mutexNextColorID;
+auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
 
 BaseColorPickEntity::BaseColorPickEntity() {
 	 MutexSafeWrapper safeMutex(&mutexNextColorID);
@@ -1008,6 +1102,12 @@ BaseColorPickEntity::BaseColorPickEntity() {
            }
         }
      }
+}
+
+void BaseColorPickEntity::init(int bufferSize) {
+	 if(BaseColorPickEntity::pbo.get() == NULL) {
+		 BaseColorPickEntity::pbo.reset(new PixelBufferWrapper(2,bufferSize));
+	 }
 }
 
 string BaseColorPickEntity::getColorDescription() const {
@@ -1086,25 +1186,44 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const ve
 
 	static Chrono lastSnapshot(true);
 
-	// Only update the pixel buffer every 350 milliseconds or as required
-	if(cachedPixels.get() == NULL || cachedPixelsW != w+1 || cachedPixelsH != h+1 ||
-			lastSnapshot.getMillis() > 350) {
-		//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
+	Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
+	if(pixmapScreenShot != NULL) {
+		// Only update the pixel buffer every 350 milliseconds or as required
+		if(cachedPixels.get() == NULL || cachedPixelsW != w+1 || cachedPixelsH != h+1 ||
+				lastSnapshot.getMillis() > 350) {
+			//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
 
-		lastSnapshot.reset();
+			lastSnapshot.reset();
 
-		Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
-		glPixelStorei(GL_PACK_ALIGNMENT, 1);
-		glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-		//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			cachedPixels.reset(new unsigned char[pixmapScreenShot->getPixelByteCount()]);
+			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),pixmapScreenShot->getPixelByteCount());
+			cachedPixelsW = w+1;
+			cachedPixelsH = h+1;
 
-		cachedPixels.reset(new unsigned char[pixmapScreenShot->getPixelByteCount()]);
-		memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),pixmapScreenShot->getPixelByteCount());
-		cachedPixelsW = w+1;
-		cachedPixelsH = h+1;
+			delete pixmapScreenShot;
+		}
+	}
+	else {
+		// Only update the pixel buffer every 350 milliseconds or as required
+		if(cachedPixels.get() == NULL || cachedPixelsW != w+1 || cachedPixelsH != h+1 ||
+				lastSnapshot.getMillis() > 350) {
+			//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
 
-		delete pixmapScreenShot;
+			lastSnapshot.reset();
+
+			pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
+			glPixelStorei(GL_PACK_ALIGNMENT, 1);
+			glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+			//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+			cachedPixels.reset(new unsigned char[pixmapScreenShot->getPixelByteCount()]);
+			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),pixmapScreenShot->getPixelByteCount());
+			cachedPixelsW = w+1;
+			cachedPixelsH = h+1;
+
+			delete pixmapScreenShot;
+		}
 	}
 	pixelBuffer = cachedPixels.get();
 

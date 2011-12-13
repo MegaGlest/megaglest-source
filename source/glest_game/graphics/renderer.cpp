@@ -5762,7 +5762,6 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&obj,
 								const bool withObjectSelection,
 								const Vec2i &posDown, const Vec2i &posUp) {
-
 	const Metrics &metrics= Metrics::getInstance();
 
 	//compute center and dimensions of selection rectangle
@@ -5801,6 +5800,8 @@ void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&
 		w= (w * metrics.getScreenW() / metrics.getVirtualW());
 		h= (h * metrics.getScreenH() / metrics.getVirtualH());
 
+		PixelBufferWrapper::begin();
+
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
@@ -5831,6 +5832,7 @@ void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&
 
 		//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 
+		PixelBufferWrapper::end();
 		//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 		vector<BaseColorPickEntity *> rendererModels;
