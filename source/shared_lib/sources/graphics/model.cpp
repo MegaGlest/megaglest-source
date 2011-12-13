@@ -1002,9 +1002,9 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 		// OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
 		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
 
-		glPixelStorei(GL_PACK_ALIGNMENT, 1);
-		glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, 0);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		// measure the time reading framebuffer
 		//t1.stop();
@@ -1195,15 +1195,16 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const ve
 	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	static Chrono lastSnapshot(true);
+	const int selectionMillisecondUpdate = 350;
 
-	Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
-	if(pixmapScreenShot != NULL) {
-		// Only update the pixel buffer every 350 milliseconds or as required
+	if(PixelBufferWrapper::getIsPBOEnable() == true) {
+		// Only update the pixel buffer every x milliseconds or as required
 		if(cachedPixels.get() == NULL || cachedPixelsW != w+1 || cachedPixelsH != h+1 ||
-				lastSnapshot.getMillis() > 350) {
+				lastSnapshot.getMillis() > selectionMillisecondUpdate) {
 			//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
 
 			lastSnapshot.reset();
+			Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
 
 			cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
 			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
@@ -1214,18 +1215,18 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const ve
 		}
 	}
 	else {
-		// Only update the pixel buffer every 350 milliseconds or as required
+		// Only update the pixel buffer every x milliseconds or as required
 		if(cachedPixels.get() == NULL || cachedPixelsW != w+1 || cachedPixelsH != h+1 ||
-				lastSnapshot.getMillis() > 350) {
+				lastSnapshot.getMillis() > selectionMillisecondUpdate) {
 			//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
 
 			lastSnapshot.reset();
 
-			pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
-			glPixelStorei(GL_PACK_ALIGNMENT, 1);
-			glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-			//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
+			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+			//glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+			glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 			cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
 			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());

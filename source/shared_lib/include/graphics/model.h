@@ -225,6 +225,7 @@ public:
 	static Pixmap2D *getPixelBufferFor(int x,int y,int w,int h, int colorComponents);
 	static void begin();
 	static void end();
+	static bool getIsPBOEnable() { return isPBOEnabled; }
 
 private:
 	static bool isPBOEnabled;
@@ -239,7 +240,7 @@ class BaseColorPickEntity {
 public:
     BaseColorPickEntity();
 
-    static const int COLOR_COMPONENTS = 3;
+    static const int COLOR_COMPONENTS = 4;
     static void init(int bufferSize);
     static void beginPicking();
     static void endPicking();
