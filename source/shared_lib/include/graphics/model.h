@@ -19,6 +19,7 @@
 #include "texture_manager.h"
 #include "texture.h"
 #include "model_header.h"
+#include <memory>
 #include "leak_dumper.h"
 
 using std::string;
@@ -216,17 +217,28 @@ private:
 	void buildInterpolationData() const;
 };
 
-class BaseColorPickEntity {
-private:
-	static const int COLOR_COMPONENTS = 3;
-    unsigned char uniqueColorID[COLOR_COMPONENTS];
+class PixelBufferWrapper {
+public:
+	PixelBufferWrapper(int pboCount,int bufferSize);
+	~PixelBufferWrapper();
 
-    static unsigned char nextColorID[COLOR_COMPONENTS];
-    static Mutex mutexNextColorID;
+	static Pixmap2D *getPixelBufferFor(int x,int y,int w,int h, int colorComponents);
+	static void begin();
+	static void end();
+
+private:
+	static bool isPBOEnabled;
+	static int index;
+	static vector<unsigned int> pboIds;
+};
+
+class BaseColorPickEntity {
 
 public:
-
     BaseColorPickEntity();
+
+    static const int COLOR_COMPONENTS = 3;
+    static void init(int bufferSize);
     static void beginPicking();
     static void endPicking();
     static vector<int> getPickedList(int x,int y,int w,int h, const vector<BaseColorPickEntity *> &rendererModels);
@@ -238,6 +250,14 @@ public:
     virtual string getUniquePickName() const = 0;
 
     ~BaseColorPickEntity() {};
+
+private:
+	unsigned char uniqueColorID[COLOR_COMPONENTS];
+
+    static unsigned char nextColorID[COLOR_COMPONENTS];
+    static Mutex mutexNextColorID;
+
+    static auto_ptr<PixelBufferWrapper> pbo;
 };
 
 

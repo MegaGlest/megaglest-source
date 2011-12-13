@@ -19,10 +19,12 @@
 #include "window.h"
 #include <vector>
 //#include <SDL_image.h>
+#include "model.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics::Gl;
 using namespace Shared::Util;
+using namespace Shared::Graphics;
 
 namespace Shared{ namespace Platform{
 
@@ -140,6 +142,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 					// try to revert to 800x600
 					screen = SDL_SetVideoMode(800, 600, i, flags);
 					if(screen != 0) {
+						resW = 800;
+						resH = 600;
 						break;
 					}
 				}
@@ -149,6 +153,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 					// try to revert to 640x480
 					screen = SDL_SetVideoMode(640, 480, i, flags);
 					if(screen != 0) {
+						resW = 640;
+						resH = 480;
 						break;
 					}
 				}
@@ -160,15 +166,16 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 		}
 
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
-	}
 
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-		 GLuint err = glewInit();
-		 if (GLEW_OK != err) {
+		GLuint err = glewInit();
+		if (GLEW_OK != err) {
 			fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
 			//return 1;
 			throw std::runtime_error((char *)glewGetErrorString(err));
-		 }
+		}
+
+		int bufferSize = (resW * resH * BaseColorPickEntity::COLOR_COMPONENTS);
+		BaseColorPickEntity::init(bufferSize);
 	}
 }
 
