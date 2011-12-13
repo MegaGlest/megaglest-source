@@ -173,6 +173,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 			//return 1;
 			throw std::runtime_error((char *)glewGetErrorString(err));
 		}
+		//fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
 		int bufferSize = (resW * resH * BaseColorPickEntity::COLOR_COMPONENTS);
 		BaseColorPickEntity::init(bufferSize);

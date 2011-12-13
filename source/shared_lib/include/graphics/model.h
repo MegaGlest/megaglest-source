@@ -229,7 +229,9 @@ public:
 private:
 	static bool isPBOEnabled;
 	static int index;
-	static vector<unsigned int> pboIds;
+	static vector<uint32> pboIds;
+
+	void cleanup();
 };
 
 class BaseColorPickEntity {

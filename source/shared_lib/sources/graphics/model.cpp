@@ -964,12 +964,18 @@ int PixelBufferWrapper::index 			= 0;
 vector<unsigned int> PixelBufferWrapper::pboIds;
 
 PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
-	if(isGlExtensionSupported("GL_ARB_pixel_buffer_object")) {
+	//if(isGlExtensionSupported("GL_ARB_pixel_buffer_object") == true &&
+	if(GLEW_ARB_pixel_buffer_object) {
 		PixelBufferWrapper::isPBOEnabled = true;
-		pboIds.reserve(pboCount);
-		glGenBuffersARB(pboCount, &pboIds[0]);
+		cleanup();
+		// For some wacky reason this fails in VC++ 2008
+		//pboIds.reserve(pboCount);
+		//glGenBuffersARB(pboCount, (GLuint*)&pboIds[0]);
+		//
 
-		for(unsigned int i = 0; i < pboCount; ++i) {
+		for(int i = 0; i < pboCount; ++i) {
+			pboIds.push_back(0);
+			glGenBuffersARB(1, (GLuint*)&pboIds[i]);
 			// create pixel buffer objects, you need to delete them when program exits.
 			// glBufferDataARB with NULL pointer reserves only memory space.
 			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i]);
@@ -1013,7 +1019,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 		GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
 		if(src) {
 			pixmapScreenShot = new Pixmap2D(w+1, h+1, colorComponents);
-			memcpy(pixmapScreenShot->getPixels(),src,pixmapScreenShot->getPixelByteCount());
+			memcpy(pixmapScreenShot->getPixels(),src,(size_t)pixmapScreenShot->getPixelByteCount());
 
 			glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
 
@@ -1044,13 +1050,17 @@ void PixelBufferWrapper::end() {
 	}
 }
 
-PixelBufferWrapper::~PixelBufferWrapper() {
+void PixelBufferWrapper::cleanup() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		if(pboIds.empty() == false) {
 			glDeleteBuffersARB(pboIds.size(), &pboIds[0]);
 			pboIds.clear();
 		}
 	}
+}
+
+PixelBufferWrapper::~PixelBufferWrapper() {
+	cleanup();
 }
 
 //unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = {1, 1, 1, 1};
@@ -1195,8 +1205,8 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const ve
 
 			lastSnapshot.reset();
 
-			cachedPixels.reset(new unsigned char[pixmapScreenShot->getPixelByteCount()]);
-			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),pixmapScreenShot->getPixelByteCount());
+			cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
+			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
 			cachedPixelsW = w+1;
 			cachedPixelsH = h+1;
 
@@ -1217,8 +1227,8 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const ve
 			//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-			cachedPixels.reset(new unsigned char[pixmapScreenShot->getPixelByteCount()]);
-			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),pixmapScreenShot->getPixelByteCount());
+			cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
+			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
 			cachedPixelsW = w+1;
 			cachedPixelsH = h+1;
 
