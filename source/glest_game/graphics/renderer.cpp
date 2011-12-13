@@ -7597,38 +7597,35 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				for(int j = 0; j < faction->getUnitCount(); ++j) {
 					Unit *unit= faction->getUnit(j);
 
-					if(VisibleQuadContainerCache::enableFrustumCalcs == false) {
-						bool insideQuad 	= visibleQuad.isInside(unit->getPos());
-						bool renderInMap 	= world->toRenderUnit(unit);
-						if(insideQuad == true && renderInMap == true) {
-							quadCache.visibleQuadUnitList.push_back(unit);
-						}
-						else {
-							unit->setVisible(false);
-							// Currently don't need this list
-							//quadCache.inVisibleUnitList.push_back(unit);
-						}
 
-						if(renderInMap == true) {
-							quadCache.visibleUnitList.push_back(unit);
-						}
-					}
-					else {
+					if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
 						//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
 						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z, unit->getType()->getSize());
 						bool renderInMap 	= world->toRenderUnit(unit);
-						if(insideQuad == true && renderInMap == true) {
-							quadCache.visibleQuadUnitList.push_back(unit);
-						}
-						else {
+						if(insideQuad == false || renderInMap == false) {
 							unit->setVisible(false);
+							if(renderInMap == true) {
+								quadCache.visibleUnitList.push_back(unit);
+							}
+							continue; // no more need to check any further;
 							// Currently don't need this list
 							//quadCache.inVisibleUnitList.push_back(unit);
 						}
+					}
 
-						if(renderInMap == true) {
-							quadCache.visibleUnitList.push_back(unit);
-						}
+					bool insideQuad 	= visibleQuad.isInside(unit->getPos());
+					bool renderInMap 	= world->toRenderUnit(unit);
+					if(insideQuad == true && renderInMap == true) {
+						quadCache.visibleQuadUnitList.push_back(unit);
+					}
+					else {
+						unit->setVisible(false);
+						// Currently don't need this list
+						//quadCache.inVisibleUnitList.push_back(unit);
+					}
+
+					if(renderInMap == true) {
+						quadCache.visibleUnitList.push_back(unit);
 					}
 				}
 			}
