@@ -33,7 +33,7 @@ ObjectStateInterface *Object::stateCallback=NULL;
 // 	class Object
 // =====================================================
 
-Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) {
+Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : BaseColorPickEntity() {
 	RandomGen random;
 
 	random.init(static_cast<int>(pos.x*pos.z));
@@ -170,6 +170,15 @@ void Object::setVisible( bool visible)
 			(*it)->setVisible(visible);
 		}
 	}
+}
+
+string Object::getUniquePickName() const {
+	string result = "";
+	if(resource != NULL) {
+		result += resource->getDescription() + " : ";
+	}
+	result += mapPos.getString();
+	return result;
 }
 
 }}//end namespace

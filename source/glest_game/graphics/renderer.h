@@ -249,6 +249,7 @@ private:
 	Quad2i visibleQuadFromCamera;
 	Vec4f nearestLightPos;
 	VisibleQuadContainerCache quadCache;
+	VisibleQuadContainerCache quadCacheSelection;
 
 	//renderers
 	ModelRenderer *modelRenderer;
@@ -370,6 +371,7 @@ private:
 
 	bool ExtractFrustum(VisibleQuadContainerCache &quadCacheItem);
 	bool PointInFrustum(vector<vector<float> > &frustum, float x, float y, float z );
+	bool SphereInFrustum(vector<vector<float> > &frustum,  float x, float y, float z, float radius);
 	bool CubeInFrustum(vector<vector<float> > &frustum, float x, float y, float z, float size );
 
 private:
@@ -580,8 +582,8 @@ private:
 	void checkExtension(const string &extension, const string &msg);
 
 	//selection render
-	void renderObjectsFast(bool renderingShadows = false, bool resourceOnly = false);
-	void renderUnitsFast(bool renderingShadows = false);
+	vector<Object *> renderObjectsFast(bool renderingShadows = false, bool resourceOnly = false, bool colorPickingSelection = false);
+	vector<Unit *> renderUnitsFast(bool renderingShadows = false, bool colorPickingSelection = false);
 
 	//gl requirements
 	void checkGlCaps();

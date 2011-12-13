@@ -42,7 +42,7 @@ public:
 	virtual void removingObjectEvent(Object *object) = 0;
 };
 
-class Object {
+class Object : public BaseColorPickEntity {
 private:
 	typedef vector<UnitParticleSystem*> UnitParticleSystems;
 
@@ -86,6 +86,8 @@ public:
 	void setLastRenderFrame(int value) { lastRenderFrame = value; }
 
 	const Vec2i & getMapPos() const { return mapPos; }
+
+	virtual string getUniquePickName() const;
 };
 
 }}//end namespace

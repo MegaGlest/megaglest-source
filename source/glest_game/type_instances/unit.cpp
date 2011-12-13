@@ -284,7 +284,8 @@ const int Unit::invalidId= -1;
 
 Game *Unit::game = NULL;
 
-Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing):id(id) {
+Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
+		   const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing) : BaseColorPickEntity(), id(id) {
 #ifdef LEAK_CHECK_UNITS
 	Unit::mapMemoryList[this]=true;
 #endif
@@ -3243,6 +3244,12 @@ bool Unit::isLastStuckFrameWithinCurrentFrameTolerance() const {
 Vec2i Unit::getPosWithCellMapSet() const {
 	Vec2i cellMapPos = this->getType()->getFirstOccupiedCellInCellMap(pos);
 	return cellMapPos;
+}
+
+string Unit::getUniquePickName() const {
+	string result = intToStr(id) + " - " + type->getName() + " : ";
+	result += pos.getString();
+	return result;
 }
 
 std::string Unit::toString() const {

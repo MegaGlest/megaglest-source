@@ -21,6 +21,7 @@
 #include "platform_common.h"
 #include "opengl.h"
 #include "platform_util.h"
+#include <memory>
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -33,8 +34,6 @@ using namespace Shared::Util;
 namespace Shared{ namespace Graphics{
 
 using namespace Util;
-
-//bool Model::masterserverMode = false;
 
 // =====================================================
 //	class Mesh
@@ -959,5 +958,226 @@ void Model::deletePixels() {
 		meshes[i].deletePixels();
 	}
 }
+
+
+//unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = {1, 1, 1, 1};
+unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1 };
+Mutex BaseColorPickEntity::mutexNextColorID;
+
+BaseColorPickEntity::BaseColorPickEntity() {
+	 MutexSafeWrapper safeMutex(&mutexNextColorID);
+
+	 uniqueColorID[0] = nextColorID[0];
+	 uniqueColorID[1] = nextColorID[1];
+	 uniqueColorID[2] = nextColorID[2];
+	 //uniqueColorID[3] = nextColorID[3];
+
+	 const int colorSpacing = 2;
+
+	 if(nextColorID[0] + colorSpacing <= 255) {
+		 nextColorID[0] += colorSpacing;
+	 }
+	 else {
+		 nextColorID[0] = 1;
+	 	 if(nextColorID[1] + colorSpacing <= 255) {
+	 		 nextColorID[1] += colorSpacing;
+	 	 }
+	 	 else {
+       	   nextColorID[1] = 1;
+       	   if(nextColorID[2] + colorSpacing <= 255) {
+       		   nextColorID[2] += colorSpacing;
+       	   }
+       	   else {
+
+        	   //printf("Color rolled over on 3rd level!\n");
+
+			   nextColorID[0] = 1;
+			   nextColorID[1] = 1;
+			   nextColorID[2] = 1;
+
+
+//          	   nextColorID[2] = 1;
+//          	   nextColorID[3]+=colorSpacing;
+//
+//               if(nextColorID[3] > 255) {
+//              	   nextColorID[0] = 1;
+//              	   nextColorID[1] = 1;
+//              	   nextColorID[2] = 1;
+//              	   nextColorID[3] = 1;
+//               }
+           }
+        }
+     }
+}
+
+string BaseColorPickEntity::getColorDescription() const {
+	string result = "";
+	char szBuf[100]="";
+	//sprintf(szBuf,"%d.%d.%d.%d",uniqueColorID[0],uniqueColorID[1],uniqueColorID[2],uniqueColorID[3]);
+	sprintf(szBuf,"%d.%d.%d",uniqueColorID[0],uniqueColorID[1],uniqueColorID[2]);
+	result = szBuf;
+	return result;
+}
+
+void BaseColorPickEntity::beginPicking() {
+	// turn off texturing, lighting and fog
+	//glClearColor (0.0,0.0,0.0,0.0);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_FOG);
+	glDisable(GL_LIGHTING);
+
+	glDisable(GL_BLEND);
+	glDisable(GL_MULTISAMPLE);
+	glDisable(GL_DITHER);
+
+	//glDisable(GL_LIGHT0);
+	//glDisable(GL_LIGHT1);
+	//glDisable(GL_LIGHT2);
+	//glDisable(GL_LIGHT3);
+	//glDisable(GL_LIGHT4);
+	//glDisable(GL_LIGHT5);
+	//glDisable(GL_LIGHT6);
+	//glDisable(GL_LIGHT7);
+
+	//glDisable(GL_ALPHA_TEST);
+	//glDisable(GL_COLOR_MATERIAL);
+
+	//glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_TEXTURE_GEN_S);
+	//glDisable(GL_TEXTURE_GEN_T);
+	//glDisable(GL_TEXTURE_GEN_R);
+	//glDisable(GL_TEXTURE_GEN_Q);
+
+}
+
+void BaseColorPickEntity::endPicking() {
+	// turn off texturing, lighting and fog
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_FOG);
+	glEnable(GL_LIGHTING);
+
+	glEnable(GL_BLEND);
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_DITHER);
+
+	//glEnable(GL_TEXTURE_2D);
+	//glEnable(GL_FOG);
+	//glEnable(GL_LIGHTING);
+
+	//glEnable(GL_BLEND);
+	//glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_DITHER);
+}
+
+vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const vector<BaseColorPickEntity *> &rendererModels) {
+	vector<int> pickedModels;
+
+	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
+	static auto_ptr<unsigned char> cachedPixels;
+	static int cachedPixelsW = -1;
+	static int cachedPixelsH = -1;
+	unsigned char *pixelBuffer = NULL;
+
+	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	static Chrono lastSnapshot(true);
+
+	// Only update the pixel buffer every 350 milliseconds or as required
+	if(cachedPixels.get() == NULL || cachedPixelsW != w+1 || cachedPixelsH != h+1 ||
+			lastSnapshot.getMillis() > 350) {
+		//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
+
+		lastSnapshot.reset();
+
+		Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
+		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+		//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		cachedPixels.reset(new unsigned char[pixmapScreenShot->getPixelByteCount()]);
+		memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),pixmapScreenShot->getPixelByteCount());
+		cachedPixelsW = w+1;
+		cachedPixelsH = h+1;
+
+		delete pixmapScreenShot;
+	}
+	pixelBuffer = cachedPixels.get();
+
+	// Enable screenshots to debug selection scene
+	//pixmapScreenShot->save("debug.png");
+
+	//printf("In [%s::%s] Line: %d x,y,w,h [%d,%d,%d,%d] pixels = %d\n",__FILE__,__FUNCTION__,__LINE__,x,y,w,h,pixmapScreenShot->getPixelByteCount());
+
+	// now our picked screen pixel color is stored in pixel[3]
+	// so we search through our object list looking for the object that was selected
+
+	map<int,bool> modelAlreadyPickedList;
+	map<unsigned char,map<unsigned char, map<unsigned char,bool> > > colorAlreadyPickedList;
+	int nEnd = w * h;
+	for(int x = 0; x < nEnd && pickedModels.size() < rendererModels.size(); ++x) {
+		int index = x * COLOR_COMPONENTS;
+		unsigned char *pixel = &pixelBuffer[index];
+
+		// Skip duplicate scanned colors
+		map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
+		if(iterFind1 != colorAlreadyPickedList.end()) {
+			map<unsigned char, map<unsigned char,bool> >::iterator iterFind2 = iterFind1->second.find(pixel[1]);
+			if(iterFind2 != iterFind1->second.end()) {
+				map<unsigned char,bool>::iterator iterFind3 = iterFind2->second.find(pixel[2]);
+				if(iterFind3 != iterFind2->second.end()) {
+					continue;
+				}
+			}
+		}
+
+		for(unsigned int i = 0; i < rendererModels.size(); ++i) {
+			// Skip models already selected
+			if(modelAlreadyPickedList.find(i) != modelAlreadyPickedList.end()) {
+				continue;
+			}
+			const BaseColorPickEntity *model = rendererModels[i];
+
+			if( model != NULL && model->isUniquePickingColor(pixel) == true) {
+				//printf("Found match pixel [%d.%d.%d] for model [%s] ptr [%p][%s]\n",pixel[0],pixel[1],pixel[2],model->getColorDescription().c_str(), model,model->getUniquePickName().c_str());
+
+				pickedModels.push_back(i);
+				modelAlreadyPickedList[i]=true;
+				colorAlreadyPickedList[pixel[0]][pixel[1]][pixel[2]]=true;
+				break;
+			}
+		}
+	}
+
+	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//delete pixmapScreenShot;
+
+	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	return pickedModels;
+}
+
+bool BaseColorPickEntity::isUniquePickingColor(unsigned char *pixel) const {
+	bool result = false;
+	if( uniqueColorID[0] == pixel[0] &&
+		uniqueColorID[1] == pixel[1] &&
+		uniqueColorID[2] == pixel[2]) {
+		//uniqueColorID[3] == pixel[3]) {
+		result = true;
+	}
+
+	return result;
+}
+
+void BaseColorPickEntity::setUniquePickingColor() const {
+	 glColor3f(	uniqueColorID[0] / 255.0f,
+			 	uniqueColorID[1] / 255.0f,
+			 	uniqueColorID[2] / 255.0f);
+			 	//uniqueColorID[3] / 255.0f);
+}
+
 
 }}//end namespace
