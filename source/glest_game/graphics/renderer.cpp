@@ -7715,8 +7715,10 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 						}
 						else {
 							SurfaceCell *sc = map->getSurfaceCell(pos);
-							bool insideQuad 	= CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 1);
-							//bool insideQuad 	= PointInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z);
+
+							// 2 as last param for CubeInFrustum to get rid of annoying black squares
+							bool insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 2);
+
 							if(insideQuad == true) {
 								quadCache.visibleScaledCellList.push_back(pos);
 							}
