@@ -255,7 +255,7 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 
 		# Installation of the program manpage file
 		INSTALL(FILES 
-		  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.6"
+		  "${PROJECT_SOURCE_DIR}/mk/linux/${TARGET_NAME_MANPAGE}"
 		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 
 	ELSE()
@@ -277,7 +277,7 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 
 		# Installation of the program manpage file
 		INSTALL(FILES 
-		  "${PROJECT_SOURCE_DIR}/megaglest.6"
+		  "${PROJECT_SOURCE_DIR}/${TARGET_NAME_MANPAGE}"
 		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 
 	ENDIF()
