@@ -234,6 +234,13 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 		${TARGET_NAME} 
 		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
+	IF(EXISTS "${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE}")
+		# Installation of the program manpage file
+		INSTALL(FILES 
+		  "${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE}"
+		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
+	ENDIF()
+
 	# Check if we are running from an SVN folder structure or tarballs
 	IF(EXISTS "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop")
 		MESSAGE(STATUS "**Source package detected svn folder structure.")
@@ -252,12 +259,6 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 		  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
 		  "${PROJECT_SOURCE_DIR}/data/glest_game/g3dviewer.ico"
 		  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-
-		# Installation of the program manpage file
-		INSTALL(FILES 
-		  "${PROJECT_SOURCE_DIR}/mk/linux/${TARGET_NAME_MANPAGE}"
-		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
-
 	ELSE()
 
 		# Installation of the program desktop file
@@ -274,11 +275,5 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 		  "${PROJECT_SOURCE_DIR}/glest.ico"
 		  "${PROJECT_SOURCE_DIR}/g3dviewer.ico"
 		  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-
-		# Installation of the program manpage file
-		INSTALL(FILES 
-		  "${PROJECT_SOURCE_DIR}/${TARGET_NAME_MANPAGE}"
-		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
-
 	ENDIF()
 ENDIF()
