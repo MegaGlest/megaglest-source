@@ -149,10 +149,19 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 		${TARGET_NAME} 
 		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	# Installation of the program manpage file
-	INSTALL(FILES 
-	  "${PROJECT_SOURCE_DIR}/mk/linux/${TARGET_NAME_MANPAGE}"
-	  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
+	# Check if we are running from an SVN folder structure or tarballs
+	IF(EXISTS "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop")
+		# Installation of the program manpage file
+		INSTALL(FILES 
+		  "${PROJECT_SOURCE_DIR}/mk/linux/${TARGET_NAME_MANPAGE}"
+		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
+	ELSE()
+		# Installation of the program manpage file
+		INSTALL(FILES 
+		  "${PROJECT_SOURCE_DIR}/${TARGET_NAME_MANPAGE}"
+		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
+
+	ENDIF()
 
 	# Installation of the program config and image files
 	#INSTALL(FILES 
