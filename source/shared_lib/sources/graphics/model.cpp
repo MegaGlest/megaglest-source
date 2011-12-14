@@ -1001,6 +1001,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 		// Use offset instead of pointer.
 		// OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
 		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+	    //glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
 
 		//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 		glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -1014,22 +1015,19 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 		//t1.start();
 
 		// map the PBO that contain framebuffer pixels before processing it
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
-		//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+		//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
+		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
 		GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
 		if(src) {
 			pixmapScreenShot = new Pixmap2D(w+1, h+1, colorComponents);
 			memcpy(pixmapScreenShot->getPixels(),src,(size_t)pixmapScreenShot->getPixelByteCount());
-
 			glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
-
 			//pixmapScreenShot->save("debugPBO.png");
 		}
 
 		// measure the time reading framebuffer
 		//t1.stop();
 		//processTime = t1.getElapsedTimeInMilliSec();
-
 		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
 	}
 
@@ -1039,14 +1037,14 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 void PixelBufferWrapper::begin() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		// set the framebuffer to read
-		glReadBuffer(GL_FRONT);
+		//glReadBuffer(GL_FRONT);
 	}
 }
 
 void PixelBufferWrapper::end() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		// set the framebuffer to read
-		glReadBuffer(GL_BACK);
+		//glReadBuffer(GL_BACK);
 	}
 }
 
@@ -1133,7 +1131,7 @@ void BaseColorPickEntity::beginPicking() {
 	// turn off texturing, lighting and fog
 	//glClearColor (0.0,0.0,0.0,0.0);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	//glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_FOG);
 	glDisable(GL_LIGHTING);
@@ -1141,30 +1139,10 @@ void BaseColorPickEntity::beginPicking() {
 	glDisable(GL_BLEND);
 	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DITHER);
-
-	//glDisable(GL_LIGHT0);
-	//glDisable(GL_LIGHT1);
-	//glDisable(GL_LIGHT2);
-	//glDisable(GL_LIGHT3);
-	//glDisable(GL_LIGHT4);
-	//glDisable(GL_LIGHT5);
-	//glDisable(GL_LIGHT6);
-	//glDisable(GL_LIGHT7);
-
-	//glDisable(GL_ALPHA_TEST);
-	//glDisable(GL_COLOR_MATERIAL);
-
-	//glDisable(GL_DEPTH_TEST);
-	//glDisable(GL_TEXTURE_GEN_S);
-	//glDisable(GL_TEXTURE_GEN_T);
-	//glDisable(GL_TEXTURE_GEN_R);
-	//glDisable(GL_TEXTURE_GEN_Q);
-
 }
 
 void BaseColorPickEntity::endPicking() {
 	// turn off texturing, lighting and fog
-
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_FOG);
 	glEnable(GL_LIGHTING);
@@ -1172,25 +1150,17 @@ void BaseColorPickEntity::endPicking() {
 	glEnable(GL_BLEND);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DITHER);
-
-	//glEnable(GL_TEXTURE_2D);
-	//glEnable(GL_FOG);
-	//glEnable(GL_LIGHTING);
-
-	//glEnable(GL_BLEND);
-	//glEnable(GL_MULTISAMPLE);
-	//glEnable(GL_DITHER);
 }
 
-vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const vector<BaseColorPickEntity *> &rendererModels) {
+vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
+						const vector<BaseColorPickEntity *> &rendererModels) {
 	vector<int> pickedModels;
 
 	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	//Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
-	static auto_ptr<unsigned char> cachedPixels;
-	static int cachedPixelsW = -1;
-	static int cachedPixelsH = -1;
-	unsigned char *pixelBuffer = NULL;
+	//static auto_ptr<unsigned char> cachedPixels;
+	static auto_ptr<Pixmap2D> cachedPixels;
+	//static int cachedPixelsW = -1;
+	//static int cachedPixelsH = -1;
 
 	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1199,44 +1169,47 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const ve
 
 	if(PixelBufferWrapper::getIsPBOEnable() == true) {
 		// Only update the pixel buffer every x milliseconds or as required
-		if(cachedPixels.get() == NULL || cachedPixelsW != w+1 || cachedPixelsH != h+1 ||
+		if(cachedPixels.get() == NULL || cachedPixels->getW() != w+1 ||cachedPixels->getH() != h+1 ||
 				lastSnapshot.getMillis() > selectionMillisecondUpdate) {
 			//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
 
 			lastSnapshot.reset();
-			Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
+			//Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
+			cachedPixels.reset(BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS));
 
-			cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
-			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
-			cachedPixelsW = w+1;
-			cachedPixelsH = h+1;
+			//cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
+			//memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
+			//cachedPixelsW = w+1;
+			//cachedPixelsH = h+1;
 
-			delete pixmapScreenShot;
+			//delete pixmapScreenShot;
 		}
 	}
 	else {
 		// Only update the pixel buffer every x milliseconds or as required
-		if(cachedPixels.get() == NULL || cachedPixelsW != w+1 || cachedPixelsH != h+1 ||
+		if(cachedPixels.get() == NULL || cachedPixels->getW() != w+1 ||cachedPixels->getH() != h+1 ||
 				lastSnapshot.getMillis() > selectionMillisecondUpdate) {
 			//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
 
 			lastSnapshot.reset();
 
-			Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
+			//Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
+			cachedPixels.reset(new Pixmap2D(w+1, h+1, COLOR_COMPONENTS));
 			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 			//glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-			glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+			//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+			glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, cachedPixels->getPixels());
 			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-			cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
-			memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
-			cachedPixelsW = w+1;
-			cachedPixelsH = h+1;
+			//cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
+			//memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
+			//cachedPixelsW = w+1;
+			//cachedPixelsH = h+1;
 
-			delete pixmapScreenShot;
+			//delete pixmapScreenShot;
 		}
 	}
-	pixelBuffer = cachedPixels.get();
+	unsigned char *pixelBuffer = cachedPixels->getPixels();
 
 	// Enable screenshots to debug selection scene
 	//pixmapScreenShot->save("debug.png");
