@@ -3474,9 +3474,17 @@ int glestMain(int argc, char** argv) {
 
         // Cache Player textures - START
         string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+        string playerColorTexturePath = getGameCustomCoreDataPath(data_path, "") + "data/core/faction_textures/faction*.tga";
+    	vector<string> playerColorTextureFilenames;
+        findAll(playerColorTexturePath, playerColorTextureFilenames, false, false);
+
 		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
         for(int index = 0; index < GameConstants::maxPlayers; ++index) {
         	string playerTexture = data_path + "data/core/faction_textures/faction" + intToStr(index) + ".tga";
+        	if(playerColorTextureFilenames.size() > 0) {
+        		playerTexture = getGameCustomCoreDataPath(data_path, "") + "data/core/faction_textures/faction" + intToStr(index) + ".tga";
+        	}
+
         	if(fileExists(playerTexture) == true) {
         		Texture2D *texture = Renderer::getInstance().newTexture2D(rsGlobal);
         		if(texture) {
