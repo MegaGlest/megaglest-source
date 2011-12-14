@@ -5762,7 +5762,30 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&obj,
 								const bool withObjectSelection,
 								const Vec2i &posDown, const Vec2i &posUp) {
+	const bool colorPickingSelection 	= Config::getInstance().getBool("EnableColorPicking","false");
+	const bool frustumPickingSelection 	= Config::getInstance().getBool("EnableFrustumPicking","false");
+
+	if(colorPickingSelection == true) {
+		selectUsingColorPicking(units,obj, withObjectSelection,posDown, posUp);
+	}
+	/// Frustrum approach --> Currently not accurate enough
+	else if(frustumPickingSelection == true) {
+		selectUsingFrustumSelection(units,obj, withObjectSelection,posDown, posUp);
+	}
+	else {
+		selectUsingSelectionBuffer(units,obj, withObjectSelection,posDown, posUp);
+	}
+}
+
+void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
+		const Object *&obj, const bool withObjectSelection,
+		const Vec2i &posDown, const Vec2i &posUp) {
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
 	const Metrics &metrics= Metrics::getInstance();
+	GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
 
 	//compute center and dimensions of selection rectangle
 	int x = (posDown.x+posUp.x) / 2;
@@ -5776,261 +5799,241 @@ void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&
 		h = 1;
 	}
 
-	const bool newPickingSelection = Config::getInstance().getBool("EnableColorPicking","false");
-	if(newPickingSelection == true) {
-		int x1 = posDown.x;
-		int y1 = posDown.y;
-		int x2 = posUp.x;
-		int y2 = posUp.y;
+	gluPickMatrix(x, y, w, h, view);
+	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+	loadGameCameraMatrix();
 
-		x = min(x1,x2);
-		y = min(y1,y2);
-		w = max(x1,x2) - min(x1,x2);
-		h = max(y1,y2) - min(y1,y2);
-		if(w < 1) {
-			w = 1;
-		}
-		if(h < 1) {
-			h = 1;
-		}
+	VisibleQuadContainerCache quadSelectionCacheItem;
+	ExtractFrustum(quadSelectionCacheItem);
 
-		x= (x * metrics.getScreenW() / metrics.getVirtualW());
-		y= (y * metrics.getScreenH() / metrics.getVirtualH());
+	//pop matrices
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
 
-		w= (w * metrics.getScreenW() / metrics.getVirtualW());
-		h= (h * metrics.getScreenH() / metrics.getVirtualH());
-
-		PixelBufferWrapper::begin();
-
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		//GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
-		//gluPickMatrix(x, y, w, h, view);
-		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
-		loadGameCameraMatrix();
-
-		//render units to find which ones should be selected
-		//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-		vector<Unit *> rendererUnits = renderUnitsFast(false, newPickingSelection);
-
-		//printf("In [%s::%s] Line: %d rendererUnits = %d\n",__FILE__,__FUNCTION__,__LINE__,rendererUnits.size());
-
-		vector<Object *> rendererObjects;
-		if(withObjectSelection == true) {
-			rendererObjects = renderObjectsFast(false,true,newPickingSelection);
-		}
-		//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-		//pop matrices
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-
-		// Added this to ensure all the selection calls are done now
-		// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
-		glFlush();
-
-		//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
-
-		PixelBufferWrapper::end();
-		//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
-		vector<BaseColorPickEntity *> rendererModels;
-		for(unsigned int i = 0; i < rendererObjects.size(); ++i) {
-			Object *object = rendererObjects[i];
-			rendererModels.push_back(object);
-			//printf("In [%s::%s] Line: %d rendered object i = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,object->getUniquePickName().c_str(),object->getColorDescription().c_str());
-
-			//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
-		}
-
-		//printf("In [%s::%s] Line: %d\nLooking for picks inside [%d,%d,%d,%d] posdown [%s] posUp [%s]",__FILE__,__FUNCTION__,__LINE__,x,y,w,h,posDown.getString().c_str(),posUp.getString().c_str());
-		//select units by checking the selected buffer
-		//vector<BaseColorPickEntity *> rendererModels;
-		for(unsigned int i = 0; i < rendererUnits.size(); ++i) {
-			Unit *unit = rendererUnits[i];
-			rendererModels.push_back(unit);
-			//printf("In [%s::%s] Line: %d rendered unit i = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getUniquePickName().c_str(),unit->getColorDescription().c_str());
-
-			//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
-		}
-		//printf("In [%s::%s] Line: %d\nLooking for picks inside [%d,%d,%d,%d] posdown [%s] posUp [%s]",__FILE__,__FUNCTION__,__LINE__,x,y,w,h,posDown.getString().c_str(),posUp.getString().c_str());
-
-		//vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
-
-		vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
-		//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",__FILE__,__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
-
-		if(pickedList.empty() == false) {
-			for(int i = 0; i < pickedList.size(); ++i) {
-				int index = pickedList[i];
-
-				//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",__FILE__,__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
-
-				if(rendererObjects.size() > 0 && index < rendererObjects.size()) {
-					Object *object = rendererObjects[index];
-					//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",__FILE__,__FUNCTION__,__LINE__,i,index,object);
-
-					if(object != NULL) {
-						obj = object;
-						if(withObjectSelection == true) {
-							//printf("In [%s::%s] Line: %d found selected object [%p]\n",__FILE__,__FUNCTION__,__LINE__,obj);
-							return;
-						}
-					}
-				}
-				else {
-					index -= rendererObjects.size();
-					Unit *unit = rendererUnits[index];
-					if(unit != NULL && unit->isAlive()) {
-						units.push_back(unit);
-					}
-
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.empty() == false) {
+		for(int visibleUnitIndex = 0;
+				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+			if(unit != NULL && unit->isAlive()) {
+				Vec3f unitPos = unit->getCurrVector();
+				bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
+						unitPos.x, unitPos.y, unitPos.z, unit->getType()->getSize());
+				if(insideQuad == true) {
+					units.push_back(unit);
 				}
 			}
 		}
-
-
-
-//		vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
-//		//printf("In [%s::%s] Line: %d pickedList = %d\n",__FILE__,__FUNCTION__,__LINE__,pickedList.size());
-//
-//		if(pickedList.empty() == false) {
-//			for(int i = 0; i < pickedList.size(); ++i) {
-//				int index = pickedList[i];
-//				Unit *unit = rendererUnits[index];
-//				if(unit != NULL && unit->isAlive()) {
-//					units.push_back(unit);
-//				}
-//			}
-//		}
-
-		//printf("In [%s::%s] Line: %d units = %d\n",__FILE__,__FUNCTION__,__LINE__,units.size());
-
-
-/* Frustrum approach --> Currently not accurate enough
-
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
-		gluPickMatrix(x, y, w, h, view);
-		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
-		loadGameCameraMatrix();
-
-		VisibleQuadContainerCache quadSelectionCacheItem;
-		ExtractFrustum(quadSelectionCacheItem);
-
-		//pop matrices
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-
-		VisibleQuadContainerCache &qCache = getQuadCache();
-		if(qCache.visibleQuadUnitList.empty() == false) {
-			for(int visibleUnitIndex = 0;
-					visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
-				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-				if(unit != NULL && unit->isAlive()) {
-					Vec3f unitPos = unit->getCurrVector();
-					bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
-							unitPos.x, unitPos.y, unitPos.z, unit->getType()->getSize());
-					if(insideQuad == true) {
-						units.push_back(unit);
-					}
-				}
-			}
-		}
-
-		if(withObjectSelection == true) {
-			if(qCache.visibleObjectList.empty() == false) {
-				for(int visibleIndex = 0;
-						visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
-					Object *object = qCache.visibleObjectList[visibleIndex];
-					if(object != NULL) {
-						bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
-								object->getPos().x, object->getPos().y, object->getPos().z, 1);
-						if(insideQuad == true) {
-							obj = object;
-							if(withObjectSelection == true) {
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-*/
-
 	}
-	else {
-		//declarations
-		GLuint selectBuffer[Gui::maxSelBuff];
 
-		//setup matrices
-		glSelectBuffer(Gui::maxSelBuff, selectBuffer);
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-
-		GLint renderModeResult = glRenderMode(GL_SELECT);
-		if(renderModeResult < 0) {
-			const char *errorString= reinterpret_cast<const char*>(gluErrorString(renderModeResult));
-			char szBuf[4096]="";
-			sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",renderModeResult,renderModeResult,errorString,__FILE__,__LINE__);
-
-			printf("%s\n",szBuf);
-		}
-		glLoadIdentity();
-
-		GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
-		gluPickMatrix(x, y, w, h, view);
-		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
-		loadGameCameraMatrix();
-
-		//render units to find which ones should be selected
-		renderUnitsFast();
-		if(withObjectSelection == true) {
-			renderObjectsFast(false,true);
-		}
-
-		//pop matrices
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-
-		// Added this to ensure all the selection calls are done now
-		// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
-		glFlush();
-
-		//select units by checking the selected buffer
-		int selCount= glRenderMode(GL_RENDER);
-		if(selCount > 0) {
-			VisibleQuadContainerCache &qCache = getQuadCache();
-			for(int i = 1; i <= selCount; ++i) {
-				int index = selectBuffer[i*4-1];
-				if(index >= OBJECT_SELECT_OFFSET) {
-					Object *object = qCache.visibleObjectList[index - OBJECT_SELECT_OFFSET];
-					if(object != NULL) {
+	if(withObjectSelection == true) {
+		if(qCache.visibleObjectList.empty() == false) {
+			for(int visibleIndex = 0;
+					visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+				Object *object = qCache.visibleObjectList[visibleIndex];
+				if(object != NULL) {
+					bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
+							object->getPos().x, object->getPos().y, object->getPos().z, 1);
+					if(insideQuad == true) {
 						obj = object;
 						if(withObjectSelection == true) {
 							break;
 						}
 					}
 				}
-				else {
-					Unit *unit = qCache.visibleQuadUnitList[index];
-					if(unit != NULL && unit->isAlive()) {
-						units.push_back(unit);
+			}
+		}
+	}
+}
+
+void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
+		const Object *&obj, const bool withObjectSelection,
+		const Vec2i &posDown, const Vec2i &posUp) {
+	//compute center and dimensions of selection rectangle
+	int x = (posDown.x+posUp.x) / 2;
+	int y = (posDown.y+posUp.y) / 2;
+	int w = abs(posDown.x-posUp.x);
+	int h = abs(posDown.y-posUp.y);
+	if(w < 1) {
+		w = 1;
+	}
+	if(h < 1) {
+		h = 1;
+	}
+
+	//declarations
+	GLuint selectBuffer[Gui::maxSelBuff];
+
+	//setup matrices
+	glSelectBuffer(Gui::maxSelBuff, selectBuffer);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+
+	GLint renderModeResult = glRenderMode(GL_SELECT);
+	if(renderModeResult < 0) {
+		const char *errorString= reinterpret_cast<const char*>(gluErrorString(renderModeResult));
+		char szBuf[4096]="";
+		sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",renderModeResult,renderModeResult,errorString,__FILE__,__LINE__);
+
+		printf("%s\n",szBuf);
+	}
+	glLoadIdentity();
+
+	const Metrics &metrics= Metrics::getInstance();
+	GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
+	gluPickMatrix(x, y, w, h, view);
+	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+	loadGameCameraMatrix();
+
+	//render units to find which ones should be selected
+	renderUnitsFast();
+	if(withObjectSelection == true) {
+		renderObjectsFast(false,true);
+	}
+
+	//pop matrices
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	// Added this to ensure all the selection calls are done now
+	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
+	glFlush();
+
+	//select units by checking the selected buffer
+	int selCount= glRenderMode(GL_RENDER);
+	if(selCount > 0) {
+		VisibleQuadContainerCache &qCache = getQuadCache();
+		for(int i = 1; i <= selCount; ++i) {
+			int index = selectBuffer[i*4-1];
+			if(index >= OBJECT_SELECT_OFFSET) {
+				Object *object = qCache.visibleObjectList[index - OBJECT_SELECT_OFFSET];
+				if(object != NULL) {
+					obj = object;
+					if(withObjectSelection == true) {
+						break;
 					}
 				}
 			}
+			else {
+				Unit *unit = qCache.visibleQuadUnitList[index];
+				if(unit != NULL && unit->isAlive()) {
+					units.push_back(unit);
+				}
+			}
 		}
-		else if(selCount < 0) {
-			const char *errorString= reinterpret_cast<const char*>(gluErrorString(selCount));
-			char szBuf[4096]="";
-			sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",selCount,selCount,errorString,__FILE__,__LINE__);
+	}
+	else if(selCount < 0) {
+		const char *errorString= reinterpret_cast<const char*>(gluErrorString(selCount));
+		char szBuf[4096]="";
+		sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",selCount,selCount,errorString,__FILE__,__LINE__);
 
-			printf("%s\n",szBuf);
+		printf("%s\n",szBuf);
+	}
+}
+
+void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
+		const Object *&obj, const bool withObjectSelection,
+		const Vec2i &posDown, const Vec2i &posUp) {
+	int x1 = posDown.x;
+	int y1 = posDown.y;
+	int x2 = posUp.x;
+	int y2 = posUp.y;
+
+	int x = min(x1,x2);
+	int y = min(y1,y2);
+	int w = max(x1,x2) - min(x1,x2);
+	int h = max(y1,y2) - min(y1,y2);
+	if(w < 1) {
+		w = 1;
+	}
+	if(h < 1) {
+		h = 1;
+	}
+
+	const Metrics &metrics= Metrics::getInstance();
+	x= (x * metrics.getScreenW() / metrics.getVirtualW());
+	y= (y * metrics.getScreenH() / metrics.getVirtualH());
+
+	w= (w * metrics.getScreenW() / metrics.getVirtualW());
+	h= (h * metrics.getScreenH() / metrics.getVirtualH());
+
+	PixelBufferWrapper::begin();
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	//GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
+	//gluPickMatrix(x, y, w, h, view);
+	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+	loadGameCameraMatrix();
+
+	//render units to find which ones should be selected
+	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	vector<Unit *> rendererUnits = renderUnitsFast(false, true);
+	//printf("In [%s::%s] Line: %d rendererUnits = %d\n",__FILE__,__FUNCTION__,__LINE__,rendererUnits.size());
+
+	vector<Object *> rendererObjects;
+	if(withObjectSelection == true) {
+		rendererObjects = renderObjectsFast(false,true,true);
+	}
+	//pop matrices
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	// Added this to ensure all the selection calls are done now
+	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
+	//glFlush();
+
+	//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
+
+	PixelBufferWrapper::end();
+
+	vector<BaseColorPickEntity *> rendererModels;
+	for(unsigned int i = 0; i < rendererObjects.size(); ++i) {
+		Object *object = rendererObjects[i];
+		rendererModels.push_back(object);
+		//printf("In [%s::%s] Line: %d rendered object i = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,object->getUniquePickName().c_str(),object->getColorDescription().c_str());
+		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
+	}
+
+	//printf("In [%s::%s] Line: %d\nLooking for picks inside [%d,%d,%d,%d] posdown [%s] posUp [%s]",__FILE__,__FUNCTION__,__LINE__,x,y,w,h,posDown.getString().c_str(),posUp.getString().c_str());
+	for(unsigned int i = 0; i < rendererUnits.size(); ++i) {
+		Unit *unit = rendererUnits[i];
+		rendererModels.push_back(unit);
+		//printf("In [%s::%s] Line: %d rendered unit i = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getUniquePickName().c_str(),unit->getColorDescription().c_str());
+		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
+	}
+
+	vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
+	//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",__FILE__,__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
+
+	if(pickedList.empty() == false) {
+		for(int i = 0; i < pickedList.size(); ++i) {
+			int index = pickedList[i];
+			//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",__FILE__,__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
+
+			if(rendererObjects.size() > 0 && index < rendererObjects.size()) {
+				Object *object = rendererObjects[index];
+				//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",__FILE__,__FUNCTION__,__LINE__,i,index,object);
+
+				if(object != NULL) {
+					obj = object;
+					if(withObjectSelection == true) {
+						//printf("In [%s::%s] Line: %d found selected object [%p]\n",__FILE__,__FUNCTION__,__LINE__,obj);
+						return;
+					}
+				}
+			}
+			else {
+				index -= rendererObjects.size();
+				Unit *unit = rendererUnits[index];
+				if(unit != NULL && unit->isAlive()) {
+					units.push_back(unit);
+				}
+
+			}
 		}
-
 	}
 }
 
