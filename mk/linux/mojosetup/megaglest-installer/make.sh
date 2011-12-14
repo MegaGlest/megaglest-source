@@ -1,4 +1,10 @@
 #!/bin/bash
+# Use this script to build MegaGlest Installer for a Version Release
+# ----------------------------------------------------------------------------
+# Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
+# Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
+
+
 # This script is not robust for all platforms or situations. Use as a rough
 #  example, but invest effort in what it's trying to do, and what it produces.
 #  (make sure you don't build in features you don't need, etc).
