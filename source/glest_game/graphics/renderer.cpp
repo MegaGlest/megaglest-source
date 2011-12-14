@@ -5776,7 +5776,7 @@ void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&
 		h = 1;
 	}
 
-	const bool newPickingSelection = Config::getInstance().getBool("EnableColorPicking","true");
+	const bool newPickingSelection = Config::getInstance().getBool("EnableColorPicking","false");
 	if(newPickingSelection == true) {
 		int x1 = posDown.x;
 		int y1 = posDown.y;
@@ -5970,9 +5970,18 @@ void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&
 		glSelectBuffer(Gui::maxSelBuff, selectBuffer);
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
-		GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
-		glRenderMode(GL_SELECT);
+
+		GLint renderModeResult = glRenderMode(GL_SELECT);
+		if(renderModeResult < 0) {
+			const char *errorString= reinterpret_cast<const char*>(gluErrorString(renderModeResult));
+			char szBuf[4096]="";
+			sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",renderModeResult,renderModeResult,errorString,__FILE__,__LINE__);
+
+			printf("%s\n",szBuf);
+		}
 		glLoadIdentity();
+
+		GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
 		gluPickMatrix(x, y, w, h, view);
 		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
 		loadGameCameraMatrix();
@@ -6014,6 +6023,14 @@ void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&
 				}
 			}
 		}
+		else if(selCount < 0) {
+			const char *errorString= reinterpret_cast<const char*>(gluErrorString(selCount));
+			char szBuf[4096]="";
+			sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",selCount,selCount,errorString,__FILE__,__LINE__);
+
+			printf("%s\n",szBuf);
+		}
+
 	}
 }
 

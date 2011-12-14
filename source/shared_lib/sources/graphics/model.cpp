@@ -1195,7 +1195,7 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h, const ve
 	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	static Chrono lastSnapshot(true);
-	const int selectionMillisecondUpdate = 350;
+	const int selectionMillisecondUpdate = 100;
 
 	if(PixelBufferWrapper::getIsPBOEnable() == true) {
 		// Only update the pixel buffer every x milliseconds or as required
