@@ -32,6 +32,8 @@ svn export --force "$CURRENTDIR/megaglest.png" $RELEASEDIR/megaglest.png
 svn export --force "$CURRENTDIR/megaglest.xpm" $RELEASEDIR/megaglest.xpm
 svn export --force "$CURRENTDIR/megaglest.desktop" $RELEASEDIR/megaglest.desktop
 svn export --force "$CURRENTDIR/megaglest.6" $RELEASEDIR/megaglest.6
+svn export --force "$CURRENTDIR/megaglest_editor.6" $RELEASEDIR/megaglest_editor.6
+svn export --force "$CURRENTDIR/megaglest_g3dviewer.6" $RELEASEDIR/megaglest_g3dviewer.6
 svn export --force "$CURRENTDIR/../../data/glest_game/megaglest.ico" $RELEASEDIR/megaglest.ico
 svn export --force "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" $RELEASEDIR/g3dviewer.ico
 svn export --force "$CURRENTDIR/../../data/glest_game/editor.ico" $RELEASEDIR/editor.ico
