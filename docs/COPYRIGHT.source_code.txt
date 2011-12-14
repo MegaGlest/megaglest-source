@@ -20,7 +20,7 @@ This software may be redistributed freely, but all redistributions must retain
 all occurences of the above copyright notice and web site addresses that are
 currently in place and must provide full source code with ALL modifications.
 
-
+On debian systems please find license information in: /usr/share/common-licenses
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

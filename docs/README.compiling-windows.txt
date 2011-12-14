@@ -13,7 +13,7 @@ Developed on Windows with Microsoft Visual C++ 2008 Express (free version),
 little endian CPU. Compiling using the mingw32 toolset is now possible, which
 also allows for cross compiling.
 
-
+On debian systems please find license information in: /usr/share/common-licenses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 2. Building and Installation
