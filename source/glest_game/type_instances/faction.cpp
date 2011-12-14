@@ -490,15 +490,9 @@ void Faction::init(
 
 	texture= Renderer::getInstance().newTexture2D(rsGame);
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-
 	if(texture) {
-		string playerColorTexture = getGameCustomCoreDataPath(data_path, "") +  "data/core/faction_textures/faction" + intToStr(startLocationIndex) + ".tga";
-		if(fileExists(playerColorTexture) == true) {
-			texture->load(getGameCustomCoreDataPath(data_path, "") + "data/core/faction_textures/faction" + intToStr(startLocationIndex) + ".tga");
-		}
-		else {
-			texture->load(data_path + "data/core/faction_textures/faction" + intToStr(startLocationIndex) + ".tga");
-		}
+		string playerTexture = getGameCustomCoreDataPath(data_path, "data/core/faction_textures/faction" + intToStr(startLocationIndex) + ".tga");
+		texture->load(playerTexture);
 	}
 
 	if( game->getGameSettings()->getPathFinderType() == pfBasic &&
