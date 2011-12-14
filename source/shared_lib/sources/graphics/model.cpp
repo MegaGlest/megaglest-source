@@ -907,7 +907,7 @@ void Model::saveG3d(const string &path, string convertTextureToFormat,
 	FILE *f= fopen(tempModelFilename.c_str(), "wb");
 #endif
 	if(f == NULL) {
-		throw runtime_error("Cant open file for writting: [" + tempModelFilename + "]");
+		throw runtime_error("Cant open file for writing: [" + tempModelFilename + "]");
 	}
 
 	convertTextureToFormat = toLower(convertTextureToFormat);
