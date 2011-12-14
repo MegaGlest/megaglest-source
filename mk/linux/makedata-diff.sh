@@ -1,4 +1,8 @@
 #!/bin/bash
+# Use this script to build MegaGlest Data Diff Archive for a Version Release
+# ----------------------------------------------------------------------------
+# Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
+# Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
 # This script compares two mega-glest data content folders for file differences, 
 # then creates an archive of ONLY the differences (including files ONLY in new version)

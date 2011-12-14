@@ -1,4 +1,9 @@
 #!/bin/bash
+# Use this script to Analyze world synchronization log files between two or 
+# more networked players
+# ----------------------------------------------------------------------------
+# Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
+# Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
 MAX_SPLIT_SIZE_BYTES=75000000
 

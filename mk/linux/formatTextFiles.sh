@@ -1,4 +1,8 @@
 #!/bin/sh
+# Use this script formats all text files to use consistent line endings
+# ----------------------------------------------------------------------------
+# Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
+# Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
 cd ../../
 find -name "*\.cpp" -exec fromdos -d {} \;
