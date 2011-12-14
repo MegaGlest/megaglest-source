@@ -5,7 +5,12 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-On debian systems please find license information in: /usr/share/common-licenses
+On debian systems please find license information in: 
+/usr/share/common-licenses/GPL
+/usr/share/common-licenses/GPL-2
+/usr/share/common-licenses/GPL-2+
+/usr/share/common-licenses/GPL-3
+/usr/share/common-licenses/GPL-3+
 
                             Preamble
 

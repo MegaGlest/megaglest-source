@@ -271,3 +271,11 @@ their own by reading up on available documentation before getting in touch.
   Network: irc.freenode.net
   Channel: #megaglest
   Or use the webchat at http://chat.megaglest.org/
+
+On debian systems please find license information in: 
+/usr/share/common-licenses/GPL
+/usr/share/common-licenses/GPL-2
+/usr/share/common-licenses/GPL-2+
+/usr/share/common-licenses/GPL-3
+/usr/share/common-licenses/GPL-3+
+
