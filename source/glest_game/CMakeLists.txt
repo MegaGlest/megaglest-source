@@ -3,6 +3,7 @@
 
 SET(EXTERNAL_LIBS "")
 SET(TARGET_NAME "megaglest")
+SET(TARGET_NAME_MANPAGE "${TARGET_NAME}.6")
 
 IF(BUILD_MEGAGLEST)
 	MESSAGE(STATUS "Will try to build MegaGlest game")
@@ -93,7 +94,6 @@ IF(BUILD_MEGAGLEST)
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
 	ENDIF()
-
 
 	#########################################################################################
 	# megaglest game
@@ -191,6 +191,8 @@ IF(BUILD_MEGAGLEST)
 		SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game)
 	ENDIF()
 
+	FIND_PROGRAM(HELP2MAN "help2man")
+
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
@@ -202,6 +204,13 @@ IF(BUILD_MEGAGLEST)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
 	ENDIF()
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
+
+	IF(EXISTS ${HELP2MAN})
+		MESSAGE("-- Found help2man: ${HELP2MAN}")
+	  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
+	    	COMMAND ${HELP2MAN} -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
+	    	DEPENDS ${TARGET_NAME})
+	ENDIF()
 ENDIF()
 
 # Requires an install prefix for the items below to work
@@ -237,6 +246,7 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 		# Installation of the program desktop icon file
 		INSTALL(FILES 
 		  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
+		  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.xpm"
 		  "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
 		  "${PROJECT_SOURCE_DIR}/data/glest_game/editor.ico"
 		  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
@@ -258,6 +268,7 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 		# Installation of the program desktop icon file
 		INSTALL(FILES 
 		  "${PROJECT_SOURCE_DIR}/megaglest.png"
+		  "${PROJECT_SOURCE_DIR}/megaglest.xpm"
 		  "${PROJECT_SOURCE_DIR}/megaglest.bmp"
 		  "${PROJECT_SOURCE_DIR}/editor.ico"
 		  "${PROJECT_SOURCE_DIR}/glest.ico"

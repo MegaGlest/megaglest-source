@@ -610,7 +610,7 @@ UnitParticleSystem::Shape UnitParticleSystem::strToShape(const string& str){
 		return sLinear;
 	}
 	else{
-		throw runtime_error("Unkown particle shape: " + str);
+		throw runtime_error("Unknown particle shape: " + str);
 	}
 }
 
