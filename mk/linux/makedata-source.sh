@@ -1,5 +1,5 @@
 #!/bin/bash
-# Use this script to build MegaGlest Data Archive for a Version Release
+# Use this script to build MegaGlest Data Source Archive for a Version Release
 # ----------------------------------------------------------------------------
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+

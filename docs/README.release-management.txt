@@ -7,6 +7,9 @@
                          Version Release instructions for Linux Only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Source and Data Archives:
+=========================
+
 There are 3 archives that are built for a given release (starting with versions 
 after 3.6.0). In order to build a release you must have all files checked out
 of svn for that specific release (example: trunk)
@@ -61,4 +64,43 @@ To build this archive open a terminal and from the mk/linux folder run:
 This will produce megaglest-data-source-<VERSION>.tar.xz in the release subfolder
 *NOTE: Currently this script only works for the trunk level release
 
-Once these files
+Once these files have been built they should be ftp'd to the sourceforge
+files repository and and announcement made to the community. The folder on 
+sourceforge where these files belong would following this naming convention:
+
+http://sourceforge.net/projects/megaglest/files/megaglest_<VERSION>/
+
+Linux Installer(s):
+=========================
+
+#1 *Note: This particular step is only required once and is intended to setup
+mojosetup on the platform that is building the installer.
+
+For either 32 or 64 bit Linux installers open a terminal and navigate to:
+
+mk/linux/mojosetup
+
+mkdir build
+cd build
+cmake ../
+make
+cd ../
+
+#2 Navigate into the megaglest-installer subfolder and modify  / save changes:
+
+- config.lua
+local GAME_INSTALL_SIZE = 680000000;
+local GAME_VERSION = "3.6.0";
+
+Now in a terminal session from inside the megaglest-installer folder run:
+
+./make.sh
+
+When complete this will produce the platform specific installer in the same
+folder called: 
+
+megaglest-installer.run
+
+This is a native binary installer that wil install MegaGlest on the same 
+platform as was sued to build it. (ie: 32 or 64 bit Linux)
+
