@@ -20,11 +20,16 @@
 #include <vector>
 //#include <SDL_image.h>
 #include "model.h"
+#include "texture.h"
+#include "graphics_interface.h"
+#include "graphics_factory.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics::Gl;
 using namespace Shared::Util;
 using namespace Shared::Graphics;
+using namespace Shared::PlatformCommon;
 
 namespace Shared{ namespace Platform{
 
@@ -72,14 +77,28 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 	#ifndef WIN32
 		string mg_icon_file = "";
 	#if defined(CUSTOM_DATA_INSTALL_PATH_VALUE)
-		if(fileExists(CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp")) {
+		if(fileExists(CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.png")) {
+			mg_icon_file = CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.png";
+		}
+		else if(fileExists(CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp")) {
 			mg_icon_file = CUSTOM_DATA_INSTALL_PATH_VALUE + "megaglest.bmp";
 		}
+
 	#endif
 
-		if(mg_icon_file == "" && fileExists("megaglest.bmp")) {
+		if(mg_icon_file == "" && fileExists("megaglest.png")) {
+			mg_icon_file = "megaglest.png";
+		}
+		else if(mg_icon_file == "" && fileExists("megaglest.bmp")) {
 			mg_icon_file = "megaglest.bmp";
 		}
+		else if(mg_icon_file == "" && fileExists("/usr/share/pixmaps/megaglest.png")) {
+			mg_icon_file = "/usr/share/pixmaps/megaglest.png";
+		}
+		else if(mg_icon_file == "" && fileExists("/usr/share/pixmaps/megaglest.bmp")) {
+			mg_icon_file = "/usr/share/pixmaps/megaglest.bmp";
+		}
+
 		if(mg_icon_file != "") {
 
 			if(icon != NULL) {
@@ -87,7 +106,17 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 				icon = NULL;
 			}
 
-			icon = SDL_LoadBMP(mg_icon_file.c_str());
+			//printf("Loading icon [%s]\n",mg_icon_file.c_str());
+			if(extractExtension(mg_icon_file) == "bmp") {
+				icon = SDL_LoadBMP(mg_icon_file.c_str());
+			}
+			else {
+				Texture2D *texture2D = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+				texture2D->load(mg_icon_file);
+				icon = texture2D->CreateSDLSurface(true);
+				delete texture2D;
+			}
+
 		//SDL_Surface *icon = IMG_Load("megaglest.ico");
 
 
@@ -105,6 +134,10 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 				printf("Error: %s\n", SDL_GetError());
 			}
 			if(icon != NULL) {
+
+				//uint32 colorkey = SDL_MapRGB(icon->format, 255, 0, 255);
+				//SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey);
+
 				SDL_WM_SetIcon(icon, NULL);
 			}
 		}

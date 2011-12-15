@@ -11,7 +11,7 @@
 
 #include "texture.h"
 #include "util.h"
-
+#include <SDL.h>
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -37,6 +37,7 @@ Texture::Texture() {
 	inited= false;
 	forceCompressionDisabled=false;
 }
+
 
 // =====================================================
 //	class Texture1D
@@ -65,6 +66,28 @@ void Texture1D::deletePixels() {
 // =====================================================
 //	class Texture2D
 // =====================================================
+
+SDL_Surface* Texture2D::CreateSDLSurface(bool newPixelData) const {
+	SDL_Surface* surface = NULL;
+
+	unsigned char* surfData = NULL;
+	if (newPixelData == true) {
+		// copy pixel data
+		surfData = new unsigned char[pixmap.getW() * pixmap.getH() * pixmap.getComponents()];
+		memcpy(surfData, pixmap.getPixels(), pixmap.getW() * pixmap.getH() * pixmap.getComponents());
+	} else {
+		surfData = pixmap.getPixels();
+	}
+
+	// This will only work with 24bit RGB and 32bit RGBA pictures
+	surface = SDL_CreateRGBSurfaceFrom(surfData, pixmap.getW(), pixmap.getH(), 8 * pixmap.getComponents(), pixmap.getW() * pixmap.getComponents(), 0x000000FF, 0x0000FF00, 0x00FF0000, (pixmap.getComponents() == 4) ? 0xFF000000 : 0);
+	if ((surface == NULL) && newPixelData == true) {
+		// cleanup when we failed to the create surface
+		delete[] surfData;
+	}
+
+	return surface;
+}
 
 void Texture2D::load(const string &path){
 	this->path= path;
