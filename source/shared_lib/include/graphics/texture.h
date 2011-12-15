@@ -21,9 +21,12 @@ using std::string;
 using Shared::Platform::uint8;
 using Shared::Platform::uint64;
 
+struct SDL_Surface;
+
 namespace Shared{ namespace Graphics{
 
 class TextureParams;
+
 
 // =====================================================
 //	class Texture
@@ -138,6 +141,8 @@ public:
 	virtual int getTextureHeight() const {return pixmap.getH();}
 
 	virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
+
+	SDL_Surface* CreateSDLSurface(bool newPixelData) const;
 };
 
 // =====================================================
