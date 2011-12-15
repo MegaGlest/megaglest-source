@@ -53,3 +53,5 @@ svn export --force "$CURRENTDIR/../../CMakeLists.txt" $RELEASEDIR/CMakeLists.txt
 echo "Creating $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
 tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/$RELEASENAME-$VERSION" "megaglest-$VERSION"
+
+ls -la release/$PACKAGE

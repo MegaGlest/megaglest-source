@@ -36,6 +36,8 @@ mkdir -p "$RELEASEDIR/data/"
 svn export --force "$CURRENTDIR/../../data/glest_game/data" "$RELEASEDIR/data/"
 mkdir -p "$RELEASEDIR/docs/"
 svn export --force "$CURRENTDIR/../../data/glest_game/docs" "$RELEASEDIR/docs/"
+svn export --force "$CURRENTDIR/../../docs/CHANGELOG.txt" "$RELEASEDIR/docs/CHANGELOG.txt"
+svn export --force "$CURRENTDIR/../../docs/README.txt" "$RELEASEDIR/docs/README.txt"
 mkdir -p "$RELEASEDIR/maps/"
 svn export --force "$CURRENTDIR/../../data/glest_game/maps" "$RELEASEDIR/maps/"
 mkdir -p "$RELEASEDIR/scenarios/"
@@ -59,3 +61,4 @@ echo "creating $PACKAGE"
 tar -cf - -C "$CURRENTDIR/release/$RELEASENAME-$VERSION/" "megaglest-$VERSION" | xz -9e > release/$PACKAGE
 # 7z a -mmt -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
 
+ls -la release/$PACKAGE

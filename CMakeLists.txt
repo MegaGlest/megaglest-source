@@ -46,6 +46,16 @@ OPTION(BUILD_MEGAGLEST_MAP_EDITOR "Build map editor" ON)
 OPTION(BUILD_MEGAGLEST_CONFIGURATOR "Build configurator" ON)
 OPTION(BUILD_MEGAGLEST "Build MegaGlest" ON)
 
+FIND_PROGRAM(HELP2MAN "help2man")
+
+set(XVFB_EXEC "")
+find_program(XVFB_RUN NAMES "xvfb-run")
+if (NOT ${XVFB_RUN} MATCHES "XVFB_RUN-NOTFOUND")
+	set(XVFB_EXEC ${XVFB_RUN})
+	message(STATUS "Using xvfb-run to run man2help.")
+endif()
+
+
 ## Compiler flags
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	IF(CMAKE_COMPILER_IS_GNUCXX)
