@@ -30,6 +30,9 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #ifndef __VERTEX_BUFFER_H__
 #define __VERTEX_BUFFER_H__
 
@@ -477,3 +480,5 @@ vertex_attribute_new( GLenum target,
 
 
 #endif /* __VERTEX_BUFFER_H__ */
+
+#endif

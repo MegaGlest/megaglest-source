@@ -30,6 +30,9 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #ifdef HAVE_FONTCONFIG
 #include <fontconfig/fontconfig.h>
 #endif
@@ -231,3 +234,5 @@ font_manager_set_cache( FontManager *self,
     }
     self->cache = wcsdup( cache );
 }
+
+#endif

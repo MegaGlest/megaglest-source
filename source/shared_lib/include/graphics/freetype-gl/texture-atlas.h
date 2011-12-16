@@ -40,6 +40,9 @@
    http://clb.demon.fi/files/RectangleBinPack/
 
    ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #pragma once
 #ifndef __TEXTURE_ATLAS_H__
 #define __TEXTURE_ATLAS_H__
@@ -154,3 +157,5 @@ typedef struct
 #endif
 
 #endif /* __TEXTURE_ATLAS_H__ */
+
+#endif
