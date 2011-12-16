@@ -2,7 +2,9 @@
 # streflop
 
 # IMPORTANT: should come BEFORE finding packages
-ADD_SUBDIRECTORY(sources/streflop)
+IF(WANT_STREFLOP)
+	ADD_SUBDIRECTORY(sources/streflop)
+ENDIF()
 
 #########################################################################################
 # common libraries
@@ -225,10 +227,15 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		platform/common
 		sound
 		sound/openal
-		streflop
-		streflop/libm_flt32_source	
 		util
 		xml)
+
+	IF(WANT_STREFLOP)
+		SET(DIRS_WITH_SRC
+			${DIRS_WITH_SRC}
+			streflop
+			streflop/libm_flt32_source)
+	ENDIF()
 
 	IF(NOT WANT_STATIC_LIBS)
 		MESSAGE(STATUS "*** Searching for miniupnpc since WANT_STATIC_LIBS is off ...")
@@ -341,7 +348,9 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	ENDIF()
 
 	# FIXME: hackish...
-	SET(STREFLOP_PROPERTIES "-DSTREFLOP_SSE -DLIBM_COMPILING_FLT32")
+	IF(WANT_STREFLOP)
+		SET(STREFLOP_PROPERTIES "-DSTREFLOP_SSE -DLIBM_COMPILING_FLT32")
+	ENDIF()
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_SOURCE_FILES} PROPERTIES COMPILE_FLAGS 
 		"${PLATFORM_SPECIFIC_DEFINES} ${STREFLOP_PROPERTIES} ${CXXFLAGS}")
@@ -369,12 +378,16 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	ENDIF()
 
 	IF(WIN32)
-	  TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 streflop stdc++ moldname mingwex msvcrt user32 kernel32)
+	  TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 stdc++ moldname mingwex msvcrt user32 kernel32)
 
-	  TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
+	  IF(WANT_STREFLOP)
+	    TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
+          ENDIF()
 	  TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 	ELSE()
-	  TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
+          IF(WANT_STREFLOP)
+	    TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
+ 	  ENDIF()
 	  TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
 	ENDIF()
