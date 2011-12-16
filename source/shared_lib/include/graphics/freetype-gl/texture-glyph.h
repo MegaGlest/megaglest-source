@@ -30,6 +30,9 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #pragma once
 #ifndef __TEXTURE_GLYPH_H__
 #define __TEXTURE_GLYPH_H__
@@ -129,3 +132,5 @@ typedef struct {
 #endif
 
 #endif /* __TEXTURE_GLYPH_H__ */
+
+#endif

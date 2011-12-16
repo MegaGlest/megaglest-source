@@ -30,6 +30,9 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 // #include FT_ADVANCES_H
@@ -434,3 +437,5 @@ texture_font_load_face( FT_Library * library,
     return 1;
 }
                        
+
+#endif

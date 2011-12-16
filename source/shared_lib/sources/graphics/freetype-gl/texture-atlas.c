@@ -31,6 +31,8 @@
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
 
+#ifdef USE_FREETYPEGL
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -343,3 +345,5 @@ texture_atlas_clear( TextureAtlas *self )
 	}
 	}
 }
+
+#endif

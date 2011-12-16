@@ -30,6 +30,9 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #if defined(_WIN32)
 
 #define	WIN32_LEAN_AND_MEAN
@@ -233,3 +236,5 @@ texture_glyph_get_kerning( TextureGlyph *self,
     }
     return 0;
 }
+
+#endif

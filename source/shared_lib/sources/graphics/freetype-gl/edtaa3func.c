@@ -55,6 +55,9 @@
  * Updated in 2011 to avoid a corner case infinite loop.
  *
 */
+
+#ifdef USE_FREETYPEGL
+
 #include <math.h>
 
 
@@ -575,3 +578,4 @@ void edtaa3(double *img, double *gx, double *gy, int w, int h, short *distx, sho
   /* The transformation is completed. */
 
 }
+#endif

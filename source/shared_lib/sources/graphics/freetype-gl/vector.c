@@ -30,6 +30,8 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+#ifdef USE_FREETYPEGL
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -404,3 +406,5 @@ vector_sort( Vector *self,
     assert( self->size );
     qsort(self->items, self->size, self->item_size, cmp);
 }
+
+#endif

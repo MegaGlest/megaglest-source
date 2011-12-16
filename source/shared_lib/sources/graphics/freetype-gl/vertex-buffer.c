@@ -30,6 +30,9 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
@@ -757,3 +760,5 @@ GL_TYPE_STRING( GLenum gtype )
     default:                return "GL_VOID";
     }
 }
+
+#endif

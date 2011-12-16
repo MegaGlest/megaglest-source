@@ -30,6 +30,9 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #pragma once
 #ifndef __MARKUP_H__
 #define __MARKUP_H__
@@ -126,3 +129,5 @@ void         markup_set_strikethrough_color( Markup *self,
 #endif
 
 #endif /* __MARKUP_H__ */
+
+#endif

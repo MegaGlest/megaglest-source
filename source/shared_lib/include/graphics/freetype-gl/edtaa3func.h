@@ -56,7 +56,7 @@
  *
  */
 
-
+#ifdef USE_FREETYPEGL
 
 #include <math.h>
 
@@ -93,4 +93,6 @@ void edtaa3(double *img, double *gx, double *gy, int w, int h, short *distx, sho
 
 #ifdef	__cplusplus
 }
+#endif
+
 #endif

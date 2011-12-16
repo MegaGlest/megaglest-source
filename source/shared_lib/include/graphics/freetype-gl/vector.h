@@ -30,6 +30,8 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+#ifdef USE_FREETYPEGL
+
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
 
@@ -287,3 +289,5 @@ typedef struct
 #endif
 
 #endif /* __VECTOR_H__ */
+
+#endif

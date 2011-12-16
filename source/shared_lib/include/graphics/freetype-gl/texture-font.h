@@ -30,6 +30,9 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+
+#ifdef USE_FREETYPEGL
+
 #pragma once
 #ifndef __TEXTURE_FONT_H__
 #define __TEXTURE_FONT_H__
@@ -118,3 +121,4 @@ typedef struct TextureFont_ TextureFont;
 
 #endif /* __TEXTURE_FONT_H__ */
 
+#endif
