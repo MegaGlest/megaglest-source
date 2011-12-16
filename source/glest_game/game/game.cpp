@@ -23,7 +23,6 @@
 #include "network_manager.h"
 #include "checksum.h"
 #include "auto_test.h"
-#include "FPUCheck.h"
 #include "menu_state_keysetup.h"
 #include "leak_dumper.h"
 
