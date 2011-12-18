@@ -22,7 +22,7 @@ fi
 
 if [ -f /etc/SuSE-release ]; then
   echo "=====> Using build deps for Open SuSE 11.2 and above..."
-  sudo zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-d libxml2-devevel libircclient-dev glew-devel ftgl-devel
+  sudo zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel
 elif [ -f /etc/fedora-release ]; then
   echo "=====> Using build deps for fedora 13 and above..."
   sudo yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel
