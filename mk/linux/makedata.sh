@@ -50,10 +50,15 @@ mkdir -p "$RELEASEDIR/tutorials/"
 svn export --force "$CURRENTDIR/../../data/glest_game/tutorials" "$RELEASEDIR/tutorials/"
 
 # special export for flag images
-mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
-svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/data/core/misc_textures/flags/"
+# mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
+# svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/data/core/misc_textures/flags/"
 
 svn export --force "$CURRENTDIR/../../data/glest_game/CMakeLists.txt" "$RELEASEDIR/CMakeLists.txt"
+
+# START
+# remove embedded data
+rm -rf "$RELEASEDIR/data/core/fonts"
+# END
 
 echo "creating $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
