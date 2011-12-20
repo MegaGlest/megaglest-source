@@ -50,13 +50,16 @@ svn export --force "$CURRENTDIR/start_megaglest_g3dviewer" $RELEASEDIR/start_meg
 svn export --force "$CURRENTDIR/start_megaglest_mapeditor" $RELEASEDIR/start_megaglest_mapeditor
 svn export --force "$CURRENTDIR/../../CMakeLists.txt" $RELEASEDIR/CMakeLists.txt
 
+# START
 # remove embedded library code as that will be packaged in a seperate archive
 rm -rf "$RELEASEDIR/source/shared_lib/sources/libircclient/"
 rm -rf "$RELEASEDIR/source/shared_lib/include/libircclient/"
 rm -rf "$RELEASEDIR/source/shared_lib/sources/platform/miniupnpc/"
 rm -rf "$RELEASEDIR/source/shared_lib/include/platform/miniupnpc/"
-#rm -rf "$RELEASEDIR/source/shared_lib/sources/streflop/"
-#rm -rf "$RELEASEDIR/source/shared_lib/include/streflop/"
+# rm -rf "$RELEASEDIR/source/shared_lib/sources/streflop/"
+# rm -rf "$RELEASEDIR/source/shared_lib/include/streflop/"
+rm -rf "$RELEASEDIR/source/masterserver/flags/"
+# END
 
 echo "Creating $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"

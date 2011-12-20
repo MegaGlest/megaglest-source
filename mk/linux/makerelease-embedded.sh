@@ -32,6 +32,12 @@ svn export --force "$SOURCEDIR/shared_lib/include/platform/miniupnpc" "$RELEASED
 #svn export --force "$SOURCEDIR/shared_lib/sources/streflop" "$RELEASEDIR/source/shared_lib/sources/streflop"
 #svn export --force "$SOURCEDIR/shared_lib/include/streflop" "$RELEASEDIR/source/shared_lib/include/streflop"
 
+mkdir -p "$RELEASEDIR/source/masterserver/flags/"
+svn export --force "$SOURCEDIR/masterserver/flags" "$RELEASEDIR/source/masterserver/flags"
+
+mkdir -p "$RELEASEDIR/data/core/fonts/"
+svn export --force "$SOURCEDIR/../data/glest_game/data/core/fonts" "$RELEASEDIR/data/core/fonts"
+
 echo "Creating $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
 tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/$RELEASENAME-$VERSION" "megaglest-$VERSION"
