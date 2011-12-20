@@ -1383,7 +1383,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 				return;
 			}
 			else {
-				if(chrono.getMillis() % 1000 == 0) {
+				if(chrono.getMillis() % 250 == 0) {
 					string waitForHosts = "";
 					for(int i = 0; i < waitingForHosts.size(); i++) {
 						if(waitForHosts != "") {
