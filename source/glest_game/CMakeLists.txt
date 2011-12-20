@@ -224,7 +224,7 @@ IF(BUILD_MEGAGLEST)
 			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
+		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='Select optional viewer settings to use' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
 		    	DEPENDS ${TARGET_NAME})
 		ELSE()
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
