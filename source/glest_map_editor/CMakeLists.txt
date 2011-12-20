@@ -151,15 +151,17 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	IF(EXISTS ${HELP2MAN})
 		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE}]")
 
+                SET(MG_MANPAGE_DESCRIPTION "Map editor for the popular 3D realtime stragegy game")
+
 		IF(EXISTS ${XVFB_EXEC})
 			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='Select optional viewer settings to use' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
+		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
 		    	DEPENDS ${TARGET_NAME})
 		ELSE()
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${HELP2MAN} --name='Select optional map settings to use' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
+		    		COMMAND ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
 		    	DEPENDS ${TARGET_NAME})
 		ENDIF()
 	ENDIF()
