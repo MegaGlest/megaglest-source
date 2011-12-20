@@ -157,10 +157,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	}
 
 	//     "================================================================================"
-	printf("\n%s %s, [Using %s] usage:\n",argv0,g3dviewerVersionString.c_str(),(const char *)wxConvCurrent->cWX2MB(wxVERSION_STRING));
+	printf("\n%s %s, [Using %s] usage:\n",extractFileFromDirectoryPath(argv0).c_str(),g3dviewerVersionString.c_str(),(const char *)wxConvCurrent->cWX2MB(wxVERSION_STRING));
 
-	printf("================================================================================\n");
-	printf("\n%s [G3D FILE]\n\n",argv0);
+	printf("\n%s [G3D FILE]\n\n",extractFileFromDirectoryPath(argv0).c_str());
 	printf("Displays glest 3D-models and unit/projectile/splash particle systems.\n");
 	printf("rotate with left mouse button, zoom with right mouse button or mousewheel.\n");
 	printf("Use ctrl to load more than one particle system.\n");
@@ -178,17 +177,17 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a g3d filename to load separated with a");
 	printf("\n                     \t\tcomma and one or more skill names to try loading:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill,stop_skill",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
+	printf("\n %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill,stop_skill",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
 
 	printf("\n%s=x\t\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 	printf("\n                     \t\tWhere x is a g3d filename to load:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n %s %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 
 	printf("\n%s=x\tAnimation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE]));
 	printf("\n                     \t\tWhere x is a decimal value from -1.0 to 1.0:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=0.5",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE]));
+	printf("\n %s %s=0.5",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE]));
 
 	//     "================================================================================"
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]));
@@ -200,14 +199,14 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tenable_normals, disable_grid, disable_wireframe,");
 	printf("\n                     \t\tdisable_normals, saveas-<filename>");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=transparent,disable_grid,saveas-test.png %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n %s %s=transparent,disable_grid,saveas-test.png %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 
 	//     "================================================================================"
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
 	printf("\n                     \t\tAuto load the particle specified in path/filename x");
 	printf("\n                     \t\tWhere x is a Particle XML filename to load:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/persian/units/genie/glow_particles.xml",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
+	printf("\n %s %s=techs/megapack/factions/persian/units/genie/glow_particles.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
 
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]));
 	printf("\n                     \t\tAuto load the projectile particle specified in");
@@ -215,7 +214,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a Projectile Particle Definition XML");
 	printf("\n                     \t\t        filename to load:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/persian/units/genie/particle_proj.xml",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]));
+	printf("\n %s %s=techs/megapack/factions/persian/units/genie/particle_proj.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]));
 
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]));
 	printf("\n                     \t\tAuto load the splash particle specified in");
@@ -223,36 +222,36 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a Splash Particle Definition XML");
 	printf("\n                     \t\t        filename to load:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/persian/units/genie/particle_splash.xml",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]));
+	printf("\n %s %s=techs/megapack/factions/persian/units/genie/particle_splash.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]));
 
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE]));
 	printf("\n                     \t\tParticle loop value when loading one or more");
 	printf("\n                     \t\tparticles");
 	printf("\n                     \t\tWhere x is an integer value from 1 to particle count:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=25",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE]));
+	printf("\n %s %s=25",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE]));
 
 	printf("\n%s=x\t\t\tZoom value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ZOOM_VALUE]));
 	printf("\n                     \t\tWhere x is a decimal value from 0.1 to 10.0:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=4.2",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ZOOM_VALUE]));
+	printf("\n %s %s=4.2",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ZOOM_VALUE]));
 
 	printf("\n%s=x\t\tX Coordinate Rotation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_X_VALUE]));
 	printf("\n                     \t\tWhere x is a decimal value from -10.0 to 10.0:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=2.2",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_X_VALUE]));
+	printf("\n %s %s=2.2",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_X_VALUE]));
 
 	printf("\n%s=x\t\tY Coordinate Rotation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE]));
 	printf("\n                     \t\tWhere x is a decimal value from -10.0 to 10.0:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=2.2",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE]));
+	printf("\n %s %s=2.2",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_ROTATE_Y_VALUE]));
 
 	printf("\n%s=x\t\tSpecify which image format to use for screenshots.",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_SCREENSHOT_FORMAT]));
 	printf("\n                     \t\tWhere x is one of the following supported formats");
 	printf("\n                     \t\tpng,jpg,tga,bmp");
 	printf("\n                     \t\t*NOTE: png is the default (and supports transparency)");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=jpg",argv0,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_SCREENSHOT_FORMAT]));
+	printf("\n %s %s=jpg",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_SCREENSHOT_FORMAT]));
 
 	printf("\n\n");
 }

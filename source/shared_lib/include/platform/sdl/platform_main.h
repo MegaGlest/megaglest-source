@@ -127,8 +127,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	if(foundInvalidArgs == true) {
 			printf("\n");
 	}
-	printf("\n%s, usage\n\n",argv0);
-	printf("================================================================================\n");
+	printf("\n%s, usage\n\n",extractFileFromDirectoryPath(argv0).c_str());
 	printf("Commandline Parameter:\t\tDescription:");
 	printf("\n----------------------\t\t------------");
 	printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
@@ -187,7 +186,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t*NOTE: This only applies when files are");
 	printf("\n                     \t\t       purged due to the above flags being set.");
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=megapack,vbros_pack_5",argv0,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n                     %s %s=megapack,vbros_pack_5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n%s=x=purgeunused=purgeduplicates=hideduplicates",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 	printf("\n                     \t\tdisplay a report detailing any known problems");
 	printf("\n                     \t\trelated to your selected factions game data.");
@@ -206,7 +205,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t*NOTE: leaving the list empty is the same as");
 	printf("\n                     \t\trunning: %s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=tech,egypt",argv0,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
+	printf("\n                     %s %s=tech,egypt",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 
 	printf("\n%s=x=purgeunused=svndelete",GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
 	printf("\n                     \t\tdisplay a report detailing any known problems");
@@ -216,23 +215,23 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t      telling the validation to delete extra");
 	printf("\n                     \t\t      files in the scenario that are not used.");
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=stranded",argv0,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
+	printf("\n                     %s %s=stranded",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
 
 	//     "================================================================================"
 	printf("\n%s=x\t\t\tSets the game data path to x",GAME_ARGS[GAME_ARG_DATA_PATH]);
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=/usr/local/game_data/",argv0,GAME_ARGS[GAME_ARG_DATA_PATH]);
+	printf("\n                     %s %s=/usr/local/game_data/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_DATA_PATH]);
 	printf("\n%s=x\t\t\tSets the game ini path to x",GAME_ARGS[GAME_ARG_INI_PATH]);
 	printf("\n                     \t\texample");
-	printf("\n                     %s %s=~/game_config/",argv0,GAME_ARGS[GAME_ARG_INI_PATH]);
+	printf("\n                     %s %s=~/game_config/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_INI_PATH]);
 	printf("\n%s=x\t\t\tSets the game logs path to x",GAME_ARGS[GAME_ARG_LOG_PATH]);
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=~/game_logs/",argv0,GAME_ARGS[GAME_ARG_LOG_PATH]);
+	printf("\n                     %s %s=~/game_logs/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LOG_PATH]);
 	printf("\n%s=x\t\tdisplay merged ini settings information.",GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 	printf("\n                     \t\tWhere x is an optional property name to");
 	printf("\n                     \t\t        filter (default shows all).");
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=DebugMode",argv0,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
+	printf("\n                     %s %s=DebugMode",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 
 	printf("\n%s=x=textureformat=keepsmallest",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 	printf("\n                     \t\tConvert a model file or folder to the current g3d");
@@ -245,33 +244,33 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t      to keep original texture if its filesize is");
 	printf("\n                     \t\t      smaller than the converted format.");
 	printf("\n                     \t\texample:");
-	printf("\n  %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",argv0,GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+	printf("\n  %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
 
 	printf("\n%s=x\t\tforce the language to be the language specified by x.",GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
 	printf("\n                     \t\tWhere x is a language filename or ISO639-1 code.");
-	printf("\n                     \t\texample: %s %s=english",argv0,GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
-	printf("\n                     \t\texample: %s %s=en",argv0,GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
+	printf("\n                     \t\texample: %s %s=english",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
+	printf("\n                     \t\texample: %s %s=en",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
 
 
 	printf("\n%s=x\t\tshow the calculated CRC for the map named x.",GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
 	printf("\n                     \t\tWhere x is a map name.");
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=four_rivers",argv0,GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
+	printf("\n                     %s %s=four_rivers",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
 
 	printf("\n%s=x\t\tshow the calculated CRC for the tileset named x.",GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
 	printf("\n                     \t\tWhere x is a tileset name.");
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=forest",argv0,GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
+	printf("\n                     %s %s=forest",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
 
 	printf("\n%s=x\t\tshow the calculated CRC for the techtree named x.",GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
 	printf("\n                     \t\tWhere x is a techtree name.");
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=megapack",argv0,GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
+	printf("\n                     %s %s=megapack",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
 
 	printf("\n%s=x\t\tshow the calculated CRC for the scenario named x.",GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
 	printf("\n                     \t\tWhere x is a scenario name.");
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=storming",argv0,GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
+	printf("\n                     %s %s=storming",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
 
 	//     "================================================================================"
 	printf("\n%s=x=y",GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
@@ -280,7 +279,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a path name.");
 	printf("\n                     \t\tand y is file(s) filter.");
 	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=techs/=megapack.7z",argv0,GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
+	printf("\n                     %s %s=techs/=megapack.7z",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
 
 	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 
@@ -300,39 +299,39 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 //	printf("\n                     \t\twhere * indicates not to replace the default value for the parameter");
 //	printf("\n                     \t\tfullscreen has possible values of true, false, 1 or 0");
 //	printf("\n                     \t\tand only the width and height parameters are required (the others are optional)");
-//	printf("\n                     \t\texample: %s %s=1024x768x*x*",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
-//	printf("\n                     \t\tsame result for: %s %s=1024x768",argv0,GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+//	printf("\n                     \t\texample: %s %s=1024x768x*x*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
+//	printf("\n                     \t\tsame result for: %s %s=1024x768",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
 
 
 	//     "================================================================================"
 	printf("\n%s=x\t\t\toverride the video resolution.",GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
 	printf("\n                     \t\tWhere x is a string with the following format:");
 	printf("\n                     \t\twidthxheight");
-	printf("\n                     \t\texample: %s %s=1024x768",argv0,GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
+	printf("\n                     \t\texample: %s %s=1024x768",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
 
 	printf("\n%s=x\t\t\toverride the video colorbits.",GAME_ARGS[GAME_ARG_USE_COLORBITS]);
 	printf("\n                     \t\tWhere x is a valid colorbits value supported by");
 	printf("\n                     \t\t        your video driver");
-	printf("\n                     \t\texample: %s %s=32",argv0,GAME_ARGS[GAME_ARG_USE_COLORBITS]);
+	printf("\n                     \t\texample: %s %s=32",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_COLORBITS]);
 
 	printf("\n%s=x\t\t\toverride the video depthbits.",GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
 	printf("\n                     \t\tWhere x is a valid depthbits value supported by");
 	printf("\n                     \t\t        your video driver");
-	printf("\n                     \t\texample: %s %s=24",argv0,GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
+	printf("\n                     \t\texample: %s %s=24",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
 
 	printf("\n%s=x\t\t\toverride the video fullscreen mode.",GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
 	printf("\n                     \t\tWhere x either true or false");
-	printf("\n                     \t\texample: %s %s=true",argv0,GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
+	printf("\n                     \t\texample: %s %s=true",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
 
 	printf("\n%s=x\t\t\toverride the font to use.",GAME_ARGS[GAME_ARG_USE_FONT]);
 	printf("\n                     \t\tWhere x is the path and name of a font file supported");
 	printf("\n                     \t\t        by freetype2.");
 	printf("\n                     \t\texample:");
-	printf("\n  %s %s=$APPLICATIONDATAPATH/data/core/fonts/Vera.ttf",argv0,GAME_ARGS[GAME_ARG_USE_FONT]);
+	printf("\n  %s %s=$APPLICATIONDATAPATH/data/core/fonts/Vera.ttf",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_FONT]);
 
 	printf("\n%s=x\t\t\toverride the font base size.",GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
 	printf("\n                     \t\tWhere x is the numeric base font size to use.");
-	printf("\n                     \t\texample: %s %s=5",argv0,GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
+	printf("\n                     \t\texample: %s %s=5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
 
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 
