@@ -34,10 +34,6 @@ MYLOCATION="`readlink -f $0`"
 # The game directory is the directory the script resides in
 GAMEDIR="`dirname $MYLOCATION`"
 
-# Change to the game dir, and go!
-cd $GAMEDIR
-echo gamedir [$GAMEDIR]
-
 # export game library directory
 test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
 
@@ -124,4 +120,4 @@ findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DIRECTFB_LINKEDLIBNAME}" "$DIRECTF
 findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${FUSION_LINKEDLIBNAME}" "$FUSION_LIBLOOKUP1" "$FUSION_LIBLOOKUP2"
 findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DIRECT_LINKEDLIBNAME}" "$DIRECT_LIBLOOKUP1" "$DIRECT_LIBLOOKUP2"
 
-./megaglest_g3dviewer "$1"
+"$GAMEDIR/megaglest_g3dviewer" "$1"
