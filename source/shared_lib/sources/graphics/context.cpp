@@ -25,7 +25,7 @@ Context::Context() {
 	stencilBits= 0;
 	hardware_acceleration=0;
 	fullscreen_anti_aliasing=0;
-
+	gammaValue=0;
 }
 
 }}//end namespace

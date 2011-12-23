@@ -1587,6 +1587,11 @@ bool changeVideoMode(int resW, int resH, int colorBits, int ) {
 
 void restoreVideoMode(bool exitingApp) {
     //SDL_Quit();
+	if(exitingApp == true && SDL_WasInit(SDL_INIT_VIDEO)) {
+		SDL_ShowCursor(1);
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		SDL_SetGamma(1, 1, 1);
+	}
 }
 
 int getScreenW() {

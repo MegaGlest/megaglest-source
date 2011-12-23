@@ -29,7 +29,9 @@ private:
 	ContextGl context;
 
 public:
-	void initGl(int colorBits, int depthBits, int stencilBits,bool hardware_acceleration, bool fullscreen_anti_aliasing);
+	void initGl(int colorBits, int depthBits, int stencilBits,
+			    bool hardware_acceleration, bool fullscreen_anti_aliasing,
+			    float gammaValue);
 	void makeCurrentGl();
 	void swapBuffersGl();
 };
