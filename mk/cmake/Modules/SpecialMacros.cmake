@@ -3,13 +3,13 @@
 include(CheckFunctionExists)
 include(AddFileDependencies)
 
-macro(special_add_library lib)
-  if (WIN32)
-    add_library(${lib} STATIC ${ARGN})
-  else (WIN32)
-    add_library(${lib} SHARED ${ARGN})
-  endif (WIN32)
-endmacro(special_add_library)
+#macro(special_add_library lib)
+#  if (WIN32)
+#    add_library(${lib} STATIC ${ARGN})
+#  else (WIN32)
+#    add_library(${lib} SHARED ${ARGN})
+#  endif (WIN32)
+#endmacro(special_add_library)
 
 macro(special_check_for_sse _max_sse_level_desired) 
   set(${_max_sse_level_desired})
@@ -78,6 +78,9 @@ macro(special_check_for_sse _max_sse_level_desired)
     set(SSE_FLAGS "-msse -mfpmath=sse")
     message(STATUS "Found SSE extensions, using flags: ${SSE_FLAGS}")
    endif()
+   
+   add_definitions(${SSE_FLAGS})
+
   elseif(MSVC)
    check_cxx_source_runs("
     #include <emmintrin.h>
@@ -96,6 +99,8 @@ macro(special_check_for_sse _max_sse_level_desired)
     message(STATUS "Found SSE2 extensions")
     set(SSE_FLAGS "/arch:SSE2 /fp:fast -D__SSE__ -D__SSE2__" )
    endif()
+   
+   add_definitions(${SSE_FLAGS})
   endif()
 endmacro(special_check_for_sse)
 

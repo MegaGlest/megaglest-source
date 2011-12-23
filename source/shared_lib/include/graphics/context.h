@@ -31,6 +31,7 @@ protected:
 	uint32 stencilBits;
 	int8 hardware_acceleration;
 	int8 fullscreen_anti_aliasing;
+	float gammaValue;
 
 public:
 	Context();
@@ -41,12 +42,14 @@ public:
 	uint32 getStencilBits() const	{return stencilBits;}
 	int8 getHardware_acceleration() const { return hardware_acceleration; }
 	int8 getFullscreen_anti_aliasing() const { return fullscreen_anti_aliasing; }
+	float getGammaValue() const { return gammaValue; }
 
 	void setColorBits(uint32 colorBits)		{this->colorBits= colorBits;}
 	void setDepthBits(uint32 depthBits)		{this->depthBits= depthBits;}
 	void setStencilBits(uint32 stencilBits)	{this->stencilBits= stencilBits;}
 	void setHardware_acceleration(int8 value) { hardware_acceleration = value; }
 	void setFullscreen_anti_aliasing(int8 value) { fullscreen_anti_aliasing = value; }
+	void setGammaValue(float value) { gammaValue = value; }
 
 	virtual void init()= 0;
 	virtual void end()= 0;

@@ -51,7 +51,9 @@ public:
 	PlatformContextGl();
 	virtual ~PlatformContextGl();
 
-	virtual void init(int colorBits, int depthBits, int stencilBits,bool hardware_acceleration, bool fullscreen_anti_aliasing);
+	virtual void init(int colorBits, int depthBits, int stencilBits,
+			bool hardware_acceleration, bool fullscreen_anti_aliasing,
+			float gammaValue);
 	virtual void end();
 
 	virtual void makeCurrent();

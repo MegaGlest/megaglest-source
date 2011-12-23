@@ -64,6 +64,7 @@ const char  *GAME_ARGS[] = {
 	"--colorbits",
 	"--depthbits",
 	"--fullscreen",
+	"--set-gamma",
 
 	"--use-font",
 	"--font-basesize",
@@ -115,10 +116,13 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_USE_COLORBITS,
 	GAME_ARG_USE_DEPTHBITS,
 	GAME_ARG_USE_FULLSCREEN,
+	GAME_ARG_SET_GAMMA,
 
 	GAME_ARG_USE_FONT,
 	GAME_ARG_FONT_BASESIZE,
-	GAME_ARG_VERBOSE_MODE
+	GAME_ARG_VERBOSE_MODE,
+
+	GAME_ARG_END
 };
 
 void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
@@ -323,6 +327,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x either true or false");
 	printf("\n                     \t\texample: %s %s=true",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
 
+	printf("\n%s=x\t\t\toverride the video gamma (contrast) value.",GAME_ARGS[GAME_ARG_SET_GAMMA]);
+	printf("\n                     \t\tWhere x a floating point value");
+	printf("\n                     \t\texample: %s %s=1.5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SET_GAMMA]);
+
 	printf("\n%s=x\t\t\toverride the font to use.",GAME_ARGS[GAME_ARG_USE_FONT]);
 	printf("\n                     \t\tWhere x is the path and name of a font file supported");
 	printf("\n                     \t\t        by freetype2.");
@@ -364,6 +372,13 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 
 int mainSetup(int argc, char **argv) {
     bool haveSpecialOutputCommandLineOption = false;
+
+    const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
+    if(knownArgCount != GAME_ARG_END) {
+    	char szBuf[1024]="";
+    	sprintf(szBuf,"Internal arg count mismatch knownArgCount = %d, GAME_ARG_END = %d",knownArgCount,GAME_ARG_END);
+    	throw runtime_error("");
+    }
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||

@@ -212,7 +212,7 @@ void fatal(const char *s, ...)    // failure exit
             if(SDL_WasInit(SDL_INIT_VIDEO)) {
                 SDL_ShowCursor(1);
                 SDL_WM_GrabInput(SDL_GRAB_OFF);
-                SDL_SetGamma(1, 1, 1);
+                //SDL_SetGamma(1, 1, 1);
             }
             #ifdef WIN32
 				LPWSTR wstr = Ansi2WideString(errText.c_str());
@@ -2797,6 +2797,29 @@ int glestMain(int argc, char** argv) {
 			}
 			else {
 				printf("\nInvalid missing fullscreen setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				//printParameterHelp(argv[0],false);
+				return -1;
+			}
+		}
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SET_GAMMA]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SET_GAMMA]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SET_GAMMA]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string settings = paramPartTokens[1];
+				printf("Forcing gamma [%s]\n",settings.c_str());
+
+				float newGammaValue = strToFloat(settings);
+				config.setFloat("GammaValue",newGammaValue);
+			}
+			else {
+				printf("\nInvalid missing gamma setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				//printParameterHelp(argv[0],false);
 				return -1;
 			}

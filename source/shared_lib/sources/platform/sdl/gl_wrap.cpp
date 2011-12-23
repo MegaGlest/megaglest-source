@@ -50,7 +50,9 @@ PlatformContextGl::~PlatformContextGl() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool hardware_acceleration, bool fullscreen_anti_aliasing) {
+void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
+		                     bool hardware_acceleration,
+		                     bool fullscreen_anti_aliasing, float gammaValue) {
 	
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -210,6 +212,14 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,bool 
 
 		int bufferSize = (resW * resH * BaseColorPickEntity::COLOR_COMPONENTS);
 		BaseColorPickEntity::init(bufferSize);
+
+		if(gammaValue != 0.0) {
+			//printf("Attempting to call SDL_SetGamma using value %f\n", gammaValue);
+
+			if (SDL_SetGamma(gammaValue, gammaValue, gammaValue) < 0) {
+				printf("WARNING, SDL_SetGamma failed using value %f [%s]\n", gammaValue,SDL_GetError());
+			}
+		}
 	}
 }
 
