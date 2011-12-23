@@ -17,12 +17,6 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	IF(NOT WIN32)
 		# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
-	
-		IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-		       SET(wxWidgets_CONFIG_OPTIONS --prefix=/usr/local)
-		       MESSAGE(STATUS "Detected FreeBSD.....")
-	       ENDIF()
-
 		FIND_PACKAGE(wxWidgets COMPONENTS core base gl REQUIRED)
 
 		# wxWidgets include (this will do all the magic to configure everything)
