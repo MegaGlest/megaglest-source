@@ -104,6 +104,34 @@ macro(special_check_for_sse _max_sse_level_desired)
   endif()
 endmacro(special_check_for_sse)
 
+macro(special_check_for_x87) 
+  # check for X87 support
+  include(CheckCXXSourceRuns)
+  if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
+  
+   check_cxx_source_runs("
+    int main()
+    {
+       unsigned short fpu_mode;
+       do { asm volatile (\"fstcw %0\" : \"=m\" (fpu_mode) : ); } while (0);
+       fpu_mode &= 0xFCFF; 
+       do { asm volatile (\"fclex \\\\n fldcw %0\" : : \"m\" (fpu_mode)); } while (0);
+
+       return 0;
+    }"
+    HAS_X87_SUPPORT)
+  
+   if(HAS_X87_SUPPORT)
+    message(STATUS "Found X87 support.")
+   endif()
+
+  elseif(MSVC)
+
+    set(HAS_X87_SUPPORT On)
+
+  endif()
+endmacro(special_check_for_x87)
+
 macro(special_add_compile_flags target)
   set(args ${ARGN})
   separate_arguments(args)
