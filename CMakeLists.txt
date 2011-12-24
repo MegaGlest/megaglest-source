@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6.2 )
 PROJECT( MegaGlest )
 
-#SET(CMAKE_VERBOSE_MAKEFILE ON)
+# SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
 # *NOTE: For now we assume some variation of GCC Compiler (or MingW for Windows binaries)
@@ -56,7 +56,6 @@ if (NOT ${XVFB_RUN} MATCHES "XVFB_RUN-NOTFOUND")
 endif()
 
 include(${CMAKE_SOURCE_DIR}/mk/cmake/Modules/SpecialMacros.cmake) 
-special_check_for_sse( 1 )
 
 ## Compiler flags
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
@@ -83,6 +82,35 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		ADD_DEFINITIONS("-Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -DUNICODE")
 	ENDIF()
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")	
+        
+        IF(NOT MAX_SSE_LEVEL_DESIRED)
+                SET(MAX_SSE_LEVEL_DESIRED "1" CACHE STRING "Set the max SSE level to use if supported (0-3)" FORCE)
+        ENDIF()
+        
+        MESSAGE(STATUS "*NOTE: Checking for max SSE LEVEL [${MAX_SSE_LEVEL_DESIRED}]")
+        special_check_for_sse( ${MAX_SSE_LEVEL_DESIRED} )
+
+        OPTION(WANT_STREFLOP "use the library streflop" ON)
+	IF(WANT_STREFLOP)
+		ADD_DEFINITIONS("-DUSE_STREFLOP -DSTREFLOP_RANDOM_GEN_SIZE=32 -DLIBM_COMPILING_FLT32")
+
+                IF(HAS_SSE_EXTENSIONS)
+                        ADD_DEFINITIONS("-DSTREFLOP_SSE")
+                        MESSAGE(STATUS "*NOTE: using SSE for STREFLOP.")
+                ELSE()
+                        special_check_for_x87()
+
+                        IF(HAS_X87_SUPPORT)
+                                ADD_DEFINITIONS("-DSTREFLOP_X87")
+                                MESSAGE(STATUS "*NOTE: using X87 for STREFLOP.")
+                        ELSE()
+                                ADD_DEFINITIONS("-DSTREFLOP_SOFT")
+                                MESSAGE(STATUS "*NOTE: using SOFT emulation for STREFLOP.")
+                        ENDIF()
+                ENDIF()
+	ELSE()
+		MESSAGE(STATUS "*WARNING: Disabled use of STREFLOP! Out of synchs may occur")
+	ENDIF()
 
 	# Debug compiler flags
 	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
@@ -173,21 +201,12 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
 	ENDIF()
 
-	OPTION(WANT_STREFLOP "use the library streflop" ON)
-
 	# Win32 specific Compiler Flags
 	IF(WIN32)
 		ADD_DEFINITIONS("-D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -D_LIB -DCURL_STATICLIB")
 	ELSE()
 		ADD_DEFINITIONS("-DCURL_STATICLIB")
 	ENDIF()
-
-	IF(WANT_STREFLOP)
-		ADD_DEFINITIONS("-DUSE_STREFLOP -DSTREFLOP_SSE -DSTREFLOP_RANDOM_GEN_SIZE=32 -DLIBM_COMPILING_FLT32")
-	ELSE()
-		MESSAGE(STATUS "*WARNING: Disabled use of STREFLOP! Out of synchs may occur")
-	ENDIF()
-
 ENDIF()
 
 IF(WIN32)
@@ -243,6 +262,13 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/")
         MESSAGE(STATUS "**Found game data.")
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/data/glest_game )
 ENDIF()
+
+get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
+foreach( d ${DirDefs} )
+    message( STATUS "=====> Found Define: " ${d} )
+endforeach()
+message( STATUS "=====> DirDefs: " ${DirDefs} )
+#MESSAGE(STATUS "*** Compiler definitions are [${COMPILE_DEFINITIONS}]")
 
 MARK_AS_ADVANCED(SDLMAIN_LIBRARY)
 MARK_AS_ADVANCED(SDL_INCLUDE_DIR)
