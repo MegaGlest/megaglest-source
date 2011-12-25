@@ -25,6 +25,10 @@
 # include <string>
 #include "types.h"
 
+#ifdef __MINGW32__
+typedef unsigned char byte;
+#endif
+
 //! \name Macros for Shared::Util::String
 //@{
 

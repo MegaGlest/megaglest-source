@@ -18,6 +18,8 @@ macro(special_check_for_sse _max_sse_level_desired)
 
   # check for SSE extensions
   include(CheckCXXSourceRuns)
+  include(CheckCSourceRuns)
+
   if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
    set(SSE_FLAGS)
   
@@ -107,6 +109,8 @@ endmacro(special_check_for_sse)
 macro(special_check_for_x87) 
   # check for X87 support
   include(CheckCXXSourceRuns)
+  include(CheckCSourceRuns)
+
   if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
   
    check_cxx_source_runs("

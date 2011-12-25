@@ -43,10 +43,11 @@
 #endif // _WIN32
 
 #include <GL/glew.h>
-#ifndef _WIN32
-//#include <boost/shared_ptr.hpp>
+
+#if !defined(_WIN32) || defined(__MINGW32__)
 #include <tr1/memory>
 #endif
+
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
@@ -61,7 +62,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-#ifdef _WIN32
+#if defined(_WIN32)
 using std::tr1::shared_ptr;
 #endif
 

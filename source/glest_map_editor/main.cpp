@@ -21,6 +21,7 @@
 #ifndef WIN32
 #include <errno.h>
 #endif
+#include <memory>
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
