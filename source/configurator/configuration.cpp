@@ -16,6 +16,7 @@
 #include "xml_parser.h"
 #include "util.h"
 #include "conversion.h"
+#include <memory>
 #include"platform_util.h"
 
 using namespace std;

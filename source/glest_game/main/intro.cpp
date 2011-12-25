@@ -483,6 +483,7 @@ Intro::Intro(Program *program):
 	//test = NULL;
 	//Shared::Graphics::md5::initMD5OpenGL(data_path + "data/core/shaders/");
 	//md5Test = Shared::Graphics::md5::getMD5ObjectFromLoaderScript("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/test/mv1/mv1.loader");
+	//md5Test = Shared::Graphics::md5::getMD5ObjectFromLoaderScript("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/test/mv1/mv2.loader");
 
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
@@ -638,7 +639,8 @@ void Intro::render() {
 
 	//printf("animTimer.deltaTime () = %f anim = %f animTimer.deltaTime() / 25.0 = %f\n",animTimer.deltaTime (),anim,animTimer.deltaTime() / 25.0);
 	//double anim = animTimer.deltaTime();
-	//Shared::Graphics::md5::renderMD5Object(md5Test, animTimer.deltaTime() / 30.0, &modelViewMatrix);
+//	Shared::Graphics::md5::renderMD5Object(md5Test, animTimer.deltaTime() / 30.0, &modelViewMatrix);
+	//Shared::Graphics::md5::renderMD5Object(md5Test, animTimer.deltaTime() / 30.0, NULL);
 
 //	if(test == NULL) {
 //		glClearColor (0.0, 0.0, 0.0, 0.0);

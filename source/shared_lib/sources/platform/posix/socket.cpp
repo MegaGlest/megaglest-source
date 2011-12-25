@@ -1900,7 +1900,7 @@ void BroadCastClientSocketThread::execute() {
 #else
 		setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 #endif
-		if(bind( bcfd,  (struct sockaddr *)&bcaddr, sizeof(bcaddr) ) < 0 )	{
+		if(::bind( bcfd,  (struct sockaddr *)&bcaddr, sizeof(bcaddr) ) < 0 )	{
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"bind failed: %s\n", getLastSocketErrorFormattedText().c_str());
 		}
 		else {
