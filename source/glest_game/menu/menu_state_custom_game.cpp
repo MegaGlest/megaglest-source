@@ -54,9 +54,11 @@ struct FormatString {
 
 MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		bool openNetworkSlots,ParentMenuState parentMenuState, bool autostart,
-		GameSettings *settings, bool masterserverMode) :
-		MenuState(program, mainMenu, "new-game")
-{
+		GameSettings *settings, bool masterserverMode,
+		string autoloadScenarioName) :
+		MenuState(program, mainMenu, "new-game") {
+	try {
+
 	this->masterserverMode = masterserverMode;
 	if(this->masterserverMode == true) {
 		printf("Waiting for players to join and start a game...\n");
@@ -103,6 +105,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     enableMapPreview = config.getBool("MapPreview","true");
 
     showFullConsole=false;
+
+	enableScenarioTexturePreview = Config::getInstance().getBool("EnableScenarioTexturePreview","true");
+	scenarioLogoTexture=NULL;
+	previewLoadDelayTimer=time(NULL);
+	needToLoadTextures=true;
+	this->autoloadScenarioName = autoloadScenarioName;
+	this->dirList = Config::getInstance().getPathListForType(ptScenarios);
 
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
@@ -574,7 +583,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		generalErrorToShow = "[#1] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
     }
 
-	for(int i=0; i<GameConstants::maxPlayers; ++i){
+	for(int i=0; i < GameConstants::maxPlayers; ++i) {
 		labelPlayerStatus[i].setText("");
 
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
@@ -647,6 +656,43 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxPlayerStatus.setLighted(false);
 	listBoxPlayerStatus.setVisible(true);
 
+    labelScenario.registerGraphicComponent(containerName,"labelScenario");
+    labelScenario.init(320, 670);
+    labelScenario.setText(lang.get("Scenario"));
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    listBoxScenario.init(320, 645);
+    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
+    checkBoxScenario.init(410, 670);
+    checkBoxScenario.setValue(false);
+
+    //scenario listbox
+    vector<string> resultsScenarios;
+	findDirs(dirList, resultsScenarios);
+	// Filter out only scenarios with no network slots
+	for(int i= 0; i < resultsScenarios.size(); ++i) {
+		string scenario = resultsScenarios[i];
+		string file = Scenario::getScenarioPath(dirList, scenario);
+		Scenario::loadScenarioInfo(file, &scenarioInfo);
+
+		bool isNetworkScenario = false;
+		for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
+			if(scenarioInfo.factionControls[j] == ctNetwork) {
+				isNetworkScenario = true;
+			}
+		}
+		if(isNetworkScenario == true) {
+			scenarioFiles.push_back(scenario);
+		}
+	}
+	resultsScenarios.clear();
+	for(int i = 0; i < scenarioFiles.size(); ++i) {
+		resultsScenarios.push_back(formatString(scenarioFiles[i]));
+	}
+    listBoxScenario.setItems(resultsScenarios);
+    if(resultsScenarios.empty() == true) {
+    	checkBoxScenario.setEnabled(false);
+    }
+
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
@@ -661,6 +707,16 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	publishToMasterserverThread->start();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	}
+	catch(const std::exception &ex) {
+	    char szBuf[4096]="";
+	    sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+	    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+	    throw runtime_error(szBuf);
+	}
 }
 
 void MenuStateCustomGame::reloadUI() {
@@ -826,6 +882,8 @@ void MenuStateCustomGame::reloadUI() {
 	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
 	playerStatuses.push_back(lang.get("PlayerStatusReady"));
 	listBoxPlayerStatus.setItems(playerStatuses);
+
+	labelScenario.setText(lang.get("Scenario"));
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -1159,6 +1217,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				}
 
 				soundRenderer.playFx(coreData.getClickSoundC());
+			}
+		    else if(listBoxScenario.mouseClick(x, y) || checkBoxScenario.mouseClick(x,y)) {
+		        processScenario();
 			}
 			else {
 				for(int i = 0; i < mapInfo.players; ++i) {
@@ -1677,6 +1738,9 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 	listBoxPublishServer.mouseMove(x, y);
 
 	listBoxAdvanced.mouseMove(x, y);
+
+	checkBoxScenario.mouseMove(x, y);
+	listBoxScenario.mouseMove(x, y);
 }
 
 bool MenuStateCustomGame::isMasterserverMode() const {
@@ -1694,6 +1758,11 @@ void MenuStateCustomGame::render() {
 		if(mapPreviewTexture != NULL) {
 			renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
 			//printf("=================> Rendering map preview texture\n");
+		}
+
+		if(scenarioLogoTexture != NULL) {
+			renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
+			//renderer.renderBackground(scenarioLogoTexture);
 		}
 
 		if(mainMessageBox.getEnabled()) {
@@ -1857,6 +1926,13 @@ void MenuStateCustomGame::render() {
 			}
 		}
 
+		//renderer.renderLabel(&labelInfo);
+		renderer.renderCheckBox(&checkBoxScenario);
+		renderer.renderLabel(&labelScenario);
+		if(checkBoxScenario.getValue() == true) {
+			renderer.renderListBox(&listBoxScenario);
+		}
+
 		if(program != NULL) program->renderProgramMsgBox();
 
 		if( enableMapPreview == true &&
@@ -2001,6 +2077,35 @@ void MenuStateCustomGame::update() {
 		}
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		Lang& lang= Lang::getInstance();
+
+		if(this->autoloadScenarioName != "") {
+			listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
+
+			if(listBoxScenario.getSelectedItem() != formatString(this->autoloadScenarioName)) {
+				mainMessageBoxState=1;
+				showMessageBox( "Could not find scenario name: " + formatString(this->autoloadScenarioName), "Scenario Missing", false);
+				this->autoloadScenarioName = "";
+			}
+			else {
+				loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+				//labelInfo.setText(scenarioInfo.desc);
+
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				CoreData &coreData= CoreData::getInstance();
+				soundRenderer.playFx(coreData.getClickSoundC());
+				//launchGame();
+				PlayNow(true);
+				return;
+			}
+		}
+
+		if(needToLoadTextures) {
+			// this delay is done to make it possible to switch faster
+			if(difftime(time(NULL), previewLoadDelayTimer) >= 2){
+				//loadScenarioPreviewTexture();
+				needToLoadTextures= false;
+			}
+		}
 
 		//bool haveAtLeastOneNetworkClientConnected = false;
 		bool hasOneNetworkSlotOpen = false;
@@ -2796,6 +2901,15 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
     //gameSettings->setFlagTypes1(ft1_show_map_resources);
     //
 
+	if(checkBoxScenario.getValue() == true) {
+		gameSettings->setScenario(scenarioInfo.name);
+		gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
+	}
+	else {
+		gameSettings->setScenario("");
+		gameSettings->setScenarioDir("");
+	}
+
 	gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
 	gameSettings->setDescription(formatString(getCurrentMapFile()));
 	gameSettings->setMap(getCurrentMapFile());
@@ -3149,79 +3263,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
     GameSettings originalGameSettings;
 	loadGameSettings(&originalGameSettings);
 
-//    Config &config = Config::getInstance();
-//    string userData = config.getString("UserData_Root","");
-//    if(userData != "") {
-//    	endPathWithSlash(userData);
-//    }
-//    fileName = userData + fileName;
-//
-//    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
-//
-//    if(fileExists(fileName) == false) {
-//    	return gameSettings;
-//    }
-
     try {
-//		Properties properties;
-//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
-//
-//		properties.load(fileName);
-//
-//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
-//
-//		gameSettings.setMapFilterIndex(properties.getInt("MapFilterIndex","0"));
-//		gameSettings.setDescription(properties.getString("Description"));
-//		gameSettings.setMap(properties.getString("Map"));
-//		gameSettings.setTileset(properties.getString("Tileset"));
-//		gameSettings.setTech(properties.getString("TechTree"));
-//		gameSettings.setDefaultUnits(properties.getBool("DefaultUnits"));
-//		gameSettings.setDefaultResources(properties.getBool("DefaultResources"));
-//		gameSettings.setDefaultVictoryConditions(properties.getBool("DefaultVictoryConditions"));
-//		gameSettings.setFogOfWar(properties.getBool("FogOfWar"));
-//		listBoxAdvanced.setSelectedItemIndex(properties.getInt("AdvancedIndex","0"));
-//
-//		gameSettings.setAllowObservers(properties.getBool("AllowObservers","false"));
-//
-//        gameSettings.setFlagTypes1(properties.getInt("FlagTypes1","0"));
-//
-//		gameSettings.setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
-//
-//		gameSettings.setAiAcceptSwitchTeamPercentChance(properties.getInt("AiAcceptSwitchTeamPercentChance","30"));
-//
-//		gameSettings.setPathFinderType(static_cast<PathFinderType>(properties.getInt("PathFinderType",intToStr(pfBasic).c_str())));
-//		gameSettings.setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","true"));
-//		gameSettings.setNetworkFramePeriod(properties.getInt("NetworkFramePeriod",intToStr(GameConstants::networkFramePeriod).c_str()));
-//		gameSettings.setNetworkPauseGameForLaggedClients(properties.getBool("NetworkPauseGameForLaggedClients","false"));
-//
-//		gameSettings.setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
-//		gameSettings.setFactionCount(properties.getInt("FactionCount"));
-//
-//		//for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
-//		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-//			gameSettings.setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i),intToStr(ctClosed).c_str()) );
-//
-//			if(gameSettings.getFactionControl(i) == ctNetworkUnassigned) {
-//				gameSettings.setFactionControl(i,ctNetwork);
-//			}
-//
-//			gameSettings.setResourceMultiplierIndex(i,properties.getInt(string("ResourceMultiplierIndex") + intToStr(i),"5"));
-//			gameSettings.setTeam(i,properties.getInt(string("FactionTeamForIndex") + intToStr(i),"0") );
-//			gameSettings.setStartLocationIndex(i,properties.getInt(string("FactionStartLocationForIndex") + intToStr(i),intToStr(i).c_str()) );
-//			gameSettings.setFactionTypeName(i,properties.getString(string("FactionTypeNameForIndex") + intToStr(i),"?") );
-//
-//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionTypeName [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,gameSettings.getFactionTypeName(i).c_str());
-//
-//			if(gameSettings.getFactionControl(i) == ctHuman) {
-//				gameSettings.setNetworkPlayerName(i,properties.getString(string("FactionPlayerNameForIndex") + intToStr(i),"") );
-//			}
-//			else {
-//				gameSettings.setNetworkPlayerName(i,"");
-//			}
-//		}
-//
-//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
     	CoreData::getInstance().loadGameSettingsFromFile(fileName, &gameSettings);
 		setupUIFromGameSettings(gameSettings);
 	}
@@ -3244,6 +3286,11 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
 
 	//printf("In [%s::%s line %d] map [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getMap().c_str());
+
+	checkBoxScenario.setValue((gameSettings.getScenario() != ""));
+	if(checkBoxScenario.getValue() == true) {
+		listBoxScenario.setSelectedItem(formatString(gameSettings.getScenario()));
+	}
 
 	string mapFile = gameSettings.getMap();
 	if(find(mapFiles.begin(),mapFiles.end(),mapFile) != mapFiles.end()) {
@@ -3988,9 +4035,154 @@ int32 MenuStateCustomGame::getNetworkPlayerStatus() {
 	return result;
 }
 
+void MenuStateCustomGame::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
+	//printf("Load scenario file [%s]\n",file.c_str());
+	Scenario::loadScenarioInfo(file, scenarioInfo);
+
+	//cleanupPreviewTexture();
+	previewLoadDelayTimer=time(NULL);
+	needToLoadTextures=true;
+}
+
 bool MenuStateCustomGame::isInSpecialKeyCaptureEvent() {
 	bool result = (chatManager.getEditEnabled() || activeInputLabel != NULL);
 	return result;
+}
+
+void MenuStateCustomGame::processScenario() {
+	try {
+		if(checkBoxScenario.getValue() == true) {
+			//printf("listBoxScenario.getSelectedItemIndex() = %d [%s] scenarioFiles.size() = %d\n",listBoxScenario.getSelectedItemIndex(),listBoxScenario.getSelectedItem().c_str(),scenarioFiles.size());
+			loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+
+			listBoxTechTree.setSelectedItem(formatString(scenarioInfo.techTreeName));
+			reloadFactions(false);
+
+			listBoxTileset.setSelectedItem(formatString(scenarioInfo.tilesetName));
+
+			listBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
+			loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
+			labelMapInfo.setText(mapInfo.desc);
+
+			for(int i = 0; i < mapInfo.players; ++i) {
+				listBoxRMultiplier[i].setSelectedItem(floatToStr(scenarioInfo.resourceMultipliers[i],1));
+				updateResourceMultiplier(i);
+
+				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+				ConnectionSlot *slot = serverInterface->getSlot(i);
+
+				bool checkControTypeClicked = false;
+				int selectedControlItemIndex = listBoxControls[i].getSelectedItemIndex();
+				if(selectedControlItemIndex != ctNetwork ||
+					(selectedControlItemIndex == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
+					checkControTypeClicked = true;
+				}
+
+				listBoxControls[i].setSelectedItemIndex(scenarioInfo.factionControls[i]);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				// Skip over networkunassigned
+				//if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned &&
+				//	selectedControlItemIndex != ctNetworkUnassigned) {
+				//	listBoxControls[i].mouseClick(x, y);
+				//}
+
+				//look for human players
+				int humanIndex1= -1;
+				int humanIndex2= -1;
+				for(int j = 0; j < GameConstants::maxPlayers; ++j) {
+					ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
+					if(ct == ctHuman) {
+						if(humanIndex1 == -1) {
+							humanIndex1= j;
+						}
+						else {
+							humanIndex2= j;
+						}
+					}
+				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",__FILE__,__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
+
+				//no human
+				if(humanIndex1 == -1 && humanIndex2 == -1) {
+					listBoxControls[i].setSelectedItemIndex(ctHuman);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
+
+					//printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
+				}
+				//2 humans
+				else if(humanIndex1 != -1 && humanIndex2 != -1) {
+					int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
+					int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
+
+					string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",__FILE__,__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
+					//printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
+
+					listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
+					labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
+				}
+				//updateNetworkSlots();
+				//updateResourceMultiplier(i);
+
+
+				listBoxFactions[i].setSelectedItem(formatString(scenarioInfo.factionTypeNames[i]));
+
+				// Disallow CPU players to be observers
+				if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+					(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+					 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
+					listBoxFactions[i].setSelectedItemIndex(0);
+				}
+				//
+
+				listBoxTeams[i].setSelectedItem(intToStr(scenarioInfo.teams[i]));
+				if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+					if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+						lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+					}
+				}
+				else {
+					lastSelectedTeamIndex[i] = -1;
+				}
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);;
+				}
+			}
+
+			updateControlers();
+			updateNetworkSlots();
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				needToRepublishToMasterserver = true;
+			}
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			//labelInfo.setText(scenarioInfo.desc);
+		}
+	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		mainMessageBoxState=1;
+		showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+	}
 }
 
 }}//end namespace

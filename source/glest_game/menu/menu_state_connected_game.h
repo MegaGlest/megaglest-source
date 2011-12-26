@@ -180,6 +180,19 @@ private:
 
 	GraphicButton buttonPlayNow;
 
+	GraphicCheckBox checkBoxScenario;
+	GraphicLabel labelScenario;
+	GraphicListBox listBoxScenario;
+	vector<string> scenarioFiles;
+    ScenarioInfo scenarioInfo;
+	vector<string> dirList;
+	string autoloadScenarioName;
+	time_t previewLoadDelayTimer;
+	bool needToLoadTextures;
+	bool enableScenarioTexturePreview;
+	Texture2D *scenarioLogoTexture;
+
+
 	bool needToBroadcastServerSettings;
 	time_t broadcastServerSettingsDelayTimer;
 	int lastGameSettingsReceivedCount;
@@ -231,7 +244,7 @@ private:
     void updateResourceMultiplier(const int index);
 
     void RestoreLastGameSettings();
-    void setupUIFromGameSettings(const GameSettings *gameSettings, bool errorOnMissingData);
+    void setupUIFromGameSettings(GameSettings *gameSettings, bool errorOnMissingData);
 };
 
 }}//end namespace

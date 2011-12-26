@@ -159,7 +159,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
         	playerNode = playersNode->getChild("player", i);
         	factionControl = strToControllerType( playerNode->getAttribute("control")->getValue() );
 
-        	if(playerNode->getAttribute("resource_multiplier",false)!=NULL) {
+        	if(playerNode->getAttribute("resource_multiplier",false) != NULL) {
         		// if a multiplier exists use it
 				scenarioInfo->resourceMultipliers[i]=playerNode->getAttribute("resource_multiplier")->getFloatValue();
 			}
@@ -267,6 +267,9 @@ ControlType Scenario::strToControllerType(const string &str) {
     }
     else if(str=="human"){
 	    return ctHuman;
+    }
+    else if(str=="network"){
+	    return ctNetwork;
     }
 
 	char szBuf[4096]="";

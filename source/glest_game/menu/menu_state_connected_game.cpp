@@ -118,6 +118,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     enableFactionTexturePreview = config.getBool("FactionPreview","true");
     enableMapPreview = config.getBool("MapPreview","true");
 
+	enableScenarioTexturePreview = Config::getInstance().getBool("EnableScenarioTexturePreview","true");
+	scenarioLogoTexture=NULL;
+	previewLoadDelayTimer=time(NULL);
+	needToLoadTextures=true;
+	this->dirList = Config::getInstance().getPathListForType(ptScenarios);
+
 	vector<string> teamItems, controlItems, results, rMultiplier, playerStatuses;
 	int labelOffset=23;
 	int setupPos=590;
@@ -488,6 +494,44 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     listBoxTechTree.setItems(techsFormatted);
     listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
+    labelScenario.registerGraphicComponent(containerName,"labelScenario");
+    labelScenario.init(320, 670);
+    labelScenario.setText(lang.get("Scenario"));
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    listBoxScenario.init(320, 645);
+    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
+    checkBoxScenario.init(410, 670);
+    checkBoxScenario.setValue(false);
+
+    //scenario listbox
+    vector<string> resultsScenarios;
+	findDirs(dirList, resultsScenarios);
+	// Filter out only scenarios with no network slots
+	for(int i= 0; i < resultsScenarios.size(); ++i) {
+		string scenario = resultsScenarios[i];
+		string file = Scenario::getScenarioPath(dirList, scenario);
+		Scenario::loadScenarioInfo(file, &scenarioInfo);
+
+		bool isNetworkScenario = false;
+		for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
+			if(scenarioInfo.factionControls[j] == ctNetwork) {
+				isNetworkScenario = true;
+			}
+		}
+		if(isNetworkScenario == true) {
+			scenarioFiles.push_back(scenario);
+		}
+	}
+	resultsScenarios.clear();
+	for(int i = 0; i < scenarioFiles.size(); ++i) {
+		resultsScenarios.push_back(formatString(scenarioFiles[i]));
+	}
+    listBoxScenario.setItems(resultsScenarios);
+    //if(resultsScenarios.empty() == true) {
+    checkBoxScenario.setEnabled(false);
+    //}
+
+
 
     if(config.getBool("EnableFTPXfer","true") == true) {
         ClientInterface *clientInterface = networkManager.getClientInterface();
@@ -661,6 +705,8 @@ void MenuStateConnectedGame::reloadUI() {
 		listBoxControls[i].setItems(controlItems);
     }
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	labelScenario.setText(lang.get("Scenario"));
 
 	buttonPlayNow.setText(lang.get("PlayNow"));
 	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
@@ -1518,6 +1564,15 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 	//gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
 
+	if(checkBoxScenario.getValue() == true) {
+		gameSettings->setScenario(scenarioInfo.name);
+		gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
+	}
+	else {
+		gameSettings->setScenario("");
+		gameSettings->setScenarioDir("");
+	}
+
 	if(listBoxMap.getSelectedItemIndex() >= 0 && listBoxMap.getSelectedItemIndex() < mapFiles.size()) {
 		gameSettings->setDescription(formatString(getCurrentMapFile()));
 		gameSettings->setMap(getCurrentMapFile());
@@ -1846,6 +1901,9 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPlayerStatus.mouseMove(x,y);
 
+	checkBoxScenario.mouseMove(x, y);
+	listBoxScenario.mouseMove(x, y);
+
 	buttonPlayNow.mouseMove(x, y);
 	buttonRestoreLastSettings.mouseMove(x, y);
 }
@@ -1867,6 +1925,11 @@ void MenuStateConnectedGame::render() {
 		if(mapPreviewTexture != NULL) {
 			renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
 			//printf("=================> Rendering map preview texture\n");
+		}
+
+		if(scenarioLogoTexture != NULL) {
+			renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
+			//renderer.renderBackground(scenarioLogoTexture);
 		}
 
 		renderer.renderButton(&buttonDisconnect);
@@ -2010,6 +2073,13 @@ void MenuStateConnectedGame::render() {
 
 		renderer.renderButton(&buttonPlayNow);
 		renderer.renderButton(&buttonRestoreLastSettings);
+
+		//renderer.renderLabel(&labelInfo);
+		renderer.renderCheckBox(&checkBoxScenario);
+		renderer.renderLabel(&labelScenario);
+		if(checkBoxScenario.getValue() == true) {
+			renderer.renderListBox(&listBoxScenario);
+		}
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
         if(fileFTPProgressList.empty() == false) {
@@ -2611,7 +2681,7 @@ void MenuStateConnectedGame::update() {
 
 				lastGameSettingsReceivedCount = clientInterface->getGameSettingsReceivedCount();
 				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
-				const GameSettings *gameSettings = clientInterface->getGameSettings();
+				GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
 				setupUIFromGameSettings(gameSettings, errorOnMissingData);
 			}
 
@@ -3479,7 +3549,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
     }
 }
 
-void MenuStateConnectedGame::setupUIFromGameSettings(const GameSettings *gameSettings, bool errorOnMissingData) {
+void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings, bool errorOnMissingData) {
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface *clientInterface = networkManager.getClientInterface();
@@ -3489,6 +3559,16 @@ void MenuStateConnectedGame::setupUIFromGameSettings(const GameSettings *gameSet
 
 	if(gameSettings == NULL) {
 		throw runtime_error("gameSettings == NULL");
+	}
+
+	checkBoxScenario.setValue((gameSettings->getScenario() != ""));
+	if(checkBoxScenario.getValue() == true) {
+		string scenario = gameSettings->getScenario();
+		listBoxScenario.setSelectedItem(formatString(scenario));
+		string file = Scenario::getScenarioPath(dirList, scenario);
+		Scenario::loadScenarioInfo(file, &scenarioInfo);
+
+		gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
 	}
 
 	//printf("A gameSettings->getTileset() [%s]\n",gameSettings->getTileset().c_str());
