@@ -1567,6 +1567,10 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 	if(checkBoxScenario.getValue() == true) {
 		gameSettings->setScenario(scenarioInfo.name);
 		gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
+
+		gameSettings->setDefaultResources(scenarioInfo.defaultResources);
+		gameSettings->setDefaultUnits(scenarioInfo.defaultUnits);
+		gameSettings->setDefaultVictoryConditions(scenarioInfo.defaultVictoryConditions);
 	}
 	else {
 		gameSettings->setScenario("");
@@ -1638,9 +1642,11 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
     	}
 	}
 
-	gameSettings->setDefaultUnits(true);
-	gameSettings->setDefaultResources(true);
-	gameSettings->setDefaultVictoryConditions(true);
+	if(checkBoxScenario.getValue() == false) {
+		gameSettings->setDefaultUnits(true);
+		gameSettings->setDefaultResources(true);
+		gameSettings->setDefaultVictoryConditions(true);
+	}
 
 	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0 ||
 								listBoxFogOfWar.getSelectedItemIndex() == 1 );
@@ -3563,12 +3569,33 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 	checkBoxScenario.setValue((gameSettings->getScenario() != ""));
 	if(checkBoxScenario.getValue() == true) {
+		int originalFOWValue = listBoxFogOfWar.getSelectedItemIndex();
+
 		string scenario = gameSettings->getScenario();
 		listBoxScenario.setSelectedItem(formatString(scenario));
 		string file = Scenario::getScenarioPath(dirList, scenario);
 		Scenario::loadScenarioInfo(file, &scenarioInfo);
 
 		gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
+
+		gameSettings->setDefaultResources(scenarioInfo.defaultResources);
+		gameSettings->setDefaultUnits(scenarioInfo.defaultUnits);
+		gameSettings->setDefaultVictoryConditions(scenarioInfo.defaultVictoryConditions);
+
+		//printf("scenarioInfo.fogOfWar = %d scenarioInfo.fogOfWar_exploredFlag = %d\n",scenarioInfo.fogOfWar,scenarioInfo.fogOfWar_exploredFlag);
+		if(scenarioInfo.fogOfWar == false && scenarioInfo.fogOfWar_exploredFlag == false) {
+			listBoxFogOfWar.setSelectedItemIndex(2);
+		}
+		else if(scenarioInfo.fogOfWar_exploredFlag == true) {
+			listBoxFogOfWar.setSelectedItemIndex(1);
+		}
+		else {
+			listBoxFogOfWar.setSelectedItemIndex(0);
+		}
+
+		if(originalFOWValue != listBoxFogOfWar.getSelectedItemIndex()) {
+			cleanupMapPreviewTexture();
+		}
 	}
 
 	//printf("A gameSettings->getTileset() [%s]\n",gameSettings->getTileset().c_str());
@@ -3754,18 +3781,20 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 	}
 
 	// FogOfWar
-	int originalFOWValue = listBoxFogOfWar.getSelectedItemIndex();
-	listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
-	if(gameSettings->getFogOfWar() == false){
-		listBoxFogOfWar.setSelectedItemIndex(2);
-	}
-	if((gameSettings->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
-		if(gameSettings->getFogOfWar() == true){
-			listBoxFogOfWar.setSelectedItemIndex(1);
+	if(checkBoxScenario.getValue() == false) {
+		int originalFOWValue = listBoxFogOfWar.getSelectedItemIndex();
+		listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
+		if(gameSettings->getFogOfWar() == false){
+			listBoxFogOfWar.setSelectedItemIndex(2);
 		}
-	}
-	if(originalFOWValue != listBoxFogOfWar.getSelectedItemIndex()) {
-		cleanupMapPreviewTexture();
+		if((gameSettings->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
+			if(gameSettings->getFogOfWar() == true){
+				listBoxFogOfWar.setSelectedItemIndex(1);
+			}
+		}
+		if(originalFOWValue != listBoxFogOfWar.getSelectedItemIndex()) {
+			cleanupMapPreviewTexture();
+		}
 	}
 
 	// Allow Observers
