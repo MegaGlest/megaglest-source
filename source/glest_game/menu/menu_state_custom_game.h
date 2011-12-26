@@ -114,6 +114,18 @@ private:
 	GraphicLabel labelAISwitchTeamAcceptPercent;
 	GraphicListBox listBoxAISwitchTeamAcceptPercent;
 
+	GraphicCheckBox checkBoxScenario;
+	GraphicLabel labelScenario;
+	GraphicListBox listBoxScenario;
+	vector<string> scenarioFiles;
+    ScenarioInfo scenarioInfo;
+	vector<string> dirList;
+	string autoloadScenarioName;
+	time_t previewLoadDelayTimer;
+	bool needToLoadTextures;
+	bool enableScenarioTexturePreview;
+	Texture2D *scenarioLogoTexture;
+
 	bool needToSetChangedGameSettings;
 	time_t lastSetChangedGameSettings;
 	time_t lastMasterserverPublishing;
@@ -181,7 +193,8 @@ private:
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
 			bool openNetworkSlots= false, ParentMenuState parentMenuState=pNewGame,
-			bool autostart=false,GameSettings *settings=NULL,bool masterserverMode=false);
+			bool autostart=false,GameSettings *settings=NULL,bool masterserverMode=false,
+			string autoloadScenarioName="");
 	virtual ~MenuStateCustomGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
@@ -241,6 +254,8 @@ private:
 			bool onlyNetworkUnassigned);
 
 	void reloadUI();
+	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
+	void processScenario();
 };
 
 }}//end namespace

@@ -235,6 +235,8 @@ private:
 
 		int8 aiAcceptSwitchTeamPercentChance;
 		int32 masterserver_admin;
+
+		NetworkString<maxStringSize> scenario;
 	};
 
 private:

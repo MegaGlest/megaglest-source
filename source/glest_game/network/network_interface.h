@@ -126,6 +126,7 @@ public:
 	virtual bool isConnected();
 
 	const virtual GameSettings * getGameSettings() { return &gameSettings; }
+	GameSettings * getGameSettingsPtr() { return &gameSettings; }
 
 	static void setAllowDownloadDataSynch(bool value)          { allowDownloadDataSynch = value; }
 	static bool getAllowDownloadDataSynch()                    { return allowDownloadDataSynch; }

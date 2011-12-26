@@ -244,6 +244,8 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 
 	data.aiAcceptSwitchTeamPercentChance = gameSettings->getAiAcceptSwitchTeamPercentChance();
 	data.masterserver_admin = gameSettings->getMasterserver_admin();
+
+	data.scenario = gameSettings->getScenario();
 }
 
 void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
@@ -292,6 +294,8 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 
 	gameSettings->setAiAcceptSwitchTeamPercentChance(data.aiAcceptSwitchTeamPercentChance);
 	gameSettings->setMasterserver_admin(data.masterserver_admin);
+
+	gameSettings->setScenario(data.scenario.getString());
 }
 
 vector<pair<string,int32> > NetworkMessageLaunch::getFactionCRCList() const {
@@ -320,6 +324,7 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 		data.factionNameList[i].nullTerminate();
 	}
 
+	data.scenario.nullTerminate();
 	return result;
 }
 

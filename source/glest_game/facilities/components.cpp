@@ -361,7 +361,13 @@ void GraphicListBox::pushBackItem(string item){
 
 void GraphicListBox::setItems(const vector<string> &items){
     this->items= items;
-    setSelectedItemIndex(0);
+    if(items.empty() == false) {
+    	setSelectedItemIndex(0);
+    }
+    else {
+    	selectedItemIndex=-1;
+    	setText("");
+    }
 }
 
 void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
