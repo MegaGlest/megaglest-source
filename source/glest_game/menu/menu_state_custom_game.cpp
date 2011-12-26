@@ -1451,24 +1451,24 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 		{
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::easyMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(true);
+			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 		}
 		else if(ct == ctCpu || ct == ctNetworkCpu) {
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(true);
+			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 		}
 		else if(ct == ctCpuUltra || ct == ctNetworkCpuUltra)
 		{
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::ultraMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(true);
+			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 		}
 		else if(ct == ctCpuMega || ct == ctNetworkCpuMega)
 		{
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::megaMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(true);
+			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 		}
 		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
-		listBoxRMultiplier[index].setVisible(listBoxRMultiplier[index].getEnabled());
+		listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
 }
 
 void MenuStateCustomGame::RestoreLastGameSettings() {
@@ -2183,71 +2183,6 @@ void MenuStateCustomGame::update() {
 		switchSetupForSlots(switchSetupRequests, serverInterface, 0, mapInfo.players, false);
 		switchSetupForSlots(switchSetupRequests, serverInterface, mapInfo.players, GameConstants::maxPlayers, true);
 
-//		for(int i= 0; i< mapInfo.players; ++i) {
-//			if(switchSetupRequests[i] != NULL) {
-//				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,switchSetupRequests[i]->getSwitchFlags());
-//
-//				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-//					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getToFactionIndex() = %d\n",__FILE__,__FUNCTION__,__LINE__,switchSetupRequests[i]->getToFactionIndex());
-//
-//					if(switchSetupRequests[i]->getToFactionIndex() != -1) {
-//						int newFactionIdx = switchSetupRequests[i]->getToFactionIndex();
-//
-//						//printf("switchSlot request from %d to %d\n",switchSetupRequests[i]->getCurrentFactionIndex(),switchSetupRequests[i]->getToFactionIndex());
-//						int switchFactionIdx = switchSetupRequests[i]->getCurrentFactionIndex();
-//						if(serverInterface->switchSlot(switchFactionIdx,newFactionIdx)) {
-//							try {
-//								if(switchSetupRequests[i]->getSelectedFactionName() != "") {
-//									listBoxFactions[newFactionIdx].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
-//								}
-//								if(switchSetupRequests[i]->getToTeam() != -1) {
-//									listBoxTeams[newFactionIdx].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
-//								}
-//								if(switchSetupRequests[i]->getNetworkPlayerName() != "") {
-//									if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[newFactionIdx].getText() [%s] switchSetupRequests[i]->getNetworkPlayerName() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,labelPlayerNames[newFactionIdx].getText().c_str(),switchSetupRequests[i]->getNetworkPlayerName().c_str());
-//									labelPlayerNames[newFactionIdx].setText(switchSetupRequests[i]->getNetworkPlayerName());
-//								}
-//							}
-//							catch(const runtime_error &e) {
-//								SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-//								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-//							}
-//						}
-//					}
-//					else {
-//						try {
-//							if(switchSetupRequests[i]->getSelectedFactionName() != "") {
-//								listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
-//							}
-//							if(switchSetupRequests[i]->getToTeam() != -1) {
-//								listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
-//							}
-//
-//							if((switchSetupRequests[i]->getSwitchFlags() & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
-//								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, switchSetupRequests[i]->getSwitchFlags() = %d, switchSetupRequests[i]->getNetworkPlayerName() [%s], labelPlayerNames[i].getText() [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,switchSetupRequests[i]->getSwitchFlags(),switchSetupRequests[i]->getNetworkPlayerName().c_str(),labelPlayerNames[i].getText().c_str());
-//
-//								if(switchSetupRequests[i]->getNetworkPlayerName() != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
-//									labelPlayerNames[i].setText(switchSetupRequests[i]->getNetworkPlayerName());
-//								}
-//								else {
-//									labelPlayerNames[i].setText("");
-//								}
-//								//SetActivePlayerNameEditor();
-//								//switchSetupRequests[i]->clearSwitchFlag(ssrft_NetworkPlayerName);
-//							}
-//						}
-//						catch(const runtime_error &e) {
-//							SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-//							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-//						}
-//					}
-//				}
-//
-//				delete switchSetupRequests[i];
-//				switchSetupRequests[i]=NULL;
-//			}
-//		}
-
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
@@ -2432,20 +2367,9 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-//		if(mapInfo.players < GameConstants::maxPlayers) {
-//			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
-//
-//			}
-//			for(int i= mapInfo.players; i< GameConstants::maxPlayers; ++i) {
-//				listBoxControls[i].setEditable(false);
-//				listBoxControls[i].setEnabled(false);
-//
-//				printf("In [%s::%s] Line: %d i = %d mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,i,mapInfo.players);
-//			}
-//		}
-//		else {
-			//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
+		if(checkBoxScenario.getValue() == false) {
 			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
 				if(i >= mapInfo.players) {
 					listBoxControls[i].setEditable(false);
@@ -2454,12 +2378,12 @@ void MenuStateCustomGame::update() {
 					//printf("In [%s::%s] Line: %d i = %d mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,i,mapInfo.players);
 				}
 				else if(listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
-	                ConnectionSlot *slot = serverInterface->getSlot(i);
-	                if((listBoxControls[i].getSelectedItemIndex() != ctNetwork) ||
-	                	(listBoxControls[i].getSelectedItemIndex() == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
+					ConnectionSlot *slot = serverInterface->getSlot(i);
+					if((listBoxControls[i].getSelectedItemIndex() != ctNetwork) ||
+						(listBoxControls[i].getSelectedItemIndex() == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
 						listBoxControls[i].setEditable(true);
 						listBoxControls[i].setEnabled(true);
-	                }
+					}
 					else {
 						listBoxControls[i].setEditable(false);
 						listBoxControls[i].setEnabled(false);
@@ -2474,7 +2398,7 @@ void MenuStateCustomGame::update() {
 					//printf("In [%s::%s] Line: %d i = %d mapInfo.players = %d\n",__FILE__,__FUNCTION__,__LINE__,i,mapInfo.players);
 				}
 			}
-//		}
+		}
 
 		bool checkDataSynch = (serverInterface->getAllowGameDataSynchCheck() == true &&
 					needToSetChangedGameSettings == true &&
@@ -3466,69 +3390,6 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
 }
 
 void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
-
-
-/*
-	Lang &lang= Lang::getInstance();
-
-	try{
-#ifdef WIN32
-		FILE *f= _wfopen(utf8_decode(file).c_str(), L"rb");
-#else
-		FILE *f= fopen(file.c_str(), "rb");
-#endif
-		if(f==NULL)
-			throw runtime_error("Can't open file");
-
-		MapFileHeader header;
-		size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
-
-		mapInfo->size.x= header.width;
-		mapInfo->size.y= header.height;
-		mapInfo->players= header.maxFactions;
-
-		mapInfo->desc= lang.get("MaxPlayers")+": "+intToStr(mapInfo->players)+"\n";
-		mapInfo->desc+=lang.get("Size")+": "+intToStr(mapInfo->size.x) + " x " + intToStr(mapInfo->size.y);
-
-		fclose(f);
-
-		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-			if(serverInterface->getSlot(i) != NULL &&
-				(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
-				listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned)) {
-				if(serverInterface->getSlot(i)->isConnected() == true) {
-					if(i+1 > mapInfo->players &&
-						listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
-						listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
-					}
-				}
-			}
-
-			labelPlayers[i].setVisible(i+1 <= mapInfo->players);
-			labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
-	        listBoxControls[i].setVisible(i+1 <= mapInfo->players);
-	        listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
-			listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
-			labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
-	    }
-
-	    // Not painting properly so this is on hold
-	    if(loadMapPreview == true) {
-	    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	    	mapPreview.loadFromFile(file.c_str());
-
-	    	//printf("Loading map preview MAP\n");
-	    	cleanupMapPreviewTexture();
-	    }
-	}
-	catch(exception &e) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
-		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
-	}
-*/
-
 	try {
 		Lang &lang= Lang::getInstance();
 		if(MapPreview::loadMapInfo(file, mapInfo, lang.get("MaxPlayers"),lang.get("Size"),true) == true) {
@@ -4096,7 +3957,6 @@ void MenuStateCustomGame::processScenario() {
 
 			for(int i = 0; i < mapInfo.players; ++i) {
 				listBoxRMultiplier[i].setSelectedItem(floatToStr(scenarioInfo.resourceMultipliers[i],1));
-				updateResourceMultiplier(i);
 
 				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 				ConnectionSlot *slot = serverInterface->getSlot(i);
@@ -4156,7 +4016,7 @@ void MenuStateCustomGame::processScenario() {
 				}
 				//updateNetworkSlots();
 				//updateResourceMultiplier(i);
-
+				updateResourceMultiplier(i);
 
 				listBoxFactions[i].setSelectedItem(formatString(scenarioInfo.factionTypeNames[i]));
 
@@ -4203,6 +4063,7 @@ void MenuStateCustomGame::processScenario() {
 
 			//labelInfo.setText(scenarioInfo.desc);
 		}
+		SetupUIForScenarios();
 	}
 	catch(const std::exception &ex) {
 		char szBuf[4096]="";
@@ -4212,6 +4073,47 @@ void MenuStateCustomGame::processScenario() {
 
 		mainMessageBoxState=1;
 		showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+	}
+}
+
+void MenuStateCustomGame::SetupUIForScenarios() {
+	if(checkBoxScenario.getValue() == true) {
+		// START - Disable changes to controls while in Scenario mode
+		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			listBoxControls[i].setEditable(false);
+			listBoxFactions[i].setEditable(false);
+			listBoxRMultiplier[i].setEditable(false);
+			listBoxTeams[i].setEditable(false);
+		}
+		listBoxFogOfWar.setEditable(false);
+		listBoxAllowObservers.setEditable(false);
+		listBoxPathFinderType.setEditable(false);
+		listBoxEnableSwitchTeamMode.setEditable(false);
+		listBoxAISwitchTeamAcceptPercent.setEditable(false);
+		listBoxMap.setEditable(false);
+		listBoxTileset.setEditable(false);
+		listBoxMapFilter.setEditable(false);
+		listBoxTechTree.setEditable(false);
+		// END - Disable changes to controls while in Scenario mode
+	}
+	else {
+		// START - Disable changes to controls while in Scenario mode
+		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			listBoxControls[i].setEditable(true);
+			listBoxFactions[i].setEditable(true);
+			listBoxRMultiplier[i].setEditable(true);
+			listBoxTeams[i].setEditable(true);
+		}
+		listBoxFogOfWar.setEditable(true);
+		listBoxAllowObservers.setEditable(true);
+		listBoxPathFinderType.setEditable(true);
+		listBoxEnableSwitchTeamMode.setEditable(true);
+		listBoxAISwitchTeamAcceptPercent.setEditable(true);
+		listBoxMap.setEditable(true);
+		listBoxTileset.setEditable(true);
+		listBoxMapFilter.setEditable(true);
+		listBoxTechTree.setEditable(true);
+		// END - Disable changes to controls while in Scenario mode
 	}
 }
 

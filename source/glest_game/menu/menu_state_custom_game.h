@@ -256,6 +256,7 @@ private:
 	void reloadUI();
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	void processScenario();
+	void SetupUIForScenarios();
 };
 
 }}//end namespace
