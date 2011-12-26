@@ -2904,6 +2904,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	if(checkBoxScenario.getValue() == true) {
 		gameSettings->setScenario(scenarioInfo.name);
 		gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
+
+		gameSettings->setDefaultResources(scenarioInfo.defaultResources);
+		gameSettings->setDefaultUnits(scenarioInfo.defaultUnits);
+		gameSettings->setDefaultVictoryConditions(scenarioInfo.defaultVictoryConditions);
 	}
 	else {
 		gameSettings->setScenario("");
@@ -2921,12 +2925,13 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
     	gameSettings->setDefaultResources(autoStartSettings->getDefaultResources());
     	gameSettings->setDefaultVictoryConditions(autoStartSettings->getDefaultVictoryConditions());
     }
-    else {
+    else if(checkBoxScenario.getValue() == false) {
 		gameSettings->setDefaultUnits(true);
 		gameSettings->setDefaultResources(true);
 		gameSettings->setDefaultVictoryConditions(true);
     }
-	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0 ||
+
+   	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0 ||
 								listBoxFogOfWar.getSelectedItemIndex() == 1 );
 
 	gameSettings->setAllowObservers(listBoxAllowObservers.getSelectedItemIndex() == 1);
@@ -3290,6 +3295,18 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	checkBoxScenario.setValue((gameSettings.getScenario() != ""));
 	if(checkBoxScenario.getValue() == true) {
 		listBoxScenario.setSelectedItem(formatString(gameSettings.getScenario()));
+
+		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+		//printf("scenarioInfo.fogOfWar = %d scenarioInfo.fogOfWar_exploredFlag = %d\n",scenarioInfo.fogOfWar,scenarioInfo.fogOfWar_exploredFlag);
+		if(scenarioInfo.fogOfWar == false && scenarioInfo.fogOfWar_exploredFlag == false) {
+			listBoxFogOfWar.setSelectedItemIndex(2);
+		}
+		else if(scenarioInfo.fogOfWar_exploredFlag == true) {
+			listBoxFogOfWar.setSelectedItemIndex(1);
+		}
+		else {
+			listBoxFogOfWar.setSelectedItemIndex(0);
+		}
 	}
 
 	string mapFile = gameSettings.getMap();
@@ -3322,14 +3339,16 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	Lang &lang= Lang::getInstance();
 
 	//FogOfWar
-	listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
-	if(gameSettings.getFogOfWar() == false){
-		listBoxFogOfWar.setSelectedItemIndex(2);
-	}
+	if(checkBoxScenario.getValue() == false) {
+		listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
+		if(gameSettings.getFogOfWar() == false){
+			listBoxFogOfWar.setSelectedItemIndex(2);
+		}
 
-	if((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
-		if(gameSettings.getFogOfWar() == true){
-			listBoxFogOfWar.setSelectedItemIndex(1);
+		if((gameSettings.getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources){
+			if(gameSettings.getFogOfWar() == true){
+				listBoxFogOfWar.setSelectedItemIndex(1);
+			}
 		}
 	}
 
@@ -4054,6 +4073,17 @@ void MenuStateCustomGame::processScenario() {
 		if(checkBoxScenario.getValue() == true) {
 			//printf("listBoxScenario.getSelectedItemIndex() = %d [%s] scenarioFiles.size() = %d\n",listBoxScenario.getSelectedItemIndex(),listBoxScenario.getSelectedItem().c_str(),scenarioFiles.size());
 			loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+
+			//printf("scenarioInfo.fogOfWar = %d scenarioInfo.fogOfWar_exploredFlag = %d\n",scenarioInfo.fogOfWar,scenarioInfo.fogOfWar_exploredFlag);
+			if(scenarioInfo.fogOfWar == false && scenarioInfo.fogOfWar_exploredFlag == false) {
+				listBoxFogOfWar.setSelectedItemIndex(2);
+			}
+			else if(scenarioInfo.fogOfWar_exploredFlag == true) {
+				listBoxFogOfWar.setSelectedItemIndex(1);
+			}
+			else {
+				listBoxFogOfWar.setSelectedItemIndex(0);
+			}
 
 			listBoxTechTree.setSelectedItem(formatString(scenarioInfo.techTreeName));
 			reloadFactions(false);
