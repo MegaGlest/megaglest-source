@@ -227,7 +227,7 @@ public:
 	void stopStreamingSound(const string &playSound);
 	void stopAllSound();
 	void moveToUnit(int unitId, int destUnitId);
-	void togglePauseGame(bool pauseStatus);
+	void togglePauseGame(bool pauseStatus, bool forceAllowPauseStateChange);
 	void addConsoleText(const string &text);
 	void addConsoleTextWoLang(const string &text);
 
