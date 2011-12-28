@@ -221,7 +221,6 @@ private:
 	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview);
 	void cleanupMapPreviewTexture();
 
-	void reloadFactions(bool keepExistingSelectedItem);
 	void updateControlers();
 	void closeUnusedSlots();
 	void updateNetworkSlots();
@@ -257,6 +256,10 @@ private:
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	void processScenario();
 	void SetupUIForScenarios();
+	int setupMapList(string scenario);
+	int setupTechList(string scenario);
+	void reloadFactions(bool keepExistingSelectedItem, string scenario);
+	void setupTilesetList(string scenario);
 };
 
 }}//end namespace

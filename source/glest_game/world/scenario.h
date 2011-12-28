@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martio Figueroa
+//	Copyright (C) 2001-2005 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -104,6 +104,7 @@ public:
 	static string getScenarioPath(const vector<string> dir, const string &scenarioName, bool getMatchingRootScenarioPathOnly=false);
 	static string getScenarioPath(const string &dir, const string &scenarioName);
 	static int getScenarioPathIndex(const vector<string> dirList, const string &scenarioName);
+	static string getScenarioDir(const vector<string> dir, const string &scenarioName);
 
 	static void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	static ControlType strToControllerType(const string &str);

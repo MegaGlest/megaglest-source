@@ -406,7 +406,7 @@ void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
 	if(iter==items.end()) {
 		if(errorOnMissing == true) {
 			for(int idx = 0; idx < items.size(); idx++) {
-				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] idx = %d items[idx] = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,idx,items[idx].c_str());
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\ninstanceName [%s] idx = %d items[idx] = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,instanceName.c_str(),idx,items[idx].c_str());
 			}
 			throw runtime_error("[" + instanceName +"] Value not found on list box: [" + item + "]");
 		}

@@ -2181,26 +2181,8 @@ void CheckForDuplicateData() {
     string duplicateWarnings="";
 
     {
-//  	vector<string> maps;
   	vector<string> results;
 
-/*
-  	vector<string> mapPaths = config.getPathListForType(ptMaps);
-
-    findAll(mapPaths, "*.gbm", results, false, false, true);
-	copy(results.begin(), results.end(), std::back_inserter(maps));
-
-	results.clear();
-    findAll(mapPaths, "*.mgm", results, false, false, true);
-    copy(results.begin(), results.end(), std::back_inserter(maps));
-
-	results.clear();
-	std::sort(maps.begin(),maps.end());
-
-	if(maps.empty()) {
-        throw runtime_error("No maps were found!");
-    }
-*/
   	string scenarioDir = "";
   	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
   	vector<string> invalidMapList;

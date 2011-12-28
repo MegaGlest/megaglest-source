@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Marti�o Figueroa
+//	Copyright (C) 2001-2005 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -412,50 +412,36 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
-
-/*
-	set<string> allMaps;
-    findAll(config.getPathListForType(ptMaps), "*.gbm", results, true, false);
-	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
-	results.clear();
-    findAll(config.getPathListForType(ptMaps), "*.mgm", results, true, false);
-	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
-	results.clear();
-
-	if (allMaps.empty()) {
-        throw runtime_error("No maps were found!");
-	}
-	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
-	mapFiles = results;
-*/
-
-  	string scenarioDir = "";
-  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
-  	vector<string> invalidMapList;
-  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
-	if (allMaps.empty()) {
-        throw runtime_error("No maps were found!");
-	}
-	results.clear();
-	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
-	mapFiles = results;
-
-	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
-	copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
-	std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
-
-	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
-		if(loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false) == true) {
-			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
-			formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
-			formattedMapFiles.push_back(formatString(mapFiles.at(i)));
-			//if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
-			//	initialMapSelection= i;
-			//}
-		}
-	}
-    //listBoxMap.setItems(formattedPlayerSortedMaps[0]);
-	listBoxMap.setItems(formattedMapFiles);
+//  	string scenarioDir = "";
+//  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+//  	vector<string> invalidMapList;
+//  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
+//	if (allMaps.empty()) {
+//        throw runtime_error("No maps were found!");
+//	}
+//	results.clear();
+//	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+//	mapFiles = results;
+//
+//	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
+//	copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
+//	std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
+//
+//	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+//		if(loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false) == true) {
+//			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
+//			formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
+//			formattedMapFiles.push_back(formatString(mapFiles.at(i)));
+//			//if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
+//			//	initialMapSelection= i;
+//			//}
+//		}
+//	}
+//    //listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+//	listBoxMap.setItems(formattedMapFiles);
+	int initialMapSelection = setupMapList("");
+    listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+    //listBoxMap.setSelectedItemIndex(initialMapSelection);
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(220, 180, 125);
@@ -474,25 +460,26 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	GraphicComponent::applyAllCustomProperties(containerName);
 
 	//tileset listBox
-    findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
+//    findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
+//    std::vector<string> tilesetsFormatted = tilesetFiles;
+//	std::for_each(tilesetsFormatted.begin(), tilesetsFormatted.end(), FormatString());
+//	listBoxTileset.setItems(tilesetsFormatted);
+	setupTilesetList("");
 
-    std::vector<string> tilesetsFormatted = tilesetFiles;
-	std::for_each(tilesetsFormatted.begin(), tilesetsFormatted.end(), FormatString());
-	listBoxTileset.setItems(tilesetsFormatted);
-
-    findDirs(config.getPathListForType(ptTechs), techTreeFiles);
-
-    //reloadFactions(true);
-    int initialTechSelection=0;
-    std::vector<string> techsFormatted = techTreeFiles;
-	for(int i= 0; i < techsFormatted.size(); i++){
-		techsFormatted.at(i)= formatString(techsFormatted.at(i));
-		if(config.getString("InitialTechTree", "Megapack") == techsFormatted.at(i)){
-			initialTechSelection= i;
-		}
-	}
-    listBoxTechTree.setItems(techsFormatted);
-    listBoxTechTree.setSelectedItemIndex(initialTechSelection);
+//    findDirs(config.getPathListForType(ptTechs), techTreeFiles);
+//    //reloadFactions(true);
+//    int initialTechSelection=0;
+//    std::vector<string> techsFormatted = techTreeFiles;
+//	for(int i= 0; i < techsFormatted.size(); i++){
+//		techsFormatted.at(i)= formatString(techsFormatted.at(i));
+//		if(config.getString("InitialTechTree", "Megapack") == techsFormatted.at(i)){
+//			initialTechSelection= i;
+//		}
+//	}
+//    listBoxTechTree.setItems(techsFormatted);
+//    listBoxTechTree.setSelectedItemIndex(initialTechSelection);
+	int initialTechSelection = setupTechList("");
+	listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
     labelScenario.init(320, 670);
@@ -1353,7 +1340,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //            }
 //        }
         else if(listBoxTechTree.mouseClick(x, y)) {
-            reloadFactions(false);
+            reloadFactions(false,"");
 
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
@@ -1481,11 +1468,12 @@ string MenuStateConnectedGame::getCurrentMapFile() {
 	return mapFiles[mapIndex];
 }
 
-void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem) {
+void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, string scenario) {
 	vector<string> results;
     Config &config = Config::getInstance();
 
-    vector<string> techPaths = config.getPathListForType(ptTechs);
+    string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
+    vector<string> techPaths = config.getPathListForType(ptTechs,scenarioDir);
     for(int idx = 0; idx < techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
         endPathWithSlash(techPath);
@@ -1813,7 +1801,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 						lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
 					}
 
-					reloadFactions(true);
+					reloadFactions(true,gameSettings->getScenario());
 					factionCRCList.clear();
 					for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
 						string factionName = factionFiles[factionIdx];
@@ -2782,17 +2770,18 @@ void MenuStateConnectedGame::update() {
 	}
 }
 
-bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool errorOnNoFactions){
+bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool errorOnNoFactions) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool foundFactions = false;
 	vector<string> results;
 
+	string scenarioDir = Scenario::getScenarioDir(dirList, gameSettings->getScenario());
 	if(gameSettings->getTech() != "") {
 		Config &config = Config::getInstance();
 		//Lang &lang= Lang::getInstance();
 
-		vector<string> techPaths = config.getPathListForType(ptTechs);
+		vector<string> techPaths = config.getPathListForType(ptTechs,scenarioDir);
 		for(int idx = 0; idx < techPaths.size(); idx++) {
 			string &techPath = techPaths[idx];
 			endPathWithSlash(techPath);
@@ -3452,7 +3441,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             // END
 
             // Reload tilesets for the UI
-            findDirs(Config::getInstance().getPathListForType(ptTilesets), tilesetFiles);
+            string scenarioDir = Scenario::getScenarioDir(dirList, gameSettings->getScenario());
+            findDirs(Config::getInstance().getPathListForType(ptTilesets,scenarioDir), tilesetFiles);
 
             std::vector<string> tilesetsFormatted = tilesetFiles;
         	std::for_each(tilesetsFormatted.begin(), tilesetsFormatted.end(), FormatString());
@@ -3525,7 +3515,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             // END
 
             // Reload tilesets for the UI
-            findDirs(Config::getInstance().getPathListForType(ptTechs), techTreeFiles);
+            string scenarioDir = Scenario::getScenarioDir(dirList, gameSettings->getScenario());
+            findDirs(Config::getInstance().getPathListForType(ptTechs,scenarioDir), techTreeFiles);
 
             //int initialTechSelection=0;
             std::vector<string> techsFormatted = techTreeFiles;
@@ -3598,9 +3589,16 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		}
 	}
 
+	string scenarioDir = Scenario::getScenarioDir(dirList, gameSettings->getScenario());
+	setupMapList(gameSettings->getScenario());
+	setupTechList(gameSettings->getScenario());
+	setupTilesetList(gameSettings->getScenario());
+
+	//listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
 	//printf("A gameSettings->getTileset() [%s]\n",gameSettings->getTileset().c_str());
 
-	if(getMissingTilesetFromFTPServerInProgress == false && gameSettings->getTileset() != "") {
+	if(getMissingTilesetFromFTPServerInProgress == false &&
+			gameSettings->getTileset() != "") {
 		// tileset
 		tilesets = tilesetFiles;
 		std::for_each(tilesets.begin(), tilesets.end(), FormatString());
@@ -3665,7 +3663,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 	}
 
-	if(getMissingTechtreeFromFTPServerInProgress == false && gameSettings->getTech() != "") {
+	if(getMissingTechtreeFromFTPServerInProgress == false &&
+			gameSettings->getTech() != "") {
 		// techtree
 		techtree = techTreeFiles;
 		std::for_each(techtree.begin(), techtree.end(), FormatString());
@@ -3677,7 +3676,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			lastMissingTechtree = "";
 			getMissingTechtreeFromFTPServer = "";
 			//techtree.push_back(formatString(gameSettings->getTech()));
-			reloadFactions(true);
+			reloadFactions(true,gameSettings->getScenario());
 			listBoxTechTree.setSelectedItem(formatString(gameSettings->getTech()));
 		}
 		else {
@@ -3741,7 +3740,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		loadFactions(gameSettings,false);
 	}
 
-	if(getMissingMapFromFTPServerInProgress == false && gameSettings->getMap() != "") {
+	if(getMissingMapFromFTPServerInProgress == false &&
+			gameSettings->getMap() != "") {
 		// map
 		string mapFile = gameSettings->getMap();
 		mapFile = formatString(mapFile);
@@ -3751,7 +3751,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		if(currentMap != gameSettings->getMap()) {// load the setup again
 			currentMap = gameSettings->getMap();
 		}
-		bool mapLoaded = loadMapInfo(Map::getMapPath(currentMap,"",false), &mapInfo, true);
+		bool mapLoaded = loadMapInfo(Map::getMapPath(currentMap,scenarioDir,false), &mapInfo, true);
 		if(mapLoaded == true) {
 			if(find(maps.begin(),maps.end(),formatString(gameSettings->getMap())) == maps.end()) {
 				maps.push_back(formatString(gameSettings->getMap()));
@@ -3979,6 +3979,156 @@ void MenuStateConnectedGame::RestoreLastGameSettings() {
 	needToBroadcastServerSettings=true;
 	broadcastServerSettingsDelayTimer=time(NULL);
 
+}
+
+
+int MenuStateConnectedGame::setupMapList(string scenario) {
+	int initialMapSelection = 0;
+
+	try {
+		Config &config = Config::getInstance();
+		vector<string> invalidMapList;
+		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
+		vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+		vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
+
+		if(scenario != "") {
+			vector<string> allMaps2 = MapPreview::findAllValidMaps(config.getPathListForType(ptMaps,""),"",false,true,&invalidMapList);
+			copy(allMaps2.begin(), allMaps2.end(), std::inserter(allMaps, allMaps.begin()));
+			std::sort(allMaps.begin(),allMaps.end());
+		}
+
+		if (allMaps.empty()) {
+			throw runtime_error("No maps were found!");
+		}
+		vector<string> results;
+		copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+		mapFiles = results;
+
+		for(unsigned int i = 0; i < GameConstants::maxPlayers+1; ++i) {
+			playerSortedMaps[i].clear();
+			formattedPlayerSortedMaps[i].clear();
+		}
+
+		copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
+		copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
+		std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
+		//printf("#5\n");
+
+		for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
+
+			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
+				char szBuf[1024]="";
+				sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
+				throw runtime_error(szBuf);
+			}
+			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
+			formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
+			if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
+				initialMapSelection= i;
+			}
+		}
+
+		//printf("#6 scenario [%s] [%s]\n",scenario.c_str(),scenarioDir.c_str());
+		if(scenario != "") {
+			string file = Scenario::getScenarioPath(dirList, scenario);
+			loadScenarioInfo(file, &scenarioInfo);
+
+			//printf("#6.1 about to load map [%s]\n",scenarioInfo.mapName.c_str());
+			loadMapInfo(Map::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
+			//printf("#6.2\n");
+			listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
+		}
+		//printf("#7\n");
+	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
+		//abort();
+	}
+
+	return initialMapSelection;
+}
+
+int MenuStateConnectedGame::setupTechList(string scenario) {
+	int initialTechSelection = 0;
+	try {
+		Config &config = Config::getInstance();
+
+		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
+		vector<string> results;
+		vector<string> techPaths = config.getPathListForType(ptTechs,scenarioDir);
+		findDirs(techPaths, results);
+
+		if(results.empty()) {
+			throw runtime_error("No tech-trees were found!");
+		}
+
+		techTreeFiles= results;
+
+		for(unsigned int i= 0; i < results.size(); i++) {
+			//printf("TECHS i = %d results [%s] scenario [%s]\n",i,results[i].c_str(),scenario.c_str());
+
+			results.at(i)= formatString(results.at(i));
+			if(config.getString("InitialTechTree", "Megapack") == results.at(i)) {
+				initialTechSelection= i;
+			}
+		}
+
+		listBoxTechTree.setItems(results);
+	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
+	}
+
+	return initialTechSelection;
+}
+
+void MenuStateConnectedGame::setupTilesetList(string scenario) {
+	int initialTechSelection = 0;
+	try {
+		Config &config = Config::getInstance();
+
+		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
+
+		vector<string> results;
+		findDirs(config.getPathListForType(ptTilesets,scenarioDir), results);
+		if (results.empty()) {
+			throw runtime_error("No tile-sets were found!");
+		}
+		tilesetFiles= results;
+		std::for_each(results.begin(), results.end(), FormatString());
+
+		listBoxTileset.setItems(results);
+	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
+	}
+
+}
+
+void MenuStateConnectedGame::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
+	//printf("Load scenario file [%s]\n",file.c_str());
+	Scenario::loadScenarioInfo(file, scenarioInfo);
+
+	//cleanupPreviewTexture();
+	previewLoadDelayTimer=time(NULL);
+	needToLoadTextures=true;
 }
 
 }}//end namespace
