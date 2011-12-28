@@ -1845,29 +1845,31 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
 
-	string mapFile = serverGameSettings->getMap();
-	if(find(mapFiles.begin(),mapFiles.end(),mapFile) == mapFiles.end()) {
-		printf("Reverting map from [%s] to [%s]\n",serverGameSettings->getMap().c_str(),gameSettings.getMap().c_str());
+	if(serverGameSettings->getScenario() == "") {
+		string mapFile = serverGameSettings->getMap();
+		if(find(mapFiles.begin(),mapFiles.end(),mapFile) == mapFiles.end()) {
+			printf("Reverting map from [%s] to [%s]\n",serverGameSettings->getMap().c_str(),gameSettings.getMap().c_str());
 
-		serverGameSettings->setMapFilterIndex(gameSettings.getMapFilterIndex());
-		serverGameSettings->setMap(gameSettings.getMap());
-		serverGameSettings->setMapCRC(gameSettings.getMapCRC());
-	}
+			serverGameSettings->setMapFilterIndex(gameSettings.getMapFilterIndex());
+			serverGameSettings->setMap(gameSettings.getMap());
+			serverGameSettings->setMapCRC(gameSettings.getMapCRC());
+		}
 
-	string tilesetFile = serverGameSettings->getTileset();
-	if(find(tilesetFiles.begin(),tilesetFiles.end(),tilesetFile) == tilesetFiles.end()) {
-		printf("Reverting tileset from [%s] to [%s]\n",serverGameSettings->getTileset().c_str(),gameSettings.getTileset().c_str());
+		string tilesetFile = serverGameSettings->getTileset();
+		if(find(tilesetFiles.begin(),tilesetFiles.end(),tilesetFile) == tilesetFiles.end()) {
+			printf("Reverting tileset from [%s] to [%s]\n",serverGameSettings->getTileset().c_str(),gameSettings.getTileset().c_str());
 
-		serverGameSettings->setTileset(gameSettings.getTileset());
-		serverGameSettings->setTilesetCRC(gameSettings.getTilesetCRC());
-	}
+			serverGameSettings->setTileset(gameSettings.getTileset());
+			serverGameSettings->setTilesetCRC(gameSettings.getTilesetCRC());
+		}
 
-	string techtreeFile = serverGameSettings->getTech();
-	if(find(techTreeFiles.begin(),techTreeFiles.end(),techtreeFile) == techTreeFiles.end()) {
-		printf("Reverting tech from [%s] to [%s]\n",serverGameSettings->getTech().c_str(),gameSettings.getTech().c_str());
+		string techtreeFile = serverGameSettings->getTech();
+		if(find(techTreeFiles.begin(),techTreeFiles.end(),techtreeFile) == techTreeFiles.end()) {
+			printf("Reverting tech from [%s] to [%s]\n",serverGameSettings->getTech().c_str(),gameSettings.getTech().c_str());
 
-		serverGameSettings->setTech(gameSettings.getTech());
-		serverGameSettings->setTechCRC(gameSettings.getTechCRC());
+			serverGameSettings->setTech(gameSettings.getTech());
+			serverGameSettings->setTechCRC(gameSettings.getTechCRC());
+		}
 	}
 
 	gameSettings = *serverGameSettings;

@@ -237,7 +237,7 @@ private:
     void mouseClickAdmin(int x, int y, MouseButton mouseButton);
     string getCurrentMapFile();
     void loadGameSettings(GameSettings *gameSettings);
-    void reloadFactions(bool keepExistingSelectedItem);
+    void reloadFactions(bool keepExistingSelectedItem,string scenario);
     void PlayNow(bool saveGame);
     bool isMasterserverAdmin();
     void broadCastGameSettingsToMasterserver(bool forceNow);
@@ -245,6 +245,12 @@ private:
 
     void RestoreLastGameSettings();
     void setupUIFromGameSettings(GameSettings *gameSettings, bool errorOnMissingData);
+
+	int setupMapList(string scenario);
+	int setupTechList(string scenario);
+	void setupTilesetList(string scenario);
+
+	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 };
 
 }}//end namespace

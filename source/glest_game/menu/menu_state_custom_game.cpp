@@ -1,6 +1,6 @@
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Marti�o Figueroa
+//	Copyright (C) 2001-2005 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -176,60 +176,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int networkPos=networkHeadPos-labelOffset;
 	int xoffset=10;
 
-	int initialMapSelection=0;
-	int initialTechSelection=0;
-
-    //map listBox
-	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
-	// will also ensure they are alphabetically listed (rather than how the OS provides them)
-
-/*
-	set<string> allMaps;
-    findAll(config.getPathListForType(ptMaps), "*.gbm", results, true, false);
-	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
-	results.clear();
-    findAll(config.getPathListForType(ptMaps), "*.mgm", results, true, false);
-	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
-	results.clear();
-
-	if (allMaps.empty()) {
-        throw runtime_error("No maps were found!");
-	}
-	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
-	mapFiles = results;
-
-	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
-*/
-  	string scenarioDir = "";
-  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
-  	vector<string> invalidMapList;
-  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
-	if (allMaps.empty()) {
-        throw runtime_error("No maps were found!");
-	}
-	results.clear();
-	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
-	mapFiles = results;
-
-	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
-	copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
-	std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
-
-	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
-		loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false);
-
-		if(GameConstants::maxPlayers+1 <= mapInfo.players) {
-			char szBuf[1024]="";
-			sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
-			throw runtime_error(szBuf);
-		}
-		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
-		formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
-		if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
-			initialMapSelection= i;
-		}
-	}
-
 	labelLocalIP.registerGraphicComponent(containerName,"labelLocalIP");
 	labelLocalIP.init(210, networkHeadPos+labelOffset);
 
@@ -250,20 +196,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 	ServerSocket::setExternalPort(strToInt(externalPort));
 
-	// Map
-	xoffset=70;
-	labelMap.registerGraphicComponent(containerName,"labelMap");
-	labelMap.init(xoffset+100, mapHeadPos);
-	labelMap.setText(lang.get("Map")+":");
-
-	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
-	listBoxMap.init(xoffset+100, mapPos, 200);
-    listBoxMap.setItems(formattedPlayerSortedMaps[0]);
-    listBoxMap.setSelectedItemIndex(initialMapSelection);
-
-    labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
-	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
-
 	// MapFilter
 	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
 	labelMapFilter.init(xoffset+310, mapHeadPos);
@@ -277,41 +209,42 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 	listBoxMapFilter.setSelectedItemIndex(0);
 
-	//tileset listBox
-    findDirs(config.getPathListForType(ptTilesets), results);
-	if (results.empty()) {
-        throw runtime_error("No tile-sets were found!");
-	}
-    tilesetFiles= results;
-	std::for_each(results.begin(), results.end(), FormatString());
+	// Map
+	xoffset=70;
+	labelMap.registerGraphicComponent(containerName,"labelMap");
+	labelMap.init(xoffset+100, mapHeadPos);
+	labelMap.setText(lang.get("Map")+":");
 
-	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
-	listBoxTileset.init(xoffset+460, mapPos, 150);
-    listBoxTileset.setItems(results);
-    srand(time(NULL));
-	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
+	//map listBox
+	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
+	listBoxMap.init(xoffset+100, mapPos, 200);
+	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
+	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+	int initialMapSelection = setupMapList("");
+    listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+    listBoxMap.setSelectedItemIndex(initialMapSelection);
+
+    labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
 
     labelTileset.registerGraphicComponent(containerName,"labelTileset");
 	labelTileset.init(xoffset+460, mapHeadPos);
 	labelTileset.setText(lang.get("Tileset"));
 
+	//tileset listBox
+	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
+	listBoxTileset.init(xoffset+460, mapPos, 150);
+    //listBoxTileset.setItems(results);
+	setupTilesetList("");
+    srand(time(NULL));
+	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
 
     //tech Tree listBox
-    findDirs(config.getPathListForType(ptTechs), results);
-	if(results.empty()) {
-        throw runtime_error("No tech-trees were found!");
-	}
-    techTreeFiles= results;
-	//std::for_each(results.begin(), results.end(), FormatString());
-	for(int i= 0; i < results.size(); i++){
-		results.at(i)= formatString(results.at(i));
-		if(config.getString("InitialTechTree", "Megapack") == results.at(i)){
-			initialTechSelection= i;
-		}
-	}
+    int initialTechSelection = setupTechList("");
+
 	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
 	listBoxTechTree.init(xoffset+650, mapPos, 150);
-    listBoxTechTree.setItems(results);
+    //listBoxTechTree.setItems(results);
     listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
     labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
@@ -563,21 +496,22 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		teamItems.push_back(intToStr(i));
 	}
 
-	reloadFactions(false);
+	reloadFactions(false,"");
 
-    vector<string> techPaths = config.getPathListForType(ptTechs);
-    for(int idx = 0; idx < techPaths.size(); idx++) {
-        string &techPath = techPaths[idx];
-        endPathWithSlash(techPath);
-        //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
-        findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
+//    vector<string> techPaths = config.getPathListForType(ptTechs);
+//    for(int idx = 0; idx < techPaths.size(); idx++) {
+//        string &techPath = techPaths[idx];
+//        endPathWithSlash(techPath);
+//        //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
+//        findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
+//
+//        if(results.empty() == false) {
+//            break;
+//        }
+//    }
 
-        if(results.empty() == false) {
-            break;
-        }
-    }
-
-    if(results.empty() == true) {
+//    if(results.empty() == true) {
+	if(factionFiles.empty() == true) {
         //throw runtime_error("(1)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
 		showGeneralError=true;
 		generalErrorToShow = "[#1] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
@@ -1081,7 +1015,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					needToRepublishToMasterserver = true;
 				}
 
-				reloadFactions(true);
+				reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
 
 				if(hasNetworkGameSettings() == true) {
 					needToSetChangedGameSettings = true;
@@ -1143,7 +1077,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			else if (listBoxAdvanced.mouseClick(x, y)) {
 				//TODO
 			}
-			else if(listBoxTileset.mouseClick(x, y)){
+			else if(listBoxTileset.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1179,7 +1113,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				}
 			}
 			else if(listBoxTechTree.mouseClick(x, y)){
-				reloadFactions(false);
+				reloadFactions(false,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
 
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
@@ -2838,6 +2772,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		gameSettings->setScenarioDir("");
 	}
 
+	//printf("scenarioInfo.name [%s] [%s] [%s]\n",scenarioInfo.name.c_str(),listBoxMap.getSelectedItem().c_str(),getCurrentMapFile().c_str());
+
 	gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
 	gameSettings->setDescription(formatString(getCurrentMapFile()));
 	gameSettings->setMap(getCurrentMapFile());
@@ -3032,7 +2968,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 						lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
 					}
 
-					reloadFactions(true);
+					reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
 					factionCRCList.clear();
 					for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
 						string factionName = factionFiles[factionIdx];
@@ -3211,16 +3147,14 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 }
 
 void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettings) {
-	listBoxMapFilter.setSelectedItemIndex(gameSettings.getMapFilterIndex());
-	listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
-
-	//printf("In [%s::%s line %d] map [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getMap().c_str());
-
+	string scenarioDir = "";
 	checkBoxScenario.setValue((gameSettings.getScenario() != ""));
 	if(checkBoxScenario.getValue() == true) {
 		listBoxScenario.setSelectedItem(formatString(gameSettings.getScenario()));
 
 		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+		scenarioDir = Scenario::getScenarioDir(dirList, gameSettings.getScenario());
+
 		//printf("scenarioInfo.fogOfWar = %d scenarioInfo.fogOfWar_exploredFlag = %d\n",scenarioInfo.fogOfWar,scenarioInfo.fogOfWar_exploredFlag);
 		if(scenarioInfo.fogOfWar == false && scenarioInfo.fogOfWar_exploredFlag == false) {
 			listBoxFogOfWar.setSelectedItemIndex(2);
@@ -3232,13 +3166,35 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 			listBoxFogOfWar.setSelectedItemIndex(0);
 		}
 	}
+	setupMapList(gameSettings.getScenario());
+	setupTechList(gameSettings.getScenario());
+	setupTilesetList(gameSettings.getScenario());
+
+	if(checkBoxScenario.getValue() == true) {
+		//string file = Scenario::getScenarioPath(dirList, gameSettings.getScenario());
+		//loadScenarioInfo(file, &scenarioInfo);
+
+		//printf("#6.1 about to load map [%s]\n",scenarioInfo.mapName.c_str());
+		//loadMapInfo(Map::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
+		//printf("#6.2\n");
+
+		listBoxMapFilter.setSelectedItemIndex(0);
+		listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
+		listBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
+	}
+	else {
+		listBoxMapFilter.setSelectedItem(intToStr(gameSettings.getMapFilterIndex()));
+		listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
+	}
+
+	//printf("gameSettings.getMap() [%s] [%s]\n",gameSettings.getMap().c_str(),listBoxMap.getSelectedItem().c_str());
 
 	string mapFile = gameSettings.getMap();
 	if(find(mapFiles.begin(),mapFiles.end(),mapFile) != mapFiles.end()) {
 		mapFile = formatString(mapFile);
 		listBoxMap.setSelectedItem(mapFile);
 
-		loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+		loadMapInfo(Map::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true);
 		labelMapInfo.setText(mapInfo.desc);
 	}
 
@@ -3298,7 +3254,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	reloadFactions(false);
+	reloadFactions(false,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
 	//reloadFactions(true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getFactionCount());
@@ -3429,73 +3385,6 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
 		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
 	}
-}
-
-void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem) {
-	vector<string> results;
-    Config &config = Config::getInstance();
-
-    vector<string> techPaths = config.getPathListForType(ptTechs);
-    for(int idx = 0; idx < techPaths.size(); idx++) {
-        string &techPath = techPaths[idx];
-        endPathWithSlash(techPath);
-        //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
-        findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
-
-        if(results.empty() == false) {
-            break;
-        }
-    }
-
-    if(results.empty() == true) {
-        //throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
-		showGeneralError=true;
-		generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
-    }
-
-    results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
-
-    // Add special Observer Faction
-    //Lang &lang= Lang::getInstance();
-    if(listBoxAllowObservers.getSelectedItemIndex() == 1) {
-    	results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
-    }
-
-    factionFiles= results;
-    for(int i= 0; i<results.size(); ++i){
-        results[i]= formatString(results[i]);
-
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
-    }
-
-    for(int i=0; i<GameConstants::maxPlayers; ++i){
-    	int originalIndex = listBoxFactions[i].getSelectedItemIndex();
-    	//printf("[a] i = %d, originalIndex = %d\n",i,originalIndex);
-
-    	string originalValue = (listBoxFactions[i].getItemCount() > 0 ? listBoxFactions[i].getSelectedItem() : "");
-
-    	//printf("[a1] i = %d, originalValue = [%s]\n",i,originalValue.c_str());
-
-    	listBoxFactions[i].setItems(results);
-        if( keepExistingSelectedItem == false ||
-        	(listBoxAllowObservers.getSelectedItemIndex() == 0 &&
-        			originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
-        	listBoxFactions[i].setSelectedItemIndex(i % results.size());
-
-        	if( originalValue == formatString(GameConstants::OBSERVER_SLOTNAME) &&
-        		listBoxFactions[i].getSelectedItem() != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-    			if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
-    				listBoxTeams[i].setSelectedItem(intToStr(1));
-    			}
-        	}
-        	//printf("[b] i = %d, listBoxFactions[i].getSelectedItemIndex() = %d\n",i,listBoxFactions[i].getSelectedItemIndex());
-        }
-        else if(originalIndex < results.size()) {
-        	listBoxFactions[i].setSelectedItemIndex(originalIndex);
-
-        	//printf("[c] i = %d, originalIndex = %d\n",i,originalIndex);
-        }
-    }
 }
 
 void MenuStateCustomGame::updateControlers() {
@@ -3934,6 +3823,7 @@ void MenuStateCustomGame::processScenario() {
 		if(checkBoxScenario.getValue() == true) {
 			//printf("listBoxScenario.getSelectedItemIndex() = %d [%s] scenarioFiles.size() = %d\n",listBoxScenario.getSelectedItemIndex(),listBoxScenario.getSelectedItem().c_str(),scenarioFiles.size());
 			loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+			string scenarioDir = Scenario::getScenarioDir(dirList, scenarioInfo.name);
 
 			//printf("scenarioInfo.fogOfWar = %d scenarioInfo.fogOfWar_exploredFlag = %d\n",scenarioInfo.fogOfWar,scenarioInfo.fogOfWar_exploredFlag);
 			if(scenarioInfo.fogOfWar == false && scenarioInfo.fogOfWar_exploredFlag == false) {
@@ -3946,14 +3836,19 @@ void MenuStateCustomGame::processScenario() {
 				listBoxFogOfWar.setSelectedItemIndex(0);
 			}
 
+			setupTechList(scenarioInfo.name);
 			listBoxTechTree.setSelectedItem(formatString(scenarioInfo.techTreeName));
-			reloadFactions(false);
+			reloadFactions(false,scenarioInfo.name);
 
+			setupTilesetList(scenarioInfo.name);
 			listBoxTileset.setSelectedItem(formatString(scenarioInfo.tilesetName));
 
+			setupMapList(scenarioInfo.name);
 			listBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
-			loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
+			loadMapInfo(Map::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true);
 			labelMapInfo.setText(mapInfo.desc);
+
+			//printf("scenarioInfo.name [%s] [%s]\n",scenarioInfo.name.c_str(),listBoxMap.getSelectedItem().c_str());
 
 			for(int i = 0; i < mapInfo.players; ++i) {
 				listBoxRMultiplier[i].setSelectedItem(floatToStr(scenarioInfo.resourceMultipliers[i],1));
@@ -4014,28 +3909,34 @@ void MenuStateCustomGame::processScenario() {
 					listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
 					labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
 				}
-				//updateNetworkSlots();
-				//updateResourceMultiplier(i);
-				updateResourceMultiplier(i);
 
-				listBoxFactions[i].setSelectedItem(formatString(scenarioInfo.factionTypeNames[i]));
+				ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+				if(ct != ctClosed) {
+					//updateNetworkSlots();
+					//updateResourceMultiplier(i);
+					updateResourceMultiplier(i);
 
-				// Disallow CPU players to be observers
-				if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
-					(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
-					 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
-					listBoxFactions[i].setSelectedItemIndex(0);
-				}
-				//
+					//printf("Setting scenario faction i = %d [ %s]\n",i,scenarioInfo.factionTypeNames[i].c_str());
+					listBoxFactions[i].setSelectedItem(formatString(scenarioInfo.factionTypeNames[i]));
+					//printf("DONE Setting scenario faction i = %d [ %s]\n",i,scenarioInfo.factionTypeNames[i].c_str());
 
-				listBoxTeams[i].setSelectedItem(intToStr(scenarioInfo.teams[i]));
-				if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-					if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
-						lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+					// Disallow CPU players to be observers
+					if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+						(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+						 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
+						listBoxFactions[i].setSelectedItemIndex(0);
 					}
-				}
-				else {
-					lastSelectedTeamIndex[i] = -1;
+					//
+
+					listBoxTeams[i].setSelectedItem(intToStr(scenarioInfo.teams[i]));
+					if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+						if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+							lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+						}
+					}
+					else {
+						lastSelectedTeamIndex[i] = -1;
+					}
 				}
 
 				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -4063,11 +3964,21 @@ void MenuStateCustomGame::processScenario() {
 
 			//labelInfo.setText(scenarioInfo.desc);
 		}
+		else {
+			setupMapList("");
+			listBoxMap.setSelectedItem(formatString(formattedPlayerSortedMaps[0][0]));
+			loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",true), &mapInfo, true);
+			labelMapInfo.setText(mapInfo.desc);
+
+			setupTechList("");
+			reloadFactions(false,"");
+			setupTilesetList("");
+		}
 		SetupUIForScenarios();
 	}
 	catch(const std::exception &ex) {
 		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4077,44 +3988,277 @@ void MenuStateCustomGame::processScenario() {
 }
 
 void MenuStateCustomGame::SetupUIForScenarios() {
-	if(checkBoxScenario.getValue() == true) {
-		// START - Disable changes to controls while in Scenario mode
-		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-			listBoxControls[i].setEditable(false);
-			listBoxFactions[i].setEditable(false);
-			listBoxRMultiplier[i].setEditable(false);
-			listBoxTeams[i].setEditable(false);
+	try {
+		if(checkBoxScenario.getValue() == true) {
+			// START - Disable changes to controls while in Scenario mode
+			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+				listBoxControls[i].setEditable(false);
+				listBoxFactions[i].setEditable(false);
+				listBoxRMultiplier[i].setEditable(false);
+				listBoxTeams[i].setEditable(false);
+			}
+			listBoxFogOfWar.setEditable(false);
+			listBoxAllowObservers.setEditable(false);
+			listBoxPathFinderType.setEditable(false);
+			listBoxEnableSwitchTeamMode.setEditable(false);
+			listBoxAISwitchTeamAcceptPercent.setEditable(false);
+			listBoxMap.setEditable(false);
+			listBoxTileset.setEditable(false);
+			listBoxMapFilter.setEditable(false);
+			listBoxTechTree.setEditable(false);
+			// END - Disable changes to controls while in Scenario mode
 		}
-		listBoxFogOfWar.setEditable(false);
-		listBoxAllowObservers.setEditable(false);
-		listBoxPathFinderType.setEditable(false);
-		listBoxEnableSwitchTeamMode.setEditable(false);
-		listBoxAISwitchTeamAcceptPercent.setEditable(false);
-		listBoxMap.setEditable(false);
-		listBoxTileset.setEditable(false);
-		listBoxMapFilter.setEditable(false);
-		listBoxTechTree.setEditable(false);
-		// END - Disable changes to controls while in Scenario mode
-	}
-	else {
-		// START - Disable changes to controls while in Scenario mode
-		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-			listBoxControls[i].setEditable(true);
-			listBoxFactions[i].setEditable(true);
-			listBoxRMultiplier[i].setEditable(true);
-			listBoxTeams[i].setEditable(true);
+		else {
+			// START - Disable changes to controls while in Scenario mode
+			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+				listBoxControls[i].setEditable(true);
+				listBoxFactions[i].setEditable(true);
+				listBoxRMultiplier[i].setEditable(true);
+				listBoxTeams[i].setEditable(true);
+			}
+			listBoxFogOfWar.setEditable(true);
+			listBoxAllowObservers.setEditable(true);
+			listBoxPathFinderType.setEditable(true);
+			listBoxEnableSwitchTeamMode.setEditable(true);
+			listBoxAISwitchTeamAcceptPercent.setEditable(true);
+			listBoxMap.setEditable(true);
+			listBoxTileset.setEditable(true);
+			listBoxMapFilter.setEditable(true);
+			listBoxTechTree.setEditable(true);
+			// END - Disable changes to controls while in Scenario mode
 		}
-		listBoxFogOfWar.setEditable(true);
-		listBoxAllowObservers.setEditable(true);
-		listBoxPathFinderType.setEditable(true);
-		listBoxEnableSwitchTeamMode.setEditable(true);
-		listBoxAISwitchTeamAcceptPercent.setEditable(true);
-		listBoxMap.setEditable(true);
-		listBoxTileset.setEditable(true);
-		listBoxMapFilter.setEditable(true);
-		listBoxTechTree.setEditable(true);
-		// END - Disable changes to controls while in Scenario mode
 	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
+	}
+
+}
+
+int MenuStateCustomGame::setupMapList(string scenario) {
+	int initialMapSelection = 0;
+
+	try {
+		Config &config = Config::getInstance();
+		vector<string> invalidMapList;
+		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
+		vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
+		vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
+
+		if(scenario != "") {
+			vector<string> allMaps2 = MapPreview::findAllValidMaps(config.getPathListForType(ptMaps,""),"",false,true,&invalidMapList);
+			copy(allMaps2.begin(), allMaps2.end(), std::inserter(allMaps, allMaps.begin()));
+			std::sort(allMaps.begin(),allMaps.end());
+		}
+
+		if (allMaps.empty()) {
+			throw runtime_error("No maps were found!");
+		}
+		vector<string> results;
+		copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
+		mapFiles = results;
+
+		for(unsigned int i = 0; i < GameConstants::maxPlayers+1; ++i) {
+			playerSortedMaps[i].clear();
+			formattedPlayerSortedMaps[i].clear();
+		}
+
+		copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
+		copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
+		std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
+		//printf("#5\n");
+
+		for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
+
+			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
+				char szBuf[1024]="";
+				sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
+				throw runtime_error(szBuf);
+			}
+			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
+			formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
+			if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
+				initialMapSelection= i;
+			}
+		}
+
+		//printf("#6 scenario [%s] [%s]\n",scenario.c_str(),scenarioDir.c_str());
+		if(scenario != "") {
+			string file = Scenario::getScenarioPath(dirList, scenario);
+			loadScenarioInfo(file, &scenarioInfo);
+
+			//printf("#6.1 about to load map [%s]\n",scenarioInfo.mapName.c_str());
+			loadMapInfo(Map::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
+			//printf("#6.2\n");
+			listBoxMapFilter.setSelectedItem(intToStr(mapInfo.players));
+			listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
+		}
+		else {
+			listBoxMapFilter.setSelectedItemIndex(0);
+			listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+		}
+		//printf("#7\n");
+	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
+		//abort();
+	}
+
+	return initialMapSelection;
+}
+
+int MenuStateCustomGame::setupTechList(string scenario) {
+	int initialTechSelection = 0;
+	try {
+		Config &config = Config::getInstance();
+
+		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
+		vector<string> results;
+		vector<string> techPaths = config.getPathListForType(ptTechs,scenarioDir);
+		findDirs(techPaths, results);
+
+		if(results.empty()) {
+			throw runtime_error("No tech-trees were found!");
+		}
+
+		techTreeFiles= results;
+
+		for(unsigned int i= 0; i < results.size(); i++) {
+			//printf("TECHS i = %d results [%s] scenario [%s]\n",i,results[i].c_str(),scenario.c_str());
+
+			results.at(i)= formatString(results.at(i));
+			if(config.getString("InitialTechTree", "Megapack") == results.at(i)) {
+				initialTechSelection= i;
+			}
+		}
+
+		listBoxTechTree.setItems(results);
+	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
+	}
+
+	return initialTechSelection;
+}
+
+void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string scenario) {
+	try {
+		Config &config = Config::getInstance();
+
+		vector<string> results;
+		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
+		vector<string> techPaths = config.getPathListForType(ptTechs,scenarioDir);
+
+		//printf("#1 techPaths.size() = %d scenarioDir [%s] [%s]\n",techPaths.size(),scenario.c_str(),scenarioDir.c_str());
+
+		for(int idx = 0; idx < techPaths.size(); idx++) {
+			string &techPath = techPaths[idx];
+			endPathWithSlash(techPath);
+			string factionPath = techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/";
+			findDirs(factionPath, results, false, false);
+
+			//printf("idx = %d factionPath [%s] results.size() = %d\n",idx,factionPath.c_str(),results.size());
+
+			if(results.empty() == false) {
+				break;
+			}
+		}
+
+		if(results.empty() == true) {
+			//throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+			showGeneralError=true;
+			generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
+		}
+
+		results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+
+		// Add special Observer Faction
+		if(listBoxAllowObservers.getSelectedItemIndex() == 1) {
+			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+		}
+
+		factionFiles= results;
+		for(int i = 0; i < results.size(); ++i) {
+			results[i]= formatString(results[i]);
+			//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
+		}
+
+		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			int originalIndex = listBoxFactions[i].getSelectedItemIndex();
+			string originalValue = (listBoxFactions[i].getItemCount() > 0 ? listBoxFactions[i].getSelectedItem() : "");
+
+			listBoxFactions[i].setItems(results);
+			if( keepExistingSelectedItem == false ||
+				(listBoxAllowObservers.getSelectedItemIndex() == 0 &&
+						originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
+
+				listBoxFactions[i].setSelectedItemIndex(i % results.size());
+
+				if( originalValue == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+					listBoxFactions[i].getSelectedItem() != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+					if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
+						listBoxTeams[i].setSelectedItem(intToStr(1));
+					}
+				}
+			}
+			else if(originalIndex < results.size()) {
+				listBoxFactions[i].setSelectedItemIndex(originalIndex);
+			}
+		}
+	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
+	}
+}
+
+void MenuStateCustomGame::setupTilesetList(string scenario) {
+	int initialTechSelection = 0;
+	try {
+		Config &config = Config::getInstance();
+
+		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
+
+		vector<string> results;
+		findDirs(config.getPathListForType(ptTilesets,scenarioDir), results);
+		if (results.empty()) {
+			throw runtime_error("No tile-sets were found!");
+		}
+		tilesetFiles= results;
+		std::for_each(results.begin(), results.end(), FormatString());
+
+		listBoxTileset.setItems(results);
+	}
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
+	}
+
 }
 
 }}//end namespace

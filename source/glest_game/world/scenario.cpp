@@ -1,7 +1,7 @@
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2005 Martio Figueroa
+//	Copyright (C) 2001-2005 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -90,6 +90,24 @@ int Scenario::getScenarioPathIndex(const vector<string> dirList, const string &s
     }
 
     return iIndex;
+}
+
+string Scenario::getScenarioDir(const vector<string> dir, const string &scenarioName) {
+    string scenarioDir = "";
+    for(int idx = 0; idx < dir.size(); idx++) {
+    	string currentPath = dir[idx];
+    	endPathWithSlash(currentPath);
+    	string scenarioFile = currentPath + scenarioName + "/" + scenarioName + ".xml";
+
+    	//printf("\n[%s:%s] Line: %d scenarioName [%s] scenarioFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioName.c_str(),scenarioFile.c_str());
+
+        if(fileExists(scenarioFile) == true) {
+			scenarioDir = currentPath + scenarioName + "/";
+            break;
+        }
+    }
+
+    return scenarioDir;
 }
 
 string Scenario::getScenarioPath(const vector<string> dirList, const string &scenarioName, bool getMatchingRootScenarioPathOnly){
@@ -184,7 +202,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 
         scenarioInfo->factionControls[i] = factionControl;
 
-        if(factionControl != ctClosed){
+        if(factionControl != ctClosed) {
             int teamIndex = playerNode->getAttribute("team")->getIntValue();
 
             if( teamIndex < 1 || teamIndex > GameConstants::maxPlayers ) {
@@ -195,6 +213,10 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 
             scenarioInfo->teams[i]= playerNode->getAttribute("team")->getIntValue();
             scenarioInfo->factionTypeNames[i]= playerNode->getAttribute("faction")->getValue();
+        }
+        else {
+            scenarioInfo->teams[i]= 0;
+            scenarioInfo->factionTypeNames[i]= "";
         }
 
         scenarioInfo->mapName = scenarioNode->getChild("map")->getAttribute("value")->getValue();
@@ -277,30 +299,15 @@ ControlType Scenario::strToControllerType(const string &str) {
 	throw std::runtime_error(szBuf);
 }
 
-void Scenario::loadGameSettings(const vector<string> &dirList, const ScenarioInfo *scenarioInfo, GameSettings *gameSettings, string scenarioDescription) {
-//	if(listBoxScenario.getSelectedItemIndex() < 0) {
-//		char szBuf[1024]="";
-//		sprintf(szBuf,"listBoxScenario.getSelectedItemIndex() < 0, = %d",listBoxScenario.getSelectedItemIndex());
-//		throw runtime_error(szBuf);
-//	}
-//	else if(listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size()) {
-//		char szBuf[1024]="";
-//		sprintf(szBuf,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
-//		throw runtime_error(szBuf);
-//	}
-
+void Scenario::loadGameSettings(const vector<string> &dirList,
+		const ScenarioInfo *scenarioInfo, GameSettings *gameSettings,
+		string scenarioDescription) {
 	int factionCount= 0;
-
-	//printf("\n\n\n$$$$$$$$$$$$$ [%s]\n\n\n",scenarioFiles[listBoxScenario.getSelectedItemIndex()].c_str());
-
-	//gameSettings->setDescription(formatString(scenarioFiles[listBoxScenario.getSelectedItemIndex()]));
 	gameSettings->setDescription(scenarioDescription);
 	gameSettings->setMap(scenarioInfo->mapName);
     gameSettings->setTileset(scenarioInfo->tilesetName);
     gameSettings->setTech(scenarioInfo->techTreeName);
-	//gameSettings->setScenario(scenarioFiles[listBoxScenario.getSelectedItemIndex()]);
     gameSettings->setScenario(scenarioInfo->name);
-	//gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]));
     gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo->name));
 	gameSettings->setDefaultUnits(scenarioInfo->defaultUnits);
 	gameSettings->setDefaultResources(scenarioInfo->defaultResources);
