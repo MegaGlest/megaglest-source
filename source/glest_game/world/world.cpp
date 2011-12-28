@@ -1071,8 +1071,8 @@ void World::moveToUnit(int unitId, int destUnitId) {
 	}
 }
 
-void World::togglePauseGame(bool pauseStatus) {
-	game->setPaused(pauseStatus);
+void World::togglePauseGame(bool pauseStatus,bool forceAllowPauseStateChange) {
+	game->setPaused(pauseStatus, forceAllowPauseStateChange);
 }
 
 void World::addConsoleText(const string &text) {

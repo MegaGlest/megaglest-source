@@ -610,7 +610,7 @@ void ScriptManager::stopAllSound() {
 void ScriptManager::togglePauseGame(int pauseStatus) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] pauseStatus = %d\n",__FILE__,__FUNCTION__,__LINE__,pauseStatus);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
-	world->togglePauseGame((pauseStatus != 0));
+	world->togglePauseGame((pauseStatus != 0),true);
 }
 
 void ScriptManager::morphToUnit(int unitId,const string &morphName, int ignoreRequirements) {
