@@ -3260,7 +3260,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOVertices );			// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, vertices, GL_STATIC_DRAW_ARB );
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 		assertGl();
 		// Generate And Bind The Texture Coordinate Buffer
@@ -3268,7 +3268,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOFowTexCoords );		// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoords, GL_STATIC_DRAW_ARB );
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 		assertGl();
 		// Generate And Bind The Texture Coordinate Buffer
@@ -3276,7 +3276,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOSurfaceTexCoords );		// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoordsSurface, GL_STATIC_DRAW_ARB );
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 		assertGl();
 		// Generate And Bind The Normal Buffer
@@ -3284,7 +3284,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBONormals );			// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, normals, GL_STATIC_DRAW_ARB );
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 		vboCache.hasBuiltVBOs = true;
 
@@ -3333,7 +3333,7 @@ template<typename T> void _loadVBO(GLuint &vbo,std::vector<T> buf,int target=GL_
 		assert(vbo);
 		glBindBufferARB(target,vbo);
 		glBufferDataARB(target,sizeof(T)*buf.size(),&buf[0],GL_STATIC_DRAW_ARB);
-		glBindBuffer(target,0);
+		glBindBufferARB(target,0);
 		assertGl();
 		buf.clear();
 	}
