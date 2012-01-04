@@ -521,7 +521,8 @@ void Game::loadHudTexture(const GameSettings *settings)
 {
 	string factionName = "";
 	string techName			= settings->getTech();
-	string scenarioDir =settings->getScenarioDir();
+	string scenarioDir 		= extractDirectoryPathFromFile(settings->getScenarioDir());
+	//printf("In loadHudTexture, scenarioDir [%s]\n",scenarioDir.c_str());
 
 	for(int i=0; i < settings->getFactionCount(); ++i ) {
 		if(settings->getFactionControl(i) == ctHuman){
@@ -529,7 +530,7 @@ void Game::loadHudTexture(const GameSettings *settings)
 			break;
 		}
 	}
-	if(factionName != ""){
+	if(factionName != "") {
 		Config &config= Config::getInstance();
 		vector<string> pathList= config.getPathListForType(ptTechs, scenarioDir);
 		for(int idx= 0; idx < pathList.size(); idx++){

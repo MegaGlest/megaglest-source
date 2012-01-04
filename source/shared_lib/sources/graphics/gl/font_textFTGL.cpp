@@ -78,7 +78,7 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 		delete ftFont; ftFont = NULL;
 		free((void*)fontFile);
 		fontFile = NULL;
-		throw runtime_error("FTGL: error loading font");
+		throw runtime_error(string("FTGL: error loading font: ") + string(fontFile));
 	}
 	free((void*)fontFile);
 	fontFile = NULL;
