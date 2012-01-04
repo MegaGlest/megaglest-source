@@ -1095,10 +1095,11 @@ void MainWindow::loadUnit(string path, string skillName) {
 		string skillParticleFile 			= "";
 		string skillParticleProjectileFile 	= "";
 		string skillParticleSplashFile 		= "";
+		bool fileFound = fileExists(unitXML);
 
-		printf("Loading unit from file [%s]\n",unitXML.c_str());
+		printf("Loading unit from file [%s] fileFound = %d\n",unitXML.c_str(),fileFound);
 
-		if(fileExists(unitXML) == true) {
+		if(fileFound == true) {
 			XmlTree xmlTree;
 			xmlTree.load(unitXML,Properties::getTagReplacementValues());
 			const XmlNode *unitNode= xmlTree.getRootNode();
