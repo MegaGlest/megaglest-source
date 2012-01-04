@@ -616,8 +616,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	}
 
 	renderer->renderParticleManager();
-	glCanvas->SwapBuffers();
-
+	
 	bool haveLoadedParticles = (particleProjectilePathList.empty() == false || particleSplashPathList.empty() == false);
 
 	if(autoScreenShotAndExit == true) {
@@ -629,7 +628,10 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		Close();
 		return;
 	}
-	else if((modelPathList.empty() == false) && resetAnimation && haveLoadedParticles) {
+	
+	glCanvas->SwapBuffers();
+
+	if((modelPathList.empty() == false) && resetAnimation && haveLoadedParticles) {
 		if(anim >= resetAnim && resetAnim > 0) {
 			printf("RESETTING EVERYTHING [%f][%f]...\n",anim,resetAnim);
 			fflush(stdout);

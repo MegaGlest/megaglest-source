@@ -6395,7 +6395,7 @@ void Renderer::saveScreen(const string &path) {
 	Pixmap2D *pixmapScreenShot = new Pixmap2D(sm.getScreenW(), sm.getScreenH(), 3);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	glFinish();
+	//glFinish();
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
