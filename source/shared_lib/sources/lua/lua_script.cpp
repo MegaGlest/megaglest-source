@@ -192,7 +192,7 @@ void * LuaArguments::getGenericData(int argumentIndex) const{
 
 	if(lua_isstring(luaState, argumentIndex)) {
 		const char *result = luaL_checkstring(luaState, argumentIndex);
-		printf("\nGENERIC param %d is a string, %s!\n",argumentIndex,result);
+		//printf("\nGENERIC param %d is a string, %s!\n",argumentIndex,result);
 		return (void *)result;
 	}
 	//else if(lua_isnumber(luaState, argumentIndex)) {
@@ -202,11 +202,11 @@ void * LuaArguments::getGenericData(int argumentIndex) const{
 	//}
 	else if(lua_isnumber(luaState, argumentIndex)) {
 		lua_Integer result = luaL_checkinteger(luaState, argumentIndex);
-		printf("\nGENERIC param %d is an int, %d!\n",argumentIndex,(int)result);
+		//printf("\nGENERIC param %d is an int, %d!\n",argumentIndex,(int)result);
 		return (void *)result;
 	}
 	else {
-		printf("\nGENERIC param %d is a NULL!\n",argumentIndex);
+		//printf("\nGENERIC param %d is a NULL!\n",argumentIndex);
 		return NULL;
 	}
 }
