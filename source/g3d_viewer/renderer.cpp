@@ -485,11 +485,12 @@ void Renderer::setAlphaColor(float alpha) {
 
 void Renderer::saveScreen(const string &path) {
 	Pixmap2D *pixmapScreenShot = new Pixmap2D(width, height, 4);
-	glFinish();
+	//glFinish();
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
+		GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
