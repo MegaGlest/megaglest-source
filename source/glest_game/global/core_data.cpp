@@ -350,7 +350,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == false) {
 		displayFont= renderer.newFont(rsGlobal);
 		if(displayFont) {
-			displayFont->setType(displayFontName,config.getString("FontDisplay",""));
+			displayFont->setType(displayFontName,config.getString("FontDisplay",""),config.getString("FontDisplayFamily",""));
 			displayFont->setSize(displayFontSize);
 			//displayFont->setYOffsetFactor(config.getFloat("FontDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -363,7 +363,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == true) {
 		displayFont3D= renderer.newFont3D(rsGlobal);
 		if(displayFont3D) {
-			displayFont3D->setType(displayFontName,config.getString("FontDisplay",""));
+			displayFont3D->setType(displayFontName,config.getString("FontDisplay",""),config.getString("FontDisplayFamily",""));
 			displayFont3D->setSize(displayFontSize);
 			//displayFont3D->setYOffsetFactor(config.getFloat("FontDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -395,7 +395,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == false) {
 		displayFontSmall= renderer.newFont(rsGlobal);
 		if(displayFontSmall) {
-			displayFontSmall->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""));
+			displayFontSmall->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""),config.getString("FontSmallDisplayFamily",""));
 			displayFontSmall->setSize(displayFontNameSmallSize);
 			//displayFontSmall->setYOffsetFactor(config.getFloat("FontSmallDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -408,7 +408,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == true) {
 		displayFontSmall3D= renderer.newFont3D(rsGlobal);
 		if(displayFontSmall3D) {
-			displayFontSmall3D->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""));
+			displayFontSmall3D->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""),config.getString("FontSmallDisplayFamily",""));
 			displayFontSmall3D->setSize(displayFontNameSmallSize);
 			//displayFontSmall3D->setYOffsetFactor(config.getFloat("FontSmallDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -439,7 +439,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == false) {
 		menuFontNormal= renderer.newFont(rsGlobal);
 		if(menuFontNormal) {
-			menuFontNormal->setType(menuFontNameNormal,config.getString("FontMenuNormal",""));
+			menuFontNormal->setType(menuFontNameNormal,config.getString("FontMenuNormal",""),config.getString("FontMenuNormalFamily",""));
 			menuFontNormal->setSize(menuFontNameNormalSize);
 			menuFontNormal->setWidth(Font::wBold);
 			//menuFontNormal->setYOffsetFactor(config.getFloat("FontMenuNormalYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
@@ -453,7 +453,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == true) {
 		menuFontNormal3D= renderer.newFont3D(rsGlobal);
 		if(menuFontNormal3D) {
-			menuFontNormal3D->setType(menuFontNameNormal,config.getString("FontMenuNormal",""));
+			menuFontNormal3D->setType(menuFontNameNormal,config.getString("FontMenuNormal",""),config.getString("FontMenuNormalFamily",""));
 			menuFontNormal3D->setSize(menuFontNameNormalSize);
 			menuFontNormal3D->setWidth(Font::wBold);
 			//menuFontNormal3D->setYOffsetFactor(config.getFloat("FontMenuNormalYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
@@ -485,7 +485,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == false) {
 		menuFontBig= renderer.newFont(rsGlobal);
 		if(menuFontBig) {
-			menuFontBig->setType(menuFontNameBig,config.getString("FontMenuBig",""));
+			menuFontBig->setType(menuFontNameBig,config.getString("FontMenuBig",""),config.getString("FontMenuBigFamily",""));
 			menuFontBig->setSize(menuFontNameBigSize);
 			//menuFontBig->setYOffsetFactor(config.getFloat("FontMenuBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -498,7 +498,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == true) {
 		menuFontBig3D= renderer.newFont3D(rsGlobal);
 		if(menuFontBig3D) {
-			menuFontBig3D->setType(menuFontNameBig,config.getString("FontMenuBig",""));
+			menuFontBig3D->setType(menuFontNameBig,config.getString("FontMenuBig",""),config.getString("FontMenuBigFamily",""));
 			menuFontBig3D->setSize(menuFontNameBigSize);
 			//menuFontBig3D->setYOffsetFactor(config.getFloat("FontMenuBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -529,7 +529,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == false) {
 		menuFontVeryBig= renderer.newFont(rsGlobal);
 		if(menuFontVeryBig) {
-			menuFontVeryBig->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""));
+			menuFontVeryBig->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""),config.getString("FontMenuVeryBigFamily",""));
 			menuFontVeryBig->setSize(menuFontNameVeryBigSize);
 			//menuFontVeryBig->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -542,7 +542,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == true) {
 		menuFontVeryBig3D= renderer.newFont3D(rsGlobal);
 		if(menuFontVeryBig3D) {
-			menuFontVeryBig3D->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""));
+			menuFontVeryBig3D->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""),config.getString("FontMenuVeryBigFamily",""));
 			menuFontVeryBig3D->setSize(menuFontNameVeryBigSize);
 			//menuFontVeryBig3D->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -576,7 +576,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == false) {
 		consoleFont= renderer.newFont(rsGlobal);
 		if(consoleFont) {
-			consoleFont->setType(consoleFontName,config.getString("FontConsole",""));
+			consoleFont->setType(consoleFontName,config.getString("FontConsole",""),config.getString("FontConsoleFamily",""));
 			consoleFont->setSize(consoleFontNameSize);
 			//consoleFont->setYOffsetFactor(config.getFloat("FontConsoleYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
@@ -589,7 +589,7 @@ void CoreData::loadFonts() {
 	if(Renderer::renderText3DEnabled == true) {
 		consoleFont3D= renderer.newFont3D(rsGlobal);
 		if(consoleFont3D) {
-			consoleFont3D->setType(consoleFontName,config.getString("FontConsole",""));
+			consoleFont3D->setType(consoleFontName,config.getString("FontConsole",""),config.getString("FontConsoleFamily",""));
 			consoleFont3D->setSize(consoleFontNameSize);
 			//consoleFont3D->setYOffsetFactor(config.getFloat("FontConsoleYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}

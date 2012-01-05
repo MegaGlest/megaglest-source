@@ -52,10 +52,11 @@ void TextFreetypeGL::cleanupFont() {
 	}
 }
 
-void TextFreetypeGL::init(string fontName, int fontSize) {
+void TextFreetypeGL::init(string fontName, string fontFamilyName, int fontSize) {
 	cleanupFont();
 	this->fontName = fontName;
-	this->fontFile = findFont(this->fontName.c_str());
+	this->fontFamilyName = fontFamilyName;
+	this->fontFile = findFont(this->fontName.c_str(),this->fontFamilyName.c_str());
 	this->fontFaceSize = fontSize;
 
     const wchar_t *cache = L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";

@@ -107,6 +107,15 @@ void Lang::loadStrings(string uselanguage, bool loadFonts,
 	#endif
 		}
 
+		if(	lang.hasString("MEGAGLEST_FONT_FAMILY")) {
+	#if defined(WIN32)
+			string newEnvValue = "MEGAGLEST_FONT_FAMILY=" + lang.get("MEGAGLEST_FONT_FAMILY");
+			_putenv(newEnvValue.c_str());
+	#else
+			setenv("MEGAGLEST_FONT_FAMILY",lang.get("MEGAGLEST_FONT_FAMILY").c_str(),0);
+	#endif
+		}
+
 	//        if(	lang.hasString("FONT_YOFFSET_FACTOR")) {
 	//        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR"));
 	//		}
