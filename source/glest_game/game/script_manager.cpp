@@ -175,6 +175,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 
 	luaScript.registerFunction(getGameWon, "gameWon");
 
+	luaScript.registerFunction(getSystemMacroValue, "getSystemMacroValue");
+
 	luaScript.registerFunction(loadScenario, "loadScenario");
 
 	//load code
@@ -1024,6 +1026,12 @@ int ScriptManager::getUnitCountOfType(int factionIndex, const string &typeName) 
 	return world->getUnitCountOfType(factionIndex, typeName);
 }
 
+const string ScriptManager::getSystemMacroValue(const string &key) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->getSystemMacroValue(key);
+}
+
 void ScriptManager::loadScenario(const string &name, bool keepFactions) {
 	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1467,6 +1475,12 @@ int ScriptManager::getLastAttackingUnitName(LuaHandle* luaHandle) {
 int ScriptManager::getLastAttackingUnitId(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getLastAttackingUnitId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getSystemMacroValue(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnString(thisScriptManager->getSystemMacroValue(luaArguments.getString(-1)));
 	return luaArguments.getReturnCount();
 }
 

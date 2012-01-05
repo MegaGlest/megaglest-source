@@ -271,6 +271,8 @@ private:
 
 	bool getGameWon();
 
+	const string getSystemMacroValue(const string &key);
+
 	void loadScenario(const string &name, bool keepFactions);
 
 	//callbacks, commands
@@ -355,6 +357,8 @@ private:
 	static int getUnitCountOfType(LuaHandle* luaHandle);
 
 	static int getGameWon(LuaHandle* luaHandle);
+
+	static int getSystemMacroValue(LuaHandle* luaHandle);
 
 	static int loadScenario(LuaHandle* luaHandle);
 };
