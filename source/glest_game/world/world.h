@@ -239,6 +239,8 @@ public:
 	int getUnitCount(int factionIndex);
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
+	const string getSystemMacroValue(const string key);
+
 	Game * getGame() { return game; }
 	const GameSettings * getGameSettings() const;
 

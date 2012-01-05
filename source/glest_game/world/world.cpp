@@ -1082,6 +1082,24 @@ void World::addConsoleTextWoLang(const string &text) {
 	game->getConsole()->addLine(text);
 }
 
+const string World::getSystemMacroValue(const string key) {
+	string result = "";
+
+	result = key;
+	bool tagApplied = Properties::applyTagsToValue(result);
+	if(tagApplied == false) {
+		result = "";
+
+		if(key == "$SCENARIO_PATH") {
+			result = extractDirectoryPathFromFile(game->getGameSettings()->getScenarioDir());
+		}
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("system macro key [%s] returning [%s]\n",key.c_str(),result.c_str());
+
+	return result;
+}
+
 void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 	Unit *unit= findUnitById(unitId);
 	if(unit != NULL) {
