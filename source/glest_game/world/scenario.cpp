@@ -21,6 +21,7 @@
 #include "platform_common.h"
 #include "properties.h"
 #include "lang.h"
+#include "socket.h"
 #include "config.h"
 
 #include "leak_dumper.h"
@@ -299,6 +300,51 @@ ControlType Scenario::strToControllerType(const string &str) {
 	throw std::runtime_error(szBuf);
 }
 
+string Scenario::controllerTypeToStr(const ControlType &ct) {
+	string controlString = "";
+
+	Lang &lang= Lang::getInstance();
+	switch(ct) {
+		case ctCpuEasy:
+			controlString= lang.get("CpuEasy");
+			break;
+		case ctCpu:
+			controlString= lang.get("Cpu");
+			break;
+		case ctCpuUltra:
+			controlString= lang.get("CpuUltra");
+			break;
+		case ctCpuMega:
+			controlString= lang.get("CpuMega");
+			break;
+		case ctNetwork:
+			controlString= lang.get("Network");
+			break;
+		case ctHuman:
+			controlString= lang.get("Human");
+			break;
+
+		case ctNetworkCpuEasy:
+			controlString= lang.get("NetworkCpuEasy");
+			break;
+		case ctNetworkCpu:
+			controlString= lang.get("NetworkCpu");
+			break;
+		case ctNetworkCpuUltra:
+			controlString= lang.get("NetworkCpuUltra");
+			break;
+		case ctNetworkCpuMega:
+			controlString= lang.get("NetworkCpuMega");
+			break;
+
+		default:
+			printf("Error control = %d\n",ct);
+			//assert(false);
+	}
+
+	return controlString;
+}
+
 void Scenario::loadGameSettings(const vector<string> &dirList,
 		const ScenarioInfo *scenarioInfo, GameSettings *gameSettings,
 		string scenarioDescription) {
@@ -318,6 +364,15 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 		if(ct != ctClosed) {
 			if(ct == ctHuman) {
 				gameSettings->setThisFactionIndex(factionCount);
+
+				if(gameSettings->getNetworkPlayerName(i) == "") {
+					gameSettings->setNetworkPlayerName(i,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
+				}
+			}
+			else {
+				if(gameSettings->getNetworkPlayerName(i) == "") {
+					gameSettings->setNetworkPlayerName(i,controllerTypeToStr(ct));
+				}
 			}
 			gameSettings->setFactionControl(factionCount, ct);
 			gameSettings->setResourceMultiplierIndex(factionCount, (scenarioInfo->resourceMultipliers[i]-0.5f)/0.1f);
