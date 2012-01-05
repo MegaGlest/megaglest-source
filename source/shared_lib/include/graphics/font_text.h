@@ -36,7 +36,7 @@ public:
 	Text(FontTextHandlerType type);
 	virtual ~Text();
 
-	virtual void init(string fontName, int fontSize);
+	virtual void init(string fontName, string fontFamilyName, int fontSize);
 	virtual void SetFaceSize(int);
 	virtual int GetFaceSize();
 

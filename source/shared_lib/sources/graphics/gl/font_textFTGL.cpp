@@ -123,9 +123,9 @@ void TextFTGL::cleanupFont() {
 	fontFile = NULL;
 }
 
-void TextFTGL::init(string fontName, int fontSize) {
+void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
 	cleanupFont();
-	fontFile = findFont(fontName.c_str());
+	fontFile = findFont(fontName.c_str(),fontFamilyName.c_str());
 
 	//ftFont = new FTBufferFont(fontFile);
 	//ftFont = new FTGLPixmapFont(fontFile);

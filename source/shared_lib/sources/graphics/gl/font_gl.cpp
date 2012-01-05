@@ -84,17 +84,16 @@ void Font3DGl::end() {
 
 }}}//end namespace
 
-namespace Shared { namespace Graphics {
-
-	using namespace Gl;
-Font3D * ConvertFont2DTo3D(Font2D *font) {
-
-	Font3D *result = new Font3DGl();
-	result->setSize(font->getSize());
-	result->setType("",font->getType());
-	result->setWidth(font->getWidth());
-	result->init();
-	return result;
-}
-
-}}
+//namespace Shared { namespace Graphics {
+//
+//	using namespace Gl;
+//Font3D * ConvertFont2DTo3D(Font2D *font) {
+//
+//	Font3D *result = new Font3DGl();
+//	result->setSize(font->getSize());
+//	result->setType("",font->getType());
+//	result->setWidth(font->getWidth());
+//	result->init();
+//	return result;
+//}
+//}}

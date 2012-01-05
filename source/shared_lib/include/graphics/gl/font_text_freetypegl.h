@@ -41,7 +41,7 @@ public:
 
 	TextFreetypeGL(FontTextHandlerType type);
 	virtual ~TextFreetypeGL();
-	virtual void init(string fontName, int fontSize);
+	virtual void init(string fontName, string fontFamilyName, int fontSize);
 
 	virtual void SetFaceSize(int);
 	virtual int GetFaceSize();
@@ -66,6 +66,7 @@ private:
     int fontFaceSize;
 
     string fontName;
+    string fontFamilyName;
 	const char* fontFile;
 
 	void cleanupFont();
