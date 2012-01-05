@@ -361,6 +361,7 @@ private:
 
 	static int getSystemMacroValue(LuaHandle* luaHandle);
 	static int getPlayerName(LuaHandle* luaHandle);
+	static int scenarioDir(LuaHandle* luaHandle);
 
 	static int loadScenario(LuaHandle* luaHandle);
 };

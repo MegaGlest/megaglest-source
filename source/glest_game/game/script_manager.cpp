@@ -176,7 +176,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getGameWon, "gameWon");
 
 	luaScript.registerFunction(getSystemMacroValue, "getSystemMacroValue");
+	luaScript.registerFunction(scenarioDir, "scenarioDir");
 	luaScript.registerFunction(getPlayerName, "getPlayerName");
+	luaScript.registerFunction(getPlayerName, "playerName");
 
 	luaScript.registerFunction(loadScenario, "loadScenario");
 
@@ -1488,6 +1490,12 @@ int ScriptManager::getLastAttackingUnitId(LuaHandle* luaHandle) {
 int ScriptManager::getSystemMacroValue(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnString(thisScriptManager->getSystemMacroValue(luaArguments.getString(-1)));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::scenarioDir(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnString(thisScriptManager->getSystemMacroValue("$SCENARIO_PATH"));
 	return luaArguments.getReturnCount();
 }
 
