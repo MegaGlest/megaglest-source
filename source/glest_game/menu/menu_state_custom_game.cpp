@@ -196,6 +196,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 	ServerSocket::setExternalPort(strToInt(externalPort));
 
+	xoffset=70;
 	// MapFilter
 	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
 	labelMapFilter.init(xoffset+310, mapHeadPos);
@@ -210,7 +211,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxMapFilter.setSelectedItemIndex(0);
 
 	// Map
-	xoffset=70;
 	labelMap.registerGraphicComponent(containerName,"labelMap");
 	labelMap.init(xoffset+100, mapHeadPos);
 	labelMap.setText(lang.get("Map")+":");
