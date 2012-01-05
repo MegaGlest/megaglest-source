@@ -38,7 +38,7 @@ TextFreetypeGL::TextFreetypeGL(FontTextHandlerType type) : Text(type) {
     font=NULL;
     manager=NULL;
 
-	init("", 24);
+	init("", "", 24);
 }
 
 TextFreetypeGL::~TextFreetypeGL() {
@@ -78,7 +78,7 @@ void TextFreetypeGL::init(string fontName, string fontFamilyName, int fontSize) 
 
 void TextFreetypeGL::SetFaceSize(int value) {
 	this->fontFaceSize = value;
-	init(this->fontName,this->fontFaceSize);
+	init(this->fontName,this->fontFamilyName,this->fontFaceSize);
 }
 
 int TextFreetypeGL::GetFaceSize() {
