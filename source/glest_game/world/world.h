@@ -240,6 +240,7 @@ public:
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
 	const string getSystemMacroValue(const string key);
+	const string getPlayerName(int factionIndex);
 
 	Game * getGame() { return game; }
 	const GameSettings * getGameSettings() const;

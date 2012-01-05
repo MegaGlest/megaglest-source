@@ -1100,6 +1100,10 @@ const string World::getSystemMacroValue(const string key) {
 	return result;
 }
 
+const string World::getPlayerName(int factionIndex) {
+	return game->getGameSettings()->getNetworkPlayerName(factionIndex);
+}
+
 void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 	Unit *unit= findUnitById(unitId);
 	if(unit != NULL) {

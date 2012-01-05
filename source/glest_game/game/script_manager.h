@@ -272,6 +272,7 @@ private:
 	bool getGameWon();
 
 	const string getSystemMacroValue(const string &key);
+	const string getPlayerName(int factionIndex);
 
 	void loadScenario(const string &name, bool keepFactions);
 
@@ -359,6 +360,7 @@ private:
 	static int getGameWon(LuaHandle* luaHandle);
 
 	static int getSystemMacroValue(LuaHandle* luaHandle);
+	static int getPlayerName(LuaHandle* luaHandle);
 
 	static int loadScenario(LuaHandle* luaHandle);
 };

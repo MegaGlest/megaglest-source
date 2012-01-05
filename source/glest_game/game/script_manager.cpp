@@ -176,6 +176,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(getGameWon, "gameWon");
 
 	luaScript.registerFunction(getSystemMacroValue, "getSystemMacroValue");
+	luaScript.registerFunction(getPlayerName, "getPlayerName");
 
 	luaScript.registerFunction(loadScenario, "loadScenario");
 
@@ -1032,6 +1033,12 @@ const string ScriptManager::getSystemMacroValue(const string &key) {
 	return world->getSystemMacroValue(key);
 }
 
+const string ScriptManager::getPlayerName(int factionIndex) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->getPlayerName(factionIndex);
+}
+
 void ScriptManager::loadScenario(const string &name, bool keepFactions) {
 	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1481,6 +1488,12 @@ int ScriptManager::getLastAttackingUnitId(LuaHandle* luaHandle) {
 int ScriptManager::getSystemMacroValue(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnString(thisScriptManager->getSystemMacroValue(luaArguments.getString(-1)));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getPlayerName(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnString(thisScriptManager->getPlayerName(luaArguments.getInt(-1)));
 	return luaArguments.getReturnCount();
 }
 

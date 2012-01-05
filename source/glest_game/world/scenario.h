@@ -108,6 +108,8 @@ public:
 
 	static void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	static ControlType strToControllerType(const string &str);
+	static string controllerTypeToStr(const ControlType &ct);
+
 	static void loadGameSettings(const vector<string> &dirList, const ScenarioInfo *scenarioInfo, GameSettings *gameSettings, string scenarioDescription);
 
 private:
