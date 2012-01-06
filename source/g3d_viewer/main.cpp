@@ -260,6 +260,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 bool autoScreenShotAndExit = false;
 vector<string> autoScreenShotParams;
+std::pair<int,int> overrideSize(0,0);
 
 // ===============================================
 // 	class MainWindow
@@ -572,28 +573,13 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	// notice that we use GetSize() here and not GetClientSize() because
 	// the latter doesn't return correct results for the minimized windows
 	// (at least not under Windows)
-#if defined(WIN32)
-/*
-	//Seems like windows cannot handle this consistently
+	int viewportW = GetClientSize().x;
+	int viewportH = GetClientSize().y;
 
-	if(autoScreenShotAndExit == true) {
-		printf("\n\n$$$ GetSize() x = %d y = %d, Renderer::windowW = %d H = %d\n",GetSize().x,GetSize().y,Renderer::windowW,Renderer::windowH);
-		//renderer->reset(GetSize().x, GetSize().y-10, playerColor);
-		//renderer->reset(Renderer::windowW, Renderer::windowH-20, playerColor);
-		//this->Iconize(false);
-		
-		//this->Refresh();
-		//renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
-		renderer->reset(Renderer::windowW, Renderer::windowH-20, playerColor);
-	}
-	else {
-		printf("\n\n### GetClientSize() x = %d y = %d\n",GetClientSize().x,GetClientSize().y);
-		renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
-	}
-*/
-	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
+#if defined(WIN32)
+	renderer->reset(viewportW, viewportH, playerColor);
 #else
-	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
+	renderer->reset(viewportW, viewportH, playerColor);
 #endif
 
 	renderer->transform(rotX, rotY, zoom);
@@ -950,22 +936,6 @@ void MainWindow::onMenumFileToggleScreenshotTransparent(wxCommandEvent &event) {
 
 void MainWindow::saveScreenshot() {
 	try {
-		std::pair<int,int> overrideSize(0,0);
-	    for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
-			if(_strnicmp(autoScreenShotParams[i].c_str(),"resize-",7) == 0) {
-	    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
-
-	    		string resize = autoScreenShotParams[i];
-	    		resize = resize.erase(0,7);
-	    		vector<string> values;
-	            Tokenize(resize,values,"x");
-	            overrideSize.first = strToInt(values[0]);
-	            overrideSize.second = strToInt(values[1]);
-
-	    		break;
-	    	}
-	    }
-
 		int autoSaveScreenshotIndex = -1;
 	    for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
 			if(_strnicmp(autoScreenShotParams[i].c_str(),"saveas-",7) == 0) {
@@ -2069,13 +2039,27 @@ bool App::OnInit() {
             autoScreenShotParams.clear();
             Tokenize(optionsValue,autoScreenShotParams,",");
 
-			#ifdef WIN32
 			for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
+
+#ifdef WIN32
 				std::auto_ptr<wchar_t> wstr(Ansi2WideString(autoScreenShotParams[i].c_str()));
 				autoScreenShotParams[i] = utf8_encode(wstr.get());
-			}
-			#endif
+#endif
 
+				if(_strnicmp(autoScreenShotParams[i].c_str(),"resize-",7) == 0) {
+					printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+
+					string resize = autoScreenShotParams[i];
+					resize = resize.erase(0,7);
+					vector<string> values;
+					Tokenize(resize,values,"x");
+					overrideSize.first = strToInt(values[0]);
+					overrideSize.second = strToInt(values[1]);
+
+					Renderer::windowW = overrideSize.first;
+					Renderer::windowH = overrideSize.second + 25;
+				}
+			}
         }
     }
 
