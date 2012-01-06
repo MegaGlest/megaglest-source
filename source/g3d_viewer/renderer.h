@@ -68,8 +68,8 @@ public:
 
 class Renderer : public RendererInterface {
 public:
-	static const int windowX= 100;
-	static const int windowY= 100;
+	static int windowX;
+	static int windowY;
 	static int windowW;
 	static int windowH;
 

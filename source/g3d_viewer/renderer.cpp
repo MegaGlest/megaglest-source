@@ -21,6 +21,8 @@ using namespace Shared::Graphics::Gl;
 
 namespace Shared{ namespace G3dViewer{
 
+int Renderer::windowX= 100;
+int Renderer::windowY= 100;
 int Renderer::windowW= 640;
 int Renderer::windowH= 480;
 
