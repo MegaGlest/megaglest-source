@@ -959,6 +959,8 @@ void Socket::disconnectSocket() {
 
         MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
         MutexSafeWrapper safeMutex1(dataSynchAccessorWrite,CODE_AT_LINE);
+
+        if(isSocketValid() == true) {
         ::shutdown(sock,2);
 #ifndef WIN32
         ::close(sock);
@@ -967,6 +969,7 @@ void Socket::disconnectSocket() {
         ::closesocket(sock);
         sock = -1;
 #endif
+        }
         safeMutex.ReleaseLock();
         safeMutex1.ReleaseLock();
     }
