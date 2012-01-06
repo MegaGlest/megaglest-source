@@ -199,9 +199,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t        of the optional settings:");
 	printf("\n                     \t\ttransparent, enable_grid, enable_wireframe,");
 	printf("\n                     \t\tenable_normals, disable_grid, disable_wireframe,");
-	printf("\n                     \t\tdisable_normals, saveas-<filename>");
+	printf("\n                     \t\tdisable_normals, saveas-<filename>, resize-wxh");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=transparent,disable_grid,saveas-test.png %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n %s %s=transparent,disable_grid,saveas-test.png,resize-800x600 %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 
 	//     "================================================================================"
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
@@ -950,6 +950,22 @@ void MainWindow::onMenumFileToggleScreenshotTransparent(wxCommandEvent &event) {
 
 void MainWindow::saveScreenshot() {
 	try {
+		std::pair<int,int> overrideSize(0,0);
+	    for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
+			if(_strnicmp(autoScreenShotParams[i].c_str(),"resize-",7) == 0) {
+	    		printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+
+	    		string resize = autoScreenShotParams[i];
+	    		resize = resize.erase(0,7);
+	    		vector<string> values;
+	            Tokenize(resize,values,"x");
+	            overrideSize.first = strToInt(values[0]);
+	            overrideSize.second = strToInt(values[1]);
+
+	    		break;
+	    	}
+	    }
+
 		int autoSaveScreenshotIndex = -1;
 	    for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
 			if(_strnicmp(autoScreenShotParams[i].c_str(),"saveas-",7) == 0) {
@@ -967,7 +983,7 @@ void MainWindow::saveScreenshot() {
 			FILE *f= fopen(saveAsFilename.c_str(), "rb");
 #endif
 			if(f == NULL) {
-				renderer->saveScreen(saveAsFilename.c_str());
+				renderer->saveScreen(saveAsFilename.c_str(),&overrideSize);
 			}
 			else {
 				if(f) {
@@ -1002,7 +1018,7 @@ void MainWindow::saveScreenshot() {
 					FILE *f= fopen(path.c_str(), "rb");
 #endif
 					if(f == NULL) {
-						renderer->saveScreen(path);
+						renderer->saveScreen(path,&overrideSize);
 						break;
 					}
 					else {

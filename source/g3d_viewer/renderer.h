@@ -157,7 +157,7 @@ public:
 
 	void setBackgroundColor(float red, float green, float blue);
 	void setAlphaColor(float alpha);
-	void saveScreen(const string &path);
+	void saveScreen(const string &path,std::pair<int,int> *overrideSize);
 	bool hasActiveParticleSystem(ParticleSystem::ParticleSystemType typeName) const;
 };
 
