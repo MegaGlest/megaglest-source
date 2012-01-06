@@ -113,6 +113,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 				icon = SDL_LoadBMP(mg_icon_file.c_str());
 			}
 			else {
+				//printf("Loadng png icon\n");
 				Texture2D *texture2D = GraphicsInterface::getInstance().getFactory()->newTexture2D();
 				texture2D->load(mg_icon_file);
 				icon = texture2D->CreateSDLSurface(true);
@@ -139,6 +140,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 				//uint32 colorkey = SDL_MapRGB(icon->format, 255, 0, 255);
 				//SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey);
+				SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 0, 255));
 
 				SDL_WM_SetIcon(icon, NULL);
 			}
