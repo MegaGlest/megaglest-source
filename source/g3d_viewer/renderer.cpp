@@ -21,6 +21,9 @@ using namespace Shared::Graphics::Gl;
 
 namespace Shared{ namespace G3dViewer{
 
+int Renderer::windowW= 640;
+int Renderer::windowH= 480;
+
 // ===============================================
 // 	class MeshCallbackTeamColor
 // ===============================================
@@ -494,9 +497,9 @@ void Renderer::saveScreen(const string &path,std::pair<int,int> *overrideSize) {
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	if(overrideSize != NULL && overrideSize->first > 0 && overrideSize->second > 0) {
-		pixmapScreenShot->Scale(GL_RGBA,overrideSize->first,overrideSize->second);
-	}
+	//if(overrideSize != NULL && overrideSize->first > 0 && overrideSize->second > 0) {
+	//	pixmapScreenShot->Scale(GL_RGBA,overrideSize->first,overrideSize->second);
+	//}
 
 	pixmapScreenShot->save(path);
 	delete pixmapScreenShot;
