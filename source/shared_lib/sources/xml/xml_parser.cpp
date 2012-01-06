@@ -70,7 +70,7 @@ XmlIo::XmlIo() {
 		XmlIo::initialized= true;
 	}
 	catch(const XMLException &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system, msg %s\n",__FILE__,__FUNCTION__,__LINE__,e.getMessage());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system, msg %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.getMessage());
 		throw runtime_error("Error initializing XML system");
 	}
 
@@ -81,7 +81,7 @@ XmlIo::XmlIo() {
 		implementation = DOMImplementationRegistry::getDOMImplementation(str);
 	}
 	catch(const DOMException &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser, msg: %s\n",__FILE__,__FUNCTION__,__LINE__,ex.getMessage());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser, msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.getMessage());
 		throw runtime_error("Exception while creating XML parser");
 	}
 }
@@ -135,7 +135,7 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
 		return rootNode;
 	}
 	catch(const DOMException &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while loading: [%s], %s\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while loading: [%s], %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
 		throw runtime_error("Exception while loading: " + path + ": " + XMLString::transcode(ex.msg));
 	}
 }
@@ -170,7 +170,7 @@ void XmlIo::save(const string &path, const XmlNode *node){
 		document->release();
 	}
 	catch(const DOMException &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while saving: [%s], %s\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(e.msg));
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while saving: [%s], %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(e.msg));
 		throw runtime_error("Exception while saving: " + path + ": " + XMLString::transcode(e.msg));
 	}
 }
@@ -191,6 +191,8 @@ typedef std::vector<XmlTree*> LoadStack;
 static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
 
 void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
+
 	//printf("XmlTree::load p [%p]\n",this);
 	assert(!loadPath.size());
 
@@ -208,6 +210,8 @@ void XmlTree::load(const string &path, std::map<string,string> mapTagReplacement
 
 	loadPath = path;
 	this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 }
 
 void XmlTree::save(const string &path){
