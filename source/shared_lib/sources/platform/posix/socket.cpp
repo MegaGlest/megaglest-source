@@ -1204,11 +1204,13 @@ int Socket::send(const void *data, int dataSize) {
 
 		MutexSafeWrapper safeMutex(dataSynchAccessorWrite,CODE_AT_LINE);
 
+		if(isSocketValid() == true)	{
 #ifdef __APPLE__
         bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
 #else
         bytesSent = ::send(sock, (const char *)data, dataSize, MSG_NOSIGNAL | MSG_DONTWAIT);
 #endif
+		}
         safeMutex.ReleaseLock();
 	}
 
@@ -1355,7 +1357,9 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 //    	safeMutexSocketDestructorFlag.ReleaseLock();
 
 		MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
-	    bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
+		if(isSocketValid() == true)	{
+			bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
+		}
 	    safeMutex.ReleaseLock();
 	}
 	if(bytesReceived < 0 && getLastSocketError() != PLATFORM_SOCKET_TRY_AGAIN) {
@@ -1445,8 +1449,9 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 		MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
 
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
-
-	    err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
+		if(isSocketValid() == true)	{
+			err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
+		}
 	    safeMutex.ReleaseLock();
 
 	    //printf("Peek #1 err = %d\n",err);
