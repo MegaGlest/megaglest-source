@@ -982,8 +982,10 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
         return;
 	}
 
-	//delay the start a bit, so clients have more room to get messages
-	sleep(100);
+	// delay the start a bit, so clients have more room to get messages
+	// This is to ensure clients don't start ahead of the server and thus
+	// constantly freeze because they are waiting for the server to catch up
+	sleep(120);
 
 	// This triggers LAG update packets to begin as required
 	lastNetworkCommandListSendTime = time(NULL);
