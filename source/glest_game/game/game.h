@@ -149,6 +149,8 @@ private:
 
 	time_t lastNetworkPlayerConnectionCheck;
 
+	time_t lastMasterServerGameStatsDump;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
@@ -253,6 +255,8 @@ private:
 
 	int getFirstUnusedTeamNumber();
 	void updateWorldStats();
+
+	string getDebugStats(std::map<int,string> &factionDebugInfo);
 };
 
 }}//end namespace

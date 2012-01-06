@@ -50,6 +50,8 @@ int fadeMusicMilliseconds = 3500;
 // Check every x seconds if we should switch disconnected players to AI
 const int NETWORK_PLAYER_CONNECTION_CHECK_SECONDS = 5;
 
+int GAME_STATS_DUMP_INTERVAL = 60 * 10;
+
 Game::Game() : ProgramState(NULL) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -109,8 +111,10 @@ Game::Game() : ProgramState(NULL) {
 	currentAmbientSound=NULL;
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
 
-	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	lastNetworkPlayerConnectionCheck = time(NULL);
+
+	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
+	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
 }
 
 void Game::resetMembers() {
@@ -123,6 +127,7 @@ void Game::resetMembers() {
 	GameConstants::cameraFps= 100;
 	captureAvgTestStatus = false;
 	lastRenderLog2d		 = 0;
+	lastMasterServerGameStatsDump = 0;
 	totalRenderFps       = 0;
 	lastMaxUnitCalcTime  = 0;
 	renderExtraTeamColor = 0;
@@ -179,8 +184,10 @@ void Game::resetMembers() {
 	currentAmbientSound=NULL;
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
 
-	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	lastNetworkPlayerConnectionCheck = time(NULL);
+
+	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
+	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
 
 	Object::setStateCallback(&gui);
 
@@ -1480,6 +1487,17 @@ void Game::render() {
 		if(connectedClients == 0) {
 			quitTriggeredIndicator = true;
 		}
+		else {
+		    string str="";
+		    std::map<int,string> factionDebugInfo;
+
+			if( difftime(time(NULL),lastMasterServerGameStatsDump) >= GAME_STATS_DUMP_INTERVAL) {
+				lastMasterServerGameStatsDump = time(NULL);
+				str = getDebugStats(factionDebugInfo);
+
+				printf("== Current in-game stats (interval %d) ==\n%s\n",GAME_STATS_DUMP_INTERVAL,str.c_str());
+			}
+		}
 	}
 }
 
@@ -2733,6 +2751,135 @@ void Game::updateWorldStats() {
     }
 }
 
+string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
+	string str = "";
+
+	if(this->masterserverMode == false) {
+		str+= "MouseXY: "        + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
+
+		if(world.getMap()->isInsideSurface(world.getMap()->toSurfCoords(mouseCellPos)) == true) {
+			str+= "MouseXY cell coords: "        + intToStr(mouseCellPos.x) + "," + intToStr(mouseCellPos.y)+"\n";
+		}
+
+		str+= "PosObjWord: "     + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
+	}
+
+	str+= "Render FPS: "     + intToStr(lastRenderFps) + "[" + intToStr(avgRenderFps) + "]\n";
+	str+= "Update FPS: "     + intToStr(lastUpdateFps) + "[" + intToStr(avgUpdateFps) + "]\n";
+
+	if(this->masterserverMode == false) {
+		str+= "GameCamera pos: " + floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
+		//str+= "Cached surfacedata: " +  intToStr(renderer.getCachedSurfaceDataSize())+"\n";
+	}
+
+	//intToStr(stats.getFramesToCalculatePlaytime()/GameConstants::updateFps/60
+	str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),2) + " [" + floatToStr((float)world.getStats()->getFramesToCalculatePlaytime() / (float)GameConstants::updateFps / 60.0,2) + "]\n";
+
+	if(SystemFlags::getThreadedLoggerRunning() == true) {
+		str+= "Log buffer count: " + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
+	}
+
+	str+= "UnitRangeCellsLookupItemCache: " + world.getUnitUpdater()->getUnitRangeCellsLookupItemCacheStats()+"\n";
+	str+= "ExploredCellsLookupItemCache: " 	+ world.getExploredCellsLookupItemCacheStats()+"\n";
+	str+= "FowAlphaCellsLookupItemCache: "  + world.getFowAlphaCellsLookupItemCacheStats()+"\n";
+
+	//str+= "AllFactionsCacheStats: "			+ world.getAllFactionsCacheStats()+"\n";
+	//str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";
+
+	str+= "Map: " + gameSettings.getMap() +"\n";
+	str+= "Tileset: " + gameSettings.getTileset() +"\n";
+	str+= "Techtree: " + gameSettings.getTech() +"\n";
+
+	if(this->masterserverMode == false) {
+		Renderer &renderer= Renderer::getInstance();
+		str+= "Triangle count: " + intToStr(renderer.getTriangleCount())+"\n";
+		str+= "Vertex count: "   + intToStr(renderer.getPointCount())+"\n";
+	}
+
+	str+= "Frame count:"     + intToStr(world.getFrameCount())+"\n";
+
+	//visible quad
+	if(this->masterserverMode == false) {
+		Renderer &renderer= Renderer::getInstance();
+		Quad2i visibleQuad= renderer.getVisibleQuad();
+		Quad2i visibleQuadCamera= renderer.getVisibleQuadFromCamera();
+
+		str+= "Visible quad:        ";
+		for(int i= 0; i<4; ++i){
+			str+= "(" + intToStr(visibleQuad.p[i].x) + "," +intToStr(visibleQuad.p[i].y) + ") ";
+		}
+	//		str+= "\n";
+	//		str+= "Visible quad camera: ";
+	//		for(int i= 0; i<4; ++i){
+	//			str+= "(" + intToStr(visibleQuadCamera.p[i].x) + "," +intToStr(visibleQuadCamera.p[i].y) + ") ";
+	//		}
+		str+= "\n";
+
+		str+= "Visible quad area:        " + floatToStr(visibleQuad.area()) +"\n";
+	//		str+= "Visible quad camera area: " + floatToStr(visibleQuadCamera.area()) +"\n";
+
+	//		Rect2i boundingRect= visibleQuad.computeBoundingRect();
+	//		Rect2i scaledRect= boundingRect/Map::cellScale;
+	//		scaledRect.clamp(0, 0, world.getMap()->getSurfaceW()-1, world.getMap()->getSurfaceH()-1);
+	//		renderer.renderText3D("#1", coreData.getMenuFontNormal3D(), Vec3f(1.0f), scaledRect.p[0].x, scaledRect.p[0].y, false);
+	//		renderer.renderText3D("#2", coreData.getMenuFontNormal3D(), Vec3f(1.0f), scaledRect.p[1].x, scaledRect.p[1].y, false);
+	}
+
+	int totalUnitcount = 0;
+	for(int i = 0; i < world.getFactionCount(); ++i) {
+		Faction *faction= world.getFaction(i);
+		totalUnitcount += faction->getUnitCount();
+	}
+
+	if(this->masterserverMode == false) {
+		Renderer &renderer= Renderer::getInstance();
+		VisibleQuadContainerCache &qCache =renderer.getQuadCache();
+		int visibleUnitCount = qCache.visibleQuadUnitList.size();
+		str+= "Visible unit count: " + intToStr(visibleUnitCount) + " total: " + intToStr(totalUnitcount) + "\n";
+
+		int visibleObjectCount = qCache.visibleObjectList.size();
+		str+= "Visible object count: " + intToStr(visibleObjectCount) +"\n";
+	}
+	else {
+		str+= "Total unit count: " + intToStr(totalUnitcount) + "\n";
+	}
+
+	// resources
+	for(int i = 0; i < world.getFactionCount(); ++i) {
+		string factionInfo = this->gameSettings.getNetworkPlayerName(i);
+		switch(this->gameSettings.getFactionControl(i)) {
+			case ctCpuEasy:
+				factionInfo += " CPU Easy";
+				break;
+			case ctCpu:
+				factionInfo += " CPU Normal";
+				break;
+			case ctCpuUltra:
+				factionInfo += " CPU Ultra";
+				break;
+			case ctCpuMega:
+				factionInfo += " CPU Mega";
+				break;
+		}
+
+		factionInfo +=	" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
+				" team: " + intToStr(this->gameSettings.getTeam(i)) + "]";
+
+		bool showResourceDebugInfo = false;
+		if(showResourceDebugInfo == true) {
+			factionInfo +=" res: ";
+			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
+				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
+				factionInfo += " ";
+			}
+		}
+
+		factionDebugInfo[i] = factionInfo;
+	}
+
+	return str;
+}
+
 void Game::render2d() {
 	Renderer &renderer= Renderer::getInstance();
 	//Config &config= Config::getInstance();
@@ -2810,107 +2957,7 @@ void Game::render2d() {
 
 	if( renderer.getShowDebugUI() == true ||
 		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
-		str+= "MouseXY: "        + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
-
-		if(world.getMap()->isInsideSurface(world.getMap()->toSurfCoords(mouseCellPos)) == true) {
-			str+= "MouseXY cell coords: "        + intToStr(mouseCellPos.x) + "," + intToStr(mouseCellPos.y)+"\n";
-		}
-
-		str+= "PosObjWord: "     + intToStr(gui.getPosObjWorld().x) + "," + intToStr(gui.getPosObjWorld().y)+"\n";
-		str+= "Render FPS: "     + intToStr(lastRenderFps) + "[" + intToStr(avgRenderFps) + "]\n";
-		str+= "Update FPS: "     + intToStr(lastUpdateFps) + "[" + intToStr(avgUpdateFps) + "]\n";
-		str+= "GameCamera pos: " + floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
-		//str+= "Cached surfacedata: " +  intToStr(renderer.getCachedSurfaceDataSize())+"\n";
-		str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),2)+"\n";
-		if(SystemFlags::getThreadedLoggerRunning() == true) {
-            str+= "Log buffer count: " + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
-		}
-
-		str+= "UnitRangeCellsLookupItemCache: " + world.getUnitUpdater()->getUnitRangeCellsLookupItemCacheStats()+"\n";
-		str+= "ExploredCellsLookupItemCache: " 	+ world.getExploredCellsLookupItemCacheStats()+"\n";
-		str+= "FowAlphaCellsLookupItemCache: "  + world.getFowAlphaCellsLookupItemCacheStats()+"\n";
-		//str+= "AllFactionsCacheStats: "			+ world.getAllFactionsCacheStats()+"\n";
-
-		//str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";
-
-		str+= "Map: " + gameSettings.getMap() +"\n";
-		str+= "Tileset: " + gameSettings.getTileset() +"\n";
-		str+= "Techtree: " + gameSettings.getTech() +"\n";
-
-		str+= "Triangle count: " + intToStr(renderer.getTriangleCount())+"\n";
-		str+= "Vertex count: "   + intToStr(renderer.getPointCount())+"\n";
-		str+= "Frame count:"     + intToStr(world.getFrameCount())+"\n";
-
-		//visible quad
-		Quad2i visibleQuad= renderer.getVisibleQuad();
-		Quad2i visibleQuadCamera= renderer.getVisibleQuadFromCamera();
-
-		str+= "Visible quad:        ";
-		for(int i= 0; i<4; ++i){
-			str+= "(" + intToStr(visibleQuad.p[i].x) + "," +intToStr(visibleQuad.p[i].y) + ") ";
-		}
-//		str+= "\n";
-//		str+= "Visible quad camera: ";
-//		for(int i= 0; i<4; ++i){
-//			str+= "(" + intToStr(visibleQuadCamera.p[i].x) + "," +intToStr(visibleQuadCamera.p[i].y) + ") ";
-//		}
-		str+= "\n";
-
-		str+= "Visible quad area:        " + floatToStr(visibleQuad.area()) +"\n";
-//		str+= "Visible quad camera area: " + floatToStr(visibleQuadCamera.area()) +"\n";
-
-//		Rect2i boundingRect= visibleQuad.computeBoundingRect();
-//		Rect2i scaledRect= boundingRect/Map::cellScale;
-//		scaledRect.clamp(0, 0, world.getMap()->getSurfaceW()-1, world.getMap()->getSurfaceH()-1);
-//		renderer.renderText3D("#1", coreData.getMenuFontNormal3D(), Vec3f(1.0f), scaledRect.p[0].x, scaledRect.p[0].y, false);
-//		renderer.renderText3D("#2", coreData.getMenuFontNormal3D(), Vec3f(1.0f), scaledRect.p[1].x, scaledRect.p[1].y, false);
-
-		int totalUnitcount = 0;
-		for(int i = 0; i < world.getFactionCount(); ++i) {
-			Faction *faction= world.getFaction(i);
-			totalUnitcount += faction->getUnitCount();
-		}
-
-		VisibleQuadContainerCache &qCache =renderer.getQuadCache();
-		int visibleUnitCount = qCache.visibleQuadUnitList.size();
-		str+= "Visible unit count: " + intToStr(visibleUnitCount) + " total: " + intToStr(totalUnitcount) + "\n";
-
-		int visibleObjectCount = qCache.visibleObjectList.size();
-		str+= "Visible object count: " + intToStr(visibleObjectCount) +"\n";
-
-		// resources
-		for(int i = 0; i < world.getFactionCount(); ++i) {
-			string factionInfo = this->gameSettings.getNetworkPlayerName(i);
-			switch(this->gameSettings.getFactionControl(i)) {
-				case ctCpuEasy:
-					factionInfo += " CPU Easy";
-					break;
-				case ctCpu:
-					factionInfo += " CPU Normal";
-					break;
-				case ctCpuUltra:
-					factionInfo += " CPU Ultra";
-					break;
-				case ctCpuMega:
-					factionInfo += " CPU Mega";
-					break;
-			}
-
-			factionInfo +=	" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
-					" team: " + intToStr(this->gameSettings.getTeam(i)) + "]";
-
-			bool showResourceDebugInfo = false;
-			if(showResourceDebugInfo == true) {
-				factionInfo +=" res: ";
-				for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
-					factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
-					factionInfo += " ";
-				}
-			}
-
-			factionDebugInfo[i] = factionInfo;
-		}
-
+		str = getDebugStats(factionDebugInfo);
 	}
 
 	if(renderer.getShowDebugUI() == true) {
