@@ -403,7 +403,8 @@ int mainSetup(int argc, char **argv) {
 	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VERSION])) == true ||
 	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])) == true ||
 	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-	     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0)  {
+	     // Use this for masterserver mode for timers like Chrono
+		 if(SDL_Init(SDL_INIT_TIMER) < 0)  {
 	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
 	        return 1;
 	     }
@@ -413,9 +414,9 @@ int mainSetup(int argc, char **argv) {
 			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
 			return 1;
 		 }
+		SDL_EnableUNICODE(1);
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	}
-	SDL_EnableUNICODE(1);
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	return 0;
 }
 
