@@ -50,109 +50,6 @@ PlatformContextGl::~PlatformContextGl() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-/* Quick utility function for texture creation */
-static int powerOfTwo(int input) {
-        int value = 1;
-
-        while (value < input) {
-                value <<= 1;
-        }
-        return value;
-}
-
-SDL_Surface *prepGLTexture(SDL_Surface *surface, GLfloat *texCoords = NULL, const bool
-freeSource = false) {
-        /* Use the surface width and height expanded to powers of 2 */
-        int w = powerOfTwo(surface->w);
-        int h = powerOfTwo(surface->h);
-        if (texCoords != 0) {
-                texCoords[0] = 0.0f;                                    /* Min
-X */
-                texCoords[1] = 0.0f;                                    /* Min
-Y */
-                texCoords[2] = (GLfloat)surface->w / w; /* Max X */
-                texCoords[3] = (GLfloat)surface->h / h; /* Max Y */
-        }
-
-        SDL_Surface *image = SDL_CreateRGBSurface(
-                SDL_SWSURFACE,
-                w, h,
-                32,
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
-                0x000000FF,
-                0x0000FF00,
-                0x00FF0000,
-                0xFF000000
-#else
-                0xFF000000,
-                0x00FF0000,
-                0x0000FF00,
-                0x000000FF
-#endif
-        );
-        if ( image == NULL ) {
-                return 0;
-        }
-
-        /* Save the alpha blending attributes */
-        Uint32 savedFlags = surface->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
-        Uint8  savedAlpha = surface->format->alpha;
-        if ( (savedFlags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
-                SDL_SetAlpha(surface, 0, 0);
-        }
-
-        SDL_Rect srcArea, destArea;
-        /* Copy the surface into the GL texture image */
-        srcArea.x = 0; destArea.x = 0;
-        /* Copy it in at the bottom, because we're going to flip
-           this image upside-down in a moment
-        */
-        srcArea.y = 0; destArea.y = h - surface->h;
-        srcArea.w = surface->w;
-        srcArea.h = surface->h;
-        SDL_BlitSurface(surface, &srcArea, image, &destArea);
-
-        /* Restore the alpha blending attributes */
-        if ((savedFlags & SDL_SRCALPHA) == SDL_SRCALPHA) {
-                SDL_SetAlpha(surface, savedFlags, savedAlpha);
-        }
-
-        /* Turn the image upside-down, because OpenGL textures
-           start at the bottom-left, instead of the top-left
-        */
-#ifdef _MSC_VER
-        Uint8 *line = new Uint8[image->pitch];
-#else
-        Uint8 line[image->pitch];
-#endif
-        /* These two make the following more readable */
-        Uint8 *pixels = static_cast<Uint8*>(image->pixels);
-        Uint16 pitch = image->pitch;
-        int ybegin = 0;
-        int yend = image->h - 1;
-
-        // TODO: consider if this lock is legal/appropriate
-        if (SDL_MUSTLOCK(image)) { SDL_LockSurface(image); }
-        while (ybegin < yend) {
-                memcpy(line, pixels + pitch*ybegin, pitch);
-                memcpy(pixels + pitch*ybegin, pixels + pitch*yend, pitch);
-                memcpy(pixels + pitch*yend, line, pitch);
-                ybegin++;
-                yend--;
-        }
-        if (SDL_MUSTLOCK(image)) { SDL_UnlockSurface(image); }
-
-        if (freeSource) {
-                SDL_FreeSurface(surface);
-        }
-
-#ifdef _MSC_VER
-        delete[] line;
-#endif
-
-        return image;
-}
-
 void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		                     bool hardware_acceleration,
 		                     bool fullscreen_anti_aliasing, float gammaValue) {
@@ -214,7 +111,6 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			//printf("Loading icon [%s]\n",mg_icon_file.c_str());
 			if(extractExtension(mg_icon_file) == "bmp") {
 				icon = SDL_LoadBMP(mg_icon_file.c_str());
-				icon = prepGLTexture(icon);
 			}
 			else {
 				//printf("Loadng png icon\n");
