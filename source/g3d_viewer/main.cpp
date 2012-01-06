@@ -294,6 +294,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
     //getGlPlatformExtensions();
 
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
+	//int args[] = { WX_GL_RGBA, WX_GL_MIN_ALPHA,  0  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
 
 #if wxCHECK_VERSION(2, 9, 1)
@@ -569,6 +570,15 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		startupSettingsInited = true;
 		setupStartupSettings();
 	}
+
+	//wxClientDC &dc = event.GetDC();
+//	wxPaintDC dc(this);
+//	if(overrideSize.first > 0 && overrideSize.second > 0) {
+//		wxRect r(0,0,100,100);
+//		dc.SetDeviceClippingRegion(r);
+//		// Then I destroy the clipping region
+//		dc.DestroyClippingRegion();
+//	}
 
 	// notice that we use GetSize() here and not GetClientSize() because
 	// the latter doesn't return correct results for the minimized windows
@@ -1989,6 +1999,10 @@ END_EVENT_TABLE()
 
 bool App::OnInit() {
 	SystemFlags::VERBOSE_MODE_ENABLED  = false;
+	//Renderer::windowW = 1920;
+	//Renderer::windowH = 1440;
+	//Renderer::windowX= 0;
+	//Renderer::windowY= 0;
 
 	string modelPath="";
 	string particlePath="";
@@ -2056,6 +2070,8 @@ bool App::OnInit() {
 					overrideSize.first = strToInt(values[0]);
 					overrideSize.second = strToInt(values[1]);
 
+					Renderer::windowX= 0;
+					Renderer::windowY= 0;
 					Renderer::windowW = overrideSize.first;
 					Renderer::windowH = overrideSize.second + 25;
 				}
