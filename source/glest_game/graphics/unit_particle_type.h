@@ -58,6 +58,7 @@ protected:
     int staticParticleCount;
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
+	bool isDaylightAffected;
 	bool radiusBasedStartenergy;
 	int delay;
 	int lifetime;

@@ -74,6 +74,7 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	teamcolorNoEnergy= false;
 	teamcolorEnergy= false;
 	alternations= 0;
+	particleSystemStartDelay= 0;
 }
 
 ParticleSystem::~ParticleSystem(){
@@ -97,8 +98,10 @@ void ParticleSystem::update(){
 	if(aliveParticleCount > (int) particles.size()){
 		throw runtime_error("aliveParticleCount >= particles.size()");
 	}
-
-	if(state != sPause){
+    if(particleSystemStartDelay>0){
+    	particleSystemStartDelay--;
+    }
+    else if(state != sPause){
 		for(int i= 0; i < aliveParticleCount; ++i){
 			updateParticle(&particles[i]);
 
@@ -527,6 +530,7 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 //  UnitParticleSystem
 // ===========================================================================
 bool UnitParticleSystem::isNight= false;
+Vec3f UnitParticleSystem::lightColor=Vec3f(1.0f,1.0f,1.0f);
 
 UnitParticleSystem::UnitParticleSystem(int particleCount):
 	GameParticleSystem(particleCount),
@@ -549,6 +553,7 @@ UnitParticleSystem::UnitParticleSystem(int particleCount):
 
 	isVisibleAtNight= true;
 	isVisibleAtDay= true;
+	isDaylightAffected= false;
 
 	cRotation= Vec3f(1.0f, 1.0f, 1.0f);
 	fixedAddition= Vec3f(0.0f, 0.0f, 0.0f);
@@ -736,6 +741,12 @@ void UnitParticleSystem::updateParticle(Particle *p){
 	}
 	p->speed+= p->accel;
 	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
+	if(isDaylightAffected)
+	{
+		p->color.x=p->color.x*lightColor.x;
+		p->color.y=p->color.y*lightColor.y;
+		p->color.z=p->color.z*lightColor.z;
+	}
 	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
 	if(state == ParticleSystem::sFade || staticParticleCount < 1){
 		p->energy--;

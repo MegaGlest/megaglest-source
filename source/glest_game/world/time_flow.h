@@ -57,6 +57,7 @@ public:
 	bool isTotalNight() const			{return time<dawn+1.f || time>dusk-1.f;}
 	float getTimeInc() const			{return timeInc;}
 
+	Vec3f computeLightColor() const;
 	void update();
 private:
 	//bool isAproxTime(float time) const;
