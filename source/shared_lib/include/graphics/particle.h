@@ -132,6 +132,7 @@ protected:
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
 	int alternations;
+	int particleSystemStartDelay;
 	ParticleObserver *particleObserver;
 
 public:
@@ -173,6 +174,7 @@ public:
 	void setTeamcolorNoEnergy(bool teamcolorNoEnergy)	{this->teamcolorNoEnergy= teamcolorNoEnergy;}
 	void setTeamcolorEnergy(bool teamcolorEnergy)		{this->teamcolorEnergy= teamcolorEnergy;}
 	void setAlternations(int alternations)				{this->alternations= alternations;}
+	void setParticleSystemStartDelay(int delay)			{this->particleSystemStartDelay= delay;}
 	virtual void setFactionColor(Vec3f factionColor);
 
 	static BlendMode strToBlendMode(const string &str);
@@ -269,6 +271,7 @@ protected:
 class UnitParticleSystem: public GameParticleSystem{
 public:
 	static bool isNight;
+	static Vec3f lightColor;
 private:
 	float radius;
 	float minRadius;
@@ -296,6 +299,7 @@ public:
 	float rotation;
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
+	bool isDaylightAffected;
 	bool radiusBasedStartenergy;
 	int staticParticleCount;
 	int delay;
@@ -339,6 +343,7 @@ public:
 	void setPrimitive(Primitive primitive)				{this->primitive= primitive;}
 	void setStaticParticleCount(int staticParticleCount){this->staticParticleCount= staticParticleCount;}
 	void setIsVisibleAtNight(bool value)				{this->isVisibleAtNight= value;}
+	void setIsDaylightAffected(bool value)				{this->isDaylightAffected= value;}
 	void setIsVisibleAtDay(bool value)					{this->isVisibleAtDay= value;}
 	void setRadiusBasedStartenergy(bool value)			{this->radiusBasedStartenergy= value;}
 	void setShape(Shape shape)					{this->shape= shape;}
