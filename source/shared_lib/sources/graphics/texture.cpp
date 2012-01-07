@@ -99,8 +99,11 @@ SDL_Surface* Texture2D::CreateSDLSurface(bool newPixelData) const {
 //	SDL_Surface *prepGLTexture(SDL_Surface *surface, GLfloat *texCoords = NULL, const bool
 //	freeSource = false) {
 	        /* Use the surface width and height expanded to powers of 2 */
-	        int w = powerOfTwo(surface->w);
-	        int h = powerOfTwo(surface->h);
+	        //int w = powerOfTwo(surface->w);
+	        //int h = powerOfTwo(surface->h);
+	        int w = surface->w;
+	        int h = surface->h;
+
 //	        if (texCoords != 0) {
 //	                texCoords[0] = 0.0f;                                    /* Min
 //	X */
