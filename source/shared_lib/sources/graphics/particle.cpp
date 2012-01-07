@@ -541,11 +541,14 @@ UnitParticleSystem::UnitParticleSystem(int particleCount):
 
 	setParticleSize(0.6f);
 	setColorNoEnergy(Vec4f(1.0f, 0.5f, 0.0f, 1.0f));
+	sizeNoEnergy=1.0f;
 
 	primitive= pQuad;
 	gravity= 0.0f;
 
 	fixed= false;
+	shape = UnitParticleSystem::sLinear;
+	angle= 0.0f;
 	rotation= 0.0f;
 	relativeDirection= true;
 	relative= false;
@@ -565,6 +568,7 @@ UnitParticleSystem::UnitParticleSystem(int particleCount):
 	
 	delay = 0; // none
 	lifetime = -1; // forever
+	emissionRateFade=0.0f;
 
 	startTime = 0;
 	endTime = 1;
@@ -741,7 +745,7 @@ void UnitParticleSystem::updateParticle(Particle *p){
 	}
 	p->speed+= p->accel;
 	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
-	if(isDaylightAffected)
+	if(isDaylightAffected==true)
 	{
 		p->color.x=p->color.x*lightColor.x;
 		p->color.y=p->color.y*lightColor.y;
