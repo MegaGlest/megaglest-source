@@ -67,7 +67,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 #endif
 	
 	if(fileStream.is_open() == false){
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 		throw runtime_error("File NOT FOUND, can't open file: [" + path + "]");
 	}
 
@@ -364,7 +364,7 @@ bool Properties::getBool(const string &key, const char *defaultValueIfNotFound) 
 		return strToBool(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + key + " in: " + path+"\n[" + e.what() + "]");
 	}
 }
@@ -374,7 +374,7 @@ int Properties::getInt(const string &key,const char *defaultValueIfNotFound) con
 		return strToInt(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -392,7 +392,7 @@ float Properties::getFloat(const string &key, const char *defaultValueIfNotFound
 		return strToFloat(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -410,7 +410,7 @@ const string Properties::getString(const string &key, const char *defaultValueIf
 	it= propertyMap.find(key);
 	if(it==propertyMap.end()){
 	    if(defaultValueIfNotFound != NULL) {
-	        //printf("In [%s::%s - %d]defaultValueIfNotFound = [%s]\n",__FILE__,__FUNCTION__,__LINE__,defaultValueIfNotFound);
+	        //printf("In [%s::%s - %d]defaultValueIfNotFound = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,defaultValueIfNotFound);
 	        return string(defaultValueIfNotFound);
 	    }
 	    else {
@@ -456,7 +456,7 @@ bool Properties::getBool(const char *key, const char *defaultValueIfNotFound) co
 		return strToBool(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path+"\n[" + e.what() + "]");
 	}
 }
@@ -466,7 +466,7 @@ int Properties::getInt(const char *key,const char *defaultValueIfNotFound) const
 		return strToInt(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -476,7 +476,7 @@ float Properties::getFloat(const char *key, const char *defaultValueIfNotFound) 
 		return strToFloat(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -486,7 +486,7 @@ const string Properties::getString(const char *key, const char *defaultValueIfNo
 	it= propertyMap.find(key);
 	if(it==propertyMap.end()){
 	    if(defaultValueIfNotFound != NULL) {
-	        //printf("In [%s::%s - %d]defaultValueIfNotFound = [%s]\n",__FILE__,__FUNCTION__,__LINE__,defaultValueIfNotFound);
+	        //printf("In [%s::%s - %d]defaultValueIfNotFound = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,defaultValueIfNotFound);
 	        return string(defaultValueIfNotFound);
 	    }
 	    else {
