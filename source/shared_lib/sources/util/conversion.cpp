@@ -136,16 +136,19 @@ string doubleToStr(double d,int precsion) {
 }
 
 bool IsNumeric(const char *p, bool  allowNegative) {
-  int index = 0;
-  for ( ; *p; p++) {
-    if (*p < '0' || *p > '9') {
-    	if(allowNegative == false || (*p != '-' && index == 0)) {
-    		return false;
-    	}
+	if(p != NULL && strcmp(p,"-") == 0) {
+		return false;
+	}
+    int index = 0;
+    for ( ; *p; p++) {
+      if (*p < '0' || *p > '9') {
+    	  if(allowNegative == false || (*p != '-' && index == 0)) {
+    		  return false;
+    	  }
+      }
+      index++;
     }
-    index++;
-  }
-  return true;
+    return true;
 }
 
 class Comma: public numpunct<char>// own facet class
