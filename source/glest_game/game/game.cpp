@@ -53,7 +53,7 @@ const int NETWORK_PLAYER_CONNECTION_CHECK_SECONDS = 5;
 int GAME_STATS_DUMP_INTERVAL = 60 * 10;
 
 Game::Game() : ProgramState(NULL) {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	originalDisplayMsgCallback = NULL;
 	aiInterfaces.clear();
@@ -109,7 +109,7 @@ Game::Game() : ProgramState(NULL) {
 	masterserverMode = false;
 	currentUIState=NULL;
 	currentAmbientSound=NULL;
-	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 
 	lastNetworkPlayerConnectionCheck = time(NULL);
 
@@ -182,7 +182,7 @@ void Game::resetMembers() {
 	camDownButtonDown=false;
 
 	currentAmbientSound=NULL;
-	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 
 	lastNetworkPlayerConnectionCheck = time(NULL);
 
@@ -198,8 +198,8 @@ void Game::resetMembers() {
 Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverMode):
 	ProgramState(program), lastMousePos(0), isFirstRender(true)
 {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	this->masterserverMode = masterserverMode;
 
@@ -211,12 +211,12 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	resetMembers();
 	this->gameSettings= *gameSettings;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void Game::endGame() {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	quitGame();
 
@@ -226,7 +226,7 @@ void Game::endGame() {
 		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     Logger &logger= Logger::getInstance();
 	Renderer &renderer= Renderer::getInstance();
@@ -237,25 +237,25 @@ void Game::endGame() {
 	logger.add(Lang::getInstance().get("LogScreenGameLoading","",true), false);
 	logger.hideProgress();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	// Cannot Fade because sound files will be deleted below
 	SoundRenderer::getInstance().stopAllSounds(fadeMusicMilliseconds);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 //	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 //	aiInterfaces.clear();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	gui.end();		//selection must be cleared before deleting units
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 //	world.end();	//must die before selection because of referencers
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,aiInterfaces.size());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,aiInterfaces.size());
 
 	// MUST DO THIS LAST!!!! Because objects above have pointers to things like
 	// unit particles and fade them out etc and this end method deletes the original
@@ -265,21 +265,21 @@ void Game::endGame() {
 	GameConstants::updateFps = original_updateFps;
 	GameConstants::cameraFps = original_cameraFps;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Unit::setGame(NULL);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== END GAME ====\n");
 
 	//this->program->reInitGl();
 	//renderer.reinitAll();
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 Game::~Game() {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	quitGame();
 
@@ -289,7 +289,7 @@ Game::~Game() {
 		NetworkInterface::setDisplayMessageFunction(originalDisplayMsgCallback);
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     Logger &logger= Logger::getInstance();
 	Renderer &renderer= Renderer::getInstance();
@@ -300,25 +300,25 @@ Game::~Game() {
 	logger.add(Lang::getInstance().get("LogScreenGameLoading","",true), false);
 	logger.hideProgress();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	// Cannot Fade because sound files will be deleted below
 	SoundRenderer::getInstance().stopAllSounds();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 	aiInterfaces.clear();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	gui.end();		//selection must be cleared before deleting units
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world.end();	//must die before selection because of referencers
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,aiInterfaces.size());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,aiInterfaces.size());
 
 	// MUST DO THIS LAST!!!! Because objects above have pointers to things like
 	// unit particles and fade them out etc and this end method deletes the original
@@ -328,16 +328,16 @@ Game::~Game() {
 	GameConstants::updateFps = original_updateFps;
 	GameConstants::cameraFps = original_cameraFps;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Unit::setGame(NULL);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== END GAME ====\n");
 
 	//this->program->reInitGl();
 	//renderer.reinitAll();
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 bool Game::quitTriggered() {
@@ -354,7 +354,7 @@ Stats Game::quitAndToggleState() {
 // ==================== init and load ====================
 
 int Game::ErrorDisplayMessage(const char *msg, bool exitApp) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,msg);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg);
 
 	if(thisGamePtr != NULL) {
 		string text = msg;
@@ -393,7 +393,7 @@ string Game::extractScenarioLogoFile(const GameSettings *settings, string &resul
 		if(loadScreenList.empty() == false) {
 			string senarioLogo = scenarioDir + loadScreenList[0];
 			if(fileExists(senarioLogo) == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found scenario loading screen '%s'\n",__FILE__,__FUNCTION__,senarioLogo.c_str());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found scenario loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,senarioLogo.c_str());
 
 				result = senarioLogo;
 				if(logger != NULL) {
@@ -402,7 +402,7 @@ string Game::extractScenarioLogoFile(const GameSettings *settings, string &resul
 				loadingImageUsed=true;
 			}
 		}
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,settings->getScenarioDir().c_str(),settings->getScenario().c_str(),scenarioDir.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,settings->getScenarioDir().c_str(),settings->getScenario().c_str(),scenarioDir.c_str());
 	}
     return scenarioDir;
 }
@@ -410,15 +410,15 @@ string Game::extractScenarioLogoFile(const GameSettings *settings, string &resul
 string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 		string scenarioDir, string techName, Logger *logger, string factionLogoFilter) {
 	string result = "";
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for faction loading screen\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for faction loading screen\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(factionName == formatString(GameConstants::OBSERVER_SLOTNAME)) {
 		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 		const string factionLogo = data_path + "data/core/misc_textures/observer.jpg";
-		//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+		//printf("In [%s::%s Line: %d] looking for loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
 		if(fileExists(factionLogo) == true) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
 			result = factionLogo;
 			if(logger != NULL) {
@@ -433,7 +433,7 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 		const string factionLogo = data_path + "data/core/misc_textures/random.jpg";
 
 		if(fileExists(factionLogo) == true) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
 			result = factionLogo;
 			if(logger != NULL) {
@@ -450,7 +450,7 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 			endPathWithSlash(currentPath);
 			//string path = currentPath + techName + "/" + "factions" + "/" + settings->getFactionTypeName(i);
 			string path = currentPath + techName + "/" + "factions" + "/" + factionName;
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 			if(isdir(path.c_str()) == true) {
 				endPathWithSlash(path);
 
@@ -458,10 +458,10 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 				findAll(path + factionLogoFilter, loadScreenList, false, false);
 				if(loadScreenList.empty() == false) {
 					string factionLogo = path + loadScreenList[0];
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
 					if(fileExists(factionLogo) == true) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
 						result = factionLogo;
 						if(logger != NULL) {
@@ -487,14 +487,14 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 string Game::extractTechLogoFile(string scenarioDir, string techName,
 		bool &loadingImageUsed, Logger *logger,string factionLogoFilter) {
 	string result = "";
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for tech loading screen\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for tech loading screen\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     Config &config = Config::getInstance();
     vector<string> pathList = config.getPathListForType(ptTechs, scenarioDir);
     for(int idx = 0; idx < pathList.size(); idx++) {
 		string currentPath = pathList[idx];
 		endPathWithSlash(currentPath);
 		string path = currentPath + techName;
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 		if(isdir(path.c_str()) == true) {
 			endPathWithSlash(path);
 
@@ -502,10 +502,10 @@ string Game::extractTechLogoFile(string scenarioDir, string techName,
 			findAll(path + factionLogoFilter, loadScreenList, false, false);
 			if(loadScreenList.empty() == false) {
 				string factionLogo = path + loadScreenList[0];
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
 				if(fileExists(factionLogo) == true) {
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",__FILE__,__FUNCTION__,__LINE__,factionLogo.c_str());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
 					result = factionLogo;
 					if(logger != NULL) {
@@ -551,11 +551,11 @@ void Game::loadHudTexture(const GameSettings *settings)
 			if(hudList.empty() == false){
 				string hudImageFileName= path + hudList[0];
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for a HUD '%s'\n",__FILE__,__FUNCTION__,__LINE__,hudImageFileName.c_str());
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for a HUD '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,hudImageFileName.c_str());
 
 				if(fileExists(hudImageFileName) == true){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found HUD image '%s'\n",__FILE__,__FUNCTION__,__LINE__,hudImageFileName.c_str());
+						SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found HUD image '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,hudImageFileName.c_str());
 
 					Texture2D* texture= Renderer::findFactionLogoTexture(hudImageFileName);
 					gui.setHudTexture(texture);
@@ -677,7 +677,7 @@ void Game::load(int loadTypes) {
 	originalDisplayMsgCallback = NetworkInterface::getDisplayMessageFunction();
 	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] loadTypes = %d, gameSettings = [%s]\n",__FILE__,__FUNCTION__,__LINE__,loadTypes,this->gameSettings.toString().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] loadTypes = %d, gameSettings = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,loadTypes,this->gameSettings.toString().c_str());
 
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	soundRenderer.stopAllSounds(fadeMusicMilliseconds);
@@ -691,7 +691,7 @@ void Game::load(int loadTypes) {
 	string scenarioName= gameSettings.getScenario();
 
 	if((loadTypes & lgt_FactionPreview) == lgt_FactionPreview) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		Game::findFactionLogoFile(&gameSettings, &logger);
 
 		Window::handleEvent();
@@ -702,7 +702,7 @@ void Game::load(int loadTypes) {
 
     string scenarioDir = "";
     if(gameSettings.getScenarioDir() != "") {
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         scenarioDir = gameSettings.getScenarioDir();
         if(EndsWith(scenarioDir, ".xml") == true) {
             scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
@@ -711,11 +711,11 @@ void Game::load(int loadTypes) {
     }
 
 	//throw runtime_error("Test!");
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//tileset
 	if((loadTypes & lgt_TileSet) == lgt_TileSet) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		world.loadTileset(	config.getPathListForType(ptTilesets,scenarioDir),
     						tilesetName, &checksum, loadedFileList);
 	}
@@ -725,17 +725,17 @@ void Game::load(int loadTypes) {
     Window::handleEvent();
 	SDL_PumpEvents();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     set<string> factions;
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
 		factions.insert(gameSettings.getFactionTypeName(i));
 	}
 
     if((loadTypes & lgt_TechTree) == lgt_TechTree) {
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//tech, load before map because of resources
 		world.loadTech(	config.getPathListForType(ptTechs,scenarioDir), techName,
@@ -763,11 +763,11 @@ void Game::load(int loadTypes) {
     Window::handleEvent();
 	SDL_PumpEvents();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     //map
     if((loadTypes & lgt_Map) == lgt_Map) {
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     	world.loadMap(Map::getMapPath(mapName,scenarioDir), &checksum);
     }
 
@@ -776,11 +776,11 @@ void Game::load(int loadTypes) {
     Window::handleEvent();
 	SDL_PumpEvents();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     //scenario
     if((loadTypes & lgt_Scenario) == lgt_Scenario) {
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if(scenarioName.empty() == false) {
 			Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName);
 			world.loadScenario(gameSettings.getScenarioDir(), &checksum);
@@ -791,8 +791,8 @@ void Game::load(int loadTypes) {
     sleep(0);
 	SDL_PumpEvents();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    //good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    //good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void Game::init() {
@@ -800,7 +800,7 @@ void Game::init() {
 }
 
 void Game::init(bool initForPreviewOnly) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initForPreviewOnly = %d\n",__FILE__,__FUNCTION__,__LINE__,initForPreviewOnly);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initForPreviewOnly = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,initForPreviewOnly);
 
 	Lang &lang= Lang::getInstance();
 	Logger &logger= Logger::getInstance();
@@ -813,7 +813,7 @@ void Game::init(bool initForPreviewOnly) {
 		throw runtime_error("map == NULL");
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(initForPreviewOnly == false) {
 		logger.setState(lang.get("Initializing"));
@@ -838,7 +838,7 @@ void Game::init(bool initForPreviewOnly) {
 
 	world.init(this, gameSettings.getDefaultUnits());
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(initForPreviewOnly == false) {
 		// give CPU time to update other things to avoid apperance of hanging
@@ -848,7 +848,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		gui.init(this);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
@@ -873,7 +873,7 @@ void Game::init(bool initForPreviewOnly) {
 		gameCamera.setPos(Vec2f(v.x, v.y));
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	NetworkRole role = nrIdle;
 	if(initForPreviewOnly == false) {
@@ -884,9 +884,9 @@ void Game::init(bool initForPreviewOnly) {
 
 		scriptManager.init(&world, &gameCamera);
 
-		//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+		//good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] creating AI's\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] creating AI's\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//create AIs
 
@@ -910,7 +910,7 @@ void Game::init(bool initForPreviewOnly) {
 			}
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 		// give CPU time to update other things to avoid apperance of hanging
@@ -946,7 +946,7 @@ void Game::init(bool initForPreviewOnly) {
     }
 
 	//init renderer state
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",__FILE__,__FUNCTION__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 	logger.add(Lang::getInstance().get("LogScreenGameLoadingInitRenderer","",true), true);
 	renderer.initGame(this,this->getGameCameraPtr());
 
@@ -958,20 +958,20 @@ void Game::init(bool initForPreviewOnly) {
 	}
 
 	if(initForPreviewOnly == false) {
-		//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+		//good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
 		Window::handleEvent();
 		SDL_PumpEvents();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",__FILE__,__FUNCTION__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 		logger.add(Lang::getInstance().get("LogScreenGameLoadingWaitForNetworkPlayers","",true), true);
 		networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
 
 		//std::string worldLog = world.DumpWorldToLog(true);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingMusic","",true), true);
 
 		if(this->masterserverMode == false) {
@@ -998,7 +998,7 @@ void Game::init(bool initForPreviewOnly) {
 		if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
 			logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingAmbient","",true), true);
 			currentAmbientSound = ambientSounds->getRain();
-			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 			soundRenderer.playAmbient(currentAmbientSound);
 		}
 
@@ -1006,7 +1006,7 @@ void Game::init(bool initForPreviewOnly) {
 		if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
 			logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingAmbient","",true), true);
 			currentAmbientSound = ambientSounds->getSnow();
-			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 			soundRenderer.playAmbient(currentAmbientSound);
 		}
 
@@ -1072,7 +1072,7 @@ void Game::init(bool initForPreviewOnly) {
 		printf("New game has started...\n");
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",__FILE__,__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== START GAME ====\n");
 }
 
@@ -1094,7 +1094,7 @@ void Game::update() {
 			NetworkManager::getInstance().getGameNetworkInterface()->getQuit() &&
 		   mainMessageBox.getEnabled() == false &&
 		   errorMessageBox.getEnabled() == false) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			quitTriggeredIndicator = true;
 			return;
 		}
@@ -1132,20 +1132,20 @@ void Game::update() {
 		// b) Updates depandant on speed
 		int updateLoops= getUpdateLoops();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		NetworkRole role 				= networkManager.getNetworkRole();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [before ReplaceDisconnectedNetworkPlayersWithAI]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [before ReplaceDisconnectedNetworkPlayersWithAI]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		// Check to see if we are playing a network game and if any players
 		// have disconnected?
 		ReplaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after ReplaceDisconnectedNetworkPlayersWithAI]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after ReplaceDisconnectedNetworkPlayersWithAI]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		if(updateLoops > 0) {
 			// update the frame based timer in the stats with at least one step
@@ -1160,32 +1160,32 @@ void Game::update() {
 					if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
 						scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",__FILE__,__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 
 						aiInterfaces[j]->update();
 
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",__FILE__,__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 					}
 				}
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [AI updates]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 				//World
 				world.update();
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 				// Commander
 				//commander.updateNetwork();
 				commander.signalNetworkUpdate(this);
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 				//Gui
 				gui.update();
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 				//Particle systems
@@ -1193,15 +1193,15 @@ void Game::update() {
 					weatherParticleSystem->setPos(gameCamera.getPos());
 				}
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 				Renderer &renderer= Renderer::getInstance();
 				renderer.updateParticleManager(rsGame,avgRenderFps);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),i);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-				//good_fpu_control_registers(NULL,__FILE__,__FUNCTION__,__LINE__);
+				//good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			}
 		}
 		//else if(role == nrClient) {
@@ -1211,7 +1211,7 @@ void Game::update() {
 
 		//call the chat manager
 		chatManager.updateNetwork();
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [chatManager.updateNetwork]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [chatManager.updateNetwork]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		//check for quiting status
@@ -1219,7 +1219,7 @@ void Game::update() {
 			NetworkManager::getInstance().getGameNetworkInterface()->getQuit() &&
 		   mainMessageBox.getEnabled() == false &&
 		   errorMessageBox.getEnabled() == false) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			quitTriggeredIndicator = true;
 			return;
 		}
@@ -1243,11 +1243,11 @@ void Game::update() {
 				gameStarted = false;
 
 			//printf("\nname [%s] scenarioFile [%s] results.size() = %lu\n",name.c_str(),scenarioFile.c_str(),results.size());
-			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			//printf("[%s:%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			ScenarioInfo scenarioInfo;
 			Scenario::loadScenarioInfo(scenarioFile, &scenarioInfo);
 
-			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			//printf("[%s:%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			GameSettings gameSettings;
 			Scenario::loadGameSettings(dirList,&scenarioInfo, &gameSettings, scenarioFile);
 
@@ -1285,7 +1285,7 @@ void Game::update() {
 			}
 			else {
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-				//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+				//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 				if(currentAmbientSound) {
 					soundRenderer.stopAmbient(currentAmbientSound);
 				}
@@ -1328,7 +1328,7 @@ void Game::update() {
 				if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
 					//logger.add("Starting ambient stream", true);
 					currentAmbientSound = ambientSounds->getRain();
-					//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+					//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 					soundRenderer.playAmbient(currentAmbientSound);
 				}
 
@@ -1336,7 +1336,7 @@ void Game::update() {
 				if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
 					//logger.add("Starting ambient stream", true);
 					currentAmbientSound = ambientSounds->getSnow();
-					//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",__FILE__,__FUNCTION__,__LINE__,currentAmbientSound);
+					//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 					soundRenderer.playAmbient(currentAmbientSound);
 				}
 
@@ -1349,7 +1349,7 @@ void Game::update() {
 			}
 			//this->init();
 
-			//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+			//printf("[%s:%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			//Checksum checksum;
 			//world->loadScenario(scenarioFile, &checksum, true);
 			}
@@ -1540,16 +1540,16 @@ void Game::renderWorker() {
 
 	render3d();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %d [render3d]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %d [render3d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	render2d();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %d [render2d]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %d [render2d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	Renderer::getInstance().swapBuffers();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %d [swap buffers]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %d [swap buffers]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 }
 
 // ==================== tick ====================
@@ -1841,7 +1841,7 @@ void Game::mouseDownLeft(int x, int y) {
 		//exit message box, has to be the last thing to do in this function
 		if(errorMessageBox.getEnabled() == true) {
 			if(errorMessageBox.mouseClick(x, y)) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				//close message box
 				errorMessageBox.setEnabled(false);
 			}
@@ -1850,7 +1850,7 @@ void Game::mouseDownLeft(int x, int y) {
 			int button= 1;
 			if(mainMessageBox.mouseClick(x, y, button)) {
 				if(button==1) {
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					if(networkManager.getGameNetworkInterface() != NULL) {
 						networkManager.getGameNetworkInterface()->quitGame(true);
 					}
@@ -1858,7 +1858,7 @@ void Game::mouseDownLeft(int x, int y) {
 					return;
 				}
 				else {
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					//close message box
 					mainMessageBox.setEnabled(false);
 				}
@@ -2080,14 +2080,14 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 				float ymult = 0.2f;
 				float xmult = 0.2f;
 
-				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 				gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
 				mouseX=lastMousePos.x;
 				mouseY=lastMousePos.y;
 				Window::revertMousePos();
 
-				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				return;
 			}
 		}
@@ -2187,7 +2187,7 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 	}
 
 	try {
-		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//gameCamera.transitionXYZ(0.0f, -(float)zDelta / 30.0f, 0.0f);
 		gameCamera.zoom((float)zDelta / 60.0f);
 		//gameCamera.setMoveY(1);
@@ -2216,7 +2216,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 	}
 
 	try {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d] gameStarted [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym, gameStarted);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d] gameStarted [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym, gameStarted);
 		if(gameStarted == false) {
 			return;
 		}
@@ -2234,10 +2234,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 
 		if(chatManager.getEditEnabled() == false) {
 			//printf("GAME KEYDOWN #2\n");
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%d - %c]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%d - %c]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] key = [%d - %c] pausegame [%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key,configKeys.getCharKey("PauseGame"));
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] key = [%d - %c] pausegame [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key,key,configKeys.getCharKey("PauseGame"));
 
 			//if(key == configKeys.getCharKey("RenderNetworkStatus")) {
 			if(isKeyPressed(configKeys.getSDLKey("RenderNetworkStatus"),key, false) == true) {
@@ -2384,22 +2384,27 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//else if(key>='0' && key<'0'+Selection::maxGroups){
 			else {
 				//printf("GAME KEYDOWN #3\n");
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("====== Check ingame custom grouping hotkeys ======\n");
+				//printf("====== Check ingame custom grouping hotkeys ======\n");
 
 				for(int idx = 1; idx <= Selection::maxGroups; idx++) {
 					string keyName = "GroupUnitsKey" + intToStr(idx);
 					//char groupHotKey = configKeys.getCharKey(keyName.c_str());
-					//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
+					//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
 
 					SDLKey groupHotKey = configKeys.getSDLKey(keyName.c_str());
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
 
-					//printf("input.keysym.mod = %d groupHotKey = %d key = %d isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,isKeyPressed(groupHotKey,key));
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
+					//printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
+
 					//if(key == groupHotKey) {
 					if(isKeyPressed(groupHotKey,key) == true) {
 						//printf("GROUP KEY!\n");
 						//gui.groupKey(key-'0');
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						gui.groupKey(idx-1);
 						break;
 					}
@@ -2407,10 +2412,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			}
 
 			//hotkeys
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameCamera.getState() = %d\n",__FILE__,__FUNCTION__,__LINE__,gameCamera.getState());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameCamera.getState() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameCamera.getState());
 
 			if(gameCamera.getState() == GameCamera::sGame){
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
 
 				gui.hotKey(key);
 			}
@@ -2579,7 +2584,7 @@ void Game::keyPress(SDL_KeyboardEvent c) {
 }
 
 Stats Game::quitGame() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
         world.DumpWorldToLog();
@@ -2588,7 +2593,7 @@ Stats Game::quitGame() {
 	//Stats stats = *(world.getStats());
 	Stats endStats;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	endStats = *(world.getStats());
 	//NetworkManager &networkManager= NetworkManager::getInstance();
@@ -2596,17 +2601,17 @@ Stats Game::quitGame() {
 		endStats.setIsMasterserverMode(true);
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	NetworkManager::getInstance().end();
 	//sleep(0);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//ProgramState *newState = new BattleEnd(program, endStats);
 
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//program->setState(newState);
 
@@ -2614,7 +2619,7 @@ Stats Game::quitGame() {
 }
 
 void Game::exitGameState(Program *program, Stats &endStats) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Game *game = dynamic_cast<Game *>(program->getState());
 	if(game) {
@@ -2633,11 +2638,11 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 
 	ProgramState *newState = new BattleEnd(program, &endStats, game);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	program->setState(newState, false);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 // ==================== PRIVATE ====================
@@ -2652,81 +2657,81 @@ void Game::render3d(){
 
 	//init
 	renderer.reset3d();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [reset3d]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [reset3d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 //	renderer.computeVisibleQuad();
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [computeVisibleQuad]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [computeVisibleQuad]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 //	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	renderer.loadGameCameraMatrix();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [loadGameCameraMatrix]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [loadGameCameraMatrix]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	renderer.computeVisibleQuad();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [computeVisibleQuad]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [computeVisibleQuad]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	renderer.setupLighting();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [setupLighting]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [setupLighting]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//shadow map
 	renderer.renderShadowsToTexture(avgRenderFps);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderShadowsToTexture]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderShadowsToTexture]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//clear buffers
 	renderer.clearBuffers();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d renderFps = %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//surface
 	renderer.renderSurface(avgRenderFps);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderSurface]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderSurface]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//selection circles
 	renderer.renderSelectionEffects();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderSelectionEffects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderSelectionEffects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	// renderTeamColorCircle
 	if((renderExtraTeamColor&renderTeamColorCircleBit)>0){
 		renderer.renderTeamColorCircle();
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 	}
 	//units
 	renderer.renderUnits(avgRenderFps);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderUnits]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderUnits]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	// renderTeamColorPlane
 	if((renderExtraTeamColor&renderTeamColorPlaneBit)>0){
 		renderer.renderTeamColorPlane();
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 	}
 	//objects
 	renderer.renderObjects(avgRenderFps);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//water
 	renderer.renderWater();
 	renderer.renderWaterEffects();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderWater]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderWater]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//particles
 	renderer.renderParticleManager(rsGame);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderParticleManager]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderParticleManager]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//mouse 3d
 	renderer.renderMouse3d();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderMouse3d]\n",__FILE__,__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderMouse3d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 
 	renderer.setLastRenderFps(lastRenderFps);
 }
@@ -3060,7 +3065,7 @@ void Game::render2d() {
 	if(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1) {
 		lastRenderLog2d = time(NULL);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] Statistics: %s\n",__FILE__,__FUNCTION__,__LINE__,str.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] Statistics: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,str.c_str());
 	}
 }
 
