@@ -139,7 +139,7 @@ public:
     UnitType();
     virtual ~UnitType();
 	void preLoad(const string &dir);
-    void load(int id, const string &dir, const TechTree *techTree,
+    void loaddd(int id, const string &dir, const TechTree *techTree,const string &techTreePath,
     		const FactionType *factionType, Checksum* checksum,
     		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
 
