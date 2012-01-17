@@ -1031,7 +1031,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 }
 
 void ConnectionSlot::validateConnection() {
-	if(gotIntro == false && connectedTime > 0 &&
+	if(this->isConnected() == true && 
+		gotIntro == false && connectedTime > 0 &&
 		difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
 		close();
 	}
@@ -1063,6 +1064,7 @@ void ConnectionSlot::close() {
 
     ready = false;
     gotIntro = false;
+	connectedTime = 0;
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
