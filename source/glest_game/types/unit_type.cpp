@@ -117,7 +117,7 @@ void UnitType::preLoad(const string &dir) {
 	name= lastDir(dir);
 }
 
-void UnitType::load(int id,const string &dir, const TechTree *techTree,
+void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const string &techTreePath,
 		const FactionType *factionType, Checksum* checksum,
 		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 
@@ -143,7 +143,7 @@ void UnitType::load(int id,const string &dir, const TechTree *techTree,
 
 		XmlTree xmlTree;
 		std::map<string,string> mapExtraTagReplacementValues;
-		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTree->getPath() + "/commondata/";
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTreePath + "/commondata/";
 		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(dir,dir));
 

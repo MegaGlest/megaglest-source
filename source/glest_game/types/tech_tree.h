@@ -40,6 +40,7 @@ private:
 	string name;
     //string desc;
 	string treePath;
+	vector<string> pathList;
 
     ResourceTypes resourceTypes;
     FactionTypes factionTypes;
@@ -49,12 +50,13 @@ private:
 	Checksum checksumValue;
 
 public:
-    Checksum loadTech(const vector<string> pathList, const string &techName,
+    Checksum loadTech(const string &techName,
     		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
     void load(const string &dir, set<string> &factions, Checksum* checksum,
     		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
+    string findPath(const string &techName) const;
 
-    TechTree();
+    TechTree(const vector<string> pathList);
     ~TechTree();
     Checksum * getChecksumValue() { return &checksumValue; }
 
@@ -64,6 +66,7 @@ public:
 	const FactionType *getType(int i) const						{return &factionTypes[i];}
 	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
 	const string getName() const								{return name;}
+	vector<string> getPathList() const					{return pathList;}
     //const string &getDesc() const								{return desc;}
 
 	const string getPath() const								{return treePath;}

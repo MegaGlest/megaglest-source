@@ -36,13 +36,62 @@ FactionType::FactionType() {
 }
 
 //load a faction, given a directory
-void FactionType::load(const string &dir, const TechTree *techTree, Checksum* checksum,
+void FactionType::load(const string &factionName, const TechTree *techTree, Checksum* checksum,
 		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	string currentPath = dir;
-	endPathWithSlash(currentPath);
+	bool realFactionPathFound=false;
+
+	string techTreePath = techTree->getPath();
+	string techTreeName=techTree->getName();
+	string currentPath;
+
+	//open xml file
+	string path="";
+	XmlTree xmlTree;
+	const XmlNode *factionNode;
+
+	//printf("\n>>> factionname=%s\n",factionName.c_str());
+	while(!realFactionPathFound){
+		XmlTree xmlTree;
+		currentPath = techTreePath + "factions/" + factionName;
+		endPathWithSlash(currentPath);
+		string tmppath= currentPath + factionName +".xml";
+		std::map<string,string> mapExtraTagReplacementValues;
+//		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTreePath + "/commondata/";
+		//printf("current $COMMONDATAPATH = %s\n",mapExtraTagReplacementValues["$COMMONDATAPATH"].c_str());
+		xmlTree.load(tmppath, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
+
+
+		const XmlNode *rootNode= xmlTree.getRootNode();
+
+		if(rootNode->getName()=="link")
+		{
+			const XmlNode *techTreeNode= rootNode->getChild("techtree");
+			const string linkedTechTreeName=techTreeNode->getAttribute("name")->getRestrictedValue();
+//			const XmlNode *factionLinkNode= rootNode->getChild("faction");
+//			string linkedFactionName=factionLinkNode->getAttribute("name")->getRestrictedValue();
+			string linkedTechTreePath=techTree->findPath(linkedTechTreeName);
+			techTreePath=linkedTechTreePath;
+			endPathWithSlash(techTreePath);
+			techTreeName=linkedTechTreeName;
+		}
+		else {
+			// stop looking for new path, no more links ...
+			//xmlTree.load(tmppath, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
+
+			loadedFileList[tmppath].push_back(make_pair(currentPath,currentPath));
+
+			realFactionPathFound=true;
+			//printf("techPath found! %s\n",tmppath.c_str());
+
+			path=tmppath;
+		}
+	}
+
+	checksum->addFile(path);
+	techtreeChecksum->addFile(path);
 
     name= lastDir(currentPath);
 
@@ -94,7 +143,7 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 			int progressBaseValue=logger.getProgress();
 			for(int i = 0; i < unitTypes.size(); ++i) {
 				string str= currentPath + "units/" + unitTypes[i].getName();
-				unitTypes[i].load(i, str, techTree, this, checksum,techtreeChecksum,
+				unitTypes[i].loaddd(i, str, techTree,techTreePath, this, checksum,techtreeChecksum,
 						loadedFileList);
 				logger.setProgress(progressBaseValue+(int)((((double)i + 1.0) / (double)unitTypes.size()) * 100.0/techTree->getTypeCount()));
 				SDL_PumpEvents();
@@ -120,20 +169,16 @@ void FactionType::load(const string &dir, const TechTree *techTree, Checksum* ch
 			throw runtime_error("Error loading upgrades: "+ currentPath + "\n" + e.what());
 		}
 
-		//open xml file
-		string path= currentPath + name + ".xml";
-		checksum->addFile(path);
-		techtreeChecksum->addFile(path);
-
-		XmlTree xmlTree;
+		string tmppath= currentPath + factionName +".xml";
 		std::map<string,string> mapExtraTagReplacementValues;
-		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTree->getPath() + "/commondata/";
-		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
-		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
+		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTreePath + "/commondata/";
+		//printf("current $COMMONDATAPATH = %s\n",mapExtraTagReplacementValues["$COMMONDATAPATH"].c_str());
+		xmlTree.load(tmppath, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 
-		const XmlNode *factionNode= xmlTree.getRootNode();
 
+		factionNode=xmlTree.getRootNode();
 		//read starting resources
+		//printf("factionNode->getName()=%s",factionNode->getName().c_str());
 		const XmlNode *startingResourcesNode= factionNode->getChild("starting-resources");
 
 		startingResources.resize(startingResourcesNode->getChildCount());

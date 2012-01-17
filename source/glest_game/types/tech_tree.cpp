@@ -32,11 +32,12 @@ namespace Glest{ namespace Game{
 // 	class TechTree
 // =====================================================
 
-TechTree::TechTree() {
+TechTree::TechTree(const vector<string> pathList) {
 	SkillType::resetNextAttackBoostId();
 
 	name="";
 	treePath="";
+	this->pathList.assign(pathList.begin(), pathList.end());
 
     resourceTypes.clear();
     factionTypes.clear();
@@ -44,22 +45,39 @@ TechTree::TechTree() {
 	attackTypes.clear();
 }
 
-Checksum TechTree::loadTech(const vector<string> pathList, const string &techName,
+Checksum TechTree::loadTech(const string &techName,
 		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 	name = "";
     Checksum techtreeChecksum;
-    for(int idx = 0; idx < pathList.size(); idx++) {
-    	string currentPath = pathList[idx];
-    	endPathWithSlash(currentPath);
-
-        string path = currentPath + techName;
-        if(isdir(path.c_str()) == true) {
-            load(path, factions, checksum, &techtreeChecksum, loadedFileList);
-            break;
-        }
+    string path=findPath(techName);
+    if(path!=""){
+    	printf(">>> path=%s\n",path.c_str());
+        load(path, factions, checksum, &techtreeChecksum, loadedFileList);
+    }
+    else
+    {
+    	printf(">>> schoen\n");
     }
     return techtreeChecksum;
 }
+
+string TechTree::findPath(const string &techName) const{
+    for(int idx = 0; idx < pathList.size(); idx++) {
+    	string currentPath = (pathList)[idx];
+    	endPathWithSlash(currentPath);
+
+        string path = currentPath + techName;
+
+        printf(">>> test path=%s\n",path.c_str());
+        if(isdir(path.c_str()) == true) {
+            return path;
+            break;
+        }
+    }
+    //return "no path found for tech: \""+techname+"\"";
+    return "";
+}
+
 
 void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum,
 		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
@@ -174,7 +192,6 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	//SDL_PumpEvents();
 
 	//load factions
-	str = currentPath + "factions/*.";
     try{
 		factionTypes.resize(factions.size());
 
@@ -192,8 +209,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		    logger.setState(szBuf);
 		    logger.setProgress((int)((((double)i) / (double)factions.size()) * 100.0));
 
-			str = currentPath + "factions/" + factionName;
-			factionTypes[i++].load(str, this, checksum,&checksumValue,loadedFileList);
+			factionTypes[i++].load(factionName, this, checksum,&checksumValue,loadedFileList);
 
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
