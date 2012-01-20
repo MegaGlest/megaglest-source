@@ -385,9 +385,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
-					Socket *newSocket = serverInterface->getServerSocket()->accept();
+					Socket *newSocket = serverInterface->getServerSocket()->accept(false);
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] called accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] called accept new client connection playerIndex = %d newSocket = %p\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,newSocket);
 					if(newSocket != NULL) {
 						// Set Socket as non-blocking
 						newSocket->setBlock(false);
@@ -436,14 +436,19 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 					}
+					else {
+						close();
+						return;
+					}
 
 					//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
-				}
+				//}
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				//send intro message when connected
-				if(hasData == true && this->isConnected() == true) {
+				//if(hasData == true && this->isConnected() == true) {
+					if(this->isConnected() == true) {
 					//RandomGen random;
 					//sessionKey = random.randRange(-100000, 100000);
 					srand(time(NULL) / (this->playerIndex + 1));
@@ -472,6 +477,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 							//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 						//}
+					}
 					}
 				}
 			}
@@ -707,14 +713,14 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 										throw runtime_error(szBuf);
 									}
 
-									GameSettings gameSettings;
-									networkMessageLaunch.buildGameSettings(&gameSettings);
+									GameSettings gameSettingsBuffer;
+									networkMessageLaunch.buildGameSettings(&gameSettingsBuffer);
 
 									//printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
 									//printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
 
-									this->serverInterface->setGameSettings(&gameSettings,false);
-									this->serverInterface->broadcastGameSetup(&gameSettings);
+									//this->serverInterface->setGameSettings(&gameSettingsBuffer,false);
+									this->serverInterface->broadcastGameSetup(&gameSettingsBuffer, true);
 
 									if(networkMessageLaunch.getMessageType() == nmtLaunch) {
 										this->serverInterface->setMasterserverAdminRequestLaunch(true);

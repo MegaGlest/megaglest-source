@@ -1708,10 +1708,17 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 	return bOkToStart;
 }
 
-void ServerInterface::broadcastGameSetup(const GameSettings *gameSettings) {
+void ServerInterface::broadcastGameSetup(GameSettings *gameSettingsBuffer, bool setGameSettingsBuffer) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	if(setGameSettingsBuffer == true) {
+		validateGameSettings(gameSettingsBuffer);
+		//setGameSettings(gameSettingsBuffer,false);
+		MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
+		gameSettings = *gameSettingsBuffer;
+		gameSettingsUpdateCount++;
+	}
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
-	NetworkMessageLaunch networkMessageLaunch(gameSettings, nmtBroadCastSetup);
+	NetworkMessageLaunch networkMessageLaunch(gameSettingsBuffer, nmtBroadCastSetup);
 	broadcastMessage(&networkMessageLaunch);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1833,40 +1840,70 @@ int ServerInterface::getOpenSlotCount() {
 }
 
 int ServerInterface::getGameSettingsUpdateCount() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount);
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount);
 
 	int result = gameSettingsUpdateCount;
 	safeMutex.ReleaseLock();
 	return result;
 }
 
-void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
+void ServerInterface::validateGameSettings(GameSettings *serverGameSettings) {
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",__FILE__,__FUNCTION__);
+
+	string mapFile = serverGameSettings->getMap();
+	if(find(mapFiles.begin(),mapFiles.end(),mapFile) == mapFiles.end()) {
+		printf("Reverting map from [%s] to [%s]\n",serverGameSettings->getMap().c_str(),gameSettings.getMap().c_str());
+
+		serverGameSettings->setMapFilterIndex(gameSettings.getMapFilterIndex());
+		serverGameSettings->setMap(gameSettings.getMap());
+		serverGameSettings->setMapCRC(gameSettings.getMapCRC());
+	}
+
+	string tilesetFile = serverGameSettings->getTileset();
+	if(find(tilesetFiles.begin(),tilesetFiles.end(),tilesetFile) == tilesetFiles.end()) {
+		printf("Reverting tileset from [%s] to [%s]\n",serverGameSettings->getTileset().c_str(),gameSettings.getTileset().c_str());
+
+		serverGameSettings->setTileset(gameSettings.getTileset());
+		serverGameSettings->setTilesetCRC(gameSettings.getTilesetCRC());
+	}
+
+	string techtreeFile = serverGameSettings->getTech();
+	if(find(techTreeFiles.begin(),techTreeFiles.end(),techtreeFile) == techTreeFiles.end()) {
+		printf("Reverting tech from [%s] to [%s]\n",serverGameSettings->getTech().c_str(),gameSettings.getTech().c_str());
+
+		serverGameSettings->setTech(gameSettings.getTech());
+		serverGameSettings->setTechCRC(gameSettings.getTechCRC());
+	}
+}
+
+void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck) {
+	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START gameSettingsUpdateCount = %d, waitForClientAck = %d\n",__FILE__,__FUNCTION__,gameSettingsUpdateCount,waitForClientAck);
 
 	if(serverGameSettings->getScenario() == "") {
 		string mapFile = serverGameSettings->getMap();
 		if(find(mapFiles.begin(),mapFiles.end(),mapFile) == mapFiles.end()) {
 			printf("Reverting map from [%s] to [%s]\n",serverGameSettings->getMap().c_str(),gameSettings.getMap().c_str());
-
+	
 			serverGameSettings->setMapFilterIndex(gameSettings.getMapFilterIndex());
 			serverGameSettings->setMap(gameSettings.getMap());
 			serverGameSettings->setMapCRC(gameSettings.getMapCRC());
 		}
-
+	
 		string tilesetFile = serverGameSettings->getTileset();
 		if(find(tilesetFiles.begin(),tilesetFiles.end(),tilesetFile) == tilesetFiles.end()) {
 			printf("Reverting tileset from [%s] to [%s]\n",serverGameSettings->getTileset().c_str(),gameSettings.getTileset().c_str());
-
+	
 			serverGameSettings->setTileset(gameSettings.getTileset());
 			serverGameSettings->setTilesetCRC(gameSettings.getTilesetCRC());
 		}
-
+	
 		string techtreeFile = serverGameSettings->getTech();
 		if(find(techTreeFiles.begin(),techTreeFiles.end(),techtreeFile) == techTreeFiles.end()) {
 			printf("Reverting tech from [%s] to [%s]\n",serverGameSettings->getTech().c_str(),gameSettings.getTech().c_str());
-
+	
 			serverGameSettings->setTech(gameSettings.getTech());
 			serverGameSettings->setTechCRC(gameSettings.getTechCRC());
 		}
