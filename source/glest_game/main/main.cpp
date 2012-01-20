@@ -3548,6 +3548,10 @@ int glestMain(int argc, char** argv) {
 			cinfd[0].events = POLLIN;
 #else
 			h = GetStdHandle(STD_INPUT_HANDLE);
+			//DWORD dwMode; 
+			//GetConsoleMode(h, &dwMode); 
+			//SetConsoleMode(h, dwMode & ~ENABLE_MOUSE_INPUT); 
+			FlushConsoleInputBuffer(h); 
 #endif
 		}
 
@@ -3573,36 +3577,72 @@ int glestMain(int argc, char** argv) {
 					// line buffer input.  This does work okay as long as the user doesn't enter characters
 					// without pressing enter, and then try to end the server another way (say a remote
 					// console command), in which case we'll still be waiting for the stdin EOL and hang.
-					if (WaitForSingleObject(h, 0) == WAIT_OBJECT_0)
+
+					DWORD   saveMode;
+					GetConsoleMode(h, &saveMode);
+					DWORD dwMode = saveMode;
+					dwMode &= ~ENABLE_MOUSE_INPUT;
+					dwMode &= ~ENABLE_WINDOW_INPUT;
+					SetConsoleMode(h, dwMode);
+
+					bool gotData = (WaitForSingleObject(h, 0) == WAIT_OBJECT_0);
+					SetConsoleMode(h, saveMode);
+					if(gotData == true)
 				#endif
 					{
 
-						getline(cin, command);
-						cin.clear();
+						bool skip = true;
+#ifdef WIN32
+						DWORD nNumberOfCharsToRead = 1024;
+						DWORD nRead = 0;
+						INPUT_RECORD irInRec[1025];
+						
+						PeekConsoleInput(h,&irInRec[0],nNumberOfCharsToRead,&nRead);
+						for(int i = 0; i < nRead; ++i) {
+							INPUT_RECORD &inr = irInRec[i];
 
-						printf("server command [%s]\n",command.c_str());
-						if(command == "quit") {
-							break;
+							//printf("inr.EventType = %d\n",inr.EventType);
+							if(inr.EventType == KEY_EVENT) {
+							  if(inr.Event.KeyEvent.bKeyDown) {
+								char cHoldKey = inr.Event.KeyEvent.uChar.AsciiChar;
+								if(cHoldKey == '\r') {
+									skip = false;
+									break;
+								}
+							  }
+							}
 						}
+#else
+						skip = false;
+#endif
+						if(skip == false) {
+							getline(cin, command);
+							cin.clear();
+
+							printf("server command [%s]\n",command.c_str());
+							if(command == "quit") {
+								break;
+							}
 
 #ifndef WIN32
-						if (cinfd[0].revents & POLLNVAL) {
-							printf("invalid file descriptor\n");
-						}
-						if (cinfd[0].revents & POLLERR) {
-							printf("error in file descriptor\n");
-						}
-						if (cinfd[0].revents & POLLHUP) {
-							printf("hang up in file descriptor\n");
-						}
+							if (cinfd[0].revents & POLLNVAL) {
+								printf("invalid file descriptor\n");
+							}
+							if (cinfd[0].revents & POLLERR) {
+								printf("error in file descriptor\n");
+							}
+							if (cinfd[0].revents & POLLHUP) {
+								printf("hang up in file descriptor\n");
+							}
 
-						if(pollresult < 0) {
-							printf("pollresult = %d errno = %d [%s]\n",pollresult,pollerror,strerror(pollerror));
+							if(pollresult < 0) {
+								printf("pollresult = %d errno = %d [%s]\n",pollresult,pollerror,strerror(pollerror));
 
-							cinfd[0].fd = fileno(stdin);
-							cinfd[0].events = POLLIN;
-						}
+								cinfd[0].fd = fileno(stdin);
+								cinfd[0].events = POLLIN;
+							}
 #endif
+						}
 					}
 				}
 				//printf("looping\n");

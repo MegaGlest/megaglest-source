@@ -124,8 +124,9 @@ public:
     int getConnectedSlotCount();
     int getOpenSlotCount();
     bool launchGame(const GameSettings *gameSettings);
+	void validateGameSettings(GameSettings *serverGameSettings);
     void setGameSettings(GameSettings *serverGameSettings, bool waitForClientAck);
-    void broadcastGameSetup(const GameSettings *gameSettings);
+    void broadcastGameSetup(GameSettings *gameSettingsBuffer, bool setGameSettingsBuffer=false);
 
     int getGameSettingsUpdateCount();
 
