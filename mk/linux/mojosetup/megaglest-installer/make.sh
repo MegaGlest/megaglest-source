@@ -11,7 +11,7 @@
 
 # below is the branch to build and installer from
 
-megaglest_release_folder="trunk"
+megaglest_release_folder="release-3.6.0.3"
 #megaglest_release_folder="release-3.3.5.1"
 
 mg_installer_bin_name=megaglest-installer.run
