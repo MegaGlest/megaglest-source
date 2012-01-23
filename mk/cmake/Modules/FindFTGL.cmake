@@ -5,7 +5,8 @@
 #
 # FTGL_FOUND          - system has ftgl
 # FTGL_INCLUDE_DIR    - path to FTGL/FTGL.h
-# FTGL_LIBRARY      - the library that must be included
+# FTGL_LIBRARY        - the library that must be included
+# FTGL_LIBRARY_PATH   - the library path
 #
 #
 
@@ -14,17 +15,34 @@ IF(WANT_STATIC_LIBS)
 	OPTION(FTGL_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
 ENDIF()
 
+#message(STATUS "!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #1 Searching for FTGL lib in custom path: [${FTGL_LIBRARY_PATH}]")
+
 IF (FTGL_LIBRARY AND FTGL_INCLUDE_DIR)
   SET(FTGL_FOUND "YES")
+  message(STATUS "!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FTGL lib ALREADY FOUND in: [${FTGL_LIBRARY}]")
 ELSE (FTGL_LIBRARY AND FTGL_INCLUDE_DIR)
 
-  FIND_PATH(FTGL_INCLUDE_DIR FTGL/ftgl.h PATHS /usr/local/include /usr/include)
+  IF(FTGL_LIBRARY_PATH)
+        message(STATUS "!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Searching for FTGL lib in custom path: [${FTGL_LIBRARY_PATH}]")
+  ENDIF()
 
-IF (FTGL_STATIC AND NOT FTGL_LIBRARY)
-  FIND_LIBRARY(FTGL_LIBRARY NAMES libftgl.a ftgl PATHS /usr/local/lib /usr/lib)
-ELSE()
-  FIND_LIBRARY(FTGL_LIBRARY NAMES ftgl PATHS /usr/local/lib /usr/lib)
-ENDIF()
+  FIND_PATH(FTGL_INCLUDE_DIR FTGL/ftgl.h 
+            PATHS /usr/local/include 
+                  /usr/include)
+
+  IF (FTGL_STATIC AND NOT FTGL_LIBRARY)
+    FIND_LIBRARY(FTGL_LIBRARY 
+                  NAMES libftgl.a ftgl libftgl libftgl.dll
+                  PATHS /usr/local/lib 
+                        /usr/lib
+                        ${FTGL_LIBRARY_PATH})
+  ELSE()
+    FIND_LIBRARY(FTGL_LIBRARY 
+                  NAMES ftgl libftgl libftgl.dll libftgl.a
+                  PATHS /usr/local/lib 
+                        /usr/lib
+                        ${FTGL_LIBRARY_PATH})
+  ENDIF()
   
   IF (FTGL_INCLUDE_DIR AND FTGL_LIBRARY)
     SET(FTGL_FOUND "YES")

@@ -68,10 +68,10 @@ public:
 
 class Renderer : public RendererInterface {
 public:
-	static const int windowX= 100;
-	static const int windowY= 100;
-	static const int windowW= 640;
-	static const int windowH= 480;
+	static int windowX;
+	static int windowY;
+	static int windowW;
+	static int windowH;
 
 public:
 	enum PlayerColor{
@@ -157,7 +157,7 @@ public:
 
 	void setBackgroundColor(float red, float green, float blue);
 	void setAlphaColor(float alpha);
-	void saveScreen(const string &path);
+	void saveScreen(const string &path,std::pair<int,int> *overrideSize);
 	bool hasActiveParticleSystem(ParticleSystem::ParticleSystemType typeName) const;
 };
 

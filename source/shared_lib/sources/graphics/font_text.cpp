@@ -19,7 +19,7 @@ Text::Text(FontTextHandlerType type) {
 	this->type = type;
 }
 Text::~Text() {}
-void  Text::init(string fontName, int fontSize) {}
+void  Text::init(string fontName, string fontFamilyName, int fontSize) {}
 void  Text::Render(const char*, const int) {}
 float Text::Advance(const char*, const int) {return 0;}
 float Text::LineHeight(const char*, const int) {return 0;}

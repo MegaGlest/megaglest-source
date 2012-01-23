@@ -69,6 +69,7 @@ protected:
 	bool teamcolorNoEnergy;
     bool teamcolorEnergy;
     int alternations;
+    int particleSystemStartDelay;
 	typedef std::list<UnitParticleSystemType*> Children;
 	Children children;
 

@@ -40,8 +40,9 @@ UnitParticleSystemType::UnitParticleSystemType() : ParticleSystemType() {
     relativeDirection = false;
     fixed = false;
     staticParticleCount = 0;
-	isVisibleAtNight = false;
-	isVisibleAtDay = false;
+	isVisibleAtNight = true;
+	isVisibleAtDay = true;
+	isDaylightAffected = false;
 	radiusBasedStartenergy = false;
 	delay = 0;
 	lifetime = 0;
@@ -146,6 +147,15 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 		isVisibleAtDay=true;
 	}
 
+    //isDaylightAffected
+	if(particleSystemNode->hasChild("isDaylightAffected")){
+		const XmlNode *node= particleSystemNode->getChild("isDaylightAffected");
+		isDaylightAffected= node->getAttribute("value")->getBoolValue();
+	}
+	else {
+		isDaylightAffected=false;
+	}
+
 	//radiusBasedStartenergy
 	if(particleSystemNode->hasChild("radiusBasedStartenergy")){
 		const XmlNode *isVisibleAtDayNode= particleSystemNode->getChild("radiusBasedStartenergy");
@@ -217,9 +227,11 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
     ups->setTeamcolorNoEnergy(teamcolorNoEnergy);
     ups->setTeamcolorEnergy(teamcolorEnergy);
     ups->setAlternations(alternations);
+    ups->setParticleSystemStartDelay(particleSystemStartDelay);
 
     ups->setIsVisibleAtNight(isVisibleAtNight);
 	ups->setIsVisibleAtDay(isVisibleAtDay);
+	ups->setIsDaylightAffected(isDaylightAffected);
     ups->setStaticParticleCount(staticParticleCount);
     ups->setRadius(radius);
     ups->setMinRadius(minRadius);

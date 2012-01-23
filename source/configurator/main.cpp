@@ -24,6 +24,7 @@
 #include "util.h"
 #include <wx/stdpaths.h>
 #include <platform_util.h>
+#include <memory>
 
 using namespace std;
 using namespace Shared::PlatformCommon;

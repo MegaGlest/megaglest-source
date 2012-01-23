@@ -237,7 +237,7 @@ void BattleEnd::render() {
 			}
 
 			realPlayerCount++;
-			int textX= lm + 60 + (realPlayerCount*110);
+			int textX= lm + 60 + (realPlayerCount*100);
 			int team= stats.getTeam(i) + 1;
 			int kills= stats.getKills(i);
 			int enemykills= stats.getEnemyKills(i);
@@ -292,7 +292,7 @@ void BattleEnd::render() {
 			}
 
 			if(stats.getControl(i) != ctHuman && stats.getControl(i) != ctNetwork ) {
-				controlString += " x " + floatToStr(stats.getResourceMultiplier(i),1);
+				controlString += "\nx " + floatToStr(stats.getResourceMultiplier(i),1);
 			}
 
 			if(score == bestScore && stats.getVictory(i)) {
@@ -408,7 +408,7 @@ void BattleEnd::render() {
 		//GameConstants::updateFps
 		//string header2 = lang.get("GameDuration") + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
 
-		string header2 = lang.get("GameDuration") + ": " + intToStr(stats.getFramesToCalculatePlaytime()/GameConstants::updateFps/60);
+		string header2 = lang.get("GameDuration") + ": " + floatToStr((float)stats.getFramesToCalculatePlaytime() / (float)GameConstants::updateFps / 60.0,2);
 		textRenderer->render(header2, lm+250, bm+530);
 
 		header2 = lang.get("GameMaxConcurrentUnitCount") + ": " + intToStr(stats.getMaxConcurrentUnitCount());

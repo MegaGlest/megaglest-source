@@ -21,6 +21,11 @@ using namespace Shared::Graphics::Gl;
 
 namespace Shared{ namespace G3dViewer{
 
+int Renderer::windowX= 100;
+int Renderer::windowY= 100;
+int Renderer::windowW= 640;
+int Renderer::windowH= 480;
+
 // ===============================================
 // 	class MeshCallbackTeamColor
 // ===============================================
@@ -483,15 +488,20 @@ void Renderer::setAlphaColor(float alpha) {
     //printf("#3.1 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
 }
 
-void Renderer::saveScreen(const string &path) {
+void Renderer::saveScreen(const string &path,std::pair<int,int> *overrideSize) {
 	Pixmap2D *pixmapScreenShot = new Pixmap2D(width, height, 4);
-	glFinish();
+	//glFinish();
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
+		GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	//if(overrideSize != NULL && overrideSize->first > 0 && overrideSize->second > 0) {
+	//	pixmapScreenShot->Scale(GL_RGBA,overrideSize->first,overrideSize->second);
+	//}
 
 	pixmapScreenShot->save(path);
 	delete pixmapScreenShot;

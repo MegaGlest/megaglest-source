@@ -55,6 +55,7 @@ void TimeFlow::update() {
 		soundRenderer.stopAmbient(ambientSounds->getNight());
 		UnitParticleSystem::isNight=false;
 	}
+	UnitParticleSystem::lightColor=computeLightColor();
 
 	if((lastTime<dawn && time>=dawn) || firstTime){
 		
@@ -93,5 +94,36 @@ void TimeFlow::update() {
 //bool TimeFlow::isAproxTime(float time) const {
 //	return (this->time>=time) && (this->time<time+timeInc);
 //}
+
+Vec3f TimeFlow::computeLightColor() const {
+	Vec3f color;
+
+	float time=getTime();
+
+	const float transition= 2;
+	const float dayStart= TimeFlow::dawn;
+	const float dayEnd= TimeFlow::dusk-transition;
+	const float nightStart= TimeFlow::dusk;
+	const float nightEnd= TimeFlow::dawn-transition;
+
+	if(time>dayStart && time<dayEnd) {
+		color= tileset->getSunLightColor();
+	}
+	else if(time>nightStart || time<nightEnd) {
+		color= tileset->getMoonLightColor();
+	}
+	else if(time>=dayEnd && time<=nightStart) {
+		color= tileset->getSunLightColor().lerp((time-dayEnd)/transition, tileset->getMoonLightColor());
+	}
+	else if(time>=nightEnd && time<=dayStart) {
+		color= tileset->getMoonLightColor().lerp((time-nightEnd)/transition, tileset->getSunLightColor());
+	}
+	else {
+		assert(false);
+		color= tileset->getSunLightColor();
+	}
+	return color;
+}
+
 
 }}//end namespace

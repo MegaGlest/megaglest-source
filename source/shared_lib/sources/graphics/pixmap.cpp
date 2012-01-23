@@ -916,20 +916,30 @@ Pixmap2D::~Pixmap2D() {
 
 void Pixmap2D::Scale(int format, int newW, int newH) {
 	int useComponents = this->getComponents();
+	int originalW = w;
+	int originalH = h;
 	uint8 *newpixels= new uint8[newW * newH * useComponents];
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	int error = gluScaleImage(	format,
 				w, h, GL_UNSIGNED_BYTE, pixels,
 				newW, newH, GL_UNSIGNED_BYTE, newpixels);
-	if(error != GL_NO_ERROR) {
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	if(error == GL_NO_ERROR) {
 		init(newW,newH,this->components);
 		pixels = newpixels;
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Scaled image from [%d x %d] to [%d x %d]\n",originalW,originalH,w,h);
 	}
 	else {
-		assertGl();
+		const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
+		printf("ERROR Scaling image from [%d x %d] to [%d x %d] error: %d [%s]\n",originalW,originalH,w,h,error,errorString);
+
+		GLenum glErr = error;
+		assertGlWithErrorNumber(glErr);
 	}
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 

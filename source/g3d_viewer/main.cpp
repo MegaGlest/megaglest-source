@@ -105,6 +105,7 @@ const wxChar  *GAME_ARGS[] = {
 	wxT("--rotate-x-value"),
 	wxT("--rotate-y-value"),
 	wxT("--screenshot-format"),
+	wxT("--verbose"),
 };
 
 enum GAME_ARG_TYPE {
@@ -121,6 +122,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_ROTATE_X_VALUE,
 	GAME_ARG_ROTATE_Y_VALUE,
 	GAME_ARG_SCREENSHOT_FORMAT,
+	GAME_ARG_VERBOSE,
 };
 
 bool hasCommandArgument(int argc, wxChar** argv,const string argName,
@@ -197,9 +199,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t        of the optional settings:");
 	printf("\n                     \t\ttransparent, enable_grid, enable_wireframe,");
 	printf("\n                     \t\tenable_normals, disable_grid, disable_wireframe,");
-	printf("\n                     \t\tdisable_normals, saveas-<filename>");
+	printf("\n                     \t\tdisable_normals, saveas-<filename>, resize-wxh");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=transparent,disable_grid,saveas-test.png %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n %s %s=transparent,disable_grid,saveas-test.png,resize-800x600 %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 
 	//     "================================================================================"
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
@@ -258,6 +260,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 bool autoScreenShotAndExit = false;
 vector<string> autoScreenShotParams;
+std::pair<int,int> overrideSize(0,0);
 
 // ===============================================
 // 	class MainWindow
@@ -291,6 +294,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
     //getGlPlatformExtensions();
 
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
+	//int args[] = { WX_GL_RGBA, WX_GL_MIN_ALPHA,  0  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
 
 #if wxCHECK_VERSION(2, 9, 1)
@@ -567,31 +571,25 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		setupStartupSettings();
 	}
 
+	//wxClientDC &dc = event.GetDC();
+//	wxPaintDC dc(this);
+//	if(overrideSize.first > 0 && overrideSize.second > 0) {
+//		wxRect r(0,0,100,100);
+//		dc.SetDeviceClippingRegion(r);
+//		// Then I destroy the clipping region
+//		dc.DestroyClippingRegion();
+//	}
+
 	// notice that we use GetSize() here and not GetClientSize() because
 	// the latter doesn't return correct results for the minimized windows
 	// (at least not under Windows)
-#if defined(WIN32)
-/*
-	//Seems like windows cannot handle this consistently
+	int viewportW = GetClientSize().x;
+	int viewportH = GetClientSize().y;
 
-	if(autoScreenShotAndExit == true) {
-		printf("\n\n$$$ GetSize() x = %d y = %d, Renderer::windowW = %d H = %d\n",GetSize().x,GetSize().y,Renderer::windowW,Renderer::windowH);
-		//renderer->reset(GetSize().x, GetSize().y-10, playerColor);
-		//renderer->reset(Renderer::windowW, Renderer::windowH-20, playerColor);
-		//this->Iconize(false);
-		
-		//this->Refresh();
-		//renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
-		renderer->reset(Renderer::windowW, Renderer::windowH-20, playerColor);
-	}
-	else {
-		printf("\n\n### GetClientSize() x = %d y = %d\n",GetClientSize().x,GetClientSize().y);
-		renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
-	}
-*/
-	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
+#if defined(WIN32)
+	renderer->reset(viewportW, viewportH, playerColor);
 #else
-	renderer->reset(GetClientSize().x, GetClientSize().y, playerColor);
+	renderer->reset(viewportW, viewportH, playerColor);
 #endif
 
 	renderer->transform(rotX, rotY, zoom);
@@ -616,8 +614,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	}
 
 	renderer->renderParticleManager();
-	glCanvas->SwapBuffers();
-
+	
 	bool haveLoadedParticles = (particleProjectilePathList.empty() == false || particleSplashPathList.empty() == false);
 
 	if(autoScreenShotAndExit == true) {
@@ -629,7 +626,10 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		Close();
 		return;
 	}
-	else if((modelPathList.empty() == false) && resetAnimation && haveLoadedParticles) {
+	
+	glCanvas->SwapBuffers();
+
+	if((modelPathList.empty() == false) && resetAnimation && haveLoadedParticles) {
 		if(anim >= resetAnim && resetAnim > 0) {
 			printf("RESETTING EVERYTHING [%f][%f]...\n",anim,resetAnim);
 			fflush(stdout);
@@ -963,7 +963,7 @@ void MainWindow::saveScreenshot() {
 			FILE *f= fopen(saveAsFilename.c_str(), "rb");
 #endif
 			if(f == NULL) {
-				renderer->saveScreen(saveAsFilename.c_str());
+				renderer->saveScreen(saveAsFilename.c_str(),&overrideSize);
 			}
 			else {
 				if(f) {
@@ -998,7 +998,7 @@ void MainWindow::saveScreenshot() {
 					FILE *f= fopen(path.c_str(), "rb");
 #endif
 					if(f == NULL) {
-						renderer->saveScreen(path);
+						renderer->saveScreen(path,&overrideSize);
 						break;
 					}
 					else {
@@ -1095,10 +1095,11 @@ void MainWindow::loadUnit(string path, string skillName) {
 		string skillParticleFile 			= "";
 		string skillParticleProjectileFile 	= "";
 		string skillParticleSplashFile 		= "";
+		bool fileFound = fileExists(unitXML);
 
-		printf("Loading unit from file [%s]\n",unitXML.c_str());
+		printf("Loading unit from file [%s] fileFound = %d\n",unitXML.c_str(),fileFound);
 
-		if(fileExists(unitXML) == true) {
+		if(fileFound == true) {
 			XmlTree xmlTree;
 			xmlTree.load(unitXML,Properties::getTagReplacementValues());
 			const XmlNode *unitNode= xmlTree.getRootNode();
@@ -1270,15 +1271,19 @@ void MainWindow::loadParticle(string path) {
 			//int height = -1;
 
 			if(fileExists(unitXML) == true) {
+
+				int size  = 0;
+				int height= 0;
+				{
 				XmlTree xmlTree;
 				xmlTree.load(unitXML,Properties::getTagReplacementValues());
 				const XmlNode *unitNode= xmlTree.getRootNode();
 				const XmlNode *parametersNode= unitNode->getChild("parameters");
 				//size
-				int size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
+				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
 				//height
-				int height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
-
+				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
+				}
 
                 // std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
@@ -1323,6 +1328,8 @@ void MainWindow::loadParticle(string path) {
 }
 
 void MainWindow::loadProjectileParticle(string path) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] particleProjectilePathList.size() = %lu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleProjectilePathList.size());
+
 	if(timer) timer->Stop();
 	if(path != "" && fileExists(path) == true) {
 		renderer->end();
@@ -1342,7 +1349,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 	try {
 	if(this->particleProjectilePathList.empty() == false) {
-		printf("this->particleProjectilePathList.size() = %lu\n",this->particleProjectilePathList.size());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("this->particleProjectilePathList.size() = %lu\n",this->particleProjectilePathList.size());
 
         string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
@@ -1363,6 +1370,8 @@ void MainWindow::loadProjectileParticle(string path) {
 			int height = -1;
 
 			if(fileExists(unitXML) == true) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitXML.c_str(),idx);
+
 				XmlTree xmlTree;
 				xmlTree.load(unitXML,Properties::getTagReplacementValues());
 				const XmlNode *unitNode= xmlTree.getRootNode();
@@ -1375,18 +1384,21 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
+			string particleFile = dir + folderDelimiter + particlePath;
 			{
-			XmlTree xmlTree;
-			xmlTree.load(dir + folderDelimiter + particlePath,Properties::getTagReplacementValues());
-			//const XmlNode *particleSystemNode= xmlTree.getRootNode();
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
+				XmlTree xmlTree;
+				xmlTree.load(particleFile,Properties::getTagReplacementValues());
+				//const XmlNode *particleSystemNode= xmlTree.getRootNode();
 
-			// std::cout << "Loaded successfully, loading values..." << std::endl;
+				// std::cout << "Loaded successfully, loading values..." << std::endl;
 			}
 
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
 			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(NULL, dir, //### we don't know if there are overrides in the unit XML
-					dir + folderDelimiter + particlePath,renderer, loadedFileList,
+					particleFile,renderer, loadedFileList,
 					"g3dviewer","");
 
 			// std::cout << "Values loaded, about to read..." << std::endl;
@@ -1412,6 +1424,8 @@ void MainWindow::loadProjectileParticle(string path) {
 				ps->setVisible(true);
 				renderer->manageParticleSystem(ps);
 			}
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loaded [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
 		}
 		SetTitle(ToUnicode(titlestring));
 
@@ -1428,9 +1442,12 @@ void MainWindow::loadProjectileParticle(string path) {
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest projectile particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	if(timer) timer->Start(100);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] after load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 }
 
 void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSplash::load  (and own list...)
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] particleSplashPathList.size() = %lu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleSplashPathList.size());
+
 	if(timer) timer->Stop();
 	if(path != "" && fileExists(path) == true) {
 		renderer->end();
@@ -1481,11 +1498,12 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
 
-			XmlTree xmlTree;
-			xmlTree.load(dir + folderDelimiter + particlePath,Properties::getTagReplacementValues());
-			//const XmlNode *particleSystemNode= xmlTree.getRootNode();
-
-			// std::cout << "Loaded successfully, loading values..." << std::endl;
+			{
+				XmlTree xmlTree;
+				xmlTree.load(dir + folderDelimiter + particlePath,Properties::getTagReplacementValues());
+				//const XmlNode *particleSystemNode= xmlTree.getRootNode();
+				// std::cout << "Loaded successfully, loading values..." << std::endl;
+			}
 
 			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeSplash *splashParticleSystemType= new ParticleSystemTypeSplash();
@@ -1531,6 +1549,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest projectile particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	if(timer) timer->Start(100);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] after load [%s] particleSplashPathList.size() = %lu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleSplashPathList.size());
 }
 
 void MainWindow::onMenuModeNormals(wxCommandEvent &event){
@@ -1980,6 +1999,10 @@ END_EVENT_TABLE()
 
 bool App::OnInit() {
 	SystemFlags::VERBOSE_MODE_ENABLED  = false;
+	//Renderer::windowW = 1920;
+	//Renderer::windowH = 1440;
+	//Renderer::windowX= 0;
+	//Renderer::windowY= 0;
 
 	string modelPath="";
 	string particlePath="";
@@ -2005,6 +2028,10 @@ bool App::OnInit() {
 		return false;
     }
 
+    if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_VERBOSE])) == true) {
+    	SystemFlags::VERBOSE_MODE_ENABLED  = true;
+    }
+
     if(hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT])) == true) {
     	autoScreenShotAndExit = true;
 
@@ -2026,13 +2053,29 @@ bool App::OnInit() {
             autoScreenShotParams.clear();
             Tokenize(optionsValue,autoScreenShotParams,",");
 
-			#ifdef WIN32
 			for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
+
+#ifdef WIN32
 				std::auto_ptr<wchar_t> wstr(Ansi2WideString(autoScreenShotParams[i].c_str()));
 				autoScreenShotParams[i] = utf8_encode(wstr.get());
-			}
-			#endif
+#endif
 
+				if(_strnicmp(autoScreenShotParams[i].c_str(),"resize-",7) == 0) {
+					printf("Screenshot option [%s]\n",autoScreenShotParams[i].c_str());
+
+					string resize = autoScreenShotParams[i];
+					resize = resize.erase(0,7);
+					vector<string> values;
+					Tokenize(resize,values,"x");
+					overrideSize.first = strToInt(values[0]);
+					overrideSize.second = strToInt(values[1]);
+
+					Renderer::windowX= 0;
+					Renderer::windowY= 0;
+					Renderer::windowW = overrideSize.first;
+					Renderer::windowH = overrideSize.second + 25;
+				}
+			}
         }
     }
 
