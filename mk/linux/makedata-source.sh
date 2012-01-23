@@ -19,16 +19,16 @@ mkdir -p "$RELEASEDIR"
 
 project_parent_dir="$(basename $(readlink -f -- "$(dirname -- "$0")/../../") )"
 # echo "$project_parent_dir"
-if [[ $project_parent_dir == trunk* ]] ;
-then
-    	echo 'this is the trunk!'
-else
-	echo '*NOTE: This script currently only works on the trunk, aborting!'
-	exit
-fi
+#if [[ $project_parent_dir == trunk* ]] ;
+#then
+#    	echo 'this is the trunk!'
+#else
+#	echo '*NOTE: This script currently only works on the trunk, aborting!'
+#	exit
+#fi
 
 # copy data
-svn export --force "$CURRENTDIR/../../../trunk-data-source" "$RELEASEDIR/data-source/"
+svn export --force "$CURRENTDIR/../../../../tags/release-data-source-3.6.0.3" "$RELEASEDIR/data-source/"
 
 echo "creating $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
