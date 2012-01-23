@@ -48,7 +48,11 @@
 #include <map>
 #include <fstream>
 #include <stdexcept>
-//#include <tr1/memory>
+
+#if !defined(_WIN32) || defined(__MINGW32__)
+#include <tr1/memory>
+#endif
+
 #include <GL/glew.h>
 
 #include "Mathlib.h"
@@ -60,7 +64,7 @@ using std::string;
 using std::vector;
 using std::map;
 
-#ifdef _WIN32
+#if defined(_WIN32)
 using std::tr1::shared_ptr;
 #endif
 

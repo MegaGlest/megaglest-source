@@ -101,7 +101,7 @@ public:
 	string getType() const;
 
 	//set
-	void setType(string typeX11, string typeGeneric);
+	void setType(string typeX11, string typeGeneric, string typeGenericFamily);
 	void setWidth(int width);
 
 	int getSize() const;
@@ -139,7 +139,7 @@ public:
 
 Font3D *ConvertFont2DTo3D(Font2D *font);
 
-const char* findFont(const char *firstFontToTry=NULL);
+const char* findFont(const char *firstFontToTry=NULL,const char *firstFontFamilyToTry=NULL);
 
 }}//end namespace
 

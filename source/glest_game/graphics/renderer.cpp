@@ -839,7 +839,7 @@ void Renderer::setupLighting() {
 	assertGl();
 
     //sun/moon light
-	Vec3f lightColor= computeLightColor(time);
+	Vec3f lightColor= timeFlow->computeLightColor();
 	Vec3f fogColor= world->getTileset()->getFogColor();
 	Vec4f lightPos= timeFlow->isDay()? computeSunPos(time): computeMoonPos(time);
 	nearestLightPos= lightPos;
@@ -3260,7 +3260,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOVertices );			// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, vertices, GL_STATIC_DRAW_ARB );
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 		assertGl();
 		// Generate And Bind The Texture Coordinate Buffer
@@ -3268,7 +3268,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOFowTexCoords );		// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoords, GL_STATIC_DRAW_ARB );
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 		assertGl();
 		// Generate And Bind The Texture Coordinate Buffer
@@ -3276,7 +3276,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOSurfaceTexCoords );		// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoordsSurface, GL_STATIC_DRAW_ARB );
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 		assertGl();
 		// Generate And Bind The Normal Buffer
@@ -3284,7 +3284,7 @@ VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBONormals );			// Bind The Buffer
 		// Load The Data
 		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, normals, GL_STATIC_DRAW_ARB );
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 		vboCache.hasBuiltVBOs = true;
 
@@ -3333,7 +3333,7 @@ template<typename T> void _loadVBO(GLuint &vbo,std::vector<T> buf,int target=GL_
 		assert(vbo);
 		glBindBufferARB(target,vbo);
 		glBufferDataARB(target,sizeof(T)*buf.size(),&buf[0],GL_STATIC_DRAW_ARB);
-		glBindBuffer(target,0);
+		glBindBufferARB(target,0);
 		assertGl();
 		buf.clear();
 	}
@@ -4183,7 +4183,7 @@ void Renderer::renderObjects(const int renderFps) {
 
 	const Texture2D *fowTex = world->getMinimap()->getFowTexture();
 	const Pixmap2D *fowTexPixmap = fowTex->getPixmapConst();
-	Vec3f baseFogColor = world->getTileset()->getFogColor() * computeLightColor(world->getTimeFlow()->getTime());
+	Vec3f baseFogColor = world->getTileset()->getFogColor() * world->getTimeFlow()->computeLightColor();
 
     bool modelRenderStarted = false;
 
@@ -6395,7 +6395,7 @@ void Renderer::saveScreen(const string &path) {
 	Pixmap2D *pixmapScreenShot = new Pixmap2D(sm.getScreenW(), sm.getScreenH(), 3);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	glFinish();
+	//glFinish();
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
@@ -6459,35 +6459,6 @@ Vec4f Renderer::computeMoonPos(float time) {
 #else
 	return Vec4f(-cos(ang)*moonDist, sin(ang)*moonDist, 0.f, 0.f);
 #endif
-}
-
-Vec3f Renderer::computeLightColor(float time) {
-	const Tileset *tileset= game->getWorld()->getTileset();
-	Vec3f color;
-
-	const float transition= 2;
-	const float dayStart= TimeFlow::dawn;
-	const float dayEnd= TimeFlow::dusk-transition;
-	const float nightStart= TimeFlow::dusk;
-	const float nightEnd= TimeFlow::dawn-transition;
-
-	if(time>dayStart && time<dayEnd) {
-		color= tileset->getSunLightColor();
-	}
-	else if(time>nightStart || time<nightEnd) {
-		color= tileset->getMoonLightColor();
-	}
-	else if(time>=dayEnd && time<=nightStart) {
-		color= tileset->getSunLightColor().lerp((time-dayEnd)/transition, tileset->getMoonLightColor());
-	}
-	else if(time>=nightEnd && time<=dayStart) {
-		color= tileset->getMoonLightColor().lerp((time-nightEnd)/transition, tileset->getSunLightColor());
-	}
-	else {
-		assert(false);
-		color= tileset->getSunLightColor();
-	}
-	return color;
 }
 
 Vec4f Renderer::computeWaterColor(float waterLevel, float cellHeight) {

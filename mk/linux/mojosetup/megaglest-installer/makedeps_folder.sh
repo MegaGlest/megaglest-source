@@ -3,7 +3,7 @@ set -e
 # Use this script to copy shared (libs) files to specified location
 # ----------------------------------------------------------------------------
 # Written by Vivek Gite <http://www.cyberciti.biz/>
-# (c) 2006 nixCraft under GNU GPL v2.0+
+# Copyright (c) 2006 nixCraft under GNU GPL v2.0+
 # Last updated on: Apr/06/2010 by Vivek Gite
 # ----------------------------------------------------------------------------
 # + Modified for megaglest deployment - Softcoder

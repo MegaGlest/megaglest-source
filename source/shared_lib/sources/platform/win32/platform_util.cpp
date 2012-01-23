@@ -257,7 +257,15 @@ void init_win32() {
 
 	HWND hwnd = wminfo.window;
 
-	::SetClassLong(hwnd, GCL_HICON, (LONG) icon);
+#ifdef __MINGW32__
+	#define GCL_HICON -14
+#endif
+
+#ifndef __MINGW32__
+	LONG iconPtr = (LONG)icon;
+
+	::SetClassLong(hwnd, GCL_HICON, iconPtr);
+#endif
 }
 void done_win32() {
 	::DestroyIcon(icon);

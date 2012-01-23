@@ -38,7 +38,7 @@ TextFreetypeGL::TextFreetypeGL(FontTextHandlerType type) : Text(type) {
     font=NULL;
     manager=NULL;
 
-	init("", 24);
+	init("", "", 24);
 }
 
 TextFreetypeGL::~TextFreetypeGL() {
@@ -52,10 +52,11 @@ void TextFreetypeGL::cleanupFont() {
 	}
 }
 
-void TextFreetypeGL::init(string fontName, int fontSize) {
+void TextFreetypeGL::init(string fontName, string fontFamilyName, int fontSize) {
 	cleanupFont();
 	this->fontName = fontName;
-	this->fontFile = findFont(this->fontName.c_str());
+	this->fontFamilyName = fontFamilyName;
+	this->fontFile = findFont(this->fontName.c_str(),this->fontFamilyName.c_str());
 	this->fontFaceSize = fontSize;
 
     const wchar_t *cache = L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
@@ -77,7 +78,7 @@ void TextFreetypeGL::init(string fontName, int fontSize) {
 
 void TextFreetypeGL::SetFaceSize(int value) {
 	this->fontFaceSize = value;
-	init(this->fontName,this->fontFaceSize);
+	init(this->fontName,this->fontFamilyName,this->fontFaceSize);
 }
 
 int TextFreetypeGL::GetFaceSize() {

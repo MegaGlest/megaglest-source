@@ -43,7 +43,8 @@ ParticleSystemType::ParticleSystemType() {
 
 	teamcolorNoEnergy=false;
 	teamcolorEnergy=false;
-	alternations=false;
+	alternations=0;
+	particleSystemStartDelay=0;
 	texture=NULL;
 	model=NULL;
     minmaxEnabled=false;
@@ -101,6 +102,7 @@ void ParticleSystemType::copyAll(const ParticleSystemType &src) {
 	this->teamcolorNoEnergy	= src.teamcolorNoEnergy;
 	this->teamcolorEnergy	= src.teamcolorEnergy;
 	this->alternations		= src.alternations;
+	this->particleSystemStartDelay= src.particleSystemStartDelay;
 	for(Children::iterator it = children.begin(); it != children.end(); ++it) {
 		UnitParticleSystemType *child = *it;
 
@@ -239,6 +241,11 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 		const XmlNode *alternatingNode= particleSystemNode->getChild("alternations");
 		alternations= alternatingNode->getAttribute("value")->getIntValue();
 	}
+    //particleSystemStartDelay
+	if(particleSystemNode->hasChild("particleSystemStartDelay")){
+		const XmlNode *node= particleSystemNode->getChild("particleSystemStartDelay");
+		particleSystemStartDelay= node->getAttribute("value")->getIntValue();
+	}
 	//mode
 	if(particleSystemNode->hasChild("mode")) {
 		const XmlNode *modeNode= particleSystemNode->getChild("mode");
@@ -293,6 +300,7 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setTeamcolorNoEnergy(teamcolorNoEnergy);
     ats->setTeamcolorEnergy(teamcolorEnergy);
     ats->setAlternations(alternations);
+    ats->setParticleSystemStartDelay(particleSystemStartDelay);
 	ats->setBlendMode(ParticleSystem::strToBlendMode(mode));
 }
 

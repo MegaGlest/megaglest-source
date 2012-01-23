@@ -581,7 +581,6 @@ private:
 	float computeMoonAngle(float time);
 	Vec4f computeSunPos(float time);
 	Vec4f computeMoonPos(float time);
-	Vec3f computeLightColor(float time);
 	Vec4f computeWaterColor(float waterLevel, float cellHeight);
 	void checkExtension(const string &extension, const string &msg);
 

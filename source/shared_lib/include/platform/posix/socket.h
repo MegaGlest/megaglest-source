@@ -253,7 +253,7 @@ public:
 	virtual ~ServerSocket();
 	void bind(int port);
 	void listen(int connectionQueueSize= SOMAXCONN);
-	Socket *accept();
+	Socket *accept(bool errorOnFail=true);
 	void stopBroadCastThread();
     void pauseBroadcast();
 
