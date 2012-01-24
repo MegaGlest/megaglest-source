@@ -500,9 +500,11 @@ void endPathWithSlash(string &path,bool requireOSSlash) {
 	}
 }
 
-void formatPath(string &path) {
+string formatPath(string path) {
   replaceAll(path, "\"", "");
   replaceAll(path, "//", "/");
+
+  return path;
 }
 
 void trimPathWithStartingSlash(string &path) {
@@ -1595,7 +1597,7 @@ void restoreVideoMode(bool exitingApp) {
 	if(exitingApp == true && SDL_WasInit(SDL_INIT_VIDEO)) {
 		SDL_ShowCursor(1);
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		//SDL_SetGamma(1, 1, 1);
+		SDL_SetGamma(1, 1, 1);
 	}
 }
 
