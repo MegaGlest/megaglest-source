@@ -215,20 +215,15 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	mapTagReplacementValues["{APPLICATIONPATH}"] = Properties::applicationPath;
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
-	mapTagReplacementValues["$APPLICATIONDATAPATH"] = TOSTRING(CUSTOM_DATA_INSTALL_PATH);
-	mapTagReplacementValues["%%APPLICATIONDATAPATH%%"] = TOSTRING(CUSTOM_DATA_INSTALL_PATH);
-	mapTagReplacementValues["{APPLICATIONDATAPATH}"] = TOSTRING(CUSTOM_DATA_INSTALL_PATH);
-
-	//mapTagReplacementValues["$COMMONDATAPATH", 	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
-	//mapTagReplacementValues["%%COMMONDATAPATH%%",	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
+	mapTagReplacementValues["$APPLICATIONDATAPATH"] = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH));
+	mapTagReplacementValues["%%APPLICATIONDATAPATH%%"] = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH));
+	mapTagReplacementValues["{APPLICATIONDATAPATH}"] = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH));
 
 #else
 	mapTagReplacementValues["$APPLICATIONDATAPATH"] = Properties::applicationPath;
 	mapTagReplacementValues["%%APPLICATIONDATAPATH%%"] = Properties::applicationPath;
 	mapTagReplacementValues["{APPLICATIONDATAPATH}"] = Properties::applicationPath;
 
-	//mapTagReplacementValues["$COMMONDATAPATH", 	Properties::applicationPath + "/commondata/");
-	//mapTagReplacementValues["%%COMMONDATAPATH%%",	Properties::applicationPath + "/commondata/");
 #endif
 
 	mapTagReplacementValues["$GAMEVERSION"] = Properties::gameVersion;
@@ -308,20 +303,15 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 	replaceAll(value, "{APPLICATIONPATH}",		Properties::applicationPath);
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
-	replaceAll(value, "$APPLICATIONDATAPATH", 		TOSTRING(CUSTOM_DATA_INSTALL_PATH));
-	replaceAll(value, "%%APPLICATIONDATAPATH%%",	TOSTRING(CUSTOM_DATA_INSTALL_PATH));
-	replaceAll(value, "{APPLICATIONDATAPATH}",		TOSTRING(CUSTOM_DATA_INSTALL_PATH));
-
-	//replaceAll(value, "$COMMONDATAPATH", 	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
-	//replaceAll(value, "%%COMMONDATAPATH%%",	string(CUSTOM_DATA_INSTALL_PATH) + "/commondata/");
+	replaceAll(value, "$APPLICATIONDATAPATH", 		formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
+	replaceAll(value, "%%APPLICATIONDATAPATH%%",	formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
+	replaceAll(value, "{APPLICATIONDATAPATH}",		formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
 
 #else
 	replaceAll(value, "$APPLICATIONDATAPATH", 		Properties::applicationPath);
 	replaceAll(value, "%%APPLICATIONDATAPATH%%",	Properties::applicationPath);
 	replaceAll(value, "{APPLICATIONDATAPATH}",		Properties::applicationPath);
 
-	//replaceAll(value, "$COMMONDATAPATH", 	Properties::applicationPath + "/commondata/");
-	//replaceAll(value, "%%COMMONDATAPATH%%",	Properties::applicationPath + "/commondata/");
 #endif
 
 	replaceAll(value, "$GAMEVERSION",		Properties::gameVersion);

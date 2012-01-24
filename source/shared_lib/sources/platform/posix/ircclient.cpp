@@ -15,6 +15,11 @@
 #include "platform_common.h"
 #include "libircclient.h"
 
+// upstream moved some defines into new headers as of 1.6
+#ifndef LIBIRCCLIENT_PRE1_6
+#include "libirc_rfcnumeric.h"
+#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
