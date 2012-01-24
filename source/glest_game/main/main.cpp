@@ -2181,26 +2181,8 @@ void CheckForDuplicateData() {
     string duplicateWarnings="";
 
     {
-//  	vector<string> maps;
   	vector<string> results;
 
-/*
-  	vector<string> mapPaths = config.getPathListForType(ptMaps);
-
-    findAll(mapPaths, "*.gbm", results, false, false, true);
-	copy(results.begin(), results.end(), std::back_inserter(maps));
-
-	results.clear();
-    findAll(mapPaths, "*.mgm", results, false, false, true);
-    copy(results.begin(), results.end(), std::back_inserter(maps));
-
-	results.clear();
-	std::sort(maps.begin(),maps.end());
-
-	if(maps.empty()) {
-        throw runtime_error("No maps were found!");
-    }
-*/
   	string scenarioDir = "";
   	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
   	vector<string> invalidMapList;
@@ -2459,7 +2441,7 @@ int glestMain(int argc, char** argv) {
 
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",TOSTRING(CUSTOM_DATA_INSTALL_PATH));
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)).c_str());
 #endif
 
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
