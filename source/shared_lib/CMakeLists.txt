@@ -293,6 +293,30 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${IRCCLIENT_LIBRARY})
 	endif()
 
+        set(CMAKE_REQUIRED_INCLUDES "${IRCCLIENT_INCLUDE_DIR}")
+        set(CMAKE_REQUIRED_LIBRARIES "${IRCCLIENT_LIBRARY}")
+        check_cxx_source_runs("
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <libircclient.h>
+        int main()
+        {
+        unsigned int high = 0;
+        unsigned int low = 0;
+        irc_get_version(&high,&low);
+        if( (high == 1 && low >= 6) || (high > 1)) {
+          return 0;
+        }
+        throw 1;
+        }"
+        HAS_LIBIRCCLIENT_1_6)
+
+        IF(HAS_LIBIRCCLIENT_1_6)
+                message(STATUS "Found HAS_LIBIRCCLIENT_1_6: ${HAS_LIBIRCCLIENT_1_6}")
+        ELSE()
+                ADD_DEFINITIONS(-DLIBIRCCLIENT_PRE1_6)
+        ENDIF()
+
 	IF(WIN32)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/socket.cpp)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/ircclient.cpp)

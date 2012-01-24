@@ -2441,7 +2441,7 @@ int glestMain(int argc, char** argv) {
 
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",TOSTRING(CUSTOM_DATA_INSTALL_PATH));
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)).c_str());
 #endif
 
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);

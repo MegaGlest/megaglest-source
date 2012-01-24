@@ -211,6 +211,7 @@ bool EndsWith(const string &str, const string& key);
 void endPathWithSlash(string &path, bool requireOSSlash=false);
 void trimPathWithStartingSlash(string &path);
 void updatePathClimbingParts(string &path);
+string formatPath(string path);
 
 string replaceAll(string& context, const string& from, const string& to);
 bool removeFile(string file);
