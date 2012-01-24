@@ -147,7 +147,7 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
   	if(foundPath == false) {
-  		foundPath = tryCustomPath(cfgType, fileName, TOSTRING(CUSTOM_DATA_INSTALL_PATH));
+  		foundPath = tryCustomPath(cfgType, fileName, formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
   	}
 #endif
 

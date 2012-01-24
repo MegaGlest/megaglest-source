@@ -500,6 +500,11 @@ void endPathWithSlash(string &path,bool requireOSSlash) {
 	}
 }
 
+void formatPath(string &path) {
+  replaceAll(path, "\"", "");
+  replaceAll(path, "//", "/");
+}
+
 void trimPathWithStartingSlash(string &path) {
 	if(StartsWith(path, "/") == true || StartsWith(path, "\\") == true) {
 		path.erase(path.begin(),path.begin()+1);
