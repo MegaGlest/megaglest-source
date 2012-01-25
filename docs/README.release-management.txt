@@ -26,6 +26,11 @@ It is possible to have the mg-version.sh script NOT match the binary in cases
 where we are releasing binary compatible updates to the archives in which case 
 we typically use a forth digit in the version # (as seen above)
 
+After setting the correct verions in mg-version.sh you should call:
+./mg-version-synch.sh
+
+This will update associated installers to use the correct version stamps
+
 #1. The source archive:
 This archive contains source code for binary compilation of the application and 
 tools
@@ -38,7 +43,19 @@ To build this archive open a terminal and from the mk/linux folder run:
 
 This will produce megaglest-source-<VERSION>.tar.xz in the release subfolder
 
-#2. The data archive:
+#2. The embedded source archive:
+This archive contains 3rd party source code for binary compilation of the application and 
+tools (which is often already included in Linux distros)
+
+The naming convention for the source archive is:
+megaglest-source-embedded-<VERSION>.tar.xz
+
+To build this archive open a terminal and from the mk/linux folder run:
+./makerelease-embedded.sh
+
+This will produce megaglest-source-embedded-<VERSION>.tar.xz in the release subfolder
+
+#3. The data archive:
 This archive contains pre-compiled data content which is used by the game and 
 its tools
 
@@ -51,7 +68,7 @@ To build this archive open a terminal and from the mk/linux folder run:
 This will produce megaglest-data-<VERSION>.tar.xz in the release subfolder
 
 
-#3. The data source archive:
+#4. The data source archive:
 This archive contains data source (such as .blend files) for people to mod 
 original game data content
 
@@ -86,11 +103,16 @@ cmake ../
 make
 cd ../
 
+-- deprecation start --
+NOTE this part is now deprecated as it is handled by the synch script above
+but the info is left here for education
+
 #2 Navigate into the megaglest-installer subfolder and modify  / save changes:
 
 - config.lua
 local GAME_INSTALL_SIZE = 680000000;
 local GAME_VERSION = "3.6.0";
+-- deprecation start --
 
 Now in a terminal session from inside the megaglest-installer folder run:
 
