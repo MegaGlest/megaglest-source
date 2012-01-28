@@ -51,7 +51,7 @@ Checksum TechTree::loadTech(const string &techName,
     Checksum techtreeChecksum;
     string path=findPath(techName);
     if(path!=""){
-    	printf(">>> path=%s\n",path.c_str());
+    	//printf(">>> path=%s\n",path.c_str());
         load(path, factions, checksum, &techtreeChecksum, loadedFileList);
     }
     else
@@ -68,7 +68,7 @@ string TechTree::findPath(const string &techName) const{
 
         string path = currentPath + techName;
 
-        printf(">>> test path=%s\n",path.c_str());
+        //printf(">>> test path=%s\n",path.c_str());
         if(isdir(path.c_str()) == true) {
             return path;
             break;
