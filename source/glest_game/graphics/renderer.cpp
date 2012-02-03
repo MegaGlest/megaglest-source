@@ -1601,6 +1601,11 @@ void Renderer::renderMouse3d() {
 		return;
 	}
 
+	Config &config= Config::getInstance();
+	if(config.getBool("RecordMode","false") == true) {
+		return;
+	}
+
 	if(game == NULL) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s] Line: %d game == NULL",__FILE__,__FUNCTION__,__LINE__);
@@ -2179,6 +2184,11 @@ void Renderer::renderResourceStatus() {
 
 void Renderer::renderSelectionQuad() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	Config &config= Config::getInstance();
+	if(config.getBool("RecordMode","false") == true) {
 		return;
 	}
 
@@ -4598,6 +4608,11 @@ void Renderer::renderTeamColorEffect(Vec3f &v, int heigth, int size, Vec3f color
 
 void Renderer::renderSelectionEffects() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	Config &config= Config::getInstance();
+	if(config.getBool("RecordMode","false") == true) {
 		return;
 	}
 
@@ -7090,6 +7105,11 @@ void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thic
 void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 						   const Vec3f &color, float width) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	Config &config= Config::getInstance();
+	if(config.getBool("RecordMode","false") == true) {
 		return;
 	}
 
