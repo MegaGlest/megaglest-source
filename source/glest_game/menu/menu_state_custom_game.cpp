@@ -2953,7 +2953,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		if( gameSettings->getTileset() != "") {
 			if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
 				//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
-				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+				if(lastCheckedCRCTilesetValue == 0) {
+					lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+				}
 				lastCheckedCRCTilesetName = gameSettings->getTileset();
 			}
 			gameSettings->setTilesetCRC(lastCheckedCRCTilesetValue);

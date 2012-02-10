@@ -1786,7 +1786,10 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 		if( gameSettings->getTileset() != "") {
 			if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
 				//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
-				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+				if(lastCheckedCRCTilesetValue == 0) {
+					lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+				}
 				lastCheckedCRCTilesetName = gameSettings->getTileset();
 			}
 			gameSettings->setTilesetCRC(lastCheckedCRCTilesetValue);
@@ -2233,7 +2236,10 @@ void MenuStateConnectedGame::update() {
                 if(lastCheckedCRCTilesetName != gameSettings->getTileset() &&
                 	gameSettings->getTileset() != "") {
 					//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
-					tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+                	tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+                	if(tilesetCRC == 0) {
+                		tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+                	}
 					// Test data synch
 					//tilesetCRC++;
 					lastCheckedCRCTilesetValue = tilesetCRC;
