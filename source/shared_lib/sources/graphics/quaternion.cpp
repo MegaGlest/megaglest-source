@@ -68,10 +68,10 @@ void Quaternion::setAddIdentity(){
 
 void Quaternion::setAxisAngle(const AxisAngle &axisAngle){
 #ifdef USE_STREFLOP
-	w= streflop::cosf(axisAngle.angle/2.0f);
-	v.x= axisAngle.axis.x * streflop::sinf(axisAngle.angle/2.0f);
-	v.y= axisAngle.axis.y * streflop::sinf(axisAngle.angle/2.0f);
-	v.z= axisAngle.axis.z * streflop::sinf(axisAngle.angle/2.0f);
+	w= streflop::cosf(static_cast<streflop::Simple>(axisAngle.angle/2.0f));
+	v.x= axisAngle.axis.x * streflop::sinf(static_cast<streflop::Simple>(axisAngle.angle/2.0f));
+	v.y= axisAngle.axis.y * streflop::sinf(static_cast<streflop::Simple>(axisAngle.angle/2.0f));
+	v.z= axisAngle.axis.z * streflop::sinf(static_cast<streflop::Simple>(axisAngle.angle/2.0f));
 #else
 	w= cosf(axisAngle.angle/2.0f);
 	v.x= axisAngle.axis.x * sinf(axisAngle.angle/2.0f);
@@ -84,14 +84,14 @@ void Quaternion::setEuler(const EulerAngles &eulerAngles){
 	Quaternion qx, qy, qz, qr;
 
 #ifdef USE_STREFLOP
-	qx.w= streflop::cosf(eulerAngles.x/2.0f);
-	qx.v= Vec3f(streflop::sinf(eulerAngles.x/2.0f), 0.0f, 0.0f);
+	qx.w= streflop::cosf(static_cast<streflop::Simple>(eulerAngles.x/2.0f));
+	qx.v= Vec3f(streflop::sinf(static_cast<streflop::Simple>(eulerAngles.x/2.0f)), 0.0f, 0.0f);
 
-	qy.w= streflop::cosf(eulerAngles.y/2.0f);
-	qy.v= Vec3f(0.0f, streflop::sinf(eulerAngles.y/2.0f), 0.0f);
+	qy.w= streflop::cosf(static_cast<streflop::Simple>(eulerAngles.y/2.0f));
+	qy.v= Vec3f(0.0f, streflop::sinf(static_cast<streflop::Simple>(eulerAngles.y/2.0f)), 0.0f);
 
-	qz.w= streflop::cosf(eulerAngles.z/2.0f);
-	qz.v= Vec3f(0.0f, 0.0f, streflop::sinf(eulerAngles.z/2.0f));
+	qz.w= streflop::cosf(static_cast<streflop::Simple>(eulerAngles.z/2.0f));
+	qz.v= Vec3f(0.0f, 0.0f, streflop::sinf(static_cast<streflop::Simple>(eulerAngles.z/2.0f)));
 #else
 	qx.w= cosf(eulerAngles.x/2.0f);
 	qx.v= Vec3f(sinf(eulerAngles.x/2.0f), 0.0f, 0.0f);
@@ -111,7 +111,7 @@ void Quaternion::setEuler(const EulerAngles &eulerAngles){
 
 float Quaternion::length(){
 #ifdef USE_STREFLOP
-	return streflop::sqrt(w*w+v.x*v.x+v.y*v.y+v.z*v.z);
+	return streflop::sqrt(static_cast<streflop::Simple>(w*w+v.x*v.x+v.y*v.y+v.z*v.z));
 #else
 	return sqrt(w*w+v.x*v.x+v.y*v.y+v.z*v.z);
 #endif
@@ -207,7 +207,7 @@ Matrix4f Quaternion::toMatrix4() const{
 AxisAngle Quaternion::toAxisAngle() const{
 	float scale= 1.0f/(v.x*v.x + v.y*v.y + v.z*v.z);
 #ifdef USE_STREFLOP
-	return AxisAngle(v*scale, 2*streflop::acosf(w));
+	return AxisAngle(v*scale, 2*streflop::acosf(static_cast<streflop::Simple>(w)));
 #else
 	return AxisAngle(v*scale, 2*acosf(w));
 #endif

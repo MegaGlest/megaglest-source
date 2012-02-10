@@ -1227,10 +1227,10 @@ int Socket::send(const void *data, int dataSize) {
 
 	int lastSocketError = getLastSocketError();
 	if(bytesSent < 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR WRITING SOCKET DATA, err = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText(&lastSocketError).c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR WRITING SOCKET DATA, err = %d error = %s dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText(&lastSocketError).c_str(),dataSize);
 	}
 	else if(bytesSent < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN && isConnected() == true) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during send, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during send, trying again... dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
 
 		int attemptCount = 0;
 	    time_t tStartTimer = time(NULL);
@@ -1240,7 +1240,12 @@ int Socket::send(const void *data, int dataSize) {
 	    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 
             if(isConnected() == true) {
-            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
+            	struct timeval timeVal;
+            	timeVal.tv_sec = 1;
+            	timeVal.tv_usec = 0;
+            	bool canWrite = isWritable(&timeVal);
+
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p, canWrite = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data,canWrite);
 
 //	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
 //	        	if(this->inSocketDestructor == true) {
@@ -1293,7 +1298,12 @@ int Socket::send(const void *data, int dataSize) {
 	    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,totalBytesSent);
 
             if(isConnected() == true) {
-            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data);
+            	struct timeval timeVal;
+            	timeVal.tv_sec = 1;
+            	timeVal.tv_usec = 0;
+            	bool canWrite = isWritable(&timeVal);
+
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, sock = %d, dataSize = %d, data = %p, canWrite = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,sock,dataSize,data,canWrite);
 
 //	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
 //	        	if(this->inSocketDestructor == true) {
@@ -1602,13 +1612,18 @@ bool Socket::isReadable() {
 	return result;
 }
 
-bool Socket::isWritable() {
+bool Socket::isWritable(struct timeval *timeVal) {
     if(isSocketValid() == false) return false;
 
 	struct timeval tv;
-	tv.tv_sec= 0;
-	//tv.tv_usec= 1;
-	tv.tv_usec= 0;
+	if(timeVal != NULL) {
+		tv = *timeVal;
+	}
+	else {
+		tv.tv_sec= 0;
+		//tv.tv_usec= 1;
+		tv.tv_usec= 0;
+	}
 
 	fd_set set;
 	FD_ZERO(&set);

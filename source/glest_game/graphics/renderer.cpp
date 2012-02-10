@@ -980,7 +980,7 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 		w = start-plane;
 	const float d = norm.x*u.x + norm.y*u.y + norm.z*u.z;
 #ifdef USE_STREFLOP
-	if(streflop::fabs(d) < 0.00001)
+	if(streflop::fabs(static_cast<streflop::Simple>(d)) < 0.00001)
 #else
 	if(fabs(d) < 0.00001)
 #endif
@@ -996,28 +996,28 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 	Vec2i pos;
 	if(strcmp(label,"tl") == 0) {
 #ifdef USE_STREFLOP
-		pos = Vec2i(streflop::floor(i.x),streflop::floor(i.z));
+		pos = Vec2i(streflop::floor(static_cast<streflop::Simple>(i.x)),streflop::floor(static_cast<streflop::Simple>(i.z)));
 #else
 		pos = Vec2i(floor(i.x),floor(i.z));
 #endif
 	}
 	else if(strcmp(label,"tr") == 0) {
 #ifdef USE_STREFLOP
-		pos = Vec2i(streflop::ceil(i.x),streflop::floor(i.z));
+		pos = Vec2i(streflop::ceil(static_cast<streflop::Simple>(i.x)),streflop::floor(static_cast<streflop::Simple>(i.z)));
 #else
 		pos = Vec2i(ceil(i.x),floor(i.z));
 #endif
 	}
 	else if(strcmp(label,"bl") == 0) {
 #ifdef USE_STREFLOP
-		pos = Vec2i(streflop::floor(i.x),streflop::ceil(i.z));
+		pos = Vec2i(streflop::floor(static_cast<streflop::Simple>(i.x)),streflop::ceil(static_cast<streflop::Simple>(i.z)));
 #else
 		pos = Vec2i(floor(i.x),ceil(i.z));
 #endif
 	}
 	else if(strcmp(label,"br") == 0) {
 #ifdef USE_STREFLOP
-		pos = Vec2i(streflop::ceil(i.x),streflop::ceil(i.z));
+		pos = Vec2i(streflop::ceil(static_cast<streflop::Simple>(i.x)),streflop::ceil(static_cast<streflop::Simple>(i.z)));
 #else
 		pos = Vec2i(ceil(i.x),ceil(i.z));
 #endif
@@ -1149,7 +1149,7 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
+	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2]) );
 	#else
 	   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
 	#endif
@@ -1172,7 +1172,7 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
+	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2]) );
 	#else
 	   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
 	#endif
@@ -1195,7 +1195,7 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
+	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2]) );
 	#else
 	   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
 	#endif
@@ -1218,7 +1218,7 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
+	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2]) );
 	#else
 	   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
 	#endif
@@ -1242,7 +1242,7 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
+	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2]) );
 	#else
 	   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
 	#endif
@@ -1266,7 +1266,7 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 
 	   /* Normalize the result */
 	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
+	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2]) );
 	#else
 	   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
 	#endif
@@ -2379,7 +2379,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			//printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
 
 #ifdef USE_STREFLOP
-			pos.y += (streflop::ceil((float)lineHeight - (float)h));
+			pos.y += (float)(streflop::ceil( static_cast<streflop::Simple>( ((float)lineHeight - (float)h)) ));
 #else
 			pos.y += (ceil(lineHeight - h));
 #endif
@@ -5285,8 +5285,8 @@ void Renderer::renderMinimap(){
     int x1 = 0;
     int y1 = 0;
 #ifdef USE_STREFLOP
-    x1 = mx + x + static_cast<int>(20*streflop::sin(ang-pi/5));
-	y1 = my + mh - (y-static_cast<int>(20*streflop::cos(ang-pi/5)));
+    x1 = mx + x + static_cast<int>(20*streflop::sin(static_cast<streflop::Simple>(ang-pi/5)));
+	y1 = my + mh - (y-static_cast<int>(20*streflop::cos(static_cast<streflop::Simple>(ang-pi/5))));
 #else
 	x1 = mx + x + static_cast<int>(20*sin(ang-pi/5));
 	y1 = my + mh - (y-static_cast<int>(20*cos(ang-pi/5)));
@@ -5295,8 +5295,8 @@ void Renderer::renderMinimap(){
     int x2 = 0;
     int y2 = 0;
 #ifdef USE_STREFLOP
-    x2 = mx + x + static_cast<int>(20*streflop::sin(ang+pi/5));
-	y2 = my + mh - (y-static_cast<int>(20*streflop::cos(ang+pi/5)));
+    x2 = mx + x + static_cast<int>(20*streflop::sin(static_cast<streflop::Simple>(ang+pi/5)));
+	y2 = my + mh - (y-static_cast<int>(20*streflop::cos(static_cast<streflop::Simple>(ang+pi/5))));
 #else
 	x2 = mx + x + static_cast<int>(20*sin(ang+pi/5));
 	y2 = my + mh - (y-static_cast<int>(20*cos(ang+pi/5)));
@@ -6461,7 +6461,7 @@ float Renderer::computeMoonAngle(float time) {
 Vec4f Renderer::computeSunPos(float time) {
 	float ang= computeSunAngle(time);
 #ifdef USE_STREFLOP
-	return Vec4f(-streflop::cos(ang)*sunDist, streflop::sin(ang)*sunDist, 0.f, 0.f);
+	return Vec4f(-streflop::cos(static_cast<streflop::Simple>(ang))*sunDist, streflop::sin(static_cast<streflop::Simple>(ang))*sunDist, 0.f, 0.f);
 #else
 	return Vec4f(-cos(ang)*sunDist, sin(ang)*sunDist, 0.f, 0.f);
 #endif
@@ -6470,7 +6470,7 @@ Vec4f Renderer::computeSunPos(float time) {
 Vec4f Renderer::computeMoonPos(float time) {
 	float ang= computeMoonAngle(time);
 #ifdef USE_STREFLOP
-	return Vec4f(-streflop::cos(ang)*moonDist, streflop::sin(ang)*moonDist, 0.f, 0.f);
+	return Vec4f(-streflop::cos(static_cast<streflop::Simple>(ang))*moonDist, streflop::sin(static_cast<streflop::Simple>(ang))*moonDist, 0.f, 0.f);
 #else
 	return Vec4f(-cos(ang)*moonDist, sin(ang)*moonDist, 0.f, 0.f);
 #endif
@@ -7446,7 +7446,7 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 						//get the screen coordinates
 						Vec3f screenPos = unit->getScreenPos();
 	#ifdef USE_STREFLOP
-						renderText3D(unit->getCurrentUnitTitle(), font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+						renderText3D(unit->getCurrentUnitTitle(), font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
 	#else
 						renderText3D(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
 	#endif
@@ -7457,7 +7457,7 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 						string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
 						Vec3f screenPos = unit->getScreenPos();
 	#ifdef USE_STREFLOP
-						renderText3D(str, font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+						renderText3D(str, font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
 	#else
 						renderText3D(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
 	#endif
@@ -7508,7 +7508,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 					//get the screen coordinates
 					Vec3f screenPos = unit->getScreenPos();
 #ifdef USE_STREFLOP
-					renderText(unit->getCurrentUnitTitle(), font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+					renderText(unit->getCurrentUnitTitle(), font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
 #else
 					renderText(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
 #endif
@@ -7519,7 +7519,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 					string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
 					Vec3f screenPos = unit->getScreenPos();
 #ifdef USE_STREFLOP
-					renderText(str, font, color, streflop::fabs(screenPos.x) + 5, streflop::fabs(screenPos.y) + 5, false);
+					renderText(str, font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
 #else
 					renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
 #endif

@@ -184,7 +184,7 @@ void SoundRenderer::playFx(StaticSound *staticSound, Vec3f soundPos, Vec3f camPo
 		if(d < audibleDist){
 			float vol= (1.f-d/audibleDist)*fxVolume;
 #ifdef USE_STREFLOP
-			float correctedVol= streflop::log10(streflop::log10(vol*9+1)*9+1);
+			float correctedVol= streflop::log10(streflop::log10(static_cast<streflop::Simple>(vol*9+1))*9+1);
 #else
 			float correctedVol= log10(log10(vol*9+1)*9+1);
 #endif

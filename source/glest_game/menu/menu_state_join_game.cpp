@@ -625,7 +625,7 @@ void MenuStateJoinGame::connectToServer() {
 	for(time_t elapsedWait = time(NULL);
 		clientInterface->getIntroDone() == false &&
 		clientInterface->isConnected() &&
-		difftime(time(NULL),elapsedWait) <= 5;) {
+		difftime(time(NULL),elapsedWait) <= 8;) {
 		if(clientInterface->isConnected()) {
 			//update lobby
 			clientInterface->updateLobby();

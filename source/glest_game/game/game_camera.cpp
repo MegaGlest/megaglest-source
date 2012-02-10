@@ -135,7 +135,7 @@ void GameCamera::update(){
 	//free state
 	if(state==sFree){
 #ifdef USE_STREFLOP
-		if(streflop::fabs(rotate) == 1){
+		if(streflop::fabs(static_cast<streflop::Simple>(rotate)) == 1){
 #else
 		if(fabs(rotate) == 1){
 #endif
@@ -216,9 +216,9 @@ Quad2i GameCamera::computeVisibleQuad() {
 	const float viewDegree = 180.f;
 
 #ifdef USE_STREFLOP
-	Vec2f v(streflop::sinf(degToRad(viewDegree - hAng)), streflop::cosf(degToRad(viewDegree - hAng)));
-	Vec2f v1(streflop::sinf(degToRad(viewDegree - hAng - fov)), streflop::cosf(degToRad(viewDegree - hAng - fov)));
-	Vec2f v2(streflop::sinf(degToRad(viewDegree - hAng + fov)), streflop::cosf(degToRad(viewDegree - hAng + fov)));
+	Vec2f v(streflop::sinf(static_cast<streflop::Simple>(degToRad(viewDegree - hAng))), streflop::cosf(static_cast<streflop::Simple>(degToRad(viewDegree - hAng))));
+	Vec2f v1(streflop::sinf(static_cast<streflop::Simple>(degToRad(viewDegree - hAng - fov))), streflop::cosf(static_cast<streflop::Simple>(degToRad(viewDegree - hAng - fov))));
+	Vec2f v2(streflop::sinf(static_cast<streflop::Simple>(degToRad(viewDegree - hAng + fov))), streflop::cosf(static_cast<streflop::Simple>(degToRad(viewDegree - hAng + fov))));
 #else
 	Vec2f v(sinf(degToRad(viewDegree - hAng)), cosf(degToRad(viewDegree - hAng)));
 	Vec2f v1(sinf(degToRad(viewDegree - hAng - fov)), cosf(degToRad(viewDegree - hAng - fov)));
@@ -318,8 +318,8 @@ void GameCamera::transitionVH(float v, float h) {
 
 void GameCamera::zoom(float dist) {
 #ifdef USE_STREFLOP
-	float flatDist = dist * streflop::cosf(degToRad(vAng));
-	Vec3f offset(flatDist * streflop::sinf(degToRad(hAng)), dist * streflop::sinf(degToRad(vAng)), flatDist  * -streflop::cosf(degToRad(hAng)));
+	float flatDist = dist * streflop::cosf(static_cast<streflop::Simple>(degToRad(vAng)));
+	Vec3f offset(flatDist * streflop::sinf(static_cast<streflop::Simple>(degToRad(hAng))), dist * streflop::sinf(static_cast<streflop::Simple>(degToRad(vAng))), flatDist  * -streflop::cosf(static_cast<streflop::Simple>(degToRad(hAng))));
 #else
 	float flatDist = dist * cosf(degToRad(vAng));
 	Vec3f offset(flatDist * sinf(degToRad(hAng)), dist * sinf(degToRad(vAng)), flatDist  * -cosf(degToRad(hAng)));
@@ -386,7 +386,7 @@ void GameCamera::clampAng() {
 //move camera forwad but never change heightFactor
 void GameCamera::moveForwardH(float d, float response) {
 #ifdef USE_STREFLOP
-	Vec3f offset(streflop::sinf(degToRad(hAng)) * d, 0.f, -streflop::cosf(degToRad(hAng)) * d);
+	Vec3f offset(streflop::sinf(static_cast<streflop::Simple>(degToRad(hAng))) * d, 0.f, -streflop::cosf(static_cast<streflop::Simple>(degToRad(hAng))) * d);
 #else
 	Vec3f offset(sinf(degToRad(hAng)) * d, 0.f, -cosf(degToRad(hAng)) * d);
 #endif
@@ -398,7 +398,7 @@ void GameCamera::moveForwardH(float d, float response) {
 //move camera to a side but never change heightFactor
 void GameCamera::moveSideH(float d, float response){
 #ifdef USE_STREFLOP
-	Vec3f offset(streflop::sinf(degToRad(hAng+90)) * d, 0.f, -streflop::cosf(degToRad(hAng+90)) * d);
+	Vec3f offset(streflop::sinf(static_cast<streflop::Simple>(degToRad(hAng+90))) * d, 0.f, -streflop::cosf(static_cast<streflop::Simple>(degToRad(hAng+90))) * d);
 #else
 	Vec3f offset(sinf(degToRad(hAng+90)) * d, 0.f, -cosf(degToRad(hAng+90)) * d);
 #endif

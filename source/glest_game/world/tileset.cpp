@@ -330,7 +330,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 #ifdef USE_STREFLOP
-		float rnd= streflop::fabs(random.randRange(-1.f, 1.f));
+		float rnd= streflop::fabs(static_cast<streflop::Simple>(random.randRange(-1.f, 1.f)));
 #else
 		float rnd= fabs(random.randRange(-1.f, 1.f));
 #endif

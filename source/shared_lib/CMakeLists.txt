@@ -295,6 +295,8 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
         set(CMAKE_REQUIRED_INCLUDES "${IRCCLIENT_INCLUDE_DIR}")
         set(CMAKE_REQUIRED_LIBRARIES "${IRCCLIENT_LIBRARY}")
+        include(CheckCXXSourceRuns)
+
         check_cxx_source_runs("
         #include <stdio.h>
         #include <stdlib.h>

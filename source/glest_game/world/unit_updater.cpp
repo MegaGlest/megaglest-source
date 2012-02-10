@@ -2289,7 +2289,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 			for(int j = center.y - range; j < center.y + range + size; ++j) {
 				//cells inside map and in range
 #ifdef USE_STREFLOP
-				if(map->isInside(i, j) && streflop::floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
 #else
 				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
 #endif
@@ -2394,7 +2394,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 				}
 				else {
 #ifdef USE_STREFLOP
-					currentDistance = streflop::floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
+					currentDistance = streflop::floor(static_cast<streflop::Simple>(enemyFloatCenter.dist(attackWarnings[i]->attackPosition))); // no need for streflops here!
 #else
 					currentDistance = floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
 #endif
@@ -2473,7 +2473,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 			for(int j = center.y - range; j < center.y + range + size; ++j) {
 				//cells inside map and in range
 #ifdef USE_STREFLOP
-				if(map->isInside(i, j) && streflop::floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
 #else
 				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
 #endif
@@ -2527,7 +2527,7 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 		for(int j = center.y - range; j < center.y + range + size; ++j) {
 			//cells inside map and in range
 #ifdef USE_STREFLOP
-			if(map->isInside(i, j) && streflop::floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+			if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
 #else
 			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
 #endif

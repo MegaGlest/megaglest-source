@@ -595,6 +595,11 @@ std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> pa
 
 pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 	//bool result = false;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s]\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str());
+	}
+
 	pair<bool,time_t> result = make_pair(false,0);
 	if(fileExists(crcCacheFile) == true) {
 #ifdef WIN32
@@ -615,6 +620,16 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 
 				result.first = true;
 				value = crcValue;
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+			        struct tm *loctime = localtime (&refreshDate);
+			        char szBuf1[100]="";
+			        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,
+							"=-=-=-=- READ CACHE for Cache file [%s] refreshDate = %ld [%s], crcValue = %d\n",
+							crcCacheFile.c_str(),refreshDate, szBuf1, crcValue);
+				}
 			}
 			else {
 				time_t now = time(NULL);
@@ -626,8 +641,22 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 		        char szBuf2[100]="";
 		        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %d\n",crcCacheFile.c_str(),now, szBuf1, refreshDate, szBuf2, crcValue);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,
+							"=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %d\n",
+							crcCacheFile.c_str(),now, szBuf1, refreshDate, szBuf2, crcValue);
+				}
 			}
+		}
+		else {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"FILE NOT FOUND(1) for Cache file [%s]\n",crcCacheFile.c_str());
+			}
+		}
+	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"FILE NOT FOUND(2) for Cache file [%s]\n",crcCacheFile.c_str());
 		}
 	}
 

@@ -574,7 +574,7 @@ void Unit::calculateXZRotation(){
 		const Vec3f normal= sc->getNormal();
 
 #ifdef USE_STREFLOP
-		targetRotationZ= radToDeg(streflop::atan2(abs(normal.x), abs(normal.y)));
+		targetRotationZ= radToDeg(streflop::atan2(static_cast<streflop::Simple>(abs(normal.x)), static_cast<streflop::Simple>(abs(normal.y))));
 #else
 		targetRotationZ= radToDeg(atan2(abs(normal.x), abs(normal.y)));
 #endif
@@ -585,7 +585,7 @@ void Unit::calculateXZRotation(){
 		targetRotationZ= targetRotationZ * -1;
 
 #ifdef USE_STREFLOP
-		targetRotationX= radToDeg(streflop::atan2(abs(normal.z), abs(normal.y)));
+		targetRotationX= radToDeg(streflop::atan2(static_cast<streflop::Simple>(abs(normal.z)), static_cast<streflop::Simple>(abs(normal.y))));
 #else
 		targetRotationX= radToDeg(atan2(abs(normal.z), abs(normal.y)));
 #endif
@@ -946,7 +946,7 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 
 	Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
 #ifdef USE_STREFLOP
-	targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
+	targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
 	targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
@@ -2581,7 +2581,7 @@ void Unit::updateTarget(){
 		Vec2i relPos= targetPos - pos;
 		Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
 #ifdef USE_STREFLOP
-		targetRotation= radToDeg(streflop::atan2(relPosf.x, relPosf.y));
+		targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
 		targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
