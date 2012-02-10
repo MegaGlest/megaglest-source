@@ -145,7 +145,7 @@ public:
 
 	float length() const{
 #ifdef USE_STREFLOP
-		return static_cast<float>(streflop::sqrt(static_cast<float>(x*x + y*y)));
+		return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y)));
 #else
 		return static_cast<float>(sqrt(static_cast<float>(x*x + y*y)));
 #endif
@@ -331,7 +331,7 @@ public:
 
 	float length() const{
 #ifdef USE_STREFLOP
-		return static_cast<float>(streflop::sqrt(x*x + y*y + z*z));
+		return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y + z*z)));
 #else
 		return static_cast<float>(sqrt(x*x + y*y + z*z));
 #endif

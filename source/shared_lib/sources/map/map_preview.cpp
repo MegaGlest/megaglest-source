@@ -112,7 +112,7 @@ static int get_dist(int delta_x, int delta_y) {
 	float dx = (float)delta_x;
 	float dy = (float)delta_y;
 #ifdef USE_STREFLOP
-	return static_cast<int>(streflop::sqrtf(dx * dx + dy * dy)+0.5); // round correctly
+	return static_cast<int>(streflop::sqrtf(static_cast<streflop::Simple>(dx * dx + dy * dy))+0.5); // round correctly
 #else
 	return static_cast<int>(sqrtf(dx * dx + dy * dy)+0.5); // round correctly
 #endif
@@ -279,16 +279,16 @@ void MapPreview::pirateChangeHeight(int x, int y, int height, int radius) {
 
 					// Determine which gradients to use and take a weighted average
 #ifdef USE_STREFLOP
-					if (streflop::fabs(normIf) > streflop::fabs(normJf)) {
+					if (streflop::fabs(static_cast<streflop::Simple>(normIf)) > streflop::fabs(static_cast<streflop::Simple>(normJf))) {
 
 						usedGrad =
-								gradient[normI[0]] [normJ[0]] * streflop::fabs(normJf) +
-								gradient[normI[0]] [normJ[1]] * (1 - streflop::fabs(normJf));
+								gradient[normI[0]] [normJ[0]] * streflop::fabs(static_cast<streflop::Simple>(normJf)) +
+								gradient[normI[0]] [normJ[1]] * (1 - streflop::fabs(static_cast<streflop::Simple>(normJf)));
 					}
-					else if (streflop::fabs(normIf) < streflop::fabs(normJf)) {
+					else if (streflop::fabs(static_cast<streflop::Simple>(normIf)) < streflop::fabs(static_cast<streflop::Simple>(normJf))) {
 						usedGrad =
-								gradient[normI[0]] [normJ[0]] * streflop::fabs(normIf) +
-								gradient[normI[1]] [normJ[0]] * (1 - streflop::fabs(normIf));
+								gradient[normI[0]] [normJ[0]] * streflop::fabs(static_cast<streflop::Simple>(normIf)) +
+								gradient[normI[1]] [normJ[0]] * (1 - streflop::fabs(static_cast<streflop::Simple>(normIf)));
 					}
 					else {
 						usedGrad =
@@ -888,8 +888,8 @@ void MapPreview::sinRandomize(int strenght) {
 			float normV = static_cast<float>(j) / h;
 
 #ifdef USE_STREFLOP
-			float sh = (streflop::sinf(normH * sinH1) + streflop::sin(normH * sinH2)) / 2.f;
-			float sv = (streflop::sinf(normV * sinV1) + streflop::sin(normV * sinV2)) / 2.f;
+			float sh = (streflop::sinf(static_cast<streflop::Simple>(normH * sinH1)) + streflop::sin(static_cast<streflop::Simple>(normH * sinH2))) / 2.f;
+			float sv = (streflop::sinf(static_cast<streflop::Simple>(normV * sinV1)) + streflop::sin(static_cast<streflop::Simple>(normV * sinV2))) / 2.f;
 #else
 			float sh = (sinf(normH * sinH1) + sin(normH * sinH2)) / 2.f;
 			float sv = (sinf(normV * sinV1) + sin(normV * sinV2)) / 2.f;

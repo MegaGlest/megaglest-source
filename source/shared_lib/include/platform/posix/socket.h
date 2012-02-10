@@ -162,7 +162,7 @@ public:
 	static void setBlock(bool block, PLATFORM_SOCKET socket);
 
 	bool isReadable();
-	bool isWritable();
+	bool isWritable(struct timeval *timeVal=NULL);
 	bool isConnected();
 
 	static string getHostName();

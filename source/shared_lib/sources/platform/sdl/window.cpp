@@ -445,7 +445,7 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 		const float lodBias = max(min(0.0f,4.0f),-4.0f);
 		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("\n\n\n\n\n$$$$ In [%s::%s Line: %d] lodBias = %f\n\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,lodBias);
 	#ifdef USE_STREFLOP
-		if (streflop::fabs(lodBias) > 0.01f) {
+		if (streflop::fabs(static_cast<streflop::Simple>(lodBias)) > 0.01f) {
 	#else
 		if (fabs(lodBias) > 0.01f) {
 	#endif

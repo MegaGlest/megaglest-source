@@ -521,7 +521,7 @@ bool SoundPlayerDs8::findStrBuffer(Sound *sound, int *bufferIndex){
 
 long dsVolume(float floatVolume){
 #ifdef USE_STREFLOP
-	float correctedVol= streflop::log10f(floatVolume*9.f+1.f);
+	float correctedVol= streflop::log10f(static_cast<streflop::Simple>(floatVolume*9.f+1.f));
 #else
 	float correctedVol= log10f(floatVolume*9.f+1.f);
 #endif

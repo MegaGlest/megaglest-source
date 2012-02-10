@@ -1060,10 +1060,11 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 		for(time_t elapsedWait = time(NULL);
 			clientInterface->getIntroDone() == false &&
 			clientInterface->isConnected() &&
-			difftime(time(NULL),elapsedWait) <= 3;) {
+			difftime(time(NULL),elapsedWait) <= 8;) {
 			if(clientInterface->isConnected()) {
 				//update lobby
 				clientInterface->updateLobby();
+				sleep(0);
 			}
 		}
 		if( clientInterface->isConnected() == true &&

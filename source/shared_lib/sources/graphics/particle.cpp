@@ -344,19 +344,19 @@ void FireParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	float ang= random.randRange(-2.0f * pi, 2.0f * pi);
 #ifdef USE_STREFLOP
-	float mod= streflop::fabsf(random.randRange(-radius, radius));
+	float mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
 
-	float x= streflop::sinf(ang)*mod;
-	float y= streflop::cosf(ang)*mod;
+	float x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
+	float y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
 
-	float radRatio= streflop::sqrtf(streflop::sqrtf(mod/radius));
+	float radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
 #else
 	float mod= fabsf(random.randRange(-radius, radius));
 
 	float x= sinf(ang) * mod;
 	float y= cosf(ang) * mod;
 
-	float radRatio= sqrtf(sqrtf(mod / radius));
+	float radRatio= sqrtf((mod / radius));
 #endif
 
 	p->color= colorNoEnergy * 0.5f + colorNoEnergy * 0.5f * radRatio;
@@ -392,9 +392,9 @@ void FireParticleSystem::setRadius(float radius){
 
 void FireParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
-	this->windSpeed.x= streflop::sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= streflop::cosf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 #else
 	this->windSpeed.x= sinf(degToRad(windAngle)) * windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -498,7 +498,7 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 		}
 		else {
 		#ifdef USE_STREFLOP
-			if(streflop::fabs(absolute) <= 0.00001f){
+			if(streflop::fabs(static_cast<streflop::Simple>(absolute)) <= 0.00001f){
 		#else
 			if(fabs(absolute) <= 0.00001f){
 		#endif
@@ -506,7 +506,7 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 			}
 			else {
 		#ifdef USE_STREFLOP
-				tween= streflop::fmod(absolute, modelCycle);
+				tween= streflop::fmod(static_cast<streflop::Simple>(absolute), static_cast<streflop::Simple>(modelCycle));
 		#else
 				tween= fmod(absolute, modelCycle);
 		#endif
@@ -628,11 +628,11 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	const float ang= random.randRange(-2.0f * pi, 2.0f * pi);
 #ifdef USE_STREFLOP	
-	const float mod= streflop::fabsf(random.randRange(-radius, radius));
-	const float radRatio= streflop::sqrtf(streflop::sqrtf(mod/radius));
+	const float mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
+	const float radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
 #else
 	const float mod= fabsf(random.randRange(-radius, radius));
-	const float radRatio= sqrtf(sqrtf(mod / radius));
+	const float radRatio= sqrtf(mod / radius);
 #endif
 	p->color= color;
 	if(radiusBasedStartenergy == true){
@@ -663,8 +663,8 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	} break;
 	case sLinear:{
 	#ifdef USE_STREFLOP	
-		float x= streflop::sinf(ang)*mod;
-		float y= streflop::cosf(ang)*mod;	
+		float x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
+		float y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
 	#else	
 		float x= sinf(ang) * mod;
 		float y= cosf(ang) * mod;	
@@ -676,7 +676,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 		}
 		else{// rotate it according to rotation		
 	#ifdef USE_STREFLOP
-			p->pos= Vec3f(pos.x+x+offset.z*streflop::sinf(rad)+offset.x*streflop::cosf(rad), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(rad)-offset.x*streflop::sinf(rad)));
+			p->pos= Vec3f(pos.x+x+offset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+offset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-offset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
 			p->pos= Vec3f(pos.x + x + offset.z * sinf(rad) + offset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
 				radius / 2) + offset.y, pos.z + y + (offset.z * cosf(rad) - offset.x * sinf(rad)));
@@ -687,7 +687,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 		p->speed= p->speed * speed;
 		if(relative && relativeDirection){
 	#ifdef USE_STREFLOP
-			p->speed=Vec3f(p->speed.z*streflop::sinf(rad)+p->speed.x*streflop::cosf(rad),p->speed.y,(p->speed.z*streflop::cosf(rad)-p->speed.x*streflop::sinf(rad)));
+			p->speed=Vec3f(p->speed.z*streflop::sinf(static_cast<streflop::Simple>(rad))+p->speed.x*streflop::cosf(static_cast<streflop::Simple>(rad)),p->speed.y,(p->speed.z*streflop::cosf(static_cast<streflop::Simple>(rad))-p->speed.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
 			p->speed= Vec3f(p->speed.z * sinf(rad) + p->speed.x * cosf(rad), p->speed.y, (p->speed.z * cosf(rad)
 				- p->speed.x * sinf(rad)));
@@ -778,9 +778,9 @@ void UnitParticleSystem::updateParticle(Particle *p){
 
 void UnitParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
-	this->windSpeed.x= streflop::sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= streflop::cosf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 #else
 	this->windSpeed.x= sinf(degToRad(windAngle)) * windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -833,9 +833,9 @@ void RainParticleSystem::setRadius(float radius){
 
 void RainParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
-	this->windSpeed.x= streflop::sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= streflop::cosf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 #else
 	this->windSpeed.x= sinf(degToRad(windAngle)) * windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -884,9 +884,9 @@ void SnowParticleSystem::setRadius(float radius){
 
 void SnowParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
-	this->windSpeed.x= streflop::sinf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
-	this->windSpeed.z= streflop::cosf(degToRad(windAngle))*windSpeed;
+	this->windSpeed.z= streflop::cosf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 #else
 	this->windSpeed.x= sinf(degToRad(windAngle)) * windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -950,7 +950,7 @@ void ProjectileParticleSystem::update(){
 		// ratio
 		float relative= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
 #ifdef USE_STREFLOP
-		float absolute= clamp(streflop::fabs(currentVector.length()), 0.0f, 1.0f);
+		float absolute= clamp(streflop::fabs(static_cast<streflop::Simple>(currentVector.length())), 0.0f, 1.0f);
 #else
 		float absolute= clamp(fabs(currentVector.length()), 0.0f, 1.0f);
 #endif
@@ -975,8 +975,8 @@ void ProjectileParticleSystem::update(){
 			case tSpiral: {
 				pos= flatPos;
 #ifdef USE_STREFLOP
-				pos+= xVector * streflop::cos(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
-				pos+= yVector * streflop::sin(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos+= xVector * streflop::cos(static_cast<streflop::Simple>(relative * trajectoryFrequency * targetVector.length())) * trajectoryScale;
+				pos+= yVector * streflop::sin(static_cast<streflop::Simple>(relative * trajectoryFrequency * targetVector.length())) * trajectoryScale;
 #else
 				pos+= xVector * cos(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 				pos+= yVector * sin(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
@@ -1017,7 +1017,7 @@ void ProjectileParticleSystem::update(){
 void ProjectileParticleSystem::rotateChildren() {
 	//### only on horizontal plane :(
 #ifdef USE_STREFLOP
-	float rotation = streflop::atan2(direction.x, direction.z);
+	float rotation = streflop::atan2(static_cast<streflop::Simple>(direction.x), static_cast<streflop::Simple>(direction.z));
 #else
 	float rotation = atan2(direction.x, direction.z);
 #endif	
