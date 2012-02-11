@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# If you want to have core files generated (for debugging purposes):
+#ulimit -c unlimited
+
 findMissingSO () {
 
   LDCONFIG="$1"
@@ -257,10 +260,11 @@ findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${FTGL_LINKEDLIBNAME}" "$FTGL_LIBLOO
 findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${IRC_LINKEDLIBNAME}" "$IRC_LIBLOOKUP1" "$IRC_LIBLOOKUP2"
 findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DL_LINKEDLIBNAME}" "$DL_LIBLOOKUP1" "$DL_LIBLOOKUP2"
 
-#if [ -d techs/megapack/factions/norsemen/upgrades/training_field ]; then
-	# removed as of 3.3.5.1 beta1
-#	rm -r techs/megapack/factions/norsemen/upgrades/training_field
-#fi
- 
 ./megaglest $@
-# ./megaglest $@ 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
+
+# Other ways to start MegaGlest (for testing purposes)
+# Copy output (stout+stderr) both to the screen and to a gzip compressed file
+#./megaglest $@ --verbose 2>&1 | tee - | gzip > ~/.megaglest/verbose.log.gz
+#
+# Create a new date/time indexed log file for every MG run and keep it
+#./megaglest $@ 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
