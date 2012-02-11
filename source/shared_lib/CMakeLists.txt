@@ -237,7 +237,8 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		SET(DIRS_WITH_SRC
 			${DIRS_WITH_SRC}
 			streflop
-			streflop/libm_flt32_source)
+			streflop/libm_flt32_source
+                        streflop/softfloat)
 	ENDIF()
 
 	IF(NOT WANT_STATIC_LIBS)
