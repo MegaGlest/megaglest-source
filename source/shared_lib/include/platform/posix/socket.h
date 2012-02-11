@@ -156,7 +156,7 @@ public:
 	int getDataToRead(bool wantImmediateReply=false);
 	int send(const void *data, int dataSize);
 	int receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet);
-	int peek(void *data, int dataSize, bool mustGetData=true);
+	int peek(void *data, int dataSize, bool mustGetData=true,int *pLastSocketError=NULL);
 
 	void setBlock(bool block);
 	static void setBlock(bool block, PLATFORM_SOCKET socket);

@@ -1452,7 +1452,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 	return static_cast<int>(bytesReceived);
 }
 
-int Socket::peek(void *data, int dataSize,bool mustGetData) {
+int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError) {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) chrono.start();
 
@@ -1486,6 +1486,9 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 	int lastSocketError = getLastSocketError();
+	if(pLastSocketError != NULL) {
+		*pLastSocketError = lastSocketError;
+	}
 	if(err < 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR PEEKING SOCKET DATA error while sending socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText().c_str());
 		disconnectSocket();
@@ -1519,6 +1522,10 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 	        	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 				lastSocketError = getLastSocketError();
+				if(pLastSocketError != NULL) {
+					*pLastSocketError = lastSocketError;
+				}
+
                 safeMutex.ReleaseLock();
 
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
@@ -1533,7 +1540,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData) {
 
 	if(err <= 0) {
 		//printf("Peek #3 err = %d\n",err);
-		lastSocketError = getLastSocketError();
+		//lastSocketError = getLastSocketError();
 		if(mustGetData == true || lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
 			int iErr = lastSocketError;
 			disconnectSocket();
@@ -1679,11 +1686,12 @@ bool Socket::isConnected() {
 	//if the socket is readable it is connected if we can read a byte from it
 	if(isReadable()) {
 		char tmp=0;
-		int err = peek(&tmp, 1, false);
+		int lastSocketError=0;
+		int err = peek(&tmp, 1, false, &lastSocketError);
 		//if(err <= 0 && err != PLATFORM_SOCKET_TRY_AGAIN) {
-		if(err <= 0) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str());
-			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str());
+		if(err <= 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
 			return false;
 		}
 	}
