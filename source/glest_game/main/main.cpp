@@ -2523,7 +2523,23 @@ int glestMain(int argc, char** argv) {
 #ifdef USE_STREFLOP
 //#	define STREFLOP_NO_DENORMALS
 //	streflop_init<streflop::Simple>();
-	printf(" - using STREFLOP\n");
+
+		const char *instruction_set = "[none]";
+		const char *denormals = "[denormals]";
+
+#if defined(STREFLOP_SSE)
+		instruction_set = "[SSE]";
+#elif defined(STREFLOP_X87)
+		instruction_set = "[X87]";
+#elif defined(STREFLOP_SOFT)
+		instruction_set = "[SOFTFLOAT]";
+#endif
+
+#if defined(STREFLOP_NO_DENORMALS)
+		denormals = "[no-denormals]";
+#endif
+
+		printf(" - using STREFLOP %s - %s\n",instruction_set,denormals);
 #endif
 	}
 
