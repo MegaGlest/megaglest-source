@@ -263,8 +263,10 @@ findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DL_LINKEDLIBNAME}" "$DL_LIBLOOKUP1
 ./megaglest $@
 
 # Other ways to start MegaGlest (for testing purposes)
-# Copy output (stout+stderr) both to the screen and to a gzip compressed file
-#./megaglest $@ --verbose 2>&1 | tee - | gzip > ~/.megaglest/verbose.log.gz
 #
-# Create a new date/time indexed log file for every MG run and keep it
+# Write verbose output (stout+stderr) to a gzip compressed file (only)
+#./megaglest $@ --verbose 2>&1 | gzip > ~/.megaglest/verbose.log.gz
+#
+# Create a new date/time indexed log file for every MG run and keep it;
+# write output (stout+stderr) both to this file and to the screen
 #./megaglest $@ 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
