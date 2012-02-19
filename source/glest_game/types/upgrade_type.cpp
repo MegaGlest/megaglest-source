@@ -192,11 +192,107 @@ int UpgradeTypeBase::getProdSpeed(const SkillType *st) const {
 	}
 }
 
-bool UpgradeType::isAffected(const UnitType *unitType) const{
-	return find(effects.begin(), effects.end(), unitType)!=effects.end();
+string UpgradeTypeBase::getDesc() const{
+
+    string str="";
+    string indent="->";
+    //int i;
+	Lang &lang= Lang::getInstance();
+
+	if(maxHp != 0) {
+		if(maxHpIsMultiplier) {
+			str += indent+lang.get("Hp") + " *" + intToStr(maxHp);
+		}
+		else {
+			str += indent+lang.get("Hp") + " +" + intToStr(maxHp);
+		}
+
+		if(maxHpRegeneration != 0) {
+			str += " [" + intToStr(maxHpRegeneration) + "]";
+		}
+	}
+	if(sight != 0) {
+		if(sightIsMultiplier) {
+			str+= indent+lang.get("Sight") + " *" + intToStr(sight);
+		}
+		else {
+			str+= indent+lang.get("Sight") + " +" + intToStr(sight);
+		}
+	}
+	if(maxEp != 0) {
+		if(maxEpIsMultiplier) {
+			str+= indent+lang.get("Ep") + " *" + intToStr(maxEp)+"\n";
+		}
+		else {
+			str+= indent+lang.get("Ep") + " +" + intToStr(maxEp)+"\n";
+		}
+		if(maxEpRegeneration != 0) {
+			str += " [" + intToStr(maxEpRegeneration) + "]";
+		}
+	}
+	if(attackStrength != 0) {
+		if(attackStrengthIsMultiplier) {
+			str+= indent+lang.get("AttackStrenght") + " *" + intToStr(attackStrength)+"\n";
+		}
+		else {
+			str+= indent+lang.get("AttackStrenght") + " +" + intToStr(attackStrength)+"\n";
+		}
+	}
+	if(attackRange != 0) {
+		if(attackRangeIsMultiplier) {
+			str+= indent+lang.get("AttackDistance") + " *" + intToStr(attackRange)+"\n";
+		}
+		else {
+			str+= indent+lang.get("AttackDistance") + " +" + intToStr(attackRange)+"\n";
+		}
+	}
+	if(armor != 0) {
+		if(armorIsMultiplier) {
+			str+= indent+lang.get("Armor") + " *" + intToStr(armor)+"\n";
+		}
+		else {
+			str+= indent+lang.get("Armor") + " +" + intToStr(armor)+"\n";
+		}
+	}
+	if(moveSpeed != 0) {
+		if(moveSpeedIsMultiplier) {
+			str+= indent+lang.get("WalkSpeed") + " *" + intToStr(moveSpeed)+"\n";
+		}
+		else {
+			str+= indent+lang.get("WalkSpeed") + " +" + intToStr(moveSpeed)+"\n";
+		}
+	}
+	if(prodSpeed != 0) {
+		if(prodSpeedIsMultiplier) {
+			str+= indent+lang.get("ProductionSpeed") + " *" + intToStr(prodSpeed)+"\n";
+		}
+		else {
+			str+= indent+lang.get("ProductionSpeed") + " +" + intToStr(prodSpeed)+"\n";
+		}
+	}
+
+    return str;
 }
 
+
 // ==================== misc ====================
+
+string UpgradeType::getReqDesc() const{
+	Lang &lang= Lang::getInstance();
+    string str= ProducibleType::getReqDesc();
+    string indent="  ";
+	if(getEffectCount()>0){
+		str+= "\n"+ lang.get("Upgrades")+"\n";
+	}
+	str+=UpgradeTypeBase::getDesc();
+	if(getEffectCount()>0){
+		str+= lang.get("AffectedUnits")+"\n";
+		for(int i=0; i<getEffectCount(); ++i){
+					str+= indent+getEffect(i)->getName()+"\n";
+		}
+	}
+	return str;
+}
 
 void UpgradeType::preLoad(const string &dir){
 	name=lastDir(dir);
@@ -376,95 +472,9 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-string UpgradeType::getReqDesc() const{
-
-    string str;
-    //int i;
-	Lang &lang= Lang::getInstance();
-
-    str= ProducibleType::getReqDesc();
-	if(getEffectCount()>0){
-		str+= "\n"+ lang.get("Upgrades")+":\n";
-		for(int i=0; i<getEffectCount(); ++i){
-			str+= getEffect(i)->getName()+"\n";
-		}
-	}
-
-	if(maxHp != 0) {
-		if(maxHpIsMultiplier) {
-			str += lang.get("Hp") + " *" + intToStr(maxHp);
-		}
-		else {
-			str += lang.get("Hp") + " +" + intToStr(maxHp);
-		}
-
-		if(maxHpRegeneration != 0) {
-			str += " [" + intToStr(maxHpRegeneration) + "]";
-		}
-	}
-	if(sight != 0) {
-		if(sightIsMultiplier) {
-			str+= lang.get("Sight") + " *" + intToStr(sight);
-		}
-		else {
-			str+= lang.get("Sight") + " +" + intToStr(sight);
-		}
-	}
-	if(maxEp != 0) {
-		if(maxEpIsMultiplier) {
-			str+= lang.get("Ep") + " *" + intToStr(maxEp)+"\n";
-		}
-		else {
-			str+= lang.get("Ep") + " +" + intToStr(maxEp)+"\n";
-		}
-		if(maxEpRegeneration != 0) {
-			str += " [" + intToStr(maxEpRegeneration) + "]";
-		}
-	}
-	if(attackStrength != 0) {
-		if(attackStrengthIsMultiplier) {
-			str+= lang.get("AttackStrenght") + " *" + intToStr(attackStrength)+"\n";
-		}
-		else {
-			str+= lang.get("AttackStrenght") + " +" + intToStr(attackStrength)+"\n";
-		}
-	}
-	if(attackRange != 0) {
-		if(attackRangeIsMultiplier) {
-			str+= lang.get("AttackDistance") + " *" + intToStr(attackRange)+"\n";
-		}
-		else {
-			str+= lang.get("AttackDistance") + " +" + intToStr(attackRange)+"\n";
-		}
-	}
-	if(armor != 0) {
-		if(armorIsMultiplier) {
-			str+= lang.get("Armor") + " *" + intToStr(armor)+"\n";
-		}
-		else {
-			str+= lang.get("Armor") + " +" + intToStr(armor)+"\n";
-		}
-	}
-	if(moveSpeed != 0) {
-		if(moveSpeedIsMultiplier) {
-			str+= lang.get("WalkSpeed") + " *" + intToStr(moveSpeed)+"\n";
-		}
-		else {
-			str+= lang.get("WalkSpeed") + " +" + intToStr(moveSpeed)+"\n";
-		}
-	}
-	if(prodSpeed != 0) {
-		if(prodSpeedIsMultiplier) {
-			str+= lang.get("ProductionSpeed") + " *" + intToStr(prodSpeed)+"\n";
-		}
-		else {
-			str+= lang.get("ProductionSpeed") + " +" + intToStr(prodSpeed)+"\n";
-		}
-	}
-
-    return str;
+bool UpgradeType::isAffected(const UnitType *unitType) const{
+	return find(effects.begin(), effects.end(), unitType)!=effects.end();
 }
-
 
 
 // ===============================

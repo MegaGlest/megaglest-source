@@ -75,11 +75,11 @@ typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
 // =====================================================
 
 enum AttackBoostTargetType {
-	abtAlly,
-	abtFoe,
-	abtFaction,
-	abtUnitTypes,
-	abtAll
+	abtAlly, // Only ally units are affected
+	abtFoe, // Only foe units are affected
+	abtFaction, // Only same faction units are affected
+	abtUnitTypes, // Specify which units are affected ( in general same as abtAll )
+	abtAll // All units are affected (including enemies)
 };
 
 class AttackBoost {
@@ -100,6 +100,7 @@ public:
 	string name;
 
 	bool isAffected(const Unit *source, const Unit *dest) const;
+	virtual string getDesc() const;
 };
 
 class AnimationAttributes {
@@ -169,12 +170,14 @@ public:
 	
 	bool isAttackBoostEnabled() const { return attackBoost.enabled; }
 	const AttackBoost * getAttackBoost() const { return &attackBoost; }
+	//virtual string getDesc(const TotalUpgrade *totalUpgrade) const= 0;
 
 	//other
 	virtual string toString() const= 0;	
 	virtual int getTotalSpeed(const TotalUpgrade *) const	{return speed;}
 	static string skillClassToStr(SkillClass skillClass); 
 	static string fieldToStr(Field field);
+	virtual string getBoostDesc() const {return attackBoost.getDesc();}
 };
 
 // ===============================
