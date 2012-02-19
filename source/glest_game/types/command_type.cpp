@@ -106,6 +106,7 @@ string StopCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
         str+= lang.get("EpCost")+": "+intToStr(stopSkillType->getEpCost())+"\n";
  if(stopSkillType->getHpCost()!=0)
         str+= lang.get("HpCost")+": "+intToStr(stopSkillType->getHpCost())+"\n";
+	str+=stopSkillType->getBoostDesc();
     return str;
 }
 
@@ -167,7 +168,7 @@ string MoveCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 		if(moveSkillType->getHpCost()!=0){
         str+= lang.get("HpCost")+": "+intToStr(moveSkillType->getHpCost())+"\n";
 	}
-
+	str+=moveSkillType->getBoostDesc();
     return str;
 }
 
@@ -261,7 +262,7 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     str+="\n";
 
     str+= lang.get("AttackSpeed")+": "+ intToStr(attackSkillType->getSpeed()) +"\n";
-
+	str+=attackSkillType->getBoostDesc();
     return str;
 }
 
@@ -345,7 +346,7 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
 		}
 	}
 	str+="\n";
-
+	str+=attackSkillType->getBoostDesc();
     return str;
 }
 
@@ -448,7 +449,7 @@ string BuildCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 		if(buildSkillType->getHpCost()!=0){
         str+= lang.get("HpCost")+": "+intToStr(buildSkillType->getHpCost())+"\n";
 	}
-
+	str+=buildSkillType->getBoostDesc();
     return str;
 }
 
@@ -528,7 +529,7 @@ string HarvestCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	for(int i=0; i<getHarvestedResourceCount(); ++i){
 		str+= getHarvestedResource(i)->getName()+"\n";
 	}
-
+	str+=harvestSkillType->getBoostDesc();
     return str;
 }
 
@@ -602,7 +603,7 @@ string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     for(int i=0; i<repairableUnits.size(); ++i){
         str+= (static_cast<const UnitType*>(repairableUnits[i]))->getName()+"\n";
     }
-
+	str+=repairSkillType->getBoostDesc();
     return str;
 }
 
@@ -673,7 +674,7 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
         str+= lang.get("hpCost")+": "+intToStr(produceSkillType->getHpCost())+"\n";
 	}
     str+= "\n" + getProducedUnit()->getReqDesc();
-
+	str+=produceSkillType->getBoostDesc();
     return str;
 }
 
@@ -732,7 +733,7 @@ string UpgradeCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 if(upgradeSkillType->getHpCost()!=0)
         str+= lang.get("HpCost")+": "+intToStr(upgradeSkillType->getHpCost())+"\n";
     str+= "\n"+getProducedUpgrade()->getReqDesc();
-
+	str+=upgradeSkillType->getBoostDesc();
     return str;
 }
 
@@ -806,7 +807,7 @@ string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	}
 
     str+= "\n"+getProduced()->getReqDesc();
-
+	str+=morphSkillType->getBoostDesc();
     return str;
 }
 

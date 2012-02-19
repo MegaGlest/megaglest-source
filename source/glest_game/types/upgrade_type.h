@@ -101,6 +101,7 @@ public:
 
 	void load(const XmlNode *upgradeNode);
 
+	virtual string getDesc() const;
 	std::string toString() const {
 		std::string result = "";
 

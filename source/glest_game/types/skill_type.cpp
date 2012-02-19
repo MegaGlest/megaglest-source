@@ -150,6 +150,60 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 	return result;
 }
 
+string AttackBoost::getDesc() const{
+	Lang &lang= Lang::getInstance();
+    string str= "";
+    string indent="  ";
+    if(enabled){
+    	if(boostUnitList.size()>0){
+    		str+= "\n"+ lang.get("Effects")+":\n";
+    	}
+
+    	str += indent+lang.get("effectRadius") + ": " + intToStr(radius) +"\n";
+    	if(allowMultipleBoosts==false) {
+    		string allowIt=lang.get("No");
+    		if(allowMultipleBoosts==true)
+    			allowIt=lang.get("False");
+    		str += indent+lang.get("allowMultiBoost") + ": " + allowIt +"\n";
+    	}
+    	str+=boostUpgrade.getDesc();
+
+    	if(targetType==abtAlly)
+    	{
+    		str+= lang.get("AffectedUnitsFromTeam") +":\n";
+    	}
+    	else if(targetType==abtFoe)
+    	{
+    		str+= lang.get("AffectedUnitsFromFoe") +":\n";
+    	}
+    	else if(targetType==abtFaction)
+    	{
+    		str+= lang.get("AffectedUnitsFromYourFaction") +":\n";
+    	}
+    	else if(targetType==abtUnitTypes)
+    	{
+    		str+= lang.get("AffectedUnitsFromAll") +":\n";
+    	}
+    	else if(targetType==abtAll)
+    	{
+    		str+= lang.get("AffectedUnitsFromAll") +":\n";
+    	}
+
+    	if(boostUnitList.size()>0){
+			for(int i=0; i<boostUnitList.size(); ++i){
+				str+= "  "+boostUnitList[i]->getName()+"\n";
+			}
+    	}
+    	else
+    	{
+    		str+= lang.get("All")+"\n";
+    	}
+
+    	return str;
+    }
+    else
+    	return "";
+}
 
 // =====================================================
 // 	class SkillType
