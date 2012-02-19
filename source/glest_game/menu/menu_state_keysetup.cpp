@@ -217,11 +217,11 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 	if(mainMessageBox.getEnabled()){
-		int button= 1;
+		int button= 0;
 		if(mainMessageBox.mouseClick(x, y, button))
 		{
 			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==1)
+			if(button==0)
 			{
 				mainMessageBox.setEnabled(false);
 			}

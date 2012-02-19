@@ -140,7 +140,7 @@ void Program::ShowMessageProgramState::render() {
 }
 
 void Program::ShowMessageProgramState::mouseDownLeft(int x, int y) {
-	int button= 1;
+	int button= 0;
 	if(msgBox.mouseClick(x,y,button)) {
 		program->exit();
 		userWantsExit = true;
@@ -295,7 +295,7 @@ void Program::keyPress(SDL_KeyboardEvent c) {
 
 void Program::mouseDownLeft(int x, int y) {
 	if(msgBox.getEnabled()) {
-		int button= 1;
+		int button= 0;
 		if(msgBox.mouseClick(x, y, button)) {
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			//close message box

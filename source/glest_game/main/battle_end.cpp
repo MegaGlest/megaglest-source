@@ -466,9 +466,9 @@ void BattleEnd::mouseDownLeft(int x, int y){
 		program->setState(new MainMenu(program));
 	}
 	else if(mainMessageBox.getEnabled()) {
-		int button= 1;
+		int button= 0;
 		if(mainMessageBox.mouseClick(x, y, button)) {
-			if(button==1) {
+			if(button==0) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				program->setState(new MainMenu(program));
 			}

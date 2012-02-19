@@ -462,38 +462,30 @@ bool GraphicListBox::mouseClick(int x, int y){
 const int GraphicMessageBox::defH= 240;
 const int GraphicMessageBox::defW= 350;
 
-GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objName)
-: GraphicComponent(containerName, objName) {
-	buttonCount = 0;
-	header = "";
+GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objName) :
+	GraphicComponent(containerName, objName){
+	header= "";
 }
 
-
-void GraphicMessageBox::init(const string &button1Str, const string &button2Str, int newWidth,int newHeight) {
-	init(button1Str,newWidth,newHeight);
-
-	button1.init(x+(w-GraphicButton::defW)/4, y+25);
-	button1.setText(button1Str);
-	button2.init(x+3*(w-GraphicButton::defW)/4, y+25);
-	button2.setText(button2Str);
-	buttonCount= 2;
+GraphicMessageBox::~GraphicMessageBox(){
+	//remove buttons
+	while(!buttons.empty()){
+		delete buttons.back();
+		buttons.pop_back();
+	}
 }
 
-void GraphicMessageBox::setX(int x) {
-	this->x= x;
-
-	button1.init(x+(w-GraphicButton::defW)/4, y+25);
-	button2.init(x+3*(w-GraphicButton::defW)/4, y+25);
+void GraphicMessageBox::init(const string &button1Str, const string &button2Str, int newWidth, int newHeight){
+	init(button1Str, newWidth, newHeight);
+	if(getButtonCount()>1){
+		getButton(1)->setText(button2Str);
+	}
+	else{
+		addButton(button2Str);
+	}
 }
 
-void GraphicMessageBox::setY(int y) {
-	this->y= y;
-
-	button1.init(x+(w-GraphicButton::defW)/4, y+25);
-	button2.init(x+3*(w-GraphicButton::defW)/4, y+25);
-}
-
-void GraphicMessageBox::init(const string &button1Str, int newWidth,int newHeight) {
+void GraphicMessageBox::init(const string &button1Str, int newWidth, int newHeight){
 	font= CoreData::getInstance().getMenuFontNormal();
 	font3D= CoreData::getInstance().getMenuFontNormal3D();
 
@@ -502,56 +494,92 @@ void GraphicMessageBox::init(const string &button1Str, int newWidth,int newHeigh
 
 	const Metrics &metrics= Metrics::getInstance();
 
-	x= (metrics.getVirtualW()-w)/2;
-	y= (metrics.getVirtualH()-h)/2;
+	x= (metrics.getVirtualW() - w) / 2;
+	y= (metrics.getVirtualH() - h) / 2;
 
-	button1.init(x+(w-GraphicButton::defW)/2, y+25);
-	button1.setText(button1Str);
-	buttonCount= 1;
+	if(getButtonCount()>0){
+			getButton(0)->setText(button1Str);
+		}
+	else{
+		addButton(button1Str);
+	}
+}
+
+void GraphicMessageBox::addButton(const string &buttonStr, int width, int height){
+	GraphicButton *newButton= new GraphicButton();
+	newButton->init(0, 0);
+	newButton->setText(buttonStr);
+	if(width != -1){
+		newButton->setW(width);
+	}
+	if(height != -1){
+		newButton->setH(height);
+	}
+	buttons.push_back(newButton);
+	alignButtons();
+}
+
+void GraphicMessageBox::alignButtons(){
+	int currXPos= 0;
+	int totalbuttonListLength=0;
+	int buttonOffset=5;
+	for(int i= 0; i < getButtonCount(); i++){
+		GraphicButton *button= getButton(i);
+		totalbuttonListLength+=button->getW();
+	}
+	totalbuttonListLength+=(getButtonCount()-1)*buttonOffset;
+	currXPos=x+w/2-totalbuttonListLength/2;
+	for(int i= 0; i < getButtonCount(); i++){
+		GraphicButton *button= getButton(i);
+		button->setY(y + 25);
+		button->setX(currXPos);
+		currXPos+=button->getW()+buttonOffset;
+	}
+}
+
+void GraphicMessageBox::setX(int x){
+	this->x= x;
+	alignButtons();
+}
+
+void GraphicMessageBox::setY(int y){
+	this->y= y;
+	alignButtons();
 }
 
 bool GraphicMessageBox::mouseMove(int x, int y){
-	if(this->getVisible() == false) {
+	if(this->getVisible() == false){
 		return false;
 	}
-
-	return button1.mouseMove(x, y) || button2.mouseMove(x, y);
+	for(int i= 0; i < getButtonCount(); i++){
+		if(getButton(i)->mouseMove(x, y)){
+			return true;
+		}
+	}
+	return false;
 }
 
 bool GraphicMessageBox::mouseClick(int x, int y){
-	if(this->getVisible() == false) {
+	if(this->getVisible() == false){
 		return false;
 	}
 
-	bool b1= button1.mouseClick(x, y);
-	bool b2= button2.mouseClick(x, y);
-	if(buttonCount==1){
-		return b1;
+	for(int i= 0; i < getButtonCount(); i++){
+		if(getButton(i)->mouseClick(x, y)){
+			return true;
+		}
 	}
-	else{
-		return b1 ||b2;
-	}
+	return false;
 }
 
 bool GraphicMessageBox::mouseClick(int x, int y, int &clickedButton){
-	if(this->getVisible() == false) {
+	if(this->getVisible() == false){
 		return false;
 	}
 
-	bool b1= button1.mouseClick(x, y);
-	bool b2= button2.mouseClick(x, y);
-
-	if(buttonCount==1){
-		clickedButton= 1;
-		return b1;
-	}
-	else{
-		if(b1){
-			clickedButton= 1;
-			return true;
-		}
-		else if(b2){
-			clickedButton= 2;
+	for(int i= 0; i < getButtonCount(); i++){
+		if(getButton(i)->mouseClick(x, y)){
+			clickedButton=i;
 			return true;
 		}
 	}
