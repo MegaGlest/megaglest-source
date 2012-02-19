@@ -1785,7 +1785,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 				SwitchTeamVote *vote = world.getThisFactionPtr()->getSwitchTeamVote(world.getThisFaction()->getCurrentSwitchTeamVoteFactionIndex());
 				vote->voted = true;
-				vote->allowSwitchTeam = (button == 1);
+				vote->allowSwitchTeam = (button == 0);
 
 				const Faction *faction = world.getThisFaction();
 				commander.trySwitchTeamVote(faction,vote);
@@ -1796,7 +1796,7 @@ void Game::mouseDownLeft(int x, int y) {
 		if( mainMessageBox.getEnabled() == false &&
 			errorMessageBox.getEnabled() == false &&
 			scriptManager.getMessageBox()->getEnabled()) {
-			int button= 1;
+			int button= 0;
 			if(scriptManager.getMessageBox()->mouseClick(x, y, button)){
 				scriptManager.onMessageBoxOk();
 				messageBoxClick= true;
@@ -1847,9 +1847,9 @@ void Game::mouseDownLeft(int x, int y) {
 			}
 		}
 		if(mainMessageBox.getEnabled()){
-			int button= 1;
+			int button= 0;
 			if(mainMessageBox.mouseClick(x, y, button)) {
-				if(button==1) {
+				if(button==0) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					if(networkManager.getGameNetworkInterface() != NULL) {
 						networkManager.getGameNetworkInterface()->quitGame(true);

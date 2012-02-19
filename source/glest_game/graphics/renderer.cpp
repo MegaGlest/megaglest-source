@@ -3212,9 +3212,8 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 
 
 	//buttons
-	renderButton(messageBox->getButton1());
-	if(messageBox->getButtonCount()==2){
-		renderButton(messageBox->getButton2());
+	for(int i=0; i<messageBox->getButtonCount();i++){
+		renderButton(messageBox->getButton(i));
 	}
 
 	Vec4f fontColor;

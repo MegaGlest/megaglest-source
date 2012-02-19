@@ -1200,12 +1200,12 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
     }
 	else if(mainMessageBox.getEnabled()) {
-		int button= 1;
+		int button= 0;
 		if(mainMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
 			mainMessageBox.setEnabled(false);
 			mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
-			if(button == 1) {
+			if(button == 0) {
 			    if(mainMessageBoxState == ftpmsg_Quit) {
 			    	mainMessageBoxState = ftpmsg_None;
 					mainMenu->setState(new MenuStateRoot(program, mainMenu));

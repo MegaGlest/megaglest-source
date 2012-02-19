@@ -133,9 +133,9 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 		//exit message box, has to be the last thing to do in this function
 		else if(mainMessageBox.getEnabled()){
-			int button= 1;
+			int button= 0;
 			if(mainMessageBox.mouseClick(x, y, button)) {
-				if(button==1) {
+				if(button==0) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					soundRenderer.playFx(coreData.getClickSoundA());
 					program->exit();
@@ -149,7 +149,7 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 		//exit message box, has to be the last thing to do in this function
 		else if(errorMessageBox.getEnabled()){
-			int button= 1;
+			int button= 0;
 			if(mainMessageBox.mouseClick(x, y, button)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				//close message box

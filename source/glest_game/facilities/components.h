@@ -231,26 +231,27 @@ public:
 // ===========================================================
 // 	class GraphicMessageBox  
 // ===========================================================
-
+typedef vector<GraphicButton*> GraphicButtons;
 class GraphicMessageBox: public GraphicComponent {
 public:
 	static const int defH;
 	static const int defW;
 
 private:
-	GraphicButton button1;
-	GraphicButton button2;
-	int buttonCount;
+	GraphicButtons buttons;
 	string header;
 
+private:
+	void alignButtons();
 public:
 	GraphicMessageBox(std::string containerName="", std::string objName="");
+    virtual ~GraphicMessageBox();
 	void init(const string &button1Str, const string &button2Str, int newWidth=-1,int newHeight=-1);
 	void init(const string &button1Str, int newWidth=-1,int newHeight=-1);
+	void addButton(const string &buttonStr, int width=-1,int height=-1);
 
-	int getButtonCount() const				{return buttonCount;}
-	GraphicButton *getButton1() 			{return &button1;}
-	GraphicButton *getButton2() 			{return &button2;}
+	int getButtonCount() const				{return buttons.size();}
+	GraphicButton *getButton(int index) 	{return buttons[index];}
 	string getHeader() const				{return header;}
 
 	virtual void setX(int x);
