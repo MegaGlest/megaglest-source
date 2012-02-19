@@ -486,6 +486,17 @@ void GraphicMessageBox::init(const string &button1Str, const string &button2Str,
 }
 
 void GraphicMessageBox::init(const string &button1Str, int newWidth, int newHeight){
+	init(newWidth,newHeight);
+
+	if(getButtonCount()>0){
+			getButton(0)->setText(button1Str);
+		}
+	else{
+		addButton(button1Str);
+	}
+}
+
+void GraphicMessageBox::init(int newWidth, int newHeight){
 	font= CoreData::getInstance().getMenuFontNormal();
 	font3D= CoreData::getInstance().getMenuFontNormal3D();
 
@@ -496,13 +507,6 @@ void GraphicMessageBox::init(const string &button1Str, int newWidth, int newHeig
 
 	x= (metrics.getVirtualW() - w) / 2;
 	y= (metrics.getVirtualH() - h) / 2;
-
-	if(getButtonCount()>0){
-			getButton(0)->setText(button1Str);
-		}
-	else{
-		addButton(button1Str);
-	}
 }
 
 void GraphicMessageBox::addButton(const string &buttonStr, int width, int height){

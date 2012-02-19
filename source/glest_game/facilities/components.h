@@ -248,6 +248,7 @@ public:
     virtual ~GraphicMessageBox();
 	void init(const string &button1Str, const string &button2Str, int newWidth=-1,int newHeight=-1);
 	void init(const string &button1Str, int newWidth=-1,int newHeight=-1);
+	void init(int newWidth=-1,int newHeight=-1);
 	void addButton(const string &buttonStr, int width=-1,int height=-1);
 
 	int getButtonCount() const				{return buttons.size();}
