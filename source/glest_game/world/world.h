@@ -216,7 +216,7 @@ public:
 
 	//scripting interface
 	void morphToUnit(int unitId,const string &morphName,bool ignoreRequirements);
-	void createUnit(const string &unitName, int factionIndex, const Vec2i &pos);
+	void createUnit(const string &unitName, int factionIndex, const Vec2i &pos,bool spaciated = true);
 	void givePositionCommand(int unitId, const string &commandName, const Vec2i &pos);
 	void giveAttackCommand(int unitId, int unitToAttackId);
 	void giveProductionCommand(int unitId, const string &producedName);

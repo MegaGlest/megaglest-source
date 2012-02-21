@@ -109,6 +109,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	luaScript.registerFunction(clearDisplayText, "clearDisplayText");
 	luaScript.registerFunction(setCameraPosition, "setCameraPosition");
 	luaScript.registerFunction(createUnit, "createUnit");
+	luaScript.registerFunction(createUnitNoSpacing, "createUnitNoSpacing");
 	luaScript.registerFunction(destroyUnit, "destroyUnit");
 	luaScript.registerFunction(giveKills, "giveKills");
 	luaScript.registerFunction(morphToUnit, "morphToUnit");
@@ -564,6 +565,12 @@ void ScriptManager::createUnit(const string &unitName, int factionIndex, Vec2i p
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->createUnit(unitName, factionIndex, pos);
+}
+
+void ScriptManager::createUnitNoSpacing(const string &unitName, int factionIndex, Vec2i pos){
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->createUnit(unitName, factionIndex, pos, false);
 }
 
 void ScriptManager::destroyUnit(int unitId){
@@ -1121,6 +1128,18 @@ int ScriptManager::createUnit(LuaHandle* luaHandle) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-3).c_str(),luaArguments.getInt(-2));
 
 	thisScriptManager->createUnit(
+		luaArguments.getString(-3),
+		luaArguments.getInt(-2),
+		luaArguments.getVec2i(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::createUnitNoSpacing(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-3).c_str(),luaArguments.getInt(-2));
+
+	thisScriptManager->createUnitNoSpacing(
 		luaArguments.getString(-3),
 		luaArguments.getInt(-2),
 		luaArguments.getVec2i(-1));

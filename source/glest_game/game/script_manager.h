@@ -200,6 +200,7 @@ private:
 	void DisplayFormattedLangText(const char *fmt,...);
 	void setCameraPosition(const Vec2i &pos);
 	void createUnit(const string &unitName, int factionIndex, Vec2i pos);
+	void createUnitNoSpacing(const string &unitName, int factionIndex, Vec2i pos);
 
 	void destroyUnit(int unitId);
 	void giveKills(int unitId, int amount);
@@ -286,6 +287,7 @@ private:
 	static int clearDisplayText(LuaHandle* luaHandle);
 	static int setCameraPosition(LuaHandle* luaHandle);
 	static int createUnit(LuaHandle* luaHandle);
+	static int createUnitNoSpacing(LuaHandle* luaHandle);
 
 	static int destroyUnit(LuaHandle* luaHandle);
 	static int giveKills(LuaHandle* luaHandle);
