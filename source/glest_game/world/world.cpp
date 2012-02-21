@@ -834,7 +834,7 @@ void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequiremen
 	}
 }
 
-void World::createUnit(const string &unitName, int factionIndex, const Vec2i &pos) {
+void World::createUnit(const string &unitName, int factionIndex, const Vec2i &pos, bool spaciated) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unitName [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 
 	if(factionIndex < factions.size()) {
@@ -863,7 +863,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
-		if(placeUnit(pos, generationArea, unit, true)) {
+		if(placeUnit(pos, generationArea, unit, spaciated)) {
 			unit->create(true);
 			unit->born();
 			scriptManager->onUnitCreated(unit);
