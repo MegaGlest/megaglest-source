@@ -178,6 +178,15 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 	ENDIF()
 
 	# Installation of the program config and image files
+	INSTALL(FILES 
+          "${PROJECT_SOURCE_DIR}/editor.ico"
+	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+
+	# Installation of the program desktop file
+	NSTALL(FILES
+	  "${PROJECT_SOURCE_DIR}/megaglest_editor.desktop"
+	  DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+
 	#INSTALL(FILES 
 	#  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
 	#  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"

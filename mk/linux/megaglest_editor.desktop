@@ -1,0 +1,9 @@
+[Desktop Entry]
+Categories=Game;StrategyGame;
+Comment=MegaGlest Map Editor
+Name=MegaGlest Map Editor
+Icon=megaglest
+Exec=megaglest_editor
+Terminal=false
+Type=Application
+
