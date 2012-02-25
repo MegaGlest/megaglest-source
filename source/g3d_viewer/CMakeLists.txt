@@ -183,6 +183,16 @@ IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	ENDIF()
 
+        # Installation of the program config and image files
+	INSTALL(FILES 
+	  "${PROJECT_SOURCE_DIR}/g3dviewer.ico"
+	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+
+	# Installation of the program desktop file
+        INSTALL(FILES
+	  "${PROJECT_SOURCE_DIR}/megaglest_g3dviewer.desktop"
+	  DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+
 	# Installation of the program config and image files
 	#INSTALL(FILES 
 	#  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"

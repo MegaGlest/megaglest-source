@@ -1,0 +1,9 @@
+[Desktop Entry]
+Categories=Game;StrategyGame;
+Comment=MegaGlest Model Viewer
+Name=MegaGlest Model Viewer
+Icon=megaglest
+Exec=megaglest_g3dviewer
+Terminal=false
+Type=Application
+
