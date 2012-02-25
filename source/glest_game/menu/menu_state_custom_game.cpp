@@ -2616,13 +2616,19 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 
             //CURL *handle = SystemFlags::initHTTP();
             CURL *handle = callingThread->getGenericData<CURL>();
+
+            int paramIndex = 0;
             for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfo.begin();
                 iterMap != newPublishToServerInfo.end(); ++iterMap) {
 
                 request += iterMap->first;
                 request += "=";
                 request += SystemFlags::escapeURL(iterMap->second,handle);
-                request += "&";
+
+                paramIndex++;
+                if(paramIndex < newPublishToServerInfo.size()) {
+                	request += "&";
+                }
             }
 
             //printf("the request is:\n%s\n",request.c_str());
