@@ -141,6 +141,7 @@ private:
 	ParentMenuState parentMenuState;
 	int soundConnectionCount;
 
+	time_t tMasterserverErrorElapsed;
 	bool showMasterserverError;
 	string masterServererErrorToShow;
 

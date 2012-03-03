@@ -110,6 +110,8 @@ private:
 	Console consoleIRC;
 	ChatManager chatManager;
 
+	bool masterserverParseErrorShown;
+
 public:
 	MenuStateMasterserver(Program *program, MainMenu *mainMenu);
 	~MenuStateMasterserver();
