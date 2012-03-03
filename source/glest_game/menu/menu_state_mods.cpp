@@ -851,7 +851,7 @@ void MenuStateMods::getTechsLocalList() {
 string MenuStateMods::refreshTechModInfo(string techInfo) {
 	std::vector<std::string> techInfoList;
 	Tokenize(techInfo,techInfoList,"|");
-	if(techInfoList.size() >= 5) {
+	if(techInfoList.size() >= 6) {
 		Config &config = Config::getInstance();
 		ModInfo modinfo;
 		modinfo.name = techInfoList[0];
@@ -861,6 +861,7 @@ string MenuStateMods::refreshTechModInfo(string techInfo) {
 		modinfo.url = techInfoList[4];
 		modinfo.imageUrl = techInfoList[5];
 		modinfo.type = mt_Techtree;
+
 		string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + modinfo.name + string("/*");
 		if(itemPath.empty()==false){
 		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
@@ -901,7 +902,7 @@ void MenuStateMods::getTilesetsLocalList() {
 string MenuStateMods::refreshTilesetModInfo(string tilesetInfo) {
 	std::vector<std::string> tilesetInfoList;
 	Tokenize(tilesetInfo,tilesetInfoList,"|");
-	if(tilesetInfoList.size() >= 4) {
+	if(tilesetInfoList.size() >= 5) {
 		Config &config = Config::getInstance();
 		ModInfo modinfo;
 		modinfo.name = tilesetInfoList[0];
@@ -990,7 +991,7 @@ void MenuStateMods::getMapsLocalList() {
 string MenuStateMods::refreshMapModInfo(string mapInfo) {
 	std::vector<std::string> mapInfoList;
 	Tokenize(mapInfo,mapInfoList,"|");
-	if(mapInfoList.size() >= 5) {
+	if(mapInfoList.size() >= 6) {
 		//Config &config = Config::getInstance();
 		ModInfo modinfo;
 		modinfo.name = mapInfoList[0];
@@ -1052,7 +1053,7 @@ void MenuStateMods::getScenariosLocalList() {
 string MenuStateMods::refreshScenarioModInfo(string scenarioInfo) {
 	std::vector<std::string> scenarioInfoList;
 	Tokenize(scenarioInfo,scenarioInfoList,"|");
-	if(scenarioInfoList.size() >= 4) {
+	if(scenarioInfoList.size() >= 5) {
 		Config &config = Config::getInstance();
 		ModInfo modinfo;
 		modinfo.name = scenarioInfoList[0];

@@ -2228,13 +2228,14 @@ void Renderer::renderSelectionQuad() {
 
 Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 	if(font == NULL) {
-		throw runtime_error("font == NULL");
+		//abort();
+		throw runtime_error("font == NULL (1)");
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
-		throw runtime_error("fontMetrics == NULL");
+		throw runtime_error("fontMetrics == NULL (1)");
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text)/2.f) : 5);
@@ -2251,13 +2252,13 @@ Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 
 Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
 	if(font == NULL) {
-		throw runtime_error("font == NULL");
+		throw runtime_error("font == NULL (2)");
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
-		throw runtime_error("fontMetrics == NULL");
+		throw runtime_error("fontMetrics == NULL (2)");
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text) / 2.f) : 5);
@@ -2525,7 +2526,7 @@ void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &
 	}
 
 	if(font == NULL) {
-		throw runtime_error("font == NULL");
+		throw runtime_error("font == NULL (3)");
 	}
 
 	glPushAttrib(GL_CURRENT_BIT);
@@ -2554,7 +2555,7 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 	}
 
 	if(font == NULL) {
-		throw runtime_error("font == NULL");
+		throw runtime_error("font == NULL (4)");
 	}
 
 	glPushAttrib(GL_CURRENT_BIT);

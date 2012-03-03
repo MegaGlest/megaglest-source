@@ -3397,6 +3397,8 @@ int glestMain(int argc, char** argv) {
 					printf("About to convert using keepsmallest = %d\n",keepsmallest);
 				}
 
+				//CoreData::getInstance().load();
+
 				showCursor(true);
 				mainWindow->setUseDefaultCursorOnly(true);
 
@@ -3404,11 +3406,21 @@ int glestMain(int argc, char** argv) {
 				renderer.clearBuffers();
 				renderer.clearZBuffer();
 				renderer.reset2d();
-				renderer.renderText(
-						"Please wait, converting models...",
-						CoreData::getInstance().getMenuFontBig(),
-						Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2) - 400,
-						(metrics.getScreenH() / 2), true);
+
+				if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
+					renderer.renderText3D(
+							"Please wait, converting models...",
+							CoreData::getInstance().getMenuFontBig3D(),
+							Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2) - 400,
+							(metrics.getScreenH() / 2), true);
+				}
+				else {
+					renderer.renderText(
+							"Please wait, converting models...",
+							CoreData::getInstance().getMenuFontBig(),
+							Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2) - 400,
+							(metrics.getScreenH() / 2), true);
+				}
 			    renderer.swapBuffers();
 
 				std::vector<string> models;
@@ -3432,11 +3444,21 @@ int glestMain(int argc, char** argv) {
 					renderer.clearZBuffer();
 					renderer.reset2d();
 				    sprintf(szTextBuf,"Please wait, converting models [%d of %lu] ...",i,(long int)models.size());
-					renderer.renderText(
-							szTextBuf,
-							CoreData::getInstance().getMenuFontBig(),
-							Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2) - 400,
-							(metrics.getScreenH() / 2), true);
+
+				    if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
+						renderer.renderText3D(
+								szTextBuf,
+								CoreData::getInstance().getMenuFontBig3D(),
+								Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2) - 400,
+								(metrics.getScreenH() / 2), true);
+				    }
+				    else {
+						renderer.renderText(
+								szTextBuf,
+								CoreData::getInstance().getMenuFontBig(),
+								Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2) - 400,
+								(metrics.getScreenH() / 2), true);
+				    }
 				    renderer.swapBuffers();
 
 				    sleep(0);
