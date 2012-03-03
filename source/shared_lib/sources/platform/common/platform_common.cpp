@@ -576,11 +576,17 @@ void setCRCCacheFilePath(string path) {
 
 string getFormattedCRCCacheFileName(std::pair<string,string> cacheKeys) {
 	string crcCacheFile = cacheKeys.first + cacheKeys.second;
-	replaceAll(crcCacheFile, "/", "_");
-	replaceAll(crcCacheFile, "\\", "_");
-	replaceAll(crcCacheFile, "*", "_");
-	replaceAll(crcCacheFile, ".", "_");
-	return getCRCCacheFilePath() + crcCacheFile;
+	//replaceAll(crcCacheFile, "/", "_");
+	//replaceAll(crcCacheFile, "\\", "_");
+	//replaceAll(crcCacheFile, "*", "_");
+	//replaceAll(crcCacheFile, ".", "_");
+	//return getCRCCacheFilePath() + crcCacheFile;
+
+	Checksum checksum;
+	checksum.addString(crcCacheFile);
+	string result = getCRCCacheFilePath() + "CRC_CACHE_" + intToStr(checksum.getSum());
+	//printf("result [%s]\n",result.c_str());
+	return result;
 }
 std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt) {
 	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
