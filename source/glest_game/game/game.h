@@ -49,8 +49,6 @@ enum LoadGameItem {
 //
 //	Main game class
 // =====================================================
-
-//class Game: public ProgramState, public SimpleTaskCallbackInterface {
 class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface {
 public:
 	enum Speed{

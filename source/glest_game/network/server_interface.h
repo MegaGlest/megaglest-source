@@ -35,6 +35,7 @@ namespace Glest{ namespace Game{
 
 class ServerInterface: public GameNetworkInterface,
                        public ConnectionSlotCallbackInterface,
+                       // This is for publishing game status to the masterserver
                        public SimpleTaskCallbackInterface,
                        public FTPClientValidationInterface {
 
@@ -212,6 +213,8 @@ protected:
     void checkForLaggingClients(std::map<int,bool> &mapSlotSignalledList, std::map<int,ConnectionSlotEvent> &eventList, std::map<PLATFORM_SOCKET,bool> &socketTriggeredList,std::vector <string> &errorMsgList);
     void executeNetworkCommandsFromClients();
     void dispatchPendingChatMessages(std::vector <string> &errorMsgList);
+
+    void shutdownMasterserverPublishThread();
 };
 
 }}//end namespace

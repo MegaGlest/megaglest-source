@@ -102,7 +102,6 @@ public:
 };
 #endif
 
-//class Socket : public SimpleTaskCallbackInterface {
 class Socket {
 
 protected:

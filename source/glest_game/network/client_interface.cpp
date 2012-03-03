@@ -48,6 +48,10 @@ const int ClientInterface::maxNetworkCommandListSendTimeWait = 4;
 ClientInterface::ClientInterface() : GameNetworkInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] constructor for %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
+	networkCommandListThreadAccessor = new Mutex();
+	networkCommandListThread = NULL;
+	cachedPendingCommandsIndex = 0;
+
 	clientSocket= NULL;
 	sessionKey = 0;
 	launchGame= false;
@@ -66,8 +70,27 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	this->setReceivedDataSynchCheck(false);
 }
 
+void ClientInterface::shutdownNetworkCommandListThread() {
+	//MutexSafeWrapper safeMutex(masterServerThreadAccessor,CODE_AT_LINE);
+
+	if(networkCommandListThread != NULL) {
+		time_t elapsed = time(NULL);
+		networkCommandListThread->signalQuit();
+		for(;networkCommandListThread->canShutdown(false) == false &&
+			difftime(time(NULL),elapsed) <= 15;) {
+			//sleep(150);
+		}
+		if(networkCommandListThread->canShutdown(true)) {
+			delete networkCommandListThread;
+			networkCommandListThread = NULL;
+		}
+	}
+}
+
 ClientInterface::~ClientInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] destructor for %p\n",__FILE__,__FUNCTION__,__LINE__,this);
+
+	shutdownNetworkCommandListThread();
 
     if(clientSocket != NULL && clientSocket->isConnected() == true) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -89,6 +112,9 @@ ClientInterface::~ClientInterface() {
 
 	delete clientSocket;
 	clientSocket = NULL;
+
+	delete networkCommandListThreadAccessor;
+	networkCommandListThreadAccessor = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -520,204 +546,484 @@ void ClientInterface::updateLobby() {
 	}
 }
 
+void ClientInterface::updateFrame(int *checkFrame) {
+	if(isConnected() == true && quit == false) {
+		Chrono chrono;
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+
+		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
+		bool done= false;
+		while(done == false) {
+			//wait for the next message
+			NetworkMessageType networkMessageType = waitForMessage();
+
+			// START: Test simulating lag for the client
+			if(simulateLag > 0) {
+				if(clientSimulationLagStartTime == 0) {
+					clientSimulationLagStartTime = time(NULL);
+				}
+				if(difftime(time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
+					sleep(Config::getInstance().getInt("SimulateClientLag","0"));
+				}
+			}
+			// END: Test simulating lag for the client
+
+			//check we have an expected message
+			//NetworkMessageType networkMessageType= getNextMessageType();
+
+			switch(networkMessageType)
+			{
+				case nmtCommandList:
+					{
+
+					int waitCount = 0;
+					//make sure we read the message
+					time_t receiveTimeElapsed = time(NULL);
+					NetworkMessageCommandList networkMessageCommandList;
+					bool gotCmd = receiveMessage(&networkMessageCommandList);
+					if(gotCmd == false) {
+						throw runtime_error("error retrieving nmtCommandList returned false!");
+					}
+
+	//				while(receiveMessage(&networkMessageCommandList) == false &&
+	//					  isConnected() == true &&
+	//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
+	//					waitCount++;
+	//				}
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+					//check that we are in the right frame
+					if(checkFrame != NULL) {
+						if(networkMessageCommandList.getFrameCount() != *checkFrame) {
+							string sErr = "Player: " + getHumanPlayerName() +
+										  " got a Network synchronization error, frame counts do not match, server frameCount = " +
+										  intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " +
+										  intToStr(*checkFrame);
+							sendTextMessage(sErr,-1, true,"");
+							DisplayErrorMessage(sErr);
+							sleep(1);
+
+							quit= true;
+							close();
+							return;
+						}
+					}
+
+					MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+					// give all commands
+					for(int i= 0; i < networkMessageCommandList.getCommandCount(); ++i) {
+						//pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
+						cachedPendingCommands[networkMessageCommandList.getFrameCount()].push_back(*networkMessageCommandList.getCommand(i));
+					}
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+					done= true;
+				}
+				break;
+
+				case nmtPing:
+				{
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
+
+					NetworkMessagePing networkMessagePing;
+					if(receiveMessage(&networkMessagePing)) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						lastPingInfo = networkMessagePing;
+					}
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				}
+				break;
+
+				case nmtQuit:
+				{
+					time_t receiveTimeElapsed = time(NULL);
+					NetworkMessageQuit networkMessageQuit;
+	//				while(receiveMessage(&networkMessageQuit) == false &&
+	//					  isConnected() == true &&
+	//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
+	//				}
+					bool gotCmd = receiveMessage(&networkMessageQuit);
+					if(gotCmd == false) {
+						throw runtime_error("error retrieving nmtQuit returned false!");
+					}
+
+					quit= true;
+					done= true;
+				}
+				break;
+
+				case nmtText:
+				{
+					time_t receiveTimeElapsed = time(NULL);
+					NetworkMessageText networkMessageText;
+	//				while(receiveMessage(&networkMessageText) == false &&
+	//					  isConnected() == true &&
+	//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
+	//				}
+					bool gotCmd = receiveMessage(&networkMessageText);
+					if(gotCmd == false) {
+						throw runtime_error("error retrieving nmtText returned false!");
+					}
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+					ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
+					this->addChatInfo(msg);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				}
+				break;
+
+				case nmtLaunch:
+				case nmtBroadCastSetup:
+				{
+					NetworkMessageLaunch networkMessageLaunch;
+					if(receiveMessage(&networkMessageLaunch)) {
+						if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+						}
+						else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
+						}
+						else {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+
+							char szBuf[1024]="";
+							snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+							throw runtime_error(szBuf);
+						}
+
+						networkMessageLaunch.buildGameSettings(&gameSettings);
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+						//replace server player by network
+						for(int i= 0; i<gameSettings.getFactionCount(); ++i) {
+							//replace by network
+							if(gameSettings.getFactionControl(i)==ctHuman) {
+								gameSettings.setFactionControl(i, ctNetwork);
+							}
+
+							//set the faction index
+							if(gameSettings.getStartLocationIndex(i) == playerIndex) {
+								gameSettings.setThisFactionIndex(i);
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
+							}
+						}
+
+						//if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+							//launchGame= true;
+						//}
+						//else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+						//	setGameSettingsReceived(true);
+						//}
+					}
+				}
+				break;
+
+
+				case nmtLoadingStatusMessage:
+					break;
+
+				case nmtInvalid:
+					break;
+
+				default:
+					{
+					sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1, true,"");
+					DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
+					sleep(1);
+
+					quit= true;
+					close();
+					done= true;
+					}
+			}
+
+			if(isConnected() == false && quit == true) {
+				done = true;
+			}
+		}
+
+		if(done == true) {
+			MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+			cachedPendingCommandsIndex++;
+		}
+		else {
+			if(checkFrame == NULL) {
+				sleep(15);
+			}
+		}
+	}
+}
+
+void ClientInterface::simpleTask(BaseThread *callingThread) {
+	Chrono chrono;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+
+	while(callingThread->getQuitStatus() == false && quit == false) {
+		updateFrame(NULL);
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+}
+
+bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPendingCommandsIndex) {
+	bool result = false;
+
+	//for(;quit == false;) {
+		MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+		if(cachedPendingCommands.find(frameCount) != cachedPendingCommands.end()) {
+			Commands &frameCmdList = cachedPendingCommands[frameCount];
+			for(int i= 0; i < frameCmdList.size(); ++i) {
+				pendingCommands.push_back(frameCmdList[i]);
+			}
+			cachedPendingCommands.erase(frameCount);
+
+			result = true;
+			//break;
+		}
+		else {
+			if(cachedPendingCommandsIndex > currentCachedPendingCommandsIndex) {
+				//break;
+			}
+		}
+	//}
+
+	return result;
+}
+
 void ClientInterface::updateKeyframe(int frameCount) {
 	currentFrameCount = frameCount;
 
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+	//chrono.start();
 
-	int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
-	bool done= false;
-	while(done == false) {
-		//wait for the next message
-		NetworkMessageType networkMessageType = waitForMessage();
-
-		// START: Test simulating lag for the client
-		if(simulateLag > 0) {
-			if(clientSimulationLagStartTime == 0) {
-				clientSimulationLagStartTime = time(NULL);
+	if(quit == false) {
+		bool testThreaded = Config::getInstance().getBool("ThreadedNetworkClient","false");
+		if(testThreaded == false) {
+			updateFrame(&frameCount);
+			Commands &frameCmdList = cachedPendingCommands[frameCount];
+			for(int i= 0; i < frameCmdList.size(); ++i) {
+				pendingCommands.push_back(frameCmdList[i]);
 			}
-			if(difftime(time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
-				sleep(Config::getInstance().getInt("SimulateClientLag","0"));
-			}
+			cachedPendingCommands.erase(frameCount);
 		}
-		// END: Test simulating lag for the client
-
-		//check we have an expected message
-		//NetworkMessageType networkMessageType= getNextMessageType();
-
-		switch(networkMessageType)
-		{
-			case nmtCommandList:
-			    {
-
-				int waitCount = 0;
-				//make sure we read the message
-				time_t receiveTimeElapsed = time(NULL);
-				NetworkMessageCommandList networkMessageCommandList;
-				bool gotCmd = receiveMessage(&networkMessageCommandList);
-				if(gotCmd == false) {
-					throw runtime_error("error retrieving nmtCommandList returned false!");
-				}
-
-//				while(receiveMessage(&networkMessageCommandList) == false &&
-//					  isConnected() == true &&
-//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
-//					waitCount++;
-//				}
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-				//check that we are in the right frame
-				if(networkMessageCommandList.getFrameCount() != frameCount) {
-				    string sErr = "Player: " + getHumanPlayerName() +
-				    		      " got a Network synchronization error, frame counts do not match, server frameCount = " +
-				    		      intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " +
-				    		      intToStr(frameCount);
-                    sendTextMessage(sErr,-1, true,"");
-                    DisplayErrorMessage(sErr);
-                    sleep(1);
-
-                    quit= true;
-                    close();
-                    return;
-				}
-
-				// give all commands
-				for(int i= 0; i < networkMessageCommandList.getCommandCount(); ++i) {
-					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
-				}
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-				done= true;
+		else {
+			if(networkCommandListThread == NULL) {
+				networkCommandListThread = new SimpleTaskThread(this,0,0);
+				networkCommandListThread->setUniqueID(__FILE__);
+				networkCommandListThread->start();
 			}
-			break;
 
-			case nmtPing:
-			{
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
-
-				NetworkMessagePing networkMessagePing;
-				if(receiveMessage(&networkMessagePing)) {
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					lastPingInfo = networkMessagePing;
-				}
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-			}
-			break;
-
-			case nmtQuit:
-			{
-				time_t receiveTimeElapsed = time(NULL);
-				NetworkMessageQuit networkMessageQuit;
-//				while(receiveMessage(&networkMessageQuit) == false &&
-//					  isConnected() == true &&
-//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
-//				}
-				bool gotCmd = receiveMessage(&networkMessageQuit);
-				if(gotCmd == false) {
-					throw runtime_error("error retrieving nmtQuit returned false!");
-				}
-
-				quit= true;
-				done= true;
-			}
-			break;
-
-			case nmtText:
-			{
-				time_t receiveTimeElapsed = time(NULL);
-				NetworkMessageText networkMessageText;
-//				while(receiveMessage(&networkMessageText) == false &&
-//					  isConnected() == true &&
-//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
-//				}
-				bool gotCmd = receiveMessage(&networkMessageText);
-				if(gotCmd == false) {
-					throw runtime_error("error retrieving nmtText returned false!");
-				}
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
-        		this->addChatInfo(msg);
-
-        		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-			}
-			break;
-
-	        case nmtLaunch:
-	        case nmtBroadCastSetup:
-	        {
-	            NetworkMessageLaunch networkMessageLaunch;
-	            if(receiveMessage(&networkMessageLaunch)) {
-	            	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
-	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
-	            	}
-	            	else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
-	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
-	            	}
-	            	else {
-	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
-
-						char szBuf[1024]="";
-						snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
-						throw runtime_error(szBuf);
-	            	}
-
-	                networkMessageLaunch.buildGameSettings(&gameSettings);
-
-	                if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
-	                //replace server player by network
-	                for(int i= 0; i<gameSettings.getFactionCount(); ++i) {
-	                    //replace by network
-	                    if(gameSettings.getFactionControl(i)==ctHuman) {
-	                        gameSettings.setFactionControl(i, ctNetwork);
-	                    }
-
-	                    //set the faction index
-	                    if(gameSettings.getStartLocationIndex(i) == playerIndex) {
-	                        gameSettings.setThisFactionIndex(i);
-	                        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
-	                    }
-	                }
-
-	                //if(networkMessageLaunch.getMessageType() == nmtLaunch) {
-	                	//launchGame= true;
-	                //}
-	                //else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
-	                //	setGameSettingsReceived(true);
-	                //}
-	            }
-	        }
-	        break;
-
-
-            case nmtLoadingStatusMessage:
-                break;
-
-			case nmtInvalid:
-                break;
-
-			default:
-                {
-                sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1, true,"");
-                DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
-                sleep(1);
-
-				quit= true;
-				close();
-				done= true;
-                }
-		}
-
-		if(isConnected() == false && quit == true) {
-			done = true;
+			bool hasData = getNetworkCommand(frameCount,cachedPendingCommandsIndex);
+	//		if(hasData == true) {
+	//			MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+	//
+	//			Commands &frameCmdList = cachedPendingCommands[frameCount];
+	//			for(int i= 0; i < frameCmdList.size(); ++i) {
+	//				pendingCommands.push_back(frameCmdList[i]);
+	//			}
+	//			cachedPendingCommands.erase(frameCount);
+	//		}
 		}
 	}
+
+//	int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
+//	bool done= false;
+//	while(done == false) {
+//		//wait for the next message
+//		NetworkMessageType networkMessageType = waitForMessage();
+//
+//		// START: Test simulating lag for the client
+//		if(simulateLag > 0) {
+//			if(clientSimulationLagStartTime == 0) {
+//				clientSimulationLagStartTime = time(NULL);
+//			}
+//			if(difftime(time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
+//				sleep(Config::getInstance().getInt("SimulateClientLag","0"));
+//			}
+//		}
+//		// END: Test simulating lag for the client
+//
+//		//check we have an expected message
+//		//NetworkMessageType networkMessageType= getNextMessageType();
+//
+//		switch(networkMessageType)
+//		{
+//			case nmtCommandList:
+//			    {
+//
+//				int waitCount = 0;
+//				//make sure we read the message
+//				time_t receiveTimeElapsed = time(NULL);
+//				NetworkMessageCommandList networkMessageCommandList;
+//				bool gotCmd = receiveMessage(&networkMessageCommandList);
+//				if(gotCmd == false) {
+//					throw runtime_error("error retrieving nmtCommandList returned false!");
+//				}
+//
+////				while(receiveMessage(&networkMessageCommandList) == false &&
+////					  isConnected() == true &&
+////					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
+////					waitCount++;
+////				}
+//
+//				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+//				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+//				//check that we are in the right frame
+//				if(networkMessageCommandList.getFrameCount() != frameCount) {
+//				    string sErr = "Player: " + getHumanPlayerName() +
+//				    		      " got a Network synchronization error, frame counts do not match, server frameCount = " +
+//				    		      intToStr(networkMessageCommandList.getFrameCount()) + ", local frameCount = " +
+//				    		      intToStr(frameCount);
+//                    sendTextMessage(sErr,-1, true,"");
+//                    DisplayErrorMessage(sErr);
+//                    sleep(1);
+//
+//                    quit= true;
+//                    close();
+//                    return;
+//				}
+//
+//				// give all commands
+//				for(int i= 0; i < networkMessageCommandList.getCommandCount(); ++i) {
+//					pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
+//				}
+//
+//				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+//
+//				done= true;
+//			}
+//			break;
+//
+//			case nmtPing:
+//			{
+//				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtPing\n",__FILE__,__FUNCTION__);
+//
+//				NetworkMessagePing networkMessagePing;
+//				if(receiveMessage(&networkMessagePing)) {
+//					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//					lastPingInfo = networkMessagePing;
+//				}
+//
+//				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+//			}
+//			break;
+//
+//			case nmtQuit:
+//			{
+//				time_t receiveTimeElapsed = time(NULL);
+//				NetworkMessageQuit networkMessageQuit;
+////				while(receiveMessage(&networkMessageQuit) == false &&
+////					  isConnected() == true &&
+////					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
+////				}
+//				bool gotCmd = receiveMessage(&networkMessageQuit);
+//				if(gotCmd == false) {
+//					throw runtime_error("error retrieving nmtQuit returned false!");
+//				}
+//
+//				quit= true;
+//				done= true;
+//			}
+//			break;
+//
+//			case nmtText:
+//			{
+//				time_t receiveTimeElapsed = time(NULL);
+//				NetworkMessageText networkMessageText;
+////				while(receiveMessage(&networkMessageText) == false &&
+////					  isConnected() == true &&
+////					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
+////				}
+//				bool gotCmd = receiveMessage(&networkMessageText);
+//				if(gotCmd == false) {
+//					throw runtime_error("error retrieving nmtText returned false!");
+//				}
+//
+//				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+//
+//        		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
+//        		this->addChatInfo(msg);
+//
+//        		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+//			}
+//			break;
+//
+//	        case nmtLaunch:
+//	        case nmtBroadCastSetup:
+//	        {
+//	            NetworkMessageLaunch networkMessageLaunch;
+//	            if(receiveMessage(&networkMessageLaunch)) {
+//	            	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+//	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+//	            	}
+//	            	else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+//	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
+//	            	}
+//	            	else {
+//	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+//
+//						char szBuf[1024]="";
+//						snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+//						throw runtime_error(szBuf);
+//	            	}
+//
+//	                networkMessageLaunch.buildGameSettings(&gameSettings);
+//
+//	                if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+//	                //replace server player by network
+//	                for(int i= 0; i<gameSettings.getFactionCount(); ++i) {
+//	                    //replace by network
+//	                    if(gameSettings.getFactionControl(i)==ctHuman) {
+//	                        gameSettings.setFactionControl(i, ctNetwork);
+//	                    }
+//
+//	                    //set the faction index
+//	                    if(gameSettings.getStartLocationIndex(i) == playerIndex) {
+//	                        gameSettings.setThisFactionIndex(i);
+//	                        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
+//	                    }
+//	                }
+//
+//	                //if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+//	                	//launchGame= true;
+//	                //}
+//	                //else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+//	                //	setGameSettingsReceived(true);
+//	                //}
+//	            }
+//	        }
+//	        break;
+//
+//
+//            case nmtLoadingStatusMessage:
+//                break;
+//
+//			case nmtInvalid:
+//                break;
+//
+//			default:
+//                {
+//                sendTextMessage("Unexpected message in client interface: " + intToStr(networkMessageType),-1, true,"");
+//                DisplayErrorMessage(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected message in client interface: " + intToStr(networkMessageType));
+//                sleep(1);
+//
+//				quit= true;
+//				close();
+//				done= true;
+//                }
+//		}
+//
+//		if(isConnected() == false && quit == true) {
+//			done = true;
+//		}
+//	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	//printf("In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 bool ClientInterface::isMasterServerAdminOverride() {

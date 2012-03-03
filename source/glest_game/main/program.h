@@ -108,7 +108,7 @@ protected:
 // 	class Program
 // ===============================
 
-class Program : public SimpleTaskCallbackInterface {
+class Program {
 private:
 	static const int maxTimes;
 	SimpleTaskThread *soundThreadManager;
