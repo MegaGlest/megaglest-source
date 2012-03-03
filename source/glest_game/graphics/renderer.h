@@ -171,7 +171,10 @@ public:
 };
 
 
-class Renderer : public RendererInterface, public BaseRenderer, public SimpleTaskCallbackInterface {
+class Renderer : public RendererInterface,
+				 public BaseRenderer,
+				 // This is for screen saver thread
+				 public SimpleTaskCallbackInterface {
 public:
 	//progress bar
 	static const int maxProgressBar;

@@ -28,7 +28,8 @@ namespace Glest{ namespace Game{
 //	class ClientInterface
 // =====================================================
 
-class ClientInterface: public GameNetworkInterface {
+class ClientInterface: public GameNetworkInterface,
+						public SimpleTaskCallbackInterface {
 private:
 	static const int messageWaitTimeout;
 	static const int waitSleepTime;
@@ -56,6 +57,11 @@ private:
 	string versionString;
 	int sessionKey;
 	int serverFTPPort;
+
+	SimpleTaskThread *networkCommandListThread;
+	Mutex *networkCommandListThreadAccessor;
+	std::map<int,Commands> cachedPendingCommands;	//commands ready to be given
+	uint64 cachedPendingCommandsIndex;
 
 public:
 	ClientInterface();
@@ -120,11 +126,17 @@ public:
     void broadcastGameSetup(const GameSettings *gameSettings);
     void broadcastGameStart(const GameSettings *gameSettings);
 
+    virtual void simpleTask(BaseThread *callingThread);
+
 protected:
 
 	Mutex * getServerSynchAccessor() { return NULL; }
 	NetworkMessageType waitForMessage();
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType);
+
+	void updateFrame(int *checkFrame);
+	void shutdownNetworkCommandListThread();
+	bool getNetworkCommand(int frameCount, int currentCachedPendingCommandsIndex);
 };
 
 }}//end namespace

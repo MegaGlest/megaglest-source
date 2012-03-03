@@ -189,6 +189,23 @@ void ServerInterface::setPublishEnabled(bool value) {
 	}
 }
 
+void ServerInterface::shutdownMasterserverPublishThread() {
+	MutexSafeWrapper safeMutex(masterServerThreadAccessor,CODE_AT_LINE);
+
+	if(publishToMasterserverThread != NULL) {
+		time_t elapsed = time(NULL);
+		publishToMasterserverThread->signalQuit();
+		for(;publishToMasterserverThread->canShutdown(false) == false &&
+			difftime(time(NULL),elapsed) <= 15;) {
+			//sleep(150);
+		}
+		if(publishToMasterserverThread->canShutdown(true)) {
+			delete publishToMasterserverThread;
+			publishToMasterserverThread = NULL;
+		}
+	}
+}
+
 ServerInterface::~ServerInterface() {
 	//printf("===> Destructor for ServerInterface\n");
 
@@ -214,10 +231,7 @@ ServerInterface::~ServerInterface() {
 		delete ftpServer;
 		ftpServer = NULL;
 	}
-	MutexSafeWrapper safeMutex(masterServerThreadAccessor,CODE_AT_LINE);
-	delete publishToMasterserverThread;
-	publishToMasterserverThread = NULL;
-	safeMutex.ReleaseLock();
+	shutdownMasterserverPublishThread();
 
 	lastMasterserverHeartbeatTime = 0;
 	if(needToRepublishToMasterserver == true) {
@@ -1703,9 +1717,8 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
 
+		shutdownMasterserverPublishThread();
 		MutexSafeWrapper safeMutex(masterServerThreadAccessor,CODE_AT_LINE);
-		delete publishToMasterserverThread;
-		publishToMasterserverThread = NULL;
 		lastMasterserverHeartbeatTime = 0;
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ftpServer = %p\n",__FILE__,__FUNCTION__,__LINE__,ftpServer);

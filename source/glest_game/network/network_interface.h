@@ -171,10 +171,10 @@ public:
 // =====================================================
 
 class GameNetworkInterface: public NetworkInterface {
-private:
-	typedef vector<NetworkCommand> Commands;
 
 protected:
+	typedef vector<NetworkCommand> Commands;
+
 	Commands requestedCommands;	//commands requested by the user
 	Commands pendingCommands;	//commands ready to be given
 	bool quit;
