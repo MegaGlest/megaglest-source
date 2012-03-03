@@ -20,6 +20,7 @@
 #include "util.h"
 #include <stdexcept>
 #include "string_utils.h"
+#include "sound_renderer.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -486,6 +487,19 @@ void ChatManager::updateNetwork() {
 					if(msg.targetLanguage == "" || lang.isLanguageLocal(msg.targetLanguage) == true) {
 						bool teamMode = (teamIndex != -1 && teamIndex == thisTeamIndex);
 						console->addLine(msg.chatText, true, msg.chatPlayerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
+
+						//!!!
+						string playerName = gameNetworkInterface->getHumanPlayerName();
+
+						if(this->manualPlayerNameOverride != "") {
+							playerName = this->manualPlayerNameOverride;
+						}
+			        	if(msg.chatText.find(playerName) != string::npos){
+			        		CoreData &coreData= CoreData::getInstance();
+			        		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+
+			        		soundRenderer.playFx(coreData.getHighlightSound());
+			        	}
 					}
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
