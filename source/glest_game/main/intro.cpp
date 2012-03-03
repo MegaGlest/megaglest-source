@@ -639,7 +639,8 @@ void Intro::render() {
 
 	//printf("animTimer.deltaTime () = %f anim = %f animTimer.deltaTime() / 25.0 = %f\n",animTimer.deltaTime (),anim,animTimer.deltaTime() / 25.0);
 	//double anim = animTimer.deltaTime();
-//	Shared::Graphics::md5::renderMD5Object(md5Test, animTimer.deltaTime() / 30.0, &modelViewMatrix);
+	//Shared::Graphics::md5::renderMD5Object(md5Test, animTimer.deltaTime() / 30.0, &modelViewMatrix);
+
 	//Shared::Graphics::md5::renderMD5Object(md5Test, animTimer.deltaTime() / 30.0, NULL);
 
 //	if(test == NULL) {

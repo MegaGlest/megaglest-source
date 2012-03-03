@@ -497,16 +497,18 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	for(int i= 0; i < resultsScenarios.size(); ++i) {
 		string scenario = resultsScenarios[i];
 		string file = Scenario::getScenarioPath(dirList, scenario);
-		Scenario::loadScenarioInfo(file, &scenarioInfo);
+		if(file != "") {
+			Scenario::loadScenarioInfo(file, &scenarioInfo);
 
-		bool isNetworkScenario = false;
-		for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
-			if(scenarioInfo.factionControls[j] == ctNetwork) {
-				isNetworkScenario = true;
+			bool isNetworkScenario = false;
+			for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
+				if(scenarioInfo.factionControls[j] == ctNetwork) {
+					isNetworkScenario = true;
+				}
 			}
-		}
-		if(isNetworkScenario == true) {
-			scenarioFiles.push_back(scenario);
+			if(isNetworkScenario == true) {
+				scenarioFiles.push_back(scenario);
+			}
 		}
 	}
 	resultsScenarios.clear();
@@ -1115,7 +1117,7 @@ void MenuStateConnectedGame::broadCastGameSettingsToMasterserver(bool forceNow) 
 		GameSettings gameSettings = *clientInterface->getGameSettings();
 		loadGameSettings(&gameSettings);
 
-		//printf("broadcast settings:\n%s\n",gameSettings.toString().c_str());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("broadcast settings:\n%s\n",gameSettings.toString().c_str());
 
 		//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
 
@@ -1161,15 +1163,18 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         //int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
 
         if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
             PlayNow(true);
             return;
         }
         else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             RestoreLastGameSettings();
         }
-        else if(listBoxMap.mouseClick(x, y)){
+        else if(listBoxMap.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1199,6 +1204,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxFogOfWar.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 //            cleanupMapPreviewTexture();
@@ -1216,6 +1222,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxAllowObservers.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 //            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 //
 //            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1251,6 +1258,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         //	broadcastServerSettingsDelayTimer=time(NULL);
         //}
         else if (listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 //            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1268,6 +1276,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 //            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1301,6 +1310,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //            //TODO
 //        }
         else if(listBoxTileset.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 //            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1340,6 +1350,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 //            }
 //        }
         else if(listBoxTechTree.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             reloadFactions(false,"");
 
             //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1359,6 +1370,8 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
         	NetworkManager &networkManager= NetworkManager::getInstance();
         	ClientInterface* clientInterface= networkManager.getClientInterface();
 
@@ -1368,6 +1381,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 //if (listBoxAdvanced.getSelectedItemIndex() == 1) {
                     // set multiplier
                     if(listBoxRMultiplier[i].mouseClick(x, y)) {
+                    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                     	//broadCastGameSettingsToMasterserver();
                     	needToBroadcastServerSettings=true;
                     	broadcastServerSettingsDelayTimer=time(NULL);
@@ -1379,6 +1393,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 if(clientInterface != NULL && clientInterface->getGameSettings() != NULL &&
                 		clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxControls[i].mouseClick(x, y)) {
+                	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
                 	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
@@ -1393,10 +1408,12 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 }
                 else if(clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxFactions[i].mouseClick(x, y)) {
+                	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                     // Disallow CPU players to be observers
         			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
         				(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
         				 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
+        				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         				listBoxFactions[i].setSelectedItemIndex(0);
         			}
 
@@ -1406,6 +1423,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 }
                 else if(clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxTeams[i].mouseClick(x, y)) {
+                	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                     if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
                         if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
                             //lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
@@ -1564,6 +1582,8 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 		gameSettings->setScenario("");
 		gameSettings->setScenarioDir("");
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = %lu, getCurrentMapFile() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),getCurrentMapFile().c_str());
 
 	if(listBoxMap.getSelectedItemIndex() >= 0 && listBoxMap.getSelectedItemIndex() < mapFiles.size()) {
 		gameSettings->setDescription(formatString(getCurrentMapFile()));
@@ -3780,6 +3800,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			mapFile = ITEM_MISSING;
 		}
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = %lu, maps.size() = %lu, getCurrentMapFile() [%s] mapFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),maps.size(),getCurrentMapFile().c_str(),mapFile.c_str());
+
 		listBoxMap.setItems(maps);
 
 		listBoxMap.setSelectedItem(mapFile);
@@ -4034,6 +4056,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 			if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
 				initialMapSelection= i;
 			}
+			formattedMapFiles.push_back(formatString(mapFiles.at(i)));
 		}
 
 		//printf("#6 scenario [%s] [%s]\n",scenario.c_str(),scenarioDir.c_str());
@@ -4044,6 +4067,8 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 			//printf("#6.1 about to load map [%s]\n",scenarioInfo.mapName.c_str());
 			loadMapInfo(Map::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
 			//printf("#6.2\n");
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = %lu, mapInfo.players = %d, formattedPlayerSortedMaps[mapInfo.players].size() = %lu, scenarioInfo.mapName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),mapInfo.players,formattedPlayerSortedMaps[mapInfo.players].size(),scenarioInfo.mapName.c_str());
 			listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
 		}
 		//printf("#7\n");
