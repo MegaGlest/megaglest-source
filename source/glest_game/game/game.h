@@ -256,6 +256,8 @@ private:
 	int getFirstUnusedTeamNumber();
 	void updateWorldStats();
 
+	void setupPopupMenus(bool checkClientAdminOverrideOnly);
+
 	string getDebugStats(std::map<int,string> &factionDebugInfo);
 };
 

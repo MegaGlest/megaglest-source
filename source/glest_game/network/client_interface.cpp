@@ -647,6 +647,54 @@ void ClientInterface::updateKeyframe(int frameCount) {
         		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			break;
+
+	        case nmtLaunch:
+	        case nmtBroadCastSetup:
+	        {
+	            NetworkMessageLaunch networkMessageLaunch;
+	            if(receiveMessage(&networkMessageLaunch)) {
+	            	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+	            	}
+	            	else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
+	            	}
+	            	else {
+	            		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+
+						char szBuf[1024]="";
+						snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+						throw runtime_error(szBuf);
+	            	}
+
+	                networkMessageLaunch.buildGameSettings(&gameSettings);
+
+	                if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
+	                //replace server player by network
+	                for(int i= 0; i<gameSettings.getFactionCount(); ++i) {
+	                    //replace by network
+	                    if(gameSettings.getFactionControl(i)==ctHuman) {
+	                        gameSettings.setFactionControl(i, ctNetwork);
+	                    }
+
+	                    //set the faction index
+	                    if(gameSettings.getStartLocationIndex(i) == playerIndex) {
+	                        gameSettings.setThisFactionIndex(i);
+	                        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",__FILE__,__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
+	                    }
+	                }
+
+	                //if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+	                	//launchGame= true;
+	                //}
+	                //else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
+	                //	setGameSettingsReceived(true);
+	                //}
+	            }
+	        }
+	        break;
+
+
             case nmtLoadingStatusMessage:
                 break;
 
@@ -670,6 +718,10 @@ void ClientInterface::updateKeyframe(int frameCount) {
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+}
+
+bool ClientInterface::isMasterServerAdminOverride() {
+	return (gameSettings.getMasterserver_admin() == this->getSessionKey());
 }
 
 void ClientInterface::waitUntilReady(Checksum* checksum) {

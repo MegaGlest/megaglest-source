@@ -1144,6 +1144,34 @@ void ServerInterface::update() {
 			checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 		}
 
+		// Check if we need to switch masterserver admin to a new player because original admin disconnected
+		if(gameHasBeenInitiated == true && this->gameSettings.getMasterserver_admin() > 0) {
+			//!!!
+			bool foundAdminSlot = false;
+			int iFirstConnectedSlot = -1;
+			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+				if(slots[i] != NULL) {
+					if(iFirstConnectedSlot < 0) {
+						iFirstConnectedSlot = i;
+					}
+					if(this->gameSettings.getMasterserver_admin() == slots[i]->getSessionKey()) {
+						foundAdminSlot = true;
+						break;
+					}
+				}
+			}
+
+			if(foundAdminSlot == false && iFirstConnectedSlot >= 0) {
+				printf("Switching masterserver admin to slot#%d...\n",iFirstConnectedSlot);
+
+				string sMsg = "Switching player to admin mode: " + slots[iFirstConnectedSlot]->getName();
+				sendTextMessage(sMsg,-1, true,"");
+
+				this->gameSettings.setMasterserver_admin(slots[iFirstConnectedSlot]->getSessionKey());
+				this->broadcastGameSetup(&this->gameSettings);
+			}
+		}
 		//printf("\nServerInterface::update -- G\n");
 	}
 	catch(const exception &ex) {

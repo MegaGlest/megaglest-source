@@ -1024,47 +1024,7 @@ void Game::init(bool initForPreviewOnly) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled) SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"================ STARTING GAME ================\n");
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled) SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"PathFinderType: %s\n", (getGameSettings()->getPathFinderType() ? "RoutePlanner" : "PathFinder"));
 
-
-	//PopupMenu popupMenu;
-	std::vector<string> menuItems;
-	menuItems.push_back(lang.get("ExitGame?"));
-	exitGamePopupMenuIndex = menuItems.size()-1;
-
-	if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
-		world.getThisFaction() != NULL && world.getThisFaction()->getType()->getPersonalityType() != fpt_Observer) {
-		menuItems.push_back(lang.get("JoinOtherTeam"));
-		joinTeamPopupMenuIndex = menuItems.size()-1;
-	}
-
-	bool allowAdminMenuItems = false;
-	if(role == nrServer) {
-		allowAdminMenuItems = true;
-	}
-	else if(role == nrClient) {
-		ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
-
-		if(clientInterface != NULL &&
-			gameSettings.getMasterserver_admin() == clientInterface->getSessionKey()) {
-			allowAdminMenuItems = true;
-		}
-	}
-
-	if(allowAdminMenuItems == true) {
-		menuItems.push_back(lang.get("PauseResumeGame"));
-		pauseGamePopupMenuIndex = menuItems.size()-1;
-	}
-
-	menuItems.push_back(lang.get("Keyboardsetup"));
-	keyboardSetupPopupMenuIndex = menuItems.size()-1;
-	menuItems.push_back(lang.get("Cancel"));
-	popupMenu.setW(100);
-	popupMenu.setH(100);
-	popupMenu.init(lang.get("GameMenuTitle"),menuItems);
-	popupMenu.setEnabled(false);
-	popupMenu.setVisible(false);
-
-	popupMenuSwitchTeams.setEnabled(false);
-	popupMenuSwitchTeams.setVisible(false);
+	setupPopupMenus(false);
 
 	gameStarted = true;
 
@@ -1077,6 +1037,67 @@ void Game::init(bool initForPreviewOnly) {
 }
 
 // ==================== update ====================
+
+void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
+	Lang &lang= Lang::getInstance();
+	//Logger &logger= Logger::getInstance();
+	//CoreData &coreData= CoreData::getInstance();
+	//Renderer &renderer= Renderer::getInstance();
+	//Map *map= world.getMap();
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	NetworkRole role = networkManager.getNetworkRole();
+	ClientInterface *clientInterface = NULL;
+
+	bool allowAdminMenuItems = false;
+	if(role == nrServer) {
+		allowAdminMenuItems = true;
+	}
+	else if(role == nrClient) {
+		clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
+
+		if(clientInterface != NULL &&
+			(gameSettings.getMasterserver_admin() == clientInterface->getSessionKey() ||
+					clientInterface->isMasterServerAdminOverride() == true)) {
+			allowAdminMenuItems = true;
+		}
+	}
+
+	if(checkClientAdminOverrideOnly == false ||
+			(clientInterface != NULL &&
+			 (gameSettings.getMasterserver_admin() != clientInterface->getSessionKey() &&
+					clientInterface->isMasterServerAdminOverride() == true))) {
+		if(checkClientAdminOverrideOnly == true) {
+			gameSettings.setMasterserver_admin(clientInterface->getSessionKey());
+		}
+		//PopupMenu popupMenu;
+		std::vector<string> menuItems;
+		menuItems.push_back(lang.get("ExitGame?"));
+		exitGamePopupMenuIndex = menuItems.size()-1;
+
+		if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
+			world.getThisFaction() != NULL && world.getThisFaction()->getType()->getPersonalityType() != fpt_Observer) {
+			menuItems.push_back(lang.get("JoinOtherTeam"));
+			joinTeamPopupMenuIndex = menuItems.size()-1;
+		}
+
+		if(allowAdminMenuItems == true) {
+			menuItems.push_back(lang.get("PauseResumeGame"));
+			pauseGamePopupMenuIndex = menuItems.size()-1;
+		}
+
+		menuItems.push_back(lang.get("Keyboardsetup"));
+		keyboardSetupPopupMenuIndex = menuItems.size()-1;
+		menuItems.push_back(lang.get("Cancel"));
+		popupMenu.setW(100);
+		popupMenu.setH(100);
+		popupMenu.init(lang.get("GameMenuTitle"),menuItems);
+		popupMenu.setEnabled(false);
+		popupMenu.setVisible(false);
+
+		popupMenuSwitchTeams.setEnabled(false);
+		popupMenuSwitchTeams.setVisible(false);
+	}
+}
 
 //update
 void Game::update() {
@@ -1144,6 +1165,7 @@ void Game::update() {
 		// Check to see if we are playing a network game and if any players
 		// have disconnected?
 		ReplaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
+		setupPopupMenus(true);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after ReplaceDisconnectedNetworkPlayersWithAI]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 

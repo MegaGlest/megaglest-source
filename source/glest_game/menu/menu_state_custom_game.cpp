@@ -606,16 +606,18 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	for(int i= 0; i < resultsScenarios.size(); ++i) {
 		string scenario = resultsScenarios[i];
 		string file = Scenario::getScenarioPath(dirList, scenario);
-		Scenario::loadScenarioInfo(file, &scenarioInfo);
+		if(file != "") {
+			Scenario::loadScenarioInfo(file, &scenarioInfo);
 
-		bool isNetworkScenario = false;
-		for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
-			if(scenarioInfo.factionControls[j] == ctNetwork) {
-				isNetworkScenario = true;
+			bool isNetworkScenario = false;
+			for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
+				if(scenarioInfo.factionControls[j] == ctNetwork) {
+					isNetworkScenario = true;
+				}
 			}
-		}
-		if(isNetworkScenario == true) {
-			scenarioFiles.push_back(scenario);
+			if(isNetworkScenario == true) {
+				scenarioFiles.push_back(scenario);
+			}
 		}
 	}
 	resultsScenarios.clear();

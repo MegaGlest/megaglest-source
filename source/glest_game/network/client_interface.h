@@ -114,6 +114,7 @@ public:
 	int getServerFTPPort() const { return serverFTPPort; }
 
 	int getSessionKey() const { return sessionKey; }
+	bool isMasterServerAdminOverride();
 
     void setGameSettings(GameSettings *serverGameSettings);
     void broadcastGameSetup(const GameSettings *gameSettings);
