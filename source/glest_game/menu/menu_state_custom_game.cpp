@@ -37,6 +37,7 @@ namespace Glest{ namespace Game{
 
 using namespace Shared::Util;
 
+const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS   	= 10;
 const int MASTERSERVER_BROADCAST_PUBLISH_SECONDS   	= 6;
 const int MASTERSERVER_BROADCAST_MAP_DELAY_SECONDS 	= 5;
 const int MASTERSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
@@ -144,6 +145,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	needToRepublishToMasterserver = false;
 	needToBroadcastServerSettings = false;
 	showMasterserverError = false;
+	tMasterserverErrorElapsed = 0;
 	masterServererErrorToShow = "---";
 	lastSetChangedGameSettings  = 0;
 	lastMasterserverPublishing 	= 0;
@@ -2656,8 +2658,22 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
                     return;
                 }
 
-                showMasterserverError=true;
-                masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
+                // Give things another chance to see if we can get a connection from the master server
+                if(tMasterserverErrorElapsed > 0 &&
+                		difftime(time(NULL),tMasterserverErrorElapsed) > MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS) {
+                	showMasterserverError=true;
+                	masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
+                }
+                else {
+                	if(tMasterserverErrorElapsed == 0) {
+                		tMasterserverErrorElapsed = time(NULL);
+                	}
+
+                	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error checking response from masterserver elapsed seconds = %.2f / %d\nResponse:\n%s\n",
+                			extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,difftime(time(NULL),tMasterserverErrorElapsed),MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS,serverInfo.c_str());
+
+                	needToRepublishToMasterserver = true;
+                }
             }
         }
         else {

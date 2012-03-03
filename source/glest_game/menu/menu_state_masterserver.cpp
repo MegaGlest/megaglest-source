@@ -46,10 +46,11 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n\n\n******************** ENTERING MASTERSERVER MENU\n\n\n\n\n");
 
 	containerName = "MasterServer";
+	masterserverParseErrorShown = false;
 	updateFromMasterserverThread = NULL;
 	ircClient = NULL;
 	serverInfoString="empty";
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
 
@@ -238,7 +239,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	ircOnlinePeopleStatusLabel.init(userButtonsXBase,userButtonsYBase+userButtonsLineHeight-20);
 	ircOnlinePeopleStatusLabel.setText("");
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
@@ -267,7 +268,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	needUpdateFromServer = true;
 	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);
-	updateFromMasterserverThread->setUniqueID(__FILE__);
+	updateFromMasterserverThread->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
 	updateFromMasterserverThread->start();
 
     if(Config::getInstance().getString("IRCServer","") != "") {
@@ -304,12 +305,12 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     	ircArgs.push_back("");
     }
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     ircClient = new IRCThread(ircArgs,this);
-    ircClient->setUniqueID(__FILE__);
+    ircClient->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
     ircClient->start();
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void MenuStateMasterserver::reloadUI() {
@@ -385,7 +386,7 @@ void MenuStateMasterserver::setButtonLinePosition(int pos){
 }
 
 void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count) {
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         if(evt == IRC_evt_exitThread) {
             ircClient = NULL;
@@ -408,13 +409,13 @@ void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* orig
 }
 
 void MenuStateMasterserver::cleanup() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-    MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     needUpdateFromServer = false;
     safeMutex.ReleaseLock();
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     if(updateFromMasterserverThread != NULL &&
         updateFromMasterserverThread->canShutdown(true) == true) {
@@ -424,28 +425,28 @@ void MenuStateMasterserver::cleanup() {
     }
     updateFromMasterserverThread = NULL;
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	clearServerLines();
 	clearUserButtons();
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
         ircClient->setCallbackObj(NULL);
         ircClient->signalQuit();
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         ircClient = NULL;
     }
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 MenuStateMasterserver::~MenuStateMasterserver() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	cleanup();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void MenuStateMasterserver::clearServerLines() {
@@ -463,7 +464,7 @@ void MenuStateMasterserver::clearUserButtons() {
 }
 
 void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -480,80 +481,80 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
 	else if(userScrollBar.mouseClick(x, y)){
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			soundRenderer.playFx(coreData.getClickSoundB());
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	    }
 	else if(serverScrollBar.mouseClick(x, y)){
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			soundRenderer.playFx(coreData.getClickSoundB());
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	    }
 	else if(buttonRefresh.mouseClick(x, y)){
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+		MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = true;
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     }
     else if(buttonReturn.mouseClick(x, y)){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		soundRenderer.playFx(coreData.getClickSoundB());
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if (ircClient != NULL && ircClient->isConnected() == true
 					&& ircClient->getHasJoinedChannel() == true) {
 			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "left the lobby");
 		}
         cleanup();
 
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     }
     else if(buttonCreateGame.mouseClick(x, y)){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 		soundRenderer.playFx(coreData.getClickSoundB());
 		needUpdateFromServer = false;
 		safeMutex.ReleaseLock();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if (ircClient != NULL && ircClient->isConnected() == true
 					&& ircClient->getHasJoinedChannel() == true) {
 			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "tries to create a game");
 		}
         cleanup();
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		mainMenu->setState(new MenuStateCustomGame(program, mainMenu,true,pMasterServer));
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     }
     else if(listBoxAutoRefresh.mouseClick(x, y)){
-    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 		soundRenderer.playFx(coreData.getClickSoundA());
 		autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
     }
     else {
-    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+    	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     	bool clicked=false;
     	if(!clicked && serverScrollBar.getElementCount()!=0){
     		for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
 				if(serverLines[i]->buttonMouseClick(x, y)) {
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					clicked=true;
 					soundRenderer.playFx(coreData.getClickSoundB());
 					string connectServerIP = serverLines[i]->getMasterServerInfo()->getIpAddress();
 					int connectServerPort = serverLines[i]->getMasterServerInfo()->getExternalConnectPort();
 					bool connected=connectToServer(connectServerIP,connectServerPort);
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					safeMutex.ReleaseLock();
 					if(connected){
 						if (ircClient != NULL && ircClient->isConnected() == true
@@ -561,7 +562,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 							ircClient->SendIRCCmdMessage(IRC_CHANNEL, "connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");
 						}
 						cleanup();
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						mainMenu->setState(new MenuStateConnectedGame(program, mainMenu,jmMasterserver));
 					}
 					break;
@@ -589,7 +590,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 }
 
 void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
-	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
@@ -624,7 +625,7 @@ void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
 void MenuStateMasterserver::render(){
 	Renderer &renderer= Renderer::getInstance();
 
-	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	if(mainMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
@@ -657,7 +658,7 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&selectButton,&titleLabelColor);
 
 		Lang &lang= Lang::getInstance();
-		MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
+		MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
         if(ircClient != NULL &&
            ircClient->isConnected() == true &&
            ircClient->getHasJoinedChannel() == true) {
@@ -718,7 +719,7 @@ void MenuStateMasterserver::render(){
 }
 
 void MenuStateMasterserver::update() {
-	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	if(autoRefreshTime!=0 && difftime(time(NULL),lastRefreshTimer) >= autoRefreshTime ) {
 		needUpdateFromServer = true;
 		lastRefreshTimer= time(NULL);
@@ -746,7 +747,7 @@ void MenuStateMasterserver::update() {
     //console
     consoleIRC.update();
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         std::vector<string> nickList = ircClient->getNickList();
         bool isNew=false;
@@ -826,7 +827,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
 	if(callingThread->getQuitStatus() == true) {
 		return;
 	}
-	MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor(),string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor(),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	bool needUpdate = needUpdateFromServer;
 
 	if(needUpdate == true) {
@@ -934,12 +935,12 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
             }
             catch(const exception &ex) {
                 serverInfoString=ex.what();
-                SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+                SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
             }
         }
         catch(const exception &e){
-            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d, error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
             threadedErrorMsg = e.what();
         }
 	}
@@ -1011,7 +1012,10 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 					Lang &lang= Lang::getInstance();
 					labelTitle.setText("*** " + lang.get("AvailableServers") + "[" + intToStr(serverEntities.size()) + "][" + intToStr(MIN_FIELDS_EXPECTED) + "] [" + serverInfo + "]");
 
-					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error, no masterserver defined!\n",__FILE__,__FUNCTION__,__LINE__);
+					if(masterserverParseErrorShown == false) {
+						masterserverParseErrorShown = true;
+						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error, no masterserver defined!\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					}
 				}
 			}
 		}
@@ -1019,7 +1023,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
     }
 	catch(const exception &ex) {
 	    labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + ex.what() + "]");
-	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 	}
 
 	if(serverLines.size()>numberOfOldServerLines) {
@@ -1029,7 +1033,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 
 
 bool MenuStateMasterserver::connectToServer(string ipString, int port) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START  ipString='%s'\n",__FILE__,__FUNCTION__,ipString.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START  ipString='%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,ipString.c_str());
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	//Config& config= Config::getInstance();
@@ -1037,7 +1041,7 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 
 	//int serverPort = Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
 	int serverPort = port;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] try to connect to [%s] serverPort = %d\n",__FILE__,__FUNCTION__,serverIp.getString().c_str(),serverPort);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] try to connect to [%s] serverPort = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,serverIp.getString().c_str(),serverPort);
 	clientInterface->connect(serverIp, serverPort);
 	if(clientInterface->isConnected() == false) {
 		NetworkManager::getInstance().end();
@@ -1048,10 +1052,10 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 		showMessageBox(lang.get("Couldnt connect"), lang.get("Connection failed"), false);
 		return false;
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",__FILE__,__FUNCTION__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 	}
 	else {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connected to [%s]\n",__FILE__,__FUNCTION__,serverIp.getString().c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connected to [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,serverIp.getString().c_str());
 
 		//save server ip
 		//config.setString("ServerIp", serverIp.getString());
@@ -1100,7 +1104,7 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
 		//chatmanger only if connected to irc!
 		if (chatManager.getEditEnabled() == true) {
 			//printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
-			MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 			//if (key == vkReturn && ircClient != NULL) {
 			if(isKeyPressed(SDLK_RETURN,key) == true && ircClient != NULL) {
 				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
