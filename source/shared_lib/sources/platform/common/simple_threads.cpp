@@ -307,7 +307,19 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 }
 
 SimpleTaskThread::~SimpleTaskThread() {
-	this->simpleTaskInterface->shutdownTask(this);
+	try {
+		if(this->simpleTaskInterface != NULL) {
+			this->simpleTaskInterface->shutdownTask(this);
+			this->simpleTaskInterface = NULL;
+		}
+	}
+    catch(const exception &ex) {
+        SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
+
+        //throw runtime_error(ex.what());
+        abort();
+    }
 }
 
 bool SimpleTaskThread::isThreadExecutionLagging() {
