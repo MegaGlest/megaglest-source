@@ -296,6 +296,8 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	this->executionCount			 = executionCount;
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
 	this->needTaskSignal			 = needTaskSignal;
+	this->overrideShutdownTask		 = NULL;
+
 	setTaskSignalled(false);
 
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
@@ -308,10 +310,7 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 
 SimpleTaskThread::~SimpleTaskThread() {
 	try {
-		if(this->simpleTaskInterface != NULL) {
-			this->simpleTaskInterface->shutdownTask(this);
-			this->simpleTaskInterface = NULL;
-		}
+		cleanup();
 	}
     catch(const exception &ex) {
         SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -320,6 +319,21 @@ SimpleTaskThread::~SimpleTaskThread() {
         //throw runtime_error(ex.what());
         abort();
     }
+}
+
+void SimpleTaskThread::cleanup() {
+	if(this->overrideShutdownTask != NULL) {
+		this->overrideShutdownTask(this);
+		this->overrideShutdownTask = NULL;
+	}
+	else if(this->simpleTaskInterface != NULL) {
+		this->simpleTaskInterface->shutdownTask(this);
+		this->simpleTaskInterface = NULL;
+	}
+}
+
+void SimpleTaskThread::setOverrideShutdownTask(taskFunctionCallback *ptr) {
+	this->overrideShutdownTask = ptr;
 }
 
 bool SimpleTaskThread::isThreadExecutionLagging() {

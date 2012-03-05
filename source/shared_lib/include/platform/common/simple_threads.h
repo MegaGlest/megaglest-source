@@ -62,7 +62,7 @@ public:
 // =====================================================
 //	class SimpleTaskThread
 // =====================================================
-
+typedef void taskFunctionCallback(BaseThread *callingThread);
 //
 // This interface describes the methods a callback object must implement
 //
@@ -70,8 +70,8 @@ class SimpleTaskCallbackInterface {
 public:
 	virtual void simpleTask(BaseThread *callingThread) = 0;
 
-	virtual void setupTask(BaseThread *callingThread) {}
-	virtual void shutdownTask(BaseThread *callingThread) {}
+	virtual void setupTask(BaseThread *callingThread) { }
+	virtual void shutdownTask(BaseThread *callingThread) { }
 };
 
 class SimpleTaskThread : public BaseThread
@@ -89,6 +89,8 @@ protected:
 	Mutex mutexLastExecuteTimestamp;
 	time_t lastExecuteTimestamp;
 
+	taskFunctionCallback *overrideShutdownTask;
+
 public:
 	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface,
 					 unsigned int executionCount=0,
@@ -103,6 +105,10 @@ public:
     bool getTaskSignalled();
 
     bool isThreadExecutionLagging();
+
+    void cleanup();
+
+    void setOverrideShutdownTask(taskFunctionCallback *ptr);
 };
 
 // =====================================================

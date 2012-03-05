@@ -155,6 +155,9 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 
 	/* get contents from the URL */
 	CURLcode result = curl_easy_perform(handle);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CURL result = %d\n",result);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CURL errbuf [%s]\n",errbuf);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,errbuf);
 
 	std::string serverResponse = (chunk.memory != NULL ? chunk.memory : "");
