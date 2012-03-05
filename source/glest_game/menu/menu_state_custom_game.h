@@ -211,6 +211,8 @@ public:
     virtual void simpleTask(BaseThread *callingThread);
 	virtual void setupTask(BaseThread *callingThread);
 	virtual void shutdownTask(BaseThread *callingThread);
+	static void setupTaskStatic(BaseThread *callingThread);
+	static void shutdownTaskStatic(BaseThread *callingThread);
 
     virtual bool isInSpecialKeyCaptureEvent();
     virtual bool isMasterserverMode() const;

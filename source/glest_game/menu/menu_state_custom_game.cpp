@@ -856,6 +856,16 @@ void MenuStateCustomGame::cleanup() {
     			delete publishToMasterserverThread;
     			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     		}
+    		else {
+    			char szBuf[4096]="";
+    			sprintf(szBuf,"In [%s::%s %d] Error cannot shutdown publishToMasterserverThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+    			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+    			publishToMasterserverThread->setOverrideShutdownTask(shutdownTaskStatic);
+    			//publishToMasterserverThread->cleanup();
+    		}
     		publishToMasterserverThread = NULL;
         }
         else {
@@ -865,6 +875,16 @@ void MenuStateCustomGame::cleanup() {
         		publishToMasterserverThread->shutdownAndWait() == true) {
         		delete publishToMasterserverThread;
         	}
+    		else {
+    			char szBuf[4096]="";
+    			sprintf(szBuf,"In [%s::%s %d] Error cannot shutdown publishToMasterserverThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+    			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+    			publishToMasterserverThread->setOverrideShutdownTask(shutdownTaskStatic);
+    			//publishToMasterserverThread->cleanup();
+    		}
         }
 
         publishToMasterserverThread = NULL;
@@ -897,15 +917,6 @@ void MenuStateCustomGame::returnToParentMenu() {
 	needToRepublishToMasterserver = false;
 	lastNetworkPing               = time(NULL);
 	ParentMenuState parentMenuState = this->parentMenuState;
-/*
-	if(publishToMasterserverThread != NULL &&
-        publishToMasterserverThread->canShutdown() == true &&
-		publishToMasterserverThread->shutdownAndWait() == true) {
-        publishToMasterserverThread->setThreadOwnerValid(false);
-		delete publishToMasterserverThread;
-		publishToMasterserverThread = NULL;
-	}
-*/
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -2567,10 +2578,18 @@ void MenuStateCustomGame::publishToMasterserver() {
 }
 
 void MenuStateCustomGame::setupTask(BaseThread *callingThread) {
+	MenuStateCustomGame::setupTaskStatic(callingThread);
+}
+void MenuStateCustomGame::shutdownTask(BaseThread *callingThread) {
+	MenuStateCustomGame::shutdownTaskStatic(callingThread);
+}
+void MenuStateCustomGame::setupTaskStatic(BaseThread *callingThread) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	CURL *handle = SystemFlags::initHTTP();
 	callingThread->setGenericData<CURL>(handle);
 }
-void MenuStateCustomGame::shutdownTask(BaseThread *callingThread) {
+void MenuStateCustomGame::shutdownTaskStatic(BaseThread *callingThread) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	CURL *handle = callingThread->getGenericData<CURL>();
 	SystemFlags::cleanupHTTP(&handle);
 }
