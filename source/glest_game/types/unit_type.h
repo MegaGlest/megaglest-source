@@ -53,6 +53,8 @@ public:
 
 	const string &getName() const	{return name;}
 	int getKills() const			{return kills;}
+
+	void saveGame(XmlNode *rootNode) const ;
 };
 
 // ===============================

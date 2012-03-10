@@ -370,4 +370,48 @@ float TechTree::getDamageMultiplier(const AttackType *att, const ArmorType *art)
 	return damageMultiplierTable.getDamageMultiplier(att, art);
 }
 
+void TechTree::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *techTreeNode = rootNode->addChild("TechTree");
+
+//	string name;
+	techTreeNode->addAttribute("name",name, mapTagReplacements);
+//    //string desc;
+//	string treePath;
+	techTreeNode->addAttribute("treePath",treePath, mapTagReplacements);
+//	vector<string> pathList;
+	for(unsigned int i = 0; i < pathList.size(); ++i) {
+		XmlNode *pathListNode = techTreeNode->addChild("pathList");
+		pathListNode->addAttribute("value",pathList[i], mapTagReplacements);
+	}
+//    ResourceTypes resourceTypes;
+	for(unsigned int i = 0; i < resourceTypes.size(); ++i) {
+		ResourceType &rt = resourceTypes[i];
+		rt.saveGame(techTreeNode);
+	}
+//    FactionTypes factionTypes;
+	for(unsigned int i = 0; i < factionTypes.size(); ++i) {
+		FactionType &ft = factionTypes[i];
+		ft.saveGame(techTreeNode);
+	}
+
+//	ArmorTypes armorTypes;
+	for(unsigned int i = 0; i < armorTypes.size(); ++i) {
+		ArmorType &at = armorTypes[i];
+		at.saveGame(techTreeNode);
+	}
+
+//	AttackTypes attackTypes;
+	for(unsigned int i = 0; i < attackTypes.size(); ++i) {
+		AttackType &at = attackTypes[i];
+		at.saveGame(techTreeNode);
+	}
+
+//	DamageMultiplierTable damageMultiplierTable;
+	damageMultiplierTable.saveGame(techTreeNode);
+
+//	Checksum checksumValue;
+	techTreeNode->addAttribute("checksumValue",intToStr(checksumValue.getSum()), mapTagReplacements);
+}
+
 }}//end namespace

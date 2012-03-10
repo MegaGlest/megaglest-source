@@ -205,6 +205,41 @@ string AttackBoost::getDesc() const{
     	return "";
 }
 
+void AttackBoost::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *attackBoostNode = rootNode->addChild("AttackBoost");
+
+//	bool enabled;
+	attackBoostNode->addAttribute("enabled",intToStr(enabled), mapTagReplacements);
+//	bool allowMultipleBoosts;
+	attackBoostNode->addAttribute("allowMultipleBoosts",intToStr(allowMultipleBoosts), mapTagReplacements);
+//	int radius;
+	attackBoostNode->addAttribute("radius",intToStr(radius), mapTagReplacements);
+//	AttackBoostTargetType targetType;
+	attackBoostNode->addAttribute("targetType",intToStr(targetType), mapTagReplacements);
+//	vector<const UnitType *> boostUnitList;
+	for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
+		const UnitType *ut = boostUnitList[i];
+		XmlNode *unitTypeNode = attackBoostNode->addChild("UnitType");
+		unitTypeNode->addAttribute("name",ut->getName(), mapTagReplacements);
+	}
+//	UpgradeTypeBase boostUpgrade;
+	boostUpgrade.saveGame(attackBoostNode);
+//	UnitParticleSystemType *unitParticleSystemTypeForSourceUnit;
+	if(unitParticleSystemTypeForSourceUnit != NULL) {
+		unitParticleSystemTypeForSourceUnit->saveGame(attackBoostNode);
+	}
+//	UnitParticleSystemType *unitParticleSystemTypeForAffectedUnit;
+	if(unitParticleSystemTypeForAffectedUnit != NULL) {
+		unitParticleSystemTypeForAffectedUnit->saveGame(attackBoostNode);
+	}
+
+//	bool includeSelf;
+	attackBoostNode->addAttribute("includeSelf",intToStr(includeSelf), mapTagReplacements);
+//	string name;
+	attackBoostNode->addAttribute("name",name, mapTagReplacements);
+}
+
 // =====================================================
 // 	class SkillType
 // =====================================================
@@ -546,6 +581,41 @@ string SkillType::fieldToStr(Field field){
 	};
 }
 
+void SkillType::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *skillTypeNode = rootNode->addChild("SkillType");
+
+//    SkillClass skillClass;
+	skillTypeNode->addAttribute("skillClass",intToStr(skillClass), mapTagReplacements);
+//	string name;
+	skillTypeNode->addAttribute("name",name, mapTagReplacements);
+//	int mpCost;
+	skillTypeNode->addAttribute("mpCost",intToStr(mpCost), mapTagReplacements);
+//	int hpCost;
+	skillTypeNode->addAttribute("hpCost",intToStr(hpCost), mapTagReplacements);
+//    int speed;
+	skillTypeNode->addAttribute("speed",intToStr(speed), mapTagReplacements);
+//    int animSpeed;
+	skillTypeNode->addAttribute("animSpeed",intToStr(animSpeed), mapTagReplacements);
+//    int animationRandomCycleMaxcount;
+	skillTypeNode->addAttribute("animationRandomCycleMaxcount",intToStr(animationRandomCycleMaxcount), mapTagReplacements);
+//    vector<Model *> animations;
+//    vector<AnimationAttributes> animationAttributes;
+//
+//    SoundContainer sounds;
+//	float soundStartTime;
+	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime), mapTagReplacements);
+//	RandomGen random;
+	skillTypeNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+//	AttackBoost attackBoost;
+	attackBoost.saveGame(skillTypeNode);
+//	static int nextAttackBoostId;
+	skillTypeNode->addAttribute("nextAttackBoostId",intToStr(nextAttackBoostId), mapTagReplacements);
+//	UnitParticleSystemTypes unitParticleSystemTypes;
+	for(UnitParticleSystemTypes::iterator it = unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
+		(*it)->saveGame(skillTypeNode);
+	}
+}
 
 // =====================================================
 // 	class StopSkillType
@@ -732,6 +802,52 @@ int AttackSkillType::getTotalAttackRange(const TotalUpgrade *totalUpgrade) const
 	return result;
 }
 
+void AttackSkillType::saveGame(XmlNode *rootNode) {
+	SkillType::saveGame(rootNode);
+	std::map<string,string> mapTagReplacements;
+	XmlNode *attackSkillTypeNode = rootNode->addChild("AttackSkillType");
+
+//    int attackStrength;
+	attackSkillTypeNode->addAttribute("attackStrength",intToStr(attackStrength), mapTagReplacements);
+//    int attackVar;
+	attackSkillTypeNode->addAttribute("attackVar",intToStr(attackVar), mapTagReplacements);
+//    int attackRange;
+	attackSkillTypeNode->addAttribute("attackRange",intToStr(attackRange), mapTagReplacements);
+//	const AttackType *attackType;
+	if(attackType != NULL) {
+		attackSkillTypeNode->addAttribute("attackType",attackType->getName(), mapTagReplacements);
+	}
+//	bool attackFields[fieldCount];
+	for(unsigned int i = 0; i < fieldCount; ++i) {
+		XmlNode *attackFieldsNode = attackSkillTypeNode->addChild("attackFields");
+		attackFieldsNode->addAttribute("key",intToStr(i), mapTagReplacements);
+		attackFieldsNode->addAttribute("value",intToStr(attackFields[i]), mapTagReplacements);
+	}
+//	float attackStartTime;
+	attackSkillTypeNode->addAttribute("attackStartTime",floatToStr(attackStartTime), mapTagReplacements);
+//	string spawnUnit;
+	attackSkillTypeNode->addAttribute("spawnUnit",spawnUnit, mapTagReplacements);
+//	int spawnUnitcount;
+	attackSkillTypeNode->addAttribute("spawnUnitcount",intToStr(spawnUnitcount), mapTagReplacements);
+//    bool projectile;
+	attackSkillTypeNode->addAttribute("projectile",intToStr(projectile), mapTagReplacements);
+//    ParticleSystemTypeProjectile* projectileParticleSystemType;
+	if(projectileParticleSystemType != NULL) {
+		projectileParticleSystemType->saveGame(attackSkillTypeNode);
+	}
+//	SoundContainer projSounds;
+//
+//    bool splash;
+	attackSkillTypeNode->addAttribute("splash",intToStr(splash), mapTagReplacements);
+//    int splashRadius;
+	attackSkillTypeNode->addAttribute("splashRadius",intToStr(splashRadius), mapTagReplacements);
+//    bool splashDamageAll;
+	attackSkillTypeNode->addAttribute("splashDamageAll",intToStr(splashDamageAll), mapTagReplacements);
+//    ParticleSystemTypeSplash* splashParticleSystemType;
+	if(splashParticleSystemType != NULL) {
+		splashParticleSystemType->saveGame(attackSkillTypeNode);
+	}
+}
 // =====================================================
 // 	class BuildSkillType
 // =====================================================
@@ -802,6 +918,13 @@ int ProduceSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
 	return result;
 }
 
+void ProduceSkillType::saveGame(XmlNode *rootNode) {
+	SkillType::saveGame(rootNode);
+	std::map<string,string> mapTagReplacements;
+	XmlNode *produceSkillTypeNode = rootNode->addChild("ProduceSkillType");
+
+	produceSkillTypeNode->addAttribute("animProgressBound",intToStr(animProgressBound), mapTagReplacements);
+}
 // =====================================================
 // 	class UpgradeSkillType
 // =====================================================
@@ -835,6 +958,14 @@ int UpgradeSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
 	return result;
 }
 
+void UpgradeSkillType::saveGame(XmlNode *rootNode) {
+	SkillType::saveGame(rootNode);
+	std::map<string,string> mapTagReplacements;
+	XmlNode *upgradeSkillTypeNode = rootNode->addChild("UpgradeSkillType");
+
+	upgradeSkillTypeNode->addAttribute("animProgressBound",intToStr(animProgressBound), mapTagReplacements);
+}
+
 // =====================================================
 // 	class BeBuiltSkillType
 // =====================================================
@@ -864,6 +995,14 @@ void BeBuiltSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 
 string BeBuiltSkillType::toString() const{
 	return "Be built";
+}
+
+void BeBuiltSkillType::saveGame(XmlNode *rootNode) {
+	SkillType::saveGame(rootNode);
+	std::map<string,string> mapTagReplacements;
+	XmlNode *beBuiltSkillTypeNode = rootNode->addChild("BeBuiltSkillType");
+
+	beBuiltSkillTypeNode->addAttribute("animProgressBound",intToStr(animProgressBound), mapTagReplacements);
 }
 
 // =====================================================
@@ -899,6 +1038,14 @@ int MorphSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
 	return result;
 }
 
+void MorphSkillType::saveGame(XmlNode *rootNode) {
+	SkillType::saveGame(rootNode);
+	std::map<string,string> mapTagReplacements;
+	XmlNode *morphSkillTypeNode = rootNode->addChild("MorphSkillType");
+
+	morphSkillTypeNode->addAttribute("animProgressBound",intToStr(animProgressBound), mapTagReplacements);
+}
+
 // =====================================================
 // 	class DieSkillType
 // =====================================================
@@ -919,6 +1066,14 @@ void DieSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 
 string DieSkillType::toString() const{
 	return "Die";
+}
+
+void DieSkillType::saveGame(XmlNode *rootNode) {
+	SkillType::saveGame(rootNode);
+	std::map<string,string> mapTagReplacements;
+	XmlNode *dieSkillTypeNode = rootNode->addChild("DieSkillType");
+
+	dieSkillTypeNode->addAttribute("fade",intToStr(fade), mapTagReplacements);
 }
 
 // =====================================================

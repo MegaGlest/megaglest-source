@@ -2575,6 +2575,31 @@ string UnitUpdater::getUnitRangeCellsLookupItemCacheStats() {
 	result = szBuf;
 	return result;
 }
+
+void UnitUpdater::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *unitupdaterNode = rootNode->addChild("UnitUpdater");
+
+//	const GameCamera *gameCamera;
+//	Gui *gui;
+//	Map *map;
+//	World *world;
+//	Console *console;
+//	ScriptManager *scriptManager;
+//	PathFinder *pathFinder;
+	pathFinder->saveGame(unitupdaterNode);
+//	RoutePlanner *routePlanner;
+//	Game *game;
+//	RandomGen random;
+	unitupdaterNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+//	float attackWarnRange;
+	unitupdaterNode->addAttribute("attackWarnRange",floatToStr(attackWarnRange), mapTagReplacements);
+//	AttackWarnings attackWarnings;
+//
+//	Mutex mutexUnitRangeCellsLookupItemCache;
+//	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
+}
+
 // =====================================================
 //	class ParticleDamager
 // =====================================================
@@ -2602,6 +2627,22 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 	}
 	particleSystem->setObserver(NULL);
 	delete this;
+}
+
+void ParticleDamager::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *particleDamagerNode = rootNode->addChild("ParticleDamager");
+
+//	UnitReference attackerRef;
+	attackerRef.saveGame(particleDamagerNode);
+
+//	const AttackSkillType* ast;
+//	UnitUpdater *unitUpdater;
+//	const GameCamera *gameCamera;
+//	Vec2i targetPos;
+	particleDamagerNode->addAttribute("targetPos",targetPos.getString(), mapTagReplacements);
+//	Field targetField;
+	particleDamagerNode->addAttribute("targetField",intToStr(targetField), mapTagReplacements);
 }
 
 }}//end namespace

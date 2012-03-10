@@ -199,4 +199,34 @@ void ResourceType::deletePixels() {
 	}
 }
 
+void ResourceType::saveGame(XmlNode *rootNode) {
+	DisplayableType::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *resourceTypeNode = rootNode->addChild("ResourceType");
+
+//    ResourceClass resourceClass;
+	resourceTypeNode->addAttribute("resourceClass",intToStr(resourceClass), mapTagReplacements);
+//    int tilesetObject;	//used only if class==rcTileset
+	resourceTypeNode->addAttribute("tilesetObject",intToStr(tilesetObject), mapTagReplacements);
+//    int resourceNumber;	//used only if class==rcTech, resource number in the map
+	resourceTypeNode->addAttribute("resourceNumber",intToStr(resourceNumber), mapTagReplacements);
+//    int interval;		//used only if class==rcConsumable
+	resourceTypeNode->addAttribute("interval",intToStr(interval), mapTagReplacements);
+//	int defResPerPatch;	//used only if class==rcTileset || class==rcTech
+	resourceTypeNode->addAttribute("defResPerPatch",intToStr(defResPerPatch), mapTagReplacements);
+//	bool recoup_cost;
+	resourceTypeNode->addAttribute("recoup_cost",intToStr(recoup_cost), mapTagReplacements);
+//
+//    Model *model;
+	if(model != NULL) {
+		resourceTypeNode->addAttribute("model",model->getFileName(), mapTagReplacements);
+	}
+//    ObjectParticleSystemTypes particleTypes;
+	for(unsigned int i = 0; i < particleTypes.size(); ++i) {
+		ObjectParticleSystemType *opst = particleTypes[i];
+		opst->saveGame(resourceTypeNode);
+	}
+}
+
 }}//end namespace

@@ -256,6 +256,8 @@ public:
 
 	std::string toString() const;
 
+	void saveGame(XmlNode *rootNode);
+
 private:
 	void resetResourceAmount(const ResourceType *rt);
 };

@@ -267,6 +267,8 @@ public:
 	string getFowAlphaCellsLookupItemCacheStats();
 	string getAllFactionsCacheStats();
 
+	void saveGame(XmlNode *rootNode);
+
 private:
 
 	void initCells(bool fogOfWar);

@@ -65,6 +65,14 @@ std::string Upgrade::toString() const {
 	return result;
 }
 
+void Upgrade::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *upgradeNode = rootNode->addChild("Upgrade");
+
+	upgradeNode->addAttribute("state",intToStr(state), mapTagReplacements);
+	upgradeNode->addAttribute("factionIndex",intToStr(factionIndex), mapTagReplacements);
+	upgradeNode->addAttribute("type",type->getName(), mapTagReplacements);
+}
 
 // =====================================================
 // 	class UpgradeManager
@@ -225,5 +233,19 @@ std::string UpgradeManager::toString() const {
 	}
 	return result;
 }
+
+void UpgradeManager::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *upgrademanagerNode = rootNode->addChild("UpgradeManager");
+
+	for(unsigned int i = 0; i < upgrades.size(); ++i) {
+		upgrades[i]->saveGame(upgrademanagerNode);
+	}
+
+//	Upgrades upgrades;
+//	UgradesLookup upgradesLookup;
+
+}
+
 
 }}// end namespace

@@ -15,6 +15,7 @@
 #include "config.h"
 #include "game_constants.h"
 #include "util.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -125,5 +126,19 @@ Vec3f TimeFlow::computeLightColor() const {
 	return color;
 }
 
+void TimeFlow::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *timeflowNode = rootNode->addChild("TimeFlow");
+
+	timeflowNode->addAttribute("firstTime",intToStr(firstTime), mapTagReplacements);
+//	bool firstTime;
+//	Tileset *tileset;
+//	float time;
+	timeflowNode->addAttribute("time",intToStr(time), mapTagReplacements);
+//	float lastTime;
+	timeflowNode->addAttribute("lastTime",intToStr(lastTime), mapTagReplacements);
+//	float timeInc;
+	timeflowNode->addAttribute("timeInc",intToStr(timeInc), mapTagReplacements);
+}
 
 }}//end namespace

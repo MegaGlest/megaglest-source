@@ -17,7 +17,7 @@
 #include "config.h"
 #include "game_constants.h"
 #include "platform_common.h"
-
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
@@ -278,6 +278,50 @@ void UnitParticleSystemType::load(const XmlNode *particleFileNode, const string 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
 	}
+}
+
+void UnitParticleSystemType::saveGame(XmlNode *rootNode) {
+	ParticleSystemType::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *unitParticleSystemTypeNode = rootNode->addChild("UnitParticleSystemType");
+
+//	UnitParticleSystem::Shape shape;
+	unitParticleSystemTypeNode->addAttribute("shape",intToStr(shape), mapTagReplacements);
+//	float angle;
+	unitParticleSystemTypeNode->addAttribute("angle",floatToStr(angle), mapTagReplacements);
+//	float radius;
+	unitParticleSystemTypeNode->addAttribute("radius",floatToStr(radius), mapTagReplacements);
+//	float minRadius;
+	unitParticleSystemTypeNode->addAttribute("minRadius",floatToStr(minRadius), mapTagReplacements);
+//	float emissionRateFade;
+	unitParticleSystemTypeNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade), mapTagReplacements);
+//	Vec3f direction;
+	unitParticleSystemTypeNode->addAttribute("direction",direction.getString(), mapTagReplacements);
+//    bool relative;
+	unitParticleSystemTypeNode->addAttribute("relative",intToStr(relative), mapTagReplacements);
+//    bool relativeDirection;
+	unitParticleSystemTypeNode->addAttribute("relativeDirection",intToStr(relativeDirection), mapTagReplacements);
+//    bool fixed;
+	unitParticleSystemTypeNode->addAttribute("fixed",intToStr(fixed), mapTagReplacements);
+//    int staticParticleCount;
+	unitParticleSystemTypeNode->addAttribute("staticParticleCount",intToStr(staticParticleCount), mapTagReplacements);
+//	bool isVisibleAtNight;
+	unitParticleSystemTypeNode->addAttribute("isVisibleAtNight",intToStr(isVisibleAtNight), mapTagReplacements);
+//	bool isVisibleAtDay;
+	unitParticleSystemTypeNode->addAttribute("isVisibleAtDay",intToStr(isVisibleAtDay), mapTagReplacements);
+//	bool isDaylightAffected;
+	unitParticleSystemTypeNode->addAttribute("isDaylightAffected",intToStr(isDaylightAffected), mapTagReplacements);
+//	bool radiusBasedStartenergy;
+	unitParticleSystemTypeNode->addAttribute("radiusBasedStartenergy",intToStr(radiusBasedStartenergy), mapTagReplacements);
+//	int delay;
+	unitParticleSystemTypeNode->addAttribute("delay",intToStr(delay), mapTagReplacements);
+//	int lifetime;
+	unitParticleSystemTypeNode->addAttribute("lifetime",intToStr(lifetime), mapTagReplacements);
+//	float startTime;
+	unitParticleSystemTypeNode->addAttribute("startTime",floatToStr(startTime), mapTagReplacements);
+//	float endTime;
+	unitParticleSystemTypeNode->addAttribute("endTime",floatToStr(endTime), mapTagReplacements);
 }
 
 }}//end mamespace

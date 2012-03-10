@@ -1915,12 +1915,20 @@ void Md5Object::render () const {
 	//glRotatef( -90.0, 1.0, 0.0, 0.0 );
 	//glRotatef( -90.0, 0.0, 0.0, 1.0 );
 	//glTranslatef( 0.0f, -60.0f, 0.0f );
-	glRotatef( -20.0, 1.0, 0.0, 0.0 );
-	glRotatef( -20.0, 0.0, 1.0, 0.0 );
+
+	 //!glRotatef( -20.0, 1.0, 0.0, 0.0 );
+	 //!glRotatef( -20.0, 0.0, 1.0, 0.0 );
+
 	//glRotatef( 50.0, 1.0, 0.0, 0.0 );
 	//glTranslatef( 5.0f, -2.0f, -3.0f );
-	 glTranslatef(-1.4f, -1.4f, -7.5f);
-	 glScalef(1/4.0f, 1/4.0f, 1);
+
+	 //!glTranslatef(-1.4f, -1.4f, -7.5f);
+
+	 //glRotatef( 90.0, 0.0, 0.0, 1.0 );
+	 //glRotatef( -25.0, 0.0, 1.0, 0.0 );
+
+	 //glRotatef( -20.0, 1.0, 0.0, 0.0 );
+	 //glScalef(1.0/20.0f, 1.0/20.0f, 1.0f);
 
 	if (!_softwareTransformation) {
 		glMultMatrixf (_modelView._m);

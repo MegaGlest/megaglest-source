@@ -35,6 +35,13 @@ DisplayableType::DisplayableType(){
 	image= NULL;
 }
 
+void DisplayableType::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *displayableTypeNode = rootNode->addChild("DisplayableType");
+
+	displayableTypeNode->addAttribute("name",name, mapTagReplacements);
+}
+
 // =====================================================
 // 	class RequirableType
 // =====================================================
@@ -70,6 +77,28 @@ string RequirableType::getReqDesc() const{
 		return str;
 	}
 }  
+
+void RequirableType::saveGame(XmlNode *rootNode) const {
+	DisplayableType::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *requirableTypeNode = rootNode->addChild("RequirableType");
+
+//	UnitReqs unitReqs;			//needed units
+	for(unsigned int i = 0; i < unitReqs.size(); ++i) {
+		const UnitType *ut = unitReqs[i];
+
+		XmlNode *unitReqsNode = requirableTypeNode->addChild("unitReqs");
+		unitReqsNode->addAttribute("name",ut->getName(), mapTagReplacements);
+	}
+//	UpgradeReqs upgradeReqs;	//needed upgrades
+	for(unsigned int i = 0; i < upgradeReqs.size(); ++i) {
+		const UpgradeType* ut = upgradeReqs[i];
+
+		ut->saveGame(requirableTypeNode);
+	}
+
+}
 
 // =====================================================
 // 	class ProducibleType
@@ -114,5 +143,21 @@ string ProducibleType::getReqDesc() const{
 
     return str;
 }   
+
+void ProducibleType::saveGame(XmlNode *rootNode) const {
+	RequirableType::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *producibleTypeNode = rootNode->addChild("ProducibleType");
+
+//	Costs costs;
+	for(unsigned int i = 0; i < costs.size(); ++i) {
+		const Resource &res = costs[i];
+		res.saveGame(producibleTypeNode);
+	}
+//    Texture2D *cancelImage;
+//	int productionTime;
+	producibleTypeNode->addAttribute("productionTime",intToStr(productionTime), mapTagReplacements);
+}
 
 }}//end namespace

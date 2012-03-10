@@ -199,6 +199,8 @@ public:
 	void switchToNextDisplayColor();
 	void onSelectionChanged();
 
+	void saveGame(XmlNode *rootNode) const;
+
 private:
 
 	//orders

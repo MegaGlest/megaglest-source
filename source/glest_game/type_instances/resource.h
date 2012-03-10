@@ -14,10 +14,12 @@
 #include <string>
 #include "vec.h"
 #include "platform_common.h"
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 using std::string;
 using std::map;
+using Shared::Xml::XmlNode;
 
 namespace Glest{ namespace Game{
 
@@ -55,6 +57,8 @@ public:
 	void setBalance(int balance);
 
     bool decAmount(int i);
+
+    void saveGame(XmlNode *rootNode) const;
 };
 
 }}// end namespace

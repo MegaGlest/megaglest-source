@@ -106,6 +106,8 @@ public:
 
     string getType() const { return type; };
 
+    virtual void saveGame(XmlNode *rootNode);
+
 protected:
 
 };
@@ -128,6 +130,7 @@ public:
 			string parentLoader, string techtreePath);
 	ProjectileParticleSystem *create();
 
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 // ===========================================================
@@ -142,6 +145,8 @@ public:
 			RendererInterface *renderer, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader, string techtreePath);
 	SplashParticleSystem *create();
+
+	virtual void saveGame(XmlNode *rootNode);
 
 private:
 	float emissionRateFade;

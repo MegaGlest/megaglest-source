@@ -88,6 +88,8 @@ public:
 public:
 	virtual ~UnitObserver() {}
 	virtual void unitEvent(Event event, const Unit *unit)=0;
+
+	virtual void saveGame(XmlNode *rootNode) const = 0;
 };
 
 // =====================================================
@@ -107,6 +109,8 @@ public:
 
 	int getUnitId() const			{ return id; }
 	Faction *getUnitFaction() const	{ return faction; }
+
+	void saveGame(XmlNode *rootNode);
 };
 
 class UnitPathInterface {
@@ -133,6 +137,8 @@ public:
 
 	virtual void setMap(Map *value) = 0;
 	virtual Map * getMap() = 0;
+
+	virtual void saveGame(XmlNode *rootNode) = 0;
 };
 
 class UnitPathBasic : public UnitPathInterface {
@@ -179,6 +185,8 @@ public:
 	virtual Map * getMap() { return map; }
 
 	virtual std::string toString() const;
+
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 // =====================================================
@@ -235,6 +243,8 @@ public:
 	virtual Map * getMap() { return map; }
 
 	virtual std::string toString() const;
+
+	virtual void saveGame(XmlNode *rootNode) {};
 };
 
 class WaypointPath : public list<Vec2i> {
@@ -264,6 +274,7 @@ public:
 	UnitParticleSystem *ups;
 	UnitParticleSystemType *upst;
 
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 class UnitAttackBoostEffectOriginator {
@@ -275,6 +286,8 @@ public:
 	const SkillType *skillType;
 	std::vector<int> currentAttackBoostUnits;
 	UnitAttackBoostEffect *currentAppliedEffect;
+
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 class Unit : public BaseColorPickEntity, ValueCheckerVault {
@@ -627,6 +640,8 @@ public:
 	void updateTimedParticles();
 
 	virtual string getUniquePickName() const;
+	void saveGame(XmlNode *rootNode);
+
 private:
 	float computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();

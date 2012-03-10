@@ -171,6 +171,7 @@ private:
 	Vec2i *startLocations;
 	Checksum checksumValue;
 	float maxMapHeight;
+	string mapFile;
 
 private:
 	Map(Map&);
@@ -262,6 +263,8 @@ public:
 	bool isFreeCellOrMightBeFreeSoon(Vec2i originPos, const Vec2i &pos, Field field) const;
 	bool isAproxFreeCellOrMightBeFreeSoon(Vec2i originPos,const Vec2i &pos, Field field, int teamIndex) const;
 	bool aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
+
+	string getMapFile() const { return mapFile; }
 
 private:
 	//compute

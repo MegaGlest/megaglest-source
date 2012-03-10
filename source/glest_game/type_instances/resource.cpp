@@ -101,4 +101,18 @@ bool Resource::decAmount(int i) {
     return true;
 }
 
+void Resource::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *resourceNode = rootNode->addChild("Resource");
+
+//    int amount;
+	resourceNode->addAttribute("amount",intToStr(amount), mapTagReplacements);
+//    const ResourceType *type;
+	resourceNode->addAttribute("type",type->getName(), mapTagReplacements);
+//	Vec2i pos;
+	resourceNode->addAttribute("pos",pos.getString(), mapTagReplacements);
+//	int balance;
+	resourceNode->addAttribute("balance",intToStr(balance), mapTagReplacements);
+}
+
 }}//end namespace

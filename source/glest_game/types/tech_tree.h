@@ -81,6 +81,9 @@ public:
 	float getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
 	std::vector<std::string> validateFactionTypes();
 	std::vector<std::string> validateResourceTypes();
+
+	void saveGame(XmlNode *rootNode);
+
 };
 
 }} //end namespace

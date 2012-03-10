@@ -59,6 +59,9 @@ public:
 
 	Vec3f computeLightColor() const;
 	void update();
+
+	void saveGame(XmlNode *rootNode);
+
 private:
 	//bool isAproxTime(float time) const;
 };

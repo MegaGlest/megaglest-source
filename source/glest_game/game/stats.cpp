@@ -150,4 +150,63 @@ string Stats::getStats() const {
 	return result;
 }
 
+void Stats::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *statsNode = rootNode->addChild("Stats");
+
+//	PlayerStats playerStats[GameConstants::maxPlayers];
+	for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+		PlayerStats &stat = playerStats[i];
+
+		XmlNode *statsNodePlayer = statsNode->addChild("Player");
+
+//		ControlType control;
+		statsNodePlayer->addAttribute("control",intToStr(stat.control), mapTagReplacements);
+//		float resourceMultiplier;
+		statsNodePlayer->addAttribute("resourceMultiplier",floatToStr(stat.resourceMultiplier), mapTagReplacements);
+//		string factionTypeName;
+		statsNodePlayer->addAttribute("factionTypeName",stat.factionTypeName, mapTagReplacements);
+//		FactionPersonalityType personalityType;
+		statsNodePlayer->addAttribute("personalityType",intToStr(stat.personalityType), mapTagReplacements);
+//		int teamIndex;
+		statsNodePlayer->addAttribute("teamIndex",intToStr(stat.teamIndex), mapTagReplacements);
+//		bool victory;
+		statsNodePlayer->addAttribute("victory",intToStr(stat.victory), mapTagReplacements);
+//		int kills;
+		statsNodePlayer->addAttribute("kills",intToStr(stat.kills), mapTagReplacements);
+//		int enemykills;
+		statsNodePlayer->addAttribute("enemykills",intToStr(stat.enemykills), mapTagReplacements);
+//		int deaths;
+		statsNodePlayer->addAttribute("deaths",intToStr(stat.deaths), mapTagReplacements);
+//		int unitsProduced;
+		statsNodePlayer->addAttribute("unitsProduced",intToStr(stat.unitsProduced), mapTagReplacements);
+//		int resourcesHarvested;
+		statsNodePlayer->addAttribute("resourcesHarvested",intToStr(stat.resourcesHarvested), mapTagReplacements);
+//		string playerName;
+		statsNodePlayer->addAttribute("playerName",stat.playerName, mapTagReplacements);
+//		Vec3f playerColor;
+		statsNodePlayer->addAttribute("playerColor",stat.playerColor.getString(), mapTagReplacements);
+	}
+//	string description;
+	statsNode->addAttribute("description",description, mapTagReplacements);
+//	int factionCount;
+	statsNode->addAttribute("factionCount",intToStr(factionCount), mapTagReplacements);
+//	int thisFactionIndex;
+	statsNode->addAttribute("thisFactionIndex",intToStr(thisFactionIndex), mapTagReplacements);
+//
+//	float worldTimeElapsed;
+	statsNode->addAttribute("worldTimeElapsed",floatToStr(worldTimeElapsed), mapTagReplacements);
+//	int framesPlayed;
+	statsNode->addAttribute("framesPlayed",intToStr(framesPlayed), mapTagReplacements);
+//	int framesToCalculatePlaytime;
+	statsNode->addAttribute("framesToCalculatePlaytime",intToStr(framesToCalculatePlaytime), mapTagReplacements);
+//	time_t timePlayed;
+	statsNode->addAttribute("timePlayed",intToStr(timePlayed), mapTagReplacements);
+//	int maxConcurrentUnitCount;
+	statsNode->addAttribute("maxConcurrentUnitCount",intToStr(maxConcurrentUnitCount), mapTagReplacements);
+//	int totalEndGameConcurrentUnitCount;
+	statsNode->addAttribute("totalEndGameConcurrentUnitCount",intToStr(totalEndGameConcurrentUnitCount), mapTagReplacements);
+//	bool isMasterserverMode;
+}
+
 }}//end namespace

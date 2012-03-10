@@ -2614,9 +2614,9 @@ void Game::keyPress(SDL_KeyboardEvent c) {
 Stats Game::quitGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
+    //if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
         world.DumpWorldToLog();
-    }
+    //}
 
 	//Stats stats = *(world.getStats());
 	Stats endStats;
@@ -3415,6 +3415,163 @@ void Game::consoleAddLine(string line) {
 void Game::toggleTeamColorMarker() {
 	renderExtraTeamColor++;
 	renderExtraTeamColor=renderExtraTeamColor%4;
+}
+
+void Game::saveGame(string name) {
+	XmlTree xmlTree;
+	xmlTree.init("megaglest-saved-game");
+	XmlNode *rootNode = xmlTree.getRootNode();
+
+	std::map<string,string> mapTagReplacements;
+	time_t now = time(NULL);
+    struct tm *loctime = localtime (&now);
+    char szBuf[4096]="";
+    strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",loctime);
+
+	rootNode->addAttribute("version",glestVersionString, mapTagReplacements);
+	rootNode->addAttribute("timestamp",szBuf, mapTagReplacements);
+
+	XmlNode *gameNode = rootNode->addChild("Game");
+	//World world;
+	world.saveGame(gameNode);
+    //AiInterfaces aiInterfaces;
+	for(unsigned int i = 0; i < aiInterfaces.size(); ++i) {
+		AiInterface *aiIntf = aiInterfaces[i];
+		if(aiIntf != NULL) {
+			aiIntf->saveGame(gameNode);
+		}
+	}
+    //Gui gui;
+	gui.saveGame(gameNode);
+    //GameCamera gameCamera;
+	gameCamera.saveGame(gameNode);
+    //Commander commander;
+    //Console console;
+	//ChatManager chatManager;
+	//ScriptManager scriptManager;
+
+	//misc
+	//Checksum checksum;
+	gameNode->addAttribute("checksum",intToStr(checksum.getSum()), mapTagReplacements);
+    //string loadingText;
+//    int mouse2d;
+	gameNode->addAttribute("mouse2d",intToStr(mouse2d), mapTagReplacements);
+//    int mouseX;
+	gameNode->addAttribute("mouseX",intToStr(mouseX), mapTagReplacements);
+//    int mouseY; //coords win32Api
+	gameNode->addAttribute("mouseY",intToStr(mouseY), mapTagReplacements);
+//    Vec2i mouseCellPos;
+	gameNode->addAttribute("mouseCellPos",mouseCellPos.getString(), mapTagReplacements);
+//	int updateFps, lastUpdateFps, avgUpdateFps;
+//	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps,currentAvgRenderFpsTotal;
+	//Uint64 tickCount;
+	gameNode->addAttribute("tickCount",intToStr(tickCount), mapTagReplacements);
+
+	//bool paused;
+	gameNode->addAttribute("paused",intToStr(paused), mapTagReplacements);
+	//bool gameOver;
+	gameNode->addAttribute("gameOver",intToStr(gameOver), mapTagReplacements);
+	//bool renderNetworkStatus;
+	//bool showFullConsole;
+	//bool mouseMoved;
+	//float scrollSpeed;
+	gameNode->addAttribute("scrollSpeed",floatToStr(scrollSpeed), mapTagReplacements);
+	//bool camLeftButtonDown;
+	//bool camRightButtonDown;
+	//bool camUpButtonDown;
+	//bool camDownButtonDown;
+
+	//Speed speed;
+	gameNode->addAttribute("speed",intToStr(speed), mapTagReplacements);
+
+	//GraphicMessageBox mainMessageBox;
+	//GraphicMessageBox errorMessageBox;
+
+	//misc ptr
+	//ParticleSystem *weatherParticleSystem;
+	if(weatherParticleSystem != NULL) {
+		weatherParticleSystem->saveGame(gameNode);
+	}
+	//GameSettings gameSettings;
+	//Vec2i lastMousePos;
+	gameNode->addAttribute("lastMousePos",lastMousePos.getString(), mapTagReplacements);
+	//time_t lastRenderLog2d;
+	gameNode->addAttribute("lastRenderLog2d",intToStr(lastRenderLog2d), mapTagReplacements);
+	//DisplayMessageFunction originalDisplayMsgCallback;
+	//bool isFirstRender;
+	gameNode->addAttribute("isFirstRender",intToStr(isFirstRender), mapTagReplacements);
+
+	//bool quitTriggeredIndicator;
+	//int original_updateFps;
+	gameNode->addAttribute("original_updateFps",intToStr(original_updateFps), mapTagReplacements);
+	//int original_cameraFps;
+	gameNode->addAttribute("original_cameraFps",intToStr(original_cameraFps), mapTagReplacements);
+
+	//bool captureAvgTestStatus;
+	gameNode->addAttribute("captureAvgTestStatus",intToStr(captureAvgTestStatus), mapTagReplacements);
+	//int updateFpsAvgTest;
+	gameNode->addAttribute("updateFpsAvgTest",intToStr(updateFpsAvgTest), mapTagReplacements);
+	//int renderFpsAvgTest;
+	gameNode->addAttribute("renderFpsAvgTest",intToStr(renderFpsAvgTest), mapTagReplacements);
+
+	//int renderExtraTeamColor;
+	gameNode->addAttribute("renderExtraTeamColor",intToStr(renderExtraTeamColor), mapTagReplacements);
+
+	//static const int renderTeamColorCircleBit=1;
+	//static const int renderTeamColorPlaneBit=2;
+
+	//bool photoModeEnabled;
+	gameNode->addAttribute("photoModeEnabled",intToStr(photoModeEnabled), mapTagReplacements);
+	//bool visibleHUD;
+	gameNode->addAttribute("visibleHUD",intToStr(visibleHUD), mapTagReplacements);
+	//bool withRainEffect;
+	gameNode->addAttribute("withRainEffect",intToStr(withRainEffect), mapTagReplacements);
+	//Program *program;
+
+	//bool gameStarted;
+	gameNode->addAttribute("gameStarted",intToStr(gameStarted), mapTagReplacements);
+
+	//time_t lastMaxUnitCalcTime;
+	gameNode->addAttribute("lastMaxUnitCalcTime",intToStr(lastMaxUnitCalcTime), mapTagReplacements);
+
+	//PopupMenu popupMenu;
+	//PopupMenu popupMenuSwitchTeams;
+
+	//std::map<int,int> switchTeamIndexMap;
+	//GraphicMessageBox switchTeamConfirmMessageBox;
+
+	//int exitGamePopupMenuIndex;
+	//int joinTeamPopupMenuIndex;
+	//int pauseGamePopupMenuIndex;
+	//int keyboardSetupPopupMenuIndex;
+	//GLuint statelist3dMenu;
+	//ProgramState *currentUIState;
+
+	//bool masterserverMode;
+
+	//StrSound *currentAmbientSound;
+
+	//time_t lastNetworkPlayerConnectionCheck;
+	gameNode->addAttribute("lastNetworkPlayerConnectionCheck",intToStr(lastNetworkPlayerConnectionCheck), mapTagReplacements);
+
+	//time_t lastMasterServerGameStatsDump;
+	gameNode->addAttribute("lastMasterServerGameStatsDump",intToStr(lastMasterServerGameStatsDump), mapTagReplacements);
+
+	// Save the file now
+	string saveGameFile = name;
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
+	}
+	else {
+        string userData = Config::getInstance().getString("UserData_Root","");
+        if(userData != "") {
+        	endPathWithSlash(userData);
+        }
+        saveGameFile = userData + saveGameFile;
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game to [%s]\n",saveGameFile.c_str());
+	xmlTree.save(saveGameFile);
 }
 
 }}//end namespace

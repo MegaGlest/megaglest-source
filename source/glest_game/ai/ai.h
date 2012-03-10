@@ -51,6 +51,8 @@ public:
 	virtual ~Task(){}
 	TaskClass getClass() const	{return taskClass;}
 	virtual string toString() const= 0;
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 // ==================== ProduceTask ====================
@@ -70,6 +72,8 @@ public:
 	const UnitType *getUnitType() const				{return unitType;}
 	const ResourceType *getResourceType() const		{return resourceType;}
 	virtual string toString() const;
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 // ==================== BuildTask ====================
@@ -91,6 +95,8 @@ public:
 	bool getForcePos() const					{return forcePos;}
 	Vec2i getPos() const						{return pos;}
 	virtual string toString() const;
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 // ==================== UpgradeTask ====================
@@ -103,6 +109,8 @@ public:
 	UpgradeTask(const UpgradeType *upgradeType= NULL);
 	const UpgradeType *getUpgradeType() const	{return upgradeType;}
 	virtual string toString() const;
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 // ===============================
@@ -197,6 +205,8 @@ public:
     void unblockUnits();
 
     bool outputAIBehaviourToConsole() const;
+
+    void saveGame(XmlNode *rootNode) const;
 };
 
 }}//end namespace

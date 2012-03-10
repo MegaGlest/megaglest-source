@@ -147,6 +147,16 @@ void XmlIo::save(const string &path, const XmlNode *node){
 
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= implementation->createDocument(0, str, 0);
 		DOMElement *documentElement= document->getDocumentElement();
+		for(unsigned int i = 0; i < node->getAttributeCount() ; ++i){
+			XmlAttribute *attr = node->getAttribute(i);
+
+			XMLCh strName[strSize];
+			XMLString::transcode(attr->getName().c_str(), strName, strSize-1);
+			XMLCh strValue[strSize];
+			XMLString::transcode(attr->getValue("",false).c_str(), strValue, strSize-1);
+
+			documentElement->setAttribute(strName,strValue);
+		}
 
 		for(unsigned int i=0; i<node->getChildCount(); ++i){
 			documentElement->appendChild(node->getChild(i)->buildElement(document));

@@ -799,4 +799,56 @@ std::string FactionType::toString() const {
 	return result;
 }
 
+void FactionType::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *factionTypeNode = rootNode->addChild("FactionType");
+
+//    string name;
+	factionTypeNode->addAttribute("name",name, mapTagReplacements);
+//    UnitTypes unitTypes;
+	for(unsigned int i = 0; i < unitTypes.size(); ++i) {
+		XmlNode *unitTypesNode = factionTypeNode->addChild("unitTypes");
+		unitTypesNode->addAttribute("name",unitTypes[i].getName(), mapTagReplacements);
+	}
+//    UpgradeTypes upgradeTypes;
+	for(unsigned int i = 0; i < upgradeTypes.size(); ++i) {
+		XmlNode *upgradeTypesNode = factionTypeNode->addChild("upgradeTypes");
+		upgradeTypesNode->addAttribute("name",upgradeTypes[i].getName(), mapTagReplacements);
+	}
+
+//	StartingUnits startingUnits;
+	for(unsigned int i = 0; i < startingUnits.size(); ++i) {
+		XmlNode *startingUnitsNode = factionTypeNode->addChild("startingUnits");
+		startingUnitsNode->addAttribute("name",startingUnits[i].first->getName(), mapTagReplacements);
+		startingUnitsNode->addAttribute("count",intToStr(startingUnits[i].second), mapTagReplacements);
+	}
+
+//	Resources startingResources;
+	for(unsigned int i = 0; i < startingResources.size(); ++i) {
+		startingResources[i].saveGame(factionTypeNode);
+	}
+
+//	StrSound *music;
+//	FactionPersonalityType personalityType;
+	factionTypeNode->addAttribute("personalityType",intToStr(personalityType), mapTagReplacements);
+//	std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> > mapAIBehaviorUnitCategories;
+	for(std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> >::iterator iterMap = mapAIBehaviorUnitCategories.begin();
+			iterMap != mapAIBehaviorUnitCategories.end(); ++iterMap) {
+
+		std::vector<PairPUnitTypeInt> &vct = iterMap->second;
+		for(unsigned int i = 0; i < vct.size(); ++i) {
+			PairPUnitTypeInt &item = vct[i];
+
+			XmlNode *mapAIBehaviorUnitCategoriesNode = factionTypeNode->addChild("mapAIBehaviorUnitCategories");
+			mapAIBehaviorUnitCategoriesNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+			mapAIBehaviorUnitCategoriesNode->addAttribute("unitType",item.first->getName(), mapTagReplacements);
+			mapAIBehaviorUnitCategoriesNode->addAttribute("count",intToStr(item.second), mapTagReplacements);
+		}
+	}
+//	std::vector<const UpgradeType*> vctAIBehaviorUpgrades;
+	for(unsigned int i = 0; i < vctAIBehaviorUpgrades.size(); ++i) {
+		vctAIBehaviorUpgrades[i]->saveGame(factionTypeNode);
+	}
+}
+
 }}//end namespace

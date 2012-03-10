@@ -131,6 +131,8 @@ public:
 
 		return result;
 	}
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 // ===============================
@@ -154,6 +156,8 @@ public:
 
     //other methods
 	virtual string getReqDesc() const;
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 // ===============================

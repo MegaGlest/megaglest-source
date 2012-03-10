@@ -243,6 +243,8 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 		FILE *f = fopen(path.c_str(), "rb");
 #endif
 		if(f != NULL) {
+			mapFile = path;
+
 		    mapChecksum.addFile(path);
 		    checksumValue.addFile(path);
 			//read header

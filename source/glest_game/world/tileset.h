@@ -141,6 +141,8 @@ private:
 	AmbientSounds ambientSounds;
 	Checksum checksumValue;
 
+	string tileset_name;
+
 public:
 	Tileset() {
 		waterTex = NULL;
@@ -178,6 +180,8 @@ public:
 
 	//sounds
 	AmbientSounds *getAmbientSounds() {return &ambientSounds;}
+
+	string getName() const { return tileset_name; }
 };
 
 }} //end namespace

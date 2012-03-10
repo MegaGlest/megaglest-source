@@ -1984,7 +1984,94 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 		}
 #endif
 	}
+
+	//printf("Check savegame\n");
+	if(this->game != NULL) {
+		//printf("Saving...\n");
+		this->game->saveGame(GameConstants::saveGameFileDefault);
+	}
+
     return debugWorldLogFile;
+}
+
+void World::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *worldNode = rootNode->addChild("World");
+
+//	Map map;
+	worldNode->addAttribute("map",extractFileFromDirectoryPath(map.getMapFile()), mapTagReplacements);
+//	Tileset tileset;
+	worldNode->addAttribute("tileset",tileset.getName(), mapTagReplacements);
+//	//TechTree techTree;
+//	TechTree *techTree;
+	if(techTree != NULL) {
+		techTree->saveGame(worldNode);
+	}
+	worldNode->addAttribute("techTree",techTree->getName(), mapTagReplacements);
+//	TimeFlow timeFlow;
+	timeFlow.saveGame(worldNode);
+//	Scenario scenario;
+//
+//	UnitUpdater unitUpdater;
+	unitUpdater.saveGame(worldNode);
+//    WaterEffects waterEffects;
+//    WaterEffects attackEffects; // onMiniMap
+//	Minimap minimap;
+//    Stats stats;	//BattleEnd will delete this object
+	stats.saveGame(worldNode);
+//
+//	Factions factions;
+	for(unsigned int i = 0; i < factions.size(); ++i) {
+		factions[i]->saveGame(worldNode);
+	}
+//	RandomGen random;
+	worldNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+//	ScriptManager* scriptManager;
+//	Cartographer *cartographer;
+//	RoutePlanner *routePlanner;
+//
+//	int thisFactionIndex;
+	worldNode->addAttribute("thisFactionIndex",intToStr(thisFactionIndex), mapTagReplacements);
+//	int thisTeamIndex;
+	worldNode->addAttribute("thisTeamIndex",intToStr(thisTeamIndex), mapTagReplacements);
+//	int frameCount;
+	worldNode->addAttribute("frameCount",intToStr(frameCount), mapTagReplacements);
+//	//int nextUnitId;
+//	Mutex mutexFactionNextUnitId;
+//	std::map<int,int> mapFactionNextUnitId;
+	for(std::map<int,int>::iterator iterMap = mapFactionNextUnitId.begin();
+			iterMap != mapFactionNextUnitId.end(); ++iterMap) {
+		XmlNode *factionNextUnitIdNode = worldNode->addChild("FactionNextUnitId");
+
+		factionNextUnitIdNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+		factionNextUnitIdNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+//	//config
+//	bool fogOfWarOverride;
+	worldNode->addAttribute("fogOfWarOverride",intToStr(fogOfWarOverride), mapTagReplacements);
+//	bool fogOfWar;
+	worldNode->addAttribute("fogOfWar",intToStr(fogOfWar), mapTagReplacements);
+//	int fogOfWarSmoothingFrameSkip;
+	worldNode->addAttribute("fogOfWarSmoothingFrameSkip",intToStr(fogOfWarSmoothingFrameSkip), mapTagReplacements);
+//	bool fogOfWarSmoothing;
+	worldNode->addAttribute("fogOfWarSmoothing",intToStr(fogOfWarSmoothing), mapTagReplacements);
+//	Game *game;
+//	Chrono chronoPerfTimer;
+//	bool perfTimerEnabled;
+//
+//	bool unitParticlesEnabled;
+	worldNode->addAttribute("unitParticlesEnabled",intToStr(unitParticlesEnabled), mapTagReplacements);
+//	bool staggeredFactionUpdates;
+	worldNode->addAttribute("staggeredFactionUpdates",intToStr(staggeredFactionUpdates), mapTagReplacements);
+//	std::map<string,StaticSound *> staticSoundList;
+//	std::map<string,StrSound *> streamSoundList;
+//
+//	uint32 nextCommandGroupId;
+	worldNode->addAttribute("nextCommandGroupId",intToStr(nextCommandGroupId), mapTagReplacements);
+//	string queuedScenarioName;
+	worldNode->addAttribute("queuedScenarioName",queuedScenarioName, mapTagReplacements);
+//	bool queuedScenarioKeepFactions;
+	worldNode->addAttribute("queuedScenarioKeepFactions",intToStr(queuedScenarioKeepFactions), mapTagReplacements);
 }
 
 }}//end namespace

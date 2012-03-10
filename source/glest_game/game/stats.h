@@ -134,6 +134,8 @@ public:
 	void addFramesToCalculatePlaytime()  		{this->framesToCalculatePlaytime++; }
 
 	string getStats() const;
+
+	void saveGame(XmlNode *rootNode);
 };
 
 }}//end namespace

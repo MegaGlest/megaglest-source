@@ -18,10 +18,12 @@
 #include "pixmap.h"
 #include "texture_manager.h"
 #include "randomgen.h"
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 using std::list;
 using Shared::Util::RandomGen;
+using Shared::Xml::XmlNode;
 
 namespace Shared{ namespace Graphics{
 
@@ -64,6 +66,8 @@ public:
 	Vec4f getColor() const		{return color;}
 	float getSize() const		{return size;}
 	int getEnergy()	const		{return energy;}
+
+	void saveGame(XmlNode *rootNode);
 };
 
 // =====================================================
@@ -74,6 +78,7 @@ class ParticleObserver{
 public:
 	virtual ~ParticleObserver(){};
 	virtual void update(ParticleSystem *particleSystem)= 0;
+	virtual void saveGame(XmlNode *rootNode) = 0;
 };
 
 // =====================================================
@@ -185,6 +190,8 @@ public:
 	//children
 	virtual int getChildCount() { return 0; }
 	virtual ParticleSystem* getChild(int i);
+
+	void saveGame(XmlNode *rootNode);
 
 protected:
 	//protected

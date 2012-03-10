@@ -118,6 +118,11 @@ public:
 	void clearUnitPrecache(Unit *unit);
 	void removeUnitPrecache(Unit *unit);
 
+	int findNodeIndex(Node *node, Nodes &nodeList);
+	int findNodeIndex(Node *node, std::vector<Node> &nodeList);
+
+	void saveGame(XmlNode *rootNode);
+
 private:
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1);
 	Node *newNode(FactionState &faction,int maxNodeCount);

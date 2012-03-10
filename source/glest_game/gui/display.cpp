@@ -128,4 +128,31 @@ int Display::computeUpY(int index) const{
 	return Metrics::getInstance().getDisplayH() - (index/upCellSideCount)*upImageSize - upImageSize;
 }
 
+void Display::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *displayNode = rootNode->addChild("Display");
+
+//	string title;
+	displayNode->addAttribute("title",title, mapTagReplacements);
+//	string text;
+	displayNode->addAttribute("text",text, mapTagReplacements);
+//	string infoText;
+	displayNode->addAttribute("infoText",infoText, mapTagReplacements);
+//	const Texture2D *upImages[upCellCount];
+//	const Texture2D *downImages[downCellCount];
+//	bool downLighted[downCellCount];
+//	const CommandType *commandTypes[downCellCount];
+//	CommandClass commandClasses[downCellCount];
+//	int progressBar;
+	displayNode->addAttribute("progressBar",intToStr(progressBar), mapTagReplacements);
+//	int downSelectedPos;
+	displayNode->addAttribute("downSelectedPos",intToStr(downSelectedPos), mapTagReplacements);
+//	Vec4f colors[colorCount];
+//	int currentColor;
+	displayNode->addAttribute("currentColor",intToStr(currentColor), mapTagReplacements);
+//	int upCellSideCount;
+//	int upImageSize;
+//	int maxUpIndex;
+
+}
 }}//end namespace

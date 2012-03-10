@@ -15,10 +15,12 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 using std::vector;
 using std::map;
+using Shared::Xml::XmlNode;
 
 namespace Glest { namespace Game {
 
@@ -62,6 +64,8 @@ private:
 	void setState(UpgradeState state);
 
 	std::string toString() const;
+
+	void saveGame(XmlNode *rootNode);
 };
 
 
@@ -90,6 +94,7 @@ public:
 	void computeTotalUpgrade(const Unit *unit, TotalUpgrade *totalUpgrade) const;
 
 	std::string toString() const;
+	void saveGame(XmlNode *rootNode);
 };
 
 }}//end namespace
