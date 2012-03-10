@@ -82,6 +82,7 @@ public:
 
 	const void setValues (UnitParticleSystem *uts);
 	bool hasTexture() const { return(texture != NULL); }
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 class ObjectParticleSystemType: public UnitParticleSystemType{

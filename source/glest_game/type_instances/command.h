@@ -86,6 +86,8 @@ public:
 	int getUnitCommandGroupId() const		{ return unitCommandGroupId; }
 
     std::string toString() const;
+
+    void saveGame(XmlNode *rootNode);
 };   
 
 }}//end namespace

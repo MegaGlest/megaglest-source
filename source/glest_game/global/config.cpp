@@ -61,6 +61,8 @@ const char *GameConstants::path_data_CacheLookupKey     = "data";
 const char *GameConstants::path_ini_CacheLookupKey      = "ini";
 const char *GameConstants::path_logs_CacheLookupKey     = "logs";
 
+const char *GameConstants::saveGameFileDefault 			= "megaglest-saved.xml";
+
 const char *Config::glest_ini_filename                  = "glest.ini";
 const char *Config::glestuser_ini_filename              = "glestuser.ini";
 

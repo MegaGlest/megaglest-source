@@ -72,6 +72,8 @@ public:
 
 	static ResourceClass strToRc(const string &s);
 	void deletePixels();
+
+	void saveGame(XmlNode *rootNode);
 };
 
 }} //end namespace

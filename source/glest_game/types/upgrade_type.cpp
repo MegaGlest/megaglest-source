@@ -274,6 +274,102 @@ string UpgradeTypeBase::getDesc() const{
     return str;
 }
 
+void UpgradeTypeBase::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *upgradeTypeBaseNode = rootNode->addChild("UpgradeTypeBase");
+
+//    int maxHp;
+	upgradeTypeBaseNode->addAttribute("maxHp",intToStr(maxHp), mapTagReplacements);
+//    bool maxHpIsMultiplier;
+	upgradeTypeBaseNode->addAttribute("maxHpIsMultiplier",intToStr(maxHpIsMultiplier), mapTagReplacements);
+//	int maxHpRegeneration;
+	upgradeTypeBaseNode->addAttribute("maxHpRegeneration",intToStr(maxHpRegeneration), mapTagReplacements);
+//	//bool maxHpRegenerationIsMultiplier;
+//
+//    int sight;
+	upgradeTypeBaseNode->addAttribute("sight",intToStr(sight), mapTagReplacements);
+//    bool sightIsMultiplier;
+	upgradeTypeBaseNode->addAttribute("sightIsMultiplier",intToStr(sightIsMultiplier), mapTagReplacements);
+//    int maxEp;
+	upgradeTypeBaseNode->addAttribute("maxEp",intToStr(maxEp), mapTagReplacements);
+//    bool maxEpIsMultiplier;
+	upgradeTypeBaseNode->addAttribute("maxEpIsMultiplier",intToStr(maxEpIsMultiplier), mapTagReplacements);
+//	int maxEpRegeneration;
+	upgradeTypeBaseNode->addAttribute("maxEpRegeneration",intToStr(maxEpRegeneration), mapTagReplacements);
+//	//bool maxEpRegenerationIsMultiplier;
+//    int armor;
+	upgradeTypeBaseNode->addAttribute("armor",intToStr(armor), mapTagReplacements);
+//    bool armorIsMultiplier;
+	upgradeTypeBaseNode->addAttribute("armorIsMultiplier",intToStr(armorIsMultiplier), mapTagReplacements);
+//    int attackStrength;
+	upgradeTypeBaseNode->addAttribute("attackStrength",intToStr(attackStrength), mapTagReplacements);
+//    bool attackStrengthIsMultiplier;
+	upgradeTypeBaseNode->addAttribute("attackStrengthIsMultiplier",intToStr(attackStrengthIsMultiplier), mapTagReplacements);
+//    std::map<string,int> attackStrengthMultiplierValueList;
+	for(std::map<string,int>::const_iterator iterMap = attackStrengthMultiplierValueList.begin();
+			iterMap != attackStrengthMultiplierValueList.end(); ++iterMap) {
+		XmlNode *attackStrengthMultiplierValueListNode = upgradeTypeBaseNode->addChild("attackStrengthMultiplierValueList");
+
+		attackStrengthMultiplierValueListNode->addAttribute("key",iterMap->first, mapTagReplacements);
+		attackStrengthMultiplierValueListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+//    int attackRange;
+	upgradeTypeBaseNode->addAttribute("attackRange",intToStr(attackRange), mapTagReplacements);
+//    bool attackRangeIsMultiplier;
+	upgradeTypeBaseNode->addAttribute("attackRangeIsMultiplier",intToStr(attackRangeIsMultiplier), mapTagReplacements);
+//    std::map<string,int> attackRangeMultiplierValueList;
+	for(std::map<string,int>::const_iterator iterMap = attackRangeMultiplierValueList.begin();
+			iterMap != attackRangeMultiplierValueList.end(); ++iterMap) {
+		XmlNode *attackRangeMultiplierValueListNode = upgradeTypeBaseNode->addChild("attackRangeMultiplierValueList");
+
+		attackRangeMultiplierValueListNode->addAttribute("key",iterMap->first, mapTagReplacements);
+		attackRangeMultiplierValueListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+
+//    int moveSpeed;
+	upgradeTypeBaseNode->addAttribute("moveSpeed",intToStr(moveSpeed), mapTagReplacements);
+//    bool moveSpeedIsMultiplier;
+	upgradeTypeBaseNode->addAttribute("moveSpeedIsMultiplier",intToStr(moveSpeedIsMultiplier), mapTagReplacements);
+//    std::map<string,int> moveSpeedIsMultiplierValueList;
+	for(std::map<string,int>::const_iterator iterMap = moveSpeedIsMultiplierValueList.begin();
+			iterMap != moveSpeedIsMultiplierValueList.end(); ++iterMap) {
+		XmlNode *moveSpeedIsMultiplierValueListNode = upgradeTypeBaseNode->addChild("moveSpeedIsMultiplierValueList");
+
+		moveSpeedIsMultiplierValueListNode->addAttribute("key",iterMap->first, mapTagReplacements);
+		moveSpeedIsMultiplierValueListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+
+//    int prodSpeed;
+	upgradeTypeBaseNode->addAttribute("prodSpeed",intToStr(prodSpeed), mapTagReplacements);
+//    bool prodSpeedIsMultiplier;
+	upgradeTypeBaseNode->addAttribute("prodSpeedIsMultiplier",intToStr(prodSpeedIsMultiplier), mapTagReplacements);
+//    std::map<string,int> prodSpeedProduceIsMultiplierValueList;
+	for(std::map<string,int>::const_iterator iterMap = prodSpeedProduceIsMultiplierValueList.begin();
+			iterMap != prodSpeedProduceIsMultiplierValueList.end(); ++iterMap) {
+		XmlNode *prodSpeedProduceIsMultiplierValueListNode = upgradeTypeBaseNode->addChild("prodSpeedProduceIsMultiplierValueList");
+
+		prodSpeedProduceIsMultiplierValueListNode->addAttribute("key",iterMap->first, mapTagReplacements);
+		prodSpeedProduceIsMultiplierValueListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+
+//    std::map<string,int> prodSpeedUpgradeIsMultiplierValueList;
+	for(std::map<string,int>::const_iterator iterMap = prodSpeedUpgradeIsMultiplierValueList.begin();
+			iterMap != prodSpeedUpgradeIsMultiplierValueList.end(); ++iterMap) {
+		XmlNode *prodSpeedUpgradeIsMultiplierValueListNode = upgradeTypeBaseNode->addChild("prodSpeedUpgradeIsMultiplierValueList");
+
+		prodSpeedUpgradeIsMultiplierValueListNode->addAttribute("key",iterMap->first, mapTagReplacements);
+		prodSpeedUpgradeIsMultiplierValueListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+
+//    std::map<string,int> prodSpeedMorphIsMultiplierValueList;
+	for(std::map<string,int>::const_iterator iterMap = prodSpeedMorphIsMultiplierValueList.begin();
+			iterMap != prodSpeedMorphIsMultiplierValueList.end(); ++iterMap) {
+		XmlNode *prodSpeedMorphIsMultiplierValueListNode = upgradeTypeBaseNode->addChild("prodSpeedMorphIsMultiplierValueList");
+
+		prodSpeedMorphIsMultiplierValueListNode->addAttribute("key",iterMap->first, mapTagReplacements);
+		prodSpeedMorphIsMultiplierValueListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+}
 
 // ==================== misc ====================
 
@@ -476,6 +572,22 @@ bool UpgradeType::isAffected(const UnitType *unitType) const{
 	return find(effects.begin(), effects.end(), unitType)!=effects.end();
 }
 
+void UpgradeType::saveGame(XmlNode *rootNode) const {
+	UpgradeTypeBase::saveGame(rootNode);
+	ProducibleType::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *upgradeTypeNode = rootNode->addChild("UpgradeType");
+
+	//upgradeTypeNode->addAttribute("maxHp",intToStr(maxHp), mapTagReplacements);
+	//vector<const UnitType*> effects;
+	for(unsigned int i = 0; i < effects.size(); ++i) {
+		XmlNode *unitTypeNode = rootNode->addChild("UnitType");
+
+		const UnitType *ut = effects[i];
+		unitTypeNode->addAttribute("name",ut->getName(), mapTagReplacements);
+	}
+}
 
 // ===============================
 // 	class TotalUpgrade
@@ -758,5 +870,6 @@ void TotalUpgrade::incLevel(const UnitType *ut) {
 	sight += ut->getSight()*20/100;
 	armor += ut->getArmor()*50/100;
 }
+
 
 }}//end namespace

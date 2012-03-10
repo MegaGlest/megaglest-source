@@ -20,6 +20,7 @@
 #include "game_constants.h"
 #include "util.h"
 #include "platform_common.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
@@ -304,6 +305,63 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setBlendMode(ParticleSystem::strToBlendMode(mode));
 }
 
+void ParticleSystemType::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *particleSystemTypeNode = rootNode->addChild("ParticleSystemType");
+
+//	string type;
+	particleSystemTypeNode->addAttribute("type",type, mapTagReplacements);
+//	Texture2D *texture;
+//	Model *model;
+//	float modelCycle;
+	particleSystemTypeNode->addAttribute("modelCycle",floatToStr(modelCycle), mapTagReplacements);
+//	string primitive;
+	particleSystemTypeNode->addAttribute("primitive",primitive, mapTagReplacements);
+//	Vec3f offset;
+	particleSystemTypeNode->addAttribute("offset",offset.getString(), mapTagReplacements);
+//	Vec4f color;
+	particleSystemTypeNode->addAttribute("color",color.getString(), mapTagReplacements);
+//	Vec4f colorNoEnergy;
+	particleSystemTypeNode->addAttribute("colorNoEnergy",colorNoEnergy.getString(), mapTagReplacements);
+//	float size;
+	particleSystemTypeNode->addAttribute("size",floatToStr(size), mapTagReplacements);
+//	float sizeNoEnergy;
+	particleSystemTypeNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy), mapTagReplacements);
+//	float speed;
+	particleSystemTypeNode->addAttribute("speed",floatToStr(speed), mapTagReplacements);
+//	float gravity;
+	particleSystemTypeNode->addAttribute("gravity",floatToStr(gravity), mapTagReplacements);
+//	float emissionRate;
+	particleSystemTypeNode->addAttribute("emissionRate",floatToStr(emissionRate), mapTagReplacements);
+//	int energyMax;
+	particleSystemTypeNode->addAttribute("energyMax",intToStr(energyMax), mapTagReplacements);
+//	int energyVar;
+	particleSystemTypeNode->addAttribute("energyVar",intToStr(energyVar), mapTagReplacements);
+//	string mode;
+	particleSystemTypeNode->addAttribute("mode",mode, mapTagReplacements);
+//	bool teamcolorNoEnergy;
+	particleSystemTypeNode->addAttribute("teamcolorNoEnergy",intToStr(teamcolorNoEnergy), mapTagReplacements);
+//    bool teamcolorEnergy;
+	particleSystemTypeNode->addAttribute("teamcolorEnergy",intToStr(teamcolorEnergy), mapTagReplacements);
+//    int alternations;
+	particleSystemTypeNode->addAttribute("alternations",intToStr(alternations), mapTagReplacements);
+//    int particleSystemStartDelay;
+	particleSystemTypeNode->addAttribute("particleSystemStartDelay",intToStr(particleSystemStartDelay), mapTagReplacements);
+//	typedef std::list<UnitParticleSystemType*> Children;
+//	Children children;
+	for(Children::iterator it = children.begin(); it != children.end(); ++it) {
+		(*it)->saveGame(particleSystemTypeNode);
+	}
+//    bool minmaxEnabled;
+	particleSystemTypeNode->addAttribute("minmaxEnabled",intToStr(minmaxEnabled), mapTagReplacements);
+//    int minHp;
+	particleSystemTypeNode->addAttribute("minHp",intToStr(minHp), mapTagReplacements);
+//    int maxHp;
+	particleSystemTypeNode->addAttribute("maxHp",intToStr(maxHp), mapTagReplacements);
+//    bool minmaxIsPercent;
+	particleSystemTypeNode->addAttribute("minmaxIsPercent",intToStr(minmaxIsPercent), mapTagReplacements);
+}
+
 // ===========================================================
 //	class ParticleSystemTypeProjectile
 // ===========================================================
@@ -383,6 +441,22 @@ ProjectileParticleSystem *ParticleSystemTypeProjectile::create() {
 	return ps;
 }
 
+void ParticleSystemTypeProjectile::saveGame(XmlNode *rootNode) {
+	ParticleSystemType::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *particleSystemTypeProjectileNode = rootNode->addChild("ParticleSystemTypeProjectile");
+
+//	string trajectory;
+	particleSystemTypeProjectileNode->addAttribute("trajectory",trajectory, mapTagReplacements);
+//	float trajectorySpeed;
+	particleSystemTypeProjectileNode->addAttribute("trajectorySpeed",floatToStr(trajectorySpeed), mapTagReplacements);
+//	float trajectoryScale;
+	particleSystemTypeProjectileNode->addAttribute("trajectoryScale",floatToStr(trajectoryScale), mapTagReplacements);
+//	float trajectoryFrequency;
+	particleSystemTypeProjectileNode->addAttribute("trajectoryFrequency",floatToStr(trajectoryFrequency), mapTagReplacements);
+}
+
 // ===========================================================
 //	class ParticleSystemTypeSplash
 // ===========================================================
@@ -450,6 +524,24 @@ SplashParticleSystem *ParticleSystemTypeSplash::create(){
 	ps->initParticleSystem();
 
 	return ps;
+}
+
+void ParticleSystemTypeSplash::saveGame(XmlNode *rootNode) {
+	ParticleSystemType::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *particleSystemTypeSplashNode = rootNode->addChild("ParticleSystemTypeSplash");
+
+//	float emissionRateFade;
+	particleSystemTypeSplashNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade), mapTagReplacements);
+//	float verticalSpreadA;
+	particleSystemTypeSplashNode->addAttribute("verticalSpreadA",floatToStr(verticalSpreadA), mapTagReplacements);
+//	float verticalSpreadB;
+	particleSystemTypeSplashNode->addAttribute("verticalSpreadB",floatToStr(verticalSpreadB), mapTagReplacements);
+//	float horizontalSpreadA;
+	particleSystemTypeSplashNode->addAttribute("horizontalSpreadA",floatToStr(horizontalSpreadA), mapTagReplacements);
+//	float horizontalSpreadB;
+	particleSystemTypeSplashNode->addAttribute("horizontalSpreadB",floatToStr(horizontalSpreadB), mapTagReplacements);
 }
 
 }}//end mamespace

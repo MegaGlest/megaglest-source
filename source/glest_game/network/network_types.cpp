@@ -98,4 +98,37 @@ string NetworkCommand::toString() const {
     return result;
 }
 
+void NetworkCommand::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *networkCommandNode = rootNode->addChild("NetworkCommand");
+
+//	int16 networkCommandType;
+	networkCommandNode->addAttribute("networkCommandType",intToStr(networkCommandType), mapTagReplacements);
+//	int32 unitId;
+	networkCommandNode->addAttribute("unitId",intToStr(unitId), mapTagReplacements);
+//	int16 unitTypeId;
+	networkCommandNode->addAttribute("unitTypeId",intToStr(unitTypeId), mapTagReplacements);
+//	int16 commandTypeId;
+	networkCommandNode->addAttribute("commandTypeId",intToStr(commandTypeId), mapTagReplacements);
+//	int16 positionX;
+	networkCommandNode->addAttribute("positionX",intToStr(positionX), mapTagReplacements);
+//	int16 positionY;
+	networkCommandNode->addAttribute("positionY",intToStr(positionY), mapTagReplacements);
+//	int32 targetId;
+	networkCommandNode->addAttribute("targetId",intToStr(targetId), mapTagReplacements);
+//	int8 wantQueue;
+	networkCommandNode->addAttribute("wantQueue",intToStr(wantQueue), mapTagReplacements);
+//	int8 fromFactionIndex;
+	networkCommandNode->addAttribute("fromFactionIndex",intToStr(fromFactionIndex), mapTagReplacements);
+//	uint16 unitFactionUnitCount;
+	networkCommandNode->addAttribute("unitFactionUnitCount",intToStr(unitFactionUnitCount), mapTagReplacements);
+//	int8 unitFactionIndex;
+	networkCommandNode->addAttribute("unitFactionIndex",intToStr(unitFactionIndex), mapTagReplacements);
+//	int8 commandStateType;
+	networkCommandNode->addAttribute("commandStateType",intToStr(commandStateType), mapTagReplacements);
+//	int32 commandStateValue;
+	networkCommandNode->addAttribute("commandStateValue",intToStr(commandStateValue), mapTagReplacements);
+//	int32 unitCommandGroupId;
+	networkCommandNode->addAttribute("unitCommandGroupId",intToStr(unitCommandGroupId), mapTagReplacements);
+}
 }}//end namespace

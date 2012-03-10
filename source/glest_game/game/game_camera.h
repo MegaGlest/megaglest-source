@@ -143,6 +143,8 @@ public:
 	void setMinVAng(float value) { minVAng = value; }
 	void setMaxVAng(float value) { maxVAng = value; }
 
+	void saveGame(XmlNode *rootNode);
+
 private:
 	void clampPosXYZ(float x1, float x2, float y1, float y2, float z1, float z2);
 	void clampPosXZ(float x1, float x2, float z1, float z2);

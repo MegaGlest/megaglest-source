@@ -1162,10 +1162,75 @@ Unit* Gui::getRelevantObjectFromSelection(Selection::UnitContainer *uc){
 	return resultUnit;
 }
 
-void  Gui::removingObjectEvent(Object* o){
+void Gui::removingObjectEvent(Object* o){
 	if(getSelectedResourceObject()==o){
 		selectedResourceObject=NULL;
 	}
 }
 
+void Gui::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *guiNode = rootNode->addChild("Gui");
+
+	//External objects
+//	RandomGen random;
+	guiNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+//	const Commander *commander;
+//	const World *world;
+//	const Game *game;
+//	GameCamera *gameCamera;
+//	Console *console;
+//
+//	//Positions
+//	Vec2i posObjWorld;		//world coords
+	guiNode->addAttribute("posObjWorld",posObjWorld.getString(), mapTagReplacements);
+//	bool validPosObjWorld;
+	guiNode->addAttribute("validPosObjWorld",intToStr(validPosObjWorld), mapTagReplacements);
+//	//display
+//	const UnitType *choosenBuildingType;
+	if(choosenBuildingType != NULL) {
+		guiNode->addAttribute("choosenBuildingType",choosenBuildingType->getName(), mapTagReplacements);
+	}
+//	const CommandType *activeCommandType;
+	if(activeCommandType != NULL) {
+		guiNode->addAttribute("activeCommandType",activeCommandType->getName(), mapTagReplacements);
+	}
+
+//	CommandClass activeCommandClass;
+	guiNode->addAttribute("activeCommandClass",intToStr(activeCommandClass), mapTagReplacements);
+//	int activePos;
+	guiNode->addAttribute("activePos",intToStr(activePos), mapTagReplacements);
+//	int lastPosDisplay;
+	guiNode->addAttribute("lastPosDisplay",intToStr(lastPosDisplay), mapTagReplacements);
+//	//composite
+//	Display display;
+	display.saveGame(guiNode);
+//	Mouse3d mouse3d;
+//	Selection selection;
+	selection.saveGame(guiNode);
+//	SelectionQuad selectionQuad;
+//	int lastQuadCalcFrame;
+	guiNode->addAttribute("lastQuadCalcFrame",intToStr(lastQuadCalcFrame), mapTagReplacements);
+//	int selectionCalculationFrameSkip;
+	guiNode->addAttribute("selectionCalculationFrameSkip",intToStr(selectionCalculationFrameSkip), mapTagReplacements);
+//	int minQuadSize;
+	guiNode->addAttribute("minQuadSize",intToStr(minQuadSize), mapTagReplacements);
+//	Chrono lastGroupRecallTime;
+	//guiNode->addAttribute("lastGroupRecallTime",intToStr(lastGroupRecallTime.getMillis()), mapTagReplacements);
+//	int lastGroupRecall;
+	guiNode->addAttribute("lastGroupRecall",intToStr(lastGroupRecall), mapTagReplacements);
+//	//states
+//	bool selectingBuilding;
+	guiNode->addAttribute("selectingBuilding",intToStr(selectingBuilding), mapTagReplacements);
+//	bool selectingPos;
+	guiNode->addAttribute("selectingPos",intToStr(selectingPos), mapTagReplacements);
+//	bool selectingMeetingPoint;
+	guiNode->addAttribute("selectingMeetingPoint",intToStr(selectingMeetingPoint), mapTagReplacements);
+//	CardinalDir selectedBuildingFacing;
+	guiNode->addAttribute("selectedBuildingFacing",intToStr(selectedBuildingFacing), mapTagReplacements);
+//	const Object *selectedResourceObject;
+//
+//	Texture2D* hudTexture;
+
+}
 }}//end namespace

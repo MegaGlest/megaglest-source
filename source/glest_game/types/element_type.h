@@ -39,7 +39,7 @@ class ResourceType;
 ///	Base class for anything that has a name and a portrait
 // =====================================================
 
-class DisplayableType{
+class DisplayableType {
 protected:
 	string name;		//name
 	Texture2D *image;	//portrait  
@@ -51,6 +51,8 @@ public:
 	//get
 	string getName() const				{return name;}
 	const Texture2D *getImage() const	{return image;}
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 
@@ -78,6 +80,8 @@ public:
     
     //other
     virtual string getReqDesc() const;
+
+    virtual void saveGame(XmlNode *rootNode) const;
 };
 
 
@@ -87,7 +91,7 @@ public:
 ///	Base class for anything that can be produced
 // =====================================================
 
-class ProducibleType: public RequirableType{
+class ProducibleType: public RequirableType {
 private:
 	typedef vector<Resource> Costs;
 
@@ -111,6 +115,8 @@ public:
     void checkCostStrings(TechTree *techTree);
     
 	virtual string getReqDesc() const;
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 }}//end namespace

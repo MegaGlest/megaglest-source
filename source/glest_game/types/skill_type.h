@@ -101,6 +101,8 @@ public:
 
 	bool isAffected(const Unit *source, const Unit *dest) const;
 	virtual string getDesc() const;
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 class AnimationAttributes {
@@ -178,6 +180,8 @@ public:
 	static string skillClassToStr(SkillClass skillClass); 
 	static string fieldToStr(Field field);
 	virtual string getBoostDesc() const {return attackBoost.getDesc();}
+
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 // ===============================
@@ -258,6 +262,8 @@ public:
 	//misc
 	int getTotalAttackStrength(const TotalUpgrade *totalUpgrade) const;
 	int getTotalAttackRange(const TotalUpgrade *totalUpgrade) const;
+
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 
@@ -308,6 +314,8 @@ public:
     virtual string toString() const;
 
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
+
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 // ===============================
@@ -327,6 +335,8 @@ public:
 	virtual string toString() const;
 
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
+
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 
@@ -346,6 +356,8 @@ public:
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
     virtual string toString() const;
+
+    virtual void saveGame(XmlNode *rootNode);
 };
 
 // ===============================
@@ -366,6 +378,8 @@ public:
 
     virtual string toString() const;
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
+
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 // ===============================
@@ -384,6 +398,8 @@ public:
 			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
 	virtual string toString() const;
+
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 // ===============================

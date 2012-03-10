@@ -125,6 +125,8 @@ public:
 
 	static const char *application_name;
 	
+	static const char *saveGameFileDefault;
+
 	// VC++ Chokes on init of non integral static types
 	static const float normalMultiplier;
 	static const float easyMultiplier;

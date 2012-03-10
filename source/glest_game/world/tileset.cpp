@@ -143,6 +143,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	string name= lastDir(dir);
+	tileset_name = name;
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
 	string path= currentPath + name + ".xml";

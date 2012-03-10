@@ -1761,4 +1761,77 @@ std::string Faction::toString() const {
 	return result;
 }
 
+void Faction::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *factionNode = rootNode->addChild("Faction");
+
+//	UpgradeManager upgradeManager;
+	upgradeManager.saveGame(factionNode);
+//    Resources resources;
+	for(unsigned int i = 0; i < resources.size(); ++i) {
+		Resource &resource = resources[i];
+		resource.saveGame(factionNode);
+	}
+//    Store store;
+//	Allies allies;
+	for(unsigned int i = 0; i < allies.size(); ++i) {
+		Faction *ally = allies[i];
+		XmlNode *allyNode = factionNode->addChild("Ally");
+		allyNode->addAttribute("startlocationindex",intToStr(ally->getStartLocationIndex()), mapTagReplacements);
+	}
+//	Mutex *unitsMutex;
+//	Units units;
+	for(unsigned int i = 0; i < units.size(); ++i) {
+		Unit *unit = units[i];
+		unit->saveGame(factionNode);
+	}
+//	UnitMap unitMap;
+//	World *world;
+//	ScriptManager *scriptManager;
+//
+//    ControlType control;
+	factionNode->addAttribute("control",intToStr(control), mapTagReplacements);
+//	Texture2D *texture;
+//	FactionType *factionType;
+	factionNode->addAttribute("factiontype",factionType->getName(), mapTagReplacements);
+//	int index;
+	factionNode->addAttribute("index",intToStr(index), mapTagReplacements);
+//	int teamIndex;
+	factionNode->addAttribute("teamIndex",intToStr(teamIndex), mapTagReplacements);
+//	int startLocationIndex;
+	factionNode->addAttribute("startLocationIndex",intToStr(startLocationIndex), mapTagReplacements);
+//	bool thisFaction;
+	factionNode->addAttribute("thisFaction",intToStr(thisFaction), mapTagReplacements);
+//	bool factionDisconnectHandled;
+//
+//	bool cachingDisabled;
+//	std::map<Vec2i,int> cacheResourceTargetList;
+	for(std::map<Vec2i,int>::iterator iterMap = cacheResourceTargetList.begin();
+			iterMap != cacheResourceTargetList.end(); ++iterMap) {
+		XmlNode *cacheResourceTargetListNode = factionNode->addChild("cacheResourceTargetList");
+
+		cacheResourceTargetListNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
+		cacheResourceTargetListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+//	std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
+	for(std::map<Vec2i,bool>::iterator iterMap = cachedCloseResourceTargetLookupList.begin();
+			iterMap != cachedCloseResourceTargetLookupList.end(); ++iterMap) {
+		XmlNode *cachedCloseResourceTargetLookupListNode = factionNode->addChild("cachedCloseResourceTargetLookupList");
+
+		cachedCloseResourceTargetLookupListNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
+		cachedCloseResourceTargetLookupListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+
+//	RandomGen random;
+	factionNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+//	FactionThread *workerThread;
+//
+//	std::map<int,SwitchTeamVote> switchTeamVotes;
+//	int currentSwitchTeamVoteFactionIndex;
+	factionNode->addAttribute("currentSwitchTeamVoteFactionIndex",intToStr(currentSwitchTeamVoteFactionIndex), mapTagReplacements);
+//	set<int> livingUnits;
+//	set<Unit*> livingUnitsp;
+
+}
+
 }}//end namespace

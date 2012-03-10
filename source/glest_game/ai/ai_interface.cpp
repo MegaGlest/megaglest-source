@@ -667,4 +667,36 @@ bool AiInterface::factionUsesResourceType(const FactionType *factionType, const 
 	return factionUsesResourceType;
 }
 
+void AiInterface::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *aiInterfaceNode = rootNode->addChild("AiInterface");
+
+//    World *world;
+//    Commander *commander;
+//    Console *console;
+//    GameSettings *gameSettings;
+//
+//    Ai ai;
+	ai.saveGame(aiInterfaceNode);
+//    int timer;
+	aiInterfaceNode->addAttribute("timer",intToStr(timer), mapTagReplacements);
+//    int factionIndex;
+	aiInterfaceNode->addAttribute("factionIndex",intToStr(factionIndex), mapTagReplacements);
+//    int teamIndex;
+	aiInterfaceNode->addAttribute("teamIndex",intToStr(teamIndex), mapTagReplacements);
+//	//config
+//	bool redir;
+	aiInterfaceNode->addAttribute("redir",intToStr(redir), mapTagReplacements);
+//    int logLevel;
+	aiInterfaceNode->addAttribute("logLevel",intToStr(logLevel), mapTagReplacements);
+//    std::map<const ResourceType *,int> cacheUnitHarvestResourceLookup;
+	for(std::map<const ResourceType *,int>::const_iterator iterMap = cacheUnitHarvestResourceLookup.begin();
+			iterMap != cacheUnitHarvestResourceLookup.end(); ++iterMap) {
+		XmlNode *cacheUnitHarvestResourceLookupNode = aiInterfaceNode->addChild("cacheUnitHarvestResourceLookup");
+
+		cacheUnitHarvestResourceLookupNode->addAttribute("key",iterMap->first->getName(), mapTagReplacements);
+		cacheUnitHarvestResourceLookupNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+}
+
 }}//end namespace

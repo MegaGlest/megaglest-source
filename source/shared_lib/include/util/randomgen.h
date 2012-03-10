@@ -39,6 +39,9 @@ public:
 	int rand();
 	int randRange(int min, int max);
 	float randRange(float min, float max);
+
+	int getLastNumber() const { return lastNumber; }
+	void setLastNumber(int value) { lastNumber = value; }
 };
 
 }}//end namespace

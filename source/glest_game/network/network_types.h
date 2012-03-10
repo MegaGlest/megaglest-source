@@ -130,6 +130,9 @@ public:
 
     void preprocessNetworkCommand(World *world);
 	string toString() const;
+
+	void saveGame(XmlNode *rootNode);
+
 };
 #pragma pack(pop)
 

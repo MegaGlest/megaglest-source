@@ -20,6 +20,7 @@
 #include "particle_renderer.h"
 #include "math_util.h"
 #include "platform_common.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -35,6 +36,27 @@ namespace Graphics {
 
 const bool checkMemory = false;
 static map<void *,int> memoryObjectList;
+
+void Particle::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *particleNode = rootNode->addChild("Particle");
+
+//	Vec3f pos;
+	particleNode->addAttribute("pos",pos.getString(), mapTagReplacements);
+//	Vec3f lastPos;
+	particleNode->addAttribute("lastPos",lastPos.getString(), mapTagReplacements);
+//	Vec3f speed;
+	particleNode->addAttribute("speed",speed.getString(), mapTagReplacements);
+//	Vec3f accel;
+	particleNode->addAttribute("accel",accel.getString(), mapTagReplacements);
+//	Vec4f color;
+	particleNode->addAttribute("color",color.getString(), mapTagReplacements);
+//	float size;
+	particleNode->addAttribute("size",floatToStr(size), mapTagReplacements);
+//	int energy;
+	particleNode->addAttribute("energy",intToStr(energy), mapTagReplacements);
+
+}
 
 ParticleSystem::ParticleSystem(int particleCount) {
 	if(checkMemory) {
@@ -213,6 +235,65 @@ void ParticleSystem::setVisible(bool visible){
 		getChild(i)->setVisible(visible);
 }
 
+void ParticleSystem::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *particleSystemNode = rootNode->addChild("ParticleSystem");
+
+//	std::vector<Particle> particles;
+	for(unsigned int i = 0; i < particles.size(); ++i) {
+		Particle &particle = particles[i];
+		particle.saveGame(particleSystemNode);
+	}
+//	RandomGen random;
+	particleSystemNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+
+//	BlendMode blendMode;
+	particleSystemNode->addAttribute("blendMode",intToStr(blendMode), mapTagReplacements);
+//	State state;
+	particleSystemNode->addAttribute("state",intToStr(state), mapTagReplacements);
+//	bool active;
+	particleSystemNode->addAttribute("active",intToStr(active), mapTagReplacements);
+//	bool visible;
+	particleSystemNode->addAttribute("visible",intToStr(visible), mapTagReplacements);
+//	int aliveParticleCount;
+	particleSystemNode->addAttribute("aliveParticleCount",intToStr(aliveParticleCount), mapTagReplacements);
+//	int particleCount;
+	particleSystemNode->addAttribute("particleCount",intToStr(particleCount), mapTagReplacements);
+//
+//	Texture *texture;
+//	Vec3f pos;
+	particleSystemNode->addAttribute("pos",pos.getString(), mapTagReplacements);
+//	Vec4f color;
+	particleSystemNode->addAttribute("color",color.getString(), mapTagReplacements);
+//	Vec4f colorNoEnergy;
+	particleSystemNode->addAttribute("colorNoEnergy",colorNoEnergy.getString(), mapTagReplacements);
+//	float emissionRate;
+	particleSystemNode->addAttribute("emissionRate",floatToStr(emissionRate), mapTagReplacements);
+//	float emissionState;
+	particleSystemNode->addAttribute("emissionState",floatToStr(emissionState), mapTagReplacements);
+//	int maxParticleEnergy;
+	particleSystemNode->addAttribute("maxParticleEnergy",intToStr(maxParticleEnergy), mapTagReplacements);
+//	int varParticleEnergy;
+	particleSystemNode->addAttribute("varParticleEnergy",intToStr(varParticleEnergy), mapTagReplacements);
+//	float particleSize;
+	particleSystemNode->addAttribute("particleSize",floatToStr(particleSize), mapTagReplacements);
+//	float speed;
+	particleSystemNode->addAttribute("speed",floatToStr(speed), mapTagReplacements);
+//	Vec3f factionColor;
+	particleSystemNode->addAttribute("factionColor",factionColor.getString(), mapTagReplacements);
+//    bool teamcolorNoEnergy;
+	particleSystemNode->addAttribute("teamcolorNoEnergy",intToStr(teamcolorNoEnergy), mapTagReplacements);
+//    bool teamcolorEnergy;
+	particleSystemNode->addAttribute("teamcolorEnergy",intToStr(teamcolorEnergy), mapTagReplacements);
+//	int alternations;
+	particleSystemNode->addAttribute("alternations",intToStr(alternations), mapTagReplacements);
+//	int particleSystemStartDelay;
+	particleSystemNode->addAttribute("particleSystemStartDelay",intToStr(particleSystemStartDelay), mapTagReplacements);
+//	ParticleObserver *particleObserver;
+	if(particleObserver != NULL) {
+		particleObserver->saveGame(particleSystemNode);
+	}
+}
 // =============== MISC =========================
 void ParticleSystem::fade(){
 	if(particleObserver != NULL){

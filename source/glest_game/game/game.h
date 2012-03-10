@@ -225,6 +225,8 @@ public:
 
 	void endGame();
 
+	void saveGame(string name);
+
 private:
 	//render
     void render3d();

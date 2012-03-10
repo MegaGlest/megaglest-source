@@ -103,6 +103,8 @@ public:
 
 	bool factionUsesResourceType(const FactionType *factionType, const ResourceType *rt);
 
+	void saveGame(XmlNode *rootNode) const;
+
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}
 	bool executeCommandOverNetwork();

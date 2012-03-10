@@ -13,9 +13,11 @@
 #define _GLEST_GAME_DAMAGEMULTIPLIER_H_
 
 #include <string>
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 using std::string;
+using Shared::Xml::XmlNode;
 
 namespace Glest{ namespace Game{
 
@@ -23,7 +25,7 @@ namespace Glest{ namespace Game{
 // 	class AttackType  
 // ===============================
 
-class AttackType{
+class AttackType {
 private:
 	string name;
 	int id;
@@ -37,6 +39,8 @@ public:
 
 	void setName(const string &name)	{this->name= name;}
 	void setId(int id)					{this->id= id;}
+
+	void saveGame(XmlNode *rootNode);
 };
 
 // ===============================
@@ -57,6 +61,8 @@ public:
 
 	void setName(const string &name)	{this->name= name;}
 	void setId(int id)					{this->id= id;}
+
+	void saveGame(XmlNode *rootNode);
 };
 
 // =====================================================
@@ -66,7 +72,7 @@ public:
 /// armor types and vice-versa
 // =====================================================
 
-class DamageMultiplierTable{
+class DamageMultiplierTable {
 private:
 	float *values;
 	int attackTypeCount;
@@ -79,6 +85,8 @@ public:
 	void init(int attackTypeCount, int armorTypeCount);
 	float getDamageMultiplier(const AttackType *att, const ArmorType *art) const; 
 	void setDamageMultiplier(const AttackType *att, const ArmorType *art, float value);
+
+	void saveGame(XmlNode *rootNode);
 };
 
 }}//end namespace

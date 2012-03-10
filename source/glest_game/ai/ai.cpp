@@ -22,10 +22,16 @@ using namespace Shared::Util;
 
 namespace Glest { namespace Game {
 
+void Task::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *taskNode = rootNode->addChild("Task");
+
+	taskNode->addAttribute("taskClass",intToStr(taskClass), mapTagReplacements);
+}
+
 // =====================================================
 // 	class ProduceTask
 // =====================================================
-
 ProduceTask::ProduceTask(UnitClass unitClass){
 	taskClass= tcProduce;
 	this->unitClass= unitClass;
@@ -51,6 +57,24 @@ string ProduceTask::toString() const{
 		str+= unitType->getName();
 	}
 	return str;
+}
+
+void ProduceTask::saveGame(XmlNode *rootNode) const {
+	Task::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *produceTaskNode = rootNode->addChild("ProduceTask");
+
+//	UnitClass unitClass;
+	produceTaskNode->addAttribute("unitClass",intToStr(unitClass), mapTagReplacements);
+//	const UnitType *unitType;
+	if(unitType != NULL) {
+		produceTaskNode->addAttribute("unitType",unitType->getName(), mapTagReplacements);
+	}
+//	const ResourceType *resourceType;
+	if(resourceType != NULL) {
+		produceTaskNode->addAttribute("resourceType",resourceType->getName(), mapTagReplacements);
+	}
 }
 
 // =====================================================
@@ -87,6 +111,26 @@ string BuildTask::toString() const{
 	return str;
 }
 
+void BuildTask::saveGame(XmlNode *rootNode) const {
+	Task::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *buildTaskNode = rootNode->addChild("BuildTask");
+
+//	const UnitType *unitType;
+	if(unitType != NULL) {
+		buildTaskNode->addAttribute("unitType",unitType->getName(), mapTagReplacements);
+	}
+//	const ResourceType *resourceType;
+	if(resourceType != NULL) {
+		buildTaskNode->addAttribute("resourceType",resourceType->getName(), mapTagReplacements);
+	}
+//	bool forcePos;
+	buildTaskNode->addAttribute("forcePos",intToStr(forcePos), mapTagReplacements);
+//	Vec2i pos;
+	buildTaskNode->addAttribute("pos",pos.getString(), mapTagReplacements);
+}
+
 // =====================================================
 // 	class UpgradeTask
 // =====================================================
@@ -102,6 +146,17 @@ string UpgradeTask::toString() const{
 		str+= upgradeType->getName();
 	}
 	return str;
+}
+
+void UpgradeTask::saveGame(XmlNode *rootNode) const {
+	Task::saveGame(rootNode);
+
+	std::map<string,string> mapTagReplacements;
+	XmlNode *upgradeTaskNode = rootNode->addChild("UpgradeTask");
+
+	if(upgradeType != NULL) {
+		upgradeType->saveGame(upgradeTaskNode);
+	}
 }
 
 // =====================================================
@@ -884,4 +939,29 @@ bool Ai::outputAIBehaviourToConsole() const {
 	return false;
 }
 
+void Ai::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *aiNode = rootNode->addChild("Ai");
+
+//    AiInterface *aiInterface;
+//	AiRules aiRules;
+//    int startLoc;
+	aiNode->addAttribute("startLoc",intToStr(startLoc), mapTagReplacements);
+//    bool randomMinWarriorsReached;
+	aiNode->addAttribute("randomMinWarriorsReached",intToStr(randomMinWarriorsReached), mapTagReplacements);
+//	Tasks tasks;
+	for(Tasks::const_iterator it = tasks.begin(); it != tasks.end(); ++it) {
+		(*it)->saveGame(aiNode);
+	}
+//	Positions expansionPositions;
+	for(Positions::const_iterator it = expansionPositions.begin(); it != expansionPositions.end(); ++it) {
+		XmlNode *expansionPositionsNode = aiNode->addChild("expansionPositions");
+		expansionPositionsNode->addAttribute("pos",(*it).getString(), mapTagReplacements);
+	}
+
+//	RandomGen random;
+	aiNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+//	std::map<int,int> factionSwitchTeamRequestCount;
+
+}
 }}//end namespace

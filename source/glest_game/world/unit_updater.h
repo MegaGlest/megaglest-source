@@ -128,6 +128,8 @@ public:
 
 	string getUnitRangeCellsLookupItemCacheStats();
 
+	void saveGame(XmlNode *rootNode);
+
 private:
     //attack
     void hit(Unit *attacker);
@@ -166,6 +168,7 @@ public:
 public:
 	ParticleDamager(Unit *attacker, UnitUpdater *unitUpdater, const GameCamera *gameCamera);
 	virtual void update(ParticleSystem *particleSystem);
+	virtual void saveGame(XmlNode *rootNode);
 };
 
 }}//end namespace

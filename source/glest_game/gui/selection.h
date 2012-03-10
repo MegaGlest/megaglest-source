@@ -79,6 +79,8 @@ public:
 
 
 	virtual void unitEvent(UnitObserver::Event event, const Unit *unit);
+
+	virtual void saveGame(XmlNode *rootNode) const;
 };
 
 }}//end namespace

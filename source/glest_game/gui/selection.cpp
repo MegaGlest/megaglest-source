@@ -216,4 +216,33 @@ void Selection::unitEvent(UnitObserver::Event event, const Unit *unit){
 	}
 }
 
+void Selection::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *selectionNode = rootNode->addChild("Selection");
+
+//	int factionIndex;
+	selectionNode->addAttribute("factionIndex",intToStr(factionIndex), mapTagReplacements);
+//	int teamIndex;
+	selectionNode->addAttribute("teamIndex",intToStr(teamIndex), mapTagReplacements);
+//	UnitContainer selectedUnits;
+	for(unsigned int i = 0; i < selectedUnits.size(); i++) {
+		Unit *unit = selectedUnits[i];
+
+		XmlNode *selectedUnitsNode = selectionNode->addChild("selectedUnits");
+		selectedUnitsNode->addAttribute("id",intToStr(unit->getId()), mapTagReplacements);
+	}
+//	UnitContainer groups[maxGroups];
+	for(unsigned int x = 0; x < maxGroups; ++x) {
+		XmlNode *groupsNode = selectionNode->addChild("groups");
+		for(unsigned int i = 0; i < selectedUnits.size(); i++) {
+			Unit *unit = selectedUnits[i];
+
+			XmlNode *selectedUnitsNode = groupsNode->addChild("selectedUnits");
+			selectedUnitsNode->addAttribute("id",intToStr(unit->getId()), mapTagReplacements);
+		}
+	}
+
+//	Gui *gui;
+}
+
 }}//end namespace

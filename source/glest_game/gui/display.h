@@ -103,6 +103,8 @@ public:
 	int computeUpX(int index) const;
 	int computeUpY(int index) const;
 
+	void saveGame(XmlNode *rootNode) const;
+
 private:
 	void calculateUpDimensions(int index);
 };

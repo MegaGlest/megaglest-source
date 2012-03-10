@@ -140,4 +140,31 @@ std::string Command::toString() const {
 	return result;
 }
 
+void Command::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *commandNode = rootNode->addChild("Command");
+
+//    const CommandType *commandType;
+	if(commandType != NULL) {
+		commandNode->addAttribute("commandType",commandType->getName(), mapTagReplacements);
+	}
+//    Vec2i originalPos;
+	commandNode->addAttribute("originalPos",originalPos.getString(), mapTagReplacements);
+//    Vec2i pos;
+	commandNode->addAttribute("pos",pos.getString(), mapTagReplacements);
+//	UnitReference unitRef;		//target unit, used to move and attack optionally
+	unitRef.saveGame(commandNode);
+//	CardinalDir facing;			// facing, for build command
+	commandNode->addAttribute("facing",intToStr(facing), mapTagReplacements);
+//	const UnitType *unitType;	//used for build
+	if(unitType != NULL) {
+		commandNode->addAttribute("unitType",unitType->getName(), mapTagReplacements);
+	}
+//	CommandStateType stateType;
+	commandNode->addAttribute("stateType",intToStr(stateType), mapTagReplacements);
+//	int stateValue;
+	commandNode->addAttribute("stateValue",intToStr(stateValue), mapTagReplacements);
+//	int unitCommandGroupId;
+	commandNode->addAttribute("unitCommandGroupId",intToStr(unitCommandGroupId), mapTagReplacements);
+}
 }}//end namespace

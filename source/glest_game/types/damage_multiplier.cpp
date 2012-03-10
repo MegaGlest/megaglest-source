@@ -10,10 +10,32 @@
 // ==============================================================
 
 #include "damage_multiplier.h"
-
+#include "conversion.h"
 #include "leak_dumper.h"
 
+using namespace Shared::Util;
+
 namespace Glest{ namespace Game{
+
+void AttackType::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *attackTypeNode = rootNode->addChild("AttackType");
+
+//	string name;
+	attackTypeNode->addAttribute("name",name, mapTagReplacements);
+//	int id;
+	attackTypeNode->addAttribute("id",intToStr(id), mapTagReplacements);
+}
+
+void ArmorType::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *armorTypeNode = rootNode->addChild("ArmorType");
+
+//	string name;
+	armorTypeNode->addAttribute("name",name, mapTagReplacements);
+//	int id;
+	armorTypeNode->addAttribute("id",intToStr(id), mapTagReplacements);
+}
 
 // =====================================================
 // 	class DamageMultiplierTable
@@ -46,6 +68,23 @@ float DamageMultiplierTable::getDamageMultiplier(const AttackType *att, const Ar
 
 void DamageMultiplierTable::setDamageMultiplier(const AttackType *att, const ArmorType *art, float value){
 	values[attackTypeCount*art->getId()+att->getId()]= value;
+}
+
+void DamageMultiplierTable::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *damageMultiplierTableNode = rootNode->addChild("DamageMultiplierTable");
+
+//	float *values;
+//	int attackTypeCount;
+//	int armorTypeCount;
+	damageMultiplierTableNode->addAttribute("attackTypeCount",intToStr(attackTypeCount), mapTagReplacements);
+	damageMultiplierTableNode->addAttribute("armorTypeCount",intToStr(armorTypeCount), mapTagReplacements);
+
+	int valueCount= attackTypeCount * armorTypeCount;
+	for(unsigned int i=0; i < valueCount; ++i) {
+		XmlNode *valuesNode = damageMultiplierTableNode->addChild("values");
+		valuesNode->addAttribute("value",intToStr(values[i]), mapTagReplacements);
+	}
 }
 
 }}//end namespaces

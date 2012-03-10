@@ -42,6 +42,13 @@ void Level::init(string name, int kills){
 	this->kills= kills;
 }
 
+void Level::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *levelNode = rootNode->addChild("Level");
+
+	levelNode->addAttribute("name",name, mapTagReplacements);
+	levelNode->addAttribute("kills",intToStr(kills), mapTagReplacements);
+}
 // =====================================================
 // 	class UnitType
 // =====================================================
