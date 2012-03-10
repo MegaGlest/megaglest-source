@@ -1451,10 +1451,28 @@ void runTechValidationForPath(string techPath, string techName,
 
 					if(newLoadedFileList.find(loadedFile) != newLoadedFileList.end()) {
 						for(unsigned int xx1 = 0; xx1 < iterMap->second.size(); ++xx1) {
-							newLoadedFileList[loadedFile].push_back(iterMap->second[xx1]);
+							pair<string, string> &newVal = iterMap->second[xx1];
+							replaceAll(newVal.first,"//","/");
+							replaceAll(newVal.first,"\\\\","\\");
+							updatePathClimbingParts(newVal.first);
+							replaceAll(newVal.second,"//","/");
+							replaceAll(newVal.second,"\\\\","\\");
+							updatePathClimbingParts(newVal.second);
+
+							newLoadedFileList[loadedFile].push_back(newVal);
 						}
 					}
 					else {
+						for(unsigned int xx1 = 0; xx1 < iterMap->second.size(); ++xx1) {
+							pair<string, string> &newVal = iterMap->second[xx1];
+							replaceAll(newVal.first,"//","/");
+							replaceAll(newVal.first,"\\\\","\\");
+							updatePathClimbingParts(newVal.first);
+							replaceAll(newVal.second,"//","/");
+							replaceAll(newVal.second,"\\\\","\\");
+							updatePathClimbingParts(newVal.second);
+						}
+
 						newLoadedFileList[loadedFile] = iterMap->second;
 					}
 				}
@@ -1508,9 +1526,15 @@ void runTechValidationForPath(string techPath, string techName,
 				endPathWithSlash(path);
 				path = path + techName + "/";
 
+				replaceAll(path, "//", "/");
+				replaceAll(path, "\\\\", "\\");
+
 				vector<string> foundFiles = getFolderTreeContentsListRecursively(path + "*.", "");
 				for(unsigned int j = 0; j < foundFiles.size(); ++j) {
 					string file = foundFiles[j];
+					replaceAll(file, "//", "/");
+					replaceAll(file, "\\\\", "\\");
+
 					if(	file.find("loading_screen") != string::npos ||
 							file.find("preview_screen") != string::npos ||
 							file.find("hud") != string::npos) {
@@ -1553,6 +1577,8 @@ void runTechValidationForPath(string techPath, string techName,
 			for( std::map<string,vector<pair<string, string> > >::iterator iterMap = foundFileList.begin();
 				iterMap != foundFileList.end(); ++iterMap) {
 				string foundFile = iterMap->first;
+				replaceAll(foundFile, "//", "/");
+				replaceAll(foundFile, "\\\\", "\\");
 
 				if(loadedFileList.find(foundFile) == loadedFileList.end()) {
 					if(foundUnusedFile == false) {
@@ -1675,7 +1701,11 @@ void runTechValidationForPath(string techPath, string techName,
 										string expandedNewCommonFileName = newCommonFileName;
 
 										std::map<string,string> mapExtraTagReplacementValues;
-										mapExtraTagReplacementValues["$COMMONDATAPATH"] = techPath + techName + "/commondata/";
+
+										string techCommonData = techPath + techName + "/commondata/";
+										replaceAll(techCommonData, "//", "/");
+
+										mapExtraTagReplacementValues["$COMMONDATAPATH"] = techCommonData;
 										mapExtraTagReplacementValues = Properties::getTagReplacementValues(&mapExtraTagReplacementValues);
 										Properties::applyTagsToValue(expandedNewCommonFileName,&mapExtraTagReplacementValues);
 										createDirectoryPaths(extractDirectoryPathFromFile(expandedNewCommonFileName));
@@ -1784,10 +1814,8 @@ void runTechValidationForPath(string techPath, string techName,
 										for(unsigned int jdx = 0; jdx < iterFind4->second.size(); jdx++) {
 											string parentFile = iterFind4->second[jdx].first;
 											string searchText = iterFind4->second[jdx].second;
-											replaceAll(searchText, "//", "/");
-											replaceAll(parentFile, "//", "/");
-											replaceAll(searchText, "\\\\", "\\");
-											replaceAll(parentFile, "\\\\", "\\");
+											//replaceAll(parentFile, "//", "/");
+											//replaceAll(parentFile, "\\\\", "\\");
 
 											//printf("*** Searching parent file:\n[%s]\nfor duplicate file reference:\n[%s]\nto replace with newname:\n[%s]\n",parentFile.c_str(),searchText.c_str(),newCommonFileName.c_str());
 											bool foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, true);
