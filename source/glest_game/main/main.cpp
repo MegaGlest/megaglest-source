@@ -1661,6 +1661,8 @@ void runTechValidationForPath(string techPath, string techName,
 						}
 
 						if(purgeDuplicateFiles == true) {
+							//printf("\nPurge Duplicate Files detected - START:\n=====================\n");
+
 							string newCommonFileName = "";
 							for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 								string duplicateFile = fileList[idx];
@@ -1752,8 +1754,12 @@ void runTechValidationForPath(string techPath, string techName,
 									}
 								}
 							}
+
+							//printf("\nPurge Duplicate Files detected - END:\n=====================\n");
 						}
 						else {
+							//printf("\nPurge Duplicate Files DISABLED - START:\n=====================\n");
+
 							string newCommonFileName = "";
 							for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 								string duplicateFile = fileList[idx];
@@ -1766,6 +1772,9 @@ void runTechValidationForPath(string techPath, string techName,
 									}
 								}
 							}
+
+							//printf("\nPurge Duplicate Files #2 DISABLED [%lu] - START:\n=====================\n",fileList.size());
+
 							for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 								string duplicateFile = fileList[idx];
 								string fileExt = extractExtension(duplicateFile);
@@ -1775,19 +1784,40 @@ void runTechValidationForPath(string techPath, string techName,
 										for(unsigned int jdx = 0; jdx < iterFind4->second.size(); jdx++) {
 											string parentFile = iterFind4->second[jdx].first;
 											string searchText = iterFind4->second[jdx].second;
+											replaceAll(searchText, "//", "/");
+											replaceAll(parentFile, "//", "/");
+											replaceAll(searchText, "\\\\", "\\");
+											replaceAll(parentFile, "\\\\", "\\");
 
 											//printf("*** Searching parent file:\n[%s]\nfor duplicate file reference:\n[%s]\nto replace with newname:\n[%s]\n",parentFile.c_str(),searchText.c_str(),newCommonFileName.c_str());
 											bool foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, true);
 											//printf("foundText = %d\n",foundText);
 											if(foundText == false) {
-												char szBuf[4096]="";
-												sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
-												throw runtime_error(szBuf);
+												string techCommonData = techPath + techName + "/commondata/";
+												replaceAll(techCommonData, "//", "/");
+
+												//printf("ERROR techCommonData check\n[%s]\n[%s]\n",techCommonData.c_str(),searchText.c_str());
+
+												if(StartsWith(searchText, techCommonData) == true) {
+													replaceAll(searchText, techCommonData, "$COMMONDATAPATH/");
+													foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, true);
+												}
+												if(foundText == false) {
+													//printf("Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
+
+													char szBuf[8096]="";
+													sprintf(szBuf,"Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+													printf("\n\n=================================================\n%s",szBuf);
+
+													throw runtime_error(szBuf);
+												}
 											}
 										}
 									}
 								}
 							}
+
+							//printf("\nPurge Duplicate Files DISABLED - END:\n=====================\n");
 						}
 					}
 				}
