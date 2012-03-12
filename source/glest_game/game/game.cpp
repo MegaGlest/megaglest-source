@@ -870,19 +870,21 @@ void Game::init(bool initForPreviewOnly) {
 		console.clearStoredLines();
 	}
 
-	gameCamera.init(map->getW(), map->getH());
+	if(this->loadGameNode == NULL) {
+		gameCamera.init(map->getW(), map->getH());
 
-	// camera default height calculation
-	if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
-		gameCamera.setCalculatedDefault(map->getCameraHeight());
-	}
-	else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
-		gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
-	}
+		// camera default height calculation
+		if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
+			gameCamera.setCalculatedDefault(map->getCameraHeight());
+		}
+		else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
+			gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
+		}
 
-	if(world.getThisFaction() != NULL) {
-		const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
-		gameCamera.setPos(Vec2f(v.x, v.y));
+		if(world.getThisFaction() != NULL) {
+			const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
+			gameCamera.setPos(Vec2f(v.x, v.y));
+		}
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1488,8 +1490,10 @@ void Game::render() {
 	if(isFirstRender == true) {
 		isFirstRender = false;
 
-		gameCamera.resetPosition();
-		this->restoreToStartXY();
+		if(this->loadGameNode == NULL) {
+			gameCamera.resetPosition();
+			this->restoreToStartXY();
+		}
 	}
 
 	canRender();
@@ -3615,6 +3619,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 
 	Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
 	newGame->loadGameNode = gameNode;
+	newGame->gameCamera.loadGame(gameNode);
 
 	const XmlNode *worldNode = gameNode->getChild("World");
 	newGame->world.loadGame(worldNode);

@@ -144,6 +144,7 @@ public:
 	void setMaxVAng(float value) { maxVAng = value; }
 
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 
 private:
 	void clampPosXYZ(float x1, float x2, float y1, float y2, float z1, float z2);
