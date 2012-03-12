@@ -466,4 +466,62 @@ void GameCamera::saveGame(XmlNode *rootNode) {
 //	int MaxVisibleQuadItemCache;
 	gamecameraNode->addAttribute("MaxVisibleQuadItemCache",intToStr(MaxVisibleQuadItemCache), mapTagReplacements);
 }
+
+void GameCamera::loadGame(const XmlNode *rootNode) {
+	const XmlNode *gamecameraNode = rootNode->getChild("GameCamera");
+
+	//firstTime = timeflowNode->getAttribute("firstTime")->getFloatValue();
+
+	//	Vec3f pos;
+	pos = Vec3f::strToVec3(gamecameraNode->getAttribute("pos")->getValue());
+	//	Vec3f destPos;
+	destPos = Vec3f::strToVec3(gamecameraNode->getAttribute("destPos")->getValue());
+	//
+	//    float hAng;	//YZ plane positive -Z axis
+	hAng = gamecameraNode->getAttribute("hAng")->getFloatValue();
+	//    float vAng;	//XZ plane positive +Z axis
+	vAng = gamecameraNode->getAttribute("vAng")->getFloatValue();
+	//	float lastHAng;
+	lastHAng = gamecameraNode->getAttribute("lastHAng")->getFloatValue();
+
+	//    float lastVAng;
+	lastVAng = gamecameraNode->getAttribute("lastVAng")->getFloatValue();
+	//	Vec2f destAng;
+	destAng = Vec2f::strToVec2(gamecameraNode->getAttribute("destAng")->getValue());
+	//	float rotate;
+	rotate = gamecameraNode->getAttribute("rotate")->getFloatValue();
+	//	Vec3f move;
+	move = Vec3f::strToVec3(gamecameraNode->getAttribute("move")->getValue());
+	//	State state;
+	state = static_cast<State>(gamecameraNode->getAttribute("state")->getIntValue());
+	//	int limitX;
+	limitX = gamecameraNode->getAttribute("limitX")->getIntValue();
+	//	int limitY;
+	limitY = gamecameraNode->getAttribute("limitY")->getIntValue();
+	//	//config
+	//	float speed;
+	speed = gamecameraNode->getAttribute("speed")->getFloatValue();
+	//	bool clampBounds;
+	clampBounds = gamecameraNode->getAttribute("clampBounds")->getIntValue();
+	//	//float maxRenderDistance;
+	//	float maxHeight;
+	maxHeight = gamecameraNode->getAttribute("maxHeight")->getFloatValue();
+	//	float minHeight;
+	minHeight = gamecameraNode->getAttribute("minHeight")->getFloatValue();
+	//	//float maxCameraDist;
+	//	//float minCameraDist;
+	//	float minVAng;
+	minVAng = gamecameraNode->getAttribute("minVAng")->getFloatValue();
+	//	float maxVAng;
+	maxVAng = gamecameraNode->getAttribute("maxVAng")->getFloatValue();
+	//	float fov;
+	fov = gamecameraNode->getAttribute("fov")->getFloatValue();
+	//	float calculatedDefault;
+	calculatedDefault = gamecameraNode->getAttribute("calculatedDefault")->getFloatValue();
+	//	std::map<float, std::map<float, std::map<Vec3f, Quad2i> > > cacheVisibleQuad;
+	//	int MaxVisibleQuadItemCache;
+	MaxVisibleQuadItemCache = gamecameraNode->getAttribute("MaxVisibleQuadItemCache")->getIntValue();
+
+}
+
 }}//end namespace
