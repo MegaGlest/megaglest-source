@@ -103,22 +103,52 @@ XmlIo::~XmlIo() {
 	cleanup();
 }
 
-XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplacementValues) {
+XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation) {
 
-	try{
+	try {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("XERCES_FULLVERSIONDOT [%s]\nnoValidation = %d\npath [%s]\n",XERCES_FULLVERSIONDOT,noValidation,path.c_str());
+
 		ErrorHandler errorHandler;
 #if XERCES_VERSION_MAJOR < 3
  		DOMBuilder *parser= (static_cast<DOMImplementationLS*>(implementation))->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
  		parser->setErrorHandler(&errorHandler);
- 		parser->setFeature(XMLUni::fgXercesSchema, true);
- 		parser->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
- 		parser->setFeature(XMLUni::fgDOMValidation, true);
+ 		if(noValidation == false) {
+			parser->setFeature(XMLUni::fgXercesSchema, true);
+			parser->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
+			//parser->setFeature(XMLUni::fgDOMValidateIfSchema, true);
+			parser->setFeature(XMLUni::fgDOMValidation, true);
+ 		}
+ 		else {
+			//parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
+			//parser->setFeature(XMLUni::fgXercesDynamic, true);
+
+			//parser->setFeature(XMLUni::fgXercesSchema, false);
+			//parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+			//parser->setFeature(XMLUni::fgDOMValidateIfSchema, true);
+			//parser->setFeature(XMLUni::fgDOMValidation, false);
+
+ 			parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+ 			parser->setFeature(XMLUni::fgXercesLoadExternalDTD, false);
+ 			parser->setFeature(XMLUni::fgXercesCacheGrammarFromParse, true);
+ 			parser->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
+ 		}
 #else
 		DOMLSParser *parser = (static_cast<DOMImplementationLS*>(implementation))->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
  		DOMConfiguration  *config = parser->getDomConfig();
- 		config->setParameter(XMLUni::fgXercesSchema, true);
-		config->setParameter(XMLUni::fgXercesSchemaFullChecking, true);
-		config->setParameter(XMLUni::fgDOMValidate, true);
+ 		if(noValidation == false) {
+			config->setParameter(XMLUni::fgXercesSchema, true);
+			config->setParameter(XMLUni::fgXercesSchemaFullChecking, true);
+			//config->setParameter(XMLUni::fgDOMValidateIfSchema, true);
+			config->setParameter(XMLUni::fgDOMValidate, true);
+ 		}
+ 		else {
+			config->setParameter(XMLUni::fgXercesSchema, false);
+			config->setParameter(XMLUni::fgXercesSchemaFullChecking, false);
+			//config->setParameter(XMLUni::fgDOMValidateIfSchema, true);
+			config->setParameter(XMLUni::fgDOMValidate, false);
+			config->setParameter(XMLUni::fgSAX2CoreValidation, true);
+			config->setParameter(XMLUni::fgXercesDynamic, true);
+ 		}
 #endif
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
 #ifdef WIN32
@@ -200,7 +230,7 @@ typedef std::vector<XmlTree*> LoadStack;
 //static LoadStack loadStack;
 static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
 
-void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues) {
+void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues, bool noValidation) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 
 	//printf("XmlTree::load p [%p]\n",this);
@@ -219,7 +249,7 @@ void XmlTree::load(const string &path, std::map<string,string> mapTagReplacement
 	safeMutex.ReleaseLock();
 
 	loadPath = path;
-	this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues);
+	this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 }

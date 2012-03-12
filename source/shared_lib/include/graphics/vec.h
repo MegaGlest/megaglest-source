@@ -16,9 +16,47 @@
 #include "math_wrapper.h"
 #include <string>
 #include <sstream>
+#include <vector>
+#include <stdexcept>
+#include <stdlib.h>
+#include <stdio.h>
 #include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
+
+inline std::vector<std::string> TokenizeString(const std::string str,const std::string delimiters) {
+	std::vector<std::string> tokens;
+	// Assume textLine contains the line of text to parse.
+	std::string textLine = str;
+
+	std::size_t pos = 0;
+	while( true ) {
+		std::size_t nextPos = textLine.find( delimiters, pos );
+		if( nextPos == textLine.npos ) {
+			tokens.push_back(textLine.substr(pos, textLine.length( )));
+			break;
+		}
+		tokens.push_back( std::string( textLine.substr( pos, nextPos - pos ) ) );
+		pos = nextPos + 1;
+	}
+
+	return tokens;
+}
+
+template<typename T>
+inline T strToType(const std::string &s) {
+	char *endChar=NULL;
+
+	setlocale(LC_NUMERIC, "C");
+	T value= static_cast<T>(strtod(s.c_str(), &endChar));
+
+	if(*endChar!='\0'){
+		throw std::runtime_error("Error converting from string to type, found: [" + s + "]");
+	}
+
+	return value;
+}
+
 
 template<typename T> class Vec2;
 template<typename T> class Vec3;
@@ -179,6 +217,35 @@ public:
 		streamOut << "] y [" << y << "]";
 		std::string result = streamOut.str();
 		streamOut.str(std::string());
+		return result;
+	}
+	// meetingPos="x [32] y [120]"
+	static inline Vec2<T> strToVec2(std::string value) {
+		Vec2<T> result;
+
+		std::vector<std::string> tokens = TokenizeString(value,"[");
+		//for(unsigned int i = 0; i < tokens.size(); ++i) {
+			//printf("#1 Vec2T i = %d [%s]\n",i,tokens[i].c_str());
+		//}
+		if(tokens.size() == 3) {
+			std::vector<std::string> tokens2 = TokenizeString(tokens[1],"]");
+			//for(unsigned int i = 0; i < tokens2.size(); ++i) {
+				//printf("#2 Vec2T i = %d [%s]\n",i,tokens2[i].c_str());
+			//}
+			std::vector<std::string> tokens3 = TokenizeString(tokens[2],"]");
+			//for(unsigned int i = 0; i < tokens3.size(); ++i) {
+				//printf("#3 Vec2T i = %d [%s]\n",i,tokens3[i].c_str());
+			//}
+
+			if(tokens2.size() == 2 && tokens3.size() == 2) {
+				result.x = (T)strToType<T>(tokens2[0]);
+				result.y = (T)strToType<T>(tokens3[0]);
+
+				//printf("#3 Vec2T [%s]\n",result.getString().c_str());
+			}
+		}
+
+
 		return result;
 	}
 };

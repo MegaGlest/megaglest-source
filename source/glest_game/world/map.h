@@ -38,7 +38,7 @@ class Unit;
 class Resource;
 class TechTree;
 class GameSettings;
-
+class World;
 // =====================================================
 // 	class Cell
 //
@@ -70,6 +70,9 @@ public:
 	bool isFree(Field field) const;
 
 	bool isFreeOrMightBeFreeSoon(Vec2i originPos, Vec2i cellPos, Field field) const;
+
+	void saveGame(XmlNode *rootNode,int index) const;
+	void loadGame(const XmlNode *rootNode, int index, World *world);
 };
 
 // =====================================================
@@ -141,6 +144,9 @@ public:
 	//misc
 	void deleteResource();
 	bool isFree() const;
+
+	void saveGame(XmlNode *rootNode,int index) const;
+	void loadGame(const XmlNode *rootNode, int index, World *world);
 };
 
 
@@ -265,6 +271,9 @@ public:
 	bool aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
 
 	string getMapFile() const { return mapFile; }
+
+	void saveGame(XmlNode *rootNode) const;
+	void loadGame(const XmlNode *rootNode,World *world);
 
 private:
 	//compute

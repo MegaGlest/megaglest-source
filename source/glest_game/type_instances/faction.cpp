@@ -382,6 +382,9 @@ Faction::Faction() {
 	startLocationIndex=0;
 	thisFaction=false;
 	currentSwitchTeamVoteFactionIndex = -1;
+
+	loadWorldNode = NULL;
+	techTree = NULL;
 }
 
 Faction::~Faction() {
@@ -465,10 +468,13 @@ bool Faction::isWorkerThreadSignalCompleted(int frameIndex) {
 
 void Faction::init(
 	FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
-	int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources)
+	int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources,
+	const XmlNode *loadWorldNode)
 {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	this->techTree = techTree;
+	this->loadWorldNode = loadWorldNode;
 	this->control= control;
 	this->factionType= factionType;
 	this->startLocationIndex= startLocationIndex;
@@ -481,11 +487,14 @@ void Faction::init(
 
 	resources.resize(techTree->getResourceTypeCount());
 	store.resize(techTree->getResourceTypeCount());
-	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
-		const ResourceType *rt= techTree->getResourceType(i);
-		int resourceAmount= giveResources? factionType->getStartingResourceAmount(rt): 0;
-		resources[i].init(rt, resourceAmount);
-		store[i].init(rt, 0);
+
+	if(loadWorldNode == NULL) {
+		for(int i=0; i<techTree->getResourceTypeCount(); ++i){
+			const ResourceType *rt= techTree->getResourceType(i);
+			int resourceAmount= giveResources? factionType->getStartingResourceAmount(rt): 0;
+			resources[i].init(rt, resourceAmount);
+			store[i].init(rt, 0);
+		}
 	}
 
 	texture= Renderer::getInstance().newTexture2D(rsGame);
@@ -493,6 +502,10 @@ void Faction::init(
 	if(texture) {
 		string playerTexture = getGameCustomCoreDataPath(data_path, "data/core/faction_textures/faction" + intToStr(startLocationIndex) + ".tga");
 		texture->load(playerTexture);
+	}
+
+	if(loadWorldNode != NULL) {
+		loadGame(loadWorldNode, factionIndex,game->getGameSettings(),game->getWorld());
 	}
 
 	if( game->getGameSettings()->getPathFinderType() == pfBasic &&
@@ -520,6 +533,11 @@ const Resource *Faction::getResource(const ResourceType *rt) const{
 			return &resources[i];
 		}
 	}
+	printf("ERROR cannot find resource type [%s] in list:\n",(rt != NULL ? rt->getName().c_str() : "null"));
+	for(int i=0; i<resources.size(); ++i){
+		printf("Index %d [%s]",i,resources[i].getType()->getName().c_str());
+	}
+
 	assert(false);
 	return NULL;
 }
@@ -530,6 +548,11 @@ int Faction::getStoreAmount(const ResourceType *rt) const{
 			return store[i].getAmount();
 		}
 	}
+	printf("ERROR cannot find store type [%s] in list:\n",(rt != NULL ? rt->getName().c_str() : "null"));
+	for(int i=0; i<store.size(); ++i){
+		printf("Index %d [%s]",i,store[i].getType()->getName().c_str());
+	}
+
 	assert(false);
 	return 0;
 }
@@ -1773,6 +1796,12 @@ void Faction::saveGame(XmlNode *rootNode) {
 		resource.saveGame(factionNode);
 	}
 //    Store store;
+	XmlNode *storeNode = factionNode->addChild("Store");
+	for(unsigned int i = 0; i < store.size(); ++i) {
+		Resource &resource = store[i];
+		resource.saveGame(storeNode);
+	}
+
 //	Allies allies;
 	for(unsigned int i = 0; i < allies.size(); ++i) {
 		Faction *ally = allies[i];
@@ -1832,6 +1861,49 @@ void Faction::saveGame(XmlNode *rootNode) {
 //	set<int> livingUnits;
 //	set<Unit*> livingUnitsp;
 
+}
+
+void Faction::loadGame(const XmlNode *rootNode, int index,GameSettings *settings,World *world) {
+	XmlNode *factionNode = NULL;
+	vector<XmlNode *> factionNodeList = rootNode->getChildList("Faction");
+	for(unsigned int i = 0; i < factionNodeList.size(); ++i) {
+		XmlNode *node = factionNodeList[i];
+		if(node->getAttribute("index")->getIntValue() == index) {
+			factionNode = node;
+			break;
+		}
+	}
+
+	if(factionNode != NULL) {
+		vector<XmlNode *> unitNodeList = factionNode->getChildList("Unit");
+		for(unsigned int i = 0; i < unitNodeList.size(); ++i) {
+			XmlNode *unitNode = unitNodeList[i];
+			Unit *unit = Unit::loadGame(unitNode,settings,this, world);
+			this->addUnit(unit);
+		}
+
+		//description = gameSettingsNode->getAttribute("description")->getValue();
+	}
+
+	//resources.resize(techTree->getResourceTypeCount());
+	//store.resize(techTree->getResourceTypeCount());
+
+//	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
+//		const ResourceType *rt= techTree->getResourceType(i);
+//		int resourceAmount= giveResources? factionType->getStartingResourceAmount(rt): 0;
+//		resources[i].init(rt, resourceAmount);
+//		store[i].init(rt, 0);
+//	}
+
+	for(unsigned int i = 0; i < resources.size(); ++i) {
+		Resource &resource = resources[i];
+		resource.loadGame(factionNode,i,techTree);
+	}
+	XmlNode *storeNode = factionNode->getChild("Store");
+	for(unsigned int i = 0; i < store.size(); ++i) {
+		Resource &resource = store[i];
+		resource.loadGame(storeNode,i,techTree);
+	}
 }
 
 }}//end namespace

@@ -149,6 +149,8 @@ private:
 
 	time_t lastMasterServerGameStatsDump;
 
+	XmlNode *loadGameNode;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
@@ -226,6 +228,7 @@ public:
 	void endGame();
 
 	void saveGame(string name);
+	static void loadGame(string name,Program *programPtr,bool isMasterserverMode);
 
 private:
 	//render

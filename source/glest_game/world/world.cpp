@@ -82,6 +82,8 @@ World::World(){
 	queuedScenarioName="";
 	queuedScenarioKeepFactions=false;
 
+	loadWorldNode = NULL;
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -226,6 +228,10 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	GameSettings *gs = game->getGameSettings();
 	if(fogOfWarOverride == false) {
 		fogOfWar = gs->getFogOfWar();
+	}
+
+	if(loadWorldNode != NULL) {
+		timeFlow.loadGame(loadWorldNode);
 	}
 
 	if(initFactions == true) {
@@ -1311,7 +1317,8 @@ void World::initFactionTypes(GameSettings *gs) {
 			throw runtime_error("ft == NULL");
 		}
 		factions[i]->init(ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
-						 gs->getStartLocationIndex(i), i==thisFactionIndex, gs->getDefaultResources());
+						 gs->getStartLocationIndex(i), i==thisFactionIndex,
+						 gs->getDefaultResources(),loadWorldNode);
 
 		stats.setTeam(i, gs->getTeam(i));
 		stats.setFactionTypeName(i, formatString(gs->getFactionTypeName(i)));
@@ -1385,60 +1392,87 @@ void World::initUnitsForScenario() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, bool spaciated) {
+	if(placeUnit(location, generationArea, unit, spaciated)) {
+		unit->create(true);
+		unit->born();
+	}
+	else {
+		string unitName = unit->getType()->getName();
+		delete unit;
+		unit = NULL;
+
+		char szBuf[4096]="";
+		sprintf(szBuf,"Unit: [%s] can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #%d name: [%s]",
+				unitName.c_str(),unit->getFactionIndex(),unit->getFaction()->getType()->getName().c_str());
+		throw runtime_error(szBuf);
+	}
+	if (unit->getType()->hasSkillClass(scBeBuilt)) {
+		map.flatternTerrain(unit);
+		if(cartographer != NULL) {
+			cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
+		}
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
+
+}
+
 //place units randomly aroud start location
 void World::initUnits() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingGenerateGameElements","",true), true);
 
 	//put starting units
-	for(int i = 0; i < getFactionCount(); ++i) {
-		Faction *f= factions[i];
-		const FactionType *ft= f->getType();
+	if(loadWorldNode == NULL) {
+		for(int i = 0; i < getFactionCount(); ++i) {
+			Faction *f= factions[i];
+			const FactionType *ft= f->getType();
+			for(int j = 0; j < ft->getStartingUnitCount(); ++j) {
+				const UnitType *ut= ft->getStartingUnit(j);
+				int initNumber= ft->getStartingUnitAmount(j);
 
-		for(int j = 0; j < ft->getStartingUnitCount(); ++j) {
-			const UnitType *ut= ft->getStartingUnit(j);
-			int initNumber= ft->getStartingUnitAmount(j);
+				for(int l = 0; l < initNumber; l++) {
 
-			for(int l = 0; l < initNumber; l++) {
-
-				UnitPathInterface *newpath = NULL;
-				switch(game->getGameSettings()->getPathFinderType()) {
-					case pfBasic:
-						newpath = new UnitPathBasic();
-						break;
-					case pfRoutePlanner:
-						newpath = new UnitPath();
-						break;
-					default:
-						throw runtime_error("detected unsupported pathfinder type!");
-			    }
-
-				Unit *unit= new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
-
-				int startLocationIndex= f->getStartLocationIndex();
-
-				if(placeUnit(map.getStartLocation(startLocationIndex), generationArea, unit, true)) {
-					unit->create(true);
-					unit->born();
-				}
-				else {
-					string unitName = unit->getType()->getName();
-					delete unit;
-					unit = NULL;
-					throw runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
-				}
-				if (unit->getType()->hasSkillClass(scBeBuilt)) {
-					map.flatternTerrain(unit);
-					if(cartographer != NULL) {
-						cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
+					UnitPathInterface *newpath = NULL;
+					switch(game->getGameSettings()->getPathFinderType()) {
+						case pfBasic:
+							newpath = new UnitPathBasic();
+							break;
+						case pfRoutePlanner:
+							newpath = new UnitPath();
+							break;
+						default:
+							throw runtime_error("detected unsupported pathfinder type!");
 					}
-				}
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
-            }
-		}
 
-		// Ensure Starting Resource Amount are adjusted to max store levels
-		f->limitResourcesToStore();
+					Unit *unit= new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
+
+					int startLocationIndex= f->getStartLocationIndex();
+
+	//				if(placeUnit(map.getStartLocation(startLocationIndex), generationArea, unit, true)) {
+	//					unit->create(true);
+	//					unit->born();
+	//				}
+	//				else {
+	//					string unitName = unit->getType()->getName();
+	//					delete unit;
+	//					unit = NULL;
+	//					throw runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
+	//				}
+	//				if (unit->getType()->hasSkillClass(scBeBuilt)) {
+	//					map.flatternTerrain(unit);
+	//					if(cartographer != NULL) {
+	//						cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
+	//					}
+	//				}
+					placeUnitAtLocation(map.getStartLocation(startLocationIndex), generationArea, unit, true);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
+				}
+			}
+
+			// Ensure Starting Resource Amount are adjusted to max store levels
+			f->limitResourcesToStore();
+		}
 	}
 	map.computeNormals();
 	map.computeInterpolatedHeights();
@@ -1999,7 +2033,7 @@ void World::saveGame(XmlNode *rootNode) {
 	XmlNode *worldNode = rootNode->addChild("World");
 
 //	Map map;
-	worldNode->addAttribute("map",extractFileFromDirectoryPath(map.getMapFile()), mapTagReplacements);
+	//map.saveGame(worldNode);
 //	Tileset tileset;
 	worldNode->addAttribute("tileset",tileset.getName(), mapTagReplacements);
 //	//TechTree techTree;
@@ -2072,6 +2106,10 @@ void World::saveGame(XmlNode *rootNode) {
 	worldNode->addAttribute("queuedScenarioName",queuedScenarioName, mapTagReplacements);
 //	bool queuedScenarioKeepFactions;
 	worldNode->addAttribute("queuedScenarioKeepFactions",intToStr(queuedScenarioKeepFactions), mapTagReplacements);
+}
+
+void World::loadGame(const XmlNode *rootNode) {
+	loadWorldNode = rootNode;
 }
 
 }}//end namespace

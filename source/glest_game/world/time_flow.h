@@ -61,6 +61,7 @@ public:
 	void update();
 
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 
 private:
 	//bool isAproxTime(float time) const;

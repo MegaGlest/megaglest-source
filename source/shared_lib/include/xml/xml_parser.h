@@ -55,7 +55,7 @@ public:
 	~XmlIo();
 	void cleanup();
 
-	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues);
+	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -76,7 +76,7 @@ public:
 	~XmlTree();
 
 	void init(const string &name);
-	void load(const string &path, std::map<string,string> mapTagReplacementValues);
+	void load(const string &path, std::map<string,string> mapTagReplacementValues, bool noValidation=false);
 	void save(const string &path);
 
 	XmlNode *getRootNode() const	{return rootNode;}

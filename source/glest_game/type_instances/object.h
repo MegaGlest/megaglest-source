@@ -88,6 +88,7 @@ public:
 	const Vec2i & getMapPos() const { return mapPos; }
 
 	virtual string getUniquePickName() const;
+	void saveGame(XmlNode *rootNode);
 };
 
 }}//end namespace

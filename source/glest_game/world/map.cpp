@@ -26,8 +26,10 @@
 #include "pos_iterator.h"
 #include "faction.h"
 #include "command.h"
-#include "leak_dumper.h"
 #include "map_preview.h"
+#include "world.h"
+
+#include "leak_dumper.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
@@ -74,6 +76,70 @@ bool Cell::isFreeOrMightBeFreeSoon(Vec2i originPos, Vec2i cellPos, Field field) 
 	}
 
 	return result;
+}
+
+void Cell::saveGame(XmlNode *rootNode, int index) const {
+	bool saveCell = false;
+	if(saveCell == false) {
+		for(unsigned int i = 0; i < fieldCount; ++i) {
+			if(units[i] != NULL) {
+				saveCell = true;
+				break;
+			}
+			if(unitsWithEmptyCellMap[i] != NULL) {
+				saveCell = true;
+				break;
+			}
+		}
+	}
+
+	if(saveCell == true) {
+		std::map<string,string> mapTagReplacements;
+		XmlNode *cellNode = rootNode->addChild("Cell" + intToStr(index));
+		cellNode->addAttribute("index",intToStr(index), mapTagReplacements);
+
+	//    Unit *units[fieldCount];	//units on this cell
+		for(unsigned int i = 0; i < fieldCount; ++i) {
+			if(units[i] != NULL) {
+				XmlNode *unitsNode = cellNode->addChild("units");
+				unitsNode->addAttribute("field",intToStr(i), mapTagReplacements);
+				unitsNode->addAttribute("unitid",intToStr(units[i]->getId()), mapTagReplacements);
+			}
+		}
+	//    Unit *unitsWithEmptyCellMap[fieldCount];	//units with an empty cellmap on this cell
+		for(unsigned int i = 0; i < fieldCount; ++i) {
+			if(unitsWithEmptyCellMap[i] != NULL) {
+				XmlNode *unitsWithEmptyCellMapNode = cellNode->addChild("unitsWithEmptyCellMap");
+				unitsWithEmptyCellMapNode->addAttribute("field",intToStr(i), mapTagReplacements);
+				unitsWithEmptyCellMapNode->addAttribute("unitid",intToStr(unitsWithEmptyCellMap[i]->getId()), mapTagReplacements);
+			}
+		}
+
+	//	float height;
+		cellNode->addAttribute("height",floatToStr(height), mapTagReplacements);
+	}
+}
+
+void Cell::loadGame(const XmlNode *rootNode, int index, World *world) {
+	if(rootNode->hasChild("Cell" + intToStr(index)) == true) {
+		const XmlNode *cellNode = rootNode->getChild("Cell" + intToStr(index));
+
+		int unitCount = cellNode->getChildCount();
+		for(unsigned int i = 0; i < unitCount; ++i) {
+			if(cellNode->hasChildAtIndex("units",i) == true) {
+				const XmlNode *unitsNode = cellNode->getChild("units",i);
+				int field = unitsNode->getAttribute("field")->getIntValue();
+				int unitId = unitsNode->getAttribute("unitid")->getIntValue();
+				units[field] = world->findUnitById(unitId);
+			}
+			if(cellNode->hasChildAtIndex("unitsWithEmptyCellMap",i) == true) {
+				const XmlNode *unitsNode = cellNode->getChild("unitsWithEmptyCellMap",i);
+				int field = unitsNode->getAttribute("field")->getIntValue();
+				int unitId = unitsNode->getAttribute("unitid")->getIntValue();
+				unitsWithEmptyCellMap[field] = world->findUnitById(unitId);
+			}
+		}
+	}
 }
 
 // =====================================================
@@ -127,6 +193,95 @@ void SurfaceCell::setVisible(int teamIndex, bool visible) {
     this->visible[teamIndex]= visible;
 }
 
+void SurfaceCell::saveGame(XmlNode *rootNode,int index) const {
+	bool saveCell = (object != NULL);
+	if(saveCell == false) {
+		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+			if(visible[i] == true || explored[i] == true) {
+				saveCell = true;
+			}
+		}
+	}
+
+	if(saveCell == true) {
+		std::map<string,string> mapTagReplacements;
+		XmlNode *surfaceCellNode = rootNode->addChild("SurfaceCell" + intToStr(index));
+		surfaceCellNode->addAttribute("index",intToStr(index), mapTagReplacements);
+
+	//	//geometry
+	//	Vec3f vertex;
+		//surfaceCellNode->addAttribute("vertex",vertex.getString(), mapTagReplacements);
+	//	Vec3f normal;
+		//surfaceCellNode->addAttribute("normal",normal.getString(), mapTagReplacements);
+	//	Vec3f color;
+		//surfaceCellNode->addAttribute("color",color.getString(), mapTagReplacements);
+	//
+	//	//tex coords
+	//	Vec2f fowTexCoord;		//tex coords for TEXTURE1 when multitexturing and fogOfWar
+		//surfaceCellNode->addAttribute("fowTexCoord",fowTexCoord.getString(), mapTagReplacements);
+	//	Vec2f surfTexCoord;		//tex coords for TEXTURE0
+		//surfaceCellNode->addAttribute("surfTexCoord",surfTexCoord.getString(), mapTagReplacements);
+	//	//surface
+	//	int surfaceType;
+		//surfaceCellNode->addAttribute("surfaceType",intToStr(surfaceType), mapTagReplacements);
+	//    const Texture2D *surfaceTexture;
+	//
+	//	//object & resource
+	//	Object *object;
+		if(object != NULL) {
+			object->saveGame(surfaceCellNode);
+		}
+	//	//visibility
+	//	bool visible[GameConstants::maxPlayers + GameConstants::specialFactions];
+		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+			if(visible[i] == true) {
+				XmlNode *visibleNode = surfaceCellNode->addChild("visible");
+				visibleNode->addAttribute("index",intToStr(i), mapTagReplacements);
+				visibleNode->addAttribute("value",intToStr(visible[i]), mapTagReplacements);
+			}
+		}
+	//    bool explored[GameConstants::maxPlayers + GameConstants::specialFactions];
+		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+			if(explored[i] == true) {
+				XmlNode *exploredNode = surfaceCellNode->addChild("explored");
+				exploredNode->addAttribute("index",intToStr(i), mapTagReplacements);
+				exploredNode->addAttribute("value",intToStr(explored[i]), mapTagReplacements);
+			}
+		}
+
+	//	//cache
+	//	bool nearSubmerged;
+		//surfaceCellNode->addAttribute("nearSubmerged",intToStr(nearSubmerged), mapTagReplacements);
+	}
+}
+
+void SurfaceCell::loadGame(const XmlNode *rootNode, int index, World *world) {
+	if(rootNode->hasChild("SurfaceCell" + intToStr(index)) == true) {
+		const XmlNode *cellNode = rootNode->getChild("SurfaceCell" + intToStr(index));
+		int visibleCount = cellNode->getChildCount();
+
+		//printf("Loading game, sc index [%d][%d]\n",index,visibleCount);
+
+		for(unsigned int i = 0; i < visibleCount; ++i) {
+			if(cellNode->hasChildAtIndex("visible",i) == true) {
+				const XmlNode *visibleNode = cellNode->getChild("visible",i);
+				int indexCell = visibleNode->getAttribute("index")->getIntValue();
+				bool value = visibleNode->getAttribute("value")->getIntValue();
+				visible[indexCell] = value;
+
+				//printf("Loading game, sc visible index [%d][%d][%d]\n",index,indexCell,value);
+			}
+			if(cellNode->hasChildAtIndex("explored",i) == true) {
+				const XmlNode *exploredNode = cellNode->getChild("explored",i);
+				int indexCell = exploredNode->getAttribute("index")->getIntValue();
+				bool value = exploredNode->getAttribute("value")->getIntValue();
+				explored[indexCell] = value;
+
+				//printf("Loading game, sc explored index [%d][%d][%d]\n",index,indexCell,value);
+			}
+		}
+	}
+}
 // =====================================================
 // 	class Map
 // =====================================================
@@ -1647,6 +1802,84 @@ string Map::getMapPath(const string &mapName, string scenarioDir, bool errorOnNo
 	}
 
 	return "";
+}
+
+void Map::saveGame(XmlNode *rootNode) const {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *mapNode = rootNode->addChild("Map");
+
+//	string title;
+	mapNode->addAttribute("title",title, mapTagReplacements);
+//	float waterLevel;
+	mapNode->addAttribute("waterLevel",floatToStr(waterLevel), mapTagReplacements);
+//	float heightFactor;
+	mapNode->addAttribute("heightFactor",floatToStr(heightFactor), mapTagReplacements);
+//	float cliffLevel;
+	mapNode->addAttribute("cliffLevel",floatToStr(cliffLevel), mapTagReplacements);
+//	int cameraHeight;
+	mapNode->addAttribute("cameraHeight",intToStr(cameraHeight), mapTagReplacements);
+//	int w;
+	mapNode->addAttribute("w",intToStr(w), mapTagReplacements);
+//	int h;
+	mapNode->addAttribute("h",intToStr(h), mapTagReplacements);
+//	int surfaceW;
+	mapNode->addAttribute("surfaceW",intToStr(surfaceW), mapTagReplacements);
+//	int surfaceH;
+	mapNode->addAttribute("surfaceH",intToStr(surfaceH), mapTagReplacements);
+//	int maxPlayers;
+	mapNode->addAttribute("maxPlayers",intToStr(maxPlayers), mapTagReplacements);
+//	Cell *cells;
+	//printf("getCellArraySize() = %d\n",getCellArraySize());
+	for(unsigned int i = 0; i < getCellArraySize(); ++i) {
+		Cell &cell = cells[i];
+		cell.saveGame(mapNode,i);
+	}
+//	SurfaceCell *surfaceCells;
+	//printf("getSurfaceCellArraySize() = %d\n",getSurfaceCellArraySize());
+	for(unsigned int i = 0; i < getSurfaceCellArraySize(); ++i) {
+		SurfaceCell &surfaceCell = surfaceCells[i];
+		surfaceCell.saveGame(mapNode,i);
+	}
+
+//	Vec2i *startLocations;
+	for(unsigned int i = 0; i < maxPlayers; ++i) {
+		XmlNode *startLocationsNode = mapNode->addChild("startLocations");
+		startLocationsNode->addAttribute("location",startLocations[i].getString(), mapTagReplacements);
+	}
+//	Checksum checksumValue;
+//	mapNode->addAttribute("checksumValue",intToStr(checksumValue.getSum()), mapTagReplacements);
+//	float maxMapHeight;
+	mapNode->addAttribute("maxMapHeight",floatToStr(maxMapHeight), mapTagReplacements);
+//	string mapFile;
+	mapNode->addAttribute("mapFile",mapFile, mapTagReplacements);
+}
+
+void Map::loadGame(const XmlNode *rootNode, World *world) {
+	const XmlNode *mapNode = rootNode->getChild("World")->getChild("Map");
+
+	//description = gameSettingsNode->getAttribute("description")->getValue();
+
+//	for(unsigned int i = 0; i < getCellArraySize(); ++i) {
+//		Cell &cell = cells[i];
+//		cell.saveGame(mapNode,i);
+//	}
+//	for(unsigned int i = 0; i < getSurfaceCellArraySize(); ++i) {
+//		SurfaceCell &surfaceCell = surfaceCells[i];
+//		surfaceCell.saveGame(mapNode,i);
+//	}
+
+	printf("getCellArraySize() = %d\n",getCellArraySize());
+	for(unsigned int i = 0; i < getCellArraySize(); ++i) {
+		Cell &cell = cells[i];
+		cell.loadGame(mapNode,i,world);
+	}
+
+	printf("getSurfaceCellArraySize() = %d\n",getSurfaceCellArraySize());
+	for(unsigned int i = 0; i < getSurfaceCellArraySize(); ++i) {
+		SurfaceCell &surfaceCell = surfaceCells[i];
+		surfaceCell.loadGame(mapNode,i,world);
+	}
+
 }
 
 // =====================================================

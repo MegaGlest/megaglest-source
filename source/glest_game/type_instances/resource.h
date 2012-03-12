@@ -27,7 +27,7 @@ using Shared::Graphics::Vec2i;
 using Shared::PlatformCommon::ValueCheckerVault;
 
 class ResourceType;
-
+class TechTree;
 // =====================================================
 // 	class Resource  
 //
@@ -59,6 +59,7 @@ public:
     bool decAmount(int i);
 
     void saveGame(XmlNode *rootNode) const;
+    void loadGame(const XmlNode *rootNode, int index,TechTree *techTree);
 };
 
 }}// end namespace

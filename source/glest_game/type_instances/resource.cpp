@@ -16,6 +16,7 @@
 #include "checksum.h"
 #include <stdexcept>
 #include "util.h"
+#include "tech_tree.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -113,6 +114,19 @@ void Resource::saveGame(XmlNode *rootNode) const {
 	resourceNode->addAttribute("pos",pos.getString(), mapTagReplacements);
 //	int balance;
 	resourceNode->addAttribute("balance",intToStr(balance), mapTagReplacements);
+}
+
+void Resource::loadGame(const XmlNode *rootNode, int index,TechTree *techTree) {
+	vector<XmlNode *> resourceNodeList = rootNode->getChildList("Resource");
+
+	if(index < resourceNodeList.size()) {
+		XmlNode *resourceNode = resourceNodeList[index];
+
+		amount = resourceNode->getAttribute("amount")->getIntValue();
+		type = techTree->getResourceType(resourceNode->getAttribute("type")->getValue());
+		pos = Vec2i::strToVec2(resourceNode->getAttribute("pos")->getValue());
+		balance = resourceNode->getAttribute("balance")->getIntValue();
+	}
 }
 
 }}//end namespace
