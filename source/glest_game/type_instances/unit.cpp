@@ -3530,9 +3530,9 @@ void Unit::saveGame(XmlNode *rootNode) {
 		(*it)->saveGame(unitNode);
 	}
 //	Observers observers;
-	for(Observers::iterator it = observers.begin(); it != observers.end(); ++it) {
-		(*it)->saveGame(unitNode);
-	}
+	//for(Observers::iterator it = observers.begin(); it != observers.end(); ++it) {
+	//	(*it)->saveGame(unitNode);
+	//}
 
 //	vector<UnitParticleSystem*> unitParticleSystems;
 	for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
@@ -3649,6 +3649,46 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("lastAttackedUnitId",intToStr(lastAttackedUnitId), mapTagReplacements);
 //	CauseOfDeathType causeOfDeath;
 	unitNode->addAttribute("causeOfDeath",intToStr(causeOfDeath), mapTagReplacements);
+}
+
+Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *faction, World *world) {
+	const XmlNode *unitNode = rootNode;
+
+	int newUnitId = unitNode->getAttribute("id")->getIntValue();
+	Vec2i newUnitPos = Vec2i::strToVec2(unitNode->getAttribute("pos")->getValue());
+	string newUnitType = unitNode->getAttribute("type")->getValue();
+	const UnitType *ut = faction->getType()->getUnitType(newUnitType);
+	CardinalDir newModelFacing = static_cast<CardinalDir>(unitNode->getAttribute("modelFacing")->getIntValue());
+
+//	Unit *result = new Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
+//			   const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing) : BaseColorPickEntity(), id(id) {
+
+	UnitPathInterface *newpath = NULL;
+	switch(settings->getPathFinderType()) {
+		case pfBasic:
+			newpath = new UnitPathBasic();
+			break;
+		case pfRoutePlanner:
+			newpath = new UnitPath();
+			break;
+		default:
+			throw runtime_error("detected unsupported pathfinder type!");
+    }
+
+	//Unit *result = new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
+	//Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
+	Unit *result = new Unit(newUnitId, newpath, newUnitPos, ut, faction, world->getMapPtr(), newModelFacing);
+
+	result->lastRotation = unitNode->getAttribute("lastRotation")->getFloatValue();
+	result->targetRotation = unitNode->getAttribute("targetRotation")->getFloatValue();
+	result->rotation = unitNode->getAttribute("rotation")->getFloatValue();
+
+	//world->placeUnitAtLocation(newUnitPos, generationArea, unit, true);
+	result->setPos(newUnitPos);
+    Vec2i meetingPos = newUnitPos-Vec2i(1);
+    result->setMeetingPos(meetingPos);
+
+    return result;
 }
 
 }}//end namespace

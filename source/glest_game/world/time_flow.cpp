@@ -134,11 +134,20 @@ void TimeFlow::saveGame(XmlNode *rootNode) {
 //	bool firstTime;
 //	Tileset *tileset;
 //	float time;
-	timeflowNode->addAttribute("time",intToStr(time), mapTagReplacements);
+	timeflowNode->addAttribute("time",floatToStr(time), mapTagReplacements);
 //	float lastTime;
-	timeflowNode->addAttribute("lastTime",intToStr(lastTime), mapTagReplacements);
+	timeflowNode->addAttribute("lastTime",floatToStr(lastTime), mapTagReplacements);
 //	float timeInc;
-	timeflowNode->addAttribute("timeInc",intToStr(timeInc), mapTagReplacements);
+	timeflowNode->addAttribute("timeInc",floatToStr(timeInc), mapTagReplacements);
+}
+
+void TimeFlow::loadGame(const XmlNode *rootNode) {
+	const XmlNode *timeflowNode = rootNode->getChild("TimeFlow");
+
+	firstTime = timeflowNode->getAttribute("firstTime")->getFloatValue();
+	time = timeflowNode->getAttribute("time")->getIntValue();
+	lastTime = timeflowNode->getAttribute("lastTime")->getFloatValue();
+	timeInc = timeflowNode->getAttribute("timeInc")->getFloatValue();
 }
 
 }}//end namespace

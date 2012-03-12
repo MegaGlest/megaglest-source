@@ -111,6 +111,7 @@ Game::Game() : ProgramState(NULL) {
 	currentAmbientSound=NULL;
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 
+	loadGameNode = NULL;
 	lastNetworkPlayerConnectionCheck = time(NULL);
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
@@ -183,6 +184,8 @@ void Game::resetMembers() {
 
 	currentAmbientSound=NULL;
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
+
+	loadGameNode = NULL;
 
 	lastNetworkPlayerConnectionCheck = time(NULL);
 
@@ -843,6 +846,9 @@ void Game::init(bool initForPreviewOnly) {
 	}
 
 	world.init(this, gameSettings.getDefaultUnits());
+	if(loadGameNode != NULL) {
+		//world.getMapPtr()->loadGame(loadGameNode,&world);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -3493,6 +3499,7 @@ void Game::saveGame(string name) {
 		weatherParticleSystem->saveGame(gameNode);
 	}
 	//GameSettings gameSettings;
+	gameSettings.saveGame(gameNode);
 	//Vec2i lastMousePos;
 	gameNode->addAttribute("lastMousePos",lastMousePos.getString(), mapTagReplacements);
 	//time_t lastRenderLog2d;
@@ -3572,6 +3579,47 @@ void Game::saveGame(string name) {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game to [%s]\n",saveGameFile.c_str());
 	xmlTree.save(saveGameFile);
+}
+
+void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
+	XmlTree	xmlTree;
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
+	std::map<string,string> mapExtraTagReplacementValues;
+	xmlTree.load(name, Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("After load of XML\n");
+
+	const XmlNode *rootNode= xmlTree.getRootNode();
+
+	//const XmlNode *versionNode= rootNode->getChild("megaglest-saved-game");
+	const XmlNode *versionNode= rootNode;
+
+	string gameVer = versionNode->getAttribute("version")->getValue();
+	if(gameVer != glestVersionString) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"saved game version does match your application version: [%s] --> [%s]",gameVer.c_str(),glestVersionString.c_str());
+		throw runtime_error(szBuf);
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found saved game version that matches your application version: [%s] --> [%s]\n",gameVer.c_str(),glestVersionString.c_str());
+
+	XmlNode *gameNode = rootNode->getChild("Game");
+	GameSettings newGameSettings;
+	newGameSettings.loadGame(gameNode);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Game settings loaded\n");
+
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	networkManager.end();
+	networkManager.init(nrServer,true);
+
+	Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
+	newGame->loadGameNode = gameNode;
+
+	const XmlNode *worldNode = gameNode->getChild("World");
+	newGame->world.loadGame(worldNode);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Starting Game ...\n");
+	programPtr->setState(newGame);
 }
 
 }}//end namespace

@@ -15,9 +15,11 @@
 #include "game_constants.h"
 #include "conversion.h"
 #include <algorithm>
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
+using Shared::Xml::XmlNode;
 
 namespace Glest{ namespace Game{
 
@@ -292,6 +294,234 @@ public:
 
 		return result;
 	}
+
+	void saveGame(XmlNode *rootNode) const {
+		std::map<string,string> mapTagReplacements;
+		XmlNode *gameSettingsNode = rootNode->addChild("GameSettings");
+
+//		string description;
+		gameSettingsNode->addAttribute("description",description, mapTagReplacements);
+//		string map;
+		gameSettingsNode->addAttribute("map",map, mapTagReplacements);
+//		string tileset;
+		gameSettingsNode->addAttribute("tileset",tileset, mapTagReplacements);
+//		string tech;
+		gameSettingsNode->addAttribute("tech",tech, mapTagReplacements);
+//		string scenario;
+		gameSettingsNode->addAttribute("scenario",scenario, mapTagReplacements);
+//		string scenarioDir;
+		gameSettingsNode->addAttribute("scenarioDir",scenarioDir, mapTagReplacements);
+//		string factionTypeNames[GameConstants::maxPlayers]; //faction names
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *factionTypeNamesNode = gameSettingsNode->addChild("factionTypeNames");
+			factionTypeNamesNode->addAttribute("name",factionTypeNames[idx], mapTagReplacements);
+		}
+
+//		string networkPlayerNames[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *networkPlayerNamesNode = gameSettingsNode->addChild("networkPlayerNames");
+			networkPlayerNamesNode->addAttribute("name",networkPlayerNames[idx], mapTagReplacements);
+		}
+
+//		int    networkPlayerStatuses[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *networkPlayerStatusesNode = gameSettingsNode->addChild("networkPlayerStatuses");
+			networkPlayerStatusesNode->addAttribute("status",intToStr(networkPlayerStatuses[idx]), mapTagReplacements);
+		}
+
+//		string networkPlayerLanguages[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *networkPlayerLanguagesNode = gameSettingsNode->addChild("networkPlayerLanguages");
+			networkPlayerLanguagesNode->addAttribute("name",networkPlayerLanguages[idx], mapTagReplacements);
+		}
+
+//		ControlType factionControls[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *factionControlsNode = gameSettingsNode->addChild("factionControls");
+			factionControlsNode->addAttribute("control",intToStr(factionControls[idx]), mapTagReplacements);
+		}
+
+//		int resourceMultiplierIndex[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *resourceMultiplierIndexNode = gameSettingsNode->addChild("resourceMultiplierIndex");
+			resourceMultiplierIndexNode->addAttribute("multiplier",intToStr(resourceMultiplierIndex[idx]), mapTagReplacements);
+		}
+
+//		int thisFactionIndex;
+		gameSettingsNode->addAttribute("thisFactionIndex",intToStr(thisFactionIndex), mapTagReplacements);
+//		int factionCount;
+		gameSettingsNode->addAttribute("factionCount",intToStr(factionCount), mapTagReplacements);
+//		int teams[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *teamsNode = gameSettingsNode->addChild("teams");
+			teamsNode->addAttribute("team",intToStr(teams[idx]), mapTagReplacements);
+		}
+
+//		int startLocationIndex[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *startLocationIndexNode = gameSettingsNode->addChild("startLocationIndex");
+			startLocationIndexNode->addAttribute("location",intToStr(startLocationIndex[idx]), mapTagReplacements);
+		}
+
+//		int mapFilterIndex;
+		gameSettingsNode->addAttribute("mapFilterIndex",intToStr(mapFilterIndex), mapTagReplacements);
+//
+//
+//		bool defaultUnits;
+		gameSettingsNode->addAttribute("defaultUnits",intToStr(defaultUnits), mapTagReplacements);
+//		bool defaultResources;
+		gameSettingsNode->addAttribute("defaultResources",intToStr(defaultResources), mapTagReplacements);
+//		bool defaultVictoryConditions;
+		gameSettingsNode->addAttribute("defaultVictoryConditions",intToStr(defaultVictoryConditions), mapTagReplacements);
+//		bool fogOfWar;
+		gameSettingsNode->addAttribute("fogOfWar",intToStr(fogOfWar), mapTagReplacements);
+//		bool allowObservers;
+		gameSettingsNode->addAttribute("allowObservers",intToStr(allowObservers), mapTagReplacements);
+//		bool enableObserverModeAtEndGame;
+		gameSettingsNode->addAttribute("enableObserverModeAtEndGame",intToStr(enableObserverModeAtEndGame), mapTagReplacements);
+//		bool enableServerControlledAI;
+		gameSettingsNode->addAttribute("enableServerControlledAI",intToStr(enableServerControlledAI), mapTagReplacements);
+//		int networkFramePeriod;
+		gameSettingsNode->addAttribute("networkFramePeriod",intToStr(networkFramePeriod), mapTagReplacements);
+//		bool networkPauseGameForLaggedClients;
+		gameSettingsNode->addAttribute("networkPauseGameForLaggedClients",intToStr(networkPauseGameForLaggedClients), mapTagReplacements);
+//		PathFinderType pathFinderType;
+		gameSettingsNode->addAttribute("pathFinderType",intToStr(pathFinderType), mapTagReplacements);
+//		uint32 flagTypes1;
+		gameSettingsNode->addAttribute("flagTypes1",intToStr(flagTypes1), mapTagReplacements);
+//	    int32 mapCRC;
+		gameSettingsNode->addAttribute("mapCRC",intToStr(mapCRC), mapTagReplacements);
+//	    int32 tilesetCRC;
+		gameSettingsNode->addAttribute("tilesetCRC",intToStr(tilesetCRC), mapTagReplacements);
+//	    int32 techCRC;
+		gameSettingsNode->addAttribute("techCRC",intToStr(techCRC), mapTagReplacements);
+//	    vector<pair<string,int32> > factionCRCList;
+		for(unsigned int i = 0; i < factionCRCList.size(); ++i) {
+			const pair<string,int32> &item = factionCRCList[i];
+
+			XmlNode *factionCRCListNode = gameSettingsNode->addChild("factionCRCList");
+			factionCRCListNode->addAttribute("key",item.first, mapTagReplacements);
+			factionCRCListNode->addAttribute("value",intToStr(item.second), mapTagReplacements);
+		}
+//	    int aiAcceptSwitchTeamPercentChance;
+		gameSettingsNode->addAttribute("aiAcceptSwitchTeamPercentChance",intToStr(aiAcceptSwitchTeamPercentChance), mapTagReplacements);
+//	    int masterserver_admin;
+		gameSettingsNode->addAttribute("masterserver_admin",intToStr(masterserver_admin), mapTagReplacements);
+	}
+
+	void loadGame(const XmlNode *rootNode) {
+		const XmlNode *gameSettingsNode = rootNode->getChild("GameSettings");
+
+//		string description;
+		description = gameSettingsNode->getAttribute("description")->getValue();
+//		string map;
+		map = gameSettingsNode->getAttribute("map")->getValue();
+//		string tileset;
+		tileset = gameSettingsNode->getAttribute("tileset")->getValue();
+//		string tech;
+		tech = gameSettingsNode->getAttribute("tech")->getValue();
+//		string scenario;
+		scenario = gameSettingsNode->getAttribute("scenario")->getValue();
+//		string scenarioDir;
+		scenarioDir = gameSettingsNode->getAttribute("scenarioDir")->getValue();
+//		string factionTypeNames[GameConstants::maxPlayers]; //faction names
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *factionTypeNamesNode = gameSettingsNode->getChild("factionTypeNames",idx);
+			factionTypeNames[idx] = factionTypeNamesNode->getAttribute("name")->getValue();
+		}
+
+//		string networkPlayerNames[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *networkPlayerNamesNode = gameSettingsNode->getChild("networkPlayerNames",idx);
+			networkPlayerNames[idx] = networkPlayerNamesNode->getAttribute("name")->getValue();
+		}
+
+//		int    networkPlayerStatuses[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *networkPlayerStatusesNode = gameSettingsNode->getChild("networkPlayerStatuses",idx);
+			networkPlayerStatuses[idx] = networkPlayerStatusesNode->getAttribute("status")->getIntValue();
+		}
+
+//		string networkPlayerLanguages[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *networkPlayerLanguagesNode = gameSettingsNode->getChild("networkPlayerLanguages",idx);
+			networkPlayerLanguages[idx] = networkPlayerLanguagesNode->getAttribute("name")->getValue();
+		}
+
+//		ControlType factionControls[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *factionControlsNode = gameSettingsNode->getChild("factionControls",idx);
+			factionControls[idx] = static_cast<ControlType>(factionControlsNode->getAttribute("control")->getIntValue());
+		}
+
+//		int resourceMultiplierIndex[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *resourceMultiplierIndexNode = gameSettingsNode->getChild("resourceMultiplierIndex",idx);
+			resourceMultiplierIndex[idx] = resourceMultiplierIndexNode->getAttribute("multiplier")->getIntValue();
+		}
+
+//		int thisFactionIndex;
+		thisFactionIndex = gameSettingsNode->getAttribute("thisFactionIndex")->getIntValue();
+//		int factionCount;
+		factionCount = gameSettingsNode->getAttribute("factionCount")->getIntValue();
+//		int teams[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *teamsNode = gameSettingsNode->getChild("teams",idx);
+			teams[idx] = teamsNode->getAttribute("team")->getIntValue();
+		}
+
+//		int startLocationIndex[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *startLocationIndexNode = gameSettingsNode->getChild("startLocationIndex",idx);
+			startLocationIndex[idx] = startLocationIndexNode->getAttribute("location")->getIntValue();
+		}
+
+//		int mapFilterIndex;
+		mapFilterIndex = gameSettingsNode->getAttribute("mapFilterIndex")->getIntValue();
+//
+//
+//		bool defaultUnits;
+		defaultUnits = gameSettingsNode->getAttribute("defaultUnits")->getIntValue();
+//		bool defaultResources;
+		defaultResources = gameSettingsNode->getAttribute("defaultResources")->getIntValue();
+//		bool defaultVictoryConditions;
+		defaultVictoryConditions = gameSettingsNode->getAttribute("defaultVictoryConditions")->getIntValue();
+//		bool fogOfWar;
+		fogOfWar = gameSettingsNode->getAttribute("fogOfWar")->getIntValue();
+//		bool allowObservers;
+		allowObservers = gameSettingsNode->getAttribute("allowObservers")->getIntValue();
+//		bool enableObserverModeAtEndGame;
+		enableObserverModeAtEndGame = gameSettingsNode->getAttribute("enableObserverModeAtEndGame")->getIntValue();
+//		bool enableServerControlledAI;
+		enableServerControlledAI = gameSettingsNode->getAttribute("enableServerControlledAI")->getIntValue();
+//		int networkFramePeriod;
+		networkFramePeriod = gameSettingsNode->getAttribute("networkFramePeriod")->getIntValue();
+//		bool networkPauseGameForLaggedClients;
+		networkPauseGameForLaggedClients = gameSettingsNode->getAttribute("networkPauseGameForLaggedClients")->getIntValue();
+//		PathFinderType pathFinderType;
+		pathFinderType = static_cast<PathFinderType>(gameSettingsNode->getAttribute("pathFinderType")->getIntValue());
+//		uint32 flagTypes1;
+		flagTypes1 = gameSettingsNode->getAttribute("flagTypes1")->getIntValue();
+//	    int32 mapCRC;
+		mapCRC = gameSettingsNode->getAttribute("mapCRC")->getIntValue();
+//	    int32 tilesetCRC;
+		tilesetCRC = gameSettingsNode->getAttribute("tilesetCRC")->getIntValue();
+//	    int32 techCRC;
+		techCRC = gameSettingsNode->getAttribute("techCRC")->getIntValue();
+//	    vector<pair<string,int32> > factionCRCList;
+//		for(unsigned int i = 0; i < factionCRCList.size(); ++i) {
+//			const pair<string,int32> &item = factionCRCList[i];
+//
+//			XmlNode *factionCRCListNode = gameSettingsNode->addChild("factionCRCList");
+//			factionCRCListNode->addAttribute("key",item.first, mapTagReplacements);
+//			factionCRCListNode->addAttribute("value",intToStr(item.second), mapTagReplacements);
+//		}
+//	    int aiAcceptSwitchTeamPercentChance;
+		aiAcceptSwitchTeamPercentChance = gameSettingsNode->getAttribute("aiAcceptSwitchTeamPercentChance")->getIntValue();
+//	    int masterserver_admin;
+		masterserver_admin = gameSettingsNode->getAttribute("masterserver_admin")->getIntValue();
+	}
+
 };
 
 }}//end namespace

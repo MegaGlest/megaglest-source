@@ -26,6 +26,7 @@ const char  *GAME_ARGS[] = {
 	"--help",
 
 	"--autostart-lastgame",
+	"--load-saved-game",
 	"--connecthost",
 	"--starthost",
 	"--headless-server-mode",
@@ -76,6 +77,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_HELP = 0,
 
 	GAME_ARG_AUTOSTART_LASTGAME,
+	GAME_ARG_AUTOSTART_LAST_SAVED_GAME,
 	GAME_ARG_CLIENT,
 	GAME_ARG_SERVER,
 	GAME_ARG_MASTERSERVER_MODE,
@@ -135,8 +137,12 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("Commandline Parameter:\t\tDescription:");
 	printf("\n----------------------\t\t------------");
 	printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
+
 	printf("\n%s\t\tAutomatically starts a game with the last game",GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME]);
 	printf("\n\t\t\t\tsettings you played.");
+
+	printf("\n%s\t\tLoads the last saved game.",GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME]);
+
 	printf("\n%s=x\t\t\tAuto connect to host server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
 	printf("\n%s\t\t\tAuto create a host server.",GAME_ARGS[GAME_ARG_SERVER]);
 
@@ -377,7 +383,7 @@ int mainSetup(int argc, char **argv) {
     if(knownArgCount != GAME_ARG_END) {
     	char szBuf[1024]="";
     	sprintf(szBuf,"Internal arg count mismatch knownArgCount = %d, GAME_ARG_END = %d",knownArgCount,GAME_ARG_END);
-    	throw runtime_error("");
+    	throw runtime_error(szBuf);
     }
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||

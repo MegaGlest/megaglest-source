@@ -44,6 +44,7 @@ class Game;
 class ScriptManager;
 class World;
 class Faction;
+class GameSettings;
 
 // =====================================================
 // 	class Faction
@@ -138,6 +139,9 @@ private:
 	set<int> livingUnits;
 	set<Unit*> livingUnitsp;
 
+	TechTree *techTree;
+	const XmlNode *loadWorldNode;
+
 public:
 	Faction();
 	~Faction();
@@ -151,7 +155,8 @@ public:
 
     void init(
 		FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
-		int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction, bool giveResources);
+		int factionIndex, int teamIndex, int startLocationIndex, bool thisFaction,
+		bool giveResources, const XmlNode *loadWorldNode=NULL);
 	void end();
 
 	bool getFactionDisconnectHandled() const { return factionDisconnectHandled;}
@@ -257,6 +262,7 @@ public:
 	std::string toString() const;
 
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode, int index,GameSettings *settings,World *world);
 
 private:
 	void resetResourceAmount(const ResourceType *rt);

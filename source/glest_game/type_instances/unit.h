@@ -49,6 +49,8 @@ class Level;
 class MorphCommandType;
 class Game;
 class Unit;
+class GameSettings;
+class World;
 
 enum CommandResult {
 	crSuccess,
@@ -641,6 +643,7 @@ public:
 
 	virtual string getUniquePickName() const;
 	void saveGame(XmlNode *rootNode);
+	static Unit * loadGame(const XmlNode *rootNode,GameSettings *settings,Faction *faction, World *world);
 
 private:
 	float computeHeight(const Vec2i &pos) const;

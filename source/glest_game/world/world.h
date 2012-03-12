@@ -146,6 +146,8 @@ private:
 	string queuedScenarioName;
 	bool queuedScenarioKeepFactions;
 
+	const XmlNode *loadWorldNode;
+
 public:
 	World();
 	~World();
@@ -267,7 +269,9 @@ public:
 	string getFowAlphaCellsLookupItemCacheStats();
 	string getAllFactionsCacheStats();
 
+	void placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, bool spaciated);
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 
 private:
 

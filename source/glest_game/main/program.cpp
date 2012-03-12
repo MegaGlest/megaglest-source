@@ -200,6 +200,30 @@ void Program::initNormal(WindowGl *window){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void Program::initSavedGame(WindowGl *window,bool masterserverMode) {
+	MainMenu* mainMenu= NULL;
+
+	init(window);
+	mainMenu= new MainMenu(this);
+	setState(mainMenu);
+
+	string saveGameFile = GameConstants::saveGameFileDefault;
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
+	}
+	else {
+        string userData = Config::getInstance().getString("UserData_Root","");
+        if(userData != "") {
+        	endPathWithSlash(userData);
+        }
+        saveGameFile = userData + saveGameFile;
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Loading game from [%s]\n",saveGameFile.c_str());
+
+	Game::loadGame(saveGameFile,this,masterserverMode);
+}
+
 void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots,
 		bool masterserverMode) {
 	MainMenu* mainMenu= NULL;

@@ -3305,6 +3305,9 @@ int glestMain(int argc, char** argv) {
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME])) == true) {
 			program->initServer(mainWindow,true,false);
 		}
+		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME])) == true) {
+			program->initSavedGame(mainWindow,false);
+		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_PREVIEW_MAP])) == true) {
 			int foundParamIndIndex = -1;
 			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_PREVIEW_MAP]) + string("="),&foundParamIndIndex);

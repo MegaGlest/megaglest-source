@@ -181,4 +181,36 @@ string Object::getUniquePickName() const {
 	return result;
 }
 
+void Object::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *objectNode = rootNode->addChild("Object");
+
+//	ObjectType *objectType;
+	if(objectType != NULL) {
+		objectNode->addAttribute("objectType",intToStr(objectType->getClass()), mapTagReplacements);
+	}
+//	vector<UnitParticleSystem*> unitParticleSystems;
+	for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
+		UnitParticleSystem *ptr= unitParticleSystems[i];
+		if(ptr != NULL) {
+			ptr->saveGame(objectNode);
+		}
+	}
+//	Resource *resource;
+	if(resource != NULL) {
+		resource->saveGame(objectNode);
+	}
+//	Vec3f pos;
+	objectNode->addAttribute("pos",pos.getString(), mapTagReplacements);
+//	float rotation;
+	objectNode->addAttribute("rotation",floatToStr(rotation), mapTagReplacements);
+//	int variation;
+	objectNode->addAttribute("variation",intToStr(variation), mapTagReplacements);
+//	int lastRenderFrame;
+	objectNode->addAttribute("lastRenderFrame",intToStr(lastRenderFrame), mapTagReplacements);
+//	Vec2i mapPos;
+	objectNode->addAttribute("mapPos",mapPos.getString(), mapTagReplacements);
+//	bool visible;
+	objectNode->addAttribute("visible",intToStr(visible), mapTagReplacements);
+}
 }}//end namespace
