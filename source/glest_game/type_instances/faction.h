@@ -172,6 +172,7 @@ public:
 	int getTeam() const									{return teamIndex;}
 	void setTeam(int team) 								{teamIndex=team;}
 
+	TechTree * getTechTree() const						{ return techTree; }
 	const SwitchTeamVote * getFirstSwitchTeamVote() const;
 	SwitchTeamVote * getSwitchTeamVote(int factionIndex);
 	void setSwitchTeamVote(SwitchTeamVote &vote);
@@ -262,7 +263,7 @@ public:
 	std::string toString() const;
 
 	void saveGame(XmlNode *rootNode);
-	void loadGame(const XmlNode *rootNode, int index,GameSettings *settings,World *world);
+	void loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *settings,World *world);
 
 private:
 	void resetResourceAmount(const ResourceType *rt);

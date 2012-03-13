@@ -220,4 +220,36 @@ void Minimap::computeTexture(const World *world) {
 	}
 }
 
+void Minimap::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *minimapNode = rootNode->addChild("Minimap");
+
+//	Pixmap2D *fowPixmap0;
+//	Pixmap2D *fowPixmap1;
+	for(unsigned int i = 0; i < fowPixmap1->getPixelByteCount(); ++i) {
+		if(fowPixmap1->getPixels()[i] != 0) {
+			XmlNode *fowPixmap1Node = minimapNode->addChild("fowPixmap1");
+			fowPixmap1Node->addAttribute("index",intToStr(i), mapTagReplacements);
+			fowPixmap1Node->addAttribute("pixel",intToStr(fowPixmap1->getPixels()[i]), mapTagReplacements);
+		}
+	}
+//	Texture2D *tex;
+//	Texture2D *fowTex;    //Fog Of War Texture2D
+//	bool fogOfWar;
+//	const GameSettings *gameSettings;
+
+}
+
+void Minimap::loadGame(const XmlNode *rootNode) {
+	const XmlNode *minimapNode = rootNode->getChild("Minimap");
+
+	vector<XmlNode *> fowPixmap1NodeList = minimapNode->getChildList("fowPixmap1");
+	for(unsigned int i = 0; i < fowPixmap1NodeList.size(); ++i) {
+		XmlNode *fowPixmap1Node = fowPixmap1NodeList[i];
+
+		int pixelIndex = fowPixmap1Node->getAttribute("index")->getIntValue();
+		fowPixmap1->getPixels()[pixelIndex] = fowPixmap1Node->getAttribute("pixel")->getIntValue();
+	}
+}
+
 }}//end namespace

@@ -200,11 +200,12 @@ void ResourceType::deletePixels() {
 }
 
 void ResourceType::saveGame(XmlNode *rootNode) {
-	DisplayableType::saveGame(rootNode);
+	//DisplayableType::saveGame(rootNode);
 
 	std::map<string,string> mapTagReplacements;
 	XmlNode *resourceTypeNode = rootNode->addChild("ResourceType");
 
+	resourceTypeNode->addAttribute("name",this->getName(), mapTagReplacements);
 //    ResourceClass resourceClass;
 	resourceTypeNode->addAttribute("resourceClass",intToStr(resourceClass), mapTagReplacements);
 //    int tilesetObject;	//used only if class==rcTileset

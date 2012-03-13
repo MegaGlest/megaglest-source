@@ -14,6 +14,7 @@
 
 #include "pixmap.h"
 #include "texture.h"
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -23,6 +24,7 @@ using Shared::Graphics::Vec3f;
 using Shared::Graphics::Vec2i;
 using Shared::Graphics::Pixmap2D;
 using Shared::Graphics::Texture2D;
+using Shared::Xml::XmlNode;
 
 class World;
 class GameSettings;
@@ -63,6 +65,9 @@ public:
 	void resetFowTex();
 	void updateFowTex(float t);
 	void setFogOfWar(bool value) { fogOfWar = value; resetFowTex(); }
+
+	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 
 private:
 	void computeTexture(const World *world);

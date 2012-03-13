@@ -22,30 +22,38 @@ using namespace Shared::Util;
 
 namespace Glest { namespace Game {
 
-void Task::saveGame(XmlNode *rootNode) const {
-	std::map<string,string> mapTagReplacements;
-	XmlNode *taskNode = rootNode->addChild("Task");
-
-	taskNode->addAttribute("taskClass",intToStr(taskClass), mapTagReplacements);
+Task::Task() {
+	taskClass = tcProduce;
 }
+
+//void Task::saveGame(XmlNode *rootNode) const {
+//	std::map<string,string> mapTagReplacements;
+//	XmlNode *taskNode = rootNode->addChild("Task");
+//}
 
 // =====================================================
 // 	class ProduceTask
 // =====================================================
-ProduceTask::ProduceTask(UnitClass unitClass){
+ProduceTask::ProduceTask() : Task() {
+	taskClass= tcProduce;
+	unitType= NULL;
+	resourceType= NULL;
+}
+
+ProduceTask::ProduceTask(UnitClass unitClass) : Task() {
 	taskClass= tcProduce;
 	this->unitClass= unitClass;
 	unitType= NULL;
 	resourceType= NULL;
 }
 
-ProduceTask::ProduceTask(const UnitType *unitType){
+ProduceTask::ProduceTask(const UnitType *unitType) : Task() {
 	taskClass= tcProduce;
 	this->unitType= unitType;
 	resourceType= NULL;
 }
 
-ProduceTask::ProduceTask(const ResourceType *resourceType){
+ProduceTask::ProduceTask(const ResourceType *resourceType) : Task() {
 	taskClass= tcProduce;
 	unitType= NULL;
 	this->resourceType= resourceType;
@@ -60,10 +68,10 @@ string ProduceTask::toString() const{
 }
 
 void ProduceTask::saveGame(XmlNode *rootNode) const {
-	Task::saveGame(rootNode);
-
 	std::map<string,string> mapTagReplacements;
-	XmlNode *produceTaskNode = rootNode->addChild("ProduceTask");
+	XmlNode *taskNode = rootNode->addChild("Task");
+	taskNode->addAttribute("taskClass",intToStr(taskClass), mapTagReplacements);
+	XmlNode *produceTaskNode = taskNode->addChild("ProduceTask");
 
 //	UnitClass unitClass;
 	produceTaskNode->addAttribute("unitClass",intToStr(unitClass), mapTagReplacements);
@@ -77,9 +85,35 @@ void ProduceTask::saveGame(XmlNode *rootNode) const {
 	}
 }
 
+ProduceTask * ProduceTask::loadGame(const XmlNode *rootNode, Faction *faction) {
+	const XmlNode *produceTaskNode = rootNode->getChild("ProduceTask");
+
+	ProduceTask *newTask = new ProduceTask();
+	//	UnitClass unitClass;
+	newTask->unitClass = static_cast<UnitClass>(produceTaskNode->getAttribute("unitClass")->getIntValue());
+	//	const UnitType *unitType;
+	if(produceTaskNode->hasAttribute("unitType")) {
+		string unitTypeName = produceTaskNode->getAttribute("unitType")->getValue();
+		newTask->unitType = faction->getType()->getUnitType(unitTypeName);
+	}
+	//	const ResourceType *resourceType;
+	if(produceTaskNode->hasAttribute("resourceType")) {
+		string resourceTypeName = produceTaskNode->getAttribute("resourceType")->getValue();
+		newTask->resourceType = faction->getTechTree()->getResourceType(resourceTypeName);
+	}
+
+	return newTask;
+}
+
 // =====================================================
 // 	class BuildTask
 // =====================================================
+BuildTask::BuildTask() {
+	taskClass= tcBuild;
+	this->unitType= NULL;
+	resourceType= NULL;
+	forcePos= false;
+}
 
 BuildTask::BuildTask(const UnitType *unitType){
 	taskClass= tcBuild;
@@ -112,10 +146,10 @@ string BuildTask::toString() const{
 }
 
 void BuildTask::saveGame(XmlNode *rootNode) const {
-	Task::saveGame(rootNode);
-
 	std::map<string,string> mapTagReplacements;
-	XmlNode *buildTaskNode = rootNode->addChild("BuildTask");
+	XmlNode *taskNode = rootNode->addChild("Task");
+	taskNode->addAttribute("taskClass",intToStr(taskClass), mapTagReplacements);
+	XmlNode *buildTaskNode = taskNode->addChild("BuildTask");
 
 //	const UnitType *unitType;
 	if(unitType != NULL) {
@@ -131,9 +165,32 @@ void BuildTask::saveGame(XmlNode *rootNode) const {
 	buildTaskNode->addAttribute("pos",pos.getString(), mapTagReplacements);
 }
 
+BuildTask * BuildTask::loadGame(const XmlNode *rootNode, Faction *faction) {
+	const XmlNode *buildTaskNode = rootNode->getChild("BuildTask");
+
+	BuildTask *newTask = new BuildTask();
+	if(buildTaskNode->hasAttribute("unitType")) {
+		string unitTypeName = buildTaskNode->getAttribute("unitType")->getValue();
+		newTask->unitType = faction->getType()->getUnitType(unitTypeName);
+	}
+	if(buildTaskNode->hasAttribute("resourceType")) {
+		string resourceTypeName = buildTaskNode->getAttribute("resourceType")->getValue();
+		newTask->resourceType = faction->getTechTree()->getResourceType(resourceTypeName);
+	}
+
+	newTask->forcePos = buildTaskNode->getAttribute("forcePos")->getIntValue();
+	newTask->pos = Vec2i::strToVec2(buildTaskNode->getAttribute("pos")->getValue());
+
+	return newTask;
+}
+
 // =====================================================
 // 	class UpgradeTask
 // =====================================================
+UpgradeTask::UpgradeTask() {
+	taskClass= tcUpgrade;
+	this->upgradeType= NULL;
+}
 
 UpgradeTask::UpgradeTask(const UpgradeType *upgradeType){
 	taskClass= tcUpgrade;
@@ -149,14 +206,26 @@ string UpgradeTask::toString() const{
 }
 
 void UpgradeTask::saveGame(XmlNode *rootNode) const {
-	Task::saveGame(rootNode);
-
 	std::map<string,string> mapTagReplacements;
-	XmlNode *upgradeTaskNode = rootNode->addChild("UpgradeTask");
+	XmlNode *taskNode = rootNode->addChild("Task");
+	taskNode->addAttribute("taskClass",intToStr(taskClass), mapTagReplacements);
+	XmlNode *upgradeTaskNode = taskNode->addChild("UpgradeTask");
 
 	if(upgradeType != NULL) {
-		upgradeType->saveGame(upgradeTaskNode);
+		//upgradeType->saveGame(upgradeTaskNode);
+		upgradeTaskNode->addAttribute("upgradeType",upgradeType->getName(), mapTagReplacements);
 	}
+}
+
+UpgradeTask * UpgradeTask::loadGame(const XmlNode *rootNode, Faction *faction) {
+	const XmlNode *upgradeTaskNode = rootNode->getChild("UpgradeTask");
+
+	UpgradeTask *newTask = new UpgradeTask();
+	if(upgradeTaskNode->hasAttribute("upgradeType")) {
+		string upgradeTypeName = upgradeTaskNode->getAttribute("upgradeType")->getValue();
+		newTask->upgradeType = faction->getType()->getUpgradeType(upgradeTypeName);
+	}
+	return newTask;
 }
 
 // =====================================================
@@ -962,6 +1031,50 @@ void Ai::saveGame(XmlNode *rootNode) const {
 //	RandomGen random;
 	aiNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	std::map<int,int> factionSwitchTeamRequestCount;
-
 }
+
+void Ai::loadGame(const XmlNode *rootNode, Faction *faction) {
+	const XmlNode *aiNode = rootNode->getChild("Ai");
+
+	startLoc = aiNode->getAttribute("startLoc")->getIntValue();
+	randomMinWarriorsReached = aiNode->getAttribute("randomMinWarriorsReached")->getIntValue();
+
+	vector<XmlNode *> taskNodeList = aiNode->getChildList("Task");
+	for(unsigned int i = 0; i < taskNodeList.size(); ++i) {
+		XmlNode *taskNode = taskNodeList[i];
+		TaskClass taskClass = static_cast<TaskClass>(taskNode->getAttribute("taskClass")->getIntValue());
+		switch(taskClass) {
+			case tcProduce:
+				{
+				ProduceTask *newTask = ProduceTask::loadGame(taskNode, faction);
+				tasks.push_back(newTask);
+				}
+				break;
+			case tcBuild:
+				{
+				BuildTask *newTask = BuildTask::loadGame(taskNode, faction);
+				tasks.push_back(newTask);
+				}
+				break;
+			case tcUpgrade:
+				{
+				UpgradeTask *newTask = UpgradeTask::loadGame(taskNode, faction);
+				tasks.push_back(newTask);
+				}
+				break;
+		}
+	}
+
+	vector<XmlNode *> expansionPositionsNodeList = aiNode->getChildList("expansionPositions");
+	for(unsigned int i = 0; i < expansionPositionsNodeList.size(); ++i) {
+		XmlNode *expansionPositionsNode = expansionPositionsNodeList[i];
+		Vec2i pos = Vec2i::strToVec2(expansionPositionsNode->getAttribute("pos")->getValue());
+		expansionPositions.push_back(pos);
+	}
+
+	//	RandomGen random;
+	random.setLastNumber(aiNode->getAttribute("random")->getIntValue());
+	//	std::map<int,int> factionSwitchTeamRequestCount;
+}
+
 }}//end namespace

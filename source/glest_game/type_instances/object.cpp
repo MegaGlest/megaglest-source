@@ -213,4 +213,39 @@ void Object::saveGame(XmlNode *rootNode) {
 //	bool visible;
 	objectNode->addAttribute("visible",intToStr(visible), mapTagReplacements);
 }
+
+void Object::loadGame(const XmlNode *rootNode,const TechTree *techTree) {
+	const XmlNode *objectNode = rootNode->getChild("Object");
+
+	//description = objectNode->getAttribute("description")->getValue();
+
+	//	ObjectType *objectType;
+//	if(objectType != NULL) {
+//		objectNode->addAttribute("objectType",intToStr(objectType->getClass()), mapTagReplacements);
+//	}
+//	//	vector<UnitParticleSystem*> unitParticleSystems;
+//	for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
+//		UnitParticleSystem *ptr= unitParticleSystems[i];
+//		if(ptr != NULL) {
+//			ptr->saveGame(objectNode);
+//		}
+//	}
+	//	Resource *resource;
+	if(resource != NULL) {
+		resource->loadGame(objectNode,0,techTree);
+	}
+	//	Vec3f pos;
+	pos = Vec3f::strToVec3(objectNode->getAttribute("pos")->getValue());
+	//	float rotation;
+	rotation = objectNode->getAttribute("rotation")->getFloatValue();
+	//	int variation;
+	variation = objectNode->getAttribute("variation")->getIntValue();
+	//	int lastRenderFrame;
+	lastRenderFrame = objectNode->getAttribute("lastRenderFrame")->getIntValue();
+	//	Vec2i mapPos;
+	mapPos = Vec2i::strToVec2(objectNode->getAttribute("mapPos")->getValue());
+	//	bool visible;
+	visible = objectNode->getAttribute("visible")->getIntValue();
+}
+
 }}//end namespace

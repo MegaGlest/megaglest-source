@@ -50,6 +50,7 @@ private:
 
 	int unitCommandGroupId;
 
+	Command();
 public:
     //constructor
     Command(const CommandType *ct, const Vec2i &pos=Vec2i(0)); 
@@ -87,7 +88,8 @@ public:
 
     std::string toString() const;
 
-    void saveGame(XmlNode *rootNode);
+    void saveGame(XmlNode *rootNode, Faction *faction);
+    static Command * loadGame(const XmlNode *rootNode,const UnitType *ut,World *world);
 };   
 
 }}//end namespace

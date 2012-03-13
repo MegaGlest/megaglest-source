@@ -248,12 +248,21 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	}
 
 	unitUpdater.init(game);
+	if(loadWorldNode != NULL) {
+		unitUpdater.loadGame(loadWorldNode);
+	}
 
 	//minimap must be init after sum computation
 	initMinimap();
 	if(createUnits){
 		initUnits();
 	}
+
+	if(loadWorldNode != NULL) {
+		map.loadGame(loadWorldNode,this);
+		minimap.loadGame(loadWorldNode);
+	}
+
 	//initExplorationState(); ... was only for !fog-of-war, now handled in initCells()
 	computeFow();
 
@@ -1331,6 +1340,64 @@ void World::initFactionTypes(GameSettings *gs) {
 		}
 	}
 
+	if(loadWorldNode != NULL) {
+		stats.loadGame(loadWorldNode);
+		random.setLastNumber(loadWorldNode->getAttribute("random")->getIntValue());
+
+		thisFactionIndex = loadWorldNode->getAttribute("thisFactionIndex")->getIntValue();
+	//	int thisTeamIndex;
+		thisTeamIndex = loadWorldNode->getAttribute("thisTeamIndex")->getIntValue();
+	//	int frameCount;
+		frameCount = loadWorldNode->getAttribute("frameCount")->getIntValue();
+
+		MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
+	//	std::map<int,int> mapFactionNextUnitId;
+//		for(std::map<int,int>::iterator iterMap = mapFactionNextUnitId.begin();
+//				iterMap != mapFactionNextUnitId.end(); ++iterMap) {
+//			XmlNode *factionNextUnitIdNode = worldNode->addChild("FactionNextUnitId");
+//
+//			factionNextUnitIdNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+//			factionNextUnitIdNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+//		}
+		//!!!
+		vector<XmlNode *> factionNextUnitIdNodeList = loadWorldNode->getChildList("FactionNextUnitId");
+		for(unsigned int i = 0; i < factionNextUnitIdNodeList.size(); ++i) {
+			XmlNode *factionNextUnitIdNode = factionNextUnitIdNodeList[i];
+
+			int key = factionNextUnitIdNode->getAttribute("key")->getIntValue();
+			int value = factionNextUnitIdNode->getAttribute("value")->getIntValue();
+
+			mapFactionNextUnitId[key] = value;
+		}
+		safeMutex.ReleaseLock();
+	//	//config
+	//	bool fogOfWarOverride;
+		fogOfWarOverride = loadWorldNode->getAttribute("fogOfWarOverride")->getIntValue();
+	//	bool fogOfWar;
+		fogOfWar = loadWorldNode->getAttribute("fogOfWar")->getIntValue();
+	//	int fogOfWarSmoothingFrameSkip;
+		fogOfWarSmoothingFrameSkip = loadWorldNode->getAttribute("fogOfWarSmoothingFrameSkip")->getIntValue();
+	//	bool fogOfWarSmoothing;
+		fogOfWarSmoothing = loadWorldNode->getAttribute("fogOfWarSmoothing")->getIntValue();
+	//	Game *game;
+	//	Chrono chronoPerfTimer;
+	//	bool perfTimerEnabled;
+	//
+	//	bool unitParticlesEnabled;
+		unitParticlesEnabled = loadWorldNode->getAttribute("unitParticlesEnabled")->getIntValue();
+	//	bool staggeredFactionUpdates;
+		staggeredFactionUpdates = loadWorldNode->getAttribute("staggeredFactionUpdates")->getIntValue();
+	//	std::map<string,StaticSound *> staticSoundList;
+	//	std::map<string,StrSound *> streamSoundList;
+	//
+	//	uint32 nextCommandGroupId;
+		nextCommandGroupId = loadWorldNode->getAttribute("nextCommandGroupId")->getIntValue();
+	//	string queuedScenarioName;
+		queuedScenarioName = loadWorldNode->getAttribute("queuedScenarioName")->getValue();
+	//	bool queuedScenarioKeepFactions;
+		queuedScenarioKeepFactions = loadWorldNode->getAttribute("queuedScenarioKeepFactions")->getIntValue();
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(factions.empty() == false) {
@@ -2033,7 +2100,7 @@ void World::saveGame(XmlNode *rootNode) {
 	XmlNode *worldNode = rootNode->addChild("World");
 
 //	Map map;
-	//map.saveGame(worldNode);
+	map.saveGame(worldNode);
 //	Tileset tileset;
 	worldNode->addAttribute("tileset",tileset.getName(), mapTagReplacements);
 //	//TechTree techTree;
@@ -2051,6 +2118,7 @@ void World::saveGame(XmlNode *rootNode) {
 //    WaterEffects waterEffects;
 //    WaterEffects attackEffects; // onMiniMap
 //	Minimap minimap;
+	minimap.saveGame(worldNode);
 //    Stats stats;	//BattleEnd will delete this object
 	stats.saveGame(worldNode);
 //
@@ -2072,6 +2140,7 @@ void World::saveGame(XmlNode *rootNode) {
 	worldNode->addAttribute("frameCount",intToStr(frameCount), mapTagReplacements);
 //	//int nextUnitId;
 //	Mutex mutexFactionNextUnitId;
+	MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 //	std::map<int,int> mapFactionNextUnitId;
 	for(std::map<int,int>::iterator iterMap = mapFactionNextUnitId.begin();
 			iterMap != mapFactionNextUnitId.end(); ++iterMap) {
@@ -2080,6 +2149,7 @@ void World::saveGame(XmlNode *rootNode) {
 		factionNextUnitIdNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
 		factionNextUnitIdNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
 	}
+	safeMutex.ReleaseLock();
 //	//config
 //	bool fogOfWarOverride;
 	worldNode->addAttribute("fogOfWarOverride",intToStr(fogOfWarOverride), mapTagReplacements);

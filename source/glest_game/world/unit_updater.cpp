@@ -1274,7 +1274,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 							unit->setLoadCount(unit->getLoadCount() + 1);
 
 							//if resource exausted, then delete it and stop
-							if (r->decAmount(1)) {
+							if (sc->decAmount(1)) {
 								const ResourceType *rt = r->getType();
 								sc->deleteResource();
 								world->removeResourceTargetFromCache(unitTargetPos);
@@ -2600,6 +2600,14 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 //	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 }
 
+void UnitUpdater::loadGame(const XmlNode *rootNode) {
+	const XmlNode *unitupdaterNode = rootNode->getChild("UnitUpdater");
+
+	pathFinder->loadGame(unitupdaterNode);
+	random.setLastNumber(unitupdaterNode->getAttribute("random")->getIntValue());
+//	float attackWarnRange;
+	attackWarnRange = unitupdaterNode->getAttribute("attackWarnRange")->getFloatValue();
+}
 // =====================================================
 //	class ParticleDamager
 // =====================================================

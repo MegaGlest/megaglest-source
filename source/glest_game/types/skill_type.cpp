@@ -336,7 +336,7 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 		throw runtime_error(szBuf);
 	}
 
-    attackBoost.boostUpgrade.load(attackBoostNode);
+    attackBoost.boostUpgrade.load(attackBoostNode,attackBoost.name);
     if(attackBoostNode->hasChild("particles") == true) {
         const XmlNode *particleNode = attackBoostNode->getChild("particles");
         bool particleEnabled = particleNode->getAttribute("value")->getBoolValue();

@@ -32,6 +32,7 @@ class SkillType;
 class AttackSkillType;
 class MoveSkillType;
 class ProduceSkillType;
+class Faction;
 
 // ===============================
 // 	class UpgradeTypeBase
@@ -39,6 +40,7 @@ class ProduceSkillType;
 
 class UpgradeTypeBase {
 protected:
+	string upgradename;
     int maxHp;
     bool maxHpIsMultiplier;
 	int maxHpRegeneration;
@@ -99,12 +101,13 @@ public:
 	int getProdSpeed(const SkillType *st) const;
 	bool getProdSpeedIsMultiplier() const		{return prodSpeedIsMultiplier;}
 
-	void load(const XmlNode *upgradeNode);
+	void load(const XmlNode *upgradeNode, string upgradename);
 
 	virtual string getDesc() const;
 	std::string toString() const {
 		std::string result = "";
 
+		result += "upgradename =" + upgradename;
 		result += "maxHp = " + intToStr(maxHp);
 		result += "maxHpIsMultiplier = " + intToStr(maxHpIsMultiplier);
 		result += "maxHpRegeneration = " + intToStr(maxHpRegeneration);
@@ -133,6 +136,7 @@ public:
 	}
 
 	virtual void saveGame(XmlNode *rootNode) const;
+	static const UpgradeType * loadGame(const XmlNode *rootNode, Faction *faction);
 };
 
 // ===============================
@@ -157,7 +161,8 @@ public:
     //other methods
 	virtual string getReqDesc() const;
 
-	virtual void saveGame(XmlNode *rootNode) const;
+	//virtual void saveGame(XmlNode *rootNode) const;
+	//virtual void loadGame(const XmlNode *rootNode);
 };
 
 // ===============================
@@ -174,6 +179,9 @@ public:
 
 	void apply(const UpgradeTypeBase *ut, const Unit *unit);
 	void deapply(const UpgradeTypeBase *ut, const Unit *unit);
+
+	void saveGame(XmlNode *rootNode) const;
+	void loadGame(const XmlNode *rootNode);
 };
 
 }}//end namespace

@@ -1525,63 +1525,63 @@ void PathFinder::saveGame(XmlNode *rootNode) {
 		XmlNode *factionsNode = pathfinderNode->addChild("factions");
 
 //		std::map<Vec2i, bool> openPosList;
-		XmlNode *openPosListNode = factionsNode->addChild("openPosList");
-		for(std::map<Vec2i, bool>::iterator iterMap = factionState.openPosList.begin();
-				iterMap != factionState.openPosList.end(); ++iterMap) {
-			openPosListNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
-			openPosListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
-		}
-//		std::map<float, Nodes> openNodesList;
-		XmlNode *openNodesListNode = factionsNode->addChild("openNodesList");
-		for(std::map<float, Nodes>::iterator iterMap = factionState.openNodesList.begin();
-				iterMap != factionState.openNodesList.end(); ++iterMap) {
-
-			Nodes &nodeList = iterMap->second;
-			for(unsigned int j = 0; j < nodeList.size(); ++j) {
-				Node *curNode = nodeList[j];
-				XmlNode *openNodesListNodeNode = factionsNode->addChild("openNodesListNode");
-				openNodesListNodeNode->addAttribute("key",floatToStr(iterMap->first), mapTagReplacements);
-
-//				Vec2i pos;
-				openNodesListNodeNode->addAttribute("pos",curNode->pos.getString(), mapTagReplacements);
-//				Node *next;
-				int nextIdx = findNodeIndex(curNode->next, nodeList);
-				openNodesListNodeNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
-//				Node *prev;
-				int prevIdx = findNodeIndex(curNode->prev, nodeList);
-				openNodesListNodeNode->addAttribute("prev",intToStr(nextIdx), mapTagReplacements);
-//				float heuristic;
-				openNodesListNodeNode->addAttribute("heuristic",floatToStr(curNode->heuristic), mapTagReplacements);
-//				bool exploredCell;
-				openNodesListNodeNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
-			}
-		}
-
-//		std::map<float, Nodes> closedNodesList;
-		XmlNode *closedNodesListNode = factionsNode->addChild("closedNodesList");
-		for(std::map<float, Nodes>::iterator iterMap = factionState.closedNodesList.begin();
-				iterMap != factionState.closedNodesList.end(); ++iterMap) {
-
-			Nodes &nodeList = iterMap->second;
-			for(unsigned int j = 0; j < nodeList.size(); ++j) {
-				Node *curNode = nodeList[j];
-				XmlNode *closedNodesListNodeNode = factionsNode->addChild("closedNodesListNode");
-				closedNodesListNodeNode->addAttribute("key",floatToStr(iterMap->first), mapTagReplacements);
-
-//				Vec2i pos;
-				closedNodesListNodeNode->addAttribute("pos",curNode->pos.getString(), mapTagReplacements);
-//				Node *next;
-				int nextIdx = findNodeIndex(curNode->next, nodeList);
-				closedNodesListNodeNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
-//				Node *prev;
-				int prevIdx = findNodeIndex(curNode->prev, nodeList);
-				closedNodesListNodeNode->addAttribute("prev",intToStr(nextIdx), mapTagReplacements);
-//				float heuristic;
-				closedNodesListNodeNode->addAttribute("heuristic",floatToStr(curNode->heuristic), mapTagReplacements);
-//				bool exploredCell;
-				closedNodesListNodeNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
-			}
-		}
+//		XmlNode *openPosListNode = factionsNode->addChild("openPosList");
+//		for(std::map<Vec2i, bool>::iterator iterMap = factionState.openPosList.begin();
+//				iterMap != factionState.openPosList.end(); ++iterMap) {
+//			openPosListNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
+//			openPosListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+//		}
+////		std::map<float, Nodes> openNodesList;
+//		XmlNode *openNodesListNode = factionsNode->addChild("openNodesList");
+//		for(std::map<float, Nodes>::iterator iterMap = factionState.openNodesList.begin();
+//				iterMap != factionState.openNodesList.end(); ++iterMap) {
+//
+//			Nodes &nodeList = iterMap->second;
+//			for(unsigned int j = 0; j < nodeList.size(); ++j) {
+//				Node *curNode = nodeList[j];
+//				XmlNode *openNodesListNodeNode = factionsNode->addChild("openNodesListNode");
+//				openNodesListNodeNode->addAttribute("key",floatToStr(iterMap->first), mapTagReplacements);
+//
+////				Vec2i pos;
+//				openNodesListNodeNode->addAttribute("pos",curNode->pos.getString(), mapTagReplacements);
+////				Node *next;
+//				int nextIdx = findNodeIndex(curNode->next, nodeList);
+//				openNodesListNodeNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
+////				Node *prev;
+//				int prevIdx = findNodeIndex(curNode->prev, nodeList);
+//				openNodesListNodeNode->addAttribute("prev",intToStr(nextIdx), mapTagReplacements);
+////				float heuristic;
+//				openNodesListNodeNode->addAttribute("heuristic",floatToStr(curNode->heuristic), mapTagReplacements);
+////				bool exploredCell;
+//				openNodesListNodeNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
+//			}
+//		}
+//
+////		std::map<float, Nodes> closedNodesList;
+//		XmlNode *closedNodesListNode = factionsNode->addChild("closedNodesList");
+//		for(std::map<float, Nodes>::iterator iterMap = factionState.closedNodesList.begin();
+//				iterMap != factionState.closedNodesList.end(); ++iterMap) {
+//
+//			Nodes &nodeList = iterMap->second;
+//			for(unsigned int j = 0; j < nodeList.size(); ++j) {
+//				Node *curNode = nodeList[j];
+//				XmlNode *closedNodesListNodeNode = factionsNode->addChild("closedNodesListNode");
+//				closedNodesListNodeNode->addAttribute("key",floatToStr(iterMap->first), mapTagReplacements);
+//
+////				Vec2i pos;
+//				closedNodesListNodeNode->addAttribute("pos",curNode->pos.getString(), mapTagReplacements);
+////				Node *next;
+//				int nextIdx = findNodeIndex(curNode->next, nodeList);
+//				closedNodesListNodeNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
+////				Node *prev;
+//				int prevIdx = findNodeIndex(curNode->prev, nodeList);
+//				closedNodesListNodeNode->addAttribute("prev",intToStr(nextIdx), mapTagReplacements);
+////				float heuristic;
+//				closedNodesListNodeNode->addAttribute("heuristic",floatToStr(curNode->heuristic), mapTagReplacements);
+////				bool exploredCell;
+//				closedNodesListNodeNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
+//			}
+//		}
 
 //		std::vector<Node> nodePool;
 		for(unsigned int j = 0; j < factionState.nodePool.size(); ++j) {
@@ -1604,8 +1604,11 @@ void PathFinder::saveGame(XmlNode *rootNode) {
 		}
 
 //		int nodePoolCount;
+		factionsNode->addAttribute("nodePoolCount",intToStr(factionState.nodePoolCount), mapTagReplacements);
 //		RandomGen random;
+		factionsNode->addAttribute("random",intToStr(factionState.random.getLastNumber()), mapTagReplacements);
 //		int useMaxNodeCount;
+		factionsNode->addAttribute("useMaxNodeCount",intToStr(factionState.useMaxNodeCount), mapTagReplacements);
 //
 //		std::map<int,TravelState> precachedTravelState;
 //		std::map<int,std::vector<Vec2i> > precachedPath;
@@ -1614,5 +1617,55 @@ void PathFinder::saveGame(XmlNode *rootNode) {
 //	const Map *map;
 
 }
+
+void PathFinder::loadGame(const XmlNode *rootNode) {
+	const XmlNode *pathfinderNode = rootNode->getChild("PathFinder");
+
+	//attackWarnRange = unitupdaterNode->getAttribute("attackWarnRange")->getFloatValue();
+
+	//	static int pathFindNodesMax;
+	pathFindNodesMax = pathfinderNode->getAttribute("pathFindNodesMax")->getIntValue();
+	//	static int pathFindNodesAbsoluteMax;
+	pathFindNodesAbsoluteMax = pathfinderNode->getAttribute("pathFindNodesAbsoluteMax")->getIntValue();
+
+	vector<XmlNode *> factionsNodeList = pathfinderNode->getChildList("factions");
+	for(unsigned int i = 0; i < factionsNodeList.size(); ++i) {
+		XmlNode *factionsNode = factionsNodeList[i];
+
+		FactionState &factionState = factions[i];
+	//		std::vector<Node> nodePool;
+		vector<XmlNode *> nodePoolListNode = factionsNode->getChildList("nodePool");
+		for(unsigned int j = 0; j < nodePoolListNode.size(); ++j) {
+			XmlNode *nodePoolNode = nodePoolListNode[j];
+
+			Node *curNode = &factionState.nodePool[j];
+
+			//closedNodesListNodeNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
+
+	//				Vec2i pos;
+			curNode->pos = Vec2i::strToVec2(nodePoolNode->getAttribute("pos")->getValue());
+	//				Node *next;
+			curNode->next = &factionState.nodePool[nodePoolNode->getAttribute("next")->getIntValue()];
+	//				Node *prev;
+			curNode->prev = &factionState.nodePool[nodePoolNode->getAttribute("prev")->getIntValue()];
+	//				float heuristic;
+			curNode->heuristic = nodePoolNode->getAttribute("heuristic")->getFloatValue();
+	//				bool exploredCell;
+			curNode->exploredCell = nodePoolNode->getAttribute("exploredCell")->getIntValue();
+		}
+
+		//		int nodePoolCount;
+		factionState.nodePoolCount = factionsNode->getAttribute("nodePoolCount")->getIntValue();
+		//		RandomGen random;
+		factionState.random.setLastNumber(factionsNode->getAttribute("random")->getIntValue());
+		//		int useMaxNodeCount;
+		factionState.useMaxNodeCount = factionsNode->getAttribute("useMaxNodeCount")->getIntValue();
+		//
+		//		std::map<int,TravelState> precachedTravelState;
+		//		std::map<int,std::vector<Vec2i> > precachedPath;
+	}
+	//	const Map *map;
+}
+
 
 }} //end namespace

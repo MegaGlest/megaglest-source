@@ -699,4 +699,45 @@ void AiInterface::saveGame(XmlNode *rootNode) const {
 	}
 }
 
+// AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation) {
+void AiInterface::loadGame(const XmlNode *rootNode, Faction *faction) {
+	XmlNode *aiInterfaceNode = NULL;
+	vector<XmlNode *> aiInterfaceNodeList = rootNode->getChildList("AiInterface");
+	for(unsigned int i = 0; i < aiInterfaceNodeList.size(); ++i) {
+		XmlNode *node = aiInterfaceNodeList[i];
+		if(node->getAttribute("factionIndex")->getIntValue() == faction->getIndex()) {
+			aiInterfaceNode = node;
+			break;
+		}
+	}
+
+	if(aiInterfaceNode != NULL) {
+		factionIndex = aiInterfaceNode->getAttribute("factionIndex")->getIntValue();
+		teamIndex = aiInterfaceNode->getAttribute("teamIndex")->getIntValue();
+
+		ai.loadGame(aiInterfaceNode, faction);
+		//firstTime = timeflowNode->getAttribute("firstTime")->getFloatValue();
+
+		timer = aiInterfaceNode->getAttribute("timer")->getIntValue();
+	//    int factionIndex;
+		factionIndex = aiInterfaceNode->getAttribute("factionIndex")->getIntValue();
+	//    int teamIndex;
+		teamIndex = aiInterfaceNode->getAttribute("teamIndex")->getIntValue();
+	//	//config
+	//	bool redir;
+		redir = aiInterfaceNode->getAttribute("redir")->getIntValue();
+	//    int logLevel;
+		logLevel = aiInterfaceNode->getAttribute("logLevel")->getIntValue();
+
+	//    std::map<const ResourceType *,int> cacheUnitHarvestResourceLookup;
+	//	for(std::map<const ResourceType *,int>::const_iterator iterMap = cacheUnitHarvestResourceLookup.begin();
+	//			iterMap != cacheUnitHarvestResourceLookup.end(); ++iterMap) {
+	//		XmlNode *cacheUnitHarvestResourceLookupNode = aiInterfaceNode->addChild("cacheUnitHarvestResourceLookup");
+	//
+	//		cacheUnitHarvestResourceLookupNode->addAttribute("key",iterMap->first->getName(), mapTagReplacements);
+	//		cacheUnitHarvestResourceLookupNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	//	}
+	}
+}
+
 }}//end namespace

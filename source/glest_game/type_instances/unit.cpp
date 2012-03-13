@@ -3514,7 +3514,8 @@ void Unit::saveGame(XmlNode *rootNode) {
 	}
 //    const SkillType *currSkill;
 	if(currSkill != NULL) {
-		unitNode->addAttribute("currSkill",currSkill->getName(), mapTagReplacements);
+		unitNode->addAttribute("currSkillName",currSkill->getName(), mapTagReplacements);
+		unitNode->addAttribute("currSkillClass",intToStr(currSkill->getClass()), mapTagReplacements);
 	}
 //    int lastModelIndexForCurrSkillType;
 	unitNode->addAttribute("lastModelIndexForCurrSkillType",intToStr(lastModelIndexForCurrSkillType), mapTagReplacements);
@@ -3542,7 +3543,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //
 //    Commands commands;
 	for(Commands::iterator it = commands.begin(); it != commands.end(); ++it) {
-		(*it)->saveGame(unitNode);
+		(*it)->saveGame(unitNode,faction);
 	}
 //	Observers observers;
 	//for(Observers::iterator it = observers.begin(); it != observers.end(); ++it) {
@@ -3738,6 +3739,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	if(level != NULL) {
 //		level->saveGame(unitNode);
 //	}
+	result->level = Level::loadGame(unitNode,ut);
 //    Vec2i pos;
 //	unitNode->addAttribute("pos",pos.getString(), mapTagReplacements);
 //	Vec2i lastPos;
@@ -3769,10 +3771,20 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	if(loadType != NULL) {
 //		unitNode->addAttribute("loadType",loadType->getName(), mapTagReplacements);
 //	}
+	if(unitNode->hasAttribute("loadType") == true) {
+		string loadTypeName = unitNode->getAttribute("loadType")->getValue();
+		result->loadType = world->getTechTree()->getResourceType(loadTypeName);
+	}
 //    const SkillType *currSkill;
 //	if(currSkill != NULL) {
 //		unitNode->addAttribute("currSkill",currSkill->getName(), mapTagReplacements);
 //	}
+	if(unitNode->hasAttribute("currSkillName") == true) {
+		string skillTypeName = unitNode->getAttribute("currSkillName")->getValue();
+		SkillClass skillClass = static_cast<SkillClass>(unitNode->getAttribute("currSkillClass")->getIntValue());
+		result->currSkill = ut->getSkillType(skillTypeName,skillClass);
+	}
+
 //    int lastModelIndexForCurrSkillType;
 	result->lastModelIndexForCurrSkillType = unitNode->getAttribute("lastModelIndexForCurrSkillType")->getIntValue();
 //    int animationRandomCycleCount;
@@ -3790,7 +3802,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //		fire->saveGame(unitNode);
 //	}
 //	TotalUpgrade totalUpgrade;
-//	totalUpgrade.saveGame(unitNode);
+	result->totalUpgrade.loadGame(unitNode);
 //	Map *map;
 //
 //	UnitPathInterface *unitPath;
@@ -3801,6 +3813,16 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	for(Commands::iterator it = commands.begin(); it != commands.end(); ++it) {
 //		(*it)->saveGame(unitNode);
 //	}
+	vector<XmlNode *> commandNodeList = unitNode->getChildList("Command");
+	for(unsigned int i = 0; i < commandNodeList.size(); ++i) {
+		XmlNode *node = commandNodeList[i];
+		Command *command = Command::loadGame(node,ut,world);
+
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(result->mutexCommands,mutexOwnerId);
+		result->commands.push_back(command);
+		safeMutex.ReleaseLock();
+	}
 //	Observers observers;
 	//for(Observers::iterator it = observers.begin(); it != observers.end(); ++it) {
 	//	(*it)->saveGame(unitNode);

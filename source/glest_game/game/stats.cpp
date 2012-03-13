@@ -209,4 +209,63 @@ void Stats::saveGame(XmlNode *rootNode) {
 //	bool isMasterserverMode;
 }
 
+void Stats::loadGame(const XmlNode *rootNode) {
+	const XmlNode *statsNode = rootNode->getChild("Stats");
+
+	//	PlayerStats playerStats[GameConstants::maxPlayers];
+
+	vector<XmlNode *> statsNodePlayerList = statsNode->getChildList("Player");
+	for(unsigned int i = 0; i < statsNodePlayerList.size(); ++i) {
+		XmlNode *statsNodePlayer = statsNodePlayerList[i];
+		PlayerStats &stat = playerStats[i];
+
+	//		ControlType control;
+		stat.control = static_cast<ControlType>(statsNodePlayer->getAttribute("control")->getIntValue());
+	//		float resourceMultiplier;
+		stat.resourceMultiplier = statsNodePlayer->getAttribute("resourceMultiplier")->getFloatValue();
+	//		string factionTypeName;
+		stat.factionTypeName = statsNodePlayer->getAttribute("factionTypeName")->getValue();
+	//		FactionPersonalityType personalityType;
+		stat.personalityType = static_cast<FactionPersonalityType>(statsNodePlayer->getAttribute("personalityType")->getIntValue());
+	//		int teamIndex;
+		stat.teamIndex = statsNodePlayer->getAttribute("teamIndex")->getIntValue();
+	//		bool victory;
+		stat.victory = statsNodePlayer->getAttribute("victory")->getIntValue();
+	//		int kills;
+		stat.kills = statsNodePlayer->getAttribute("kills")->getIntValue();
+	//		int enemykills;
+		stat.enemykills = statsNodePlayer->getAttribute("enemykills")->getIntValue();
+	//		int deaths;
+		stat.deaths = statsNodePlayer->getAttribute("deaths")->getIntValue();
+	//		int unitsProduced;
+		stat.unitsProduced = statsNodePlayer->getAttribute("unitsProduced")->getIntValue();
+	//		int resourcesHarvested;
+		stat.resourcesHarvested = statsNodePlayer->getAttribute("resourcesHarvested")->getIntValue();
+	//		string playerName;
+		stat.playerName = statsNodePlayer->getAttribute("playerName")->getValue();
+	//		Vec3f playerColor;
+		stat.playerColor = Vec3f::strToVec3(statsNodePlayer->getAttribute("playerColor")->getValue());
+	}
+	//	string description;
+	//statsNode->addAttribute("description",description, mapTagReplacements);
+	description = statsNode->getAttribute("description")->getValue();
+	//	int factionCount;
+	factionCount = statsNode->getAttribute("factionCount")->getIntValue();
+	//	int thisFactionIndex;
+	thisFactionIndex = statsNode->getAttribute("thisFactionIndex")->getIntValue();
+	//
+	//	float worldTimeElapsed;
+	worldTimeElapsed = statsNode->getAttribute("worldTimeElapsed")->getFloatValue();
+	//	int framesPlayed;
+	framesPlayed = statsNode->getAttribute("framesPlayed")->getIntValue();
+	//	int framesToCalculatePlaytime;
+	framesToCalculatePlaytime = statsNode->getAttribute("framesToCalculatePlaytime")->getIntValue();
+	//	time_t timePlayed;
+	timePlayed = statsNode->getAttribute("timePlayed")->getIntValue();
+	//	int maxConcurrentUnitCount;
+	maxConcurrentUnitCount = statsNode->getAttribute("maxConcurrentUnitCount")->getIntValue();
+	//	int totalEndGameConcurrentUnitCount;
+	totalEndGameConcurrentUnitCount = statsNode->getAttribute("totalEndGameConcurrentUnitCount")->getIntValue();
+	//	bool isMasterserverMode;
+}
 }}//end namespace

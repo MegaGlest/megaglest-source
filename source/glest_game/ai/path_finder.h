@@ -122,6 +122,7 @@ public:
 	int findNodeIndex(Node *node, std::vector<Node> &nodeList);
 
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 
 private:
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1);

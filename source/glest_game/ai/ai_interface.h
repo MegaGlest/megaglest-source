@@ -104,6 +104,7 @@ public:
 	bool factionUsesResourceType(const FactionType *factionType, const ResourceType *rt);
 
 	void saveGame(XmlNode *rootNode) const;
+	void loadGame(const XmlNode *rootNode, Faction *faction);
 
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}
