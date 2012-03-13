@@ -173,6 +173,8 @@ public:
 	World *getWorld()						{return &world;}
 	const World *getWorld() const			{return &world;}
 
+	Program *getProgram()					{return program;}
+
 	bool getPaused() const					{ return paused;}
 	void setPaused(bool value, bool forceAllowPauseStateChange=false);
 	const int getTotalRenderFps() const					{return totalRenderFps;}
