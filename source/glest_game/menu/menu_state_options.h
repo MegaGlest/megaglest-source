@@ -123,6 +123,9 @@ private:
 	GraphicLabel labelRainEffect;
 	GraphicCheckBox checkBoxRainEffect;
 
+	GraphicLabel labelGammaCorrection;
+	GraphicListBox listBoxGammaCorrection;
+
 	map<string,string> languageList;
 
 public:

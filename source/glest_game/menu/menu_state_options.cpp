@@ -12,6 +12,8 @@
 #include "menu_state_options.h"
 
 #include "renderer.h"
+#include "game.h"
+#include "program.h"
 #include "sound_renderer.h"
 #include "core_data.h"
 #include "config.h"
@@ -155,6 +157,20 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		checkBoxFullscreenWindowed.init(currentColumnStart, currentLine);
 		labelFullscreenWindowed.setText(lang.get("Windowed"));
 		checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
+		currentLine-=lineOffset;
+
+		//gammaCorrection
+		labelGammaCorrection.registerGraphicComponent(containerName,"labelGammaCorrection");
+		labelGammaCorrection.init(currentLabelStart, currentLine);
+		labelGammaCorrection.setText(lang.get("GammaCorrection"));
+
+		listBoxGammaCorrection.registerGraphicComponent(containerName,"listBoxGammaCorrection");
+		listBoxGammaCorrection.init(currentColumnStart, currentLine, 170);
+		for (float f=0.0;f<3.1f;f=f+0.1f) {
+			listBoxGammaCorrection.pushBackItem(floatToStr(f));
+		}
+		listBoxGammaCorrection.setSelectedItem(floatToStr(config.getFloat("GammaValue","0.0")));
+
 		currentLine-=lineOffset;
 
 		//filter
@@ -576,6 +592,13 @@ void MenuStateOptions::reloadUI() {
 	listboxData.push_back("Trilinear");
 	listBoxFilter.setItems(listboxData);
 
+	listboxData.clear();
+	for (float f=0.0;f<2.1f;f=f+0.1f) {
+		listboxData.push_back(floatToStr(f));
+	}
+	listBoxGammaCorrection.setItems(listboxData);
+
+
 	labelShadows.setText(lang.get("Shadows"));
 
 	listboxData.clear();
@@ -724,6 +747,15 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			return;
 		}
 
+		string currentGammaCorrection=config.getString("GammaValue","0.0");
+		string selectedGammaCorrection=listFontSizeAdjustment.getSelectedItem();
+		if(currentGammaCorrection!=selectedGammaCorrection){
+			mainMessageBoxState=1;
+			Lang &lang= Lang::getInstance();
+			showMessageBox(lang.get("RestartNeeded"), lang.get("GammaCorrection"), false);
+			return;
+		}
+
 		bool currentFullscreenWindowed=config.getBool("Windowed");
 		bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
 		if(currentFullscreenWindowed!=selectedFullscreenWindowed){
@@ -768,6 +800,13 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxLang.mouseClick(x, y);
 		listBoxShadows.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
+		if(listBoxGammaCorrection.mouseClick(x, y)){
+			Renderer &renderer=Renderer::getInstance();
+						renderer.getGame()
+								->getProgram()
+								->getWindow()
+								->setGamma(strToFloat(listBoxGammaCorrection.getSelectedItem()));
+		}
 		checkBoxTextures3D.mouseClick(x, y);
 		checkBoxUnitParticles.mouseClick(x, y);
 		checkBoxTilesetParticles.mouseClick(x, y);
@@ -827,6 +866,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxVolumeMusic.mouseMove(x, y);
 	listBoxLang.mouseMove(x, y);
 	listBoxFilter.mouseMove(x, y);
+	listBoxGammaCorrection.mouseMove(x, y);
 	listBoxShadows.mouseMove(x, y);
 	checkBoxTextures3D.mouseMove(x, y);
 	checkBoxUnitParticles.mouseMove(x, y);
@@ -924,6 +964,7 @@ void MenuStateOptions::render(){
 		renderer.renderCheckBox(&checkBoxMapPreview);
 		renderer.renderListBox(&listBoxLights);
 		renderer.renderListBox(&listBoxFilter);
+		renderer.renderListBox(&listBoxGammaCorrection);
 		renderer.renderListBox(&listBoxSoundFactory);
 		renderer.renderListBox(&listBoxVolumeFx);
 		renderer.renderListBox(&listBoxVolumeAmbient);
@@ -938,6 +979,7 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelMapPreview);
 		renderer.renderLabel(&labelLights);
 		renderer.renderLabel(&labelFilter);
+		renderer.renderLabel(&labelGammaCorrection);
 		renderer.renderLabel(&labelSoundFactory);
 		renderer.renderLabel(&labelVolumeFx);
 		renderer.renderLabel(&labelVolumeAmbient);
@@ -1022,6 +1064,7 @@ void MenuStateOptions::saveConfig(){
 
 	config.setBool("Windowed", checkBoxFullscreenWindowed.getValue());
 	config.setString("Filter", listBoxFilter.getSelectedItem());
+	config.setFloat("GammaValue", strToFloat(listBoxGammaCorrection.getSelectedItem()));
 	config.setBool("Textures3D", checkBoxTextures3D.getValue());
 	config.setBool("UnitParticles", (checkBoxUnitParticles.getValue()));
 	config.setBool("TilesetParticles", (checkBoxTilesetParticles.getValue()));

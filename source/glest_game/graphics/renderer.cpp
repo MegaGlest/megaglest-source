@@ -6355,6 +6355,8 @@ void Renderer::loadConfig() {
 	photoMode= config.getBool("PhotoMode");
 	focusArrows= config.getBool("FocusArrows");
 	textures3D= config.getBool("Textures3D");
+	float gammaValue=config.getFloat("GammaValue","0.0");
+	getGame()->getProgram()->getWindow()->setGamma(gammaValue);
 
 	//load shadows
 	shadows= strToShadows(config.getString("Shadows"));

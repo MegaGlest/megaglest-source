@@ -34,6 +34,7 @@ public:
 			    float gammaValue);
 	void makeCurrentGl();
 	void swapBuffersGl();
+	void setGamma(float gammaValue){context.setGammaValue(gammaValue);}
 };
 
 }}//end namespace
