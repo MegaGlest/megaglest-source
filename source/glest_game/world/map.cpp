@@ -1957,13 +1957,13 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 
 		vector<string> tokensExplored;
 		Tokenize(exploredList,tokensExplored,",");
-		for(unsigned int i = 0; i < tokensExplored.size(); ++i) {
-			string valueList = tokensExplored[i];
+		for(unsigned int j = 0; j < tokensExplored.size(); ++j) {
+			string valueList = tokensExplored[j];
 
 			vector<string> tokensExploredValue;
 			Tokenize(valueList,tokensExploredValue,"|");
-			for(unsigned int j = 0; j < tokensExploredValue.size(); ++j) {
-				string value = tokensExploredValue[j];
+			for(unsigned int k = 0; k < tokensExploredValue.size(); ++k) {
+				string value = tokensExploredValue[k];
 
 				SurfaceCell &surfaceCell = surfaceCells[i];
 				surfaceCell.setExplored(j,strToInt(value));
@@ -1972,13 +1972,13 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 
 		vector<string> tokensVisible;
 		Tokenize(visibleList,tokensVisible,",");
-		for(unsigned int i = 0; i < tokensVisible.size(); ++i) {
-			string valueList = tokensVisible[i];
+		for(unsigned int j = 0; j < tokensVisible.size(); ++j) {
+			string valueList = tokensVisible[j];
 
 			vector<string> tokensVisibleValue;
 			Tokenize(valueList,tokensVisibleValue,"|");
-			for(unsigned int j = 0; j < tokensVisibleValue.size(); ++j) {
-				string value = tokensVisibleValue[j];
+			for(unsigned int k = 0; k < tokensVisibleValue.size(); ++k) {
+				string value = tokensVisibleValue[k];
 
 				SurfaceCell &surfaceCell = surfaceCells[i];
 				surfaceCell.setVisible(j,strToInt(value));
