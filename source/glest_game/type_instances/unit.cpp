@@ -3707,6 +3707,9 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	//Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
 	Unit *result = new Unit(newUnitId, newpath, newUnitPos, ut, faction, world->getMapPtr(), newModelFacing);
 
+	world->getMapPtr()->putUnitCells(result, newUnitPos);
+	//result->born();
+
 	result->lastRotation = unitNode->getAttribute("lastRotation")->getFloatValue();
 	result->targetRotation = unitNode->getAttribute("targetRotation")->getFloatValue();
 	result->rotation = unitNode->getAttribute("rotation")->getFloatValue();
@@ -3753,15 +3756,15 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	}
 	result->level = Level::loadGame(unitNode,ut);
 //    Vec2i pos;
-//	unitNode->addAttribute("pos",pos.getString(), mapTagReplacements);
+	result->pos = Vec2i::strToVec2(unitNode->getAttribute("pos")->getValue());
 //	Vec2i lastPos;
-//	unitNode->addAttribute("lastPos",lastPos.getString(), mapTagReplacements);
+	result->lastPos = Vec2i::strToVec2(unitNode->getAttribute("lastPos")->getValue());
 //    Vec2i targetPos;		//absolute target pos
 	result->targetPos = Vec2i::strToVec2(unitNode->getAttribute("targetPos")->getValue());
 //	Vec3f targetVec;
 	result->targetVec = Vec3f::strToVec3(unitNode->getAttribute("targetVec")->getValue());
 //	Vec2i meetingPos;
-//	unitNode->addAttribute("meetingPos",meetingPos.getString(), mapTagReplacements);
+	result->meetingPos = Vec2i::strToVec2(unitNode->getAttribute("meetingPos")->getValue());
 //
 //	float lastRotation;		//in degrees
 	result->lastRotation = unitNode->getAttribute("lastRotation")->getFloatValue();
