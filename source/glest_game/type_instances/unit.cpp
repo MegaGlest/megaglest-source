@@ -246,7 +246,22 @@ void UnitReference::saveGame(XmlNode *rootNode) {
 
 	unitRefNode->addAttribute("id",intToStr(id), mapTagReplacements);
 	if(faction != NULL) {
-		unitRefNode->addAttribute("faction",intToStr(faction->getIndex()), mapTagReplacements);
+		unitRefNode->addAttribute("factionIndex",intToStr(faction->getIndex()), mapTagReplacements);
+	}
+}
+
+void UnitReference::loadGame(const XmlNode *rootNode,World *world) {
+	const XmlNode *unitRefNode = rootNode->getChild("UnitReference");
+
+	id = unitRefNode->getAttribute("id")->getIntValue();
+	if(unitRefNode->hasAttribute("factionIndex") == true) {
+		int factionIndex = unitRefNode->getAttribute("factionIndex")->getIntValue();
+		if(factionIndex >= world->getFactionCount()) {
+			char szBuf[4096]="";
+			sprintf(szBuf,"factionIndex >= world->getFactionCount() [%d] : [%d]",factionIndex,world->getFactionCount());
+			throw runtime_error(szBuf);
+		}
+		faction = world->getFaction(factionIndex);
 	}
 }
 
@@ -3687,6 +3702,229 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	result->setPos(newUnitPos);
     Vec2i meetingPos = newUnitPos-Vec2i(1);
     result->setMeetingPos(meetingPos);
+
+    // --------------------------
+
+    result->hp = unitNode->getAttribute("hp")->getIntValue();
+//    int ep;
+	result->ep = unitNode->getAttribute("ep")->getIntValue();
+//    int loadCount;
+	result->loadCount = unitNode->getAttribute("loadCount")->getIntValue();
+//    int deadCount;
+	result->deadCount = unitNode->getAttribute("deadCount")->getIntValue();
+//    float progress;			//between 0 and 1
+	result->progress = unitNode->getAttribute("progress")->getFloatValue();
+//	float lastAnimProgress;	//between 0 and 1
+	result->lastAnimProgress = unitNode->getAttribute("lastAnimProgress")->getFloatValue();
+//	float animProgress;		//between 0 and 1
+	result->animProgress = unitNode->getAttribute("animProgress")->getFloatValue();
+//	float highlight;
+	result->highlight = unitNode->getAttribute("highlight")->getFloatValue();
+//	int progress2;
+	result->progress2 = unitNode->getAttribute("progress2")->getIntValue();
+//	int kills;
+	result->kills = unitNode->getAttribute("kills")->getIntValue();
+//	int enemyKills;
+	result->enemyKills = unitNode->getAttribute("enemyKills")->getIntValue();
+//	UnitReference targetRef;
+//	targetRef.saveGame(unitNode);
+	result->targetRef.loadGame(unitNode,world);
+//
+//	Field currField;
+	result->currField = static_cast<Field>(unitNode->getAttribute("currField")->getIntValue());
+//    Field targetField;
+	result->targetField = static_cast<Field>(unitNode->getAttribute("targetField")->getIntValue());
+//	const Level *level;
+//	if(level != NULL) {
+//		level->saveGame(unitNode);
+//	}
+//    Vec2i pos;
+//	unitNode->addAttribute("pos",pos.getString(), mapTagReplacements);
+//	Vec2i lastPos;
+//	unitNode->addAttribute("lastPos",lastPos.getString(), mapTagReplacements);
+//    Vec2i targetPos;		//absolute target pos
+	result->targetPos = Vec2i::strToVec2(unitNode->getAttribute("targetPos")->getValue());
+//	Vec3f targetVec;
+	result->targetVec = Vec3f::strToVec3(unitNode->getAttribute("targetVec")->getValue());
+//	Vec2i meetingPos;
+//	unitNode->addAttribute("meetingPos",meetingPos.getString(), mapTagReplacements);
+//
+//	float lastRotation;		//in degrees
+	result->lastRotation = unitNode->getAttribute("lastRotation")->getFloatValue();
+//	float targetRotation;
+	result->targetRotation = unitNode->getAttribute("targetRotation")->getFloatValue();
+//	float rotation;
+	result->rotation = unitNode->getAttribute("rotation")->getFloatValue();
+//	float targetRotationZ;
+	result->targetRotationZ = unitNode->getAttribute("targetRotationZ")->getFloatValue();
+//	float targetRotationX;
+	result->targetRotationX = unitNode->getAttribute("targetRotationX")->getFloatValue();
+//	float rotationZ;
+	result->rotationZ = unitNode->getAttribute("rotationZ")->getFloatValue();
+//	float rotationX;
+	result->rotationX = unitNode->getAttribute("rotationX")->getFloatValue();
+//    const UnitType *type;
+//	unitNode->addAttribute("type",type->getName(), mapTagReplacements);
+//    const ResourceType *loadType;
+//	if(loadType != NULL) {
+//		unitNode->addAttribute("loadType",loadType->getName(), mapTagReplacements);
+//	}
+//    const SkillType *currSkill;
+//	if(currSkill != NULL) {
+//		unitNode->addAttribute("currSkill",currSkill->getName(), mapTagReplacements);
+//	}
+//    int lastModelIndexForCurrSkillType;
+	result->lastModelIndexForCurrSkillType = unitNode->getAttribute("lastModelIndexForCurrSkillType")->getIntValue();
+//    int animationRandomCycleCount;
+	result->animationRandomCycleCount = unitNode->getAttribute("animationRandomCycleCount")->getIntValue();
+//
+//    bool toBeUndertaken;
+	result->toBeUndertaken = unitNode->getAttribute("toBeUndertaken")->getIntValue();
+//	bool alive;
+	result->alive = unitNode->getAttribute("alive")->getIntValue();
+//	bool showUnitParticles;
+	result->showUnitParticles = unitNode->getAttribute("showUnitParticles")->getIntValue();
+//    Faction *faction;
+//	ParticleSystem *fire;
+//	if(fire != NULL) {
+//		fire->saveGame(unitNode);
+//	}
+//	TotalUpgrade totalUpgrade;
+//	totalUpgrade.saveGame(unitNode);
+//	Map *map;
+//
+//	UnitPathInterface *unitPath;
+//	unitPath->saveGame(unitNode);
+//	WaypointPath waypointPath;
+//
+//    Commands commands;
+//	for(Commands::iterator it = commands.begin(); it != commands.end(); ++it) {
+//		(*it)->saveGame(unitNode);
+//	}
+//	Observers observers;
+	//for(Observers::iterator it = observers.begin(); it != observers.end(); ++it) {
+	//	(*it)->saveGame(unitNode);
+	//}
+
+//	vector<UnitParticleSystem*> unitParticleSystems;
+//	for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
+//		UnitParticleSystem *ups= unitParticleSystems[i];
+//		ups->saveGame(unitNode);
+//	}
+//	vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
+//	for(unsigned int i = 0; i < queuedUnitParticleSystemTypes.size(); ++i) {
+//		UnitParticleSystemType *upst= queuedUnitParticleSystemTypes[i];
+//		upst->saveGame(unitNode);
+//	}
+
+//	UnitParticleSystems damageParticleSystems;
+//	for(unsigned int i = 0; i < damageParticleSystems.size(); ++i) {
+//		UnitParticleSystem *ups= damageParticleSystems[i];
+//		ups->saveGame(unitNode);
+//	}
+
+//	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
+//	for(std::map<int, UnitParticleSystem *>::const_iterator iterMap = damageParticleSystemsInUse.begin();
+//			iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
+//		XmlNode *damageParticleSystemsInUseNode = unitNode->addChild("damageParticleSystemsInUse");
+//
+//		damageParticleSystemsInUseNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+//		iterMap->second->saveGame(damageParticleSystemsInUseNode);
+//	}
+//	vector<ParticleSystem*> fireParticleSystems;
+//	for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
+//		ParticleSystem *ps= fireParticleSystems[i];
+//		ps->saveGame(unitNode);
+//	}
+
+//	vector<UnitParticleSystem*> smokeParticleSystems;
+//	for(unsigned int i = 0; i < smokeParticleSystems.size(); ++i) {
+//		UnitParticleSystem *ups= smokeParticleSystems[i];
+//		ups->saveGame(unitNode);
+//	}
+
+//	CardinalDir modelFacing;
+//	unitNode->addAttribute("modelFacing",intToStr(modelFacing), mapTagReplacements);
+
+//	std::string lastSynchDataString;
+//	unitNode->addAttribute("lastSynchDataString",lastSynchDataString, mapTagReplacements);
+//	std::string lastFile;
+//	unitNode->addAttribute("lastFile",lastFile, mapTagReplacements);
+//	int lastLine;
+//	unitNode->addAttribute("lastLine",intToStr(lastLine), mapTagReplacements);
+//	std::string lastSource;
+//	unitNode->addAttribute("lastSource",lastSource, mapTagReplacements);
+//	int lastRenderFrame;
+	result->lastRenderFrame = unitNode->getAttribute("lastRenderFrame")->getIntValue();
+//	bool visible;
+	result->visible = unitNode->getAttribute("visible")->getIntValue();
+//	int retryCurrCommandCount;
+	result->retryCurrCommandCount = unitNode->getAttribute("retryCurrCommandCount")->getIntValue();
+//	Vec3f screenPos;
+	result->screenPos = Vec3f::strToVec3(unitNode->getAttribute("screenPos")->getValue());
+//	string currentUnitTitle;
+	result->currentUnitTitle = unitNode->getAttribute("currentUnitTitle")->getValue();
+//
+//	bool inBailOutAttempt;
+	result->inBailOutAttempt = unitNode->getAttribute("inBailOutAttempt")->getIntValue();
+//	//std::vector<std::pair<Vec2i,Chrono> > badHarvestPosList;
+//	std::map<Vec2i,int> badHarvestPosList;
+//	for(std::map<Vec2i,int>::const_iterator iterMap = badHarvestPosList.begin();
+//			iterMap != badHarvestPosList.end(); ++iterMap) {
+//		XmlNode *badHarvestPosListNode = unitNode->addChild("badHarvestPosList");
+//
+//		badHarvestPosListNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
+//		badHarvestPosListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+//	}
+
+//	//time_t lastBadHarvestListPurge;
+//	std::pair<Vec2i,int> lastHarvestResourceTarget;
+	const XmlNode *lastHarvestResourceTargetNode = unitNode->getChild("lastHarvestResourceTarget");
+//	lastHarvestResourceTargetNode->addAttribute("key",lastHarvestResourceTarget.first.getString(), mapTagReplacements);
+//	lastHarvestResourceTargetNode->addAttribute("value",intToStr(lastHarvestResourceTarget.second), mapTagReplacements);
+
+	result->lastHarvestResourceTarget =
+			make_pair(Vec2i::strToVec2(lastHarvestResourceTargetNode->getAttribute("key")->getValue()),
+					                  lastHarvestResourceTargetNode->getAttribute("value")->getIntValue());
+
+//	//std::pair<Vec2i,std::vector<Vec2i> > currentTargetPathTaken;
+//	static Game *game;
+//
+//	bool ignoreCheckCommand;
+	result->ignoreCheckCommand = unitNode->getAttribute("ignoreCheckCommand")->getIntValue();
+//	uint32 lastStuckFrame;
+	result->lastStuckFrame = unitNode->getAttribute("lastStuckFrame")->getIntValue();
+//	Vec2i lastStuckPos;
+	result->lastStuckPos = Vec2i::strToVec2(unitNode->getAttribute("lastStuckPos")->getValue());
+//	uint32 lastPathfindFailedFrame;
+	result->lastPathfindFailedFrame = unitNode->getAttribute("lastPathfindFailedFrame")->getIntValue();
+//	Vec2i lastPathfindFailedPos;
+	result->lastPathfindFailedPos = Vec2i::strToVec2(unitNode->getAttribute("lastPathfindFailedPos")->getValue());
+//	bool usePathfinderExtendedMaxNodes;
+	result->usePathfinderExtendedMaxNodes = unitNode->getAttribute("usePathfinderExtendedMaxNodes")->getIntValue();
+//	int maxQueuedCommandDisplayCount;
+	result->maxQueuedCommandDisplayCount = unitNode->getAttribute("maxQueuedCommandDisplayCount")->getIntValue();
+//	UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
+//	currentAttackBoostOriginatorEffect.saveGame(unitNode);
+//	std::vector<UnitAttackBoostEffect *> currentAttackBoostEffects;
+//	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
+//		UnitAttackBoostEffect *uabe= currentAttackBoostEffects[i];
+//		uabe->saveGame(unitNode);
+//	}
+
+//	Mutex *mutexCommands;
+//
+//	//static Mutex mutexDeletedUnits;
+//	//static std::map<void *,bool> deletedUnits;
+//
+//	bool changedActiveCommand;
+	result->changedActiveCommand = unitNode->getAttribute("changedActiveCommand")->getIntValue();
+//	int lastAttackerUnitId;
+	result->lastAttackerUnitId = unitNode->getAttribute("lastAttackerUnitId")->getIntValue();
+//	int lastAttackedUnitId;
+	result->lastAttackedUnitId = unitNode->getAttribute("lastAttackedUnitId")->getIntValue();
+//	CauseOfDeathType causeOfDeath;
+	result->causeOfDeath = static_cast<CauseOfDeathType>(unitNode->getAttribute("causeOfDeath")->getIntValue());
 
     return result;
 }

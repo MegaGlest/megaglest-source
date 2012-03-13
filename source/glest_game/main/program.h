@@ -95,6 +95,7 @@ public:
 	virtual bool quitTriggered() { return false; }
 	virtual Stats quitAndToggleState() { return Stats(); };
 	virtual Program * getProgram() { return program; }
+	virtual const Program * getProgramConstPtr() { return program; }
 	virtual void setForceMouseRender(bool value) { forceMouseRender=value;}
 	virtual void consoleAddLine(string line) { };
 
@@ -186,6 +187,7 @@ public:
 	void setState(ProgramState *programStateNew,bool cleanupOldState=true);
 	ProgramState * getState() { return programState;}
 	WindowGl * getWindow() { return window; }
+	const WindowGl * getWindowConstPtr() { return window; }
 	void init(WindowGl *window, bool initSound=true, bool toggleFullScreen=false);
 	void exit();
 
