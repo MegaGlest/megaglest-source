@@ -3661,7 +3661,9 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	std::vector<UnitAttackBoostEffect *> currentAttackBoostEffects;
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 		UnitAttackBoostEffect *uabe= currentAttackBoostEffects[i];
-		uabe->saveGame(unitNode);
+		if(uabe != NULL) {
+			uabe->saveGame(unitNode);
+		}
 	}
 
 //	Mutex *mutexCommands;
@@ -3706,9 +3708,6 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	//Unit *result = new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
 	//Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
 	Unit *result = new Unit(newUnitId, newpath, newUnitPos, ut, faction, world->getMapPtr(), newModelFacing);
-
-	world->getMapPtr()->putUnitCells(result, newUnitPos);
-	//result->born();
 
 	result->lastRotation = unitNode->getAttribute("lastRotation")->getFloatValue();
 	result->targetRotation = unitNode->getAttribute("targetRotation")->getFloatValue();
@@ -3963,6 +3962,11 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	result->lastAttackedUnitId = unitNode->getAttribute("lastAttackedUnitId")->getIntValue();
 //	CauseOfDeathType causeOfDeath;
 	result->causeOfDeath = static_cast<CauseOfDeathType>(unitNode->getAttribute("causeOfDeath")->getIntValue());
+
+	if(result->alive) {
+		world->getMapPtr()->putUnitCells(result, newUnitPos);
+		//result->born();
+	}
 
     return result;
 }
