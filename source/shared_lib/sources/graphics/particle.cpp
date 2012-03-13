@@ -727,7 +727,9 @@ void GameParticleSystem::saveGame(XmlNode *rootNode) {
 
 //	Children children;
 	for(unsigned int i = 0; i < children.size(); ++i) {
-		children[i]->saveGame(gameParticleSystemNode);
+		if(children[i] != NULL) {
+			children[i]->saveGame(gameParticleSystemNode);
+		}
 	}
 //	Primitive primitive;
 	gameParticleSystemNode->addAttribute("primitive",intToStr(primitive), mapTagReplacements);
