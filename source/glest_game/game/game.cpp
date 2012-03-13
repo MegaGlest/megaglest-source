@@ -3619,6 +3619,115 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 
 	Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
 	newGame->loadGameNode = gameNode;
+
+//	newGame->mouse2d = gameNode->getAttribute("mouse2d")->getIntValue();
+//    int mouseX;
+//	newGame->mouseX = gameNode->getAttribute("mouseX")->getIntValue();
+//    int mouseY; //coords win32Api
+//	newGame->mouseY = gameNode->getAttribute("mouseY")->getIntValue();
+//    Vec2i mouseCellPos;
+//	newGame->mouseCellPos = Vec2i::strToVec2(gameNode->getAttribute("mouseCellPos")->getValue());
+//	int updateFps, lastUpdateFps, avgUpdateFps;
+//	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps,currentAvgRenderFpsTotal;
+	//Uint64 tickCount;
+	newGame->tickCount = gameNode->getAttribute("tickCount")->getIntValue();
+
+	//bool paused;
+	newGame->paused = gameNode->getAttribute("paused")->getIntValue();
+	//bool gameOver;
+	newGame->gameOver = gameNode->getAttribute("gameOver")->getIntValue();
+	//bool renderNetworkStatus;
+	//bool showFullConsole;
+	//bool mouseMoved;
+	//float scrollSpeed;
+//	newGame->scrollSpeed = gameNode->getAttribute("scrollSpeed")->getFloatValue();
+	//bool camLeftButtonDown;
+	//bool camRightButtonDown;
+	//bool camUpButtonDown;
+	//bool camDownButtonDown;
+
+	//Speed speed;
+	//gameNode->addAttribute("speed",intToStr(speed), mapTagReplacements);
+
+	//GraphicMessageBox mainMessageBox;
+	//GraphicMessageBox errorMessageBox;
+
+	//misc ptr
+	//ParticleSystem *weatherParticleSystem;
+//	if(weatherParticleSystem != NULL) {
+//		weatherParticleSystem->saveGame(gameNode);
+//	}
+	//GameSettings gameSettings;
+//	gameSettings.saveGame(gameNode);
+	//Vec2i lastMousePos;
+//	gameNode->addAttribute("lastMousePos",lastMousePos.getString(), mapTagReplacements);
+	//time_t lastRenderLog2d;
+//	gameNode->addAttribute("lastRenderLog2d",intToStr(lastRenderLog2d), mapTagReplacements);
+	//DisplayMessageFunction originalDisplayMsgCallback;
+	//bool isFirstRender;
+//	gameNode->addAttribute("isFirstRender",intToStr(isFirstRender), mapTagReplacements);
+
+	//bool quitTriggeredIndicator;
+	//int original_updateFps;
+//	gameNode->addAttribute("original_updateFps",intToStr(original_updateFps), mapTagReplacements);
+	//int original_cameraFps;
+//	gameNode->addAttribute("original_cameraFps",intToStr(original_cameraFps), mapTagReplacements);
+
+	//bool captureAvgTestStatus;
+//	gameNode->addAttribute("captureAvgTestStatus",intToStr(captureAvgTestStatus), mapTagReplacements);
+	//int updateFpsAvgTest;
+//	gameNode->addAttribute("updateFpsAvgTest",intToStr(updateFpsAvgTest), mapTagReplacements);
+	//int renderFpsAvgTest;
+//	gameNode->addAttribute("renderFpsAvgTest",intToStr(renderFpsAvgTest), mapTagReplacements);
+
+	//int renderExtraTeamColor;
+	newGame->renderExtraTeamColor = gameNode->getAttribute("renderExtraTeamColor")->getIntValue();
+
+	//static const int renderTeamColorCircleBit=1;
+	//static const int renderTeamColorPlaneBit=2;
+
+	//bool photoModeEnabled;
+	//gameNode->addAttribute("photoModeEnabled",intToStr(photoModeEnabled), mapTagReplacements);
+	newGame->photoModeEnabled = gameNode->getAttribute("photoModeEnabled")->getIntValue();
+	//bool visibleHUD;
+	//gameNode->addAttribute("visibleHUD",intToStr(visibleHUD), mapTagReplacements);
+	newGame->visibleHUD = gameNode->getAttribute("visibleHUD")->getIntValue();
+	//bool withRainEffect;
+	//gameNode->addAttribute("withRainEffect",intToStr(withRainEffect), mapTagReplacements);
+	newGame->withRainEffect = gameNode->getAttribute("withRainEffect")->getIntValue();
+	//Program *program;
+
+	//bool gameStarted;
+	//gameNode->addAttribute("gameStarted",intToStr(gameStarted), mapTagReplacements);
+//	newGame->gameStarted = gameNode->getAttribute("gameStarted")->getIntValue();
+
+	//time_t lastMaxUnitCalcTime;
+	//gameNode->addAttribute("lastMaxUnitCalcTime",intToStr(lastMaxUnitCalcTime), mapTagReplacements);
+
+	//PopupMenu popupMenu;
+	//PopupMenu popupMenuSwitchTeams;
+
+	//std::map<int,int> switchTeamIndexMap;
+	//GraphicMessageBox switchTeamConfirmMessageBox;
+
+	//int exitGamePopupMenuIndex;
+	//int joinTeamPopupMenuIndex;
+	//int pauseGamePopupMenuIndex;
+	//int keyboardSetupPopupMenuIndex;
+	//GLuint statelist3dMenu;
+	//ProgramState *currentUIState;
+
+	//bool masterserverMode;
+
+	//StrSound *currentAmbientSound;
+
+	//time_t lastNetworkPlayerConnectionCheck;
+	//gameNode->addAttribute("lastNetworkPlayerConnectionCheck",intToStr(lastNetworkPlayerConnectionCheck), mapTagReplacements);
+
+	//time_t lastMasterServerGameStatsDump;
+	//gameNode->addAttribute("lastMasterServerGameStatsDump",intToStr(lastMasterServerGameStatsDump), mapTagReplacements);
+
+
 	newGame->gameCamera.loadGame(gameNode);
 
 	const XmlNode *worldNode = gameNode->getChild("World");
