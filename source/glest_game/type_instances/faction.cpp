@@ -1922,6 +1922,25 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 		}
 
 		upgradeManager.loadGame(factionNode,this);
+
+		//    ControlType control;
+		control = static_cast<ControlType>(factionNode->getAttribute("control")->getIntValue());
+		//	Texture2D *texture;
+		//	FactionType *factionType;
+		//factionNode->addAttribute("factiontype",factionType->getName(), mapTagReplacements);
+		//	int index;
+		//factionNode->addAttribute("index",intToStr(index), mapTagReplacements);
+		//	int teamIndex;
+		//factionNode->addAttribute("teamIndex",intToStr(teamIndex), mapTagReplacements);
+		teamIndex = factionNode->getAttribute("teamIndex")->getIntValue();
+		//	int startLocationIndex;
+		startLocationIndex = factionNode->getAttribute("startLocationIndex")->getIntValue();
+		//	bool thisFaction;
+		thisFaction = factionNode->getAttribute("thisFaction")->getIntValue();
+		//	bool factionDisconnectHandled;
+
+		//	RandomGen random;
+		random.setLastNumber(factionNode->getAttribute("random")->getIntValue());
 	}
 }
 

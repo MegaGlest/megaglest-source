@@ -2028,6 +2028,9 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	if(ast == NULL) {
 		throw runtime_error("ast == NULL");
 	}
+	if(attacked == NULL) {
+		throw runtime_error("attacked == NULL");
+	}
 
 	//get vars
 	float damage			= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
