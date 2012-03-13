@@ -3553,38 +3553,50 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	vector<UnitParticleSystem*> unitParticleSystems;
 	for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
 		UnitParticleSystem *ups= unitParticleSystems[i];
-		ups->saveGame(unitNode);
+		if(ups != NULL) {
+			ups->saveGame(unitNode);
+		}
 	}
 //	vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
 	for(unsigned int i = 0; i < queuedUnitParticleSystemTypes.size(); ++i) {
 		UnitParticleSystemType *upst= queuedUnitParticleSystemTypes[i];
-		upst->saveGame(unitNode);
+		if(upst != NULL) {
+			upst->saveGame(unitNode);
+		}
 	}
 
 //	UnitParticleSystems damageParticleSystems;
 	for(unsigned int i = 0; i < damageParticleSystems.size(); ++i) {
 		UnitParticleSystem *ups= damageParticleSystems[i];
-		ups->saveGame(unitNode);
+		if(ups != NULL) {
+			ups->saveGame(unitNode);
+		}
 	}
 
 //	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
 	for(std::map<int, UnitParticleSystem *>::const_iterator iterMap = damageParticleSystemsInUse.begin();
 			iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
-		XmlNode *damageParticleSystemsInUseNode = unitNode->addChild("damageParticleSystemsInUse");
+		if(iterMap->second != NULL) {
+			XmlNode *damageParticleSystemsInUseNode = unitNode->addChild("damageParticleSystemsInUse");
 
-		damageParticleSystemsInUseNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
-		iterMap->second->saveGame(damageParticleSystemsInUseNode);
+			damageParticleSystemsInUseNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+			iterMap->second->saveGame(damageParticleSystemsInUseNode);
+		}
 	}
 //	vector<ParticleSystem*> fireParticleSystems;
 	for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
 		ParticleSystem *ps= fireParticleSystems[i];
-		ps->saveGame(unitNode);
+		if(ps != NULL) {
+			ps->saveGame(unitNode);
+		}
 	}
 
 //	vector<UnitParticleSystem*> smokeParticleSystems;
 	for(unsigned int i = 0; i < smokeParticleSystems.size(); ++i) {
 		UnitParticleSystem *ups= smokeParticleSystems[i];
-		ups->saveGame(unitNode);
+		if(ups != NULL) {
+			ups->saveGame(unitNode);
+		}
 	}
 
 //	CardinalDir modelFacing;
