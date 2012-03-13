@@ -15,6 +15,8 @@
 #include "util.h"
 #include "conversion.h"
 #include "unit_type.h"
+#include "faction.h"
+#include "world.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -24,6 +26,14 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class Command
 // =====================================================
+Command::Command() {
+    this->commandType= NULL;
+    this->unitRef= NULL;
+	unitType= NULL;
+	stateType			= cst_None;
+	stateValue 			= -1;
+	unitCommandGroupId	= -1;
+}
 
 Command::Command(const CommandType *ct, const Vec2i &pos){
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ct = [%p]\n",__FILE__,__FUNCTION__,__LINE__,ct);
@@ -140,13 +150,13 @@ std::string Command::toString() const {
 	return result;
 }
 
-void Command::saveGame(XmlNode *rootNode) {
+void Command::saveGame(XmlNode *rootNode, Faction *faction) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *commandNode = rootNode->addChild("Command");
 
 //    const CommandType *commandType;
 	if(commandType != NULL) {
-		commandNode->addAttribute("commandType",commandType->getName(), mapTagReplacements);
+		commandNode->addAttribute("commandType",intToStr(commandType->getId()), mapTagReplacements);
 	}
 //    Vec2i originalPos;
 	commandNode->addAttribute("originalPos",originalPos.getString(), mapTagReplacements);
@@ -158,7 +168,8 @@ void Command::saveGame(XmlNode *rootNode) {
 	commandNode->addAttribute("facing",intToStr(facing), mapTagReplacements);
 //	const UnitType *unitType;	//used for build
 	if(unitType != NULL) {
-		commandNode->addAttribute("unitType",unitType->getName(), mapTagReplacements);
+		commandNode->addAttribute("unitTypeId",intToStr(unitType->getId()), mapTagReplacements);
+		commandNode->addAttribute("unitTypeFactionIndex",intToStr(faction->getIndex()), mapTagReplacements);
 	}
 //	CommandStateType stateType;
 	commandNode->addAttribute("stateType",intToStr(stateType), mapTagReplacements);
@@ -167,4 +178,42 @@ void Command::saveGame(XmlNode *rootNode) {
 //	int unitCommandGroupId;
 	commandNode->addAttribute("unitCommandGroupId",intToStr(unitCommandGroupId), mapTagReplacements);
 }
+
+Command * Command::loadGame(const XmlNode *rootNode,const UnitType *ut,World *world) {
+	Command *result = new Command();
+	const XmlNode *commandNode = rootNode;
+
+	//description = commandNode->getAttribute("description")->getValue();
+
+	//    const CommandType *commandType;
+	if(commandNode->hasAttribute("commandType") == true) {
+		int cmdTypeId = commandNode->getAttribute("commandType")->getIntValue();
+		result->commandType = ut->findCommandTypeById(cmdTypeId);
+	}
+	//    Vec2i originalPos;
+	result->originalPos = Vec2i::strToVec2(commandNode->getAttribute("originalPos")->getValue());
+	//    Vec2i pos;
+	result->pos = Vec2i::strToVec2(commandNode->getAttribute("pos")->getValue());
+	//	UnitReference unitRef;		//target unit, used to move and attack optionally
+	result->unitRef.loadGame(commandNode,world);
+	//	CardinalDir facing;			// facing, for build command
+	result->facing = static_cast<CardinalDir>(commandNode->getAttribute("facing")->getIntValue());
+	//	const UnitType *unitType;	//used for build
+	if(commandNode->hasAttribute("unitTypeId") == true) {
+		//result->unitType = ut;
+		int unitTypeId = commandNode->getAttribute("unitTypeId")->getIntValue();
+		int unitTypeFactionIndex = commandNode->getAttribute("unitTypeFactionIndex")->getIntValue();
+		Faction *faction = world->getFaction(unitTypeFactionIndex);
+		result->unitType = world->findUnitTypeById(faction->getType(),unitTypeId);
+	}
+	//	CommandStateType stateType;
+	result->stateType = static_cast<CommandStateType>(commandNode->getAttribute("stateType")->getIntValue());
+	//	int stateValue;
+	result->stateValue = commandNode->getAttribute("stateValue")->getIntValue();
+	//	int unitCommandGroupId;
+	result->unitCommandGroupId = commandNode->getAttribute("unitCommandGroupId")->getIntValue();
+
+	return result;
+}
+
 }}//end namespace

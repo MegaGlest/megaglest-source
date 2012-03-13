@@ -105,6 +105,7 @@ private:
 
 	//cache
 	bool nearSubmerged;
+	bool cellChangedFromOriginalMapLoad;
 
 public:
 	SurfaceCell();
@@ -143,7 +144,9 @@ public:
 
 	//misc
 	void deleteResource();
+	bool decAmount(int value);
 	bool isFree() const;
+	bool getCellChangedFromOriginalMapLoad() const { return cellChangedFromOriginalMapLoad; }
 
 	void saveGame(XmlNode *rootNode,int index) const;
 	void loadGame(const XmlNode *rootNode, int index, World *world);

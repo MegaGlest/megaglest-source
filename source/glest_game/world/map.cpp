@@ -153,6 +153,7 @@ SurfaceCell::SurfaceCell() {
 	surfaceType= -1;
 	surfaceTexture= NULL;
 	nearSubmerged = false;
+	cellChangedFromOriginalMapLoad = false;
 
 	for(int i = 0; i < GameConstants::maxPlayers + GameConstants::specialFactions; ++i) {
 		visible[i] = false;
@@ -181,12 +182,20 @@ bool SurfaceCell::isFree() const {
 }
 
 void SurfaceCell::deleteResource() {
+	cellChangedFromOriginalMapLoad = true;
+
 	delete object;
 	object= NULL;
 }
 
+bool SurfaceCell::decAmount(int value) {
+	cellChangedFromOriginalMapLoad = true;
+
+	return object->getResource()->decAmount(value);
+}
 void SurfaceCell::setExplored(int teamIndex, bool explored) {
 	this->explored[teamIndex]= explored;
+	//printf("Setting explored to %d for teamIndex %d\n",explored,teamIndex);
 }
 
 void SurfaceCell::setVisible(int teamIndex, bool visible) {
@@ -194,14 +203,15 @@ void SurfaceCell::setVisible(int teamIndex, bool visible) {
 }
 
 void SurfaceCell::saveGame(XmlNode *rootNode,int index) const {
-	bool saveCell = (object != NULL);
-	if(saveCell == false) {
-		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
-			if(visible[i] == true || explored[i] == true) {
-				saveCell = true;
-			}
-		}
-	}
+	bool saveCell = (this->getCellChangedFromOriginalMapLoad() == true);
+//	if(saveCell == false) {
+//		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+//			if(visible[i] == true || explored[i] == true) {
+//				saveCell = true;
+//				break;
+//			}
+//		}
+//	}
 
 	if(saveCell == true) {
 		std::map<string,string> mapTagReplacements;
@@ -231,23 +241,27 @@ void SurfaceCell::saveGame(XmlNode *rootNode,int index) const {
 		if(object != NULL) {
 			object->saveGame(surfaceCellNode);
 		}
+		else {
+			XmlNode *objectNode = surfaceCellNode->addChild("Object");
+			objectNode->addAttribute("isDeleted",intToStr(true), mapTagReplacements);
+		}
 	//	//visibility
 	//	bool visible[GameConstants::maxPlayers + GameConstants::specialFactions];
-		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
-			if(visible[i] == true) {
-				XmlNode *visibleNode = surfaceCellNode->addChild("visible");
-				visibleNode->addAttribute("index",intToStr(i), mapTagReplacements);
-				visibleNode->addAttribute("value",intToStr(visible[i]), mapTagReplacements);
-			}
-		}
-	//    bool explored[GameConstants::maxPlayers + GameConstants::specialFactions];
-		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
-			if(explored[i] == true) {
-				XmlNode *exploredNode = surfaceCellNode->addChild("explored");
-				exploredNode->addAttribute("index",intToStr(i), mapTagReplacements);
-				exploredNode->addAttribute("value",intToStr(explored[i]), mapTagReplacements);
-			}
-		}
+//		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+//			if(visible[i] == true) {
+//				XmlNode *visibleNode = surfaceCellNode->addChild("visible");
+//				visibleNode->addAttribute("index",intToStr(i), mapTagReplacements);
+//				visibleNode->addAttribute("value",intToStr(visible[i]), mapTagReplacements);
+//			}
+//		}
+//	//    bool explored[GameConstants::maxPlayers + GameConstants::specialFactions];
+//		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+//			if(explored[i] == true) {
+//				XmlNode *exploredNode = surfaceCellNode->addChild("explored");
+//				exploredNode->addAttribute("index",intToStr(i), mapTagReplacements);
+//				exploredNode->addAttribute("value",intToStr(explored[i]), mapTagReplacements);
+//			}
+//		}
 
 	//	//cache
 	//	bool nearSubmerged;
@@ -257,29 +271,36 @@ void SurfaceCell::saveGame(XmlNode *rootNode,int index) const {
 
 void SurfaceCell::loadGame(const XmlNode *rootNode, int index, World *world) {
 	if(rootNode->hasChild("SurfaceCell" + intToStr(index)) == true) {
-		const XmlNode *cellNode = rootNode->getChild("SurfaceCell" + intToStr(index));
-		int visibleCount = cellNode->getChildCount();
+		const XmlNode *surfaceCellNode = rootNode->getChild("SurfaceCell" + intToStr(index));
+		//int visibleCount = cellNode->getChildCount();
+		XmlNode *objectNode = surfaceCellNode->getChild("Object");
+		if(objectNode->hasAttribute("isDeleted") == true) {
+			this->deleteResource();
+		}
+		else {
+			object->loadGame(surfaceCellNode,world->getTechTree());
+		}
 
 		//printf("Loading game, sc index [%d][%d]\n",index,visibleCount);
 
-		for(unsigned int i = 0; i < visibleCount; ++i) {
-			if(cellNode->hasChildAtIndex("visible",i) == true) {
-				const XmlNode *visibleNode = cellNode->getChild("visible",i);
-				int indexCell = visibleNode->getAttribute("index")->getIntValue();
-				bool value = visibleNode->getAttribute("value")->getIntValue();
-				visible[indexCell] = value;
-
-				//printf("Loading game, sc visible index [%d][%d][%d]\n",index,indexCell,value);
-			}
-			if(cellNode->hasChildAtIndex("explored",i) == true) {
-				const XmlNode *exploredNode = cellNode->getChild("explored",i);
-				int indexCell = exploredNode->getAttribute("index")->getIntValue();
-				bool value = exploredNode->getAttribute("value")->getIntValue();
-				explored[indexCell] = value;
-
-				//printf("Loading game, sc explored index [%d][%d][%d]\n",index,indexCell,value);
-			}
-		}
+//		for(unsigned int i = 0; i < visibleCount; ++i) {
+//			if(cellNode->hasChildAtIndex("visible",i) == true) {
+//				const XmlNode *visibleNode = cellNode->getChild("visible",i);
+//				int indexCell = visibleNode->getAttribute("index")->getIntValue();
+//				bool value = visibleNode->getAttribute("value")->getIntValue();
+//				visible[indexCell] = value;
+//
+//				//printf("Loading game, sc visible index [%d][%d][%d]\n",index,indexCell,value);
+//			}
+//			if(cellNode->hasChildAtIndex("explored",i) == true) {
+//				const XmlNode *exploredNode = cellNode->getChild("explored",i);
+//				int indexCell = exploredNode->getAttribute("index")->getIntValue();
+//				bool value = exploredNode->getAttribute("value")->getIntValue();
+//				explored[indexCell] = value;
+//
+//				//printf("Loading game, sc explored cell index [%d] exploredIndex [%d] value [%d]\n",index,indexCell,value);
+//			}
+//		}
 	}
 }
 // =====================================================
@@ -1830,16 +1851,42 @@ void Map::saveGame(XmlNode *rootNode) const {
 	mapNode->addAttribute("maxPlayers",intToStr(maxPlayers), mapTagReplacements);
 //	Cell *cells;
 	//printf("getCellArraySize() = %d\n",getCellArraySize());
-	for(unsigned int i = 0; i < getCellArraySize(); ++i) {
-		Cell &cell = cells[i];
-		cell.saveGame(mapNode,i);
-	}
+//	for(unsigned int i = 0; i < getCellArraySize(); ++i) {
+//		Cell &cell = cells[i];
+//		cell.saveGame(mapNode,i);
+//	}
 //	SurfaceCell *surfaceCells;
 	//printf("getSurfaceCellArraySize() = %d\n",getSurfaceCellArraySize());
+
+	string exploredList = "";
+	string visibleList = "";
+
 	for(unsigned int i = 0; i < getSurfaceCellArraySize(); ++i) {
 		SurfaceCell &surfaceCell = surfaceCells[i];
+
+		for(unsigned int j = 0; j < GameConstants::maxPlayers; ++j) {
+			if(exploredList != "") {
+				exploredList += "|";
+			}
+
+			exploredList += intToStr(surfaceCell.isExplored(j));
+		}
+		exploredList += ",";
+		for(unsigned int j = 0; j < GameConstants::maxPlayers; ++j) {
+			if(visibleList != "") {
+				visibleList += "|";
+			}
+
+			visibleList += intToStr(surfaceCell.isVisible(j));
+		}
+		visibleList += ",";
+
 		surfaceCell.saveGame(mapNode,i);
 	}
+
+	XmlNode *surfaceCellNode = mapNode->addChild("SurfaceCell");
+	surfaceCellNode->addAttribute("exploredList",exploredList, mapTagReplacements);
+	surfaceCellNode->addAttribute("visibleList",visibleList, mapTagReplacements);
 
 //	Vec2i *startLocations;
 	for(unsigned int i = 0; i < maxPlayers; ++i) {
@@ -1855,7 +1902,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 }
 
 void Map::loadGame(const XmlNode *rootNode, World *world) {
-	const XmlNode *mapNode = rootNode->getChild("World")->getChild("Map");
+	const XmlNode *mapNode = rootNode->getChild("Map");
 
 	//description = gameSettingsNode->getAttribute("description")->getValue();
 
@@ -1868,16 +1915,50 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 //		surfaceCell.saveGame(mapNode,i);
 //	}
 
-	printf("getCellArraySize() = %d\n",getCellArraySize());
-	for(unsigned int i = 0; i < getCellArraySize(); ++i) {
-		Cell &cell = cells[i];
-		cell.loadGame(mapNode,i,world);
-	}
+//	printf("getCellArraySize() = %d\n",getCellArraySize());
+//	for(unsigned int i = 0; i < getCellArraySize(); ++i) {
+//		Cell &cell = cells[i];
+//		cell.loadGame(mapNode,i,world);
+//	}
 
-	printf("getSurfaceCellArraySize() = %d\n",getSurfaceCellArraySize());
+//	printf("getSurfaceCellArraySize() = %d\n",getSurfaceCellArraySize());
 	for(unsigned int i = 0; i < getSurfaceCellArraySize(); ++i) {
 		SurfaceCell &surfaceCell = surfaceCells[i];
 		surfaceCell.loadGame(mapNode,i,world);
+	}
+
+	XmlNode *surfaceCellNode = mapNode->getChild("SurfaceCell");
+	string exploredList = surfaceCellNode->getAttribute("exploredList")->getValue();
+	string visibleList = surfaceCellNode->getAttribute("visibleList")->getValue();
+
+	vector<string> tokensExplored;
+	Tokenize(exploredList,tokensExplored,",");
+	for(unsigned int i = 0; i < tokensExplored.size(); ++i) {
+		string valueList = tokensExplored[i];
+
+		vector<string> tokensExploredValue;
+		Tokenize(valueList,tokensExploredValue,"|");
+		for(unsigned int j = 0; j < tokensExploredValue.size(); ++j) {
+			string value = tokensExploredValue[j];
+
+			SurfaceCell &surfaceCell = surfaceCells[i];
+			surfaceCell.setExplored(j,strToInt(value));
+		}
+	}
+
+	vector<string> tokensVisible;
+	Tokenize(visibleList,tokensVisible,",");
+	for(unsigned int i = 0; i < tokensVisible.size(); ++i) {
+		string valueList = tokensVisible[i];
+
+		vector<string> tokensVisibleValue;
+		Tokenize(valueList,tokensVisibleValue,"|");
+		for(unsigned int j = 0; j < tokensVisibleValue.size(); ++j) {
+			string value = tokensVisibleValue[j];
+
+			SurfaceCell &surfaceCell = surfaceCells[i];
+			surfaceCell.setVisible(j,strToInt(value));
+		}
 	}
 
 }

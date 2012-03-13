@@ -136,6 +136,7 @@ public:
 	string getStats() const;
 
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 };
 
 }}//end namespace

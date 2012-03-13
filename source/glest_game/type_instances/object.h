@@ -23,6 +23,7 @@ namespace Glest{ namespace Game{
 class ObjectType;
 class ResourceType;
 class Resource;
+class TechTree;
 
 using Shared::Graphics::Model;
 using Shared::Graphics::Vec2i;
@@ -89,6 +90,7 @@ public:
 
 	virtual string getUniquePickName() const;
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode,const TechTree *techTree);
 };
 
 }}//end namespace

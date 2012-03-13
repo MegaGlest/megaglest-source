@@ -49,6 +49,18 @@ void Level::saveGame(XmlNode *rootNode) const {
 	levelNode->addAttribute("name",name, mapTagReplacements);
 	levelNode->addAttribute("kills",intToStr(kills), mapTagReplacements);
 }
+
+const Level * Level::loadGame(const XmlNode *rootNode,const UnitType *ut) {
+	const Level *result = NULL;
+	if(rootNode->hasChild("Level") == true) {
+		const XmlNode *levelNode = rootNode->getChild("Level");
+
+		result = ut->getLevel(levelNode->getAttribute("name")->getValue());
+	}
+
+	return result;
+}
+
 // =====================================================
 // 	class UnitType
 // =====================================================
@@ -571,6 +583,19 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 }
 
 // ==================== get ====================
+
+const Level *UnitType::getLevel(string name) const {
+	const Level *result = NULL;
+	for(unsigned int i = 0; i < levels.size(); ++i) {
+		const Level &level = levels[i];
+		if(level.getName() == name) {
+			result = &level;
+			break;
+		}
+	}
+
+	return result;
+}
 
 const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 	if(firstCommandTypeOfClass[commandClass] == NULL) {

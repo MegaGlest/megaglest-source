@@ -505,7 +505,7 @@ void Faction::init(
 	}
 
 	if(loadWorldNode != NULL) {
-		loadGame(loadWorldNode, factionIndex,game->getGameSettings(),game->getWorld());
+		loadGame(loadWorldNode, this->index,game->getGameSettings(),game->getWorld());
 	}
 
 	if( game->getGameSettings()->getPathFinderType() == pfBasic &&
@@ -1863,18 +1863,20 @@ void Faction::saveGame(XmlNode *rootNode) {
 
 }
 
-void Faction::loadGame(const XmlNode *rootNode, int index,GameSettings *settings,World *world) {
+void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *settings,World *world) {
 	XmlNode *factionNode = NULL;
 	vector<XmlNode *> factionNodeList = rootNode->getChildList("Faction");
 	for(unsigned int i = 0; i < factionNodeList.size(); ++i) {
 		XmlNode *node = factionNodeList[i];
-		if(node->getAttribute("index")->getIntValue() == index) {
+		if(node->getAttribute("index")->getIntValue() == factionIndex) {
 			factionNode = node;
 			break;
 		}
 	}
 
 	if(factionNode != NULL) {
+		//printf("Loading faction index = %d [%s] [%s]\n",factionIndex,factionType->getName().c_str(),factionNode->getAttribute("factiontype")->getValue().c_str());
+
 		vector<XmlNode *> unitNodeList = factionNode->getChildList("Unit");
 		for(unsigned int i = 0; i < unitNodeList.size(); ++i) {
 			XmlNode *unitNode = unitNodeList[i];
@@ -1904,6 +1906,8 @@ void Faction::loadGame(const XmlNode *rootNode, int index,GameSettings *settings
 		Resource &resource = store[i];
 		resource.loadGame(storeNode,i,techTree);
 	}
+
+	upgradeManager.loadGame(factionNode,this);
 }
 
 }}//end namespace

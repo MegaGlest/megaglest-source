@@ -915,6 +915,9 @@ void Game::init(bool initForPreviewOnly) {
 			Faction *faction= world.getFaction(i);
 			if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true) {
 				aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
+				if(loadGameNode != NULL) {
+					aiInterfaces[i]->loadGame(loadGameNode,faction);
+				}
 				char szBuf[1024]="";
 				sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 				logger.add(szBuf, true);

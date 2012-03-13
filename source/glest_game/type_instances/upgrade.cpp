@@ -17,6 +17,8 @@
 #include "util.h"
 #include "upgrade_type.h"
 #include "conversion.h"
+#include "faction.h"
+#include "faction_type.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -27,6 +29,11 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class Upgrade
 // =====================================================
+Upgrade::Upgrade() {
+	state= usUpgrading;
+	this->factionIndex= -1;
+	this->type= NULL;
+}
 
 Upgrade::Upgrade(const UpgradeType *type, int factionIndex) {
 	state= usUpgrading;
@@ -72,6 +79,21 @@ void Upgrade::saveGame(XmlNode *rootNode) {
 	upgradeNode->addAttribute("state",intToStr(state), mapTagReplacements);
 	upgradeNode->addAttribute("factionIndex",intToStr(factionIndex), mapTagReplacements);
 	upgradeNode->addAttribute("type",type->getName(), mapTagReplacements);
+}
+
+Upgrade * Upgrade::loadGame(const XmlNode *rootNode,Faction *faction) {
+	Upgrade *newUpgrade = new Upgrade();
+
+	const XmlNode *upgradeNode = rootNode;
+
+	//description = upgrademanagerNode->getAttribute("description")->getValue();
+
+	newUpgrade->state = static_cast<UpgradeState>(upgradeNode->getAttribute("state")->getIntValue());
+	newUpgrade->factionIndex = upgradeNode->getAttribute("factionIndex")->getIntValue();
+	string unitTypeName = upgradeNode->getAttribute("type")->getValue();
+	newUpgrade->type = faction->getType()->getUpgradeType(unitTypeName);
+
+	return newUpgrade;
 }
 
 // =====================================================
@@ -244,8 +266,20 @@ void UpgradeManager::saveGame(XmlNode *rootNode) {
 
 //	Upgrades upgrades;
 //	UgradesLookup upgradesLookup;
-
 }
 
+void UpgradeManager::loadGame(const XmlNode *rootNode,Faction *faction) {
+	const XmlNode *upgrademanagerNode = rootNode->getChild("UpgradeManager");
+
+	//description = upgrademanagerNode->getAttribute("description")->getValue();
+
+	vector<XmlNode *> upgradeNodeList = upgrademanagerNode->getChildList("Upgrade");
+	for(unsigned int i = 0; i < upgradeNodeList.size(); ++i) {
+		XmlNode *node = upgradeNodeList[i];
+		Upgrade *newUpgrade = Upgrade::loadGame(node,faction);
+		upgrades.push_back(newUpgrade);
+		upgradesLookup[newUpgrade->getType()] = upgrades.size()-1;
+	}
+}
 
 }}// end namespace

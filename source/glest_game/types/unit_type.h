@@ -55,6 +55,7 @@ public:
 	int getKills() const			{return kills;}
 
 	void saveGame(XmlNode *rootNode) const ;
+	static const Level * loadGame(const XmlNode *rootNode, const UnitType *ut);
 };
 
 // ===============================
@@ -160,6 +161,7 @@ public:
 	const SkillType *getSkillType(int i) const			{return skillTypes[i];}
 	const CommandType *getCommandType(int i) const;
 	const Level *getLevel(int i) const					{return &levels[i];}
+	const Level *getLevel(string name) const;
 	int getSkillTypeCount() const						{return skillTypes.size();}
 	int getCommandTypeCount() const						{return commandTypes.size();}
 	int getLevelCount() const							{return levels.size();}

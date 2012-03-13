@@ -48,11 +48,12 @@ protected:
 	TaskClass taskClass;	
 
 public:
+	Task();
 	virtual ~Task(){}
 	TaskClass getClass() const	{return taskClass;}
 	virtual string toString() const= 0;
 
-	virtual void saveGame(XmlNode *rootNode) const;
+	virtual void saveGame(XmlNode *rootNode) const = 0;
 };
 
 // ==================== ProduceTask ====================
@@ -63,6 +64,7 @@ private:
 	const UnitType *unitType;
 	const ResourceType *resourceType;
 
+	ProduceTask();
 public:
 	ProduceTask(UnitClass unitClass);
 	ProduceTask(const UnitType *unitType);
@@ -74,6 +76,7 @@ public:
 	virtual string toString() const;
 
 	virtual void saveGame(XmlNode *rootNode) const;
+	static ProduceTask * loadGame(const XmlNode *rootNode, Faction *faction);
 };
 
 // ==================== BuildTask ====================
@@ -85,8 +88,10 @@ private:
 	bool forcePos;
 	Vec2i pos;
 
+	BuildTask();
+
 public:
-	BuildTask(const UnitType *unitType= NULL);
+	BuildTask(const UnitType *unitType);
 	BuildTask(const ResourceType *resourceType);
 	BuildTask(const UnitType *unitType, const Vec2i &pos);
 
@@ -97,6 +102,7 @@ public:
 	virtual string toString() const;
 
 	virtual void saveGame(XmlNode *rootNode) const;
+	static BuildTask * loadGame(const XmlNode *rootNode, Faction *faction);
 };
 
 // ==================== UpgradeTask ====================
@@ -105,12 +111,14 @@ class UpgradeTask: public Task{
 private:
 	const UpgradeType *upgradeType;
 
+	UpgradeTask();
 public:
-	UpgradeTask(const UpgradeType *upgradeType= NULL);
+	UpgradeTask(const UpgradeType *upgradeType);
 	const UpgradeType *getUpgradeType() const	{return upgradeType;}
 	virtual string toString() const;
 
 	virtual void saveGame(XmlNode *rootNode) const;
+	static UpgradeTask * loadGame(const XmlNode *rootNode, Faction *faction);
 };
 
 // ===============================
@@ -207,6 +215,7 @@ public:
     bool outputAIBehaviourToConsole() const;
 
     void saveGame(XmlNode *rootNode) const;
+    void loadGame(const XmlNode *rootNode, Faction *faction);
 };
 
 }}//end namespace

@@ -52,7 +52,7 @@ public:
 	string getName() const				{return name;}
 	const Texture2D *getImage() const	{return image;}
 
-	virtual void saveGame(XmlNode *rootNode) const;
+	//virtual void saveGame(XmlNode *rootNode) const;
 };
 
 
@@ -81,7 +81,7 @@ public:
     //other
     virtual string getReqDesc() const;
 
-    virtual void saveGame(XmlNode *rootNode) const;
+    //virtual void saveGame(XmlNode *rootNode) const;
 };
 
 
@@ -116,7 +116,8 @@ public:
     
 	virtual string getReqDesc() const;
 
-	virtual void saveGame(XmlNode *rootNode) const;
+//	virtual void saveGame(XmlNode *rootNode) const;
+//	void loadGame(const XmlNode *rootNode);
 };
 
 }}//end namespace

@@ -26,6 +26,7 @@ namespace Glest { namespace Game {
 
 class Unit;
 class UpgradeType;
+class Faction;
 
 enum UpgradeState {
 	usUpgrading, 
@@ -51,6 +52,7 @@ private:
 
 	friend class UpgradeManager;
 
+	Upgrade();
 public:
 	Upgrade(const UpgradeType *upgradeType, int factionIndex);
 
@@ -66,6 +68,7 @@ private:
 	std::string toString() const;
 
 	void saveGame(XmlNode *rootNode);
+	static Upgrade * loadGame(const XmlNode *rootNode,Faction *faction);
 };
 
 
@@ -95,6 +98,7 @@ public:
 
 	std::string toString() const;
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode,Faction *faction);
 };
 
 }}//end namespace

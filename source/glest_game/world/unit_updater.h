@@ -129,6 +129,7 @@ public:
 	string getUnitRangeCellsLookupItemCacheStats();
 
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 
 private:
     //attack

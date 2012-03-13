@@ -441,13 +441,13 @@ void AiRuleAddTasks::execute(){
 			}
 
 			//buildings
-			if(buildingCount<6 || buildingRatio<0.20) ai->addTask(new BuildTask());
-			if(buildingCount<10 && workerCount>12) ai->addTask(new BuildTask());
+			if(buildingCount<6 || buildingRatio<0.20) ai->addTask(new BuildTask((UnitType *)NULL));
+			if(buildingCount<10 && workerCount>12) ai->addTask(new BuildTask((UnitType *)NULL));
 			//upgrades
-			if(upgradeCount==0 && workerCount>5) ai->addTask(new UpgradeTask());
-			if(upgradeCount==1 && workerCount>10) ai->addTask(new UpgradeTask());
-			if(upgradeCount==2 && workerCount>15) ai->addTask(new UpgradeTask());
-			if(ai->isStableBase()) ai->addTask(new UpgradeTask());
+			if(upgradeCount==0 && workerCount>5) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
+			if(upgradeCount==1 && workerCount>10) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
+			if(upgradeCount==2 && workerCount>15) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
+			if(ai->isStableBase()) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
 		}
 		else if(ai->getAiInterface()->getControlType() == ctCpuEasy ||
 				ai->getAiInterface()->getControlType() == ctNetworkCpuEasy)
@@ -468,13 +468,13 @@ void AiRuleAddTasks::execute(){
 			if(workerCount>=15) ai->addTask(new ProduceTask(ucWarrior));
 
 			//buildings
-			if(buildingCount<6 || buildingRatio<0.20) ai->addTask(new BuildTask());
-			if(buildingCount<10 && ai->isStableBase()) ai->addTask(new BuildTask());
+			if(buildingCount<6 || buildingRatio<0.20) ai->addTask(new BuildTask((UnitType *)NULL));
+			if(buildingCount<10 && ai->isStableBase()) ai->addTask(new BuildTask((UnitType *)NULL));
 
 			//upgrades
-			if(upgradeCount==0 && workerCount>6) ai->addTask(new UpgradeTask());
-			if(upgradeCount==1 && workerCount>7) ai->addTask(new UpgradeTask());
-			if(upgradeCount==2 && workerCount>9) ai->addTask(new UpgradeTask());
+			if(upgradeCount==0 && workerCount>6) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
+			if(upgradeCount==1 && workerCount>7) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
+			if(upgradeCount==2 && workerCount>9) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
 			//if(ai->isStableBase()) ai->addTask(new UpgradeTask());
 		}
 		else
@@ -496,14 +496,14 @@ void AiRuleAddTasks::execute(){
 			if(workerCount>=15) ai->addTask(new ProduceTask(ucWarrior));
 
 			//buildings
-			if(buildingCount<6 || buildingRatio<0.20) ai->addTask(new BuildTask());
-			if(buildingCount<10 && workerCount>12) ai->addTask(new BuildTask());
+			if(buildingCount<6 || buildingRatio<0.20) ai->addTask(new BuildTask((UnitType *)NULL));
+			if(buildingCount<10 && workerCount>12) ai->addTask(new BuildTask((UnitType *)NULL));
 
 			//upgrades
-			if(upgradeCount==0 && workerCount>5) ai->addTask(new UpgradeTask());
-			if(upgradeCount==1 && workerCount>10) ai->addTask(new UpgradeTask());
-			if(upgradeCount==2 && workerCount>15) ai->addTask(new UpgradeTask());
-			if(ai->isStableBase()) ai->addTask(new UpgradeTask());
+			if(upgradeCount==0 && workerCount>5) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
+			if(upgradeCount==1 && workerCount>10) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
+			if(upgradeCount==2 && workerCount>15) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
+			if(ai->isStableBase()) ai->addTask(new UpgradeTask((const UpgradeType *)NULL));
 		}
 	}
 }

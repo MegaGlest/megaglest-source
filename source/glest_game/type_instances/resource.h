@@ -59,7 +59,7 @@ public:
     bool decAmount(int i);
 
     void saveGame(XmlNode *rootNode) const;
-    void loadGame(const XmlNode *rootNode, int index,TechTree *techTree);
+    void loadGame(const XmlNode *rootNode, int index,const TechTree *techTree);
 };
 
 }}// end namespace

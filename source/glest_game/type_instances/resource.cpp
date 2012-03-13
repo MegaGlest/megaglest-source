@@ -116,7 +116,7 @@ void Resource::saveGame(XmlNode *rootNode) const {
 	resourceNode->addAttribute("balance",intToStr(balance), mapTagReplacements);
 }
 
-void Resource::loadGame(const XmlNode *rootNode, int index,TechTree *techTree) {
+void Resource::loadGame(const XmlNode *rootNode, int index,const TechTree *techTree) {
 	vector<XmlNode *> resourceNodeList = rootNode->getChildList("Resource");
 
 	if(index < resourceNodeList.size()) {
