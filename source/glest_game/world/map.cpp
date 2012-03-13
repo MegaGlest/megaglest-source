@@ -1890,8 +1890,9 @@ void Map::saveGame(XmlNode *rootNode) const {
 
 		surfaceCell.saveGame(mapNode,i);
 
-		if(i % 100 == 0) {
+		if(i > 0 && i % 100 == 0) {
 			XmlNode *surfaceCellNode = mapNode->addChild("SurfaceCell");
+			surfaceCellNode->addAttribute("batchIndex",intToStr(i), mapTagReplacements);
 			surfaceCellNode->addAttribute("exploredList",exploredList, mapTagReplacements);
 			surfaceCellNode->addAttribute("visibleList",visibleList, mapTagReplacements);
 
@@ -1902,6 +1903,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 
 	if(exploredList != "") {
 		XmlNode *surfaceCellNode = mapNode->addChild("SurfaceCell");
+		surfaceCellNode->addAttribute("batchIndex",intToStr(getSurfaceCellArraySize()), mapTagReplacements);
 		surfaceCellNode->addAttribute("exploredList",exploredList, mapTagReplacements);
 		surfaceCellNode->addAttribute("visibleList",visibleList, mapTagReplacements);
 	}
