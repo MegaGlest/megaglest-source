@@ -1966,7 +1966,7 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 				string value = tokensExploredValue[k];
 
 				SurfaceCell &surfaceCell = surfaceCells[i];
-				surfaceCell.setExplored(j,strToInt(value));
+				surfaceCell.setExplored(k,strToInt(value));
 			}
 		}
 
@@ -1981,7 +1981,7 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 				string value = tokensVisibleValue[k];
 
 				SurfaceCell &surfaceCell = surfaceCells[i];
-				surfaceCell.setVisible(j,strToInt(value));
+				surfaceCell.setVisible(k,strToInt(value));
 			}
 		}
 	}
