@@ -166,10 +166,12 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 		listBoxGammaCorrection.registerGraphicComponent(containerName,"listBoxGammaCorrection");
 		listBoxGammaCorrection.init(currentColumnStart, currentLine, 170);
-		for (float f=0.0;f<3.1f;f=f+0.1f) {
+		for (float f=0.5;f<3.0f;f=f+0.1f) {
 			listBoxGammaCorrection.pushBackItem(floatToStr(f));
 		}
-		listBoxGammaCorrection.setSelectedItem(floatToStr(config.getFloat("GammaValue","0.0")));
+		float gammaValue=config.getFloat("GammaValue","1.0");
+		if(gammaValue==0.0f) gammaValue=1.0f;
+		listBoxGammaCorrection.setSelectedItem(floatToStr(gammaValue));
 
 		currentLine-=lineOffset;
 
@@ -747,15 +749,6 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			return;
 		}
 
-		string currentGammaCorrection=config.getString("GammaValue","0.0");
-		string selectedGammaCorrection=listFontSizeAdjustment.getSelectedItem();
-		if(currentGammaCorrection!=selectedGammaCorrection){
-			mainMessageBoxState=1;
-			Lang &lang= Lang::getInstance();
-			showMessageBox(lang.get("RestartNeeded"), lang.get("GammaCorrection"), false);
-			return;
-		}
-
 		bool currentFullscreenWindowed=config.getBool("Windowed");
 		bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
 		if(currentFullscreenWindowed!=selectedFullscreenWindowed){
@@ -771,6 +764,19 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
     }
 	else if(buttonAbort.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
+
+		// reset the gamma to former value
+		string currentGammaCorrection=config.getString("GammaValue","1.0");
+		string selectedGammaCorrection=listFontSizeAdjustment.getSelectedItem();
+		if(currentGammaCorrection!=selectedGammaCorrection){
+			float gammaValue=strToFloat(currentGammaCorrection);
+			if(gammaValue==0.0f) gammaValue=1.0f;
+			if(gammaValue!=0.0){
+				program->getWindow()->setGamma(gammaValue);
+				SDL_SetGamma(gammaValue, gammaValue, gammaValue);
+			}
+		}
+
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
 		return;
     }
@@ -801,7 +807,11 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxShadows.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
 		if(listBoxGammaCorrection.mouseClick(x, y)){
-			program->getWindow()->setGamma(strToFloat(listBoxGammaCorrection.getSelectedItem()));
+			float gammaValue=strToFloat(listBoxGammaCorrection.getSelectedItem());
+			if(gammaValue!=0.0){
+				program->getWindow()->setGamma(gammaValue);
+				SDL_SetGamma(gammaValue, gammaValue, gammaValue);
+			}
 		}
 		checkBoxTextures3D.mouseClick(x, y);
 		checkBoxUnitParticles.mouseClick(x, y);

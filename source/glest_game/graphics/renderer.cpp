@@ -6362,7 +6362,10 @@ void Renderer::loadConfig() {
 		throw runtime_error("this->program == NULL");
 	}
 	//if(this->program != NULL) {
-	this->program->getWindow()->setGamma(gammaValue);
+	if(gammaValue!=0.0){
+		this->program->getWindow()->setGamma(gammaValue);
+		SDL_SetGamma(gammaValue, gammaValue, gammaValue);
+	}
 	//}
 
 	//load shadows
