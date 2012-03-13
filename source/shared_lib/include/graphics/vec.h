@@ -658,6 +658,48 @@ public:
 		return result;
 	}
 
+	// playerColor="x [1] y [0] z [0] w [0]"
+	static inline Vec4<T> strToVec4(std::string value) {
+		Vec4<T> result;
+
+		std::vector<std::string> tokens = TokenizeString(value,"[");
+		//for(unsigned int i = 0; i < tokens.size(); ++i) {
+			//printf("#1 Vec2T i = %d [%s]\n",i,tokens[i].c_str());
+		//}
+		if(tokens.size() == 5) {
+			std::vector<std::string> tokens2 = TokenizeString(tokens[1],"]");
+			//for(unsigned int i = 0; i < tokens2.size(); ++i) {
+				//printf("#2 Vec2T i = %d [%s]\n",i,tokens2[i].c_str());
+			//}
+			std::vector<std::string> tokens3 = TokenizeString(tokens[2],"]");
+			//for(unsigned int i = 0; i < tokens3.size(); ++i) {
+				//printf("#3 Vec2T i = %d [%s]\n",i,tokens3[i].c_str());
+			//}
+
+			std::vector<std::string> tokens4 = TokenizeString(tokens[3],"]");
+			//for(unsigned int i = 0; i < tokens3.size(); ++i) {
+				//printf("#3 Vec2T i = %d [%s]\n",i,tokens3[i].c_str());
+			//}
+
+			std::vector<std::string> tokens5 = TokenizeString(tokens[4],"]");
+			//for(unsigned int i = 0; i < tokens3.size(); ++i) {
+				//printf("#3 Vec2T i = %d [%s]\n",i,tokens3[i].c_str());
+			//}
+
+			if(tokens2.size() == 2 && tokens3.size() == 2 &&
+					tokens4.size() == 2 && tokens5.size() == 2) {
+				result.x = (T)strToType<T>(tokens2[0]);
+				result.y = (T)strToType<T>(tokens3[0]);
+				result.z = (T)strToType<T>(tokens4[0]);
+				result.w = (T)strToType<T>(tokens5[0]);
+
+				//printf("#3 Vec2T [%s]\n",result.getString().c_str());
+			}
+		}
+
+		return result;
+	}
+
 };
 
 typedef Vec4<int> Vec4i;

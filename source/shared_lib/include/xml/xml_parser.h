@@ -29,7 +29,7 @@ namespace XERCES_CPP_NAMESPACE{
 
 namespace Shared{ namespace Xml{
 
-const int strSize= 4096;
+const int strSize= 8094;
 
 class XmlIo;
 class XmlTree;

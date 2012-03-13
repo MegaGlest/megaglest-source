@@ -21,6 +21,7 @@
 #include "math_util.h"
 #include "platform_common.h"
 #include "conversion.h"
+#include "model.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -56,6 +57,26 @@ void Particle::saveGame(XmlNode *rootNode) {
 //	int energy;
 	particleNode->addAttribute("energy",intToStr(energy), mapTagReplacements);
 
+}
+
+void Particle::loadGame(const XmlNode *rootNode) {
+	const XmlNode *particleNode = rootNode;
+
+	//particleNode = aiNode->getAttribute("startLoc")->getIntValue();
+	//	Vec3f pos;
+	pos = Vec3f::strToVec3(particleNode->getAttribute("pos")->getValue());
+	//	Vec3f lastPos;
+	lastPos = Vec3f::strToVec3(particleNode->getAttribute("lastPos")->getValue());
+	//	Vec3f speed;
+	speed = Vec3f::strToVec3(particleNode->getAttribute("speed")->getValue());
+	//	Vec3f accel;
+	accel = Vec3f::strToVec3(particleNode->getAttribute("accel")->getValue());
+	//	Vec4f color;
+	color = Vec4f::strToVec4(particleNode->getAttribute("color")->getValue());
+	//	float size;
+	size = particleNode->getAttribute("size")->getFloatValue();
+	//	int energy;
+	energy = particleNode->getAttribute("energy")->getIntValue();
 }
 
 ParticleSystem::ParticleSystem(int particleCount) {
@@ -294,6 +315,75 @@ void ParticleSystem::saveGame(XmlNode *rootNode) {
 		particleObserver->saveGame(particleSystemNode);
 	}
 }
+
+void ParticleSystem::loadGame(const XmlNode *rootNode) {
+	const XmlNode *particleSystemNode = rootNode->getChild("ParticleSystem");
+
+	//	std::vector<Particle> particles;
+//	for(unsigned int i = 0; i < particles.size(); ++i) {
+//		Particle &particle = particles[i];
+//		particle.saveGame(particleSystemNode);
+//	}
+	vector<XmlNode *> particleNodeList = particleSystemNode->getChildList("Particle");
+	for(unsigned int i = 0; i < particleNodeList.size(); ++i) {
+		XmlNode *node = particleNodeList[i];
+
+		Particle particle;
+		particle.loadGame(node);
+		particles.push_back(particle);
+	}
+
+	//	RandomGen random;
+	random.setLastNumber(particleSystemNode->getAttribute("random")->getIntValue());
+
+	//	BlendMode blendMode;
+	blendMode = static_cast<BlendMode>(particleSystemNode->getAttribute("blendMode")->getIntValue());
+	//	State state;
+	state = static_cast<State>(particleSystemNode->getAttribute("state")->getIntValue());
+	//	bool active;
+	active = particleSystemNode->getAttribute("active")->getIntValue();
+	//	bool visible;
+	visible = particleSystemNode->getAttribute("visible")->getIntValue();
+	//	int aliveParticleCount;
+	aliveParticleCount = particleSystemNode->getAttribute("aliveParticleCount")->getIntValue();
+	//	int particleCount;
+	particleCount = particleSystemNode->getAttribute("particleCount")->getIntValue();
+	//
+	//	Texture *texture;
+	//	Vec3f pos;
+	pos = Vec3f::strToVec3(particleSystemNode->getAttribute("pos")->getValue());
+	//	Vec4f color;
+	color = Vec4f::strToVec4(particleSystemNode->getAttribute("color")->getValue());
+	//	Vec4f colorNoEnergy;
+	colorNoEnergy = Vec4f::strToVec4(particleSystemNode->getAttribute("colorNoEnergy")->getValue());
+	//	float emissionRate;
+	emissionRate = particleSystemNode->getAttribute("emissionRate")->getFloatValue();
+	//	float emissionState;
+	emissionState = particleSystemNode->getAttribute("emissionState")->getFloatValue();
+	//	int maxParticleEnergy;
+	maxParticleEnergy = particleSystemNode->getAttribute("maxParticleEnergy")->getIntValue();
+	//	int varParticleEnergy;
+	varParticleEnergy = particleSystemNode->getAttribute("varParticleEnergy")->getIntValue();
+	//	float particleSize;
+	particleSize = particleSystemNode->getAttribute("particleSize")->getFloatValue();
+	//	float speed;
+	speed = particleSystemNode->getAttribute("speed")->getFloatValue();
+	//	Vec3f factionColor;
+	factionColor = Vec3f::strToVec3(particleSystemNode->getAttribute("factionColor")->getValue());
+	//    bool teamcolorNoEnergy;
+	teamcolorNoEnergy = particleSystemNode->getAttribute("teamcolorNoEnergy")->getIntValue();
+	//    bool teamcolorEnergy;
+	teamcolorEnergy = particleSystemNode->getAttribute("teamcolorEnergy")->getIntValue();
+	//	int alternations;
+	alternations = particleSystemNode->getAttribute("alternations")->getIntValue();
+	//	int particleSystemStartDelay;
+	particleSystemStartDelay = particleSystemNode->getAttribute("particleSystemStartDelay")->getIntValue();
+	//	ParticleObserver *particleObserver;
+	//if(particleObserver != NULL) {
+	//	particleObserver->loadGame(particleSystemNode);
+	//}
+}
+
 // =============== MISC =========================
 void ParticleSystem::fade(){
 	if(particleObserver != NULL){
@@ -483,6 +573,28 @@ void FireParticleSystem::setWind(float windAngle, float windSpeed){
 #endif
 }
 
+void FireParticleSystem::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *fireParticleSystemNode = rootNode->addChild("FireParticleSystem");
+
+	ParticleSystem::saveGame(fireParticleSystemNode);
+
+//	float radius;
+	fireParticleSystemNode->addAttribute("radius",floatToStr(radius), mapTagReplacements);
+//	Vec3f windSpeed;
+	fireParticleSystemNode->addAttribute("windSpeed",windSpeed.getString(), mapTagReplacements);
+}
+void FireParticleSystem::loadGame(const XmlNode *rootNode) {
+	const XmlNode *fireParticleSystemNode = rootNode;
+
+	ParticleSystem::loadGame(fireParticleSystemNode);
+
+//	float radius;
+	radius = fireParticleSystemNode->getAttribute("radius")->getFloatValue();
+//	Vec3f windSpeed;
+	windSpeed = Vec3f::strToVec3(fireParticleSystemNode->getAttribute("windSpeed")->getValue());
+}
+
 // ===========================================================================
 //  GameParticleSystem
 // ===========================================================================
@@ -605,6 +717,69 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 	}
 	for(Children::iterator it= children.begin(); it != children.end(); ++it)
 		(*it)->setTween(relative,absolute);
+}
+
+void GameParticleSystem::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *gameParticleSystemNode = rootNode->addChild("GameParticleSystem");
+
+	ParticleSystem::saveGame(gameParticleSystemNode);
+
+//	Children children;
+	for(unsigned int i = 0; i < children.size(); ++i) {
+		children[i]->saveGame(gameParticleSystemNode);
+	}
+//	Primitive primitive;
+	gameParticleSystemNode->addAttribute("primitive",intToStr(primitive), mapTagReplacements);
+//	Model *model;
+	if(model != NULL) {
+		gameParticleSystemNode->addAttribute("model",model->getFileName(), mapTagReplacements);
+	}
+//	float modelCycle;
+	gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle), mapTagReplacements);
+//	Vec3f offset;
+	gameParticleSystemNode->addAttribute("offset",offset.getString(), mapTagReplacements);
+//	Vec3f direction;
+	gameParticleSystemNode->addAttribute("direction",direction.getString(), mapTagReplacements);
+//	float tween;
+	gameParticleSystemNode->addAttribute("tween",floatToStr(tween), mapTagReplacements);
+}
+void GameParticleSystem::loadGame(const XmlNode *rootNode) {
+	const XmlNode *gameParticleSystemNode = rootNode;
+
+	ParticleSystem::loadGame(gameParticleSystemNode);
+
+	//radius = fireParticleSystemNode->getAttribute("radius")->getFloatValue();
+
+	//	Children children;
+//	for(unsigned int i = 0; i < children.size(); ++i) {
+//		children[i]->saveGame(gameParticleSystemNode);
+//	}
+	vector<XmlNode *> childrenNodeList = gameParticleSystemNode->getChildList("UnitParticleSystem");
+	for(unsigned int i = 0; i < childrenNodeList.size(); ++i) {
+		XmlNode *node = childrenNodeList[i];
+
+		UnitParticleSystem *ups = new UnitParticleSystem();
+		ups->loadGame(node);
+
+		children.push_back(ups);
+	}
+
+	//	Primitive primitive;
+	primitive = static_cast<Primitive>(gameParticleSystemNode->getAttribute("primitive")->getIntValue());
+	//	Model *model;
+	//if(model != NULL) {
+	//	gameParticleSystemNode->addAttribute("model",model->getFileName(), mapTagReplacements);
+	//}
+	//	float modelCycle;
+	//gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle), mapTagReplacements);
+	modelCycle = gameParticleSystemNode->getAttribute("modelCycle")->getFloatValue();
+	//	Vec3f offset;
+	offset = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("modelCycle")->getValue());
+	//	Vec3f direction;
+	direction = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("direction")->getValue());
+	//	float tween;
+	tween = gameParticleSystemNode->getAttribute("tween")->getFloatValue();
 }
 
 // ===========================================================================
@@ -867,6 +1042,48 @@ void UnitParticleSystem::setWind(float windAngle, float windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
+}
+
+void UnitParticleSystem::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *unitParticleSystemNode = rootNode->addChild("UnitParticleSystem");
+
+	GameParticleSystem::saveGame(unitParticleSystemNode);
+
+	//unitParticleSystemNode->addAttribute("radius",floatToStr(radius), mapTagReplacements);
+
+//	float radius;
+//	float minRadius;
+//	Vec3f windSpeed;
+//	Vec3f cRotation;
+//	Vec3f fixedAddition;
+//    Vec3f oldPosition;
+//    bool energyUp;
+//	float startTime;
+//	float endTime;
+//	bool relative;
+//	bool relativeDirection;
+//    bool fixed;
+//	Shape shape;
+//	float angle;
+//	float sizeNoEnergy;
+//	float gravity;
+//	float rotation;
+//	bool isVisibleAtNight;
+//	bool isVisibleAtDay;
+//	bool isDaylightAffected;
+//	bool radiusBasedStartenergy;
+//	int staticParticleCount;
+//	int delay;
+//	int lifetime;
+//	float emissionRateFade;
+//	GameParticleSystem* parent;
+
+}
+void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
+	const XmlNode *unitParticleSystemNode = rootNode;
+
+	GameParticleSystem::loadGame(unitParticleSystemNode);
 }
 
 // ===========================================================================

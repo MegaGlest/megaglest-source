@@ -157,7 +157,8 @@ private:
 //	class ParticleDamager
 // =====================================================
 
-class ParticleDamager: public ParticleObserver{
+class ParticleDamager: public ParticleObserver {
+
 public:
 	UnitReference attackerRef;
 	const AttackSkillType* ast;
@@ -169,7 +170,9 @@ public:
 public:
 	ParticleDamager(Unit *attacker, UnitUpdater *unitUpdater, const GameCamera *gameCamera);
 	virtual void update(ParticleSystem *particleSystem);
+
 	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode,void *genericData);
 };
 
 }}//end namespace
