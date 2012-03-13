@@ -318,7 +318,7 @@ void UnitAttackBoostEffect::saveGame(XmlNode *rootNode) {
 		unitAttackBoostEffectNode->addAttribute("source",intToStr(source->getId()), mapTagReplacements);
 	}
 //	UnitParticleSystem *ups;
-	if(ups != NULL) {
+	if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
 		ups->saveGame(unitAttackBoostEffectNode);
 	}
 
@@ -3530,7 +3530,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("showUnitParticles",intToStr(showUnitParticles), mapTagReplacements);
 //    Faction *faction;
 //	ParticleSystem *fire;
-	if(fire != NULL) {
+	if(fire != NULL && Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == true) {
 		fire->saveGame(unitNode);
 	}
 //	TotalUpgrade totalUpgrade;
@@ -3553,7 +3553,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	vector<UnitParticleSystem*> unitParticleSystems;
 	for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
 		UnitParticleSystem *ups= unitParticleSystems[i];
-		if(ups != NULL) {
+		if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
 			ups->saveGame(unitNode);
 		}
 	}
@@ -3568,7 +3568,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	UnitParticleSystems damageParticleSystems;
 	for(unsigned int i = 0; i < damageParticleSystems.size(); ++i) {
 		UnitParticleSystem *ups= damageParticleSystems[i];
-		if(ups != NULL) {
+		if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
 			ups->saveGame(unitNode);
 		}
 	}
@@ -3576,7 +3576,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
 	for(std::map<int, UnitParticleSystem *>::const_iterator iterMap = damageParticleSystemsInUse.begin();
 			iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
-		if(iterMap->second != NULL) {
+		if(iterMap->second != NULL && Renderer::getInstance().validateParticleSystemStillExists(iterMap->second,rsGame) == true) {
 			XmlNode *damageParticleSystemsInUseNode = unitNode->addChild("damageParticleSystemsInUse");
 
 			damageParticleSystemsInUseNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
@@ -3586,7 +3586,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	vector<ParticleSystem*> fireParticleSystems;
 	for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
 		ParticleSystem *ps= fireParticleSystems[i];
-		if(ps != NULL) {
+		if(ps != NULL && Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
 			ps->saveGame(unitNode);
 		}
 	}
@@ -3594,7 +3594,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	vector<UnitParticleSystem*> smokeParticleSystems;
 	for(unsigned int i = 0; i < smokeParticleSystems.size(); ++i) {
 		UnitParticleSystem *ups= smokeParticleSystems[i];
-		if(ups != NULL) {
+		if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
 			ups->saveGame(unitNode);
 		}
 	}
