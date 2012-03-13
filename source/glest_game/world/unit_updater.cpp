@@ -2645,12 +2645,37 @@ void ParticleDamager::saveGame(XmlNode *rootNode) {
 	attackerRef.saveGame(particleDamagerNode);
 
 //	const AttackSkillType* ast;
+	particleDamagerNode->addAttribute("astName",ast->getName(), mapTagReplacements);
+	particleDamagerNode->addAttribute("astClass",intToStr(ast->getClass()), mapTagReplacements);
 //	UnitUpdater *unitUpdater;
 //	const GameCamera *gameCamera;
 //	Vec2i targetPos;
 	particleDamagerNode->addAttribute("targetPos",targetPos.getString(), mapTagReplacements);
 //	Field targetField;
 	particleDamagerNode->addAttribute("targetField",intToStr(targetField), mapTagReplacements);
+}
+
+void ParticleDamager::loadGame(const XmlNode *rootNode, void *genericData) {
+	const XmlNode *particleDamagerNode = rootNode->getChild("ParticleDamager");
+
+	std::pair<Game *,Unit *> *pairData = (std::pair<Game *,Unit *>*)genericData;
+	//UnitType *ut, Game *game
+	attackerRef.loadGame(particleDamagerNode,pairData->first->getWorld());
+
+	//random.setLastNumber(particleSystemNode->getAttribute("random")->getIntValue());
+
+	//	const AttackSkillType* ast;
+	string astName = particleDamagerNode->getAttribute("astName")->getValue();
+	SkillClass astClass = static_cast<SkillClass>(particleDamagerNode->getAttribute("astClass")->getIntValue());
+	ast = dynamic_cast<const AttackSkillType*>(pairData->second->getType()->getSkillType(astName,astClass));
+	//	UnitUpdater *unitUpdater;
+	unitUpdater = pairData->first->getWorld()->getUnitUpdater();
+	//	const GameCamera *gameCamera;
+	gameCamera = pairData->first->getGameCamera();
+	//	Vec2i targetPos;
+	targetPos = Vec2i::strToVec2(particleDamagerNode->getAttribute("targetPos")->getValue());
+	//	Field targetField;
+	targetField = static_cast<Field>(particleDamagerNode->getAttribute("targetField")->getIntValue());
 }
 
 }}//end namespace

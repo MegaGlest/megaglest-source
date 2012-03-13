@@ -68,6 +68,7 @@ public:
 	int getEnergy()	const		{return energy;}
 
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 };
 
 // =====================================================
@@ -79,6 +80,7 @@ public:
 	virtual ~ParticleObserver(){};
 	virtual void update(ParticleSystem *particleSystem)= 0;
 	virtual void saveGame(XmlNode *rootNode) = 0;
+	virtual void loadGame(const XmlNode *rootNode, void *genericData) = 0;
 };
 
 // =====================================================
@@ -191,7 +193,8 @@ public:
 	virtual int getChildCount() { return 0; }
 	virtual ParticleSystem* getChild(int i);
 
-	void saveGame(XmlNode *rootNode);
+	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode);
 
 protected:
 	//protected
@@ -225,6 +228,9 @@ public:
 	//set params
 	void setRadius(float radius);
 	void setWind(float windAngle, float windSpeed);
+
+	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode);
 };
 
 // =====================================================
@@ -256,6 +262,10 @@ public:
 	void setPrimitive(Primitive primitive) {this->primitive= primitive;}
 	Vec3f getDirection() const {return direction;}
 	void setModelCycle(float modelCycle) {this->modelCycle= modelCycle;}
+
+	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode);
+
 protected:
 	typedef std::vector<UnitParticleSystem*> Children;
 	Children children;
@@ -362,6 +372,10 @@ public:
 	void setParentDirection(Vec3f parentDirection);
 	
 	static Shape strToShape(const string& str);
+
+	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode);
+
 };
 
 // =====================================================

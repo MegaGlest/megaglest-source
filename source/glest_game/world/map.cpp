@@ -1864,6 +1864,10 @@ void Map::saveGame(XmlNode *rootNode) const {
 	for(unsigned int i = 0; i < getSurfaceCellArraySize(); ++i) {
 		SurfaceCell &surfaceCell = surfaceCells[i];
 
+		if(exploredList != "") {
+			exploredList += ",";
+		}
+
 		for(unsigned int j = 0; j < GameConstants::maxPlayers; ++j) {
 			if(exploredList != "") {
 				exploredList += "|";
@@ -1871,7 +1875,11 @@ void Map::saveGame(XmlNode *rootNode) const {
 
 			exploredList += intToStr(surfaceCell.isExplored(j));
 		}
-		exploredList += ",";
+
+		if(visibleList != "") {
+			visibleList += ",";
+		}
+
 		for(unsigned int j = 0; j < GameConstants::maxPlayers; ++j) {
 			if(visibleList != "") {
 				visibleList += "|";
@@ -1879,14 +1887,24 @@ void Map::saveGame(XmlNode *rootNode) const {
 
 			visibleList += intToStr(surfaceCell.isVisible(j));
 		}
-		visibleList += ",";
 
 		surfaceCell.saveGame(mapNode,i);
+
+		if(i % 100 == 0) {
+			XmlNode *surfaceCellNode = mapNode->addChild("SurfaceCell");
+			surfaceCellNode->addAttribute("exploredList",exploredList, mapTagReplacements);
+			surfaceCellNode->addAttribute("visibleList",visibleList, mapTagReplacements);
+
+			exploredList = "";
+			visibleList = "";
+		}
 	}
 
-	XmlNode *surfaceCellNode = mapNode->addChild("SurfaceCell");
-	surfaceCellNode->addAttribute("exploredList",exploredList, mapTagReplacements);
-	surfaceCellNode->addAttribute("visibleList",visibleList, mapTagReplacements);
+	if(exploredList != "") {
+		XmlNode *surfaceCellNode = mapNode->addChild("SurfaceCell");
+		surfaceCellNode->addAttribute("exploredList",exploredList, mapTagReplacements);
+		surfaceCellNode->addAttribute("visibleList",visibleList, mapTagReplacements);
+	}
 
 //	Vec2i *startLocations;
 	for(unsigned int i = 0; i < maxPlayers; ++i) {
@@ -1927,40 +1945,44 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 		surfaceCell.loadGame(mapNode,i,world);
 	}
 
-	XmlNode *surfaceCellNode = mapNode->getChild("SurfaceCell");
-	string exploredList = surfaceCellNode->getAttribute("exploredList")->getValue();
-	string visibleList = surfaceCellNode->getAttribute("visibleList")->getValue();
+	vector<XmlNode *> surfaceCellNodeList = mapNode->getChildList("SurfaceCell");
+	for(unsigned int i = 0; i < surfaceCellNodeList.size(); ++i) {
+		XmlNode *surfaceCellNode = surfaceCellNodeList[i];
 
-	vector<string> tokensExplored;
-	Tokenize(exploredList,tokensExplored,",");
-	for(unsigned int i = 0; i < tokensExplored.size(); ++i) {
-		string valueList = tokensExplored[i];
+		//XmlNode *surfaceCellNode = mapNode->getChild("SurfaceCell");
+		string exploredList = surfaceCellNode->getAttribute("exploredList")->getValue();
+		string visibleList = surfaceCellNode->getAttribute("visibleList")->getValue();
 
-		vector<string> tokensExploredValue;
-		Tokenize(valueList,tokensExploredValue,"|");
-		for(unsigned int j = 0; j < tokensExploredValue.size(); ++j) {
-			string value = tokensExploredValue[j];
+		vector<string> tokensExplored;
+		Tokenize(exploredList,tokensExplored,",");
+		for(unsigned int i = 0; i < tokensExplored.size(); ++i) {
+			string valueList = tokensExplored[i];
 
-			SurfaceCell &surfaceCell = surfaceCells[i];
-			surfaceCell.setExplored(j,strToInt(value));
+			vector<string> tokensExploredValue;
+			Tokenize(valueList,tokensExploredValue,"|");
+			for(unsigned int j = 0; j < tokensExploredValue.size(); ++j) {
+				string value = tokensExploredValue[j];
+
+				SurfaceCell &surfaceCell = surfaceCells[i];
+				surfaceCell.setExplored(j,strToInt(value));
+			}
+		}
+
+		vector<string> tokensVisible;
+		Tokenize(visibleList,tokensVisible,",");
+		for(unsigned int i = 0; i < tokensVisible.size(); ++i) {
+			string valueList = tokensVisible[i];
+
+			vector<string> tokensVisibleValue;
+			Tokenize(valueList,tokensVisibleValue,"|");
+			for(unsigned int j = 0; j < tokensVisibleValue.size(); ++j) {
+				string value = tokensVisibleValue[j];
+
+				SurfaceCell &surfaceCell = surfaceCells[i];
+				surfaceCell.setVisible(j,strToInt(value));
+			}
 		}
 	}
-
-	vector<string> tokensVisible;
-	Tokenize(visibleList,tokensVisible,",");
-	for(unsigned int i = 0; i < tokensVisible.size(); ++i) {
-		string valueList = tokensVisible[i];
-
-		vector<string> tokensVisibleValue;
-		Tokenize(valueList,tokensVisibleValue,"|");
-		for(unsigned int j = 0; j < tokensVisibleValue.size(); ++j) {
-			string value = tokensVisibleValue[j];
-
-			SurfaceCell &surfaceCell = surfaceCells[i];
-			surfaceCell.setVisible(j,strToInt(value));
-		}
-	}
-
 }
 
 // =====================================================

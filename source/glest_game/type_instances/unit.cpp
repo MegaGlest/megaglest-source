@@ -3833,6 +3833,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //		UnitParticleSystem *ups= unitParticleSystems[i];
 //		ups->saveGame(unitNode);
 //	}
+
 //	vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
 //	for(unsigned int i = 0; i < queuedUnitParticleSystemTypes.size(); ++i) {
 //		UnitParticleSystemType *upst= queuedUnitParticleSystemTypes[i];
