@@ -1806,7 +1806,7 @@ void Faction::saveGame(XmlNode *rootNode) {
 	for(unsigned int i = 0; i < allies.size(); ++i) {
 		Faction *ally = allies[i];
 		XmlNode *allyNode = factionNode->addChild("Ally");
-		allyNode->addAttribute("startlocationindex",intToStr(ally->getStartLocationIndex()), mapTagReplacements);
+		allyNode->addAttribute("allyFactionIndex",intToStr(ally->getIndex()), mapTagReplacements);
 	}
 //	Mutex *unitsMutex;
 //	Units units;
@@ -1877,6 +1877,21 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 	if(factionNode != NULL) {
 		//printf("Loading faction index = %d [%s] [%s]\n",factionIndex,factionType->getName().c_str(),factionNode->getAttribute("factiontype")->getValue().c_str());
 
+		//	Allies allies;
+		allies.clear();
+//		for(unsigned int i = 0; i < allies.size(); ++i) {
+//			Faction *ally = allies[i];
+//			XmlNode *allyNode = factionNode->addChild("Ally");
+//			allyNode->addAttribute("allyFactionIndex",intToStr(ally->getIndex()), mapTagReplacements);
+//		}
+		vector<XmlNode *> allyNodeList = factionNode->getChildList("Ally");
+		for(unsigned int i = 0; i < allyNodeList.size(); ++i) {
+			XmlNode *allyNode = allyNodeList[i];
+
+			int allyFactionIndex = allyNode->getAttribute("allyFactionIndex")->getIntValue();
+			allies.push_back(world->getFaction(allyFactionIndex));
+		}
+
 		vector<XmlNode *> unitNodeList = factionNode->getChildList("Unit");
 		for(unsigned int i = 0; i < unitNodeList.size(); ++i) {
 			XmlNode *unitNode = unitNodeList[i];
@@ -1885,29 +1900,29 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 		}
 
 		//description = gameSettingsNode->getAttribute("description")->getValue();
+
+		//resources.resize(techTree->getResourceTypeCount());
+		//store.resize(techTree->getResourceTypeCount());
+
+	//	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
+	//		const ResourceType *rt= techTree->getResourceType(i);
+	//		int resourceAmount= giveResources? factionType->getStartingResourceAmount(rt): 0;
+	//		resources[i].init(rt, resourceAmount);
+	//		store[i].init(rt, 0);
+	//	}
+
+		for(unsigned int i = 0; i < resources.size(); ++i) {
+			Resource &resource = resources[i];
+			resource.loadGame(factionNode,i,techTree);
+		}
+		XmlNode *storeNode = factionNode->getChild("Store");
+		for(unsigned int i = 0; i < store.size(); ++i) {
+			Resource &resource = store[i];
+			resource.loadGame(storeNode,i,techTree);
+		}
+
+		upgradeManager.loadGame(factionNode,this);
 	}
-
-	//resources.resize(techTree->getResourceTypeCount());
-	//store.resize(techTree->getResourceTypeCount());
-
-//	for(int i=0; i<techTree->getResourceTypeCount(); ++i){
-//		const ResourceType *rt= techTree->getResourceType(i);
-//		int resourceAmount= giveResources? factionType->getStartingResourceAmount(rt): 0;
-//		resources[i].init(rt, resourceAmount);
-//		store[i].init(rt, 0);
-//	}
-
-	for(unsigned int i = 0; i < resources.size(); ++i) {
-		Resource &resource = resources[i];
-		resource.loadGame(factionNode,i,techTree);
-	}
-	XmlNode *storeNode = factionNode->getChild("Store");
-	for(unsigned int i = 0; i < store.size(); ++i) {
-		Resource &resource = store[i];
-		resource.loadGame(storeNode,i,techTree);
-	}
-
-	upgradeManager.loadGame(factionNode,this);
 }
 
 }}//end namespace
