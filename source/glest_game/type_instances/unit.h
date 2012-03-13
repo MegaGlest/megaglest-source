@@ -113,6 +113,7 @@ public:
 	Faction *getUnitFaction() const	{ return faction; }
 
 	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode,World *world);
 };
 
 class UnitPathInterface {

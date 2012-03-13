@@ -801,11 +801,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		listBoxShadows.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
 		if(listBoxGammaCorrection.mouseClick(x, y)){
-			Renderer &renderer=Renderer::getInstance();
-						renderer.getGame()
-								->getProgram()
-								->getWindow()
-								->setGamma(strToFloat(listBoxGammaCorrection.getSelectedItem()));
+			program->getWindow()->setGamma(strToFloat(listBoxGammaCorrection.getSelectedItem()));
 		}
 		checkBoxTextures3D.mouseClick(x, y);
 		checkBoxUnitParticles.mouseClick(x, y);

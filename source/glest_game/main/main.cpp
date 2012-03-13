@@ -3284,6 +3284,7 @@ int glestMain(int argc, char** argv) {
         //
 
 		program= new Program();
+		renderer.setProgram(program);
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

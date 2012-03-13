@@ -63,7 +63,7 @@ class ChatManager;
 class Object;
 class ConsoleLineInfo;
 class SurfaceCell;
-
+class Program;
 // =====================================================
 // 	class MeshCallbackTeamColor
 // =====================================================
@@ -244,6 +244,7 @@ private:
 	const Game *game;
 	GameCamera *gameCamera;
 	const MainMenu *menu;
+	Program *program;
 
 	//misc
 	int triangleCount;
@@ -577,6 +578,8 @@ public:
 	GLuint * getCustom3dMenuList() const { return this->customlist3dMenu; }
 
 	void init3dListMenu(const MainMenu *mm);
+
+	void setProgram(Program *program) { this->program = program; }
 
 private:
 	//private misc

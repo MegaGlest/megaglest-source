@@ -190,6 +190,8 @@ Renderer::Renderer() : BaseRenderer() {
 	list3dMenuValid=false;
 	customlist3dMenu=NULL;
 
+	this->program = NULL;
+
 	//resources
 	for(int i=0; i < rsCount; ++i) {
 		modelManager[i] = NULL;
@@ -6356,7 +6358,12 @@ void Renderer::loadConfig() {
 	focusArrows= config.getBool("FocusArrows");
 	textures3D= config.getBool("Textures3D");
 	float gammaValue=config.getFloat("GammaValue","0.0");
-	getGame()->getProgram()->getWindow()->setGamma(gammaValue);
+	if(this->program == NULL) {
+		throw runtime_error("this->program == NULL");
+	}
+	//if(this->program != NULL) {
+	this->program->getWindow()->setGamma(gammaValue);
+	//}
 
 	//load shadows
 	shadows= strToShadows(config.getString("Shadows"));
