@@ -3594,7 +3594,7 @@ void Game::saveGame(string name) {
 }
 
 void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
-	XmlTree	xmlTree;
+	XmlTree	xmlTree(true);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
 	std::map<string,string> mapExtraTagReplacementValues;
@@ -3602,6 +3602,9 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("After load of XML\n");
 
 	const XmlNode *rootNode= xmlTree.getRootNode();
+	if(rootNode->hasChild("megaglest-saved-game") == true) {
+		rootNode = rootNode->getChild("megaglest-saved-game");
+	}
 
 	//const XmlNode *versionNode= rootNode->getChild("megaglest-saved-game");
 	const XmlNode *versionNode= rootNode;

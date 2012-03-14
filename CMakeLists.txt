@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.6.2 )
 PROJECT( MegaGlest )
 
-# SET(CMAKE_VERBOSE_MAKEFILE ON)
+#SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
 # *NOTE: For now we assume some variation of GCC Compiler (or MingW for Windows binaries)
