@@ -144,10 +144,9 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
  		else {
 			config->setParameter(XMLUni::fgXercesSchema, false);
 			config->setParameter(XMLUni::fgXercesSchemaFullChecking, false);
-			//config->setParameter(XMLUni::fgDOMValidateIfSchema, true);
-			config->setParameter(XMLUni::fgDOMValidate, false);
-			config->setParameter(XMLUni::fgSAX2CoreValidation, true);
-			config->setParameter(XMLUni::fgXercesDynamic, true);
+			config->setParameter(XMLUni::fgXercesLoadExternalDTD, false);
+			config->setParameter(XMLUni::fgXercesCacheGrammarFromParse, true);
+			config->setParameter(XMLUni::fgXercesUseCachedGrammarInParse, true);
  		}
 #endif
 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
@@ -165,8 +164,11 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
 		return rootNode;
 	}
 	catch(const DOMException &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while loading: [%s], %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
-		throw runtime_error("Exception while loading: " + path + ": " + XMLString::transcode(ex.msg));
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
+
+		throw runtime_error(szBuf);
 	}
 }
 
