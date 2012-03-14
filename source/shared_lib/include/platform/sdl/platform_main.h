@@ -40,6 +40,7 @@ const char  *GAME_ARGS[] = {
 	"--sdl-info",
 	"--lua-info",
 	"--curl-info",
+	"--xerces-info",
 	"--validate-techtrees",
 	"--validate-factions",
 	"--validate-scenario",
@@ -91,6 +92,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_SDL_INFO,
 	GAME_ARG_LUA_INFO,
 	GAME_ARG_CURL_INFO,
+	GAME_ARG_XERCES_INFO,
 	GAME_ARG_VALIDATE_TECHTREES,
 	GAME_ARG_VALIDATE_FACTIONS,
 	GAME_ARG_VALIDATE_SCENARIO,
@@ -174,6 +176,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
 	printf("\n%s\t\t\tdisplays your LUA version information.",GAME_ARGS[GAME_ARG_LUA_INFO]);
 	printf("\n%s\t\t\tdisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
+	printf("\n%s\t\t\tdisplays your XERCES version information.",GAME_ARGS[GAME_ARG_XERCES_INFO]);
+
 	printf("\n%s=x=purgeunused=purgeduplicates=svndelete=hideduplicates",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\tdisplay a report detailing any known problems");
 	printf("\n                     \t\trelated to your selected techtrees game data.");
@@ -390,6 +394,7 @@ int mainSetup(int argc, char **argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||
         hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) 			== true ||
+        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_XERCES_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 				== true ||
         hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])    == true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
