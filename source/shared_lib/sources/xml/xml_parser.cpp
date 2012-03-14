@@ -105,6 +105,7 @@ XmlIo::~XmlIo() {
 }
 
 XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation) {
+	//printf("Load file using Xerces engine [%s]\n",path.c_str());
 
 	try {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("XERCES_FULLVERSIONDOT [%s]\nnoValidation = %d\npath [%s]\n",XERCES_FULLVERSIONDOT,noValidation,path.c_str());
@@ -174,6 +175,8 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
 }
 
 void XmlIo::save(const string &path, const XmlNode *node){
+	//printf("Saving file using Xerces engine [%s]\n",path.c_str());
+
 	try{
 		XMLCh str[strSize];
 		XMLString::transcode(node->getName().c_str(), str, strSize-1);
@@ -362,9 +365,9 @@ void XmlIoRapid::save(const string &path, const XmlNode *node){
 // =====================================================
 //	class XmlTree
 // =====================================================
-XmlTree::XmlTree(bool wantRapidXmlTree) {
+XmlTree::XmlTree(xml_engine_parser_type engine_type) {
 	rootNode= NULL;
-	this->wantRapidXmlTree = wantRapidXmlTree;
+	this->engine_type = engine_type;
 }
 
 void XmlTree::init(const string &name){
@@ -394,7 +397,7 @@ void XmlTree::load(const string &path, std::map<string,string> mapTagReplacement
 	safeMutex.ReleaseLock();
 
 	loadPath = path;
-	if(this->wantRapidXmlTree == false) {
+	if(this->engine_type == XML_XERCES_ENGINE) {
 		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation);
 	}
 	else {
@@ -405,7 +408,7 @@ void XmlTree::load(const string &path, std::map<string,string> mapTagReplacement
 }
 
 void XmlTree::save(const string &path){
-	if(this->wantRapidXmlTree == false) {
+	if(this->engine_type == XML_XERCES_ENGINE) {
 		XmlIo::getInstance().save(path, rootNode);
 	}
 	else {

@@ -29,8 +29,14 @@ namespace XERCES_CPP_NAMESPACE{
 	class DOMElement;
 }
 
-namespace Shared{ namespace Xml{
+namespace Shared { namespace Xml {
 
+enum xml_engine_parser_type {
+	XML_XERCES_ENGINE = 0,
+	XML_RAPIDXML_ENGINE = 1
+} ;
+
+static xml_engine_parser_type DEFAULT_XML_ENGINE = XML_RAPIDXML_ENGINE;
 const int strSize= 8094;
 
 class XmlIo;
@@ -86,13 +92,13 @@ class XmlTree{
 private:
 	XmlNode *rootNode;
 	string loadPath;
-	bool wantRapidXmlTree;
+	xml_engine_parser_type engine_type;
 private:
 	XmlTree(XmlTree&);
 	void operator =(XmlTree&);
 
 public:
-	XmlTree(bool wantRapidXmlTree = false);
+	XmlTree(xml_engine_parser_type engine_type = DEFAULT_XML_ENGINE);
 	~XmlTree();
 
 	void init(const string &name);

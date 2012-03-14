@@ -3436,7 +3436,7 @@ void Game::toggleTeamColorMarker() {
 }
 
 void Game::saveGame(string name) {
-	XmlTree xmlTree;
+	XmlTree xmlTree(XML_XERCES_ENGINE);
 	xmlTree.init("megaglest-saved-game");
 	XmlNode *rootNode = xmlTree.getRootNode();
 
@@ -3594,7 +3594,7 @@ void Game::saveGame(string name) {
 }
 
 void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
-	XmlTree	xmlTree(true);
+	XmlTree	xmlTree(XML_RAPIDXML_ENGINE);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
 	std::map<string,string> mapExtraTagReplacementValues;
