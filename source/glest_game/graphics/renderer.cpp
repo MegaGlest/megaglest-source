@@ -459,6 +459,50 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 	init3dList();
 }
 
+void Renderer::manageDeferredParticleSystems() {
+	//std::vector<std::pair<ParticleSystem *, ResourceScope> > deferredParticleSystems
+	//printf("Before deferredParticleSystems.size() = %d\n",deferredParticleSystems.size());
+	for(unsigned int i = 0; i < deferredParticleSystems.size(); ++i) {
+		std::pair<ParticleSystem *, ResourceScope> &deferredParticleSystem = deferredParticleSystems[i];
+		ParticleSystem *ps = deferredParticleSystem.first;
+		ResourceScope rs = deferredParticleSystem.second;
+		if(ps->getTextureFileLoadDeferred() != "" && ps->getTexture() == NULL) {
+			Texture2D *texture= newTexture2D(rsGame);
+			if(texture) {
+//				if(textureNode->getAttribute("luminance")->getBoolValue()){
+//					texture->setFormat(Texture::fAlpha);
+//					texture->getPixmap()->init(1);
+//				}
+//				else{
+					texture->getPixmap()->init(4);
+//				}
+			}
+//			string currentPath = dir;
+//			endPathWithSlash(currentPath);
+			if(texture) {
+				texture->load(ps->getTextureFileLoadDeferred());
+				ps->setTexture(texture);
+			}
+//			loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(parentLoader,textureNode->getAttribute("path")->getRestrictedValue()));
+		}
+		if(dynamic_cast<GameParticleSystem *>(ps) != NULL) {
+			GameParticleSystem *gps = dynamic_cast<GameParticleSystem *>(ps);
+			if(gps->getModelFileLoadDeferred() != "" && gps->getModel() == NULL) {
+				Model *model= newModel(rsGame);
+				if(model) {
+					std::map<string,vector<pair<string, string> > > loadedFileList;
+					model->load(gps->getModelFileLoadDeferred(), false, &loadedFileList, NULL);
+					gps->setModel(model);
+				}
+				//loadedFileList[path].push_back(make_pair(parentLoader,modelNode->getAttribute("path")->getRestrictedValue()));
+			}
+		}
+		manageParticleSystem(deferredParticleSystem.first, deferredParticleSystem.second);
+	}
+	deferredParticleSystems.clear();
+	//printf("After deferredParticleSystems.size() = %d\n",deferredParticleSystems.size());
+}
+
 void Renderer::initMenu(const MainMenu *mm) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -781,6 +825,10 @@ void Renderer::resetFontManager(ResourceScope rs) {
 	}
 	fontManager[rs]->end();
 	fontManager[rsGlobal]->init();
+}
+
+void Renderer::addToDeferredParticleSystemList(std::pair<ParticleSystem *, ResourceScope> deferredParticleSystem) {
+	deferredParticleSystems.push_back(deferredParticleSystem);
 }
 
 void Renderer::manageParticleSystem(ParticleSystem *particleSystem, ResourceScope rs){

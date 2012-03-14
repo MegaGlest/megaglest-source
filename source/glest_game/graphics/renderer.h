@@ -299,6 +299,8 @@ private:
 	float smoothedRenderFps;
 	bool shadowsOffDueToMinRender;
 
+	std::vector<std::pair<ParticleSystem *, ResourceScope> > deferredParticleSystems;
+
 	SimpleTaskThread *saveScreenShotThread;
 	Mutex saveScreenShotThreadAccessor;
 	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
@@ -386,6 +388,9 @@ public:
 	static Renderer &getInstance();
 	static bool isEnded();
 	//bool isMasterserverMode() const { return masterserverMode; }
+
+	void addToDeferredParticleSystemList(std::pair<ParticleSystem *, ResourceScope> deferredParticleSystem);
+	void manageDeferredParticleSystems();
 
 	void reinitAll();
 
