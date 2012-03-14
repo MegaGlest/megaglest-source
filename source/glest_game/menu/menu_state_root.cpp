@@ -16,6 +16,7 @@
 #include "core_data.h"
 #include "config.h"
 #include "menu_state_new_game.h"
+#include "menu_state_load_game.h"
 #include "menu_state_options.h"
 #include "menu_state_about.h"
 #include "menu_state_mods.h"
@@ -55,6 +56,9 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	buttonNewGame.registerGraphicComponent(containerName,"buttonNewGame");
 	buttonNewGame.init(425, yPos, 150);
     yPos-=40;
+    buttonLoadGame.registerGraphicComponent(containerName,"buttonLoadGame");
+    buttonLoadGame.init(425, yPos, 150);
+    yPos-=40;
     buttonMods.registerGraphicComponent(containerName,"buttonMods");
     buttonMods.init(425, yPos, 150);
     yPos-=40;
@@ -68,6 +72,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
     buttonExit.init(425, yPos, 150);
 
 	buttonNewGame.setText(lang.get("NewGame"));
+	buttonLoadGame.setText(lang.get("LoadGame"));
 	buttonMods.setText(lang.get("Mods"));
 	buttonOptions.setText(lang.get("Options"));
 	buttonAbout.setText(lang.get("About"));
@@ -109,6 +114,7 @@ void MenuStateRoot::reloadUI() {
 	}
 
 	buttonNewGame.setText(lang.get("NewGame"));
+	buttonLoadGame.setText(lang.get("LoadGame"));
 	buttonMods.setText(lang.get("Mods"));
 	buttonOptions.setText(lang.get("Options"));
 	buttonAbout.setText(lang.get("About"));
@@ -160,6 +166,10 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 			soundRenderer.playFx(coreData.getClickSoundB());
 			mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 		}
+		else if(mainMessageBox.getEnabled() == false && buttonLoadGame.mouseClick(x, y)){
+			soundRenderer.playFx(coreData.getClickSoundB());
+			mainMenu->setState(new MenuStateLoadGame(program, mainMenu));
+		}
 		else if(mainMessageBox.getEnabled() == false && buttonMods.mouseClick(x, y)){
 			soundRenderer.playFx(coreData.getClickSoundB());
 			mainMenu->setState(new MenuStateMods(program, mainMenu));
@@ -188,6 +198,7 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 	popupMenu.mouseMove(x, y);
 	buttonNewGame.mouseMove(x, y);
+	buttonLoadGame.mouseMove(x, y);
     buttonMods.mouseMove(x, y);
     buttonOptions.mouseMove(x, y);
     buttonAbout.mouseMove(x, y);
@@ -260,6 +271,7 @@ void MenuStateRoot::render() {
 	}
 
 	renderer.renderButton(&buttonNewGame);
+	renderer.renderButton(&buttonLoadGame);
 	renderer.renderButton(&buttonMods);
 	renderer.renderButton(&buttonOptions);
 	renderer.renderButton(&buttonAbout);
