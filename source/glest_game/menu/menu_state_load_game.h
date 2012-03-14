@@ -9,8 +9,8 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-#ifndef _GLEST_GAME_MENUSTATEROOT_H_
-#define _GLEST_GAME_MENUSTATEROOT_H_
+#ifndef _GLEST_GAME_MENUSTATELOADGAME_H_
+#define _GLEST_GAME_MENUSTATELOADGAME_H_
 
 #include "main_menu.h"
 #include "leak_dumper.h"
@@ -18,41 +18,38 @@
 namespace Glest{ namespace Game{
 
 // ===============================
-// 	class MenuStateRoot  
+// 	class MenuStateLoadGame
 // ===============================
-
-class GraphicMessageBox;
-class PopupMenu;
-
-class MenuStateRoot: public MenuState {
+typedef vector<GraphicButton*> SaveSlotButtons;
+class MenuStateLoadGame: public MenuState{
 private:
-	GraphicButton buttonNewGame;
-	GraphicButton buttonLoadGame;
-	GraphicButton buttonMods;
-	GraphicButton buttonOptions;
-	GraphicButton buttonAbout;
-	GraphicButton buttonExit;
-	GraphicLabel labelVersion;
+	GraphicButton loadButton;
+	GraphicButton deleteButton;
+	GraphicButton abortButton;
+	SaveSlotButtons slots;
+	GraphicScrollBar slotsScrollBar;
 
-	GraphicMessageBox mainMessageBox;
-	GraphicMessageBox errorMessageBox;
+	GraphicLabel headerLabel;
+	GraphicLabel noSavedGamesLabel;
+	GraphicLabel savedGamesLabel;
+	GraphicLabel infoHeaderLabel;
+	GraphicLabel infoTextLabel;
 
-	PopupMenu popupMenu;
+	GraphicLine lines[2];
 
 public:
-	MenuStateRoot(Program *program, MainMenu *mainMenu);
+	MenuStateLoadGame(Program *program, MainMenu *mainMenu);
+	~MenuStateLoadGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
-	void render();
 	void update();
+	void render();
 	virtual void keyDown(SDL_KeyboardEvent key);
-	void showMessageBox(const string &text, const string &header, bool toggle);
 
-	void showErrorMessageBox(const string &text, const string &header, bool toggle);
-
-	virtual bool isMasterserverMode() const;
-	virtual void reloadUI();
+	void reloadUI();
+private:
+	void clearSlots();
 };
 
 
