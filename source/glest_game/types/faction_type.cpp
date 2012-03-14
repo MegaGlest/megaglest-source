@@ -41,11 +41,9 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	bool realFactionPathFound=false;
-
 	string techTreePath = techTree->getPath();
 	string techTreeName=techTree->getName();
-	string currentPath;
+	string currentPath = "";
 
 	//open xml file
 	string path="";
@@ -53,59 +51,64 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 	const XmlNode *factionNode;
 
 	//printf("\n>>> factionname=%s\n",factionName.c_str());
-	while(!realFactionPathFound){
-		XmlTree xmlTree;
+	for(bool realFactionPathFound=false;realFactionPathFound == false;) {
 		currentPath = techTreePath + "factions/" + factionName;
 		endPathWithSlash(currentPath);
-		string tmppath= currentPath + factionName +".xml";
-		std::map<string,string> mapExtraTagReplacementValues;
-//		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTreePath + "/commondata/";
-		//printf("current $COMMONDATAPATH = %s\n",mapExtraTagReplacementValues["$COMMONDATAPATH"].c_str());
-		xmlTree.load(tmppath, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
+
+	    name= lastDir(currentPath);
+
+	    // Add special Observer Faction
+	    //Lang &lang= Lang::getInstance();
+	    if(name == formatString(GameConstants::OBSERVER_SLOTNAME)) {
+	    	personalityType = fpt_Observer;
+	    }
+
+	    if(personalityType == fpt_Normal) {
+			string tmppath= currentPath + factionName +".xml";
+			std::map<string,string> mapExtraTagReplacementValues;
+	//		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTreePath + "/commondata/";
+			//printf("current $COMMONDATAPATH = %s\n",mapExtraTagReplacementValues["$COMMONDATAPATH"].c_str());
+			XmlTree xmlTree;
+			xmlTree.load(tmppath, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 
 
-		const XmlNode *rootNode= xmlTree.getRootNode();
+			const XmlNode *rootNode= xmlTree.getRootNode();
 
-		if(rootNode->getName()=="link")
-		{
-			const XmlNode *techTreeNode= rootNode->getChild("techtree");
-			const string linkedTechTreeName=techTreeNode->getAttribute("name")->getRestrictedValue();
-//			const XmlNode *factionLinkNode= rootNode->getChild("faction");
-//			string linkedFactionName=factionLinkNode->getAttribute("name")->getRestrictedValue();
-			string linkedTechTreePath=techTree->findPath(linkedTechTreeName);
-			techTreePath=linkedTechTreePath;
-			endPathWithSlash(techTreePath);
-			techTreeName=linkedTechTreeName;
-		}
-		else {
-			// stop looking for new path, no more links ...
-			//xmlTree.load(tmppath, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
+			if(rootNode->getName()=="link") {
+				const XmlNode *techTreeNode= rootNode->getChild("techtree");
+				const string linkedTechTreeName=techTreeNode->getAttribute("name")->getRestrictedValue();
+	//			const XmlNode *factionLinkNode= rootNode->getChild("faction");
+	//			string linkedFactionName=factionLinkNode->getAttribute("name")->getRestrictedValue();
+				string linkedTechTreePath=techTree->findPath(linkedTechTreeName);
+				techTreePath=linkedTechTreePath;
+				endPathWithSlash(techTreePath);
+				techTreeName=linkedTechTreeName;
+			}
+			else {
+				// stop looking for new path, no more links ...
+				//xmlTree.load(tmppath, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 
-			loadedFileList[tmppath].push_back(make_pair(currentPath,currentPath));
+				loadedFileList[tmppath].push_back(make_pair(currentPath,currentPath));
 
-			realFactionPathFound=true;
-			//printf("techPath found! %s\n",tmppath.c_str());
+				realFactionPathFound=true;
+				//printf("techPath found! %s\n",tmppath.c_str());
 
-			path=tmppath;
-		}
+				path=tmppath;
+			}
+	    }
+	    else {
+	    	break;
+	    }
 	}
-
-	checksum->addFile(path);
-	techtreeChecksum->addFile(path);
-
-    name= lastDir(currentPath);
-
-    // Add special Observer Faction
-    //Lang &lang= Lang::getInstance();
-    if(name == formatString(GameConstants::OBSERVER_SLOTNAME)) {
-    	personalityType = fpt_Observer;
-    }
 
 	char szBuf[1024]="";
 	sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingFactionType","",true).c_str(),formatString(name).c_str());
 	Logger::getInstance().add(szBuf, true);
 
 	if(personalityType == fpt_Normal) {
+		checksum->addFile(path);
+		techtreeChecksum->addFile(path);
+
 		// a1) preload units
 		//string unitsPath= currentPath + "units/*.";
 		string unitsPath= currentPath + "units/";
