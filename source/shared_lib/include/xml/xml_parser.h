@@ -16,8 +16,10 @@
 #include <vector>
 #include <xercesc/util/XercesDefs.hpp>
 #include <map>
+#include "rapidxml/rapidxml.hpp"
 #include "leak_dumper.h"
 
+using namespace rapidxml;
 using namespace std;
 
 namespace XERCES_CPP_NAMESPACE{
@@ -59,6 +61,23 @@ public:
 	void save(const string &path, const XmlNode *node);
 };
 
+class XmlIoRapid {
+private:
+	static bool initialized;
+	rapidxml::xml_document<> *doc;
+
+private:
+	XmlIoRapid();
+
+public:
+	static XmlIoRapid &getInstance();
+	~XmlIoRapid();
+	void cleanup();
+
+	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation=false);
+	void save(const string &path, const XmlNode *node);
+};
+
 // =====================================================
 //	class XmlTree
 // =====================================================
@@ -67,12 +86,13 @@ class XmlTree{
 private:
 	XmlNode *rootNode;
 	string loadPath;
+	bool wantRapidXmlTree;
 private:
 	XmlTree(XmlTree&);
 	void operator =(XmlTree&);
 
 public:
-	XmlTree();
+	XmlTree(bool wantRapidXmlTree = false);
 	~XmlTree();
 
 	void init(const string &name);
@@ -100,6 +120,7 @@ private:
 
 public:
 	XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node, std::map<string,string> mapTagReplacementValues);
+	XmlNode(xml_node<> *node, std::map<string,string> mapTagReplacementValues);
 	XmlNode(const string &name);
 	~XmlNode();
 	
@@ -150,6 +171,7 @@ private:
 
 public:
 	XmlAttribute(XERCES_CPP_NAMESPACE::DOMNode *attribute, std::map<string,string> mapTagReplacementValues);
+	XmlAttribute(xml_attribute<> *attribute, std::map<string,string> mapTagReplacementValues);
 	XmlAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues);
 
 public:

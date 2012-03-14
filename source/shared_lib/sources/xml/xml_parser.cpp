@@ -26,8 +26,8 @@
 #include "platform_common.h"
 #include "platform_util.h"
 #include "cache_manager.h"
-#include "leak_dumper.h"
 
+#include "leak_dumper.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -61,6 +61,7 @@ public:
 // =====================================================
 
 bool XmlIo::initialized= false;
+bool XmlIoRapid::initialized= false;
 
 XmlIo::XmlIo() {
 	try{
@@ -216,12 +217,154 @@ void XmlIo::save(const string &path, const XmlNode *node){
 		throw runtime_error("Exception while saving: " + path + ": " + XMLString::transcode(e.msg));
 	}
 }
+
+// =====================================================
+//	class XmlIoRapid
+// =====================================================
+XmlIoRapid::XmlIoRapid() {
+	try{
+		//printf("XmlIo init\n");
+
+		XmlIoRapid::initialized= true;
+	}
+	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system, msg %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		throw runtime_error("Error initializing XML system");
+	}
+
+	try {
+		doc = new rapidxml::xml_document<>();
+	}
+	catch(const DOMException &ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser, msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.getMessage());
+		throw runtime_error("Exception while creating XML parser");
+	}
+}
+
+XmlIoRapid &XmlIoRapid::getInstance() {
+	static XmlIoRapid io;
+	return io;
+}
+
+void XmlIoRapid::cleanup() {
+	if(XmlIoRapid::initialized == true) {
+		XmlIoRapid::initialized= false;
+		//printf("XmlIo cleanup\n");
+		delete doc;
+		doc = NULL;
+	}
+}
+
+XmlIoRapid::~XmlIoRapid() {
+	cleanup();
+}
+
+XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation) {
+	Chrono chrono;
+	chrono.start();
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using RapidXml to load file [%s]\n",path.c_str());
+
+	XmlNode *rootNode = NULL;
+	try {
+#if defined(WIN32) && !defined(__MINGW32__)
+		FILE *fp = _wfopen(utf8_decode(path).c_str(), L"rb");
+		ifstream xmlFile(fp);
+#else
+		ifstream xmlFile(path.c_str());
+#endif
+		if(xmlFile.is_open() == false) {
+			throw runtime_error("Can not open file: [" + path + "]");
+		}
+
+		// read file into input_xml
+		string inputXml = "";
+		string line = "";
+		while(getline(xmlFile,line)) {
+			inputXml += line;
+		}
+		// make a safe-to-modify copy of input_xml
+		// (you should never modify the contents of an std::string directly)
+		vector<char> buffer(inputXml.begin(), inputXml.end());
+		buffer.push_back('\0');
+
+		/* "Read file into vector<char>"  See linked thread above*/
+		//vector<char> buffer((istreambuf_iterator<char>(xmlFile)), istreambuf_iterator<char>( ));
+	    //buffer.push_back('\0');
+	    doc->parse<parse_no_data_nodes>(&buffer[0]);
+
+		rootNode= new XmlNode(doc->first_node(),mapTagReplacementValues);
+		//parser->release();
+
+#if defined(WIN32) && !defined(__MINGW32__)
+		if(fp) {
+			fclose(fp);
+		}
+#endif
+	}
+	catch(const DOMException &ex) {
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
+
+		throw runtime_error(szBuf);
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
+	return rootNode;
+}
+
+void XmlIoRapid::save(const string &path, const XmlNode *node){
+//	try{
+//		XMLCh str[strSize];
+//		XMLString::transcode(node->getName().c_str(), str, strSize-1);
+//
+//		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= implementation->createDocument(0, str, 0);
+//		DOMElement *documentElement= document->getDocumentElement();
+//		for(unsigned int i = 0; i < node->getAttributeCount() ; ++i){
+//			XmlAttribute *attr = node->getAttribute(i);
+//
+//			XMLCh strName[strSize];
+//			XMLString::transcode(attr->getName().c_str(), strName, strSize-1);
+//			XMLCh strValue[strSize];
+//			XMLString::transcode(attr->getValue("",false).c_str(), strValue, strSize-1);
+//
+//			documentElement->setAttribute(strName,strValue);
+//		}
+//
+//		for(unsigned int i=0; i<node->getChildCount(); ++i){
+//			documentElement->appendChild(node->getChild(i)->buildElement(document));
+//		}
+//
+//		LocalFileFormatTarget file(path.c_str());
+//#if XERCES_VERSION_MAJOR < 3
+// 		DOMWriter* writer = implementation->createDOMWriter();
+// 		writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+// 		writer->writeNode(&file, *document);
+//#else
+//		DOMLSSerializer *serializer = implementation->createLSSerializer();
+//		DOMLSOutput* output=implementation->createLSOutput();
+//		DOMConfiguration* config=serializer->getDomConfig();
+//		config->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,true);
+//		output->setByteStream(&file);
+//		serializer->write(document,output);
+//		output->release();
+//		serializer->release();
+//#endif
+//		document->release();
+//	}
+//	catch(const DOMException &e){
+//		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while saving: [%s], %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(e.msg));
+//		throw runtime_error("Exception while saving: " + path + ": " + XMLString::transcode(e.msg));
+//	}
+}
+
 // =====================================================
 //	class XmlTree
 // =====================================================
-
-XmlTree::XmlTree(){
+XmlTree::XmlTree(bool wantRapidXmlTree) {
 	rootNode= NULL;
+	this->wantRapidXmlTree = wantRapidXmlTree;
 }
 
 void XmlTree::init(const string &name){
@@ -251,13 +394,23 @@ void XmlTree::load(const string &path, std::map<string,string> mapTagReplacement
 	safeMutex.ReleaseLock();
 
 	loadPath = path;
-	this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation);
+	if(this->wantRapidXmlTree == false) {
+		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation);
+	}
+	else {
+		this->rootNode= XmlIoRapid::getInstance().load(path, mapTagReplacementValues, noValidation);
+	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 }
 
 void XmlTree::save(const string &path){
-	XmlIo::getInstance().save(path, rootNode);
+	if(this->wantRapidXmlTree == false) {
+		XmlIo::getInstance().save(path, rootNode);
+	}
+	else {
+		XmlIoRapid::getInstance().save(path, rootNode);
+	}
 }
 
 XmlTree::~XmlTree() {
@@ -324,6 +477,44 @@ XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues)
 		text= textStr;
 		//Properties::applyTagsToValue(this->text);
 		XMLString::release(&textStr);
+	}
+}
+
+XmlNode::XmlNode(xml_node<> *node, std::map<string,string> mapTagReplacementValues) : superNode(NULL) {
+	if(node == NULL || node->name() == NULL) {
+        throw runtime_error("XML structure seems to be corrupt!");
+    }
+
+	//get name
+	name = node->name();
+
+	//check document
+	if(node->type() == node_document) {
+		name="document";
+	}
+
+	//printf("Found XML Node [%s]\n",name.c_str());
+
+	//check children
+	for(xml_node<> *currentNode = node->first_node();
+			currentNode; currentNode = currentNode->next_sibling()) {
+		if(currentNode != NULL && currentNode->type() == node_element) {
+			XmlNode *xmlNode= new XmlNode(currentNode, mapTagReplacementValues);
+			children.push_back(xmlNode);
+		}
+    }
+
+	//check attributes
+	for (xml_attribute<> *attr = node->first_attribute();
+			attr; attr = attr->next_attribute()) {
+		XmlAttribute *xmlAttribute= new XmlAttribute(attr, mapTagReplacementValues);
+		attributes.push_back(xmlAttribute);
+	}
+
+	//get value
+	if(node->type() == node_element && children.size() == 0) {
+		text = node->value();
+		Properties::applyTagsToValue(this->text);
 	}
 }
 
@@ -510,6 +701,21 @@ XmlAttribute::XmlAttribute(DOMNode *attribute, std::map<string,string> mapTagRep
 
 	XMLString::transcode(attribute->getNodeName(), str, strSize-1);
 	name= str;
+}
+
+XmlAttribute::XmlAttribute(xml_attribute<> *attribute, std::map<string,string> mapTagReplacementValues) {
+	skipRestrictionCheck 			= false;
+	usesCommondata 					= false;
+	this->mapTagReplacementValues 	= mapTagReplacementValues;
+	//char str[strSize]				= "";
+
+	//XMLString::transcode(attribute->getNodeValue(), str, strSize-1);
+	value= attribute->value();
+	usesCommondata = ((value.find("$COMMONDATAPATH") != string::npos) || (value.find("%%COMMONDATAPATH%%") != string::npos));
+	skipRestrictionCheck = Properties::applyTagsToValue(this->value,&this->mapTagReplacementValues);
+
+	//XMLString::transcode(attribute->getNodeName(), str, strSize-1);
+	name= attribute->name();
 }
 
 XmlAttribute::XmlAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues) {
