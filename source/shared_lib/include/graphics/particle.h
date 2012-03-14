@@ -124,7 +124,7 @@ protected:
 	int aliveParticleCount;
 	int particleCount;
 	
-
+	string textureFileLoadDeferred;
 	Texture *texture;
 	Vec3f pos;
 	Vec4f color;
@@ -163,6 +163,7 @@ public:
 	bool getActive() const						{return active;}
 	virtual bool getVisible() const				{return visible;}
 
+	virtual string getTextureFileLoadDeferred();
 	//set
 	virtual void setState(State state);
 	void setTexture(Texture *texture);
@@ -259,6 +260,8 @@ public:
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 	float getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
 	Model *getModel() const {return model;}
+	virtual string getModelFileLoadDeferred();
+
 	void setPrimitive(Primitive primitive) {this->primitive= primitive;}
 	Vec3f getDirection() const {return direction;}
 	void setModelCycle(float modelCycle) {this->modelCycle= modelCycle;}
@@ -270,6 +273,8 @@ protected:
 	typedef std::vector<UnitParticleSystem*> Children;
 	Children children;
 	Primitive primitive;
+
+	string modelFileLoadDeferred;
 	Model *model;
 	float modelCycle;
 	Vec3f offset;
@@ -375,7 +380,6 @@ public:
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
-
 };
 
 // =====================================================
@@ -428,7 +432,7 @@ public:
 /// Base class for Projectiles and Splashes
 // ===========================================================================
 
-class AttackParticleSystem: public GameParticleSystem{
+class AttackParticleSystem: public GameParticleSystem {
 
 protected:
 	float sizeNoEnergy;
@@ -442,6 +446,9 @@ public:
 	void setGravity(float gravity)				{this->gravity= gravity;}
 	
 	virtual void initParticleSystem() {} // opportunity to do any initialization when the system has been created and all settings set
+
+	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode);
 };
 
 // =====================================================
@@ -499,6 +506,9 @@ public:
 	void setPath(Vec3f startPos, Vec3f endPos);
 
 	static Trajectory strToTrajectory(const string &str);
+
+	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode);
 };
 
 // =====================================================
@@ -535,6 +545,9 @@ public:
 	void setVerticalSpreadB(float verticalSpreadB)		{this->verticalSpreadB= verticalSpreadB;}
 	void setHorizontalSpreadA(float horizontalSpreadA)	{this->horizontalSpreadA= horizontalSpreadA;}
 	void setHorizontalSpreadB(float horizontalSpreadB)	{this->horizontalSpreadB= horizontalSpreadB;}
+
+	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode);
 	
 };
 

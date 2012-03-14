@@ -3551,51 +3551,70 @@ void Unit::saveGame(XmlNode *rootNode) {
 	//}
 
 //	vector<UnitParticleSystem*> unitParticleSystems;
-	for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
-		UnitParticleSystem *ups= unitParticleSystems[i];
-		if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
-			ups->saveGame(unitNode);
+	if(unitParticleSystems.size() > 0) {
+		XmlNode *unitParticleSystemsNode = rootNode->addChild("unitParticleSystems");
+
+		for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
+			UnitParticleSystem *ups= unitParticleSystems[i];
+			if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
+				ups->saveGame(unitParticleSystemsNode);
+			}
 		}
 	}
 //	vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
-	for(unsigned int i = 0; i < queuedUnitParticleSystemTypes.size(); ++i) {
-		UnitParticleSystemType *upst= queuedUnitParticleSystemTypes[i];
-		if(upst != NULL) {
-			upst->saveGame(unitNode);
+	if(queuedUnitParticleSystemTypes.size() > 0) {
+		XmlNode *queuedUnitParticleSystemTypesNode = rootNode->addChild("queuedUnitParticleSystemTypes");
+		for(unsigned int i = 0; i < queuedUnitParticleSystemTypes.size(); ++i) {
+			UnitParticleSystemType *upst= queuedUnitParticleSystemTypes[i];
+			if(upst != NULL) {
+				upst->saveGame(queuedUnitParticleSystemTypesNode);
+			}
 		}
 	}
-
 //	UnitParticleSystems damageParticleSystems;
-	for(unsigned int i = 0; i < damageParticleSystems.size(); ++i) {
-		UnitParticleSystem *ups= damageParticleSystems[i];
-		if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
-			ups->saveGame(unitNode);
+	if(damageParticleSystems.size() > 0) {
+		XmlNode *damageParticleSystemsNode = rootNode->addChild("damageParticleSystems");
+		for(unsigned int i = 0; i < damageParticleSystems.size(); ++i) {
+			UnitParticleSystem *ups= damageParticleSystems[i];
+			if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
+				ups->saveGame(damageParticleSystemsNode);
+			}
 		}
 	}
-
 //	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
-	for(std::map<int, UnitParticleSystem *>::const_iterator iterMap = damageParticleSystemsInUse.begin();
-			iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
-		if(iterMap->second != NULL && Renderer::getInstance().validateParticleSystemStillExists(iterMap->second,rsGame) == true) {
-			XmlNode *damageParticleSystemsInUseNode = unitNode->addChild("damageParticleSystemsInUse");
+	if(damageParticleSystemsInUse.size() > 0) {
+		XmlNode *damageParticleSystemsInUseNode = rootNode->addChild("damageParticleSystemsInUse");
 
-			damageParticleSystemsInUseNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
-			iterMap->second->saveGame(damageParticleSystemsInUseNode);
+		for(std::map<int, UnitParticleSystem *>::const_iterator iterMap = damageParticleSystemsInUse.begin();
+				iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
+			if(iterMap->second != NULL && Renderer::getInstance().validateParticleSystemStillExists(iterMap->second,rsGame) == true) {
+				XmlNode *damageParticleSystemsInUseNode2 = damageParticleSystemsInUseNode->addChild("damageParticleSystemsInUse");
+
+				damageParticleSystemsInUseNode2->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+				iterMap->second->saveGame(damageParticleSystemsInUseNode2);
+			}
 		}
 	}
+
 //	vector<ParticleSystem*> fireParticleSystems;
-	for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
-		ParticleSystem *ps= fireParticleSystems[i];
-		if(ps != NULL && Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
-			ps->saveGame(unitNode);
+	if(fireParticleSystems.size() > 0) {
+		XmlNode *fireParticleSystemsNode = rootNode->addChild("fireParticleSystems");
+		for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
+			ParticleSystem *ps= fireParticleSystems[i];
+			if(ps != NULL && Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+				ps->saveGame(fireParticleSystemsNode);
+			}
 		}
 	}
 
 //	vector<UnitParticleSystem*> smokeParticleSystems;
-	for(unsigned int i = 0; i < smokeParticleSystems.size(); ++i) {
-		UnitParticleSystem *ups= smokeParticleSystems[i];
-		if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
-			ups->saveGame(unitNode);
+	if(smokeParticleSystems.size() > 0) {
+		XmlNode *smokeParticleSystemsNode = rootNode->addChild("smokeParticleSystems");
+		for(unsigned int i = 0; i < smokeParticleSystems.size(); ++i) {
+			UnitParticleSystem *ups= smokeParticleSystems[i];
+			if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
+				ups->saveGame(smokeParticleSystemsNode);
+			}
 		}
 	}
 
@@ -3815,6 +3834,16 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	if(fire != NULL) {
 //		fire->saveGame(unitNode);
 //	}
+	if(unitNode->hasChild("FireParticleSystem") == true) {
+		XmlNode *fireNode = unitNode->getChild("FireParticleSystem");
+		result->fire = new FireParticleSystem();
+		result->fire->loadGame(fireNode);
+		result->fireParticleSystems.push_back(result->fire);
+
+		//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
+		Renderer::getInstance().addToDeferredParticleSystemList(make_pair(result->fire, rsGame));
+	}
+
 //	TotalUpgrade totalUpgrade;
 	result->totalUpgrade.loadGame(unitNode);
 //	Map *map;
@@ -3847,6 +3876,20 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //		UnitParticleSystem *ups= unitParticleSystems[i];
 //		ups->saveGame(unitNode);
 //	}
+	if(unitNode->hasChild("unitParticleSystems") == true) {
+		XmlNode *unitParticleSystemsNode = unitNode->getChild("unitParticleSystems");
+		vector<XmlNode *> unitParticleSystemNodeList = unitParticleSystemsNode->getChildList("UnitParticleSystem");
+		for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
+			XmlNode *node = unitParticleSystemNodeList[i];
+
+			UnitParticleSystem *ups = new UnitParticleSystem();
+			ups->loadGame(node);
+			result->unitParticleSystems.push_back(ups);
+
+			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
+			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
+		}
+	}
 
 //	vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
 //	for(unsigned int i = 0; i < queuedUnitParticleSystemTypes.size(); ++i) {
@@ -3859,6 +3902,21 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //		UnitParticleSystem *ups= damageParticleSystems[i];
 //		ups->saveGame(unitNode);
 //	}
+	if(unitNode->hasChild("damageParticleSystems") == true) {
+		XmlNode *damageParticleSystemsNode = unitNode->getChild("damageParticleSystems");
+		vector<XmlNode *> unitParticleSystemNodeList = damageParticleSystemsNode->getChildList("UnitParticleSystem");
+		for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
+			XmlNode *node = unitParticleSystemNodeList[i];
+
+			UnitParticleSystem *ups = new UnitParticleSystem();
+			ups->loadGame(node);
+			result->damageParticleSystems.push_back(ups);
+			result->damageParticleSystemsInUse[i]=ups;
+
+			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
+			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
+		}
+	}
 
 //	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
 //	for(std::map<int, UnitParticleSystem *>::const_iterator iterMap = damageParticleSystemsInUse.begin();
@@ -3868,17 +3926,65 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //		damageParticleSystemsInUseNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
 //		iterMap->second->saveGame(damageParticleSystemsInUseNode);
 //	}
+//	if(unitNode->hasChild("damageParticleSystemsInUse") == true) {
+//		XmlNode *damageParticleSystemsInUseNode = unitNode->getChild("damageParticleSystemsInUse");
+//		vector<XmlNode *> damageParticleSystemsInUseNode2 = damageParticleSystemsInUseNode->getChildList("damageParticleSystemsInUse");
+//		for(unsigned int i = 0; i < damageParticleSystemsInUseNode2.size(); ++i) {
+//			XmlNode *d2Node = damageParticleSystemsInUseNode2[i];
+//
+//			vector<XmlNode *> unitParticleSystemNodeList = damageParticleSystemsInUseNode->getChildList("UnitParticleSystem");
+//			for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
+//				XmlNode *node = unitParticleSystemNodeList[i];
+//
+//				UnitParticleSystem *ups = new UnitParticleSystem();
+//				ups->loadGame(node);
+//				result->unitParticleSystems.push_back(ups);
+//
+//				//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
+//				Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
+//			}
+//
+//	}
+
 //	vector<ParticleSystem*> fireParticleSystems;
 //	for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
 //		ParticleSystem *ps= fireParticleSystems[i];
 //		ps->saveGame(unitNode);
 //	}
+	if(unitNode->hasChild("fireParticleSystems") == true) {
+		XmlNode *fireParticleSystemsNode = unitNode->getChild("fireParticleSystems");
+		vector<XmlNode *> unitParticleSystemNodeList = fireParticleSystemsNode->getChildList("FireParticleSystem");
+		for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
+			XmlNode *node = unitParticleSystemNodeList[i];
+
+			FireParticleSystem *ups = new FireParticleSystem();
+			ups->loadGame(node);
+			result->fireParticleSystems.push_back(ups);
+
+			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
+			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
+		}
+	}
 
 //	vector<UnitParticleSystem*> smokeParticleSystems;
 //	for(unsigned int i = 0; i < smokeParticleSystems.size(); ++i) {
 //		UnitParticleSystem *ups= smokeParticleSystems[i];
 //		ups->saveGame(unitNode);
 //	}
+	if(unitNode->hasChild("smokeParticleSystems") == true) {
+		XmlNode *smokeParticleSystemsNode = unitNode->getChild("smokeParticleSystems");
+		vector<XmlNode *> unitParticleSystemNodeList = smokeParticleSystemsNode->getChildList("UnitParticleSystem");
+		for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
+			XmlNode *node = unitParticleSystemNodeList[i];
+
+			UnitParticleSystem *ups = new UnitParticleSystem();
+			ups->loadGame(node);
+			result->smokeParticleSystems.push_back(ups);
+
+			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
+			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
+		}
+	}
 
 //	CardinalDir modelFacing;
 //	unitNode->addAttribute("modelFacing",intToStr(modelFacing), mapTagReplacements);

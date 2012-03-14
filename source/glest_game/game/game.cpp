@@ -960,12 +960,17 @@ void Game::init(bool initForPreviewOnly) {
 		else if(world.getTileset()->getWeather() == wRainy) {
 			world.getTileset()->setWeather(wSunny);
 		}
+
+		renderer.manageDeferredParticleSystems();
     }
 
 	//init renderer state
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 	logger.add(Lang::getInstance().get("LogScreenGameLoadingInitRenderer","",true), true);
+
+	//printf("Before renderer.initGame\n");
 	renderer.initGame(this,this->getGameCameraPtr());
+	//printf("After renderer.initGame\n");
 
 	for(int i=0; i < world.getFactionCount(); ++i) {
 		Faction *faction= world.getFaction(i);
