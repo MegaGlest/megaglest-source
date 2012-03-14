@@ -226,11 +226,13 @@ void Minimap::saveGame(XmlNode *rootNode) {
 
 //	Pixmap2D *fowPixmap0;
 //	Pixmap2D *fowPixmap1;
-	for(unsigned int i = 0; i < fowPixmap1->getPixelByteCount(); ++i) {
-		if(fowPixmap1->getPixels()[i] != 0) {
-			XmlNode *fowPixmap1Node = minimapNode->addChild("fowPixmap1");
-			fowPixmap1Node->addAttribute("index",intToStr(i), mapTagReplacements);
-			fowPixmap1Node->addAttribute("pixel",intToStr(fowPixmap1->getPixels()[i]), mapTagReplacements);
+	if(fowPixmap1 != NULL) {
+		for(unsigned int i = 0; i < fowPixmap1->getPixelByteCount(); ++i) {
+			if(fowPixmap1->getPixels()[i] != 0) {
+				XmlNode *fowPixmap1Node = minimapNode->addChild("fowPixmap1");
+				fowPixmap1Node->addAttribute("index",intToStr(i), mapTagReplacements);
+				fowPixmap1Node->addAttribute("pixel",intToStr(fowPixmap1->getPixels()[i]), mapTagReplacements);
+			}
 		}
 	}
 //	Texture2D *tex;
