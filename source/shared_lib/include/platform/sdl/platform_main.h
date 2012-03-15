@@ -143,7 +143,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\tAutomatically starts a game with the last game",GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME]);
 	printf("\n\t\t\t\tsettings you played.");
 
-	printf("\n%s\t\tLoads the last saved game.",GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME]);
+	printf("\n%s=x\t\tLoads the last saved game.",GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME]);
+	printf("\n                     \t\tWhere x is an optional name of the saved game file to load.");
+	printf("\n                     \t\tIf x is not specified we load the last game that was saved.");
 
 	printf("\n%s=x\t\t\tAuto connect to host server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
 	printf("\n%s\t\t\tAuto create a host server.",GAME_ARGS[GAME_ARG_SERVER]);
