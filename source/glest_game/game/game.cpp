@@ -2490,6 +2490,17 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 					gameCamera.setMoveY(-1);
 				}
 			}
+
+			if(isKeyPressed(configKeys.getSDLKey("SaveGame"),key) == true) {
+				string file = this->saveGame(GameConstants::saveGameFilePattern);
+				char szBuf[8096]="";
+				sprintf(szBuf,lang.get("GameSaved","",true).c_str(),file.c_str());
+				console.addLine(szBuf);
+
+				Config &config= Config::getInstance();
+				config.setString("LastSavedGame",file);
+				config.save();
+			}
 		}
 
 		//throw runtime_error("Test Error!");
@@ -2635,9 +2646,12 @@ void Game::keyPress(SDL_KeyboardEvent c) {
 Stats Game::quitGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-    //if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
         world.DumpWorldToLog();
-    //}
+    }
+	//printf("Check savegame\n");
+	//printf("Saving...\n");
+	this->saveGame(GameConstants::saveGameFileDefault);
 
 	//Stats stats = *(world.getStats());
 	Stats endStats;
@@ -3438,7 +3452,18 @@ void Game::toggleTeamColorMarker() {
 	renderExtraTeamColor=renderExtraTeamColor%4;
 }
 
-void Game::saveGame(string name) {
+string Game::saveGame(string name) {
+	// auto name file if using saved file pattern string
+	if(name == GameConstants::saveGameFilePattern) {
+		time_t curTime = time(NULL);
+	    struct tm *loctime = localtime (&curTime);
+	    char szBuf2[100]="";
+	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",loctime);
+
+		char szBuf[8096]="";
+		sprintf(szBuf,name.c_str(),szBuf2);
+		name = szBuf;
+	}
 	//XmlTree xmlTree(XML_XERCES_ENGINE);
 	XmlTree xmlTree;
 	xmlTree.init("megaglest-saved-game");
@@ -3595,6 +3620,8 @@ void Game::saveGame(string name) {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game to [%s]\n",saveGameFile.c_str());
 	xmlTree.save(saveGameFile);
+
+	return saveGameFile;
 }
 
 void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {

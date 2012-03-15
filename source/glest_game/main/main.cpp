@@ -3313,7 +3313,26 @@ int glestMain(int argc, char** argv) {
 			program->initServer(mainWindow,true,false);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME])) == true) {
-			program->initSavedGame(mainWindow,false);
+			string fileName = "";
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex >= 0) {
+				string loadfileName = argv[foundParamIndIndex];
+				vector<string> paramPartTokens;
+				Tokenize(loadfileName,paramPartTokens,"=");
+				if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+					fileName = paramPartTokens[1];
+
+					if(fileExists(fileName) == false) {
+						char szBuf[8096]="";
+						sprintf(szBuf,"File specified for loading a saved game cannot be found: [%s]",fileName.c_str());
+						printf("\n\n======================================================================================\n%s\n======================================================================================\n\n\n",szBuf);
+
+						throw runtime_error(szBuf);
+					}
+				}
+			}
+			program->initSavedGame(mainWindow,false,fileName);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_PREVIEW_MAP])) == true) {
 			int foundParamIndIndex = -1;

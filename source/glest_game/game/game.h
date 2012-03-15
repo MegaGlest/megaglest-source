@@ -229,7 +229,7 @@ public:
 
 	void endGame();
 
-	void saveGame(string name);
+	string saveGame(string name);
 	static void loadGame(string name,Program *programPtr,bool isMasterserverMode);
 
 private:
