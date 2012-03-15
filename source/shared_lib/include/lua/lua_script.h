@@ -37,6 +37,8 @@ private:
 	string currentLuaFunction;
 	bool currentLuaFunctionIsValid;
 
+	void DumpGlobals();
+
 public:
 	LuaScript();
 	~LuaScript();

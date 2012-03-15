@@ -272,9 +272,9 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 	try {
 #if defined(WIN32) && !defined(__MINGW32__)
 		FILE *fp = _wfopen(utf8_decode(path).c_str(), L"rb");
-		ifstream xmlFile(fp);
+		ifstream xmlFile(fp,ios::binary);
 #else
-		ifstream xmlFile(path.c_str());
+		ifstream xmlFile(path.c_str(),ios::binary);
 #endif
 		if(xmlFile.is_open() == false) {
 			throw runtime_error("Can not open file: [" + path + "]");
@@ -282,10 +282,15 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 
 		// read file into input_xml
 		string inputXml = "";
-		string line = "";
-		while(getline(xmlFile,line)) {
-			inputXml += line;
-		}
+		const int bufsize = 32 * 1024;
+		char buff[bufsize]="";
+	    while(xmlFile) {
+	    	xmlFile.read(buff,bufsize);
+	    	if(buff[0] != '\0') {
+	    		inputXml += buff;
+	    	}
+	    }
+
 		// make a safe-to-modify copy of input_xml
 		// (you should never modify the contents of an std::string directly)
 		vector<char> buffer(inputXml.begin(), inputXml.end());
@@ -356,10 +361,10 @@ void XmlIoRapid::save(const string &path, const XmlNode *node){
 //		// xml_no_indent now contains non-indented XML
 
 #if defined(WIN32) && !defined(__MINGW32__)
-		FILE *fp = _wfopen(utf8_decode(path).c_str(), L"wt");
+		FILE *fp = _wfopen(utf8_decode(path).c_str(), L"wb");
 		ofstream xmlFile(fp);
 #else
-		ofstream xmlFile(path.c_str());
+		ofstream xmlFile(path.c_str(),ios::binary);
 #endif
 		if(xmlFile.is_open() == false) {
 			throw runtime_error("Can not open file: [" + path + "]");
