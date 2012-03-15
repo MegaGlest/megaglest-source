@@ -104,6 +104,7 @@ public:
 	int computeUpY(int index) const;
 
 	void saveGame(XmlNode *rootNode) const;
+	void loadGame(const XmlNode *rootNode);
 
 private:
 	void calculateUpDimensions(int index);

@@ -367,7 +367,7 @@ void XmlIoRapid::save(const string &path, const XmlNode *node){
 
 		//xmlFile << xml_no_indent;
 //		xmlFile << xml_as_string << '\0';
-		xmlFile << doc << '\0';
+		xmlFile << doc;
 
 #if defined(WIN32) && !defined(__MINGW32__)
 		if(fp) {

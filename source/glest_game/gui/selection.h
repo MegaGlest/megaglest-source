@@ -21,6 +21,7 @@ using std::vector;
 namespace Glest{ namespace Game{
 
 class Gui;
+class World;
 
 // =====================================================
 // 	class Selection 
@@ -81,6 +82,7 @@ public:
 	virtual void unitEvent(UnitObserver::Event event, const Unit *unit);
 
 	virtual void saveGame(XmlNode *rootNode) const;
+	void loadGame(const XmlNode *rootNode, World *world);
 };
 
 }}//end namespace

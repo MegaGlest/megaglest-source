@@ -153,6 +153,32 @@ void Display::saveGame(XmlNode *rootNode) const {
 //	int upCellSideCount;
 //	int upImageSize;
 //	int maxUpIndex;
-
 }
+
+void Display::loadGame(const XmlNode *rootNode) {
+	const XmlNode *displayNode = rootNode->getChild("Display");
+
+	//	string title;
+	title = displayNode->getAttribute("title")->getValue();
+	//	string text;
+	text = displayNode->getAttribute("text")->getValue();
+	//	string infoText;
+	infoText = displayNode->getAttribute("infoText")->getValue();
+	//	const Texture2D *upImages[upCellCount];
+	//	const Texture2D *downImages[downCellCount];
+	//	bool downLighted[downCellCount];
+	//	const CommandType *commandTypes[downCellCount];
+	//	CommandClass commandClasses[downCellCount];
+	//	int progressBar;
+	progressBar = displayNode->getAttribute("progressBar")->getIntValue();
+	//	int downSelectedPos;
+	//displayNode->addAttribute("downSelectedPos",intToStr(downSelectedPos), mapTagReplacements);
+	//	Vec4f colors[colorCount];
+	//	int currentColor;
+	//currentColor = displayNode->getAttribute("progressBar")->getIntValue();
+	//	int upCellSideCount;
+	//	int upImageSize;
+	//	int maxUpIndex;
+}
+
 }}//end namespace

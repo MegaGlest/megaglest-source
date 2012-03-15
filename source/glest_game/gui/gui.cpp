@@ -1189,7 +1189,9 @@ void Gui::saveGame(XmlNode *rootNode) const {
 //	//display
 //	const UnitType *choosenBuildingType;
 	if(choosenBuildingType != NULL) {
+		const Faction* thisFaction= world->getThisFaction();
 		guiNode->addAttribute("choosenBuildingType",choosenBuildingType->getName(), mapTagReplacements);
+		guiNode->addAttribute("choosenBuildingTypeFactionIndex",intToStr(thisFaction->getIndex()), mapTagReplacements);
 	}
 //	const CommandType *activeCommandType;
 	if(activeCommandType != NULL) {
@@ -1231,6 +1233,76 @@ void Gui::saveGame(XmlNode *rootNode) const {
 //	const Object *selectedResourceObject;
 //
 //	Texture2D* hudTexture;
-
 }
+
+void Gui::loadGame(const XmlNode *rootNode, World *world) {
+	const XmlNode *guiNode = rootNode->getChild("Gui");
+
+	//External objects
+//	RandomGen random;
+	random.setLastNumber(guiNode->getAttribute("random")->getIntValue());
+//	const Commander *commander;
+//	const World *world;
+//	const Game *game;
+//	GameCamera *gameCamera;
+//	Console *console;
+//
+//	//Positions
+//	Vec2i posObjWorld;		//world coords
+	//guiNode->addAttribute("posObjWorld",posObjWorld.getString(), mapTagReplacements);
+	posObjWorld = Vec2i::strToVec2(guiNode->getAttribute("posObjWorld")->getValue());
+//	bool validPosObjWorld;
+	validPosObjWorld = guiNode->getAttribute("validPosObjWorld")->getIntValue();
+//	//display
+//	const UnitType *choosenBuildingType;
+//	if(choosenBuildingType != NULL) {
+//		guiNode->addAttribute("choosenBuildingType",choosenBuildingType->getName(), mapTagReplacements);
+//	}
+	if(guiNode->hasAttribute("choosenBuildingType") == true) {
+		string unitType = guiNode->getAttribute("choosenBuildingType")->getValue();
+		int factionIndex = guiNode->getAttribute("choosenBuildingTypeFactionIndex")->getIntValue();
+		choosenBuildingType = world->getFaction(factionIndex)->getType()->getUnitType(unitType);
+	}
+//	const CommandType *activeCommandType;
+	//if(activeCommandType != NULL) {
+	//	guiNode->addAttribute("activeCommandType",activeCommandType->getName(), mapTagReplacements);
+	//}
+
+//	CommandClass activeCommandClass;
+	//guiNode->addAttribute("activeCommandClass",intToStr(activeCommandClass), mapTagReplacements);
+//	int activePos;
+	activePos = guiNode->getAttribute("activePos")->getIntValue();
+//	int lastPosDisplay;
+	lastPosDisplay = guiNode->getAttribute("lastPosDisplay")->getIntValue();
+//	//composite
+//	Display display;
+	display.loadGame(guiNode);
+//	Mouse3d mouse3d;
+//	Selection selection;
+	selection.loadGame(guiNode,world);
+//	SelectionQuad selectionQuad;
+//	int lastQuadCalcFrame;
+	lastQuadCalcFrame = guiNode->getAttribute("lastQuadCalcFrame")->getIntValue();
+//	int selectionCalculationFrameSkip;
+	selectionCalculationFrameSkip = guiNode->getAttribute("selectionCalculationFrameSkip")->getIntValue();
+//	int minQuadSize;
+	minQuadSize = guiNode->getAttribute("minQuadSize")->getIntValue();
+//	Chrono lastGroupRecallTime;
+	//guiNode->addAttribute("lastGroupRecallTime",intToStr(lastGroupRecallTime.getMillis()), mapTagReplacements);
+//	int lastGroupRecall;
+	lastGroupRecall = guiNode->getAttribute("lastGroupRecall")->getIntValue();
+//	//states
+//	bool selectingBuilding;
+	//selectingBuilding = guiNode->getAttribute("selectingBuilding")->getIntValue();
+//	bool selectingPos;
+	//guiNode->addAttribute("selectingPos",intToStr(selectingPos), mapTagReplacements);
+//	bool selectingMeetingPoint;
+	//guiNode->addAttribute("selectingMeetingPoint",intToStr(selectingMeetingPoint), mapTagReplacements);
+//	CardinalDir selectedBuildingFacing;
+	//guiNode->addAttribute("selectedBuildingFacing",intToStr(selectedBuildingFacing), mapTagReplacements);
+//	const Object *selectedResourceObject;
+//
+//	Texture2D* hudTexture;
+}
+
 }}//end namespace
