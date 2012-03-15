@@ -42,6 +42,18 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
+    try {
+        networkManager.init(nrServer);
+    }
+	catch(const std::exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+        mainMessageBoxState=1;
+        showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+	}
 
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
@@ -96,8 +108,6 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
         labelInfo.setText(scenarioInfo.desc);
 
         GraphicComponent::applyAllCustomProperties(containerName);
-
-        networkManager.init(nrServer);
     }
 	catch(const std::exception &ex) {
 		char szBuf[4096]="";
