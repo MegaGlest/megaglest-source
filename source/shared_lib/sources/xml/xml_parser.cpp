@@ -27,6 +27,7 @@
 #include "platform_util.h"
 #include "cache_manager.h"
 
+#include "rapidxml_print.hpp"
 #include "leak_dumper.h"
 
 XERCES_CPP_NAMESPACE_USE
@@ -236,7 +237,7 @@ XmlIoRapid::XmlIoRapid() {
 	}
 
 	try {
-		doc = new rapidxml::xml_document<>();
+		doc = new xml_document<>();
 	}
 	catch(const DOMException &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser, msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.getMessage());
@@ -318,48 +319,66 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 }
 
 void XmlIoRapid::save(const string &path, const XmlNode *node){
-//	try{
-//		XMLCh str[strSize];
-//		XMLString::transcode(node->getName().c_str(), str, strSize-1);
+	try {
+		xml_document<> doc;
+
+		// xml declaration
+		xml_node<>* decl = doc.allocate_node(node_declaration);
+		decl->append_attribute(doc.allocate_attribute(doc.allocate_string("version"), doc.allocate_string("1.0")));
+		decl->append_attribute(doc.allocate_attribute(doc.allocate_string("encoding"), doc.allocate_string("utf-8")));
+		decl->append_attribute(doc.allocate_attribute(doc.allocate_string("standalone"), doc.allocate_string("no")));
+		doc.append_node(decl);
+
+		// root node
+		xml_node<>* root = doc.allocate_node(node_element, doc.allocate_string(node->getName().c_str()));
+		for(unsigned int i = 0; i < node->getAttributeCount() ; ++i){
+			XmlAttribute *attr = node->getAttribute(i);
+			root->append_attribute(doc.allocate_attribute(
+					doc.allocate_string(attr->getName().c_str()),
+					doc.allocate_string(attr->getValue("",false).c_str())));
+		}
+		doc.append_node(root);
+
+		// child nodes
+		for(unsigned int i = 0; i < node->getChildCount(); ++i) {
+			root->append_node(node->getChild(i)->buildElement(&doc));
+		}
+
+//		std::string xml_as_string;
+//		// watch for name collisions here, print() is a very common function name!
+//		print(std::back_inserter(xml_as_string), doc);
+//		// xml_as_string now contains the XML in string form, indented
+//		// (in all its angle bracket glory)
 //
-//		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= implementation->createDocument(0, str, 0);
-//		DOMElement *documentElement= document->getDocumentElement();
-//		for(unsigned int i = 0; i < node->getAttributeCount() ; ++i){
-//			XmlAttribute *attr = node->getAttribute(i);
-//
-//			XMLCh strName[strSize];
-//			XMLString::transcode(attr->getName().c_str(), strName, strSize-1);
-//			XMLCh strValue[strSize];
-//			XMLString::transcode(attr->getValue("",false).c_str(), strValue, strSize-1);
-//
-//			documentElement->setAttribute(strName,strValue);
-//		}
-//
-//		for(unsigned int i=0; i<node->getChildCount(); ++i){
-//			documentElement->appendChild(node->getChild(i)->buildElement(document));
-//		}
-//
-//		LocalFileFormatTarget file(path.c_str());
-//#if XERCES_VERSION_MAJOR < 3
-// 		DOMWriter* writer = implementation->createDOMWriter();
-// 		writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-// 		writer->writeNode(&file, *document);
-//#else
-//		DOMLSSerializer *serializer = implementation->createLSSerializer();
-//		DOMLSOutput* output=implementation->createLSOutput();
-//		DOMConfiguration* config=serializer->getDomConfig();
-//		config->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,true);
-//		output->setByteStream(&file);
-//		serializer->write(document,output);
-//		output->release();
-//		serializer->release();
-//#endif
-//		document->release();
-//	}
-//	catch(const DOMException &e){
-//		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while saving: [%s], %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(e.msg));
-//		throw runtime_error("Exception while saving: " + path + ": " + XMLString::transcode(e.msg));
-//	}
+//		std::string xml_no_indent;
+//		// print_no_indenting is the only flag that print() knows about
+//		print(std::back_inserter(xml_no_indent), doc, print_no_indenting);
+//		// xml_no_indent now contains non-indented XML
+
+#if defined(WIN32) && !defined(__MINGW32__)
+		FILE *fp = _wfopen(utf8_decode(path).c_str(), L"wt");
+		ofstream xmlFile(fp);
+#else
+		ofstream xmlFile(path.c_str());
+#endif
+		if(xmlFile.is_open() == false) {
+			throw runtime_error("Can not open file: [" + path + "]");
+		}
+
+		//xmlFile << xml_no_indent;
+//		xmlFile << xml_as_string << '\0';
+		xmlFile << doc << '\0';
+
+#if defined(WIN32) && !defined(__MINGW32__)
+		if(fp) {
+			fclose(fp);
+		}
+#endif
+	}
+	catch(const exception &e){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while saving: [%s], %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),e.what());
+		throw runtime_error("Exception while saving [" + path + "] msg: " + e.what());
+	}
 }
 
 // =====================================================
@@ -665,6 +684,23 @@ DOMElement *XmlNode::buildElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *do
 
 	for(unsigned int i=0; i<children.size(); ++i){
 		node->appendChild(children[i]->buildElement(document));
+	}
+
+	return node;
+}
+
+xml_node<>* XmlNode::buildElement(xml_document<> *document) const {
+	xml_node<>* node = document->allocate_node(node_element, document->allocate_string(name.c_str()));
+
+	for(unsigned int i = 0; i < attributes.size(); ++i) {
+		node->append_attribute(
+				document->allocate_attribute(
+						document->allocate_string(attributes[i]->getName().c_str()),
+						document->allocate_string(attributes[i]->getValue().c_str())));
+	}
+
+	for(unsigned int i = 0; i < children.size(); ++i) {
+		node->append_node(children[i]->buildElement(document));
 	}
 
 	return node;

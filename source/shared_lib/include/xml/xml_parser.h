@@ -70,7 +70,7 @@ public:
 class XmlIoRapid {
 private:
 	static bool initialized;
-	rapidxml::xml_document<> *doc;
+	xml_document<> *doc;
 
 private:
 	XmlIoRapid();
@@ -153,6 +153,7 @@ public:
 	XmlAttribute *addAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues);
 
 	XERCES_CPP_NAMESPACE::DOMElement *buildElement(XERCES_CPP_NAMESPACE::DOMDocument *document) const;
+	xml_node<>* buildElement(xml_document<> *document) const;
 
 private:
 	string getTreeString() const;
