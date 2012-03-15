@@ -16,6 +16,7 @@
 #include "unit_type.h"
 #include "gui.h"
 #include "config.h"
+#include "world.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -229,20 +230,84 @@ void Selection::saveGame(XmlNode *rootNode) const {
 		Unit *unit = selectedUnits[i];
 
 		XmlNode *selectedUnitsNode = selectionNode->addChild("selectedUnits");
-		selectedUnitsNode->addAttribute("id",intToStr(unit->getId()), mapTagReplacements);
+		selectedUnitsNode->addAttribute("unitId",intToStr(unit->getId()), mapTagReplacements);
 	}
 //	UnitContainer groups[maxGroups];
 	for(unsigned int x = 0; x < maxGroups; ++x) {
 		XmlNode *groupsNode = selectionNode->addChild("groups");
-		for(unsigned int i = 0; i < selectedUnits.size(); i++) {
-			Unit *unit = selectedUnits[i];
+		for(unsigned int i = 0; i < groups[x].size(); ++i) {
+			Unit *unit = groups[x][i];
 
 			XmlNode *selectedUnitsNode = groupsNode->addChild("selectedUnits");
-			selectedUnitsNode->addAttribute("id",intToStr(unit->getId()), mapTagReplacements);
+			selectedUnitsNode->addAttribute("unitId",intToStr(unit->getId()), mapTagReplacements);
 		}
 	}
 
 //	Gui *gui;
 }
+
+void Selection::loadGame(const XmlNode *rootNode, World *world) {
+	const XmlNode *selectionNode = rootNode->getChild("Selection");
+
+//	vector<XmlNode *> fowPixmap1NodeList = minimapNode->getChildList("fowPixmap1");
+//	for(unsigned int i = 0; i < fowPixmap1NodeList.size(); ++i) {
+//		XmlNode *fowPixmap1Node = fowPixmap1NodeList[i];
+//
+//		int pixelIndex = fowPixmap1Node->getAttribute("index")->getIntValue();
+//		fowPixmap1->getPixels()[pixelIndex] = fowPixmap1Node->getAttribute("pixel")->getIntValue();
+//	}
+
+	//	int factionIndex;
+	factionIndex = selectionNode->getAttribute("factionIndex")->getIntValue();
+	//	int teamIndex;
+	teamIndex = selectionNode->getAttribute("teamIndex")->getIntValue();
+	//	UnitContainer selectedUnits;
+//	for(unsigned int i = 0; i < selectedUnits.size(); i++) {
+//		Unit *unit = selectedUnits[i];
+//
+//		XmlNode *selectedUnitsNode = selectionNode->addChild("selectedUnits");
+//		selectedUnitsNode->addAttribute("id",intToStr(unit->getId()), mapTagReplacements);
+//	}
+	vector<XmlNode *> selectedUnitsNodeList = selectionNode->getChildList("selectedUnits");
+	for(unsigned int i = 0; i < selectedUnitsNodeList.size(); ++i) {
+		XmlNode *selectedUnitsNode = selectedUnitsNodeList[i];
+
+		int unitId = selectedUnitsNode->getAttribute("unitId")->getIntValue();
+		Unit *unit = world->findUnitById(unitId);
+		//assert(unit != NULL);
+		//printf("#1 Unit [%s], group: %d\n",unit->getType()->getName().c_str(),i);
+		selectedUnits.push_back(unit);
+	}
+
+	//	UnitContainer groups[maxGroups];
+//	for(unsigned int x = 0; x < maxGroups; ++x) {
+//		XmlNode *groupsNode = selectionNode->addChild("groups");
+//		for(unsigned int i = 0; i < groups[x].size(); ++i) {
+//			Unit *unit = groups[x][i];
+//
+//			XmlNode *selectedUnitsNode = groupsNode->addChild("selectedUnits");
+//			selectedUnitsNode->addAttribute("unitId",intToStr(unit->getId()), mapTagReplacements);
+//		}
+//	}
+	vector<XmlNode *> groupsNodeList = selectionNode->getChildList("groups");
+	for(unsigned int i = 0; i < groupsNodeList.size(); ++i) {
+		XmlNode *groupsNode = groupsNodeList[i];
+
+		vector<XmlNode *> selectedGroupsUnitsNodeList = groupsNode->getChildList("selectedUnits");
+		for(unsigned int j = 0; j < selectedGroupsUnitsNodeList.size(); ++j) {
+			XmlNode *selectedGroupsUnitsNode = selectedGroupsUnitsNodeList[j];
+
+			int unitId = selectedGroupsUnitsNode->getAttribute("unitId")->getIntValue();
+			Unit *unit = world->findUnitById(unitId);
+			//assert(unit != NULL);
+			//printf("Unit #2 [%s], group: %d\n",unit->getType()->getName().c_str(),i);
+			groups[i].push_back(unit);
+		}
+	}
+
+	//	Gui *gui;
+
+}
+
 
 }}//end namespace

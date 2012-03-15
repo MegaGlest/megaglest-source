@@ -200,6 +200,7 @@ public:
 	void onSelectionChanged();
 
 	void saveGame(XmlNode *rootNode) const;
+	void loadGame(const XmlNode *rootNode, World *world);
 
 private:
 

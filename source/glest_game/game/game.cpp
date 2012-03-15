@@ -886,6 +886,9 @@ void Game::init(bool initForPreviewOnly) {
 			gameCamera.setPos(Vec2f(v.x, v.y));
 		}
 	}
+	else {
+		gui.loadGame(loadGameNode,&world);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
