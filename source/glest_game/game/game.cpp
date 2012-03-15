@@ -3436,7 +3436,8 @@ void Game::toggleTeamColorMarker() {
 }
 
 void Game::saveGame(string name) {
-	XmlTree xmlTree(XML_XERCES_ENGINE);
+	//XmlTree xmlTree(XML_XERCES_ENGINE);
+	XmlTree xmlTree;
 	xmlTree.init("megaglest-saved-game");
 	XmlNode *rootNode = xmlTree.getRootNode();
 
