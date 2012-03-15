@@ -27,7 +27,7 @@
 #include "platform_util.h"
 #include "cache_manager.h"
 
-#include "rapidxml_print.hpp"
+#include "rapidxml/rapidxml_print.hpp"
 #include "leak_dumper.h"
 
 XERCES_CPP_NAMESPACE_USE
