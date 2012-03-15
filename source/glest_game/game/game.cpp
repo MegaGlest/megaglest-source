@@ -3606,7 +3606,7 @@ string Game::saveGame(string name) {
 	gameNode->addAttribute("lastMasterServerGameStatsDump",intToStr(lastMasterServerGameStatsDump), mapTagReplacements);
 
 	// Save the file now
-	string saveGameFile = name;
+	string saveGameFile = "saved/" + name;
 	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
 		saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
 	}

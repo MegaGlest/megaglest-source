@@ -2706,9 +2706,14 @@ int glestMain(int argc, char** argv) {
 		shutdownFadeSoundMilliseconds = config.getInt("ShutdownFadeSoundMilliseconds",intToStr(shutdownFadeSoundMilliseconds).c_str());
 
 	    string userData = config.getString("UserData_Root","");
-	    if(userData != "") {
-	    	endPathWithSlash(userData);
+		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+			userData = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
+		}
+        if(userData != "") {
+        	endPathWithSlash(userData);
+        }
 
+	    if(userData != "") {
 	        if(isdir(userData.c_str()) == false) {
 	        	createDirectoryPaths(userData);
 	        }
@@ -2718,6 +2723,12 @@ int glestMain(int argc, char** argv) {
         	createDirectoryPaths(crcCachePath);
         }
 	    setCRCCacheFilePath(crcCachePath);
+
+	    string savedGamePath = userData + "saved/";
+        if(isdir(savedGamePath.c_str()) == false) {
+        	createDirectoryPaths(savedGamePath);
+        	//printf("savedGamePath = [%s]\n",savedGamePath.c_str());
+        }
 
 	    string tempDataPath = userData + "temp/";
         if(isdir(tempDataPath.c_str()) == true) {

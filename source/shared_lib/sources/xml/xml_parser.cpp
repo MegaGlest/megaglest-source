@@ -267,6 +267,7 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 	Chrono chrono;
 	chrono.start();
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using RapidXml to load file [%s]\n",path.c_str());
+	//printf("Using RapidXml to load file [%s]\n",path.c_str());
 
 	XmlNode *rootNode = NULL;
 	try {
@@ -280,29 +281,25 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 			throw runtime_error("Can not open file: [" + path + "]");
 		}
 
-		// read file into input_xml
-		string inputXml = "";
-		const int bufsize = 32 * 1024;
-		char buff[bufsize]="";
-	    while(xmlFile) {
-	    	xmlFile.read(buff,bufsize);
-	    	if(buff[0] != '\0') {
-	    		inputXml += buff;
-	    	}
-	    }
+		xmlFile.unsetf(ios::skipws);
 
-		// make a safe-to-modify copy of input_xml
-		// (you should never modify the contents of an std::string directly)
-		vector<char> buffer(inputXml.begin(), inputXml.end());
-		buffer.push_back('\0');
+        // Determine stream size
+		xmlFile.seekg(0, ios::end);
+        size_t size = xmlFile.tellg();
+        xmlFile.seekg(0);
 
-		/* "Read file into vector<char>"  See linked thread above*/
-		//vector<char> buffer((istreambuf_iterator<char>(xmlFile)), istreambuf_iterator<char>( ));
-	    //buffer.push_back('\0');
-	    doc->parse<parse_no_data_nodes>(&buffer[0]);
+        // Load data and add terminating 0
+        vector<char> buffer;
+        buffer.resize(size + 1);
+        xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
+        buffer[size] = 0;
+
+	    //doc->parse<parse_no_utf8 | parse_validate_closing_tags>(&buffer[0]);
+		//doc->parse<parse_full>(&buffer.front());
+		//doc->parse<parse_declaration_node | parse_doctype_node | parse_pi_nodes | parse_validate_closing_tags>(&buffer[0]);
+        doc->parse<parse_no_data_nodes>(&buffer.front());
 
 		rootNode= new XmlNode(doc->first_node(),mapTagReplacementValues);
-		//parser->release();
 
 #if defined(WIN32) && !defined(__MINGW32__)
 		if(fp) {
@@ -310,15 +307,16 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 		}
 #endif
 	}
-	catch(const DOMException &ex) {
+	catch(const exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		sprintf(szBuf,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 
 		throw runtime_error(szBuf);
 	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] took msecs: %ld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] took msecs: %ld for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),path.c_str());
+	printf("In [%s::%s Line: %d] took msecs: %ld for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),path.c_str());
 
 	return rootNode;
 }
@@ -371,7 +369,7 @@ void XmlIoRapid::save(const string &path, const XmlNode *node){
 		}
 
 		//xmlFile << xml_no_indent;
-//		xmlFile << xml_as_string << '\0';
+//		xmlFile << xml_as_string;
 		xmlFile << doc;
 
 #if defined(WIN32) && !defined(__MINGW32__)
