@@ -18,6 +18,7 @@
 #include "menu_state_root.h"
 #include "metrics.h"
 #include "network_message.h"
+#include "game.h"
 #include "auto_test.h"
 
 #include "leak_dumper.h"
@@ -45,13 +46,20 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 
 	selectedButton=NULL;
 
-	string userData = Config::getInstance().getString("UserData_Root","");
-	    if(userData != "") {
-	    	endPathWithSlash(userData);
-	    }
-	saveGameDir = userData +"saved";
-	endPathWithSlash(saveGameDir);
-
+//	string userData = Config::getInstance().getString("UserData_Root","");
+//	    if(userData != "") {
+//	    	endPathWithSlash(userData);
+//	    }
+//	saveGameDir = userData +"saved";
+//	endPathWithSlash(saveGameDir);
+    string userData = Config::getInstance().getString("UserData_Root","");
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		userData = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
+	}
+    if(userData != "") {
+    	endPathWithSlash(userData);
+    }
+    saveGameDir = userData +"saved/";
 
 	lines[0].init(0,slotLinesYBase+slotsLineHeight);
 	lines[1].init(0, slotLinesYBase-(slotsToRender-1)*slotsLineHeight-5);
@@ -132,6 +140,7 @@ void MenuStateLoadGame::listFiles(int keyButtonsXBase, int keyButtonsYBase, int 
     paths.push_back(saveGameDir);
     filenames.clear();
     findAll(paths, "*.xml", filenames, true, false, true);
+    //printf("filenames = %d\n",filenames.size());
     for(int i = 0; i < filenames.size(); ++i) {
     	GraphicButton *button=new GraphicButton();
     	button->init( keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
@@ -189,6 +198,9 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 		{
 			string filename=saveGameDir+selectedButton->getText()+".xml";
 			console.addStdMessage("Trying to load file: '"+filename+"'");
+
+			Game::loadGame(filename,program,false);
+			return;
 		}
 		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }

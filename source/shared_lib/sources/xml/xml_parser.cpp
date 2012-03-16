@@ -316,7 +316,7 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 	}
 
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] took msecs: %ld for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),path.c_str());
-	printf("In [%s::%s Line: %d] took msecs: %ld for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),path.c_str());
+	//printf("In [%s::%s Line: %d] took msecs: %ld for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),path.c_str());
 
 	return rootNode;
 }
