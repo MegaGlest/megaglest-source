@@ -38,10 +38,20 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	int yPos=30;
 	int xPos=20;
 	int xSpacing=20;
-	int slotsLineHeight=20;
+	int slotsLineHeight=30;
 	int slotLinesYBase=650;
-	int slotsToRender=30;
+	int slotsToRender=20;
 	int slotWidth=200;
+
+	selectedButton=NULL;
+
+	string userData = Config::getInstance().getString("UserData_Root","");
+	    if(userData != "") {
+	    	endPathWithSlash(userData);
+	    }
+	saveGameDir = userData +"saved";
+	endPathWithSlash(saveGameDir);
+
 
 	lines[0].init(0,slotLinesYBase+slotsLineHeight);
 	lines[1].init(0, slotLinesYBase-(slotsToRender-1)*slotsLineHeight-5);
@@ -60,13 +70,13 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	noSavedGamesLabel.setText(lang.get("NoSavedGames"));
 
 	savedGamesLabel.registerGraphicComponent(containerName,"savedGamesLabel");
-	savedGamesLabel.init(120, slotLinesYBase+30);
+	savedGamesLabel.init(120, slotLinesYBase+slotsLineHeight+10);
 	savedGamesLabel.setFont(CoreData::getInstance().getMenuFontBig());
 	savedGamesLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	savedGamesLabel.setText(lang.get("SavedGames"));
 
 	infoHeaderLabel.registerGraphicComponent(containerName,"infoHeaderLabel");
-	infoHeaderLabel.init(650, slotLinesYBase+30);
+	infoHeaderLabel.init(650, slotLinesYBase+slotsLineHeight+10);
 	infoHeaderLabel.setFont(CoreData::getInstance().getMenuFontBig());
 	infoHeaderLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	infoHeaderLabel.setText(lang.get("SavegameInfo"));
@@ -95,6 +105,9 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
     slotsScrollBar.setVisibleSize(slotsToRender);
     slotsScrollBar.setVisibleStart(0);
 
+    listFiles(20,slotLinesYBase,460,slotsLineHeight);
+    slotsScrollBar.setElementCount(filenames.size());
+
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
@@ -109,7 +122,26 @@ void MenuStateLoadGame::clearSlots() {
 	while(!slots.empty()) {
 		delete slots.back();
 		slots.pop_back();
+		slotsGB.pop_back();
 	}
+}
+
+void MenuStateLoadGame::listFiles(int keyButtonsXBase, int keyButtonsYBase, int keyButtonsWidth, int keyButtonsHeight) {
+	// Save the file now
+    vector<string> paths;
+    paths.push_back(saveGameDir);
+    filenames.clear();
+    findAll(paths, "*.xml", filenames, true, false, true);
+    for(int i = 0; i < filenames.size(); ++i) {
+    	GraphicButton *button=new GraphicButton();
+    	button->init( keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+    	button->setText(filenames[i]);
+//    	button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//    	button->setUseCustomTexture(true);
+
+    	slots.push_back(button);
+    	slotsGB.push_back(button);
+    }
 }
 
 
@@ -134,11 +166,31 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
     }
     else if(deleteButton.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+		if(selectedButton==NULL)
+		{
+			Lang &lang= Lang::getInstance();
+			console.addStdMessage(lang.get("NothingSelected"));
+		}
+		else
+		{
+			string filename=saveGameDir+selectedButton->getText()+".xml";
+			console.addStdMessage("Trying to delete file: '"+filename+"'");
+		}
+		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
     else if(loadButton.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+		if(selectedButton==NULL)
+		{
+			Lang &lang= Lang::getInstance();
+			console.addStdMessage(lang.get("NothingSelected"));
+		}
+		else
+		{
+			string filename=saveGameDir+selectedButton->getText()+".xml";
+			console.addStdMessage("Trying to load file: '"+filename+"'");
+		}
+		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
 	else if(slotsScrollBar.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
@@ -147,6 +199,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
     	if(slotsScrollBar.getElementCount()!=0){
     		for(int i = slotsScrollBar.getVisibleStart(); i <= slotsScrollBar.getVisibleEnd(); ++i) {
 				if(slots[i]->mouseClick(x, y)) {
+					selectedButton=slots[i];
 					break;
 				}
     		}
@@ -161,9 +214,7 @@ void MenuStateLoadGame::mouseMove(int x, int y, const MouseState *ms){
     loadButton.mouseMove(x, y);
 	if(slotsScrollBar.getElementCount()!=0){
 		for(int i = slotsScrollBar.getVisibleStart(); i <= slotsScrollBar.getVisibleEnd(); ++i) {
-			if(slots[i]->mouseMove(x, y)) {
-				break;
-			}
+			slots[i]->mouseMove(x, y);
 		}
 	}
 	slotsScrollBar.mouseMove(x,y);
@@ -191,7 +242,13 @@ void MenuStateLoadGame::render(){
 	}
 	else{
 		for(int i = slotsScrollBar.getVisibleStart(); i <= slotsScrollBar.getVisibleEnd(); ++i) {
-			renderer.renderButton(slots[i]);
+			if(slots[i]==selectedButton){
+				bool lightedOverride = true;
+				renderer.renderButton(slots[i],&YELLOW,&lightedOverride);
+			}
+			else{
+				renderer.renderButton(slots[i]);
+			}
 		}
 	}
 	renderer.renderScrollBar(&slotsScrollBar);
@@ -204,6 +261,7 @@ void MenuStateLoadGame::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateNewGame(program, mainMenu);
 	}
+	slotsScrollBar.arrangeComponents(slotsGB);
 	console.update();
 }
 

@@ -20,14 +20,17 @@ namespace Glest{ namespace Game{
 // ===============================
 // 	class MenuStateLoadGame
 // ===============================
-typedef vector<GraphicButton*> SaveSlotButtons;
+//typedef vector<GraphicButton*> SaveSlotButtons;
 class MenuStateLoadGame: public MenuState{
 private:
 	GraphicButton loadButton;
 	GraphicButton deleteButton;
 	GraphicButton abortButton;
-	SaveSlotButtons slots;
+	vector<GraphicButton*> slots;
+	vector<GraphicComponent*> slotsGB;
+	vector<string> filenames;
 	GraphicScrollBar slotsScrollBar;
+	GraphicButton* selectedButton;
 
 	GraphicLabel headerLabel;
 	GraphicLabel noSavedGamesLabel;
@@ -36,6 +39,8 @@ private:
 	GraphicLabel infoTextLabel;
 
 	GraphicLine lines[2];
+
+	string saveGameDir;
 
 public:
 	MenuStateLoadGame(Program *program, MainMenu *mainMenu);
@@ -50,6 +55,7 @@ public:
 	void reloadUI();
 private:
 	void clearSlots();
+	void listFiles(int keyButtonsXBase, int keyButtonsYBase, int keyButtonsWidth, int keyButtonsHeight);
 };
 
 
