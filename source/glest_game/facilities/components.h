@@ -355,6 +355,7 @@ public:
 
 	int getVisibleCompPosStart() const		{return visibleCompPosStart;}
 	int getVisibleCompPosEnd() const		{return visibleCompPosEnd;}
+	void arrangeComponents(vector<GraphicComponent *> &gcs);
 };
 
 // ===========================================================

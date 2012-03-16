@@ -763,6 +763,18 @@ int GraphicScrollBar::getThickness() const {
 	return horizontal?getH():getW();
 }
 
+void GraphicScrollBar::arrangeComponents(vector<GraphicComponent *> &gcs) {
+	if(getElementCount()!=0 ) {
+    	for(int i = getVisibleStart(); i <= getVisibleEnd(); ++i) {
+    		if(horizontal){
+    			gcs[i]->setX(getX()+getLength()-gcs[i]->getW()-gcs[i]->getW()*(i-getVisibleStart()));
+    		}
+    		else {
+    			gcs[i]->setY(getY()+getLength()-gcs[i]->getH()-gcs[i]->getH()*(i-getVisibleStart()));
+    		}
+    	}
+    }
+}
 // ===========================================================
 // 	class PopupMenu
 // ===========================================================
