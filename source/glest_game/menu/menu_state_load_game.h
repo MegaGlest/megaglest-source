@@ -32,6 +32,11 @@ private:
 	GraphicScrollBar slotsScrollBar;
 	GraphicButton* selectedButton;
 
+	GraphicButton* buttonToDelete;
+
+	Texture2D *previewTexture;
+	Texture2D *needsToBeFreedTexture;
+
 	GraphicLabel headerLabel;
 	GraphicLabel noSavedGamesLabel;
 	GraphicLabel savedGamesLabel;
@@ -41,6 +46,8 @@ private:
 	GraphicLine lines[2];
 
 	string saveGameDir;
+	int slotLinesYBase;
+	int slotsLineHeight;
 
 public:
 	MenuStateLoadGame(Program *program, MainMenu *mainMenu);
@@ -55,6 +62,7 @@ public:
 	void reloadUI();
 private:
 	void clearSlots();
+	void deleteSlot(int i);
 	void listFiles(int keyButtonsXBase, int keyButtonsYBase, int keyButtonsWidth, int keyButtonsHeight);
 };
 

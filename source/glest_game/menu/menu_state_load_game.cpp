@@ -39,10 +39,14 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	int yPos=30;
 	int xPos=20;
 	int xSpacing=20;
-	int slotsLineHeight=30;
-	int slotLinesYBase=650;
 	int slotsToRender=20;
 	int slotWidth=200;
+
+	slotLinesYBase=650;
+	slotsLineHeight=30;
+	previewTexture=NULL;
+	needsToBeFreedTexture=NULL;
+	buttonToDelete=NULL;
 
 	selectedButton=NULL;
 
@@ -90,7 +94,7 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	infoHeaderLabel.setText(lang.get("SavegameInfo"));
 
 	infoTextLabel.registerGraphicComponent(containerName,"infoTextLabel");
-	infoTextLabel.init(600, 400);
+	infoTextLabel.init(550, 350);
 //	infoTextLabel.setFont(CoreData::getInstance().getMenuFontBig());
 //	infoTextLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	infoTextLabel.setText("Info block for the current slot, maybe screenshot above \ntest\ntest2");
@@ -123,6 +127,16 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 MenuStateLoadGame::~MenuStateLoadGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	clearSlots();
+	if(needsToBeFreedTexture!=NULL){
+		needsToBeFreedTexture->end();
+		delete needsToBeFreedTexture;
+		needsToBeFreedTexture=NULL;
+	}
+	if(previewTexture!=NULL){
+		previewTexture->end();
+		delete previewTexture;
+		previewTexture=NULL;
+	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
@@ -182,8 +196,16 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 		else
 		{
+			string slotname=selectedButton->getText();
 			string filename=saveGameDir+selectedButton->getText()+".xml";
+			string jpgfilename=saveGameDir+selectedButton->getText()+".xml.jpg";
 			console.addStdMessage("Trying to delete file: '"+filename+"'");
+			for(int i=0;i<slots.size();i++){
+				if(slots[i]==selectedButton){
+					//deleteSlot(i);
+					break;
+				}
+			}
 		}
 		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
@@ -210,13 +232,36 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
     else {
     	if(slotsScrollBar.getElementCount()!=0){
     		for(int i = slotsScrollBar.getVisibleStart(); i <= slotsScrollBar.getVisibleEnd(); ++i) {
-				if(slots[i]->mouseClick(x, y)) {
+				if(slots[i]->mouseClick(x, y) && selectedButton!=slots[i]) {
+					needsToBeFreedTexture=previewTexture;
 					selectedButton=slots[i];
+					string filename=saveGameDir+selectedButton->getText()+".xml.jpg";
+					if(fileExists(filename)){
+						previewTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+						if(previewTexture) {
+							previewTexture->setMipmap(true);
+							previewTexture->load(filename);
+							previewTexture->init();
+						}
+					}
+					else
+					{
+						previewTexture=NULL;
+					}
 					break;
 				}
     		}
     	}
     }
+}
+
+void MenuStateLoadGame::deleteSlot(int i){
+	if(selectedButton==slots[i]){
+		selectedButton=NULL;
+	}
+//	buttonToDelete=slots[i];
+//	slots.erase(i);
+//	slotsGB.erase(i);
 }
 
 void MenuStateLoadGame::mouseMove(int x, int y, const MouseState *ms){
@@ -265,8 +310,23 @@ void MenuStateLoadGame::render(){
 	}
 	renderer.renderScrollBar(&slotsScrollBar);
 
+	if(previewTexture != NULL) {
+		renderer.renderTextureQuad(550,slotLinesYBase-300+slotsLineHeight,400,300,previewTexture,1.0f);
+	}
+
+
 	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
+
+	if(needsToBeFreedTexture!=NULL){
+		needsToBeFreedTexture->end();
+		delete needsToBeFreedTexture;
+		needsToBeFreedTexture=NULL;
+	}
+//	if(buttonToDelete!=NULL){
+//		delete buttonToDelete;
+//		buttonToDelete=NULL;
+//	}
 }
 
 void MenuStateLoadGame::update(){
