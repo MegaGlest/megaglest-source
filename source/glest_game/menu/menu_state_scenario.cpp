@@ -228,6 +228,7 @@ void MenuStateScenario::render(){
 void MenuStateScenario::update() {
 	if(Config::getInstance().getBool("AutoTest")) {
 		AutoTest::getInstance().updateScenario(this);
+		return;
 	}
 	if(this->autoloadScenarioName != "") {
 		listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);

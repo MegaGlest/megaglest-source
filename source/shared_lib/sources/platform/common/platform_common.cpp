@@ -1743,6 +1743,48 @@ string replaceAll(string& context, const string& from, const string& to) {
     return context;
 }
 
+vector<char> replaceAllBetweenTokens(vector<char>& context,
+		const string startToken, const string endToken, const string newText,
+		bool removeTokens) {
+	string newValue(context.begin(),context.end());
+	replaceAllBetweenTokens(newValue,startToken,endToken,newText,removeTokens);
+	context = vector<char>(newValue.begin(),newValue.end());
+	return context;
+}
+
+string replaceAllBetweenTokens(string& context, const string startToken,
+		const string endToken, const string newText, bool removeTokens) {
+    size_t lookHere = 0;
+    size_t foundHere = 0;
+    size_t foundHereEnd = 0;
+    if((foundHere = context.find(startToken, lookHere)) != string::npos) {
+    	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Replacing context [%s] from [%s] to [%s]\n",context.c_str(),from.c_str(),to.c_str());
+
+		while((foundHere = context.find(startToken, lookHere)) != string::npos) {
+			size_t foundHereEnd = context.find(endToken, foundHere+1);
+			if(foundHereEnd == string::npos) {
+				break;
+			}
+			if(removeTokens == true) {
+				foundHereEnd += endToken.size();
+
+				context.replace(foundHere, foundHereEnd-foundHere+1, newText);
+				lookHere = foundHere + newText.size();
+			}
+			else {
+				foundHere += startToken.size();
+				foundHereEnd -= 1;
+
+				context.replace(foundHere, foundHereEnd-foundHere+1, newText);
+				lookHere = foundHere + newText.size();
+			}
+		}
+
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("New context [%s]\n",context.c_str());
+    }
+    return context;
+}
+
 string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 		string fileArchiveExtractCommandParameters, string outputpath, string archivename) {
 	string parsedOutputpath = outputpath;

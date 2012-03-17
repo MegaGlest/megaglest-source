@@ -394,6 +394,7 @@ void MenuStateLoadGame::render(){
 void MenuStateLoadGame::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateNewGame(program, mainMenu);
+		return;
 	}
 	slotsScrollBar.arrangeComponents(slotsGB);
 	console.update();

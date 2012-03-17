@@ -687,22 +687,27 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings) {
+bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
+	bool fileWasFound = false;
     Config &config = Config::getInstance();
     string userData = config.getString("UserData_Root","");
     if(userData != "") {
     	endPathWithSlash(userData);
     }
-    fileName = userData + fileName;
+    if(fileExists(userData + fileName) == true) {
+    	fileName = userData + fileName;
+    	fileWasFound = true;
+    }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
     if(fileExists(fileName) == false) {
-    	return;
+    	return false;
     }
 
+    fileWasFound = true;
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
 	Properties properties;
@@ -757,6 +762,8 @@ void CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 	}
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+    return fileWasFound;
 }
 
 // ================== PRIVATE ========================

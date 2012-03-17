@@ -1274,6 +1274,7 @@ void Game::update() {
 		//update auto test
 		if(Config::getInstance().getBool("AutoTest")){
 			AutoTest::getInstance().updateGame(this);
+			return;
 		}
 
 		if(world.getQueuedScenario() != "") {
@@ -2651,7 +2652,9 @@ Stats Game::quitGame() {
     }
 	//printf("Check savegame\n");
 	//printf("Saving...\n");
-	this->saveGame(GameConstants::saveGameFileDefault);
+    if(Config::getInstance().getBool("AutoTest")){
+    	this->saveGame(GameConstants::saveGameFileAutoTestDefault);
+    }
 
 	//Stats stats = *(world.getStats());
 	Stats endStats;
@@ -2689,7 +2692,8 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 		game->endGame();
 	}
 
-	if(game->isMasterserverMode() == true) {
+	if(game->isMasterserverMode() == true ||
+		Config::getInstance().getBool("AutoTest") == true) {
 		printf("Game ending with stats:\n");
 		printf("-----------------------\n");
 
@@ -3455,6 +3459,16 @@ void Game::toggleTeamColorMarker() {
 string Game::saveGame(string name) {
 	// auto name file if using saved file pattern string
 	if(name == GameConstants::saveGameFilePattern) {
+		time_t curTime = time(NULL);
+	    struct tm *loctime = localtime (&curTime);
+	    char szBuf2[100]="";
+	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",loctime);
+
+		char szBuf[8096]="";
+		sprintf(szBuf,name.c_str(),szBuf2);
+		name = szBuf;
+	}
+	else if(name == GameConstants::saveGameFileAutoTestDefault) {
 		time_t curTime = time(NULL);
 	    struct tm *loctime = localtime (&curTime);
 	    char szBuf2[100]="";

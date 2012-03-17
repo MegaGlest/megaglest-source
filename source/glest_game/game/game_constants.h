@@ -126,6 +126,7 @@ public:
 	static const char *application_name;
 	
 	static const char *saveGameFileDefault;
+	static const char *saveGameFileAutoTestDefault;
 	static const char *saveGameFilePattern;
 
 	// VC++ Chokes on init of non integral static types
