@@ -311,8 +311,11 @@ void Ai::update() {
 			}
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] AI for faction# %d voted %s [%d] factionSwitchTeamRequestCountCurrent [%d] settings->getAiAcceptSwitchTeamPercentChance() [%d]\n",__FILE__,__FUNCTION__,__LINE__,aiInterface->getMyFaction()->getIndex(),(voteResult->allowSwitchTeam ? "Yes" : "No"),allowJoinTeam,factionSwitchTeamRequestCountCurrent,settings->getAiAcceptSwitchTeamPercentChance());
-		//printf("AI for faction# %d voted %s [%d] factionSwitchTeamRequestCountCurrent [%d]\n",aiInterface->getMyFaction()->getIndex(),(voteResult->allowSwitchTeam ? "Yes" : "No"),allowJoinTeam,factionSwitchTeamRequestCountCurrent);
+		char szBuf[8096]="";
+		sprintf(szBuf,"AI for faction# %d voted %s [%d] CountCurrent [%d] PercentChance [%d]",aiInterface->getMyFaction()->getIndex(),(voteResult->allowSwitchTeam ? "Yes" : "No"),allowJoinTeam,factionSwitchTeamRequestCountCurrent,settings->getAiAcceptSwitchTeamPercentChance());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
+		aiInterface->printLog(3, szBuf);
 
 		aiInterface->giveCommandSwitchTeamVote(aiInterface->getMyFaction(),voteResult);
 	}
@@ -397,55 +400,62 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
         const ResourceType *rt= tt->getResourceType(i);
         const Resource *r= aiInterface->getResource(rt);
 
+		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable) {
+			char szBuf[8096]="";
+			sprintf(szBuf,"Examining resource [%s] amount [%d] (previous amount [%d]",rt->getName().c_str(),r->getAmount(),amount);
+			aiInterface->printLog(3, szBuf);
+		}
+
 		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable &&
 			r->getAmount() < amount) {
 
-			// Now MAKE SURE the unit has a harvest command for this resource
-			// AND that the resource is within eye-sight to avoid units
-			// standing around doing nothing.
-			const HarvestCommandType *hct= unit->getType()->getFirstHarvestCommand(rt,unit->getFaction());
+			// Only have up to x units going for this resource so we can focus
+			// on other needed resources for other units
+			const int maxUnitsToHarvestResource = 5;
 
-			Vec2i resPos;
-			if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos, false)) {
-				amount= r->getAmount();
-				neededResource= rt;
+			vector<int> unitsGettingResource = findUnitsHarvestingResourceType(rt);
+			if(unitsGettingResource.size() <= maxUnitsToHarvestResource) {
+				// Now MAKE SURE the unit has a harvest command for this resource
+				// AND that the resource is within eye-sight to avoid units
+				// standing around doing nothing.
+				const HarvestCommandType *hct= unit->getType()->getFirstHarvestCommand(rt,unit->getFaction());
+				Vec2i resPos;
+				if(hct != NULL && aiInterface->getNearestSightedResource(rt, aiInterface->getHomeLocation(), resPos, false)) {
+					amount= r->getAmount();
+					neededResource= rt;
+				}
 			}
         }
     }
+
+    char szBuf[8096]="";
+    sprintf(szBuf,"Unit [%d - %s] looking for resources (not static or consumable)",unit->getId(),unit->getType()->getName().c_str());
+    aiInterface->printLog(3, szBuf);
+    sprintf(szBuf,"[resource type count %d] Needed resource [%s].",tt->getResourceTypeCount(),(neededResource != NULL ? neededResource->getName().c_str() : "<none>"));
+    aiInterface->printLog(3, szBuf);
+
     return neededResource;
 }
 
 bool Ai::beingAttacked(Vec2i &pos, Field &field, int radius){
-
 	const Unit *enemy = aiInterface->getFirstOnSightEnemyUnit(pos, field, radius);
 	return (enemy != NULL);
-/*
-    int count= aiInterface->onSightUnitCount();
-    const Unit *unit;
-
-    for(int i=0; i<count; ++i){
-        unit= aiInterface->getOnSightUnit(i);
-        if(!aiInterface->isAlly(unit) && unit->isAlive()){
-            pos= unit->getPos();
-			field= unit->getCurrField();
-            if(pos.dist(aiInterface->getHomeLocation())<radius){
-                aiInterface->printLog(2, "Being attacked at pos "+intToStr(pos.x)+","+intToStr(pos.y)+"\n");
-                return true;
-            }
-        }
-    }
-    return false;
-*/
 }
 
 bool Ai::isStableBase() {
 	UnitClass ucWorkerType = ucWorker;
     if(getCountOfClass(ucWarrior,&ucWorkerType) > minWarriors) {
-        aiInterface->printLog(4, "Base is stable\n");
+        char szBuf[8096]="";
+        sprintf(szBuf,"Base is stable [minWarriors = %d found = %d]",minWarriors,ucWorkerType);
+        aiInterface->printLog(4, szBuf);
+
         return true;
     }
     else{
-        aiInterface->printLog(4, "Base is not stable\n");
+        char szBuf[8096]="";
+        sprintf(szBuf,"Base is NOT stable [minWarriors = %d found = %d]",minWarriors,ucWorkerType);
+        aiInterface->printLog(4, szBuf);
+
         return false;
     }
 }
@@ -470,6 +480,83 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, bool idleOnly){
 		*unitIndex= units[random.randRange(0, units.size()-1)];
 		return true;
 	}
+}
+
+vector<int> Ai::findUnitsHarvestingResourceType(const ResourceType *rt) {
+	vector<int> units;
+
+	Map *map= aiInterface->getMap();
+	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
+		const Unit *unit= aiInterface->getMyUnit(i);
+		if(unit->getType()->hasCommandClass(ccHarvest)) {
+			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccHarvest) {
+				Command *command= unit->getCurrCommand();
+			    const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+			    if(hct != NULL) {
+					const Vec2i unitTargetPos = unit->getTargetPos();
+					SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unitTargetPos));
+					Resource *r= sc->getResource();
+					if (r != NULL && r->getType() == rt) {
+						units.push_back(i);
+					}
+			    }
+			}
+		}
+		else if(unit->getType()->hasCommandClass(ccProduce)) {
+			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccProduce) {
+				Command *command= unit->getCurrCommand();
+			    const ProduceCommandType *pct= dynamic_cast<const ProduceCommandType*>(command->getCommandType());
+			    if(pct != NULL) {
+			    	const UnitType *ut = pct->getProducedUnit();
+			    	if(ut != NULL) {
+						const Resource *r = ut->getCost(rt);
+						if(r != NULL) {
+							if (r != NULL && r->getAmount() < 0) {
+								units.push_back(i);
+							}
+						}
+			    	}
+			    }
+			}
+		}
+		else if(unit->getType()->hasCommandClass(ccBuild)) {
+			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccBuild) {
+				Command *command= unit->getCurrCommand();
+			    const BuildCommandType *bct= dynamic_cast<const BuildCommandType*>(command->getCommandType());
+			    if(bct != NULL) {
+			    	for(unsigned int j = 0; j < bct->getBuildingCount(); ++j) {
+						const UnitType *ut = bct->getBuilding(j);
+						if(ut != NULL) {
+							const Resource *r = ut->getCost(rt);
+							if(r != NULL) {
+								if (r != NULL && r->getAmount() < 0) {
+									units.push_back(i);
+									break;
+								}
+							}
+						}
+			    	}
+			    }
+			}
+		}
+	}
+
+	return units;
+}
+
+vector<int> Ai::findUnitsDoingCommand(CommandClass currentCommand) {
+	vector<int> units;
+
+	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
+		const Unit *unit= aiInterface->getMyUnit(i);
+		if(unit->getType()->hasCommandClass(currentCommand)) {
+			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == currentCommand) {
+				units.push_back(i);
+			}
+		}
+	}
+
+	return units;
 }
 
 bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, CommandClass currentCommand){

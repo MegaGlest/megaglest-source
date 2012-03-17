@@ -190,6 +190,9 @@ public:
 	bool findPosForBuilding(const UnitType* building, const Vec2i &searchPos, Vec2i &pos);
 	bool findAbleUnit(int *unitIndex, CommandClass ability, bool idleOnly);
 	bool findAbleUnit(int *unitIndex, CommandClass ability, CommandClass currentCommand);
+	vector<int> findUnitsDoingCommand(CommandClass currentCommand);
+	vector<int> findUnitsHarvestingResourceType(const ResourceType *rt);
+
 	bool beingAttacked(Vec2i &pos, Field &field, int radius);
 
 	//tasks

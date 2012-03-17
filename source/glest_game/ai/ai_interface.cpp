@@ -51,18 +51,29 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 	logLevel= Config::getInstance().getInt("AiLog");
 	redir= Config::getInstance().getBool("AiRedir");
 
+	aiLogFile = getLogFilename();
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		aiLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + aiLogFile;
+	}
+	else {
+        string userData = Config::getInstance().getString("UserData_Root","");
+        if(userData != "") {
+        	endPathWithSlash(userData);
+        }
+        aiLogFile = userData + aiLogFile;
+	}
+
 	//clear log file
-	if(logLevel>0){
+	if(logLevel > 0) {
 #ifdef WIN32
-		FILE *f= _wfopen(Shared::Platform::utf8_decode(getLogFilename()).c_str(), L"wt");
+		fp = _wfopen(Shared::Platform::utf8_decode(aiLogFile).c_str(), L"wt");
 #else
-		FILE *f= fopen(getLogFilename().c_str(), "wt");
+		fp = fopen(aiLogFile.c_str(), "wt");
 #endif
-		if(f==NULL){
-			throw runtime_error("Can't open file: "+getLogFilename());
+		if(fp == NULL) {
+			throw runtime_error("Can't open file: [" + aiLogFile + "]");
 		}
-		fprintf(f, "%s", "MegaGlest AI log file\n\n");
-		fclose(f);
+		fprintf(fp, "MegaGlest AI log file for Tech [%s] Faction [%s] #%d\n\n",this->gameSettings->getTech().c_str(),this->world->getFaction(this->factionIndex)->getType()->getName().c_str(),this->factionIndex);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -70,6 +81,11 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 AiInterface::~AiInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI factionIndex = %d, teamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,this->factionIndex,this->teamIndex);
     cacheUnitHarvestResourceLookup.clear();
+
+    if(fp) {
+    	fclose(fp);
+    	fp = NULL;
+    }
 }
 // ==================== main ====================
 
@@ -81,20 +97,13 @@ void AiInterface::update() {
 // ==================== misc ====================
 
 void AiInterface::printLog(int logLevel, const string &s){
-    if(this->logLevel>=logLevel){
+    if(this->logLevel >= logLevel) {
 		string logString= "(" + intToStr(factionIndex) + ") " + s;
 
 		//print log to file
-#ifdef WIN32
-		FILE *f= _wfopen(utf8_decode(getLogFilename()).c_str(), L"at");
-#else
-		FILE *f= fopen(getLogFilename().c_str(), "at");
-#endif
-		if(f==NULL){
-			throw runtime_error("Can't open file: "+getLogFilename());
+		if(fp != NULL) {
+			fprintf(fp, "%s\n", logString.c_str());
 		}
-		fprintf(f, "%s\n", logString.c_str());
-		fclose(f);
 
 		//redirect to console
 		if(redir) {
