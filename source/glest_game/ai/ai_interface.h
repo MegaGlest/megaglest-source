@@ -47,6 +47,9 @@ private:
 	//config
 	bool redir;
     int logLevel;
+    std::string aiLogFile;
+    FILE *fp;
+
     std::map<const ResourceType *,int> cacheUnitHarvestResourceLookup;
 
 public:

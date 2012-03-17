@@ -33,6 +33,7 @@ namespace Glest{ namespace Game{
 FactionType::FactionType() {
 	music			= NULL;
 	personalityType = fpt_Normal;
+	aIBehavior_minStaticResourceCount = INT_MAX;
 }
 
 //load a faction, given a directory
@@ -40,6 +41,8 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	aIBehavior_minStaticResourceCount = INT_MAX;
 
 	string techTreePath = techTree->getPath();
 	string techTreeName=techTree->getName();
@@ -217,6 +220,10 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		//read ai behavior
 		if(factionNode->hasChild("ai-behavior") == true) {
 			const XmlNode *aiNode= factionNode->getChild("ai-behavior");
+			if(aiNode->hasAttribute("min-static-resource-count") == true) {
+				aIBehavior_minStaticResourceCount = aiNode->getAttribute("min-static-resource-count")->getIntValue();
+				//printf("aIBehavior_minStaticResourceCount = %d\n",aIBehavior_minStaticResourceCount);
+			}
 			if(aiNode->hasChild("worker-units") == true) {
 				const XmlNode *aiNodeUnits= aiNode->getChild("worker-units");
 				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {

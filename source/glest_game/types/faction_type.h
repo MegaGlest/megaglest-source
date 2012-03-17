@@ -54,6 +54,7 @@ private:
 
 	std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> > mapAIBehaviorUnitCategories;
 	std::vector<const UpgradeType*> vctAIBehaviorUpgrades;
+	int aIBehavior_minStaticResourceCount;
 
 public:
 	//init
@@ -64,6 +65,7 @@ public:
 
 	const std::vector<FactionType::PairPUnitTypeInt> getAIBehaviorUnits(AIBehaviorUnitCategory category) const;
 	const std::vector<const UpgradeType*> getAIBehaviorUpgrades() const { return vctAIBehaviorUpgrades; };
+	int getAIBehaviorMinStaticResourceCount() const { return aIBehavior_minStaticResourceCount; }
 
     //get
 	int getUnitTypeCount() const						{return unitTypes.size();}
