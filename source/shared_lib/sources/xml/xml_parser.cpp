@@ -273,7 +273,7 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 	try {
 #if defined(WIN32) && !defined(__MINGW32__)
 		FILE *fp = _wfopen(utf8_decode(path).c_str(), L"rb");
-		ifstream xmlFile(fp,ios::binary);
+		ifstream xmlFile(fp);
 #else
 		ifstream xmlFile(path.c_str(),ios::binary);
 #endif
