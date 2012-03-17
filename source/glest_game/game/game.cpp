@@ -3457,6 +3457,7 @@ void Game::toggleTeamColorMarker() {
 }
 
 string Game::saveGame(string name) {
+	Config &config= Config::getInstance();
 	// auto name file if using saved file pattern string
 	if(name == GameConstants::saveGameFilePattern) {
 		time_t curTime = time(NULL);
@@ -3625,7 +3626,7 @@ string Game::saveGame(string name) {
 		saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
 	}
 	else {
-        string userData = Config::getInstance().getString("UserData_Root","");
+        string userData = config.getString("UserData_Root","");
         if(userData != "") {
         	endPathWithSlash(userData);
         }
@@ -3637,7 +3638,7 @@ string Game::saveGame(string name) {
 	if(masterserverMode == false) {
 		// take Screenshot
 		string jpgFileName=saveGameFile+".jpg";
-		Renderer::getInstance().saveScreen(jpgFileName);
+		Renderer::getInstance().saveScreen(jpgFileName,config.getInt("SaveGameScreenshotWidth","800"),config.getInt("SaveGameScreenshotHeight","600"));
 	}
 
 	return saveGameFile;

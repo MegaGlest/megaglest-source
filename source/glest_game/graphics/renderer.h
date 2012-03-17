@@ -531,7 +531,7 @@ public:
 
 	//misc
 	void loadConfig();
-	void saveScreen(const string &path);
+	void saveScreen(const string &path,int w=0, int h=0);
 	Quad2i getVisibleQuad() const		{return visibleQuad;}
 	Quad2i getVisibleQuadFromCamera() const		{return visibleQuadFromCamera;}
 	void renderTeamColorPlane();

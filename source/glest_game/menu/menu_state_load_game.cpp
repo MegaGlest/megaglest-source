@@ -214,6 +214,10 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 				if(slots[i] == selectedButton) {
 					//deleteSlot(i);
 					if(removeFile(filename) == true) {
+						removeFile(jpgfilename);
+						needsToBeFreedTexture=previewTexture;
+						previewTexture=NULL;
+						infoTextLabel.setText("");
 						listFiles();
 						slotsScrollBar.setElementCount(filenames.size());
 					}
@@ -377,7 +381,7 @@ void MenuStateLoadGame::render(){
 	}
 
 
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console,false,false);
 	if(program != NULL) program->renderProgramMsgBox();
 
 	if(needsToBeFreedTexture!=NULL){
