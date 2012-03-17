@@ -4074,6 +4074,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		//result->born();
 	}
 
+	result->meetingPos = Vec2i::strToVec2(unitNode->getAttribute("meetingPos")->getValue());
     return result;
 }
 
