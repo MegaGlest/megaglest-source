@@ -161,8 +161,9 @@ void MenuStateLoadGame::listFiles() {
     paths.push_back(saveGameDir);
     filenames.clear();
     findAll(paths, "*.xml", filenames, true, false, true);
+    sort(filenames.begin(),filenames.end());
     //printf("filenames = %d\n",filenames.size());
-    for(int i = 0; i < filenames.size(); ++i) {
+    for(int i = filenames.size()-1; i > -1; i--) {
     	GraphicButton *button=new GraphicButton();
     	button->init( keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
     	button->setText(filenames[i]);
