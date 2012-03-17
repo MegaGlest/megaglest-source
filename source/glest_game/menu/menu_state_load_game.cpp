@@ -97,7 +97,8 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	infoTextLabel.init(550, 350);
 //	infoTextLabel.setFont(CoreData::getInstance().getMenuFontBig());
 //	infoTextLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	infoTextLabel.setText("Info block for the current slot, maybe screenshot above \ntest\ntest2");
+	//infoTextLabel.setText("Info block for the current slot, maybe screenshot above \ntest\ntest2");
+	infoTextLabel.setText("");
 
     abortButton.registerGraphicComponent(containerName,"abortButton");
     abortButton.init(xPos, yPos, buttonWidth);
@@ -117,9 +118,8 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
     slotsScrollBar.setVisibleSize(slotsToRender);
     slotsScrollBar.setVisibleStart(0);
 
-    listFiles(20,slotLinesYBase,460,slotsLineHeight);
+    listFiles();
     slotsScrollBar.setElementCount(filenames.size());
-
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
@@ -137,6 +137,7 @@ MenuStateLoadGame::~MenuStateLoadGame() {
 		delete previewTexture;
 		previewTexture=NULL;
 	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
@@ -148,7 +149,13 @@ void MenuStateLoadGame::clearSlots() {
 	}
 }
 
-void MenuStateLoadGame::listFiles(int keyButtonsXBase, int keyButtonsYBase, int keyButtonsWidth, int keyButtonsHeight) {
+void MenuStateLoadGame::listFiles() {
+	int keyButtonsXBase = 20;
+	int keyButtonsYBase = slotLinesYBase;
+	int keyButtonsWidth = 460;
+	int keyButtonsHeight = slotsLineHeight;
+
+	clearSlots();
 	// Save the file now
     vector<string> paths;
     paths.push_back(saveGameDir);
@@ -183,43 +190,53 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 	CoreData &coreData=  CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-    if(abortButton.mouseClick(x, y)){
+    if(abortButton.mouseClick(x, y)) {
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
-    else if(deleteButton.mouseClick(x, y)){
+    else if(deleteButton.mouseClick(x, y)) {
 		soundRenderer.playFx(coreData.getClickSoundB());
-		if(selectedButton==NULL)
-		{
+		if(selectedButton == NULL) {
 			Lang &lang= Lang::getInstance();
-			console.addStdMessage(lang.get("NothingSelected"));
+			console.addStdMessage("NothingSelected");
 		}
-		else
-		{
-			string slotname=selectedButton->getText();
-			string filename=saveGameDir+selectedButton->getText()+".xml";
-			string jpgfilename=saveGameDir+selectedButton->getText()+".xml.jpg";
-			console.addStdMessage("Trying to delete file: '"+filename+"'");
-			for(int i=0;i<slots.size();i++){
-				if(slots[i]==selectedButton){
+		else {
+			string slotname 	= selectedButton->getText();
+			string filename 	= saveGameDir + selectedButton->getText() + ".xml";
+			string jpgfilename 	= saveGameDir + selectedButton->getText() + ".xml.jpg";
+
+			Lang &lang= Lang::getInstance();
+			char szBuf[8096]="";
+			sprintf(szBuf,lang.get("LoadGameDeletingFile","",true).c_str(),filename.c_str());
+			console.addLine(szBuf);
+
+			for(int i = 0; i < slots.size(); i++) {
+				if(slots[i] == selectedButton) {
 					//deleteSlot(i);
+					if(removeFile(filename) == true) {
+						listFiles();
+						slotsScrollBar.setElementCount(filenames.size());
+					}
 					break;
 				}
 			}
 		}
 		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
-    else if(loadButton.mouseClick(x, y)){
+    else if(loadButton.mouseClick(x, y)) {
 		soundRenderer.playFx(coreData.getClickSoundB());
-		if(selectedButton==NULL)
-		{
+
+		if(selectedButton == NULL) {
 			Lang &lang= Lang::getInstance();
-			console.addStdMessage(lang.get("NothingSelected"));
+			console.addStdMessage("NothingSelected");
 		}
-		else
-		{
-			string filename=saveGameDir+selectedButton->getText()+".xml";
-			console.addStdMessage("Trying to load file: '"+filename+"'");
+		else {
+			string filename = saveGameDir + selectedButton->getText() + ".xml";
+
+			Lang &lang= Lang::getInstance();
+			char szBuf[8096]="";
+			sprintf(szBuf,lang.get("LoadGameLoadingFile","",true).c_str(),filename.c_str());
+			console.addLine(szBuf);
 
 			Game::loadGame(filename,program,false);
 			return;
@@ -232,22 +249,67 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
     else {
     	if(slotsScrollBar.getElementCount()!=0){
     		for(int i = slotsScrollBar.getVisibleStart(); i <= slotsScrollBar.getVisibleEnd(); ++i) {
-				if(slots[i]->mouseClick(x, y) && selectedButton!=slots[i]) {
-					needsToBeFreedTexture=previewTexture;
-					selectedButton=slots[i];
-					string filename=saveGameDir+selectedButton->getText()+".xml.jpg";
-					if(fileExists(filename)){
+				if(slots[i]->mouseClick(x, y) && selectedButton != slots[i]) {
+					needsToBeFreedTexture = previewTexture;
+					selectedButton = slots[i];
+					string filename	= saveGameDir + selectedButton->getText()+".xml";
+					string screenShotFilename = filename + ".jpg";
+					if(fileExists(screenShotFilename)) {
 						previewTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
 						if(previewTexture) {
 							previewTexture->setMipmap(true);
-							previewTexture->load(filename);
+							previewTexture->load(screenShotFilename);
 							previewTexture->init();
 						}
 					}
-					else
-					{
+					else {
 						previewTexture=NULL;
 					}
+
+					if(fileExists(filename)) {
+						Lang &lang= Lang::getInstance();
+
+						XmlTree	xmlTree(XML_RAPIDXML_ENGINE);
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
+						std::map<string,string> mapExtraTagReplacementValues;
+						xmlTree.load(filename, Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true);
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("After load of XML\n");
+
+						const XmlNode *rootNode= xmlTree.getRootNode();
+						if(rootNode->hasChild("megaglest-saved-game") == true) {
+							rootNode = rootNode->getChild("megaglest-saved-game");
+						}
+
+						const XmlNode *versionNode= rootNode;
+						string gameVer = versionNode->getAttribute("version")->getValue();
+						if(gameVer != glestVersionString) {
+							char szBuf[4096]="";
+							sprintf(szBuf,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+							infoTextLabel.setText(szBuf);
+						}
+						else {
+							XmlNode *gameNode = rootNode->getChild("Game");
+							GameSettings newGameSettings;
+							newGameSettings.loadGame(gameNode);
+
+							//LoadSavedGameInfo=Map: %s\nTileset: %s\nTech: %s\nScenario: %s\n# players: %d\nFaction: %s
+							char szBuf[4096]="";
+							sprintf(szBuf,lang.get("LoadSavedGameInfo").c_str(),
+									newGameSettings.getMap().c_str(),
+									newGameSettings.getTileset().c_str(),
+									newGameSettings.getTech().c_str(),
+									newGameSettings.getScenario().c_str(),
+									newGameSettings.getFactionCount(),
+									(newGameSettings.getThisFactionIndex() >= 0 &&
+									 newGameSettings.getThisFactionIndex() < newGameSettings.getFactionCount() ?
+									newGameSettings.getFactionTypeName(newGameSettings.getThisFactionIndex()).c_str() : ""));
+							infoTextLabel.setText(szBuf);
+						}
+					}
+					else {
+						infoTextLabel.setText("");
+					}
+
 					break;
 				}
     		}

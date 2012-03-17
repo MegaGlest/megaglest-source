@@ -63,7 +63,7 @@ public:
 private:
 	void clearSlots();
 	void deleteSlot(int i);
-	void listFiles(int keyButtonsXBase, int keyButtonsYBase, int keyButtonsWidth, int keyButtonsHeight);
+	void listFiles();
 };
 
 

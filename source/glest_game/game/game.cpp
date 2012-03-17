@@ -3643,10 +3643,11 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	//const XmlNode *versionNode= rootNode->getChild("megaglest-saved-game");
 	const XmlNode *versionNode= rootNode;
 
+	Lang &lang= Lang::getInstance();
 	string gameVer = versionNode->getAttribute("version")->getValue();
 	if(gameVer != glestVersionString) {
 		char szBuf[4096]="";
-		sprintf(szBuf,"saved game version does match your application version: [%s] --> [%s]",gameVer.c_str(),glestVersionString.c_str());
+		sprintf(szBuf,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 		throw runtime_error(szBuf);
 	}
 
