@@ -6462,12 +6462,12 @@ Texture2D *Renderer::saveScreenToTexture(int x, int y, int width, int height) {
 	return texture;
 }
 
-void Renderer::saveScreen(const string &path) {
+void Renderer::saveScreen(const string &path,int w, int h) {
 	const Metrics &sm= Metrics::getInstance();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Pixmap2D *pixmapScreenShot = new Pixmap2D(sm.getScreenW(), sm.getScreenH(), 3);
+	Pixmap2D *pixmapScreenShot = new Pixmap2D(sm.getScreenW(),sm.getScreenH(), 3);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//glFinish();
@@ -6478,6 +6478,13 @@ void Renderer::saveScreen(const string &path) {
 	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
 				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 
+	if(w==0 || h==0){
+		h=sm.getScreenH();
+		w=sm.getScreenW();
+	}
+	else{
+		pixmapScreenShot->Scale(GL_RGB,w,h);
+	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
