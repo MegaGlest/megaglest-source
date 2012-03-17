@@ -39,12 +39,9 @@
 #include <iterator>
 #include "core_data.h"
 #include "font_text.h"
-//#include "FileReader.h"
-//#include "JPGReader.h"
-//#include "sound.h"
-//#include "unicode/uclean.h"
 #include <locale.h>
 #include "string_utils.h"
+#include "auto_test.h"
 
 // For gcc backtrace on crash!
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -3067,6 +3064,52 @@ int glestMain(int argc, char** argv) {
     			}
     		}
     	}
+
+    	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTO_TEST])) == true ||
+    		Config::getInstance().getBool("AutoTest","false") == true) {
+    		printf("Running in auto test mode\n");
+    	}
+		if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTO_TEST])) == true) {
+			Config::getInstance().setBool("AutoTest","true");
+
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTO_TEST]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTO_TEST]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				vector<string> paramPartTokens2;
+				Tokenize(paramPartTokens[1],paramPartTokens2,",");
+				if(paramPartTokens2.size() >= 1 && paramPartTokens2[0].length() > 0) {
+					string newMaxSeconds = paramPartTokens2[0];
+					time_t newTimeMaxSeconds = strToInt(newMaxSeconds);
+					AutoTest::setMaxGameTime(newTimeMaxSeconds);
+					//printf("#1 Forcing font [%s] paramPartTokens.size() = %d, paramValue [%s]\n",newfont.c_str(),paramPartTokens.size(),paramValue.c_str());
+					printf("Forcing maximum game time to [%ld] seconds (%.2f minutes)\n",newTimeMaxSeconds,((double)newTimeMaxSeconds / 60.0));
+				}
+				if(paramPartTokens2.size() >= 3 && paramPartTokens2[2].length() > 0) {
+					string autoTestCmd = paramPartTokens2[2];
+					if(autoTestCmd == "exit") {
+						printf("Detected auto test command [%s], will exit after game.\n",autoTestCmd.c_str());
+
+						AutoTest::setWantExitGameWhenDone(true);
+					}
+					else {
+						printf("WARNING: Detected and UNKNOWN auto test command [%s].\n",autoTestCmd.c_str());
+					}
+				}
+
+				if(paramPartTokens2.size() >= 2 && paramPartTokens2[1].length() > 0) {
+					string newGameSettingsFileToLoad = paramPartTokens2[1];
+
+					printf("About to auto test using game settings file [%s]\n",newGameSettingsFileToLoad.c_str());
+					AutoTest::setLoadGameSettingsFile(newGameSettingsFileToLoad);
+				}
+			}
+		}
 
     	Renderer &renderer= Renderer::getInstance();
         lang.loadStrings(language,false, true);

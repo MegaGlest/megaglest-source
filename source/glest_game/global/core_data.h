@@ -142,7 +142,7 @@ public:
     Font3D *getConsoleFont3D() const			{return consoleFont3D;}
 
     void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0);
-    void loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);
+    bool loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);
 
 private:
     CoreData();

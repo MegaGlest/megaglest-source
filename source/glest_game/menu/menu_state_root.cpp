@@ -293,9 +293,15 @@ void MenuStateRoot::render() {
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
-void MenuStateRoot::update(){
-	if(Config::getInstance().getBool("AutoTest")){
-		AutoTest::getInstance().updateRoot(program, mainMenu);
+void MenuStateRoot::update() {
+	if(Config::getInstance().getBool("AutoTest")) {
+		if(AutoTest::getInstance().mustExitGame() == false) {
+			AutoTest::getInstance().updateRoot(program, mainMenu);
+		}
+		else {
+			program->exit();
+		}
+		return;
 	}
 	console.update();
 }

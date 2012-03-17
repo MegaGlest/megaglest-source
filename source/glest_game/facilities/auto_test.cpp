@@ -15,7 +15,9 @@
 #include "main_menu.h"
 #include "menu_state_new_game.h"
 #include "menu_state_scenario.h"
+#include "menu_state_custom_game.h"
 #include "game.h"
+#include "core_data.h"
 #include "config.h"
 
 #include "leak_dumper.h"
@@ -28,33 +30,52 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 const time_t AutoTest::invalidTime = -1;
-const time_t AutoTest::gameTime = 60*20;
+time_t AutoTest::gameTime = 60 * 20;
+bool AutoTest::wantExitGame = false;
+
+GameSettings AutoTest::gameSettings;
+string AutoTest::loadGameSettingsFile = "";
 
 // ===================== PUBLIC ========================
 
-AutoTest::AutoTest(){
+AutoTest::AutoTest() {
+	exitGame = false;
 	gameStartTime = invalidTime;
 	random.init(time(NULL));
 }
 
-AutoTest & AutoTest::getInstance(){
+AutoTest & AutoTest::getInstance() {
 	static AutoTest autoTest;
 	return autoTest;
 }
 
-void AutoTest::updateIntro(Program *program){
+void AutoTest::updateIntro(Program *program) {
 	program->setState(new MainMenu(program));
 }
 
-void AutoTest::updateRoot(Program *program, MainMenu *mainMenu){
+void AutoTest::updateRoot(Program *program, MainMenu *mainMenu) {
 	mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 }
 
-void AutoTest::updateNewGame(Program *program, MainMenu *mainMenu){
-	mainMenu->setState(new MenuStateScenario(program, mainMenu, Config::getInstance().getPathListForType(ptScenarios)));
+void AutoTest::updateNewGame(Program *program, MainMenu *mainMenu) {
+	if(loadGameSettingsFile != "") {
+		gameStartTime = invalidTime;
+		bool fileFound = CoreData::getInstance().loadGameSettingsFromFile(
+				loadGameSettingsFile, &gameSettings);
+
+		if(fileFound == false) {
+			throw runtime_error("Specified game settings file [" + loadGameSettingsFile + "] was NOT found!");
+		}
+		//printf("Got settings:\n%s",gameSettings.toString().c_str());
+		mainMenu->setState(new MenuStateCustomGame(program, mainMenu, false, pNewGame, true, &gameSettings));
+	}
+	else {
+		mainMenu->setState(new MenuStateScenario(program, mainMenu,
+				Config::getInstance().getPathListForType(ptScenarios)));
+	}
 }
 
-void AutoTest::updateScenario(MenuStateScenario *menuStateScenario){
+void AutoTest::updateScenario(MenuStateScenario *menuStateScenario) {
 	gameStartTime = invalidTime;
 
 	int scenarioIndex = random.randRange(0, menuStateScenario->getScenarioCount()-1);
@@ -63,23 +84,27 @@ void AutoTest::updateScenario(MenuStateScenario *menuStateScenario){
 	menuStateScenario->launchGame();
 }
 
-void AutoTest::updateGame(Game *game){
-
+bool AutoTest::updateGame(Game *game) {
 	// record start time
-	if(gameStartTime==invalidTime)
-	{
+	if(gameStartTime == invalidTime) {
 		gameStartTime = time(NULL);
 	}
 
 	// quit if we've espend enough time in the game
-	if(time(NULL)-gameStartTime>gameTime){
+	if(difftime(time(NULL),gameStartTime) > gameTime) {
 		Program *program = game->getProgram();
 		Stats endStats = game->quitGame();
+		if(AutoTest::wantExitGame == true) {
+			exitGame = true;
+		}
 		Game::exitGameState(program, endStats);
+		return true;
 	}
+
+	return false;
 }
 
-void AutoTest::updateBattleEnd(Program *program){
+void AutoTest::updateBattleEnd(Program *program) {
 	program->setState(new MainMenu(program));
 }
 

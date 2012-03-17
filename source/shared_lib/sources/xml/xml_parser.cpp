@@ -294,9 +294,9 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
         xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
         buffer[size] = 0;
 
-	    //doc->parse<parse_no_utf8 | parse_validate_closing_tags>(&buffer[0]);
-		//doc->parse<parse_full>(&buffer.front());
-		//doc->parse<parse_declaration_node | parse_doctype_node | parse_pi_nodes | parse_validate_closing_tags>(&buffer[0]);
+        // This is required because rapidxml seems to choke when we load lua
+        // scenarios that have lua + xml style comments
+        replaceAllBetweenTokens(buffer, "<!--","-->", "", true);
         doc->parse<parse_no_data_nodes>(&buffer.front());
 
 		rootNode= new XmlNode(doc->first_node(),mapTagReplacementValues);
@@ -518,7 +518,7 @@ XmlNode::XmlNode(xml_node<> *node, std::map<string,string> mapTagReplacementValu
 		name="document";
 	}
 
-	//printf("Found XML Node [%s]\n",name.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found XML Node\nName [%s]\nValue [%s]\n",name.c_str(),node->value());
 
 	//check children
 	for(xml_node<> *currentNode = node->first_node();

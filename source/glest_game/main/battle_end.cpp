@@ -93,6 +93,7 @@ BattleEnd::~BattleEnd() {
 void BattleEnd::update() {
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateBattleEnd(program);
+		return;
 	}
 	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
 

@@ -142,6 +142,7 @@ void MenuStateNewGame::render(){
 void MenuStateNewGame::update(){
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateNewGame(program, mainMenu);
+		return;
 	}
 	console.update();
 }
