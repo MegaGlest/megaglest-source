@@ -3620,9 +3620,11 @@ string Game::saveGame(string name) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game to [%s]\n",saveGameFile.c_str());
 	xmlTree.save(saveGameFile);
 
-	// take Screenshot
-	string jpgFileName=saveGameFile+".jpg";
-	Renderer::getInstance().saveScreen(jpgFileName);
+	if(masterserverMode == false) {
+		// take Screenshot
+		string jpgFileName=saveGameFile+".jpg";
+		Renderer::getInstance().saveScreen(jpgFileName);
+	}
 
 	return saveGameFile;
 }
