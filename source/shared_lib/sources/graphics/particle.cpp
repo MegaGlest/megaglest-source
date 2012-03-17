@@ -261,10 +261,10 @@ void ParticleSystem::saveGame(XmlNode *rootNode) {
 	XmlNode *particleSystemNode = rootNode->addChild("ParticleSystem");
 
 //	std::vector<Particle> particles;
-	for(unsigned int i = 0; i < particles.size(); ++i) {
-		Particle &particle = particles[i];
-		particle.saveGame(particleSystemNode);
-	}
+//	for(unsigned int i = 0; i < particles.size(); ++i) {
+//		Particle &particle = particles[i];
+//		particle.saveGame(particleSystemNode);
+//	}
 //	RandomGen random;
 	particleSystemNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 
