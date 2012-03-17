@@ -188,6 +188,13 @@ void SurfaceCell::deleteResource() {
 	object= NULL;
 }
 
+void SurfaceCell::setHeight(float height, bool cellChangedFromOriginalMapLoadValue) {
+	vertex.y= height;
+	if(cellChangedFromOriginalMapLoadValue == true) {
+		this->cellChangedFromOriginalMapLoad = true;
+	}
+}
+
 bool SurfaceCell::decAmount(int value) {
 	cellChangedFromOriginalMapLoad = true;
 
@@ -220,7 +227,7 @@ void SurfaceCell::saveGame(XmlNode *rootNode,int index) const {
 
 	//	//geometry
 	//	Vec3f vertex;
-		//surfaceCellNode->addAttribute("vertex",vertex.getString(), mapTagReplacements);
+		surfaceCellNode->addAttribute("vertex",vertex.getString(), mapTagReplacements);
 	//	Vec3f normal;
 		//surfaceCellNode->addAttribute("normal",normal.getString(), mapTagReplacements);
 	//	Vec3f color;
@@ -272,6 +279,11 @@ void SurfaceCell::saveGame(XmlNode *rootNode,int index) const {
 void SurfaceCell::loadGame(const XmlNode *rootNode, int index, World *world) {
 	if(rootNode->hasChild("SurfaceCell" + intToStr(index)) == true) {
 		const XmlNode *surfaceCellNode = rootNode->getChild("SurfaceCell" + intToStr(index));
+
+		if(surfaceCellNode->hasAttribute("vertex") == true) {
+			vertex = Vec3f::strToVec3(surfaceCellNode->getAttribute("vertex")->getValue());
+		}
+
 		//int visibleCount = cellNode->getChildCount();
 		XmlNode *objectNode = surfaceCellNode->getChild("Object");
 		if(objectNode->hasAttribute("isDeleted") == true) {
@@ -1641,7 +1653,7 @@ void Map::flatternTerrain(const Unit *unit){
 				SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
 				//we change height if pos is inside world, if its free or ocupied by the currenty building
 				if(sc->getObject() == NULL && (c->getUnit(fLand)==NULL || c->getUnit(fLand)==unit)) {
-					sc->setHeight(refHeight);
+					sc->setHeight(refHeight,true);
 				}
             }
         }

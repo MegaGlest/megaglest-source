@@ -130,7 +130,7 @@ public:
 
 	//set
 	void setVertex(const Vec3f &vertex)			{this->vertex= vertex;}
-	void setHeight(float height)				{vertex.y= height;}
+	void setHeight(float height, bool cellChangedFromOriginalMapLoadValue=false);
 	void setNormal(const Vec3f &normal)			{this->normal= normal;}
 	void setColor(const Vec3f &color)			{this->color= color;}
 	void setSurfaceType(int surfaceType)		{this->surfaceType= surfaceType;}
