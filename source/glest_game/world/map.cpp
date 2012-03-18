@@ -1997,6 +1997,9 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 			}
 		}
 	}
+
+    computeNormals();
+	computeInterpolatedHeights();
 }
 
 // =====================================================
