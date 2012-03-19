@@ -66,6 +66,7 @@ protected:
 
 	bool inited;
 	bool forceCompressionDisabled;
+	int textureSystemId;
 
 public:
 	Texture();
@@ -76,6 +77,9 @@ public:
 	bool getPixmapInit() const		{return pixmapInit;}
 	Format getFormat() const		{return format;}
 	bool getInited() const 			{return inited;}
+
+	int getTextureSystemId() const { return textureSystemId; }
+	void setTextureSystemId(int id) { textureSystemId = id; }
 
 	void setMipmap(bool mipmap)			{this->mipmap= mipmap;}
 	void setWrapMode(WrapMode wrapMode)	{this->wrapMode= wrapMode;}

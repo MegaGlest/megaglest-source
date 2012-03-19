@@ -125,6 +125,10 @@ protected:
 	int particleCount;
 	
 	string textureFileLoadDeferred;
+	int textureFileLoadDeferredSystemId;
+	Texture::Format textureFileLoadDeferredFormat;
+	int textureFileLoadDeferredComponents;
+
 	Texture *texture;
 	Vec3f pos;
 	Vec4f color;
@@ -164,6 +168,10 @@ public:
 	virtual bool getVisible() const				{return visible;}
 
 	virtual string getTextureFileLoadDeferred();
+	virtual int getTextureFileLoadDeferredSystemId();
+	virtual Texture::Format getTextureFileLoadDeferredFormat();
+	virtual int getTextureFileLoadDeferredComponents();
+
 	//set
 	virtual void setState(State state);
 	void setTexture(Texture *texture);
@@ -193,6 +201,8 @@ public:
 	//children
 	virtual int getChildCount() { return 0; }
 	virtual ParticleSystem* getChild(int i);
+
+	string toString() const;
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);

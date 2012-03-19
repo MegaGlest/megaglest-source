@@ -22,6 +22,7 @@
 #include "platform_common.h"
 #include "conversion.h"
 #include "model.h"
+#include "texture.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -56,7 +57,6 @@ void Particle::saveGame(XmlNode *rootNode) {
 	particleNode->addAttribute("size",floatToStr(size), mapTagReplacements);
 //	int energy;
 	particleNode->addAttribute("energy",intToStr(energy), mapTagReplacements);
-
 }
 
 void Particle::loadGame(const XmlNode *rootNode) {
@@ -86,6 +86,10 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	}
 
 	//assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	textureFileLoadDeferred = "";
+	textureFileLoadDeferredSystemId = 0;
+	textureFileLoadDeferredFormat = Texture::fAuto;
+	textureFileLoadDeferredComponents = 0;
 
 	//init particle vector
 	blendMode= bmOne;
@@ -256,6 +260,51 @@ void ParticleSystem::setVisible(bool visible){
 		getChild(i)->setVisible(visible);
 }
 
+string ParticleSystem::toString() const {
+	string result = "";
+
+	result += "particles = " + intToStr(particles.size());
+
+//	for(unsigned int i = 0; i < particles.size(); ++i) {
+//		Particle &particle = particles[i];
+//
+//	}
+
+	result += "\nrandom = " + intToStr(random.getLastNumber());
+
+	result += "\nblendMode = " + intToStr(blendMode);
+	result += "\nstate = " + intToStr(state);
+	result += "\nactive = " + intToStr(active);
+	result += "\nvisible = " + intToStr(visible);
+	result += "\naliveParticleCount = " + intToStr(aliveParticleCount);
+	result += "\nparticleCount = " + intToStr(particleCount);
+
+	result += "\ntextureFileLoadDeferred = " + textureFileLoadDeferred;
+	result += "\ntextureFileLoadDeferredFormat = " + intToStr(textureFileLoadDeferredFormat);
+	result += "\ntextureFileLoadDeferredComponents = " + intToStr(textureFileLoadDeferredComponents);
+
+	if(texture != NULL) {
+		result += "\ntexture = " + texture->getPath();
+	}
+	result += "\npos = " + pos.getString();
+	result += "\ncolor = " + color.getString();
+	result += "\ncolorNoEnergy = " + colorNoEnergy.getString();
+	result += "\nemissionRate = " + floatToStr(emissionRate);
+	result += "\nemissionState = " + floatToStr(emissionState);
+	result += "\nmaxParticleEnergy = " + intToStr(maxParticleEnergy);
+	result += "\nvarParticleEnergy = " + intToStr(varParticleEnergy);
+	result += "\nparticleSize = " + floatToStr(particleSize);
+	result += "\nspeed = " + floatToStr(speed);
+	result += "\nfactionColor = " + factionColor.getString();
+    result += "\nteamcolorNoEnergy = " + intToStr(teamcolorNoEnergy);
+    result += "\nteamcolorEnergy = " + intToStr(teamcolorEnergy);
+	result += "\nalternations = " + intToStr(alternations);
+	result += "\nparticleSystemStartDelay = " + intToStr(particleSystemStartDelay);
+	//ParticleObserver *particleObserver;
+
+	return result;
+}
+
 void ParticleSystem::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *particleSystemNode = rootNode->addChild("ParticleSystem");
@@ -284,6 +333,12 @@ void ParticleSystem::saveGame(XmlNode *rootNode) {
 //	Texture *texture;
 	if(texture != NULL) {
 		particleSystemNode->addAttribute("texture",texture->getPath(), mapTagReplacements);
+		particleSystemNode->addAttribute("textureid",intToStr(texture->getTextureSystemId()), mapTagReplacements);
+		particleSystemNode->addAttribute("textureFormat",intToStr(texture->getFormat()), mapTagReplacements);
+		Texture2D *t2d = dynamic_cast<Texture2D *>(texture);
+		if(t2d != NULL && t2d->getPixmapConst() != NULL) {
+			particleSystemNode->addAttribute("textureComponents",intToStr(t2d->getPixmapConst()->getComponents()), mapTagReplacements);
+		}
 	}
 //	Vec3f pos;
 	particleSystemNode->addAttribute("pos",pos.getString(), mapTagReplacements);
@@ -322,23 +377,40 @@ void ParticleSystem::saveGame(XmlNode *rootNode) {
 string ParticleSystem::getTextureFileLoadDeferred() {
 	return textureFileLoadDeferred;
 }
+int ParticleSystem::getTextureFileLoadDeferredSystemId() {
+	return textureFileLoadDeferredSystemId;
+}
+Texture::Format ParticleSystem::getTextureFileLoadDeferredFormat() {
+	return textureFileLoadDeferredFormat;
+}
+int ParticleSystem::getTextureFileLoadDeferredComponents() {
+	return textureFileLoadDeferredComponents;
+}
 
 void ParticleSystem::loadGame(const XmlNode *rootNode) {
 	const XmlNode *particleSystemNode = rootNode->getChild("ParticleSystem");
 
+	particleCount = particleSystemNode->getAttribute("particleCount")->getIntValue();
+	//printf("Load Smoke particle (ParticleSystem)\n");
 	//	std::vector<Particle> particles;
 //	for(unsigned int i = 0; i < particles.size(); ++i) {
 //		Particle &particle = particles[i];
 //		particle.saveGame(particleSystemNode);
 //	}
-	vector<XmlNode *> particleNodeList = particleSystemNode->getChildList("Particle");
-	for(unsigned int i = 0; i < particleNodeList.size(); ++i) {
-		XmlNode *node = particleNodeList[i];
 
-		Particle particle;
-		particle.loadGame(node);
-		particles.push_back(particle);
-	}
+	particles.clear();
+	particles.resize(particleCount);
+
+//	vector<XmlNode *> particleNodeList = particleSystemNode->getChildList("Particle");
+//	for(unsigned int i = 0; i < particleNodeList.size(); ++i) {
+//		XmlNode *node = particleNodeList[i];
+//
+//		//printf("Load Smoke particle (Particle = %d)\n",i);
+//
+//		Particle particle;
+//		particle.loadGame(node);
+//		particles.push_back(particle);
+//	}
 
 	//	RandomGen random;
 	random.setLastNumber(particleSystemNode->getAttribute("random")->getIntValue());
@@ -359,6 +431,12 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 	//	Texture *texture;
 	if(particleSystemNode->hasAttribute("texture") == true) {
 		textureFileLoadDeferred = particleSystemNode->getAttribute("texture")->getValue();
+		textureFileLoadDeferredSystemId = particleSystemNode->getAttribute("textureid")->getIntValue();
+
+		textureFileLoadDeferredFormat = static_cast<Texture::Format>(particleSystemNode->getAttribute("textureFormat")->getIntValue());
+		if(particleSystemNode->hasAttribute("textureComponents") == true) {
+			textureFileLoadDeferredComponents = particleSystemNode->getAttribute("textureComponents")->getIntValue();
+		}
 	}
 
 	//	Vec3f pos;
@@ -389,6 +467,7 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 	alternations = particleSystemNode->getAttribute("alternations")->getIntValue();
 	//	int particleSystemStartDelay;
 	particleSystemStartDelay = particleSystemNode->getAttribute("particleSystemStartDelay")->getIntValue();
+
 	//	ParticleObserver *particleObserver;
 	//if(particleObserver != NULL) {
 	//	particleObserver->loadGame(particleSystemNode);
@@ -397,6 +476,8 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 
 // =============== MISC =========================
 void ParticleSystem::fade(){
+	//printf("**************Fading particle System:\n[%s]\n",this->toString().c_str());
+
 	if(particleObserver != NULL){
 		if(state != sPlay) {
 			char szBuf[4096]="";
@@ -762,8 +843,9 @@ void GameParticleSystem::saveGame(XmlNode *rootNode) {
 	gameParticleSystemNode->addAttribute("tween",floatToStr(tween), mapTagReplacements);
 }
 void GameParticleSystem::loadGame(const XmlNode *rootNode) {
-	const XmlNode *gameParticleSystemNode = rootNode;
+	const XmlNode *gameParticleSystemNode = rootNode->getChild("GameParticleSystem");
 
+	//printf("Load Smoke particle (GameParticleSystem)\n");
 	ParticleSystem::loadGame(gameParticleSystemNode);
 
 	//	Children children;
@@ -795,7 +877,7 @@ void GameParticleSystem::loadGame(const XmlNode *rootNode) {
 	//gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle), mapTagReplacements);
 	modelCycle = gameParticleSystemNode->getAttribute("modelCycle")->getFloatValue();
 	//	Vec3f offset;
-	offset = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("modelCycle")->getValue());
+	offset = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("offset")->getValue());
 	//	Vec3f direction;
 	direction = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("direction")->getValue());
 	//	float tween;
@@ -1128,6 +1210,7 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 	const XmlNode *unitParticleSystemNode = rootNode;
 
+	//printf("Load Smoke particle (UnitParticleSystem)\n");
 	GameParticleSystem::loadGame(unitParticleSystemNode);
 
 //	float radius;
@@ -1181,6 +1264,7 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 //	float emissionRateFade;
 	emissionRateFade = unitParticleSystemNode->getAttribute("emissionRateFade")->getFloatValue();
 //	GameParticleSystem* parent;
+	parent = NULL;
 	//if(parent != NULL) {
 	//	parent->saveGame(unitParticleSystemNode);
 	//}
@@ -1189,7 +1273,7 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 //	void GameParticleSystem::saveGame(XmlNode *rootNode)
 //		std::map<string,string> mapTagReplacements;
 //		XmlNode *gameParticleSystemNode = rootNode->addChild("GameParticleSystem");
-		XmlNode *gameParticleSystemNode = unitParticleSystemNode->getChild("GameParticleSystem");
+		//XmlNode *gameParticleSystemNode = unitParticleSystemNode->getChild("GameParticleSystem");
 		//!!!
 	//}
 }

@@ -3378,6 +3378,24 @@ int glestMain(int argc, char** argv) {
 					fileName = paramPartTokens[1];
 
 					if(fileExists(fileName) == false) {
+						// Save the file now
+						string saveGameFile = "saved/" + fileName;
+						if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+							saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
+						}
+						else {
+							string userData = config.getString("UserData_Root","");
+							if(userData != "") {
+								endPathWithSlash(userData);
+							}
+							saveGameFile = userData + saveGameFile;
+						}
+						if(fileExists(saveGameFile) == true) {
+							fileName = saveGameFile;
+						}
+					}
+
+					if(fileExists(fileName) == false) {
 						char szBuf[8096]="";
 						sprintf(szBuf,"File specified for loading a saved game cannot be found: [%s]",fileName.c_str());
 						printf("\n\n======================================================================================\n%s\n======================================================================================\n\n\n",szBuf);

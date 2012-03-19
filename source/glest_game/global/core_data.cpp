@@ -87,6 +87,70 @@ void CoreData::cleanup() {
 	waterSounds.getSoundsPtr()->clear();
 }
 
+Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) const {
+	Texture2D *result = NULL;
+	switch(type) {
+	case tsyst_logoTexture:
+		result = logoTexture;
+		break;
+	//std::vector<Texture2D *> logoTextureList;
+	case tsyst_backgroundTexture:
+		result = backgroundTexture;
+		break;
+	case tsyst_fireTexture:
+		result = fireTexture;
+		break;
+	case tsyst_teamColorTexture:
+		result = teamColorTexture;
+		break;
+	case tsyst_snowTexture:
+		result = snowTexture;
+		break;
+	case tsyst_waterSplashTexture:
+		result = waterSplashTexture;
+		break;
+	case tsyst_customTexture:
+		result = customTexture;
+		break;
+	case tsyst_buttonSmallTexture:
+		result = buttonSmallTexture;
+		break;
+	case tsyst_buttonBigTexture:
+		result = buttonBigTexture;
+		break;
+	case tsyst_horizontalLineTexture:
+		result = horizontalLineTexture;
+		break;
+	case tsyst_verticalLineTexture:
+		result = verticalLineTexture;
+		break;
+	case tsyst_checkBoxTexture:
+		result = checkBoxTexture;
+		break;
+	case tsyst_checkedCheckBoxTexture:
+		result = checkedCheckBoxTexture;
+		break;
+	case tsyst_gameWinnerTexture:
+		result = gameWinnerTexture;
+		break;
+	case tsyst_notOnServerTexture:
+		result = notOnServerTexture;
+		break;
+	case tsyst_onServerDifferentTexture:
+		result = onServerDifferentTexture;
+		break;
+	case tsyst_onServerTexture:
+		result = onServerTexture;
+		break;
+	case tsyst_onServerInstalledTexture:
+		result = onServerInstalledTexture;
+		break;
+
+    //std::vector<Texture2D *> miscTextureList;
+	}
+	return result;
+}
+
 void CoreData::load() {
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	if(data_path != "") {
@@ -103,6 +167,7 @@ void CoreData::load() {
 	if(backgroundTexture) {
 		backgroundTexture->setMipmap(false);
 		backgroundTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/back.tga"));
+		backgroundTexture->setTextureSystemId(tsyst_backgroundTexture);
 	}
 
 	fireTexture= renderer.newTexture2D(rsGlobal);
@@ -110,6 +175,7 @@ void CoreData::load() {
 		fireTexture->setFormat(Texture::fAlpha);
 		fireTexture->getPixmap()->init(1);
 		fireTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/fire_particle.tga"));
+		fireTexture->setTextureSystemId(tsyst_fireTexture);
 	}
 
 	teamColorTexture= renderer.newTexture2D(rsGlobal);
@@ -117,6 +183,7 @@ void CoreData::load() {
 		teamColorTexture->setFormat(Texture::fAlpha);
 		teamColorTexture->getPixmap()->init(1);
 		teamColorTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/team_color_texture.tga"));
+		teamColorTexture->setTextureSystemId(tsyst_teamColorTexture);
 	}
 
 	snowTexture= renderer.newTexture2D(rsGlobal);
@@ -125,33 +192,40 @@ void CoreData::load() {
 		snowTexture->setFormat(Texture::fAlpha);
 		snowTexture->getPixmap()->init(1);
 		snowTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/snow_particle.tga"));
+		snowTexture->setTextureSystemId(tsyst_snowTexture);
 	}
 
 	customTexture= renderer.newTexture2D(rsGlobal);
 	if(customTexture) {
 		customTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/custom_texture.tga"));
+		customTexture->setTextureSystemId(tsyst_customTexture);
 	}
 
 	notOnServerTexture= renderer.newTexture2D(rsGlobal);
 	if(notOnServerTexture) {
 		notOnServerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/not_on_server.tga"));
+		notOnServerTexture->setTextureSystemId(tsyst_notOnServerTexture);
 	}
 
 	onServerDifferentTexture= renderer.newTexture2D(rsGlobal);
 	if(onServerDifferentTexture) {
 		onServerDifferentTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server_different.tga"));
+		onServerDifferentTexture->setTextureSystemId(tsyst_onServerDifferentTexture);
 
 		onServerTexture= renderer.newTexture2D(rsGlobal);
 		onServerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server.tga"));
+		onServerTexture->setTextureSystemId(tsyst_onServerTexture);
 
 		onServerInstalledTexture= renderer.newTexture2D(rsGlobal);
 		onServerInstalledTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server_installed.tga"));
+		onServerInstalledTexture->setTextureSystemId(tsyst_onServerInstalledTexture);
 	}
 
 	logoTexture= renderer.newTexture2D(rsGlobal);
 	if(logoTexture) {
 		logoTexture->setMipmap(false);
 		logoTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/logo.tga"));
+		logoTexture->setTextureSystemId(tsyst_logoTexture);
 	}
 
 	logoTextureList.clear();
@@ -227,48 +301,56 @@ void CoreData::load() {
 		waterSplashTexture->setFormat(Texture::fAlpha);
 		waterSplashTexture->getPixmap()->init(1);
 		waterSplashTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/water_splash.tga"));
+		waterSplashTexture->setTextureSystemId(tsyst_waterSplashTexture);
 	}
 
 	buttonSmallTexture= renderer.newTexture2D(rsGlobal);
 	if(buttonSmallTexture) {
 		buttonSmallTexture->setForceCompressionDisabled(true);
 		buttonSmallTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/button_small.tga"));
+		buttonSmallTexture->setTextureSystemId(tsyst_buttonSmallTexture);
 	}
 
 	buttonBigTexture= renderer.newTexture2D(rsGlobal);
 	if(buttonBigTexture) {
 		buttonBigTexture->setForceCompressionDisabled(true);
 		buttonBigTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/button_big.tga"));
+		buttonBigTexture->setTextureSystemId(tsyst_buttonBigTexture);
 	}
 
 	horizontalLineTexture= renderer.newTexture2D(rsGlobal);
 	if(horizontalLineTexture) {
 		horizontalLineTexture->setForceCompressionDisabled(true);
 		horizontalLineTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/line_horizontal.tga"));
+		horizontalLineTexture->setTextureSystemId(tsyst_horizontalLineTexture);
 	}
 
 	verticalLineTexture= renderer.newTexture2D(rsGlobal);
 	if(verticalLineTexture) {
 		verticalLineTexture->setForceCompressionDisabled(true);
 		verticalLineTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/line_vertical.tga"));
+		verticalLineTexture->setTextureSystemId(tsyst_verticalLineTexture);
 	}
 
 	checkBoxTexture= renderer.newTexture2D(rsGlobal);
 	if(checkBoxTexture) {
 		checkBoxTexture->setForceCompressionDisabled(true);
 		checkBoxTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/checkbox.tga"));
+		checkBoxTexture->setTextureSystemId(tsyst_checkBoxTexture);
 	}
 
 	checkedCheckBoxTexture= renderer.newTexture2D(rsGlobal);
 	if(checkedCheckBoxTexture) {
 		checkedCheckBoxTexture->setForceCompressionDisabled(true);
 		checkedCheckBoxTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/checkbox_checked.tga"));
+		checkedCheckBoxTexture->setTextureSystemId(tsyst_checkedCheckBoxTexture);
 	}
 
 	gameWinnerTexture= renderer.newTexture2D(rsGlobal);
 	if(gameWinnerTexture) {
 		gameWinnerTexture->setForceCompressionDisabled(true);
 		gameWinnerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/game_winner.png"));
+		gameWinnerTexture->setTextureSystemId(tsyst_gameWinnerTexture);
 	}
 
 	loadFonts();

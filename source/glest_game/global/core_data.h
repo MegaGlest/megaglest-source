@@ -86,12 +86,41 @@ private:
 
 public:
 
+	enum TextureSystemType {
+		tsyst_NONE,
+		tsyst_logoTexture,
+		//std::vector<Texture2D *> logoTextureList;
+		tsyst_backgroundTexture,
+		tsyst_fireTexture,
+		tsyst_teamColorTexture,
+		tsyst_snowTexture,
+		tsyst_waterSplashTexture,
+		tsyst_customTexture,
+		tsyst_buttonSmallTexture,
+		tsyst_buttonBigTexture,
+		tsyst_horizontalLineTexture,
+		tsyst_verticalLineTexture,
+		tsyst_checkBoxTexture,
+		tsyst_checkedCheckBoxTexture,
+		tsyst_gameWinnerTexture,
+		tsyst_notOnServerTexture,
+		tsyst_onServerDifferentTexture,
+		tsyst_onServerTexture,
+		tsyst_onServerInstalledTexture
+
+	    //std::vector<Texture2D *> miscTextureList;
+	};
+
+public:
+
 	~CoreData();
 	static CoreData &getInstance();
 
     void load();
     void cleanup();
     void loadFonts();
+
+    Texture2D *getTextureBySystemId(TextureSystemType type) const;
 
 	Texture2D *getBackgroundTexture() const		{return backgroundTexture;}
 	Texture2D *getFireTexture() const			{return fireTexture;}
