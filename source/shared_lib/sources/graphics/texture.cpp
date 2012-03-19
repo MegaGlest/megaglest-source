@@ -43,6 +43,7 @@ Texture::Texture() {
 	pixmapInit= true;
 	wrapMode= wmRepeat;
 	format= fAuto;
+	textureSystemId = 0;
 
 	inited= false;
 	forceCompressionDisabled=false;

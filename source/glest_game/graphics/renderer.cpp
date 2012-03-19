@@ -460,30 +460,30 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 }
 
 void Renderer::manageDeferredParticleSystems() {
-	//std::vector<std::pair<ParticleSystem *, ResourceScope> > deferredParticleSystems
-	//printf("Before deferredParticleSystems.size() = %d\n",deferredParticleSystems.size());
 	for(unsigned int i = 0; i < deferredParticleSystems.size(); ++i) {
 		std::pair<ParticleSystem *, ResourceScope> &deferredParticleSystem = deferredParticleSystems[i];
 		ParticleSystem *ps = deferredParticleSystem.first;
 		ResourceScope rs = deferredParticleSystem.second;
 		if(ps->getTextureFileLoadDeferred() != "" && ps->getTexture() == NULL) {
-			Texture2D *texture= newTexture2D(rsGame);
-			if(texture) {
-//				if(textureNode->getAttribute("luminance")->getBoolValue()){
-//					texture->setFormat(Texture::fAlpha);
-//					texture->getPixmap()->init(1);
-//				}
-//				else{
-					texture->getPixmap()->init(4);
-//				}
-			}
-//			string currentPath = dir;
-//			endPathWithSlash(currentPath);
-			if(texture) {
-				texture->load(ps->getTextureFileLoadDeferred());
+			CoreData::TextureSystemType textureSystemId =
+					static_cast<CoreData::TextureSystemType>(
+							ps->getTextureFileLoadDeferredSystemId());
+			if(textureSystemId != CoreData::tsyst_NONE) {
+				Texture2D *texture= CoreData::getInstance().getTextureBySystemId(textureSystemId);
+				//printf("Loading texture from system [%d] [%p]\n",textureSystemId,texture);
 				ps->setTexture(texture);
 			}
-//			loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(parentLoader,textureNode->getAttribute("path")->getRestrictedValue()));
+			else {
+				Texture2D *texture= newTexture2D(rs);
+				if(texture) {
+					texture->setFormat(ps->getTextureFileLoadDeferredFormat());
+					texture->getPixmap()->init(ps->getTextureFileLoadDeferredComponents());
+				}
+				if(texture) {
+					texture->load(ps->getTextureFileLoadDeferred());
+					ps->setTexture(texture);
+				}
+			}
 		}
 		if(dynamic_cast<GameParticleSystem *>(ps) != NULL) {
 			GameParticleSystem *gps = dynamic_cast<GameParticleSystem *>(ps);
@@ -494,10 +494,9 @@ void Renderer::manageDeferredParticleSystems() {
 					model->load(gps->getModelFileLoadDeferred(), false, &loadedFileList, NULL);
 					gps->setModel(model);
 				}
-				//loadedFileList[path].push_back(make_pair(parentLoader,modelNode->getAttribute("path")->getRestrictedValue()));
 			}
 		}
-		manageParticleSystem(deferredParticleSystem.first, deferredParticleSystem.second);
+		manageParticleSystem(ps, rs);
 	}
 	deferredParticleSystems.clear();
 	//printf("After deferredParticleSystems.size() = %d\n",deferredParticleSystems.size());

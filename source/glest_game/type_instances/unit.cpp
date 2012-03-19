@@ -1054,28 +1054,38 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 void Unit::setVisible(const bool visible) {
 	this->visible = visible;
 
-	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
-		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
-			(*it)->setVisible(visible);
+	if(unitParticleSystems.empty() == false) {
+		for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
+			if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+				(*it)->setVisible(visible);
+			}
 		}
 	}
-	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
-		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
-			(*it)->setVisible(visible);
+	if(damageParticleSystems.empty() == false) {
+		for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
+			if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+				(*it)->setVisible(visible);
+			}
 		}
 	}
-	for(UnitParticleSystems::iterator it= smokeParticleSystems.begin(); it != smokeParticleSystems.end(); ++it) {
-		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
-			(*it)->setVisible(visible);
+	if(smokeParticleSystems.empty() == false) {
+		for(UnitParticleSystems::iterator it= smokeParticleSystems.begin(); it != smokeParticleSystems.end(); ++it) {
+			if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+				if((*it)->getVisible() != visible) {
+					//printf("Changing visibility for smoke particle system to: %d\n",visible);
+					(*it)->setVisible(visible);
+				}
+			}
 		}
 	}
-
-	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
-		UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
-		if(effect != NULL && effect->ups != NULL) {
-			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(effect->ups,rsGame);
-			if(particleValid == true) {
-				effect->ups->setVisible(visible);
+	if(currentAttackBoostEffects.empty() == false) {
+		for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
+			UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
+			if(effect != NULL && effect->ups != NULL) {
+				bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(effect->ups,rsGame);
+				if(particleValid == true) {
+					effect->ups->setVisible(visible);
+				}
 			}
 		}
 	}
@@ -2895,6 +2905,8 @@ void Unit::stopDamageParticles(bool force) {
 
 
 		if(smokeParticleSystems.empty() == false) {
+			//printf("Checking to stop smokeparticles for unit [%s - %d] hp = %d\n",this->getType()->getName().c_str(),this->getId(),hp);
+
 			for(int i = smokeParticleSystems.size()-1; i >= 0; --i) {
 				UnitParticleSystem *ps = smokeParticleSystems[i];
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
@@ -2905,6 +2917,8 @@ void Unit::stopDamageParticles(bool force) {
 		}
 
 		if(damageParticleSystems.empty() == false) {
+			//printf("Checking to stop damageparticles for unit [%s - %d] hp = %d\n",this->getType()->getName().c_str(),this->getId(),hp);
+
 			for(int i = damageParticleSystems.size()-1; i >= 0; --i) {
 				UnitParticleSystem *ps = damageParticleSystems[i];
 				UnitParticleSystemType *pst = NULL;
@@ -3552,7 +3566,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 
 //	vector<UnitParticleSystem*> unitParticleSystems;
 	if(unitParticleSystems.size() > 0) {
-		XmlNode *unitParticleSystemsNode = rootNode->addChild("unitParticleSystems");
+		XmlNode *unitParticleSystemsNode = unitNode->addChild("unitParticleSystems");
 
 		for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
 			UnitParticleSystem *ups= unitParticleSystems[i];
@@ -3563,7 +3577,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 	}
 //	vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
 	if(queuedUnitParticleSystemTypes.size() > 0) {
-		XmlNode *queuedUnitParticleSystemTypesNode = rootNode->addChild("queuedUnitParticleSystemTypes");
+		XmlNode *queuedUnitParticleSystemTypesNode = unitNode->addChild("queuedUnitParticleSystemTypes");
 		for(unsigned int i = 0; i < queuedUnitParticleSystemTypes.size(); ++i) {
 			UnitParticleSystemType *upst= queuedUnitParticleSystemTypes[i];
 			if(upst != NULL) {
@@ -3573,7 +3587,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 	}
 //	UnitParticleSystems damageParticleSystems;
 	if(damageParticleSystems.size() > 0) {
-		XmlNode *damageParticleSystemsNode = rootNode->addChild("damageParticleSystems");
+		XmlNode *damageParticleSystemsNode = unitNode->addChild("damageParticleSystems");
 		for(unsigned int i = 0; i < damageParticleSystems.size(); ++i) {
 			UnitParticleSystem *ups= damageParticleSystems[i];
 			if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
@@ -3583,7 +3597,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 	}
 //	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
 	if(damageParticleSystemsInUse.size() > 0) {
-		XmlNode *damageParticleSystemsInUseNode = rootNode->addChild("damageParticleSystemsInUse");
+		XmlNode *damageParticleSystemsInUseNode = unitNode->addChild("damageParticleSystemsInUse");
 
 		for(std::map<int, UnitParticleSystem *>::const_iterator iterMap = damageParticleSystemsInUse.begin();
 				iterMap != damageParticleSystemsInUse.end(); ++iterMap) {
@@ -3598,7 +3612,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 
 //	vector<ParticleSystem*> fireParticleSystems;
 	if(fireParticleSystems.size() > 0) {
-		XmlNode *fireParticleSystemsNode = rootNode->addChild("fireParticleSystems");
+		XmlNode *fireParticleSystemsNode = unitNode->addChild("fireParticleSystems");
 		for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
 			ParticleSystem *ps= fireParticleSystems[i];
 			if(ps != NULL && Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
@@ -3609,11 +3623,12 @@ void Unit::saveGame(XmlNode *rootNode) {
 
 //	vector<UnitParticleSystem*> smokeParticleSystems;
 	if(smokeParticleSystems.size() > 0) {
-		XmlNode *smokeParticleSystemsNode = rootNode->addChild("smokeParticleSystems");
+		XmlNode *smokeParticleSystemsNode = unitNode->addChild("smokeParticleSystems");
 		for(unsigned int i = 0; i < smokeParticleSystems.size(); ++i) {
 			UnitParticleSystem *ups= smokeParticleSystems[i];
 			if(ups != NULL && Renderer::getInstance().validateParticleSystemStillExists(ups,rsGame) == true) {
 				ups->saveGame(smokeParticleSystemsNode);
+				//printf("Saving smoke particles:\n[%s]\n",ups->toString().c_str());
 			}
 		}
 	}
@@ -3838,6 +3853,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		XmlNode *fireNode = unitNode->getChild("FireParticleSystem");
 		result->fire = new FireParticleSystem();
 		result->fire->loadGame(fireNode);
+		//result->fire->setTexture(CoreData::getInstance().getFireTexture());
 		result->fireParticleSystems.push_back(result->fire);
 
 		//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
@@ -3959,6 +3975,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 
 			FireParticleSystem *ups = new FireParticleSystem();
 			ups->loadGame(node);
+			//ups->setTexture(CoreData::getInstance().getFireTexture());
 			result->fireParticleSystems.push_back(ups);
 
 			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
@@ -3977,12 +3994,35 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
 			XmlNode *node = unitParticleSystemNodeList[i];
 
+//			printf("Load Smoke particle i = %d\n",i);
 			UnitParticleSystem *ups = new UnitParticleSystem();
 			ups->loadGame(node);
+			//ups->setTexture(CoreData::getInstance().getFireTexture());
 			result->smokeParticleSystems.push_back(ups);
+
+//			UnitParticleSystem *ups= new UnitParticleSystem(400);
+//			ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
+//			ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
+//			ups->setPos(result->getCurrVector());
+//			ups->setBlendMode(ups->strToBlendMode("black"));
+//			ups->setOffset(Vec3f(0,2,0));
+//			ups->setDirection(Vec3f(0,1,-0.2f));
+//			ups->setRadius(result->type->getSize()/3.f);
+//			ups->setShape(Shared::Graphics::UnitParticleSystem::sLinear);
+//			ups->setTexture(CoreData::getInstance().getFireTexture());
+//			const Game *game = Renderer::getInstance().getGame();
+//			ups->setSpeed(2.0f / game->getWorld()->getUpdateFps(result->getFactionIndex()));
+//			ups->setGravity(0.0004f);
+//			ups->setEmissionRate(1);
+//			ups->setMaxParticleEnergy(150);
+//			ups->setSizeNoEnergy(result->type->getSize()*0.6f);
+//			ups->setParticleSize(result->type->getSize()*0.8f);
+//			result->smokeParticleSystems.push_back(ups);
 
 			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
 			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
+
+			//printf("Loading smoke particles:\n[%s]\n",ups->toString().c_str());
 		}
 	}
 
