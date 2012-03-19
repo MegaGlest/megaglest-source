@@ -72,7 +72,6 @@ void ChatManager::keyUp(SDL_KeyboardEvent key) {
 		if(editEnabled) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
-			//if(key == vkEscape || key == SDLK_ESCAPE) {
 			if(isKeyPressed(SDLK_ESCAPE,key,false) == true) {
 				text.clear();
 				textCharLength.clear();
@@ -98,7 +97,6 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 
 		//toggle team mode
 		if(editEnabled == false && disableTeamMode == false &&
-			//key == configKeys.getCharKey("ChatTeamMode")) {
 			isKeyPressed(configKeys.getSDLKey("ChatTeamMode"),key) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
@@ -116,7 +114,6 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 		if(isKeyPressed(SDLK_RETURN,key, false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
-			//SDL_keysym keystate = Window::getKeystate();
 			SDL_keysym keystate = key.keysym;
 			if(keystate.mod & (KMOD_LALT | KMOD_RALT)){
 				// alt+enter is ignored
@@ -295,22 +292,6 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 		else if(isKeyPressed(SDLK_BACKSPACE,key,false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
-//			if(text.empty() == false) {
-//				if(textCharLength.size() > 0) {
-//					//printf("BEFORE DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
-//
-//					if(textCharLength[textCharLength.size()-1] > text.length()) {
-//						textCharLength[textCharLength.size()-1] = text.length();
-//					}
-//					for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
-//						text.erase(text.end() -1);
-//					}
-//					//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
-//					textCharLength.pop_back();
-//
-//					updateAutoCompleteBuffer();
-//				}
-//			}
 			deleteText(1);
 		}
 
@@ -323,6 +304,18 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void ChatManager::keyPress(SDL_KeyboardEvent c) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
+
+	if(editEnabled && text.size() < maxTextLenght) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
+		//space is the first meaningful code
+		wchar_t key = extractKeyPressedUnicode(c);
+		wchar_t textAppend[] = { key, 0 };
+		appendText(textAppend);
+	}
 }
 
 void ChatManager::switchOnEdit() {
@@ -358,7 +351,10 @@ void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
 void ChatManager::appendText(const wchar_t *addText, bool validateChars, bool addToAutoCompleteBuffer) {
 	for(unsigned int i = 0; i < wcslen(addText); ++i) {
 		wchar_t key = addText[i];
-		if(validateChars == false || isAllowedInputTextKey(key)) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("appendText key [%d]\n\n",key);
+
+		if(validateChars == false ||
+			(isAllowedInputTextKey(key) == true && key != 10)) {
 			char buf[4] = {0};
 			if (key < 0x80) {
 				buf[0] = key;
@@ -402,58 +398,6 @@ void ChatManager::updateAutoCompleteBuffer() {
 		if(startPos >= 0) {
 			lastAutoCompleteSearchText = text.substr(startPos);
 		}
-	}
-}
-
-void ChatManager::keyPress(SDL_KeyboardEvent c) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
-
-	if(editEnabled && text.size() < maxTextLenght) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
-		//space is the first meaningful code
-//		SDLKey key = extractKeyPressed(c);
-//		if(isAllowedInputTextKey(key)) {
-
-		wchar_t key = extractKeyPressedUnicode(c);
-		wchar_t textAppend[] = { key, 0 };
-		appendText(textAppend);
-/*
-		wchar_t key = extractKeyPressedUnicode(c);
-		if(isAllowedInputTextKey(key)) {
-			//char szCharText[20]="";
-			//sprintf(szCharText,"%lc",key);
-			//char *utfStr = String::ConvertToUTF8(&szCharText[0]);
-			//text += utfStr;
-
-			//wchar_t wc = 0x1234;
-			char buf[4] = {0};
-			if (key < 0x80) {
-				buf[0] = key;
-				textCharLength.push_back(1);
-				//printf("1 char, textCharLength = %d\n",textCharLength.size());
-			}
-			else if (key < 0x800) {
-				buf[0] = (0xC0 | key >> 6);
-				buf[1] = (0x80 | key & 0x3F);
-				textCharLength.push_back(2);
-				//printf("2 char, textCharLength = %d\n",textCharLength.size());
-			}
-			else {
-				buf[0] = (0xE0 | key >> 12);
-				buf[1] = (0x80 | key >> 6 & 0x3F);
-				buf[2] = (0x80 | key & 0x3F);
-				textCharLength.push_back(3);
-				//printf("3 char, textCharLength = %d\n",textCharLength.size());
-			}
-			text += buf;
-
-			//printf("text length = %d\n",text.length());
-
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d] szCharText [%s]\n",__FILE__,__FUNCTION__,__LINE__, key,text.c_str());
-
-			//delete [] utfStr;
-		}
-*/
 	}
 }
 
