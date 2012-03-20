@@ -841,4 +841,8 @@ const string XmlAttribute::getRestrictedValue(string prefixValue, bool trimValue
 	return result;
 }
 
+void XmlAttribute::setValue(string val) {
+	value = val;
+}
+
 }}//end namespace

@@ -112,7 +112,10 @@ Game::Game() : ProgramState(NULL) {
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 
 	loadGameNode = NULL;
+	xmlTreeSaveGame = NULL;
+	lastworldFrameCountForReplay = -1;
 	lastNetworkPlayerConnectionCheck = time(NULL);
+
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
@@ -186,6 +189,8 @@ void Game::resetMembers() {
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 
 	loadGameNode = NULL;
+	xmlTreeSaveGame = NULL;
+	lastworldFrameCountForReplay = -1;
 
 	lastNetworkPlayerConnectionCheck = time(NULL);
 
@@ -320,6 +325,9 @@ Game::~Game() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world.end();	//must die before selection because of referencers
+
+	delete xmlTreeSaveGame;
+	xmlTreeSaveGame = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,aiInterfaces.size());
 
@@ -1199,57 +1207,62 @@ void Game::update() {
 			world.getStats()->addFramesToCalculatePlaytime();
 
 			//update
-			for(int i = 0; i < updateLoops; ++i) {
-				chrono.start();
-				//AiInterface
-				for(int j = 0; j < world.getFactionCount(); ++j) {
-					Faction *faction = world.getFaction(j);
-					if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
-						scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
+			do {
+				for(int i = 0; i < updateLoops; ++i) {
+					chrono.start();
+					//AiInterface
+					if(commander.hasReplayCommandListForFrame() == false) {
+						for(int j = 0; j < world.getFactionCount(); ++j) {
+							Faction *faction = world.getFaction(j);
+							if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+								scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 
-						aiInterfaces[j]->update();
+								aiInterfaces[j]->update();
 
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+							}
+						}
 					}
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+					//World
+					world.update();
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+					// Commander
+					//commander.updateNetwork();
+					commander.signalNetworkUpdate(this);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+					//Gui
+					gui.update();
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+					//Particle systems
+					if(weatherParticleSystem != NULL) {
+						weatherParticleSystem->setPos(gameCamera.getPos());
+					}
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+					Renderer &renderer= Renderer::getInstance();
+					renderer.updateParticleManager(rsGame,avgRenderFps);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+					//good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				}
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-				//World
-				world.update();
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-				// Commander
-				//commander.updateNetwork();
-				commander.signalNetworkUpdate(this);
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-				//Gui
-				gui.update();
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-				//Particle systems
-				if(weatherParticleSystem != NULL) {
-					weatherParticleSystem->setPos(gameCamera.getPos());
-				}
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-				Renderer &renderer= Renderer::getInstance();
-				renderer.updateParticleManager(rsGame,avgRenderFps);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-				//good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			}
+			while (commander.hasReplayCommandListForFrame() == true);
 		}
 		//else if(role == nrClient) {
 		else {
@@ -3368,6 +3381,10 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange) {
 }
 
 int Game::getUpdateLoops() {
+	if(commander.hasReplayCommandListForFrame() == true) {
+		return 1;
+	}
+
 	if(paused) {
 		return 0;
 	}
@@ -3454,6 +3471,43 @@ void Game::consoleAddLine(string line) {
 void Game::toggleTeamColorMarker() {
 	renderExtraTeamColor++;
 	renderExtraTeamColor=renderExtraTeamColor%4;
+}
+
+void Game::addNetworkCommandToReplayList(NetworkCommand* networkCommand, int worldFrameCount) {
+	Config &config= Config::getInstance();
+	if(config.getBool("SaveCommandsForReplay","false") == true) {
+		std::map<string,string> mapTagReplacements;
+		if(xmlTreeSaveGame == NULL) {
+			xmlTreeSaveGame = new XmlTree(XML_RAPIDXML_ENGINE);
+
+			xmlTreeSaveGame->init("megaglest-saved-game");
+			XmlNode *rootNode = xmlTreeSaveGame->getRootNode();
+
+			std::map<string,string> mapTagReplacements;
+			time_t now = time(NULL);
+			struct tm *loctime = localtime (&now);
+			char szBuf[4096]="";
+			strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",loctime);
+
+			rootNode->addAttribute("version",glestVersionString, mapTagReplacements);
+			rootNode->addAttribute("timestamp",szBuf, mapTagReplacements);
+
+			XmlNode *gameNode = rootNode->addChild("Game");
+		}
+
+		XmlNode *rootNode = xmlTreeSaveGame->getRootNode();
+		XmlNode *gameNode = rootNode->getChild("Game");
+		if(gameNode->hasAttribute("LastWorldFrameCount") == false) {
+			gameNode->addAttribute("LastWorldFrameCount",intToStr(worldFrameCount), mapTagReplacements);
+		}
+		else {
+			XmlAttribute *lastworldFrameCountAttr = gameNode->getAttribute("LastWorldFrameCount");
+			lastworldFrameCountAttr->setValue(intToStr(worldFrameCount));
+		}
+
+		XmlNode *networkCommandNode = networkCommand->saveGame(gameNode);
+		networkCommandNode->addAttribute("worldFrameCount",intToStr(worldFrameCount), mapTagReplacements);
+	}
 }
 
 string Game::saveGame(string name) {
@@ -3635,6 +3689,12 @@ string Game::saveGame(string name) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game to [%s]\n",saveGameFile.c_str());
 	xmlTree.save(saveGameFile);
 
+	if(xmlTreeSaveGame != NULL) {
+		string replayFile = saveGameFile + ".replay";
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game replay commands to [%s]\n",replayFile.c_str());
+		xmlTreeSaveGame->save(replayFile);
+	}
+
 	if(masterserverMode == false) {
 		// take Screenshot
 		string jpgFileName=saveGameFile+".jpg";
@@ -3681,6 +3741,43 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	networkManager.init(nrServer,true);
 
 	Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
+
+	Config &config= Config::getInstance();
+	// This condition will re-play all the commands from a replay file
+	// INSTEAD of saving from a saved game.
+	if(config.getBool("SaveCommandsForReplay","false") == true) {
+		XmlTree	xmlTreeReplay(XML_RAPIDXML_ENGINE);
+		std::map<string,string> mapExtraTagReplacementValues;
+		xmlTreeReplay.load(name + ".replay", Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true);
+
+		const XmlNode *rootNode= xmlTreeReplay.getRootNode();
+		XmlNode *gameNode = rootNode->getChild("Game");
+
+		//GameSettings newGameSettings;
+		//newGameSettings.loadGame(gameNode);
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Game settings loaded\n");
+
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.end();
+		networkManager.init(nrServer,true);
+
+		Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
+		newGame->lastworldFrameCountForReplay = gameNode->getAttribute("LastWorldFrameCount")->getIntValue();
+
+		vector<XmlNode *> networkCommandNodeList = gameNode->getChildList("NetworkCommand");
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("networkCommandNodeList.size() = %lu\n",networkCommandNodeList.size());
+		for(unsigned int i = 0; i < networkCommandNodeList.size(); ++i) {
+			XmlNode *node = networkCommandNodeList[i];
+			int worldFrameCount = node->getAttribute("worldFrameCount")->getIntValue();
+			NetworkCommand command;
+			command.loadGame(node);
+			newGame->commander.addToReplayCommandList(command,worldFrameCount);
+		}
+
+		programPtr->setState(newGame);
+		return;
+	}
+
 	newGame->loadGameNode = gameNode;
 
 //	newGame->mouse2d = gameNode->getAttribute("mouse2d")->getIntValue();

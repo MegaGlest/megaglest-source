@@ -533,24 +533,44 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 }
 
 void Commander::signalNetworkUpdate(Game *game) {
-
     updateNetwork(game);
-/*
-    if(this->networkThread != NULL) {
-        this->game = game;
-        this->networkThread->signalUpdate(1);
-
-        time_t elapsedWait = time(NULL);
-        for(;difftime(time(NULL),elapsedWait) <= 4 &&
-             this->networkThread->isSignalCompleted(1) == false;) {
-            game->render();
-        }
-    }
-*/
 }
 
 void Commander::commanderNetworkUpdateTask(int id) {
     //updateNetwork(game);
+}
+
+bool Commander::getReplayCommandListForFrame(int worldFrameCount) {
+	bool haveReplyCommands = false;
+	if(replayCommandList.empty() == false) {
+		//int worldFrameCount = world->getFrameCount();
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d replayCommandList.size() = %lu\n",worldFrameCount,replayCommandList.size());
+
+		std::vector<NetworkCommand> replayList;
+		for(unsigned int i = 0; i < replayCommandList.size(); ++i) {
+			std::pair<int,NetworkCommand> &cmd = replayCommandList[i];
+			if(cmd.first <= worldFrameCount) {
+				replayList.push_back(cmd.second);
+				haveReplyCommands = true;
+			}
+		}
+		if(haveReplyCommands == true) {
+			replayCommandList.erase(replayCommandList.begin(),replayCommandList.begin() + replayList.size());
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d GIVING COMMANDS replayList.size() = %lu\n",worldFrameCount,replayList.size());
+			for(int i= 0; i < replayList.size(); ++i){
+				giveNetworkCommand(&replayList[i]);
+				//pushNetworkCommand(&replayList[i]);
+			}
+			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+			gameNetworkInterface->setKeyframe(worldFrameCount);
+		}
+	}
+	return haveReplyCommands;
+}
+
+bool Commander::hasReplayCommandListForFrame() const {
+	return (replayCommandList.empty() == false);
 }
 
 void Commander::updateNetwork(Game *game) {
@@ -564,62 +584,30 @@ void Commander::updateNetwork(Game *game) {
 
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
-            GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+        	//std::vector<NetworkCommand> replayList = getReplayCommandListForFrame();
+        	if(getReplayCommandListForFrame(world->getFrameCount()) == false) {
+				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
-            //update the keyframe
-            gameNetworkInterface->updateKeyframe(world->getFrameCount());
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
+				//update the keyframe
+				gameNetworkInterface->updateKeyframe(world->getFrameCount());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] gameNetworkInterface->updateKeyframe for %d took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,world->getFrameCount(),perfTimer.getMillis());
 
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
-            //give pending commands
-            for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
-                giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
-            }
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
-            gameNetworkInterface->clearPendingCommands();
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
+				//give pending commands
+				for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
+					giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
+				}
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
+				gameNetworkInterface->clearPendingCommands();
+        	}
         }
 	}
 }
 
-/*
-void Commander::giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const {
-    switch(networkCommand->getNetworkCommandType()) {
-        case nctNetworkCommand: {
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctNetworkCommand\n",__FILE__,__FUNCTION__,__LINE__);
-            switch(networkCommand->getCommandTypeId()) {
-                case ncstRotateUnit: {
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found ncstRotateUnit [%d]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getTargetId());
-
-                    int unitTypeId = networkCommand->getUnitId();
-                    int factionIndex = networkCommand->getUnitTypeId();
-                    int rotateAmount = networkCommand->getTargetId();
-
-                    //const Faction *faction = world->getFaction(factionIndex);
-                    //const UnitType* unitType= world->findUnitTypeById(faction->getType(), factionIndex);
-
-                    char unitKey[50]="";
-                    sprintf(unitKey,"%d_%d",unitTypeId,factionIndex);
-
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unitKey = [%s]\n",__FILE__,__FUNCTION__,__LINE__,unitKey);
-
-                    Game *game = this->world->getGame();
-                    Gui *gui = game->getGui();
-                    gui->setUnitTypeBuildRotation(unitKey,rotateAmount);
-                    //unit->setRotateAmount(networkCommand->getTargetId());
-
-                    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found ncstRotateUnit [%d]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->getTargetId());
-                    }
-                    break;
-            }
-            SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctNetworkCommand\n",__FILE__,__FUNCTION__,__LINE__);
-            }
-            break;
-        default:
-            assert(false);
-    }
+void Commander::addToReplayCommandList(NetworkCommand &command,int worldFrameCount) {
+	replayCommandList.push_back(make_pair(worldFrameCount,command));
 }
-*/
 
 void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
@@ -627,6 +615,9 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [START]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+
+	world->getGame()->addNetworkCommandToReplayList(networkCommand,world->getFrameCount());
 
     networkCommand->preprocessNetworkCommand(this->world);
 
@@ -833,6 +824,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after world->findUnitById]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Running command NetworkCommandType = %d, unitid = %d [%p] factionindex = %d\n",networkCommand->getNetworkCommandType(),networkCommand->getUnitId(),unit,(unit != NULL ? unit->getFactionIndex() : -1));
         //execute command, if unit is still alive
         if(unit != NULL) {
             switch(networkCommand->getNetworkCommandType()) {
@@ -906,6 +898,9 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	if(unit == NULL) {
 	    char szBuf[1024]="";
 	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find unit with id: %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
+	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
         if(gameNetworkInterface != NULL) {
             char szMsg[1024]="";
@@ -919,7 +914,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
     ct= unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
 
 	if(unit->getFaction()->getIndex() != networkCommand->getUnitFactionIndex()) {
-	    char szBuf[4096]="";
+
+	    char szBuf[10400]="";
 	    sprintf(szBuf,"In [%s::%s Line: %d]\nUnit / Faction mismatch for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
 
@@ -981,11 +977,14 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	//validate command type
 	if(ct == NULL) {
-	    char szBuf[4096]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find command type for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
-            __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
+	    char szBuf[10400]="";
+	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find command type for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nUnit Type Info:\n[%s]\nNetwork unit type:\n[%s]\nGame out of synch.",
+            __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),
+            unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex(),unit->getType()->toString().c_str(),
+            (unitType != NULL ? unitType->getName().c_str() : "null"));
 
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 	    //std::string worldLog = world->DumpWorldToLog();
 	    world->DumpWorldToLog();
 
@@ -997,6 +996,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
         }
 
 	    std::string sError = "Error [#3]: Game is out of sync, please check log files for details.";
+	    abort();
 		throw runtime_error(sError);
 	}
 

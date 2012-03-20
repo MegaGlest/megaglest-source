@@ -80,6 +80,7 @@ private:
 
 	//CommanderNetworkThread *networkThread;
 	//Game *game;
+	std::vector<std::pair<int,NetworkCommand> > replayCommandList;
 
 public:
     Commander();
@@ -88,6 +89,10 @@ public:
     void signalNetworkUpdate(Game *game);
     void init(World *world);
 	void updateNetwork(Game *game);
+
+	void addToReplayCommandList(NetworkCommand &command,int worldFrameCount);
+	bool getReplayCommandListForFrame(int worldFrameCount);
+	bool hasReplayCommandListForFrame() const;
 
 	CommandResult tryGiveCommand(const Selection *selection, const CommandType *commandType,
 										const Vec2i &pos, const UnitType* unitType,
@@ -104,12 +109,13 @@ public:
 	void tryPauseGame() const;
 	void tryResumeGame() const;
 
-	CommandResult pushNetworkCommand(const NetworkCommand* networkCommand) const;
-	//void giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const;
 
 	Command* buildCommand(const NetworkCommand* networkCommand) const;
 
 private:
+	CommandResult pushNetworkCommand(const NetworkCommand* networkCommand) const;
+	//void giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const;
+
     CommandResult computeResult(const CommandResultContainer &results) const;
 	void giveNetworkCommand(NetworkCommand* networkCommand) const;
 

@@ -153,6 +153,8 @@ void UnitUpdater::updateUnit(Unit *unit) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after unit->update()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+	//printf("Update Unit [%d - %s] = %d\n",unit->getId(),unit->getType()->getName().c_str(),update);
+
 	//update unit
 	if(update == true) {
         //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -907,6 +909,8 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	//UnitPathInterface *path= unit->getPath();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+	//printf("In UpdateHarvest [%d - %s] unit->getCurrSkill()->getClass() = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getCurrSkill()->getClass());
 
 	if(unit->getCurrSkill()->getClass() != scHarvest) {
 		//if not working

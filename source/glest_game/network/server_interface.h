@@ -102,6 +102,8 @@ public:
     virtual void update();
     virtual void updateLobby()  { };
     virtual void updateKeyframe(int frameCount);
+    virtual void setKeyframe(int frameCount) { currentFrameCount = frameCount; }
+
     virtual void waitUntilReady(Checksum *checksum);
     virtual void sendTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage);
     void sendTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage, int lockedSlotIndex);

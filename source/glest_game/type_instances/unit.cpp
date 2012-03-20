@@ -1370,7 +1370,7 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	CommandResult result= checkCommand(command);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
 
-	//printf("In [%s::%s] Line: %d check command returned %d, commands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,result,commands.size());
+	//printf("In [%s::%s] Line: %d check command returned %d, commands.size() = %d\n[%s]\n\n",__FILE__,__FUNCTION__,__LINE__,result,commands.size(),command->toString().c_str());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
