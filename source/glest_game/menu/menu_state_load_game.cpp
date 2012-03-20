@@ -36,7 +36,7 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	Lang &lang= Lang::getInstance();
 
 	int buttonWidth = 120;
-	int yPos=30;
+	int yPos=40;
 	int xPos=20;
 	int xSpacing=20;
 	int slotsToRender=20;
@@ -199,7 +199,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 		if(selectedButton == NULL) {
 			Lang &lang= Lang::getInstance();
-			console.addStdMessage("NothingSelected");
+			console.addStdMessage("NothingSelected",true);
 		}
 		else {
 			string slotname 	= selectedButton->getText();
@@ -210,7 +210,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 			Lang &lang= Lang::getInstance();
 			char szBuf[8096]="";
 			sprintf(szBuf,lang.get("LoadGameDeletingFile","",true).c_str(),filename.c_str());
-			console.addLine(szBuf);
+			console.addLineOnly(szBuf);
 
 			for(int i = 0; i < slots.size(); i++) {
 				if(slots[i] == selectedButton) {
@@ -237,7 +237,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		if(selectedButton == NULL) {
 			Lang &lang= Lang::getInstance();
-			console.addStdMessage("NothingSelected");
+			console.addStdMessage("NothingSelected",true);
 		}
 		else {
 			string filename = saveGameDir + selectedButton->getText() + ".xml";
@@ -245,7 +245,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 			Lang &lang= Lang::getInstance();
 			char szBuf[8096]="";
 			sprintf(szBuf,lang.get("LoadGameLoadingFile","",true).c_str(),filename.c_str());
-			console.addLine(szBuf);
+			console.addLineOnly(szBuf);
 
 			Game::loadGame(filename,program,false);
 			return;

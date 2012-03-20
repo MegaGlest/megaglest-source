@@ -97,9 +97,10 @@ public:
 	ConsoleLineInfo getStoredLineItem(int i) const;
 
 	void clearStoredLines();
-	void addStdMessage(const string &s);
-	void addStdScenarioMessage(const string &s);
-	void addLine(string line, bool playSound= false,int playerIndex=-1,Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false);
+	void addStdMessage(const string &s, bool clearOtherLines=false);
+	void addStdScenarioMessage(const string &s,bool clearOtherLines=false);
+	void addLineOnly(string line);
+	void addLine(string line, bool playSound= false,int playerIndex=-1,Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false,bool clearOtherLines=false);
 	void addLine(string line, bool playSound,string playerName, Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false);
 	void addLine(string line, bool playSound, Vec3f textColor) { addLine(line,playSound,"",textColor,false); }
 	void update();

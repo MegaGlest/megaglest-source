@@ -48,15 +48,29 @@ void Console::resetFonts() {
 	font3D=CoreData::getInstance().getConsoleFont3D();
 }
 
-void Console::addStdMessage(const string &s) {
-	addLine(Lang::getInstance().get(s));
+void Console::addStdMessage(const string &s,bool clearOtherLines) {
+	if(clearOtherLines == true) {
+		addLineOnly(Lang::getInstance().get(s));
+	}
+	else {
+		addLine(Lang::getInstance().get(s));
+	}
 }
 
-void Console::addStdScenarioMessage(const string &s) {
-	addLine(Lang::getInstance().getScenarioString(s));
+void Console::addStdScenarioMessage(const string &s,bool clearOtherLines) {
+	if(clearOtherLines == true) {
+		addLineOnly(Lang::getInstance().getScenarioString(s));
+	}
+	else {
+		addLine(Lang::getInstance().getScenarioString(s));
+	}
 }
 
-void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textColor, bool teamMode) {
+void Console::addLineOnly(string line) {
+	addLine(line,false,-1,Vec3f(1.f, 1.f, 1.f),false,true);
+}
+
+void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textColor, bool teamMode,bool clearOtherLines) {
 	try {
 		if(playSound == true) {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());
@@ -79,6 +93,10 @@ void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textCo
 		}
 		//printf("info.PlayerIndex = %d, line [%s]\n",info.PlayerIndex,info.originalPlayerName.c_str());
 
+		if(clearOtherLines == true) {
+			lines.clear();
+			storedLines.clear();
+		}
 		lines.insert(lines.begin(), info);
 		if(lines.size() > maxLines) {
 			lines.pop_back();
