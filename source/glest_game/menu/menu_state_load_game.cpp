@@ -205,6 +205,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 			string slotname 	= selectedButton->getText();
 			string filename 	= saveGameDir + selectedButton->getText() + ".xml";
 			string jpgfilename 	= saveGameDir + selectedButton->getText() + ".xml.jpg";
+			string replayfilename 	= saveGameDir + selectedButton->getText() + ".xml.replay";
 
 			Lang &lang= Lang::getInstance();
 			char szBuf[8096]="";
@@ -216,11 +217,14 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 					//deleteSlot(i);
 					if(removeFile(filename) == true) {
 						removeFile(jpgfilename);
+						removeFile(replayfilename);
 						needsToBeFreedTexture=previewTexture;
 						previewTexture=NULL;
 						infoTextLabel.setText("");
 						listFiles();
 						slotsScrollBar.setElementCount(filenames.size());
+
+						selectedButton = NULL;
 					}
 					break;
 				}
