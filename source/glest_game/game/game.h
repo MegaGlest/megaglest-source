@@ -149,9 +149,9 @@ private:
 
 	time_t lastMasterServerGameStatsDump;
 
-	XmlTree *xmlTreeSaveGame;
 	XmlNode *loadGameNode;
 	int lastworldFrameCountForReplay;
+	std::vector<std::pair<int,NetworkCommand> > replayCommandList;
 
 public:
 	Game();
