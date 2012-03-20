@@ -1202,7 +1202,15 @@ void Game::update() {
 			world.getStats()->addFramesToCalculatePlaytime();
 
 			//update
+			Chrono chronoReplay;
+			int64 lastReplaySecond = -1;
+			int replayCommandsPlayed = 0;
+			int replayTotal = commander.getReplayCommandListForFrameCount();
+			if(replayTotal > 0) {
+				chronoReplay.start();
+			}
 			do {
+				replayCommandsPlayed = (replayTotal - commander.getReplayCommandListForFrameCount());
 				for(int i = 0; i < updateLoops; ++i) {
 					chrono.start();
 					//AiInterface
@@ -1218,6 +1226,48 @@ void Game::update() {
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 							}
+						}
+					}
+					else {
+						if(lastReplaySecond < chronoReplay.getSeconds()) {
+							lastReplaySecond = chronoReplay.getSeconds();
+							const Metrics &metrics= Metrics::getInstance();
+							Renderer &renderer= Renderer::getInstance();
+							renderer.clearBuffers();
+							renderer.clearZBuffer();
+							renderer.reset2d();
+
+							char szBuf[4096]="";
+							sprintf(szBuf,"Please wait, loading game with replay [%d / %d]...",replayCommandsPlayed,replayTotal);
+							string text = szBuf;
+							if(Renderer::renderText3DEnabled) {
+								Font3D *font = CoreData::getInstance().getMenuFontBig3D();
+								const Metrics &metrics= Metrics::getInstance();
+								int w= metrics.getVirtualW();
+								int renderX = (w / 2) - (font->getMetrics()->getTextWidth(text) / 2);
+								int h= metrics.getVirtualH();
+								int renderY = (h / 2) + (font->getMetrics()->getHeight(text) / 2);
+
+								renderer.renderText3D(
+									text, font,
+									Vec3f(1.f, 1.f, 0.f),
+									renderX, renderY, false);
+							}
+							else {
+								Font2D *font = CoreData::getInstance().getMenuFontBig();
+								const Metrics &metrics= Metrics::getInstance();
+								int w= metrics.getVirtualW();
+								int renderX = (w / 2);
+								int h= metrics.getVirtualH();
+								int renderY = (h / 2);
+
+								renderer.renderText(
+									text, font,
+									Vec3f(1.f, 1.f, 0.f),
+									renderX, renderY, true);
+							}
+
+							renderer.swapBuffers();
 						}
 					}
 

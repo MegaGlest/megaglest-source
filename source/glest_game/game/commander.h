@@ -93,6 +93,7 @@ public:
 	void addToReplayCommandList(NetworkCommand &command,int worldFrameCount);
 	bool getReplayCommandListForFrame(int worldFrameCount);
 	bool hasReplayCommandListForFrame() const;
+	int getReplayCommandListForFrameCount() const;
 
 	CommandResult tryGiveCommand(const Selection *selection, const CommandType *commandType,
 										const Vec2i &pos, const UnitType* unitType,
