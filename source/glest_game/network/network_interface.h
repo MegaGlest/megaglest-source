@@ -186,6 +186,7 @@ public:
 	virtual void update()= 0;
 	virtual void updateLobby()= 0;
 	virtual void updateKeyframe(int frameCount)= 0;
+	virtual void setKeyframe(int frameCount)= 0;
 	virtual void waitUntilReady(Checksum* checksum)= 0;
 
 	//message sending

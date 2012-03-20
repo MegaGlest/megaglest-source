@@ -191,6 +191,8 @@ public:
 	float getFloatValue() const;
 	float getFloatValue(float min, float max) const;
 	const string getRestrictedValue(string prefixValue="", bool trimValueWithStartingSlash=false) const;
+
+	void setValue(string val);
 };
 
 

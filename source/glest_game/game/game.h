@@ -149,7 +149,9 @@ private:
 
 	time_t lastMasterServerGameStatsDump;
 
+	XmlTree *xmlTreeSaveGame;
 	XmlNode *loadGameNode;
+	int lastworldFrameCountForReplay;
 
 public:
 	Game();
@@ -231,6 +233,8 @@ public:
 
 	string saveGame(string name);
 	static void loadGame(string name,Program *programPtr,bool isMasterserverMode);
+
+	void addNetworkCommandToReplayList(NetworkCommand* networkCommand,int worldFrameCount);
 
 private:
 	//render

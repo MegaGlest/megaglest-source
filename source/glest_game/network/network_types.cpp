@@ -98,7 +98,7 @@ string NetworkCommand::toString() const {
     return result;
 }
 
-void NetworkCommand::saveGame(XmlNode *rootNode) {
+XmlNode * NetworkCommand::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *networkCommandNode = rootNode->addChild("NetworkCommand");
 
@@ -130,5 +130,41 @@ void NetworkCommand::saveGame(XmlNode *rootNode) {
 	networkCommandNode->addAttribute("commandStateValue",intToStr(commandStateValue), mapTagReplacements);
 //	int32 unitCommandGroupId;
 	networkCommandNode->addAttribute("unitCommandGroupId",intToStr(unitCommandGroupId), mapTagReplacements);
+
+	return networkCommandNode;
 }
+
+void NetworkCommand::loadGame(const XmlNode *rootNode) {
+	const XmlNode *networkCommandNode = rootNode;
+
+//	int16 networkCommandType;
+	networkCommandType = networkCommandNode->getAttribute("networkCommandType")->getIntValue();
+//	int32 unitId;
+	unitId = networkCommandNode->getAttribute("unitId")->getIntValue();
+//	int16 unitTypeId;
+	unitTypeId = networkCommandNode->getAttribute("unitTypeId")->getIntValue();
+//	int16 commandTypeId;
+	commandTypeId = networkCommandNode->getAttribute("commandTypeId")->getIntValue();
+//	int16 positionX;
+	positionX = networkCommandNode->getAttribute("positionX")->getIntValue();
+//	int16 positionY;
+	positionY = networkCommandNode->getAttribute("positionY")->getIntValue();
+//	int32 targetId;
+	targetId = networkCommandNode->getAttribute("targetId")->getIntValue();
+//	int8 wantQueue;
+	wantQueue = networkCommandNode->getAttribute("wantQueue")->getIntValue();
+//	int8 fromFactionIndex;
+	fromFactionIndex = networkCommandNode->getAttribute("fromFactionIndex")->getIntValue();
+//	uint16 unitFactionUnitCount;
+	unitFactionUnitCount = networkCommandNode->getAttribute("unitFactionUnitCount")->getIntValue();
+//	int8 unitFactionIndex;
+	unitFactionIndex = networkCommandNode->getAttribute("unitFactionIndex")->getIntValue();
+//	int8 commandStateType;
+	commandStateType = networkCommandNode->getAttribute("commandStateType")->getIntValue();
+//	int32 commandStateValue;
+	commandStateValue = networkCommandNode->getAttribute("commandStateValue")->getIntValue();
+//	int32 unitCommandGroupId;
+	unitCommandGroupId = networkCommandNode->getAttribute("unitCommandGroupId")->getIntValue();
+}
+
 }}//end namespace

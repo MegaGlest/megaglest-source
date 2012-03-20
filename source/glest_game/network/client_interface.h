@@ -75,6 +75,7 @@ public:
 	virtual void update();
 	virtual void updateLobby();
 	virtual void updateKeyframe(int frameCount);
+	virtual void setKeyframe(int frameCount) { currentFrameCount = frameCount; }
 	virtual void waitUntilReady(Checksum* checksum);
 
 	// message sending

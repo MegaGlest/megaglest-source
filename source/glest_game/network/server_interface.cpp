@@ -1213,6 +1213,7 @@ void ServerInterface::updateKeyframe(int frameCount) {
 	currentFrameCount = frameCount;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d, requestedCommands.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount,requestedCommands.size());
 	NetworkMessageCommandList networkMessageCommandList(frameCount);
+
 	while(requestedCommands.empty() == false) {
 		if(networkMessageCommandList.addCommand(&requestedCommands.back())) {
 			pendingCommands.push_back(requestedCommands.back());

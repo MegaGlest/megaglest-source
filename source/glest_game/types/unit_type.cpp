@@ -982,7 +982,7 @@ std::string UnitType::toString() const {
 	result += " rotationAllowed = " + intToStr(rotationAllowed);
 
 	if(cellMap != NULL) {
-		result += " cellMap:";
+		result += " cellMap: [" + intToStr(size) + "]";
 		for(int i = 0; i < size; ++i) {
 			for(int j = 0; j < size; ++j){
 				result += " i = " + intToStr(i) + " j = " + intToStr(j) + " value = " + intToStr(cellMap[i*size+j]);
@@ -990,22 +990,22 @@ std::string UnitType::toString() const {
 		}
 	}
 
-	result += " skillTypes:";
+	result += " skillTypes: [" + intToStr(skillTypes.size()) + "]";
 	for(int i = 0; i < skillTypes.size(); ++i) {
 		result += " i = " + intToStr(i) + " " + skillTypes[i]->toString();
 	}
 
-	result += " commandTypes:";
+	result += " commandTypes: [" + intToStr(commandTypes.size()) + "]";
 	for(int i = 0; i < commandTypes.size(); ++i) {
 		result += " i = " + intToStr(i) + " " + commandTypes[i]->toString();
 	}
 
-	result += " storedResources:";
+	result += " storedResources: [" + intToStr(storedResources.size()) + "]";
 	for(int i = 0; i < storedResources.size(); ++i) {
 		result += " i = " + intToStr(i) + " " + storedResources[i].getDescription();
 	}
 
-	result += " levels:";
+	result += " levels: [" + intToStr(levels.size()) + "]";
 	for(int i = 0; i < levels.size(); ++i) {
 		result += " i = " + intToStr(i) + " " + levels[i].getName();
 	}
