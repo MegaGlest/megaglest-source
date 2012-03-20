@@ -3535,19 +3535,27 @@ void MenuStateCustomGame::updateNetworkSlots() {
 					listBoxControls[i].setSelectedItemIndex(ctCpu);
 				}
 			}
-			if(serverInterface->getSlot(i) != NULL &&
-				listBoxControls[i].getSelectedItemIndex() != ctNetwork) {
-				if(serverInterface->getSlot(i)->isConnected() == true) {
-					if(listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
-						listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+			ConnectionSlot *slot = serverInterface->getSlot(i);
+			if(slot != NULL) {
+				if(listBoxControls[i].getSelectedItemIndex() != ctNetwork) {
+					if(slot->getCanAcceptConnections() == true) {
+						slot->setCanAcceptConnections(false);
+					}
+					if(slot->isConnected() == true) {
+						if(listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
+							listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+						}
+					}
+					else {
+						serverInterface->removeSlot(i);
+
+						if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+							listBoxControls[i].setSelectedItemIndex(ctClosed);
+						}
 					}
 				}
-				else {
-					serverInterface->removeSlot(i);
-
-					if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-						listBoxControls[i].setSelectedItemIndex(ctClosed);
-					}
+				else if(slot->getCanAcceptConnections() == false) {
+					slot->setCanAcceptConnections(true);
 				}
 			}
 		}

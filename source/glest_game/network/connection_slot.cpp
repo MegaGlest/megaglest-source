@@ -257,6 +257,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->gotLagCountWarning = false;
 	this->lastReceiveCommandListTime	= 0;
 	this->receivedNetworkGameStatus = false;
+	this->canAcceptConnections = true;
 
 	this->setSocket(NULL);
 	this->slotThreadWorker 	= NULL;
@@ -366,7 +367,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 			this->setReceivedDataSynchCheck(false);
 
 			// Is the listener socket ready to be read?
-			if(checkForNewClients == true) {
+			if(checkForNewClients == true && this->canAcceptConnections == true) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 

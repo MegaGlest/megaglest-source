@@ -133,6 +133,8 @@ private:
 	int playerStatus;
 	string playerLanguage;
 
+	bool canAcceptConnections;
+
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
@@ -196,6 +198,9 @@ public:
 	virtual bool isConnected();
 
 	PLATFORM_SOCKET getSocketId();
+
+	void setCanAcceptConnections(bool value) { canAcceptConnections = value; }
+	bool getCanAcceptConnections() const { return canAcceptConnections; }
 
 protected:
 
