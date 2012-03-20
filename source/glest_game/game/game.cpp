@@ -112,7 +112,6 @@ Game::Game() : ProgramState(NULL) {
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 
 	loadGameNode = NULL;
-	xmlTreeSaveGame = NULL;
 	lastworldFrameCountForReplay = -1;
 	lastNetworkPlayerConnectionCheck = time(NULL);
 
@@ -189,7 +188,6 @@ void Game::resetMembers() {
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 
 	loadGameNode = NULL;
-	xmlTreeSaveGame = NULL;
 	lastworldFrameCountForReplay = -1;
 
 	lastNetworkPlayerConnectionCheck = time(NULL);
@@ -325,9 +323,6 @@ Game::~Game() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world.end();	//must die before selection because of referencers
-
-	delete xmlTreeSaveGame;
-	xmlTreeSaveGame = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,aiInterfaces.size());
 
@@ -3476,37 +3471,7 @@ void Game::toggleTeamColorMarker() {
 void Game::addNetworkCommandToReplayList(NetworkCommand* networkCommand, int worldFrameCount) {
 	Config &config= Config::getInstance();
 	if(config.getBool("SaveCommandsForReplay","false") == true) {
-		std::map<string,string> mapTagReplacements;
-		if(xmlTreeSaveGame == NULL) {
-			xmlTreeSaveGame = new XmlTree(XML_RAPIDXML_ENGINE);
-
-			xmlTreeSaveGame->init("megaglest-saved-game");
-			XmlNode *rootNode = xmlTreeSaveGame->getRootNode();
-
-			std::map<string,string> mapTagReplacements;
-			time_t now = time(NULL);
-			struct tm *loctime = localtime (&now);
-			char szBuf[4096]="";
-			strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",loctime);
-
-			rootNode->addAttribute("version",glestVersionString, mapTagReplacements);
-			rootNode->addAttribute("timestamp",szBuf, mapTagReplacements);
-
-			XmlNode *gameNode = rootNode->addChild("Game");
-		}
-
-		XmlNode *rootNode = xmlTreeSaveGame->getRootNode();
-		XmlNode *gameNode = rootNode->getChild("Game");
-		if(gameNode->hasAttribute("LastWorldFrameCount") == false) {
-			gameNode->addAttribute("LastWorldFrameCount",intToStr(worldFrameCount), mapTagReplacements);
-		}
-		else {
-			XmlAttribute *lastworldFrameCountAttr = gameNode->getAttribute("LastWorldFrameCount");
-			lastworldFrameCountAttr->setValue(intToStr(worldFrameCount));
-		}
-
-		XmlNode *networkCommandNode = networkCommand->saveGame(gameNode);
-		networkCommandNode->addAttribute("worldFrameCount",intToStr(worldFrameCount), mapTagReplacements);
+		replayCommandList.push_back(make_pair(worldFrameCount,*networkCommand));
 	}
 }
 
@@ -3533,6 +3498,55 @@ string Game::saveGame(string name) {
 		sprintf(szBuf,name.c_str(),szBuf2);
 		name = szBuf;
 	}
+
+	// Save the file now
+	string saveGameFile = "saved/" + name;
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
+	}
+	else {
+        string userData = config.getString("UserData_Root","");
+        if(userData != "") {
+        	endPathWithSlash(userData);
+        }
+        saveGameFile = userData + saveGameFile;
+	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game to [%s]\n",saveGameFile.c_str());
+
+	// This condition will re-play all the commands from a replay file
+	// INSTEAD of saving from a saved game.
+	if(config.getBool("SaveCommandsForReplay","false") == true) {
+		std::map<string,string> mapTagReplacements;
+		XmlTree xmlTreeSaveGame(XML_RAPIDXML_ENGINE);
+
+		xmlTreeSaveGame.init("megaglest-saved-game");
+		XmlNode *rootNodeReplay = xmlTreeSaveGame.getRootNode();
+
+		//std::map<string,string> mapTagReplacements;
+		time_t now = time(NULL);
+		struct tm *loctime = localtime (&now);
+		char szBuf[4096]="";
+		strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",loctime);
+
+		rootNodeReplay->addAttribute("version",glestVersionString, mapTagReplacements);
+		rootNodeReplay->addAttribute("timestamp",szBuf, mapTagReplacements);
+
+		XmlNode *gameNodeReplay = rootNodeReplay->addChild("Game");
+		gameSettings.saveGame(gameNodeReplay);
+
+		gameNodeReplay->addAttribute("LastWorldFrameCount",intToStr(world.getFrameCount()), mapTagReplacements);
+
+		for(unsigned int i = 0; i < replayCommandList.size(); ++i) {
+			std::pair<int,NetworkCommand> &cmd = replayCommandList[i];
+			XmlNode *networkCommandNode = cmd.second.saveGame(gameNodeReplay);
+			networkCommandNode->addAttribute("worldFrameCount",intToStr(cmd.first), mapTagReplacements);
+		}
+
+		string replayFile = saveGameFile + ".replay";
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game replay commands to [%s]\n",replayFile.c_str());
+		xmlTreeSaveGame.save(replayFile);
+	}
+
 	//XmlTree xmlTree(XML_XERCES_ENGINE);
 	XmlTree xmlTree;
 	xmlTree.init("megaglest-saved-game");
@@ -3674,26 +3688,7 @@ string Game::saveGame(string name) {
 	//time_t lastMasterServerGameStatsDump;
 	gameNode->addAttribute("lastMasterServerGameStatsDump",intToStr(lastMasterServerGameStatsDump), mapTagReplacements);
 
-	// Save the file now
-	string saveGameFile = "saved/" + name;
-	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
-		saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
-	}
-	else {
-        string userData = config.getString("UserData_Root","");
-        if(userData != "") {
-        	endPathWithSlash(userData);
-        }
-        saveGameFile = userData + saveGameFile;
-	}
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game to [%s]\n",saveGameFile.c_str());
 	xmlTree.save(saveGameFile);
-
-	if(xmlTreeSaveGame != NULL) {
-		string replayFile = saveGameFile + ".replay";
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saving game replay commands to [%s]\n",replayFile.c_str());
-		xmlTreeSaveGame->save(replayFile);
-	}
 
 	if(masterserverMode == false) {
 		// take Screenshot
@@ -3705,6 +3700,63 @@ string Game::saveGame(string name) {
 }
 
 void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
+	Config &config= Config::getInstance();
+	// This condition will re-play all the commands from a replay file
+	// INSTEAD of saving from a saved game.
+	if(config.getBool("SaveCommandsForReplay","false") == true) {
+		XmlTree	xmlTreeReplay(XML_RAPIDXML_ENGINE);
+		std::map<string,string> mapExtraTagReplacementValues;
+		xmlTreeReplay.load(name + ".replay", Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true);
+
+		const XmlNode *rootNode= xmlTreeReplay.getRootNode();
+
+		if(rootNode->hasChild("megaglest-saved-game") == true) {
+			rootNode = rootNode->getChild("megaglest-saved-game");
+		}
+
+		//const XmlNode *versionNode= rootNode->getChild("megaglest-saved-game");
+		const XmlNode *versionNode= rootNode;
+
+		Lang &lang= Lang::getInstance();
+		string gameVer = versionNode->getAttribute("version")->getValue();
+		if(gameVer != glestVersionString) {
+			char szBuf[4096]="";
+			sprintf(szBuf,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+			throw runtime_error(szBuf);
+		}
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found saved game version that matches your application version: [%s] --> [%s]\n",gameVer.c_str(),glestVersionString.c_str());
+
+		XmlNode *gameNode = rootNode->getChild("Game");
+
+		GameSettings newGameSettingsReplay;
+		newGameSettingsReplay.loadGame(gameNode);
+
+		//GameSettings newGameSettings;
+		//newGameSettings.loadGame(gameNode);
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Game settings loaded\n");
+
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.end();
+		networkManager.init(nrServer,true);
+
+		Game *newGame = new Game(programPtr, &newGameSettingsReplay, isMasterserverMode);
+		newGame->lastworldFrameCountForReplay = gameNode->getAttribute("LastWorldFrameCount")->getIntValue();
+
+		vector<XmlNode *> networkCommandNodeList = gameNode->getChildList("NetworkCommand");
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("networkCommandNodeList.size() = %lu\n",networkCommandNodeList.size());
+		for(unsigned int i = 0; i < networkCommandNodeList.size(); ++i) {
+			XmlNode *node = networkCommandNodeList[i];
+			int worldFrameCount = node->getAttribute("worldFrameCount")->getIntValue();
+			NetworkCommand command;
+			command.loadGame(node);
+			newGame->commander.addToReplayCommandList(command,worldFrameCount);
+		}
+
+		programPtr->setState(newGame);
+		return;
+	}
+
 	XmlTree	xmlTree(XML_RAPIDXML_ENGINE);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
@@ -3741,43 +3793,6 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	networkManager.init(nrServer,true);
 
 	Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
-
-	Config &config= Config::getInstance();
-	// This condition will re-play all the commands from a replay file
-	// INSTEAD of saving from a saved game.
-	if(config.getBool("SaveCommandsForReplay","false") == true) {
-		XmlTree	xmlTreeReplay(XML_RAPIDXML_ENGINE);
-		std::map<string,string> mapExtraTagReplacementValues;
-		xmlTreeReplay.load(name + ".replay", Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true);
-
-		const XmlNode *rootNode= xmlTreeReplay.getRootNode();
-		XmlNode *gameNode = rootNode->getChild("Game");
-
-		//GameSettings newGameSettings;
-		//newGameSettings.loadGame(gameNode);
-		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Game settings loaded\n");
-
-		NetworkManager &networkManager= NetworkManager::getInstance();
-		networkManager.end();
-		networkManager.init(nrServer,true);
-
-		Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
-		newGame->lastworldFrameCountForReplay = gameNode->getAttribute("LastWorldFrameCount")->getIntValue();
-
-		vector<XmlNode *> networkCommandNodeList = gameNode->getChildList("NetworkCommand");
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("networkCommandNodeList.size() = %lu\n",networkCommandNodeList.size());
-		for(unsigned int i = 0; i < networkCommandNodeList.size(); ++i) {
-			XmlNode *node = networkCommandNodeList[i];
-			int worldFrameCount = node->getAttribute("worldFrameCount")->getIntValue();
-			NetworkCommand command;
-			command.loadGame(node);
-			newGame->commander.addToReplayCommandList(command,worldFrameCount);
-		}
-
-		programPtr->setState(newGame);
-		return;
-	}
-
 	newGame->loadGameNode = gameNode;
 
 //	newGame->mouse2d = gameNode->getAttribute("mouse2d")->getIntValue();
