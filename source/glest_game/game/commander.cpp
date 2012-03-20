@@ -1000,7 +1000,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
         }
 
 	    std::string sError = "Error [#3]: Game is out of sync, please check log files for details.";
-	    abort();
+	    //abort();
 		throw runtime_error(sError);
 	}
 

@@ -1210,7 +1210,9 @@ void Game::update() {
 				chronoReplay.start();
 			}
 			do {
-				replayCommandsPlayed = (replayTotal - commander.getReplayCommandListForFrameCount());
+				if(replayTotal > 0) {
+					replayCommandsPlayed = (replayTotal - commander.getReplayCommandListForFrameCount());
+				}
 				for(int i = 0; i < updateLoops; ++i) {
 					chrono.start();
 					//AiInterface
@@ -1229,6 +1231,7 @@ void Game::update() {
 						}
 					}
 					else {
+						// Simply show a progress message while replaying commands
 						if(lastReplaySecond < chronoReplay.getSeconds()) {
 							lastReplaySecond = chronoReplay.getSeconds();
 							const Metrics &metrics= Metrics::getInstance();

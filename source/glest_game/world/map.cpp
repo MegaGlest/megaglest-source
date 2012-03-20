@@ -211,14 +211,6 @@ void SurfaceCell::setVisible(int teamIndex, bool visible) {
 
 void SurfaceCell::saveGame(XmlNode *rootNode,int index) const {
 	bool saveCell = (this->getCellChangedFromOriginalMapLoad() == true);
-//	if(saveCell == false) {
-//		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
-//			if(visible[i] == true || explored[i] == true) {
-//				saveCell = true;
-//				break;
-//			}
-//		}
-//	}
 
 	if(saveCell == true) {
 		std::map<string,string> mapTagReplacements;
@@ -1881,7 +1873,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 		}
 
 		for(unsigned int j = 0; j < GameConstants::maxPlayers; ++j) {
-			if(exploredList != "") {
+			if(j > 0) {
 				exploredList += "|";
 			}
 
@@ -1893,7 +1885,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 		}
 
 		for(unsigned int j = 0; j < GameConstants::maxPlayers; ++j) {
-			if(visibleList != "") {
+			if(j > 0) {
 				visibleList += "|";
 			}
 
@@ -1959,6 +1951,8 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 		surfaceCell.loadGame(mapNode,i,world);
 	}
 
+	int surfaceCellIndexExplored = 0;
+	int surfaceCellIndexVisible = 0;
 	vector<XmlNode *> surfaceCellNodeList = mapNode->getChildList("SurfaceCell");
 	for(unsigned int i = 0; i < surfaceCellNodeList.size(); ++i) {
 		XmlNode *surfaceCellNode = surfaceCellNodeList[i];
@@ -1966,20 +1960,39 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 		//XmlNode *surfaceCellNode = mapNode->getChild("SurfaceCell");
 		string exploredList = surfaceCellNode->getAttribute("exploredList")->getValue();
 		string visibleList = surfaceCellNode->getAttribute("visibleList")->getValue();
+		int batchIndex = surfaceCellNode->getAttribute("batchIndex")->getIntValue();
 
 		vector<string> tokensExplored;
 		Tokenize(exploredList,tokensExplored,",");
+
+		//printf("=====================\nNew batchIndex = %d batchsize = %d\n",batchIndex,tokensExplored.size());
+		//for(unsigned int j = 0; j < tokensExplored.size(); ++j) {
+			//string valueList = tokensExplored[j];
+			//printf("valueList [%s]\n",valueList.c_str());
+		//}
 		for(unsigned int j = 0; j < tokensExplored.size(); ++j) {
 			string valueList = tokensExplored[j];
 
+			//int surfaceCellIndex = (i * tokensExplored.size()) + j;
+			//printf("Loading sc = %d batchIndex = %d\n",surfaceCellIndexExplored,batchIndex);
+			SurfaceCell &surfaceCell = surfaceCells[surfaceCellIndexExplored];
+
 			vector<string> tokensExploredValue;
 			Tokenize(valueList,tokensExploredValue,"|");
+
+//			if(tokensExploredValue.size() != GameConstants::maxPlayers) {
+//				for(unsigned int k = 0; k < tokensExploredValue.size(); ++k) {
+//					string value = tokensExploredValue[k];
+//					printf("k = %d [%s]\n",k,value.c_str());
+//				}
+//				throw runtime_error("tokensExploredValue.size() [" + intToStr(tokensExploredValue.size()) + "] != GameConstants::maxPlayers");
+//			}
 			for(unsigned int k = 0; k < tokensExploredValue.size(); ++k) {
 				string value = tokensExploredValue[k];
 
-				SurfaceCell &surfaceCell = surfaceCells[i];
 				surfaceCell.setExplored(k,strToInt(value));
 			}
+			surfaceCellIndexExplored++;
 		}
 
 		vector<string> tokensVisible;
@@ -1987,14 +2000,22 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 		for(unsigned int j = 0; j < tokensVisible.size(); ++j) {
 			string valueList = tokensVisible[j];
 
+			//int surfaceCellIndex = (i * tokensVisible.size()) + j;
+			SurfaceCell &surfaceCell = surfaceCells[surfaceCellIndexVisible];
+
 			vector<string> tokensVisibleValue;
 			Tokenize(valueList,tokensVisibleValue,"|");
+
+//			if(tokensVisibleValue.size() != GameConstants::maxPlayers) {
+//				throw runtime_error("tokensVisibleValue.size() [" + intToStr(tokensVisibleValue.size()) + "] != GameConstants::maxPlayers");
+//			}
+
 			for(unsigned int k = 0; k < tokensVisibleValue.size(); ++k) {
 				string value = tokensVisibleValue[k];
 
-				SurfaceCell &surfaceCell = surfaceCells[i];
 				surfaceCell.setVisible(k,strToInt(value));
 			}
+			surfaceCellIndexVisible++;
 		}
 	}
 
