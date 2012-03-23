@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28ud.lib wxbase28ud_net.lib wxbase28ud_xml.lib wxexpatd.lib wxjpegd.lib wxmsw28ud_adv.lib wxmsw28ud_aui.lib wxmsw28ud_core.lib wxmsw28ud_gl.lib wxmsw28ud_html.lib wxmsw28ud_media.lib wxmsw28ud_qa.lib wxmsw28ud_richtext.lib wxmsw28ud_xrc.lib wxpngd.lib wxregexd.lib wxtiff.lib wxzlibd.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib sdl.lib sdlmain.lib dsound.lib dxguid.lib Dbghelp.lib libcurl.lib ws2_32.lib"
+				AdditionalDependencies="wxbase28ud.lib wxbase28ud_net.lib wxbase28ud_xml.lib wxexpatd.lib wxjpegd.lib wxmsw28ud_adv.lib wxmsw28ud_aui.lib wxmsw28ud_core.lib wxmsw28ud_gl.lib wxmsw28ud_html.lib wxmsw28ud_media.lib wxmsw28ud_qa.lib wxmsw28ud_richtext.lib wxmsw28ud_xrc.lib wxpngd.lib wxregexd.lib wxtiff.lib wxzlibd.lib winmm.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib comctl32.lib comdlg32.lib uuid.lib advapi32.lib shell32.lib libglest.lib sdl.lib sdlmain.lib dsound.lib dxguid.lib Dbghelp.lib libcurl.lib ws2_32.lib ftgl_static.lib freetype244MT.lib"
 				OutputFile="$(OutDir)\megaglest_editor.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../source/win32_deps/lib;&quot;../../build/$(ConfigurationName)/libglest&quot;"
