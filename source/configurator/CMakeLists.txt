@@ -137,26 +137,26 @@ IF(BUILD_MEGAGLEST_CONFIGURATOR)
 
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 	#MESSAGE(STATUS "EXTERNAL_LIBS = [${EXTERNAL_LIBS}]")
-ENDIF()
 
-# Requires an install prefix for the items below to work
-IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
-	# Installation of the program
-	INSTALL(TARGETS 
-		${TARGET_NAME} 
-		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
+        # Requires an install prefix for the items below to work
+        IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
+	        # Installation of the program
+	        INSTALL(TARGETS 
+		        ${TARGET_NAME} 
+		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	# Installation of the program config and image files
-	#INSTALL(FILES 
-	#  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
-	#  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
-        #  "${PROJECT_SOURCE_DIR}/mk/linux/configuration.xml"
-        #  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
-	#  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+	        # Installation of the program config and image files
+	        #INSTALL(FILES 
+	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
+	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
+                #  "${PROJECT_SOURCE_DIR}/mk/linux/configuration.xml"
+                #  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
+	        #  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
-	# Installation of the program desktop icon file
-	#INSTALL(FILES 
-	#  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
-	#  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+	        # Installation of the program desktop icon file
+	        #INSTALL(FILES 
+	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico"
+	        #  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 
+        ENDIF()
 ENDIF()

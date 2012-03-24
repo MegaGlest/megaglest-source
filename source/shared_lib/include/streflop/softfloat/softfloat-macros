@@ -4,6 +4,7 @@ CHANGES:
     Inserted this file is a namespace
 Nicolas Brodu, 2006
 =============================================================================*/
+#ifdef STREFLOP_SOFT
 
 namespace streflop {
 namespace SoftFloat {
@@ -730,3 +731,4 @@ INLINE flag ne128( bits64 a0, bits64 a1, bits64 b0, bits64 b1 )
 // Close namespaces
 }
 }
+#endif

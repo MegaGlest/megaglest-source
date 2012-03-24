@@ -12,6 +12,8 @@ CHANGES:
 
 Nicolas Brodu, 2006
 =============================================================================*/
+#ifdef STREFLOP_SOFT
+
     #include <unistd.h>
     #include <signal.h>
     #include "../streflop.h"
@@ -515,3 +517,4 @@ static float128 propagateFloat128NaN( float128 a, float128 b )
 // NB060506: close namespaces
 }
 }
+#endif

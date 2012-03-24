@@ -1112,6 +1112,9 @@ Model *Unit::getCurrentModelPtr() {
 	Model *result = currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
 	if(currentModelIndexForCurrSkillType != lastModelIndexForCurrSkillType) {
 		animationRandomCycleCount++;
+		if(currSkill != NULL && animationRandomCycleCount >= currSkill->getAnimationCount()) {
+			animationRandomCycleCount = 0;
+		}
 	}
 	return result;
 }
@@ -1127,7 +1130,35 @@ const Model *Unit::getCurrentModel() {
 	const Model *result = currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
 	if(currentModelIndexForCurrSkillType != lastModelIndexForCurrSkillType) {
 		animationRandomCycleCount++;
+		if(currSkill != NULL && animationRandomCycleCount >= currSkill->getAnimationCount()) {
+			animationRandomCycleCount = 0;
+		}
 	}
+	return result;
+}
+
+bool Unit::checkModelStateInfoForNewHpValue() {
+	bool result = false;
+	if(currSkill != NULL && currSkill->getAnimationCount() > 1) {
+		if(lastModelIndexForCurrSkillType >= 0) {
+			const AnimationAttributes attributes = currSkill->getAnimationAttribute(lastModelIndexForCurrSkillType);
+			if(attributes.fromHp != 0 || attributes.toHp != 0) {
+				//printf("Check for RESET model state for [%d - %s] HP = %d [%d to %d]\n",this->id,this->getType()->getName().c_str(),this->getHp(),attributes.fromHp,attributes.toHp);
+				//if(this->getHp() >= attributes.fromHp && this->getHp() <= attributes.toHp) {
+				if(this->getHp() < attributes.fromHp || this->getHp() > attributes.toHp) {
+					//printf("RESET model state for [%d - %s] HP = %d [%d to %d]\n",this->id,this->getType()->getName().c_str(),this->getHp(),attributes.fromHp,attributes.toHp);
+
+					lastModelIndexForCurrSkillType = -1;
+					animationRandomCycleCount = 0;
+					bool result = true;
+				}
+			}
+			else {
+				//printf("Check for RESET #2 model state for [%d - %s] HP = %d [%d to %d] for skill [%s]\n",this->id,this->getType()->getName().c_str(),this->getHp(),attributes.fromHp,attributes.toHp,currSkill->getName().c_str());
+			}
+		}
+	}
+
 	return result;
 }
 
@@ -2075,6 +2106,8 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			//printf("AFTER Apply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
 		}
 
+		checkModelStateInfoForNewHpValue();
+
 		if(originalHp < hp) {
 			this->setLastAttackerUnitId(source->getId());
 		}
@@ -2106,6 +2139,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				alive= false;
 				hp=0;
 				addItemToVault(&this->hp,this->hp);
+				checkModelStateInfoForNewHpValue();
 
 				stopDamageParticles(true);
 
@@ -2183,6 +2217,8 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			hp=0;
 			addItemToVault(&this->hp,this->hp);
 
+			checkModelStateInfoForNewHpValue();
+
 			stopDamageParticles(true);
 
 			this->setLastAttackerUnitId(source->getId());
@@ -2203,6 +2239,8 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			}
 		}
 	}
+
+	checkModelStateInfoForNewHpValue();
 
 	//printf("DE-APPLYING ATTACK BOOST BEFORE END to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 
@@ -2241,6 +2279,7 @@ void Unit::tick() {
 					}
 					addItemToVault(&this->hp,this->hp);
 
+					checkModelStateInfoForNewHpValue();
 					//if(this->getType()->getName() == "spearman") printf("tick hp#2 [type->getTotalMaxHpRegeneration(&totalUpgrade)] = %d type->getTotalMaxHp(&totalUpgrade) [%d] newhp = %d\n",type->getTotalMaxHpRegeneration(&totalUpgrade),type->getTotalMaxHp(&totalUpgrade),hp);
 				}
 				// If we have negative regeneration then check if the unit should die
@@ -2272,6 +2311,8 @@ void Unit::tick() {
 						hp = type->getTotalMaxHp(&totalUpgrade);
 					}
 					addItemToVault(&this->hp,this->hp);
+
+					checkModelStateInfoForNewHpValue();
 					//if(this->getType()->getName() == "spearman") printf("tick hp#1 [type->getHpRegeneration()] = %d type->getTotalMaxHp(&totalUpgrade) [%d] newhp = %d\n",type->getHpRegeneration(),type->getTotalMaxHp(&totalUpgrade),hp);
 				}
 			}
@@ -2407,6 +2448,8 @@ bool Unit::repair(){
     }
 	addItemToVault(&this->hp,this->hp);
 
+	checkModelStateInfoForNewHpValue();
+
 	//stop DamageParticles
 	stopDamageParticles(false);
 
@@ -2423,6 +2466,8 @@ bool Unit::decHp(int i) {
 	hp -= i;
 	addItemToVault(&this->hp,this->hp);
 
+	checkModelStateInfoForNewHpValue();
+
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
@@ -2437,6 +2482,8 @@ bool Unit::decHp(int i) {
 		alive= false;
         hp=0;
     	addItemToVault(&this->hp,this->hp);
+
+    	checkModelStateInfoForNewHpValue();
 
 		stopDamageParticles(true);
 		return true;
@@ -2574,6 +2621,8 @@ void Unit::applyUpgrade(const UpgradeType *upgradeType){
 		hp += upgradeType->getMaxHp();
 		hp = max(0,hp);
 		addItemToVault(&this->hp,this->hp);
+
+		checkModelStateInfoForNewHpValue();
 	}
 }
 
@@ -2596,6 +2645,8 @@ void Unit::incKills(int team) {
 		checkItemInVault(&this->hp,this->hp);
 		hp += totalUpgrade.getMaxHp() - maxHp;
 		addItemToVault(&this->hp,this->hp);
+
+		checkModelStateInfoForNewHpValue();
 	}
 }
 
@@ -2625,6 +2676,8 @@ bool Unit::morph(const MorphCommandType *mct){
 		checkItemInVault(&this->hp,this->hp);
 		hp += morphUnitType->getMaxHp() - type->getMaxHp();
 		addItemToVault(&this->hp,this->hp);
+
+		checkModelStateInfoForNewHpValue();
 
 		type= morphUnitType;
 		level= NULL;
