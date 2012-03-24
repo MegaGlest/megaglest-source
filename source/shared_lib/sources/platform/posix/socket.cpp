@@ -1483,6 +1483,9 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] SOCKET appears to be invalid [%d]\n",__FILE__,__FUNCTION__,__LINE__,sock);
+	}
 	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 	int lastSocketError = getLastSocketError();
@@ -1535,6 +1538,9 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 SOCKET appears to be invalid [%d]\n",__FILE__,__FUNCTION__,__LINE__,sock);
+	}
 
 	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -1545,7 +1551,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 			int iErr = lastSocketError;
 			disconnectSocket();
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while peeking socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,err,getLastSocketErrorFormattedText(&iErr).c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while peeking socket data for socket [%d], err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,socket,err,getLastSocketErrorFormattedText(&iErr).c_str());
 		}
 	}
 
@@ -2250,50 +2256,61 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 		}
 	}
 
-	struct sockaddr_in cli_addr;
-	socklen_t clilen = sizeof(cli_addr);
+	PLATFORM_SOCKET newSock=0;
 	char client_host[100]="";
-	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
-	PLATFORM_SOCKET newSock= ::accept(sock, (struct sockaddr *) &cli_addr, &clilen);
-	safeMutex.ReleaseLock();
+	const int max_attempts = 100;
+	for(int attempt = 0; attempt < max_attempts; ++attempt) {
+		struct sockaddr_in cli_addr;
+		socklen_t clilen = sizeof(cli_addr);
+		client_host[0]='\0';
+		MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
+		newSock= ::accept(sock, (struct sockaddr *) &cli_addr, &clilen);
+		safeMutex.ReleaseLock();
 
-	if(isSocketValid(&newSock) == false) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf, "In [%s::%s Line: %d] Error accepting socket connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
-	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+		if(isSocketValid(&newSock) == false) {
+			char szBuf[1024]="";
+			sprintf(szBuf, "In [%s::%s Line: %d] Error accepting socket connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
-		int lastSocketError = getLastSocketError();
-		if(lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) {
-			return NULL;
-		}
-		if(errorOnFail == true) {
-			throwException(szBuf);
+			int lastSocketError = getLastSocketError();
+			if(lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) {
+				if(attempt+1 >= max_attempts) {
+					return NULL;
+				}
+				else {
+					sleep(0);
+				}
+			}
+			if(errorOnFail == true) {
+				throwException(szBuf);
+			}
+			else {
+				return NULL;
+			}
+
 		}
 		else {
+			Ip::Inet_NtoA(SockAddrToUint32((struct sockaddr *)&cli_addr), client_host);
+			//printf("client_host [%s]\n",client_host);
+			//sprintf(client_host, "%s",inet_ntoa(cli_addr.sin_addr));
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
+		}
+		if(isIPAddressBlocked((client_host[0] != '\0' ? client_host : "")) == true) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BLOCKING connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
+
+	#ifndef WIN32
+			::close(newSock);
+			newSock = INVALID_SOCKET;
+	#else
+			::closesocket(newSock);
+			newSock = -1;
+	#endif
+
 			return NULL;
 		}
 
+		break;
 	}
-	else {
-		Ip::Inet_NtoA(SockAddrToUint32((struct sockaddr *)&cli_addr), client_host);
-		//printf("client_host [%s]\n",client_host);
-		//sprintf(client_host, "%s",inet_ntoa(cli_addr.sin_addr));
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
-	}
-	if(isIPAddressBlocked((client_host[0] != '\0' ? client_host : "")) == true) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BLOCKING connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
-
-#ifndef WIN32
-        ::close(newSock);
-        newSock = INVALID_SOCKET;
-#else
-        ::closesocket(newSock);
-        newSock = -1;
-#endif
-
-		return NULL;
-	}
-
 	Socket *result = new Socket(newSock);
 	result->setIpAddress((client_host[0] != '\0' ? client_host : ""));
 	return result;
