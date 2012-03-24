@@ -159,6 +159,9 @@ public:
 
     static void resetNextAttackBoostId() { nextAttackBoostId=0; }
 
+    const AnimationAttributes getAnimationAttribute(int index) const;
+    int getAnimationCount() const { return animations.size(); }
+
     //get
 	const string &getName() const		{return name;}
 	SkillClass getClass() const			{return skillClass;}

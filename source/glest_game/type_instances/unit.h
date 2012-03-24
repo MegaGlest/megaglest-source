@@ -658,6 +658,7 @@ private:
 
 	int getFrameCount() const;
 	void checkCustomizedParticleTriggers(bool force);
+	bool checkModelStateInfoForNewHpValue();
 };
 
 }}// end namespace

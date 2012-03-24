@@ -159,43 +159,44 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		    	DEPENDS ${TARGET_NAME})
 		ENDIF()
 	ENDIF()
-ENDIF()
 
-# Requires an install prefix for the items below to work
-IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
-	# Installation of the program
-	INSTALL(TARGETS 
-		${TARGET_NAME} 
-		DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	IF(EXISTS ${HELP2MAN})
- 		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
+        # Requires an install prefix for the items below to work
+        IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
+	        # Installation of the program
+	        INSTALL(TARGETS 
+		        ${TARGET_NAME} 
+		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-		# Installation of the program manpage file
-		INSTALL(FILES 
-		  "${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE}"
-		  DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
-	ENDIF()
+	        IF(EXISTS ${HELP2MAN})
+         		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
 
-	# Installation of the program config and image files
-	INSTALL(FILES 
-          "${PROJECT_SOURCE_DIR}/editor.ico"
-	  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+		        # Installation of the program manpage file
+		        INSTALL(FILES 
+		          "${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE}"
+		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
+	        ENDIF()
 
-	# Installation of the program desktop file
-	NSTALL(FILES
-	  "${PROJECT_SOURCE_DIR}/megaglest_editor.desktop"
-	  DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+	        # Installation of the program config and image files
+	        INSTALL(FILES 
+                  "${PROJECT_SOURCE_DIR}/editor.ico"
+	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
-	#INSTALL(FILES 
-	#  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
-	#  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
-        #  "${PROJECT_SOURCE_DIR}/data/glest_game/editor.ico"
-	#  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+	        # Installation of the program desktop file
+	        INSTALL(FILES
+	          "${PROJECT_SOURCE_DIR}/megaglest_editor.desktop"
+	          DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
 
-	# Installation of the program desktop icon file
-	#INSTALL(FILES 
-	#  "${PROJECT_SOURCE_DIR}/data/glest_game/editor.ico"
-	#  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+	        #INSTALL(FILES 
+	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
+	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
+                #  "${PROJECT_SOURCE_DIR}/data/glest_game/editor.ico"
+	        #  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
+	        # Installation of the program desktop icon file
+	        #INSTALL(FILES 
+	        #  "${PROJECT_SOURCE_DIR}/data/glest_game/editor.ico"
+	        #  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+
+        ENDIF()
 ENDIF()

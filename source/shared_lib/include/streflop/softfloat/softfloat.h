@@ -9,6 +9,8 @@ CHANGES:
     pack the fields of floatx80, just in case (should be useless)
 Nicolas Brodu, 2006
 =============================================================================*/
+#ifdef STREFLOP_SOFT
+
 #ifndef SOFTFLOAT_H
 #define SOFTFLOAT_H
 
@@ -333,4 +335,5 @@ char float128_is_signaling_nan( float128 );
 } // extern "C"
 #endif
 
+#endif
 #endif

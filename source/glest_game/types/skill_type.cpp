@@ -486,11 +486,16 @@ bool SkillType::CanCycleNextRandomAnimation(const int *animationRandomCycleCount
 	return result;
 }
 
+const AnimationAttributes SkillType::getAnimationAttribute(int index) const {
+	return animationAttributes[index];
+}
+
 Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 		int *lastAnimationIndex, int *animationRandomCycleCount) const {
 	int modelIndex = 0;
+	//printf("Count [%d] animProgress = [%f] for skill [%s] animationRandomCycleCount = %d\n",animations.size(),animProgress,name.c_str(),*animationRandomCycleCount);
 	if(animations.size() > 1) {
-		//printf("animProgress = [%f] for skill [%s]\n",animProgress,name.c_str());
+		//printf("animProgress = [%f] for skill [%s] animationRandomCycleCount = %d\n",animProgress,name.c_str(),*animationRandomCycleCount);
 
 		if(lastAnimationIndex) {
 			modelIndex = *lastAnimationIndex;
@@ -546,6 +551,9 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 		}
 	}
 	if(lastAnimationIndex) {
+		if(*lastAnimationIndex != modelIndex) {
+			//printf("Switching model from [%s] to [%s]\n",(*lastAnimationIndex >= 0 ? animations[*lastAnimationIndex]->getFileName().c_str() : "none"),animations[modelIndex]->getFileName().c_str());
+		}
 		*lastAnimationIndex = modelIndex;
 	}
 
