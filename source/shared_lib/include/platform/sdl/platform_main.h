@@ -31,6 +31,7 @@ const char  *GAME_ARGS[] = {
 	"--connecthost",
 	"--starthost",
 	"--headless-server-mode",
+	"--headless-server-status",
 	"--use-ports",
 
 	"--load-scenario",
@@ -84,6 +85,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_CLIENT,
 	GAME_ARG_SERVER,
 	GAME_ARG_MASTERSERVER_MODE,
+	GAME_ARG_MASTERSERVER_STATUS,
 	GAME_ARG_USE_PORTS,
 
 	GAME_ARG_LOADSCENARIO,
@@ -167,6 +169,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t               has no more connected players.");
 	printf("\n                     \t\tvps  - which does NOT read commands from the");
 	printf("\n                     \t               local console (for some vps's).");
+
+	printf("\n%s\tCheck the current status of a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]);
 
 	printf("\n%s=x,y\t\t\tForce hosted games to listen internally on port",GAME_ARGS[GAME_ARG_USE_PORTS]);
 	printf("\n\t\t\t\tx, externally on port y.");
@@ -425,7 +429,8 @@ int mainSetup(int argc, char **argv) {
 	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_HELP])) == true    ||
 	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VERSION])) == true ||
 	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])) == true ||
-	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
+	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true ||
+	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]))) {
 	     // Use this for masterserver mode for timers like Chrono
 		 if(SDL_Init(SDL_INIT_TIMER) < 0)  {
 	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";

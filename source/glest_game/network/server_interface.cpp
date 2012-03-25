@@ -25,6 +25,7 @@
 #include "miniftpserver.h"
 #include "window.h"
 #include <set>
+#include <iostream>
 #include "map_preview.h"
 
 #include "leak_dumper.h"
@@ -71,6 +72,11 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	inBroadcastMessage				= false;
 	lastGlobalLagCheckTime			= 0;
 	masterserverAdminRequestLaunch	= false;
+
+	serverSocketAdmin				= new ServerSocket(true);
+	serverSocketAdmin->setBlock(false);
+	serverSocketAdmin->setBindPort(Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str()));
+	serverSocketAdmin->listen(5);
 
 	maxFrameCountLagAllowed 				= Config::getInstance().getInt("MaxFrameCountLagAllowed", intToStr(maxFrameCountLagAllowed).c_str());
 	maxFrameCountLagAllowedEver 			= Config::getInstance().getInt("MaxFrameCountLagAllowedEver", intToStr(maxFrameCountLagAllowedEver).c_str());
@@ -180,6 +186,17 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 				portNumber,GameConstants::maxPlayers,this);
 		ftpServer->start();
 	}
+
+	if(publishToMasterserverThread == NULL) {
+		if(needToRepublishToMasterserver == true || GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+			publishToMasterserverThread = new SimpleTaskThread(this,0,125);
+			publishToMasterserverThread->setUniqueID(__FILE__);
+			publishToMasterserverThread->start();
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
+		}
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -258,6 +275,8 @@ ServerInterface::~ServerInterface() {
 	delete masterServerThreadAccessor;
 	masterServerThreadAccessor = NULL;
 
+	delete serverSocketAdmin;
+	serverSocketAdmin = NULL;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -1732,12 +1751,14 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
 
-		if(needToRepublishToMasterserver == true) {
-			publishToMasterserverThread = new SimpleTaskThread(this,0,125);
-			publishToMasterserverThread->setUniqueID(__FILE__);
-			publishToMasterserverThread->start();
+		if(publishToMasterserverThread == NULL) {
+			if(needToRepublishToMasterserver == true || GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+				publishToMasterserverThread = new SimpleTaskThread(this,0,125);
+				publishToMasterserverThread->setUniqueID(__FILE__);
+				publishToMasterserverThread->start();
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",__FILE__,__FUNCTION__,__LINE__,needToRepublishToMasterserver);
+			}
 		}
 
 		if(ftpServer != NULL) {
@@ -1865,6 +1886,7 @@ void ServerInterface::updateListen() {
 			++openSlotCount;
 		}
 	}
+
 	serverSocket.listen(openSlotCount);
 }
 
@@ -2085,6 +2107,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 
 void ServerInterface::simpleTask(BaseThread *callingThread) {
 	MutexSafeWrapper safeMutex(masterServerThreadAccessor,CODE_AT_LINE);
+
 	if(difftime(time(NULL),lastMasterserverHeartbeatTime) >= MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -2123,8 +2146,111 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during game status update: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 			}
 		}
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+			DumpStatsToLog(false);
+		}
+	}
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		//printf("Attempt Accept\n");
+		Socket *cli = serverSocketAdmin->accept(false);
+		if(cli != NULL) {
+			printf("Got status request connection, dumping info...\n");
+
+			string data = DumpStatsToLog(true);
+			cli->send(data.c_str(),data.length());
+			cli->disconnectSocket();
+		}
 	}
 }
+
+std::string ServerInterface::DumpStatsToLog(bool dumpToStringOnly) const {
+	string headlessLogFile = Config::getInstance().getString("HeadlessLogFile","headless.log");
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		headlessLogFile  = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + headlessLogFile ;
+	}
+	else {
+        string userData = Config::getInstance().getString("UserData_Root","");
+        if(userData != "") {
+        	endPathWithSlash(userData);
+        }
+        headlessLogFile  = userData + headlessLogFile ;
+	}
+
+	ostringstream out;
+	out << "========================================="  << std::endl;
+	out << "Headless Server Current Game information:"  << std::endl;
+	out << "========================================="  << std::endl;
+
+	int connectedSlotCount = 0;
+	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+		MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+		ConnectionSlot *slot = slots[i];
+		if(slot != NULL) {
+			connectedSlotCount++;
+			out << "Network connection for index: " << i << std::endl;
+			out << "------------------------------" << std::endl;
+			out << "Connected: " << boolToStr(slot->isConnected()) << std::endl;
+			out << "Handshake received: " << boolToStr(slot->getConnectHasHandshaked()) << std::endl;
+			if(slot->isConnected() == true) {
+				time_t connectTime = slot->getConnectedTime();
+				struct tm *loctime = localtime (&connectTime);
+				char szBuf[8096]="";
+				strftime(szBuf,100,"%Y-%m-%d %H:%M:%S",loctime);
+
+				const int HOURS_IN_DAY = 24;
+				const int MINUTES_IN_HOUR = 60;
+				const int SECONDS_IN_MINUTE = 60;
+				int InSeconds = difftime(time(NULL),slot->getConnectedTime());
+				// compute seconds
+				int seconds = InSeconds % SECONDS_IN_MINUTE ;
+				// throw away seconds used in previous statement and convert to minutes
+				int InMinutes = InSeconds / SECONDS_IN_MINUTE ;
+				// compute  minutes
+				int minutes = InMinutes % MINUTES_IN_HOUR ;
+
+				// throw away minutes used in previous statement and convert to hours
+				int InHours = InMinutes / MINUTES_IN_HOUR ;
+				// compute hours
+				int hours = InHours % HOURS_IN_DAY ;
+
+				out << "Connected at: " << szBuf << std::endl;
+				out << "Connection duration: " << hours << " hours " << minutes << " minutes " << seconds << " seconds." << std::endl;
+				out << "Player Index: " << slot->getPlayerIndex() << std::endl;
+				out << "IP Address: " << slot->getIpAddress() << std::endl;
+				out << "Player name: " << slot->getName() << std::endl;
+				out << "Language: " << slot->getNetworkPlayerLanguage() << std::endl;
+				out << "Game Version: " << slot->getVersionString() << std::endl;
+				out << "Session id: " << slot->getSessionKey() << std::endl;
+				out << "Socket id: " << slot->getSocketId() << std::endl;
+			}
+		}
+	}
+	out << "Total Slot Count: " << connectedSlotCount << std::endl;
+	out << "========================================="  << std::endl;
+
+	std::string result = out.str();
+
+	if(dumpToStringOnly == false) {
+
+#if defined(WIN32) && !defined(__MINGW32__)
+		FILE *fp = _wfopen(utf8_decode(headlessLogFile ).c_str(), L"w");
+		std::ofstream logFile(fp);
+#else
+		std::ofstream logFile;
+		logFile.open(headlessLogFile .c_str(), ios_base::out | ios_base::trunc);
+#endif
+		logFile << result;
+		logFile.close();
+#if defined(WIN32) && !defined(__MINGW32__)
+		if(fp) {
+			fclose(fp);
+		}
+#endif
+	}
+
+    return result;
+}
+
 
 void ServerInterface::notifyBadClientConnectAttempt(string ipAddress) {
 	//printf("In [%s::%s Line: %d] ipAddress [%s]\n",__FILE__,__FUNCTION__,__LINE__,ipAddress.c_str());
