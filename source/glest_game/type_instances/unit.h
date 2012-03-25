@@ -659,6 +659,7 @@ private:
 	int getFrameCount() const;
 	void checkCustomizedParticleTriggers(bool force);
 	bool checkModelStateInfoForNewHpValue();
+	void checkUnitLevel();
 };
 
 }}// end namespace

@@ -2636,6 +2636,10 @@ void Unit::incKills(int team) {
 		++enemyKills;
 	}
 
+	checkUnitLevel();
+}
+
+void Unit::checkUnitLevel() {
 	const Level *nextLevel= getNextLevel();
 	if(nextLevel != NULL && enemyKills >= nextLevel->getKills()) {
 		level= nextLevel;
@@ -2680,13 +2684,16 @@ bool Unit::morph(const MorphCommandType *mct){
 		checkModelStateInfoForNewHpValue();
 
 		type= morphUnitType;
-		level= NULL;
 		currField=morphUnitField;
 		computeTotalUpgrade();
 		map->putUnitCells(this, pos);
 		faction->applyDiscount(morphUnitType, mct->getDiscount());
 		faction->addStore(type);
 		faction->applyStaticProduction(morphUnitType);
+
+		level= NULL;
+		checkUnitLevel();
+
 		return true;
 	}
 	else{
