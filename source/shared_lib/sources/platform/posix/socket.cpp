@@ -2042,9 +2042,10 @@ void BroadCastClientSocketThread::execute() {
 //	class ServerSocket
 // ===============================================
 
-ServerSocket::ServerSocket() : Socket() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+ServerSocket::ServerSocket(bool basicMode) : Socket() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] basicMode = %d\n",__FILE__,__FUNCTION__,__LINE__,basicMode);
 
+	this->basicMode = basicMode;
 	//printf("SERVER SOCKET CONSTRUCTOR\n");
 	//MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
 	//ServerSocket::upnpdiscoverThread = NULL;
@@ -2052,7 +2053,9 @@ ServerSocket::ServerSocket() : Socket() {
 
 	portBound = false;
 	broadCastThread = NULL;
-	UPNP_Tools::enabledUPNP = false;
+	if(this->basicMode == false) {
+		UPNP_Tools::enabledUPNP = false;
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -2064,29 +2067,32 @@ ServerSocket::~ServerSocket() {
 
 	stopBroadCastThread();
 
-	//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
-	//printf("SERVER SOCKET DESTRUCTOR\n");
-	MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
-    if(ServerSocket::upnpdiscoverThread != NULL) {
-        SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
-        ServerSocket::upnpdiscoverThread = NULL;
-    }
-    safeMutexUPNP.ReleaseLock();
-    //printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
+	if(this->basicMode == false) {
+		//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
+		//printf("SERVER SOCKET DESTRUCTOR\n");
+		MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
+		if(ServerSocket::upnpdiscoverThread != NULL) {
+			SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
+			ServerSocket::upnpdiscoverThread = NULL;
+		}
+		safeMutexUPNP.ReleaseLock();
+		//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
 
-    //printf("In [%s::%s] Line: %d UPNP_Tools::enabledUPNP = %d\n",__FILE__,__FUNCTION__,__LINE__,UPNP_Tools::enabledUPNP);
-	if (UPNP_Tools::enabledUPNP) {
-        UPNP_Tools::NETremRedirects(ServerSocket::externalPort);
-        //UPNP_Tools::enabledUPNP = false;
+
+		//printf("In [%s::%s] Line: %d UPNP_Tools::enabledUPNP = %d\n",__FILE__,__FUNCTION__,__LINE__,UPNP_Tools::enabledUPNP);
+		if (UPNP_Tools::enabledUPNP) {
+			UPNP_Tools::NETremRedirects(ServerSocket::externalPort);
+			//UPNP_Tools::enabledUPNP = false;
+		}
+
+		MutexSafeWrapper safeMutexUPNP1(&UPNP_Tools::mutexUPNP,CODE_AT_LINE);
+		if(urls.controlURL && urls.ipcondescURL && urls.controlURL_CIF) {
+			FreeUPNPUrls(&urls);
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		safeMutexUPNP1.ReleaseLock();
 	}
-
-	MutexSafeWrapper safeMutexUPNP1(&UPNP_Tools::mutexUPNP,CODE_AT_LINE);
-	if(urls.controlURL && urls.ipcondescURL && urls.controlURL_CIF) {
-		FreeUPNPUrls(&urls);
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	safeMutexUPNP1.ReleaseLock();
 }
 
 void ServerSocket::stopBroadCastThread() {
@@ -2184,8 +2190,7 @@ void ServerSocket::bind(int port) {
 #endif
 
 	int err= ::bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
-	if(err < 0)
-	{
+	if(err < 0) {
 	    char szBuf[1024]="";
 	    sprintf(szBuf, "In [%s::%s] Error binding socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
@@ -2233,16 +2238,18 @@ void ServerSocket::listen(int connectionQueueSize) {
 		disconnectSocket();
 	}
 
-	if(connectionQueueSize > 0) {
-		if(isBroadCastThreadRunning() == false) {
-			startBroadCastThread();
+	if(this->basicMode == false) {
+		if(connectionQueueSize > 0) {
+			if(isBroadCastThreadRunning() == false) {
+				startBroadCastThread();
+			}
+			else {
+				resumeBroadcast();
+			}
 		}
 		else {
-			resumeBroadcast();
+			pauseBroadcast();
 		}
-	}
-	else {
-		pauseBroadcast();
 	}
 }
 

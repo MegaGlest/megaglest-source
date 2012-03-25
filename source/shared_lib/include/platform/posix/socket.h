@@ -247,8 +247,10 @@ protected:
 	bool isBroadCastThreadRunning();
 	vector<string> blockIPList;
 
+	bool basicMode;
+
 public:
-	ServerSocket();
+	ServerSocket(bool basicMode = false);
 	virtual ~ServerSocket();
 	void bind(int port);
 	void listen(int connectionQueueSize= SOMAXCONN);

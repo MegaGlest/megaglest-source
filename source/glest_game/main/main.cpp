@@ -2733,6 +2733,23 @@ int glestMain(int argc, char** argv) {
         }
         createDirectoryPaths(tempDataPath);
 
+        if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS])) == true) {
+        	Ip ip("localhost");
+        	int port = Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str());
+        	ClientSocket clientSocket;
+        	clientSocket.setBlock(false);
+        	clientSocket.connect(ip, port);
+        	if(clientSocket.isConnected() == true) {
+        		clientSocket.setBlock(true);
+
+        		char szBuf[8096]="";
+        		clientSocket.receive(&szBuf[0],8095,false);
+        		std::cout << szBuf << std::endl;
+        	}
+
+        	return 0;
+        }
+
 	    if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_SOUND]) == true ||
 	    	hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
 	    	config.setString("FactorySound","None");

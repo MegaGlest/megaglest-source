@@ -88,6 +88,8 @@ private:
 
 	map<string,pair<uint64,time_t> > badClientConnectIPList;
 
+	ServerSocket *serverSocketAdmin;
+
 public:
 	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
@@ -197,6 +199,7 @@ public:
     virtual int isClientAllowedToGetFile(uint32 clientIp, const char *username, const char *filename);
 
     void notifyBadClientConnectAttempt(string ipAddress);
+    std::string DumpStatsToLog(bool dumpToStringOnly) const;
 
 private:
     void broadcastMessage(const NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);

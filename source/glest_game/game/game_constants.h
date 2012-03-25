@@ -89,6 +89,7 @@ public:
 	static const int specialFactions = fpt_EndCount - 1;
 	static const int maxPlayers= 8;
 	static const int serverPort= 61357;
+	static const int serverAdminPort= 61355;
 	//static const int updateFps= 40;
 	//static const int cameraFps= 100;
 	static int updateFps;
