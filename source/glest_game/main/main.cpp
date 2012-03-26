@@ -3013,6 +3013,14 @@ int glestMain(int argc, char** argv) {
 					config.setInt("ServerPort",internalPort);
 					config.setInt("MasterServerExternalPort",externalPort);
 					config.setInt("FTPServerPort",internalPort+1);
+
+					if(paramPartPortsTokens.size() >= 3 && paramPartPortsTokens[2].length() > 0) {
+						int statusPort = strToInt(paramPartPortsTokens[2]);
+
+						printf("Forcing status port# %d\n",statusPort);
+
+						config.setInt("ServerAdminPort",statusPort);
+					}
 				}
 				else {
 		            printf("\nInvalid ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
