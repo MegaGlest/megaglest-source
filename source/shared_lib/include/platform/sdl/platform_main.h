@@ -172,13 +172,15 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 	printf("\n%s\tCheck the current status of a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]);
 
-	printf("\n%s=x,y\t\t\tForce hosted games to listen internally on port",GAME_ARGS[GAME_ARG_USE_PORTS]);
-	printf("\n\t\t\t\tx, externally on port y.");
+	printf("\n%s=x,y,z\t\t\tForce hosted games to listen internally on port",GAME_ARGS[GAME_ARG_USE_PORTS]);
+	printf("\n\t\t\t\tx, externally on port y and game status on port z.");
 	printf("\n                     \t\tWhere x is the internal port # on the local");
 	printf("\n                     \t\t        machine to listen for connects");
 	printf("\n                     \t\t      y is the external port # on the");
 	printf("\n                     \t\t        router/proxy to forward connection");
 	printf("\n                     \t\t        from to the internal port #");
+	printf("\n                     \t\t      z is the game status port # on the");
+	printf("\n                     \t\t        local machine to listen for status requests");
 	printf("\n                     \t\t*NOTE: If enabled the FTP Server port #'s will");
 	printf("\n                     \t\t       be set to x+1 to x+9");
 
