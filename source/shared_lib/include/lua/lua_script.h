@@ -15,11 +15,13 @@
 #include <string>
 #include <lua.hpp>
 #include <vec.h>
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 using std::string;
 
 using Shared::Graphics::Vec2i;
+using Shared::Xml::XmlNode;
 
 namespace Shared{ namespace Lua{
 
@@ -49,6 +51,9 @@ public:
 	void endCall();
 
 	void registerFunction(LuaFunction luaFunction, const string &functionName);
+
+	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 
 private:
 	string errorToString(int errorCode);

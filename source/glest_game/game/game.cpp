@@ -795,7 +795,9 @@ void Game::load(int loadTypes) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if(scenarioName.empty() == false) {
 			Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName);
-			world.loadScenario(gameSettings.getScenarioDir(), &checksum);
+
+			//printf("In [%s::%s Line: %d] rootNode [%p][%s]\n",__FILE__,__FUNCTION__,__LINE__,loadGameNode,(loadGameNode != NULL ? loadGameNode->getName().c_str() : "none"));
+			world.loadScenario(gameSettings.getScenarioDir(), &checksum, false,loadGameNode);
 		}
     }
 
@@ -902,7 +904,7 @@ void Game::init(bool initForPreviewOnly) {
 		Window::handleEvent();
 		SDL_PumpEvents();
 
-		scriptManager.init(&world, &gameCamera);
+		scriptManager.init(&world, &gameCamera,loadGameNode);
 
 		//good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1422,7 +1424,7 @@ void Game::update() {
 					gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
 				}
 
-				scriptManager.init(&world, &gameCamera);
+				scriptManager.init(&world, &gameCamera,loadGameNode);
 				renderer.initGame(this,this->getGameCameraPtr());
 
 				//sounds
@@ -3632,6 +3634,7 @@ string Game::saveGame(string name) {
     //Console console;
 	//ChatManager chatManager;
 	//ScriptManager scriptManager;
+	scriptManager.saveGame(gameNode);
 
 	//misc
 	//Checksum checksum;

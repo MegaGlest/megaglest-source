@@ -329,7 +329,7 @@ Checksum World::loadMap(const string &path, Checksum *checksum) {
 }
 
 //load map
-Checksum World::loadScenario(const string &path, Checksum *checksum, bool resetCurrentScenario) {
+Checksum World::loadScenario(const string &path, Checksum *checksum, bool resetCurrentScenario, const XmlNode *rootNode) {
 	//printf("[%s:%s] Line: %d path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
     Checksum scenarioChecksum;
@@ -340,7 +340,7 @@ Checksum World::loadScenario(const string &path, Checksum *checksum, bool resetC
 
 	if(resetCurrentScenario == true) {
 		scenario = Scenario();
-		scriptManager->init(this, this->getGame()->getGameCameraPtr());
+		scriptManager->init(this, this->getGame()->getGameCameraPtr(),rootNode);
 	}
 
 	scenarioChecksum = scenario.load(path);
