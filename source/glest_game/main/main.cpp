@@ -2733,6 +2733,51 @@ int glestMain(int argc, char** argv) {
         }
         createDirectoryPaths(tempDataPath);
 
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_PORTS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_PORTS]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string portsToUse = paramPartTokens[1];
+
+				vector<string> paramPartPortsTokens;
+				Tokenize(portsToUse,paramPartPortsTokens,",");
+				if(paramPartPortsTokens.size() >= 2 && paramPartPortsTokens[1].length() > 0) {
+					int internalPort = strToInt(paramPartPortsTokens[0]);
+					int externalPort = strToInt(paramPartPortsTokens[1]);
+
+					printf("Forcing internal port# %d, external port# %d\n",internalPort,externalPort);
+
+					config.setInt("ServerPort",internalPort);
+					config.setInt("MasterServerExternalPort",externalPort);
+					config.setInt("FTPServerPort",internalPort+1);
+
+					if(paramPartPortsTokens.size() >= 3 && paramPartPortsTokens[2].length() > 0) {
+						int statusPort = strToInt(paramPartPortsTokens[2]);
+
+						printf("Forcing status port# %d\n",statusPort);
+
+						config.setInt("ServerAdminPort",statusPort);
+					}
+				}
+				else {
+		            printf("\nInvalid ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+		            //printParameterHelp(argv[0],false);
+		            return -1;
+				}
+			}
+	        else {
+	            printf("\nInvalid missing ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+	            return -1;
+	        }
+    	}
+
         if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS])) == true) {
         	Ip ip("localhost");
         	int port = Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str());
@@ -2989,51 +3034,6 @@ int glestMain(int argc, char** argv) {
         	Window::setTryVSynch(true);
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**ENABLED OPENGL VSYNCH**\n");
         }
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_PORTS]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_PORTS]),&foundParamIndIndex);
-			}
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string portsToUse = paramPartTokens[1];
-
-				vector<string> paramPartPortsTokens;
-				Tokenize(portsToUse,paramPartPortsTokens,",");
-				if(paramPartPortsTokens.size() >= 2 && paramPartPortsTokens[1].length() > 0) {
-					int internalPort = strToInt(paramPartPortsTokens[0]);
-					int externalPort = strToInt(paramPartPortsTokens[1]);
-
-					printf("Forcing internal port# %d, external port# %d\n",internalPort,externalPort);
-
-					config.setInt("ServerPort",internalPort);
-					config.setInt("MasterServerExternalPort",externalPort);
-					config.setInt("FTPServerPort",internalPort+1);
-
-					if(paramPartPortsTokens.size() >= 3 && paramPartPortsTokens[2].length() > 0) {
-						int statusPort = strToInt(paramPartPortsTokens[2]);
-
-						printf("Forcing status port# %d\n",statusPort);
-
-						config.setInt("ServerAdminPort",statusPort);
-					}
-				}
-				else {
-		            printf("\nInvalid ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-		            //printParameterHelp(argv[0],false);
-		            return -1;
-				}
-			}
-	        else {
-	            printf("\nInvalid missing ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-	            //printParameterHelp(argv[0],false);
-	            return -1;
-	        }
-    	}
 
 		//float pingTime = Socket::getAveragePingMS("soft-haus.com");
 		//printf("Ping time = %f\n",pingTime);
