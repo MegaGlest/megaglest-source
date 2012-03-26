@@ -40,16 +40,14 @@ private:
 	int height;
 	bool rotationAllowed;
 
+    int animSpeed;
+
 public:
-	TilesetModelType() {
-		model = NULL;
-		height = 0;
-		rotationAllowed = false;
-	}
+	TilesetModelType();
 	~TilesetModelType();
 
 	void addParticleSystem(ObjectParticleSystemType *particleSystem);
-	bool hasParticles()	const		{return !particleTypes.empty();}
+	bool hasParticles()	const		{return particleTypes.empty() == false;}
 	ModelParticleSystemTypes* getParticleTypes()  { return &particleTypes ;}
 
 
@@ -58,8 +56,12 @@ public:
 
 	int getHeight() const			{return height;}
 	void setHeight(int height) 			{this->height=height;}
+
 	bool getRotationAllowed() const			{return rotationAllowed;}
 	void setRotationAllowed(bool rotationAllowed)	{this->rotationAllowed=rotationAllowed;}
+
+	int getAnimSpeed() const			{return animSpeed;}
+	void setAnimSpeed(int value) {animSpeed = value;}
 };
 
 }}//end namespace

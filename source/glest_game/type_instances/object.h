@@ -57,6 +57,7 @@ private:
 	int lastRenderFrame;
 	Vec2i mapPos;
 	bool visible;
+	float animProgress;
 
 	static ObjectStateInterface *stateCallback;
 
@@ -87,6 +88,9 @@ public:
 	void setLastRenderFrame(int value) { lastRenderFrame = value; }
 
 	const Vec2i & getMapPos() const { return mapPos; }
+
+	void update();
+	float getAnimProgress() const { return animProgress;}
 
 	virtual string getUniquePickName() const;
 	void saveGame(XmlNode *rootNode);

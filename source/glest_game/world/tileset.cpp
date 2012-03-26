@@ -231,6 +231,11 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				TilesetModelType* tmt=objectTypes[i].loadModel(pathAttribute->getRestrictedValue(currentPath),&loadedFileList, sourceXMLFile);
 				loadedFileList[pathAttribute->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,pathAttribute->getRestrictedValue()));
 
+				if(modelNode->hasAttribute("anim-speed") == true) {
+					int animSpeed= modelNode->getAttribute("anim-speed")->getIntValue();
+					tmt->setAnimSpeed(animSpeed);
+				}
+
 				if(modelNode->hasChild("particles")){
 					const XmlNode *particleNode= modelNode->getChild("particles");
 					bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
