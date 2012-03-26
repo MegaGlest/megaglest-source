@@ -4252,6 +4252,7 @@ void Renderer::renderObjects(const int renderFps) {
 		Object *o = qCache.visibleObjectList[visibleIndex];
 
 		Model *objModel= o->getModelPtr();
+		//objModel->updateInterpolationData(o->getAnimProgress(), true);
 		const Vec3f &v= o->getConstPos();
 
 		if(modelRenderStarted == false) {
@@ -4289,7 +4290,8 @@ void Renderer::renderObjects(const int renderFps) {
 		glTranslatef(v.x, v.y, v.z);
 		glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
 
-		objModel->updateInterpolationData(0.f, true);
+		//objModel->updateInterpolationData(0.f, true);
+		objModel->updateInterpolationData(o->getAnimProgress(), true);
 		modelRenderer->render(objModel);
 
 		triangleCount+= objModel->getTriangleCount();
@@ -6739,6 +6741,7 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 
 			if(resourceOnly == false || o->getResource()!= NULL) {
 				Model *objModel= o->getModelPtr();
+				objModel->updateInterpolationData(o->getAnimProgress(), true);
 				const Vec3f &v= o->getConstPos();
 
 				if(colorPickingSelection == false) {

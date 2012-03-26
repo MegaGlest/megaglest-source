@@ -51,7 +51,7 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : 
 		}
 	}
 	visible=false;
-
+	animProgress=0.0f;
 }
 
 Object::~Object() {
@@ -118,6 +118,32 @@ void Object::setHeight(float height) {
 		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame);
 		if(particleValid == true) {
 			(*it)->setPos(this->pos);
+		}
+	}
+}
+
+void Object::update() {
+	if(objectType != NULL && objectType->getTilesetModelType(variation) != NULL &&
+			objectType->getTilesetModelType(variation)->getAnimSpeed() != 0.0) {
+//		printf("#1 Object updating [%s] Speed [%d] animProgress [%f]\n",this->objectType->getTilesetModelType(variation)->getModel()->getFileName().c_str(),objectType->getTilesetModelType(variation)->getAnimSpeed(),animProgress);
+
+		float heightFactor   = 1.f;
+		const float speedDivider= 100.f;
+		float speedDenominator = (speedDivider * GameConstants::updateFps);
+		float newAnimProgress = animProgress + (((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
+
+//		printf("A [%f] B [%f] C [%f] D [%f] E [%f] F [%f]\n",
+//				((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor),
+//				speedDenominator,
+//				((objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator),
+//				(animProgress + ((objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator)),
+//				animProgress,newAnimProgress);
+
+		animProgress = newAnimProgress;
+//		printf("#2 new animProgress [%f]\n",animProgress);
+
+		if(animProgress > 1.f) {
+			animProgress = 0.f;
 		}
 	}
 }

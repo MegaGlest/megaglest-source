@@ -289,6 +289,7 @@ private:
 	int tickFactionIndex();
 	void computeFow(int factionIdxToTick=-1);
 
+	void updateAllTilesetObjects();
 	void updateAllFactionUnits();
 	void underTakeDeadFactionUnits();
 	void updateAllFactionConsumableCosts();

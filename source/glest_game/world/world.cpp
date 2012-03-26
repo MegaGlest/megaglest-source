@@ -355,6 +355,20 @@ void World::setQueuedScenario(string scenarioName,bool keepFactions) {
 	queuedScenarioKeepFactions = keepFactions;
 }
 
+void World::updateAllTilesetObjects() {
+	for(int x = 0; x < map.getSurfaceW(); ++x) {
+		for(int y = 0; y < map.getSurfaceH(); ++y) {
+			SurfaceCell *sc = map.getSurfaceCell(x,y);
+			if(sc != NULL) {
+				Object *obj = sc->getObject();
+				if(obj != NULL) {
+					obj->update();
+				}
+			}
+		}
+	}
+}
+
 void World::updateAllFactionUnits() {
 	scriptManager->onTimerTriggerEvent();
 
@@ -511,6 +525,9 @@ void World::update(){
 
 	//if(needToUpdateUnits == true) {
 	//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] needToUpdateUnits = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,needToUpdateUnits,frameCount);
+
+	// objects on the map from tilesets
+	updateAllTilesetObjects();
 
 	//units
 	updateAllFactionUnits();
