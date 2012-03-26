@@ -199,7 +199,7 @@ public:
 	Checksum loadTech(const vector<string> pathList, const string &techName,
 			set<string> &factions, Checksum* checksum,std::map<string,vector<pair<string, string> > > &loadedFileList);
 	Checksum loadMap(const string &path, Checksum* checksum);
-	Checksum loadScenario(const string &path, Checksum* checksum,bool resetCurrentScenario=false);
+	Checksum loadScenario(const string &path, Checksum* checksum,bool resetCurrentScenario=false,const XmlNode *rootNode=NULL);
 	void setQueuedScenario(string scenarioName,bool keepFactions);
 	string getQueuedScenario() const { return queuedScenarioName; }
 	bool getQueuedScenarioKeepFactions() const { return queuedScenarioKeepFactions; }

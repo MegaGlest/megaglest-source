@@ -44,6 +44,34 @@ public:
 	}
 };
 
+ScriptManagerMessage::ScriptManagerMessage() {
+	this->text= "";
+	this->header= "";
+
+}
+
+ScriptManagerMessage::ScriptManagerMessage(string text, string header) {
+	this->text= text;
+	this->header= header;
+}
+
+void ScriptManagerMessage::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *scriptManagerMessageNode = rootNode->addChild("ScriptManagerMessage");
+
+	//string text;
+	scriptManagerMessageNode->addAttribute("text",text, mapTagReplacements);
+	//string header;
+	scriptManagerMessageNode->addAttribute("header",header, mapTagReplacements);
+}
+
+void ScriptManagerMessage::loadGame(const XmlNode *rootNode) {
+	const XmlNode *scriptManagerMessageNode = rootNode;
+
+	text = scriptManagerMessageNode->getAttribute("text")->getValue();
+	header = scriptManagerMessageNode->getAttribute("header")->getValue();
+}
+
 // =====================================================
 //	class PlayerModifiers
 // =====================================================
@@ -52,6 +80,89 @@ PlayerModifiers::PlayerModifiers(){
 	winner			= false;
 	aiEnabled		= true;
 	consumeEnabled 	= true;
+}
+
+void PlayerModifiers::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *playerModifiersNode = rootNode->addChild("PlayerModifiers");
+
+	//bool winner;
+	playerModifiersNode->addAttribute("winner",intToStr(winner), mapTagReplacements);
+	//bool aiEnabled;
+	playerModifiersNode->addAttribute("aiEnabled",intToStr(aiEnabled), mapTagReplacements);
+	//bool consumeEnabled;
+	playerModifiersNode->addAttribute("consumeEnabled",intToStr(consumeEnabled), mapTagReplacements);
+}
+
+void PlayerModifiers::loadGame(const XmlNode *rootNode) {
+	const XmlNode *playerModifiersNode = rootNode;
+
+	winner = playerModifiersNode->getAttribute("winner")->getIntValue();
+	aiEnabled = playerModifiersNode->getAttribute("aiEnabled")->getIntValue();
+	consumeEnabled = playerModifiersNode->getAttribute("consumeEnabled")->getIntValue();
+}
+
+CellTriggerEvent::CellTriggerEvent() {
+	type = ctet_Unit;
+	sourceId = 0;
+	destId = 0;
+	//Vec2i destPos;
+
+	triggerCount = 0;
+}
+
+void CellTriggerEvent::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *cellTriggerEventNode = rootNode->addChild("CellTriggerEvent");
+
+//	CellTriggerEventType type;
+	cellTriggerEventNode->addAttribute("type",intToStr(type), mapTagReplacements);
+//	int sourceId;
+	cellTriggerEventNode->addAttribute("sourceId",intToStr(sourceId), mapTagReplacements);
+//	int destId;
+	cellTriggerEventNode->addAttribute("destId",intToStr(destId), mapTagReplacements);
+//	Vec2i destPos;
+	cellTriggerEventNode->addAttribute("destPos",destPos.getString(), mapTagReplacements);
+//	int triggerCount;
+	cellTriggerEventNode->addAttribute("triggerCount",intToStr(triggerCount), mapTagReplacements);
+}
+
+void CellTriggerEvent::loadGame(const XmlNode *rootNode) {
+	const XmlNode *cellTriggerEventNode = rootNode->getChild("CellTriggerEvent");
+
+	type = static_cast<CellTriggerEventType>(cellTriggerEventNode->getAttribute("type")->getIntValue());
+	sourceId = cellTriggerEventNode->getAttribute("sourceId")->getIntValue();
+	destId = cellTriggerEventNode->getAttribute("destId")->getIntValue();
+	destPos = Vec2i::strToVec2(cellTriggerEventNode->getAttribute("destPos")->getValue());
+	triggerCount = cellTriggerEventNode->getAttribute("triggerCount")->getIntValue();
+}
+
+TimerTriggerEvent::TimerTriggerEvent() {
+	running = false;
+	startFrame = 0;
+	endFrame = 0;
+}
+
+void TimerTriggerEvent::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *timerTriggerEventNode = rootNode->addChild("TimerTriggerEvent");
+
+//	bool running;
+	timerTriggerEventNode->addAttribute("running",intToStr(running), mapTagReplacements);
+//	//time_t startTime;
+//	//time_t endTime;
+//	int startFrame;
+	timerTriggerEventNode->addAttribute("startFrame",intToStr(startFrame), mapTagReplacements);
+//	int endFrame;
+	timerTriggerEventNode->addAttribute("endFrame",intToStr(endFrame), mapTagReplacements);
+}
+
+void TimerTriggerEvent::loadGame(const XmlNode *rootNode) {
+	const XmlNode *timerTriggerEventNode = rootNode->getChild("TimerTriggerEvent");
+
+	running = timerTriggerEventNode->getAttribute("running")->getIntValue();
+	startFrame = timerTriggerEventNode->getAttribute("startFrame")->getIntValue();
+	endFrame = timerTriggerEventNode->getAttribute("endFrame")->getIntValue();
 }
 
 // =====================================================
@@ -76,15 +187,18 @@ ScriptManager::ScriptManager() {
 	currentCellTriggeredEventId = 0;
 	currentEventId = 0;
 	inCellTriggerEvent = false;
+	rootNode = NULL;
 }
 
 ScriptManager::~ScriptManager() {
 
 }
 
-void ScriptManager::init(World* world, GameCamera *gameCamera){
+void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *rootNode) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("In [%s::%s Line: %d] rootNode [%p][%s]\n",__FILE__,__FUNCTION__,__LINE__,rootNode,(rootNode != NULL ? rootNode->getName().c_str() : "none"));
+	this->rootNode = rootNode;
 	const Scenario*	scenario= world->getScenario();
 
 	this->world= world;
@@ -93,9 +207,12 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	//set static instance
 	thisScriptManager= this;
 
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	currentEventId = 1;
 	CellTriggerEventList.clear();
 	TimerTriggerEventList.clear();
+
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//register functions
 	luaScript.registerFunction(showMessage, "showMessage");
@@ -212,22 +329,28 @@ void ScriptManager::init(World* world, GameCamera *gameCamera){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//call startup function
-	luaScript.beginCall("startup");
-	luaScript.endCall();
+	if(this->rootNode == NULL) {
+		luaScript.beginCall("startup");
+		luaScript.endCall();
+	}
+	else {
+		loadGame(this->rootNode);
+		this->rootNode = NULL;
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 // ========================== events ===============================================
 
-void ScriptManager::onMessageBoxOk(){
+void ScriptManager::onMessageBoxOk() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
 
-	if(!messageQueue.empty()){
-		messageQueue.pop();
-		if(!messageQueue.empty()){
+	if(messageQueue.empty() == false) {
+		messageQueue.pop_front();
+		if(messageQueue.empty() == false) {
 			messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
 			messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
 		}
@@ -237,67 +360,77 @@ void ScriptManager::onMessageBoxOk(){
 void ScriptManager::onResourceHarvested(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	luaScript.beginCall("resourceHarvested");
-	luaScript.endCall();
+	if(this->rootNode == NULL) {
+		luaScript.beginCall("resourceHarvested");
+		luaScript.endCall();
+	}
 }
 
 void ScriptManager::onUnitCreated(const Unit* unit){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	lastCreatedUnitName= unit->getType()->getName();
-	lastCreatedUnitId= unit->getId();
-	luaScript.beginCall("unitCreated");
-	luaScript.endCall();
-	luaScript.beginCall("unitCreatedOfType_"+unit->getType()->getName());
-	luaScript.endCall();
+	if(this->rootNode == NULL) {
+		lastCreatedUnitName= unit->getType()->getName();
+		lastCreatedUnitId= unit->getId();
+		luaScript.beginCall("unitCreated");
+		luaScript.endCall();
+		luaScript.beginCall("unitCreatedOfType_"+unit->getType()->getName());
+		luaScript.endCall();
+	}
 }
 
 void ScriptManager::onUnitDied(const Unit* unit){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(unit->getLastAttackerUnitId() >= 0) {
-		Unit *killer = world->findUnitById(unit->getLastAttackerUnitId());
+	if(this->rootNode == NULL) {
+		if(unit->getLastAttackerUnitId() >= 0) {
+			Unit *killer = world->findUnitById(unit->getLastAttackerUnitId());
 
-		if(killer != NULL) {
-			lastAttackingUnitName= killer->getType()->getName();
-			lastAttackingUnitId= killer->getId();
+			if(killer != NULL) {
+				lastAttackingUnitName= killer->getType()->getName();
+				lastAttackingUnitId= killer->getId();
 
-			lastDeadUnitKillerName= killer->getType()->getName();
-			lastDeadUnitKillerId= killer->getId();
+				lastDeadUnitKillerName= killer->getType()->getName();
+				lastDeadUnitKillerId= killer->getId();
+			}
+			else {
+				lastDeadUnitKillerName= "";
+				lastDeadUnitKillerId= -1;
+			}
 		}
-		else {
-			lastDeadUnitKillerName= "";
-			lastDeadUnitKillerId= -1;
-		}
+
+		lastAttackedUnitName= unit->getType()->getName();
+		lastAttackedUnitId= unit->getId();
+
+		lastDeadUnitName= unit->getType()->getName();
+		lastDeadUnitId= unit->getId();
+		lastDeadUnitCauseOfDeath = unit->getCauseOfDeath();
+
+		luaScript.beginCall("unitDied");
+		luaScript.endCall();
 	}
-
-	lastAttackedUnitName= unit->getType()->getName();
-	lastAttackedUnitId= unit->getId();
-
-	lastDeadUnitName= unit->getType()->getName();
-	lastDeadUnitId= unit->getId();
-	lastDeadUnitCauseOfDeath = unit->getCauseOfDeath();
-
-	luaScript.beginCall("unitDied");
-	luaScript.endCall();
 }
 
 void ScriptManager::onUnitAttacked(const Unit* unit) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	lastAttackedUnitName= unit->getType()->getName();
-	lastAttackedUnitId= unit->getId();
-	luaScript.beginCall("unitAttacked");
-	luaScript.endCall();
+	if(this->rootNode == NULL) {
+		lastAttackedUnitName= unit->getType()->getName();
+		lastAttackedUnitId= unit->getId();
+		luaScript.beginCall("unitAttacked");
+		luaScript.endCall();
+	}
 }
 
 void ScriptManager::onUnitAttacking(const Unit* unit) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	lastAttackingUnitName= unit->getType()->getName();
-	lastAttackingUnitId= unit->getId();
-	luaScript.beginCall("unitAttacking");
-	luaScript.endCall();
+	if(this->rootNode == NULL) {
+		lastAttackingUnitName= unit->getType()->getName();
+		lastAttackingUnitId= unit->getId();
+		luaScript.beginCall("unitAttacking");
+		luaScript.endCall();
+	}
 }
 
 void ScriptManager::onGameOver(bool won) {
@@ -312,7 +445,9 @@ void ScriptManager::onTimerTriggerEvent() {
 	if(TimerTriggerEventList.size() <= 0) {
 		return;
 	}
-
+	if(this->rootNode != NULL) {
+		return;
+	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size());
 
 	for(std::map<int,TimerTriggerEvent>::iterator iterMap = TimerTriggerEventList.begin();
@@ -336,6 +471,9 @@ void ScriptManager::onTimerTriggerEvent() {
 
 void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 	if(CellTriggerEventList.size() <= 0) {
+		return;
+	}
+	if(this->rootNode != NULL) {
 		return;
 	}
 
@@ -481,7 +619,7 @@ void ScriptManager::showMessage(const string &text, const string &header){
 
 	Lang &lang= Lang::getInstance();
 
-	messageQueue.push(ScriptManagerMessage(text, header));
+	messageQueue.push_back(ScriptManagerMessage(text, header));
 	messageBox.setEnabled(true);
 	messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
 	messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
@@ -1819,5 +1957,218 @@ int ScriptManager::loadScenario(LuaHandle* luaHandle) {
 	thisScriptManager->loadScenario(luaArguments.getString(-2),luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
+
+void ScriptManager::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *scriptManagerNode = rootNode->addChild("ScriptManager");
+
+	//lua
+//	string code;
+	scriptManagerNode->addAttribute("code",code, mapTagReplacements);
+//	LuaScript luaScript;
+//
+//	//world
+//	World *world;
+//	GameCamera *gameCamera;
+//
+//	//misc
+//	MessageQueue messageQueue;
+	for(std::list<ScriptManagerMessage>::iterator it = messageQueue.begin(); it != messageQueue.end(); ++it) {
+		(*it).saveGame(scriptManagerNode);
+	}
+//	GraphicMessageBox messageBox;
+	scriptManagerNode->addAttribute("messageBox_enabled",intToStr(messageBox.getEnabled()), mapTagReplacements);
+	scriptManagerNode->addAttribute("messageBox_text",messageBox.getText(), mapTagReplacements);
+	scriptManagerNode->addAttribute("messageBox_header",messageBox.getHeader(), mapTagReplacements);
+
+//	string displayText;
+	scriptManagerNode->addAttribute("displayText",displayText, mapTagReplacements);
+//
+//	//last created unit
+//	string lastCreatedUnitName;
+	scriptManagerNode->addAttribute("lastCreatedUnitName",lastCreatedUnitName, mapTagReplacements);
+//	int lastCreatedUnitId;
+	scriptManagerNode->addAttribute("lastCreatedUnitId",intToStr(lastCreatedUnitId), mapTagReplacements);
+//
+//	//last dead unit
+//	string lastDeadUnitName;
+	scriptManagerNode->addAttribute("lastDeadUnitName",lastDeadUnitName, mapTagReplacements);
+//	int lastDeadUnitId;
+	scriptManagerNode->addAttribute("lastDeadUnitId",intToStr(lastDeadUnitId), mapTagReplacements);
+//	int lastDeadUnitCauseOfDeath;
+	scriptManagerNode->addAttribute("lastDeadUnitCauseOfDeath",intToStr(lastDeadUnitCauseOfDeath), mapTagReplacements);
+//
+//	//last dead unit's killer
+//	string lastDeadUnitKillerName;
+	scriptManagerNode->addAttribute("lastDeadUnitKillerName",lastDeadUnitKillerName, mapTagReplacements);
+//	int lastDeadUnitKillerId;
+	scriptManagerNode->addAttribute("lastDeadUnitKillerId",intToStr(lastDeadUnitKillerId), mapTagReplacements);
+//
+//	//last attacked unit
+//	string lastAttackedUnitName;
+	scriptManagerNode->addAttribute("lastAttackedUnitName",lastAttackedUnitName, mapTagReplacements);
+//	int lastAttackedUnitId;
+	scriptManagerNode->addAttribute("lastAttackedUnitId",intToStr(lastAttackedUnitId), mapTagReplacements);
+//
+//	//last attacking unit
+//	string lastAttackingUnitName;
+	scriptManagerNode->addAttribute("lastAttackingUnitName",lastAttackingUnitName, mapTagReplacements);
+//	int lastAttackingUnitId;
+	scriptManagerNode->addAttribute("lastAttackingUnitId",intToStr(lastAttackingUnitId), mapTagReplacements);
+//
+//	// end game state
+//	bool gameOver;
+	scriptManagerNode->addAttribute("gameOver",intToStr(gameOver), mapTagReplacements);
+//	bool gameWon;
+	scriptManagerNode->addAttribute("gameWon",intToStr(gameWon), mapTagReplacements);
+//	PlayerModifiers playerModifiers[GameConstants::maxPlayers];
+	for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+		PlayerModifiers &player = playerModifiers[i];
+		player.saveGame(scriptManagerNode);
+	}
+//	int currentTimerTriggeredEventId;
+	scriptManagerNode->addAttribute("currentTimerTriggeredEventId",intToStr(currentTimerTriggeredEventId), mapTagReplacements);
+//	int currentCellTriggeredEventId;
+	scriptManagerNode->addAttribute("currentCellTriggeredEventId",intToStr(currentCellTriggeredEventId), mapTagReplacements);
+//	int currentEventId;
+	scriptManagerNode->addAttribute("currentEventId",intToStr(currentEventId), mapTagReplacements);
+//	std::map<int,CellTriggerEvent> CellTriggerEventList;
+	for(std::map<int,CellTriggerEvent>::iterator iterMap = CellTriggerEventList.begin();
+			iterMap != CellTriggerEventList.end(); ++iterMap) {
+		XmlNode *cellTriggerEventListNode = scriptManagerNode->addChild("CellTriggerEventList");
+
+		cellTriggerEventListNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+		iterMap->second.saveGame(cellTriggerEventListNode);
+	}
+//	std::map<int,TimerTriggerEvent> TimerTriggerEventList;
+	for(std::map<int,TimerTriggerEvent>::iterator iterMap = TimerTriggerEventList.begin();
+			iterMap != TimerTriggerEventList.end(); ++iterMap) {
+		XmlNode *timerTriggerEventListNode = scriptManagerNode->addChild("TimerTriggerEventList");
+
+		timerTriggerEventListNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+		iterMap->second.saveGame(timerTriggerEventListNode);
+	}
+
+//	bool inCellTriggerEvent;
+	scriptManagerNode->addAttribute("inCellTriggerEvent",intToStr(inCellTriggerEvent), mapTagReplacements);
+//	std::vector<int> unRegisterCellTriggerEventList;
+	for(unsigned int i = 0; i < unRegisterCellTriggerEventList.size(); ++i) {
+		XmlNode *unRegisterCellTriggerEventListNode = scriptManagerNode->addChild("unRegisterCellTriggerEventList");
+		unRegisterCellTriggerEventListNode->addAttribute("eventId",intToStr(unRegisterCellTriggerEventList[i]), mapTagReplacements);
+	}
+
+	luaScript.saveGame(scriptManagerNode);
+}
+
+void ScriptManager::loadGame(const XmlNode *rootNode) {
+	const XmlNode *scriptManagerNode = rootNode->getChild("ScriptManager");
+
+//	string code;
+	code = scriptManagerNode->getAttribute("code")->getValue();
+//	LuaScript luaScript;
+//
+//	//world
+//	World *world;
+//	GameCamera *gameCamera;
+//
+//	//misc
+//	MessageQueue messageQueue;
+	messageQueue.clear();
+	vector<XmlNode *> messageQueueNodeList = scriptManagerNode->getChildList("ScriptManagerMessage");
+	for(unsigned int i = 0; i < messageQueueNodeList.size(); ++i) {
+		XmlNode *node = messageQueueNodeList[i];
+		ScriptManagerMessage msg;
+		msg.loadGame(node);
+		messageQueue.push_back(msg);
+	}
+
+//	GraphicMessageBox messageBox;
+	messageBox.setEnabled(scriptManagerNode->getAttribute("messageBox_enabled")->getIntValue());
+	messageBox.setText(wrapString(scriptManagerNode->getAttribute("messageBox_text")->getValue(),messageWrapCount));
+	messageBox.setHeader(scriptManagerNode->getAttribute("messageBox_header")->getValue());
+
+//	string displayText;
+	displayText = scriptManagerNode->getAttribute("displayText")->getValue();
+//
+//	//last created unit
+//	string lastCreatedUnitName;
+	lastCreatedUnitName = scriptManagerNode->getAttribute("lastCreatedUnitName")->getValue();
+//	int lastCreatedUnitId;
+	lastCreatedUnitId = scriptManagerNode->getAttribute("lastCreatedUnitId")->getIntValue();
+//
+//	//last dead unit
+//	string lastDeadUnitName;
+	lastDeadUnitName = scriptManagerNode->getAttribute("lastDeadUnitName")->getValue();
+//	int lastDeadUnitId;
+	lastDeadUnitId = scriptManagerNode->getAttribute("lastDeadUnitId")->getIntValue();
+//	int lastDeadUnitCauseOfDeath;
+	lastDeadUnitCauseOfDeath = scriptManagerNode->getAttribute("lastDeadUnitCauseOfDeath")->getIntValue();
+//
+//	//last dead unit's killer
+//	string lastDeadUnitKillerName;
+	lastDeadUnitKillerName = scriptManagerNode->getAttribute("lastDeadUnitKillerName")->getValue();
+//	int lastDeadUnitKillerId;
+	lastDeadUnitKillerId = scriptManagerNode->getAttribute("lastDeadUnitKillerId")->getIntValue();
+//
+//	//last attacked unit
+//	string lastAttackedUnitName;
+	lastAttackedUnitName = scriptManagerNode->getAttribute("lastAttackedUnitName")->getValue();
+//	int lastAttackedUnitId;
+	lastAttackedUnitId = scriptManagerNode->getAttribute("lastAttackedUnitId")->getIntValue();
+//
+//	//last attacking unit
+//	string lastAttackingUnitName;
+	lastAttackingUnitName = scriptManagerNode->getAttribute("lastAttackingUnitName")->getValue();
+//	int lastAttackingUnitId;
+	lastAttackingUnitId = scriptManagerNode->getAttribute("lastAttackingUnitId")->getIntValue();
+//
+//	// end game state
+//	bool gameOver;
+	gameOver = scriptManagerNode->getAttribute("gameOver")->getIntValue();
+//	bool gameWon;
+	gameWon = scriptManagerNode->getAttribute("gameWon")->getIntValue();
+//	PlayerModifiers playerModifiers[GameConstants::maxPlayers];
+	vector<XmlNode *> playerModifiersNodeList = scriptManagerNode->getChildList("PlayerModifiers");
+	for(unsigned int i = 0; i < playerModifiersNodeList.size(); ++i) {
+		XmlNode *node = playerModifiersNodeList[i];
+		playerModifiers[i].loadGame(node);
+	}
+//	int currentTimerTriggeredEventId;
+	currentTimerTriggeredEventId = scriptManagerNode->getAttribute("currentTimerTriggeredEventId")->getIntValue();
+//	int currentCellTriggeredEventId;
+	currentCellTriggeredEventId = scriptManagerNode->getAttribute("currentCellTriggeredEventId")->getIntValue();
+//	int currentEventId;
+	currentEventId = scriptManagerNode->getAttribute("currentEventId")->getIntValue();
+//	std::map<int,CellTriggerEvent> CellTriggerEventList;
+	vector<XmlNode *> cellTriggerEventListNodeList = scriptManagerNode->getChildList("CellTriggerEventList");
+	for(unsigned int i = 0; i < cellTriggerEventListNodeList.size(); ++i) {
+		XmlNode *node = cellTriggerEventListNodeList[i];
+		CellTriggerEvent event;
+		event.loadGame(node);
+		CellTriggerEventList[node->getAttribute("key")->getIntValue()] = event;
+	}
+
+//	std::map<int,TimerTriggerEvent> TimerTriggerEventList;
+	vector<XmlNode *> timerTriggerEventListNodeList = scriptManagerNode->getChildList("TimerTriggerEventList");
+	for(unsigned int i = 0; i < timerTriggerEventListNodeList.size(); ++i) {
+		XmlNode *node = timerTriggerEventListNodeList[i];
+
+		TimerTriggerEvent event;
+		event.loadGame(node);
+		TimerTriggerEventList[node->getAttribute("key")->getIntValue()] = event;
+	}
+
+//	bool inCellTriggerEvent;
+	inCellTriggerEvent = scriptManagerNode->getAttribute("inCellTriggerEvent")->getIntValue();
+//	std::vector<int> unRegisterCellTriggerEventList;
+	vector<XmlNode *> unRegisterCellTriggerEventListNodeList = scriptManagerNode->getChildList("unRegisterCellTriggerEventList");
+	for(unsigned int i = 0; i < unRegisterCellTriggerEventListNodeList.size(); ++i) {
+		XmlNode *node = unRegisterCellTriggerEventListNodeList[i];
+		unRegisterCellTriggerEventList.push_back(node->getAttribute("eventId")->getIntValue());
+	}
+
+	luaScript.loadGame(scriptManagerNode);
+}
+
 
 }}//end namespace

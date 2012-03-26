@@ -13,19 +13,23 @@
 #define _GLEST_GAME_SCRIPT_MANAGER_H_
 
 #include <string>
-#include <queue>
+//#include <queue>
+#include <list>
 
 #include "lua_script.h"
 #include "components.h"
 #include "game_constants.h"
 #include <map>
+#include "xml_parser.h"
 #include "leak_dumper.h"
 
 using std::string;
-using std::queue;
+//using std::queue;
+using std::list;
 using Shared::Graphics::Vec2i;
 using Shared::Lua::LuaScript;
 using Shared::Lua::LuaHandle;
+using Shared::Xml::XmlNode;
 
 namespace Glest{ namespace Game{
 
@@ -37,15 +41,19 @@ class GameCamera;
 //	class ScriptManagerMessage
 // =====================================================
 
-class ScriptManagerMessage{
+class ScriptManagerMessage {
 private:
 	string text;
 	string header;
 
 public:
-	ScriptManagerMessage(string text, string header)	{this->text= text, this->header= header;}
+	ScriptManagerMessage();
+	ScriptManagerMessage(string text, string header);
 	const string &getText() const	{return text;}
 	const string &getHeader() const	{return header;}
+
+	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 };
 
 class PlayerModifiers{
@@ -65,7 +73,11 @@ public:
 	bool getAiEnabled() const		{return aiEnabled;}
 	bool getConsumeEnabled() const	{return consumeEnabled;}
 
+	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
+
 private:
+
 	bool winner;
 	bool aiEnabled;
 	bool consumeEnabled;
@@ -84,27 +96,34 @@ enum CellTriggerEventType {
 
 class CellTriggerEvent {
 public:
+	CellTriggerEvent();
 	CellTriggerEventType type;
 	int sourceId;
 	int destId;
 	Vec2i destPos;
 
 	int triggerCount;
+
+	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 };
 
 class TimerTriggerEvent {
 public:
+	TimerTriggerEvent();
 	bool running;
 	//time_t startTime;
 	//time_t endTime;
 	int startFrame;
 	int endFrame;
 
+	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 };
 
 class ScriptManager {
 private:
-	typedef queue<ScriptManagerMessage> MessageQueue;
+	typedef list<ScriptManagerMessage> MessageQueue;
 
 private:
 
@@ -155,6 +174,8 @@ private:
 	bool inCellTriggerEvent;
 	std::vector<int> unRegisterCellTriggerEventList;
 
+	const XmlNode *rootNode;
+
 private:
 	static ScriptManager* thisScriptManager;
 
@@ -166,7 +187,7 @@ public:
 
 	ScriptManager();
 	~ScriptManager();
-	void init(World* world, GameCamera *gameCamera);
+	void init(World* world, GameCamera *gameCamera,const XmlNode *rootNode);
 
 	//message box functions
 	bool getMessageBoxEnabled() const									{return !messageQueue.empty();}
@@ -186,6 +207,9 @@ public:
 	void onGameOver(bool won);
 	void onCellTriggerEvent(Unit *movingUnit);
 	void onTimerTriggerEvent();
+
+	void saveGame(XmlNode *rootNode);
+	void loadGame(const XmlNode *rootNode);
 
 private:
 	string wrapString(const string &str, int wrapCount);
