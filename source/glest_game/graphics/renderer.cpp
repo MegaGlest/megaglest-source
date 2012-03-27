@@ -2389,6 +2389,13 @@ void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, 
 
 Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, int w, int h,bool centeredW, bool centeredH) {
 	if(centeredW == true) {
+		if(font == NULL) {
+			throw runtime_error("font == NULL");
+		}
+		else if(font->getTextHandler() == NULL) {
+			throw runtime_error("font->getTextHandler() == NULL");
+		}
+
 		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * Font::scaleFontValue);
 		if(lineWidth < w) {
 			pos.x += ((w / 2.f) - (lineWidth / 2.f));
@@ -2396,6 +2403,13 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 	}
 
 	if(centeredH) {
+		if(font == NULL) {
+			throw runtime_error("font == NULL");
+		}
+		else if(font->getTextHandler() == NULL) {
+			throw runtime_error("font->getTextHandler() == NULL");
+		}
+
 		//const Metrics &metrics= Metrics::getInstance();
 		//float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
 		float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);

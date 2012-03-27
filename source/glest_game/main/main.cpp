@@ -95,15 +95,13 @@ namespace Glest{ namespace Game{
 bool disableheadless_console = false;
 bool disableBacktrace = false;
 bool gameInitialized = false;
-//static string application_binary="";
 static string application_binary="";
 static string mg_app_name = "";
 static string mailStringSupport = "";
 static bool sdl_quitCalled = false;
-//static bool isMasterServerModeEnabled = false;
 
+Program *mainProgram = NULL;
 FileCRCPreCacheThread *preCacheThread=NULL;
-
 string runtimeErrorMsg = "";
 
 void cleanupCRCThread() {
@@ -225,9 +223,8 @@ void fatal(const char *s, ...)    // failure exit
     }
 
     // Now try to shutdown threads if possible
-	Program *program = Program::getInstance();
-    delete program;
-    program = NULL;
+    delete mainProgram;
+    mainProgram = NULL;
     // END
 
     if(sdl_quitCalled == false) {
@@ -277,9 +274,8 @@ public:
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
 
-        Program *program = Program::getInstance();
-        if(program && gameInitialized == true) {
-            program->showMessage(msg.c_str());
+        if(mainProgram && gameInitialized == true) {
+        	mainProgram->showMessage(msg.c_str());
         }
 
         message(msg.c_str());
@@ -407,11 +403,9 @@ public:
 
 		logError(msg,true);
 
-		Program *program = Program::getInstance();
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] program = %p gameInitialized = %d msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,program,gameInitialized,msg);
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,program);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] program = %p gameInitialized = %d msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,mainProgram,gameInitialized,msg);
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,mainProgram);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,mainProgram);
 
         string errMsg = (msg != NULL ? msg : "null");
 
@@ -423,7 +417,7 @@ public:
         //errMsg += "To find line #'s use:\n";
         //errMsg += "readelf --debug-dump=decodedline %s | egrep 0xaddress-of-stack\n";
 
-        const size_t max_depth = 15;
+        const size_t max_depth = 25;
         void *stack_addrs[max_depth];
         size_t stack_depth = backtrace(stack_addrs, max_depth);
         char **stack_strings = backtrace_symbols(stack_addrs, stack_depth);
@@ -433,17 +427,11 @@ public:
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        char szBuf[4096]="";
+        char szBuf[8096]="";
         for(size_t i = 1; i < stack_depth; i++) {
-            //const unsigned int stackIndex = i-1;
-
-            //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d, i = %d, stack_depth = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,i,stack_depth);
-
             void *lineAddress = stack_addrs[i]; //getStackAddress(stackIndex);
 
-            //printf("In [%s::%s Line: %d] [%s] gameInitialized = %d, i = %d, stack_depth = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,i,stack_depth);
-
-            size_t sz = 1024; // just a guess, template names will go much wider
+            size_t sz = 8096; // just a guess, template names will go much wider
             char *function = static_cast<char *>(malloc(sz));
             char *begin = 0;
             char *end = 0;
@@ -485,8 +473,8 @@ public:
             }
 
             errMsg += string(szBuf);
-            char file[4096]="";
-            int line = getFileAndLine(lineAddress, file, 4096);
+            char file[8096]="";
+            int line = getFileAndLine(lineAddress, file, 8096);
             if(line >= 0) {
                 errMsg += " line: " + intToStr(line);
             }
@@ -510,30 +498,30 @@ public:
 
 		//abort();
 
-        if(program && gameInitialized == true) {
+        if(mainProgram && gameInitialized == true) {
 			//printf("\nprogram->getState() [%p]\n",program->getState());
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			if(program->getState() != NULL) {
+			if(mainProgram->getState() != NULL) {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                program->showMessage(errMsg.c_str());
+				mainProgram->showMessage(errMsg.c_str());
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && program->isMessageShowing();) {
+                for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
                     //program->getState()->render();
                     Window::handleEvent();
-                    program->loop();
+                    mainProgram->loop();
 
                     //printf("\nhandle error #1\n");
                 }
 			}
 			else {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                program->showMessage(errMsg.c_str());
+				mainProgram->showMessage(errMsg.c_str());
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && program->isMessageShowing();) {
+                for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
                     //program->renderProgramMsgBox();
                     Window::handleEvent();
-                    program->loop();
+                    mainProgram->loop();
 
                     //printf("\nhandle error #2\n");
                 }
@@ -562,8 +550,8 @@ public:
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         // Now try to shutdown threads if possible
-        delete program;
-        program = NULL;
+        delete mainProgram;
+        mainProgram = NULL;
         // END
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -604,13 +592,11 @@ public:
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
-        Program *program = Program::getInstance();
-
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
-        if(program && gameInitialized == true) {
+        if(mainProgram && gameInitialized == true) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
-            program->showMessage(msg);
+        	mainProgram->showMessage(msg);
         }
         else {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
@@ -623,9 +609,8 @@ public:
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
 
 		    // Now try to shutdown threads if possible
-			Program *program = Program::getInstance();
-		    delete program;
-		    program = NULL;
+		    delete mainProgram;
+		    mainProgram = NULL;
 		    // END
 
 		    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
@@ -2300,12 +2285,6 @@ void CheckForDuplicateData() {
 			errorMsg += szBuf;
 		}
 		duplicateWarnings += errorMsg;
-
-//        Program *program = Program::getInstance();
-//        if(program) {
-//        	program->getState()->setForceMouseRender(true);
-//        }
-//        ExceptionHandler::DisplayMessage(errorMsg.c_str(), false);
 	}
     }
 
@@ -2364,12 +2343,6 @@ void CheckForDuplicateData() {
 			errorMsg += szBuf;
 		}
 		duplicateWarnings += errorMsg;
-
-//        Program *program = Program::getInstance();
-//        if(program) {
-//        	program->getState()->setForceMouseRender(true);
-//        }
-//        ExceptionHandler::DisplayMessage(errorMsg.c_str(), false);
 	}
     }
 
@@ -2426,19 +2399,12 @@ void CheckForDuplicateData() {
 			errorMsg += szBuf;
 		}
 		duplicateWarnings += errorMsg;
-
-//        Program *program = Program::getInstance();
-//        if(program) {
-//        	program->getState()->setForceMouseRender(true);
-//        }
-//        ExceptionHandler::DisplayMessage(errorMsg.c_str(), false);
 	}
     }
 
     if(duplicateWarnings != "") {
-		Program *program = Program::getInstance();
-		if(program) {
-			program->getState()->setForceMouseRender(true);
+		if(mainProgram) {
+			mainProgram->getState()->setForceMouseRender(true);
 		}
 		ExceptionHandler::DisplayMessage(duplicateWarnings.c_str(), false);
     }
@@ -3369,7 +3335,38 @@ int glestMain(int argc, char** argv) {
         //
 
 		program= new Program();
+		mainProgram = program;
 		renderer.setProgram(program);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
+			renderer.setAllowRenderUnitTitles(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
+			SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"In [%s::%s Line: %d] renderer.setAllowRenderUnitTitles = %d\n",__FILE__,__FUNCTION__,__LINE__,SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
+		}
+		renderer.setAllowRenderUnitTitles(true);
+
+		string screenShotsPath = userData + GameConstants::folder_path_screenshots;
+        if(isdir(screenShotsPath.c_str()) == false) {
+        	createDirectoryPaths(screenShotsPath);
+        }
+
+        // Cache Player textures - START
+        string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
+        for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+        	//string playerTexture = data_path + "data/core/faction_textures/faction" + intToStr(index) + ".tga";
+        	string playerTexture = getGameCustomCoreDataPath(data_path, "data/core/faction_textures/faction" + intToStr(index) + ".tga");
+        	if(fileExists(playerTexture) == true) {
+        		Texture2D *texture = Renderer::getInstance().newTexture2D(rsGlobal);
+        		if(texture) {
+        			texture->load(playerTexture);
+        		}
+        		crcPlayerTextureCache[index] = texture;
+        	}
+        	else {
+        		crcPlayerTextureCache[index] = NULL;
+        	}
+        }
+        // Cache Player textures - END
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -3383,12 +3380,15 @@ int glestMain(int argc, char** argv) {
 
 		//parse command line
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER]) == true) {
+			gameInitialized = true;
 			program->initServer(mainWindow,false,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
+			gameInitialized = true;
 			program->initServer(mainWindow,false,true,true);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME])) == true) {
+			gameInitialized = true;
 			program->initServer(mainWindow,true,false);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME])) == true) {
@@ -3409,10 +3409,10 @@ int glestMain(int argc, char** argv) {
 							saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
 						}
 						else {
-							string userData = config.getString("UserData_Root","");
-							if(userData != "") {
-								endPathWithSlash(userData);
-							}
+//							string userData = config.getString("UserData_Root","");
+//							if(userData != "") {
+//								endPathWithSlash(userData);
+//							}
 							saveGameFile = userData + saveGameFile;
 						}
 						if(fileExists(saveGameFile) == true) {
@@ -3429,6 +3429,7 @@ int glestMain(int argc, char** argv) {
 					}
 				}
 			}
+			gameInitialized = true;
 			program->initSavedGame(mainWindow,false,fileName);
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_PREVIEW_MAP])) == true) {
@@ -3480,6 +3481,7 @@ int glestMain(int argc, char** argv) {
 				gameSettings->setEnableServerControlledAI(config.getBool("ServerControlledAI","true"));
 				gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
 
+				gameInitialized = true;
 				program->initServer(mainWindow,gameSettings);
 			}
 			else {
@@ -3500,6 +3502,8 @@ int glestMain(int argc, char** argv) {
 			Tokenize(serverToConnectTo,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string autoConnectServer = paramPartTokens[1];
+
+				gameInitialized = true;
 				program->initClient(mainWindow, autoConnectServer);
 			}
 			else {
@@ -3522,6 +3526,8 @@ int glestMain(int argc, char** argv) {
 			Tokenize(scenarioName,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string autoloadScenarioName = paramPartTokens[1];
+
+				gameInitialized = true;
 				program->initScenario(mainWindow, autoloadScenarioName);
 			}
 			else {
@@ -3532,6 +3538,7 @@ int glestMain(int argc, char** argv) {
 			}
 		}
 		else {
+			gameInitialized = true;
 			program->initNormal(mainWindow);
 		}
 
@@ -3540,12 +3547,6 @@ int glestMain(int argc, char** argv) {
         // Initialize Renderer
 		//Renderer &renderer= Renderer::getInstance();
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
-			renderer.setAllowRenderUnitTitles(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
-			SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"In [%s::%s Line: %d] renderer.setAllowRenderUnitTitles = %d\n",__FILE__,__FUNCTION__,__LINE__,SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
-		}
-		renderer.setAllowRenderUnitTitles(true);
 
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) == true) {
 			//Renderer &renderer= Renderer::getInstance();
@@ -3691,33 +3692,9 @@ int glestMain(int argc, char** argv) {
 		gameInitialized = true;
 
         // Setup the screenshots folder
-        if(userData != "") {
-        	endPathWithSlash(userData);
-        }
-
-		string screenShotsPath = userData + GameConstants::folder_path_screenshots;
-        if(isdir(screenShotsPath.c_str()) == false) {
-        	createDirectoryPaths(screenShotsPath);
-        }
-
-        // Cache Player textures - START
-        string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-		std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
-        for(int index = 0; index < GameConstants::maxPlayers; ++index) {
-        	//string playerTexture = data_path + "data/core/faction_textures/faction" + intToStr(index) + ".tga";
-        	string playerTexture = getGameCustomCoreDataPath(data_path, "data/core/faction_textures/faction" + intToStr(index) + ".tga");
-        	if(fileExists(playerTexture) == true) {
-        		Texture2D *texture = Renderer::getInstance().newTexture2D(rsGlobal);
-        		if(texture) {
-        			texture->load(playerTexture);
-        		}
-        		crcPlayerTextureCache[index] = texture;
-        	}
-        	else {
-        		crcPlayerTextureCache[index] = NULL;
-        	}
-        }
-        // Cache Player textures - END
+//        if(userData != "") {
+//        	endPathWithSlash(userData);
+//        }
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
