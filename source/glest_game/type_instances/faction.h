@@ -201,15 +201,15 @@ public:
 	void finishUpgrade(const UpgradeType *ut);
 
 	//cost application
-	bool applyCosts(const ProducibleType *p);
+	bool applyCosts(const ProducibleType *p,const CommandType *ct);
 	void applyDiscount(const ProducibleType *p, int discount);
-	void applyStaticCosts(const ProducibleType *p);
-	void applyStaticProduction(const ProducibleType *p);
-	void deApplyCosts(const ProducibleType *p);
-	void deApplyStaticCosts(const ProducibleType *p);
-	void deApplyStaticConsumption(const ProducibleType *p);
+	void applyStaticCosts(const ProducibleType *p,const CommandType *ct);
+	void applyStaticProduction(const ProducibleType *p,const CommandType *ct);
+	void deApplyCosts(const ProducibleType *p,const CommandType *ct);
+	void deApplyStaticCosts(const ProducibleType *p,const CommandType *ct);
+	void deApplyStaticConsumption(const ProducibleType *p,const CommandType *ct);
 	void applyCostsOnInterval(const ResourceType *rtApply);
-	bool checkCosts(const ProducibleType *pt);
+	bool checkCosts(const ProducibleType *pt,const CommandType *ct);
 
 	//reqs
 	bool reqsOk(const RequirableType *rt) const;

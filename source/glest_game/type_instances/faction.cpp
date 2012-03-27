@@ -682,36 +682,43 @@ bool Faction::reqsOk(const CommandType *ct) const {
 // ================== cost application ==================
 
 //apply costs except static production (start building/production)
-bool Faction::applyCosts(const ProducibleType *p){
-
-	if(!checkCosts(p)){
-		return false;
+bool Faction::applyCosts(const ProducibleType *p,const CommandType *ct) {
+	bool ignoreResourceCosts = false;
+	if(ct != NULL && ct->getClass() == ccMorph) {
+		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
 	}
 
-	assert(p != NULL);
-	//for each unit cost spend it
-    //pass 2, decrease resources, except negative static costs (ie: farms)
-	for(int i=0; i<p->getCostCount(); ++i) {
-		const Resource *r= p->getCost(i);
-        if(r == NULL) {
-        	char szBuf[1024]="";
-        	sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName().c_str(),i,p->getCostCount());
-        	throw runtime_error(szBuf);
-        }
-
-        const ResourceType *rt= r->getType();
-        if(rt == NULL) {
-        	char szBuf[1024]="";
-        	sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName().c_str(),i,p->getCostCount(),r->getDescription().c_str());
-        	throw runtime_error(szBuf);
-        }
-		int cost= r->getAmount();
-		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
-		{
-            incResourceAmount(rt, -(cost));
+	if(ignoreResourceCosts == false) {
+		if(checkCosts(p,ct) == false) {
+			return false;
 		}
 
-    }
+		assert(p != NULL);
+		//for each unit cost spend it
+		//pass 2, decrease resources, except negative static costs (ie: farms)
+		for(int i=0; i<p->getCostCount(); ++i) {
+			const Resource *r= p->getCost(i);
+			if(r == NULL) {
+				char szBuf[1024]="";
+				sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName().c_str(),i,p->getCostCount());
+				throw runtime_error(szBuf);
+			}
+
+			const ResourceType *rt= r->getType();
+			if(rt == NULL) {
+				char szBuf[1024]="";
+				sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName().c_str(),i,p->getCostCount(),r->getDescription().c_str());
+				throw runtime_error(szBuf);
+			}
+			int cost= r->getAmount();
+			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
+			{
+				incResourceAmount(rt, -(cost));
+			}
+
+		}
+	}
     return true;
 }
 
@@ -733,100 +740,128 @@ void Faction::applyDiscount(const ProducibleType *p, int discount)
 }
 
 //apply static production (for starting units)
-void Faction::applyStaticCosts(const ProducibleType *p) {
+void Faction::applyStaticCosts(const ProducibleType *p,const CommandType *ct) {
 	assert(p != NULL);
-	//decrease static resources
-    for(int i=0; i < p->getCostCount(); ++i) {
-		const ResourceType *rt= p->getCost(i)->getType();
-		//assert(rt != NULL);
-		if(rt == NULL) {
-			throw runtime_error(string(__FUNCTION__) + " rt == NULL for ProducibleType [" + p->getName() + "] index: " + intToStr(i));
-		}
-        if(rt->getClass() == rcStatic) {
-            int cost= p->getCost(i)->getAmount();
-			if(cost > 0) {
-				incResourceAmount(rt, -cost);
+	bool ignoreResourceCosts = false;
+	if(ct != NULL && ct->getClass() == ccMorph) {
+		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+	}
+
+	if(ignoreResourceCosts == false) {
+		//decrease static resources
+		for(int i=0; i < p->getCostCount(); ++i) {
+			const ResourceType *rt= p->getCost(i)->getType();
+			//assert(rt != NULL);
+			if(rt == NULL) {
+				throw runtime_error(string(__FUNCTION__) + " rt == NULL for ProducibleType [" + p->getName() + "] index: " + intToStr(i));
 			}
-        }
-    }
+			if(rt->getClass() == rcStatic) {
+				int cost= p->getCost(i)->getAmount();
+				if(cost > 0) {
+					incResourceAmount(rt, -cost);
+				}
+			}
+		}
+	}
 }
 
 //apply static production (when a mana source is done)
-void Faction::applyStaticProduction(const ProducibleType *p)
-{
+void Faction::applyStaticProduction(const ProducibleType *p,const CommandType *ct) {
 	assert(p != NULL);
-	//decrease static resources
-    for(int i=0; i<p->getCostCount(); ++i)
-    {
-		const ResourceType *rt= p->getCost(i)->getType();
-		assert(rt != NULL);
-        if(rt->getClass() == rcStatic)
-        {
-            int cost= p->getCost(i)->getAmount();
-			if(cost < 0)
-			{
-				incResourceAmount(rt, -cost);
+
+	bool ignoreResourceCosts = false;
+	if(ct != NULL && ct->getClass() == ccMorph) {
+		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+	}
+
+	if(ignoreResourceCosts == false) {
+		//decrease static resources
+		for(int i=0; i<p->getCostCount(); ++i) {
+			const ResourceType *rt= p->getCost(i)->getType();
+			assert(rt != NULL);
+			if(rt->getClass() == rcStatic) {
+				int cost= p->getCost(i)->getAmount();
+				if(cost < 0) {
+					incResourceAmount(rt, -cost);
+				}
 			}
-        }
-    }
+		}
+	}
 }
 
 //deapply all costs except static production (usually when a building is cancelled)
-void Faction::deApplyCosts(const ProducibleType *p)
-{
+void Faction::deApplyCosts(const ProducibleType *p,const CommandType *ct) {
 	assert(p != NULL);
-	//increase resources
-	for(int i=0; i<p->getCostCount(); ++i)
-	{
-		const ResourceType *rt= p->getCost(i)->getType();
-		assert(rt != NULL);
-        int cost= p->getCost(i)->getAmount();
-		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
-		{
-            incResourceAmount(rt, cost);
-		}
 
-    }
+	bool ignoreResourceCosts = false;
+	if(ct != NULL && ct->getClass() == ccMorph) {
+		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+	}
+
+	if(ignoreResourceCosts == false) {
+		//increase resources
+		for(int i=0; i<p->getCostCount(); ++i) {
+			const ResourceType *rt= p->getCost(i)->getType();
+			assert(rt != NULL);
+			int cost= p->getCost(i)->getAmount();
+			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable) {
+				incResourceAmount(rt, cost);
+			}
+		}
+	}
 }
 
 //deapply static costs (usually when a unit dies)
-void Faction::deApplyStaticCosts(const ProducibleType *p)
-{
+void Faction::deApplyStaticCosts(const ProducibleType *p,const CommandType *ct) {
 	assert(p != NULL);
-    //decrease resources
-	for(int i=0; i<p->getCostCount(); ++i)
-	{
-		const ResourceType *rt= p->getCost(i)->getType();
-		assert(rt != NULL);
-		if(rt->getClass() == rcStatic)
-		{
-		    if(rt->getRecoup_cost() == true)
-		    {
-                int cost= p->getCost(i)->getAmount();
-                incResourceAmount(rt, cost);
-		    }
-        }
-    }
+
+	bool ignoreResourceCosts = false;
+	if(ct != NULL && ct->getClass() == ccMorph) {
+		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+	}
+
+	if(ignoreResourceCosts == false) {
+		//decrease resources
+		for(int i=0; i<p->getCostCount(); ++i) {
+			const ResourceType *rt= p->getCost(i)->getType();
+			assert(rt != NULL);
+			if(rt->getClass() == rcStatic) {
+				if(rt->getRecoup_cost() == true) {
+					int cost= p->getCost(i)->getAmount();
+					incResourceAmount(rt, cost);
+				}
+			}
+		}
+	}
 }
 
 //deapply static costs, but not negative costs, for when building gets killed
-void Faction::deApplyStaticConsumption(const ProducibleType *p)
-{
+void Faction::deApplyStaticConsumption(const ProducibleType *p,const CommandType *ct) {
 	assert(p != NULL);
-    //decrease resources
-	for(int i=0; i<p->getCostCount(); ++i)
-	{
-		const ResourceType *rt= p->getCost(i)->getType();
-		assert(rt != NULL);
-		if(rt->getClass() == rcStatic)
-		{
-            int cost= p->getCost(i)->getAmount();
-			if(cost>0)
-			{
-				incResourceAmount(rt, cost);
+
+	bool ignoreResourceCosts = false;
+	if(ct != NULL && ct->getClass() == ccMorph) {
+		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+	}
+
+	if(ignoreResourceCosts == false) {
+		//decrease resources
+		for(int i=0; i<p->getCostCount(); ++i) {
+			const ResourceType *rt= p->getCost(i)->getType();
+			assert(rt != NULL);
+			if(rt->getClass() == rcStatic) {
+				int cost= p->getCost(i)->getAmount();
+				if(cost > 0) {
+					incResourceAmount(rt, cost);
+				}
 			}
-        }
-    }
+		}
+	}
 }
 
 //apply resource on interval (cosumable resouces)
@@ -898,19 +933,29 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 	}
 }
 
-bool Faction::checkCosts(const ProducibleType *pt){
+bool Faction::checkCosts(const ProducibleType *pt,const CommandType *ct) {
 	assert(pt != NULL);
-	//for each unit cost check if enough resources
-	for(int i=0; i<pt->getCostCount(); ++i){
-		const ResourceType *rt= pt->getCost(i)->getType();
-		int cost= pt->getCost(i)->getAmount();
-		if(cost > 0) {
-			int available= getResource(rt)->getAmount();
-			if(cost > available){
-				return false;
+
+	bool ignoreResourceCosts = false;
+	if(ct != NULL && ct->getClass() == ccMorph) {
+		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		//printf("Checking costs = %d for commandtype:\n%s\n",ignoreResourceCosts,mct->getDesc(NULL).c_str());
+	}
+
+	if(ignoreResourceCosts == false) {
+		//for each unit cost check if enough resources
+		for(int i = 0; i < pt->getCostCount(); ++i) {
+			const ResourceType *rt= pt->getCost(i)->getType();
+			int cost= pt->getCost(i)->getAmount();
+			if(cost > 0) {
+				int available= getResource(rt)->getAmount();
+				if(cost > available){
+					return false;
+				}
 			}
 		}
-    }
+	}
 
 	return true;
 }

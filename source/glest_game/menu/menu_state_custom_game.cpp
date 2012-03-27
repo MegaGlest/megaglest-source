@@ -2874,10 +2874,12 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		if(forceCloseUnusedSlots == true && (ct == ctNetworkUnassigned || ct == ctNetwork)) {
 			if(serverInterface->getSlot(i) == NULL ||
                serverInterface->getSlot(i)->isConnected() == false) {
+				if(checkBoxScenario.getValue() == false) {
 				//printf("Closed A [%d] [%s]\n",i,labelPlayerNames[i].getText().c_str());
 
-				listBoxControls[i].setSelectedItemIndex(ctClosed);
-				ct = ctClosed;
+					listBoxControls[i].setSelectedItemIndex(ctClosed);
+					ct = ctClosed;
+				}
 			}
 		}
 		else if(ct == ctNetworkUnassigned && i < mapInfo.players) {
@@ -3475,19 +3477,21 @@ void MenuStateCustomGame::updateControlers() {
 
 void MenuStateCustomGame::closeUnusedSlots(){
 	try {
-		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-		for(int i= 0; i<mapInfo.players; ++i){
-			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
-					listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-				if(serverInterface->getSlot(i) == NULL ||
-                   serverInterface->getSlot(i)->isConnected() == false) {
-					//printf("Closed A [%d] [%s]\n",i,labelPlayerNames[i].getText().c_str());
+		if(checkBoxScenario.getValue() == false) {
+			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+			for(int i= 0; i<mapInfo.players; ++i){
+				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
+						listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+					if(serverInterface->getSlot(i) == NULL ||
+					   serverInterface->getSlot(i)->isConnected() == false) {
+						//printf("Closed A [%d] [%s]\n",i,labelPlayerNames[i].getText().c_str());
 
-					listBoxControls[i].setSelectedItemIndex(ctClosed);
+						listBoxControls[i].setSelectedItemIndex(ctClosed);
+					}
 				}
 			}
+			updateNetworkSlots();
 		}
-		updateNetworkSlots();
 	}
 	catch(const std::exception &ex) {
 		char szBuf[4096]="";

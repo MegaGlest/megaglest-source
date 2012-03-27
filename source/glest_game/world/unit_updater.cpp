@@ -244,7 +244,7 @@ void UnitUpdater::updateUnit(Unit *unit) {
 						}
 						else {
 							spawned->create();
-							spawned->born();
+							spawned->born(command->getCommandType());
 							world->getStats()->produce(unit->getFactionIndex());
 							const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
 							if(ct != NULL){
@@ -877,7 +877,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 				unit->finishCommand();
 				unit->setCurrSkill(scStop);
 
-				builtUnit->born();
+				builtUnit->born(command->getCommandType());
 				scriptManager->onUnitCreated(builtUnit);
 				if(unit->getFactionIndex() == world->getThisFactionIndex() ||
 					(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
@@ -1742,7 +1742,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 			if(repaired != NULL && repaired->isBuilt() == false) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				repaired->born();
+				repaired->born(command->getCommandType());
 				scriptManager->onUnitCreated(repaired);
 			}
 
@@ -1806,7 +1806,7 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 			}
 			else{
 				produced->create();
-				produced->born();
+				produced->born(command->getCommandType());
 				world->getStats()->produce(unit->getFactionIndex());
 				const CommandType *ct= produced->computeCommandType(unit->getMeetingPos());
 				if(ct!=NULL){

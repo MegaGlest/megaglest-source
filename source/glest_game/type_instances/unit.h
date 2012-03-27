@@ -550,7 +550,7 @@ public:
 
 	//lifecycle
 	void create(bool startingUnit= false);
-	void born();
+	void born(const CommandType *ct);
 	void kill();
 	void undertake();
 

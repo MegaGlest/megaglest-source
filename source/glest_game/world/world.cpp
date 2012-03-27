@@ -897,7 +897,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 
 		if(placeUnit(pos, generationArea, unit, spaciated)) {
 			unit->create(true);
-			unit->born();
+			unit->born(NULL);
 			scriptManager->onUnitCreated(unit);
 		}
 		else {
@@ -1180,7 +1180,9 @@ Vec2i World::getStartLocation(int factionIndex) {
 		return map.getStartLocation(faction->getStartLocationIndex());
 	}
 	else {
-		throw runtime_error("Invalid faction index in getStartLocation: " + intToStr(factionIndex));
+		printf("\n=================================================\n%s\n",game->getGameSettings()->toString().c_str());
+
+		throw runtime_error("Invalid faction index in getStartLocation: " + intToStr(factionIndex) + " : " + intToStr(factions.size()));
 	}
 }
 
@@ -1479,7 +1481,7 @@ void World::initUnitsForScenario() {
 void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, bool spaciated) {
 	if(placeUnit(location, generationArea, unit, spaciated)) {
 		unit->create(true);
-		unit->born();
+		unit->born(NULL);
 	}
 	else {
 		string unitName = unit->getType()->getName();

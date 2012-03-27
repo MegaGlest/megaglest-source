@@ -761,6 +761,7 @@ MorphCommandType::MorphCommandType(){
     morphSkillType=NULL;
     morphUnit=NULL;
     discount=0;
+    ignoreResourceRequirements=false;
 }
 
 void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -782,6 +783,13 @@ void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
 
     //discount
 	discount= n->getChild("discount")->getAttribute("value")->getIntValue();
+
+	ignoreResourceRequirements = false;
+	if(n->hasChild("ignore-resource-requirements") == true) {
+		ignoreResourceRequirements= n->getChild("ignore-resource-requirements")->getAttribute("value")->getBoolValue();
+
+		//printf("ignoreResourceRequirements = %d\n",ignoreResourceRequirements);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -806,8 +814,9 @@ string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
         str+= lang.get("Discount")+": "+intToStr(discount)+"%\n";
 	}
 
-    str+= "\n"+getProduced()->getReqDesc();
+    str+= "\n"+getProduced()->getReqDesc(ignoreResourceRequirements);
 	str+=morphSkillType->getBoostDesc();
+
     return str;
 }
 
