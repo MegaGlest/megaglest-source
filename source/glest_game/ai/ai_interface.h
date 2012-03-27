@@ -98,7 +98,7 @@ public:
 	bool isAlly(int factionIndex) const;
 	bool reqsOk(const RequirableType *rt);
 	bool reqsOk(const CommandType *ct);
-    bool checkCosts(const ProducibleType *pt);
+    bool checkCosts(const ProducibleType *pt, const CommandType *ct);
 	bool isFreeCells(const Vec2i &pos, int size, Field field);
 	const Unit *getFirstOnSightEnemyUnit(Vec2i &pos, Field &field, int radius);
 	Map * getMap();

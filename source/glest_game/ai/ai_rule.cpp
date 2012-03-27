@@ -821,13 +821,49 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 	//if unit meets requirements
 	if(aiInterface->reqsOk(pt->getUnitType())) {
 
-		if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]\n",aiInterface->checkCosts(pt->getUnitType()), this->getName().c_str());
-		//aiInterface->printLog(4, "produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]",aiInterface->checkCosts(pt->getUnitType()), this->getName().c_str());
-		sprintf(szBuf,"produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]",aiInterface->checkCosts(pt->getUnitType()), this->getName().c_str());
+		const CommandType *ctypeForCostCheck = NULL;
+		//for each unit
+		for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
+
+			//for each command
+			const UnitType *ut= aiInterface->getMyUnit(i)->getType();
+			for(int j=0; j<ut->getCommandTypeCount(); ++j){
+				const CommandType *ct= ut->getCommandType(j);
+
+				//if the command is produce
+				if(ct->getClass()==ccProduce || ct->getClass()==ccMorph){
+					const UnitType *producedUnit= static_cast<const UnitType*>(ct->getProduced());
+
+					//if units match
+					if(producedUnit == pt->getUnitType()){
+
+						if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(ct) = [%d] Testing AI RULE Name[%s]\n",aiInterface->reqsOk(ct), this->getName().c_str());
+						//aiInterface->printLog(4, "produceSpecific aiInterface->reqsOk(ct) = [%d] Testing AI RULE Name[%s]",aiInterface->reqsOk(ct), this->getName().c_str());
+
+						if(aiInterface->reqsOk(ct)){
+							if(ctypeForCostCheck == NULL || ct->getClass() == ccMorph) {
+								if(ctypeForCostCheck != NULL && ct->getClass() == ccMorph) {
+									const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+									if(mct->getIgnoreResourceRequirements() == true) {
+										ctypeForCostCheck= ct;
+									}
+								}
+								else {
+									ctypeForCostCheck= ct;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]\n",aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck), this->getName().c_str());
+		sprintf(szBuf,"produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]",aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck), this->getName().c_str());
 		aiInterface->printLog(4, szBuf);
 
 		//if unit doesnt meet resources retry
-		if(aiInterface->checkCosts(pt->getUnitType()) == false) {
+		if(aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck) == false) {
 			sprintf(szBuf,"Check costs FAILED.");
 			aiInterface->printLog(4, szBuf);
 
@@ -1291,7 +1327,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 	if(aiInterface->reqsOk(bt->getUnitType())) {
 
 		//retry if not enough resources
-		if(aiInterface->checkCosts(bt->getUnitType()) == false) {
+		if(aiInterface->checkCosts(bt->getUnitType(),NULL) == false) {
 			ai->retryTask(bt);
 			return;
 		}
@@ -1555,7 +1591,7 @@ void AiRuleUpgrade::upgradeSpecific(const UpgradeTask *upgt){
 	if(aiInterface->reqsOk(upgt->getUpgradeType())){
 
 		//if resources dont meet retry
-		if(!aiInterface->checkCosts(upgt->getUpgradeType())){
+		if(!aiInterface->checkCosts(upgt->getUpgradeType(), NULL)) {
 			ai->retryTask(upgt);
 			return;
 		}

@@ -363,6 +363,7 @@ private:
     const MorphSkillType* morphSkillType;
     const UnitType* morphUnit;
 	int discount;
+	bool ignoreResourceRequirements;
 
 public:
     MorphCommandType();
@@ -380,6 +381,7 @@ public:
 	const MorphSkillType *getMorphSkillType() const		{return morphSkillType;}
 	const UnitType *getMorphUnit() const				{return morphUnit;}
 	int getDiscount() const								{return discount;}
+	bool getIgnoreResourceRequirements() const			{return ignoreResourceRequirements;}
 };
 
 // ===============================

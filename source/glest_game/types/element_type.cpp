@@ -121,14 +121,19 @@ const Resource *ProducibleType::getCost(const ResourceType *rt) const{
 	return NULL;
 }
 
-string ProducibleType::getReqDesc() const{
+string ProducibleType::getReqDesc() const {
+	return getReqDesc(false);
+}
+string ProducibleType::getReqDesc(bool ignoreResourceRequirements) const {
     string str= getName()+" "+Lang::getInstance().get("Reqs")+":\n";
-    for(int i=0; i<getCostCount(); ++i){
-        if(getCost(i)->getAmount()!=0){
-            str+= getCost(i)->getType()->getName();
-            str+= ": "+ intToStr(getCost(i)->getAmount());
-            str+= "\n";
-        }
+    if(ignoreResourceRequirements == false) {
+		for(int i=0; i<getCostCount(); ++i){
+			if(getCost(i)->getAmount()!=0){
+				str+= getCost(i)->getType()->getName();
+				str+= ": "+ intToStr(getCost(i)->getAmount());
+				str+= "\n";
+			}
+		}
     }
 
     for(int i=0; i<getUnitReqCount(); ++i){

@@ -1501,15 +1501,15 @@ CommandResult Unit::cancelCommand() {
 
 // =================== route stack ===================
 
-void Unit::create(bool startingUnit){
+void Unit::create(bool startingUnit) {
 	faction->addUnit(this);
 	map->putUnitCells(this, pos);
-	if(startingUnit){
-		faction->applyStaticCosts(type);
+	if(startingUnit) {
+		faction->applyStaticCosts(type,NULL);
 	}
 }
 
-void Unit::born() {
+void Unit::born(const CommandType *ct) {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
@@ -1517,7 +1517,7 @@ void Unit::born() {
 	}
 
 	faction->addStore(type);
-	faction->applyStaticProduction(type);
+	faction->applyStaticProduction(type,ct);
 	setCurrSkill(scStop);
 
 	checkItemInVault(&this->hp,this->hp);
@@ -1528,10 +1528,10 @@ void Unit::born() {
 void Unit::kill() {
 	//no longer needs static resources
 	if(isBeingBuilt()) {
-		faction->deApplyStaticConsumption(type);
+		faction->deApplyStaticConsumption(type,(getCurrCommand() != NULL ? getCurrCommand()->getCommandType() : NULL));
 	}
 	else {
-		faction->deApplyStaticCosts(type);
+		faction->deApplyStaticCosts(type,(getCurrCommand() != NULL ? getCurrCommand()->getCommandType() : NULL));
 	}
 
 	//do the cleaning
@@ -2673,9 +2673,9 @@ bool Unit::morph(const MorphCommandType *mct){
     Field morphUnitField=fLand;
     if(morphUnitType->getField(fAir)) morphUnitField=fAir;
     if(morphUnitType->getField(fLand)) morphUnitField=fLand;
-    if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this,morphUnitType)){
+    if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this,morphUnitType)) {
 		map->clearUnitCells(this, pos);
-		faction->deApplyStaticCosts(type);
+		faction->deApplyStaticCosts(type,mct);
 
 		checkItemInVault(&this->hp,this->hp);
 		hp += morphUnitType->getMaxHp() - type->getMaxHp();
@@ -2689,7 +2689,7 @@ bool Unit::morph(const MorphCommandType *mct){
 		map->putUnitCells(this, pos);
 		faction->applyDiscount(morphUnitType, mct->getDiscount());
 		faction->addStore(type);
-		faction->applyStaticProduction(morphUnitType);
+		faction->applyStaticProduction(morphUnitType,mct);
 
 		level= NULL;
 		checkUnitLevel();
@@ -2821,12 +2821,13 @@ CommandResult Unit::checkCommand(Command *command) const {
 	}
 
 	const ProducibleType *produced= command->getCommandType()->getProduced();
-	if(produced!=NULL) {
+	if(produced != NULL) {
 		if(ignoreCheckCommand == false && faction->reqsOk(produced) == false) {
             return crFailReqs;
 		}
 
-		if(ignoreCheckCommand == false && faction->checkCosts(produced) == false) {
+		if(ignoreCheckCommand == false &&
+				faction->checkCosts(produced,command->getCommandType()) == false) {
 			return crFailRes;
 		}
 	}
@@ -2844,7 +2845,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 		if(faction->reqsOk(builtUnit) == false) {
             return crFailReqs;
 		}
-		if(faction->checkCosts(builtUnit) == false) {
+		if(faction->checkCosts(builtUnit,NULL) == false) {
 			return crFailRes;
 		}
     }
@@ -2882,12 +2883,12 @@ void Unit::applyCommand(Command *command){
 	//check produced
 	const ProducibleType *produced= command->getCommandType()->getProduced();
 	if(produced!=NULL) {
-		faction->applyCosts(produced);
+		faction->applyCosts(produced,command->getCommandType());
 	}
 
     //build command specific
     if(command->getCommandType()->getClass()==ccBuild){
-		faction->applyCosts(command->getUnitType());
+		faction->applyCosts(command->getUnitType(),command->getCommandType());
     }
     //upgrade command specific
     else if(command->getCommandType()->getClass()==ccUpgrade){
@@ -2919,20 +2920,19 @@ CommandResult Unit::undoCommand(Command *command){
 	//return cost
 	const ProducibleType *produced= command->getCommandType()->getProduced();
 	if(produced!=NULL){
-		faction->deApplyCosts(produced);
+		faction->deApplyCosts(produced,command->getCommandType());
 	}
 
 	//return building cost if not already building it or dead
 	if(command->getCommandType()->getClass() == ccBuild){
 		if(currSkill->getClass() != scBuild && currSkill->getClass() != scDie) {
-			faction->deApplyCosts(command->getUnitType());
+			faction->deApplyCosts(command->getUnitType(),command->getCommandType());
 		}
 	}
 
 	//upgrade command cancel from list
 	if(command->getCommandType()->getClass() == ccUpgrade){
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
-
         if(uct == NULL) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());

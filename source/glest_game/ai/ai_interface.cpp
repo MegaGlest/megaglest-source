@@ -632,8 +632,8 @@ bool AiInterface::reqsOk(const CommandType *ct){
     return world->getFaction(factionIndex)->reqsOk(ct);
 }
 
-bool AiInterface::checkCosts(const ProducibleType *pt){
-	return world->getFaction(factionIndex)->checkCosts(pt);
+bool AiInterface::checkCosts(const ProducibleType *pt, const CommandType *ct) {
+	return world->getFaction(factionIndex)->checkCosts(pt,ct);
 }
 
 bool AiInterface::isFreeCells(const Vec2i &pos, int size, Field field){
