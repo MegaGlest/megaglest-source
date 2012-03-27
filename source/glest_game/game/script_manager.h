@@ -117,6 +117,8 @@ public:
 	int startFrame;
 	int endFrame;
 
+	int triggerSecondsElapsed;
+
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
 };
@@ -255,6 +257,7 @@ private:
 	int getCellTriggerEventCount(int eventId);
 	void unregisterCellTriggerEvent(int eventId);
 	int startTimerEvent();
+	int startEfficientTimerEvent(int triggerSecondsElapsed);
 	int resetTimerEvent(int eventId);
 	int stopTimerEvent(int eventId);
 	int getTimerEventSecondsElapsed(int eventId);
@@ -346,6 +349,7 @@ private:
 	static int getCellTriggerEventCount(LuaHandle* luaHandle);
 	static int unregisterCellTriggerEvent(LuaHandle* luaHandle);
 	static int startTimerEvent(LuaHandle* luaHandle);
+	static int startEfficientTimerEvent(LuaHandle* luaHandle);
 	static int resetTimerEvent(LuaHandle* luaHandle);
 	static int stopTimerEvent(LuaHandle* luaHandle);
 	static int getTimerEventSecondsElapsed(LuaHandle* luaHandle);
