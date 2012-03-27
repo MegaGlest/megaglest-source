@@ -485,6 +485,11 @@ void ScriptManager::onTimerTriggerEvent() {
 			currentTimerTriggeredEventId = iterMap->first;
 			luaScript.beginCall("timerTriggerEvent");
 			luaScript.endCall();
+
+			if(event.triggerSecondsElapsed > 0) {
+				int timerId = iterMap->first;
+				stopTimerEvent(timerId);
+			}
 		}
 	}
 }
