@@ -141,6 +141,7 @@ TimerTriggerEvent::TimerTriggerEvent() {
 	running = false;
 	startFrame = 0;
 	endFrame = 0;
+	triggerSecondsElapsed = 0;
 }
 
 void TimerTriggerEvent::saveGame(XmlNode *rootNode) {
@@ -155,6 +156,10 @@ void TimerTriggerEvent::saveGame(XmlNode *rootNode) {
 	timerTriggerEventNode->addAttribute("startFrame",intToStr(startFrame), mapTagReplacements);
 //	int endFrame;
 	timerTriggerEventNode->addAttribute("endFrame",intToStr(endFrame), mapTagReplacements);
+
+	if(triggerSecondsElapsed > 0) {
+		timerTriggerEventNode->addAttribute("triggerSecondsElapsed",intToStr(triggerSecondsElapsed), mapTagReplacements);
+	}
 }
 
 void TimerTriggerEvent::loadGame(const XmlNode *rootNode) {
@@ -163,6 +168,9 @@ void TimerTriggerEvent::loadGame(const XmlNode *rootNode) {
 	running = timerTriggerEventNode->getAttribute("running")->getIntValue();
 	startFrame = timerTriggerEventNode->getAttribute("startFrame")->getIntValue();
 	endFrame = timerTriggerEventNode->getAttribute("endFrame")->getIntValue();
+	if(timerTriggerEventNode->hasAttribute("triggerSecondsElapsed") == true) {
+		triggerSecondsElapsed = timerTriggerEventNode->getAttribute("triggerSecondsElapsed")->getIntValue();
+	}
 }
 
 // =====================================================
@@ -262,6 +270,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getCellTriggerEventCount, "getCellTriggerEventCount");
 	luaScript.registerFunction(unregisterCellTriggerEvent, "unregisterCellTriggerEvent");
 	luaScript.registerFunction(startTimerEvent, "startTimerEvent");
+	luaScript.registerFunction(startEfficientTimerEvent, "startEfficientTimerEvent");
 	luaScript.registerFunction(resetTimerEvent, "resetTimerEvent");
 	luaScript.registerFunction(stopTimerEvent, "stopTimerEvent");
 	luaScript.registerFunction(getTimerEventSecondsElapsed, "timerEventSecondsElapsed");
@@ -442,7 +451,7 @@ void ScriptManager::onGameOver(bool won) {
 }
 
 void ScriptManager::onTimerTriggerEvent() {
-	if(TimerTriggerEventList.size() <= 0) {
+	if(TimerTriggerEventList.empty() == true) {
 		return;
 	}
 	if(this->rootNode != NULL) {
@@ -461,8 +470,15 @@ void ScriptManager::onTimerTriggerEvent() {
 		if(event.running == true) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+			// If using an efficient timer, check if its time to trigger
+			// on the elapsed check
+			if(event.triggerSecondsElapsed > 0) {
+				int elapsed = (world->getFrameCount()-event.startFrame) / GameConstants::updateFps;
+				if(elapsed < event.triggerSecondsElapsed) {
+					continue;
+				}
+			}
 			currentTimerTriggeredEventId = iterMap->first;
-
 			luaScript.beginCall("timerTriggerEvent");
 			luaScript.endCall();
 		}
@@ -470,7 +486,7 @@ void ScriptManager::onTimerTriggerEvent() {
 }
 
 void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
-	if(CellTriggerEventList.size() <= 0) {
+	if(CellTriggerEventList.empty() == true) {
 		return;
 	}
 	if(this->rootNode != NULL) {
@@ -955,6 +971,23 @@ int ScriptManager::startTimerEvent() {
 	trigger.startFrame = world->getFrameCount();
 	//trigger.endTime = 0;
 	trigger.endFrame = 0;
+
+	int eventId = currentEventId++;
+	TimerTriggerEventList[eventId] = trigger;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame);
+
+	return eventId;
+}
+
+int ScriptManager::startEfficientTimerEvent(int triggerSecondsElapsed) {
+	TimerTriggerEvent trigger;
+	trigger.running = true;
+	//trigger.startTime = time(NULL);
+	trigger.startFrame = world->getFrameCount();
+	//trigger.endTime = 0;
+	trigger.endFrame = 0;
+	trigger.triggerSecondsElapsed = triggerSecondsElapsed;
 
 	int eventId = currentEventId++;
 	TimerTriggerEventList[eventId] = trigger;
@@ -1483,6 +1516,13 @@ int ScriptManager::unregisterCellTriggerEvent(LuaHandle* luaHandle) {
 int ScriptManager::startTimerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	int result = thisScriptManager->startTimerEvent();
+	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::startEfficientTimerEvent(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	int result = thisScriptManager->startEfficientTimerEvent(luaArguments.getInt(-1));
 	luaArguments.returnInt(result);
 	return luaArguments.getReturnCount();
 }
