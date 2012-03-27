@@ -21,6 +21,7 @@
 #include "game_constants.h"
 #include <map>
 #include "xml_parser.h"
+#include "randomgen.h"
 #include "leak_dumper.h"
 
 using std::string;
@@ -30,6 +31,7 @@ using Shared::Graphics::Vec2i;
 using Shared::Lua::LuaScript;
 using Shared::Lua::LuaHandle;
 using Shared::Xml::XmlNode;
+using Shared::Util::RandomGen;
 
 namespace Glest{ namespace Game{
 
@@ -176,6 +178,7 @@ private:
 	bool inCellTriggerEvent;
 	std::vector<int> unRegisterCellTriggerEventList;
 
+	RandomGen random;
 	const XmlNode *rootNode;
 
 private:
@@ -263,6 +266,10 @@ private:
 	int getTimerEventSecondsElapsed(int eventId);
 	int getCellTriggeredEventId();
 	int getTimerTriggeredEventId();
+
+	void setRandomGenInit(int seed);
+	int getRandomGen(int minVal, int maxVal);
+	int getWorldFrameCount();
 
 	bool getAiEnabled(int factionIndex);
 	bool getConsumeEnabled(int factionIndex);
@@ -356,6 +363,10 @@ private:
 
 	static int getCellTriggeredEventId(LuaHandle* luaHandle);
 	static int getTimerTriggeredEventId(LuaHandle* luaHandle);
+
+	static int setRandomGenInit(LuaHandle* luaHandle);
+	static int getRandomGen(LuaHandle* luaHandle);
+	static int getWorldFrameCount(LuaHandle* luaHandle);
 
 	static int setPlayerAsWinner(LuaHandle* luaHandle);
 	static int endGame(LuaHandle* luaHandle);
