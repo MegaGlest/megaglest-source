@@ -1805,8 +1805,10 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 				delete produced;
 			}
 			else{
+				command= unit->getCurrCommand();
+
 				produced->create();
-				produced->born(command->getCommandType());
+				produced->born((command != NULL ? command->getCommandType() : NULL));
 				world->getStats()->produce(unit->getFactionIndex());
 				const CommandType *ct= produced->computeCommandType(unit->getMeetingPos());
 				if(ct!=NULL){
