@@ -277,6 +277,10 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getCellTriggeredEventId, "triggeredCellEventId");
 	luaScript.registerFunction(getTimerTriggeredEventId, "triggeredTimerEventId");
 
+	luaScript.registerFunction(setRandomGenInit, "setRandomGenInit");
+	luaScript.registerFunction(getRandomGen, "getRandomGen");
+	luaScript.registerFunction(getWorldFrameCount, "getWorldFrameCount");
+
 	luaScript.registerFunction(getStartLocation, "startLocation");
 	luaScript.registerFunction(getUnitPosition, "unitPosition");
 	luaScript.registerFunction(getUnitFaction, "unitFaction");
@@ -1130,6 +1134,21 @@ int ScriptManager::getTimerTriggeredEventId() {
 	return currentTimerTriggeredEventId;
 }
 
+void ScriptManager::setRandomGenInit(int seed) {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	random.init(seed);
+}
+
+int ScriptManager::getRandomGen(int minVal, int maxVal) {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return random.randRange(minVal,maxVal);
+}
+
+int ScriptManager::getWorldFrameCount() {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->getFrameCount();
+}
+
 bool ScriptManager::getGameWon() {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return gameWon;
@@ -1627,6 +1646,24 @@ int ScriptManager::getCellTriggeredEventId(LuaHandle* luaHandle){
 int ScriptManager::getTimerTriggeredEventId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getTimerTriggeredEventId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::setRandomGenInit(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->setRandomGenInit(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getRandomGen(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getRandomGen(luaArguments.getInt(-2),luaArguments.getInt(-1)));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getWorldFrameCount(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getWorldFrameCount());
 	return luaArguments.getReturnCount();
 }
 
