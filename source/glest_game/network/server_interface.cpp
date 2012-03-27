@@ -73,9 +73,12 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	lastGlobalLagCheckTime			= 0;
 	masterserverAdminRequestLaunch	= false;
 
+	// This is an admin port listening only on the localhost intended to
+	// give current connection status info
 	serverSocketAdmin				= new ServerSocket(true);
 	serverSocketAdmin->setBlock(false);
 	serverSocketAdmin->setBindPort(Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str()));
+	serverSocketAdmin->setBindSpecificAddress("127.0.0.1");
 	serverSocketAdmin->listen(5);
 
 	maxFrameCountLagAllowed 				= Config::getInstance().getInt("MaxFrameCountLagAllowed", intToStr(maxFrameCountLagAllowed).c_str());
