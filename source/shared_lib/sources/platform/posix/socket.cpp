@@ -2046,6 +2046,7 @@ ServerSocket::ServerSocket(bool basicMode) : Socket() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] basicMode = %d\n",__FILE__,__FUNCTION__,__LINE__,basicMode);
 
 	this->basicMode = basicMode;
+	this->bindSpecificAddress = "";
 	//printf("SERVER SOCKET CONSTRUCTOR\n");
 	//MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
 	//ServerSocket::upnpdiscoverThread = NULL;
@@ -2178,7 +2179,12 @@ void ServerSocket::bind(int port) {
 	//sockaddr structure
 	sockaddr_in addr;
 	addr.sin_family= AF_INET;
-	addr.sin_addr.s_addr= INADDR_ANY;
+	if(this->bindSpecificAddress != "") {
+		addr.sin_addr.s_addr= inet_addr(this->bindSpecificAddress.c_str());
+	}
+	else {
+		addr.sin_addr.s_addr= INADDR_ANY;
+	}
 	addr.sin_port= htons(port);
 
 	int val = 1;

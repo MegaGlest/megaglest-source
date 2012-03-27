@@ -234,6 +234,7 @@ protected:
 
 	bool portBound;
 	int boundPort;
+	string bindSpecificAddress;
 
 	static int externalPort;
 	static int ftpServerPort;
@@ -268,6 +269,8 @@ public:
 	void setBindPort(int port) { boundPort = port; }
 	int getBindPort() const { return boundPort; }
 	bool isPortBound() const { return portBound; }
+
+	void setBindSpecificAddress(string value) { bindSpecificAddress = value;}
 
 	static void setExternalPort(int port) { externalPort = port; }
 	static int getExternalPort() { return externalPort; }
