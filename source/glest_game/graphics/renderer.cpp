@@ -7738,6 +7738,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 								//bool insideQuad 	= PointInFrustum(quadCache.frustumData, o->getPos().x, o->getPos().y, o->getPos().z );
 								bool insideQuad 	= CubeInFrustum(quadCache.frustumData, o->getPos().x, o->getPos().y, o->getPos().z, 1);
 								if(insideQuad == false) {
+									o->setVisible(false);
 									continue;
 								}
 							}
