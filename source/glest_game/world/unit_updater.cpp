@@ -206,6 +206,8 @@ void UnitUpdater::updateUnit(Unit *unit) {
 		else if(unit->getCommandSize() > 0) {
 			Command *command= unit->getCurrCommand();
 			if(command != NULL) {
+				const CommandType *ct = (command != NULL ? command->getCommandType() : NULL);
+
 				const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(command->getCommandType());
 				if( act != NULL && act->getAttackSkillType() != NULL &&
 					act->getAttackSkillType()->getSpawnUnit() != "" && act->getAttackSkillType()->getSpawnUnitCount() > 0) {
@@ -244,7 +246,7 @@ void UnitUpdater::updateUnit(Unit *unit) {
 						}
 						else {
 							spawned->create();
-							spawned->born(command->getCommandType());
+							spawned->born(ct);
 							world->getStats()->produce(unit->getFactionIndex());
 							const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
 							if(ct != NULL){
@@ -873,11 +875,12 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 			else if(builtUnit == NULL || builtUnit->repair()) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+				const CommandType *ct = (command != NULL ? command->getCommandType() : NULL);
 				//building finished
 				unit->finishCommand();
 				unit->setCurrSkill(scStop);
 
-				builtUnit->born(command->getCommandType());
+				builtUnit->born(ct);
 				scriptManager->onUnitCreated(builtUnit);
 				if(unit->getFactionIndex() == world->getThisFactionIndex() ||
 					(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
@@ -1454,6 +1457,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 
     Command *command= unit->getCurrCommand();
     const RepairCommandType *rct= static_cast<const RepairCommandType*>(command->getCommandType());
+    const CommandType *ct = (command != NULL ? command->getCommandType() : NULL);
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] rct = %p\n",__FILE__,__FUNCTION__,__LINE__,rct);
 
@@ -1742,7 +1746,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 			if(repaired != NULL && repaired->isBuilt() == false) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				repaired->born(command->getCommandType());
+				repaired->born(ct);
 				scriptManager->onUnitCreated(repaired);
 			}
 
@@ -1772,6 +1776,8 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
         unit->setCurrSkill(pct->getProduceSkillType());
     }
     else {
+    	const CommandType *ct = (command != NULL ? command->getCommandType() : NULL);
+
 		unit->update2();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1805,10 +1811,8 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 				delete produced;
 			}
 			else{
-				command= unit->getCurrCommand();
-
 				produced->create();
-				produced->born((command != NULL ? command->getCommandType() : NULL));
+				produced->born(ct);
 				world->getStats()->produce(unit->getFactionIndex());
 				const CommandType *ct= produced->computeCommandType(unit->getMeetingPos());
 				if(ct!=NULL){
