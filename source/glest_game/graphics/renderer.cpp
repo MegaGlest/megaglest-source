@@ -966,7 +966,10 @@ void Renderer::loadCameraMatrix(const Camera *camera) {
 	glTranslatef(-position.x, -position.y, -position.z);
 }
 
-enum PROJECTION_TO_INFINITY { D_IS_ZERO, N_OVER_D_IS_OUTSIDE };
+enum PROJECTION_TO_INFINITY {
+	D_IS_ZERO,
+	N_OVER_D_IS_OUTSIDE
+};
 
 static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble* projection,const GLint* viewport,const char* label=NULL) {
 	Vec3d a,b;
@@ -6089,11 +6092,11 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 	//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",__FILE__,__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
 
 	if(pickedList.empty() == false) {
-		for(int i = 0; i < pickedList.size(); ++i) {
+		for(unsigned int i = 0; i < pickedList.size(); ++i) {
 			int index = pickedList[i];
 			//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",__FILE__,__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
 
-			if(rendererObjects.size() > 0 && index < rendererObjects.size()) {
+			if(rendererObjects.empty() == false && index < rendererObjects.size()) {
 				Object *object = rendererObjects[index];
 				//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",__FILE__,__FUNCTION__,__LINE__,i,index,object);
 

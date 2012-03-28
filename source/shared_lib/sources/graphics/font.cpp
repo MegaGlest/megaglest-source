@@ -330,7 +330,7 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 			font = strdup(path); \
 		} \
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",path,font); \
-		if( !font && fontFamily && strlen(fontFamily) > 0) { \
+		if( !font && fontFamily != NULL && strlen(fontFamily) > 0) { \
 			string fileFound = findFontFamily(font, fontFamily); \
 			if(fileFound != "") { \
 				path = fileFound.c_str(); \

@@ -617,7 +617,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 			time_t refreshDate = 0;
 			int32 crcValue = 0;
 			time_t lastUpdateDate = 0;
-			int res = fscanf(fp,"%ld,%d,%ld",&refreshDate,&crcValue,&lastUpdateDate);
+			int readbytes = fscanf(fp,"%ld,%d,%ld",&refreshDate,&crcValue,&lastUpdateDate);
 			fclose(fp);
 
 			result.second = lastUpdateDate;
@@ -1756,7 +1756,6 @@ string replaceAllBetweenTokens(string& context, const string startToken,
 		const string endToken, const string newText, bool removeTokens) {
     size_t lookHere = 0;
     size_t foundHere = 0;
-    size_t foundHereEnd = 0;
     if((foundHere = context.find(startToken, lookHere)) != string::npos) {
     	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Replacing context [%s] from [%s] to [%s]\n",context.c_str(),from.c_str(),to.c_str());
 

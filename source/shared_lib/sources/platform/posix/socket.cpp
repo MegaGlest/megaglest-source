@@ -2541,7 +2541,6 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2],bool mutexLock) {
 	char externalIP[16]     = "";
 	char ext_port_str[16]   = "";
 	char int_port_str[16]   = "";
-	int r                   = 0;
 
 	//printf("SERVER SOCKET upnp_add_redirect - START\n");
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_add_redir(%d : %d)\n",__FILE__,__FUNCTION__,__LINE__,ports[0],ports[1]);
@@ -2571,6 +2570,7 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2],bool mutexLock) {
 		sprintf(ext_port_str, "%d", ports[0]);
 		sprintf(int_port_str, "%d", ports[1]);
 
+		int r                   = 0;
 #ifndef MINIUPNPC_VERSION_PRE1_5
 	#ifndef MINIUPNPC_VERSION_PRE1_6
 		r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,ext_port_str, int_port_str, lanaddr, "MegaGlest - www.megaglest.org", "TCP", 0, NULL);
@@ -2785,12 +2785,11 @@ void BroadCastSocketThread::execute() {
 					if(difftime(time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
 						elapsed = time(NULL);
 
-						ssize_t send_res = 0;
 						bool pauseBroadCast = getPauseBroadcast();
 						if(pauseBroadCast == false) {
 							// Broadcast the packet to the subnet
 							//if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
-							send_res = sendto( bcfd[idx], buff, buffMaxSize, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) );
+							ssize_t send_res = sendto( bcfd[idx], buff, buffMaxSize, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) );
 							if( send_res != buffMaxSize ) {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %s\n", getLastSocketErrorFormattedText().c_str());
 							}

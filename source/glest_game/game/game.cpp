@@ -1236,7 +1236,6 @@ void Game::update() {
 						// Simply show a progress message while replaying commands
 						if(lastReplaySecond < chronoReplay.getSeconds()) {
 							lastReplaySecond = chronoReplay.getSeconds();
-							const Metrics &metrics= Metrics::getInstance();
 							Renderer &renderer= Renderer::getInstance();
 							renderer.clearBuffers();
 							renderer.clearZBuffer();

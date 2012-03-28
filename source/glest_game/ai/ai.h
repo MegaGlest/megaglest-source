@@ -169,6 +169,7 @@ public:
 	    aiInterface = NULL;
 	    startLoc = -1;
 	    randomMinWarriorsReached = false;
+	    minWarriors = 0;
 	}
     ~Ai();
 

@@ -2232,7 +2232,7 @@ void CheckForDuplicateData() {
 	if(maps.empty() == true) {
         throw runtime_error("No maps were found!");
     }
-	else if(invalidMapList.size() > 0) {
+	else if(invalidMapList.empty() == false) {
 		string errorMsg = "Warning invalid maps were detected (will be ignored):\n";
 		for(int i = 0; i < invalidMapList.size(); ++i) {
 			char szBuf[4096]="";

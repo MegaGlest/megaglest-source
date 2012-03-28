@@ -2127,7 +2127,7 @@ void World::saveGame(XmlNode *rootNode) {
 	if(techTree != NULL) {
 		techTree->saveGame(worldNode);
 	}
-	worldNode->addAttribute("techTree",techTree->getName(), mapTagReplacements);
+	worldNode->addAttribute("techTree",(techTree != NULL ? techTree->getName() : ""), mapTagReplacements);
 //	TimeFlow timeFlow;
 	timeFlow.saveGame(worldNode);
 //	Scenario scenario;

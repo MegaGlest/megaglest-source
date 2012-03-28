@@ -198,7 +198,6 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
     else if(deleteButton.mouseClick(x, y)) {
 		soundRenderer.playFx(coreData.getClickSoundB());
 		if(selectedButton == NULL) {
-			Lang &lang= Lang::getInstance();
 			console.addStdMessage("NothingSelected",true);
 		}
 		else {
@@ -236,7 +235,6 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 		soundRenderer.playFx(coreData.getClickSoundB());
 
 		if(selectedButton == NULL) {
-			Lang &lang= Lang::getInstance();
 			console.addStdMessage("NothingSelected",true);
 		}
 		else {

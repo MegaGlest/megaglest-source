@@ -58,6 +58,9 @@ private:
 	const Texture *teamTexture;
 
 public:
+	MeshCallbackTeamColor() : MeshCallback() {
+		teamTexture = NULL;
+	}
 	void setTeamTexture(const Texture *teamTexture)	{this->teamTexture= teamTexture;}
 	virtual void execute(const Mesh *mesh);
 };

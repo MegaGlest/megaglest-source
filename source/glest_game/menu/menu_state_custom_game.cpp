@@ -3919,11 +3919,9 @@ void MenuStateCustomGame::processScenario() {
 				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 				ConnectionSlot *slot = serverInterface->getSlot(i);
 
-				bool checkControTypeClicked = false;
 				int selectedControlItemIndex = listBoxControls[i].getSelectedItemIndex();
 				if(selectedControlItemIndex != ctNetwork ||
 					(selectedControlItemIndex == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
-					checkControTypeClicked = true;
 				}
 
 				listBoxControls[i].setSelectedItemIndex(scenarioInfo.factionControls[i]);
@@ -4297,7 +4295,6 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 }
 
 void MenuStateCustomGame::setupTilesetList(string scenario) {
-	int initialTechSelection = 0;
 	try {
 		Config &config = Config::getInstance();
 

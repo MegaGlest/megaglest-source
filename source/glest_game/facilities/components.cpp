@@ -336,7 +336,7 @@ const int GraphicListBox::defH= 22;
 const int GraphicListBox::defW= 140;
 
 GraphicListBox::GraphicListBox(std::string containerName, std::string objName)
-: GraphicComponent(containerName, objName) {
+: GraphicComponent(containerName, objName), graphButton1(), graphButton2() {
     selectedItemIndex = 0;
     lighted = false;
 }
