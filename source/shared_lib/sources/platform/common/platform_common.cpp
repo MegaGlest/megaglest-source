@@ -617,7 +617,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 			time_t refreshDate = 0;
 			int32 crcValue = 0;
 			time_t lastUpdateDate = 0;
-			int readbytes = fscanf(fp,"%ld,%d,%ld",&refreshDate,&crcValue,&lastUpdateDate);
+			int readbytes = fscanf(fp,"%20ld,%20d,%20ld",&refreshDate,&crcValue,&lastUpdateDate);
 			fclose(fp);
 
 			result.second = lastUpdateDate;

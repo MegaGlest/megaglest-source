@@ -1963,7 +1963,7 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 		//XmlNode *surfaceCellNode = mapNode->getChild("SurfaceCell");
 		string exploredList = surfaceCellNode->getAttribute("exploredList")->getValue();
 		string visibleList = surfaceCellNode->getAttribute("visibleList")->getValue();
-		int batchIndex = surfaceCellNode->getAttribute("batchIndex")->getIntValue();
+		//int batchIndex = surfaceCellNode->getAttribute("batchIndex")->getIntValue();
 
 		vector<string> tokensExplored;
 		Tokenize(exploredList,tokensExplored,",");
