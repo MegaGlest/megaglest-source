@@ -439,7 +439,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 //	}
 //    //listBoxMap.setItems(formattedPlayerSortedMaps[0]);
 //	listBoxMap.setItems(formattedMapFiles);
-	int initialMapSelection = setupMapList("");
+	setupMapList("");
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
     //listBoxMap.setSelectedItemIndex(initialMapSelection);
 
@@ -4126,7 +4126,6 @@ int MenuStateConnectedGame::setupTechList(string scenario) {
 }
 
 void MenuStateConnectedGame::setupTilesetList(string scenario) {
-	int initialTechSelection = 0;
 	try {
 		Config &config = Config::getInstance();
 

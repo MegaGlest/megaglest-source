@@ -817,7 +817,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 				networkCommandListThread->start();
 			}
 
-			bool hasData = getNetworkCommand(frameCount,cachedPendingCommandsIndex);
+			getNetworkCommand(frameCount,cachedPendingCommandsIndex);
 		}
 	}
 

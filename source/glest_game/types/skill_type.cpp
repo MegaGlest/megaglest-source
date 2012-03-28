@@ -154,8 +154,8 @@ string AttackBoost::getDesc() const{
 	Lang &lang= Lang::getInstance();
     string str= "";
     string indent="  ";
-    if(enabled){
-    	if(boostUnitList.size()>0){
+    if(enabled) {
+    	if(boostUnitList.empty() == false) {
     		str+= "\n"+ lang.get("Effects")+":\n";
     	}
 
@@ -189,7 +189,7 @@ string AttackBoost::getDesc() const{
     		str+= lang.get("AffectedUnitsFromAll") +":\n";
     	}
 
-    	if(boostUnitList.size()>0){
+    	if(boostUnitList.empty() == false) {
 			for(int i=0; i<boostUnitList.size(); ++i){
 				str+= "  "+boostUnitList[i]->getName()+"\n";
 			}

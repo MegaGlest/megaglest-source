@@ -136,7 +136,10 @@ string doubleToStr(double d,int precsion) {
 }
 
 bool IsNumeric(const char *p, bool  allowNegative) {
-	if(p != NULL && strcmp(p,"-") == 0) {
+	if(p == NULL) {
+		return false;
+	}
+	if(strcmp(p,"-") == 0) {
 		return false;
 	}
     int index = 0;

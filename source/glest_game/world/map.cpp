@@ -430,6 +430,9 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			//read header
 			MapFileHeader header;
 			size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
+			if(readBytes != 1) {
+				throw runtime_error("Invalid map header detected for file: " + path);
+			}
 
 			if(next2Power(header.width) != header.width){
 				throw runtime_error("Map width is not a power of 2");

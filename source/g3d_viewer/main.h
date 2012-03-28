@@ -212,6 +212,9 @@ private:
 	MainWindow *mainWindow;
 
 public:
+	App() : wxApp() {
+		mainWindow = NULL;
+	}
 	virtual bool OnInit();
 	virtual int MainLoop();
 	virtual int OnExit();

@@ -226,8 +226,6 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 }
 
 void LuaScript::loadGame(const XmlNode *rootNode) {
-	const XmlNode *luaScriptNode = rootNode;
-
 	vector<XmlNode *> luaScriptNodeList = rootNode->getChildList("LuaScript");
 	for(unsigned int i = 0; i < luaScriptNodeList.size(); ++i) {
 		XmlNode *node = luaScriptNodeList[i];

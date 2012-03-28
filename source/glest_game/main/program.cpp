@@ -73,7 +73,7 @@ void ProgramState::tick() {
 bool ProgramState::canRender(bool sleepIfCannotRender) {
 	int maxFPSCap = Config::getInstance().getInt("RenderFPSCap","500");
 	int sleepMillis = Config::getInstance().getInt("RenderFPSCapSleepMillis","1");
-	Renderer &renderer= Renderer::getInstance();
+	//Renderer &renderer= Renderer::getInstance();
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		maxFPSCap = Config::getInstance().getInt("RenderFPSCapHeadless","250");
 		sleepMillis = Config::getInstance().getInt("RenderFPSCapHeadlessSleepMillis","1");
@@ -352,7 +352,7 @@ void Program::loop() {
 void Program::loopWorker() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ================================= MAIN LOOP START ================================= \n",__FILE__,__FUNCTION__,__LINE__);
 
-	Renderer &renderer= Renderer::getInstance();
+	//Renderer &renderer= Renderer::getInstance();
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && window) {
 		MainWindow *mainWindow = dynamic_cast<MainWindow *>(window);
 		if(mainWindow) {

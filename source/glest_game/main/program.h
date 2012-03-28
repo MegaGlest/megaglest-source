@@ -187,7 +187,7 @@ public:
 	void setState(ProgramState *programStateNew,bool cleanupOldState=true);
 	ProgramState * getState() { return programState;}
 	WindowGl * getWindow() { return window; }
-	const WindowGl * getWindowConstPtr() { return window; }
+	const WindowGl * getWindowConstPtr() const { return window; }
 	void init(WindowGl *window, bool initSound=true, bool toggleFullScreen=false);
 	void exit();
 

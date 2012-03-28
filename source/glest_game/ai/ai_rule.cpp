@@ -930,7 +930,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					idle_producers.push_back(currentProducerIndex);
 				}
 			}
-			if(idle_producers.size() > 0) {
+			if(idle_producers.empty() == false) {
 				producers = idle_producers;
 			}
 

@@ -1150,7 +1150,7 @@ bool Unit::checkModelStateInfoForNewHpValue() {
 
 					lastModelIndexForCurrSkillType = -1;
 					animationRandomCycleCount = 0;
-					bool result = true;
+					result = true;
 				}
 			}
 			else {
@@ -3625,7 +3625,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 	//}
 
 //	vector<UnitParticleSystem*> unitParticleSystems;
-	if(unitParticleSystems.size() > 0) {
+	if(unitParticleSystems.empty() == false) {
 		XmlNode *unitParticleSystemsNode = unitNode->addChild("unitParticleSystems");
 
 		for(unsigned int i = 0; i < unitParticleSystems.size(); ++i) {
@@ -3636,7 +3636,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 		}
 	}
 //	vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
-	if(queuedUnitParticleSystemTypes.size() > 0) {
+	if(queuedUnitParticleSystemTypes.empty() == false) {
 		XmlNode *queuedUnitParticleSystemTypesNode = unitNode->addChild("queuedUnitParticleSystemTypes");
 		for(unsigned int i = 0; i < queuedUnitParticleSystemTypes.size(); ++i) {
 			UnitParticleSystemType *upst= queuedUnitParticleSystemTypes[i];
@@ -3646,7 +3646,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 		}
 	}
 //	UnitParticleSystems damageParticleSystems;
-	if(damageParticleSystems.size() > 0) {
+	if(damageParticleSystems.empty() == false) {
 		XmlNode *damageParticleSystemsNode = unitNode->addChild("damageParticleSystems");
 		for(unsigned int i = 0; i < damageParticleSystems.size(); ++i) {
 			UnitParticleSystem *ups= damageParticleSystems[i];
@@ -3656,7 +3656,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 		}
 	}
 //	std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
-	if(damageParticleSystemsInUse.size() > 0) {
+	if(damageParticleSystemsInUse.empty() == false) {
 		XmlNode *damageParticleSystemsInUseNode = unitNode->addChild("damageParticleSystemsInUse");
 
 		for(std::map<int, UnitParticleSystem *>::const_iterator iterMap = damageParticleSystemsInUse.begin();
@@ -3671,7 +3671,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 	}
 
 //	vector<ParticleSystem*> fireParticleSystems;
-	if(fireParticleSystems.size() > 0) {
+	if(fireParticleSystems.empty() == false) {
 		XmlNode *fireParticleSystemsNode = unitNode->addChild("fireParticleSystems");
 		for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
 			ParticleSystem *ps= fireParticleSystems[i];
@@ -3682,7 +3682,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 	}
 
 //	vector<UnitParticleSystem*> smokeParticleSystems;
-	if(smokeParticleSystems.size() > 0) {
+	if(smokeParticleSystems.empty() == false) {
 		XmlNode *smokeParticleSystemsNode = unitNode->addChild("smokeParticleSystems");
 		for(unsigned int i = 0; i < smokeParticleSystems.size(); ++i) {
 			UnitParticleSystem *ups= smokeParticleSystems[i];
