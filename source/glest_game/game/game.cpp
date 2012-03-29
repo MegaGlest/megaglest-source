@@ -3786,6 +3786,12 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 
 		GameSettings newGameSettingsReplay;
 		newGameSettingsReplay.loadGame(gameNode);
+		//printf("Loading scenario [%s]\n",newGameSettingsReplay.getScenarioDir().c_str());
+		if(newGameSettingsReplay.getScenarioDir() != "" && fileExists(newGameSettingsReplay.getScenarioDir()) == false) {
+			newGameSettingsReplay.setScenarioDir(Scenario::getScenarioPath(Config::getInstance().getPathListForType(ptScenarios),newGameSettingsReplay.getScenario()));
+
+			//printf("Loading scenario #2 [%s]\n",newGameSettingsReplay.getScenarioDir().c_str());
+		}
 
 		//GameSettings newGameSettings;
 		//newGameSettings.loadGame(gameNode);
@@ -3840,6 +3846,12 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	XmlNode *gameNode = rootNode->getChild("Game");
 	GameSettings newGameSettings;
 	newGameSettings.loadGame(gameNode);
+	//printf("Loading scenario [%s]\n",newGameSettings.getScenarioDir().c_str());
+	if(newGameSettings.getScenarioDir() != "" && fileExists(newGameSettings.getScenarioDir()) == false) {
+		newGameSettings.setScenarioDir(Scenario::getScenarioPath(Config::getInstance().getPathListForType(ptScenarios),newGameSettings.getScenario()));
+
+		//printf("Loading scenario #2 [%s]\n",newGameSettings.getScenarioDir().c_str());
+	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Game settings loaded\n");
 

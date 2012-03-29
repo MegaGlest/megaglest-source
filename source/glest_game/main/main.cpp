@@ -3380,16 +3380,16 @@ int glestMain(int argc, char** argv) {
 
 		//parse command line
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER]) == true) {
-			gameInitialized = true;
 			program->initServer(mainWindow,false,true);
+			gameInitialized = true;
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-			gameInitialized = true;
 			program->initServer(mainWindow,false,true,true);
+			gameInitialized = true;
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME])) == true) {
-			gameInitialized = true;
 			program->initServer(mainWindow,true,false);
+			gameInitialized = true;
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME])) == true) {
 			string fileName = "";
@@ -3429,8 +3429,8 @@ int glestMain(int argc, char** argv) {
 					}
 				}
 			}
-			gameInitialized = true;
 			program->initSavedGame(mainWindow,false,fileName);
+			gameInitialized = true;
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_PREVIEW_MAP])) == true) {
 			int foundParamIndIndex = -1;
@@ -3481,8 +3481,8 @@ int glestMain(int argc, char** argv) {
 				gameSettings->setEnableServerControlledAI(config.getBool("ServerControlledAI","true"));
 				gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
 
-				gameInitialized = true;
 				program->initServer(mainWindow,gameSettings);
+				gameInitialized = true;
 			}
 			else {
 				printf("\nInvalid map name specified on commandline [%s] map [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -3503,8 +3503,8 @@ int glestMain(int argc, char** argv) {
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string autoConnectServer = paramPartTokens[1];
 
-				gameInitialized = true;
 				program->initClient(mainWindow, autoConnectServer);
+				gameInitialized = true;
 			}
 			else {
 
@@ -3527,8 +3527,8 @@ int glestMain(int argc, char** argv) {
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string autoloadScenarioName = paramPartTokens[1];
 
-				gameInitialized = true;
 				program->initScenario(mainWindow, autoloadScenarioName);
+				gameInitialized = true;
 			}
 			else {
 				printf("\nInvalid scenario name specified on commandline [%s] scenario [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -3538,7 +3538,6 @@ int glestMain(int argc, char** argv) {
 			}
 		}
 		else {
-			gameInitialized = true;
 			program->initNormal(mainWindow);
 		}
 
