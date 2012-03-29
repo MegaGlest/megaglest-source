@@ -206,7 +206,7 @@ Renderer::Renderer() : BaseRenderer() {
 	this->no2DMouseRendering = config.getBool("No2DMouseRendering","false");
 	this->maxConsoleLines= config.getInt("ConsoleMaxLines");
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Renderer::perspFarPlane [%f] this->no2DMouseRendering [%d] this->maxConsoleLines [%d]\n",__FILE__,__FUNCTION__,__LINE__,Renderer::perspFarPlane,this->no2DMouseRendering,this->maxConsoleLines);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Renderer::perspFarPlane [%f] this->no2DMouseRendering [%d] this->maxConsoleLines [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Renderer::perspFarPlane,this->no2DMouseRendering,this->maxConsoleLines);
 
 	GraphicsInterface &gi= GraphicsInterface::getInstance();
 	FactoryRepository &fr= FactoryRepository::getInstance();
@@ -233,7 +233,7 @@ Renderer::Renderer() : BaseRenderer() {
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		saveScreenShotThread = new SimpleTaskThread(this,0,25);
-		saveScreenShotThread->setUniqueID(__FILE__);
+		saveScreenShotThread->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
 		saveScreenShotThread->start();
 	}
 }
@@ -253,7 +253,7 @@ void Renderer::cleanupScreenshotThread() {
 		saveScreenShotThread = NULL;
 
 		if(getSaveScreenQueueSize() > 0) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] FORCING MEMORY CLEANUP and NOT SAVING screenshots, saveScreenQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,saveScreenQueue.size());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] FORCING MEMORY CLEANUP and NOT SAVING screenshots, saveScreenQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,saveScreenQueue.size());
 
 			for(std::list<std::pair<string,Pixmap2D *> >::iterator iter = saveScreenQueue.begin();
 				iter != saveScreenQueue.end(); ++iter) {
@@ -302,10 +302,10 @@ void Renderer::simpleTask(BaseThread *callingThread) {
 	// This code reads pixmaps from a queue and saves them to disk
 	Pixmap2D *savePixMapBuffer=NULL;
 	string path="";
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,mutexOwnerId);
 	if(saveScreenQueue.empty() == false) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] saveScreenQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,saveScreenQueue.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] saveScreenQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,saveScreenQueue.size());
 
 		savePixMapBuffer = saveScreenQueue.front().second;
 		path = saveScreenQueue.front().first;
@@ -315,7 +315,7 @@ void Renderer::simpleTask(BaseThread *callingThread) {
 	safeMutex.ReleaseLock();
 
 	if(savePixMapBuffer != NULL) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] about to save [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] about to save [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 
 		savePixMapBuffer->save(path);
 		delete savePixMapBuffer;
@@ -381,7 +381,7 @@ void Renderer::init() {
 }
 
 void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	this->gameCamera = gameCamera;
 	VisibleQuadContainerCache::enableFrustumCalcs = Config::getInstance().getBool("EnableFrustrumCalcs","true");
@@ -397,7 +397,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 	shadowMapFrame= 0;
 	waterAnim= 0;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
@@ -420,7 +420,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		if(shadows == sShadowMapping) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			//shadow mapping
 			glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
@@ -434,7 +434,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 				0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 		}
 		else {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			//projected
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8,
@@ -445,7 +445,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 		shadowMapFrame= -1;
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	IF_DEBUG_EDITION( getDebugRenderer().init(); )
 
@@ -454,7 +454,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 	textureManager[rsGame]->init();
 	fontManager[rsGame]->init();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	init3dList();
 }
@@ -480,7 +480,11 @@ void Renderer::manageDeferredParticleSystems() {
 					texture->getPixmap()->init(ps->getTextureFileLoadDeferredComponents());
 				}
 				if(texture) {
-					texture->load(ps->getTextureFileLoadDeferred());
+					string textureFile = ps->getTextureFileLoadDeferred();
+					if(fileExists(textureFile) == false) {
+						textureFile = Config::findValidLocalFileFromPath(textureFile);
+					}
+					texture->load(textureFile);
 					ps->setTexture(texture);
 				}
 			}
@@ -503,11 +507,11 @@ void Renderer::manageDeferredParticleSystems() {
 }
 
 void Renderer::initMenu(const MainMenu *mm) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	this->menu = mm;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
@@ -518,11 +522,11 @@ void Renderer::initMenu(const MainMenu *mm) {
 	fontManager[rsMenu]->init();
 	//modelRenderer->setCustomTexture(CoreData::getInstance().getCustomTexture());
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	init3dListMenu(mm);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void Renderer::reset3d() {
@@ -729,7 +733,7 @@ void Renderer::initTexture(ResourceScope rs, Texture *texture) {
 void Renderer::endTexture(ResourceScope rs, Texture *texture, bool mustExistInList) {
 	string textureFilename = texture->getPath();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] free texture from manager [%s]\n",__FILE__,__FUNCTION__,__LINE__,textureFilename.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] free texture from manager [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,textureFilename.c_str());
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
@@ -740,8 +744,8 @@ void Renderer::endTexture(ResourceScope rs, Texture *texture, bool mustExistInLi
 	if(rs == rsGlobal) {
 		std::map<string,Texture2D *> &crcFactionPreviewTextureCache = CacheManager::getCachedItem< std::map<string,Texture2D *> >(GameConstants::factionPreviewTextureCacheLookupKey);
 		if(crcFactionPreviewTextureCache.find(textureFilename) != crcFactionPreviewTextureCache.end()) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] textureFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,textureFilename.c_str());
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] free texture from cache [%s]\n",__FILE__,__FUNCTION__,__LINE__,textureFilename.c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] textureFilename [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,textureFilename.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] free texture from cache [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,textureFilename.c_str());
 
 			crcFactionPreviewTextureCache.erase(textureFilename);
 		}
@@ -1660,17 +1664,17 @@ void Renderer::renderMouse3d() {
 
 	if(game == NULL) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d game == NULL",__FILE__,__FUNCTION__,__LINE__);
+		sprintf(szBuf,"In [%s::%s] Line: %d game == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw runtime_error(szBuf);
 	}
 	else if(game->getGui() == NULL) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui() == NULL",__FILE__,__FUNCTION__,__LINE__);
+		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui() == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw runtime_error(szBuf);
 	}
 	else if(game->getGui()->getMouse3d() == NULL) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui()->getMouse3d() == NULL",__FILE__,__FUNCTION__,__LINE__);
+		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui()->getMouse3d() == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw runtime_error(szBuf);
 	}
 
@@ -1679,7 +1683,7 @@ void Renderer::renderMouse3d() {
 	const Map *map= game->getWorld()->getMap();
 	if(map == NULL) {
 		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",__FILE__,__FUNCTION__,__LINE__);
+		sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw runtime_error(szBuf);
 	}
 
@@ -5956,7 +5960,7 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 	if(renderModeResult < 0) {
 		const char *errorString= reinterpret_cast<const char*>(gluErrorString(renderModeResult));
 		char szBuf[4096]="";
-		sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",renderModeResult,renderModeResult,errorString,__FILE__,__LINE__);
+		sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",renderModeResult,renderModeResult,errorString,extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 
 		printf("%s\n",szBuf);
 	}
@@ -6008,7 +6012,7 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 	else if(selCount < 0) {
 		const char *errorString= reinterpret_cast<const char*>(gluErrorString(selCount));
 		char szBuf[4096]="";
-		sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",selCount,selCount,errorString,__FILE__,__LINE__);
+		sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",selCount,selCount,errorString,extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 
 		printf("%s\n",szBuf);
 	}
@@ -6051,10 +6055,10 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 	loadGameCameraMatrix();
 
 	//render units to find which ones should be selected
-	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	vector<Unit *> rendererUnits = renderUnitsFast(false, true);
-	//printf("In [%s::%s] Line: %d rendererUnits = %d\n",__FILE__,__FUNCTION__,__LINE__,rendererUnits.size());
+	//printf("In [%s::%s] Line: %d rendererUnits = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,rendererUnits.size());
 
 	vector<Object *> rendererObjects;
 	if(withObjectSelection == true) {
@@ -6076,34 +6080,34 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 	for(unsigned int i = 0; i < rendererObjects.size(); ++i) {
 		Object *object = rendererObjects[i];
 		rendererModels.push_back(object);
-		//printf("In [%s::%s] Line: %d rendered object i = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,object->getUniquePickName().c_str(),object->getColorDescription().c_str());
-		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
+		//printf("In [%s::%s] Line: %d rendered object i = %d [%s] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,object->getUniquePickName().c_str(),object->getColorDescription().c_str());
+		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
 	}
 
-	//printf("In [%s::%s] Line: %d\nLooking for picks inside [%d,%d,%d,%d] posdown [%s] posUp [%s]",__FILE__,__FUNCTION__,__LINE__,x,y,w,h,posDown.getString().c_str(),posUp.getString().c_str());
+	//printf("In [%s::%s] Line: %d\nLooking for picks inside [%d,%d,%d,%d] posdown [%s] posUp [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,x,y,w,h,posDown.getString().c_str(),posUp.getString().c_str());
 	for(unsigned int i = 0; i < rendererUnits.size(); ++i) {
 		Unit *unit = rendererUnits[i];
 		rendererModels.push_back(unit);
-		//printf("In [%s::%s] Line: %d rendered unit i = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getUniquePickName().c_str(),unit->getColorDescription().c_str());
-		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",__FILE__,__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
+		//printf("In [%s::%s] Line: %d rendered unit i = %d [%s] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,unit->getUniquePickName().c_str(),unit->getColorDescription().c_str());
+		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
 	}
 
 	vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
-	//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",__FILE__,__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
+	//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
 
 	if(pickedList.empty() == false) {
 		for(unsigned int i = 0; i < pickedList.size(); ++i) {
 			int index = pickedList[i];
-			//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",__FILE__,__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
+			//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
 
 			if(rendererObjects.empty() == false && index < rendererObjects.size()) {
 				Object *object = rendererObjects[index];
-				//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",__FILE__,__FUNCTION__,__LINE__,i,index,object);
+				//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,object);
 
 				if(object != NULL) {
 					obj = object;
 					if(withObjectSelection == true) {
-						//printf("In [%s::%s] Line: %d found selected object [%p]\n",__FILE__,__FUNCTION__,__LINE__,obj);
+						//printf("In [%s::%s] Line: %d found selected object [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,obj);
 						return;
 					}
 				}
@@ -6455,7 +6459,7 @@ void Renderer::loadConfig() {
 }
 
 Texture2D *Renderer::saveScreenToTexture(int x, int y, int width, int height) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Config &config= Config::getInstance();
 	Texture2D::Filter textureFilter = strToTextureFilter(config.getString("Filter"));
@@ -6468,14 +6472,14 @@ Texture2D *Renderer::saveScreenToTexture(int x, int y, int width, int height) {
 	pixmapScreenShot->init(width, height, 3);
 	texture->init(textureFilter,maxAnisotropy);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//glFinish();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	glReadPixels(x, y, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
 				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return texture;
 }
@@ -6483,16 +6487,16 @@ Texture2D *Renderer::saveScreenToTexture(int x, int y, int width, int height) {
 void Renderer::saveScreen(const string &path,int w, int h) {
 	const Metrics &sm= Metrics::getInstance();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Pixmap2D *pixmapScreenShot = new Pixmap2D(sm.getScreenW(),sm.getScreenH(), 3);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//glFinish();
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	glReadPixels(0, 0, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
 				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
 
@@ -6503,20 +6507,20 @@ void Renderer::saveScreen(const string &path,int w, int h) {
 	else{
 		pixmapScreenShot->Scale(GL_RGB,w,h);
 	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// Signal the threads queue to add a screenshot save request
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	saveScreenQueue.push_back(make_pair(path,pixmapScreenShot));
 	safeMutex.ReleaseLock();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 unsigned int Renderer::getSaveScreenQueueSize() {
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	int queueSize = saveScreenQueue.size();
 	safeMutex.ReleaseLock();
 
@@ -6869,24 +6873,24 @@ void Renderer::init3dList() {
 		return;
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	const Metrics &metrics= Metrics::getInstance();
 
     assertGl();
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	list3d= glGenLists(1);
 	assertGl();
 	list3dValid=true;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	glNewList(list3d, GL_COMPILE_AND_EXECUTE);
 	//need to execute, because if not gluPerspective takes no effect and gluLoadMatrix is wrong
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//misc
 		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
@@ -6895,7 +6899,7 @@ void Renderer::init3dList() {
 		glEnable(GL_CULL_FACE);
 		loadProjectionMatrix();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//texture state
 		glActiveTexture(shadowTexUnit);
@@ -6910,7 +6914,7 @@ void Renderer::init3dList() {
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//material state
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
@@ -6932,7 +6936,7 @@ void Renderer::init3dList() {
 		glDepthMask(GL_TRUE);
 		glDepthFunc(GL_LESS);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//lighting state
 		glEnable(GL_LIGHTING);
@@ -6944,19 +6948,19 @@ void Renderer::init3dList() {
 		//stencil test
 		glDisable(GL_STENCIL_TEST);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//fog
 		const Tileset *tileset= NULL;
 		if(game != NULL && game->getWorld() != NULL) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			tileset = game->getWorld()->getTileset();
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		if(tileset != NULL && tileset->getFog()) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			glEnable(GL_FOG);
 			if(tileset->getFogMode()==fmExp) {
@@ -6970,11 +6974,11 @@ void Renderer::init3dList() {
 			glFogfv(GL_FOG_COLOR, tileset->getFogColor().ptr());
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	glEndList();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//assert
 	assertGl();
@@ -7035,7 +7039,7 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 
 	assertGl();
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	const Metrics &metrics= Metrics::getInstance();
 	//const MenuBackground *mb= mm->getConstMenuBackground();
@@ -7044,7 +7048,7 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 		mb = mm->getConstMenuBackground();
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(this->customlist3dMenu != NULL) {
 		*this->customlist3dMenu = glGenLists(1);
@@ -7056,7 +7060,7 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 		list3dMenuValid=true;
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(this->customlist3dMenu != NULL) {
 		glNewList(*this->customlist3dMenu, GL_COMPILE);
@@ -7065,7 +7069,7 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 		glNewList(list3dMenu, GL_COMPILE);
 	}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//misc
 		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
 		glClearColor(0.4f, 0.4f, 0.4f, 1.f);
@@ -7108,22 +7112,22 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 		//stencil test
 		glDisable(GL_STENCIL_TEST);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//fog
 		if(mb != NULL && mb->getFog()){
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			glEnable(GL_FOG);
 			glFogi(GL_FOG_MODE, GL_EXP2);
 			glFogf(GL_FOG_DENSITY, mb->getFogDensity());
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	glEndList();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//assert
 	assertGl();
@@ -7568,7 +7572,7 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 				//get the screen coordinates
 				Vec3f &screenPos = unitInfo.second;
 				renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] screenPos.x = %f, screenPos.y = %f, screenPos.z = %f\n",__FILE__,__FUNCTION__,__LINE__,screenPos.x,screenPos.y,screenPos.z);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] screenPos.x = %f, screenPos.y = %f, screenPos.z = %f\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,screenPos.x,screenPos.y,screenPos.z);
 			}
 		}
 		renderUnitTitleList.clear();
@@ -7629,7 +7633,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 				//get the screen coordinates
 				Vec3f &screenPos = unitInfo.second;
 				renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
-				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] screenPos.x = %f, screenPos.y = %f, screenPos.z = %f\n",__FILE__,__FUNCTION__,__LINE__,screenPos.x,screenPos.y,screenPos.z);
+				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] screenPos.x = %f, screenPos.y = %f, screenPos.z = %f\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,screenPos.x,screenPos.y,screenPos.z);
 			}
 		}
 		renderUnitTitleList.clear();
@@ -8241,7 +8245,7 @@ uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
 }
 
 Texture2D * Renderer::preloadTexture(string logoFilename) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,logoFilename.c_str());
 
 	Texture2D *result = NULL;
 	if(logoFilename != "") {
@@ -8250,14 +8254,14 @@ Texture2D * Renderer::preloadTexture(string logoFilename) {
 		std::map<string,Texture2D *> &crcFactionPreviewTextureCache = CacheManager::getCachedItem< std::map<string,Texture2D *> >(GameConstants::factionPreviewTextureCacheLookupKey);
 
 		if(crcFactionPreviewTextureCache.find(logoFilename) != crcFactionPreviewTextureCache.end()) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,logoFilename.c_str());
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] load texture from cache [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] load texture from cache [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,logoFilename.c_str());
 
 			result = crcFactionPreviewTextureCache[logoFilename];
 		}
 		else {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,logoFilename.c_str());
 			Renderer &renderer= Renderer::getInstance();
 			result = renderer.newTexture2D(rsGlobal);
 			if(result) {
@@ -8266,7 +8270,7 @@ Texture2D * Renderer::preloadTexture(string logoFilename) {
 				//renderer.initTexture(rsGlobal,result);
 			}
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] add texture to manager and cache [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] add texture to manager and cache [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,logoFilename.c_str());
 
 			crcFactionPreviewTextureCache[logoFilename] = result;
 		}
@@ -8276,7 +8280,7 @@ Texture2D * Renderer::preloadTexture(string logoFilename) {
 }
 
 Texture2D * Renderer::findFactionLogoTexture(string logoFilename) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFilename.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,logoFilename.c_str());
 
 	Texture2D *result = preloadTexture(logoFilename);
 	if(result != NULL && result->getInited() == false) {

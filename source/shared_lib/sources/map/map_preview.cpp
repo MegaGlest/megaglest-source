@@ -783,10 +783,10 @@ void MapPreview::loadFromFile(const string &path) {
 	else {
 #ifdef WIN32
 		DWORD error = GetLastError();
-		string strError = "Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
+		string strError = "[#5] Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
 		throw strError;
 #else
-		throw runtime_error("error opening map file: " + path);
+		throw runtime_error("[#5] error opening map file: " + path);
 #endif
 	}
 }

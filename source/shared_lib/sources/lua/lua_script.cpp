@@ -143,6 +143,8 @@ void LuaScript::DumpGlobals()
 void LuaScript::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 
+	const bool debugLuaDump = false;
+	//try{
 	LuaHandle *L = luaState;
 	// push the first key (nil = beginning of table)
 	lua_pushnil(L);
@@ -157,6 +159,8 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 		int key_type = lua_type(L, -2);
 		int value_type = lua_type(L, -1);
 
+		if(debugLuaDump == true) printf("LUA save key_type = %d, value_type = %d for var [%s]\n",key_type,value_type,lua_tostring(L, -2));
+
 		// support only string keys
 		// globals aren't likely to have a non-string key, but just to be certain ...
 		if (key_type != LUA_TSTRING) {
@@ -167,7 +171,8 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 		// support only number, boolean and string values
 		if (value_type != LUA_TNUMBER &&
 			value_type != LUA_TBOOLEAN &&
-			value_type != LUA_TSTRING) {
+			value_type != LUA_TSTRING &&
+			value_type != LUA_TTABLE) {
 			lua_pop(L, 1); // again, pop the value before going to the next loop iteration
 			continue;
 		}
@@ -187,6 +192,10 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 			continue;
 		}
 
+		bool skipTable = false;
+		// The first pair is the tables key type,value
+		// The second pair is the tables value type,value
+		vector<pair<pair<int,string>, pair<int,string> > > tableList;
 		string value_string;
 
 		// convert the value to a string. This depends on its type
@@ -205,6 +214,72 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 		case LUA_TBOOLEAN:
 			value_string = lua_toboolean(L, -1) == 0 ? "false" : "true";
 			break;
+		case LUA_TTABLE:
+			{
+			if(debugLuaDump == true) printf("LUA TABLE DETECTED - START\n");
+			for (lua_pushnil(L); lua_next(L, -2) ;) {
+				if(debugLuaDump == true) printf("LUA TABLE loop A\n");
+
+				int tableKeyType = lua_type(L, -2);
+				int tableValueType = lua_type(L, -1);
+
+				if(debugLuaDump == true) printf("LUA TABLE loop item type [%s]\n",lua_typename(L, tableValueType));
+
+				switch (tableValueType) {
+					case LUA_TSTRING:
+					case LUA_TNUMBER:
+					case LUA_TBOOLEAN:
+						break;
+					default:
+						skipTable = true;
+						break;
+				}
+				if(skipTable == false) {
+					// Stack: value, key, table
+					std :: string value = "";
+					if(!lua_isnil(L, -1)) {
+						if(debugLuaDump == true) printf("LUA TABLE loop B\n");
+
+						lua_pushvalue(L, -1);
+
+						if(debugLuaDump == true) printf("LUA TABLE loop C\n");
+
+						value = lua_tostring (L, -1);
+
+						if(debugLuaDump == true) printf("LUA TABLE loop D\n");
+
+						lua_pop (L, 1);
+					}
+					lua_pop (L, 1);
+
+					if(debugLuaDump == true) printf("LUA TABLE value [%s]\n",value.c_str());
+
+					// Stack: key, table
+					lua_pushvalue(L, -1);
+
+					// Stack: key, key, table
+					std :: string key = lua_tostring(L, -1);
+					lua_pop(L, 1);
+
+					// Stack: key, table
+					//std :: cout << key << "" << value << "\ n";
+					if(debugLuaDump == true) printf("[%s] [%s]\n",key.c_str(),value.c_str());
+
+					if(value_string != "") {
+						value_string += "|||";
+					}
+					char szBuf[8096]="";
+					sprintf(szBuf,"[%s] [%s]",key.c_str(),value.c_str());
+					//value_string += szBuf;
+					//vector<pair<pair<int,string>, pair<int,string>> > tableList;
+					tableList.push_back(make_pair(make_pair(tableKeyType,key),make_pair(tableValueType,value)));
+				}
+				else {
+					lua_pop(L, 1);
+				}
+			}
+			}
+			break;
 		}
 
 		// enclose the value in "" if it is a string
@@ -212,17 +287,44 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 			value_string = "\"" + value_string + "\"";
 		}
 
-		// resulting line. Somehow save this and when you need to restore it, just
-		// call luaL_dostring with that line.
-		//SaveLine(key_string + " = " + value_string);		// Pop the value so the index remains on top of the stack for the next iteration
-		//printf("Found global LUA var: %s = %s\n",key_string.c_str(),value_string.c_str());
-		XmlNode *luaScriptNode = rootNode->addChild("LuaScript");
-		luaScriptNode->addAttribute("variable",key_string, mapTagReplacements);
-		luaScriptNode->addAttribute("value",value_string, mapTagReplacements);
-		luaScriptNode->addAttribute("value_type",intToStr(value_type), mapTagReplacements);
+		if(skipTable == true) {
+			if(debugLuaDump == true) printf("#2 SKIPPING TABLE\n");
+		}
+		else {
+			//vector<pair<pair<int,string>, pair<int,string>> > tableList;
+			if(tableList.empty() == false) {
+				XmlNode *luaScriptNode = rootNode->addChild("LuaScript");
+				luaScriptNode->addAttribute("variable",key_string, mapTagReplacements);
+				luaScriptNode->addAttribute("value_type",intToStr(value_type), mapTagReplacements);
 
+				for(unsigned int i = 0; i < tableList.size(); ++i) {
+					pair<pair<int,string>, pair<int,string> > &item = tableList[i];
+
+					XmlNode *luaScriptTableNode = luaScriptNode->addChild("Table");
+					luaScriptTableNode->addAttribute("key_type",intToStr(item.first.first), mapTagReplacements);
+					luaScriptTableNode->addAttribute("key",item.first.second, mapTagReplacements);
+					luaScriptTableNode->addAttribute("value",item.second.second, mapTagReplacements);
+					luaScriptTableNode->addAttribute("value_type",intToStr(item.second.first), mapTagReplacements);
+				}
+			}
+			else {
+				// resulting line. Somehow save this and when you need to restore it, just
+				// call luaL_dostring with that line.
+				//SaveLine(key_string + " = " + value_string);		// Pop the value so the index remains on top of the stack for the next iteration
+				//printf("Found global LUA var: %s = %s\n",key_string.c_str(),value_string.c_str());
+				XmlNode *luaScriptNode = rootNode->addChild("LuaScript");
+				luaScriptNode->addAttribute("variable",key_string, mapTagReplacements);
+				luaScriptNode->addAttribute("value",value_string, mapTagReplacements);
+				luaScriptNode->addAttribute("value_type",intToStr(value_type), mapTagReplacements);
+			}
+		}
 		lua_pop(L, 1);
 	}
+
+	//}
+	//catch(const exception &ex) {
+	//	abort();
+	//}
 }
 
 void LuaScript::loadGame(const XmlNode *rootNode) {
@@ -243,6 +345,43 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 			case LUA_TBOOLEAN:
 				lua_pushboolean( luaState, node->getAttribute("value")->getIntValue() );
 				break;
+			case LUA_TTABLE:
+				{
+					lua_newtable(luaState);    /* We will pass a table */
+					vector<XmlNode *> luaScriptTableNode = node->getChildList("Table");
+					for(unsigned int j = 0; j < luaScriptTableNode.size(); ++j) {
+						XmlNode *nodeTable = luaScriptTableNode[j];
+
+						int key_type = nodeTable->getAttribute("key_type")->getIntValue();
+						switch (key_type) {
+							case LUA_TSTRING:
+								lua_pushstring( luaState, nodeTable->getAttribute("key")->getValue().c_str() );
+								break;
+							case LUA_TNUMBER:
+								lua_pushnumber( luaState, nodeTable->getAttribute("key")->getIntValue() );
+								break;
+							case LUA_TBOOLEAN:
+								lua_pushboolean( luaState, nodeTable->getAttribute("key")->getIntValue() );
+								break;
+						}
+						int value_type = nodeTable->getAttribute("value_type")->getIntValue();
+						switch (value_type) {
+							case LUA_TSTRING:
+								lua_pushstring( luaState, nodeTable->getAttribute("value")->getValue().c_str() );
+								break;
+							case LUA_TNUMBER:
+								lua_pushnumber( luaState, nodeTable->getAttribute("value")->getIntValue() );
+								break;
+							case LUA_TBOOLEAN:
+								lua_pushboolean( luaState, nodeTable->getAttribute("value")->getIntValue() );
+								break;
+						}
+
+						lua_rawset(luaState, -3);      /* Stores the pair in the table */
+					}
+				}
+				break;
+
 		}
 
 		lua_setglobal( luaState, variable.c_str() );
