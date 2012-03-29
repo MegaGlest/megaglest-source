@@ -988,10 +988,10 @@ void MainWindow::onMenuEditAdvanced(wxCommandEvent &event) {
 	}
 
 	SimpleDialog simpleDialog;
-	simpleDialog.addValue("Height Factor", intToStr(program->getMap()->getHeightFactor()),"(lower means map is more more zoomed in)");
-	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()),"(water is visible below this, and walkable until 1.5 less)");
-	simpleDialog.addValue("Cliff Level", intToStr(program->getMap()->getCliffLevel()),"(neighboring fields with at least this heights difference are cliffs)");
-	simpleDialog.addValue("Camera Height", intToStr(program->getMap()->getCameraHeight()),"(you can give a camera heigth here default is 0 ;ignored if <20)");
+	simpleDialog.addValue("Height Factor", intToStr(program->getMap()->getHeightFactor()),"lower means more hill effect. Numbers above 100 are handled like this:\nx=x/100 ,so a 150 will mean 1.5 in the game.");
+	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()),"water is visible below this, and walkable until 1.5 less");
+	simpleDialog.addValue("Cliff Level", intToStr(program->getMap()->getCliffLevel()),"neighboring fields with at least this heights difference are cliffs");
+	simpleDialog.addValue("Camera Height", intToStr(program->getMap()->getCameraHeight()),"you can give a camera heigth here default is 0 ;ignored if <20");
 	if (!simpleDialog.show("Advanced")) return;
 
 	try {

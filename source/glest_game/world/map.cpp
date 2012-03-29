@@ -443,6 +443,9 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			}
 
 			heightFactor= header.heightFactor;
+			if(heightFactor>100){
+				heightFactor=heightFactor/100;
+			}
 			waterLevel= static_cast<float>((header.waterLevel-0.01f)/heightFactor);
 			title= header.title;
 			maxPlayers= header.maxFactions;
