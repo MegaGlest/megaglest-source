@@ -341,6 +341,10 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	// Setup global functions and vars here
+	luaScript.beginCall("global");
+	luaScript.endCall();
+
 	//call startup function
 	if(this->rootNode == NULL) {
 		luaScript.beginCall("startup");
