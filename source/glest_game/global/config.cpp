@@ -1005,4 +1005,30 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
     return pathList;
 }
 
+string Config::findValidLocalFileFromPath(string fileName) {
+	string result = fileName;
+	// /home/user1/SCM/megaglest-trunk/mk/linux//techs/megapack/factions/tech/units/blacksmith/images/particle.bmp
+	size_t pos = fileName.find("techs/");
+	if(pos != fileName.npos ) {
+		string fileNamePart = fileName.substr(pos+6);
+
+		Config &config = Config::getInstance();
+		vector<string> dirList = config.getPathListForType(ptTechs);
+		for(unsigned int i = 0; i < dirList.size(); ++i) {
+			string path = dirList[i];
+			endPathWithSlash(path);
+			string newFileName = path + fileNamePart;
+			if(fileExists(newFileName) == true) {
+				result = newFileName;
+				break;
+			}
+		}
+
+		printf("Found file [%s] @ %lu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
+	}
+
+	return result;
+}
+
+
 }}// end namespace

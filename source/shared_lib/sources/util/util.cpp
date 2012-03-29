@@ -749,7 +749,7 @@ bool fileExists(const string &path) {
 #ifdef WIN32
         int fileErrno = errno;
 		DWORD error = GetLastError();
-		string strError = "Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
+		string strError = "[#6] Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
 #endif
 	}
 	return false;

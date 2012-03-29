@@ -106,6 +106,8 @@ public:
 
 	static string getCustomRuntimeProperty(string key) 				{ return customRuntimeProperties[key]; }
 	static void setCustomRuntimeProperty(string key, string value) 	{ customRuntimeProperties[key] = value; }
+
+	static string findValidLocalFileFromPath(string fileName);
 };
 
 }}//end namespace
