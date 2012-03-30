@@ -111,20 +111,28 @@ void Stats::setVictorious(int playerIndex){
 	playerStats[playerIndex].victory= true;
 }
 
-void Stats::kill(int killerFactionIndex, int killedFactionIndex, bool isEnemy) {
-	playerStats[killerFactionIndex].kills++;
-	playerStats[killedFactionIndex].deaths++;
-	if(isEnemy == true) {
+void Stats::kill(int killerFactionIndex, int killedFactionIndex, bool isEnemy, bool isDeathCounted, bool isKillCounted) {
+	if(isKillCounted == true){
+		playerStats[killerFactionIndex].kills++;
+	}
+	if(isDeathCounted == true){
+		playerStats[killedFactionIndex].deaths++;
+	}
+	if(isEnemy == true && isKillCounted == true) {
 		playerStats[killerFactionIndex].enemykills++;
 	}
 }
 
-void Stats::die(int diedFactionIndex){
-	playerStats[diedFactionIndex].deaths++;
+void Stats::die(int diedFactionIndex, bool isDeathCounted){
+	if(isDeathCounted == true){
+		playerStats[diedFactionIndex].deaths++;
+	}
 }
 
-void Stats::produce(int producerFactionIndex){
-	playerStats[producerFactionIndex].unitsProduced++;
+void Stats::produce(int producerFactionIndex, bool isProductionCounted){
+	if(isProductionCounted == true){
+		playerStats[producerFactionIndex].unitsProduced++;
+	}
 }
 
 void Stats::harvest(int harvesterFactionIndex, int amount){

@@ -928,7 +928,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 						bool decHpResult = unit->decHp(unit->getType()->getMaxHp() / 3);
 						if(decHpResult) {
 							unit->setCauseOfDeath(ucodStarvedResource);
-							world->getStats()->die(unit->getFactionIndex());
+							world->getStats()->die(unit->getFactionIndex(),unit->getType()->getCountUnitDeathInStats());
 							scriptManager->onUnitDied(unit);
 						}
 						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();

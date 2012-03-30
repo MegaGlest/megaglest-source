@@ -133,6 +133,11 @@ private:
 	bool meetingPoint;
 	Texture2D *meetingPointImage;
 
+	// for dummy units and units used as shots and so on ....
+	bool countUnitDeathInStats;
+	bool countUnitProductionInStats;
+	bool countUnitKillInStats;
+
     //OPTIMIZATION: store first command type and skill type of each class
 	const CommandType *firstCommandTypeOfClass[ccCount];
     const SkillType *firstSkillTypeOfClass[scCount];
@@ -176,6 +181,10 @@ public:
 	const Resource *getStoredResource(int i) const		{return &storedResources[i];}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;
 	bool getMeetingPoint() const						{return meetingPoint;}
+	bool getCountUnitDeathInStats() const				{return countUnitDeathInStats;}
+	bool getCountUnitProductionInStats() const			{return countUnitProductionInStats;}
+	bool getCountUnitKillInStats() const				{return countUnitKillInStats;}
+
 	bool isMobile() const								{return (firstSkillTypeOfClass[scMove] != NULL);}
 	Texture2D *getMeetingPointImage() const				{return meetingPointImage;}
 	StaticSound *getSelectionSound() const				{return selectionSounds.getRandSound();}
