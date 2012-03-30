@@ -315,6 +315,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getUnitCount, "unitCount");
 	luaScript.registerFunction(getUnitCountOfType, "unitCountOfType");
 
+	luaScript.registerFunction(getIsGameOver, "isGameOver");
 	luaScript.registerFunction(getGameWon, "gameWon");
 
 	luaScript.registerFunction(getSystemMacroValue, "getSystemMacroValue");
@@ -1207,9 +1208,14 @@ int ScriptManager::getWorldFrameCount() {
 	return world->getFrameCount();
 }
 
-bool ScriptManager::getGameWon() {
+bool ScriptManager::getGameWon() const {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return gameWon;
+}
+
+bool ScriptManager::getIsGameOver() const {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return gameOver;
 }
 
 int ScriptManager::getLastCreatedUnitId() {
@@ -2073,6 +2079,12 @@ int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
 int ScriptManager::getGameWon(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getGameWon());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getIsGameOver(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getIsGameOver());
 	return luaArguments.getReturnCount();
 }
 
