@@ -202,8 +202,6 @@ public:
 	bool getMessageBoxEnabled() const									{return !messageQueue.empty();}
 	GraphicMessageBox* getMessageBox()									{return &messageBox;}
 	string getDisplayText() const										{return displayText;}
-	bool getGameOver() const											{return gameOver;}
-	bool getGameWon() const												{return gameWon;}
 	const PlayerModifiers *getPlayerModifiers(int factionIndex) const	{return &playerModifiers[factionIndex];}
 
 	//events
@@ -216,6 +214,9 @@ public:
 	void onGameOver(bool won);
 	void onCellTriggerEvent(Unit *movingUnit);
 	void onTimerTriggerEvent();
+
+	bool getGameWon() const;
+	bool getIsGameOver() const;
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
@@ -310,8 +311,6 @@ private:
 
 	int getUnitCount(int factionIndex);
 	int getUnitCountOfType(int factionIndex, const string &typeName);
-
-	bool getGameWon();
 
 	const string getSystemMacroValue(const string &key);
 	const string getPlayerName(int factionIndex);
@@ -412,6 +411,7 @@ private:
 	static int getUnitCountOfType(LuaHandle* luaHandle);
 
 	static int getGameWon(LuaHandle* luaHandle);
+	static int getIsGameOver(LuaHandle* luaHandle);
 
 	static int getSystemMacroValue(LuaHandle* luaHandle);
 	static int getPlayerName(LuaHandle* luaHandle);

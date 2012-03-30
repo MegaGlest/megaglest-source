@@ -3345,7 +3345,7 @@ void Game::checkWinnerStandard() {
 }
 
 void Game::checkWinnerScripted() {
-	if(scriptManager.getGameOver()) {
+	if(scriptManager.getIsGameOver()) {
 		gameOver= true;
 		for(int i= 0; i<world.getFactionCount(); ++i) {
 			if(scriptManager.getPlayerModifiers(i)->getWinner()) {
