@@ -641,11 +641,11 @@ void Ai::retryTask(const Task *task){
 }
 // ==================== expansions ====================
 
-void Ai::addExpansion(const Vec2i &pos){
+void Ai::addExpansion(const Vec2i &pos) {
 
 	//check if there is a nearby expansion
-	for(Positions::iterator it= expansionPositions.begin(); it!=expansionPositions.end(); ++it){
-		if((*it).dist(pos)<villageRadius){
+	for(Positions::iterator it = expansionPositions.begin(); it != expansionPositions.end(); ++it) {
+		if((*it).dist(pos) < villageRadius) {
 			return;
 		}
 	}
@@ -654,7 +654,7 @@ void Ai::addExpansion(const Vec2i &pos){
 	expansionPositions.push_front(pos);
 
 	//remove expansion if queue is list is full
-	if(expansionPositions.size()>maxExpansions){
+	if(expansionPositions.size() > maxExpansions){
 		expansionPositions.pop_back();
 	}
 }
@@ -870,18 +870,24 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 
     if(	aiInterface->getControlType() == ctCpuEasy ||
     	aiInterface->getControlType() == ctNetworkCpuEasy) {
-		minWarriors+= 1;
+		minWarriors += minMinWarriorsExpandCpuEasy;
 	}
 	else if(aiInterface->getControlType() == ctCpuMega ||
 			aiInterface->getControlType() == ctNetworkCpuMega) {
-		minWarriors+= 3;
-		if(minWarriors>maxMinWarriors-1 || randomMinWarriorsReached) {
+		minWarriors += minMinWarriorsExpandCpuMega;
+		if(minWarriors > maxMinWarriors-1 || randomMinWarriorsReached) {
 			randomMinWarriorsReached=true;
 			minWarriors=random.randRange(maxMinWarriors-10, maxMinWarriors*2);
 		}
 	}
-	else if(minWarriors<maxMinWarriors) {
-		minWarriors+= 3;
+	else if(minWarriors < maxMinWarriors) {
+	    if(aiInterface->getControlType() == ctCpuUltra ||
+	    	aiInterface->getControlType() == ctNetworkCpuUltra) {
+    		minWarriors += minMinWarriorsExpandCpuUltra;
+		}
+	    else {
+	    	minWarriors+= minMinWarriorsExpandCpuNormal;
+	    }
 	}
 	aiInterface->printLog(2, "Massive attack to pos: "+ intToStr(pos.x)+", "+intToStr(pos.y)+"\n");
 }
@@ -891,8 +897,9 @@ void Ai::returnBase(int unitIndex) {
     CommandResult r;
     aiInterface->getFactionIndex();
     pos= Vec2i(
-		random.randRange(-villageRadius, villageRadius), random.randRange(-villageRadius, villageRadius)) +
-		getRandomHomePosition();
+		random.randRange(-villageRadius, villageRadius),
+		random.randRange(-villageRadius, villageRadius)) +
+		                 getRandomHomePosition();
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     r= aiInterface->giveCommand(unitIndex, ccMove, pos);
@@ -1068,7 +1075,8 @@ void Ai::unblockUnits() {
 
 					for(int moveAttempt = 1; moveAttempt <= villageRadius; ++moveAttempt) {
 						Vec2i pos= Vec2i(
-							random.randRange(-villageRadius*2, villageRadius*2), random.randRange(-villageRadius*2, villageRadius*2)) +
+							random.randRange(-villageRadius*2, villageRadius*2),
+							random.randRange(-villageRadius*2, villageRadius*2)) +
 											 adjacentUnit->getPos();
 
 						bool canUnitMoveToCell = map->aproxCanMove(adjacentUnit, adjacentUnit->getPos(), pos);
