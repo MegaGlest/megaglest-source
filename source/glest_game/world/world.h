@@ -220,6 +220,8 @@ public:
 	void morphToUnit(int unitId,const string &morphName,bool ignoreRequirements);
 	void createUnit(const string &unitName, int factionIndex, const Vec2i &pos,bool spaciated = true);
 	void givePositionCommand(int unitId, const string &commandName, const Vec2i &pos);
+	vector<int> getUnitsForFaction(int factionIndex,const string& commandTypeName,int field);
+	int getUnitCurrentField(int unitId);
 	void giveAttackCommand(int unitId, int unitToAttackId);
 	void giveProductionCommand(int unitId, const string &producedName);
 	void giveUpgradeCommand(int unitId, const string &upgradeName);

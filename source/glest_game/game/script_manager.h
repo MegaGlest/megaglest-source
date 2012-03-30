@@ -316,6 +316,9 @@ private:
 	const string getSystemMacroValue(const string &key);
 	const string getPlayerName(int factionIndex);
 
+	vector<int> getUnitsForFaction(int factionIndex,const string& commandTypeName, int field);
+	int getUnitCurrentField(int unitId);
+
 	void loadScenario(const string &name, bool keepFactions);
 
 	//callbacks, commands
@@ -415,6 +418,9 @@ private:
 	static int scenarioDir(LuaHandle* luaHandle);
 
 	static int loadScenario(LuaHandle* luaHandle);
+
+	static int getUnitsForFaction(LuaHandle* luaHandle);
+	static int getUnitCurrentField(LuaHandle* luaHandle);
 };
 
 }}//end namespace

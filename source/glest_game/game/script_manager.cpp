@@ -324,6 +324,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 
 	luaScript.registerFunction(loadScenario, "loadScenario");
 
+	luaScript.registerFunction(getUnitsForFaction, "getUnitsForFaction");
+	luaScript.registerFunction(getUnitCurrentField, "getUnitCurrentField");
+
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
 		const Script* script= scenario->getScript(i);
@@ -1294,45 +1297,24 @@ const string ScriptManager::getPlayerName(int factionIndex) {
 }
 
 void ScriptManager::loadScenario(const string &name, bool keepFactions) {
-	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
 	world->setQueuedScenario(name,keepFactions);
-/*
-	vector<string> results;
-	const vector<string> &dirList = Config::getInstance().getPathListForType(ptScenarios);
-	//findDirs(dirList, results);
-	string scenarioFile = Scenario::getScenarioPath(dirList, name);
+}
 
-	//printf("\nname [%s] scenarioFile [%s] results.size() = %lu\n",name.c_str(),scenarioFile.c_str(),results.size());
+vector<int> ScriptManager::getUnitsForFaction(int factionIndex,const string& commandTypeName, int field) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
-	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	ScenarioInfo scenarioInfo;
-	Scenario::loadScenarioInfo(scenarioFile, &scenarioInfo);
+	return world->getUnitsForFaction(factionIndex,commandTypeName, field);
+}
 
-	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	GameSettings gameSettings;
-	Scenario::loadGameSettings(dirList,&scenarioInfo, &gameSettings, scenarioFile);
+int ScriptManager::getUnitCurrentField(int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
-	//Program *program = world->getGame()->getProgram();
-	//program->setState(new Game(program, &gameSettings, false));
-
-	//world->end();
-	world->getGame()->setGameSettings(&gameSettings);
-	//world->getMapPtr()->end();
-	world->end();
-	world->clearTileset();
-	world->getGame()->load();
-	world->getGame()->init();
-
-	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	//Checksum checksum;
-	//world->loadScenario(scenarioFile, &checksum, true);
-
-	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-	 */
+	return world->getUnitCurrentField(unitId);
 }
 
 // ========================== lua callbacks ===============================================
@@ -2095,10 +2077,22 @@ int ScriptManager::getGameWon(LuaHandle* luaHandle){
 }
 
 int ScriptManager::loadScenario(LuaHandle* luaHandle) {
-	//printf("[%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->loadScenario(luaArguments.getString(-2),luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getUnitsForFaction(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	vector<int> units= thisScriptManager->getUnitsForFaction(luaArguments.getInt(-3),luaArguments.getString(-2), luaArguments.getInt(-1));
+	luaArguments.returnVectorInt(units);
+	return luaArguments.getReturnCount();
+
+}
+
+int ScriptManager::getUnitCurrentField(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getUnitCurrentField(luaArguments.getInt(-1)));
 	return luaArguments.getReturnCount();
 }
 
