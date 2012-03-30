@@ -113,6 +113,7 @@ private:
 	World *world;
 	ScriptManager *scriptManager;
 	
+	FactionPersonalityType overridePersonalityType;
     ControlType control;
 
 	Texture2D *texture;
@@ -185,6 +186,8 @@ public:
 	bool getCpuUltraControl() const						{return control==ctCpuUltra;}
 	bool getCpuMegaControl() const						{return control==ctCpuMega;}
 	ControlType getControlType() const					{return control;}
+	FactionPersonalityType getPersonalityType() const;
+	void setPersonalityType(FactionPersonalityType pType) { overridePersonalityType=pType; }
 
 	Unit *getUnit(int i) const;
 	int getUnitCount() const;

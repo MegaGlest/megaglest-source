@@ -943,7 +943,7 @@ void Game::init(bool initForPreviewOnly) {
 		Window::handleEvent();
 		SDL_PumpEvents();
 
-		if(world.getFactionCount() == 1 && world.getFaction(0)->getType()->getPersonalityType() == fpt_Observer) {
+		if(world.getFactionCount() == 1 && world.getFaction(0)->getPersonalityType() == fpt_Observer) {
 			withRainEffect = false;
 		}
 
@@ -1056,6 +1056,15 @@ void Game::init(bool initForPreviewOnly) {
 
 	setupPopupMenus(false);
 
+	for(int i=0; i < world.getFactionCount(); ++i) {
+		Faction *faction= world.getFaction(i);
+
+		//printf("Check for team switch to observer i = %d, team = %d [%d]\n",i,faction->getTeam(),(GameConstants::maxPlayers -1 + fpt_Observer));
+		if(faction != NULL && faction->getTeam() == GameConstants::maxPlayers -1 + fpt_Observer) {
+			faction->setPersonalityType(fpt_Observer);
+			world.getStats()->setPersonalityType(i, faction->getPersonalityType());
+		}
+	}
 	gameStarted = true;
 
 	if(this->masterserverMode == true) {
@@ -1105,7 +1114,7 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 		exitGamePopupMenuIndex = menuItems.size()-1;
 
 		if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
-			world.getThisFaction() != NULL && world.getThisFaction()->getType()->getPersonalityType() != fpt_Observer) {
+			world.getThisFaction() != NULL && world.getThisFaction()->getPersonalityType() != fpt_Observer) {
 			menuItems.push_back(lang.get("JoinOtherTeam"));
 			joinTeamPopupMenuIndex = menuItems.size()-1;
 		}
@@ -1512,7 +1521,7 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					faction->setFactionDisconnectHandled(true);
 
 					char szBuf[1024]="";
-					if(faction->getType()->getPersonalityType() != fpt_Observer) {
+					if(faction->getPersonalityType() != fpt_Observer) {
 						faction->setControlType(ctCpu);
 						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
@@ -1776,12 +1785,12 @@ void Game::mouseDownLeft(int x, int y) {
 				for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
 
-					if(faction->getType()->getPersonalityType() != fpt_Observer &&
+					if(faction->getPersonalityType() != fpt_Observer &&
 						uniqueTeamNumbersUsed.find(faction->getTeam()) == uniqueTeamNumbersUsed.end()) {
 						uniqueTeamNumbersUsed[faction->getTeam()] = true;
 					}
 
-					if(faction->getType()->getPersonalityType() != fpt_Observer &&
+					if(faction->getPersonalityType() != fpt_Observer &&
 						world.getThisFaction()->getIndex() != faction->getIndex() &&
 						world.getThisFaction()->getTeam() != faction->getTeam()) {
 						char szBuf[1024]="";
@@ -3213,7 +3222,7 @@ void Game::checkWinner() {
 }
 
 void Game::checkWinnerStandard() {
-	if(this->masterserverMode == true || world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
+	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
 		// lookup int is team #, value is players alive on team
 		std::map<int,int> teamsAlive;
 		for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -3246,7 +3255,7 @@ void Game::checkWinnerStandard() {
 
 			scriptManager.onGameOver(true);
 
-			if(world.getFactionCount() == 1 && world.getFaction(0)->getType()->getPersonalityType() == fpt_Observer) {
+			if(world.getFactionCount() == 1 && world.getFaction(0)->getPersonalityType() == fpt_Observer) {
 				//printf("!!!!!!!!!!!!!!!!!!!!");
 
 				//gameCamera.setMoveY(100.0);
@@ -3264,7 +3273,7 @@ void Game::checkWinnerStandard() {
 		if(hasBuilding(world.getThisFaction()) == false) {
 			lose= true;
 			for(int i=0; i<world.getFactionCount(); ++i) {
-				if(world.getFaction(i)->getType()->getPersonalityType() != fpt_Observer) {
+				if(world.getFaction(i)->getPersonalityType() != fpt_Observer) {
 					if(world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
 						world.getStats()->setVictorious(i);
 					}
@@ -3296,7 +3305,7 @@ void Game::checkWinnerStandard() {
 			bool win= true;
 			for(int i = 0; i < world.getFactionCount(); ++i) {
 				if(i != world.getThisFactionIndex()) {
-					if(world.getFaction(i)->getType()->getPersonalityType() != fpt_Observer) {
+					if(world.getFaction(i)->getPersonalityType() != fpt_Observer) {
 						if(hasBuilding(world.getFaction(i)) && world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
 							win= false;
 						}
@@ -3307,7 +3316,7 @@ void Game::checkWinnerStandard() {
 			//if win
 			if(win) {
 				for(int i=0; i< world.getFactionCount(); ++i) {
-					if(world.getFaction(i)->getType()->getPersonalityType() != fpt_Observer) {
+					if(world.getFaction(i)->getPersonalityType() != fpt_Observer) {
 						if(world.getFaction(i)->isAlly(world.getThisFaction())) {
 							world.getStats()->setVictorious(i);
 						}
@@ -3461,7 +3470,7 @@ void Game::showLoseMessageBox() {
 void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 
-	if(this->masterserverMode == true || world.getThisFaction()->getType()->getPersonalityType() == fpt_Observer) {
+	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
 		showMessageBox(lang.get("GameOver")+" "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
 	}
 	else {
