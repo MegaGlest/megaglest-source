@@ -47,12 +47,16 @@ public:
 ScriptManagerMessage::ScriptManagerMessage() {
 	this->text= "";
 	this->header= "";
-
+	this->factionIndex=-1;
+	this->teamIndex=-1;
 }
 
-ScriptManagerMessage::ScriptManagerMessage(string text, string header) {
-	this->text= text;
-	this->header= header;
+ScriptManagerMessage::ScriptManagerMessage(string text, string header,
+		int factionIndex,int teamIndex) {
+	this->text			= text;
+	this->header		= header;
+	this->factionIndex = factionIndex;
+	this->teamIndex    = teamIndex;
 }
 
 void ScriptManagerMessage::saveGame(XmlNode *rootNode) {
@@ -63,6 +67,8 @@ void ScriptManagerMessage::saveGame(XmlNode *rootNode) {
 	scriptManagerMessageNode->addAttribute("text",text, mapTagReplacements);
 	//string header;
 	scriptManagerMessageNode->addAttribute("header",header, mapTagReplacements);
+	scriptManagerMessageNode->addAttribute("factionIndex",intToStr(factionIndex), mapTagReplacements);
+	scriptManagerMessageNode->addAttribute("teamIndex",intToStr(teamIndex), mapTagReplacements);
 }
 
 void ScriptManagerMessage::loadGame(const XmlNode *rootNode) {
@@ -70,6 +76,8 @@ void ScriptManagerMessage::loadGame(const XmlNode *rootNode) {
 
 	text = scriptManagerMessageNode->getAttribute("text")->getValue();
 	header = scriptManagerMessageNode->getAttribute("header")->getValue();
+	factionIndex = scriptManagerMessageNode->getAttribute("factionIndex")->getIntValue();
+	teamIndex = scriptManagerMessageNode->getAttribute("header")->getIntValue();
 }
 
 // =====================================================
@@ -223,6 +231,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//register functions
+	luaScript.registerFunction(networkShowMessageForFaction, "networkShowMessageForFaction");
+	luaScript.registerFunction(networkShowMessageForTeam, "networkShowMessageForTeam");
+
 	luaScript.registerFunction(showMessage, "showMessage");
 	luaScript.registerFunction(setDisplayText, "setDisplayText");
 	luaScript.registerFunction(addConsoleText, "addConsoleText");
@@ -365,11 +376,21 @@ void ScriptManager::onMessageBoxOk() {
 
 	Lang &lang= Lang::getInstance();
 
-	if(messageQueue.empty() == false) {
+	for(;messageQueue.empty() == false;) {
 		messageQueue.pop_front();
 		if(messageQueue.empty() == false) {
-			messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
-			messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
+//			printf("onMessageBoxOk [%s] factionIndex = %d [%d] teamIndex = %d [%d][%d]\n",
+//					wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount).c_str(),
+//					messageQueue.front().getFactionIndex(), this->world->getThisFactionIndex(),
+//					messageQueue.front().getTeamIndex(),this->world->getThisTeamIndex(),this->world->getThisFaction()->getTeam());
+
+			if((messageQueue.front().getFactionIndex() < 0 && messageQueue.front().getTeamIndex() < 0) ||
+				messageQueue.front().getFactionIndex() == this->world->getThisFactionIndex() ||
+				messageQueue.front().getTeamIndex() == this->world->getThisTeamIndex()) {
+				messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
+				messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
+				break;
+			}
 		}
 	}
 }
@@ -641,6 +662,34 @@ string ScriptManager::wrapString(const string &str, int wrapCount){
 	}
 
 	return returnString;
+}
+
+void ScriptManager::networkShowMessageForFaction(const string &text, const string &header,int factionIndex) {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	Lang &lang= Lang::getInstance();
+
+	messageQueue.push_back(ScriptManagerMessage(text, header, factionIndex));
+
+	if(factionIndex == this->world->getThisFactionIndex()) {
+		messageBox.setEnabled(true);
+		messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
+		messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
+	}
+}
+void ScriptManager::networkShowMessageForTeam(const string &text, const string &header,int teamIndex) {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	Lang &lang= Lang::getInstance();
+
+	// Team indexes are 0 based internally (but 1 based in the lua script) so convert
+	teamIndex--;
+	messageQueue.push_back(ScriptManagerMessage(text, header, -1, teamIndex));
+	if(teamIndex == this->world->getThisTeamIndex()) {
+		messageBox.setEnabled(true);
+		messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
+		messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
+	}
 }
 
 void ScriptManager::showMessage(const string &text, const string &header){
@@ -1291,6 +1340,18 @@ void ScriptManager::loadScenario(const string &name, bool keepFactions) {
 int ScriptManager::showMessage(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->showMessage(luaArguments.getString(-2), luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::networkShowMessageForFaction(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->networkShowMessageForFaction(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::networkShowMessageForTeam(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->networkShowMessageForTeam(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
 

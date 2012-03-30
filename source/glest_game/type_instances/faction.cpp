@@ -385,6 +385,8 @@ Faction::Faction() {
 
 	loadWorldNode = NULL;
 	techTree = NULL;
+
+	overridePersonalityType = fpt_EndCount;
 }
 
 Faction::~Faction() {
@@ -440,6 +442,14 @@ void Faction::end() {
 	safeMutex.ReleaseLock();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+
+FactionPersonalityType Faction::getPersonalityType() const {
+	if(overridePersonalityType != fpt_EndCount) {
+		return overridePersonalityType;
+	}
+	return factionType->getPersonalityType();
 }
 
 Unit * Faction::getUnit(int i) const {
@@ -964,7 +974,8 @@ bool Faction::checkCosts(const ProducibleType *pt,const CommandType *ct) {
 
 bool Faction::isAlly(const Faction *faction) {
 	assert(faction != NULL);
-	return teamIndex==faction->getTeam();
+	return (teamIndex == faction->getTeam() ||
+			faction->getTeam() == GameConstants::maxPlayers -1 + fpt_Observer);
 }
 
 // ================== misc ==================
@@ -1865,6 +1876,8 @@ void Faction::saveGame(XmlNode *rootNode) {
 //
 //    ControlType control;
 	factionNode->addAttribute("control",intToStr(control), mapTagReplacements);
+
+	factionNode->addAttribute("overridePersonalityType",intToStr(overridePersonalityType), mapTagReplacements);
 //	Texture2D *texture;
 //	FactionType *factionType;
 	factionNode->addAttribute("factiontype",factionType->getName(), mapTagReplacements);
@@ -1970,6 +1983,11 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 
 		//    ControlType control;
 		control = static_cast<ControlType>(factionNode->getAttribute("control")->getIntValue());
+
+		if(factionNode->hasAttribute("overridePersonalityType") == true) {
+			overridePersonalityType = static_cast<FactionPersonalityType>(factionNode->getAttribute("overridePersonalityType")->getIntValue());
+		}
+
 		//	Texture2D *texture;
 		//	FactionType *factionType;
 		//factionNode->addAttribute("factiontype",factionType->getName(), mapTagReplacements);

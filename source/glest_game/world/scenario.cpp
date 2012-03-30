@@ -174,7 +174,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
     	string factionTypeName="";
     	ControlType factionControl;
 
-    	if(playersNode->hasChildAtIndex("player",i)){
+    	if(playersNode->hasChildAtIndex("player",i)) {
         	playerNode = playersNode->getChild("player", i);
         	factionControl = strToControllerType( playerNode->getAttribute("control")->getValue() );
 
@@ -206,13 +206,13 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
         if(factionControl != ctClosed) {
             int teamIndex = playerNode->getAttribute("team")->getIntValue();
 
-            if( teamIndex < 1 || teamIndex > GameConstants::maxPlayers ) {
+            if( teamIndex < 1 || teamIndex > GameConstants::maxPlayers  + GameConstants::specialFactions) {
         		char szBuf[4096]="";
         		sprintf(szBuf,"Invalid team value specified in scenario: %d must be between %d and %d",teamIndex,1,GameConstants::maxPlayers);
         		throw std::runtime_error(szBuf);
             }
 
-            scenarioInfo->teams[i]= playerNode->getAttribute("team")->getIntValue();
+            scenarioInfo->teams[i]= teamIndex;
             scenarioInfo->factionTypeNames[i]= playerNode->getAttribute("faction")->getValue();
         }
         else {

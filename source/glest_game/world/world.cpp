@@ -941,6 +941,9 @@ void World::givePositionCommand(int unitId, const string &commandName, const Vec
 			throw runtime_error("Invalid position commmand: " + commandName);
 		}
 
+		if(unit->getType()->getFirstCtOfClass(cc) == NULL) {
+			throw runtime_error("Invalid commmand: [" + commandName + "] for unit: [" + unit->getType()->getName() + "] id [" + intToStr(unit->getId()) + "]");
+		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName().c_str());
 		unit->giveCommand(new Command( unit->getType()->getFirstCtOfClass(cc), pos ));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

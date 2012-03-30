@@ -47,12 +47,16 @@ class ScriptManagerMessage {
 private:
 	string text;
 	string header;
+	int factionIndex;
+	int teamIndex;
 
 public:
 	ScriptManagerMessage();
-	ScriptManagerMessage(string text, string header);
+	ScriptManagerMessage(string text, string header, int factionIndex=-1,int teamIndex=-1);
 	const string &getText() const	{return text;}
 	const string &getHeader() const	{return header;}
+	int getFactionIndex() const	{return factionIndex;}
+	int getTeamIndex() const	{return teamIndex;}
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
@@ -220,6 +224,9 @@ private:
 	string wrapString(const string &str, int wrapCount);
 
 	//wrappers, commands
+	void networkShowMessageForFaction(const string &text, const string &header,int factionIndex);
+	void networkShowMessageForTeam(const string &text, const string &header,int teamIndex);
+
 	void showMessage(const string &text, const string &header);
 	void clearDisplayText();
 	void setDisplayText(const string &text);
@@ -312,6 +319,9 @@ private:
 	void loadScenario(const string &name, bool keepFactions);
 
 	//callbacks, commands
+	static int networkShowMessageForFaction(LuaHandle* luaHandle);
+	static int networkShowMessageForTeam(LuaHandle* luaHandle);
+
 	static int showMessage(LuaHandle* luaHandle);
 	static int setDisplayText(LuaHandle* luaHandle);
 	static int addConsoleText(LuaHandle* luaHandle);
