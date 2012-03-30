@@ -3522,6 +3522,8 @@ void Unit::saveGame(XmlNode *rootNode) {
 
 //	const int id;
 	unitNode->addAttribute("id",intToStr(id), mapTagReplacements);
+	// For info purposes only
+	unitNode->addAttribute("name",type->getName(), mapTagReplacements);
 //    int hp;
 	unitNode->addAttribute("hp",intToStr(hp), mapTagReplacements);
 //    int ep;
@@ -3604,8 +3606,23 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("showUnitParticles",intToStr(showUnitParticles), mapTagReplacements);
 //    Faction *faction;
 //	ParticleSystem *fire;
+	int linkFireIndex = -1;
 	if(fire != NULL && Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == true) {
-		fire->saveGame(unitNode);
+		//fire->saveGame(unitNode);
+		bool fireInSystemList = false;
+		if(fireParticleSystems.empty() == false) {
+			for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
+				ParticleSystem *ps= fireParticleSystems[i];
+				if(ps == fire) {
+					linkFireIndex = i;
+					fireInSystemList = true;
+					break;
+				}
+			}
+		}
+		if(fireInSystemList == false) {
+			fire->saveGame(unitNode);
+		}
 	}
 //	TotalUpgrade totalUpgrade;
 	totalUpgrade.saveGame(unitNode);
@@ -3673,6 +3690,11 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	vector<ParticleSystem*> fireParticleSystems;
 	if(fireParticleSystems.empty() == false) {
 		XmlNode *fireParticleSystemsNode = unitNode->addChild("fireParticleSystems");
+
+		if(linkFireIndex >= 0) {
+			fireParticleSystemsNode->addAttribute("fireParticleLink",intToStr(linkFireIndex), mapTagReplacements);
+		}
+
 		for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
 			ParticleSystem *ps= fireParticleSystems[i];
 			if(ps != NULL && Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
@@ -4029,6 +4051,12 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	}
 	if(unitNode->hasChild("fireParticleSystems") == true) {
 		XmlNode *fireParticleSystemsNode = unitNode->getChild("fireParticleSystems");
+
+		int linkFireIndex = -1;
+		if(fireParticleSystemsNode->hasAttribute("fireParticleLink") == true) {
+			linkFireIndex = fireParticleSystemsNode->getAttribute("fireParticleLink")->getIntValue();
+		}
+
 		vector<XmlNode *> unitParticleSystemNodeList = fireParticleSystemsNode->getChildList("FireParticleSystem");
 		for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
 			XmlNode *node = unitParticleSystemNodeList[i];
@@ -4038,6 +4066,9 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 			//ups->setTexture(CoreData::getInstance().getFireTexture());
 			result->fireParticleSystems.push_back(ups);
 
+			if(linkFireIndex >= 0 && linkFireIndex == i) {
+				result->fire = ups;
+			}
 			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
 			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
 		}
