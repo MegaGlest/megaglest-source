@@ -124,9 +124,9 @@ public:
 	void setResourceMultiplier(int playerIndex, float resourceMultiplier)	{playerStats[playerIndex].resourceMultiplier= resourceMultiplier;}
 	void setTeam(int playerIndex, int teamIndex)							{playerStats[playerIndex].teamIndex= teamIndex;}
 	void setVictorious(int playerIndex);
-	void kill(int killerFactionIndex, int killedFactionIndex, bool isEnemy);
-	void die(int diedFactionIndex);
-	void produce(int producerFactionIndex);
+	void kill(int killerFactionIndex, int killedFactionIndex, bool isEnemy, bool isDeathCounted, bool isKillCounted);
+	void die(int diedFactionIndex, bool isDeathCounted);
+	void produce(int producerFactionIndex, bool isProductionCounted);
 	void harvest(int harvesterFactionIndex, int amount);
 	void setPlayerName(int playerIndex, string value) 	{playerStats[playerIndex].playerName = value; }
 	void setPlayerColor(int playerIndex, Vec3f value)	{playerStats[playerIndex].playerColor = value; }

@@ -502,6 +502,28 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 			loadedFileList[meetingPointNode->getAttribute("image-path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,meetingPointNode->getAttribute("image-path")->getRestrictedValue()));
 		}
 
+		//countUnitDeathInStats
+		if(parametersNode->hasChild("count-unit-death-in-stats")){
+			const XmlNode *countUnitDeathInStatsNode= parametersNode->getChild("count-unit-death-in-stats");
+			countUnitDeathInStats= countUnitDeathInStatsNode->getAttribute("value")->getBoolValue();
+		} else {
+			countUnitDeathInStats=true;
+		}
+		//countUnitProductionInStats
+		if(parametersNode->hasChild("count-unit-production-in-stats")){
+			const XmlNode *countUnitProductionInStatsNode= parametersNode->getChild("count-unit-production-in-stats");
+			countUnitProductionInStats= countUnitProductionInStatsNode->getAttribute("value")->getBoolValue();
+		} else {
+			countUnitProductionInStats=true;
+		}
+		//countUnitKillInStats
+		if(parametersNode->hasChild("count-unit-kill-in-stats")){
+			const XmlNode *countUnitKillInStatsNode= parametersNode->getChild("count-unit-kill-in-stats");
+			countUnitKillInStats= countUnitKillInStatsNode->getAttribute("value")->getBoolValue();
+		} else {
+			countUnitKillInStats=true;
+		}
+
 		//selection sounds
 		const XmlNode *selectionSoundNode= parametersNode->getChild("selection-sounds");
 		if(selectionSoundNode->getAttribute("enabled")->getBoolValue()){

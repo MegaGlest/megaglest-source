@@ -2145,7 +2145,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 				this->setLastAttackerUnitId(source->getId());
 				this->setCauseOfDeath(ucodAttackBoost);
-				Unit::game->getWorld()->getStats()->die(getFactionIndex());
+				Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 				game->getScriptManager()->onUnitDied(this);
 
 				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
@@ -2224,7 +2224,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			this->setLastAttackerUnitId(source->getId());
 			this->setCauseOfDeath(ucodAttackBoost);
 
-			Unit::game->getWorld()->getStats()->die(getFactionIndex());
+			Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 			game->getScriptManager()->onUnitDied(this);
 
 			StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
@@ -2288,7 +2288,7 @@ void Unit::tick() {
 					if(decHpResult) {
 						this->setCauseOfDeath(ucodStarvedRegeneration);
 
-						Unit::game->getWorld()->getStats()->die(getFactionIndex());
+						Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 						game->getScriptManager()->onUnitDied(this);
 					}
 					StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
@@ -2322,7 +2322,7 @@ void Unit::tick() {
 				if(decHpResult) {
 					this->setCauseOfDeath(ucodStarvedRegeneration);
 
-					Unit::game->getWorld()->getStats()->die(getFactionIndex());
+					Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 					game->getScriptManager()->onUnitDied(this);
 				}
 				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();

@@ -247,7 +247,7 @@ void UnitUpdater::updateUnit(Unit *unit) {
 						else {
 							spawned->create();
 							spawned->born(ct);
-							world->getStats()->produce(unit->getFactionIndex());
+							world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
 							const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
 							if(ct != NULL){
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1813,7 +1813,7 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 			else{
 				produced->create();
 				produced->born(ct);
-				world->getStats()->produce(unit->getFactionIndex());
+				world->getStats()->produce(unit->getFactionIndex(),produced->getType()->getCountUnitProductionInStats());
 				const CommandType *ct= produced->computeCommandType(unit->getMeetingPos());
 				if(ct!=NULL){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2062,7 +2062,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 
 	//damage the unit
 	if(attacked->decHp(static_cast<int>(damage))) {
-		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex(), attacker->getTeam() != attacked->getTeam());
+		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex(), attacker->getTeam() != attacked->getTeam(),attacked->getType()->getCountUnitDeathInStats(),attacked->getType()->getCountUnitKillInStats());
 		attacker->incKills(attacked->getTeam());
 
 		switch(this->game->getGameSettings()->getPathFinderType()) {
