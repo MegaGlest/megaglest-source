@@ -680,7 +680,6 @@ void ScriptManager::addConsoleLangText(const char *fmt, ...){
     char szBuf[max_debug_buffer_size]="";
     vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
 
-	//displayText= wrapString(Lang::getInstance().getScenarioString(text), displayTextWrapCount);
 	world->addConsoleTextWoLang(szBuf);
 	va_end(argList);
 	
@@ -698,7 +697,6 @@ void ScriptManager::DisplayFormattedText(const char *fmt, ...) {
     char szBuf[max_debug_buffer_size]="";
     vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
 
-	//displayText= wrapString(Lang::getInstance().getScenarioString(text), displayTextWrapCount);
     displayText=szBuf;
 
 	va_end(argList);
@@ -716,7 +714,6 @@ void ScriptManager::DisplayFormattedLangText(const char *fmt, ...) {
     char szBuf[max_debug_buffer_size]="";
     vsnprintf(szBuf,max_debug_buffer_size-1,fmt, argList);
 
-	//displayText= wrapString(Lang::getInstance().getScenarioString(text), displayTextWrapCount);
     displayText=szBuf;
 
 	va_end(argList);
@@ -2062,6 +2059,9 @@ void ScriptManager::saveGame(XmlNode *rootNode) {
 	for(std::list<ScriptManagerMessage>::iterator it = messageQueue.begin(); it != messageQueue.end(); ++it) {
 		(*it).saveGame(scriptManagerNode);
 	}
+
+	//printf("==== ScriptManager Savegame messageBox [%d][%s][%s] displayText [%s]\n",messageBox.getEnabled(),messageBox.getText().c_str(),messageBox.getHeader().c_str(),displayText.c_str());
+
 //	GraphicMessageBox messageBox;
 	scriptManagerNode->addAttribute("messageBox_enabled",intToStr(messageBox.getEnabled()), mapTagReplacements);
 	scriptManagerNode->addAttribute("messageBox_text",messageBox.getText(), mapTagReplacements);
