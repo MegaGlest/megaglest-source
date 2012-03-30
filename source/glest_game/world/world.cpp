@@ -926,6 +926,63 @@ void World::giveResource(const string &resourceName, int factionIndex, int amoun
 	}
 }
 
+int World::getUnitCurrentField(int unitId) {
+	int field = -1;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitId);
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL) {
+		field = unit->getCurrField();
+	}
+
+	return field;
+}
+
+vector<int> World::getUnitsForFaction(int factionIndex,const string& commandTypeName, int field) {
+	vector<int> units;
+
+	if(factionIndex < 0 || factionIndex > getFactionCount()) {
+		throw runtime_error("Invalid faction index in getUnitsForFaction: " + intToStr(factionIndex));
+	}
+	Faction *faction = getFaction(factionIndex);
+	if(faction != NULL) {
+		CommandType *commandType = NULL;
+		if(commandTypeName != "") {
+			commandType = CommandTypeFactory::getInstance().newInstance(commandTypeName);
+		}
+		int unitCount = faction->getUnitCount();
+		for(int i = 0; i < unitCount; ++i) {
+			Unit *unit = faction->getUnit(i);
+			if(unit != NULL) {
+				bool addToList = true;
+				if(commandType != NULL) {
+					if(commandType->getClass() == ccAttack && field >= 0) {
+						const AttackCommandType *act = unit->getType()->getFirstAttackCommand(static_cast<Field>(field));
+						addToList = (act != NULL);
+					}
+					else if(commandType->getClass() == ccAttackStopped && field >= 0) {
+						const AttackStoppedCommandType *asct = unit->getType()->getFirstAttackStoppedCommand(static_cast<Field>(field));
+						addToList = (asct != NULL);
+					}
+					else {
+						addToList = unit->getType()->hasCommandClass(commandType->getClass());
+					}
+				}
+				else if(field >= 0) {
+					addToList = (unit->getCurrField() == static_cast<Field>(field));
+				}
+
+				if(addToList == true) {
+					units.push_back(unit->getId());
+				}
+			}
+		}
+
+		delete commandType;
+		commandType = NULL;
+	}
+	return units;
+}
+
 void World::givePositionCommand(int unitId, const string &commandName, const Vec2i &pos) {
 	Unit* unit= findUnitById(unitId);
 	if(unit != NULL) {

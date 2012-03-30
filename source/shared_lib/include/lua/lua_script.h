@@ -80,6 +80,7 @@ public:
 	void returnInt(int value);
 	void returnString(const string &value);
 	void returnVec2i(const Vec2i &value);
+	void returnVectorInt(const vector<int> &value);
 
 private:
 	void throwLuaError(const string &message) const;

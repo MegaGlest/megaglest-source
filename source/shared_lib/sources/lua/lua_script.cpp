@@ -614,6 +614,19 @@ void LuaArguments::returnVec2i(const Vec2i &value){
 	lua_rawseti(luaState, -2, 2);
 }
 
+void LuaArguments::returnVectorInt(const vector<int> &value) {
+	//Lua_STREFLOP_Wrapper streflopWrapper;
+
+	++returnCount;
+
+	lua_newtable(luaState);
+
+	for(unsigned int i = 0; i < value.size(); ++i) {
+		lua_pushnumber(luaState, value[i]);
+		lua_rawseti(luaState, -2, i+1);
+	}
+}
+
 void LuaArguments::throwLuaError(const string &message) const{
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
