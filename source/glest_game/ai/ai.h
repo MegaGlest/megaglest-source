@@ -129,12 +129,15 @@ public:
 
 class Ai {
 private:
-	static const int harvesterPercent= 30;
 	static const int maxBuildRadius= 40; 
+
 	static const int minMinWarriors= 7;
+	static const int minMinWarriorsExpandCpuEasy= 1;
+	static const int minMinWarriorsExpandCpuMega= 3;
+	static const int minMinWarriorsExpandCpuUltra= 3;
+	static const int minMinWarriorsExpandCpuNormal= 3;
 	static const int maxMinWarriors= 20;
-	static const int minStaticResources= 10;
-	static const int minConsumableResources= 20;
+
 	static const int maxExpansions= 2;
 	static const int villageRadius= 15;
 
@@ -147,7 +150,6 @@ public:
 	};
 
 private:
-	//typedef vector<AiRule*> AiRules;
 	typedef vector<AiRule *> AiRules;
 	typedef list<const Task*> Tasks;
 	typedef deque<Vec2i> Positions;
