@@ -283,9 +283,9 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 		}
 
 		// enclose the value in "" if it is a string
-		if (value_type == LUA_TSTRING) {
-			value_string = "\"" + value_string + "\"";
-		}
+		//if (value_type == LUA_TSTRING) {
+			//value_string = "\"" + value_string + "\"";
+		//}
 
 		if(skipTable == true) {
 			if(debugLuaDump == true) printf("#2 SKIPPING TABLE\n");
