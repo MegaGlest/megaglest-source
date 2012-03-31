@@ -290,12 +290,14 @@ private:
 	Vec2i getPerformanceTimerResults();
 
 	//wrappers, queries
+	int getIsUnitAlive(int unitId);
 	Vec2i getStartLocation(int factionIndex);
 	Vec2i getUnitPosition(int unitId);
 	int getUnitFaction(int unitId);
 	int getResourceAmount(const string &resourceName, int factionIndex);
 	const string &getLastCreatedUnitName();
 	int getLastCreatedUnitId();
+
 
 	const string &getLastDeadUnitName();
 	int getLastDeadUnitId();
@@ -388,6 +390,7 @@ private:
 	static int getPerformanceTimerResults(LuaHandle* luaHandle);
 
 	//callbacks, queries
+	static int getIsUnitAlive(LuaHandle* luaHandle);
 	static int getStartLocation(LuaHandle* luaHandle);
 	static int getUnitPosition(LuaHandle* luaHandle);
 	static int getUnitFaction(LuaHandle* luaHandle);
