@@ -70,9 +70,13 @@ Checksum Scenario::load(const string &path) {
 		}
 	}
 	//Exception handling (conversions and so on);
-	catch(const exception &e) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error: " + path + "\n" + e.what());
+	catch(const exception &ex) {
+	    char szBuf[8096]="";
+	    sprintf(szBuf,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
+	    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		throw runtime_error(szBuf);
 	}
 
 	return scenarioChecksum;
