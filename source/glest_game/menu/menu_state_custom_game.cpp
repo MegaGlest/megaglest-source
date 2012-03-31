@@ -3913,101 +3913,103 @@ void MenuStateCustomGame::processScenario() {
 
 			//printf("scenarioInfo.name [%s] [%s]\n",scenarioInfo.name.c_str(),listBoxMap.getSelectedItem().c_str());
 
-			for(int i = 0; i < mapInfo.players; ++i) {
-				listBoxRMultiplier[i].setSelectedItem(floatToStr(scenarioInfo.resourceMultipliers[i],1));
+			// Loop twice to set the human slot or else it closes network slots in some cases
+			for(int humanIndex = 0; humanIndex < 2; ++humanIndex) {
+				for(int i = 0; i < mapInfo.players; ++i) {
+					listBoxRMultiplier[i].setSelectedItem(floatToStr(scenarioInfo.resourceMultipliers[i],1));
 
-				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-				ConnectionSlot *slot = serverInterface->getSlot(i);
+					ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+					ConnectionSlot *slot = serverInterface->getSlot(i);
 
-				int selectedControlItemIndex = listBoxControls[i].getSelectedItemIndex();
-				if(selectedControlItemIndex != ctNetwork ||
-					(selectedControlItemIndex == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
-				}
+					int selectedControlItemIndex = listBoxControls[i].getSelectedItemIndex();
+					if(selectedControlItemIndex != ctNetwork ||
+						(selectedControlItemIndex == ctNetwork && (slot == NULL || slot->isConnected() == false))) {
+					}
 
-				listBoxControls[i].setSelectedItemIndex(scenarioInfo.factionControls[i]);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					listBoxControls[i].setSelectedItemIndex(scenarioInfo.factionControls[i]);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-				// Skip over networkunassigned
-				//if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned &&
-				//	selectedControlItemIndex != ctNetworkUnassigned) {
-				//	listBoxControls[i].mouseClick(x, y);
-				//}
+					// Skip over networkunassigned
+					//if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned &&
+					//	selectedControlItemIndex != ctNetworkUnassigned) {
+					//	listBoxControls[i].mouseClick(x, y);
+					//}
 
-				//look for human players
-				int humanIndex1= -1;
-				int humanIndex2= -1;
-				for(int j = 0; j < GameConstants::maxPlayers; ++j) {
-					ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
-					if(ct == ctHuman) {
-						if(humanIndex1 == -1) {
-							humanIndex1= j;
+					//look for human players
+					int humanIndex1= -1;
+					int humanIndex2= -1;
+					for(int j = 0; j < GameConstants::maxPlayers; ++j) {
+						ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
+						if(ct == ctHuman) {
+							if(humanIndex1 == -1) {
+								humanIndex1= j;
+							}
+							else {
+								humanIndex2= j;
+							}
+						}
+					}
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
+
+					//no human
+					if(humanIndex1 == -1 && humanIndex2 == -1) {
+						listBoxControls[i].setSelectedItemIndex(ctHuman);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
+
+						//printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
+					}
+					//2 humans
+					else if(humanIndex1 != -1 && humanIndex2 != -1) {
+						int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
+						int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
+
+						string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
+						//printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
+
+						listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
+						labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
+					}
+
+					ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
+					if(ct != ctClosed) {
+						//updateNetworkSlots();
+						//updateResourceMultiplier(i);
+						updateResourceMultiplier(i);
+
+						//printf("Setting scenario faction i = %d [ %s]\n",i,scenarioInfo.factionTypeNames[i].c_str());
+						listBoxFactions[i].setSelectedItem(formatString(scenarioInfo.factionTypeNames[i]));
+						//printf("DONE Setting scenario faction i = %d [ %s]\n",i,scenarioInfo.factionTypeNames[i].c_str());
+
+						// Disallow CPU players to be observers
+						if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+							(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+							 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
+							listBoxFactions[i].setSelectedItemIndex(0);
+						}
+						//
+
+						listBoxTeams[i].setSelectedItem(intToStr(scenarioInfo.teams[i]));
+						if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+							if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+								lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+							}
 						}
 						else {
-							humanIndex2= j;
+							lastSelectedTeamIndex[i] = -1;
 						}
 					}
-				}
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
-
-				//no human
-				if(humanIndex1 == -1 && humanIndex2 == -1) {
-					listBoxControls[i].setSelectedItemIndex(ctHuman);
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
-
-					//printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
-				}
-				//2 humans
-				else if(humanIndex1 != -1 && humanIndex2 != -1) {
-					int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
-					int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
-
-					string origPlayName = labelPlayerNames[closeSlotIndex].getText();
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
-					//printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
-
-					listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
-					labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
-				}
-
-				ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
-				if(ct != ctClosed) {
-					//updateNetworkSlots();
-					//updateResourceMultiplier(i);
-					updateResourceMultiplier(i);
-
-					//printf("Setting scenario faction i = %d [ %s]\n",i,scenarioInfo.factionTypeNames[i].c_str());
-					listBoxFactions[i].setSelectedItem(formatString(scenarioInfo.factionTypeNames[i]));
-					//printf("DONE Setting scenario faction i = %d [ %s]\n",i,scenarioInfo.factionTypeNames[i].c_str());
-
-					// Disallow CPU players to be observers
-					if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
-						(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
-						 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega)) {
-						listBoxFactions[i].setSelectedItemIndex(0);
+					if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+						needToRepublishToMasterserver = true;
 					}
-					//
 
-					listBoxTeams[i].setSelectedItem(intToStr(scenarioInfo.teams[i]));
-					if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-						if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
-							lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
-						}
+					if(hasNetworkGameSettings() == true) {
+						needToSetChangedGameSettings = true;
+						lastSetChangedGameSettings   = time(NULL);;
 					}
-					else {
-						lastSelectedTeamIndex[i] = -1;
-					}
-				}
-
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true)
-				{
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);;
 				}
 			}
 
