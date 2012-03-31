@@ -77,7 +77,7 @@ void ScriptManagerMessage::loadGame(const XmlNode *rootNode) {
 	text = scriptManagerMessageNode->getAttribute("text")->getValue();
 	header = scriptManagerMessageNode->getAttribute("header")->getValue();
 	factionIndex = scriptManagerMessageNode->getAttribute("factionIndex")->getIntValue();
-	teamIndex = scriptManagerMessageNode->getAttribute("header")->getIntValue();
+	teamIndex = scriptManagerMessageNode->getAttribute("teamIndex")->getIntValue();
 }
 
 // =====================================================
