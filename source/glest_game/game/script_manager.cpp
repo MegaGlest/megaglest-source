@@ -293,6 +293,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getWorldFrameCount, "getWorldFrameCount");
 
 	luaScript.registerFunction(getStartLocation, "startLocation");
+	luaScript.registerFunction(getIsUnitAlive, "isUnitAlive");
 	luaScript.registerFunction(getUnitPosition, "unitPosition");
 	luaScript.registerFunction(getUnitFaction, "unitFaction");
 	luaScript.registerFunction(getResourceAmount, "resourceAmount");
@@ -1169,6 +1170,12 @@ Vec2i ScriptManager::getUnitPosition(int unitId) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitPosition(unitId);
+}
+
+int ScriptManager::getIsUnitAlive(int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->getIsUnitAlive(unitId);
 }
 
 int ScriptManager::getUnitFaction(int unitId) {
@@ -2111,6 +2118,12 @@ int ScriptManager::getUnitsForFaction(LuaHandle* luaHandle) {
 int ScriptManager::getUnitCurrentField(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getUnitCurrentField(luaArguments.getInt(-1)));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getIsUnitAlive(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getIsUnitAlive(luaArguments.getInt(-1)));
 	return luaArguments.getReturnCount();
 }
 

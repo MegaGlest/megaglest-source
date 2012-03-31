@@ -222,6 +222,7 @@ public:
 	void givePositionCommand(int unitId, const string &commandName, const Vec2i &pos);
 	vector<int> getUnitsForFaction(int factionIndex,const string& commandTypeName,int field);
 	int getUnitCurrentField(int unitId);
+	bool getIsUnitAlive(int unitId);
 	void giveAttackCommand(int unitId, int unitToAttackId);
 	void giveProductionCommand(int unitId, const string &producedName);
 	void giveUpgradeCommand(int unitId, const string &upgradeName);

@@ -946,6 +946,16 @@ int World::getUnitCurrentField(int unitId) {
 	return field;
 }
 
+bool World::getIsUnitAlive(int unitId) {
+	bool result = false;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitId);
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL) {
+		result = unit->isAlive();
+	}
+	return result;
+}
+
 vector<int> World::getUnitsForFaction(int factionIndex,const string& commandTypeName, int field) {
 	vector<int> units;
 
