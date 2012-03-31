@@ -2063,7 +2063,9 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	//damage the unit
 	if(attacked->decHp(static_cast<int>(damage))) {
 		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex(), attacker->getTeam() != attacked->getTeam(),attacked->getType()->getCountUnitDeathInStats(),attacked->getType()->getCountUnitKillInStats());
-		attacker->incKills(attacked->getTeam());
+		if(attacked->getType()->getCountKillForUnitUpgrade()){
+			attacker->incKills(attacked->getTeam());
+		}
 
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:

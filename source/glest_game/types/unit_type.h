@@ -137,6 +137,7 @@ private:
 	bool countUnitDeathInStats;
 	bool countUnitProductionInStats;
 	bool countUnitKillInStats;
+	bool countKillForUnitUpgrade;
 
     //OPTIMIZATION: store first command type and skill type of each class
 	const CommandType *firstCommandTypeOfClass[ccCount];
@@ -184,7 +185,7 @@ public:
 	bool getCountUnitDeathInStats() const				{return countUnitDeathInStats;}
 	bool getCountUnitProductionInStats() const			{return countUnitProductionInStats;}
 	bool getCountUnitKillInStats() const				{return countUnitKillInStats;}
-
+	bool getCountKillForUnitUpgrade() const				{return countKillForUnitUpgrade;}
 	bool isMobile() const								{return (firstSkillTypeOfClass[scMove] != NULL);}
 	Texture2D *getMeetingPointImage() const				{return meetingPointImage;}
 	StaticSound *getSelectionSound() const				{return selectionSounds.getRandSound();}
