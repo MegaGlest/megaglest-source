@@ -452,6 +452,11 @@ FactionPersonalityType Faction::getPersonalityType() const {
 	return factionType->getPersonalityType();
 }
 
+int Faction::getAIBehaviorStaticOverideValue(AIBehaviorStaticValueCategory type) const {
+	return factionType->getAIBehaviorStaticOverideValue(type);
+}
+
+
 Unit * Faction::getUnit(int i) const {
 	Unit *result = units[i];
 	return result;

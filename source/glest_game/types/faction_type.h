@@ -15,12 +15,14 @@
 #include "unit_type.h"
 #include "upgrade_type.h"
 #include "sound.h"
+#include <map>
+#include <string>
+#include "util.h"
 #include "leak_dumper.h"
 
 using Shared::Sound::StrSound;
 
 namespace Glest{ namespace Game{
-
 // =====================================================
 // 	class FactionType
 //
@@ -34,6 +36,35 @@ enum AIBehaviorUnitCategory {
 	aibcBuildingUnits
 };
 
+enum AIBehaviorStaticValueCategory {
+	aibsvcMaxBuildRadius,
+	aibsvcMinMinWarriors,
+	aibsvcMinMinWarriorsExpandCpuEasy,
+	aibsvcMinMinWarriorsExpandCpuMega,
+	aibsvcMinMinWarriorsExpandCpuUltra,
+	aibsvcMinMinWarriorsExpandCpuNormal,
+	aibsvcMaxMinWarriors,
+	aibsvcMaxExpansions,
+	aibsvcVillageRadius,
+	aibsvcMinStaticResourceCount,
+	aibsvcScoutResourceRange,
+	aibsvcMinWorkerAttackersHarvesting
+};
+template <>
+inline EnumParser<AIBehaviorStaticValueCategory>::EnumParser() {
+	enumMap["MaxBuildRadius"]				= aibsvcMaxBuildRadius;
+	enumMap["MinMinWarriors"]				= aibsvcMinMinWarriors;
+	enumMap["MinMinWarriorsExpandCpuEasy"]	= aibsvcMinMinWarriorsExpandCpuEasy;
+	enumMap["MinMinWarriorsExpandCpuMega"]	= aibsvcMinMinWarriorsExpandCpuMega;
+	enumMap["MinMinWarriorsExpandCpuUltra"]	= aibsvcMinMinWarriorsExpandCpuUltra;
+	enumMap["MinMinWarriorsExpandCpuNormal"]= aibsvcMinMinWarriorsExpandCpuNormal;
+	enumMap["MaxMinWarriors"]				= aibsvcMaxMinWarriors;
+	enumMap["MaxExpansions"]				= aibsvcMaxExpansions;
+	enumMap["VillageRadius"]				= aibsvcVillageRadius;
+	enumMap["MinStaticResourceCount"]		= aibsvcMinStaticResourceCount;
+	enumMap["ScoutResourceRange"]			= aibsvcScoutResourceRange;
+	enumMap["MinWorkerAttackersHarvesting"]	= aibsvcMinWorkerAttackersHarvesting;
+}
 
 class FactionType {
 public:
@@ -54,7 +85,7 @@ private:
 
 	std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> > mapAIBehaviorUnitCategories;
 	std::vector<const UpgradeType*> vctAIBehaviorUpgrades;
-	int aIBehavior_minStaticResourceCount;
+	std::map<AIBehaviorStaticValueCategory, int > mapAIBehaviorStaticOverrideValues;
 
 public:
 	//init
@@ -65,7 +96,7 @@ public:
 
 	const std::vector<FactionType::PairPUnitTypeInt> getAIBehaviorUnits(AIBehaviorUnitCategory category) const;
 	const std::vector<const UpgradeType*> getAIBehaviorUpgrades() const { return vctAIBehaviorUpgrades; };
-	int getAIBehaviorMinStaticResourceCount() const { return aIBehavior_minStaticResourceCount; }
+	int getAIBehaviorStaticOverideValue(AIBehaviorStaticValueCategory type) const;
 
     //get
 	int getUnitTypeCount() const						{return unitTypes.size();}

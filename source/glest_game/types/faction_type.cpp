@@ -33,7 +33,6 @@ namespace Glest{ namespace Game{
 FactionType::FactionType() {
 	music			= NULL;
 	personalityType = fpt_Normal;
-	aIBehavior_minStaticResourceCount = INT_MAX;
 }
 
 //load a faction, given a directory
@@ -41,8 +40,6 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	aIBehavior_minStaticResourceCount = INT_MAX;
 
 	string techTreePath = techTree->getPath();
 	string techTreeName=techTree->getName();
@@ -221,9 +218,30 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		if(factionNode->hasChild("ai-behavior") == true) {
 			const XmlNode *aiNode= factionNode->getChild("ai-behavior");
 			if(aiNode->hasAttribute("min-static-resource-count") == true) {
-				aIBehavior_minStaticResourceCount = aiNode->getAttribute("min-static-resource-count")->getIntValue();
-				//printf("aIBehavior_minStaticResourceCount = %d\n",aIBehavior_minStaticResourceCount);
+				mapAIBehaviorStaticOverrideValues[aibsvcMinStaticResourceCount] = aiNode->getAttribute("min-static-resource-count")->getIntValue();
 			}
+
+			if(aiNode->hasChild("static-values") == true) {
+				const XmlNode *aiNodeUnits= aiNode->getChild("static-values");
+				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+					const XmlNode *unitNode= aiNodeUnits->getChild("static", i);
+					AIBehaviorStaticValueCategory type  = aibsvcMaxBuildRadius;
+					if(unitNode->hasAttribute("type") == true) {
+						type  = static_cast<AIBehaviorStaticValueCategory>(
+								unitNode->getAttribute("type")->getIntValue());
+					}
+					else {
+						type = EnumParser<AIBehaviorStaticValueCategory>::getEnum(
+								unitNode->getAttribute("type-name")->getValue());
+						//printf("Discovered overriden static value for AI, type = %d, value = %d\n",type,value);
+					}
+
+					int value = unitNode->getAttribute("value")->getIntValue();
+					mapAIBehaviorStaticOverrideValues[type]=value;
+					//printf("Discovered overriden static value for AI, type = %d, value = %d\n",type,value);
+				}
+			}
+
 			if(aiNode->hasChild("worker-units") == true) {
 				const XmlNode *aiNodeUnits= aiNode->getChild("worker-units");
 				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
@@ -277,6 +295,16 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+int FactionType::getAIBehaviorStaticOverideValue(AIBehaviorStaticValueCategory type) const {
+	int result = INT_MAX;
+	std::map<AIBehaviorStaticValueCategory, int >::const_iterator iterFind =
+			mapAIBehaviorStaticOverrideValues.find(type);
+	if(iterFind != mapAIBehaviorStaticOverrideValues.end()) {
+		result = iterFind->second;
+	}
+	return result;
 }
 
 const std::vector<FactionType::PairPUnitTypeInt> FactionType::getAIBehaviorUnits(AIBehaviorUnitCategory category) const {

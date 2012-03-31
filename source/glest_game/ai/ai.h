@@ -129,17 +129,19 @@ public:
 
 class Ai {
 private:
-	static const int maxBuildRadius= 40; 
+	int maxBuildRadius;
 
-	static const int minMinWarriors= 7;
-	static const int minMinWarriorsExpandCpuEasy= 1;
-	static const int minMinWarriorsExpandCpuMega= 3;
-	static const int minMinWarriorsExpandCpuUltra= 3;
-	static const int minMinWarriorsExpandCpuNormal= 3;
-	static const int maxMinWarriors= 20;
+	int minMinWarriors;
+	int minMinWarriorsExpandCpuEasy;
+	int minMinWarriorsExpandCpuMega;
+	int minMinWarriorsExpandCpuUltra;
+	int minMinWarriorsExpandCpuNormal;
+	int maxMinWarriors;
 
-	static const int maxExpansions= 2;
-	static const int villageRadius= 15;
+	int maxExpansions;
+	int villageRadius;
+	int scoutResourceRange;
+	int minWorkerAttackersHarvesting;
 
 public:
 	enum ResourceUsage {
@@ -163,19 +165,31 @@ private:
 	Positions expansionPositions;
 	RandomGen random;
 	std::map<int,int> factionSwitchTeamRequestCount;
+	int minWarriors;
 
 	bool getAdjacentUnits(std::map<float, std::map<int, const Unit *> > &signalAdjacentUnits, const Unit *unit);
 
 public: 
 	Ai() {
-	    aiInterface = NULL;
-	    startLoc = -1;
+		// Defaults that used to be static which can now be overriden
+		maxBuildRadius					= 40;
+		minMinWarriors					= 7;
+		minMinWarriorsExpandCpuEasy		= 1;
+		minMinWarriorsExpandCpuMega		= 3;
+		minMinWarriorsExpandCpuUltra	= 3;
+		minMinWarriorsExpandCpuNormal	= 3;
+		maxMinWarriors					= 20;
+		maxExpansions					= 2;
+		villageRadius					= 15;
+		scoutResourceRange				= 20;
+		minWorkerAttackersHarvesting	= 3;
+
+	    aiInterface 			 = NULL;
+	    startLoc 				 = -1;
 	    randomMinWarriorsReached = false;
-	    minWarriors = 0;
+	    minWarriors 			 = 0;
 	}
     ~Ai();
-
-    int minWarriors;
 
 	void init(AiInterface *aiInterface,int useStartLocation=-1);
     void update(); 
@@ -185,6 +199,8 @@ public:
 	RandomGen* getRandom()					{return &random;}
     int getCountOfType(const UnitType *ut);
 	
+    int getMinWarriors() const { return minWarriors; }
+
 	int getCountOfClass(UnitClass uc,UnitClass *additionalUnitClassToExcludeFromCount=NULL);
 	float getRatioOfClass(UnitClass uc,UnitClass *additionalUnitClassToExcludeFromCount=NULL);
 

@@ -430,7 +430,7 @@ void AiRuleAddTasks::execute(){
 			if(warriorRatio<0.30) ai->addTask(new ProduceTask(ucWarrior));
 			if(workerCount>=10) ai->addTask(new ProduceTask(ucWarrior));
 			if(workerCount>=15) ai->addTask(new ProduceTask(ucWarrior));
-			if(warriorCount<ai->minWarriors+2)
+			if(warriorCount < ai->getMinWarriors() + 2)
 			{
 				ai->addTask(new ProduceTask(ucWarrior));
 				if( buildingCount>9 )
@@ -603,8 +603,8 @@ bool AiRuleProduceResourceProducer::test(){
     }
 
 	int targetStaticResourceCount = minStaticResources;
-	if(aiInterface->getMyFactionType()->getAIBehaviorMinStaticResourceCount() != INT_MAX) {
-		targetStaticResourceCount = aiInterface->getMyFactionType()->getAIBehaviorMinStaticResourceCount();
+	if(aiInterface->getMyFactionType()->getAIBehaviorStaticOverideValue(aibsvcMinStaticResourceCount) != INT_MAX) {
+		targetStaticResourceCount = aiInterface->getMyFactionType()->getAIBehaviorStaticOverideValue(aibsvcMinStaticResourceCount);
 	}
 
 	//statics second

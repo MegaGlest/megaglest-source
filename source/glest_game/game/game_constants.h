@@ -4,6 +4,9 @@
 #include <cassert>
 #include <stdio.h>
 #include "vec.h"
+#include <map>
+#include <string>
+#include <stdexcept>
 
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
@@ -17,8 +20,40 @@
 // ==============================================================
 
 using namespace Shared::Graphics;
+using namespace std;
 
 namespace Glest{ namespace Game{
+
+template<typename T>
+class EnumParser {
+private:
+	typedef map<string, T> enumMapType;
+	typedef typename enumMapType::const_iterator enumMapTypeIter;
+	EnumParser();
+
+	enumMapType enumMap;
+
+public:
+
+    static T getEnum(const string &value) {
+    	static EnumParser<T> parser;
+    	enumMapTypeIter iValue = parser.enumMap.find(value);
+        if(iValue  == parser.enumMap.end()) {
+        	throw std::runtime_error("unknown enum lookup [" + value + "]");
+        }
+        return iValue->second;
+    }
+    static string getString(const T &value) {
+    	static EnumParser<T> parser;
+    	for(enumMapTypeIter iValue = parser.enumMap.first();
+    			iValue != parser.enumMap.end(); ++iValue) {
+    		if(iValue->second  == value) {
+    			return iValue->first;
+    		}
+    	}
+       	throw std::runtime_error("unknown enum lookup [" + intToStr(value) + "]");
+    }
+};
 
 // =====================================================
 //	class GameConstants
