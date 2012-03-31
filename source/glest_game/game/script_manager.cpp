@@ -375,13 +375,16 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 
 // ========================== events ===============================================
 
-void ScriptManager::onMessageBoxOk() {
+void ScriptManager::onMessageBoxOk(bool popFront) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
 
-	for(;messageQueue.empty() == false;) {
-		messageQueue.pop_front();
+	for(int i = 0;messageQueue.empty() == false;++i) {
+		//printf("i = %d messageQueue.size() = %d popFront = %d\n",i,messageQueue.size(),popFront);
+		if(popFront == true) {
+			messageQueue.pop_front();
+		}
 		if(messageQueue.empty() == false) {
 //			printf("onMessageBoxOk [%s] factionIndex = %d [%d] teamIndex = %d [%d][%d]\n",
 //					wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount).c_str(),
@@ -391,10 +394,12 @@ void ScriptManager::onMessageBoxOk() {
 			if((messageQueue.front().getFactionIndex() < 0 && messageQueue.front().getTeamIndex() < 0) ||
 				messageQueue.front().getFactionIndex() == this->world->getThisFactionIndex() ||
 				messageQueue.front().getTeamIndex() == this->world->getThisTeamIndex()) {
+				messageBox.setEnabled(true);
 				messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
 				messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
 				break;
 			}
+			popFront = true;
 		}
 	}
 }
@@ -672,14 +677,13 @@ void ScriptManager::networkShowMessageForFaction(const string &text, const strin
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
 	Lang &lang= Lang::getInstance();
-
 	messageQueue.push_back(ScriptManagerMessage(text, header, factionIndex));
-
-	if(factionIndex == this->world->getThisFactionIndex()) {
-		messageBox.setEnabled(true);
-		messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
-		messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
-	}
+	onMessageBoxOk(false);
+//	if(factionIndex == this->world->getThisFactionIndex()) {
+//		messageBox.setEnabled(true);
+//		messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
+//		messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
+//	}
 }
 void ScriptManager::networkShowMessageForTeam(const string &text, const string &header,int teamIndex) {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -689,11 +693,12 @@ void ScriptManager::networkShowMessageForTeam(const string &text, const string &
 	// Team indexes are 0 based internally (but 1 based in the lua script) so convert
 	teamIndex--;
 	messageQueue.push_back(ScriptManagerMessage(text, header, -1, teamIndex));
-	if(teamIndex == this->world->getThisTeamIndex()) {
-		messageBox.setEnabled(true);
-		messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
-		messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
-	}
+	onMessageBoxOk(false);
+//	if(teamIndex == this->world->getThisTeamIndex()) {
+//		messageBox.setEnabled(true);
+//		messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
+//		messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
+//	}
 }
 
 void ScriptManager::showMessage(const string &text, const string &header){
@@ -702,9 +707,10 @@ void ScriptManager::showMessage(const string &text, const string &header){
 	Lang &lang= Lang::getInstance();
 
 	messageQueue.push_back(ScriptManagerMessage(text, header));
-	messageBox.setEnabled(true);
-	messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
-	messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
+	onMessageBoxOk(false);
+//	messageBox.setEnabled(true);
+//	messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
+//	messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
 }
 
 void ScriptManager::clearDisplayText(){

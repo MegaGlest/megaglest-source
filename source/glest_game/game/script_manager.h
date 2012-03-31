@@ -205,7 +205,7 @@ public:
 	const PlayerModifiers *getPlayerModifiers(int factionIndex) const	{return &playerModifiers[factionIndex];}
 
 	//events
-	void onMessageBoxOk();
+	void onMessageBoxOk(bool popFront=true);
 	void onResourceHarvested();
 	void onUnitCreated(const Unit* unit);
 	void onUnitDied(const Unit* unit);
