@@ -932,9 +932,18 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		throw runtime_error(szBuf);
 	}
 
+	if(this->currSkill->getClass() == scMove &&
+		currSkill->getClass() != scMove) {
+		faction->removeUnitFromMovingList(this->getId());
+	}
+	else if(this->currSkill->getClass() != scMove &&
+		currSkill->getClass() == scMove) {
+		faction->addUnitToMovingList(this->getId());
+	}
+
 	changedActiveCommand = false;
-	if(currSkill->getClass() != this->currSkill->getClass() ||
-			currSkill->getName() != this->currSkill->getName()) {
+	if( currSkill->getClass() != this->currSkill->getClass() ||
+		currSkill->getName() != this->currSkill->getName()) {
 		animProgress= 0;
 		lastAnimProgress= 0;
 

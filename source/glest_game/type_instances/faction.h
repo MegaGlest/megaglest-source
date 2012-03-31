@@ -141,6 +141,9 @@ private:
 	set<int> livingUnits;
 	set<Unit*> livingUnitsp;
 
+	std::map<int,int> unitsMovingList;
+	std::map<int,int> unitsPathfindingList;
+
 	TechTree *techTree;
 	const XmlNode *loadWorldNode;
 
@@ -154,6 +157,17 @@ public:
 	bool isUnitInLivingUnitsp(Unit *unit) { return (livingUnitsp.find(unit) != livingUnitsp.end()); }
 	void deleteLivingUnits(int id) { livingUnits.erase(id); }
 	void deleteLivingUnitsp(Unit *unit) { livingUnitsp.erase(unit); }
+
+	//std::map<int,int> unitsMovingList;
+	void addUnitToMovingList(int unitId);
+	void removeUnitFromMovingList(int unitId);
+	int getUnitMovingListCount();
+
+	void addUnitToPathfindingList(int unitId);
+	void removeUnitFromPathfindingList(int unitId);
+	int getUnitPathfindingListCount();
+	void clearUnitsPathfinding();
+	bool canUnitsPathfind();
 
     void init(
 		FactionType *factionType, ControlType control, TechTree *techTree, Game *game,

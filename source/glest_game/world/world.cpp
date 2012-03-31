@@ -392,6 +392,15 @@ void World::updateAllFactionUnits() {
 //		}
 //	}
 
+	// Clear pathfinder list restrictions
+	for(int i = 0; i < factionCount; ++i) {
+		Faction *faction = getFaction(i);
+		if(faction == NULL) {
+			throw runtime_error("faction == NULL");
+		}
+		faction->clearUnitsPathfinding();
+	}
+
 	// Signal the faction threads to do any pre-processing
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);

@@ -456,6 +456,46 @@ int Faction::getAIBehaviorStaticOverideValue(AIBehaviorStaticValueCategory type)
 	return factionType->getAIBehaviorStaticOverideValue(type);
 }
 
+void Faction::addUnitToMovingList(int unitId) {
+	unitsMovingList[unitId] = getWorld()->getFrameCount();
+}
+void Faction::removeUnitFromMovingList(int unitId) {
+	unitsMovingList.erase(unitId);
+}
+
+int Faction::getUnitMovingListCount() {
+	return unitsMovingList.size();
+}
+
+void Faction::addUnitToPathfindingList(int unitId) {
+	unitsPathfindingList[unitId] = getWorld()->getFrameCount();
+}
+void Faction::removeUnitFromPathfindingList(int unitId) {
+	unitsPathfindingList.erase(unitId);
+}
+
+int Faction::getUnitPathfindingListCount() {
+	return unitsPathfindingList.size();
+}
+
+void Faction::clearUnitsPathfinding() {
+	unitsPathfindingList.clear();
+}
+
+bool Faction::canUnitsPathfind() {
+	bool result = true;
+	if(control == ctCpuEasy  || control == ctCpu ||
+	   control == ctCpuUltra || control == ctCpuMega) {
+		//printf("AI player for faction index: %d (%s) current pathfinding: %d\n",index,factionType->getName().c_str(),getUnitPathfindingListCount());
+
+		const int MAX_UNITS_PATHFINDING_PER_FRAME = 10;
+		result = (getUnitPathfindingListCount() <= MAX_UNITS_PATHFINDING_PER_FRAME);
+		if(result == false) {
+			//printf("WARNING limited AI player for faction index: %d (%s) current pathfinding: %d\n",index,factionType->getName().c_str(),getUnitPathfindingListCount());
+		}
+	}
+	return result;
+}
 
 Unit * Faction::getUnit(int i) const {
 	Unit *result = units[i];
@@ -1924,6 +1964,21 @@ void Faction::saveGame(XmlNode *rootNode) {
 //	set<int> livingUnits;
 //	set<Unit*> livingUnitsp;
 
+	for(std::map<int,int>::iterator iterMap = unitsMovingList.begin();
+			iterMap != unitsMovingList.end(); ++iterMap) {
+		XmlNode *unitsMovingListNode = factionNode->addChild("unitsMovingList");
+
+		unitsMovingListNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+		unitsMovingListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
+
+	for(std::map<int,int>::iterator iterMap = unitsPathfindingList.begin();
+			iterMap != unitsPathfindingList.end(); ++iterMap) {
+		XmlNode *unitsPathfindingListNode = factionNode->addChild("unitsPathfindingList");
+
+		unitsPathfindingListNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+		unitsPathfindingListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+	}
 }
 
 void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *settings,World *world) {
@@ -2007,8 +2062,69 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 		thisFaction = factionNode->getAttribute("thisFaction")->getIntValue();
 		//	bool factionDisconnectHandled;
 
+//		for(std::map<Vec2i,int>::iterator iterMap = cacheResourceTargetList.begin();
+//				iterMap != cacheResourceTargetList.end(); ++iterMap) {
+//			XmlNode *cacheResourceTargetListNode = factionNode->addChild("cacheResourceTargetList");
+//
+//			cacheResourceTargetListNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
+//			cacheResourceTargetListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+//		}
+//	//	std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
+//		for(std::map<Vec2i,bool>::iterator iterMap = cachedCloseResourceTargetLookupList.begin();
+//				iterMap != cachedCloseResourceTargetLookupList.end(); ++iterMap) {
+//			XmlNode *cachedCloseResourceTargetLookupListNode = factionNode->addChild("cachedCloseResourceTargetLookupList");
+//
+//			cachedCloseResourceTargetLookupListNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
+//			cachedCloseResourceTargetLookupListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+//		}
+		vector<XmlNode *> cacheResourceTargetListNodeList = factionNode->getChildList("cacheResourceTargetList");
+		for(unsigned int i = 0; i < cacheResourceTargetListNodeList.size(); ++i) {
+			XmlNode *cacheResourceTargetListNode = cacheResourceTargetListNodeList[i];
+
+			Vec2i vec = Vec2i::strToVec2(cacheResourceTargetListNode->getAttribute("key")->getValue());
+			cacheResourceTargetList[vec] = cacheResourceTargetListNode->getAttribute("value")->getIntValue();
+		}
+		vector<XmlNode *> cachedCloseResourceTargetLookupListNodeList = factionNode->getChildList("cachedCloseResourceTargetLookupList");
+		for(unsigned int i = 0; i < cachedCloseResourceTargetLookupListNodeList.size(); ++i) {
+			XmlNode *cachedCloseResourceTargetLookupListNode = cachedCloseResourceTargetLookupListNodeList[i];
+
+			Vec2i vec = Vec2i::strToVec2(cachedCloseResourceTargetLookupListNode->getAttribute("key")->getValue());
+			cachedCloseResourceTargetLookupList[vec] = cachedCloseResourceTargetLookupListNode->getAttribute("value")->getIntValue();
+		}
+
 		//	RandomGen random;
 		random.setLastNumber(factionNode->getAttribute("random")->getIntValue());
+
+//		for(std::map<int,int>::iterator iterMap = unitsMovingList.begin();
+//				iterMap != unitsMovingList.end(); ++iterMap) {
+//			XmlNode *unitsMovingListNode = factionNode->addChild("unitsMovingList");
+//
+//			unitsMovingListNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+//			unitsMovingListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+//		}
+//
+//		for(std::map<int,int>::iterator iterMap = unitsPathfindingList.begin();
+//				iterMap != unitsPathfindingList.end(); ++iterMap) {
+//			XmlNode *unitsPathfindingListNode = factionNode->addChild("unitsPathfindingList");
+//
+//			unitsPathfindingListNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
+//			unitsPathfindingListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
+//		}
+
+		vector<XmlNode *> unitsMovingListNodeList = factionNode->getChildList("unitsMovingList");
+		for(unsigned int i = 0; i < unitsMovingListNodeList.size(); ++i) {
+			XmlNode *unitsMovingListNode = unitsMovingListNodeList[i];
+
+			int unitId = unitsMovingListNode->getAttribute("key")->getIntValue();
+			unitsMovingList[unitId] = unitsMovingListNode->getAttribute("value")->getIntValue();
+		}
+		vector<XmlNode *> unitsPathfindingListNodeList = factionNode->getChildList("unitsPathfindingList");
+		for(unsigned int i = 0; i < unitsPathfindingListNodeList.size(); ++i) {
+			XmlNode *unitsPathfindingListNode = unitsPathfindingListNodeList[i];
+
+			int unitId = unitsPathfindingListNode->getAttribute("key")->getIntValue();
+			unitsPathfindingList[unitId] = unitsPathfindingListNode->getAttribute("value")->getIntValue();
+		}
 	}
 }
 
