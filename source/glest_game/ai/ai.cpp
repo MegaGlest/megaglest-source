@@ -15,6 +15,7 @@
 #include "unit_type.h"
 #include "unit.h"
 #include "map.h"
+#include "faction_type.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -234,6 +235,53 @@ UpgradeTask * UpgradeTask::loadGame(const XmlNode *rootNode, Faction *faction) {
 
 void Ai::init(AiInterface *aiInterface, int useStartLocation) {
 	this->aiInterface= aiInterface;
+
+	Faction *faction = this->aiInterface->getMyFaction();
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMaxBuildRadius) != INT_MAX) {
+		maxBuildRadius = faction->getAIBehaviorStaticOverideValue(aibsvcMaxBuildRadius);
+		//printf("Discovered overriden static value for AI, maxBuildRadius = %d\n",maxBuildRadius);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriors) != INT_MAX) {
+		minMinWarriors = faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriors);
+		//printf("Discovered overriden static value for AI, minMinWarriors = %d\n",minMinWarriors);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriorsExpandCpuEasy) != INT_MAX) {
+		minMinWarriorsExpandCpuEasy = faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriorsExpandCpuEasy);
+		//printf("Discovered overriden static value for AI, minMinWarriorsExpandCpuEasy = %d\n",minMinWarriorsExpandCpuEasy);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriorsExpandCpuMega) != INT_MAX) {
+		minMinWarriorsExpandCpuMega = faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriorsExpandCpuMega);
+		//printf("Discovered overriden static value for AI, minMinWarriorsExpandCpuMega = %d\n",minMinWarriorsExpandCpuMega);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriorsExpandCpuUltra) != INT_MAX) {
+		minMinWarriorsExpandCpuUltra = faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriorsExpandCpuUltra);
+		//printf("Discovered overriden static value for AI, minMinWarriorsExpandCpuUltra = %d\n",minMinWarriorsExpandCpuUltra);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriorsExpandCpuNormal) != INT_MAX) {
+		minMinWarriorsExpandCpuNormal = faction->getAIBehaviorStaticOverideValue(aibsvcMinMinWarriorsExpandCpuNormal);
+		//printf("Discovered overriden static value for AI, minMinWarriorsExpandCpuNormal = %d\n",minMinWarriorsExpandCpuNormal);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMaxMinWarriors) != INT_MAX) {
+		maxMinWarriors = faction->getAIBehaviorStaticOverideValue(aibsvcMaxMinWarriors);
+		//printf("Discovered overriden static value for AI, maxMinWarriors = %d\n",maxMinWarriors);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMaxExpansions) != INT_MAX) {
+		maxExpansions = faction->getAIBehaviorStaticOverideValue(aibsvcMaxExpansions);
+		//printf("Discovered overriden static value for AI, maxExpansions = %d\n",maxExpansions);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcVillageRadius) != INT_MAX) {
+		villageRadius = faction->getAIBehaviorStaticOverideValue(aibsvcVillageRadius);
+		//printf("Discovered overriden static value for AI, villageRadius = %d\n",villageRadius);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcScoutResourceRange) != INT_MAX) {
+		scoutResourceRange = faction->getAIBehaviorStaticOverideValue(aibsvcScoutResourceRange);
+		//printf("Discovered overriden static value for AI, scoutResourceRange = %d\n",scoutResourceRange);
+	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinWorkerAttackersHarvesting) != INT_MAX) {
+		minWorkerAttackersHarvesting = faction->getAIBehaviorStaticOverideValue(aibsvcMinWorkerAttackersHarvesting);
+		//printf("Discovered overriden static value for AI, scoutResourceRange = %d\n",scoutResourceRange);
+	}
+
 	if(useStartLocation == -1) {
 		startLoc = random.randRange(0, aiInterface->getMapMaxPlayers()-1);
 	}
@@ -709,7 +757,7 @@ void Ai::sendScoutPatrol(){
 				//printf("is inside map\n");
 				// find first resource in this area
 				Vec2i resPos;
-				if(aiInterface->isResourceInRegion(pos, rt, resPos, 20)){
+				if(aiInterface->isResourceInRegion(pos, rt, resPos, scoutResourceRange)){
 					// found a possible target.
 					pos= resPos;
 					//printf("lets try the new target\n");
@@ -738,8 +786,6 @@ void Ai::sendScoutPatrol(){
 }
 
 void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
-	const int minWorkerAttackersHarvesting = 3;
-
 	int producerWarriorCount=0;
 	int maxProducerWarriors=random.randRange(1,11);
 	int unitCount = aiInterface->getMyUnitCount();
@@ -1126,6 +1172,29 @@ void Ai::saveGame(XmlNode *rootNode) const {
 //	RandomGen random;
 	aiNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	std::map<int,int> factionSwitchTeamRequestCount;
+
+//	int maxBuildRadius;
+	aiNode->addAttribute("maxBuildRadius",intToStr(maxBuildRadius), mapTagReplacements);
+//	int minMinWarriors;
+	aiNode->addAttribute("minMinWarriors",intToStr(minMinWarriors), mapTagReplacements);
+//	int minMinWarriorsExpandCpuEasy;
+	aiNode->addAttribute("minMinWarriorsExpandCpuEasy",intToStr(minMinWarriorsExpandCpuEasy), mapTagReplacements);
+//	int minMinWarriorsExpandCpuMega;
+	aiNode->addAttribute("minMinWarriorsExpandCpuMega",intToStr(minMinWarriorsExpandCpuMega), mapTagReplacements);
+//	int minMinWarriorsExpandCpuUltra;
+	aiNode->addAttribute("minMinWarriorsExpandCpuUltra",intToStr(minMinWarriorsExpandCpuUltra), mapTagReplacements);
+//	int minMinWarriorsExpandCpuNormal;
+	aiNode->addAttribute("minMinWarriorsExpandCpuNormal",intToStr(minMinWarriorsExpandCpuNormal), mapTagReplacements);
+//	int maxMinWarriors;
+	aiNode->addAttribute("maxMinWarriors",intToStr(maxMinWarriors), mapTagReplacements);
+//	int maxExpansions;
+	aiNode->addAttribute("maxExpansions",intToStr(maxExpansions), mapTagReplacements);
+//	int villageRadius;
+	aiNode->addAttribute("villageRadius",intToStr(villageRadius), mapTagReplacements);
+//	int scoutResourceRange;
+	aiNode->addAttribute("scoutResourceRange",intToStr(scoutResourceRange), mapTagReplacements);
+//	int minWorkerAttackersHarvesting;
+	aiNode->addAttribute("minWorkerAttackersHarvesting",intToStr(minWorkerAttackersHarvesting), mapTagReplacements);
 }
 
 void Ai::loadGame(const XmlNode *rootNode, Faction *faction) {
@@ -1170,6 +1239,29 @@ void Ai::loadGame(const XmlNode *rootNode, Faction *faction) {
 	//	RandomGen random;
 	random.setLastNumber(aiNode->getAttribute("random")->getIntValue());
 	//	std::map<int,int> factionSwitchTeamRequestCount;
+
+	//	int maxBuildRadius;
+	maxBuildRadius = aiNode->getAttribute("maxBuildRadius")->getIntValue();
+	//	int minMinWarriors;
+	minMinWarriors = aiNode->getAttribute("minMinWarriors")->getIntValue();
+	//	int minMinWarriorsExpandCpuEasy;
+	minMinWarriorsExpandCpuEasy = aiNode->getAttribute("minMinWarriorsExpandCpuEasy")->getIntValue();
+	//	int minMinWarriorsExpandCpuMega;
+	minMinWarriorsExpandCpuMega = aiNode->getAttribute("minMinWarriorsExpandCpuMega")->getIntValue();
+	//	int minMinWarriorsExpandCpuUltra;
+	minMinWarriorsExpandCpuUltra = aiNode->getAttribute("minMinWarriorsExpandCpuUltra")->getIntValue();
+	//	int minMinWarriorsExpandCpuNormal;
+	minMinWarriorsExpandCpuNormal = aiNode->getAttribute("minMinWarriorsExpandCpuNormal")->getIntValue();
+	//	int maxMinWarriors;
+	maxMinWarriors = aiNode->getAttribute("maxMinWarriors")->getIntValue();
+	//	int maxExpansions;
+	maxExpansions = aiNode->getAttribute("maxExpansions")->getIntValue();
+	//	int villageRadius;
+	villageRadius = aiNode->getAttribute("villageRadius")->getIntValue();
+	//	int scoutResourceRange;
+	scoutResourceRange = aiNode->getAttribute("scoutResourceRange")->getIntValue();
+	//	int minWorkerAttackersHarvesting;
+	minWorkerAttackersHarvesting = aiNode->getAttribute("minWorkerAttackersHarvesting")->getIntValue();
 }
 
 }}//end namespace

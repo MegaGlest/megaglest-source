@@ -22,6 +22,7 @@
 #include "command_type.h"
 #include "base_thread.h"
 #include <set>
+#include "faction_type.h"
 #include "leak_dumper.h"
 
 using std::map;
@@ -186,8 +187,10 @@ public:
 	bool getCpuUltraControl() const						{return control==ctCpuUltra;}
 	bool getCpuMegaControl() const						{return control==ctCpuMega;}
 	ControlType getControlType() const					{return control;}
+
 	FactionPersonalityType getPersonalityType() const;
 	void setPersonalityType(FactionPersonalityType pType) { overridePersonalityType=pType; }
+	int getAIBehaviorStaticOverideValue(AIBehaviorStaticValueCategory type) const;
 
 	Unit *getUnit(int i) const;
 	int getUnitCount() const;

@@ -244,7 +244,6 @@ public:
     }
 };
 
-
 }}//end namespace
 
 #endif
