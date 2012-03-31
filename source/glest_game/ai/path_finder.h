@@ -138,6 +138,11 @@ private:
 	int getPathFindExtendRefreshNodeCount(int factionIndex);
 
 
+	void astarJPS(std::map<Vec2i,Vec2i> cameFrom, Node *& node,
+			const Vec2i & finalPos, std::map<Vec2i,bool> closedNodes,
+			std::map<std::pair<Vec2i,Vec2i> ,bool> canAddNode, Unit *& unit,
+			bool & nodeLimitReached, int & maxNodeCount);
+
 	bool contained(Vec2i c);
 	direction directionOfMove(Vec2i to, Vec2i from) const;
 	direction directionWeCameFrom(Vec2i node, Vec2i nodeFrom) const;
