@@ -65,6 +65,7 @@ protected:
 	bool tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path);
 	static void CopyAll(Config *src,Config *dest);
 	vector<pair<string,string> > getPropertiesFromContainer(const Properties &propertiesObj) const;
+	static bool replaceFileWithLocalFile(const vector<string> &dirList, string fileNamePart, string &resultToReplace);
 
 public:
 

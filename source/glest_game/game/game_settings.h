@@ -16,6 +16,8 @@
 #include "conversion.h"
 #include <algorithm>
 #include "xml_parser.h"
+#include "config.h"
+#include "util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -424,6 +426,10 @@ public:
 		scenario = gameSettingsNode->getAttribute("scenario")->getValue();
 //		string scenarioDir;
 		scenarioDir = gameSettingsNode->getAttribute("scenarioDir")->getValue();
+		if(fileExists(scenarioDir) == false) {
+			scenarioDir = Config::findValidLocalFileFromPath(scenarioDir);
+		}
+
 //		string factionTypeNames[GameConstants::maxPlayers]; //faction names
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
 			const XmlNode *factionTypeNamesNode = gameSettingsNode->getChild("factionTypeNames",idx);
