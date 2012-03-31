@@ -524,6 +524,19 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 			countUnitKillInStats=true;
 		}
 
+		//countKillForUnitUpgrade
+		if(parametersNode->hasChild("count-kill-for-unit-upgrade")){
+			const XmlNode *countKillForUnitUpgradeNode= parametersNode->getChild("count-kill-for-unit-upgrade");
+			countKillForUnitUpgrade= countKillForUnitUpgradeNode->getAttribute("value")->getBoolValue();
+		} else {
+			countKillForUnitUpgrade=true;
+		}
+
+		if(countKillForUnitUpgrade == false){
+			// it makes no sense if we count it in stats but not for upgrades
+			countUnitKillInStats=false;
+		}
+
 		//selection sounds
 		const XmlNode *selectionSoundNode= parametersNode->getChild("selection-sounds");
 		if(selectionSoundNode->getAttribute("enabled")->getBoolValue()){
