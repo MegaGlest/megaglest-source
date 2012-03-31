@@ -2063,7 +2063,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	//damage the unit
 	if(attacked->decHp(static_cast<int>(damage))) {
 		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex(), attacker->getTeam() != attacked->getTeam(),attacked->getType()->getCountUnitDeathInStats(),attacked->getType()->getCountUnitKillInStats());
-		if(attacked->getType()->getCountKillForUnitUpgrade()){
+		if(attacked->getType()->getCountKillForUnitUpgrade() == true){
 			attacker->incKills(attacked->getTeam());
 		}
 
