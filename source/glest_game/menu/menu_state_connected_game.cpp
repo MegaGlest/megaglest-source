@@ -106,7 +106,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.get("Ok"));
 	mainMessageBox.setEnabled(false);
-	mainMessageBoxState=0;
+	//mainMessageBoxState=0;
 
     ftpMessageBox.registerGraphicComponent(containerName,"ftpMessageBox");
 	ftpMessageBox.init(lang.get("Yes"),lang.get("No"));
@@ -497,18 +497,30 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	for(int i= 0; i < resultsScenarios.size(); ++i) {
 		string scenario = resultsScenarios[i];
 		string file = Scenario::getScenarioPath(dirList, scenario);
-		if(file != "") {
-			Scenario::loadScenarioInfo(file, &scenarioInfo);
 
-			bool isNetworkScenario = false;
-			for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
-				if(scenarioInfo.factionControls[j] == ctNetwork) {
-					isNetworkScenario = true;
+		try {
+			if(file != "") {
+				Scenario::loadScenarioInfo(file, &scenarioInfo);
+
+				bool isNetworkScenario = false;
+				for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
+					if(scenarioInfo.factionControls[j] == ctNetwork) {
+						isNetworkScenario = true;
+					}
+				}
+				if(isNetworkScenario == true) {
+					scenarioFiles.push_back(scenario);
 				}
 			}
-			if(isNetworkScenario == true) {
-				scenarioFiles.push_back(scenario);
-			}
+		}
+		catch(const std::exception &ex) {
+		    char szBuf[8096]="";
+		    sprintf(szBuf,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
+		    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		    showMessageBox( szBuf, "Error", false);
+		    //throw runtime_error(szBuf);
 		}
 	}
 	resultsScenarios.clear();
@@ -1442,12 +1454,12 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         }
     }
 	catch(const std::exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-		//showGeneralError=true;
-		//generalErrorToShow = szBuf;
+
+		showMessageBox( szBuf, "Error", false);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -2155,8 +2167,8 @@ void MenuStateConnectedGame::render() {
 		renderer.renderConsole(&console,showFullConsole,true);
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw runtime_error(szBuf);
 	}
@@ -2783,8 +2795,8 @@ void MenuStateConnectedGame::update() {
 
 		}
 		catch(const runtime_error &ex) {
-			char szBuf[1024]="";
-			sprintf(szBuf,"Error [%s]",ex.what());
+			char szBuf[8096]="";
+			sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
 			//throw runtime_error(szBuf);
@@ -2913,8 +2925,8 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
 		}
     }
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Error [%s]",ex.what());
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
 		showMessageBox( szBuf, "Error", false);
@@ -3090,102 +3102,6 @@ void MenuStateConnectedGame::loadFactionTexture(string filepath) {
 }
 
 bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
-
-
-/*
-	Lang &lang= Lang::getInstance();
-
-	bool mapLoaded = false;
-	try {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] map [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
-
-		if(file != "") {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			lastMissingMap = file;
-
-#ifdef WIN32
-			FILE *f= _wfopen(utf8_decode(file).c_str(), L"rb");
-#else
-			FILE *f= fopen(file.c_str(), "rb");
-#endif
-			if(f==NULL) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				throw runtime_error("[2]Can't open file");
-			}
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			MapFileHeader header;
-			size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
-
-			mapInfo->size.x= header.width;
-			mapInfo->size.y= header.height;
-			mapInfo->players= header.maxFactions;
-
-			mapInfo->desc= lang.get("MaxPlayers")+": "+intToStr(mapInfo->players)+"\n";
-			mapInfo->desc+=lang.get("Size")+": "+intToStr(mapInfo->size.x) + " x " + intToStr(mapInfo->size.y);
-
-			fclose(f);
-
-			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-				labelPlayers[i].setVisible(i+1 <= mapInfo->players);
-				labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
-				listBoxControls[i].setVisible(i+1 <= mapInfo->players);
-				listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
-				listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
-				labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
-			}
-
-			// Not painting properly so this is on hold
-			if(loadMapPreview == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				if(mapPreview.getMapFileLoaded() != file) {
-					mapPreview.loadFromFile(file.c_str());
-					cleanupMapPreviewTexture();
-				}
-			}
-
-			mapLoaded = true;
-		}
-		else {
-			cleanupMapPreviewTexture();
-			mapInfo->desc = ITEM_MISSING;
-
-			NetworkManager &networkManager= NetworkManager::getInstance();
-			ClientInterface* clientInterface= networkManager.getClientInterface();
-			const GameSettings *gameSettings = clientInterface->getGameSettings();
-
-			if(lastMissingMap != gameSettings->getMap()) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-				lastMissingMap = gameSettings->getMap();
-
-		    	Lang &lang= Lang::getInstance();
-		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
-		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-
-					char szMsg[1024]="";
-		            if(lang.hasString("DataMissingMap",languageList[i]) == true) {
-		            	sprintf(szMsg,lang.get("DataMissingMap",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
-		            }
-		            else {
-		            	sprintf(szMsg,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
-		            }
-					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
-		    	}
-			}
-		}
-	}
-	catch(exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-
-		showMessageBox( "Error loading map file: "+file+'\n'+e.what(), "Error", false);
-	}
-
-	return mapLoaded;
-*/
-
 	bool mapLoaded = false;
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] map [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
@@ -4074,8 +3990,8 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 		//printf("#7\n");
 	}
 	catch(const std::exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4114,8 +4030,8 @@ int MenuStateConnectedGame::setupTechList(string scenario) {
 		listBoxTechTree.setItems(results);
 	}
 	catch(const std::exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4142,8 +4058,8 @@ void MenuStateConnectedGame::setupTilesetList(string scenario) {
 		listBoxTileset.setItems(results);
 	}
 	catch(const std::exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 

@@ -134,7 +134,7 @@ private:
 	MapPreview mapPreview;
 
 	GraphicMessageBox mainMessageBox;
-	int mainMessageBoxState;
+	//int mainMessageBoxState;
 
 	std::string lastMissingMap;
 	std::string lastMissingTechtree;
