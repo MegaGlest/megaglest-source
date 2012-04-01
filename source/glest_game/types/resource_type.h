@@ -46,6 +46,7 @@ private:
     int interval;		//used only if class==rcConsumable
 	int defResPerPatch;	//used only if class==rcTileset || class==rcTech
 	bool recoup_cost;
+	bool displayInHud;
 
     Model *model;
     ObjectParticleSystemTypes particleTypes;
@@ -65,6 +66,7 @@ public:
 	int getDefResPerPatch() const	{return defResPerPatch;}
 	Model *getModel() const			{return model;}
 	bool getRecoup_cost() const     { return recoup_cost;}
+	bool getDisplayInHud() const     { return displayInHud;}
 
 	bool hasParticles()	const		{return !particleTypes.empty();}
 	const ObjectParticleSystemTypes *getObjectParticleSystemTypes()	const {return &particleTypes;}
