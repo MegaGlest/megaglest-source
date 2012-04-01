@@ -177,7 +177,7 @@ public:
 
 	Program *getProgram()					{return program;}
 
-	bool getPaused() const					{ return paused;}
+	bool getPaused();
 	void setPaused(bool value, bool forceAllowPauseStateChange=false);
 	const int getTotalRenderFps() const					{return totalRenderFps;}
 

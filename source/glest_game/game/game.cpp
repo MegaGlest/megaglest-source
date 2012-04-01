@@ -1849,7 +1849,7 @@ void Game::mouseDownLeft(int x, int y) {
 				}
 
 				if(allowAdminMenuItems) {
-					if(paused == false) {
+					if(getPaused() == false) {
 						commander.tryPauseGame();
 					}
 					else {
@@ -2460,7 +2460,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				}
 
 				if(allowAdminMenuItems) {
-					if(paused == false) {
+					if(getPaused() == false) {
 						commander.tryPauseGame();
 					}
 					else {
@@ -3438,12 +3438,29 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange) {
 	}
 }
 
+bool Game::getPaused()
+{
+	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
+	if(speedChangesAllowed){
+		if(popupMenu.getVisible() == true || popupMenuSwitchTeams.getVisible() == true){
+			return true;
+		}
+		if(mainMessageBox.getEnabled() == true || errorMessageBox.getEnabled() == true){
+			return true;
+		}
+		if(currentUIState != NULL) {
+			return true;
+		}
+	}
+	return paused;
+}
+
 int Game::getUpdateLoops() {
 	if(commander.hasReplayCommandListForFrame() == true) {
 		return 1;
 	}
 
-	if(paused) {
+	if(getPaused()) {
 		return 0;
 	}
 	else if(speed == sFast) {
