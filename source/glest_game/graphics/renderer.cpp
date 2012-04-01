@@ -2159,6 +2159,9 @@ void Renderer::renderResourceStatus() {
 		const ResourceType *rt = world->getTechTree()->getResourceType(i);
 		const Resource *r = thisFaction->getResource(rt);
 
+		if ( rt->getDisplayInHud() == false ){
+			continue;
+		}
 		//if any unit produces the resource
 		bool showResource= false;
 		for(int k=0; k < thisFaction->getType()->getUnitTypeCount(); ++k) {

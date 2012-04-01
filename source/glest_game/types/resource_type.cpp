@@ -168,6 +168,15 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		default:
 			break;
 		}
+
+		//displayInHud
+		if(resourceNode->hasChild("display") == true) {
+			const XmlNode *displayNode= resourceNode->getChild("display");
+			displayInHud= displayNode->getAttribute("value")->getBoolValue();
+		}
+		else {
+			displayInHud=true;
+		}
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
