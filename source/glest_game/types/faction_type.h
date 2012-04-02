@@ -48,7 +48,8 @@ enum AIBehaviorStaticValueCategory {
 	aibsvcVillageRadius,
 	aibsvcMinStaticResourceCount,
 	aibsvcScoutResourceRange,
-	aibsvcMinWorkerAttackersHarvesting
+	aibsvcMinWorkerAttackersHarvesting,
+	aibsvcMinBuildSpacing
 };
 template <>
 inline EnumParser<AIBehaviorStaticValueCategory>::EnumParser() {
@@ -64,6 +65,7 @@ inline EnumParser<AIBehaviorStaticValueCategory>::EnumParser() {
 	enumMap["MinStaticResourceCount"]		= aibsvcMinStaticResourceCount;
 	enumMap["ScoutResourceRange"]			= aibsvcScoutResourceRange;
 	enumMap["MinWorkerAttackersHarvesting"]	= aibsvcMinWorkerAttackersHarvesting;
+	enumMap["MinBuildSpacing"]				= aibsvcMinBuildSpacing;
 }
 
 class FactionType {

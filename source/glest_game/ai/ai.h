@@ -142,6 +142,7 @@ private:
 	int villageRadius;
 	int scoutResourceRange;
 	int minWorkerAttackersHarvesting;
+	int minBuildSpacing;
 
 public:
 	enum ResourceUsage {
@@ -183,6 +184,7 @@ public:
 		villageRadius					= 15;
 		scoutResourceRange				= 20;
 		minWorkerAttackersHarvesting	= 3;
+		minBuildSpacing					= 1;
 
 	    aiInterface 			 = NULL;
 	    startLoc 				 = -1;

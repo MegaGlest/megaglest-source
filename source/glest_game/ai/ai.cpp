@@ -281,6 +281,10 @@ void Ai::init(AiInterface *aiInterface, int useStartLocation) {
 		minWorkerAttackersHarvesting = faction->getAIBehaviorStaticOverideValue(aibsvcMinWorkerAttackersHarvesting);
 		//printf("Discovered overriden static value for AI, scoutResourceRange = %d\n",scoutResourceRange);
 	}
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinWorkerAttackersHarvesting) != INT_MAX) {
+		minBuildSpacing = faction->getAIBehaviorStaticOverideValue(aibsvcMinWorkerAttackersHarvesting);
+		//printf("Discovered overriden static value for AI, scoutResourceRange = %d\n",scoutResourceRange);
+	}
 
 	if(useStartLocation == -1) {
 		startLoc = random.randRange(0, aiInterface->getMapMaxPlayers()-1);
@@ -631,13 +635,11 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, CommandClass current
 
 bool Ai::findPosForBuilding(const UnitType* building, const Vec2i &searchPos, Vec2i &outPos){
 
-	const int spacing= 1;
-
     for(int currRadius = 0; currRadius < maxBuildRadius; ++currRadius) {
         for(int i=searchPos.x - currRadius; i < searchPos.x + currRadius; ++i) {
             for(int j=searchPos.y - currRadius; j < searchPos.y + currRadius; ++j) {
                 outPos= Vec2i(i, j);
-                if(aiInterface->isFreeCells(outPos - Vec2i(spacing), building->getSize() + spacing * 2, fLand)) {
+                if(aiInterface->isFreeCells(outPos - Vec2i(minBuildSpacing), building->getSize() + minBuildSpacing * 2, fLand)) {
                		return true;
                 }
             }
