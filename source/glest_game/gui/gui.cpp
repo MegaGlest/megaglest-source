@@ -566,6 +566,7 @@ void Gui::clickCommonCommand(CommandClass commandClass){
 			break;
 		}
 	}
+	computeDisplay();
 }
 
 void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
