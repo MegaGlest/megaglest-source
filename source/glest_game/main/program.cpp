@@ -122,7 +122,8 @@ Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, cons
 	if(msg) {
 		fprintf(stderr, "%s\n", msg);
 		msgBox.setText(msg);
-	} else {
+	}
+	else {
 		msgBox.setText("Mega-Glest has crashed.");
 	}
 
@@ -174,6 +175,8 @@ Program::Program() {
 	//this->masterserverMode = false;
 	this->shutdownApplicationEnabled = false;
 	this->skipRenderFrameCount = 0;
+	this->messageBoxIsSystemError = false;
+	this->programStateOldSystemError = NULL;
 	this->programState= NULL;
 	this->singleton = this;
 	this->soundThreadManager = NULL;
@@ -297,6 +300,16 @@ Program::~Program(){
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
+void Program::restoreStateFromSystemError() {
+	messageBoxIsSystemError = false;
+	if(this->programStateOldSystemError == NULL) {
+		setState(new Intro(this));
+	}
+	else {
+		setState(this->programStateOldSystemError);
+	}
+}
+
 void Program::keyDown(SDL_KeyboardEvent key) {
 	if(msgBox.getEnabled()) {
 		//SDL_keysym keystate = Window::getKeystate();
@@ -309,7 +322,9 @@ void Program::keyDown(SDL_KeyboardEvent key) {
 
 			//printf("---> keystate [%d]\n",keystate);
 			msgBox.setEnabled(false);
-
+			if(messageBoxIsSystemError == true) {
+				restoreStateFromSystemError();
+			}
 		}
 	}
 	//delegate event
@@ -331,6 +346,9 @@ void Program::mouseDownLeft(int x, int y) {
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			//close message box
 			msgBox.setEnabled(false);
+			if(messageBoxIsSystemError == true) {
+				restoreStateFromSystemError();
+			}
 		}
 	}
 }
@@ -485,11 +503,11 @@ void Program::renderProgramMsgBox() {
 
 }
 
-void Program::setState(ProgramState *programStateNew, bool cleanupOldState)
-{
+void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+		this->programStateOldSystemError = this->programState;
 		bool msgBoxEnabled = msgBox.getEnabled();
 
 		bool showingOSCursor = isCursorShowing();
@@ -516,6 +534,7 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState)
 			if(this->programState != programStateNew) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+				this->programStateOldSystemError = NULL;
 				delete this->programState;
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -563,14 +582,28 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState)
 			}
 		}
 
+		this->programStateOldSystemError = NULL;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
 	catch(const exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
 		//abort();
+
+		messageBoxIsSystemError = true;
+
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+			if(dynamic_cast<Game *>(programStateNew) != NULL) {
+				Game *game = dynamic_cast<Game *>(programStateNew);
+				Renderer &renderer= Renderer::getInstance();
+				renderer.initGame(game,game->getGameCameraPtr());
+			}
+		}
+
 		this->showMessage(e.what());
-		setState(new Intro(this));
+		//setState(new Intro(this));
 	}
 }
 
@@ -752,6 +785,12 @@ void Program::showMessage(const char *msg) {
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		printf("Message:\n%s\n",msg);
+
+		if(messageBoxIsSystemError == true) {
+			messageBoxIsSystemError = false;
+			//setState(new Intro(this));
+			initServer(window,false,true,true);
+		}
 	}
 }
 

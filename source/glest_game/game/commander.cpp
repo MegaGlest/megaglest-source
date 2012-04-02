@@ -578,6 +578,9 @@ int Commander::getReplayCommandListForFrameCount() const {
 }
 
 void Commander::updateNetwork(Game *game) {
+	if(world == NULL) {
+		return;
+	}
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
 	//check that this is a keyframe

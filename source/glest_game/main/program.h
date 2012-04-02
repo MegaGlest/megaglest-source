@@ -147,6 +147,9 @@ private:
     GraphicMessageBox msgBox;
     int skipRenderFrameCount;
 
+    bool messageBoxIsSystemError;
+    ProgramState *programStateOldSystemError;
+
     //bool masterserverMode;
     bool shutdownApplicationEnabled;
     static bool wantShutdownApplicationAfterGame;
@@ -213,6 +216,7 @@ private:
 
 	void setDisplaySettings();
 	void restoreDisplaySettings();
+	void restoreStateFromSystemError();
 };
 
 }} //end namespace

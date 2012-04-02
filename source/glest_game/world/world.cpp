@@ -539,26 +539,28 @@ void World::update(){
 	updateAllTilesetObjects();
 
 	//units
-	updateAllFactionUnits();
+	if(getFactionCount() > 0) {
+		updateAllFactionUnits();
 
-	//undertake the dead
-	underTakeDeadFactionUnits();
-	//}
+		//undertake the dead
+		underTakeDeadFactionUnits();
+		//}
 
-	//food costs
-	updateAllFactionConsumableCosts();
+		//food costs
+		updateAllFactionConsumableCosts();
 
-	//fow smoothing
-	if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0) {
-		float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
-		minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
-	}
+		//fow smoothing
+		if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0) {
+			float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
+			minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
+		}
 
-	//tick
-	bool needToTick = canTickWorld();
-	if(needToTick == true) {
-		//printf("=========== World is about to be updated, current frameCount = %d\n",frameCount);
-		tick();
+		//tick
+		bool needToTick = canTickWorld();
+		if(needToTick == true) {
+			//printf("=========== World is about to be updated, current frameCount = %d\n",frameCount);
+			tick();
+		}
 	}
 }
 

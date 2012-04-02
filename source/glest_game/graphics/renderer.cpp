@@ -2148,6 +2148,11 @@ void Renderer::renderResourceStatus() {
 
 	const Metrics &metrics= Metrics::getInstance();
 	const World *world= game->getWorld();
+
+	if(world->getThisFactionIndex() < 0 || world->getThisFactionIndex() >= world->getFactionCount()) {
+		return;
+	}
+
 	const Faction *thisFaction= world->getFaction(world->getThisFactionIndex());
 	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
 	assertGl();
@@ -2400,10 +2405,11 @@ void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, 
 Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, int w, int h,bool centeredW, bool centeredH) {
 	if(centeredW == true) {
 		if(font == NULL) {
-			throw runtime_error("font == NULL");
+			//abort();
+			throw runtime_error("font == NULL (5)");
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw runtime_error("font->getTextHandler() == NULL");
+			throw runtime_error("font->getTextHandler() == NULL (5)");
 		}
 
 		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * Font::scaleFontValue);
@@ -2414,10 +2420,10 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 
 	if(centeredH) {
 		if(font == NULL) {
-			throw runtime_error("font == NULL");
+			throw runtime_error("font == NULL (6)");
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw runtime_error("font->getTextHandler() == NULL");
+			throw runtime_error("font->getTextHandler() == NULL (6)");
 		}
 
 		//const Metrics &metrics= Metrics::getInstance();
@@ -3236,93 +3242,115 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 		return;
 	}
 
-	if(messageBox->getVisible() == false) {
-		return;
+	try {
+		if(messageBox->getVisible() == false) {
+			return;
+		}
+
+		if((renderText3DEnabled == false && messageBox->getFont() == NULL) ||
+		   (renderText3DEnabled == true && messageBox->getFont3D() == NULL)) {
+			messageBox->setFont(CoreData::getInstance().getMenuFontNormal());
+			messageBox->setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+		}
+		//background
+		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+		glEnable(GL_BLEND);
+
+		glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
+		glBegin(GL_TRIANGLE_STRIP);
+			glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX(), messageBox->getY());
+			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + 9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY());
+		glEnd();
+
+		glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
+		glBegin(GL_TRIANGLE_STRIP);
+			glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH());
+			glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + messageBox->getH());
+			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY()+9*messageBox->getH()/10);
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+			glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
+			glVertex2i(messageBox->getX(), messageBox->getY());
+
+			glColor4f(0.0f, 0.0f, 0.0f, 0.25f) ;
+			glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY());
+
+			glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
+			glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + messageBox->getH());
+
+			glColor4f(0.25f, 0.25f, 0.25f, 0.25f) ;
+			glVertex2i(messageBox->getX(), messageBox->getY() + messageBox->getH());
+		glEnd();
+
+		glBegin(GL_LINE_STRIP);
+			glColor4f(1.0f, 1.0f, 1.0f, 0.25f) ;
+			glVertex2i(messageBox->getX(), messageBox->getY() + 90*messageBox->getH()/100);
+
+			glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
+			glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + 90*messageBox->getH()/100);
+		glEnd();
+
+		glPopAttrib();
+
+
+		//buttons
+		for(int i=0; i<messageBox->getButtonCount();i++){
+
+			if((renderText3DEnabled == false && messageBox->getButton(i)->getFont() == NULL) ||
+			   (renderText3DEnabled == true && messageBox->getButton(i)->getFont3D() == NULL)) {
+				messageBox->getButton(i)->setFont(CoreData::getInstance().getMenuFontNormal());
+				messageBox->getButton(i)->setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+			}
+
+			renderButton(messageBox->getButton(i));
+		}
+
+		Vec4f fontColor;
+		//if(game!=NULL){
+		//	fontColor=game->getGui()->getDisplay()->getColor();
+		//}
+		//else {
+			// white shadowed is default ( in the menu for example )
+			fontColor=Vec4f(1.f, 1.f, 1.f, 1.0f);
+		//}
+
+		if(renderText3DEnabled == true) {
+			//text
+			renderTextShadow3D(
+				messageBox->getText(), messageBox->getFont3D(), fontColor,
+				messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
+				false );
+
+			renderTextShadow3D(
+				messageBox->getHeader(), messageBox->getFont3D(),fontColor,
+				messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
+				false );
+
+		}
+		else {
+			//text
+			renderTextShadow(
+				messageBox->getText(), messageBox->getFont(), fontColor,
+				messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
+				false );
+
+			renderTextShadow(
+				messageBox->getHeader(), messageBox->getFont(),fontColor,
+				messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
+				false );
+		}
 	}
+	catch(const exception &e) {
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
 
-	//background
-	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
-	glEnable(GL_BLEND);
-
-	glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
-	glBegin(GL_TRIANGLE_STRIP);
-		glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
-		glVertex2i(messageBox->getX(), messageBox->getY());
-		glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + 9*messageBox->getH()/10);
-		glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY());
-	glEnd();
-
-	glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
-	glBegin(GL_TRIANGLE_STRIP);
-		glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH());
-		glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
-		glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + messageBox->getH());
-		glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY()+9*messageBox->getH()/10);
-	glEnd();
-
-	glBegin(GL_LINE_LOOP);
-		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
-		glVertex2i(messageBox->getX(), messageBox->getY());
-
-		glColor4f(0.0f, 0.0f, 0.0f, 0.25f) ;
-		glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY());
-
-		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
-		glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + messageBox->getH());
-
-		glColor4f(0.25f, 0.25f, 0.25f, 0.25f) ;
-		glVertex2i(messageBox->getX(), messageBox->getY() + messageBox->getH());
-	glEnd();
-
-	glBegin(GL_LINE_STRIP);
-		glColor4f(1.0f, 1.0f, 1.0f, 0.25f) ;
-		glVertex2i(messageBox->getX(), messageBox->getY() + 90*messageBox->getH()/100);
-
-		glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
-		glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + 90*messageBox->getH()/100);
-	glEnd();
-
-	glPopAttrib();
-
-
-	//buttons
-	for(int i=0; i<messageBox->getButtonCount();i++){
-		renderButton(messageBox->getButton(i));
-	}
-
-	Vec4f fontColor;
-	//if(game!=NULL){
-	//	fontColor=game->getGui()->getDisplay()->getColor();
-	//}
-	//else {
-		// white shadowed is default ( in the menu for example )
-		fontColor=Vec4f(1.f, 1.f, 1.f, 1.0f);
-	//}
-
-	if(renderText3DEnabled == true) {
-		//text
-		renderTextShadow3D(
-			messageBox->getText(), messageBox->getFont3D(), fontColor,
-			messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
-			false );
-
-		renderTextShadow3D(
-			messageBox->getHeader(), messageBox->getFont3D(),fontColor,
-			messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
-			false );
-
-	}
-	else {
-		//text
-		renderTextShadow(
-			messageBox->getText(), messageBox->getFont(), fontColor,
-			messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
-			false );
-
-		renderTextShadow(
-			messageBox->getHeader(), messageBox->getFont(),fontColor,
-			messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
-			false );
+		throw runtime_error(szBuf);
 	}
 }
 
@@ -3842,6 +3870,9 @@ void Renderer::renderSurface(const int renderFps) {
 	float coordStep= world->getTileset()->getSurfaceAtlas()->getCoordStep();
 
 	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
+	if(fowTex == NULL) {
+		return;
+	}
 
 	glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_FOG_BIT | GL_TEXTURE_BIT);
 
@@ -4344,6 +4375,11 @@ void Renderer::renderWater() {
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
+	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
+	if(fowTex == NULL) {
+		return;
+	}
+
 	float waterAnim= world->getWaterEffects()->getAmin();
 
 	//assert
@@ -4372,7 +4408,7 @@ void Renderer::renderWater() {
 	assertGl();
 
 	//fog of War texture Unit
-	const Texture2D *fowTex= world->getMinimap()->getFowTexture();
+	//const Texture2D *fowTex= world->getMinimap()->getFowTexture();
 	glActiveTexture(fowTexUnit);
 	glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
@@ -4990,6 +5026,11 @@ void Renderer::renderMinimap(){
 
     const World *world= game->getWorld();
 	const Minimap *minimap= world->getMinimap();
+
+	if(minimap == NULL || minimap->getTexture() == NULL) {
+		return;
+	}
+
 	const GameCamera *gameCamera= game->getGameCamera();
 	const Pixmap2D *pixmap= minimap->getTexture()->getPixmapConst();
 	const Metrics &metrics= Metrics::getInstance();
