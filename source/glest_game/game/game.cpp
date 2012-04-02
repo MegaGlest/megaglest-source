@@ -3222,6 +3222,9 @@ void Game::checkWinner() {
 }
 
 void Game::checkWinnerStandard() {
+	if(world.getFactionCount() <= 0) {
+		return;
+	}
 	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
 		// lookup int is team #, value is players alive on team
 		std::map<int,int> teamsAlive;
