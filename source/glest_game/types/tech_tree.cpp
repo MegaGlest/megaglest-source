@@ -50,13 +50,12 @@ Checksum TechTree::loadTech(const string &techName,
 	name = "";
     Checksum techtreeChecksum;
     string path=findPath(techName);
-    if(path!=""){
+    if(path!="") {
     	//printf(">>> path=%s\n",path.c_str());
         load(path, factions, checksum, &techtreeChecksum, loadedFileList);
     }
-    else
-    {
-    	printf(">>> schoen\n");
+    else {
+    	printf(">>> techtree [%s] path not found.\n",techName.c_str());
     }
     return techtreeChecksum;
 }
@@ -332,7 +331,7 @@ const ResourceType *TechTree::getFirstTechResourceType() const{
                return getResourceType(i);
      }
 
-	 throw runtime_error("This tech tree has not tech resources, one at least is required");
+	 throw runtime_error("This tech tree has no resources defined, at least one is required");
 }
 
 const ResourceType *TechTree::getResourceType(const string &name) const{

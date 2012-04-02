@@ -590,7 +590,7 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 		sprintf(szBuf,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
-		abort();
+		//abort();
 
 		messageBoxIsSystemError = true;
 
