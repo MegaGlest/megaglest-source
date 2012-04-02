@@ -2533,7 +2533,12 @@ int glestMain(int argc, char** argv) {
         hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])    == true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true) {
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== true) {
 		haveSpecialOutputCommandLineOption = true;
 	}
 
@@ -2598,7 +2603,12 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 		  == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS])  == false &&
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO])  == false) {
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO])  == false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 		== false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== false) {
 		return -1;
 	}
 
@@ -3320,6 +3330,287 @@ int glestMain(int argc, char** argv) {
 
 	            return -1;
 	        }
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_MAPS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_MAPS]),&foundParamIndIndex);
+			}
+
+		  	vector<string> pathList = config.getPathListForType(ptMaps,"");
+		  	vector<string> maps = MapPreview::findAllValidMaps(pathList,"",false,true);
+			std::sort(maps.begin(),maps.end());
+
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string itemNameFilter = paramPartTokens[1];
+				printf("Using filter for maps list [%s]\n",itemNameFilter.c_str());
+
+				vector<string> filteredMaps;
+				for(unsigned int i = 0; i < maps.size(); ++i) {
+					string mapName = maps[i];
+					if(itemNameFilter.find("*") != itemNameFilter.npos) {
+						if(StartsWith(mapName, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
+							filteredMaps.push_back(mapName);
+						}
+					}
+					else if(mapName == itemNameFilter) {
+						filteredMaps.push_back(mapName);
+					}
+				}
+				maps = filteredMaps;
+			}
+
+			printf("Maps found:\n===========================================\n");
+			for(unsigned int i = 0; i < maps.size(); ++i) {
+				string mapName = maps[i];
+				printf("%s\n",mapName.c_str());
+			}
+			printf("===========================================\nTotal: %lu\n",maps.size());
+
+            return -1;
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TECHTRESS]),&foundParamIndIndex);
+			}
+
+		  	vector<string> pathList = config.getPathListForType(ptTechs,"");
+		  	vector<string> results;
+		  	findDirs(pathList, results);
+
+		  	bool showfactions=false;
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string cmd = paramPartTokens[1];
+				if(cmd == "showfactions") {
+					showfactions = true;
+				}
+				else {
+					throw runtime_error("unknown command for techtreelist [" + cmd + "]");
+				}
+				printf("Using special command for techtree list [%s]\n",cmd.c_str());
+			}
+
+			printf("Techtrees found:\n===========================================\n");
+			for(unsigned int i = 0; i < results.size(); ++i) {
+				string name = results[i];
+
+				for(unsigned int j = 0; j < pathList.size(); ++j) {
+					string techPath = pathList[j];
+					if(techPath != "") {
+						endPathWithSlash(techPath);
+					}
+					vector<string> results2;
+					findDirs(techPath + name + "/factions", results2, false,true);
+					if(results2.empty() == false) {
+						string downloadArchive = techPath + name + ".7z";
+						//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
+						if(fileExists(downloadArchive) == true) {
+							off_t fileSize = getFileSize(downloadArchive);
+							// convert to MB
+							double megaBytes = ((double)fileSize / 1048576.0);
+							printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
+						}
+						else {
+							printf("%s\n",name.c_str());
+						}
+
+						if(showfactions == true) {
+							printf("--> Factions:\n");
+							for(unsigned int k = 0; k < results2.size(); ++k) {
+								string name2 = results2[k];
+								printf("--> %s\n",name2.c_str());
+							}
+							printf("--> Total Factions: %lu\n",results2.size());
+							break;
+						}
+					}
+				}
+			}
+			printf("===========================================\nTotal Techtrees: %lu\n",results.size());
+
+            return -1;
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_SCENARIOS]),&foundParamIndIndex);
+			}
+
+		  	vector<string> pathList = config.getPathListForType(ptScenarios,"");
+		  	vector<string> results;
+		  	findDirs(pathList, results);
+
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string itemNameFilter = paramPartTokens[1];
+				printf("Using filter for scenarios list [%s]\n",itemNameFilter.c_str());
+
+				vector<string> filtered;
+				for(unsigned int i = 0; i < results.size(); ++i) {
+					string name = results[i];
+					if(itemNameFilter.find("*") != itemNameFilter.npos) {
+						if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
+							filtered.push_back(name);
+						}
+					}
+					else if(name == itemNameFilter) {
+						filtered.push_back(name);
+					}
+				}
+				results = filtered;
+			}
+
+			printf("Scenarios found:\n===========================================\n");
+			for(unsigned int i = 0; i < results.size(); ++i) {
+				string name = results[i];
+				printf("%s\n",name.c_str());
+			}
+			printf("===========================================\nTotal: %lu\n",results.size());
+
+            return -1;
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TILESETS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TILESETS]),&foundParamIndIndex);
+			}
+
+		  	vector<string> pathList = config.getPathListForType(ptTilesets,"");
+		  	vector<string> results;
+		  	findDirs(pathList, results);
+
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string itemNameFilter = paramPartTokens[1];
+				printf("Using filter for tilesets list [%s]\n",itemNameFilter.c_str());
+
+				vector<string> filtered;
+				for(unsigned int i = 0; i < results.size(); ++i) {
+					string name = results[i];
+					if(itemNameFilter.find("*") != itemNameFilter.npos) {
+						if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
+							filtered.push_back(name);
+						}
+					}
+					else if(name == itemNameFilter) {
+						filtered.push_back(name);
+					}
+				}
+				results = filtered;
+			}
+
+			printf("Tilesets found:\n===========================================\n");
+			for(unsigned int i = 0; i < results.size(); ++i) {
+				string name = results[i];
+
+				for(unsigned int j = 0; j < pathList.size(); ++j) {
+					string tilesetPath = pathList[j];
+					if(tilesetPath != "") {
+						endPathWithSlash(tilesetPath);
+					}
+					if(fileExists(tilesetPath + name + "/" + name + ".xml") == true) {
+						string downloadArchive = tilesetPath + name + ".7z";
+						//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
+						if(fileExists(downloadArchive) == true) {
+							off_t fileSize = getFileSize(downloadArchive);
+							// convert to MB
+							double megaBytes = ((double)fileSize / 1048576.0);
+							printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
+						}
+						else {
+							printf("%s\n",name.c_str());
+						}
+
+						break;
+					}
+				}
+			}
+			printf("===========================================\nTotal: %lu\n",results.size());
+
+            return -1;
+    	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TUTORIALS]),&foundParamIndIndex);
+			}
+
+		  	vector<string> pathList = config.getPathListForType(ptTutorials,"");
+		  	vector<string> results;
+		  	findDirs(pathList, results);
+
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string itemNameFilter = paramPartTokens[1];
+				printf("Using filter for tutorials list [%s]\n",itemNameFilter.c_str());
+
+				vector<string> filtered;
+				for(unsigned int i = 0; i < results.size(); ++i) {
+					string name = results[i];
+					if(itemNameFilter.find("*") != itemNameFilter.npos) {
+						if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
+							filtered.push_back(name);
+						}
+					}
+					else if(name == itemNameFilter) {
+						filtered.push_back(name);
+					}
+				}
+				results = filtered;
+			}
+
+			printf("Tutorials found:\n===========================================\n");
+			for(unsigned int i = 0; i < results.size(); ++i) {
+				string name = results[i];
+
+				for(unsigned int j = 0; j < pathList.size(); ++j) {
+					string tutorialsPath = pathList[j];
+					if(tutorialsPath != "") {
+						endPathWithSlash(tutorialsPath);
+					}
+					if(fileExists(tutorialsPath + name + "/" + name + ".xml") == true) {
+						string downloadArchive = tutorialsPath + name + ".7z";
+						//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
+						if(fileExists(downloadArchive) == true) {
+							off_t fileSize = getFileSize(downloadArchive);
+							// convert to MB
+							double megaBytes = ((double)fileSize / 1048576.0);
+							printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
+						}
+						else {
+							printf("%s\n",name.c_str());
+						}
+
+						break;
+					}
+				}
+			}
+			printf("===========================================\nTotal: %lu\n",results.size());
+
+            return -1;
     	}
 
 		//vector<string> techPaths;
