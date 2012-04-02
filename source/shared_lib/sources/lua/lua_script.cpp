@@ -343,7 +343,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 				lua_pushnumber( luaState, node->getAttribute("value")->getIntValue() );
 				break;
 			case LUA_TBOOLEAN:
-				lua_pushboolean( luaState, node->getAttribute("value")->getIntValue() );
+				lua_pushboolean( luaState, node->getAttribute("value")->getBoolValue() );
 				break;
 			case LUA_TTABLE:
 				{
