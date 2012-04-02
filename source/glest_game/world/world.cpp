@@ -1780,7 +1780,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 
 bool World::showWorldForPlayer(int factionIndex) const {
     bool ret = false;
-    if(factionIndex == thisFactionIndex) {
+    if(factionIndex == thisFactionIndex && game != NULL) {
         // Player is an Observer
         if(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
             ret = true;
