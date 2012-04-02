@@ -579,10 +579,19 @@ string SkillType::skillClassToStr(SkillClass skillClass) {
 	};
 }
 
-string SkillType::fieldToStr(Field field){
-	switch(field){
-	case fLand: return "Land";
-	case fAir: return "Air";
+string SkillType::fieldToStr(Field field) {
+	Lang &lang= Lang::getInstance();
+	switch(field) {
+	case fLand:
+		if(lang.hasString("FieldLand") == true) {
+			return lang.get("FieldLand");
+		}
+		return "Land";
+	case fAir:
+		if(lang.hasString("FieldAir") == true) {
+			return lang.get("FieldAir");
+		}
+		return "Air";
 	default:
 		assert(false);
 		return "";
