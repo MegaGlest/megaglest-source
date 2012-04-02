@@ -43,9 +43,17 @@ const char  *GAME_ARGS[] = {
 	"--lua-info",
 	"--curl-info",
 	"--xerces-info",
+
 	"--validate-techtrees",
 	"--validate-factions",
 	"--validate-scenario",
+
+	"--list-maps",
+	"--list-techtrees",
+	"--list-scenarios",
+	"--list-tilesets",
+	"--list-tutorials",
+
 	"--data-path",
 	"--ini-path",
 	"--log-path",
@@ -97,9 +105,17 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_LUA_INFO,
 	GAME_ARG_CURL_INFO,
 	GAME_ARG_XERCES_INFO,
+
 	GAME_ARG_VALIDATE_TECHTREES,
 	GAME_ARG_VALIDATE_FACTIONS,
 	GAME_ARG_VALIDATE_SCENARIO,
+
+	GAME_ARG_LIST_MAPS,
+	GAME_ARG_LIST_TECHTRESS,
+	GAME_ARG_LIST_SCENARIOS,
+	GAME_ARG_LIST_TILESETS,
+	GAME_ARG_LIST_TUTORIALS,
+
 	GAME_ARG_DATA_PATH,
 	GAME_ARG_INI_PATH,
 	GAME_ARG_LOG_PATH,
@@ -248,6 +264,37 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t      files in the scenario that are not used.");
 	printf("\n                     \t\texample:");
 	printf("\n                     %s %s=stranded",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
+
+	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_MAPS]);
+	printf("\n                     \t\tdisplay a list of game content: maps");
+	printf("\n                     \t\twhere x is an optional name filter.");
+	printf("\n                     \t\texample:");
+	printf("\n                     %s %s=island*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_MAPS]);
+
+	printf("\n%s=showfactions",GAME_ARGS[GAME_ARG_LIST_TECHTRESS]);
+	printf("\n                     \t\tdisplay a list of game content: techtrees");
+	printf("\n                     \t\twhere showfactions is an optional parameter.");
+	printf("\n                     \t\tto display factions in each techtree.");
+	printf("\n                     \t\texample:");
+	printf("\n                     %s %s=showfactions",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TECHTRESS]);
+
+	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_SCENARIOS]);
+	printf("\n                     \t\tdisplay a list of game content: scenarios");
+	printf("\n                     \t\twhere x is an optional name filter.");
+	printf("\n                     \t\texample:");
+	printf("\n                     %s %s=beginner*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_SCENARIOS]);
+
+	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_TILESETS]);
+	printf("\n                     \t\tdisplay a list of game content: tilesets");
+	printf("\n                     \t\twhere x is an optional name filter.");
+	printf("\n                     \t\texample:");
+	printf("\n                     %s %s=f*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TILESETS]);
+
+	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_TUTORIALS]);
+	printf("\n                     \t\tdisplay a list of game content: tutorials");
+	printf("\n                     \t\twhere x is an optional name filter.");
+	printf("\n                     \t\texample:");
+	printf("\n                     %s %s=*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TUTORIALS]);
 
 	//     "================================================================================"
 	printf("\n%s=x\t\t\tSets the game data path to x",GAME_ARGS[GAME_ARG_DATA_PATH]);
@@ -417,7 +464,12 @@ int mainSetup(int argc, char **argv) {
         hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])    == true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true) {
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== true) {
 		haveSpecialOutputCommandLineOption = true;
 	}
 
