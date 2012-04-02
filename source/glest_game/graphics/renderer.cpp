@@ -1568,6 +1568,33 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
+	float blue=0.0f;
+	float green=0.4f;
+	if(game!=NULL && game->getGui()!=NULL){
+		const Gui *gui=game->getGui();
+		const Display *display=gui->getDisplay();
+		int downPos= display->getDownSelectedPos();
+		if(downPos!=Display::invalidPos){
+			// in state of doing something
+			const Texture2D *texture= display->getDownImage(downPos);
+			renderTextureQuad(x+18,y-50,32,32,texture,0.8f);
+		}
+		else {
+			// Display current commandtype
+			const Unit *unit=NULL;
+			if(gui->getSelection()->isEmpty()){
+				blue=0.0f;
+				green=0.1f;
+			}
+			else{
+				unit=gui->getSelection()->getFrontUnit();
+				if(unit->getCurrCommand()!=NULL && unit->getCurrCommand()->getCommandType()->getImage()!=NULL){
+					const Texture2D *texture = unit->getCurrCommand()->getCommandType()->getImage();
+					renderTextureQuad(x+18,y-50,32,32,texture,0.2f);
+				}
+			}
+		}
+	}
 
 	float color1 = 0.0, color2 = 0.0;
 
@@ -1592,14 +1619,15 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 		//border
 		glLineWidth(2);
 		glBegin(GL_LINE_LOOP);
-			glColor4f(1.f, 0.2f, 0, color1);
+			glColor4f(1.f, green, blue, color1);
 			glVertex2i(x, y);
-			glColor4f(1.f, 0.4f, 0, color2);
+			glColor4f(1.f, green, blue, color2);
 			glVertex2i(x+20, y-10);
-			glColor4f(1.f, 0.4f, 0, color2);
+			glColor4f(1.f, green, blue, color2);
 			glVertex2i(x+10, y-20);
 		glEnd();
 	glPopAttrib();
+
 
 /*
 	if(no2DMouseRendering == true) {
@@ -1737,7 +1765,6 @@ void Renderer::renderMouse3d() {
 			modelRenderer->render(buildingModel);
 			glDisable(GL_COLOR_MATERIAL);
 			modelRenderer->end();
-
 		}
 		else {
 			//standard mouse
@@ -1759,8 +1786,8 @@ void Renderer::renderMouse3d() {
 			gluCylinder(cilQuadric, 0.7f, 0.f, 1.f, 4, 1);
 			gluCylinder(cilQuadric, 0.7f, 0.f, 0.f, 4, 1);
 			gluDeleteQuadric(cilQuadric);
-		}
 
+		}
 		glPopAttrib();
 		glPopMatrix();
 	}
