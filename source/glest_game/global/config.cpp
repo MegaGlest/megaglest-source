@@ -1026,10 +1026,28 @@ string Config::findValidLocalFileFromPath(string fileName) {
 	string result = fileName;
 	// /home/user1/SCM/megaglest-trunk/mk/linux//techs/megapack/factions/tech/units/blacksmith/images/particle.bmp
 	// /home/user1/SCM/megaglest-trunk/mk/linux//tutorials/3_advanced_tutorial/3_advanced_tutorial.xml
-	size_t pos = fileName.find("techs/");
-	if(pos != fileName.npos ) {
-		string fileNamePart = fileName.substr(pos+6);
 
+	if(fileName.find("maps/") != fileName.npos ) {
+		size_t pos = fileName.find("maps/");
+		string fileNamePart = fileName.substr(pos+5);
+		Config &config = Config::getInstance();
+		vector<string> dirList = config.getPathListForType(ptMaps);
+		replaceFileWithLocalFile(dirList, fileNamePart, result);
+
+		printf("Found file [%s] @ %lu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
+	}
+	else if(fileName.find("tilesets/") != fileName.npos ) {
+		size_t pos = fileName.find("tilesets/");
+		string fileNamePart = fileName.substr(pos+9);
+		Config &config = Config::getInstance();
+		vector<string> dirList = config.getPathListForType(ptTilesets);
+		replaceFileWithLocalFile(dirList, fileNamePart, result);
+
+		printf("Found file [%s] @ %lu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
+	}
+	else if(fileName.find("techs/") != fileName.npos ) {
+		size_t pos = fileName.find("techs/");
+		string fileNamePart = fileName.substr(pos+6);
 		Config &config = Config::getInstance();
 		vector<string> dirList = config.getPathListForType(ptTechs);
 		replaceFileWithLocalFile(dirList, fileNamePart, result);
@@ -1037,10 +1055,8 @@ string Config::findValidLocalFileFromPath(string fileName) {
 		printf("Found file [%s] @ %lu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
 	}
 	else if(fileName.find("scenarios/") != fileName.npos) {
-		pos = fileName.find("scenarios/");
-
+		size_t pos = fileName.find("scenarios/");
 		string fileNamePart = fileName.substr(pos+10);
-
 		Config &config = Config::getInstance();
 		vector<string> dirList = config.getPathListForType(ptScenarios);
 		replaceFileWithLocalFile(dirList, fileNamePart, result);
@@ -1048,10 +1064,8 @@ string Config::findValidLocalFileFromPath(string fileName) {
 		printf("Found file [%s] @ %lu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
 	}
 	else if(fileName.find("tutorials/") != fileName.npos) {
-		pos = fileName.find("tutorials/");
-
+		size_t pos = fileName.find("tutorials/");
 		string fileNamePart = fileName.substr(pos+10);
-
 		Config &config = Config::getInstance();
 		vector<string> dirList = config.getPathListForType(ptTutorials);
 		replaceFileWithLocalFile(dirList, fileNamePart, result);

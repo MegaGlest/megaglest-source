@@ -1160,7 +1160,7 @@ void Game::update() {
 		}
 
 		if(this->masterserverMode == false) {
-			if(world.getThisFaction()->getFirstSwitchTeamVote() != NULL) {
+			if(world.getFactionCount() > 0 && world.getThisFaction()->getFirstSwitchTeamVote() != NULL) {
 				const SwitchTeamVote *vote = world.getThisFaction()->getFirstSwitchTeamVote();
 				GameSettings *settings = world.getGameSettingsPtr();
 

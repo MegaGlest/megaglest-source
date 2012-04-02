@@ -1829,7 +1829,8 @@ string Map::getMapPath(const string &mapName, string scenarioDir, bool errorOnNo
     }
 
 	if(errorOnNotFound == true) {
-		throw runtime_error("Map [" + mapName + "] not found, scenarioDir [" + scenarioDir + "]");
+		//abort();
+		throw runtime_error("Map not found [" + mapName + "]\nScenario [" + scenarioDir + "]");
 	}
 
 	return "";
