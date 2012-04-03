@@ -1384,6 +1384,354 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
     }
 }
 
+void runTilesetValidationForPath(string tilesetPath, string tilesetName,
+		World &world, bool purgeUnusedFiles,bool purgeDuplicateFiles,
+		bool showDuplicateFiles, bool svnPurgeFiles,double &purgedMegaBytes) {
+	string file = tilesetPath + tilesetName + "/" + tilesetName + ".xml";
+	Checksum checksum;
+
+	bool techtree_errors = false;
+
+	std::map<string,vector<pair<string, string> >  > loadedFileList;
+	vector<string> pathList;
+	pathList.push_back(tilesetPath);
+	world.loadTileset(pathList, tilesetName,&checksum, loadedFileList);
+
+	// Fixup paths with ..
+	{
+		std::map<string,vector<pair<string, string> > > newLoadedFileList;
+		for( std::map<string,vector<pair<string, string> > >::iterator iterMap = loadedFileList.begin();
+			iterMap != loadedFileList.end(); ++iterMap) {
+			string loadedFile = iterMap->first;
+
+			replaceAll(loadedFile,"//","/");
+			replaceAll(loadedFile,"\\\\","\\");
+			updatePathClimbingParts(loadedFile);
+
+			if(newLoadedFileList.find(loadedFile) != newLoadedFileList.end()) {
+				for(unsigned int xx1 = 0; xx1 < iterMap->second.size(); ++xx1) {
+					pair<string, string> &newVal = iterMap->second[xx1];
+					replaceAll(newVal.first,"//","/");
+					replaceAll(newVal.first,"\\\\","\\");
+					updatePathClimbingParts(newVal.first);
+					replaceAll(newVal.second,"//","/");
+					replaceAll(newVal.second,"\\\\","\\");
+					updatePathClimbingParts(newVal.second);
+
+					newLoadedFileList[loadedFile].push_back(newVal);
+				}
+			}
+			else {
+				for(unsigned int xx1 = 0; xx1 < iterMap->second.size(); ++xx1) {
+					pair<string, string> &newVal = iterMap->second[xx1];
+					replaceAll(newVal.first,"//","/");
+					replaceAll(newVal.first,"\\\\","\\");
+					updatePathClimbingParts(newVal.first);
+					replaceAll(newVal.second,"//","/");
+					replaceAll(newVal.second,"\\\\","\\");
+					updatePathClimbingParts(newVal.second);
+				}
+
+				newLoadedFileList[loadedFile] = iterMap->second;
+			}
+		}
+		loadedFileList = newLoadedFileList;
+	}
+
+	// Validate the faction setup to ensure we don't have any bad associations
+//			std::vector<std::string> resultErrors = world.validateFactionTypes();
+
+	// Now check for unused files in the techtree
+	std::map<string,vector<pair<string, string> > > foundFileList;
+	for(unsigned int i = 0; i < pathList.size(); ++i) {
+		string path = pathList[i];
+		endPathWithSlash(path);
+		path = path + tilesetName + "/";
+
+		replaceAll(path, "//", "/");
+		replaceAll(path, "\\\\", "\\");
+
+		vector<string> foundFiles = getFolderTreeContentsListRecursively(path + "*.", "");
+		for(unsigned int j = 0; j < foundFiles.size(); ++j) {
+			string file = foundFiles[j];
+			replaceAll(file, "//", "/");
+			replaceAll(file, "\\\\", "\\");
+
+			replaceAll(file,"//","/");
+			replaceAll(file,"\\\\","\\");
+
+			foundFileList[file].push_back(make_pair(path,path));
+		}
+	}
+
+	printf("Found tileset filecount = %lu, used = %lu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
+
+	int purgeCount = 0;
+	bool foundUnusedFile = false;
+	for( std::map<string,vector<pair<string, string> > >::iterator iterMap = foundFileList.begin();
+		iterMap != foundFileList.end(); ++iterMap) {
+		string foundFile = iterMap->first;
+		replaceAll(foundFile, "//", "/");
+		replaceAll(foundFile, "\\\\", "\\");
+
+		if(loadedFileList.find(foundFile) == loadedFileList.end()) {
+			if(foundUnusedFile == false) {
+				printf("\nWarning, unused files were detected - START:\n=====================\n");
+			}
+			foundUnusedFile = true;
+
+			printf("[%s]\n",foundFile.c_str());
+
+			string fileName = extractFileFromDirectoryPath(foundFile);
+			if(loadedFileList.find(fileName) != loadedFileList.end()) {
+				printf("possible match on [%s] ?\n",loadedFileList.find(fileName)->first.c_str());
+			}
+			else if(purgeUnusedFiles == true) {
+				off_t fileSize = getFileSize(foundFile);
+				// convert to MB
+				purgedMegaBytes += ((double)fileSize / 1048576.0);
+				purgeCount++;
+
+				if(svnPurgeFiles == true) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"svn delete \"%s\"",foundFile.c_str());
+					bool svnOk = executeShellCommand(szBuf,0);
+					if(svnOk == false) {
+						throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+					}
+				}
+				else {
+					removeFile(foundFile);
+				}
+			}
+		}
+	}
+	if(foundUnusedFile == true) {
+		if(purgedMegaBytes > 0) {
+			printf("Purged %.2f MB (%d) in files\n",purgedMegaBytes,purgeCount);
+		}
+		printf("\nWarning, unused files were detected - END:\n");
+	}
+
+	if(showDuplicateFiles == true) {
+		std::map<int32,vector<string> > mapDuplicateFiles;
+		// Now check for duplicate data content
+		for(std::map<string,vector<pair<string, string> > >::iterator iterMap = loadedFileList.begin();
+			iterMap != loadedFileList.end(); ++iterMap) {
+			string fileName = iterMap->first;
+			Checksum checksum;
+			checksum.addFile(fileName);
+			int32 crcValue = checksum.getSum();
+			mapDuplicateFiles[crcValue].push_back(fileName);
+		}
+
+		double duplicateMegaBytesPurged=0;
+		int duplicateCountPurged=0;
+
+		double duplicateMegaBytes=0;
+		int duplicateCount=0;
+
+		bool foundDuplicates = false;
+		for(std::map<int32,vector<string> >::iterator iterMap = mapDuplicateFiles.begin();
+			iterMap != mapDuplicateFiles.end(); ++iterMap) {
+			vector<string> &fileList = iterMap->second;
+			if(fileList.size() > 1) {
+				if(foundDuplicates == false) {
+					foundDuplicates = true;
+					printf("\nWarning, duplicate files were detected - START:\n=====================\n");
+				}
+
+				map<string,int> parentList;
+				for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+					string duplicateFile = fileList[idx];
+					if(idx > 0) {
+						off_t fileSize = getFileSize(duplicateFile);
+						// convert to MB
+						duplicateMegaBytes += ((double)fileSize / 1048576.0);
+						duplicateCount++;
+					}
+					else {
+						printf("\n");
+					}
+
+					printf("[%s]\n",duplicateFile.c_str());
+					std::map<string,vector<pair<string, string> > >::iterator iterFind = loadedFileList.find(duplicateFile);
+					if(iterFind != loadedFileList.end()) {
+						for(unsigned int jdx = 0; jdx < iterFind->second.size(); jdx++) {
+							parentList[iterFind->second[jdx].first]++;
+						}
+					}
+				}
+
+				for(map<string,int>::iterator iterMap1 = parentList.begin();
+						iterMap1 != parentList.end(); ++iterMap1) {
+
+					if(iterMap1 == parentList.begin()) {
+						printf("\tParents:\n");
+					}
+					printf("\t[%s]\n",iterMap1->first.c_str());
+				}
+
+				if(purgeDuplicateFiles == true) {
+					//printf("\nPurge Duplicate Files detected - START:\n=====================\n");
+
+					string newCommonFileName = "";
+					for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+						string duplicateFile = fileList[idx];
+						string fileExt = extractExtension(duplicateFile);
+						if(fileExt == "wav" || fileExt == "ogg") {
+							off_t fileSize = getFileSize(duplicateFile);
+							if(idx == 0) {
+								newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
+
+								string expandedNewCommonFileName = newCommonFileName;
+
+								std::map<string,string> mapExtraTagReplacementValues;
+
+								mapExtraTagReplacementValues = Properties::getTagReplacementValues(&mapExtraTagReplacementValues);
+								Properties::applyTagsToValue(expandedNewCommonFileName,&mapExtraTagReplacementValues);
+								createDirectoryPaths(extractDirectoryPathFromFile(expandedNewCommonFileName));
+
+								if(svnPurgeFiles == true) {
+									copyFileTo(duplicateFile, expandedNewCommonFileName);
+
+									char szBuf[4096]="";
+									sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
+									bool svnOk = executeShellCommand(szBuf,0);
+									if(svnOk == false) {
+										throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+									}
+									printf("*** Duplicate file:\n[%s]\nwas svn deleted and copied to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+								}
+								else {
+									//int result = 0;
+									int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+									if(result != 0) {
+										char szBuf[4096]="";
+										char *errmsg = strerror(errno);
+										sprintf(szBuf,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+										throw runtime_error(szBuf);
+									}
+									else {
+										printf("*** Duplicate file:\n[%s]\nwas renamed to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+									}
+								}
+							}
+							else {
+								if(svnPurgeFiles == true) {
+									char szBuf[4096]="";
+									sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
+									bool svnOk = executeShellCommand(szBuf,0);
+									if(svnOk == false) {
+										throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+									}
+									printf("*** Duplicate file:\n[%s]\nwas svn deleted\n",duplicateFile.c_str());
+								}
+								else {
+									removeFile(duplicateFile);
+								}
+								printf("*** Duplicate file:\n[%s]\nwas removed\n",duplicateFile.c_str());
+
+								// convert to MB
+								duplicateMegaBytesPurged += ((double)fileSize / 1048576.0);
+								duplicateCountPurged++;
+							}
+						}
+					}
+
+					std::map<string,int> mapUniqueParentList;
+
+					for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+						string duplicateFile = fileList[idx];
+						string fileExt = extractExtension(duplicateFile);
+						if(fileExt == "wav" || fileExt == "ogg") {
+							std::map<string,vector<pair<string, string> > >::iterator iterFind2 = loadedFileList.find(duplicateFile);
+							if(iterFind2 != loadedFileList.end()) {
+								for(unsigned int jdx1 = 0; jdx1 < iterFind2->second.size(); jdx1++) {
+									string parentFile = iterFind2->second[jdx1].first;
+									string searchText = iterFind2->second[jdx1].second;
+
+									if(mapUniqueParentList.find(parentFile) == mapUniqueParentList.end()) {
+										printf("*** Searching parent file:\n[%s]\nfor duplicate file reference:\n[%s]\nto replace with newname:\n[%s]\n",parentFile.c_str(),searchText.c_str(),newCommonFileName.c_str());
+										bool foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, false);
+										printf("foundText = %d\n",foundText);
+										if(foundText == false) {
+											char szBuf[4096]="";
+											sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
+											throw runtime_error(szBuf);
+										}
+										mapUniqueParentList[parentFile]++;
+									}
+								}
+							}
+						}
+					}
+
+					//printf("\nPurge Duplicate Files detected - END:\n=====================\n");
+				}
+				else {
+					//printf("\nPurge Duplicate Files DISABLED - START:\n=====================\n");
+
+					string newCommonFileName = "";
+					for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+						string duplicateFile = fileList[idx];
+						string fileExt = extractExtension(duplicateFile);
+						if(fileExt == "wav" || fileExt == "ogg") {
+							off_t fileSize = getFileSize(duplicateFile);
+							if(idx == 0) {
+								newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
+								break;
+							}
+						}
+					}
+
+					//printf("\nPurge Duplicate Files #2 DISABLED [%lu] - START:\n=====================\n",fileList.size());
+
+					for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
+						string duplicateFile = fileList[idx];
+						string fileExt = extractExtension(duplicateFile);
+						if(fileExt == "wav" || fileExt == "ogg") {
+							std::map<string,vector<pair<string, string> > >::iterator iterFind4 = loadedFileList.find(duplicateFile);
+							if(iterFind4 != loadedFileList.end()) {
+								for(unsigned int jdx = 0; jdx < iterFind4->second.size(); jdx++) {
+									string parentFile = iterFind4->second[jdx].first;
+									string searchText = iterFind4->second[jdx].second;
+
+									//printf("*** Searching parent file:\n[%s]\nfor duplicate file reference:\n[%s]\nto replace with newname:\n[%s]\n",parentFile.c_str(),searchText.c_str(),newCommonFileName.c_str());
+									bool foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, true);
+									//printf("foundText = %d\n",foundText);
+									if(foundText == false) {
+
+										char szBuf[8096]="";
+										sprintf(szBuf,"Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+										printf("\n\n=================================================\n%s",szBuf);
+
+										throw runtime_error(szBuf);
+									}
+								}
+							}
+						}
+					}
+
+					//printf("\nPurge Duplicate Files DISABLED - END:\n=====================\n");
+				}
+			}
+		}
+		if(foundDuplicates == true) {
+			printf("Duplicates %.2f MB (%d) in files\n",duplicateMegaBytes,duplicateCount);
+			printf("Duplicates purged %.2f MB (%d) in files\n",duplicateMegaBytesPurged,duplicateCountPurged);
+
+			printf("\nWarning, duplicate files were detected - END:\n");
+		}
+	}
+
+	if(techtree_errors == false) {
+		printf("\nValidation found NO ERRORS for tilesetPath [%s] tilesetName [%s]:\n",tilesetPath.c_str(), tilesetName.c_str());
+	}
+
+	printf("----------------------------------------------------------------");
+}
+
 void runTechValidationForPath(string techPath, string techName,
 		const std::vector<string> &filteredFactionList, World &world,
 		bool purgeUnusedFiles,bool purgeDuplicateFiles, bool showDuplicateFiles,
@@ -2082,6 +2430,79 @@ void runTechValidationReport(int argc, char** argv) {
 
 }
 
+void runTilesetValidationReport(int argc, char** argv) {
+	//disableBacktrace=true;
+	printf("====== Started Validation ======\n");
+
+	bool purgeDuplicateFiles = false;
+	bool showDuplicateFiles = true;
+	bool purgeUnusedFiles = false;
+	bool svnPurgeFiles = false;
+
+	double purgedMegaBytes=0;
+	Config &config = Config::getInstance();
+
+	// Did the user pass a specific tileset to validate?
+	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) + string("=")) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) + string("="),&foundParamIndIndex);
+
+        string filterList = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(filterList,paramPartTokens,"=");
+
+        if(paramPartTokens.size() >= 2) {
+        	vector<string> optionList;
+            string validateTilesetName = paramPartTokens[1];
+
+			printf("Filtering tileset: %s\n",validateTilesetName.c_str());
+
+            if(paramPartTokens.size() >= 3) {
+            	if(paramPartTokens[2] == "purgeunused") {
+            		purgeUnusedFiles = true;
+            		printf("*NOTE All unused tileset files will be deleted!\n");
+            	}
+            }
+
+            {
+            printf("\n---------------- Loading tileset inside world ----------------\n");
+
+            World world;
+            double purgedMegaBytes=0;
+            std::vector<string> filteredFactionList;
+
+            vector<string> tilesetPaths = config.getPathListForType(ptTilesets);
+            for(int idx = 0; idx < tilesetPaths.size(); idx++) {
+                string &tilesetPath = tilesetPaths[idx];
+        		endPathWithSlash(tilesetPath);
+
+        		vector<string> tilesetList;
+        		findDirs(tilesetPath, tilesetList, false, false);
+                for(int idx2 = 0; idx2 < tilesetList.size(); idx2++) {
+                    string &tilesetName = tilesetList[idx2];
+                    if(tilesetName == validateTilesetName) {
+						runTilesetValidationForPath(tilesetPath, tilesetName,
+									world, 	purgeUnusedFiles, showDuplicateFiles,
+									false, false, purgedMegaBytes);
+                    }
+                }
+            }
+
+            printf("\n====== Finished Validation ======\n");
+            }
+            return;
+        }
+        else {
+            printf("\nInvalid missing tileset specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            return;
+        }
+    }
+	else {
+        printf("\nInvalid missing tileset specified on commandline\n\n");
+        return;
+	}
+}
+
 void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) == true) {
         vector<string> filteredPropertyList;
@@ -2534,6 +2955,7 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
@@ -2604,6 +3026,7 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS])  == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO])  == false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET])   == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 		== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== false &&
@@ -3974,6 +4397,13 @@ int glestMain(int argc, char** argv) {
 			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO])    == true) {
 
 			runTechValidationReport(argc, argv);
+
+		    delete mainWindow;
+		    return -1;
+		}
+
+		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) == true) {
+			runTilesetValidationReport(argc, argv);
 
 		    delete mainWindow;
 		    return -1;

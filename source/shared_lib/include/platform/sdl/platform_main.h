@@ -47,6 +47,7 @@ const char  *GAME_ARGS[] = {
 	"--validate-techtrees",
 	"--validate-factions",
 	"--validate-scenario",
+	"--validate-tileset",
 
 	"--list-maps",
 	"--list-techtrees",
@@ -109,6 +110,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_VALIDATE_TECHTREES,
 	GAME_ARG_VALIDATE_FACTIONS,
 	GAME_ARG_VALIDATE_SCENARIO,
+	GAME_ARG_VALIDATE_TILESET,
 
 	GAME_ARG_LIST_MAPS,
 	GAME_ARG_LIST_TECHTRESS,
@@ -264,6 +266,16 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t      files in the scenario that are not used.");
 	printf("\n                     \t\texample:");
 	printf("\n                     %s %s=stranded",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
+
+	printf("\n%s=x=purgeunused=svndelete",GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
+	printf("\n                     \t\tdisplay a report detailing any known problems");
+	printf("\n                     \t\trelated to your selected tileset game data.");
+	printf("\n                     \t\tWhere x is a single tileset to validate.");
+	printf("\n                     \t\tWhere purgeunused is an optional parameter");
+	printf("\n                     \t\t      telling the validation to delete extra");
+	printf("\n                     \t\t      files in the scenario that are not used.");
+	printf("\n                     \t\texample:");
+	printf("\n                     %s %s=desert2",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
 
 	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_MAPS]);
 	printf("\n                     \t\tdisplay a list of game content: maps");
@@ -465,6 +477,7 @@ int mainSetup(int argc, char **argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
