@@ -3448,9 +3448,9 @@ bool Game::getPaused()
 		if(popupMenu.getVisible() == true || popupMenuSwitchTeams.getVisible() == true){
 			return true;
 		}
-		if(mainMessageBox.getEnabled() == true || errorMessageBox.getEnabled() == true){
-			return true;
-		}
+//		if(mainMessageBox.getEnabled() == true || errorMessageBox.getEnabled() == true){
+//			return true;
+//		}
 		if(currentUIState != NULL) {
 			return true;
 		}

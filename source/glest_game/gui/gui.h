@@ -162,7 +162,6 @@ public:
 	Texture2D *getHudTexture() const {return hudTexture;}
 	void setHudTexture(Texture2D* value) { hudTexture = value;}
 
-	const CommandType *getActiveCommandType() const {return activeCommandType;}
 	const Mouse3d *getMouse3d() const				{return &mouse3d;}
 	const Display *getDisplay()	const				{return &display;}
 	const Selection *getSelection()	const			{return &selection;}
