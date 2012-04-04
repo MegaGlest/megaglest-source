@@ -4912,29 +4912,47 @@ void Renderer::renderSelectionEffects() {
 	}
 
 	//render selection hightlights
-	for(int i=0; i < world->getFactionCount(); ++i) {
-		for(int j=0; j < world->getFaction(i)->getUnitCount(); ++j) {
-			const Unit *unit= world->getFaction(i)->getUnit(j);
+	if(game->getGui()->getHighlightedUnit()!=NULL)
+	{
+		const Unit *unit=game->getGui()->getHighlightedUnit() ;
 
-			if(unit->isHighlighted()) {
-				float highlight= unit->getHightlight();
-				if(game->getWorld()->getThisFactionIndex() == unit->getFactionIndex()) {
-					glColor4f(0.f, 1.f, 0.f, highlight);
-				}
-				else{
-					glColor4f(1.f, 0.f, 0.f, highlight);
-				}
-
-				Vec3f v= unit->getCurrVectorFlat();
-				v.y+= 0.3f;
-				renderSelectionCircle(v, unit->getType()->getSize(), 0.5f+0.4f*highlight );
+		if(unit->isHighlighted()) {
+			float highlight= unit->getHightlight();
+			if(game->getWorld()->getThisFactionIndex() == unit->getFactionIndex()) {
+				glColor4f(0.f, 1.f, 0.f, highlight);
 			}
+			else{
+				glColor4f(1.f, 0.f, 0.f, highlight);
+			}
+
+			Vec3f v= unit->getCurrVectorFlat();
+			v.y+= 0.3f;
+			renderSelectionCircle(v, unit->getType()->getSize(), 0.5f+0.4f*highlight );
 		}
 	}
+// old inefficient way to render highlights
+//	for(int i=0; i < world->getFactionCount(); ++i) {
+//		for(int j=0; j < world->getFaction(i)->getUnitCount(); ++j) {
+//			const Unit *unit= world->getFaction(i)->getUnit(j);
+//
+//			if(unit->isHighlighted()) {
+//				float highlight= unit->getHightlight();
+//				if(game->getWorld()->getThisFactionIndex() == unit->getFactionIndex()) {
+//					glColor4f(0.f, 1.f, 0.f, highlight);
+//				}
+//				else{
+//					glColor4f(1.f, 0.f, 0.f, highlight);
+//				}
+//
+//				Vec3f v= unit->getCurrVectorFlat();
+//				v.y+= 0.3f;
+//				renderSelectionCircle(v, unit->getType()->getSize(), 0.5f+0.4f*highlight );
+//			}
+//		}
+//	}
 	//render resource selection highlight
 	if(game->getGui()->getHighlightedResourceObject()!=NULL)
 	{
-
 		const Object* object=game->getGui()->getHighlightedResourceObject();
 		if(object->isHighlighted())
 		{

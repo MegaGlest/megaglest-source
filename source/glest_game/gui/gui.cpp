@@ -112,6 +112,7 @@ Gui::Gui(){
 	minQuadSize=20;
 	selectedResourceObjectPos=Vec2i(-1,-1);
 	highlightedResourceObjectPos=Vec2i(-1,-1);
+	highlightedUnitId=-1;
 	hudTexture=NULL;
 	commander=NULL;
 	world=NULL;
@@ -160,6 +161,15 @@ Object *Gui::getHighlightedResourceObject()	const{
 	}
 	else {
 		return world->getMap()->getSurfaceCell(highlightedResourceObjectPos)->getObject();
+	}
+}
+
+Unit* Gui::getHighlightedUnit()	const{
+	if(highlightedUnitId==-1){
+		return NULL;
+	}
+	else {
+		return world->findUnitById(highlightedUnitId);
 	}
 }
 
@@ -1067,6 +1077,8 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	if(uc.empty() == false){
 		targetUnit= getRelevantObjectFromSelection(&uc);
 		targetPos= targetUnit->getPos();
+		highlightedUnitId=targetUnit->getId();
+		getHighlightedUnit()->resetHighlight();
 		return true;
 	}
 	else if(obj != NULL){
