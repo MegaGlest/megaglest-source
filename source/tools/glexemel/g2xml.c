@@ -133,7 +133,7 @@ int g3d2xml(FILE *infile, FILE *outfile)
 	uint8 textureName[NAMESIZE];
 	float32 *fdata;
 	uint32 *idata;
-	int ii, jj, kk;
+	unsigned int ii, jj, kk;
 
 	/* read in the FileHeader */
 	nBytes = sizeof(struct FileHeader);

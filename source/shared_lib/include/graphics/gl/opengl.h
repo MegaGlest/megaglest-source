@@ -52,6 +52,12 @@ void checkGlExtension(const char *extensionName);
 void inline _assertGl(const char *file, int line, GLenum *forceErrorNumber = NULL) {
 	GLenum error = (forceErrorNumber != NULL ? *forceErrorNumber : glGetError());
 	if(error != GL_NO_ERROR) {
+#ifdef _DEBUG
+		if(error == GL_INVALID_ENUM) {
+			return;
+		}
+#endif
+
 		//if(error != GL_INVALID_ENUM) {
 			const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 			char szBuf[4096]="";

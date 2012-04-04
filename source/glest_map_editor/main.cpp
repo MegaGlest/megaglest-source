@@ -1455,7 +1455,7 @@ bool SimpleDialog::show(const string &title, bool wide) {
 
 	vector<wxTextCtrl*> texts;
 	for (Values::iterator it = values.begin(); it != values.end(); ++it) {
-	    int helptextpos = it->second.find_first_of('|');
+	    size_t helptextpos = it->second.find_first_of('|');
 		sizer->Add(new wxStaticText(this, -1, ToUnicode(it->first)), 0, wxALL, 5);
 		wxTextCtrl *text = new wxTextCtrl(this, -1, ToUnicode(it->second.substr(0,helptextpos)));
 		if(wide) text->SetMinSize( wxSize((text->GetSize().GetWidth())*4, text->GetSize().GetHeight()));  // 4 time as wide as default
