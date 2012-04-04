@@ -145,6 +145,7 @@ private:
 	CardinalDir selectedBuildingFacing;
 	Vec2i selectedResourceObjectPos;
 	Vec2i highlightedResourceObjectPos;
+	int highlightedUnitId;
 
 	Texture2D* hudTexture;
 
@@ -165,6 +166,7 @@ public:
 	const Selection *getSelection()	const			{return &selection;}
 	const Object *getSelectedResourceObject()	const;
 	Object *getHighlightedResourceObject()	const;
+	Unit *getHighlightedUnit() const;
 
 	const SelectionQuad *getSelectionQuad() const	{return &selectionQuad;}
 	CardinalDir getSelectedFacing() const			{return selectedBuildingFacing;}

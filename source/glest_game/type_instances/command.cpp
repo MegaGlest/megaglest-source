@@ -55,7 +55,7 @@ Command::Command(const CommandType *ct, Unit* unit) {
     this->unitRef= unit;
 	unitType= NULL;
 	if(unit!=NULL) {
-		unit->resetHighlight();
+		//unit->resetHighlight(); is in gui now
 		pos= unit->getCellPos();
 	}
 	stateType			= cst_None;
