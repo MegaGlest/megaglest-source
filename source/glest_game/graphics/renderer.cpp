@@ -4927,8 +4927,22 @@ void Renderer::renderSelectionEffects() {
 
 				Vec3f v= unit->getCurrVectorFlat();
 				v.y+= 0.3f;
-				renderSelectionCircle(v, unit->getType()->getSize(), selectionCircleRadius);
+				renderSelectionCircle(v, unit->getType()->getSize(), 0.5f+0.4f*highlight );
 			}
+		}
+	}
+	//render resource selection highlight
+	if(game->getGui()->getHighlightedResourceObject()!=NULL)
+	{
+
+		const Object* object=game->getGui()->getHighlightedResourceObject();
+		if(object->isHighlighted())
+		{
+			float highlight= object->getHightlight();
+			glColor4f(0.1f, 0.1f , 1.0f, highlight);
+			Vec3f v= object->getPos();
+			v.y+= 0.3f;
+			renderSelectionCircle(v, 2, 0.4f+0.4f*highlight );
 		}
 	}
 

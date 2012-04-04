@@ -363,7 +363,6 @@ void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 
 const float Unit::speedDivider= 100.f;
 const int Unit::maxDeadCount= 1000;	//time in until the corpse disapears - should be about 40 seconds
-const float Unit::highlightTime= 0.5f;
 const int Unit::invalidId= -1;
 
 //set<int> Unit::livingUnits;
@@ -1751,7 +1750,7 @@ bool Unit::update() {
 	//highlight
 	if(highlight > 0.f) {
 		const Game *game = Renderer::getInstance().getGame();
-		highlight -= 1.f / (highlightTime * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		highlight -= 1.f / (Game::highlightTime * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 	}
 
 	if(currSkill == NULL) {

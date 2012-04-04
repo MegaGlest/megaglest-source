@@ -306,7 +306,6 @@ private:
 public:
 	static const float speedDivider;
 	static const int maxDeadCount;
-	static const float highlightTime;
 	static const int invalidId;
 
 #ifdef LEAK_CHECK_UNITS

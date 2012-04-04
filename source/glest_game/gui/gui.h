@@ -93,7 +93,7 @@ public:
 ///	In game GUI
 // =====================================================
 
-class Gui : public ObjectStateInterface {
+class Gui {
 public:
 	static const int maxSelBuff= 128*5;
 	static const int upgradeDisplayIndex= 8;
@@ -143,7 +143,8 @@ private:
 	bool selectingMeetingPoint;
 
 	CardinalDir selectedBuildingFacing;
-	const Object *selectedResourceObject;
+	Vec2i selectedResourceObjectPos;
+	Vec2i highlightedResourceObjectPos;
 
 	Texture2D* hudTexture;
 
@@ -151,9 +152,6 @@ public:
 	Gui();
 	void init(Game *game);
 	void end();
-
-	// callback when tileset objects are removed from the world
-	virtual void removingObjectEvent(Object* o) ;
 
 	//get
 	Vec2i getPosObjWorld() const			{return posObjWorld;}
@@ -165,7 +163,8 @@ public:
 	const Mouse3d *getMouse3d() const				{return &mouse3d;}
 	const Display *getDisplay()	const				{return &display;}
 	const Selection *getSelection()	const			{return &selection;}
-	const Object *getSelectedResourceObject()	const			{return selectedResourceObject;}
+	const Object *getSelectedResourceObject()	const;
+	Object *getHighlightedResourceObject()	const;
 
 	const SelectionQuad *getSelectionQuad() const	{return &selectionQuad;}
 	CardinalDir getSelectedFacing() const			{return selectedBuildingFacing;}
