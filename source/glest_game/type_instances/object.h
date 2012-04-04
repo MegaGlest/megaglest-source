@@ -58,6 +58,7 @@ private:
 	Vec2i mapPos;
 	bool visible;
 	float animProgress;
+	float highlight;
 
 	static ObjectStateInterface *stateCallback;
 
@@ -79,6 +80,10 @@ public:
 	const Model *getModel() const;
 	Model *getModelPtr() const;
 	bool getWalkable() const;
+
+	float getHightlight() const			{return highlight;}
+	bool isHighlighted() const			{return highlight>0.f;}
+	void resetHighlight();
 
 	void setResource(const ResourceType *resourceType, const Vec2i &pos);
 	void setHeight(float height);

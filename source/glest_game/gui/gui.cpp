@@ -110,7 +110,8 @@ Gui::Gui(){
 	lastQuadCalcFrame=0;
 	selectionCalculationFrameSkip=10;
 	minQuadSize=20;
-	selectedResourceObject=NULL;
+	selectedResourceObjectPos=Vec2i(-1,-1);
+	highlightedResourceObjectPos=Vec2i(-1,-1);
 	hudTexture=NULL;
 	commander=NULL;
 	world=NULL;
@@ -144,6 +145,22 @@ void Gui::end(){
 const UnitType *Gui::getBuilding() const{
     assert(selectingBuilding);
     return choosenBuildingType;
+}
+const Object *Gui::getSelectedResourceObject()	const{
+	if(selectedResourceObjectPos.x==-1){
+		return NULL;
+	}
+	else {
+		return world->getMap()->getSurfaceCell(selectedResourceObjectPos)->getObject();
+	}
+}
+Object *Gui::getHighlightedResourceObject()	const{
+	if(highlightedResourceObjectPos.x==-1){
+		return NULL;
+	}
+	else {
+		return world->getMap()->getSurfaceCell(highlightedResourceObjectPos)->getObject();
+	}
 }
 
 // ==================== is ====================
@@ -739,7 +756,7 @@ void Gui::computeDisplay(){
 	display.clear();
 
 	// ================ PART 1 ================
-
+	const Object *selectedResourceObject =getSelectedResourceObject();
 	if(selection.isEmpty() && selectedResourceObject != NULL) {
 		Resource *r = selectedResourceObject->getResource();
 		display.setTitle(r->getType()->getName());
@@ -990,9 +1007,13 @@ void Gui::computeSelected(bool doubleClick, bool force){
 
 	if( force || ( lastQuadCalcFrame+selectionCalculationFrameSkip < game->getTotalRenderFps() ) ){
 		lastQuadCalcFrame=game->getTotalRenderFps();
-		selectedResourceObject=NULL;
+		const Object *selectedResourceObject=NULL;
+		selectedResourceObjectPos=Vec2i(-1,-1);
 		if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())<minQuadSize){
 			Renderer::getInstance().computeSelected(units, selectedResourceObject, true, selectionQuad.getPosDown(), selectionQuad.getPosDown());
+			if(selectedResourceObject!=NULL){
+				selectedResourceObjectPos=Map::toSurfCoords(selectedResourceObject->getMapPos());
+			}
 		}
 		else{
 			Renderer::getInstance().computeSelected(units, selectedResourceObject, false, selectionQuad.getPosDown(), selectionQuad.getPosUp());
@@ -1050,7 +1071,8 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	}
 	else if(obj != NULL){
 		targetUnit= NULL;
-
+		highlightedResourceObjectPos=Map::toSurfCoords(obj->getMapPos());
+		getHighlightedResourceObject()->resetHighlight();
 		// get real click pos
 		renderer.computePosition(screenPos, targetPos);
 
@@ -1142,8 +1164,16 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	else{
 		targetUnit= NULL;
 		if(renderer.computePosition(screenPos, targetPos)){
+			const Object* resourceObject;
 			validPosObjWorld= true;
 			posObjWorld= targetPos;
+
+			if(world->getMap()->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()!=NULL)
+			{
+				highlightedResourceObjectPos=Map::toSurfCoords(targetPos);
+				getHighlightedResourceObject()->resetHighlight();
+			}
+
 			return true;
 		}
 		else{
@@ -1161,12 +1191,6 @@ Unit* Gui::getRelevantObjectFromSelection(Selection::UnitContainer *uc){
 		}
 	}
 	return resultUnit;
-}
-
-void Gui::removingObjectEvent(Object* o){
-	if(getSelectedResourceObject()==o){
-		selectedResourceObject=NULL;
-	}
 }
 
 void Gui::saveGame(XmlNode *rootNode) const {

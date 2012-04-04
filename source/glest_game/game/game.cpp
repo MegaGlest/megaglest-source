@@ -45,6 +45,8 @@ const float PHOTO_MODE_MAXHEIGHT = 500.0;
 const int CREATE_NEW_TEAM = -100;
 const int CANCEL_SWITCH_TEAM = -1;
 
+const float Game::highlightTime= 0.5f;
+
 int fadeMusicMilliseconds = 3500;
 
 // Check every x seconds if we should switch disconnected players to AI
@@ -194,8 +196,6 @@ void Game::resetMembers() {
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
-
-	Object::setStateCallback(&gui);
 
     Logger &logger= Logger::getInstance();
 	logger.showProgress();

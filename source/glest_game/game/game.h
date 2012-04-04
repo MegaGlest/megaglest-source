@@ -51,6 +51,7 @@ enum LoadGameItem {
 // =====================================================
 class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface {
 public:
+	static const float highlightTime;
 	enum Speed{
 		sFast,
 		sNormal,

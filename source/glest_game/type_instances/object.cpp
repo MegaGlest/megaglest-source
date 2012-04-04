@@ -22,6 +22,7 @@
 #include "randomgen.h"
 #include "renderer.h"
 #include "leak_dumper.h"
+#include "game.h"
 
 using namespace Shared::Util;
 
@@ -40,6 +41,7 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : 
 	this->lastRenderFrame = 0;
 	this->objectType= objectType;
 	resource= NULL;
+	highlight= 0.f;
 	this->mapPos = mapPos;
 	this->pos= pos + Vec3f(random.randRange(-0.6f, 0.6f), 0.0f, random.randRange(-0.6f, 0.6f));
 	rotation= random.randRange(0.f, 360.f);
@@ -123,6 +125,12 @@ void Object::setHeight(float height) {
 }
 
 void Object::update() {
+	//highlight
+	if(highlight > 0.f) {
+		const Game *game = Renderer::getInstance().getGame();
+		highlight -= 1.f / (Game::highlightTime * game->getWorld()->getUpdateFps(-1));
+	}
+
 	if(objectType != NULL && objectType->getTilesetModelType(variation) != NULL &&
 			objectType->getTilesetModelType(variation)->getAnimSpeed() != 0.0) {
 //		printf("#1 Object updating [%s] Speed [%d] animProgress [%f]\n",this->objectType->getTilesetModelType(variation)->getModel()->getFileName().c_str(),objectType->getTilesetModelType(variation)->getAnimSpeed(),animProgress);
@@ -146,6 +154,10 @@ void Object::update() {
 			animProgress = 0.f;
 		}
 	}
+}
+
+void Object::resetHighlight(){
+	highlight= 1.f;
 }
 
 Model *Object::getModelPtr() const {
