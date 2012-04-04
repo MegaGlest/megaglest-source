@@ -1663,9 +1663,22 @@ void PathFinder::loadGame(const XmlNode *rootNode) {
 	//				Vec2i pos;
 			curNode->pos = Vec2i::strToVec2(nodePoolNode->getAttribute("pos")->getValue());
 	//				Node *next;
-			curNode->next = &factionState.nodePool[nodePoolNode->getAttribute("next")->getIntValue()];
+			int nextNode = nodePoolNode->getAttribute("next")->getIntValue();
+			if(nextNode >= 0) {
+				curNode->next = &factionState.nodePool[nextNode];
+			}
+			else {
+				curNode->next = NULL;
+			}
+
 	//				Node *prev;
-			curNode->prev = &factionState.nodePool[nodePoolNode->getAttribute("prev")->getIntValue()];
+			int prevNode = nodePoolNode->getAttribute("prev")->getIntValue();
+			if(prevNode >= 0) {
+				curNode->prev = &factionState.nodePool[prevNode];
+			}
+			else {
+				curNode->prev = NULL;
+			}
 	//				float heuristic;
 			curNode->heuristic = nodePoolNode->getAttribute("heuristic")->getFloatValue();
 	//				bool exploredCell;

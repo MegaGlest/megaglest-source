@@ -101,7 +101,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 		minRadius = 0;
 	}
 	if((minRadius == 0) && (shape == UnitParticleSystem::sConical)) {
-		minRadius = 0.001; // fudge it so we aren't generating particles that are exactly centred
+		minRadius = 0.001f; // fudge it so we aren't generating particles that are exactly centred
 		if(minRadius > radius)
 			radius = minRadius;
 	}
@@ -175,7 +175,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 		const float delay_secs = delayNode->getAttribute("value")->getFloatValue();
 		if(delay_secs < 0)
 			throw runtime_error("particle effect delay cannot be negative");
-		delay = delay_secs * GameConstants::updateFps;
+		delay = (int)delay_secs * GameConstants::updateFps;
 	} else{
 		delay= 0;
 	}
@@ -186,7 +186,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 		const float lifetime_secs = lifetimeNode->getAttribute("value")->getFloatValue();
 		if(lifetime_secs < 0 && lifetime_secs != -1)
 			throw runtime_error("particle effect lifetime cannot be negative (-1 means inherited from parent particle)");
-		lifetime = lifetime_secs * GameConstants::updateFps;
+		lifetime = (int)lifetime_secs * GameConstants::updateFps;
 	} else{
 		lifetime= -1; //default
 	}

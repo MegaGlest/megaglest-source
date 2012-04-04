@@ -260,7 +260,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	if(particleSystemNode->hasChild("child-particles")) {
     		const XmlNode *childrenNode= particleSystemNode->getChild("child-particles");
     		if(childrenNode->getAttribute("value")->getBoolValue()) {
-			for(int i = 0; i < childrenNode->getChildCount(); ++i) {
+			for(unsigned int i = 0; i < childrenNode->getChildCount(); ++i) {
 				const XmlNode *particleFileNode= childrenNode->getChild("particle-file",i);
 				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
