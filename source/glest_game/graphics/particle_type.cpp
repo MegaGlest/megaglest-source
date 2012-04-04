@@ -400,7 +400,8 @@ void ParticleSystemTypeProjectile::load(const XmlNode* particleFileNode, const s
 
 		//trajectory speed
 		const XmlNode *tajectorySpeedNode= tajectoryNode->getChild("speed");
-		trajectorySpeed= tajectorySpeedNode->getAttribute("value")->getFloatValue()/GameConstants::updateFps;
+		trajectorySpeed= tajectorySpeedNode->getAttribute("value")->getFloatValue() / (float)GameConstants::updateFps;
+		//printf("[%s] trajectorySpeed = %f\n",path.c_str(),trajectorySpeed);
 
 		if(trajectory=="parabolic" || trajectory=="spiral"){
 			//trajectory scale
@@ -432,6 +433,8 @@ ProjectileParticleSystem *ParticleSystemTypeProjectile::create() {
 	ParticleSystemType::setValues(ps);
 
 	ps->setTrajectory(ProjectileParticleSystem::strToTrajectory(trajectory));
+
+	//printf("Setting trajectorySpeed = %f\n",trajectorySpeed);
 	ps->setTrajectorySpeed(trajectorySpeed);
 	ps->setTrajectoryScale(trajectoryScale);
 	ps->setTrajectoryFrequency(trajectoryFrequency);

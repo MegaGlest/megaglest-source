@@ -776,8 +776,9 @@ void GameParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 }
 
 void GameParticleSystem::setTween(float relative,float absolute) {
-	if(model){
+	if(model) {
 		// animation?
+		//printf("#1 Particle model meshcount [%d] modelCycle = %f, relative = %f, absolute = %f\n",model->getMeshCount(),modelCycle,relative,absolute);
 		if(modelCycle == 0.0f) {
 			tween= relative;
 		}
@@ -785,7 +786,7 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 		#ifdef USE_STREFLOP
 			if(streflop::fabs(static_cast<streflop::Simple>(absolute)) <= 0.00001f){
 		#else
-			if(fabs(absolute) <= 0.00001f){
+			if(fabs(absolute) <= 0.00001f) {
 		#endif
 				tween = 0.0f;
 			}
@@ -806,9 +807,12 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 		}
 
 		tween= clamp(tween, 0.0f, 1.0f);
+
+		//printf("#2 Particle model meshcount [%d] modelCycle = %f, relative = %f, absolute = %f\n",model->getMeshCount(),modelCycle,relative,absolute);
 	}
-	for(Children::iterator it= children.begin(); it != children.end(); ++it)
+	for(Children::iterator it= children.begin(); it != children.end(); ++it) {
 		(*it)->setTween(relative,absolute);
+	}
 }
 
 string GameParticleSystem::getModelFileLoadDeferred() {
@@ -1431,12 +1435,15 @@ ProjectileParticleSystem::ProjectileParticleSystem(int particleCount) :
 	setSpeed(0.14f);
 
 	trajectory= tLinear;
+
 	trajectorySpeed= 1.0f;
 	trajectoryScale= 1.0f;
 	trajectoryFrequency= 1.0f;
 	modelCycle=0.0f;
 
 	nextParticleSystem= NULL;
+
+	//printf("#aXX trajectorySpeed = %f\n",trajectorySpeed);
 }
 
 ProjectileParticleSystem::~ProjectileParticleSystem(){
@@ -1462,11 +1469,18 @@ void ProjectileParticleSystem::update(){
 
 		// ratio
 		float relative= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
+
+		//printf("Update particle targetVector [%s][%f] currentVector [%s][%f] relative = %f\n",targetVector.getString().c_str(),targetVector.length(),currentVector.getString().c_str(),currentVector.length(),relative);
+
 #ifdef USE_STREFLOP
 		float absolute= clamp(streflop::fabs(static_cast<streflop::Simple>(currentVector.length())), 0.0f, 1.0f);
 #else
 		float absolute= clamp(fabs(currentVector.length()), 0.0f, 1.0f);
 #endif
+
+		//printf("#a currentVector.length() = %f, targetVector.length() = %f, relative = %f, absolute = %f, trajectorySpeed = %f\n",currentVector.length(),targetVector.length(),relative,absolute,trajectorySpeed);
+		absolute = relative;
+
 		setTween(relative,absolute);
 
 		// trajectory
