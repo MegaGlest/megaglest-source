@@ -677,41 +677,23 @@ string ScriptManager::wrapString(const string &str, int wrapCount){
 void ScriptManager::networkShowMessageForFaction(const string &text, const string &header,int factionIndex) {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
-	Lang &lang= Lang::getInstance();
 	messageQueue.push_back(ScriptManagerMessage(text, header, factionIndex));
 	onMessageBoxOk(false);
-//	if(factionIndex == this->world->getThisFactionIndex()) {
-//		messageBox.setEnabled(true);
-//		messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
-//		messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
-//	}
 }
 void ScriptManager::networkShowMessageForTeam(const string &text, const string &header,int teamIndex) {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
-
-	Lang &lang= Lang::getInstance();
 
 	// Team indexes are 0 based internally (but 1 based in the lua script) so convert
 	teamIndex--;
 	messageQueue.push_back(ScriptManagerMessage(text, header, -1, teamIndex));
 	onMessageBoxOk(false);
-//	if(teamIndex == this->world->getThisTeamIndex()) {
-//		messageBox.setEnabled(true);
-//		messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
-//		messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
-//	}
 }
 
 void ScriptManager::showMessage(const string &text, const string &header){
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
-	Lang &lang= Lang::getInstance();
-
 	messageQueue.push_back(ScriptManagerMessage(text, header));
 	onMessageBoxOk(false);
-//	messageBox.setEnabled(true);
-//	messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
-//	messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
 }
 
 void ScriptManager::clearDisplayText(){

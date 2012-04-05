@@ -2434,10 +2434,8 @@ void runTilesetValidationReport(int argc, char** argv) {
 	//disableBacktrace=true;
 	printf("====== Started Validation ======\n");
 
-	bool purgeDuplicateFiles = false;
 	bool showDuplicateFiles = true;
 	bool purgeUnusedFiles = false;
-	bool svnPurgeFiles = false;
 
 	double purgedMegaBytes=0;
 	Config &config = Config::getInstance();
