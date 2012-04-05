@@ -1176,7 +1176,6 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	else{
 		targetUnit= NULL;
 		if(renderer.computePosition(screenPos, targetPos)){
-			const Object* resourceObject;
 			validPosObjWorld= true;
 			posObjWorld= targetPos;
 

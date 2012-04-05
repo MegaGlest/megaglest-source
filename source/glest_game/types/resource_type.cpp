@@ -38,6 +38,7 @@ ResourceType::ResourceType() {
 	defResPerPatch=0;
 	recoup_cost = false;
     model = NULL;
+    displayInHud = false;
 }
 
 ResourceType::~ResourceType(){
