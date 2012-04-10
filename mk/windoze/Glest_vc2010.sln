@@ -9,8 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_editor", "glest_edito
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3d_viewer", "g3d_viewer.vcxproj", "{FE5C7C7C-F109-44F5-8329-25A4E24F162C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_configurator", "glest_configurator.vcxproj", "{FE5C7C7C-F109-44F5-8329-19A4E24F162D}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libstreflop", "libstreflop.vcxproj", "{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g2xml", "g2xml.vcxproj", "{407355A4-D12A-4E3B-A7EB-A835E573B376}"
