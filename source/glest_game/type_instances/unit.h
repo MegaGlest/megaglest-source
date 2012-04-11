@@ -522,7 +522,7 @@ public:
 	void setLoadCount(int loadCount)					{this->loadCount= loadCount;}
 	void setLoadType(const ResourceType *loadType)		{this->loadType= loadType;}
 	void setProgress2(int progress2)					{this->progress2= progress2;}
-	void setPos(const Vec2i &pos);
+	void setPos(const Vec2i &pos,bool clearPathFinder=false);
 	void setTargetPos(const Vec2i &targetPos);
 	void setTarget(const Unit *unit);
 	void setTargetVec(const Vec3f &targetVec);

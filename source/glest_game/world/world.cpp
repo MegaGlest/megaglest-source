@@ -1275,6 +1275,14 @@ Vec2i World::getUnitPosition(int unitId) {
 	return unit->getPos();
 }
 
+void World::setUnitPosition(int unitId, Vec2i pos) {
+	Unit* unit= findUnitById(unitId);
+	if(unit == NULL) {
+		throw runtime_error("Can not find unit to set position unitId = " + intToStr(unitId));
+	}
+	unit->setPos(pos,true);
+}
+
 int World::getUnitFactionIndex(int unitId) {
 	Unit* unit= findUnitById(unitId);
 	if(unit == NULL) {
