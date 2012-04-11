@@ -74,6 +74,8 @@ private:
 	float fade;
 	Vec3f aboutPosition;
 
+	RainParticleSystem *rps;
+
 public:
 	MenuBackground();
 
@@ -99,6 +101,7 @@ public:
 
 private:
 	Vec2f computeRaindropPos();
+	void createRainParticleSystem();
 };
 
 }} //end namespace

@@ -32,8 +32,7 @@ namespace Glest{ namespace Game{
 // 	class MenuBackground
 // =====================================================
 
-MenuBackground::MenuBackground(){
-
+MenuBackground::MenuBackground() : rps(NULL) {
 	Renderer &renderer= Renderer::getInstance();
 
 	//load data
@@ -68,21 +67,12 @@ MenuBackground::MenuBackground(){
 	bool withRainEffect = Config::getInstance().getBool("RainEffect","true");
 	if(withRainEffect == true) {
 		rain= menuNode->getChild("rain")->getAttribute("value")->getBoolValue();
-		if(rain){
-			RainParticleSystem *rps= new RainParticleSystem();
-			rps->setSpeed(12.f/GameConstants::updateFps);
-			rps->setEmissionRate(25);
-			rps->setWind(-90.f, 4.f/GameConstants::updateFps);
-			rps->setPos(Vec3f(0.f, 25.f, 0.f));
-			rps->setColor(Vec4f(1.f, 1.f, 1.f, 0.2f));
-			rps->setRadius(30.f);
-			renderer.manageParticleSystem(rps, rsMenu);
-
-			for(int i=0; i<raindropCount; ++i){
-				raindropStates[i]= random.randRange(0.f, 1.f);
-				raindropPos[i]= computeRaindropPos();
-			}
+		if(rain) {
+			createRainParticleSystem();
 		}
+	}
+	else {
+		rain = false;
 	}
 
 	//camera
@@ -140,23 +130,62 @@ MenuBackground::MenuBackground(){
 	anim= 0.f;
 }
 
+void MenuBackground::createRainParticleSystem() {
+	if(rps == NULL) {
+		rps= new RainParticleSystem();
+		rps->setSpeed(12.f/GameConstants::updateFps);
+		rps->setEmissionRate(25);
+		rps->setWind(-90.f, 4.f/GameConstants::updateFps);
+		rps->setPos(Vec3f(0.f, 25.f, 0.f));
+		rps->setColor(Vec4f(1.f, 1.f, 1.f, 0.2f));
+		rps->setRadius(30.f);
+
+		Renderer &renderer= Renderer::getInstance();
+		renderer.manageParticleSystem(rps, rsMenu);
+
+		for(int i=0; i<raindropCount; ++i){
+			raindropStates[i]= random.randRange(0.f, 1.f);
+			raindropPos[i]= computeRaindropPos();
+		}
+	}
+}
+
 void MenuBackground::setTargetCamera(const Camera *targetCamera){
 	this->targetCamera= targetCamera;
 	this->lastCamera= camera;
 	t= 0.f;
 }
 
-void MenuBackground::update(){
-
+void MenuBackground::update() {
 	//rain drops
 	bool withRainEffect = Config::getInstance().getBool("RainEffect","true");
 	if(withRainEffect == true) {
+		if(rain == false) {
+			rain = true;
+			createRainParticleSystem();
+		}
+
 		for(int i=0; i<raindropCount; ++i){
 			raindropStates[i]+= 1.f / GameConstants::updateFps;
 			if(raindropStates[i]>=1.f){
 				raindropStates[i]= 0.f;
 				raindropPos[i]= computeRaindropPos();
 			}
+		}
+	}
+	else if(rain == true) {
+		rain = false;
+
+		if(rps != NULL) {
+			Renderer &renderer= Renderer::getInstance();
+			if(renderer.validateParticleSystemStillExists(rps,rsMenu) == true) {
+				rps->fade();
+				vector<ParticleSystem *> particleSystems;
+				particleSystems.push_back(rps);
+				renderer.cleanupParticleSystems(particleSystems, rsMenu);
+			}
+
+			rps = NULL;
 		}
 	}
 
