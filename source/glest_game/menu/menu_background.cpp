@@ -64,7 +64,7 @@ MenuBackground::MenuBackground() : rps(NULL) {
 	}
 
 	//rain
-	bool withRainEffect = Config::getInstance().getBool("RainEffect","true");
+	bool withRainEffect = Config::getInstance().getBool("RainEffectMenu","true");
 	if(withRainEffect == true) {
 		rain= menuNode->getChild("rain")->getAttribute("value")->getBoolValue();
 		if(rain) {
@@ -158,7 +158,7 @@ void MenuBackground::setTargetCamera(const Camera *targetCamera){
 
 void MenuBackground::update() {
 	//rain drops
-	bool withRainEffect = Config::getInstance().getBool("RainEffect","true");
+	bool withRainEffect = Config::getInstance().getBool("RainEffectMenu","true");
 	if(withRainEffect == true) {
 		if(rain == false) {
 			rain = true;

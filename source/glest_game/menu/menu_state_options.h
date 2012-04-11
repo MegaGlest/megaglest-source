@@ -121,7 +121,9 @@ private:
 	GraphicCheckBox checkBoxVisibleHud;
 
 	GraphicLabel labelRainEffect;
+	GraphicLabel labelRainEffectSeparator;
 	GraphicCheckBox checkBoxRainEffect;
+	GraphicCheckBox checkBoxRainEffectMenu;
 
 	GraphicLabel labelGammaCorrection;
 	GraphicListBox listBoxGammaCorrection;

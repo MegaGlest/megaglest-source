@@ -275,10 +275,18 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 		labelRainEffect.registerGraphicComponent(containerName,"labelRainEffect");
 		labelRainEffect.init(currentLabelStart ,currentLine);
-		labelRainEffect.setText(lang.get("RainEffect"));
+		labelRainEffect.setText(lang.get("RainEffectMenuGame"));
+
+		checkBoxRainEffectMenu.registerGraphicComponent(containerName,"checkBoxRainEffectMenu");
+		checkBoxRainEffectMenu.init(currentColumnStart ,currentLine );
+		checkBoxRainEffectMenu.setValue(config.getBool("RainEffectMenu","true"));
+
+		labelRainEffectSeparator.registerGraphicComponent(containerName,"labelRainEffect");
+		labelRainEffectSeparator.init(currentColumnStart+30 ,currentLine);
+		labelRainEffectSeparator.setText("/");
 
 		checkBoxRainEffect.registerGraphicComponent(containerName,"checkBoxRainEffect");
-		checkBoxRainEffect.init(currentColumnStart ,currentLine );
+		checkBoxRainEffect.init(currentColumnStart+42 ,currentLine );
 		checkBoxRainEffect.setValue(config.getBool("RainEffect","true"));
 		currentLine-=lineOffset;
 
@@ -852,7 +860,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         checkBoxDisableScreenshotConsoleText.mouseClick(x, y);
         checkBoxMouseMoveScrollsWorld.mouseClick(x, y);
             checkBoxVisibleHud.mouseClick(x, y);
-        checkBoxRainEffect.mouseClick(x,y);
+            checkBoxRainEffect.mouseClick(x,y);
+            checkBoxRainEffectMenu.mouseClick(x,y);
 	}
 }
 
@@ -892,8 +901,9 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxScreenShotType.mouseMove(x, y);
 	checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
 	checkBoxMouseMoveScrollsWorld.mouseMove(x, y);
-	    checkBoxVisibleHud.mouseMove(x, y);
-    checkBoxRainEffect.mouseMove(x, y);
+	checkBoxVisibleHud.mouseMove(x, y);
+	checkBoxRainEffect.mouseMove(x, y);
+	checkBoxRainEffectMenu.mouseMove(x, y);
 }
 
 bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
@@ -1042,6 +1052,8 @@ void MenuStateOptions::render(){
 
         renderer.renderLabel(&labelRainEffect);
         renderer.renderCheckBox(&checkBoxRainEffect);
+        renderer.renderLabel(&labelRainEffectSeparator);
+        renderer.renderCheckBox(&checkBoxRainEffectMenu);
 
 	}
 
@@ -1100,6 +1112,7 @@ void MenuStateOptions::saveConfig(){
     config.setBool("MouseMoveScrollsWorld", checkBoxMouseMoveScrollsWorld.getValue());
     config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
     config.setBool("RainEffect", checkBoxRainEffect.getValue());
+    config.setBool("RainEffectMenu", checkBoxRainEffectMenu.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();
