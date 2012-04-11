@@ -837,7 +837,7 @@ int UnitType::getTotalMaxHp(const TotalUpgrade *totalUpgrade) const {
 int UnitType::getTotalMaxHpRegeneration(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->hpRegeneration),this->hpRegeneration);
 	int result = hpRegeneration + totalUpgrade->getMaxHpRegeneration();
-	result = max(0,result);
+	//result = max(0,result);
 	return result;
 }
 
@@ -851,7 +851,7 @@ int UnitType::getTotalMaxEp(const TotalUpgrade *totalUpgrade) const {
 int UnitType::getTotalMaxEpRegeneration(const TotalUpgrade *totalUpgrade) const {
 	checkItemInVault(&(this->epRegeneration),this->epRegeneration);
 	int result = epRegeneration + totalUpgrade->getMaxEpRegeneration();
-	result = max(0,result);
+	//result = max(0,result);
 	return result;
 }
 
