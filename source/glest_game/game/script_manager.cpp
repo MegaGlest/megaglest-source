@@ -295,6 +295,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getStartLocation, "startLocation");
 	luaScript.registerFunction(getIsUnitAlive, "isUnitAlive");
 	luaScript.registerFunction(getUnitPosition, "unitPosition");
+	luaScript.registerFunction(setUnitPosition, "setUnitPosition");
+
 	luaScript.registerFunction(getUnitFaction, "unitFaction");
 	luaScript.registerFunction(getResourceAmount, "resourceAmount");
 
@@ -1154,6 +1156,12 @@ Vec2i ScriptManager::getUnitPosition(int unitId) {
 	return world->getUnitPosition(unitId);
 }
 
+void ScriptManager::setUnitPosition(int unitId, Vec2i pos) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->setUnitPosition(unitId,pos);
+}
+
 int ScriptManager::getIsUnitAlive(int unitId) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -1659,6 +1667,12 @@ int ScriptManager::getUnitPosition(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	Vec2i pos= thisScriptManager->getUnitPosition(luaArguments.getInt(-1));
 	luaArguments.returnVec2i(pos);
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::setUnitPosition(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->setUnitPosition(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
 	return luaArguments.getReturnCount();
 }
 

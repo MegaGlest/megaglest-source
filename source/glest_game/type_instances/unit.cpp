@@ -1015,11 +1015,14 @@ void Unit::setTarget(const Unit *unit){
 	targetRef= unit;
 }
 
-void Unit::setPos(const Vec2i &pos) {
+void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
 		throw runtime_error("#3 Invalid path position = " + pos.getString());
 	}
 
+	if(clearPathFinder == true && this->unitPath != NULL) {
+		this->unitPath->clear();
+	}
 	this->lastPos= this->pos;
 	this->pos= pos;
 	map->clampPos(this->pos);

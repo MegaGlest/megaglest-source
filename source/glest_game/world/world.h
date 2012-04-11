@@ -240,6 +240,8 @@ public:
 	int getResourceAmount(const string &resourceName, int factionIndex);
 	Vec2i getStartLocation(int factionIndex);
 	Vec2i getUnitPosition(int unitId);
+	void setUnitPosition(int unitId, Vec2i pos);
+
 	int getUnitFactionIndex(int unitId);
 	int getUnitCount(int factionIndex);
 	int getUnitCountOfType(int factionIndex, const string &typeName);

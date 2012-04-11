@@ -298,6 +298,8 @@ private:
 	const string &getLastCreatedUnitName();
 	int getLastCreatedUnitId();
 
+	void setUnitPosition(int unitId, Vec2i pos);
+
 
 	const string &getLastDeadUnitName();
 	int getLastDeadUnitId();
@@ -397,6 +399,8 @@ private:
 	static int getResourceAmount(LuaHandle* luaHandle);
 	static int getLastCreatedUnitName(LuaHandle* luaHandle);
 	static int getLastCreatedUnitId(LuaHandle* luaHandle);
+
+	static int setUnitPosition(LuaHandle* luaHandle);
 
 	static int getLastDeadUnitName(LuaHandle* luaHandle);
 	static int getLastDeadUnitId(LuaHandle* luaHandle);
