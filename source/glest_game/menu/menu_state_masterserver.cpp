@@ -33,8 +33,8 @@ namespace Glest{ namespace Game{
 
 DisplayMessageFunction MenuStateMasterserver::pCB_DisplayMessage = NULL;
 
-static const char *IRC_SERVER   = "irc.freenode.net";
-static const char *IRC_CHANNEL  = "#megaglest-lobby";
+static string IRC_SERVER   = "irc.freenode.net";
+static string IRC_CHANNEL  = "#megaglest-lobby";
 
 // =====================================================
 // 	class MenuStateMasterserver
@@ -272,11 +272,9 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	updateFromMasterserverThread->start();
 
     if(Config::getInstance().getString("IRCServer","") != "") {
-    	ircArgs.push_back(Config::getInstance().getString("IRCServer"));
+    	IRC_SERVER = Config::getInstance().getString("IRCServer");
     }
-    else {
-    	ircArgs.push_back(IRC_SERVER);
-    }
+   	ircArgs.push_back(IRC_SERVER);
 
     if(Config::getInstance().getString("IRCNick","") != "") {
     	ircArgs.push_back(Config::getInstance().getString("IRCNick"));
@@ -286,11 +284,9 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     }
 
     if(Config::getInstance().getString("IRCChannel","") != "") {
-    	ircArgs.push_back(Config::getInstance().getString("IRCChannel"));
+    	IRC_CHANNEL = Config::getInstance().getString("IRCChannel");
     }
-    else {
-    	ircArgs.push_back(IRC_CHANNEL);
-    }
+   	ircArgs.push_back(IRC_CHANNEL);
 
     if(Config::getInstance().getString("IRCUsername","") != "") {
     	ircArgs.push_back(Config::getInstance().getString("IRCUsername"));
