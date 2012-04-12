@@ -168,7 +168,7 @@ public:
 	const GameCamera *getGameCamera() const	{return &gameCamera;}
 	GameCamera *getGameCameraPtr()			{return &gameCamera;}
 	const Commander *getCommander() const	{return &commander;}
-	Gui *getGui()							{return &gui;}
+	Gui *getGuiPtr()							{return &gui;}
 	const Gui *getGui() const				{return &gui;}
 	Commander *getCommander()				{return &commander;}
 	Console *getConsole()					{return &console;}
@@ -177,6 +177,8 @@ public:
 	const World *getWorld() const			{return &world;}
 
 	Program *getProgram()					{return program;}
+
+	void removeUnitFromSelection(const Unit *unit);
 
 	bool getPaused();
 	void setPaused(bool value, bool forceAllowPauseStateChange=false);

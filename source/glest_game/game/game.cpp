@@ -1675,6 +1675,17 @@ void Game::renderWorker() {
 
 // ==================== tick ====================
 
+void Game::removeUnitFromSelection(const Unit *unit) {
+	Selection *selection= getGuiPtr()->getSelectionPtr();
+	for(int i=0; i < selection->getCount(); ++i) {
+		const Unit *currentUnit = selection->getUnit(i);
+		if(currentUnit == unit) {
+			selection->unSelect(i);
+			break;
+		}
+	}
+}
+
 void Game::tick() {
 	ProgramState::tick();
 
