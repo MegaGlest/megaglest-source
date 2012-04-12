@@ -20,8 +20,16 @@ using namespace Shared::Util;
 
 namespace Shared { namespace PlatformCommon {
 
-BaseThread::BaseThread() : Thread() {
+Mutex BaseThread::mutexMasterThreadList;
+std::map<void *,int> BaseThread::masterThreadList;
+
+BaseThread::BaseThread() : Thread(), ptr(NULL) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	ptr = this;
+	MutexSafeWrapper safeMutexMasterList(&mutexMasterThreadList);
+	masterThreadList[ptr]++;
+	safeMutexMasterList.ReleaseLock();
 
 	uniqueID = "base_thread";
 
@@ -39,6 +47,28 @@ BaseThread::~BaseThread() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 	bool ret = shutdownAndWait();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
+
+	MutexSafeWrapper safeMutexMasterList(&mutexMasterThreadList);
+	if(masterThreadList.find(this) == masterThreadList.end()) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"invalid thread delete for ptr: %p",this);
+		throw runtime_error(szBuf);
+	}
+	masterThreadList[this]--;
+	if(masterThreadList[this] <= 0) {
+		masterThreadList.erase(this);
+	}
+	safeMutexMasterList.ReleaseLock();
+}
+
+bool BaseThread::isThreadDeleted(void *ptr) {
+	bool result = false;
+	MutexSafeWrapper safeMutexMasterList(&mutexMasterThreadList);
+	if(masterThreadList.find(ptr) != masterThreadList.end()) {
+		result = (masterThreadList[ptr] <= 0);
+	}
+	safeMutexMasterList.ReleaseLock();
+	return result;
 }
 
 Mutex * BaseThread::getMutexThreadOwnerValid() {
@@ -180,7 +210,9 @@ void BaseThread::setDeleteSelfOnExecutionDone(bool value) {
 
 void BaseThread::deleteSelfIfRequired() {
     if(getDeleteSelfOnExecutionDone() == true) {
-        delete this;
+    	if(isThreadDeleted(this->ptr) == false) {
+    		delete this;
+    	}
         return;
     }
 }

@@ -15,6 +15,7 @@
 #include "leak_dumper.h"
 #include "thread.h"
 #include <string>
+#include <map>
 
 using namespace Shared::Platform;
 using namespace std;
@@ -40,6 +41,10 @@ protected:
 
 	Mutex mutexExecutingTask;
 	bool executingTask;
+
+	void *ptr;
+	static Mutex mutexMasterThreadList;
+	static std::map<void *,int> masterThreadList;
 
 	bool quit;
 	bool running;
@@ -90,6 +95,8 @@ public:
     T * getGenericData() { return genericData; }
     template <typename T>
     void setGenericData(T *value) { genericData = value; }
+
+    static bool isThreadDeleted(void *ptr);
 };
 
 class RunningStatusSafeWrapper {
