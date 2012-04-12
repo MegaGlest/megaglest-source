@@ -164,6 +164,7 @@ public:
 	const Mouse3d *getMouse3d() const				{return &mouse3d;}
 	const Display *getDisplay()	const				{return &display;}
 	const Selection *getSelection()	const			{return &selection;}
+	Selection *getSelectionPtr()	{return &selection;}
 	const Object *getSelectedResourceObject()	const;
 	Object *getHighlightedResourceObject()	const;
 	Unit *getHighlightedUnit() const;

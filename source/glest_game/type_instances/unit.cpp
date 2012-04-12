@@ -552,6 +552,7 @@ Unit::~Unit() {
 
 	Renderer &renderer= Renderer::getInstance();
 	renderer.removeUnitFromQuadCache(this);
+	game->removeUnitFromSelection(this);
 
 	//MutexSafeWrapper safeMutex1(&mutexDeletedUnits,string(__FILE__) + "_" + intToStr(__LINE__));
 	//deletedUnits[this]=true;
@@ -2716,7 +2717,11 @@ bool Unit::morph(const MorphCommandType *mct){
 // ==================== PRIVATE ====================
 
 float Unit::computeHeight(const Vec2i &pos) const{
+	//printf("CRASHING FOR UNIT: %d alive = %d\n",this->getId(),this->isAlive());
+	//printf("[%s]\n",this->getType()->getName().c_str());
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
+		//printf("CRASHING FOR UNIT: %d [%s] alive = %d\n",this->getId(),this->getType()->getName().c_str(),this->isAlive());
+		//abort();
 		throw runtime_error("#7 Invalid path position = " + pos.getString());
 	}
 

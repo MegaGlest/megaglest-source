@@ -60,7 +60,7 @@ UnitUpdater::UnitUpdater() {
 void UnitUpdater::init(Game *game){
 
     this->game= game;
-	this->gui= game->getGui();
+	this->gui= game->getGuiPtr();
 	this->gameCamera= game->getGameCamera();
 	this->world= game->getWorld();
 	this->map= world->getMap();
