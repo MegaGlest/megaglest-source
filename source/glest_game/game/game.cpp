@@ -1676,13 +1676,28 @@ void Game::renderWorker() {
 // ==================== tick ====================
 
 void Game::removeUnitFromSelection(const Unit *unit) {
-	Selection *selection= getGuiPtr()->getSelectionPtr();
-	for(int i=0; i < selection->getCount(); ++i) {
-		const Unit *currentUnit = selection->getUnit(i);
-		if(currentUnit == unit) {
-			selection->unSelect(i);
-			break;
+	try {
+		Selection *selection= gui.getSelectionPtr();
+		for(int i=0; i < selection->getCount(); ++i) {
+			const Unit *currentUnit = selection->getUnit(i);
+			if(currentUnit == unit) {
+				selection->unSelect(i);
+				break;
+			}
 		}
+	}
+	catch(const exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		if(errorMessageBox.getEnabled() == false) {
+            ErrorDisplayMessage(ex.what(),true);
+		}
+
+		//abort();
 	}
 }
 

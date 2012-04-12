@@ -552,7 +552,9 @@ Unit::~Unit() {
 
 	Renderer &renderer= Renderer::getInstance();
 	renderer.removeUnitFromQuadCache(this);
-	game->removeUnitFromSelection(this);
+	if(game != NULL) {
+		game->removeUnitFromSelection(this);
+	}
 
 	//MutexSafeWrapper safeMutex1(&mutexDeletedUnits,string(__FILE__) + "_" + intToStr(__LINE__));
 	//deletedUnits[this]=true;

@@ -358,6 +358,7 @@ bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 void SimpleTaskThread::execute() {
+	void *ptr_cpy = this->ptr;
 	bool mustDeleteSelf = false;
 	{
     {
@@ -424,7 +425,9 @@ void SimpleTaskThread::execute() {
 	}
 
 	if(mustDeleteSelf == true) {
-		delete this;
+		if(isThreadDeleted(ptr_cpy) == false) {
+			delete this;
+		}
 	}
 }
 
@@ -486,6 +489,7 @@ bool LogFileThread::checkSaveCurrentLogBufferToDisk() {
 }
 
 void LogFileThread::execute() {
+	void *ptr_cpy = this->ptr;
     bool mustDeleteSelf = false;
     {
         RunningStatusSafeWrapper runningStatus(this);
@@ -531,7 +535,9 @@ void LogFileThread::execute() {
     }
     if(mustDeleteSelf == true) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is deleting self\n",__FILE__,__FUNCTION__,__LINE__);
-        delete this;
+    	if(isThreadDeleted(ptr_cpy) == false) {
+    		delete this;
+    	}
         return;
     }
 }
