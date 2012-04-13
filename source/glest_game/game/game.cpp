@@ -107,6 +107,8 @@ Game::Game() : ProgramState(NULL) {
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
 	pauseGamePopupMenuIndex = -1;
+	saveGamePopupMenuIndex = -1;
+	loadGamePopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 	masterserverMode = false;
 	currentUIState=NULL;
@@ -152,6 +154,8 @@ void Game::resetMembers() {
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
 	pauseGamePopupMenuIndex = -1;
+	saveGamePopupMenuIndex = -1;
+	loadGamePopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 	currentUIState = NULL;
 
@@ -1119,11 +1123,18 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 			joinTeamPopupMenuIndex = menuItems.size()-1;
 		}
 
-		if(allowAdminMenuItems == true) {
+		if(allowAdminMenuItems == true){
 			menuItems.push_back(lang.get("PauseResumeGame"));
-			pauseGamePopupMenuIndex = menuItems.size()-1;
-		}
+			pauseGamePopupMenuIndex= menuItems.size() - 1;
 
+			if(gameSettings.isNetworkGame() == false){
+				menuItems.push_back(lang.get("SaveGame"));
+				saveGamePopupMenuIndex= menuItems.size() - 1;
+
+//				menuItems.push_back(lang.get("LoadGame"));
+//				loadGamePopupMenuIndex= menuItems.size() - 1;
+			}
+		}
 		menuItems.push_back(lang.get("Keyboardsetup"));
 		keyboardSetupPopupMenuIndex = menuItems.size()-1;
 		menuItems.push_back(lang.get("Cancel"));
@@ -1883,6 +1894,9 @@ void Game::mouseDownLeft(int x, int y) {
 					}
 				}
 			}
+			else if(result.first == saveGamePopupMenuIndex){
+				saveGame();
+			}
 		}
 		else if(popupMenuSwitchTeams.mouseClick(x, y)) {
 			//popupMenuSwitchTeams
@@ -2590,14 +2604,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			}
 
 			if(isKeyPressed(configKeys.getSDLKey("SaveGame"),key) == true) {
-				string file = this->saveGame(GameConstants::saveGameFilePattern);
-				char szBuf[8096]="";
-				sprintf(szBuf,lang.get("GameSaved","",true).c_str(),file.c_str());
-				console.addLine(szBuf);
-
-				Config &config= Config::getInstance();
-				config.setString("LastSavedGame",file);
-				config.save();
+				saveGame();
 			}
 		}
 
@@ -3582,6 +3589,18 @@ void Game::addNetworkCommandToReplayList(NetworkCommand* networkCommand, int wor
 	if(config.getBool("SaveCommandsForReplay","false") == true) {
 		replayCommandList.push_back(make_pair(worldFrameCount,*networkCommand));
 	}
+}
+
+void Game::saveGame(){
+	string file = this->saveGame(GameConstants::saveGameFilePattern);
+	char szBuf[8096]="";
+	Lang &lang= Lang::getInstance();
+	sprintf(szBuf,lang.get("GameSaved","",true).c_str(),file.c_str());
+	console.addLine(szBuf);
+
+	Config &config= Config::getInstance();
+	config.setString("LastSavedGame",file);
+	config.save();
 }
 
 string Game::saveGame(string name) {
