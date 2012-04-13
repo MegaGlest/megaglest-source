@@ -202,6 +202,8 @@ public:
 	void setCanAcceptConnections(bool value) { canAcceptConnections = value; }
 	bool getCanAcceptConnections() const { return canAcceptConnections; }
 
+	virtual void saveGame(XmlNode *rootNode) {};
+
 protected:
 
 	Mutex * getServerSynchAccessor();

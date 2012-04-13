@@ -2296,4 +2296,28 @@ void ServerInterface::notifyBadClientConnectAttempt(string ipAddress) {
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void ServerInterface::saveGame(XmlNode *rootNode) {
+	std::map<string,string> mapTagReplacements;
+	XmlNode *serverInterfaceNode = rootNode->addChild("ServerInterface");
+
+	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+		if(slots[i] != NULL) {
+			MutexSafeWrapper safeMutex(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+
+			XmlNode *slotNode = serverInterfaceNode->addChild("Slot");
+
+			ConnectionSlot *slot = slots[i];
+			if(slot != NULL) {
+				slotNode->addAttribute("isconnected",intToStr(slot->isConnected()), mapTagReplacements);
+				slotNode->addAttribute("sessionkey",intToStr(slot->getSessionKey()), mapTagReplacements);
+				slotNode->addAttribute("ipaddress",slot->getSocket(false)->getIpAddress(), mapTagReplacements);
+				slotNode->addAttribute("name",slot->getName(), mapTagReplacements);
+			}
+			else {
+				slotNode->addAttribute("isconnected",intToStr(false), mapTagReplacements);
+			}
+		}
+	}
+}
+
 }}//end namespace

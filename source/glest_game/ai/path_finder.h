@@ -42,6 +42,33 @@ typedef unsigned char directionset;
 
 class PathFinder {
 public:
+	class BadUnitNodeList {
+	public:
+		BadUnitNodeList() {
+			unitSize = -1;
+			//teamIndex = -1;
+			field = fLand;
+		}
+		int unitSize;
+		//int teamIndex;
+		Field field;
+		std::map<Vec2i, std::map<Vec2i,bool> > badPosList;
+
+		inline bool isPosBad(const Vec2i &pos1,const Vec2i &pos2) {
+			bool result = false;
+
+			std::map<Vec2i, std::map<Vec2i,bool> >::iterator iterFind = badPosList.find(pos1);
+			if(iterFind != badPosList.end()) {
+				std::map<Vec2i,bool>::iterator iterFind2 = iterFind->second.find(pos2);
+				if(iterFind2 != iterFind->second.end()) {
+					result = true;
+				}
+			}
+
+			return result;
+		}
+	};
+
 	class Node {
 	public:
 		Node() {
@@ -76,6 +103,7 @@ public:
 			precachedPath.clear();
 			//mapFromToNodeList.clear();
 			//lastFromToNodeListFrame = -100;
+			badCellList.clear();
 		}
 		std::map<Vec2i, bool> openPosList;
 		std::map<float, Nodes> openNodesList;
@@ -90,6 +118,8 @@ public:
 
 		//int lastFromToNodeListFrame;
 		//std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > > mapFromToNodeList;
+
+		std::map<int,std::map<Field,BadUnitNodeList> > badCellList;
 	};
 	typedef vector<FactionState> FactionStateList;
 
@@ -156,6 +186,8 @@ private:
 	direction nextDirectionInSet(directionset *dirs) const;
 	Vec2i jump(Vec2i dest, direction dir, Vec2i start,std::vector<Vec2i> &path,int pathLength);
 	bool addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i sucPos, bool &nodeLimitReached,int maxNodeCount,Node **newNodeAdded,bool bypassChecks);
+
+	bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2);
 };
 
 }}//end namespace

@@ -201,6 +201,8 @@ public:
     void notifyBadClientConnectAttempt(string ipAddress);
     std::string DumpStatsToLog(bool dumpToStringOnly) const;
 
+    virtual void saveGame(XmlNode *rootNode);
+
 private:
     void broadcastMessage(const NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);
     void broadcastMessageToConnectedClients(const NetworkMessage *networkMessage, int excludeSlot = -1);

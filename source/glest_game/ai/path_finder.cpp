@@ -90,6 +90,8 @@ PathFinder::~PathFinder() {
 void PathFinder::clearUnitPrecache(Unit *unit) {
 	factions[unit->getFactionIndex()].precachedTravelState[unit->getId()] = tsImpossible;
 	factions[unit->getFactionIndex()].precachedPath[unit->getId()].clear();
+
+	factions[unit->getFactionIndex()].badCellList.clear();
 }
 
 void PathFinder::removeUnitPrecache(Unit *unit) {
@@ -427,7 +429,7 @@ bool PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i,
 	//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
 	//bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, node->pos, sucPos);
 	if(openPos(sucPos, factions[unit->getFactionIndex()]) == false &&
-			map->aproxCanMoveSoon(unit, node->pos, sucPos) == true) {
+			canUnitMoveSoon(unit, node->pos, sucPos) == true) {
 		//if node is not open and canMove then generate another node
 		Node *sucNode= newNode(factions[unit->getFactionIndex()],maxNodeCount);
 		if(sucNode != NULL) {
@@ -459,7 +461,7 @@ bool PathFinder::addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i
 	*newNodeAdded=NULL;
 	//Vec2i sucPos= node->pos + Vec2i(i, j);
 	if(bypassChecks == true ||
-		(map->aproxCanMoveSoon(unit, node->pos, sucPos) == true && openPos(sucPos, factions[unit->getFactionIndex()]) == false)) {
+		(canUnitMoveSoon(unit, node->pos, sucPos) == true && openPos(sucPos, factions[unit->getFactionIndex()]) == false)) {
 		//if node is not open and canMove then generate another node
 		Node *sucNode= newNode(factions[unit->getFactionIndex()],maxNodeCount);
 		if(sucNode != NULL) {
@@ -710,7 +712,7 @@ void PathFinder::astarJPS(std::map<Vec2i,Vec2i> cameFrom, Node *& node,
 					for(unsigned int x = 1; x < path.size(); ++x) {
 						Vec2i futureNode = path[x];
 
-						bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, newNode->pos, futureNode);
+						bool canUnitMoveToCell = canUnitMoveSoon(unit, newNode->pos, futureNode);
 						if(canUnitMoveToCell != true || openPos(futureNode, factions[unit->getFactionIndex()]) == true) {
 							canAddEntirePath = false;
 							canAddNode[make_pair(node->pos,futureNode)]=false;
@@ -835,7 +837,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						(factions[unitFactionIndex].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
 						 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 						//!!! Test MV
-						if(map->aproxCanMoveSoon(unit, lastPos, nodePos) == false) {
+						if(canUnitMoveSoon(unit, lastPos, nodePos) == false) {
 							canMoveToCells = false;
 							break;
 						}
@@ -1073,7 +1075,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				Vec2i pos = unitPos + Vec2i(i, j);
 				if(pos != unitPos) {
 					//!!! Test MV
-					bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, unitPos, pos);
+					bool canUnitMoveToCell = canUnitMoveSoon(unit, unitPos, pos);
 					if(canUnitMoveToCell == false) {
 						failureCount++;
 					}
@@ -1100,7 +1102,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					Vec2i pos = finalPos + Vec2i(i, j);
 					if(pos != finalPos) {
 						//!!! Test MV
-						bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, pos, finalPos);
+						bool canUnitMoveToCell = canUnitMoveSoon(unit, pos, finalPos);
 						if(canUnitMoveToCell == false) {
 							failureCount++;
 						}
@@ -1529,6 +1531,32 @@ int PathFinder::findNodeIndex(Node *node, std::vector<Node> &nodeList) {
 	return index;
 }
 
+bool PathFinder::canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
+	bool result = true;
+
+//	std::map<int,std::map<Field,BadUnitNodeList> > &badCellList = factions[unit->getFactionIndex()].badCellList;
+//	if(badCellList.find(unit->getType()->getSize()) != badCellList.end()) {
+//		std::map<Field,BadUnitNodeList> &badFieldList = badCellList[unit->getType()->getSize()];
+//		if(badFieldList.find(unit->getCurrField()) != badFieldList.end()) {
+//			BadUnitNodeList &badList = badFieldList[unit->getCurrField()];
+//			if(badList.isPosBad(pos1,pos2) == true) {
+//				result = false;
+//			}
+//		}
+//	}
+//	if(result == true) {
+//		//bool canUnitMoveToCell = map->canMove(unit, unitPos, pos);
+//		//bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
+//		result = map->aproxCanMoveSoon(unit, pos1, pos2);
+//		if(result == false) {
+//			badCellList[unit->getType()->getSize()][unit->getCurrField()].badPosList[pos1][pos2]=false;
+//		}
+//	}
+
+	result = map->aproxCanMoveSoon(unit, pos1, pos2);
+	return result;
+}
+
 void PathFinder::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *pathfinderNode = rootNode->addChild("PathFinder");
@@ -1697,6 +1725,5 @@ void PathFinder::loadGame(const XmlNode *rootNode) {
 	}
 	//	const Map *map;
 }
-
 
 }} //end namespace
