@@ -129,6 +129,8 @@ public:
 
     virtual void simpleTask(BaseThread *callingThread);
 
+    virtual void saveGame(XmlNode *rootNode) {};
+
 protected:
 
 	Mutex * getServerSynchAccessor() { return NULL; }

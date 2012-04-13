@@ -161,6 +161,10 @@ public:
 
 	bool getReceivedDataSynchCheck() const {return receivedDataSynchCheck;}
 	void setReceivedDataSynchCheck(bool value) { receivedDataSynchCheck = value; }
+
+	virtual void saveGame(XmlNode *rootNode) = 0;
+	//static void loadGame(string name);
+
 };
 
 // =====================================================
