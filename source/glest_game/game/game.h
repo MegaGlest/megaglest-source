@@ -138,6 +138,8 @@ private:
 	int exitGamePopupMenuIndex;
 	int joinTeamPopupMenuIndex;
 	int pauseGamePopupMenuIndex;
+	int saveGamePopupMenuIndex;
+	int loadGamePopupMenuIndex;
 	int keyboardSetupPopupMenuIndex;
 	GLuint statelist3dMenu;
 	ProgramState *currentUIState;
@@ -182,6 +184,7 @@ public:
 
 	bool getPaused();
 	void setPaused(bool value, bool forceAllowPauseStateChange=false);
+	void saveGame();
 	const int getTotalRenderFps() const					{return totalRenderFps;}
 
 	void toggleTeamColorMarker();
