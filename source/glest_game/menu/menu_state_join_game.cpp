@@ -635,6 +635,9 @@ void MenuStateJoinGame::connectToServer() {
 	if( clientInterface->isConnected() == true &&
 		clientInterface->getIntroDone() == true) {
 
+		servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
+		servers.save(serversSavedFile);
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Using FTP port #: %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getServerFTPPort());
 		abortAutoFind = true;
 		clientInterface->stopServerDiscovery();
