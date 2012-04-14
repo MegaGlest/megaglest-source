@@ -376,7 +376,7 @@ void Ai::update() {
 	for(int ruleIdx = 0; ruleIdx < aiRules.size(); ++ruleIdx) {
 		AiRule *rule = aiRules[ruleIdx];
 		if(rule == NULL) {
-			throw runtime_error("rule == NULL");
+			throw megaglest_runtime_error("rule == NULL");
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [ruleIdx = %d]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ruleIdx);

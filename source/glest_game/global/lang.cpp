@@ -192,7 +192,7 @@ void Lang::loadStrings(string uselanguage, Properties &properties, bool fileMust
 	}
 	else if(fileExists(languageFile) == false && fallbackToDefault == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,languageFile.c_str());
-		//throw runtime_error("File NOT FOUND, can't open file: [" + languageFile + "]");
+		//throw megaglest_runtime_error("File NOT FOUND, can't open file: [" + languageFile + "]");
 		printf("Language file NOT FOUND, can't open file: [%s] switching to default language: %s\n",languageFile.c_str(),DEFAULT_LANGUAGE);
 
 		languageFile = getGameCustomCoreDataPath(data_path, "data/lang/" + string(DEFAULT_LANGUAGE) + ".lng");
@@ -430,7 +430,7 @@ map<string,string> Lang::getDiscoveredLanguageList(bool searchKeyIsLangName) {
 	vector<string> langResults2;
 	findAll(data_path + "data/lang/*.lng", langResults2, true);
 	if(langResults2.empty() && langResults.empty()) {
-        throw runtime_error("There are no lang files");
+        throw megaglest_runtime_error("There are no lang files");
 	}
 	for(unsigned int i = 0; i < langResults2.size(); ++i) {
 		string testLanguage = langResults2[i];

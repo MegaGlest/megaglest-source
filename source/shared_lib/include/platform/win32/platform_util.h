@@ -28,13 +28,18 @@ LPWSTR Ansi2WideString(LPCSTR lpaszString);
 std::string utf8_encode(const std::wstring wstr);
 std::wstring utf8_decode(const std::string str);
 
+class megaglest_runtime_error : public runtime_error {
+public:
+    megaglest_runtime_error(const string& __arg);
+};
+
 // =====================================================
 //	class PlatformExceptionHandler
 // =====================================================
 
 LONG WINAPI UnhandledExceptionFilter2(struct _EXCEPTION_POINTERS *ExceptionInfo);
 
-class PlatformExceptionHandler{
+class PlatformExceptionHandler {
 private:
 	static PlatformExceptionHandler *thisPointer;
 
@@ -43,6 +48,9 @@ private:
 	string dumpFileName;
 
 public:
+	static string application_binary;
+	static string getStackTrace();
+
 	void install(string dumpFileName);
 	virtual void handle()=0;
 	static string codeToStr(DWORD code);

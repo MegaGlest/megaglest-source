@@ -12,7 +12,6 @@
 #include "scenario.h"
 
 #include <stdexcept>
-
 #include "logger.h"
 #include "xml_parser.h"
 #include "util.h"
@@ -23,7 +22,7 @@
 #include "lang.h"
 #include "socket.h"
 #include "config.h"
-
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
@@ -76,7 +75,7 @@ Checksum Scenario::load(const string &path) {
 	    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return scenarioChecksum;

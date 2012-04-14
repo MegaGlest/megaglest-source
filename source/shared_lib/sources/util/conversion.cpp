@@ -18,6 +18,7 @@
 #include <sstream>
 #include <iostream>
 #include <locale>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -33,7 +34,7 @@ bool strToBool(const string &s) {
 	if(s=="1" || s=="true") {
 		return true;
 	}
-	throw runtime_error("Error converting string to bool, expected 0 or 1, found: [" + s + "]");
+	throw megaglest_runtime_error("Error converting string to bool, expected 0 or 1, found: [" + s + "]");
 }
 
 int strToInt(const string &s){
@@ -42,7 +43,7 @@ int strToInt(const string &s){
 	int intValue= strtol(s.c_str(), &endChar, 10);
 
 	if(*endChar!='\0'){
-		throw runtime_error("Error converting from string to int, found: [" + s + "]");
+		throw megaglest_runtime_error("Error converting from string to int, found: [" + s + "]");
 	}
 
 	return intValue;
@@ -56,7 +57,7 @@ float strToFloat(const string &s){
 	float floatValue= static_cast<float>(strtod(s.c_str(), &endChar));
 
 	if(*endChar!='\0'){
-		throw runtime_error("Error converting from string to float, found: [" + s + "]");
+		throw megaglest_runtime_error("Error converting from string to float, found: [" + s + "]");
 	}
 
 	return floatValue;

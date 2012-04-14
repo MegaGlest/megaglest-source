@@ -15,6 +15,7 @@
 #include "platform_common.h"
 #include <algorithm>
 #include "conversion.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -316,7 +317,7 @@ SimpleTaskThread::~SimpleTaskThread() {
         SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 
-        //throw runtime_error(ex.what());
+        //throw megaglest_runtime_error(ex.what());
         abort();
     }
 }
@@ -417,7 +418,7 @@ void SimpleTaskThread::execute() {
             SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 
-            throw runtime_error(ex.what());
+            throw megaglest_runtime_error(ex.what());
         }
     }
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
@@ -590,7 +591,7 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
 				if(logList.size() <= logCount) {
 					char szBuf[1024]="";
 					sprintf(szBuf,"logList.size() <= logCount [%lld][%lld]",(long long int)logList.size(),(long long int)logCount);
-					throw runtime_error(szBuf);
+					throw megaglest_runtime_error(szBuf);
 				}
 				logList.erase(logList.begin(),logList.begin() + logCount);
             }

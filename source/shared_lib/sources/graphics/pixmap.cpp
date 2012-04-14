@@ -114,7 +114,7 @@ void PixmapIoTga::openRead(const string &path) {
 	file= fopen(path.c_str(),"rb");
 #endif
 	if (file == NULL) {
-		throw runtime_error("Can't open TGA file: "+ path);
+		throw megaglest_runtime_error("Can't open TGA file: "+ path);
 	}
 
 	//read header
@@ -123,16 +123,16 @@ void PixmapIoTga::openRead(const string &path) {
 
 	//check that we can load this tga file
 	if(fileHeader.idLength != 0) {
-		throw runtime_error(path + ": id field is not 0");
+		throw megaglest_runtime_error(path + ": id field is not 0");
 	}
 
 	if(fileHeader.dataTypeCode != tgaUncompressedRgb && fileHeader.dataTypeCode != tgaUncompressedBw) {
-		throw runtime_error(path + ": only uncompressed BW and RGB targa images are supported");
+		throw megaglest_runtime_error(path + ": only uncompressed BW and RGB targa images are supported");
 	}
 
 	//check bits per pixel
 	if(fileHeader.bitsPerPixel != 8 && fileHeader.bitsPerPixel != 24 && fileHeader.bitsPerPixel !=32) {
-		throw runtime_error(path + ": only 8, 24 and 32 bit targa images are supported");
+		throw megaglest_runtime_error(path + ": only 8, 24 and 32 bit targa images are supported");
 	}
 
 	h= fileHeader.height;
@@ -198,7 +198,7 @@ void PixmapIoTga::openWrite(const string &path, int w, int h, int components) {
     file= fopen(path.c_str(),"wb");
 #endif
 	if (file == NULL) {
-		throw runtime_error("Can't open TGA file: "+ path);
+		throw megaglest_runtime_error("Can't open TGA file: "+ path);
 	}
 
 	TargaFileHeader fileHeader;
@@ -250,21 +250,21 @@ void PixmapIoBmp::openRead(const string &path){
     file= fopen(path.c_str(),"rb");
 #endif
 	if (file==NULL){
-		throw runtime_error("Can't open BMP file: "+ path);
+		throw megaglest_runtime_error("Can't open BMP file: "+ path);
 	}
 
 	//read file header
     BitmapFileHeader fileHeader;
     size_t readBytes = fread(&fileHeader, sizeof(BitmapFileHeader), 1, file);
 	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
-		throw runtime_error(path +" is not a bitmap");
+		throw megaglest_runtime_error(path +" is not a bitmap");
 	}
 
 	//read info header
 	BitmapInfoHeader infoHeader;
 	readBytes = fread(&infoHeader, sizeof(BitmapInfoHeader), 1, file);
 	if(infoHeader.bitCount!=24){
-        throw runtime_error(path+" is not a 24 bit bitmap");
+        throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
 	}
 
     h= infoHeader.height;
@@ -313,7 +313,7 @@ void PixmapIoBmp::openWrite(const string &path, int w, int h, int components) {
 	file= fopen(path.c_str(),"wb");
 #endif
 	if (file == NULL) {
-		throw runtime_error("Can't open BMP file for writing: "+ path);
+		throw megaglest_runtime_error("Can't open BMP file for writing: "+ path);
 	}
 
 	BitmapFileHeader fileHeader;
@@ -366,26 +366,26 @@ PixmapIoPng::~PixmapIoPng() {
 
 void PixmapIoPng::openRead(const string &path) {
 
-	throw runtime_error("PixmapIoPng::openRead not implemented!");
+	throw megaglest_runtime_error("PixmapIoPng::openRead not implemented!");
 
 /*
     file= fopen(path.c_str(),"rb");
 	if (file==NULL){
-		throw runtime_error("Can't open BMP file: "+ path);
+		throw megaglest_runtime_error("Can't open BMP file: "+ path);
 	}
 
 	//read file header
     BitmapFileHeader fileHeader;
     size_t readBytes = fread(&fileHeader, sizeof(BitmapFileHeader), 1, file);
 	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
-		throw runtime_error(path +" is not a bitmap");
+		throw megaglest_runtime_error(path +" is not a bitmap");
 	}
 
 	//read info header
 	BitmapInfoHeader infoHeader;
 	readBytes = fread(&infoHeader, sizeof(BitmapInfoHeader), 1, file);
 	if(infoHeader.bitCount!=24){
-        throw runtime_error(path+" is not a 24 bit bitmap");
+        throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
 	}
 
     h= infoHeader.height;
@@ -395,13 +395,13 @@ void PixmapIoPng::openRead(const string &path) {
 }
 
 void PixmapIoPng::read(uint8 *pixels) {
-	throw runtime_error("PixmapIoPng::read not implemented!");
+	throw megaglest_runtime_error("PixmapIoPng::read not implemented!");
 	//read(pixels, 3);
 }
 
 void PixmapIoPng::read(uint8 *pixels, int components) {
 
-	throw runtime_error("PixmapIoPng::read #2 not implemented!");
+	throw megaglest_runtime_error("PixmapIoPng::read #2 not implemented!");
 
 /*
     for(int i=0; i<h*w*components; i+=components) {
@@ -442,7 +442,7 @@ void PixmapIoPng::openWrite(const string &path, int w, int h, int components) {
 	file= fopen(path.c_str(),"wb");
 #endif
 	if (file == NULL) {
-		throw runtime_error("Can't open PNG file for writing: "+ path);
+		throw megaglest_runtime_error("Can't open PNG file for writing: "+ path);
 	}
 }
 
@@ -478,7 +478,7 @@ void PixmapIoPng::write(uint8 *pixels) {
    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
    if(!png_ptr) {
 	 fclose(file);
-	 throw runtime_error("OpenGlDevice::saveImageAsPNG() - out of memory creating write structure");
+	 throw megaglest_runtime_error("OpenGlDevice::saveImageAsPNG() - out of memory creating write structure");
    }
 
    png_infop info_ptr = png_create_info_struct(png_ptr);
@@ -486,7 +486,7 @@ void PixmapIoPng::write(uint8 *pixels) {
 	 png_destroy_write_struct(&png_ptr,
 							  (png_infopp)NULL);
 	 fclose(file);
-	 throw runtime_error("OpenGlDevice::saveImageAsPNG() - out of memery creating info structure");
+	 throw megaglest_runtime_error("OpenGlDevice::saveImageAsPNG() - out of memery creating info structure");
    }
 
    // setjmp() must be called in every function that calls a PNG-writing
@@ -497,7 +497,7 @@ void PixmapIoPng::write(uint8 *pixels) {
    if(setjmp(png_jmpbuf(png_ptr))) {
 	 png_destroy_write_struct(&png_ptr, &info_ptr);
 	 fclose(file);
-	 throw runtime_error("OpenGlDevice::saveImageAsPNG() - setjmp problem");
+	 throw megaglest_runtime_error("OpenGlDevice::saveImageAsPNG() - setjmp problem");
    }
 
    // make sure outfile is (re)opened in BINARY mode
@@ -559,7 +559,7 @@ void PixmapIoPng::write(uint8 *pixels) {
    if (row_pointers == 0) {
 	 png_destroy_write_struct(&png_ptr, &info_ptr);
 	 fclose(file);
-	 throw runtime_error("OpenGlDevice::failed to allocate memory for row pointers");
+	 throw megaglest_runtime_error("OpenGlDevice::failed to allocate memory for row pointers");
    }
 
    unsigned int row_stride = this->w * numChannels;
@@ -611,16 +611,16 @@ PixmapIoJpg::~PixmapIoJpg() {
 
 void PixmapIoJpg::openRead(const string &path) {
 
-	throw runtime_error("PixmapIoJpg::openRead not implemented!");
+	throw megaglest_runtime_error("PixmapIoJpg::openRead not implemented!");
 }
 
 void PixmapIoJpg::read(uint8 *pixels) {
-	throw runtime_error("PixmapIoJpg::read not implemented!");
+	throw megaglest_runtime_error("PixmapIoJpg::read not implemented!");
 }
 
 void PixmapIoJpg::read(uint8 *pixels, int components) {
 
-	throw runtime_error("PixmapIoJpg::read #2 not implemented!");
+	throw megaglest_runtime_error("PixmapIoJpg::read #2 not implemented!");
 }
 
 void PixmapIoJpg::openWrite(const string &path, int w, int h, int components) {
@@ -635,7 +635,7 @@ void PixmapIoJpg::openWrite(const string &path, int w, int h, int components) {
 	file= fopen(path.c_str(),"wb");
 #endif
 	if (file == NULL) {
-		throw runtime_error("Can't open JPG file for writing: "+ path);
+		throw megaglest_runtime_error("Can't open JPG file for writing: "+ path);
 	}
 }
 
@@ -777,7 +777,7 @@ void Pixmap1D::load(const string &path) {
 		loadTga(path);
 	}
 	else {
-		throw runtime_error("Unknown pixmap extension: " + extension);
+		throw megaglest_runtime_error("Unknown pixmap extension: " + extension);
 	}
 	this->path = path;
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
@@ -797,7 +797,7 @@ void Pixmap1D::loadBmp(const string &path) {
 		w= plb.getH();
 	}
 	else {
-		throw runtime_error("One of the texture dimensions must be 1");
+		throw megaglest_runtime_error("One of the texture dimensions must be 1");
 	}
 
 	if(components == -1) {
@@ -825,7 +825,7 @@ void Pixmap1D::loadTga(const string &path) {
 		w= plt.getH();
 	}
 	else {
-		throw runtime_error("One of the texture dimensions must be 1");
+		throw megaglest_runtime_error("One of the texture dimensions must be 1");
 	}
 
 	int fileComponents= plt.getComponents();
@@ -893,7 +893,7 @@ void Pixmap2D::init(int w, int h, int components) {
 	if(getPixelByteCount() <= 0 || (h <= 0 || w <= 0 || components <= 0)) {
 		char szBuf[1024];
 		sprintf(szBuf,"Invalid pixmap dimensions for [%s], h = %d, w = %d, components = %d\n",path.c_str(),h,w,components);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	pixels= new uint8[(std::size_t)getPixelByteCount()];
 	CalculatePixelsCRC(pixels,0, crc);
@@ -977,7 +977,7 @@ void Pixmap2D::save(const string &path) {
 		savePng(path);
 	}
 	else {
-		throw runtime_error("Unknown pixmap extension: " + extension);
+		throw megaglest_runtime_error("Unknown pixmap extension: " + extension);
 	}
 }
 
@@ -1158,7 +1158,7 @@ void Pixmap2D::splat(const Pixmap2D *leftUp, const Pixmap2D *rightUp, const Pixm
 		!doDimensionsAgree(leftDown) ||
 		!doDimensionsAgree(rightDown))
 	{
-		throw runtime_error("Pixmap2D::splat: pixmap dimensions don't agree");
+		throw megaglest_runtime_error("Pixmap2D::splat: pixmap dimensions don't agree");
 	}
 
 	for(int i=0; i<w; ++i){
@@ -1207,7 +1207,7 @@ void Pixmap2D::lerp(float t, const Pixmap2D *pixmap1, const Pixmap2D *pixmap2){
 		!doDimensionsAgree(pixmap1) ||
 		!doDimensionsAgree(pixmap2))
 	{
-		throw runtime_error("Pixmap2D::lerp: pixmap dimensions don't agree");
+		throw megaglest_runtime_error("Pixmap2D::lerp: pixmap dimensions don't agree");
 	}
 
 	for(int i=0; i<w; ++i){
@@ -1222,7 +1222,7 @@ void Pixmap2D::copy(const Pixmap2D *sourcePixmap){
 	assert(components==sourcePixmap->getComponents());
 
 	if(w!=sourcePixmap->getW() || h!=sourcePixmap->getH()){
-		throw runtime_error("Pixmap2D::copy() dimensions must agree");
+		throw megaglest_runtime_error("Pixmap2D::copy() dimensions must agree");
 	}
 	memcpy(pixels, sourcePixmap->getPixels(), w*h*sourcePixmap->getComponents());
 	this->path = sourcePixmap->path;
@@ -1233,7 +1233,7 @@ void Pixmap2D::subCopy(int x, int y, const Pixmap2D *sourcePixmap){
 	assert(components==sourcePixmap->getComponents());
 
 	if(w<sourcePixmap->getW() && h<sourcePixmap->getH()){
-		throw runtime_error("Pixmap2D::subCopy(), bad dimensions");
+		throw megaglest_runtime_error("Pixmap2D::subCopy(), bad dimensions");
 	}
 
 	uint8 *pixel= new uint8[components];
@@ -1335,7 +1335,7 @@ void Pixmap3D::loadSlice(const string &path, int slice) {
 		loadSliceTga(path, slice);
 	}
 	else {
-		throw runtime_error("Unknown pixmap extension: "+extension);
+		throw megaglest_runtime_error("Unknown pixmap extension: "+extension);
 	}
 	this->path = path;
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);

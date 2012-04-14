@@ -417,7 +417,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 //  	vector<string> invalidMapList;
 //  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
 //	if (allMaps.empty()) {
-//        throw runtime_error("No maps were found!");
+//        throw megaglest_runtime_error("No maps were found!");
 //	}
 //	results.clear();
 //	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
@@ -520,7 +520,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
 		    showMessageBox( szBuf, "Error", false);
-		    //throw runtime_error(szBuf);
+		    //throw megaglest_runtime_error(szBuf);
 		}
 	}
 	resultsScenarios.clear();
@@ -1518,7 +1518,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
     }
 
     if(results.empty() == true) {
-        //throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+        //throw megaglest_runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
 		//showGeneralError=true;
 		//generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
     }
@@ -1979,7 +1979,7 @@ void MenuStateConnectedGame::render() {
 			}
 
 			if(fontMetrics == NULL) {
-				throw runtime_error("fontMetrics == NULL");
+				throw megaglest_runtime_error("fontMetrics == NULL");
 			}
 			int curWidth = (metrics.toVirtualX(fontMetrics->getTextWidth(labelPlayers[i].getText())));
 
@@ -2170,7 +2170,7 @@ void MenuStateConnectedGame::render() {
 		char szBuf[8096]="";
 		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -2799,7 +2799,7 @@ void MenuStateConnectedGame::update() {
 			sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
-			//throw runtime_error(szBuf);
+			//throw megaglest_runtime_error(szBuf);
 			showMessageBox( szBuf, "Error", false);
 		}
 
@@ -2837,7 +2837,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			ClientInterface* clientInterface= networkManager.getClientInterface();
 			if(clientInterface->getAllowGameDataSynchCheck() == false) {
 				if(errorOnNoFactions == true) {
-					throw runtime_error("(2)There are no factions for the tech tree [" + gameSettings->getTech() + "]");
+					throw megaglest_runtime_error("(2)There are no factions for the tech tree [" + gameSettings->getTech() + "]");
 				}
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (2)There are no factions for the tech tree [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings->getTech().c_str());
 			}
@@ -3497,7 +3497,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 	vector<string> maps,tilesets,techtree;
 
 	if(gameSettings == NULL) {
-		throw runtime_error("gameSettings == NULL");
+		throw megaglest_runtime_error("gameSettings == NULL");
 	}
 
 	checkBoxScenario.setValue((gameSettings->getScenario() != ""));
@@ -3943,7 +3943,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 		}
 
 		if (allMaps.empty()) {
-			throw runtime_error("No maps were found!");
+			throw megaglest_runtime_error("No maps were found!");
 		}
 		vector<string> results;
 		copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
@@ -3965,7 +3965,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
 			formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
@@ -3995,7 +3995,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 		//abort();
 	}
 
@@ -4013,7 +4013,7 @@ int MenuStateConnectedGame::setupTechList(string scenario) {
 		findDirs(techPaths, results);
 
 		if(results.empty()) {
-			throw runtime_error("No tech-trees were found!");
+			throw megaglest_runtime_error("No tech-trees were found!");
 		}
 
 		techTreeFiles= results;
@@ -4035,7 +4035,7 @@ int MenuStateConnectedGame::setupTechList(string scenario) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return initialTechSelection;
@@ -4050,7 +4050,7 @@ void MenuStateConnectedGame::setupTilesetList(string scenario) {
 		vector<string> results;
 		findDirs(config.getPathListForType(ptTilesets,scenarioDir), results);
 		if (results.empty()) {
-			throw runtime_error("No tile-sets were found!");
+			throw megaglest_runtime_error("No tile-sets were found!");
 		}
 		tilesetFiles= results;
 		std::for_each(results.begin(), results.end(), FormatString());
@@ -4063,7 +4063,7 @@ void MenuStateConnectedGame::setupTilesetList(string scenario) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 }

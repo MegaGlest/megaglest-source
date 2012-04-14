@@ -110,7 +110,7 @@ void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textCo
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -144,7 +144,7 @@ void Console::addLine(string line, bool playSound, string playerName, Vec3f text
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -170,25 +170,25 @@ bool Console::isEmpty() {
 
 string Console::getLine(int i) const {
 	if(i < 0 || i >= lines.size())
-		throw runtime_error("i >= Lines.size()");
+		throw megaglest_runtime_error("i >= Lines.size()");
 	return lines[i].text;
 }
 
 string Console::getStoredLine(int i) const {
 	if(i < 0 || i >= storedLines.size())
-		throw runtime_error("i >= storedLines.size()");
+		throw megaglest_runtime_error("i >= storedLines.size()");
 	return storedLines[i].text;
 }
 
 ConsoleLineInfo Console::getLineItem(int i) const {
 	if(i < 0 || i >= lines.size())
-		throw runtime_error("i >= Lines.size()");
+		throw megaglest_runtime_error("i >= Lines.size()");
 	return lines[i];
 }
 
 ConsoleLineInfo Console::getStoredLineItem(int i) const {
 	if(i < 0 || i >= storedLines.size())
-		throw runtime_error("i >= storedLines.size()");
+		throw megaglest_runtime_error("i >= storedLines.size()");
 	return storedLines[i];
 }
 

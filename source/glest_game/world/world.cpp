@@ -384,7 +384,7 @@ void World::updateAllFactionUnits() {
 //		for(int i = 0; i < factionCount; ++i) {
 //			Faction *faction = getFaction(i);
 //			if(faction == NULL) {
-//				throw runtime_error("faction == NULL");
+//				throw megaglest_runtime_error("faction == NULL");
 //			}
 //
 //			// Sort units by command groups
@@ -396,7 +396,7 @@ void World::updateAllFactionUnits() {
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
 		if(faction == NULL) {
-			throw runtime_error("faction == NULL");
+			throw megaglest_runtime_error("faction == NULL");
 		}
 		faction->clearUnitsPathfinding();
 	}
@@ -405,7 +405,7 @@ void World::updateAllFactionUnits() {
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
 		if(faction == NULL) {
-			throw runtime_error("faction == NULL");
+			throw megaglest_runtime_error("faction == NULL");
 		}
 		faction->signalWorkerThread(frameCount);
 	}
@@ -420,7 +420,7 @@ void World::updateAllFactionUnits() {
 		for(int i = 0; i < factionCount; ++i) {
 			Faction *faction = getFaction(i);
 			if(faction == NULL) {
-				throw runtime_error("faction == NULL");
+				throw megaglest_runtime_error("faction == NULL");
 			}
 			if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {
 				workThreadsFinished = false;
@@ -441,14 +441,14 @@ void World::updateAllFactionUnits() {
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
 		if(faction == NULL) {
-			throw runtime_error("faction == NULL");
+			throw megaglest_runtime_error("faction == NULL");
 		}
 
 		int unitCount = faction->getUnitCount();
 		for(int j = 0; j < unitCount; ++j) {
 			Unit *unit = faction->getUnit(j);
 			if(unit == NULL) {
-				throw runtime_error("unit == NULL");
+				throw megaglest_runtime_error("unit == NULL");
 			}
 
 			unitUpdater.updateUnit(unit);
@@ -475,7 +475,7 @@ void World::underTakeDeadFactionUnits() {
 		if(factionIdxToTick == -1 || factionIdxToTick == i) {
 			Faction *faction = getFaction(i);
 			if(faction == NULL) {
-				throw runtime_error("faction == NULL");
+				throw megaglest_runtime_error("faction == NULL");
 			}
 			int unitCount = faction->getUnitCount();
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] factionIdxToTick = %d, i = %d, unitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,i,unitCount);
@@ -484,7 +484,7 @@ void World::underTakeDeadFactionUnits() {
 				Unit *unit= faction->getUnit(j);
 
 				if(unit == NULL) {
-					throw runtime_error("unit == NULL");
+					throw megaglest_runtime_error("unit == NULL");
 				}
 
 				if(unit->getToBeUndertaken() == true) {
@@ -507,7 +507,7 @@ void World::updateAllFactionConsumableCosts() {
 			for(int j = 0; j < factionCount; ++j) {
 				Faction *faction = getFaction(j);
 				if(faction == NULL) {
-					throw runtime_error("faction == NULL");
+					throw megaglest_runtime_error("faction == NULL");
 				}
 
 				faction->applyCostsOnInterval(rt);
@@ -632,14 +632,14 @@ void World::tick() {
 		if(factionIdxToTick == -1 || i == factionIdxToTick) {
 			Faction *faction = getFaction(i);
 			if(faction == NULL) {
-				throw runtime_error("faction == NULL");
+				throw megaglest_runtime_error("faction == NULL");
 			}
 			int unitCount = faction->getUnitCount();
 
 			for(int j = 0; j < unitCount; ++j) {
 				Unit *unit = faction->getUnit(j);
 				if(unit == NULL) {
-					throw runtime_error("unit == NULL");
+					throw megaglest_runtime_error("unit == NULL");
 				}
 
 				unit->tick();
@@ -654,7 +654,7 @@ void World::tick() {
 		if(factionIdxToTick == -1 || k == factionIdxToTick) {
 			Faction *faction= getFaction(k);
 			if(faction == NULL) {
-				throw runtime_error("faction == NULL");
+				throw megaglest_runtime_error("faction == NULL");
 			}
 
 			//for each resource
@@ -699,7 +699,7 @@ Unit* World::findUnitById(int id) const {
 
 const UnitType* World::findUnitTypeById(const FactionType* factionType, int id) {
 	if(factionType == NULL) {
-		throw runtime_error("factionType == NULL");
+		throw megaglest_runtime_error("factionType == NULL");
 	}
 	for(int i= 0; i < factionType->getUnitTypeCount(); ++i) {
 		const UnitType *unitType = factionType->getUnitType(i);
@@ -713,7 +713,7 @@ const UnitType* World::findUnitTypeById(const FactionType* factionType, int id) 
 //looks for a place for a unit around a start location, returns true if succeded
 bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated) {
     if(unit == NULL) {
-    	throw runtime_error("unit == NULL");
+    	throw megaglest_runtime_error("unit == NULL");
     }
 
 	bool freeSpace=false;
@@ -747,7 +747,7 @@ bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spacia
 //clears a unit old position from map and places new position
 void World::moveUnitCells(Unit *unit) {
 	if(unit == NULL) {
-    	throw runtime_error("unit == NULL");
+    	throw megaglest_runtime_error("unit == NULL");
     }
 
 	Vec2i newPos= unit->getTargetPos();
@@ -790,7 +790,7 @@ Unit *World::nearestStore(const Vec2i &pos, int factionIndex, const ResourceType
     Unit *currUnit= NULL;
 
     if(factionIndex >= getFactionCount()) {
-    	throw runtime_error("factionIndex >= getFactionCount()");
+    	throw megaglest_runtime_error("factionIndex >= getFactionCount()");
     }
 
     for(int i=0; i < getFaction(factionIndex)->getUnitCount(); ++i) {
@@ -808,7 +808,7 @@ Unit *World::nearestStore(const Vec2i &pos, int factionIndex, const ResourceType
 
 bool World::toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const {
     if(unit == NULL) {
-    	throw runtime_error("unit == NULL");
+    	throw megaglest_runtime_error("unit == NULL");
     }
 
 	//a unit is rendered if it is in a visible cell or is attacking a unit in a visible cell
@@ -817,7 +817,7 @@ bool World::toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const {
 
 bool World::toRenderUnit(const Unit *unit) const {
     if(unit == NULL) {
-    	throw runtime_error("unit == NULL");
+    	throw megaglest_runtime_error("unit == NULL");
     }
 
     if(showWorldForPlayer(thisFactionIndex) == true) {
@@ -856,7 +856,7 @@ void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequiremen
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					unit->setIgnoreCheckCommand(false);
 
-					throw runtime_error(ex.what());
+					throw megaglest_runtime_error(ex.what());
 				}
 
 				if(cr == crSuccess) {
@@ -884,7 +884,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		Faction* faction= factions[factionIndex];
 
 		if(faction->getIndex() != factionIndex) {
-			throw runtime_error("faction->getIndex() != factionIndex");
+			throw megaglest_runtime_error("faction->getIndex() != factionIndex");
 		}
 
 		const FactionType* ft= faction->getType();
@@ -899,7 +899,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 				newpath = new UnitPath();
 				break;
 			default:
-				throw runtime_error("detected unsupported pathfinder type!");
+				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    }
 
 		Unit* unit= new Unit(getNextUnitId(faction), newpath, pos, ut, faction, &map, CardinalDir::NORTH);
@@ -914,13 +914,13 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		else {
 			delete unit;
 			unit = NULL;
-			throw runtime_error("Unit cant be placed");
+			throw megaglest_runtime_error("Unit cant be placed");
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 	}
 	else {
-		throw runtime_error("Invalid faction index in createUnitAtPosition: " + intToStr(factionIndex));
+		throw megaglest_runtime_error("Invalid faction index in createUnitAtPosition: " + intToStr(factionIndex));
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -933,7 +933,7 @@ void World::giveResource(const string &resourceName, int factionIndex, int amoun
 		faction->incResourceAmount(rt, amount);
 	}
 	else {
-		throw runtime_error("Invalid faction index in giveResource: " + intToStr(factionIndex));
+		throw megaglest_runtime_error("Invalid faction index in giveResource: " + intToStr(factionIndex));
 	}
 }
 
@@ -962,7 +962,7 @@ vector<int> World::getUnitsForFaction(int factionIndex,const string& commandType
 	vector<int> units;
 
 	if(factionIndex < 0 || factionIndex > getFactionCount()) {
-		throw runtime_error("Invalid faction index in getUnitsForFaction: " + intToStr(factionIndex));
+		throw megaglest_runtime_error("Invalid faction index in getUnitsForFaction: " + intToStr(factionIndex));
 	}
 	Faction *faction = getFaction(factionIndex);
 	if(faction != NULL) {
@@ -1016,18 +1016,18 @@ void World::givePositionCommand(int unitId, const string &commandName, const Vec
 			cc= ccAttack;
 		}
 		else {
-			throw runtime_error("Invalid position commmand: " + commandName);
+			throw megaglest_runtime_error("Invalid position commmand: " + commandName);
 		}
 
 		if(unit->getType()->getFirstCtOfClass(cc) == NULL) {
-			throw runtime_error("Invalid commmand: [" + commandName + "] for unit: [" + unit->getType()->getName() + "] id [" + intToStr(unit->getId()) + "]");
+			throw megaglest_runtime_error("Invalid commmand: [" + commandName + "] for unit: [" + unit->getType()->getName() + "] id [" + intToStr(unit->getId()) + "]");
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName().c_str());
 		unit->giveCommand(new Command( unit->getType()->getFirstCtOfClass(cc), pos ));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	else {
-		throw runtime_error("Invalid unitId index in givePositionCommand: " + intToStr(unitId) + " commandName = " + commandName);
+		throw megaglest_runtime_error("Invalid unitId index in givePositionCommand: " + intToStr(unitId) + " commandName = " + commandName);
 	}
 }
 
@@ -1044,15 +1044,15 @@ void World::giveAttackCommand(int unitId, int unitToAttackId) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 			else {
-				throw runtime_error("Invalid ct in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
+				throw megaglest_runtime_error("Invalid ct in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
 			}
 		}
 		else {
-			throw runtime_error("Invalid unitToAttackId index in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
+			throw megaglest_runtime_error("Invalid unitToAttackId index in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
 		}
 	}
 	else {
-		throw runtime_error("Invalid unitId index in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
+		throw megaglest_runtime_error("Invalid unitId index in giveAttackCommand: " + intToStr(unitId) + " unitToAttackId = " + intToStr(unitToAttackId));
 	}
 }
 
@@ -1078,7 +1078,7 @@ void World::giveProductionCommand(int unitId, const string &producedName) {
 		}
 	}
 	else {
-		throw runtime_error("Invalid unitId index in giveProductionCommand: " + intToStr(unitId) + " producedName = " + producedName);
+		throw megaglest_runtime_error("Invalid unitId index in giveProductionCommand: " + intToStr(unitId) + " producedName = " + producedName);
 	}
 }
 
@@ -1107,7 +1107,7 @@ void World::giveAttackStoppedCommand(int unitId, const string &itemName, bool ig
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						unit->setIgnoreCheckCommand(false);
 
-						throw runtime_error(ex.what());
+						throw megaglest_runtime_error(ex.what());
 					}
 
 
@@ -1118,7 +1118,7 @@ void World::giveAttackStoppedCommand(int unitId, const string &itemName, bool ig
 		}
 	}
 	else {
-		throw runtime_error("Invalid unitId index in giveAttackStoppedCommand: " + intToStr(unitId) + " itemName = " + itemName);
+		throw megaglest_runtime_error("Invalid unitId index in giveAttackStoppedCommand: " + intToStr(unitId) + " itemName = " + itemName);
 	}
 }
 
@@ -1180,7 +1180,7 @@ void World::moveToUnit(int unitId, int destUnitId) {
 		}
 	}
 	else {
-		throw runtime_error("Invalid unitId index in followUnit: " + intToStr(unitId));
+		throw megaglest_runtime_error("Invalid unitId index in followUnit: " + intToStr(unitId));
 	}
 }
 
@@ -1239,7 +1239,7 @@ void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 		}
 	}
 	else {
-		throw runtime_error("Invalid unitId index in giveUpgradeCommand: " + intToStr(unitId) + " upgradeName = " + upgradeName);
+		throw megaglest_runtime_error("Invalid unitId index in giveUpgradeCommand: " + intToStr(unitId) + " upgradeName = " + upgradeName);
 	}
 }
 
@@ -1251,7 +1251,7 @@ int World::getResourceAmount(const string &resourceName, int factionIndex) {
 		return faction->getResource(rt)->getAmount();
 	}
 	else {
-		throw runtime_error("Invalid faction index in giveResource: " + intToStr(factionIndex) + " resourceName = " + resourceName);
+		throw megaglest_runtime_error("Invalid faction index in giveResource: " + intToStr(factionIndex) + " resourceName = " + resourceName);
 	}
 }
 
@@ -1263,14 +1263,14 @@ Vec2i World::getStartLocation(int factionIndex) {
 	else {
 		printf("\n=================================================\n%s\n",game->getGameSettings()->toString().c_str());
 
-		throw runtime_error("Invalid faction index in getStartLocation: " + intToStr(factionIndex) + " : " + intToStr(factions.size()));
+		throw megaglest_runtime_error("Invalid faction index in getStartLocation: " + intToStr(factionIndex) + " : " + intToStr(factions.size()));
 	}
 }
 
 Vec2i World::getUnitPosition(int unitId) {
 	Unit* unit= findUnitById(unitId);
 	if(unit == NULL) {
-		throw runtime_error("Can not find unit to get position unitId = " + intToStr(unitId));
+		throw megaglest_runtime_error("Can not find unit to get position unitId = " + intToStr(unitId));
 	}
 	return unit->getPos();
 }
@@ -1278,7 +1278,7 @@ Vec2i World::getUnitPosition(int unitId) {
 void World::setUnitPosition(int unitId, Vec2i pos) {
 	Unit* unit= findUnitById(unitId);
 	if(unit == NULL) {
-		throw runtime_error("Can not find unit to set position unitId = " + intToStr(unitId));
+		throw megaglest_runtime_error("Can not find unit to set position unitId = " + intToStr(unitId));
 	}
 	unit->setPos(pos,true);
 }
@@ -1286,7 +1286,7 @@ void World::setUnitPosition(int unitId, Vec2i pos) {
 int World::getUnitFactionIndex(int unitId) {
 	Unit* unit= findUnitById(unitId);
 	if(unit == NULL) {
-		throw runtime_error("Can not find Faction unit to get position unitId = " + intToStr(unitId));
+		throw megaglest_runtime_error("Can not find Faction unit to get position unitId = " + intToStr(unitId));
 	}
 	return unit->getFactionIndex();
 }
@@ -1305,7 +1305,7 @@ int World::getUnitCount(int factionIndex) {
 		return count;
 	}
 	else {
-		throw runtime_error("Invalid faction index in getUnitCount: " + intToStr(factionIndex));
+		throw megaglest_runtime_error("Invalid faction index in getUnitCount: " + intToStr(factionIndex));
 	}
 }
 
@@ -1323,7 +1323,7 @@ int World::getUnitCountOfType(int factionIndex, const string &typeName) {
 		return count;
 	}
 	else {
-		throw runtime_error("Invalid faction index in getUnitCountOfType: " + intToStr(factionIndex));
+		throw megaglest_runtime_error("Invalid faction index in getUnitCountOfType: " + intToStr(factionIndex));
 	}
 }
 
@@ -1341,7 +1341,7 @@ void World::initCells(bool fogOfWar) {
 
 			SurfaceCell *sc= map.getSurfaceCell(i, j);
 			if(sc == NULL) {
-				throw runtime_error("sc == NULL");
+				throw megaglest_runtime_error("sc == NULL");
 			}
 			if(sc->getObject()!=NULL){
         		sc->getObject()->initParticles();
@@ -1376,16 +1376,16 @@ void World::initSplattedTextures() {
 			SurfaceCell *sc11= map.getSurfaceCell(i+1, j+1);
 
 			if(sc00 == NULL) {
-				throw runtime_error("sc00 == NULL");
+				throw megaglest_runtime_error("sc00 == NULL");
 			}
 			if(sc10 == NULL) {
-				throw runtime_error("sc10 == NULL");
+				throw megaglest_runtime_error("sc10 == NULL");
 			}
 			if(sc01 == NULL) {
-				throw runtime_error("sc01 == NULL");
+				throw megaglest_runtime_error("sc01 == NULL");
 			}
 			if(sc11 == NULL) {
-				throw runtime_error("sc11 == NULL");
+				throw megaglest_runtime_error("sc11 == NULL");
 			}
 
 			tileset.addSurfTex( sc00->getSurfaceType(),
@@ -1406,11 +1406,11 @@ void World::initFactionTypes(GameSettings *gs) {
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingFactionTypes","",true), true);
 
 	if(gs == NULL) {
-		throw runtime_error("gs == NULL");
+		throw megaglest_runtime_error("gs == NULL");
 	}
 
 	if(gs->getFactionCount() > map.getMaxPlayers()) {
-		throw runtime_error("This map only supports "+intToStr(map.getMaxPlayers())+" players");
+		throw megaglest_runtime_error("This map only supports "+intToStr(map.getMaxPlayers())+" players");
 	}
 
 	//create stats
@@ -1431,7 +1431,7 @@ void World::initFactionTypes(GameSettings *gs) {
 	for(int i=0; i < factions.size(); ++i) {
 		FactionType *ft= techTree->getTypeByName(gs->getFactionTypeName(i));
 		if(ft == NULL) {
-			throw runtime_error("ft == NULL");
+			throw megaglest_runtime_error("ft == NULL");
 		}
 		factions[i]->init(ft, gs->getFactionControl(i), techTree, game, i, gs->getTeam(i),
 						 gs->getStartLocationIndex(i), i==thisFactionIndex,
@@ -1547,7 +1547,7 @@ void World::initUnitsForScenario() {
 				string unitName = unit->getType()->getName();
 				delete unit;
 				unit = NULL;
-				throw runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
+				throw megaglest_runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
 			}
 
 			if (unit->getType()->hasSkillClass(scBeBuilt)) {
@@ -1580,7 +1580,7 @@ void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, b
 		char szBuf[4096]="";
 		sprintf(szBuf,"Unit: [%s] can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #%d name: [%s]",
 				unitName.c_str(),unit->getFactionIndex(),unit->getFaction()->getType()->getName().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	if (unit->getType()->hasSkillClass(scBeBuilt)) {
 		map.flatternTerrain(unit);
@@ -1617,7 +1617,7 @@ void World::initUnits() {
 							newpath = new UnitPath();
 							break;
 						default:
-							throw runtime_error("detected unsupported pathfinder type!");
+							throw megaglest_runtime_error("detected unsupported pathfinder type!");
 					}
 
 					Unit *unit= new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
@@ -1632,7 +1632,7 @@ void World::initUnits() {
 	//					string unitName = unit->getType()->getName();
 	//					delete unit;
 	//					unit = NULL;
-	//					throw runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
+	//					throw megaglest_runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
 	//				}
 	//				if (unit->getType()->hasSkillClass(scBeBuilt)) {
 	//					map.flatternTerrain(unit);
@@ -1750,7 +1750,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
             if(map.isInsideSurface(currPos)){
 				SurfaceCell *sc= map.getSurfaceCell(currPos);
 				if(sc == NULL) {
-					throw runtime_error("sc == NULL");
+					throw megaglest_runtime_error("sc == NULL");
 				}
 
 				//explore

@@ -51,7 +51,7 @@ public:
 			XMLString::transcode(domError.getMessage(), msgStr, strSize-1);
 			XMLString::transcode(domError.getLocation()->getURI(), fileStr, strSize-1);
 			Shared::Platform::uint64 lineNumber= domError.getLocation()->getLineNumber();
-			throw runtime_error("Error parsing XML, file: " + string(fileStr) + ", line: " + intToStr(lineNumber) + ": " + string(msgStr));
+			throw megaglest_runtime_error("Error parsing XML, file: " + string(fileStr) + ", line: " + intToStr(lineNumber) + ": " + string(msgStr));
 		}
 		return true;
 	}
@@ -73,7 +73,7 @@ XmlIo::XmlIo() {
 	}
 	catch(const XMLException &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system, msg %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.getMessage());
-		throw runtime_error("Error initializing XML system");
+		throw megaglest_runtime_error("Error initializing XML system");
 	}
 
 	try {
@@ -84,7 +84,7 @@ XmlIo::XmlIo() {
 	}
 	catch(const DOMException &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser, msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.getMessage());
-		throw runtime_error("Exception while creating XML parser");
+		throw megaglest_runtime_error("Exception while creating XML parser");
 	}
 }
 
@@ -159,7 +159,7 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
 		}
 #endif
 		if(document == NULL) {
-			throw runtime_error("Can not parse URL: " + path);
+			throw megaglest_runtime_error("Can not parse URL: " + path);
 		}
 
 		XmlNode *rootNode= new XmlNode(document->getDocumentElement(),mapTagReplacementValues);
@@ -171,7 +171,7 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
 		sprintf(szBuf,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -218,7 +218,7 @@ void XmlIo::save(const string &path, const XmlNode *node){
 	}
 	catch(const DOMException &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while saving: [%s], %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(e.msg));
-		throw runtime_error("Exception while saving: " + path + ": " + XMLString::transcode(e.msg));
+		throw megaglest_runtime_error("Exception while saving: " + path + ": " + XMLString::transcode(e.msg));
 	}
 }
 
@@ -233,7 +233,7 @@ XmlIoRapid::XmlIoRapid() {
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system, msg %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error initializing XML system");
+		throw megaglest_runtime_error("Error initializing XML system");
 	}
 
 	try {
@@ -241,7 +241,7 @@ XmlIoRapid::XmlIoRapid() {
 	}
 	catch(const DOMException &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser, msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.getMessage());
-		throw runtime_error("Exception while creating XML parser");
+		throw megaglest_runtime_error("Exception while creating XML parser");
 	}
 }
 
@@ -278,7 +278,7 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 		ifstream xmlFile(path.c_str(),ios::binary);
 #endif
 		if(xmlFile.is_open() == false) {
-			throw runtime_error("Can not open file: [" + path + "]");
+			throw megaglest_runtime_error("Can not open file: [" + path + "]");
 		}
 
 		xmlFile.unsetf(ios::skipws);
@@ -312,7 +312,7 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 		sprintf(szBuf,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] took msecs: %ld for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),path.c_str());
@@ -365,7 +365,7 @@ void XmlIoRapid::save(const string &path, const XmlNode *node){
 		ofstream xmlFile(path.c_str(),ios::binary);
 #endif
 		if(xmlFile.is_open() == false) {
-			throw runtime_error("Can not open file: [" + path + "]");
+			throw megaglest_runtime_error("Can not open file: [" + path + "]");
 		}
 
 		//xmlFile << xml_no_indent;
@@ -380,7 +380,7 @@ void XmlIoRapid::save(const string &path, const XmlNode *node){
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while saving: [%s], %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),e.what());
-		throw runtime_error("Exception while saving [" + path + "] msg: " + e.what());
+		throw megaglest_runtime_error("Exception while saving [" + path + "] msg: " + e.what());
 	}
 }
 
@@ -412,7 +412,7 @@ void XmlTree::load(const string &path, std::map<string,string> mapTagReplacement
 
 	for(LoadStack::iterator it= loadStack.begin(); it!= loadStack.end(); ++it){
 		if((*it)->loadPath == path){
-			throw runtime_error(path + " recursively included");
+			throw megaglest_runtime_error(path + " recursively included");
 		}
 	}
 	loadStack.push_back(this);
@@ -460,7 +460,7 @@ XmlTree::~XmlTree() {
 
 XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues): superNode(NULL) {
     if(node == NULL || node->getNodeName() == NULL) {
-        throw runtime_error("XML structure seems to be corrupt!");
+        throw megaglest_runtime_error("XML structure seems to be corrupt!");
     }
 
 	//get name
@@ -507,7 +507,7 @@ XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues)
 
 XmlNode::XmlNode(xml_node<> *node, std::map<string,string> mapTagReplacementValues) : superNode(NULL) {
 	if(node == NULL || node->name() == NULL) {
-        throw runtime_error("XML structure seems to be corrupt!");
+        throw megaglest_runtime_error("XML structure seems to be corrupt!");
     }
 
 	//get name
@@ -558,7 +558,7 @@ XmlNode::~XmlNode() {
 
 XmlAttribute *XmlNode::getAttribute(unsigned int i) const {
 	if(i >= attributes.size()) {
-		throw runtime_error(getName()+" node doesn't have "+intToStr(i)+" attributes");
+		throw megaglest_runtime_error(getName()+" node doesn't have "+intToStr(i)+" attributes");
 	}
 	return attributes[i];
 }
@@ -570,7 +570,7 @@ XmlAttribute *XmlNode::getAttribute(const string &name,bool mustExist) const {
 		}
 	}
 	if(mustExist == true) {
-		throw runtime_error("\"" + getName() + "\" node doesn't have a attribute named \"" + name + "\"");
+		throw megaglest_runtime_error("\"" + getName() + "\" node doesn't have a attribute named \"" + name + "\"");
 	}
 
 	return NULL;
@@ -590,7 +590,7 @@ bool XmlNode::hasAttribute(const string &name) const {
 XmlNode *XmlNode::getChild(unsigned int i) const {
 	assert(!superNode);
 	if(i >= children.size()) {
-		throw runtime_error("\"" + getName()+"\" node doesn't have "+intToStr(i+1)+" children");
+		throw megaglest_runtime_error("\"" + getName()+"\" node doesn't have "+intToStr(i+1)+" children");
 	}
 	return children[i];
 }
@@ -610,7 +610,7 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
 	if(superNode && !hasChildNoSuper(childName))
 		return superNode->getChild(childName,i);
 	if(i>=children.size()){
-		throw runtime_error("\"" + name + "\" node doesn't have "+intToStr(i+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
+		throw megaglest_runtime_error("\"" + name + "\" node doesn't have "+intToStr(i+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
 	}
 
 	int count= 0;
@@ -623,7 +623,7 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
 		}
 	}
 
-	throw runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(i+1)+" children named  \""+childName+"\"\n\nTree: "+getTreeString());
+	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(i+1)+" children named  \""+childName+"\"\n\nTree: "+getTreeString());
 }
 
 bool XmlNode::hasChildAtIndex(const string &childName, int i) const {
@@ -779,7 +779,7 @@ bool XmlAttribute::getBoolValue() const {
 		return false;
 	}
 	else {
-		throw runtime_error("Not a valid bool value (true or false): " +getName()+": "+ value);
+		throw megaglest_runtime_error("Not a valid bool value (true or false): " +getName()+": "+ value);
 	}
 }
 
@@ -790,7 +790,7 @@ int XmlAttribute::getIntValue() const {
 int XmlAttribute::getIntValue(int min, int max) const {
 	int i= strToInt(value);
 	if(i<min || i>max){
-		throw runtime_error("Xml Attribute int out of range: " + getName() + ": " + value);
+		throw megaglest_runtime_error("Xml Attribute int out of range: " + getName() + ": " + value);
 	}
 	return i;
 }
@@ -802,7 +802,7 @@ float XmlAttribute::getFloatValue() const{
 float XmlAttribute::getFloatValue(float min, float max) const{
 	float f= strToFloat(value);
 	if(f<min || f>max){
-		throw runtime_error("Xml attribute float out of range: " + getName() + ": " + value);
+		throw megaglest_runtime_error("Xml attribute float out of range: " + getName() + ": " + value);
 	}
 	return f;
 }
@@ -824,7 +824,7 @@ const string XmlAttribute::getRestrictedValue(string prefixValue, bool trimValue
 
 		for(unsigned int i= 0; i<value.size(); ++i){
 			if(allowedCharacters.find(value[i])==string::npos){
-				throw runtime_error(
+				throw megaglest_runtime_error(
 					string("The string \"" + value + "\" contains a character that is not allowed: \"") + value[i] +
 					"\"\nFor portability reasons the only allowed characters in this field are: " + allowedCharacters);
 			}

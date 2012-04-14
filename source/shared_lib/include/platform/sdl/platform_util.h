@@ -22,12 +22,20 @@ using std::exception;
 
 namespace Shared { namespace Platform {
 
+class megaglest_runtime_error : public runtime_error {
+public:
+    megaglest_runtime_error(const string& __arg);
+};
+
 // =====================================================
 //	class PlatformExceptionHandler
 // =====================================================
 
 class PlatformExceptionHandler {
 public:
+	static string application_binary;
+	static string getStackTrace();
+
 	virtual ~PlatformExceptionHandler() {}
 	void install(string dumpFileName) {}
 	virtual void handle()=0;

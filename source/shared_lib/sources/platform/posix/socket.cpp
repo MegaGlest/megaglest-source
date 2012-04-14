@@ -1438,7 +1438,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 			bytesReceived += additionalBytes;
 		}
 		else {
-			//throw runtime_error("additionalBytes == " + intToStr(additionalBytes));
+			//throw megaglest_runtime_error("additionalBytes == " + intToStr(additionalBytes));
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] additionalBytes == %d\n",__FILE__,__FUNCTION__,__LINE__,additionalBytes);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] additionalBytes == %d\n",__FILE__,__FUNCTION__,__LINE__,additionalBytes);
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] additionalBytes == %d\n",__FILE__,__FUNCTION__,__LINE__,additionalBytes);
@@ -1727,13 +1727,13 @@ string Socket::getIp() {
 	unsigned char* address;
 
 	if(info==NULL){
-		throw runtime_error("Error getting host by name");
+		throw megaglest_runtime_error("Error getting host by name");
 	}
 
 	address= reinterpret_cast<unsigned char*>(info->h_addr_list[0]);
 
 	if(address==NULL){
-		throw runtime_error("Error getting host ip");
+		throw megaglest_runtime_error("Error getting host ip");
 	}
 
 	return
@@ -1745,7 +1745,7 @@ string Socket::getIp() {
 
 void Socket::throwException(string str){
 	string msg = str + " " + getLastSocketErrorFormattedText();
-	throw runtime_error(msg);
+	throw megaglest_runtime_error(msg);
 }
 
 // ===============================================
@@ -2202,7 +2202,7 @@ void ServerSocket::bind(int port) {
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
 
 	    sprintf(szBuf, "Error binding socket sock = %d, err = %d, error = %s\n",sock,err,getLastSocketErrorFormattedText().c_str());
-	    throw runtime_error(szBuf);
+	    throw megaglest_runtime_error(szBuf);
 	}
 	portBound = true;
 
@@ -2636,7 +2636,7 @@ void UPNP_Tools::NETaddRedirects(std::vector<int> UPNPPortForwardList,bool mutex
 
     if(UPNPPortForwardList.size() % 2 != 0) {
         // We need groups of 2 ports.. one external and one internal for opening ports on UPNP router
-        throw runtime_error("UPNPPortForwardList.size() MUST BE divisable by 2");
+        throw megaglest_runtime_error("UPNPPortForwardList.size() MUST BE divisable by 2");
     }
 
     for(unsigned int clientIndex = 0; clientIndex < UPNPPortForwardList.size(); clientIndex += 2) {

@@ -327,7 +327,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	//	vector<string> langResults2;
 	//	findAll(data_path + "data/lang/*.lng", langResults2, true);
 	//	if(langResults2.empty() && langResults.empty()) {
-	//        throw runtime_error("There are no lang files");
+	//        throw megaglest_runtime_error("There are no lang files");
 	//	}
 	//	for(unsigned int i = 0; i < langResults2.size(); ++i) {
 	//		string testLanguage = langResults2[i];
@@ -558,7 +558,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 	}
 	catch(exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error loading options: %s\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error(string("Error loading options msg: ") + e.what());
+		throw megaglest_runtime_error(string("Error loading options msg: ") + e.what());
 	}
 }
 

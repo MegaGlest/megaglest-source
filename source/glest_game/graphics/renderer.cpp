@@ -1693,17 +1693,17 @@ void Renderer::renderMouse3d() {
 	if(game == NULL) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s] Line: %d game == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	else if(game->getGui() == NULL) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui() == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	else if(game->getGui()->getMouse3d() == NULL) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui()->getMouse3d() == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	const Gui *gui= game->getGui();
@@ -1712,7 +1712,7 @@ void Renderer::renderMouse3d() {
 	if(map == NULL) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	GLUquadricObj *cilQuadric;
@@ -1890,7 +1890,7 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 			headerLine += ": ";
 
 			if(fontMetrics == NULL) {
-				throw runtime_error("fontMetrics == NULL");
+				throw megaglest_runtime_error("fontMetrics == NULL");
 			}
 
 			renderTextShadow3D(
@@ -1917,7 +1917,7 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 		headerLine += ": ";
 
         if(fontMetrics == NULL) {
-            throw runtime_error("fontMetrics == NULL");
+            throw megaglest_runtime_error("fontMetrics == NULL");
         }
 
         renderTextShadow3D(
@@ -1994,7 +1994,7 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 			headerLine += ": ";
 
 			if(fontMetrics == NULL) {
-				throw runtime_error("fontMetrics == NULL");
+				throw megaglest_runtime_error("fontMetrics == NULL");
 			}
 
 			renderTextShadow(
@@ -2019,7 +2019,7 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 		headerLine += ": ";
 
         if(fontMetrics == NULL) {
-            throw runtime_error("fontMetrics == NULL");
+            throw megaglest_runtime_error("fontMetrics == NULL");
         }
 
         renderTextShadow(
@@ -2054,7 +2054,7 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 	}
 
 	if(console == NULL) {
-		throw runtime_error("console == NULL");
+		throw megaglest_runtime_error("console == NULL");
 	}
 
 	glPushAttrib(GL_ENABLE_BIT);
@@ -2320,13 +2320,13 @@ void Renderer::renderSelectionQuad() {
 Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 	if(font == NULL) {
 		//abort();
-		throw runtime_error("font == NULL (1)");
+		throw megaglest_runtime_error("font == NULL (1)");
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
-		throw runtime_error("fontMetrics == NULL (1)");
+		throw megaglest_runtime_error("fontMetrics == NULL (1)");
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text)/2.f) : 5);
@@ -2343,13 +2343,13 @@ Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 
 Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
 	if(font == NULL) {
-		throw runtime_error("font == NULL (2)");
+		throw megaglest_runtime_error("font == NULL (2)");
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
-		throw runtime_error("fontMetrics == NULL (2)");
+		throw megaglest_runtime_error("fontMetrics == NULL (2)");
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text) / 2.f) : 5);
@@ -2433,10 +2433,10 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 	if(centeredW == true) {
 		if(font == NULL) {
 			//abort();
-			throw runtime_error("font == NULL (5)");
+			throw megaglest_runtime_error("font == NULL (5)");
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw runtime_error("font->getTextHandler() == NULL (5)");
+			throw megaglest_runtime_error("font->getTextHandler() == NULL (5)");
 		}
 
 		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * Font::scaleFontValue);
@@ -2447,10 +2447,10 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 
 	if(centeredH) {
 		if(font == NULL) {
-			throw runtime_error("font == NULL (6)");
+			throw megaglest_runtime_error("font == NULL (6)");
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw runtime_error("font->getTextHandler() == NULL (6)");
+			throw megaglest_runtime_error("font->getTextHandler() == NULL (6)");
 		}
 
 		//const Metrics &metrics= Metrics::getInstance();
@@ -2632,7 +2632,7 @@ void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &
 	}
 
 	if(font == NULL) {
-		throw runtime_error("font == NULL (3)");
+		throw megaglest_runtime_error("font == NULL (3)");
 	}
 
 	glPushAttrib(GL_CURRENT_BIT);
@@ -2661,7 +2661,7 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 	}
 
 	if(font == NULL) {
-		throw runtime_error("font == NULL (4)");
+		throw megaglest_runtime_error("font == NULL (4)");
 	}
 
 	glPushAttrib(GL_CURRENT_BIT);
@@ -3377,7 +3377,7 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -3984,16 +3984,16 @@ void Renderer::renderSurface(const int renderFps) {
 				SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
 
 				if(tc00 == NULL) {
-					throw runtime_error("tc00 == NULL");
+					throw megaglest_runtime_error("tc00 == NULL");
 				}
 				if(tc10 == NULL) {
-					throw runtime_error("tc10 == NULL");
+					throw megaglest_runtime_error("tc10 == NULL");
 				}
 				if(tc01 == NULL) {
-					throw runtime_error("tc01 == NULL");
+					throw megaglest_runtime_error("tc01 == NULL");
 				}
 				if(tc11 == NULL) {
-					throw runtime_error("tc11 == NULL");
+					throw megaglest_runtime_error("tc11 == NULL");
 				}
 
 				triangleCount+= 2;
@@ -4001,7 +4001,7 @@ void Renderer::renderSurface(const int renderFps) {
 
 				//set texture
 				if(tc00->getSurfaceTexture() == NULL) {
-					throw runtime_error("tc00->getSurfaceTexture() == NULL");
+					throw megaglest_runtime_error("tc00->getSurfaceTexture() == NULL");
 				}
 				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
 				if(currTex != lastTex) {
@@ -4133,16 +4133,16 @@ void Renderer::renderSurface(const int renderFps) {
 					SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
 
 					if(tc00 == NULL) {
-						throw runtime_error("tc00 == NULL");
+						throw megaglest_runtime_error("tc00 == NULL");
 					}
 					if(tc10 == NULL) {
-						throw runtime_error("tc10 == NULL");
+						throw megaglest_runtime_error("tc10 == NULL");
 					}
 					if(tc01 == NULL) {
-						throw runtime_error("tc01 == NULL");
+						throw megaglest_runtime_error("tc01 == NULL");
 					}
 					if(tc11 == NULL) {
-						throw runtime_error("tc11 == NULL");
+						throw megaglest_runtime_error("tc11 == NULL");
 					}
 
 					triangleCount+= 2;
@@ -4150,7 +4150,7 @@ void Renderer::renderSurface(const int renderFps) {
 
 					//set texture
 					if(tc00->getSurfaceTexture() == NULL) {
-						throw runtime_error("tc00->getSurfaceTexture() == NULL");
+						throw megaglest_runtime_error("tc00->getSurfaceTexture() == NULL");
 					}
 
 					int surfaceDataIndex = -1;
@@ -4421,7 +4421,7 @@ void Renderer::renderWater() {
 	if(textures3D){
 		Texture3D *waterTex= world->getTileset()->getWaterTex();
 		if(waterTex == NULL) {
-			throw runtime_error("waterTex == NULL");
+			throw megaglest_runtime_error("waterTex == NULL");
 		}
 		glEnable(GL_TEXTURE_3D);
 		glBindTexture(GL_TEXTURE_3D, static_cast<Texture3DGl*>(waterTex)->getHandle());
@@ -4456,10 +4456,10 @@ void Renderer::renderWater() {
 			SurfaceCell *tc0= map->getSurfaceCell(i, j);
             SurfaceCell *tc1= map->getSurfaceCell(i, j+1);
 			if(tc0 == NULL) {
-				throw runtime_error("tc0 == NULL");
+				throw megaglest_runtime_error("tc0 == NULL");
 			}
 			if(tc1 == NULL) {
-				throw runtime_error("tc1 == NULL");
+				throw megaglest_runtime_error("tc1 == NULL");
 			}
 
 			int thisTeamIndex= world->getThisTeamIndex();
@@ -6532,7 +6532,7 @@ void Renderer::loadConfig() {
 	textures3D= config.getBool("Textures3D");
 	float gammaValue=config.getFloat("GammaValue","0.0");
 	if(this->program == NULL) {
-		throw runtime_error("this->program == NULL");
+		throw megaglest_runtime_error("this->program == NULL");
 	}
 	//if(this->program != NULL) {
 	if(gammaValue!=0.0){
@@ -6928,7 +6928,7 @@ void Renderer::checkGlCaps() {
  		message += "MegaGlest needs at least version 1.3 to work\n";
  		message += "You may solve this problem by installing your latest video card drivers";
 
- 		throw runtime_error(message.c_str());
+ 		throw megaglest_runtime_error(message.c_str());
 	}
 
 	//opengl 1.4 or extension
@@ -6946,7 +6946,7 @@ void Renderer::checkGlOptionalCaps() {
 	//shadows
 	if(shadows == sProjected || shadows == sShadowMapping) {
 		if(getGlMaxTextureUnits() < 3) {
-			throw runtime_error("Your system doesn't support 3 texture units, required for shadows");
+			throw megaglest_runtime_error("Your system doesn't support 3 texture units, required for shadows");
 		}
 	}
 
@@ -6965,7 +6965,7 @@ void Renderer::checkExtension(const string &extension, const string &msg) {
 
 	if(!isGlExtensionSupported(extension.c_str())) {
 		string str= "OpenGL extension not supported: " + extension +  ", required for " + msg;
-		throw runtime_error(str);
+		throw megaglest_runtime_error(str);
 	}
 }
 
@@ -7613,7 +7613,7 @@ Texture2D::Filter Renderer::strToTextureFilter(const string &s){
 		return Texture2D::fTrilinear;
 	}
 
-	throw runtime_error("Error converting from string to FilterType, found: "+s);
+	throw megaglest_runtime_error("Error converting from string to FilterType, found: "+s);
 }
 
 void Renderer::setAllowRenderUnitTitles(bool value) {

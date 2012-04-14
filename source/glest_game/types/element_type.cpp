@@ -52,7 +52,7 @@ string RequirableType::getReqDesc() const{
 	string reqString="";
 	for(int i=0; i<getUnitReqCount(); ++i){
 		if(getUnitReq(i) == NULL) {
-			throw runtime_error("getUnitReq(i) == NULL");
+			throw megaglest_runtime_error("getUnitReq(i) == NULL");
 		}
         reqString+= getUnitReq(i)->getName();
         reqString+= "\n";
@@ -61,7 +61,7 @@ string RequirableType::getReqDesc() const{
 
     for(int i=0; i<getUpgradeReqCount(); ++i){
 		if(getUpgradeReq(i) == NULL) {
-			throw runtime_error("getUpgradeReq(i) == NULL");
+			throw megaglest_runtime_error("getUpgradeReq(i) == NULL");
 		}
 
     	reqString+= getUpgradeReq(i)->getName();

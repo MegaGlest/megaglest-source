@@ -144,7 +144,7 @@ void Renderer::checkGlCaps() {
  		message += "MegaGlest needs at least version 1.3 to work\n";
  		message += "You may solve this problem by installing your latest video card drivers";
 
- 		throw runtime_error(message.c_str());
+ 		throw megaglest_runtime_error(message.c_str());
 	}
 
 	//opengl 1.4 or extension
@@ -157,7 +157,7 @@ void Renderer::checkGlCaps() {
 void Renderer::checkExtension(const string &extension, const string &msg) {
 	if(isGlExtensionSupported(extension.c_str()) == false) {
 		string str= "OpenGL extension not supported: " + extension +  ", required for " + msg;
-		throw runtime_error(str);
+		throw megaglest_runtime_error(str);
 	}
 }
 

@@ -368,12 +368,12 @@ SurfaceCell *Map::getSurfaceCell(const Vec2i &sPos) const {
 SurfaceCell *Map::getSurfaceCell(int sx, int sy) const {
 	int arrayIndex = sy * surfaceW + sx;
 	if(arrayIndex < 0 || arrayIndex >= getSurfaceCellArraySize()) {
-		throw runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) +
+		throw megaglest_runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) +
 				            " surfaceW = " + intToStr(surfaceW) + " surfaceH = " + intToStr(surfaceH) +
 				            " sx: " + intToStr(sx) + " sy: " + intToStr(sy));
 	}
 	else if(surfaceCells == NULL) {
-		throw runtime_error("surfaceCells == NULL");
+		throw megaglest_runtime_error("surfaceCells == NULL");
 	}
 	return &surfaceCells[arrayIndex];
 }
@@ -390,10 +390,10 @@ Cell *Map::getCell(int x, int y) const {
 	int arrayIndex = y * w + x;
 	if(arrayIndex < 0 || arrayIndex >= getCellArraySize()) {
 		//abort();
-		throw runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
+		throw megaglest_runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
 	}
 	else if(cells == NULL) {
-		throw runtime_error("cells == NULL");
+		throw megaglest_runtime_error("cells == NULL");
 	}
 
 	return &cells[arrayIndex];
@@ -404,11 +404,11 @@ Vec2i Map::getStartLocation(int locationIndex) const {
 		char szBuf[4096]="";
 		sprintf(szBuf,"locationIndex >= maxPlayers [%d] [%d]",locationIndex, maxPlayers);
 		printf("%s\n",szBuf);
-		//throw runtime_error(szBuf);
+		//throw megaglest_runtime_error(szBuf);
 		assert(locationIndex < maxPlayers);
 	}
 	else if(startLocations == NULL) {
-		throw runtime_error("startLocations == NULL");
+		throw megaglest_runtime_error("startLocations == NULL");
 	}
 
 	return startLocations[locationIndex];
@@ -431,15 +431,15 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			MapFileHeader header;
 			size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
 			if(readBytes != 1) {
-				throw runtime_error("Invalid map header detected for file: " + path);
+				throw megaglest_runtime_error("Invalid map header detected for file: " + path);
 			}
 
 			if(next2Power(header.width) != header.width){
-				throw runtime_error("Map width is not a power of 2");
+				throw megaglest_runtime_error("Map width is not a power of 2");
 			}
 
 			if(next2Power(header.height) != header.height){
-				throw runtime_error("Map height is not a power of 2");
+				throw megaglest_runtime_error("Map height is not a power of 2");
 			}
 
 			heightFactor= header.heightFactor;
@@ -533,13 +533,13 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 		else{
 			if(f) fclose(f);
 
-			throw runtime_error("Can't open file");
+			throw megaglest_runtime_error("Can't open file");
 		}
 		fclose(f);
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading map: "+ path+ "\n"+ e.what());
+		throw megaglest_runtime_error("Error loading map: "+ path+ "\n"+ e.what());
 	}
 
 	return mapChecksum;
@@ -877,10 +877,10 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field,
 		const Unit *unit, const UnitType *munit) const {
 	if(unit == NULL) {
-		throw runtime_error("unit == NULL");
+		throw megaglest_runtime_error("unit == NULL");
 	}
 	if(munit == NULL) {
-		throw runtime_error("munit == NULL");
+		throw megaglest_runtime_error("munit == NULL");
 	}
 	for(int i=pos.x; i<pos.x+size; ++i) {
 		for(int j=pos.y; j<pos.y+size; ++j) {
@@ -1255,7 +1255,7 @@ Vec2i Map::computeRefPos(const Selection *selection) const {
     Vec2i total= Vec2i(0);
     for(int i = 0; i < selection->getCount(); ++i) {
     	if(selection == NULL || selection->getUnit(i) == NULL) {
-    		throw runtime_error("selection == NULL || selection->getUnit(i) == NULL");
+    		throw megaglest_runtime_error("selection == NULL || selection->getUnit(i) == NULL");
     	}
         total = total + selection->getUnit(i)->getPos();
     }
@@ -1284,7 +1284,7 @@ Vec2i Map::computeDestPos(	const Vec2i &refUnitPos, const Vec2i &unitPos,
 
 std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut) {
 	if(unit == NULL) {
-		throw runtime_error("unit == NULL");
+		throw megaglest_runtime_error("unit == NULL");
 	}
 
 	std::pair<float,Vec2i> result(-1,Vec2i(0));
@@ -1409,7 +1409,7 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 							const Vec2i &testPos) const {
 	assert(ut != NULL);
 	if(ut == NULL) {
-		throw runtime_error("ut == NULL");
+		throw megaglest_runtime_error("ut == NULL");
 	}
 
 	if(isInside(testPos) && isInsideSurface(toSurfCoords(testPos))) {
@@ -1433,7 +1433,7 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 	assert(unit != NULL);
 	if(unit == NULL) {
-		throw runtime_error("ut == NULL");
+		throw megaglest_runtime_error("ut == NULL");
 	}
 
     bool canPutInCell = true;
@@ -1444,7 +1444,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
 			if(isInside(currPos) == false) {
-				throw runtime_error("isInside(currPos) == false");
+				throw megaglest_runtime_error("isInside(currPos) == false");
 			}
 
 			if( ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
@@ -1469,7 +1469,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
                     // it is likely being created or morphed so we will will log the error
                     else {
                         canPutInCell = false;
-				        // throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
+				        // throw megaglest_runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
                         SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
                               __FILE__,__FUNCTION__,__LINE__,
                               currPos.getString().c_str(),
@@ -1503,7 +1503,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 	assert(unit != NULL);
 	if(unit == NULL) {
-		throw runtime_error("unit == NULL");
+		throw megaglest_runtime_error("unit == NULL");
 	}
 
 	const UnitType *ut= unit->getType();
@@ -1513,7 +1513,7 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 			Vec2i currPos= pos + Vec2i(i, j);
 			assert(isInside(currPos));
 			if(isInside(currPos) == false) {
-				throw runtime_error("isInside(currPos) == false");
+				throw megaglest_runtime_error("isInside(currPos) == false");
 			}
 
 			if(ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
@@ -1522,7 +1522,7 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 
 				//assert(getCell(currPos)->getUnit(unit->getCurrField()) == unit || getCell(currPos)->getUnit(unit->getCurrField()) == NULL);
 				//if(getCell(currPos)->getUnit(unit->getCurrField()) != unit && getCell(currPos)->getUnit(unit->getCurrField()) != NULL) {
-				//	throw runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != unit");
+				//	throw megaglest_runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != unit");
 					//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != unit] currPos [%s] unit [%s] cell unit [%s]\n",
                     //          __FILE__,__FUNCTION__,__LINE__,
                     //          currPos.getString().c_str(),
@@ -1830,7 +1830,7 @@ string Map::getMapPath(const string &mapName, string scenarioDir, bool errorOnNo
 
 	if(errorOnNotFound == true) {
 		//abort();
-		throw runtime_error("Map not found [" + mapName + "]\nScenario [" + scenarioDir + "]");
+		throw megaglest_runtime_error("Map not found [" + mapName + "]\nScenario [" + scenarioDir + "]");
 	}
 
 	return "";
@@ -1992,7 +1992,7 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 //					string value = tokensExploredValue[k];
 //					printf("k = %d [%s]\n",k,value.c_str());
 //				}
-//				throw runtime_error("tokensExploredValue.size() [" + intToStr(tokensExploredValue.size()) + "] != GameConstants::maxPlayers");
+//				throw megaglest_runtime_error("tokensExploredValue.size() [" + intToStr(tokensExploredValue.size()) + "] != GameConstants::maxPlayers");
 //			}
 			for(unsigned int k = 0; k < tokensExploredValue.size(); ++k) {
 				string value = tokensExploredValue[k];
@@ -2014,7 +2014,7 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 			Tokenize(valueList,tokensVisibleValue,"|");
 
 //			if(tokensVisibleValue.size() != GameConstants::maxPlayers) {
-//				throw runtime_error("tokensVisibleValue.size() [" + intToStr(tokensVisibleValue.size()) + "] != GameConstants::maxPlayers");
+//				throw megaglest_runtime_error("tokensVisibleValue.size() [" + intToStr(tokensVisibleValue.size()) + "] != GameConstants::maxPlayers");
 //			}
 
 			for(unsigned int k = 0; k < tokensVisibleValue.size(); ++k) {

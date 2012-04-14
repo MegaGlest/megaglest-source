@@ -806,7 +806,7 @@ MapInfo MenuStateMods::loadMapInfo(string file) {
 	}
 	catch(exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
-		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
+		throw megaglest_runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
 	}
 
 	return mapInfo;
@@ -820,7 +820,7 @@ MapInfo MenuStateMods::loadMapInfo(string file) {
 	}
 	catch(exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
-		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
+		throw megaglest_runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
 	}
 
 	return mapInfo;
@@ -979,7 +979,7 @@ void MenuStateMods::getMapsLocalList() {
   	vector<string> invalidMapList;
   	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,false,&invalidMapList);
 	if (allMaps.empty()) {
-        throw runtime_error("No maps were found!");
+        throw megaglest_runtime_error("No maps were found!");
 	}
 	vector<string> results;
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
@@ -2190,7 +2190,7 @@ void MenuStateMods::render() {
 				if(i >= keyScenarioButtons.size()) {
 					char szBuf[1024]="";
 					sprintf(szBuf,"i >= keyScenarioButtons.size(), i = %d keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
-					throw runtime_error(szBuf);
+					throw megaglest_runtime_error(szBuf);
 				}
 				bool alreadyHasScenario = (std::find(scenarioFiles.begin(),scenarioFiles.end(),keyScenarioButtons[i]->getText()) != scenarioFiles.end());
 
@@ -2277,7 +2277,7 @@ void MenuStateMods::render() {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -2294,7 +2294,7 @@ void MenuStateMods::update() {
 			if(i >= keyTechButtons.size()) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"i >= keyTechButtons.size(), i = %d, keyTechButtons.size() = %d",i,(int)keyTechButtons.size());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 
 			keyTechButtons[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
@@ -2311,7 +2311,7 @@ void MenuStateMods::update() {
 			if(i >= keyTilesetButtons.size()) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"i >= keyTilesetButtons.size(), i = %d, keyTilesetButtons.size() = %d",i,(int)keyTilesetButtons.size());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 
 			int yPos = keyButtonsYBase - keyButtonsLineHeight *
@@ -2327,7 +2327,7 @@ void MenuStateMods::update() {
 			if(i >= keyMapButtons.size()) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"i >= keyMapButtons.size(), i = %d, keyMapButtons.size() = %d",i,(int)keyMapButtons.size());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 
 			keyMapButtons[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
@@ -2344,7 +2344,7 @@ void MenuStateMods::update() {
 			if(i >= keyScenarioButtons.size()) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"i >= keyScenarioButtons.size(), i = %d, keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 
 			int yPos = keyButtonsYBase - keyButtonsLineHeight *

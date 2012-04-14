@@ -71,21 +71,21 @@ Pixmap3D* TGAReader3D::read(ifstream& in, const string& path, Pixmap3D* ret) con
 	TargaFileHeader fileHeader;
 	in.read((char*)&fileHeader, sizeof(TargaFileHeader));
 	if (!in.good()) {
-		throw runtime_error(path + " could not be read");
+		throw megaglest_runtime_error(path + " could not be read");
 	}
 
 	//check that we can load this tga file
 	if(fileHeader.idLength!=0){
-		throw runtime_error(path + ": id field is not 0");
+		throw megaglest_runtime_error(path + ": id field is not 0");
 	}
 
 	if(fileHeader.dataTypeCode!=tgaUncompressedRgb && fileHeader.dataTypeCode!=tgaUncompressedBw){
-		throw runtime_error(path + ": only uncompressed BW and RGB targa images are supported");
+		throw megaglest_runtime_error(path + ": only uncompressed BW and RGB targa images are supported");
 	}
 
 	//check bits per pixel
 	if(fileHeader.bitsPerPixel!=8 && fileHeader.bitsPerPixel!=24 && fileHeader.bitsPerPixel!=32){
-		throw runtime_error(path + ": only 8, 24 and 32 bit targa images are supported");
+		throw megaglest_runtime_error(path + ": only 8, 24 and 32 bit targa images are supported");
 	}
 
 	const int h = fileHeader.height;
@@ -170,21 +170,21 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	TargaFileHeader fileHeader;
 	in.read((char*)&fileHeader, sizeof(TargaFileHeader));
 	if (!in.good()) {
-		throw runtime_error(path + " could not be read");
+		throw megaglest_runtime_error(path + " could not be read");
 	}
 
 	//check that we can load this tga file
 	if(fileHeader.idLength!=0){
-		throw runtime_error(path + ": id field is not 0");
+		throw megaglest_runtime_error(path + ": id field is not 0");
 	}
 
 	if(fileHeader.dataTypeCode!=tgaUncompressedRgb && fileHeader.dataTypeCode!=tgaUncompressedBw){
-		throw runtime_error(path + ": only uncompressed BW and RGB targa images are supported");
+		throw megaglest_runtime_error(path + ": only uncompressed BW and RGB targa images are supported");
 	}	
 
 	//check bits per pixel
 	if(fileHeader.bitsPerPixel!=8 && fileHeader.bitsPerPixel!=24 && fileHeader.bitsPerPixel!=32){
-		throw runtime_error(path + ": only 8, 24 and 32 bit targa images are supported");
+		throw megaglest_runtime_error(path + ": only 8, 24 and 32 bit targa images are supported");
 	}
 
 	const int h = fileHeader.height;

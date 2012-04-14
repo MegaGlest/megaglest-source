@@ -726,7 +726,7 @@ void Game::load(int loadTypes) {
         }
     }
 
-	//throw runtime_error("Test!");
+	//throw megaglest_runtime_error("Test!");
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//tileset
@@ -769,7 +769,7 @@ void Game::load(int loadTypes) {
 				}
 				errorText += results[i];
 			}
-			throw runtime_error(errorText);
+			throw megaglest_runtime_error(errorText);
 		}
 		*/
     }
@@ -828,7 +828,7 @@ void Game::init(bool initForPreviewOnly) {
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
 	if(map == NULL) {
-		throw runtime_error("map == NULL");
+		throw megaglest_runtime_error("map == NULL");
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1010,13 +1010,13 @@ void Game::init(bool initForPreviewOnly) {
 
 		if(this->masterserverMode == false) {
 			if(world.getThisFaction() == NULL) {
-				throw runtime_error("world.getThisFaction() == NULL");
+				throw megaglest_runtime_error("world.getThisFaction() == NULL");
 			}
 			if(world.getThisFaction()->getType() == NULL) {
-				throw runtime_error("world.getThisFaction()->getType() == NULL");
+				throw megaglest_runtime_error("world.getThisFaction()->getType() == NULL");
 			}
 			//if(world.getThisFaction()->getType()->getMusic() == NULL) {
-			//	throw runtime_error("world.getThisFaction()->getType()->getMusic() == NULL");
+			//	throw megaglest_runtime_error("world.getThisFaction()->getType()->getMusic() == NULL");
 			//}
 		}
 
@@ -2608,7 +2608,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			}
 		}
 
-		//throw runtime_error("Test Error!");
+		//throw megaglest_runtime_error("Test Error!");
 	}
 	catch(const exception &ex) {
 		char szBuf[4096]="";
@@ -3851,7 +3851,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 		if(gameVer != glestVersionString) {
 			char szBuf[4096]="";
 			sprintf(szBuf,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found saved game version that matches your application version: [%s] --> [%s]\n",gameVer.c_str(),glestVersionString.c_str());
@@ -3912,7 +3912,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	if(gameVer != glestVersionString) {
 		char szBuf[4096]="";
 		sprintf(szBuf,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found saved game version that matches your application version: [%s] --> [%s]\n",gameVer.c_str(),glestVersionString.c_str());

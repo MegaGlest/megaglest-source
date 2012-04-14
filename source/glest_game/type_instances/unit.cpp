@@ -111,10 +111,10 @@ void UnitPathBasic::incBlockCount() {
 void UnitPathBasic::add(const Vec2i &path) {
 	if(this->map != NULL) {
 		if(this->map->isInside(path) == false) {
-			throw runtime_error("Invalid map path position = " + path.getString() + " map w x h = " + intToStr(map->getW()) + " " + intToStr(map->getH()));
+			throw megaglest_runtime_error("Invalid map path position = " + path.getString() + " map w x h = " + intToStr(map->getW()) + " " + intToStr(map->getH()));
 		}
 		else if(this->map->isInsideSurface(this->map->toSurfCoords(path)) == false) {
-			throw runtime_error("Invalid map surface path position = " + path.getString() + " map surface w x h = " + intToStr(map->getSurfaceW()) + " " + intToStr(map->getSurfaceH()));
+			throw megaglest_runtime_error("Invalid map surface path position = " + path.getString() + " map surface w x h = " + intToStr(map->getSurfaceW()) + " " + intToStr(map->getSurfaceH()));
 		}
 	}
 
@@ -124,10 +124,10 @@ void UnitPathBasic::add(const Vec2i &path) {
 void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
 	if(this->map != NULL) {
 		if(this->map->isInside(path) == false) {
-			throw runtime_error("Invalid map path position = " + path.getString() + " map w x h = " + intToStr(map->getW()) + " " + intToStr(map->getH()));
+			throw megaglest_runtime_error("Invalid map path position = " + path.getString() + " map w x h = " + intToStr(map->getW()) + " " + intToStr(map->getH()));
 		}
 		else if(this->map->isInsideSurface(this->map->toSurfCoords(path)) == false) {
-			throw runtime_error("Invalid map surface path position = " + path.getString() + " map surface w x h = " + intToStr(map->getSurfaceW()) + " " + intToStr(map->getSurfaceH()));
+			throw megaglest_runtime_error("Invalid map surface path position = " + path.getString() + " map surface w x h = " + intToStr(map->getSurfaceW()) + " " + intToStr(map->getSurfaceH()));
 		}
 	}
 
@@ -139,7 +139,7 @@ void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
 
 Vec2i UnitPathBasic::pop(bool removeFrontPos) {
 	if(pathQueue.size() <= 0) {
-		throw runtime_error("pathQueue.size() = " + intToStr(pathQueue.size()));
+		throw megaglest_runtime_error("pathQueue.size() = " + intToStr(pathQueue.size()));
 	}
 	Vec2i p= pathQueue.front();
 	if(removeFrontPos == true) {
@@ -259,7 +259,7 @@ void UnitReference::loadGame(const XmlNode *rootNode,World *world) {
 		if(factionIndex >= world->getFactionCount()) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"factionIndex >= world->getFactionCount() [%d] : [%d]",factionIndex,world->getFactionCount());
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 		faction = world->getFaction(factionIndex);
 	}
@@ -403,7 +403,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
     RandomGen random;
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
-		throw runtime_error("#2 Invalid path position = " + pos.getString());
+		throw megaglest_runtime_error("#2 Invalid path position = " + pos.getString());
 	}
 
 	this->pos=pos;
@@ -605,7 +605,7 @@ Vec2i Unit::getCenteredPos() const {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
     return pos + Vec2i(type->getSize()/2, type->getSize()/2);
@@ -615,7 +615,7 @@ Vec2f Unit::getFloatCenteredPos() const {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return Vec2f(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
@@ -625,7 +625,7 @@ Vec2i Unit::getCellPos() const {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(type->hasCellMap()) {
@@ -756,7 +756,7 @@ float Unit::getHpRatio() const {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return clamp(static_cast<float>(hp)/type->getTotalMaxHp(&totalUpgrade), 0.f, 1.f);
@@ -766,7 +766,7 @@ float Unit::getEpRatio() const {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(type->getMaxHp()==0){
@@ -781,7 +781,7 @@ const Level *Unit::getNextLevel() const{
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(level==NULL && type->getLevelCount()>0){
@@ -803,7 +803,7 @@ string Unit::getFullName() const{
 		str += (level->getName() + " ");
 	}
 	if(type == NULL) {
-	    throw runtime_error("type == NULL in Unit::getFullName()!");
+	    throw megaglest_runtime_error("type == NULL in Unit::getFullName()!");
 	}
 	str += type->getName();
 	return str;
@@ -819,7 +819,7 @@ bool Unit::isAnimProgressBound() const{
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	bool result = false;
@@ -854,7 +854,7 @@ bool Unit::isBeingBuilt() const{
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
     return (currSkill->getClass() == scBeBuilt);
@@ -872,7 +872,7 @@ bool Unit::isAlly(const Unit *unit) const {
 	if(unit == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return faction->isAlly(unit->getFaction());
@@ -882,7 +882,7 @@ bool Unit::isDamaged() const {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return hp < type->getTotalMaxHp(&totalUpgrade);
@@ -892,7 +892,7 @@ bool Unit::isInteresting(InterestingUnitType iut) const {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	switch(iut) {
@@ -926,12 +926,12 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	if(this->currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: this->currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(this->currSkill->getClass() == scMove &&
@@ -995,7 +995,7 @@ void Unit::setCurrSkill(SkillClass sc) {
 	if(getType() == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
     setCurrSkill(getType()->getFirstStOfClass(sc));
@@ -1006,7 +1006,7 @@ void Unit::setTarget(const Unit *unit){
 	if(unit == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//find a free pos in cellmap
@@ -1020,7 +1020,7 @@ void Unit::setTarget(const Unit *unit){
 
 void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
-		throw runtime_error("#3 Invalid path position = " + pos.getString());
+		throw megaglest_runtime_error("#3 Invalid path position = " + pos.getString());
 	}
 
 	if(clearPathFinder == true && this->unitPath != NULL) {
@@ -1041,7 +1041,7 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 void Unit::setTargetPos(const Vec2i &targetPos) {
 
 	if(map->isInside(targetPos) == false || map->isInsideSurface(map->toSurfCoords(targetPos)) == false) {
-		throw runtime_error("#4 Invalid path position = " + targetPos.getString());
+		throw megaglest_runtime_error("#4 Invalid path position = " + targetPos.getString());
 	}
 
 	Vec2i relPos= targetPos - pos;
@@ -1119,7 +1119,7 @@ Model *Unit::getCurrentModelPtr() {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	int currentModelIndexForCurrSkillType = lastModelIndexForCurrSkillType;
@@ -1137,7 +1137,7 @@ const Model *Unit::getCurrentModel() {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	int currentModelIndexForCurrSkillType = lastModelIndexForCurrSkillType;
@@ -1180,7 +1180,7 @@ Vec3f Unit::getCurrVector() const{
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
@@ -1527,7 +1527,7 @@ void Unit::born(const CommandType *ct) {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	faction->addStore(type);
@@ -1618,7 +1618,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	const CommandType *commandType= NULL;
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
-		throw runtime_error("#6 Invalid path position = " + pos.getString());
+		throw megaglest_runtime_error("#6 Invalid path position = " + pos.getString());
 	}
 
 	SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
@@ -1626,7 +1626,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(targetUnit!=NULL){
@@ -1662,7 +1662,7 @@ bool Unit::needToUpdate() {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	bool return_value = false;
@@ -1762,7 +1762,7 @@ bool Unit::update() {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//speed
@@ -2070,7 +2070,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	if(boost == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//printf("APPLYING ATTACK BOOST to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
@@ -2184,7 +2184,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	if(boost == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//printf("DE-APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
@@ -2276,7 +2276,7 @@ void Unit::tick() {
 		if(type == NULL) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 		//if(this->getType()->getName() == "spearman") printf("Unit [%d - %s] start tick hp = %d\n",this->getId(),this->getType()->getName().c_str(),hp);
@@ -2381,7 +2381,7 @@ bool Unit::computeEp() {
 	if(currSkill == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//if not enough ep
@@ -2397,7 +2397,7 @@ bool Unit::computeEp() {
 	if(getType() == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(ep > getType()->getTotalMaxEp(&totalUpgrade)){
@@ -2413,7 +2413,7 @@ bool Unit::computeEp() {
 //	if(currSkill == NULL) {
 //		char szBuf[4096]="";
 //		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-//		throw runtime_error(szBuf);
+//		throw megaglest_runtime_error(szBuf);
 //	}
 //
 //	if(isBeingBuilt() == false) {
@@ -2449,7 +2449,7 @@ bool Unit::repair(){
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//increase hp
@@ -2485,7 +2485,7 @@ bool Unit::decHp(int i) {
 	if(type == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//startDamageParticles
@@ -2625,7 +2625,7 @@ void Unit::applyUpgrade(const UpgradeType *upgradeType){
 	if(upgradeType == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: upgradeType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(upgradeType->isAffected(type)){
@@ -2673,7 +2673,7 @@ bool Unit::morph(const MorphCommandType *mct){
 	if(mct == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: mct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	const UnitType *morphUnitType= mct->getMorphUnit();
@@ -2681,7 +2681,7 @@ bool Unit::morph(const MorphCommandType *mct){
 	if(morphUnitType == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: morphUnitType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
     Field morphUnitField=fLand;
@@ -2724,7 +2724,7 @@ float Unit::computeHeight(const Vec2i &pos) const{
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
 		//printf("CRASHING FOR UNIT: %d [%s] alive = %d\n",this->getId(),this->getType()->getName().c_str(),this->isAlive());
 		//abort();
-		throw runtime_error("#7 Invalid path position = " + pos.getString());
+		throw megaglest_runtime_error("#7 Invalid path position = " + pos.getString());
 	}
 
 	float height= map->getCell(pos)->getHeight();
@@ -2804,7 +2804,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 	if(command == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//if not operative or has not command type => fail
@@ -2835,7 +2835,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 	if(command->getCommandType() == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	const ProducibleType *produced= command->getCommandType()->getProduced();
@@ -2857,7 +2857,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 		if(builtUnit == NULL) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: builtUnit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 		if(faction->reqsOk(builtUnit) == false) {
@@ -2874,7 +2874,7 @@ CommandResult Unit::checkCommand(Command *command) const {
 		if(uct == NULL) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 		if(faction->getUpgradeManager()->isUpgradingOrUpgraded(uct->getProducedUpgrade())){
@@ -2890,12 +2890,12 @@ void Unit::applyCommand(Command *command){
 	if(command == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	else if(command->getCommandType() == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//check produced
@@ -2915,7 +2915,7 @@ void Unit::applyCommand(Command *command){
 		if(uct == NULL) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
         faction->startUpgrade(uct->getProducedUpgrade());
@@ -2927,12 +2927,12 @@ CommandResult Unit::undoCommand(Command *command){
 	if(command == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	else if(command->getCommandType() == NULL) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//return cost
@@ -2954,7 +2954,7 @@ CommandResult Unit::undoCommand(Command *command){
         if(uct == NULL) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
         faction->cancelUpgrade(uct->getProducedUpgrade());
@@ -3194,7 +3194,7 @@ void Unit::setMeetingPos(const Vec2i &meetingPos) {
 	map->clampPos(this->meetingPos);
 
 	if(map->isInside(this->meetingPos) == false || map->isInsideSurface(map->toSurfCoords(this->meetingPos)) == false) {
-		throw runtime_error("#8 Invalid path position = " + this->meetingPos.getString());
+		throw megaglest_runtime_error("#8 Invalid path position = " + this->meetingPos.getString());
 	}
 
 	logSynchData(__FILE__,__LINE__);
@@ -3221,10 +3221,10 @@ void Unit::exploreCells() {
 		int teamIndex = this->getTeam();
 
 		if(game == NULL) {
-			throw runtime_error("game == NULL");
+			throw megaglest_runtime_error("game == NULL");
 		}
 		else if(game->getWorld() == NULL) {
-			throw runtime_error("game->getWorld() == NULL");
+			throw megaglest_runtime_error("game->getWorld() == NULL");
 		}
 
 		game->getWorld()->exploreCells(newPos, sightRange, teamIndex);
@@ -3836,7 +3836,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 			newpath = new UnitPath();
 			break;
 		default:
-			throw runtime_error("detected unsupported pathfinder type!");
+			throw megaglest_runtime_error("detected unsupported pathfinder type!");
     }
 
 	//Unit *result = new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);

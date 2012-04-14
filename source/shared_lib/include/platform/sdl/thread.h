@@ -25,7 +25,7 @@
 //#include "util.h"
 #include <vector>
 #include "types.h"
-#include "leak_dumper.h"
+//#include "leak_dumper.h"
 
 // =====================================================
 //	class Thread

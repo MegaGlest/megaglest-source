@@ -359,7 +359,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 	//Exception handling (conversions and so on);
 	catch(const exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error: " + path + "\n" + e.what());
+		throw megaglest_runtime_error("Error: " + path + "\n" + e.what());
 	}
 }
 

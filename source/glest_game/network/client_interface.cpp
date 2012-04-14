@@ -487,7 +487,7 @@ void ClientInterface::updateLobby() {
 
 					char szBuf[1024]="";
 					snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
-					throw runtime_error(szBuf);
+					throw megaglest_runtime_error(szBuf);
             	}
 
                 networkMessageLaunch.buildGameSettings(&gameSettings);
@@ -529,7 +529,7 @@ void ClientInterface::updateLobby() {
         default:
             {
             string sErr = string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType);
-            //throw runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
+            //throw megaglest_runtime_error(string(__FILE__) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType));
             sendTextMessage("Unexpected network message: " + intToStr(networkMessageType),-1, true,"");
             DisplayErrorMessage(sErr);
             sleep(1);
@@ -582,7 +582,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					NetworkMessageCommandList networkMessageCommandList;
 					bool gotCmd = receiveMessage(&networkMessageCommandList);
 					if(gotCmd == false) {
-						throw runtime_error("error retrieving nmtCommandList returned false!");
+						throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 					}
 
 	//				while(receiveMessage(&networkMessageCommandList) == false &&
@@ -646,7 +646,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 	//				}
 					bool gotCmd = receiveMessage(&networkMessageQuit);
 					if(gotCmd == false) {
-						throw runtime_error("error retrieving nmtQuit returned false!");
+						throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
 					}
 
 					quit= true;
@@ -664,7 +664,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 	//				}
 					bool gotCmd = receiveMessage(&networkMessageText);
 					if(gotCmd == false) {
-						throw runtime_error("error retrieving nmtText returned false!");
+						throw megaglest_runtime_error("error retrieving nmtText returned false!");
 					}
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -692,7 +692,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 							char szBuf[1024]="";
 							snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
-							throw runtime_error(szBuf);
+							throw megaglest_runtime_error(szBuf);
 						}
 
 						networkMessageLaunch.buildGameSettings(&gameSettings);
@@ -944,7 +944,8 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 					return;
 				}
 				else {
-					if(chrono.getMillis() / 1000 > lastMillisCheck) {
+					//if(chrono.getMillis() / 1000 > lastMillisCheck) {
+					if(chrono.getMillis() % 100 == 0) {
 						lastMillisCheck = (chrono.getMillis() / 1000);
 
 						char szBuf[1024]="";
@@ -1032,6 +1033,8 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 						sprintf(szBuf1,statusTextFormat.c_str(),waitForHosts.c_str());
 
 						logger.add(szBuf, true, szBuf1);
+
+						sleep(0);
 					}
 				}
 			}
@@ -1201,7 +1204,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 		if(msg == nmtInvalid) {
 			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
 				if(quit == false) {
-					//throw runtime_error("Disconnected");
+					//throw megaglest_runtime_error("Disconnected");
 					//sendTextMessage("Server has Disconnected.",-1);
 					DisplayErrorMessage("Server has Disconnected.");
 					quit= true;
@@ -1212,7 +1215,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 
 			if(chrono.getMillis() > messageWaitTimeout) {
 			//if(1) {
-				//throw runtime_error("Timeout waiting for message");
+				//throw megaglest_runtime_error("Timeout waiting for message");
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

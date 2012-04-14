@@ -163,7 +163,7 @@ void Faction::sortUnitsByCommandGroups() {
 //	//	printf("i = %d [%p]\n",i,&units[i]);
 //		if(Unit::isUnitDeleted(units[i]) == true) {
 //			printf("i = %d [%p]\n",i,&units[i]);
-//			throw runtime_error("unit already deleted!");
+//			throw megaglest_runtime_error("unit already deleted!");
 //		}
 	//}
 	//printf("\nSorting\n");
@@ -327,7 +327,7 @@ void FactionThread::execute() {
 				for(int j = 0; j < unitCount; ++j) {
 					Unit *unit = faction->getUnit(j);
 					if(unit == NULL) {
-						throw runtime_error("unit == NULL");
+						throw megaglest_runtime_error("unit == NULL");
 					}
 
 					bool update = unit->needToUpdate();
@@ -356,7 +356,7 @@ void FactionThread::execute() {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		throw runtime_error(ex.what());
+		throw megaglest_runtime_error(ex.what());
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -715,7 +715,7 @@ int Faction::getCountForMaxUnitCount(const UnitType *unitType) const{
 bool Faction::reqsOk(const CommandType *ct) const {
 	assert(ct != NULL);
 	if(ct == NULL) {
-	    throw runtime_error("In [Faction::reqsOk] ct == NULL");
+	    throw megaglest_runtime_error("In [Faction::reqsOk] ct == NULL");
 	}
 
 	if(ct->getProduced() != NULL && reqsOk(ct->getProduced()) == false) {
@@ -757,14 +757,14 @@ bool Faction::applyCosts(const ProducibleType *p,const CommandType *ct) {
 			if(r == NULL) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName().c_str(),i,p->getCostCount());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 
 			const ResourceType *rt= r->getType();
 			if(rt == NULL) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName().c_str(),i,p->getCostCount(),r->getDescription().c_str());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 			int cost= r->getAmount();
 			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
@@ -809,7 +809,7 @@ void Faction::applyStaticCosts(const ProducibleType *p,const CommandType *ct) {
 			const ResourceType *rt= p->getCost(i)->getType();
 			//assert(rt != NULL);
 			if(rt == NULL) {
-				throw runtime_error(string(__FUNCTION__) + " rt == NULL for ProducibleType [" + p->getName() + "] index: " + intToStr(i));
+				throw megaglest_runtime_error(string(__FUNCTION__) + " rt == NULL for ProducibleType [" + p->getName() + "] index: " + intToStr(i));
 			}
 			if(rt->getClass() == rcStatic) {
 				int cost= p->getCost(i)->getAmount();
@@ -1079,7 +1079,7 @@ void Faction::removeUnit(Unit *unit){
 		}
 	}
 
-	throw runtime_error("Could not remove unit from faction!");
+	throw megaglest_runtime_error("Could not remove unit from faction!");
 	assert(false);
 }
 

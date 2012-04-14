@@ -243,7 +243,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 				const XmlNode *rowNode= cellMapNode->getChild("row", i);
 				string row= rowNode->getAttribute("value")->getRestrictedValue();
 				if(row.size()!=size){
-					throw runtime_error("Cellmap row has not the same length as unit size");
+					throw megaglest_runtime_error("Cellmap row has not the same length as unit size");
 				}
 				for(int j=0; j<row.size(); ++j){
 					cellMap[i*size+j]= row[j]=='0'? false: true;
@@ -273,7 +273,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 				fields[fAir]= true;
 			}
 			else{
-				throw runtime_error("Not a valid field: "+fieldName+": "+ path);
+				throw megaglest_runtime_error("Not a valid field: "+fieldName+": "+ path);
 			}
 		}
 
@@ -284,7 +284,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 			field = fAir;
 		}
 		else {
-			throw runtime_error("Unit has no field: " + path);
+			throw megaglest_runtime_error("Unit has no field: " + path);
 		}
 
 		//properties
@@ -301,7 +301,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 				}
 			}
 			if(!found) {
-				throw runtime_error("Unknown property: " + propertyName);
+				throw megaglest_runtime_error("Unknown property: " + propertyName);
 			}
 		}
 		//damage-particles
@@ -601,17 +601,17 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		computeFirstCtOfClass();
 
 		if(getFirstStOfClass(scStop)==NULL){
-			throw runtime_error("Every unit must have at least one stop skill: "+ path);
+			throw megaglest_runtime_error("Every unit must have at least one stop skill: "+ path);
 		}
 		if(getFirstStOfClass(scDie)==NULL){
-			throw runtime_error("Every unit must have at least one die skill: "+ path);
+			throw megaglest_runtime_error("Every unit must have at least one die skill: "+ path);
 		}
 
 	}
 	//Exception handling (conversions and so on);
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading UnitType: " + path + "\n" + e.what());
+		throw megaglest_runtime_error("Error loading UnitType: " + path + "\n" + e.what());
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -689,7 +689,7 @@ const AttackCommandType *UnitType::getFirstAttackCommand(Field field) const{
 
 	for(int i = 0; i < commandTypes.size(); ++i){
 		if(commandTypes[i] == NULL) {
-			throw runtime_error("commandTypes[i] == NULL");
+			throw megaglest_runtime_error("commandTypes[i] == NULL");
 		}
 
 		//printf("$$$ Unit [%s] i = %d, commandTypes[i] [%s]\n",this->getName().c_str(),(int)i, commandTypes[i]->toString().c_str());
@@ -710,7 +710,7 @@ const AttackStoppedCommandType *UnitType::getFirstAttackStoppedCommand(Field fie
 
 	for(int i = 0; i < commandTypes.size(); ++i){
 		if(commandTypes[i] == NULL) {
-			throw runtime_error("commandTypes[i] == NULL");
+			throw megaglest_runtime_error("commandTypes[i] == NULL");
 		}
 
 		//printf("$$$ Unit [%s] i = %d, commandTypes[i] [%s]\n",this->getName().c_str(),(int)i, commandTypes[i]->toString().c_str());
@@ -776,7 +776,7 @@ Vec2i UnitType::getFirstOccupiedCellInCellMap(Vec2i currentPos) const {
 bool UnitType::getCellMapCell(int x, int y, CardinalDir facing) const {
 	assert(cellMap);
 	if(cellMap == NULL) {
-		throw runtime_error("cellMap == NULL");
+		throw megaglest_runtime_error("cellMap == NULL");
 	}
 
 	//checkItemInVault(&(this->size),this->size);
@@ -818,11 +818,11 @@ const SkillType *UnitType::getSkillType(const string &skillName, SkillClass skil
 				return skillTypes[i];
 			}
 			else{
-				throw runtime_error("Skill \""+skillName+"\" is not of class \""+SkillType::skillClassToStr(skillClass));
+				throw megaglest_runtime_error("Skill \""+skillName+"\" is not of class \""+SkillType::skillClassToStr(skillClass));
 			}
 		}
 	}
-	throw runtime_error("No skill named \""+skillName+"\"");
+	throw megaglest_runtime_error("No skill named \""+skillName+"\"");
 }
 
 // ==================== totals ====================
@@ -953,7 +953,7 @@ const CommandType *UnitType::getCommandType(int i) const {
 	if(i >= commandTypes.size()) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = %lu",__FILE__,__FUNCTION__,__LINE__,i,(unsigned long)commandTypes.size());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	return commandTypes[i];
 }

@@ -10,9 +10,8 @@
 // ==============================================================
 
 #include "metrics.h"	
-
-//#include "element_type.h"
 #include <stdexcept>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -51,21 +50,21 @@ const Metrics &Metrics::getInstance(){
 
 float Metrics::getAspectRatio() const{
 	if(screenH == 0) {
-		throw runtime_error("div by 0 screenH == 0");
+		throw megaglest_runtime_error("div by 0 screenH == 0");
 	}
 	return static_cast<float>(screenW)/screenH;
 }
 
 int Metrics::toVirtualX(int w) const{
 	if(screenW == 0) {
-		throw runtime_error("div by 0 screenW == 0");
+		throw megaglest_runtime_error("div by 0 screenW == 0");
 	}
 	return w*virtualW/screenW;
 }
 
 int Metrics::toVirtualY(int h) const{
 	if(screenH == 0) {
-		throw runtime_error("div by 0 screenH == 0");
+		throw megaglest_runtime_error("div by 0 screenH == 0");
 	}
 
 	//printf("h [%d] virtualH [%d] screenH [%d] result = %d\n",h,virtualH,screenH,(h*virtualH/screenH));

@@ -1559,7 +1559,7 @@ bool App::OnInit() {
 
 int App::MainLoop() {
 	try {
-		//throw runtime_error("test");
+		//throw megaglest_runtime_error("test");
 		return wxApp::MainLoop();
 	}
 	catch (const exception &e) {

@@ -64,7 +64,7 @@ void AutoTest::updateNewGame(Program *program, MainMenu *mainMenu) {
 				loadGameSettingsFile, &gameSettings);
 
 		if(fileFound == false) {
-			throw runtime_error("Specified game settings file [" + loadGameSettingsFile + "] was NOT found!");
+			throw megaglest_runtime_error("Specified game settings file [" + loadGameSettingsFile + "] was NOT found!");
 		}
 		//printf("Got settings:\n%s",gameSettings.toString().c_str());
 		mainMenu->setState(new MenuStateCustomGame(program, mainMenu, false, pNewGame, true, &gameSettings));

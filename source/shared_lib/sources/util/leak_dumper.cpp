@@ -8,89 +8,78 @@
 //	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
-
 #include "leak_dumper.h"
 
 #ifdef SL_LEAK_DUMP
+using Shared::Platform::MutexSafeWrapper;
 
-AllocInfo::AllocInfo()
-		: ptr(0), file(""), line(-1), bytes(-1), array(false), free(false) {
-}
-
-AllocInfo::AllocInfo(void* ptr, const char* file, int line, size_t bytes, bool array)
-		: ptr(ptr), file(file), line(line), bytes(bytes), array(array), free(false) {
-}
+bool AllocInfo::application_binary_initialized = false;
+static AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 
 // =====================================================
 //	class AllocRegistry
 // =====================================================
 
-// ===================== PRIVATE =======================
-
-AllocRegistry::AllocRegistry(){
-	allocCount= 0;
-	allocBytes= 0;
-	nonMonitoredCount= 0;
-	nonMonitoredBytes= 0;
-}
-
 // ===================== PUBLIC ========================
 
-AllocRegistry &AllocRegistry::getInstance(){
-	static AllocRegistry allocRegistry;
-	return allocRegistry;
-}
-
-AllocRegistry::~AllocRegistry(){
-
+AllocRegistry::~AllocRegistry() {
 	dump("leak_dump.log");
 }
 
-void AllocRegistry::allocate(AllocInfo info){
-	++allocCount;
-	allocBytes+= info.bytes;
-	unsigned hashCode= reinterpret_cast<unsigned>(info.ptr) % maxAllocs;
+void AllocRegistry::allocate(AllocInfo info) {
+	//if(info.line == 0) return;
 
-	for(int i=hashCode; i<maxAllocs; ++i){
-		if(allocs[i].free){
+	MutexSafeWrapper safeMutexMasterList(mutex);
+	//printf("ALLOCATE.\tfile: %s, line: %d, bytes: %lu, array: %d inuse: %d\n", info.file, info.line, info.bytes, info.array, info.inuse);
+
+	if(info.line > 0) {
+		++allocCount;
+		allocBytes += info.bytes;
+	}
+	//bool found = false;
+	for(int i = (nextFreeIndex >= 0 ? nextFreeIndex : 0); i < maxAllocs; ++i) {
+		if(allocs[i].freetouse == true && allocs[i].inuse == false) {
 			allocs[i]= info;
+			nextFreeIndex=-1;
+			//found = true;
 			return;
 		}
 	}
-	for(int i=0; i<hashCode; ++i){
-		if(allocs[i].free){
-			allocs[i]= info;
-			return;
-		}
-	}
-	++nonMonitoredCount;
-	nonMonitoredBytes+= info.bytes;
+
+	//if(found == false) {
+		//printf("ALLOCATE NOT MONITORED\n");
+		printf("ALLOCATE NOT MONITORED.\tfile: %s, line: %d, ptr [%p], bytes: %lu, array: %d inuse: %d, \n%s\n", info.file, info.line, info.ptr, info.bytes, info.array, info.inuse, info.stack.c_str());
+
+		++nonMonitoredCount;
+		nonMonitoredBytes+= info.bytes;
+	//}
 }
 
-void AllocRegistry::deallocate(void* ptr, bool array){
-	unsigned hashCode= reinterpret_cast<unsigned>(ptr) % maxAllocs;
+void AllocRegistry::deallocate(void* ptr, bool array,const char* file, int line) {
+	//if(line == 0) return;
 
-	for(int i=hashCode; i<maxAllocs; ++i){
-		if(!allocs[i].free && allocs[i].ptr==ptr && allocs[i].array==array){
-			allocs[i].free= true;
+	MutexSafeWrapper safeMutexMasterList(mutex);
+
+	//bool found = false;
+	for(int i=0; i < maxAllocs; ++i) {
+		if(allocs[i].freetouse == false && allocs[i].inuse == true &&
+				allocs[i].ptr == ptr && allocs[i].array == array) {
+			allocs[i].freetouse= true;
+			allocs[i].inuse = false;
+			nextFreeIndex=i;
+
+			//found = true;
+			//break;
 			return;
 		}
 	}
-	for(int i=0; i<hashCode; ++i){
-		if(!allocs[i].free && allocs[i].ptr==ptr && allocs[i].array==array){
-			allocs[i].free= true;
-			return;
-		}
-	}
+
+	//if(found == false) {
+		if(line > 0) printf("WARNING, possible error on pointer delete for ptr [%p] array = %d, file [%s] line: %d\n%s\n",ptr,array,file, line,AllocInfo::getStackTrace().c_str());
+	//}
 }
 
-void AllocRegistry::reset(){
-	for(int i=0; i<maxAllocs; ++i){
-		allocs[i]= AllocInfo();
-	}
-}
-
-void AllocRegistry::dump(const char *path){
+void AllocRegistry::dump(const char *path) {
 #ifdef WIN32
 	FILE* f= = _wfopen(utf8_decode(path).c_str(), L"wt");
 #else
@@ -102,15 +91,21 @@ void AllocRegistry::dump(const char *path){
 	fprintf(f, "Memory leak dump\n\n");
 
 	for(int i=0; i<maxAllocs; ++i){
-		if(!allocs[i].free){
-			leakBytes+= allocs[i].bytes;
-			fprintf(f, "%d.\tfile: %s, line: %d, bytes: %d, array: %d\n", ++leakCount, allocs[i].file, allocs[i].line, allocs[i].bytes, allocs[i].array);
+		AllocInfo &info = allocs[i];
+		if(info.freetouse == false && info.inuse == true) {
+
+			if(info.line > 0) {
+				leakBytes += info.bytes;
+
+				//allocs[i].stack = AllocInfo::getStackTrace();
+				fprintf(f, "Leak #%d.\tfile: %s, line: %d, ptr [%p], bytes: %lu, array: %d, inuse: %d\n%s", ++leakCount, info.file, info.line, info.ptr, info.bytes, info.array,info.inuse,info.stack.c_str());
+			}
 		}
 	}
 
-	fprintf(f, "\nTotal leaks: %d, %d bytes\n", leakCount, leakBytes);
-	fprintf(f, "Total allocations: %d, %d bytes\n", allocCount, allocBytes);
-	fprintf(f, "Not monitored allocations: %d, %d bytes\n", nonMonitoredCount, nonMonitoredBytes);
+	fprintf(f, "\nTotal leaks: %d, %lu bytes\n", leakCount, leakBytes);
+	fprintf(f, "Total allocations: %d, %lu bytes\n", allocCount, allocBytes);
+	fprintf(f, "Not monitored allocations: %d, %lu bytes\n", nonMonitoredCount, nonMonitoredBytes);
 
 	fclose(f);
 }

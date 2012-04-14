@@ -84,14 +84,14 @@ void SoundBuffer::createDsBuffer(IDirectSound8 *dsObject){
 	//create buffer
 	HRESULT hr= dsObject->CreateSoundBuffer(&dsBufferDesc, &buffer, NULL);
 	if (hr!=DS_OK){
-        throw runtime_error("Failed to create direct sound buffer");
+        throw megaglest_runtime_error("Failed to create direct sound buffer");
 	}
 
 	//query dx8 interface
 	hr = buffer->QueryInterface(IID_IDirectSoundBuffer8, (void**) &dsBuffer);
     buffer->Release();
 	if (hr!=S_OK){
-        throw runtime_error("Failed to create direct sound 8 static buffer");
+        throw megaglest_runtime_error("Failed to create direct sound 8 static buffer");
 	}
 }
 
@@ -132,7 +132,7 @@ void StaticSoundBuffer::fillDsBuffer(){
 	//lock
 	HRESULT hr= dsBuffer->Lock(0, 0, &writePointer, &size, NULL, NULL, DSBLOCK_ENTIREBUFFER);
 	if (hr!=DS_OK){
-        throw runtime_error("Failed to Lock direct sound buffer");
+        throw megaglest_runtime_error("Failed to Lock direct sound buffer");
 	}
 
 	//copy memory
@@ -141,7 +141,7 @@ void StaticSoundBuffer::fillDsBuffer(){
 	//unlock
     hr= dsBuffer->Unlock(writePointer, size, NULL, 0);
 	if (hr!=DS_OK){
-        throw runtime_error("Failed to Unlock direct sound buffer");
+        throw megaglest_runtime_error("Failed to Unlock direct sound buffer");
 	}
 }
 
@@ -254,7 +254,7 @@ void StrSoundBuffer::fillDsBuffer(){
 	//lock
 	HRESULT hr= dsBuffer->Lock(0, 0, &writePointer, &size, NULL, NULL, DSBLOCK_ENTIREBUFFER);
 	if (hr!=DS_OK){
-        throw runtime_error("Failed to Lock direct sound buffer");
+        throw megaglest_runtime_error("Failed to Lock direct sound buffer");
 	}
 
 	//copy memory
@@ -263,7 +263,7 @@ void StrSoundBuffer::fillDsBuffer(){
 	//unlock
 	hr= dsBuffer->Unlock(writePointer, size, NULL, 0 );
 	if (hr!=DS_OK){
-        throw runtime_error("Failed to Unlock direct sound buffer");
+        throw megaglest_runtime_error("Failed to Unlock direct sound buffer");
 	}
 }
 
@@ -280,7 +280,7 @@ void StrSoundBuffer::refreshDsBuffer(){
 
 	HRESULT hr= dsBuffer->GetCurrentPosition(&playCursor, NULL);
 	if(hr!=DS_OK){
-		throw runtime_error("Failed to Lock query play position");
+		throw megaglest_runtime_error("Failed to Lock query play position");
 	}
 
 	//compute bytes to lock
@@ -297,7 +297,7 @@ void StrSoundBuffer::refreshDsBuffer(){
 		//lock
 		HRESULT hr=dsBuffer->Lock(lastPlayCursor, bytesToLock, &writePointer1, &size1, &writePointer2, &size2, 0);
 		if (hr!=DS_OK){
-			throw runtime_error("Failed to Lock direct sound buffer");
+			throw megaglest_runtime_error("Failed to Lock direct sound buffer");
 		}
 
 		//copy memory
@@ -309,7 +309,7 @@ void StrSoundBuffer::refreshDsBuffer(){
 		//unlock
 		hr= dsBuffer->Unlock(writePointer1, size1, writePointer2, size2);
 		if (hr!=DS_OK){
-			throw runtime_error("Failed to Unlock direct sound buffer");
+			throw megaglest_runtime_error("Failed to Unlock direct sound buffer");
 		}
 	}		
 
@@ -361,7 +361,7 @@ bool SoundPlayerDs8::init(const SoundPlayerParams *params){
 		//create object
 		hr=DirectSoundCreate8(NULL, &dsObject, NULL);
 		if (hr!=DS_OK){
-			throw runtime_error("Can't create direct sound object");
+			throw megaglest_runtime_error("Can't create direct sound object");
 		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -369,7 +369,7 @@ bool SoundPlayerDs8::init(const SoundPlayerParams *params){
 		//Set cooperative level
 		hr= dsObject->SetCooperativeLevel(GetActiveWindow(), DSSCL_PRIORITY);
 		if (hr!=DS_OK){
-			throw runtime_error("Can't set cooperative level of dsound");
+			throw megaglest_runtime_error("Can't set cooperative level of dsound");
 		}
 		initOk = true;
 

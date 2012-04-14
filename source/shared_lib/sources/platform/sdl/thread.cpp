@@ -12,9 +12,9 @@
 #include <sstream>
 #include <stdexcept>
 #include <assert.h>
-
 #include "noimpl.h"
 #include <algorithm>
+#include "platform_util.h"
 #include "platform_common.h"
 
 using namespace std;
@@ -60,7 +60,7 @@ void Thread::start() {
 	if(thread == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] thread == NULL",__FILE__,__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -74,7 +74,7 @@ int Thread::beginExecution(void* data) {
 	if(thread == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] thread == NULL",__FILE__,__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	thread->execute();
 	return 0;
@@ -141,7 +141,7 @@ Mutex::Mutex(string ownerId) {
 	if(mutex == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",__FILE__,__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	deleteownerId = "";
 }
@@ -151,13 +151,13 @@ Mutex::~Mutex() {
 	if(mutex == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 		//printf("%s\n",szBuf);
 	}
 	else if(refCount >= 1) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] about to destroy mutex refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(mutex != NULL) {
@@ -171,7 +171,7 @@ void Mutex::p() {
 	if(mutex == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	SDL_mutexP(mutex);
 	refCount++;
@@ -181,7 +181,7 @@ void Mutex::v() {
 	if(mutex == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",__FILE__,__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	refCount--;
 	SDL_mutexV(mutex);
@@ -196,7 +196,7 @@ Semaphore::Semaphore(Uint32 initialValue) {
 	if(semaphore == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -204,7 +204,7 @@ Semaphore::~Semaphore() {
 	if(semaphore == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	SDL_DestroySemaphore(semaphore);
 	semaphore = NULL;
@@ -214,7 +214,7 @@ void Semaphore::signal() {
 	if(semaphore == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	SDL_SemPost(semaphore);
 }
@@ -223,7 +223,7 @@ int Semaphore::waitTillSignalled(int waitMilliseconds) {
 	if(semaphore == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	int semValue = 0;
 	if(waitMilliseconds >= 0) {
@@ -239,7 +239,7 @@ uint32 Semaphore::getSemValue() {
 	if(semaphore == NULL) {
 		char szBuf[1024]="";
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",__FILE__,__FUNCTION__,__LINE__);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return SDL_SemValue(semaphore);

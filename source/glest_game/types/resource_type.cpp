@@ -181,7 +181,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading resource type: " + path + "\n" + e.what());
+		throw megaglest_runtime_error("Error loading resource type: " + path + "\n" + e.what());
 	}
 }
 
@@ -200,7 +200,7 @@ ResourceClass ResourceType::strToRc(const string &s){
 	if(s=="consumable"){
         return rcConsumable;
 	}
-	throw runtime_error("Error converting from string ro resourceClass, found: " + s);
+	throw megaglest_runtime_error("Error converting from string ro resourceClass, found: " + s);
 }
 
 void ResourceType::deletePixels() {

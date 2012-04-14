@@ -576,7 +576,7 @@ char Config::translateStringToCharKey(const string &value) const {
 		}
 		else {
 			string sError = "Unsupported key translation [" + value + "]";
-			throw runtime_error(sError.c_str());
+			throw megaglest_runtime_error(sError.c_str());
 		}
 	}
 	else if(value.length() >= 1) {
@@ -674,7 +674,7 @@ char Config::translateStringToCharKey(const string &value) const {
 	}
 	else {
 		string sError = "Unsupported key translation" + value;
-		throw runtime_error(sError.c_str());
+		throw megaglest_runtime_error(sError.c_str());
 	}
 
 	// Because SDL is based on lower Ascii
@@ -755,7 +755,7 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 		}
 		else {
 			string sError = "Unsupported key translation [" + value + "]";
-			throw runtime_error(sError.c_str());
+			throw megaglest_runtime_error(sError.c_str());
 		}
 	}
 	else if(value.length() >= 1) {
@@ -783,7 +783,7 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 	}
 	else {
 		string sError = "Unsupported key translation" + value;
-		throw runtime_error(sError.c_str());
+		throw megaglest_runtime_error(sError.c_str());
 	}
 
 	// Because SDL is based on lower Ascii

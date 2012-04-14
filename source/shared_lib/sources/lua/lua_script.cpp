@@ -12,9 +12,9 @@
 #include "lua_script.h"
 
 #include <stdexcept>
-
 #include "conversion.h"
 #include "util.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -55,7 +55,7 @@ LuaScript::LuaScript() {
 	luaL_openlibs(luaState);
 
 	if(luaState==NULL){
-		throw runtime_error("Can not allocate lua state");
+		throw megaglest_runtime_error("Can not allocate lua state");
 	}
 
 	argumentCount= -1;
@@ -421,7 +421,7 @@ void LuaScript::loadCode(const string &code, const string &name){
 		printf("Function name [%s]\ncode:\n%s\n",name.c_str(),code.c_str());
 		printf("=========================================================\n");
 
-		throw runtime_error("Error loading lua code: " + errorToString(errorCode));
+		throw megaglest_runtime_error("Error loading lua code: " + errorToString(errorCode));
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
@@ -433,7 +433,7 @@ void LuaScript::loadCode(const string &code, const string &name){
 		printf("Error calling lua pcall: %s\n",errorToString(errorCode).c_str());
 		printf("=========================================================\n");
 
-		throw runtime_error("Error initializing lua: " + errorToString(errorCode));
+		throw megaglest_runtime_error("Error initializing lua: " + errorToString(errorCode));
 	}
 
 	//const char *errMsg = lua_tostring(luaState, -1);
@@ -464,7 +464,7 @@ void LuaScript::endCall() {
 	if(currentLuaFunctionIsValid == true) {
 		int errorCode= lua_pcall(luaState, argumentCount, 0, 0);
 		if(errorCode !=0 ) {
-			throw runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+			throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
 		}
 	}
 	else
@@ -652,7 +652,7 @@ void LuaArguments::throwLuaError(const string &message) const{
 		stackString+= "\n";
 	}
 	
-	throw runtime_error("Lua error: " + message + "\n\nLua Stack:\n" + stackString);
+	throw megaglest_runtime_error("Lua error: " + message + "\n\nLua Stack:\n" + stackString);
 }
 
 }}//end namespace

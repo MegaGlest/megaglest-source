@@ -30,7 +30,7 @@ using namespace Shared::Graphics::Gl;
 
 #include "util.h"
 #include "platform_common.h"
-
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -130,7 +130,7 @@ float FontMetrics::getTextWidth(const string &str) {
 		for(unsigned int i=0; i< str.size() && (int)i < Font::charCount; ++i){
 			if(str[i] >= Font::charCount) {
 				string sError = "str[i] >= Font::charCount, [" + str + "] i = " + intToStr(i);
-				throw runtime_error(sError);
+				throw megaglest_runtime_error(sError);
 			}
 			//Treat 2 byte characters as spaces
 			if(str[i] < 0) {

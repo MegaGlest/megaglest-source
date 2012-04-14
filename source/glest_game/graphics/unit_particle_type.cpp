@@ -75,7 +75,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 		direction.y= directionNode->getAttribute("y")->getFloatValue();
 		direction.z= directionNode->getAttribute("z")->getFloatValue();
 		if((shape == UnitParticleSystem::sConical) && (0.0 == direction.length()))
-			throw runtime_error("direction cannot be zero");
+			throw megaglest_runtime_error("direction cannot be zero");
 		// ought to warn about 0 directions generally
 	}
 
@@ -96,7 +96,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 		const XmlNode *minRadiusNode= particleSystemNode->getChild("min-radius");
 		minRadius= minRadiusNode->getAttribute("value")->getFloatValue();
 		if(minRadius > radius)
-			throw runtime_error("min-radius cannot be bigger than radius");
+			throw megaglest_runtime_error("min-radius cannot be bigger than radius");
 	} else {
 		minRadius = 0;
 	}
@@ -174,7 +174,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 		const XmlNode* delayNode = particleSystemNode->getChild("delay");
 		const float delay_secs = delayNode->getAttribute("value")->getFloatValue();
 		if(delay_secs < 0)
-			throw runtime_error("particle effect delay cannot be negative");
+			throw megaglest_runtime_error("particle effect delay cannot be negative");
 		delay = (int)delay_secs * GameConstants::updateFps;
 	} else{
 		delay= 0;
@@ -185,7 +185,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 		const XmlNode* lifetimeNode = particleSystemNode->getChild("lifetime");
 		const float lifetime_secs = lifetimeNode->getAttribute("value")->getFloatValue();
 		if(lifetime_secs < 0 && lifetime_secs != -1)
-			throw runtime_error("particle effect lifetime cannot be negative (-1 means inherited from parent particle)");
+			throw megaglest_runtime_error("particle effect lifetime cannot be negative (-1 means inherited from parent particle)");
 		lifetime = (int)lifetime_secs * GameConstants::updateFps;
 	} else{
 		lifetime= -1; //default
@@ -276,7 +276,7 @@ void UnitParticleSystemType::load(const XmlNode *particleFileNode, const string 
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
+		throw megaglest_runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
 	}
 }
 

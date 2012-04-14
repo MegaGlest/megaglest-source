@@ -15,6 +15,7 @@
 #include <map>
 #include <string>
 #include <stdexcept>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using std::map;
@@ -72,7 +73,7 @@ public:
 	T *newInstance(string classId){
 		Factories::iterator it= factories.find(classId);
 		if(it == factories.end()){
-			throw runtime_error("Unknown class identifier: " + classId);
+			throw megaglest_runtime_error("Unknown class identifier: " + classId);
 		}
 		return static_cast<T*>(it->second->newInstance());
 	}

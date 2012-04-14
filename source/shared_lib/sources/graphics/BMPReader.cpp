@@ -81,13 +81,13 @@ Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	BitmapFileHeader fileHeader;
 	in.read((char*)&fileHeader, sizeof(BitmapFileHeader));
 	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
-		throw runtime_error(path +" is not a bitmap");
+		throw megaglest_runtime_error(path +" is not a bitmap");
 	}
 		//read info header
 	BitmapInfoHeader infoHeader;
 	in.read((char*)&infoHeader, sizeof(BitmapInfoHeader));
 	if(infoHeader.bitCount!=24){
-		throw runtime_error(path+" is not a 24 bit bitmap");
+		throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
 	}
 	int h= infoHeader.height;
 	int w= infoHeader.width;

@@ -216,11 +216,12 @@ SystemFlags::SystemFlagsType & SystemFlags::getSystemSettingType(DebugType type)
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
-			//throw runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
+			//throw megaglest_runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
-			static SystemFlagsType *result = new SystemFlagsType();
-			result->enabled = SystemFlags::VERBOSE_MODE_ENABLED;
-			return *result;
+			//static SystemFlagsType *result = new SystemFlagsType();
+			static SystemFlagsType result;
+			result.enabled = SystemFlags::VERBOSE_MODE_ENABLED;
+			return result;
 		}
 		else {
 			SystemFlags::init(false);
@@ -236,7 +237,7 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
-			//throw runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
+			//throw megaglest_runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
 			return;
 		}
@@ -389,7 +390,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
-			//throw runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
+			//throw megaglest_runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
 			//return;
 		}
@@ -599,7 +600,7 @@ string lastDir(const string &s) {
 	}
 
 	if (pos==string::npos) {
-		throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
+		throw megaglest_runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
 	}
 
 	if(	pos + 1 == s.length() && s.length() > 0 &&
@@ -636,7 +637,7 @@ string cutLastFile(const string &s){
 	}
 
 	if (pos != string::npos) {
-		//throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
+		//throw megaglest_runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
 	//}
 
 		return (s.substr(0, pos));
@@ -647,7 +648,7 @@ string cutLastFile(const string &s){
 string cutLastExt(const string &s) {
      size_t i= s.find_last_of('.');
 	 if (i != string::npos) {
-          //throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
+          //throw megaglest_runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
 	 //}
 
 		return (s.substr(0, i));
@@ -661,7 +662,7 @@ string ext(const string &s) {
      i=s.find_last_of('.')+1;
 
 	 if (i != string::npos) {
-          //throw runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
+          //throw megaglest_runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
 	 //}
 		return (s.substr(i, s.size()-i));
 	 }

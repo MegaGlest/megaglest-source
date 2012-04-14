@@ -78,23 +78,28 @@ void Texture1D::deletePixels() {
 //	class Texture2D
 // =====================================================
 
-SDL_Surface* Texture2D::CreateSDLSurface(bool newPixelData) const {
-	SDL_Surface* surface = NULL;
+std::pair<SDL_Surface*,unsigned char*> Texture2D::CreateSDLSurface(bool newPixelData) const {
+	std::pair<SDL_Surface*,unsigned char*> result;
+	result.first = NULL;
+	result.second = NULL;
 
 	unsigned char* surfData = NULL;
 	if (newPixelData == true) {
 		// copy pixel data
 		surfData = new unsigned char[pixmap.getW() * pixmap.getH() * pixmap.getComponents()];
 		memcpy(surfData, pixmap.getPixels(), pixmap.getW() * pixmap.getH() * pixmap.getComponents());
-	} else {
+	}
+	else {
 		surfData = pixmap.getPixels();
 	}
 
+	result.second = surfData;
 	// This will only work with 24bit RGB and 32bit RGBA pictures
-	surface = SDL_CreateRGBSurfaceFrom(surfData, pixmap.getW(), pixmap.getH(), 8 * pixmap.getComponents(), pixmap.getW() * pixmap.getComponents(), 0x000000FF, 0x0000FF00, 0x00FF0000, (pixmap.getComponents() == 4) ? 0xFF000000 : 0);
-	if ((surface == NULL) && newPixelData == true) {
+	result.first = SDL_CreateRGBSurfaceFrom(surfData, pixmap.getW(), pixmap.getH(), 8 * pixmap.getComponents(), pixmap.getW() * pixmap.getComponents(), 0x000000FF, 0x0000FF00, 0x00FF0000, (pixmap.getComponents() == 4) ? 0xFF000000 : 0);
+	if ((result.first == NULL) && newPixelData == true) {
 		// cleanup when we failed to the create surface
 		delete[] surfData;
+		result.second = NULL;
 	}
 
 //	SDL_Surface *prepGLTexture(SDL_Surface *surface, GLfloat *texCoords = NULL, const bool
@@ -102,8 +107,8 @@ SDL_Surface* Texture2D::CreateSDLSurface(bool newPixelData) const {
 	        /* Use the surface width and height expanded to powers of 2 */
 	        //int w = powerOfTwo(surface->w);
 	        //int h = powerOfTwo(surface->h);
-	        int w = surface->w;
-	        int h = surface->h;
+	        int w = result.first->w;
+	        int h = result.first->h;
 
 //	        if (texCoords != 0) {
 //	                texCoords[0] = 0.0f;                                    /* Min
@@ -131,14 +136,15 @@ SDL_Surface* Texture2D::CreateSDLSurface(bool newPixelData) const {
 	#endif
 	        );
 	        if ( image == NULL ) {
-	                return 0;
+	        		result.first = NULL;
+	                return result;
 	        }
 
 	        /* Save the alpha blending attributes */
-	        Uint32 savedFlags = surface->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
-	        Uint8  savedAlpha = surface->format->alpha;
+	        Uint32 savedFlags = result.first->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
+	        Uint8  savedAlpha = result.first->format->alpha;
 	        if ( (savedFlags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
-	                SDL_SetAlpha(surface, 0, 0);
+	                SDL_SetAlpha(result.first, 0, 0);
 	        }
 
 	        SDL_Rect srcArea, destArea;
@@ -147,14 +153,14 @@ SDL_Surface* Texture2D::CreateSDLSurface(bool newPixelData) const {
 	        /* Copy it in at the bottom, because we're going to flip
 	           this image upside-down in a moment
 	        */
-	        srcArea.y = 0; destArea.y = h - surface->h;
-	        srcArea.w = surface->w;
-	        srcArea.h = surface->h;
-	        SDL_BlitSurface(surface, &srcArea, image, &destArea);
+	        srcArea.y = 0; destArea.y = h - result.first->h;
+	        srcArea.w = result.first->w;
+	        srcArea.h = result.first->h;
+	        SDL_BlitSurface(result.first, &srcArea, image, &destArea);
 
 	        /* Restore the alpha blending attributes */
 	        if ((savedFlags & SDL_SRCALPHA) == SDL_SRCALPHA) {
-	                SDL_SetAlpha(surface, savedFlags, savedAlpha);
+	                SDL_SetAlpha(result.first, savedFlags, savedAlpha);
 	        }
 
 	        /* Turn the image upside-down, because OpenGL textures
@@ -190,10 +196,10 @@ SDL_Surface* Texture2D::CreateSDLSurface(bool newPixelData) const {
 	        delete[] line;
 	#endif
 
-	        return image;
+	        result.first = image;
 //	}
 
-	return surface;
+	return result;
 }
 
 void Texture2D::load(const string &path){

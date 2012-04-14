@@ -50,7 +50,7 @@ struct CellMetrics {
 			//case Field::ANY_WATER:	return field2;
 			//case Field::DEEP_WATER:	return field3;
 			//case Field::AMPHIBIOUS:	return field4;
-			default: throw runtime_error("Unknown Field passed to CellMetrics::get()");
+			default: throw megaglest_runtime_error("Unknown Field passed to CellMetrics::get()");
 		}
 	}
 	
@@ -61,7 +61,7 @@ struct CellMetrics {
 			//case Field::ANY_WATER:	field2 = val; return;
 			//case Field::DEEP_WATER:	field3 = val; return;
 			//case Field::AMPHIBIOUS:	field4 = val; return;
-			default: throw runtime_error("Unknown Field passed to CellMetrics::set()");
+			default: throw megaglest_runtime_error("Unknown Field passed to CellMetrics::set()");
 		}
 	}
 	

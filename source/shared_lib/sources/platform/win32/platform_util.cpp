@@ -19,7 +19,7 @@
 #include <string.h>
 #include "SDL_syswm.h"
 #include <iostream>
-
+#include <stdexcept>
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -30,7 +30,7 @@ namespace Shared { namespace Platform {
 // =====================================================
 //	class PlatformExceptionHandler
 // =====================================================
-
+string PlatformExceptionHandler::application_binary="";
 PlatformExceptionHandler *PlatformExceptionHandler::thisPointer= NULL;
 
 // Constructs object and convert lpaszString to Unicode
@@ -122,6 +122,14 @@ void PlatformExceptionHandler::install(string dumpFileName){
 	thisPointer= this;
 	this->dumpFileName= dumpFileName;
 	SetUnhandledExceptionFilter(handler);
+}
+
+string PlatformExceptionHandler::getStackTrace() {
+	return "";
+}
+
+megaglest_runtime_error::megaglest_runtime_error(const string& __arg)
+	: std::runtime_error(__arg + PlatformExceptionHandler::getStackTrace()) {
 }
 
 // =====================================================
