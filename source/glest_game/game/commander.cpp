@@ -122,7 +122,7 @@ void CommanderNetworkThread::execute() {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		throw runtime_error(ex.what());
+		throw megaglest_runtime_error(ex.what());
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -516,7 +516,7 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 				sprintf(szMsg,"Player detected an error: Command refers to non existent unit id = %d. Game out of synch.",networkCommand->getUnitId());
 				gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
 			}
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 	}
 
@@ -713,7 +713,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
 			SwitchTeamVote *vote = faction->getSwitchTeamVote(factionIndex);
 			if(vote == NULL) {
-				throw runtime_error("vote == NULL");
+				throw megaglest_runtime_error("vote == NULL");
 			}
 			vote->voted = true;
 			vote->allowSwitchTeam = allowSwitchTeam;
@@ -894,7 +894,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	if(world == NULL) {
 	    char szBuf[1024]="";
 	    sprintf(szBuf,"In [%s::%s Line: %d] world == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	Unit* target= NULL;
@@ -915,7 +915,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
             gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
         }
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
     ct= unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
@@ -949,7 +949,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
         }
 
 	    std::string sError = "Error [#1]: Game is out of sync (Unit / Faction mismatch)\nplease check log files for details.";
-		throw runtime_error(sError);
+		throw megaglest_runtime_error(sError);
 	}
 /*
     I don't think we can validate in unit type since it can be different for certain commands (like attack and build etc)
@@ -973,14 +973,14 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
         }
 
 	    std::string sError = "Error [#2]: Game is out of sync (unit type mismatch)\nplease check log files for details.";
-		throw runtime_error(sError);
+		throw megaglest_runtime_error(sError);
 	}
 */
 
     const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
 
 	// debug test!
-	//throw runtime_error("Test missing command type!");
+	//throw megaglest_runtime_error("Test missing command type!");
 
 	//validate command type
 	if(ct == NULL) {
@@ -1004,7 +1004,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	    std::string sError = "Error [#3]: Game is out of sync, please check log files for details.";
 	    //abort();
-		throw runtime_error(sError);
+		throw megaglest_runtime_error(sError);
 	}
 
 	CardinalDir facing;
@@ -1014,7 +1014,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 		if(networkCommand->getTargetId() < 0 || networkCommand->getTargetId() >= 4) {
 			char szBuf[1024]="";
 			sprintf(szBuf,"networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4, [%s]",networkCommand->toString().c_str());
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 		facing = CardinalDir(networkCommand->getTargetId());
 	}

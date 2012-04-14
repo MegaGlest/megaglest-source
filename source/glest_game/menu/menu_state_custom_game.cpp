@@ -514,7 +514,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 //    if(results.empty() == true) {
 	if(factionFiles.empty() == true) {
-        //throw runtime_error("(1)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+        //throw megaglest_runtime_error("(1)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
 		showGeneralError=true;
 		generalErrorToShow = "[#1] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
     }
@@ -632,7 +632,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 		    showGeneralError=true;
 			generalErrorToShow = szBuf;
-		    //throw runtime_error(szBuf);
+		    //throw megaglest_runtime_error(szBuf);
 		}
 	}
 	resultsScenarios.clear();
@@ -666,7 +666,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-	    throw runtime_error(szBuf);
+	    throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -1751,7 +1751,7 @@ void MenuStateCustomGame::render() {
 					fontMetrics = labelPlayers[i].getFont3D()->getMetrics();
 				}
 				if(fontMetrics == NULL) {
-					throw runtime_error("fontMetrics == NULL");
+					throw megaglest_runtime_error("fontMetrics == NULL");
 				}
 				//int curWidth = (metrics.toVirtualX(fontMetrics->getTextWidth(labelPlayers[i].getText())));
 				int curWidth = (fontMetrics->getTextWidth(labelPlayers[i].getText()));
@@ -1917,7 +1917,7 @@ void MenuStateCustomGame::render() {
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
 		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-		//throw runtime_error(szBuf);
+		//throw megaglest_runtime_error(szBuf);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
@@ -2785,7 +2785,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
 		if(callingThread->getQuitStatus() == false) {
-            //throw runtime_error(szBuf);
+            //throw megaglest_runtime_error(szBuf);
             showGeneralError=true;
             generalErrorToShow = ex.what();
 		}
@@ -3453,7 +3453,7 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 	}
 	catch(exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what(),file.c_str());
-		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
+		throw megaglest_runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
 	}
 }
 
@@ -3488,7 +3488,7 @@ void MenuStateCustomGame::updateControlers() {
 		char szBuf[8096]="";
 		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -3514,7 +3514,7 @@ void MenuStateCustomGame::closeUnusedSlots(){
 		char szBuf[8096]="";
 		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -3586,7 +3586,7 @@ void MenuStateCustomGame::updateNetworkSlots() {
 		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-		//throw runtime_error(szBuf);
+		//throw megaglest_runtime_error(szBuf);
 		showGeneralError=true;
 		generalErrorToShow = szBuf;
 
@@ -4114,7 +4114,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 }
@@ -4136,7 +4136,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 		}
 
 		if (allMaps.empty()) {
-			throw runtime_error("No maps were found!");
+			throw megaglest_runtime_error("No maps were found!");
 		}
 		vector<string> results;
 		copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
@@ -4158,7 +4158,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
 			formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
@@ -4190,7 +4190,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 		//abort();
 	}
 
@@ -4208,7 +4208,7 @@ int MenuStateCustomGame::setupTechList(string scenario) {
 		findDirs(techPaths, results);
 
 		if(results.empty()) {
-			throw runtime_error("No tech-trees were found!");
+			throw megaglest_runtime_error("No tech-trees were found!");
 		}
 
 		techTreeFiles= results;
@@ -4230,7 +4230,7 @@ int MenuStateCustomGame::setupTechList(string scenario) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return initialTechSelection;
@@ -4260,7 +4260,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 		}
 
 		if(results.empty() == true) {
-			//throw runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
+			//throw megaglest_runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
 			showGeneralError=true;
 			generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
 		}
@@ -4309,7 +4309,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 }
 
@@ -4322,7 +4322,7 @@ void MenuStateCustomGame::setupTilesetList(string scenario) {
 		vector<string> results;
 		findDirs(config.getPathListForType(ptTilesets,scenarioDir), results);
 		if (results.empty()) {
-			throw runtime_error("No tile-sets were found!");
+			throw megaglest_runtime_error("No tile-sets were found!");
 		}
 		tilesetFiles= results;
 		std::for_each(results.begin(), results.end(), FormatString());
@@ -4335,7 +4335,7 @@ void MenuStateCustomGame::setupTilesetList(string scenario) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 }

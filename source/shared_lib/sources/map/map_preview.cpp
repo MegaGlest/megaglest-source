@@ -502,26 +502,26 @@ void MapPreview::reset(int w, int h, float alt, MapSurfaceType surf) {
 	if (w < MIN_MAP_CELL_DIMENSION || h < MIN_MAP_CELL_DIMENSION) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 		return;
 	}
 
 	if (w > MAX_MAP_CELL_DIMENSION || h > MAX_MAP_CELL_DIMENSION) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Size of map can be at most %dx%d",MAX_MAP_CELL_DIMENSION,MAX_MAP_CELL_DIMENSION);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if (alt < MIN_MAP_CELL_HEIGHT || alt > MAX_MAP_CELL_HEIGHT) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Height must be in the range %d-%d",MIN_MAP_CELL_HEIGHT,MAX_MAP_CELL_HEIGHT);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if (surf < st_Grass || surf > st_Ground) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Surface must be in the range %d-%d",st_Grass,st_Ground);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//if (cells != NULL) {
@@ -554,26 +554,26 @@ void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
 	if (w < MIN_MAP_CELL_DIMENSION || h < MIN_MAP_CELL_DIMENSION) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 		return;
 	}
 
 	if (w > MAX_MAP_CELL_DIMENSION || h > MAX_MAP_CELL_DIMENSION) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Size of map can be at most %dx%d",MAX_MAP_CELL_DIMENSION,MAX_MAP_CELL_DIMENSION);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if (alt < MIN_MAP_CELL_HEIGHT || alt > MAX_MAP_CELL_HEIGHT) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Height must be in the range %d-%d",MIN_MAP_CELL_HEIGHT,MAX_MAP_CELL_HEIGHT);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if (surf < st_Grass || surf > st_Ground) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Surface must be in the range %d-%d",st_Grass,st_Ground);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	int oldW = this->w;
@@ -629,7 +629,7 @@ void MapPreview::resetFactions(int maxPlayers) {
 	if (maxPlayers < MIN_MAP_FACTIONCOUNT || maxPlayers > MAX_MAP_FACTIONCOUNT) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Max Players must be in the range %d-%d",MIN_MAP_FACTIONCOUNT,MAX_MAP_FACTIONCOUNT);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//if (startLocations != NULL) {
@@ -704,7 +704,7 @@ void MapPreview::switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2) {
 		}
 	}
 	else {
-		throw runtime_error("Incorrect surfaces");
+		throw megaglest_runtime_error("Incorrect surfaces");
 	}
 }
 
@@ -786,7 +786,7 @@ void MapPreview::loadFromFile(const string &path) {
 		string strError = "[#5] Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
 		throw strError;
 #else
-		throw runtime_error("[#5] error opening map file: " + path);
+		throw megaglest_runtime_error("[#5] error opening map file: " + path);
 #endif
 	}
 }
@@ -856,7 +856,7 @@ void MapPreview::saveToFile(const string &path) {
 
 	}
 	else {
-		throw runtime_error("Error opening map file: " + path);
+		throw megaglest_runtime_error("Error opening map file: " + path);
 	}
 
 	void randomHeight(int x, int y, int height);
@@ -935,7 +935,7 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 		f= fopen(file.c_str(), "rb");
 #endif
 		if(f == NULL) {
-			throw runtime_error("Can't open file");
+			throw megaglest_runtime_error("Can't open file");
 		}
 
 		MapFileHeader header;
@@ -948,7 +948,7 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 				sprintf(szBuf,"In [%s::%s Line: %d]\nfile [%s]\nreadBytes != sizeof(MapFileHeader) [%lu] [%lu]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),readBytes,sizeof(MapFileHeader));
 				SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 		}
 		else {
@@ -960,7 +960,7 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 					printf("In [%s::%s Line: %d]\file [%s]\nheader.version < mapver_1 || header.version >= mapver_MAX [%d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),header.version,mapver_MAX);
 					SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 
-					throw runtime_error(szBuf);
+					throw megaglest_runtime_error(szBuf);
 				}
 			}
 			else if(header.maxFactions <= 0 || header.maxFactions > MAX_MAP_FACTIONCOUNT) {
@@ -971,7 +971,7 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 					printf("In [%s::%s Line: %d]\file [%s]\nheader.maxFactions <= 0 || header.maxFactions > MAX_MAP_FACTIONCOUNT [%d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),header.maxFactions,MAX_MAP_FACTIONCOUNT);
 					SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 
-					throw runtime_error(szBuf);
+					throw megaglest_runtime_error(szBuf);
 				}
 			}
 			else {
@@ -993,7 +993,7 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 
 		//assert(0);
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
-		throw runtime_error("Error loading map file: [" + file + "] msg: " + e.what() + " errno [" + intToStr(errno) + "] [" + strerror(errno) + "]");
+		throw megaglest_runtime_error("Error loading map file: [" + file + "] msg: " + e.what() + " errno [" + intToStr(errno) + "] [" + strerror(errno) + "]");
 	}
 
 	return validMap;
@@ -1023,7 +1023,7 @@ string MapPreview::getMapPath(const vector<string> &pathList, const string &mapN
     }
 
 	if(errorOnNotFound == true) {
-		throw runtime_error("Map [" + mapName + "] not found, scenarioDir [" + scenarioDir + "]");
+		throw megaglest_runtime_error("Map [" + mapName + "] not found, scenarioDir [" + scenarioDir + "]");
 	}
 
 	return "";

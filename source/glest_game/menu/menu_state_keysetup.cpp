@@ -106,7 +106,7 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		//throw runtime_error("Test!");
+		//throw megaglest_runtime_error("Test!");
 
 		for(int i = 0; i < mergedProperties.size(); ++i) {
 

@@ -89,7 +89,7 @@ Profiler::~Profiler(){
 	FILE *f= fopen(profileLog.c_str(), "w");
 #endif
 	if(f==NULL)
-		throw runtime_error("Can not open file: " + profileLog);
+		throw megaglest_runtime_error("Can not open file: " + profileLog);
 
 	fprintf(f, "Profiler Results\n\n");
 
@@ -120,7 +120,7 @@ void Profiler::sectionEnd(const string &name){
 		currSection= currSection->getParent();
 	}
 	else{
-		throw runtime_error("Profile: Leaving section is not current section: "+name);
+		throw megaglest_runtime_error("Profile: Leaving section is not current section: "+name);
 	}
 }
 

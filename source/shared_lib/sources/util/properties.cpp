@@ -68,7 +68,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 	
 	if(fileStream.is_open() == false){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
-		throw runtime_error("File NOT FOUND, can't open file: [" + path + "]");
+		throw megaglest_runtime_error("File NOT FOUND, can't open file: [" + path + "]");
 	}
 
 	if(clearCurrentProperties == true) {
@@ -355,6 +355,7 @@ bool Properties::getBool(const string &key, const char *defaultValueIfNotFound) 
 	}
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		//throw megaglest_runtime_error("Error accessing value: " + key + " in: " + path+"\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + key + " in: " + path+"\n[" + e.what() + "]");
 	}
 }
@@ -365,6 +366,7 @@ int Properties::getInt(const string &key,const char *defaultValueIfNotFound) con
 	}
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		//throw megaglest_runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -372,7 +374,7 @@ int Properties::getInt(const string &key,const char *defaultValueIfNotFound) con
 int Properties::getInt(const string &key, int min, int max,const char *defaultValueIfNotFound) const{
 	int i= getInt(key,defaultValueIfNotFound);
 	if(i<min || i>max){
-		throw runtime_error("Value out of range: " + key + ", min: " + intToStr(min) + ", max: " + intToStr(max));
+		throw megaglest_runtime_error("Value out of range: " + key + ", min: " + intToStr(min) + ", max: " + intToStr(max));
 	}
 	return i;
 }
@@ -383,6 +385,7 @@ float Properties::getFloat(const string &key, const char *defaultValueIfNotFound
 	}
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		//throw megaglest_runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -390,7 +393,7 @@ float Properties::getFloat(const string &key, const char *defaultValueIfNotFound
 float Properties::getFloat(const string &key, float min, float max, const char *defaultValueIfNotFound) const{
 	float f= getFloat(key,defaultValueIfNotFound);
 	if(f<min || f>max){
-		throw runtime_error("Value out of range: " + key + ", min: " + floatToStr(min) + ", max: " + floatToStr(max));
+		throw megaglest_runtime_error("Value out of range: " + key + ", min: " + floatToStr(min) + ", max: " + floatToStr(max));
 	}
 	return f;
 }
@@ -404,7 +407,8 @@ const string Properties::getString(const string &key, const char *defaultValueIf
 	        return string(defaultValueIfNotFound);
 	    }
 	    else {
-            throw runtime_error("Value not found in propertyMap: " + key + ", loaded from: " + path);
+            //throw megaglest_runtime_error("Value not found in propertyMap: " + key + ", loaded from: " + path);
+	    	throw runtime_error("Value not found in propertyMap: " + key + ", loaded from: " + path);
 	    }
 	}
 	else{
@@ -447,6 +451,7 @@ bool Properties::getBool(const char *key, const char *defaultValueIfNotFound) co
 	}
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		//throw megaglest_runtime_error("Error accessing value: " + string(key) + " in: " + path+"\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path+"\n[" + e.what() + "]");
 	}
 }
@@ -457,6 +462,7 @@ int Properties::getInt(const char *key,const char *defaultValueIfNotFound) const
 	}
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		//throw megaglest_runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -467,6 +473,7 @@ float Properties::getFloat(const char *key, const char *defaultValueIfNotFound) 
 	}
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		//throw megaglest_runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
 }
@@ -480,7 +487,8 @@ const string Properties::getString(const char *key, const char *defaultValueIfNo
 	        return string(defaultValueIfNotFound);
 	    }
 	    else {
-            throw runtime_error("Value not found in propertyMap: " + string(key) + ", loaded from: " + path);
+            //throw megaglest_runtime_error("Value not found in propertyMap: " + string(key) + ", loaded from: " + path);
+	    	throw runtime_error("Value not found in propertyMap: " + string(key) + ", loaded from: " + path);
 	    }
 	}
 	else{

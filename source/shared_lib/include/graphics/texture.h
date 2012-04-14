@@ -146,7 +146,7 @@ public:
 
 	virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 
-	SDL_Surface* CreateSDLSurface(bool newPixelData) const;
+	std::pair<SDL_Surface*,unsigned char*> CreateSDLSurface(bool newPixelData) const;
 };
 
 // =====================================================

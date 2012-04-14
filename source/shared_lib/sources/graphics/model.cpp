@@ -222,13 +222,13 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"Old v2 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(meshHeader.texCoordFrameCount != 1) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"Old v2 model: texture coord frame count is not 1 [t = %d] meshIndex = %d",meshHeader.texCoordFrameCount,meshIndex);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//init
@@ -313,7 +313,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"Old v3 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//init
@@ -614,7 +614,7 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 						}
 					}
 					else {
-						throw runtime_error("Unsupported texture format: [" + convertTextureToFormat + "]");
+						throw megaglest_runtime_error("Unsupported texture format: [" + convertTextureToFormat + "]");
 					}
 
 					//textureManager->endTexture(texture);
@@ -631,10 +631,10 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 				file = extractFileFromDirectoryPath(texture->getPath());
 
 				if(file.length() > mapPathSize) {
-					throw runtime_error("file.length() > mapPathSize, file.length() = " + intToStr(file.length()));
+					throw megaglest_runtime_error("file.length() > mapPathSize, file.length() = " + intToStr(file.length()));
 				}
 				else if(file.length() == 0) {
-					throw runtime_error("file.length() == 0");
+					throw megaglest_runtime_error("file.length() == 0");
 				}
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Save, new texture file [%s]\n",file.c_str());
@@ -787,7 +787,7 @@ void Model::load(const string &path, bool deletePixMapAfterLoad,
 		loadG3d(path,deletePixMapAfterLoad,loadedFileList, this->sourceLoader);
 	}
 	else {
-		throw runtime_error("Unknown model format: " + extension);
+		throw megaglest_runtime_error("Unknown model format: " + extension);
 	}
 }
 
@@ -798,7 +798,7 @@ void Model::save(const string &path, string convertTextureToFormat,
 		saveG3d(path,convertTextureToFormat,keepsmallest);
 	}
 	else {
-		throw runtime_error("Unknown model format: " + extension);
+		throw megaglest_runtime_error("Unknown model format: " + extension);
 	}
 }
 
@@ -815,7 +815,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 #endif
 		if (f == NULL) {
 		    printf("In [%s::%s] cannot load file = [%s]\n",__FILE__,__FUNCTION__,path.c_str());
-			throw runtime_error("Error opening g3d model file [" + path + "]");
+			throw megaglest_runtime_error("Error opening g3d model file [" + path + "]");
 		}
 
 		if(loadedFileList) {
@@ -831,7 +831,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			fclose(f);
 			f = NULL;
 		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",__FILE__,__FUNCTION__,path.c_str(),reinterpret_cast<char*>(fileHeader.id),fileHeader.id[0]);
-			throw runtime_error("Not a valid G3D model");
+			throw megaglest_runtime_error("Not a valid G3D model");
 		}
 		fileVersion= fileHeader.version;
 
@@ -847,7 +847,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %d\n",meshCount);
 
 			if(modelHeader.type != mtMorphMesh) {
-				throw runtime_error("Invalid model type");
+				throw megaglest_runtime_error("Invalid model type");
 			}
 
 			//load meshes
@@ -885,14 +885,14 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			}
 		}
 		else {
-			throw runtime_error("Invalid model version: "+ intToStr(fileHeader.version));
+			throw megaglest_runtime_error("Invalid model version: "+ intToStr(fileHeader.version));
 		}
 
 		fclose(f);
     }
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Exception caught loading 3d file: " + path +"\n"+ e.what());
+		throw megaglest_runtime_error("Exception caught loading 3d file: " + path +"\n"+ e.what());
 	}
 }
 
@@ -907,7 +907,7 @@ void Model::saveG3d(const string &path, string convertTextureToFormat,
 	FILE *f= fopen(tempModelFilename.c_str(), "wb");
 #endif
 	if(f == NULL) {
-		throw runtime_error("Cant open file for writing: [" + tempModelFilename + "]");
+		throw megaglest_runtime_error("Cant open file for writing: [" + tempModelFilename + "]");
 	}
 
 	convertTextureToFormat = toLower(convertTextureToFormat);
@@ -947,7 +947,7 @@ void Model::saveG3d(const string &path, string convertTextureToFormat,
 		}
 	}
 	else {
-		throw runtime_error("Invalid model version: "+ intToStr(fileHeader.version));
+		throw megaglest_runtime_error("Invalid model version: "+ intToStr(fileHeader.version));
 	}
 
 	fclose(f);

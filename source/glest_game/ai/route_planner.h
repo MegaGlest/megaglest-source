@@ -190,7 +190,7 @@ private:
 		UnitPathInterface *path = unit->getPath();
 		UnitPath *advPath = dynamic_cast<UnitPath *>(path);
 		if(advPath == NULL) {
-			throw runtime_error("Invalid or NULL unit path pointer!");
+			throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 		}
 		
 		assert(advPath->isEmpty() == false);

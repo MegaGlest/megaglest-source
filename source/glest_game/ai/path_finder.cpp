@@ -107,7 +107,7 @@ void PathFinder::removeUnitPrecache(Unit *unit) {
 
 TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck, int frameIndex) {
 	if(map == NULL) {
-		throw runtime_error("map == NULL");
+		throw megaglest_runtime_error("map == NULL");
 	}
 
 	if(frameIndex >= 0) {
@@ -184,7 +184,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			}
 		}
 		else {
-			throw runtime_error("unsupported or missing path finder detected!");
+			throw megaglest_runtime_error("unsupported or missing path finder detected!");
 		}
 	}
 
@@ -399,7 +399,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				}
 			}
 			else {
-				throw runtime_error("unsupported or missing path finder detected!");
+				throw megaglest_runtime_error("unsupported or missing path finder detected!");
 			}
 		}
 		break;
@@ -801,7 +801,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	if(map == NULL) {
-		throw runtime_error("map == NULL");
+		throw megaglest_runtime_error("map == NULL");
 	}
 
 	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
@@ -830,7 +830,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				for(int i=0; i < factions[unitFactionIndex].precachedPath[unit->getId()].size(); i++) {
 					Vec2i nodePos = factions[unitFactionIndex].precachedPath[unit->getId()][i];
 					if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
-						throw runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
+						throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 					}
 
 					if(i < pathFindRefresh ||
@@ -855,7 +855,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					for(int i=0; i < factions[unitFactionIndex].precachedPath[unit->getId()].size(); i++) {
 						Vec2i nodePos = factions[unitFactionIndex].precachedPath[unit->getId()][i];
 						if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
-							throw runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
+							throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 						}
 
 						if(i < pathFindRefresh ||
@@ -930,7 +930,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									int pathCount=0;
 									for(int k=i+1; k <= j; k++) {
 										if(k >= cachedPath.size()) {
-											throw runtime_error("k >= cachedPath.size() k = " + intToStr(k) + " cachedPath.size() = " + intToStr(cachedPath.size()));
+											throw megaglest_runtime_error("k >= cachedPath.size() k = " + intToStr(k) + " cachedPath.size() = " + intToStr(cachedPath.size()));
 										}
 
 										if(frameIndex >= 0) {
@@ -985,7 +985,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									int pathCount=0;
 									for(int k=i+1; k < cachedPath.size(); k++) {
 										if(k >= cachedPath.size()) {
-											throw runtime_error("#2 k >= cachedPath.size() k = " + intToStr(k) + " cachedPath.size() = " + intToStr(cachedPath.size()));
+											throw megaglest_runtime_error("#2 k >= cachedPath.size() k = " + intToStr(k) + " cachedPath.size() = " + intToStr(cachedPath.size()));
 										}
 
 										if(frameIndex >= 0) {
@@ -1044,7 +1044,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	Node *firstNode= newNode(factions[unitFactionIndex],maxNodeCount);
 	assert(firstNode != NULL);
 	if(firstNode == NULL) {
-		throw runtime_error("firstNode == NULL");
+		throw megaglest_runtime_error("firstNode == NULL");
 	}
 
 	firstNode->next= NULL;
@@ -1341,7 +1341,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		for(int i=0; currNode->next != NULL; currNode= currNode->next, i++) {
 			Vec2i nodePos = currNode->next->pos;
 			if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
-				throw runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
+				throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 			}
 
 			//printf("nodePos [%s]\n",nodePos.getString().c_str());
@@ -1452,7 +1452,7 @@ void PathFinder::processNearestFreePos(const Vec2i &finalPos, int i, int j, int 
 
 Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos) {
 	if(map == NULL) {
-		throw runtime_error("map == NULL");
+		throw megaglest_runtime_error("map == NULL");
 	}
 	
 	//unit data
@@ -1485,7 +1485,7 @@ float PathFinder::heuristic(const Vec2i &pos, const Vec2i &finalPos) {
 PathFinder::Node * PathFinder::minHeuristicFastLookup(FactionState &faction) {
 	assert(faction.openNodesList.empty() == false);
 	if(faction.openNodesList.empty() == true) {
-		throw runtime_error("openNodesList.empty() == true");
+		throw megaglest_runtime_error("openNodesList.empty() == true");
 	}
 
 	Node *result = faction.openNodesList.begin()->second[0];

@@ -154,7 +154,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		}
 		catch(const exception &e) {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-			throw runtime_error("Error loading units: "+ currentPath + "\n" + e.what());
+			throw megaglest_runtime_error("Error loading units: "+ currentPath + "\n" + e.what());
 		}
 
 		// b2) load upgrades
@@ -169,7 +169,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		}
 		catch(const exception &e){
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-			throw runtime_error("Error loading upgrades: "+ currentPath + "\n" + e.what());
+			throw megaglest_runtime_error("Error loading upgrades: "+ currentPath + "\n" + e.what());
 		}
 
 		string tmppath= currentPath + factionName +".xml";
@@ -751,7 +751,7 @@ const UnitType *FactionType::getUnitType(const string &name) const{
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
     }
 
-	throw runtime_error("Unit type not found: [" + name + "] in faction type [" + this->name + "]");
+	throw megaglest_runtime_error("Unit type not found: [" + name + "] in faction type [" + this->name + "]");
 }
 
 const UnitType *FactionType::getUnitTypeById(int id) const{
@@ -771,7 +771,7 @@ const UnitType *FactionType::getUnitTypeById(int id) const{
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
     }
 
-	throw runtime_error("Unit type not found: [" + intToStr(id) + "] in faction type [" + this->name + "]");
+	throw megaglest_runtime_error("Unit type not found: [" + intToStr(id) + "] in faction type [" + this->name + "]");
 }
 
 const UpgradeType *FactionType::getUpgradeType(const string &name) const{
@@ -791,7 +791,7 @@ const UpgradeType *FactionType::getUpgradeType(const string &name) const{
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
     }
 
-	throw runtime_error("Upgrade type not found: [" + name + "] in faction type [" + this->name + "]");
+	throw megaglest_runtime_error("Upgrade type not found: [" + name + "] in faction type [" + this->name + "]");
 }
 
 int FactionType::getStartingResourceAmount(const ResourceType *resourceType) const{

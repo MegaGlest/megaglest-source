@@ -111,7 +111,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	copy(results.begin(), results.end(), std::inserter(allMaps, allMaps.begin()));
 	results.clear();
 	if (allMaps.empty()) {
-        throw runtime_error("No maps were found!");
+        throw megaglest_runtime_error("No maps were found!");
 	}
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
 	mapFiles = results;
@@ -124,7 +124,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
   	vector<string> invalidMapList;
   	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
 	if (allMaps.empty()) {
-        throw runtime_error("No maps were found!");
+        throw megaglest_runtime_error("No maps were found!");
 	}
 	results.clear();
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
@@ -135,7 +135,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	results.clear();
     findDirs(config.getPathListForType(ptTilesets), results);
 	if (results.empty()) {
-        throw runtime_error("No tile-sets were found!");
+        throw megaglest_runtime_error("No tile-sets were found!");
 	}
     tilesetFiles= results;
 
@@ -143,7 +143,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
     results.clear();
     findDirs(config.getPathListForType(ptTechs), results);
 	if(results.empty()) {
-        throw runtime_error("No tech-trees were found!");
+        throw megaglest_runtime_error("No tech-trees were found!");
 	}
     techTreeFiles= results;
 
@@ -280,6 +280,16 @@ ServerInterface::~ServerInterface() {
 
 	delete serverSocketAdmin;
 	serverSocketAdmin = NULL;
+
+	for(int i = 0; i < broadcastMessageQueue.size(); ++i) {
+		pair<const NetworkMessage *,int> &item = broadcastMessageQueue[i];
+		if(item.first != NULL) {
+			delete item.first;
+		}
+		item.first = NULL;
+	}
+	broadcastMessageQueue.clear();
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -762,7 +772,7 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		throw runtime_error(ex.what());
+		throw megaglest_runtime_error(ex.what());
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1448,7 +1458,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 				return;
 			}
 			else {
-				if(chrono.getMillis() % 250 == 0) {
+				if(chrono.getMillis() % 100 == 0) {
 					string waitForHosts = "";
 					for(int i = 0; i < waitingForHosts.size(); i++) {
 						if(waitForHosts != "") {
@@ -1541,6 +1551,8 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 							connectionSlot->sendMessage(&networkMessageLoadingStatus);
 						}
 					}
+
+					sleep(0);
 				}
 			}
 		}

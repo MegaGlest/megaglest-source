@@ -80,7 +80,7 @@ void UnitUpdater::init(Game *game){
 			routePlanner = world->getRoutePlanner();
 			break;
 		default:
-			throw runtime_error("detected unsupported pathfinder type!");
+			throw megaglest_runtime_error("detected unsupported pathfinder type!");
     }
 }
 
@@ -230,7 +230,7 @@ void UnitUpdater::updateUnit(Unit *unit) {
 								newpath = new UnitPath();
 								break;
 							default:
-								throw runtime_error("detected unsupported pathfinder type!");
+								throw megaglest_runtime_error("detected unsupported pathfinder type!");
 						}
 
 						Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
@@ -425,7 +425,7 @@ void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 			tsValue = routePlanner->findPath(unit, pos);
 			break;
 		default:
-			throw runtime_error("detected unsupported pathfinder type!");
+			throw megaglest_runtime_error("detected unsupported pathfinder type!");
     }
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -515,7 +515,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 				tsValue = routePlanner->findPath(unit, pos);
 				break;
 			default:
-				throw runtime_error("detected unsupported pathfinder type!");
+				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    }
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -723,7 +723,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 				tsValue = routePlanner->findPathToBuildSite(unit, ut, command->getPos(), command->getFacing());
 				break;
 			default:
-				throw runtime_error("detected unsupported pathfinder type!");
+				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    }
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsValue = %d\n",__FILE__,__FUNCTION__,__LINE__,tsValue);
@@ -743,7 +743,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 				//if arrived destination
 				assert(ut);
 				if(ut == NULL) {
-					throw runtime_error("ut == NULL");
+					throw megaglest_runtime_error("ut == NULL");
 				}
 
 				bool canOccupyCell = false;
@@ -756,7 +756,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 						canOccupyCell = map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing());
 						break;
 					default:
-						throw runtime_error("detected unsupported pathfinder type!");
+						throw megaglest_runtime_error("detected unsupported pathfinder type!");
 				}
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] canOccupyCell = %d\n",__FILE__,__FUNCTION__,__LINE__,canOccupyCell);
@@ -774,7 +774,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 							newpath = new UnitPath();
 							break;
 						default:
-							throw runtime_error("detected unsupported pathfinder type!");
+							throw megaglest_runtime_error("detected unsupported pathfinder type!");
 					}
 
 					Vec2i buildPos = command->getPos();
@@ -785,7 +785,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					builtUnit->create();
 
 					if(builtUnitType->hasSkillClass(scBeBuilt) == false) {
-						throw runtime_error("Unit [" + builtUnitType->getName() + "] has no be_built skill, producer was [" + intToStr(unit->getId()) + " - " + unit->getType()->getName() + "].");
+						throw megaglest_runtime_error("Unit [" + builtUnitType->getName() + "] has no be_built skill, producer was [" + intToStr(unit->getId()) + " - " + unit->getType()->getName() + "].");
 					}
 
 					builtUnit->setCurrSkill(scBeBuilt);
@@ -803,7 +803,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 							world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
 							break;
 						default:
-							throw runtime_error("detected unsupported pathfinder type!");
+							throw megaglest_runtime_error("detected unsupported pathfinder type!");
 					}
 
 					command->setUnit(builtUnit);
@@ -956,7 +956,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    				canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
 	    				break;
 	    			default:
-	    				throw runtime_error("detected unsupported pathfinder type!");
+	    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
 	    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -985,7 +985,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 									unit->setLoadType(r->getType());
 									break;
 								default:
-									throw runtime_error("detected unsupported pathfinder type!");
+									throw megaglest_runtime_error("detected unsupported pathfinder type!");
 							}
 						}
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1022,7 +1022,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 							}
 		    				break;
 		    			default:
-		    				throw runtime_error("detected unsupported pathfinder type!");
+		    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 		    	    }
 
 		    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1045,7 +1045,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 								canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
 								break;
 							default:
-								throw runtime_error("detected unsupported pathfinder type!");
+								throw megaglest_runtime_error("detected unsupported pathfinder type!");
 						}
 
 						if (canHarvestDestPos == true) {
@@ -1071,7 +1071,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 											unit->setLoadType(r->getType());
 											break;
 										default:
-											throw runtime_error("detected unsupported pathfinder type!");
+											throw megaglest_runtime_error("detected unsupported pathfinder type!");
 									}
 								}
 							}
@@ -1112,7 +1112,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 										}
 										break;
 									default:
-										throw runtime_error("detected unsupported pathfinder type!");
+										throw megaglest_runtime_error("detected unsupported pathfinder type!");
 								}
 							}
 
@@ -1164,7 +1164,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    				tsValue = routePlanner->findPathToStore(unit, store);
 	    				break;
 	    			default:
-	    				throw runtime_error("detected unsupported pathfinder type!");
+	    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
 	    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1293,7 +1293,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 										world->getCartographer()->onResourceDepleted(Map::toSurfCoords(unit->getTargetPos()), rt);
 										break;
 									default:
-										throw runtime_error("detected unsupported pathfinder type!");
+										throw megaglest_runtime_error("detected unsupported pathfinder type!");
 								}
 
 								//printf("\n\n#6\n\n");
@@ -1659,7 +1659,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 							}
 							break;
 						default:
-							throw runtime_error("detected unsupported pathfinder type!");
+							throw megaglest_runtime_error("detected unsupported pathfinder type!");
 					}
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] ts = %d\n",__FILE__,__FUNCTION__,__LINE__,ts);
@@ -1795,7 +1795,7 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 					newpath = new UnitPath();
 					break;
 				default:
-					throw runtime_error("detected unsupported pathfinder type!");
+					throw megaglest_runtime_error("detected unsupported pathfinder type!");
 		    }
 
 			produced= new Unit(world->getNextUnitId(unit->getFaction()), newpath, Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
@@ -1903,7 +1903,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
     				needMapUpdate = unit->getType()->isMobile() != mct->getMorphUnit()->isMobile();
     				break;
     			default:
-    				throw runtime_error("detected unsupported pathfinder type!");
+    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
     	    }
 
 			//finish the command
@@ -1922,7 +1922,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 						}
 	    				break;
 	    			default:
-	    				throw runtime_error("detected unsupported pathfinder type!");
+	    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    	    }
 
 				scriptManager->onUnitCreated(unit);
@@ -1969,7 +1969,7 @@ void UnitUpdater::updateSwitchTeam(Unit *unit, int frameIndex) {
 //			tsValue = routePlanner->findPath(unit, pos);
 //			break;
 //		default:
-//			throw runtime_error("detected unsupported pathfinder type!");
+//			throw megaglest_runtime_error("detected unsupported pathfinder type!");
 //    }
 //
 //	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -2033,13 +2033,13 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 
 void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance) {
 	if(attacker == NULL) {
-		throw runtime_error("attacker == NULL");
+		throw megaglest_runtime_error("attacker == NULL");
 	}
 	if(ast == NULL) {
-		throw runtime_error("ast == NULL");
+		throw megaglest_runtime_error("ast == NULL");
 	}
 	if(attacked == NULL) {
-		throw runtime_error("attacked == NULL");
+		throw megaglest_runtime_error("attacked == NULL");
 	}
 
 	//get vars
@@ -2076,7 +2076,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 				}
 				break;
 			default:
-				throw runtime_error("detected unsupported pathfinder type!");
+				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    }
 
 		attacked->setCauseOfDeath(ucodAttacked);

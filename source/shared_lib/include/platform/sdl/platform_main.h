@@ -464,7 +464,7 @@ int mainSetup(int argc, char **argv) {
     if(knownArgCount != GAME_ARG_END) {
     	char szBuf[1024]="";
     	sprintf(szBuf,"Internal arg count mismatch knownArgCount = %d, GAME_ARG_END = %d",knownArgCount,GAME_ARG_END);
-    	throw runtime_error(szBuf);
+    	throw megaglest_runtime_error(szBuf);
     }
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||

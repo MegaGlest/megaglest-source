@@ -156,7 +156,7 @@ void ShaderProgramGl::bindAttribute(const string &name, int index){
 GLint ShaderProgramGl::getLocation(const string &name){
 	GLint location= glGetUniformLocationARB(handle, name.c_str());
 	if(location==-1){
-		throw runtime_error("Can't locate uniform: "+ name);
+		throw megaglest_runtime_error("Can't locate uniform: "+ name);
 	}
 	return location;
 }

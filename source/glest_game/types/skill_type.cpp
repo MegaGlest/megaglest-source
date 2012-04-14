@@ -333,7 +333,7 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 	else {
 		char szBuf[4096] = "";
 		sprintf(szBuf, "Unsupported target [%s] specified for attack boost for skill [%s] in [%s]", targetType.c_str(), name.c_str(), parentLoader.c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
     attackBoost.boostUpgrade.load(attackBoostNode,attackBoost.name);
@@ -419,7 +419,7 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	if(animations.empty() == true) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//particles
@@ -716,7 +716,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
     if(attackVar < 0) {
         char szBuf[4096]="";
         sprintf(szBuf,"The attack skill has an INVALID attack var value which is < 0 [%d] in file [%s]!",attackVar,dir.c_str());
-        throw runtime_error(szBuf);
+        throw megaglest_runtime_error(szBuf);
     }
 
     attackRange= sn->getChild("attack-range")->getAttribute("value")->getIntValue();
@@ -744,7 +744,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 			attackFields[fAir]= true;
 		}
 		else{
-			throw runtime_error("Not a valid field: "+fieldName+": "+ dir);
+			throw megaglest_runtime_error("Not a valid field: "+fieldName+": "+ dir);
 		}
 	}
 

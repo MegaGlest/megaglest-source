@@ -169,7 +169,7 @@ int getGlProjectionMatrixStackDepth() {
 
 void checkGlExtension(const char *extensionName) {
 	if(!isGlExtensionSupported(extensionName)){
-		throw runtime_error("OpenGL extension not supported: " + string(extensionName));
+		throw megaglest_runtime_error("OpenGL extension not supported: " + string(extensionName));
 	}
 }
 

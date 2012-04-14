@@ -230,7 +230,7 @@ void ConnectionSlotThread::execute() {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		throw runtime_error(ex.what());
+		throw megaglest_runtime_error(ex.what());
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -565,7 +565,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtCommandList gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
 
-							//throw runtime_error("test");
+							//throw megaglest_runtime_error("test");
 
 							if(gotIntro == true) {
 								NetworkMessageCommandList networkMessageCommandList;
@@ -711,7 +711,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 										char szBuf[1024]="";
 										snprintf(szBuf,1023,"In [%s::%s Line: %d] Invalid networkMessageLaunch.getMessageType() = %d",__FILE__,__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
-										throw runtime_error(szBuf);
+										throw megaglest_runtime_error(szBuf);
 									}
 
 									GameSettings gameSettingsBuffer;
@@ -989,7 +989,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
 								if(gotIntro == true) {
-									//throw runtime_error("Unexpected message in connection slot: " + intToStr(networkMessageType));
+									//throw megaglest_runtime_error("Unexpected message in connection slot: " + intToStr(networkMessageType));
 									string sErr = "Unexpected message in connection slot: " + intToStr(networkMessageType);
 									//sendTextMessage(sErr,-1);
 									//DisplayErrorMessage(sErr);

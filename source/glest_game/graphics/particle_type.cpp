@@ -167,7 +167,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 			if(modelNode->hasChild("cycles")) {
 				modelCycle = modelNode->getChild("cycles")->getAttribute("value")->getFloatValue();
 				if(modelCycle < 0.0)
-					throw runtime_error("negative model cycle value is bad");
+					throw megaglest_runtime_error("negative model cycle value is bad");
 			}
 		}
 	}
@@ -423,7 +423,7 @@ void ParticleSystemTypeProjectile::load(const XmlNode* particleFileNode, const s
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
+		throw megaglest_runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
 	}
 }
 
@@ -509,7 +509,7 @@ void ParticleSystemTypeSplash::load(const XmlNode* particleFileNode, const strin
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
+		throw megaglest_runtime_error("Error loading ParticleSystem: "+ path + "\n" +e.what());
 	}
 }
 

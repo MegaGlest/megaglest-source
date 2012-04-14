@@ -452,7 +452,7 @@ bool RoutePlanner::refinePath(Unit *unit) {
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	UnitPath &path = *advPath;
@@ -494,7 +494,7 @@ void RoutePlanner::smoothPath(Unit *unit) {
 	UnitPathInterface *path = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(path);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	if (advPath->size() < 3) {
@@ -571,7 +571,7 @@ TravelState RoutePlanner::doRouteCache(Unit *unit) {
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	UnitPath &path = *advPath;
@@ -632,7 +632,7 @@ TravelState RoutePlanner::doQuickPathSearch(Unit *unit, const Vec2i &target) {
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	UnitPath &path = *advPath;
@@ -671,7 +671,7 @@ TravelState RoutePlanner::findAerialPath(Unit *unit, const Vec2i &targetPos) {
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	UnitPath &path = *advPath;
@@ -721,7 +721,7 @@ TravelState RoutePlanner::findPathToLocation(Unit *unit, const Vec2i &finalPos) 
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	UnitPath &path = *advPath;
@@ -847,7 +847,7 @@ TravelState RoutePlanner::customGoalSearch(PMap1Goal &goal, Unit *unit, const Ve
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	UnitPath &path = *advPath;
@@ -889,7 +889,7 @@ TravelState RoutePlanner::findPathToGoal(Unit *unit, PMap1Goal &goal, const Vec2
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	UnitPath &path = *advPath;
@@ -992,7 +992,7 @@ bool RoutePlanner::repairPath(Unit *unit) {
 	UnitPathInterface *unitpath = unit->getPath();
 	UnitPath *advPath = dynamic_cast<UnitPath *>(unitpath);
 	if(advPath == NULL) {
-		throw runtime_error("Invalid or NULL unit path pointer!");
+		throw megaglest_runtime_error("Invalid or NULL unit path pointer!");
 	}
 
 	UnitPath &path = *advPath;
@@ -1084,7 +1084,7 @@ TravelState RoutePlanner::doFullLowLevelAStar(Unit *unit, const Vec2i &dest) {
 			return tsImpossible;
 
 		default:
-			throw runtime_error("Something that shouldn't have happened, did happen :(");
+			throw megaglest_runtime_error("Something that shouldn't have happened, did happen :(");
 	}
 	if (path.empty()) {
 		unit->setCurrSkill(scStop);

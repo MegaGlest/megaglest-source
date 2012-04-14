@@ -186,7 +186,7 @@ int UpgradeTypeBase::getProdSpeed(const SkillType *st) const {
 			}
 		}
 		else {
-			throw runtime_error("Unsupported skilltype in getProdSpeed!");
+			throw megaglest_runtime_error("Unsupported skilltype in getProdSpeed!");
 		}
 
 		return result;
@@ -665,7 +665,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading UpgradeType: "+ dir + "\n" +e.what());
+		throw megaglest_runtime_error("Error loading UpgradeType: "+ dir + "\n" +e.what());
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

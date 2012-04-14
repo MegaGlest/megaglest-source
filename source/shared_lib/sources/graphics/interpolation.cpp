@@ -18,6 +18,7 @@
 #include "conversion.h"
 #include "util.h"
 #include <stdexcept>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -81,7 +82,7 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 	}
 	//assert(t>=0.0f && t<=1.0f);
 	if(t < 0.0f || t > 1.0f) {
-		throw runtime_error("t < 0.0f || t > 1.0f t = [" + floatToStr(t) + "]");
+		throw megaglest_runtime_error("t < 0.0f || t > 1.0f t = [" + floatToStr(t) + "]");
 
 		assert(t >= 0.f && t <= 1.f);
 	}
@@ -141,7 +142,7 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 
 void InterpolationData::updateNormals(float t, bool cycle){
 	if(t < 0.0f || t > 1.0f) {
-		throw runtime_error("t < 0.0f || t > 1.0f t = [" + floatToStr(t) + "]");
+		throw megaglest_runtime_error("t < 0.0f || t > 1.0f t = [" + floatToStr(t) + "]");
 
 		assert(t>=0.0f && t<=1.0f);
 	}

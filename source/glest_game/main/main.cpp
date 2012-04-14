@@ -43,13 +43,8 @@
 #include "string_utils.h"
 #include "auto_test.h"
 
-// For gcc backtrace on crash!
+// To handle signal catching
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
-
-//#include <mcheck.h>
-
-#include <execinfo.h>
-#include <cxxabi.h>
 #include <signal.h>
 #endif
 
@@ -60,10 +55,6 @@
 #include <dbghelp.h>
 #endif
 
-#include <stdlib.h>
-
-#include "leak_dumper.h"
-
 #ifndef WIN32
   #include <poll.h>
 
@@ -71,6 +62,9 @@
   #define strnicmp strncasecmp
   #define _strnicmp strncasecmp
 #endif
+
+#include <stdlib.h>
+#include "leak_dumper.h"
 
 #ifdef WIN32
 #ifndef _DEBUG
@@ -87,22 +81,22 @@ using namespace Shared::Platform;
 using namespace Shared::Util;
 using namespace Shared::Graphics;
 using namespace Shared::Graphics::Gl;
-using namespace	Shared::Xml;
+using namespace Shared::Xml;
 using namespace Shared;
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
-bool disableheadless_console = false;
-bool disableBacktrace = false;
-bool gameInitialized = false;
-static string application_binary="";
-static string mg_app_name = "";
-static string mailStringSupport = "";
-static bool sdl_quitCalled = false;
+static string mg_app_name 				= "";
+static string mailStringSupport 		= "";
+static bool sdl_quitCalled 			= false;
 
-Program *mainProgram = NULL;
-FileCRCPreCacheThread *preCacheThread=NULL;
-string runtimeErrorMsg = "";
+bool disableheadless_console 			= false;
+bool disableBacktrace 					= false;
+bool gameInitialized 					= false;
+
+Program *mainProgram 					= NULL;
+FileCRCPreCacheThread *preCacheThread	= NULL;
+string runtimeErrorMsg 					= "";
 
 void cleanupCRCThread() {
 	if(preCacheThread != NULL) {
@@ -281,62 +275,6 @@ public:
         message(msg.c_str());
 	}
 
-#if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
-    static int getFileAndLine(void *address, char *file, size_t flen) {
-        int line=-1;
-        const int maxbufSize = 1024;
-        static char buf[maxbufSize+1]="";
-        //char *p=NULL;
-
-        // prepare command to be executed
-        // our program need to be passed after the -e parameter
-        //sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
-        sprintf(buf, "addr2line -C -e %s -f -i %p",application_binary.c_str(),address);
-
-        FILE* f = popen (buf, "r");
-        if (f == NULL) {
-            perror (buf);
-            return 0;
-        }
-
-        // get function name
-        char *ret = fgets (buf, maxbufSize, f);
-        if(ret == NULL) {
-        	pclose(f);
-        	return 0;
-        }
-
-        // get file and line
-        ret = fgets (buf, maxbufSize, f);
-        if(ret == NULL) {
-        	pclose(f);
-        	return 0;
-        }
-
-        if(strlen(buf) > 0 && buf[0] != '?') {
-            //int l;
-            char *p = buf;
-
-            // file name is until ':'
-            while(*p != 0 && *p != ':') {
-                p++;
-            }
-
-            *p++ = 0;
-            // after file name follows line number
-            strcpy (file , buf);
-            sscanf (p,"%d", &line);
-        }
-        else {
-            strcpy (file,"unknown");
-            line = 0;
-        }
-        pclose(f);
-
-        return line;
-    }
-#endif
-
     static void logError(const char *msg, bool confirmToConsole) {
 		string errorLogFile = "error.log";
 		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
@@ -389,7 +327,12 @@ public:
 		}
     }
 
-	static void handleRuntimeError(const char *msg) {
+    static void handleRuntimeError(const megaglest_runtime_error &ex) {
+		const char *msg = ex.what();
+		handleRuntimeError(msg,false);
+    }
+
+	static void handleRuntimeError(const char *msg, bool getStackTraceString) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		static bool inErrorNow = false;
@@ -411,87 +354,20 @@ public:
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-        #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
-        if(disableBacktrace == false && sdl_quitCalled == false) {
-        errMsg += "\nStack Trace:\n";
-        //errMsg += "To find line #'s use:\n";
-        //errMsg += "readelf --debug-dump=decodedline %s | egrep 0xaddress-of-stack\n";
-
-        const size_t max_depth = 25;
-        void *stack_addrs[max_depth];
-        size_t stack_depth = backtrace(stack_addrs, max_depth);
-        char **stack_strings = backtrace_symbols(stack_addrs, stack_depth);
-        //for (size_t i = 1; i < stack_depth; i++) {
-        //    errMsg += string(stack_strings[i]) + "\n";
-        //}
-
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-        char szBuf[8096]="";
-        for(size_t i = 1; i < stack_depth; i++) {
-            void *lineAddress = stack_addrs[i]; //getStackAddress(stackIndex);
-
-            size_t sz = 8096; // just a guess, template names will go much wider
-            char *function = static_cast<char *>(malloc(sz));
-            char *begin = 0;
-            char *end = 0;
-
-            // find the parentheses and address offset surrounding the mangled name
-            for (char *j = stack_strings[i]; *j; ++j) {
-                if (*j == '(') {
-                    begin = j;
-                }
-                else if (*j == '+') {
-                    end = j;
-                }
-            }
-            if (begin && end) {
-                *begin++ = '\0';
-                *end = '\0';
-                // found our mangled name, now in [begin, end)
-
-                int status;
-                char *ret = abi::__cxa_demangle(begin, function, &sz, &status);
-                if (ret) {
-                    // return value may be a realloc() of the input
-                    function = ret;
-                }
-                else {
-                    // demangling failed, just pretend it's a C function with no args
-                    strncpy(function, begin, sz);
-                    strncat(function, "()", sz);
-                    function[sz-1] = '\0';
-                }
-                //fprintf(out, "    %s:%s\n", stack.strings[i], function);
-
-                sprintf(szBuf,"%s:%s address [%p]",stack_strings[i],function,lineAddress);
-            }
-            else {
-                // didn't find the mangled name, just print the whole line
-                //fprintf(out, "    %s\n", stack.strings[i]);
-                sprintf(szBuf,"%s address [%p]",stack_strings[i],lineAddress);
-            }
-
-            errMsg += string(szBuf);
-            char file[8096]="";
-            int line = getFileAndLine(lineAddress, file, 8096);
-            if(line >= 0) {
-                errMsg += " line: " + intToStr(line);
-            }
-            errMsg += "\n";
-
-            free(function);
+        bool gotStackTrace = false;
+        if(getStackTraceString == true && disableBacktrace == false && sdl_quitCalled == false) {
+        	string stackTrace = getStackTrace();
+        	errMsg += stackTrace;
+        	gotStackTrace = true;
         }
-
-        free(stack_strings); // malloc()ed by backtrace_symbols
-        }
-        #endif
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         logError(errMsg.c_str(),false);
 
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
+        if(gotStackTrace == true) {
+        	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
+        }
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -628,18 +504,6 @@ public:
 	}
 };
 
-#if defined(__GNUC__)  && !defined(__FreeBSD__) && !defined(BSD)
-void handleSIGSEGV(int sig) {
-    char szBuf[4096]="";
-    sprintf(szBuf, "In [%s::%s Line: %d] Error detected: signal %d:\n",__FILE__,__FUNCTION__,__LINE__, sig);
-    printf("%s",szBuf);
-    //abort();
-
-    ExceptionHandler::handleRuntimeError(szBuf);
-}
-#endif
-
-
 // =====================================================
 // 	class MainWindow
 // =====================================================
@@ -666,7 +530,7 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
     int vy = metrics.toVirtualY(getH() - y);
 
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventMouseDown] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventMouseDown] ERROR, program == NULL!");
     }
 
     //printf("eventMouseDown popupMenu.getVisible() = %d\n",popupMenu.getVisible());
@@ -734,7 +598,7 @@ void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
     int vy = metrics.toVirtualY(getH() - y);
 
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventMouseUp] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventMouseUp] ERROR, program == NULL!");
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -772,7 +636,7 @@ void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton) {
     int vy = metrics.toVirtualY(getH() - y);
 
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventMouseDoubleClick] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventMouseDoubleClick] ERROR, program == NULL!");
     }
 
     SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -810,7 +674,7 @@ void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
     int vy = metrics.toVirtualY(getH() - y);
 
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
     }
 
     program->eventMouseMove(vx, vy, ms);
@@ -830,7 +694,7 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 	int vy = metrics.toVirtualY(getH() - y);
 
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventMouseMove] ERROR, program == NULL!");
     }
 
     ProgramState *programState = program->getState();
@@ -869,7 +733,7 @@ void MainWindow::showLanguages() {
 	vector<string> langResults2;
 	findAll(data_path + "data/lang/*.lng", langResults2, true);
 	if(langResults2.empty() && langResults.empty()) {
-        throw runtime_error("There are no lang files");
+        throw megaglest_runtime_error("There are no lang files");
 	}
 	for(unsigned int i = 0; i < langResults2.size(); ++i) {
 		string testLanguage = langResults2[i];
@@ -909,7 +773,7 @@ void MainWindow::toggleLanguage(string language) {
 		vector<string> langResults2;
 		findAll(data_path + "data/lang/*.lng", langResults2, true);
 		if(langResults2.empty() && langResults.empty()) {
-	        throw runtime_error("There are no lang files");
+	        throw megaglest_runtime_error("There are no lang files");
 		}
 		for(unsigned int i = 0; i < langResults2.size(); ++i) {
 			string testLanguage = langResults2[i];
@@ -948,7 +812,7 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
     }
 
     if(popupMenu.getVisible() == true && isKeyPressed(SDLK_ESCAPE,key) == true) {
@@ -1073,7 +937,7 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 void MainWindow::eventKeyUp(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventKeyUp] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventKeyUp] ERROR, program == NULL!");
     }
 
 	program->keyUp(key);
@@ -1083,7 +947,7 @@ void MainWindow::eventKeyUp(SDL_KeyboardEvent key) {
 void MainWindow::eventKeyPress(SDL_KeyboardEvent c) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
     }
 
 	program->keyPress(c);
@@ -1121,7 +985,7 @@ void MainWindow::eventActivate(bool active) {
 
 void MainWindow::eventResize(SizeState sizeState) {
     if(program == NULL) {
-    	throw runtime_error("In [MainWindow::eventResize] ERROR, program == NULL!");
+    	throw megaglest_runtime_error("In [MainWindow::eventResize] ERROR, program == NULL!");
     }
 
 	program->resize(sizeState);
@@ -1497,7 +1361,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 					sprintf(szBuf,"svn delete \"%s\"",foundFile.c_str());
 					bool svnOk = executeShellCommand(szBuf,0);
 					if(svnOk == false) {
-						throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+						throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 					}
 				}
 				else {
@@ -1599,7 +1463,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 									sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
 									bool svnOk = executeShellCommand(szBuf,0);
 									if(svnOk == false) {
-										throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+										throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 									}
 									printf("*** Duplicate file:\n[%s]\nwas svn deleted and copied to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 								}
@@ -1610,7 +1474,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 										char szBuf[4096]="";
 										char *errmsg = strerror(errno);
 										sprintf(szBuf,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
-										throw runtime_error(szBuf);
+										throw megaglest_runtime_error(szBuf);
 									}
 									else {
 										printf("*** Duplicate file:\n[%s]\nwas renamed to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
@@ -1623,7 +1487,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 									sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
 									bool svnOk = executeShellCommand(szBuf,0);
 									if(svnOk == false) {
-										throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+										throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 									}
 									printf("*** Duplicate file:\n[%s]\nwas svn deleted\n",duplicateFile.c_str());
 								}
@@ -1658,7 +1522,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 										if(foundText == false) {
 											char szBuf[4096]="";
 											sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
-											throw runtime_error(szBuf);
+											throw megaglest_runtime_error(szBuf);
 										}
 										mapUniqueParentList[parentFile]++;
 									}
@@ -1706,7 +1570,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 										sprintf(szBuf,"Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
 										printf("\n\n=================================================\n%s",szBuf);
 
-										throw runtime_error(szBuf);
+										throw megaglest_runtime_error(szBuf);
 									}
 								}
 							}
@@ -1822,7 +1686,7 @@ void runTechValidationForPath(string techPath, string techName,
 					errorText = errorText + resultErrors[i];
 				}
 				errorText += "\n=====================\n";
-				//throw runtime_error(errorText);
+				//throw megaglest_runtime_error(errorText);
 				printf("%s",errorText.c_str());
 			}
 
@@ -1845,7 +1709,7 @@ void runTechValidationForPath(string techPath, string techName,
 					errorText = errorText + resultErrors[i];
 				}
 				errorText += "\n=====================\n";
-				//throw runtime_error(errorText);
+				//throw megaglest_runtime_error(errorText);
 				printf("%s",errorText.c_str());
 			}
 
@@ -1933,7 +1797,7 @@ void runTechValidationForPath(string techPath, string techName,
 							sprintf(szBuf,"svn delete \"%s\"",foundFile.c_str());
 							bool svnOk = executeShellCommand(szBuf,0);
 							if(svnOk == false) {
-								throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+								throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 							}
 						}
 						else {
@@ -1961,7 +1825,7 @@ void runTechValidationForPath(string techPath, string techName,
 	//				if(crcValue == 0) {
 	//					char szBuf[4096]="";
 	//					sprintf(szBuf,"Error calculating CRC for file [%s]",fileName.c_str());
-	//					throw runtime_error(szBuf);
+	//					throw megaglest_runtime_error(szBuf);
 	//				}
 	//				else {
 	//					printf("** CRC for file [%s] is [%d] and has %d parents\n",fileName.c_str(),crcValue,(int)iterMap->second.size());
@@ -2047,7 +1911,7 @@ void runTechValidationForPath(string techPath, string techName,
 											sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
 											bool svnOk = executeShellCommand(szBuf,0);
 											if(svnOk == false) {
-												throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+												throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 											}
 											printf("*** Duplicate file:\n[%s]\nwas svn deleted and copied to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 										}
@@ -2058,7 +1922,7 @@ void runTechValidationForPath(string techPath, string techName,
 												char szBuf[4096]="";
 												char *errmsg = strerror(errno);
 												sprintf(szBuf,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
-												throw runtime_error(szBuf);
+												throw megaglest_runtime_error(szBuf);
 											}
 											else {
 												printf("*** Duplicate file:\n[%s]\nwas renamed to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
@@ -2071,7 +1935,7 @@ void runTechValidationForPath(string techPath, string techName,
 											sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
 											bool svnOk = executeShellCommand(szBuf,0);
 											if(svnOk == false) {
-												throw runtime_error("Call to command failed [" + string(szBuf) + "]");
+												throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 											}
 											printf("*** Duplicate file:\n[%s]\nwas svn deleted\n",duplicateFile.c_str());
 										}
@@ -2106,7 +1970,7 @@ void runTechValidationForPath(string techPath, string techName,
 												if(foundText == false) {
 													char szBuf[4096]="";
 													sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
-													throw runtime_error(szBuf);
+													throw megaglest_runtime_error(szBuf);
 												}
 												mapUniqueParentList[parentFile]++;
 											}
@@ -2167,7 +2031,7 @@ void runTechValidationForPath(string techPath, string techName,
 													sprintf(szBuf,"Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
 													printf("\n\n=================================================\n%s",szBuf);
 
-													throw runtime_error(szBuf);
+													throw megaglest_runtime_error(szBuf);
 												}
 											}
 										}
@@ -2649,7 +2513,7 @@ void CheckForDuplicateData() {
 	std::sort(maps.begin(),maps.end());
 
 	if(maps.empty() == true) {
-        throw runtime_error("No maps were found!");
+        throw megaglest_runtime_error("No maps were found!");
     }
 	else if(invalidMapList.empty() == false) {
 		string errorMsg = "Warning invalid maps were detected (will be ignored):\n";
@@ -2696,7 +2560,7 @@ void CheckForDuplicateData() {
 			if(result != 0) {
 				char *errmsg = strerror(errno);
 				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 			else {
 				sprintf(szBuf,"map [%s] in [%s]\nwas renamed to [%s]",duplicateMapsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
@@ -2714,7 +2578,7 @@ void CheckForDuplicateData() {
     findDirs(tilesetPaths, tileSets, false, true);
 
 	if (tileSets.empty()) {
-        throw runtime_error("No tilesets were found!");
+        throw megaglest_runtime_error("No tilesets were found!");
     }
 
 	vector<string> duplicateTilesetsToRename;
@@ -2747,7 +2611,7 @@ void CheckForDuplicateData() {
 			if(result != 0) {
 				char *errmsg = strerror(errno);
 				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 			else {
 				sprintf(szBuf,"tileset [%s] in [%s]\nwas renamed to [%s]",duplicateTilesetsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
@@ -2770,7 +2634,7 @@ void CheckForDuplicateData() {
     vector<string> techTrees;
     findDirs(techPaths, techTrees, false, true);
 	if(techTrees.empty()) {
-        throw runtime_error("No tech-trees were found!");
+        throw megaglest_runtime_error("No tech-trees were found!");
 	}
 
 	vector<string> duplicateTechtreesToRename;
@@ -2803,7 +2667,7 @@ void CheckForDuplicateData() {
 			if(result != 0) {
 				char *errmsg = strerror(errno);
 				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 			else {
 				sprintf(szBuf,"techtree [%s] in [%s]\nwas renamed to [%s]",duplicateTechtreesToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
@@ -2831,10 +2695,20 @@ void CheckForDuplicateData() {
 
 int glestMain(int argc, char** argv) {
 #ifdef SL_LEAK_DUMP
-	AllocRegistry memoryLeaks = AllocRegistry::getInstance();
+	//AllocInfo::set_application_binary(executable_path(argv[0],true));
+	string &app = AllocInfo::get_application_binary();
+	app = executable_path(argv[0],true);
+	//want_full_leak_stacktrace = true;
+	//want_full_leak_stacktrace_line_numbers = true;
+
 #endif
 
-	application_binary= executable_path(argv[0],true);
+//	printf("START ALLOC char 200\n");
+	//char *ptr = new char[200];
+//	printf("END ALLOC char 200\n");
+//	return -1;
+
+	PlatformExceptionHandler::application_binary= executable_path(argv[0],true);
 	mg_app_name = GameConstants::application_name;
 	mailStringSupport = mailString;
     SystemFlags::ENABLE_THREADED_LOGGING = false;
@@ -3817,7 +3691,7 @@ int glestMain(int argc, char** argv) {
 					showfactions = true;
 				}
 				else {
-					throw runtime_error("unknown command for techtreelist [" + cmd + "]");
+					throw megaglest_runtime_error("unknown command for techtreelist [" + cmd + "]");
 				}
 				printf("Using special command for techtree list [%s]\n",cmd.c_str());
 			}
@@ -4137,7 +4011,7 @@ int glestMain(int argc, char** argv) {
 						sprintf(szBuf,"File specified for loading a saved game cannot be found: [%s]",fileName.c_str());
 						printf("\n\n======================================================================================\n%s\n======================================================================================\n\n\n",szBuf);
 
-						throw runtime_error(szBuf);
+						throw megaglest_runtime_error(szBuf);
 					}
 				}
 			}
@@ -4440,7 +4314,7 @@ int glestMain(int argc, char** argv) {
 
         // test
         //Shared::Platform::MessageBox(NULL,"Mark's test.","Test",0);
-        //throw runtime_error("test!");
+        //throw megaglest_runtime_error("test!");
         //ExceptionHandler::DisplayMessage("test!", false);
 
 		//Lang &lang= Lang::getInstance();
@@ -4476,7 +4350,7 @@ int glestMain(int argc, char** argv) {
 	    	printf("Headless server is now running...\n");
 	    }
 
-	    //throw runtime_error("Test!");
+	    //throw megaglest_runtime_error("Test!");
 
 		//main loop
 		while(program->isShutdownApplicationEnabled() == false && Window::handleEvent()) {
@@ -4604,19 +4478,7 @@ int glestMain(int argc, char** argv) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	catch(const exception &e) {
-		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
-			if(soundThreadManager) {
-				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
-				chronoshutdownFadeSound.start();
-			}
-		}
-
-		ExceptionHandler::handleRuntimeError(e.what());
-	}
-	catch(const char *e) {
+	catch(const megaglest_runtime_error &e) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
 			if(soundThreadManager) {
@@ -4628,6 +4490,30 @@ int glestMain(int argc, char** argv) {
 
 		ExceptionHandler::handleRuntimeError(e);
 	}
+	catch(const exception &e) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
+			if(soundThreadManager) {
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
+				chronoshutdownFadeSound.start();
+			}
+		}
+
+		ExceptionHandler::handleRuntimeError(e.what(),true);
+	}
+	catch(const char *e) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
+			if(soundThreadManager) {
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
+				chronoshutdownFadeSound.start();
+			}
+		}
+
+		ExceptionHandler::handleRuntimeError(e,true);
+	}
 	catch(const string &ex) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
@@ -4638,7 +4524,7 @@ int glestMain(int argc, char** argv) {
 			}
 		}
 
-		ExceptionHandler::handleRuntimeError(ex.c_str());
+		ExceptionHandler::handleRuntimeError(ex.c_str(),true);
 	}
 	catch(...) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
@@ -4650,7 +4536,7 @@ int glestMain(int argc, char** argv) {
 			}
 		}
 
-		ExceptionHandler::handleRuntimeError("Unknown error!");
+		ExceptionHandler::handleRuntimeError("Unknown error!",true);
 	}
 
 	cleanupCRCThread();
@@ -4691,8 +4577,18 @@ int glestMain(int argc, char** argv) {
 	return 0;
 }
 
-int glestMainWrapper(int argc, char** argv) {
+#if defined(__GNUC__)  && !defined(__FreeBSD__) && !defined(BSD)
+void handleSIGSEGV(int sig) {
+    char szBuf[4096]="";
+    sprintf(szBuf, "In [%s::%s Line: %d] Error detected: signal %d:\n",__FILE__,__FUNCTION__,__LINE__, sig);
+    printf("%s",szBuf);
+    //abort();
 
+    ExceptionHandler::handleRuntimeError(szBuf,true);
+}
+#endif
+
+int glestMainWrapper(int argc, char** argv) {
 	//setlocale(LC_ALL, "zh_TW.UTF-8");
 	//setlocale(LC_ALL, "");
 

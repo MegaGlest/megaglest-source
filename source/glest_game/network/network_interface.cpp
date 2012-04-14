@@ -67,7 +67,7 @@ NetworkMessageType NetworkInterface::getNextMessageType()
         //sanity check new message type
         if(messageType < 0 || messageType >= nmtCount) {
         	if(getConnectHasHandshaked() == true) {
-        		throw runtime_error("Invalid message type: " + intToStr(messageType));
+        		throw megaglest_runtime_error("Invalid message type: " + intToStr(messageType));
         	}
         	else {
         		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Invalid message type = %d (no packet handshake yet so ignored)\n",__FILE__,__FUNCTION__,__LINE__,messageType);
@@ -104,7 +104,7 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
         pCB_DisplayMessage(sErr.c_str(), false);
     }
     else {
-        throw runtime_error(sErr);
+        throw megaglest_runtime_error(sErr);
     }
 }
 

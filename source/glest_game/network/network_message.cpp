@@ -42,7 +42,7 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryR
 		int dataReceived = socket->receive(data, dataSize, tryReceiveUntilDataSizeMet);
 		if(dataReceived != dataSize) {
 			if(socket != NULL && socket->getSocketId() > 0) {
-				throw runtime_error("Error receiving NetworkMessage, dataReceived = " + intToStr(dataReceived) + ", dataSize = " + intToStr(dataSize));
+				throw megaglest_runtime_error("Error receiving NetworkMessage, dataReceived = " + intToStr(dataReceived) + ", dataSize = " + intToStr(dataSize));
 			}
 			else {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
@@ -66,7 +66,7 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const 
 			if(socket != NULL && socket->getSocketId() > 0) {
 				char szBuf[1024]="";
 				sprintf(szBuf,"Error sending NetworkMessage, sendResult = %d, dataSize = %d",sendResult,dataSize);
-				throw runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf);
 			}
 			else {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);

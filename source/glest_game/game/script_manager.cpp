@@ -1120,7 +1120,7 @@ void ScriptManager::endGame() {
 void ScriptManager::startPerformanceTimer() {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(world->getGame() == NULL) {
-		throw runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("world->getGame() == NULL");
 	}
 	world->getGame()->startPerformanceTimer();
 
@@ -1129,7 +1129,7 @@ void ScriptManager::startPerformanceTimer() {
 void ScriptManager::endPerformanceTimer() {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(world->getGame() == NULL) {
-		throw runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("world->getGame() == NULL");
 	}
 	world->getGame()->endPerformanceTimer();
 
@@ -1138,7 +1138,7 @@ void ScriptManager::endPerformanceTimer() {
 Vec2i ScriptManager::getPerformanceTimerResults() {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	if(world->getGame() == NULL) {
-		throw runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("world->getGame() == NULL");
 	}
 	return world->getGame()->getPerformanceTimerResults();
 }
@@ -1887,7 +1887,7 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 		else {
 			char szBuf[1024]="";
 			sprintf(szBuf,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 	    //va_end(argList);
@@ -1995,7 +1995,7 @@ if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags
 		else {
 			char szBuf[1024]="";
 			sprintf(szBuf,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 	    //va_end(argList);
@@ -2076,7 +2076,7 @@ int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
 		else {
 			char szBuf[1024]="";
 			sprintf(szBuf,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
-			throw runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 	    //va_end(argList);

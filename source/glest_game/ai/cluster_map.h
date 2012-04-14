@@ -147,7 +147,7 @@ public:
 			}
 		}
 		if (it == t->edges.end()) {
-			throw runtime_error("bad connection in ClusterMap.");
+			throw megaglest_runtime_error("bad connection in ClusterMap.");
 		}
 		if ((*it)->maxClear() >= size) {
 			return (*it)->cost(size);
@@ -221,7 +221,7 @@ public:
 			case CardinalDir::WEST:
 				return getWestBorder(cluster);
 			default:
-				throw runtime_error("ClusterMap::getBorder() passed dodgey direction");
+				throw megaglest_runtime_error("ClusterMap::getBorder() passed dodgey direction");
 		}
 		return 0; // keep compiler quiet
 	}

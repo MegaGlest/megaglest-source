@@ -17,6 +17,7 @@
 #include <map>
 #include <string>
 #include <stdexcept>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -69,7 +70,7 @@ protected:
 					safeMutex.ReleaseLock();
 				}
 				catch(const std::exception &ex) {
-					throw runtime_error(ex.what());
+					throw megaglest_runtime_error(ex.what());
 				}
 
 			}
@@ -80,7 +81,7 @@ protected:
 				safeMutex.ReleaseLock();
 			}
 			catch(const std::exception &ex) {
-				throw runtime_error(ex.what());
+				throw megaglest_runtime_error(ex.what());
 			}
 		}
 		// If this is the first access we return a default object of the type

@@ -72,7 +72,7 @@ ClusterMap::~ClusterMap() {
 		assert(Edge::NumEdges(Field(f)) == 0);
 		assert(Transition::NumTransitions(Field(f)) == 0);
 		if (Edge::NumEdges(Field(f)) != 0 || Transition::NumTransitions(Field(f)) != 0) {
-			throw runtime_error("memory leak");
+			throw megaglest_runtime_error("memory leak");
 		}
 	}
 }

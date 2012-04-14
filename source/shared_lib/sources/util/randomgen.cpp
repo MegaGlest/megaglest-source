@@ -2,6 +2,7 @@
 #include <cassert>
 #include "util.h"
 #include <stdexcept>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -51,7 +52,7 @@ int RandomGen::randRange(int min, int max){
 	if(min > max) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] min > max, min = %d, max = %d",__FILE__,__FUNCTION__,__LINE__,min,max);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 //#ifdef USE_STREFLOP
@@ -64,7 +65,7 @@ int RandomGen::randRange(int min, int max){
 	if(res < min || res > max) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] res < min || res > max, min = %d, max = %d, res = %d",__FILE__,__FUNCTION__,__LINE__,min,max,res);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] min = %d, max = %d, res = %d\n",__FILE__,__FUNCTION__,__LINE__,min,max,res);
@@ -77,7 +78,7 @@ float RandomGen::randRange(float min, float max){
 	if(min > max) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] min > max, min = %f, max = %f",__FILE__,__FUNCTION__,__LINE__,min,max);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 //#ifdef USE_STREFLOP
@@ -91,7 +92,7 @@ float RandomGen::randRange(float min, float max){
 	if(res < min || res > max) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] res < min || res > max, min = %f, max = %f, res = %f",__FILE__,__FUNCTION__,__LINE__,min,max,res);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] min = %f, max = %f, res = %f\n",__FILE__,__FUNCTION__,__LINE__,min,max,res);

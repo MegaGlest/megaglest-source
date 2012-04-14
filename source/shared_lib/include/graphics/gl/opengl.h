@@ -18,6 +18,7 @@
 #include <string>
 #include "conversion.h"
 #include "gl_wrap.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using std::runtime_error;
@@ -62,8 +63,8 @@ void inline _assertGl(const char *file, int line, GLenum *forceErrorNumber = NUL
 			const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 			char szBuf[4096]="";
 			sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",error,error,errorString,file,line);
-			//throw runtime_error("OpenGL error #" + intToStr(error) + " : " + string(errorString) + " at file: " + string(file) + ", line " + intToStr(line));
-			throw runtime_error(szBuf);
+			//throw megaglest_runtime_error("OpenGL error #" + intToStr(error) + " : " + string(errorString) + " at file: " + string(file) + ", line " + intToStr(line));
+			throw megaglest_runtime_error(szBuf);
 		//}
 	}
 

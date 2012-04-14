@@ -14,6 +14,7 @@
 #include "platform_common.h"
 #include "util.h"
 #include "conversion.h"
+#include "platform_util.h"
 #include <time.h>
 
 using namespace Shared::Util;
@@ -52,7 +53,7 @@ BaseThread::~BaseThread() {
 	if(masterThreadList.find(this) == masterThreadList.end()) {
 		char szBuf[4096]="";
 		sprintf(szBuf,"invalid thread delete for ptr: %p",this);
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	masterThreadList[this]--;
 	if(masterThreadList[this] <= 0) {

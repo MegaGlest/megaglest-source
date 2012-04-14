@@ -114,7 +114,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     }
     catch(const exception &e){
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading Resource Types in: [" + currentPath + "]\n" + e.what());
+		throw megaglest_runtime_error("Error loading Resource Types in: [" + currentPath + "]\n" + e.what());
     }
 
     // give CPU time to update other things to avoid apperance of hanging
@@ -183,7 +183,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     }
     catch(const exception &e){
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading Tech Tree: "+ currentPath + "\n" + e.what());
+		throw megaglest_runtime_error("Error loading Tech Tree: "+ currentPath + "\n" + e.what());
     }
 
     // give CPU time to update other things to avoid apperance of hanging
@@ -218,7 +218,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     }
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw runtime_error("Error loading Faction Types: "+ currentPath + "\n" + e.what());
+		throw megaglest_runtime_error("Error loading Faction Types: "+ currentPath + "\n" + e.what());
     }
 
     if(techtreeChecksum != NULL) {
@@ -296,7 +296,7 @@ FactionType *TechTree::getTypeByName(const string &name) {
           }
     }
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    throw runtime_error("Faction not found: "+name);
+    throw megaglest_runtime_error("Faction not found: "+name);
 }
 
 const FactionType *TechTree::getType(const string &name) const {
@@ -306,7 +306,7 @@ const FactionType *TechTree::getType(const string &name) const {
           }
     }
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    throw runtime_error("Faction not found: "+name);
+    throw megaglest_runtime_error("Faction not found: "+name);
 }
 
 const ResourceType *TechTree::getTechResourceType(int i) const{
@@ -314,7 +314,7 @@ const ResourceType *TechTree::getTechResourceType(int i) const{
           const ResourceType *rt= getResourceType(j);
           assert(rt != NULL);
           if(rt == NULL) {
-        	  throw runtime_error("rt == NULL");
+        	  throw megaglest_runtime_error("rt == NULL");
           }
           if(rt->getResourceNumber() == i && rt->getClass() == rcTech)
                return getResourceType(j);
@@ -331,7 +331,7 @@ const ResourceType *TechTree::getFirstTechResourceType() const{
                return getResourceType(i);
      }
 
-	 throw runtime_error("This tech tree has no resources defined, at least one is required");
+	 throw megaglest_runtime_error("This tech tree has no resources defined, at least one is required");
 }
 
 const ResourceType *TechTree::getResourceType(const string &name) const{
@@ -342,7 +342,7 @@ const ResourceType *TechTree::getResourceType(const string &name) const{
 		}
 	}
 
-	throw runtime_error("Resource Type not found: "+name);
+	throw megaglest_runtime_error("Resource Type not found: "+name);
 }
 
 const ArmorType *TechTree::getArmorType(const string &name) const{
@@ -352,7 +352,7 @@ const ArmorType *TechTree::getArmorType(const string &name) const{
 		}
 	}
 
-	throw runtime_error("Armor Type not found: "+name);
+	throw megaglest_runtime_error("Armor Type not found: "+name);
 }
 
 const AttackType *TechTree::getAttackType(const string &name) const{
@@ -362,7 +362,7 @@ const AttackType *TechTree::getAttackType(const string &name) const{
 		}
 	}
 
-	throw runtime_error("Attack Type not found: "+name);
+	throw megaglest_runtime_error("Attack Type not found: "+name);
 }
 
 float TechTree::getDamageMultiplier(const AttackType *att, const ArmorType *art) const{

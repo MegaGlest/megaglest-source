@@ -758,7 +758,7 @@ void Program::setDisplaySettings(){
 		if(!(changeVideoMode(screenWidth, screenHeight, colorBits, freq) ||
 			changeVideoMode(screenWidth, screenHeight, colorBits, 0)))
 		{
-			throw runtime_error(
+			throw megaglest_runtime_error(
 				"Error setting video mode: " +
 				intToStr(screenWidth) + "x" + intToStr(screenHeight) + "x" + intToStr(colorBits));
 		}

@@ -23,6 +23,7 @@
 #include "conversion.h"
 #include "model.h"
 #include "texture.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -143,7 +144,7 @@ ParticleSystem::~ParticleSystem(){
 //updates all living particles and creates new ones
 void ParticleSystem::update(){
 	if(aliveParticleCount > (int) particles.size()){
-		throw runtime_error("aliveParticleCount >= particles.size()");
+		throw megaglest_runtime_error("aliveParticleCount >= particles.size()");
 	}
     if(particleSystemStartDelay>0){
     	particleSystemStartDelay--;
@@ -190,7 +191,7 @@ ParticleSystem::BlendMode ParticleSystem::strToBlendMode(const string &str){
 		return bmOneMinusAlpha;
 	}
 	else{
-		throw runtime_error("Unknown particle mode: " + str);
+		throw megaglest_runtime_error("Unknown particle mode: " + str);
 	}
 }
 
@@ -482,7 +483,7 @@ void ParticleSystem::fade(){
 		if(state != sPlay) {
 			char szBuf[4096]="";
 			sprintf(szBuf,"state != sPlay, state = [%d]",state);
-			//throw runtime_error(szBuf);
+			//throw megaglest_runtime_error(szBuf);
 			//printf(szBuf);
 			SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 		}
@@ -716,7 +717,7 @@ GameParticleSystem::Primitive GameParticleSystem::strToPrimitive(const string &s
 		return pLine;
 	}
 	else{
-		throw runtime_error("Unknown particle primitive: " + str);
+		throw megaglest_runtime_error("Unknown particle primitive: " + str);
 	}
 }
 
@@ -980,7 +981,7 @@ UnitParticleSystem::Shape UnitParticleSystem::strToShape(const string& str){
 		return sLinear;
 	}
 	else{
-		throw runtime_error("Unknown particle shape: " + str);
+		throw megaglest_runtime_error("Unknown particle shape: " + str);
 	}
 }
 
@@ -1055,7 +1056,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	#endif
 		}
 	} break;
-	default: throw runtime_error("bad shape");
+	default: throw megaglest_runtime_error("bad shape");
 	}
 }
 
@@ -1623,7 +1624,7 @@ ProjectileParticleSystem::Trajectory ProjectileParticleSystem::strToTrajectory(c
 		return tSpiral;
 	}
 	else{
-		throw runtime_error("Unknown particle system trajectory: " + str);
+		throw megaglest_runtime_error("Unknown particle system trajectory: " + str);
 	}
 }
 

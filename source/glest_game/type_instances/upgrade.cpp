@@ -117,7 +117,7 @@ void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
 		if(iterFind->second >= upgrades.size()) {
 			char szBuf[1024]="";
 			sprintf(szBuf,"Error canceling upgrade, iterFind->second >= upgrades.size() - [%d] : [%d]",iterFind->second,(int)upgrades.size());
-			throw runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
+			throw megaglest_runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
 		}
 		int eraseIndex = iterFind->second;
 		upgrades.erase(upgrades.begin() + eraseIndex);
@@ -134,7 +134,7 @@ void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
 		}
 	}
 	else {
-		throw runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
+		throw megaglest_runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
 	}
 
 /*
@@ -150,7 +150,7 @@ void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
 		upgrades.erase(it);
 	}
 	else{
-		throw runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
+		throw megaglest_runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
 	}
 */
 }
@@ -161,7 +161,7 @@ void UpgradeManager::finishUpgrade(const UpgradeType *upgradeType) {
 		upgrades[iterFind->second]->setState(usUpgraded);
 	}
 	else {
-		throw runtime_error("Error finishing upgrade, upgrade not found in upgrade manager");
+		throw megaglest_runtime_error("Error finishing upgrade, upgrade not found in upgrade manager");
 	}
 
 
@@ -178,7 +178,7 @@ void UpgradeManager::finishUpgrade(const UpgradeType *upgradeType) {
 		(*it)->setState(usUpgraded);
 	}
 	else{
-		throw runtime_error("Error finishing upgrade, upgrade not found in upgrade manager");
+		throw megaglest_runtime_error("Error finishing upgrade, upgrade not found in upgrade manager");
 	}
 */
 }

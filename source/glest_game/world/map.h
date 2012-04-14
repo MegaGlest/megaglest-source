@@ -59,12 +59,12 @@ public:
 	Cell();
 
 	//get
-	Unit *getUnit(int field) const		{ if(field >= fieldCount) { throw runtime_error("Invalid field value" + intToStr(field));} return units[field];}
-	Unit *getUnitWithEmptyCellMap(int field) const		{ if(field >= fieldCount) { throw runtime_error("Invalid field value" + intToStr(field));} return unitsWithEmptyCellMap[field];}
+	Unit *getUnit(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return units[field];}
+	Unit *getUnitWithEmptyCellMap(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return unitsWithEmptyCellMap[field];}
 	float getHeight() const				{return height;}
 
-	void setUnit(int field, Unit *unit)	{ if(field >= fieldCount) { throw runtime_error("Invalid field value" + intToStr(field));} units[field]= unit;}
-	void setUnitWithEmptyCellMap(int field, Unit *unit)	{ if(field >= fieldCount) { throw runtime_error("Invalid field value" + intToStr(field));} unitsWithEmptyCellMap[field]= unit;}
+	void setUnit(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} units[field]= unit;}
+	void setUnitWithEmptyCellMap(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} unitsWithEmptyCellMap[field]= unit;}
 	void setHeight(float height)		{this->height= height;}
 
 	bool isFree(Field field) const;

@@ -814,7 +814,7 @@ void MenuStateMasterserver::update() {
 			pCB_DisplayMessage(sError.c_str(),false);
 		}
 		else {
-			throw runtime_error(sError.c_str());
+			throw megaglest_runtime_error(sError.c_str());
 		}
 	}
 }

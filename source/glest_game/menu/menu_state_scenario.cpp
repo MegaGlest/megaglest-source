@@ -96,7 +96,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
     //printf("scenarioFiles[0] [%s]\n",scenarioFiles[0].c_str());
 
 	if(results.empty() == true) {
-        throw runtime_error("There are no scenarios found to load");
+        throw megaglest_runtime_error("There are no scenarios found to load");
 	}
 	for(int i= 0; i<results.size(); ++i){
 		results[i] = formatString(results[i]);
@@ -306,12 +306,12 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
 	if(listBoxScenario.getSelectedItemIndex() < 0) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"listBoxScenario.getSelectedItemIndex() < 0, = %d",listBoxScenario.getSelectedItemIndex());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 	else if(listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size()) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
-		throw runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	Scenario::loadGameSettings(dirList,scenarioInfo, gameSettings, formatString(scenarioFiles[listBoxScenario.getSelectedItemIndex()]));

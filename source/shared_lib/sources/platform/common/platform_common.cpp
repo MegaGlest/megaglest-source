@@ -343,7 +343,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 		if(errorOnNotFound) {
 			std::stringstream msg;
 			msg << "#1 Couldn't scan directory '" << mypath << "': " << strerror(errno);
-			throw runtime_error(msg.str());
+			throw megaglest_runtime_error(msg.str());
 		}
 	}
 	else {
@@ -366,7 +366,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 		globfree(&globbuf);
 
 		if(results.empty() == true && errorOnNotFound == true) {
-			throw runtime_error("No files found in: " + mypath);
+			throw megaglest_runtime_error("No files found in: " + mypath);
 		}
 
 		if(cutExtension) {
@@ -890,7 +890,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#2 Couldn't scan directory '" << mypath << "': " << strerror(errno);
-		throw runtime_error(msg.str());
+		throw megaglest_runtime_error(msg.str());
 	}
 #endif
 
@@ -930,7 +930,7 @@ int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string 
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#3 Couldn't scan directory '" << mypath << "': " << strerror(errno);
-		throw runtime_error(msg.str());
+		throw megaglest_runtime_error(msg.str());
 	}
 #endif
 
@@ -1071,7 +1071,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#4 Couldn't scan directory '" << mypath << "': " << strerror(errno);
-		throw runtime_error(msg.str());
+		throw megaglest_runtime_error(msg.str());
 	}
 #endif
 	for(int i = 0; i < globbuf.gl_pathc; ++i) {
@@ -1111,7 +1111,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#5 Couldn't scan directory '" << mypath << "': " << strerror(errno);
-		throw runtime_error(msg.str());
+		throw megaglest_runtime_error(msg.str());
 	}
 #endif
 
@@ -1212,7 +1212,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#6 Couldn't scan directory '" << mypath << "': " << strerror(errno);
-		throw runtime_error(msg.str());
+		throw megaglest_runtime_error(msg.str());
 	}
 #endif
 
@@ -1250,7 +1250,7 @@ vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(co
 	if(res < 0) {
 		std::stringstream msg;
 		msg << "#7 Couldn't scan directory '" << mypath << "': " << strerror(errno);
-		throw runtime_error(msg.str());
+		throw megaglest_runtime_error(msg.str());
 	}
 #endif
 
@@ -1981,12 +1981,12 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 	if(fp1 == NULL) {
 		if(fp2) fclose(fp2);
 
-		throw runtime_error("cannot open input file [" + fileName + "]");
+		throw megaglest_runtime_error("cannot open input file [" + fileName + "]");
 	}
 	if(fp2 == NULL) {
 		if(fp1) fclose(fp1);
 
-		throw runtime_error("cannot open output file [" + tempfileName + "]");
+		throw megaglest_runtime_error("cannot open output file [" + tempfileName + "]");
 	}
 
 	while(fgets(buffer,MAX_LEN_SINGLE_LINE + 2,fp1)) {
@@ -2039,10 +2039,10 @@ void copyFileTo(string fromFileName, string toFileName) {
 		}
 	}
 	else if(in.is_open() == false) {
-		throw runtime_error("cannot open input file [" + fromFileName + "]");
+		throw megaglest_runtime_error("cannot open input file [" + fromFileName + "]");
 	}
 	else if(out.is_open() == false) {
-		throw runtime_error("cannot open input file [" + toFileName + "]");
+		throw megaglest_runtime_error("cannot open input file [" + toFileName + "]");
 	}
 
 	//Close both files

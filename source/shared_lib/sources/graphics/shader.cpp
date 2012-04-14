@@ -13,7 +13,7 @@
 
 #include <stdexcept>
 #include <fstream>
-
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -30,7 +30,7 @@ void ShaderSource::load(const string &path){
 	//open file
 	ifstream ifs(path.c_str());
 	if(ifs.fail()){
-		throw runtime_error("Can't open shader file: " + path);
+		throw megaglest_runtime_error("Can't open shader file: " + path);
 	}
 
 	//read source

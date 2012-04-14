@@ -56,14 +56,14 @@ void Display::calculateUpDimensions(int index) {
 
 Vec4f Display::getColor() const {
 	if(currentColor < 0 || currentColor >= colorCount) {
-		throw runtime_error("currentColor >= colorCount");
+		throw megaglest_runtime_error("currentColor >= colorCount");
 	}
 	return colors[currentColor];
 }
 
 void Display::setUpImage(int i, const Texture2D *image)
 {
-	if(i>=upCellCount) throw runtime_error("i>=upCellCount in Display::setUpImage");
+	if(i>=upCellCount) throw megaglest_runtime_error("i>=upCellCount in Display::setUpImage");
 	upImages[i]= image;
 	calculateUpDimensions(i);
 }

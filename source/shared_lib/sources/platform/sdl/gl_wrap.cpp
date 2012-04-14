@@ -116,8 +116,10 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 				//printf("Loadng png icon\n");
 				Texture2D *texture2D = GraphicsInterface::getInstance().getFactory()->newTexture2D();
 				texture2D->load(mg_icon_file);
-				icon = texture2D->CreateSDLSurface(true);
+				std::pair<SDL_Surface*,unsigned char*> result = texture2D->CreateSDLSurface(true);
+				icon = result.first;
 				delete texture2D;
+				delete [] result.second;
 			}
 
 		//SDL_Surface *icon = IMG_Load("megaglest.ico");
