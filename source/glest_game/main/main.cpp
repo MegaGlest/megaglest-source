@@ -2864,6 +2864,8 @@ int glestMain(int argc, char** argv) {
 #endif
 	}
 
+	//throw megaglest_runtime_error("Test!");
+
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) == true) {
 		SDL_version ver;
 
