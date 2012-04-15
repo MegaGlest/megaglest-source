@@ -997,6 +997,12 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	const float radRatio= sqrtf(mod / radius);
 #endif
 	p->color= color;
+	if(isDaylightAffected==true)
+	{
+		p->color.x=p->color.x*lightColor.x;
+		p->color.y=p->color.y*lightColor.y;
+		p->color.z=p->color.z*lightColor.z;
+	}
 	if(radiusBasedStartenergy == true){
 		p->energy= static_cast<int> (maxParticleEnergy * radRatio) + random.randRange(-varParticleEnergy,
 		        varParticleEnergy);
