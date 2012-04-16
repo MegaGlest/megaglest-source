@@ -387,6 +387,7 @@ void CoreData::load() {
 	menuMusic.open(getGameCustomCoreDataPath(data_path, "data/core/" + menuMusicPath + menuMusicFile));
 	menuMusic.setNext(&menuMusic);
 
+	cleanup();
 	waterSounds.resize(6);
 
 	for(int i=0; i<6; ++i){
