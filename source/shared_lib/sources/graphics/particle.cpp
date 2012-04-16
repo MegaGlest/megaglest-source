@@ -421,9 +421,9 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 	//	State state;
 	state = static_cast<State>(particleSystemNode->getAttribute("state")->getIntValue());
 	//	bool active;
-	active = particleSystemNode->getAttribute("active")->getIntValue();
+	active = particleSystemNode->getAttribute("active")->getIntValue() != 0;
 	//	bool visible;
-	visible = particleSystemNode->getAttribute("visible")->getIntValue();
+	visible = particleSystemNode->getAttribute("visible")->getIntValue() != 0;
 	//	int aliveParticleCount;
 	aliveParticleCount = particleSystemNode->getAttribute("aliveParticleCount")->getIntValue();
 	//	int particleCount;
@@ -461,9 +461,9 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 	//	Vec3f factionColor;
 	factionColor = Vec3f::strToVec3(particleSystemNode->getAttribute("factionColor")->getValue());
 	//    bool teamcolorNoEnergy;
-	teamcolorNoEnergy = particleSystemNode->getAttribute("teamcolorNoEnergy")->getIntValue();
+	teamcolorNoEnergy = particleSystemNode->getAttribute("teamcolorNoEnergy")->getIntValue() != 0;
 	//    bool teamcolorEnergy;
-	teamcolorEnergy = particleSystemNode->getAttribute("teamcolorEnergy")->getIntValue();
+	teamcolorEnergy = particleSystemNode->getAttribute("teamcolorEnergy")->getIntValue() != 0;
 	//	int alternations;
 	alternations = particleSystemNode->getAttribute("alternations")->getIntValue();
 	//	int particleSystemStartDelay;
@@ -1091,7 +1091,7 @@ void UnitParticleSystem::updateParticle(Particle *p){
 	float energyRatio;
 	if(alternations > 0){
 		int interval= (maxParticleEnergy / alternations);
-		float moduloValue= static_cast<int> (static_cast<float> (p->energy)) % interval;
+		float moduloValue= (float)((int)(static_cast<float> (p->energy)) % interval);
 
 		if(moduloValue < interval / 2){
 			energyRatio= (interval - moduloValue) / interval;
@@ -1237,17 +1237,17 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 //    Vec3f oldPosition;
 	oldPosition = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("oldPosition")->getValue());
 //    bool energyUp;
-	energyUp = unitParticleSystemNode->getAttribute("energyUp")->getIntValue();
+	energyUp = unitParticleSystemNode->getAttribute("energyUp")->getIntValue() != 0;
 //	float startTime;
 	startTime = unitParticleSystemNode->getAttribute("startTime")->getFloatValue();
 //	float endTime;
 	endTime = unitParticleSystemNode->getAttribute("endTime")->getFloatValue();
 //	bool relative;
-	relative = unitParticleSystemNode->getAttribute("relative")->getIntValue();
+	relative = unitParticleSystemNode->getAttribute("relative")->getIntValue() != 0;
 //	bool relativeDirection;
-	relativeDirection = unitParticleSystemNode->getAttribute("relativeDirection")->getIntValue();
+	relativeDirection = unitParticleSystemNode->getAttribute("relativeDirection")->getIntValue() != 0;
 //    bool fixed;
-	fixed = unitParticleSystemNode->getAttribute("fixed")->getIntValue();
+	fixed = unitParticleSystemNode->getAttribute("fixed")->getIntValue() != 0;
 //	Shape shape;
 	shape = static_cast<Shape>(unitParticleSystemNode->getAttribute("shape")->getIntValue());
 //	float angle;
@@ -1259,13 +1259,13 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 //	float rotation;
 	rotation = unitParticleSystemNode->getAttribute("rotation")->getFloatValue();
 //	bool isVisibleAtNight;
-	isVisibleAtNight = unitParticleSystemNode->getAttribute("isVisibleAtNight")->getIntValue();
+	isVisibleAtNight = unitParticleSystemNode->getAttribute("isVisibleAtNight")->getIntValue() != 0;
 //	bool isVisibleAtDay;
-	isVisibleAtDay = unitParticleSystemNode->getAttribute("isVisibleAtDay")->getIntValue();
+	isVisibleAtDay = unitParticleSystemNode->getAttribute("isVisibleAtDay")->getIntValue() != 0;
 //	bool isDaylightAffected;
-	isDaylightAffected = unitParticleSystemNode->getAttribute("isDaylightAffected")->getIntValue();
+	isDaylightAffected = unitParticleSystemNode->getAttribute("isDaylightAffected")->getIntValue() != 0;
 //	bool radiusBasedStartenergy;
-	radiusBasedStartenergy = unitParticleSystemNode->getAttribute("radiusBasedStartenergy")->getIntValue();
+	radiusBasedStartenergy = unitParticleSystemNode->getAttribute("radiusBasedStartenergy")->getIntValue() != 0;
 //	int staticParticleCount;
 	staticParticleCount = unitParticleSystemNode->getAttribute("staticParticleCount")->getIntValue();
 //	int delay;

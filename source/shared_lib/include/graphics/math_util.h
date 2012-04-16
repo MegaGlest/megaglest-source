@@ -272,8 +272,8 @@ inline T truncateDecimal(const T &value, int precision=6) {
 	int iSigned = value >= 0 ? 1: -1;
 
 #ifdef USE_STREFLOP
-	unsigned int uiTemp = (value * streflop::pow((streflop::Simple)10, (streflop::Simple)precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
-	T result = (((double)uiTemp) / streflop::pow((streflop::Simple)10,(streflop::Simple)precision) * iSigned);
+	unsigned int uiTemp = (unsigned int)(value * streflop::pow((streflop::Simple)10, (streflop::Simple)precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
+	T result = (((T)uiTemp) / streflop::pow((streflop::Simple)10,(streflop::Simple)precision) * iSigned);
 #else
 	unsigned int uiTemp = (value * pow((T)10, precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
 	T result = (((double)uiTemp) / pow((T)10,precision) * iSigned);

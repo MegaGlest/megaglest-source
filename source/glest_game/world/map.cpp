@@ -1997,7 +1997,7 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 			for(unsigned int k = 0; k < tokensExploredValue.size(); ++k) {
 				string value = tokensExploredValue[k];
 
-				surfaceCell.setExplored(k,strToInt(value));
+				surfaceCell.setExplored(k,strToInt(value) != 0);
 			}
 			surfaceCellIndexExplored++;
 		}
@@ -2020,7 +2020,7 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 			for(unsigned int k = 0; k < tokensVisibleValue.size(); ++k) {
 				string value = tokensVisibleValue[k];
 
-				surfaceCell.setVisible(k,strToInt(value));
+				surfaceCell.setVisible(k,strToInt(value) != 0);
 			}
 			surfaceCellIndexVisible++;
 		}

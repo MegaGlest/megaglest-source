@@ -144,7 +144,7 @@ void TimeFlow::saveGame(XmlNode *rootNode) {
 void TimeFlow::loadGame(const XmlNode *rootNode) {
 	const XmlNode *timeflowNode = rootNode->getChild("TimeFlow");
 
-	firstTime = timeflowNode->getAttribute("firstTime")->getFloatValue();
+	firstTime = timeflowNode->getAttribute("firstTime")->getFloatValue() != 0;
 	time = timeflowNode->getAttribute("time")->getFloatValue();
 	lastTime = timeflowNode->getAttribute("lastTime")->getFloatValue();
 	timeInc = timeflowNode->getAttribute("timeInc")->getFloatValue();

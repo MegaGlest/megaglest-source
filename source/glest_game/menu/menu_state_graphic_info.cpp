@@ -68,8 +68,8 @@ MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu)
 	strInternalInfo += "\nrenderText3DEnabled: " + boolToStr(Renderer::renderText3DEnabled);
 	strInternalInfo += "\nuseTextureCompression: " + boolToStr(Texture::useTextureCompression);
 	strInternalInfo += "\nfontIsRightToLeft: " + boolToStr(Font::fontIsRightToLeft);
-	strInternalInfo += "\nscaleFontValue: " + boolToStr(Font::scaleFontValue);
-	strInternalInfo += "\nscaleFontValueCenterHFactor: " + boolToStr(Font::scaleFontValueCenterHFactor);
+	strInternalInfo += "\nscaleFontValue: " + floatToStr(Font::scaleFontValue);
+	strInternalInfo += "\nscaleFontValueCenterHFactor: " + floatToStr(Font::scaleFontValueCenterHFactor);
 	strInternalInfo += "\nlangHeightText: " + Font::langHeightText;
 	strInternalInfo += "\nAllowAltEnterFullscreenToggle: " + boolToStr(Window::getAllowAltEnterFullscreenToggle());
 	strInternalInfo += "\nTryVSynch: " + boolToStr(Window::getTryVSynch());
@@ -106,8 +106,8 @@ void MenuStateGraphicInfo::reloadUI() {
 	strInternalInfo += "\nrenderText3DEnabled: " + boolToStr(Renderer::renderText3DEnabled);
 	strInternalInfo += "\nuseTextureCompression: " + boolToStr(Texture::useTextureCompression);
 	strInternalInfo += "\nfontIsRightToLeft: " + boolToStr(Font::fontIsRightToLeft);
-	strInternalInfo += "\nscaleFontValue: " + boolToStr(Font::scaleFontValue);
-	strInternalInfo += "\nscaleFontValueCenterHFactor: " + boolToStr(Font::scaleFontValueCenterHFactor);
+	strInternalInfo += "\nscaleFontValue: " + floatToStr(Font::scaleFontValue);
+	strInternalInfo += "\nscaleFontValueCenterHFactor: " + floatToStr(Font::scaleFontValueCenterHFactor);
 	strInternalInfo += "\nlangHeightText: " + Font::langHeightText;
 	strInternalInfo += "\nAllowAltEnterFullscreenToggle: " + boolToStr(Window::getAllowAltEnterFullscreenToggle());
 	strInternalInfo += "\nTryVSynch: " + boolToStr(Window::getTryVSynch());

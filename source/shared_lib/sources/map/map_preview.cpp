@@ -1002,7 +1002,7 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 // static
 string MapPreview::getMapPath(const vector<string> &pathList, const string &mapName,
 		string scenarioDir, bool errorOnNotFound) {
-    for(int idx = 0; idx < pathList.size(); idx++) {
+    for(unsigned int idx = 0; idx < pathList.size(); idx++) {
         string map_path = pathList[idx];
     	endPathWithSlash(map_path);
 
@@ -1071,7 +1071,7 @@ vector<string> MapPreview::findAllValidMaps(const vector<string> &pathList,
 	results.clear();
 
 	MapInfo mapInfo;
-	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+	for(unsigned int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
 		//loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPlayersTitle,string i18nMapSizeTitle,bool errorOnInvalidMap=true);
 		//printf("getMapPath [%s]\nmapFiles.at(i) [%s]\nscenarioDir [%s] getUserDataOnly = %d cutExtension = %d\n",getMapPath(pathList,mapFiles.at(i), scenarioDir, false).c_str(),mapFiles.at(i).c_str(),scenarioDir.c_str(), getUserDataOnly, cutExtension);
 

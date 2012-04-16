@@ -3943,11 +3943,11 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	result->animationRandomCycleCount = unitNode->getAttribute("animationRandomCycleCount")->getIntValue();
 //
 //    bool toBeUndertaken;
-	result->toBeUndertaken = unitNode->getAttribute("toBeUndertaken")->getIntValue();
+	result->toBeUndertaken = unitNode->getAttribute("toBeUndertaken")->getIntValue() != 0;
 //	bool alive;
-	result->alive = unitNode->getAttribute("alive")->getIntValue();
+	result->alive = unitNode->getAttribute("alive")->getIntValue() != 0;
 //	bool showUnitParticles;
-	result->showUnitParticles = unitNode->getAttribute("showUnitParticles")->getIntValue();
+	result->showUnitParticles = unitNode->getAttribute("showUnitParticles")->getIntValue() != 0;
 //    Faction *faction;
 //	ParticleSystem *fire;
 //	if(fire != NULL) {
@@ -4153,7 +4153,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	int lastRenderFrame;
 	result->lastRenderFrame = unitNode->getAttribute("lastRenderFrame")->getIntValue();
 //	bool visible;
-	result->visible = unitNode->getAttribute("visible")->getIntValue();
+	result->visible = unitNode->getAttribute("visible")->getIntValue() != 0;
 //	int retryCurrCommandCount;
 	result->retryCurrCommandCount = unitNode->getAttribute("retryCurrCommandCount")->getIntValue();
 //	Vec3f screenPos;
@@ -4162,7 +4162,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	result->currentUnitTitle = unitNode->getAttribute("currentUnitTitle")->getValue();
 //
 //	bool inBailOutAttempt;
-	result->inBailOutAttempt = unitNode->getAttribute("inBailOutAttempt")->getIntValue();
+	result->inBailOutAttempt = unitNode->getAttribute("inBailOutAttempt")->getIntValue() != 0;
 //	//std::vector<std::pair<Vec2i,Chrono> > badHarvestPosList;
 //	std::map<Vec2i,int> badHarvestPosList;
 //	for(std::map<Vec2i,int>::const_iterator iterMap = badHarvestPosList.begin();
@@ -4187,7 +4187,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	static Game *game;
 //
 //	bool ignoreCheckCommand;
-	result->ignoreCheckCommand = unitNode->getAttribute("ignoreCheckCommand")->getIntValue();
+	result->ignoreCheckCommand = unitNode->getAttribute("ignoreCheckCommand")->getIntValue() != 0;
 //	uint32 lastStuckFrame;
 	result->lastStuckFrame = unitNode->getAttribute("lastStuckFrame")->getIntValue();
 //	Vec2i lastStuckPos;
@@ -4197,7 +4197,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	Vec2i lastPathfindFailedPos;
 	result->lastPathfindFailedPos = Vec2i::strToVec2(unitNode->getAttribute("lastPathfindFailedPos")->getValue());
 //	bool usePathfinderExtendedMaxNodes;
-	result->usePathfinderExtendedMaxNodes = unitNode->getAttribute("usePathfinderExtendedMaxNodes")->getIntValue();
+	result->usePathfinderExtendedMaxNodes = unitNode->getAttribute("usePathfinderExtendedMaxNodes")->getIntValue() != 0;
 //	int maxQueuedCommandDisplayCount;
 	result->maxQueuedCommandDisplayCount = unitNode->getAttribute("maxQueuedCommandDisplayCount")->getIntValue();
 //	UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
@@ -4214,7 +4214,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	//static std::map<void *,bool> deletedUnits;
 //
 //	bool changedActiveCommand;
-	result->changedActiveCommand = unitNode->getAttribute("changedActiveCommand")->getIntValue();
+	result->changedActiveCommand = unitNode->getAttribute("changedActiveCommand")->getIntValue() != 0;
 //	int lastAttackerUnitId;
 	result->lastAttackerUnitId = unitNode->getAttribute("lastAttackerUnitId")->getIntValue();
 //	int lastAttackedUnitId;

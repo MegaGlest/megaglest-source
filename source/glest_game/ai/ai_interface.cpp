@@ -734,7 +734,7 @@ void AiInterface::loadGame(const XmlNode *rootNode, Faction *faction) {
 		teamIndex = aiInterfaceNode->getAttribute("teamIndex")->getIntValue();
 	//	//config
 	//	bool redir;
-		redir = aiInterfaceNode->getAttribute("redir")->getIntValue();
+		redir = aiInterfaceNode->getAttribute("redir")->getIntValue() != 0;
 	//    int logLevel;
 		logLevel = aiInterfaceNode->getAttribute("logLevel")->getIntValue();
 

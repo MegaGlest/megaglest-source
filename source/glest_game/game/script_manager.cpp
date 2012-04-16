@@ -105,9 +105,9 @@ void PlayerModifiers::saveGame(XmlNode *rootNode) {
 void PlayerModifiers::loadGame(const XmlNode *rootNode) {
 	const XmlNode *playerModifiersNode = rootNode;
 
-	winner = playerModifiersNode->getAttribute("winner")->getIntValue();
-	aiEnabled = playerModifiersNode->getAttribute("aiEnabled")->getIntValue();
-	consumeEnabled = playerModifiersNode->getAttribute("consumeEnabled")->getIntValue();
+	winner = playerModifiersNode->getAttribute("winner")->getIntValue() != 0;
+	aiEnabled = playerModifiersNode->getAttribute("aiEnabled")->getIntValue() != 0;
+	consumeEnabled = playerModifiersNode->getAttribute("consumeEnabled")->getIntValue() != 0;
 }
 
 CellTriggerEvent::CellTriggerEvent() {
@@ -173,7 +173,7 @@ void TimerTriggerEvent::saveGame(XmlNode *rootNode) {
 void TimerTriggerEvent::loadGame(const XmlNode *rootNode) {
 	const XmlNode *timerTriggerEventNode = rootNode->getChild("TimerTriggerEvent");
 
-	running = timerTriggerEventNode->getAttribute("running")->getIntValue();
+	running = timerTriggerEventNode->getAttribute("running")->getIntValue() != 0;
 	startFrame = timerTriggerEventNode->getAttribute("startFrame")->getIntValue();
 	endFrame = timerTriggerEventNode->getAttribute("endFrame")->getIntValue();
 	if(timerTriggerEventNode->hasAttribute("triggerSecondsElapsed") == true) {
@@ -2099,7 +2099,7 @@ int ScriptManager::getIsGameOver(LuaHandle* luaHandle){
 
 int ScriptManager::loadScenario(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->loadScenario(luaArguments.getString(-2),luaArguments.getInt(-1));
+	thisScriptManager->loadScenario(luaArguments.getString(-2),luaArguments.getInt(-1) != 0);
 	return luaArguments.getReturnCount();
 }
 
@@ -2251,7 +2251,7 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 	}
 
 //	GraphicMessageBox messageBox;
-	messageBox.setEnabled(scriptManagerNode->getAttribute("messageBox_enabled")->getIntValue());
+	messageBox.setEnabled(scriptManagerNode->getAttribute("messageBox_enabled")->getIntValue() != 0);
 	messageBox.setText(wrapString(scriptManagerNode->getAttribute("messageBox_text")->getValue(),messageWrapCount));
 	messageBox.setHeader(scriptManagerNode->getAttribute("messageBox_header")->getValue());
 
@@ -2292,9 +2292,9 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 //
 //	// end game state
 //	bool gameOver;
-	gameOver = scriptManagerNode->getAttribute("gameOver")->getIntValue();
+	gameOver = scriptManagerNode->getAttribute("gameOver")->getIntValue() != 0;
 //	bool gameWon;
-	gameWon = scriptManagerNode->getAttribute("gameWon")->getIntValue();
+	gameWon = scriptManagerNode->getAttribute("gameWon")->getIntValue() != 0;
 //	PlayerModifiers playerModifiers[GameConstants::maxPlayers];
 	vector<XmlNode *> playerModifiersNodeList = scriptManagerNode->getChildList("PlayerModifiers");
 	for(unsigned int i = 0; i < playerModifiersNodeList.size(); ++i) {
@@ -2327,7 +2327,7 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 	}
 
 //	bool inCellTriggerEvent;
-	inCellTriggerEvent = scriptManagerNode->getAttribute("inCellTriggerEvent")->getIntValue();
+	inCellTriggerEvent = scriptManagerNode->getAttribute("inCellTriggerEvent")->getIntValue() != 0;
 //	std::vector<int> unRegisterCellTriggerEventList;
 	vector<XmlNode *> unRegisterCellTriggerEventListNodeList = scriptManagerNode->getChildList("unRegisterCellTriggerEventList");
 	for(unsigned int i = 0; i < unRegisterCellTriggerEventListNodeList.size(); ++i) {
