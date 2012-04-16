@@ -14,7 +14,7 @@
 using Shared::Platform::MutexSafeWrapper;
 
 bool AllocInfo::application_binary_initialized = false;
-static AllocRegistry memoryLeaks = AllocRegistry::getInstance();
+//static AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 
 // =====================================================
 //	class AllocRegistry
@@ -108,6 +108,11 @@ void AllocRegistry::dump(const char *path) {
 	fprintf(f, "Not monitored allocations: %d, %lu bytes\n", nonMonitoredCount, nonMonitoredBytes);
 
 	fclose(f);
+
+	printf("Memory leak dump summary:\n");
+	printf("Total leaks: %d, %lu bytes\n", leakCount, leakBytes);
+	printf("Total allocations: %d, %lu bytes\n", allocCount, allocBytes);
+	printf("Not monitored allocations: %d, %lu bytes\n", nonMonitoredCount, nonMonitoredBytes);
 }
 
 #endif

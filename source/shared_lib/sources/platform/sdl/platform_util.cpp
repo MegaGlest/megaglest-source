@@ -68,89 +68,91 @@ void exceptionMessage(const exception &excp) {
 #if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
 static int getFileAndLine(char *function, void *address, char *file, size_t flen) {
         int line=-1;
-        const int maxbufSize = 8094;
-        char buf[maxbufSize+1]="";
-        //char *p=NULL;
+        if(PlatformExceptionHandler::application_binary != "") {
+			const int maxbufSize = 8094;
+			char buf[maxbufSize+1]="";
+			//char *p=NULL;
 
-        // prepare command to be executed
-        // our program need to be passed after the -e parameter
-        //sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
-        sprintf(buf, "addr2line -C -e %s -f -i %p",PlatformExceptionHandler::application_binary.c_str(),address);
+			// prepare command to be executed
+			// our program need to be passed after the -e parameter
+			//sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
+			sprintf(buf, "addr2line -C -e %s -f -i %p",PlatformExceptionHandler::application_binary.c_str(),address);
 
-        FILE* f = popen (buf, "r");
-        if (f == NULL) {
-            perror (buf);
-            return 0;
-        }
+			FILE* f = popen (buf, "r");
+			if (f == NULL) {
+				perror (buf);
+				return 0;
+			}
 
-        if(function != NULL && function[0] != '\0') {
-        	line = 0;
-			for(;function != NULL && function[0] != '\0';) {
-				// get function name
-				char *ret = fgets (buf, maxbufSize, f);
-				if(ret == NULL) {
-					pclose(f);
-					return line;
-				}
-				//printf("Looking for [%s] Found [%s]\n",function,ret);
-				if(strstr(ret,function) != NULL) {
-					break;
-				}
-
-				// get file and line
-				ret = fgets (buf, maxbufSize, f);
-				if(ret == NULL) {
-					pclose(f);
-					return line;
-				}
-
-				if(strlen(buf) > 0 && buf[0] != '?') {
-					//int l;
-					char *p = buf;
-
-					// file name is until ':'
-					while(*p != 0 && *p != ':') {
-						p++;
+			if(function != NULL && function[0] != '\0') {
+				line = 0;
+				for(;function != NULL && function[0] != '\0';) {
+					// get function name
+					char *ret = fgets (buf, maxbufSize, f);
+					if(ret == NULL) {
+						pclose(f);
+						return line;
+					}
+					//printf("Looking for [%s] Found [%s]\n",function,ret);
+					if(strstr(ret,function) != NULL) {
+						break;
 					}
 
-					*p++ = 0;
-					// after file name follows line number
-					strcpy (file , buf);
-					sscanf (p,"%d", &line);
-				}
-				else {
-					strcpy (file,"unknown");
-					line = 0;
+					// get file and line
+					ret = fgets (buf, maxbufSize, f);
+					if(ret == NULL) {
+						pclose(f);
+						return line;
+					}
+
+					if(strlen(buf) > 0 && buf[0] != '?') {
+						//int l;
+						char *p = buf;
+
+						// file name is until ':'
+						while(*p != 0 && *p != ':') {
+							p++;
+						}
+
+						*p++ = 0;
+						// after file name follows line number
+						strcpy (file , buf);
+						sscanf (p,"%d", &line);
+					}
+					else {
+						strcpy (file,"unknown");
+						line = 0;
+					}
 				}
 			}
-        }
 
-		// get file and line
-		char *ret = fgets (buf, maxbufSize, f);
-		if(ret == NULL) {
+			// get file and line
+			char *ret = fgets (buf, maxbufSize, f);
+			if(ret == NULL) {
+				pclose(f);
+				return line;
+			}
+
+			if(strlen(buf) > 0 && buf[0] != '?') {
+				//int l;
+				char *p = buf;
+
+				// file name is until ':'
+				while(*p != 0 && *p != ':') {
+					p++;
+				}
+
+				*p++ = 0;
+				// after file name follows line number
+				strcpy (file , buf);
+				sscanf (p,"%d", &line);
+			}
+			else {
+				strcpy (file,"unknown");
+				line = 0;
+			}
 			pclose(f);
-			return line;
-		}
-
-        if(strlen(buf) > 0 && buf[0] != '?') {
-            //int l;
-            char *p = buf;
-
-            // file name is until ':'
-            while(*p != 0 && *p != ':') {
-                p++;
-            }
-
-            *p++ = 0;
-            // after file name follows line number
-            strcpy (file , buf);
-            sscanf (p,"%d", &line);
         }
-        else {
-            strcpy (file,"unknown");
-            line = 0;
-        }
-        pclose(f);
 
         return line;
 }
