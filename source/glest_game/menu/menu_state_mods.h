@@ -45,6 +45,12 @@ enum ModType {
     mt_Scenario
 };
 
+enum ModMenuState {
+    mmst_None,
+    mmst_Loading,
+    mmst_CalculatingCRC
+};
+
 typedef vector<GraphicButton*> UserButtons;
 typedef vector<GraphicLabel*> GraphicLabels;
 
@@ -127,6 +133,10 @@ private:
 	GraphicButton buttonAvailable;
 	GraphicButton buttonConflict;
 	GraphicButton buttonOnlyLocal;
+
+	GraphicLabel pleaseWaitLabel;
+	ModMenuState modMenuState;
+	ModMenuState oldMenuState;
 
 	int keyButtonsToRender;
 	int keyButtonsYBase;

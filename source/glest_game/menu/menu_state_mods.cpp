@@ -84,6 +84,8 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyButtonsToRender		= listBoxLength / keyButtonsLineHeight;
 	labelWidth				= 5;
 	keyButtonsXBase			= 0;
+	modMenuState            = mmst_None;
+	oldMenuState            = mmst_None;
 
 	int installButtonYPos = scrollListsYPos-listBoxLength-20;
 
@@ -121,6 +123,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTilesetScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
+
 	scenarioInfoXPos = 760;
 	keyScenarioScrollBarTitle1.registerGraphicComponent(containerName,"keyScenarioScrollBarTitle1");
 	keyScenarioScrollBarTitle1.init(scenarioInfoXPos,scrollListsYPos + 25,labelWidth,20);
@@ -142,6 +145,12 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	modDescrLabel.init(50,installButtonYPos-60 - 20,450,20);
 	modDescrLabel.setWordWrap(true);
 	modDescrLabel.setText("description is empty");
+
+	pleaseWaitLabel.registerGraphicComponent(containerName,"pleaseWaitLabel");
+	pleaseWaitLabel.init(50,installButtonYPos-120,450,20);
+	pleaseWaitLabel.setText("");
+	pleaseWaitLabel.setFont(CoreData::getInstance().getMenuFontBig());
+	pleaseWaitLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(800, returnLineY - 30, 125);
@@ -325,6 +334,10 @@ void MenuStateMods::reloadUI() {
 	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTilesetScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
+	pleaseWaitLabel.setText("");
+	pleaseWaitLabel.setFont(CoreData::getInstance().getMenuFontBig());
+	pleaseWaitLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
 	keyScenarioScrollBarTitle1.setText(lang.get("ScenarioTitle1"));
 	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyScenarioScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -386,6 +399,8 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	std::string tilesetsMetaData = "";
 	std::string mapsMetaData = "";
 	std::string scenariosMetaData = "";
+
+	modMenuState=mmst_Loading;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -471,6 +486,8 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	tilesetListRemote.clear();
 	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
+
+	modMenuState=mmst_CalculatingCRC;
 
 	getTilesetsLocalList();
 	for(unsigned int i=0; i < tilesetListRemote.size(); i++) {
@@ -765,6 +782,8 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	keyScenarioScrollBar.setElementCount(keyScenarioButtons.size());
 	keyScenarioScrollBar.setVisibleSize(keyButtonsToRender);
 	keyScenarioScrollBar.setVisibleStart(0);
+
+	modMenuState=mmst_None;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -2271,6 +2290,26 @@ void MenuStateMods::render() {
 
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
+		}
+
+		if(modMenuState!=mmst_None) {
+			if(oldMenuState!=modMenuState)
+			{
+				Lang &lang= Lang::getInstance();
+				if(modMenuState== mmst_Loading){
+					pleaseWaitLabel.setText(lang.get("GettingModlistFromMasterserver"));
+				}
+				else if(modMenuState== mmst_CalculatingCRC){
+					pleaseWaitLabel.setText(lang.get("PleaseWaitCalculatingCRC"));
+				}
+				oldMenuState=modMenuState;
+			}
+			float anim= GraphicComponent::getAnim();
+			if(anim < 0.5f) {
+				anim = 1.f - anim;
+			}
+			Vec4f colorWithAlpha = Vec4f(ORANGE.x,ORANGE.y,ORANGE.z,anim);
+			renderer.renderLabel(&pleaseWaitLabel,&colorWithAlpha);
 		}
 	}
 	catch(const std::exception &ex) {
