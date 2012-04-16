@@ -79,58 +79,94 @@ public:
 	}
 
 #if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
-	inline static int getFileAndLine(void *address, char *file, size_t flen) {
-        int line=-1;
-        if(want_full_leak_stacktrace_line_numbers == true && AllocInfo::get_application_binary() != "") {
-			const int maxbufSize = 4096;
-			char buf[maxbufSize+1]="";
+	inline static int getFileAndLine(char *function, void *address, char *file, size_t flen) {
+	        int line=-1;
+	        if(want_full_leak_stacktrace_line_numbers == true && AllocInfo::get_application_binary() != "") {
+				const int maxbufSize = 8094;
+				char buf[maxbufSize+1]="";
+				//char *p=NULL;
 
-			// prepare command to be executed
-			// our program need to be passed after the -e parameter
-			//sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
-			sprintf(buf, "addr2line -C -e %s -f -i %p",AllocInfo::get_application_binary().c_str(),address);
+				// prepare command to be executed
+				// our program need to be passed after the -e parameter
+				//sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
+				sprintf(buf, "addr2line -C -e %s -f -i %p",AllocInfo::get_application_binary().c_str(),address);
 
-			FILE* f = popen (buf, "r");
-			if (f == NULL) {
-				perror (buf);
-				return 0;
-			}
-
-			// get function name
-			char *ret = fgets (buf, maxbufSize, f);
-			if(ret == NULL) {
-				pclose(f);
-				return 0;
-			}
-
-			// get file and line
-			ret = fgets (buf, maxbufSize, f);
-			if(ret == NULL) {
-				pclose(f);
-				return 0;
-			}
-
-			if(strlen(buf) > 0 && buf[0] != '?') {
-				//int l;
-				char *p = buf;
-
-				// file name is until ':'
-				while(*p != 0 && *p != ':') {
-					p++;
+				FILE* f = popen (buf, "r");
+				if (f == NULL) {
+					perror (buf);
+					return 0;
 				}
 
-				*p++ = 0;
-				// after file name follows line number
-				strcpy (file , buf);
-				sscanf (p,"%d", &line);
-			}
-			else {
-				strcpy (file,"unknown");
-				line = 0;
-			}
-			pclose(f);
-        }
-        return line;
+				if(function != NULL && function[0] != '\0') {
+					line = 0;
+					for(;function != NULL && function[0] != '\0';) {
+						// get function name
+						char *ret = fgets (buf, maxbufSize, f);
+						if(ret == NULL) {
+							pclose(f);
+							return line;
+						}
+						//printf("Looking for [%s] Found [%s]\n",function,ret);
+						if(strstr(ret,function) != NULL) {
+							break;
+						}
+
+						// get file and line
+						ret = fgets (buf, maxbufSize, f);
+						if(ret == NULL) {
+							pclose(f);
+							return line;
+						}
+
+						if(strlen(buf) > 0 && buf[0] != '?') {
+							//int l;
+							char *p = buf;
+
+							// file name is until ':'
+							while(*p != 0 && *p != ':') {
+								p++;
+							}
+
+							*p++ = 0;
+							// after file name follows line number
+							strcpy (file , buf);
+							sscanf (p,"%d", &line);
+						}
+						else {
+							strcpy (file,"unknown");
+							line = 0;
+						}
+					}
+				}
+
+				// get file and line
+				char *ret = fgets (buf, maxbufSize, f);
+				if(ret == NULL) {
+					pclose(f);
+					return line;
+				}
+
+				if(strlen(buf) > 0 && buf[0] != '?') {
+					//int l;
+					char *p = buf;
+
+					// file name is until ':'
+					while(*p != 0 && *p != ':') {
+						p++;
+					}
+
+					*p++ = 0;
+					// after file name follows line number
+					strcpy (file , buf);
+					sscanf (p,"%d", &line);
+				}
+				else {
+					strcpy (file,"unknown");
+					line = 0;
+				}
+				pclose(f);
+	        }
+	        return line;
 	}
 #endif
 
@@ -158,6 +194,8 @@ public:
 
 					size_t sz = 8096; // just a guess, template names will go much wider
 					char *function = static_cast<char *>(malloc(sz));
+					function[0] = '\0';
+
 					char *begin = 0;
 					char *end = 0;
 
@@ -201,7 +239,7 @@ public:
 
 					if(want_full_leak_stacktrace_line_numbers == true && AllocInfo::get_application_binary() != "") {
 						char file[8096]="";
-						int line = getFileAndLine(lineAddress, file, 8096);
+						int line = getFileAndLine(function, lineAddress, file, 8096);
 						if(line >= 0) {
 							char lineBuf[1024]="";
 							sprintf(lineBuf,"%d",line);
