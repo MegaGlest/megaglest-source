@@ -2301,7 +2301,7 @@ void runTilesetValidationReport(int argc, char** argv) {
 	bool showDuplicateFiles = true;
 	bool purgeUnusedFiles = false;
 
-	double purgedMegaBytes=0;
+	//double purgedMegaBytes=0;
 	Config &config = Config::getInstance();
 
 	// Did the user pass a specific tileset to validate?

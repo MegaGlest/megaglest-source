@@ -33,7 +33,8 @@
 using Shared::Platform::Mutex;
 
 // START - For gcc backtrace
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+//#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+#if defined(HAS_GCC_BACKTRACE)
 #include <execinfo.h>
 #include <cxxabi.h>
 #include <signal.h>
@@ -78,7 +79,8 @@ public:
 		: ptr(ptr), file(file), line(line), bytes(bytes), array(array), freetouse(false), inuse(true), stack(stacktrace) {
 	}
 
-#if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
+//#if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
+#if defined(HAS_GCC_BACKTRACE)
 	inline static int getFileAndLine(char *function, void *address, char *file, size_t flen) {
 	        int line=-1;
 	        if(want_full_leak_stacktrace_line_numbers == true && AllocInfo::get_application_binary() != "") {
@@ -171,7 +173,8 @@ public:
 #endif
 
 	inline static string getStackTrace() {
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+//#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+#if defined(HAS_GCC_BACKTRACE)
         if(want_full_leak_stacktrace == true) {
         	string errMsg = "\nStack Trace:\n";
 			//errMsg += "To find line #'s use:\n";

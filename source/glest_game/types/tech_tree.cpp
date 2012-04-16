@@ -70,7 +70,7 @@ string TechTree::findPath(const string &techName) const{
         //printf(">>> test path=%s\n",path.c_str());
         if(isdir(path.c_str()) == true) {
             return path;
-            break;
+            //break;
         }
     }
     //return "no path found for tech: \""+techname+"\"";

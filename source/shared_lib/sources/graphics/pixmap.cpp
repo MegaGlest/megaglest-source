@@ -449,6 +449,7 @@ void PixmapIoPng::openWrite(const string &path, int w, int h, int components) {
 void PixmapIoPng::write(uint8 *pixels) {
 
     // initialize stuff
+/*
     std::auto_ptr<png_byte*> imrow(new png_byte*[h]);
     for(int i = 0; i < h; ++i) {
         imrow.get()[i] = pixels+(h-1-i) * w * components;
@@ -470,8 +471,31 @@ void PixmapIoPng::write(uint8 *pixels) {
     png_write_info(imgp, infop);
     png_write_image(imgp, imrow.get());
     png_write_end(imgp, NULL);
+*/
+    png_bytep *imrow = new png_bytep[h];
+	//png_bytep *imrow = (png_bytep*) malloc(sizeof(png_bytep) * height);
+    for(int i = 0; i < h; ++i) {
+        imrow[i] = pixels + (h-1-i) * w * components;
+    }
 
+    png_structp imgp = png_create_write_struct(PNG_LIBPNG_VER_STRING,0,0,0);
+    png_infop infop = png_create_info_struct(imgp);
+    png_init_io(imgp, file);
 
+    int color_type = PNG_COLOR_TYPE_RGB;
+    if(components == 4) {
+    	color_type = PNG_COLOR_TYPE_RGBA;
+    }
+    png_set_IHDR(imgp, infop, w, h,
+		 8, color_type, PNG_INTERLACE_NONE,
+		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    // write file
+    png_write_info(imgp, infop);
+    png_write_image(imgp, imrow);
+    png_write_end(imgp, NULL);
+
+    delete [] imrow;
 
 /*
 	// Allocate write & info structures

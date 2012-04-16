@@ -1684,9 +1684,9 @@ bool isKeyDown(int virtualKey) {
 
 	// kinda hack and wrong...
 	if(key >= 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate[key] = %d\n",__FILE__,__FUNCTION__,__LINE__,keystate[key]);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keystate[key] = %d\n",__FILE__,__FUNCTION__,__LINE__,keystate[(unsigned char)key]);
 
-		return (keystate[key] != 0);
+		return (keystate[(unsigned char)key] != 0);
 	}
 	switch(key) {
 		case vkAdd:

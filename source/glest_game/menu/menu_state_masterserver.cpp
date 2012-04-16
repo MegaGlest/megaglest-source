@@ -1048,7 +1048,7 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 		showMessageBox(lang.get("Couldnt connect"), lang.get("Connection failed"), false);
 		return false;
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connected to [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,serverIp.getString().c_str());

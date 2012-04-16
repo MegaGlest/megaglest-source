@@ -121,6 +121,26 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		MESSAGE(STATUS "*WARNING: Disabled use of STREFLOP! Out of synchs may occur")
 	ENDIF()
 
+        include(CheckCXXSourceRuns)
+
+        check_cxx_source_runs("
+        #include <execinfo.h>
+        #include <stdio.h>
+        int main()
+        {
+	const size_t max_depth = 6;
+	void *stack_addrs[max_depth];
+	size_t stack_depth = backtrace(stack_addrs, max_depth);
+        }"
+        HAS_GCC_BACKTRACE)
+
+        IF(HAS_GCC_BACKTRACE)
+                message(STATUS "Found GCC backtrace lib, will support backtraces")
+                ADD_DEFINITIONS(-DHAS_GCC_BACKTRACE)
+        ELSE()
+                message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
+        ENDIF()
+
 	# Debug compiler flags
 	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 
