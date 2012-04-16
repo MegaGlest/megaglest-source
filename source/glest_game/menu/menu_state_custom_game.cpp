@@ -3085,7 +3085,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 					//printf("slot = %d serverInterface->getSlot(i)->getConnectedTime() = %d session key [%d]\n",i,serverInterface->getSlot(i)->getConnectedTime(),serverInterface->getSlot(i)->getSessionKey());
 
-					if(clientConnectedTime == 0 || clientConnectedTime == 0 ||
+					if(clientConnectedTime == 0 ||
 							(serverInterface->getSlot(i)->getConnectedTime() > 0 && serverInterface->getSlot(i)->getConnectedTime() < clientConnectedTime)) {
 						clientConnectedTime = serverInterface->getSlot(i)->getConnectedTime();
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());

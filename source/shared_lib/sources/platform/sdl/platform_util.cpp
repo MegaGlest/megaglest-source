@@ -13,7 +13,8 @@
 #include "util.h"
 #include "conversion.h"
 // For gcc backtrace on crash!
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+//#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+#if defined(HAS_GCC_BACKTRACE)
 //#include <mcheck.h>
 
 #include <execinfo.h>
@@ -65,7 +66,8 @@ void exceptionMessage(const exception &excp) {
 	//int result = MessageBox(NULL, excp.what(), "Error", 0);
 }
 
-#if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
+//#if defined(__GNUC__) && !defined(__FreeBSD__) && !defined(BSD)
+#if defined(HAS_GCC_BACKTRACE)
 static int getFileAndLine(char *function, void *address, char *file, size_t flen) {
         int line=-1;
         if(PlatformExceptionHandler::application_binary != "") {
@@ -160,7 +162,8 @@ static int getFileAndLine(char *function, void *address, char *file, size_t flen
 
 string PlatformExceptionHandler::getStackTrace() {
 	string errMsg = "";
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+//#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+#if defined(HAS_GCC_BACKTRACE)
 //        if(disableBacktrace == false && sdl_quitCalled == false) {
         errMsg = "\nStack Trace:\n";
         //errMsg += "To find line #'s use:\n";

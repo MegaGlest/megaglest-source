@@ -326,15 +326,15 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 	#define CHECK_FONT_PATH(filename,fontFamily) \
 	{ \
 		path = filename; \
-		if( !font && path && strlen(path) > 0 && fileExists(path) == true ) { \
+		if( font == NULL && path != NULL && strlen(path) > 0 && fileExists(path) == true ) { \
 			font = strdup(path); \
 		} \
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",path,font); \
-		if( !font && fontFamily != NULL && strlen(fontFamily) > 0) { \
+		if( font != NULL && fontFamily != NULL && strlen(fontFamily) > 0) { \
 			string fileFound = findFontFamily(font, fontFamily); \
 			if(fileFound != "") { \
 				path = fileFound.c_str(); \
-				if( !font && path && strlen(path) > 0 && fileExists(path) == true ) { \
+				if( font != NULL && path && strlen(path) > 0 && fileExists(path) == true ) { \
 					font = strdup(path); \
 				} \
 			} \
@@ -343,8 +343,8 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 	}
 
 	string tryFont = "";
-	if(firstFontToTry || firstFontFamilyToTry) {
-		if(firstFontToTry && strlen(firstFontToTry) > 0) {
+	if(firstFontToTry != NULL || firstFontFamilyToTry != NULL) {
+		if(firstFontToTry != NULL && strlen(firstFontToTry) > 0) {
 			tryFont = firstFontToTry;
 			#ifdef WIN32
 			  replaceAll(tryFont, "/", "\\");

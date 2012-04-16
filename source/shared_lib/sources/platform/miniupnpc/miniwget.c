@@ -90,8 +90,11 @@ getHTTPResponse(int s, int * size)
 			int colon=0;
 			int valuestart=0;
 			if(header_buf_used + n > header_buf_len) {
-				header_buf = realloc(header_buf, header_buf_used + n);
-				header_buf_len = header_buf_used + n;
+				char *header_buf_new = realloc(header_buf, header_buf_used + n);
+				if(header_buf_new != NULL) {
+					header_buf = header_buf_new;
+					header_buf_len = header_buf_used + n;
+				}
 			}
 			memcpy(header_buf + header_buf_used, buf, n);
 			header_buf_used += n;
@@ -227,11 +230,15 @@ getHTTPResponse(int s, int * size)
 					{
 						if(content_length >= content_buf_used + (int)bytestocopy) {
 							content_buf_len = content_length;
-						} else {
+						}
+						else {
 							content_buf_len = content_buf_used + (int)bytestocopy;
 						}
-						content_buf = (char *)realloc((void *)content_buf, 
+						char *content_buf_new = (char *)realloc((void *)content_buf,
 						                              content_buf_len);
+						if(content_buf_new) {
+							content_buf = content_buf_new;
+						}
 					}
 					memcpy(content_buf + content_buf_used, buf + i, bytestocopy);
 					content_buf_used += bytestocopy;
@@ -254,8 +261,11 @@ getHTTPResponse(int s, int * size)
 					} else {
 						content_buf_len = content_buf_used + n;
 					}
-					content_buf = (char *)realloc((void *)content_buf, 
+					char *content_buf_new = (char *)realloc((void *)content_buf,
 					                              content_buf_len);
+					if(content_buf_new) {
+						content_buf = content_buf_new;
+					}
 				}
 				memcpy(content_buf + content_buf_used, buf, n);
 				content_buf_used += n;

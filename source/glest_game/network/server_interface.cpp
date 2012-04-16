@@ -405,7 +405,7 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
 	MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[fromPlayerIndex],CODE_AT_LINE_X(fromPlayerIndex));
 	MutexSafeWrapper safeMutexSlot2(slotAccessorMutexes[toPlayerIndex],CODE_AT_LINE_X(toPlayerIndex));
-	if(slots[toPlayerIndex] != NULL && slots[toPlayerIndex] != NULL &&
+	if(slots[toPlayerIndex] != NULL &&
 	   slots[toPlayerIndex]->isConnected() == false) {
 		slots[fromPlayerIndex]->setPlayerIndex(toPlayerIndex);
 		slots[toPlayerIndex]->setPlayerIndex(fromPlayerIndex);

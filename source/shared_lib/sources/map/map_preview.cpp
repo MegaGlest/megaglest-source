@@ -503,7 +503,7 @@ void MapPreview::reset(int w, int h, float alt, MapSurfaceType surf) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
 		throw megaglest_runtime_error(szBuf);
-		return;
+		//return;
 	}
 
 	if (w > MAX_MAP_CELL_DIMENSION || h > MAX_MAP_CELL_DIMENSION) {
@@ -555,7 +555,7 @@ void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
 		char szBuf[1024]="";
 		sprintf(szBuf,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
 		throw megaglest_runtime_error(szBuf);
-		return;
+		//return;
 	}
 
 	if (w > MAX_MAP_CELL_DIMENSION || h > MAX_MAP_CELL_DIMENSION) {

@@ -1430,7 +1430,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 	else if(tryReceiveUntilDataSizeMet == true && bytesReceived < dataSize) {
 		int newBufferSize = (dataSize - bytesReceived);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, attempting to receive MORE data, bytesReceived = %d, dataSize = %d, newBufferSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,dataSize,newBufferSize);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] WARNING, attempting to receive MORE data, bytesReceived = %d, dataSize = %d, newBufferSize = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)bytesReceived,dataSize,newBufferSize,newBufferSize);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] WARNING, attempting to receive MORE data, bytesReceived = %d, dataSize = %d, newBufferSize = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)bytesReceived,dataSize,newBufferSize);
 
 		char *dataAsCharPointer = reinterpret_cast<char *>(data);
 		int additionalBytes = receive(&dataAsCharPointer[bytesReceived], newBufferSize, tryReceiveUntilDataSizeMet);

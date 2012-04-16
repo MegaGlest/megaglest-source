@@ -684,7 +684,7 @@ bool Faction::reqsOk(const RequirableType *rt) const {
     }
 
     if(dynamic_cast<const UnitType *>(rt) != NULL ) {
-    	const UnitType *producedUnitType=(UnitType *) rt;
+    	const UnitType *producedUnitType= dynamic_cast<const UnitType *>(rt);
    		if(producedUnitType != NULL && producedUnitType->getMaxUnitCount() > 0) {
 			if(producedUnitType->getMaxUnitCount() <= getCountForMaxUnitCount(producedUnitType)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
@@ -1080,7 +1080,7 @@ void Faction::removeUnit(Unit *unit){
 	}
 
 	throw megaglest_runtime_error("Could not remove unit from faction!");
-	assert(false);
+	//assert(false);
 }
 
 void Faction::addStore(const UnitType *unitType){
