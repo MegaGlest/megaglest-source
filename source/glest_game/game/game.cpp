@@ -3949,9 +3949,9 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	newGame->tickCount = gameNode->getAttribute("tickCount")->getIntValue();
 
 	//bool paused;
-	newGame->paused = gameNode->getAttribute("paused")->getIntValue();
+	newGame->paused = gameNode->getAttribute("paused")->getIntValue() != 0;
 	//bool gameOver;
-	newGame->gameOver = gameNode->getAttribute("gameOver")->getIntValue();
+	newGame->gameOver = gameNode->getAttribute("gameOver")->getIntValue() != 0;
 	//bool renderNetworkStatus;
 	//bool showFullConsole;
 	//bool mouseMoved;
@@ -4004,13 +4004,13 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 
 	//bool photoModeEnabled;
 	//gameNode->addAttribute("photoModeEnabled",intToStr(photoModeEnabled), mapTagReplacements);
-	newGame->photoModeEnabled = gameNode->getAttribute("photoModeEnabled")->getIntValue();
+	newGame->photoModeEnabled = gameNode->getAttribute("photoModeEnabled")->getIntValue() != 0;
 	//bool visibleHUD;
 	//gameNode->addAttribute("visibleHUD",intToStr(visibleHUD), mapTagReplacements);
-	newGame->visibleHUD = gameNode->getAttribute("visibleHUD")->getIntValue();
+	newGame->visibleHUD = gameNode->getAttribute("visibleHUD")->getIntValue() != 0;
 	//bool withRainEffect;
 	//gameNode->addAttribute("withRainEffect",intToStr(withRainEffect), mapTagReplacements);
-	newGame->withRainEffect = gameNode->getAttribute("withRainEffect")->getIntValue();
+	newGame->withRainEffect = gameNode->getAttribute("withRainEffect")->getIntValue() != 0;
 	//Program *program;
 
 	//bool gameStarted;

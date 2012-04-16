@@ -238,7 +238,7 @@ void Stats::loadGame(const XmlNode *rootNode) {
 	//		int teamIndex;
 		stat.teamIndex = statsNodePlayer->getAttribute("teamIndex")->getIntValue();
 	//		bool victory;
-		stat.victory = statsNodePlayer->getAttribute("victory")->getIntValue();
+		stat.victory = statsNodePlayer->getAttribute("victory")->getIntValue() != 0;
 	//		int kills;
 		stat.kills = statsNodePlayer->getAttribute("kills")->getIntValue();
 	//		int enemykills;

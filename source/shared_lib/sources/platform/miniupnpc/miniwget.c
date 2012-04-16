@@ -70,6 +70,7 @@ getHTTPResponse(int s, int * size)
 	int header_buf_len = 2048;
 	int header_buf_used = 0;
 	char * content_buf;
+	char *content_buf_new;
 	int content_buf_len = 2048;
 	int content_buf_used = 0;
 	char chunksize_buf[32];
@@ -234,7 +235,7 @@ getHTTPResponse(int s, int * size)
 						else {
 							content_buf_len = content_buf_used + (int)bytestocopy;
 						}
-						char *content_buf_new = (char *)realloc((void *)content_buf,
+						content_buf_new = (char *)realloc((void *)content_buf,
 						                              content_buf_len);
 						if(content_buf_new) {
 							content_buf = content_buf_new;
@@ -261,7 +262,7 @@ getHTTPResponse(int s, int * size)
 					} else {
 						content_buf_len = content_buf_used + n;
 					}
-					char *content_buf_new = (char *)realloc((void *)content_buf,
+					content_buf_new = (char *)realloc((void *)content_buf,
 					                              content_buf_len);
 					if(content_buf_new) {
 						content_buf = content_buf_new;

@@ -1710,7 +1710,7 @@ void PathFinder::loadGame(const XmlNode *rootNode) {
 	//				float heuristic;
 			curNode->heuristic = nodePoolNode->getAttribute("heuristic")->getFloatValue();
 	//				bool exploredCell;
-			curNode->exploredCell = nodePoolNode->getAttribute("exploredCell")->getIntValue();
+			curNode->exploredCell = nodePoolNode->getAttribute("exploredCell")->getIntValue() != 0;
 		}
 
 		//		int nodePoolCount;

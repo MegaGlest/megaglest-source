@@ -1288,7 +1288,7 @@ void Gui::loadGame(const XmlNode *rootNode, World *world) {
 	//guiNode->addAttribute("posObjWorld",posObjWorld.getString(), mapTagReplacements);
 	posObjWorld = Vec2i::strToVec2(guiNode->getAttribute("posObjWorld")->getValue());
 //	bool validPosObjWorld;
-	validPosObjWorld = guiNode->getAttribute("validPosObjWorld")->getIntValue();
+	validPosObjWorld = guiNode->getAttribute("validPosObjWorld")->getIntValue() != 0;
 //	//display
 //	const UnitType *choosenBuildingType;
 //	if(choosenBuildingType != NULL) {

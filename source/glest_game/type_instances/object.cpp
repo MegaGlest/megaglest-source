@@ -283,7 +283,7 @@ void Object::loadGame(const XmlNode *rootNode,const TechTree *techTree) {
 	//	Vec2i mapPos;
 	mapPos = Vec2i::strToVec2(objectNode->getAttribute("mapPos")->getValue());
 	//	bool visible;
-	visible = objectNode->getAttribute("visible")->getIntValue();
+	visible = objectNode->getAttribute("visible")->getIntValue() != 0;
 }
 
 }}//end namespace

@@ -344,7 +344,7 @@ bool Lang::fileMatchesISO630Code(string uselanguage, string testLanguageFile) {
 			result = true;
 		}
 	}
-	catch(exception &ex) {
+	catch(const exception &ex) {
 	}
 
 	return result;
@@ -388,7 +388,7 @@ string Lang::getNativeLanguageName(string uselanguage, string testLanguageFile) 
 	try {
 		result = stringsTest.getString("NativeLanguageName");
 	}
-	catch(exception &ex) {
+	catch(const exception &ex) {
 	}
 
 	return result;

@@ -502,7 +502,7 @@ void GameCamera::loadGame(const XmlNode *rootNode) {
 	//	float speed;
 	speed = gamecameraNode->getAttribute("speed")->getFloatValue();
 	//	bool clampBounds;
-	clampBounds = gamecameraNode->getAttribute("clampBounds")->getIntValue();
+	clampBounds = gamecameraNode->getAttribute("clampBounds")->getIntValue() != 0;
 	//	//float maxRenderDistance;
 	//	float maxHeight;
 	maxHeight = gamecameraNode->getAttribute("maxHeight")->getFloatValue();

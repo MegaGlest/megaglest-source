@@ -1480,21 +1480,21 @@ void World::initFactionTypes(GameSettings *gs) {
 		safeMutex.ReleaseLock();
 	//	//config
 	//	bool fogOfWarOverride;
-		fogOfWarOverride = loadWorldNode->getAttribute("fogOfWarOverride")->getIntValue();
+		fogOfWarOverride = loadWorldNode->getAttribute("fogOfWarOverride")->getIntValue() != 0;
 	//	bool fogOfWar;
-		fogOfWar = loadWorldNode->getAttribute("fogOfWar")->getIntValue();
+		fogOfWar = loadWorldNode->getAttribute("fogOfWar")->getIntValue() != 0;
 	//	int fogOfWarSmoothingFrameSkip;
 		fogOfWarSmoothingFrameSkip = loadWorldNode->getAttribute("fogOfWarSmoothingFrameSkip")->getIntValue();
 	//	bool fogOfWarSmoothing;
-		fogOfWarSmoothing = loadWorldNode->getAttribute("fogOfWarSmoothing")->getIntValue();
+		fogOfWarSmoothing = loadWorldNode->getAttribute("fogOfWarSmoothing")->getIntValue() != 0;
 	//	Game *game;
 	//	Chrono chronoPerfTimer;
 	//	bool perfTimerEnabled;
 	//
 	//	bool unitParticlesEnabled;
-		unitParticlesEnabled = loadWorldNode->getAttribute("unitParticlesEnabled")->getIntValue();
+		unitParticlesEnabled = loadWorldNode->getAttribute("unitParticlesEnabled")->getIntValue() != 0;
 	//	bool staggeredFactionUpdates;
-		staggeredFactionUpdates = loadWorldNode->getAttribute("staggeredFactionUpdates")->getIntValue();
+		staggeredFactionUpdates = loadWorldNode->getAttribute("staggeredFactionUpdates")->getIntValue() != 0;
 	//	std::map<string,StaticSound *> staticSoundList;
 	//	std::map<string,StrSound *> streamSoundList;
 	//
@@ -1503,7 +1503,7 @@ void World::initFactionTypes(GameSettings *gs) {
 	//	string queuedScenarioName;
 		queuedScenarioName = loadWorldNode->getAttribute("queuedScenarioName")->getValue();
 	//	bool queuedScenarioKeepFactions;
-		queuedScenarioKeepFactions = loadWorldNode->getAttribute("queuedScenarioKeepFactions")->getIntValue();
+		queuedScenarioKeepFactions = loadWorldNode->getAttribute("queuedScenarioKeepFactions")->getIntValue() != 0;
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

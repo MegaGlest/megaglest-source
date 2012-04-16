@@ -487,23 +487,23 @@ public:
 //
 //
 //		bool defaultUnits;
-		defaultUnits = gameSettingsNode->getAttribute("defaultUnits")->getIntValue();
+		defaultUnits = gameSettingsNode->getAttribute("defaultUnits")->getIntValue() != 0;
 //		bool defaultResources;
-		defaultResources = gameSettingsNode->getAttribute("defaultResources")->getIntValue();
+		defaultResources = gameSettingsNode->getAttribute("defaultResources")->getIntValue() != 0;
 //		bool defaultVictoryConditions;
-		defaultVictoryConditions = gameSettingsNode->getAttribute("defaultVictoryConditions")->getIntValue();
+		defaultVictoryConditions = gameSettingsNode->getAttribute("defaultVictoryConditions")->getIntValue() != 0;
 //		bool fogOfWar;
-		fogOfWar = gameSettingsNode->getAttribute("fogOfWar")->getIntValue();
+		fogOfWar = gameSettingsNode->getAttribute("fogOfWar")->getIntValue() != 0;
 //		bool allowObservers;
-		allowObservers = gameSettingsNode->getAttribute("allowObservers")->getIntValue();
+		allowObservers = gameSettingsNode->getAttribute("allowObservers")->getIntValue() != 0;
 //		bool enableObserverModeAtEndGame;
-		enableObserverModeAtEndGame = gameSettingsNode->getAttribute("enableObserverModeAtEndGame")->getIntValue();
+		enableObserverModeAtEndGame = gameSettingsNode->getAttribute("enableObserverModeAtEndGame")->getIntValue() != 0;
 //		bool enableServerControlledAI;
-		enableServerControlledAI = gameSettingsNode->getAttribute("enableServerControlledAI")->getIntValue();
+		enableServerControlledAI = gameSettingsNode->getAttribute("enableServerControlledAI")->getIntValue() != 0;
 //		int networkFramePeriod;
 		networkFramePeriod = gameSettingsNode->getAttribute("networkFramePeriod")->getIntValue();
 //		bool networkPauseGameForLaggedClients;
-		networkPauseGameForLaggedClients = gameSettingsNode->getAttribute("networkPauseGameForLaggedClients")->getIntValue();
+		networkPauseGameForLaggedClients = gameSettingsNode->getAttribute("networkPauseGameForLaggedClients")->getIntValue() != 0;
 //		PathFinderType pathFinderType;
 		pathFinderType = static_cast<PathFinderType>(gameSettingsNode->getAttribute("pathFinderType")->getIntValue());
 //		uint32 flagTypes1;

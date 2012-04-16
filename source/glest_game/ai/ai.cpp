@@ -179,7 +179,7 @@ BuildTask * BuildTask::loadGame(const XmlNode *rootNode, Faction *faction) {
 		newTask->resourceType = faction->getTechTree()->getResourceType(resourceTypeName);
 	}
 
-	newTask->forcePos = buildTaskNode->getAttribute("forcePos")->getIntValue();
+	newTask->forcePos = buildTaskNode->getAttribute("forcePos")->getIntValue() != 0;
 	newTask->pos = Vec2i::strToVec2(buildTaskNode->getAttribute("pos")->getValue());
 
 	return newTask;
@@ -1203,7 +1203,7 @@ void Ai::loadGame(const XmlNode *rootNode, Faction *faction) {
 	const XmlNode *aiNode = rootNode->getChild("Ai");
 
 	startLoc = aiNode->getAttribute("startLoc")->getIntValue();
-	randomMinWarriorsReached = aiNode->getAttribute("randomMinWarriorsReached")->getIntValue();
+	randomMinWarriorsReached = aiNode->getAttribute("randomMinWarriorsReached")->getIntValue() != 0;
 
 	vector<XmlNode *> taskNodeList = aiNode->getChildList("Task");
 	for(unsigned int i = 0; i < taskNodeList.size(); ++i) {

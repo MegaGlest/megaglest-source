@@ -1093,7 +1093,7 @@ void TotalUpgrade::loadGame(const XmlNode *rootNode) {
 	//    int maxHp;
 	maxHp = upgradeTypeBaseNode->getAttribute("maxHp")->getIntValue();
 	//    bool maxHpIsMultiplier;
-	maxHpIsMultiplier = upgradeTypeBaseNode->getAttribute("maxHpIsMultiplier")->getIntValue();
+	maxHpIsMultiplier = upgradeTypeBaseNode->getAttribute("maxHpIsMultiplier")->getIntValue() != 0;
 	//	int maxHpRegeneration;
 	maxHpRegeneration = upgradeTypeBaseNode->getAttribute("maxHpRegeneration")->getIntValue();
 	//	//bool maxHpRegenerationIsMultiplier;
@@ -1101,22 +1101,22 @@ void TotalUpgrade::loadGame(const XmlNode *rootNode) {
 	//    int sight;
 	sight = upgradeTypeBaseNode->getAttribute("sight")->getIntValue();
 	//    bool sightIsMultiplier;
-	sightIsMultiplier = upgradeTypeBaseNode->getAttribute("sightIsMultiplier")->getIntValue();
+	sightIsMultiplier = upgradeTypeBaseNode->getAttribute("sightIsMultiplier")->getIntValue() != 0;
 	//    int maxEp;
 	maxEp = upgradeTypeBaseNode->getAttribute("maxEp")->getIntValue();
 	//    bool maxEpIsMultiplier;
-	maxEpIsMultiplier = upgradeTypeBaseNode->getAttribute("maxEpIsMultiplier")->getIntValue();
+	maxEpIsMultiplier = upgradeTypeBaseNode->getAttribute("maxEpIsMultiplier")->getIntValue() != 0;
 	//	int maxEpRegeneration;
 	maxEpRegeneration = upgradeTypeBaseNode->getAttribute("maxEpRegeneration")->getIntValue();
 	//	//bool maxEpRegenerationIsMultiplier;
 	//    int armor;
 	armor = upgradeTypeBaseNode->getAttribute("armor")->getIntValue();
 	//    bool armorIsMultiplier;
-	armorIsMultiplier = upgradeTypeBaseNode->getAttribute("armorIsMultiplier")->getIntValue();
+	armorIsMultiplier = upgradeTypeBaseNode->getAttribute("armorIsMultiplier")->getIntValue() != 0;
 	//    int attackStrength;
 	attackStrength = upgradeTypeBaseNode->getAttribute("attackStrength")->getIntValue();
 	//    bool attackStrengthIsMultiplier;
-	attackStrengthIsMultiplier = upgradeTypeBaseNode->getAttribute("attackStrengthIsMultiplier")->getIntValue();
+	attackStrengthIsMultiplier = upgradeTypeBaseNode->getAttribute("attackStrengthIsMultiplier")->getIntValue() != 0;
 	//    std::map<string,int> attackStrengthMultiplierValueList;
 	vector<XmlNode *> attackStrengthMultiplierValueNodeList = upgradeTypeBaseNode->getChildList("attackStrengthMultiplierValueList");
 	for(unsigned int i = 0; i < attackStrengthMultiplierValueNodeList.size(); ++i) {
@@ -1128,7 +1128,7 @@ void TotalUpgrade::loadGame(const XmlNode *rootNode) {
 	//    int attackRange;
 	attackRange = upgradeTypeBaseNode->getAttribute("attackRange")->getIntValue();
 	//    bool attackRangeIsMultiplier;
-	attackRangeIsMultiplier = upgradeTypeBaseNode->getAttribute("attackRangeIsMultiplier")->getIntValue();
+	attackRangeIsMultiplier = upgradeTypeBaseNode->getAttribute("attackRangeIsMultiplier")->getIntValue() != 0;
 	//    std::map<string,int> attackRangeMultiplierValueList;
 	vector<XmlNode *> attackRangeMultiplierValueNodeList = upgradeTypeBaseNode->getChildList("attackRangeMultiplierValueList");
 	for(unsigned int i = 0; i < attackRangeMultiplierValueNodeList.size(); ++i) {
@@ -1141,7 +1141,7 @@ void TotalUpgrade::loadGame(const XmlNode *rootNode) {
 	//    int moveSpeed;
 	moveSpeed = upgradeTypeBaseNode->getAttribute("moveSpeed")->getIntValue();
 	//    bool moveSpeedIsMultiplier;
-	moveSpeedIsMultiplier = upgradeTypeBaseNode->getAttribute("moveSpeedIsMultiplier")->getIntValue();
+	moveSpeedIsMultiplier = upgradeTypeBaseNode->getAttribute("moveSpeedIsMultiplier")->getIntValue() != 0;
 	//    std::map<string,int> moveSpeedIsMultiplierValueList;
 	vector<XmlNode *> moveSpeedIsMultiplierValueNodeList = upgradeTypeBaseNode->getChildList("moveSpeedIsMultiplierValueList");
 	for(unsigned int i = 0; i < moveSpeedIsMultiplierValueNodeList.size(); ++i) {
@@ -1154,7 +1154,7 @@ void TotalUpgrade::loadGame(const XmlNode *rootNode) {
 	//    int prodSpeed;
 	prodSpeed = upgradeTypeBaseNode->getAttribute("prodSpeed")->getIntValue();
 	//    bool prodSpeedIsMultiplier;
-	prodSpeedIsMultiplier = upgradeTypeBaseNode->getAttribute("prodSpeedIsMultiplier")->getIntValue();
+	prodSpeedIsMultiplier = upgradeTypeBaseNode->getAttribute("prodSpeedIsMultiplier")->getIntValue() != 0;
 	//    std::map<string,int> prodSpeedProduceIsMultiplierValueList;
 	vector<XmlNode *> prodSpeedProduceIsMultiplierValueNodeList = upgradeTypeBaseNode->getChildList("prodSpeedProduceIsMultiplierValueList");
 	for(unsigned int i = 0; i < prodSpeedProduceIsMultiplierValueNodeList.size(); ++i) {

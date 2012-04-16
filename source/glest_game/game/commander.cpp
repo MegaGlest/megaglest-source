@@ -707,7 +707,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
         	int votingFactionIndex = networkCommand->getUnitId();
         	int factionIndex = networkCommand->getCommandTypeId();
-        	bool allowSwitchTeam = networkCommand->getUnitTypeId();
+        	bool allowSwitchTeam = networkCommand->getUnitTypeId() != 0;
 
         	Faction *faction = world->getFaction(votingFactionIndex);
 
@@ -806,7 +806,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
         	commandWasHandled = true;
 
-        	bool pauseGame = networkCommand->getUnitId();
+        	bool pauseGame = networkCommand->getUnitId() != 0;
        		Game *game = this->world->getGame();
 
        		//printf("nctPauseResume pauseGame = %d\n",pauseGame);

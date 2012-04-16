@@ -2059,7 +2059,7 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 		//	int startLocationIndex;
 		startLocationIndex = factionNode->getAttribute("startLocationIndex")->getIntValue();
 		//	bool thisFaction;
-		thisFaction = factionNode->getAttribute("thisFaction")->getIntValue();
+		thisFaction = factionNode->getAttribute("thisFaction")->getIntValue() != 0;
 		//	bool factionDisconnectHandled;
 
 //		for(std::map<Vec2i,int>::iterator iterMap = cacheResourceTargetList.begin();
@@ -2089,7 +2089,7 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 			XmlNode *cachedCloseResourceTargetLookupListNode = cachedCloseResourceTargetLookupListNodeList[i];
 
 			Vec2i vec = Vec2i::strToVec2(cachedCloseResourceTargetLookupListNode->getAttribute("key")->getValue());
-			cachedCloseResourceTargetLookupList[vec] = cachedCloseResourceTargetLookupListNode->getAttribute("value")->getIntValue();
+			cachedCloseResourceTargetLookupList[vec] = cachedCloseResourceTargetLookupListNode->getAttribute("value")->getIntValue() != 0;
 		}
 
 		//	RandomGen random;
