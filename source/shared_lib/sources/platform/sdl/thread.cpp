@@ -258,13 +258,13 @@ void ReadWriteMutex::UnLockRead() {
 void ReadWriteMutex::LockWrite() {
 	MutexSafeWrapper safeMutex(&mutex);
 	uint32 totalLocks = maxReaders();
-	for (int i = 0; i < totalLocks; ++i) {
+	for(unsigned int i = 0; i < totalLocks; ++i) {
 		semaphore.waitTillSignalled();
 	}
 }
 void ReadWriteMutex::UnLockWrite() {
 	uint32 totalLocks = maxReaders();
-	for (int i = 0; i < totalLocks; ++i) {
+	for(unsigned int i = 0; i < totalLocks; ++i) {
 		semaphore.signal();
 	}
 }

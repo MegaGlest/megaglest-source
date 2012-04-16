@@ -6534,13 +6534,14 @@ void Renderer::loadConfig() {
 	if(this->program == NULL) {
 		throw megaglest_runtime_error("this->program == NULL");
 	}
-	//if(this->program != NULL) {
-	if(gammaValue!=0.0){
-		this->program->getWindow()->setGamma(gammaValue);
-		SDL_SetGamma(gammaValue, gammaValue, gammaValue);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+		//if(this->program != NULL) {
+		if(gammaValue != 0.0) {
+			this->program->getWindow()->setGamma(gammaValue);
+			SDL_SetGamma(gammaValue, gammaValue, gammaValue);
+		}
+		//}
 	}
-	//}
-
 	//load shadows
 	shadows= strToShadows(config.getString("Shadows"));
 	if(shadows==sProjected || shadows==sShadowMapping){

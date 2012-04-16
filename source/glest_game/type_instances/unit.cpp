@@ -3311,6 +3311,9 @@ void Unit::removeBadHarvestPos(const Vec2i &value) {
 
 bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 	bool result = false;
+	if(badHarvestPosList.empty() == true) {
+		return result;
+	}
 
 	std::map<Vec2i,int>::const_iterator iter = badHarvestPosList.find(value);
 	if(iter != badHarvestPosList.end()) {
@@ -3322,6 +3325,7 @@ bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
 		for(int i = 0; i < this->getFaction()->getUnitCount(); ++i) {
 			Unit *peerUnit = this->getFaction()->getUnit(i);
 			if( peerUnit != NULL && peerUnit->getId() != this->getId() &&
+				peerUnit->getType()->hasCommandClass(ccHarvest) == true &&
 				peerUnit->getType()->getSize() <= this->getType()->getSize()) {
 				if(peerUnit->isBadHarvestPos(value,false) == true) {
 					result = true;
