@@ -57,6 +57,8 @@ public:
     void setWorkerThreadTechPaths(vector<string> value) { this->workerThreadTechPaths = value; }
     void setFileCRCPreCacheThreadCallbackInterface(FileCRCPreCacheThreadCallbackInterface *value) { processTechCB = value; }
     vector<Texture2D *> getPendingTextureList(int maxTexturesToGet);
+
+	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed);
 };
 
 // =====================================================
