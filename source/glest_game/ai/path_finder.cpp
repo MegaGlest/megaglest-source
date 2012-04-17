@@ -409,52 +409,6 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 // ==================== PRIVATE ==================== 
 
-
-bool PathFinder::processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached,int maxNodeCount) {
-	bool result = false;
-	Vec2i sucPos= node->pos + Vec2i(i, j);
-
-//	std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > >::iterator iterFind1 = factions[unit->getFactionIndex()].mapFromToNodeList.find(unit->getType()->getId());
-//	if(iterFind1 != factions[unit->getFactionIndex()].mapFromToNodeList.end()) {
-//		std::map<Vec2i,std::map<Vec2i, bool> >::iterator iterFind2 = iterFind1->second.find(node->pos);
-//		if(iterFind2 != iterFind1->second.end()) {
-//			std::map<Vec2i, bool>::iterator iterFind3 = iterFind2->second.find(sucPos);
-//			if(iterFind3 != iterFind2->second.end()) {
-//				//printf("found duplicate check in processNode\n");
-//				return iterFind3->second;
-//			}
-//		}
-//	}
-
-	//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
-	//bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, node->pos, sucPos);
-	if(openPos(sucPos, factions[unit->getFactionIndex()]) == false &&
-			canUnitMoveSoon(unit, node->pos, sucPos) == true) {
-		//if node is not open and canMove then generate another node
-		Node *sucNode= newNode(factions[unit->getFactionIndex()],maxNodeCount);
-		if(sucNode != NULL) {
-			sucNode->pos= sucPos;
-			sucNode->heuristic= heuristic(sucNode->pos, finalPos);
-			sucNode->prev= node;
-			sucNode->next= NULL;
-			sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
-			if(factions[unit->getFactionIndex()].openNodesList.find(sucNode->heuristic) == factions[unit->getFactionIndex()].openNodesList.end()) {
-				factions[unit->getFactionIndex()].openNodesList[sucNode->heuristic].clear();
-			}
-			factions[unit->getFactionIndex()].openNodesList[sucNode->heuristic].push_back(sucNode);
-			factions[unit->getFactionIndex()].openPosList[sucNode->pos] = true;
-
-			result = true;
-		}
-		else {
-			nodeLimitReached= true;
-		}
-	}
-
-//	factions[unit->getFactionIndex()].mapFromToNodeList[unit->getType()->getId()][node->pos][sucPos] = result;
-	return result;
-}
-
 bool PathFinder::addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i sucPos, bool &nodeLimitReached,int maxNodeCount,Node **newNodeAdded, bool bypassChecks) {
 	bool result = false;
 
@@ -1419,18 +1373,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	return ts;
 }
 
-PathFinder::Node *PathFinder::newNode(FactionState &faction, int maxNodeCount) {
-	if( faction.nodePoolCount < faction.nodePool.size() &&
-		//faction.nodePoolCount < faction.useMaxNodeCount) {
-		faction.nodePoolCount < maxNodeCount) {
-		Node *node= &(faction.nodePool[faction.nodePoolCount]);
-		node->clear();
-		faction.nodePoolCount++;
-		return node;
-	}
-	return NULL;
-}
-
 void PathFinder::processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist) {
 	Vec2i currPos= finalPos + Vec2i(i, j);
 	if(map->isAproxFreeCells(currPos, size, field, teamIndex)) {
@@ -1478,31 +1420,6 @@ Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos)
 	return nearestPos;
 }
 
-float PathFinder::heuristic(const Vec2i &pos, const Vec2i &finalPos) {
-	return pos.dist(finalPos);
-}
-
-PathFinder::Node * PathFinder::minHeuristicFastLookup(FactionState &faction) {
-	assert(faction.openNodesList.empty() == false);
-	if(faction.openNodesList.empty() == true) {
-		throw megaglest_runtime_error("openNodesList.empty() == true");
-	}
-
-	Node *result = faction.openNodesList.begin()->second[0];
-	faction.openNodesList.begin()->second.erase(faction.openNodesList.begin()->second.begin());
-	if(faction.openNodesList.begin()->second.size() == 0) {
-		faction.openNodesList.erase(faction.openNodesList.begin());
-	}
-	return result;
-}
-
-bool PathFinder::openPos(const Vec2i &sucPos, FactionState &faction) {
-	if(faction.openPosList.find(sucPos) == faction.openPosList.end()) {
-		return false;
-	}
-	return true;
-}
-
 int PathFinder::findNodeIndex(Node *node, Nodes &nodeList) {
 	int index = -1;
 	if(node != NULL) {
@@ -1529,32 +1446,6 @@ int PathFinder::findNodeIndex(Node *node, std::vector<Node> &nodeList) {
 		}
 	}
 	return index;
-}
-
-bool PathFinder::canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
-	bool result = true;
-
-//	std::map<int,std::map<Field,BadUnitNodeList> > &badCellList = factions[unit->getFactionIndex()].badCellList;
-//	if(badCellList.find(unit->getType()->getSize()) != badCellList.end()) {
-//		std::map<Field,BadUnitNodeList> &badFieldList = badCellList[unit->getType()->getSize()];
-//		if(badFieldList.find(unit->getCurrField()) != badFieldList.end()) {
-//			BadUnitNodeList &badList = badFieldList[unit->getCurrField()];
-//			if(badList.isPosBad(pos1,pos2) == true) {
-//				result = false;
-//			}
-//		}
-//	}
-//	if(result == true) {
-//		//bool canUnitMoveToCell = map->canMove(unit, unitPos, pos);
-//		//bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
-//		result = map->aproxCanMoveSoon(unit, pos1, pos2);
-//		if(result == false) {
-//			badCellList[unit->getType()->getSize()][unit->getCurrField()].badPosList[pos1][pos2]=false;
-//		}
-//	}
-
-	result = map->aproxCanMoveSoon(unit, pos1, pos2);
-	return result;
 }
 
 void PathFinder::saveGame(XmlNode *rootNode) {

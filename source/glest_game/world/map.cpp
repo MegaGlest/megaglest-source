@@ -53,30 +53,8 @@ Cell::Cell() {
 // ==================== misc ====================
 
 //returns if the cell is free
-bool Cell::isFree(Field field) const {
-	bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
-
-	if(result == false) {
-		//printf("[%s] Line: %d returning false, unit id = %d [%s]\n",__FUNCTION__,__LINE__,getUnit(field)->getId(),getUnit(field)->getType()->getName().c_str());
-	}
-
-	return result;
-}
 
 //returns if the cell is free
-bool Cell::isFreeOrMightBeFreeSoon(Vec2i originPos, Vec2i cellPos, Field field) const {
-	bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
-
-	if(result == false) {
-		if(originPos.dist(cellPos) > 5 && getUnit(field)->getType()->isMobile() == true) {
-			result = true;
-		}
-
-		//printf("[%s] Line: %d returning false, unit id = %d [%s]\n",__FUNCTION__,__LINE__,getUnit(field)->getId(),getUnit(field)->getType()->getName().c_str());
-	}
-
-	return result;
-}
 
 void Cell::saveGame(XmlNode *rootNode, int index) const {
 	bool saveCell = false;
@@ -169,16 +147,6 @@ void SurfaceCell::end(){
 	if(object!=NULL){
 		object->end();
 	}
-}
-
-
-bool SurfaceCell::isFree() const {
-	bool result = object==NULL || object->getWalkable();
-
-	if(result == false) {
-		//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-	}
-	return result;
 }
 
 void SurfaceCell::deleteResource() {
@@ -357,48 +325,6 @@ void Map::end(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-int Map::getSurfaceCellArraySize() const {
-	return (surfaceW * surfaceH);
-}
-
-SurfaceCell *Map::getSurfaceCell(const Vec2i &sPos) const {
-	return getSurfaceCell(sPos.x, sPos.y);
-}
-
-SurfaceCell *Map::getSurfaceCell(int sx, int sy) const {
-	int arrayIndex = sy * surfaceW + sx;
-	if(arrayIndex < 0 || arrayIndex >= getSurfaceCellArraySize()) {
-		throw megaglest_runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) +
-				            " surfaceW = " + intToStr(surfaceW) + " surfaceH = " + intToStr(surfaceH) +
-				            " sx: " + intToStr(sx) + " sy: " + intToStr(sy));
-	}
-	else if(surfaceCells == NULL) {
-		throw megaglest_runtime_error("surfaceCells == NULL");
-	}
-	return &surfaceCells[arrayIndex];
-}
-
-int Map::getCellArraySize() const {
-	return (w * h);
-}
-
-Cell *Map::getCell(const Vec2i &pos) const {
-	return getCell(pos.x, pos.y);
-}
-
-Cell *Map::getCell(int x, int y) const {
-	int arrayIndex = y * w + x;
-	if(arrayIndex < 0 || arrayIndex >= getCellArraySize()) {
-		//abort();
-		throw megaglest_runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
-	}
-	else if(cells == NULL) {
-		throw megaglest_runtime_error("cells == NULL");
-	}
-
-	return &cells[arrayIndex];
-}
-
 Vec2i Map::getStartLocation(int locationIndex) const {
 	if(locationIndex >= maxPlayers) {
 		char szBuf[4096]="";
@@ -557,22 +483,6 @@ void Map::init(Tileset *tileset) {
 
 
 // ==================== is ====================
-
-bool Map::isInside(int x, int y) const {
-	return x>=0 && y>=0 && x<w && y<h;
-}
-
-bool Map::isInside(const Vec2i &pos) const {
-	return isInside(pos.x, pos.y);
-}
-
-bool Map::isInsideSurface(int sx, int sy) const {
-	return sx>=0 && sy>=0 && sx<surfaceW && sy<surfaceH;
-}
-
-bool Map::isInsideSurface(const Vec2i &sPos) const {
-	return isInsideSurface(sPos.x, sPos.y);
-}
 
 class FindBestPos  {
 public:

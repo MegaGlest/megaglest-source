@@ -20,6 +20,7 @@
 #include "game_constants.h"
 #include "selection.h"
 #include <cassert>
+#include "unit_type.h"
 #include "leak_dumper.h"
 
 
@@ -59,17 +60,37 @@ public:
 	Cell();
 
 	//get
-	Unit *getUnit(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return units[field];}
-	Unit *getUnitWithEmptyCellMap(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return unitsWithEmptyCellMap[field];}
-	float getHeight() const				{return height;}
+	inline Unit *getUnit(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return units[field];}
+	inline Unit *getUnitWithEmptyCellMap(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return unitsWithEmptyCellMap[field];}
+	inline float getHeight() const				{return height;}
 
 	void setUnit(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} units[field]= unit;}
 	void setUnitWithEmptyCellMap(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} unitsWithEmptyCellMap[field]= unit;}
 	void setHeight(float height)		{this->height= height;}
 
-	bool isFree(Field field) const;
+	inline bool isFree(Field field) const {
+		bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
 
-	bool isFreeOrMightBeFreeSoon(Vec2i originPos, Vec2i cellPos, Field field) const;
+		if(result == false) {
+			//printf("[%s] Line: %d returning false, unit id = %d [%s]\n",__FUNCTION__,__LINE__,getUnit(field)->getId(),getUnit(field)->getType()->getName().c_str());
+		}
+
+		return result;
+	}
+
+	inline bool isFreeOrMightBeFreeSoon(Vec2i originPos, Vec2i cellPos, Field field) const {
+		bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
+
+		if(result == false) {
+			if(originPos.dist(cellPos) > 5 && getUnit(field)->getType()->isMobile() == true) {
+				result = true;
+			}
+
+			//printf("[%s] Line: %d returning false, unit id = %d [%s]\n",__FUNCTION__,__LINE__,getUnit(field)->getId(),getUnit(field)->getType()->getName().c_str());
+		}
+
+		return result;
+	}
 
 	void saveGame(XmlNode *rootNode,int index) const;
 	void loadGame(const XmlNode *rootNode, int index, World *world);
@@ -125,8 +146,8 @@ public:
 	const Vec2f &getSurfTexCoord() const		{return surfTexCoord;}
 	bool getNearSubmerged() const				{return nearSubmerged;}
 
-	bool isVisible(int teamIndex) const			{return visible[teamIndex];}
-	bool isExplored(int teamIndex) const		{return explored[teamIndex];}
+	inline bool isVisible(int teamIndex) const		{return visible[teamIndex];}
+	inline bool isExplored(int teamIndex) const		{return explored[teamIndex];}
 
 	//set
 	void setVertex(const Vec3f &vertex)			{this->vertex= vertex;}
@@ -145,7 +166,14 @@ public:
 	//misc
 	void deleteResource();
 	bool decAmount(int value);
-	bool isFree() const;
+	inline bool isFree() const {
+		bool result = object==NULL || object->getWalkable();
+
+		if(result == false) {
+			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+		}
+		return result;
+	}
 	bool getCellChangedFromOriginalMapLoad() const { return cellChangedFromOriginalMapLoad; }
 
 	void saveGame(XmlNode *rootNode,int index) const;
@@ -196,34 +224,74 @@ public:
 	Checksum load(const string &path, TechTree *techTree, Tileset *tileset);
 
 	//get
-	Cell *getCell(int x, int y) const;
-	int getCellArraySize() const;
-	Cell *getCell(const Vec2i &pos) const;
-	int getSurfaceCellArraySize() const;
-	SurfaceCell *getSurfaceCell(int sx, int sy) const;
-	SurfaceCell *getSurfaceCell(const Vec2i &sPos) const;
-	int getW() const											{return w;}
-	int getH() const											{return h;}
-	int getSurfaceW() const										{return surfaceW;}
-	int getSurfaceH() const										{return surfaceH;}
-	int getMaxPlayers() const									{return maxPlayers;}
-	float getHeightFactor() const								{return heightFactor;}
-	float getWaterLevel() const									{return waterLevel;}
-	float getCliffLevel() const									{return cliffLevel;}
-	int getCameraHeight() const									{return cameraHeight;}
-	float getMaxMapHeight() const								{return maxMapHeight;}
+	inline Cell *getCell(int x, int y) const {
+		int arrayIndex = y * w + x;
+		if(arrayIndex < 0 || arrayIndex >= getCellArraySize()) {
+			//abort();
+			throw megaglest_runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
+		}
+		else if(cells == NULL) {
+			throw megaglest_runtime_error("cells == NULL");
+		}
+
+		return &cells[arrayIndex];
+	}
+	inline Cell *getCell(const Vec2i &pos) const {
+		return getCell(pos.x, pos.y);
+	}
+
+	inline int getCellArraySize() const {
+		return (w * h);
+	}
+	inline int getSurfaceCellArraySize() const {
+		return (surfaceW * surfaceH);
+	}
+	inline SurfaceCell *getSurfaceCell(int sx, int sy) const {
+		int arrayIndex = sy * surfaceW + sx;
+		if(arrayIndex < 0 || arrayIndex >= getSurfaceCellArraySize()) {
+			throw megaglest_runtime_error("arrayIndex >= getSurfaceCellArraySize(), arrayIndex = " + intToStr(arrayIndex) +
+					            " surfaceW = " + intToStr(surfaceW) + " surfaceH = " + intToStr(surfaceH) +
+					            " sx: " + intToStr(sx) + " sy: " + intToStr(sy));
+		}
+		else if(surfaceCells == NULL) {
+			throw megaglest_runtime_error("surfaceCells == NULL");
+		}
+		return &surfaceCells[arrayIndex];
+	}
+	inline SurfaceCell *getSurfaceCell(const Vec2i &sPos) const {
+		return getSurfaceCell(sPos.x, sPos.y);
+	}
+
+	inline int getW() const											{return w;}
+	inline int getH() const											{return h;}
+	inline int getSurfaceW() const										{return surfaceW;}
+	inline int getSurfaceH() const										{return surfaceH;}
+	inline int getMaxPlayers() const										{return maxPlayers;}
+	inline float getHeightFactor() const								{return heightFactor;}
+	inline float getWaterLevel() const									{return waterLevel;}
+	inline float getCliffLevel() const									{return cliffLevel;}
+	inline int getCameraHeight() const									{return cameraHeight;}
+	inline float getMaxMapHeight() const								{return maxMapHeight;}
 	Vec2i getStartLocation(int locationIndex) const;
-	bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}
-	bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}
-	bool getDeepSubmerged(const SurfaceCell *sc) const			{return sc->getHeight()<waterLevel-(1.5f/heightFactor);}
-	bool getDeepSubmerged(const Cell *c) const					{return c->getHeight()<waterLevel-(1.5f/heightFactor);}
-	float getSurfaceHeight(const Vec2i &pos) const;
+	inline bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}
+	inline bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}
+	inline bool getDeepSubmerged(const SurfaceCell *sc) const			{return sc->getHeight()<waterLevel-(1.5f/heightFactor);}
+	inline bool getDeepSubmerged(const Cell *c) const					{return c->getHeight()<waterLevel-(1.5f/heightFactor);}
+	//float getSurfaceHeight(const Vec2i &pos) const;
 
 	//is
-	bool isInside(int x, int y) const;
-	bool isInside(const Vec2i &pos) const;
-	bool isInsideSurface(int sx, int sy) const;
-	bool isInsideSurface(const Vec2i &sPos) const;
+	inline bool isInside(int x, int y) const {
+		return x>=0 && y>=0 && x<w && y<h;
+	}
+	inline bool isInside(const Vec2i &pos) const {
+		return isInside(pos.x, pos.y);
+	}
+	inline bool isInsideSurface(int sx, int sy) const {
+		return sx>=0 && sy>=0 && sx<surfaceW && sy<surfaceH;
+	}
+	inline bool isInsideSurface(const Vec2i &sPos) const {
+		return isInsideSurface(sPos.x, sPos.y);
+	}
 	bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit=NULL,bool fallbackToPeersHarvestingSameResource=false,Vec2i *resourceClickPos=NULL) const;
 	bool isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec2i &resourcePos) const;
 
@@ -265,8 +333,8 @@ public:
 	void computeInterpolatedHeights();
 
 	//static
-	static Vec2i toSurfCoords(const Vec2i &unitPos)		{return unitPos / cellScale;}
-	static Vec2i toUnitCoords(const Vec2i &surfPos)		{return surfPos * cellScale;}
+	inline static Vec2i toSurfCoords(const Vec2i &unitPos)		{return unitPos / cellScale;}
+	inline static Vec2i toUnitCoords(const Vec2i &surfPos)		{return surfPos * cellScale;}
 	static string getMapPath(const string &mapName, string scenarioDir="", bool errorOnNotFound=true);
 
 	bool isFreeCellOrMightBeFreeSoon(Vec2i originPos, const Vec2i &pos, Field field) const;
