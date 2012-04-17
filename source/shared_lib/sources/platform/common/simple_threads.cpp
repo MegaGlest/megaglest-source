@@ -41,6 +41,16 @@ FileCRCPreCacheThread::FileCRCPreCacheThread(vector<string> techDataPaths,
 	this->processTechCB 				= processTechCB;
 }
 
+bool FileCRCPreCacheThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+	bool ret = (getExecutingTask() == false);
+	if(ret == false && deleteSelfIfShutdownDelayed == true) {
+	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    signalQuit();
+	}
+
+	return ret;
+}
+
 void FileCRCPreCacheThread::execute() {
     {
         RunningStatusSafeWrapper runningStatus(this);
@@ -165,6 +175,14 @@ void FileCRCPreCacheThread::execute() {
 						if(	getQuitStatus() == false &&
 							hasRunningWorkerThread == true) {
 							sleep(10);
+						}
+						else if(getQuitStatus() == true) {
+							for(unsigned int idx = 0; idx < preCacheWorkerThreadList.size(); idx++) {
+								FileCRCPreCacheThread *workerThread = preCacheWorkerThreadList[idx];
+								if(workerThread != NULL && workerThread->getQuitStatus() == false) {
+									workerThread->signalQuit();
+								}
+							}
 						}
 					}
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("********************** CRC Controller thread took %.2f seconds END **********************\n",difftime(time(NULL),elapsedTime));

@@ -90,38 +90,50 @@ static string mg_app_name 				= "";
 static string mailStringSupport 		= "";
 static bool sdl_quitCalled 			= false;
 
-bool disableheadless_console 			= false;
-bool disableBacktrace 					= false;
-bool gameInitialized 					= false;
+static bool disableheadless_console 			= false;
+static bool disableBacktrace 					= false;
+static bool gameInitialized 					= false;
 
-Program *mainProgram 					= NULL;
-FileCRCPreCacheThread *preCacheThread	= NULL;
-string runtimeErrorMsg 					= "";
+static Program *mainProgram 					= NULL;
+static FileCRCPreCacheThread *preCacheThread	= NULL;
+static string runtimeErrorMsg 					= "";
 
 void cleanupCRCThread() {
 	if(preCacheThread != NULL) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		const double MAX_THREAD_WAIT = 60;
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("START - shutting down crc threads\n");
 		time_t elapsed = time(NULL);
 		preCacheThread->signalQuit();
 		for(;preCacheThread->canShutdown(false) == false &&
-			difftime(time(NULL),elapsed) <= 45;) {
+			difftime(time(NULL),elapsed) <= MAX_THREAD_WAIT;) {
 			//sleep(150);
 		}
-		if(preCacheThread->canShutdown(false)) {
-			if(preCacheThread->shutdownAndWait() == true) {
+		if(difftime(time(NULL),elapsed) <= MAX_THREAD_WAIT) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("B - shutting down crc threads\n");
+
+			for(;preCacheThread->shutdownAndWait() == false &&
+				difftime(time(NULL),elapsed) <= MAX_THREAD_WAIT;) {
+			}
+			if(preCacheThread->getRunningStatus() == false) {
 				delete preCacheThread;
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("C - shutting down crc threads\n");
 			}
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		else {
-			if(preCacheThread->shutdownAndWait() == true) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("D - shutting down crc threads\n");
+
+			if(preCacheThread->canShutdown(false) == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				delete preCacheThread;
 
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("E - shutting down crc threads\n");
 				//printf("Stopping broadcast thread [%p] - C\n",broadCastThread);
 			}
 		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("F - shutting down crc threads\n");
 		preCacheThread = NULL;
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}

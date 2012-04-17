@@ -16,7 +16,6 @@
 //SL_LEAK_DUMP controls if leak dumping is enabled or not
 
 #ifdef SL_LEAK_DUMP
-
 #include <new>
 
 // START - Special includes because the use a special new operator that we cannot override
@@ -31,6 +30,7 @@
 
 #include "thread.h"
 using Shared::Platform::Mutex;
+using Shared::Platform::MutexSafeWrapper;
 
 // START - For gcc backtrace
 //#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -48,7 +48,7 @@ using namespace std;
 //occurred in a file where this header is included will have
 //file and line number
 
-static bool want_full_leak_stacktrace 				= true;
+static bool want_full_leak_stacktrace 				= false;
 static bool want_full_leak_stacktrace_line_numbers = false;
 
 struct AllocInfo {
@@ -282,14 +282,13 @@ private:
 private:
 
 	inline AllocRegistry() {
-		mutex = getMutex();
+		// manual memory allocation
+		void *mymutex_mem = malloc(sizeof(Mutex));
+		// in place new operator
+		mutex = new(mymutex_mem) Mutex;
+
 		string value = AllocInfo::get_application_binary();
 		reset();
-	}
-
-	static Mutex * getMutex() {
-		static Mutex mymutex;
-		return &mymutex;
 	}
 
 private:
@@ -302,7 +301,7 @@ private:
 
 public:
 	~AllocRegistry();
-	static AllocRegistry &getInstance() {
+	inline static AllocRegistry &getInstance() {
 		static AllocRegistry allocRegistry;
 		return allocRegistry;
 	}
@@ -320,9 +319,50 @@ public:
 		}
 	}
 
-	void allocate(AllocInfo info);
-	void deallocate(void* ptr, bool array,const char* file, int line);
-	//void reset();
+	inline void allocate(AllocInfo info) {
+		//if(info.line == 0) return;
+
+		MutexSafeWrapper safeMutexMasterList(mutex);
+		//printf("ALLOCATE.\tfile: %s, line: %d, bytes: %lu, array: %d inuse: %d\n", info.file, info.line, info.bytes, info.array, info.inuse);
+
+		if(info.line > 0) {
+			++allocCount;
+			allocBytes += info.bytes;
+		}
+		for(int i = (nextFreeIndex >= 0 ? nextFreeIndex : 0); i < maxAllocs; ++i) {
+			if(allocs[i].freetouse == true && allocs[i].inuse == false) {
+				allocs[i]= info;
+				nextFreeIndex=-1;
+
+				return;
+			}
+		}
+
+		printf("ALLOCATE NOT MONITORED.\tfile: %s, line: %d, ptr [%p], bytes: %lu, array: %d inuse: %d, \n%s\n", info.file, info.line, info.ptr, info.bytes, info.array, info.inuse, info.stack.c_str());
+
+		++nonMonitoredCount;
+		nonMonitoredBytes+= info.bytes;
+	}
+
+	inline void deallocate(void* ptr, bool array,const char* file, int line) {
+		//if(line == 0) return;
+
+		MutexSafeWrapper safeMutexMasterList(mutex);
+
+		for(int i=0; i < maxAllocs; ++i) {
+			if(allocs[i].freetouse == false && allocs[i].inuse == true &&
+					allocs[i].ptr == ptr && allocs[i].array == array) {
+				allocs[i].freetouse= true;
+				allocs[i].inuse = false;
+				nextFreeIndex=i;
+
+				return;
+			}
+		}
+
+		if(line > 0) printf("WARNING, possible error on pointer delete for ptr [%p] array = %d, file [%s] line: %d\n%s\n",ptr,array,file, line,AllocInfo::getStackTrace().c_str());
+	}
+
 	void dump(const char *path);
 };
 
