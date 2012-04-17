@@ -445,67 +445,67 @@ public:
     //queries
     Command *getCurrrentCommandThreadSafe();
     void setIgnoreCheckCommand(bool value)      { ignoreCheckCommand=value;}
-    bool getIgnoreCheckCommand() const			{return ignoreCheckCommand;}
-	int getId() const							{return id;}
-	Field getCurrField() const					{return currField;}
-	int getLoadCount() const					{return loadCount;}
-	float getLastAnimProgress() const			{return lastAnimProgress;}
+    inline bool getIgnoreCheckCommand() const			{return ignoreCheckCommand;}
+    inline int getId() const							{return id;}
+    inline Field getCurrField() const					{return currField;}
+    inline int getLoadCount() const					{return loadCount;}
+    inline float getLastAnimProgress() const			{return lastAnimProgress;}
 	//float getProgress() const					{return progress;}
-	float getAnimProgress() const				{return animProgress;}
-	float getHightlight() const					{return highlight;}
-	int getProgress2() const					{return progress2;}
+    inline float getAnimProgress() const				{return animProgress;}
+    inline float getHightlight() const					{return highlight;}
+    inline int getProgress2() const					{return progress2;}
 	int getFactionIndex() const;
 	int getTeam() const;
-	int getHp() const							{return hp;}
-	int getEp() const							{return ep;}
+	inline int getHp() const							{return hp;}
+	inline int getEp() const							{return ep;}
 	int getProductionPercent() const;
 	float getProgressRatio() const;
 	float getHpRatio() const;
 	float getEpRatio() const;
-	bool getToBeUndertaken() const				{return toBeUndertaken;}
-	Vec2i getTargetPos() const					{return targetPos;}
-	Vec3f getTargetVec() const					{return targetVec;}
-	Field getTargetField() const				{return targetField;}
-	Vec2i getMeetingPos() const					{return meetingPos;}
-	Faction *getFaction() const					{return faction;}
-    const ResourceType *getLoadType() const		{return loadType;}
-	const UnitType *getType() const				{return type;}
-	const SkillType *getCurrSkill() const		{return currSkill;}
-	const TotalUpgrade *getTotalUpgrade() const	{return &totalUpgrade;}
-	float getRotation() const					{return rotation;}
+	inline bool getToBeUndertaken() const				{return toBeUndertaken;}
+	inline Vec2i getTargetPos() const					{return targetPos;}
+	inline Vec3f getTargetVec() const					{return targetVec;}
+	inline Field getTargetField() const				{return targetField;}
+	inline Vec2i getMeetingPos() const					{return meetingPos;}
+	inline Faction *getFaction() const					{return faction;}
+	inline const ResourceType *getLoadType() const		{return loadType;}
+	inline const UnitType *getType() const				{return type;}
+	inline const SkillType *getCurrSkill() const		{return currSkill;}
+	inline const TotalUpgrade *getTotalUpgrade() const	{return &totalUpgrade;}
+	inline float getRotation() const					{return rotation;}
 	float getRotationX() const;
 	float getRotationZ() const;
-	ParticleSystem *getFire() const				{return fire;}
-	int getKills() const						{return kills;}
-	int getEnemyKills() const					{return enemyKills;}
-	const Level *getLevel() const				{return level;}
+	inline ParticleSystem *getFire() const				{return fire;}
+	inline int getKills() const						{return kills;}
+	inline int getEnemyKills() const					{return enemyKills;}
+	inline const Level *getLevel() const				{return level;}
 	const Level *getNextLevel() const;
 	string getFullName() const;
-	const UnitPathInterface *getPath() const	{return unitPath;}
-	UnitPathInterface *getPath()				{return unitPath;}
-	WaypointPath *getWaypointPath()				{return &waypointPath;}
+	inline const UnitPathInterface *getPath() const	{return unitPath;}
+	inline UnitPathInterface *getPath()				{return unitPath;}
+	inline WaypointPath *getWaypointPath()				{return &waypointPath;}
 
-	int getLastAttackerUnitId() const { return lastAttackerUnitId; }
-	void setLastAttackerUnitId(int unitId) { lastAttackerUnitId = unitId; }
+	inline int getLastAttackerUnitId() const { return lastAttackerUnitId; }
+	inline void setLastAttackerUnitId(int unitId) { lastAttackerUnitId = unitId; }
 
-	int getLastAttackedUnitId() const { return lastAttackedUnitId; }
-	void setLastAttackedUnitId(int unitId) { lastAttackedUnitId = unitId; }
+	inline int getLastAttackedUnitId() const { return lastAttackedUnitId; }
+	inline void setLastAttackedUnitId(int unitId) { lastAttackedUnitId = unitId; }
 
-	CauseOfDeathType getCauseOfDeath() const { return causeOfDeath; }
-	void setCauseOfDeath(CauseOfDeathType cause) { causeOfDeath = cause; }
+	inline CauseOfDeathType getCauseOfDeath() const { return causeOfDeath; }
+	inline void setCauseOfDeath(CauseOfDeathType cause) { causeOfDeath = cause; }
 
     //pos
-	Vec2i getPos() const				{return pos;}
+	inline Vec2i getPos() const				{return pos;}
 	Vec2i getPosWithCellMapSet() const;
-	Vec2i getLastPos() const			{return lastPos;}
+	inline Vec2i getLastPos() const			{return lastPos;}
 	Vec2i getCenteredPos() const;
     Vec2f getFloatCenteredPos() const;
 	Vec2i getCellPos() const;
 
     //is
-	bool isHighlighted() const			{return highlight>0.f;}
-	bool isDead() const					{return !alive;}
-	bool isAlive() const				{return alive;}
+	inline bool isHighlighted() const			{return highlight>0.f;}
+	inline bool isDead() const					{return !alive;}
+	inline bool isAlive() const				{return alive;}
     bool isOperative() const;
     bool isBeingBuilt() const;
     bool isBuilt() const;
@@ -516,19 +516,19 @@ public:
 	bool isInteresting(InterestingUnitType iut) const;
 
     //set
-	void setCurrField(Field currField)					{this->currField= currField;}
+	inline void setCurrField(Field currField)					{this->currField= currField;}
     void setCurrSkill(const SkillType *currSkill);
     void setCurrSkill(SkillClass sc);
-	void setLoadCount(int loadCount)					{this->loadCount= loadCount;}
-	void setLoadType(const ResourceType *loadType)		{this->loadType= loadType;}
-	void setProgress2(int progress2)					{this->progress2= progress2;}
+    inline void setLoadCount(int loadCount)					{this->loadCount= loadCount;}
+    inline void setLoadType(const ResourceType *loadType)		{this->loadType= loadType;}
+    inline void setProgress2(int progress2)					{this->progress2= progress2;}
 	void setPos(const Vec2i &pos,bool clearPathFinder=false);
 	void setTargetPos(const Vec2i &targetPos);
 	void setTarget(const Unit *unit);
 	void setTargetVec(const Vec3f &targetVec);
 	void setMeetingPos(const Vec2i &meetingPos);
 	void setVisible(const bool visible);
-	bool getVisible() const { return visible; }
+	inline bool getVisible() const { return visible; }
 
 	//render related
     const Model *getCurrentModel();
@@ -582,26 +582,26 @@ public:
 	void applyCommand(Command *command);
 
 	void setModelFacing(CardinalDir value);
-	CardinalDir getModelFacing() const { return modelFacing; }
+	inline CardinalDir getModelFacing() const { return modelFacing; }
 
 	bool isMeetingPointSettable() const;
 
-	int getLastRenderFrame() const { return lastRenderFrame; }
-	void setLastRenderFrame(int value) { lastRenderFrame = value; }
+	inline int getLastRenderFrame() const { return lastRenderFrame; }
+	inline void setLastRenderFrame(int value) { lastRenderFrame = value; }
 
-	int getRetryCurrCommandCount() const { return retryCurrCommandCount; }
-	void setRetryCurrCommandCount(int value) { retryCurrCommandCount = value; }
+	inline int getRetryCurrCommandCount() const { return retryCurrCommandCount; }
+	inline void setRetryCurrCommandCount(int value) { retryCurrCommandCount = value; }
 
-	Vec3f getScreenPos() const { return screenPos; }
+	inline Vec3f getScreenPos() const { return screenPos; }
 	void setScreenPos(Vec3f value) { screenPos = value; }
 
-	string getCurrentUnitTitle() const {return currentUnitTitle;}
+	inline string getCurrentUnitTitle() const {return currentUnitTitle;}
 	void setCurrentUnitTitle(string value) { currentUnitTitle = value;}
 
 	void exploreCells();
 
-	bool getInBailOutAttempt() const { return inBailOutAttempt; }
-	void setInBailOutAttempt(bool value) { inBailOutAttempt = value; }
+	inline bool getInBailOutAttempt() const { return inBailOutAttempt; }
+	inline void setInBailOutAttempt(bool value) { inBailOutAttempt = value; }
 
 	//std::vector<std::pair<Vec2i,Chrono> > getBadHarvestPosList() const { return badHarvestPosList; }
 	//void setBadHarvestPosList(std::vector<std::pair<Vec2i,Chrono> > value) { badHarvestPosList = value; }
@@ -611,7 +611,7 @@ public:
 	void cleanupOldBadHarvestPos();
 
 	void setLastHarvestResourceTarget(const Vec2i *pos);
-	std::pair<Vec2i,int> getLastHarvestResourceTarget() const { return lastHarvestResourceTarget;}
+	inline std::pair<Vec2i,int> getLastHarvestResourceTarget() const { return lastHarvestResourceTarget;}
 
 	//std::pair<Vec2i,std::vector<Vec2i> > getCurrentTargetPathTaken() const { return currentTargetPathTaken; }
 	//void addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell);
@@ -621,23 +621,23 @@ public:
 	bool needToUpdate();
 
 	bool isLastStuckFrameWithinCurrentFrameTolerance() const;
-	uint32 getLastStuckFrame() const { return lastStuckFrame; }
-	void setLastStuckFrame(uint32 value) { lastStuckFrame = value; }
+	inline uint32 getLastStuckFrame() const { return lastStuckFrame; }
+	inline void setLastStuckFrame(uint32 value) { lastStuckFrame = value; }
 	void setLastStuckFrameToCurrentFrame();
 
-	Vec2i getLastStuckPos() const { return lastStuckPos; }
-	void setLastStuckPos(Vec2i pos) { lastStuckPos = pos; }
+	inline Vec2i getLastStuckPos() const { return lastStuckPos; }
+	inline void setLastStuckPos(Vec2i pos) { lastStuckPos = pos; }
 
 	bool isLastPathfindFailedFrameWithinCurrentFrameTolerance() const;
-	uint32 getLastPathfindFailedFrame() const { return lastPathfindFailedFrame; }
-	void setLastPathfindFailedFrame(uint32 value) { lastPathfindFailedFrame = value; }
+	inline uint32 getLastPathfindFailedFrame() const { return lastPathfindFailedFrame; }
+	inline void setLastPathfindFailedFrame(uint32 value) { lastPathfindFailedFrame = value; }
 	void setLastPathfindFailedFrameToCurrentFrame();
 
-	Vec2i getLastPathfindFailedPos() const { return lastPathfindFailedPos; }
-	void setLastPathfindFailedPos(Vec2i pos) { lastPathfindFailedPos = pos; }
+	inline Vec2i getLastPathfindFailedPos() const { return lastPathfindFailedPos; }
+	inline void setLastPathfindFailedPos(Vec2i pos) { lastPathfindFailedPos = pos; }
 
-	bool getUsePathfinderExtendedMaxNodes() const { return usePathfinderExtendedMaxNodes; }
-	void setUsePathfinderExtendedMaxNodes(bool value) { usePathfinderExtendedMaxNodes = value; }
+	inline bool getUsePathfinderExtendedMaxNodes() const { return usePathfinderExtendedMaxNodes; }
+	inline void setUsePathfinderExtendedMaxNodes(bool value) { usePathfinderExtendedMaxNodes = value; }
 
 	void updateTimedParticles();
 

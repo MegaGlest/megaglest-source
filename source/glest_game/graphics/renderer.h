@@ -91,7 +91,7 @@ public:
 class VisibleQuadContainerCache {
 protected:
 
-	void CopyAll(const VisibleQuadContainerCache &obj) {
+	inline void CopyAll(const VisibleQuadContainerCache &obj) {
 		cacheFrame 			= obj.cacheFrame;
 		visibleObjectList	= obj.visibleObjectList;
 		visibleUnitList		= obj.visibleUnitList;
@@ -106,24 +106,24 @@ protected:
 
 public:
 
-	VisibleQuadContainerCache() {
+	inline VisibleQuadContainerCache() {
 		cacheFrame = 0;
 		clearFrustrumData();
 		clearCacheData();
 	}
-	VisibleQuadContainerCache(const VisibleQuadContainerCache &obj) {
+	inline VisibleQuadContainerCache(const VisibleQuadContainerCache &obj) {
 		CopyAll(obj);
 	}
-	VisibleQuadContainerCache & operator=(const VisibleQuadContainerCache &obj) {
+	inline VisibleQuadContainerCache & operator=(const VisibleQuadContainerCache &obj) {
 		CopyAll(obj);
 		return *this;
 	}
 
-	void clearCacheData() {
+	inline void clearCacheData() {
 		clearVolatileCacheData();
 		clearNonVolatileCacheData();
 	}
-	void clearVolatileCacheData() {
+	inline void clearVolatileCacheData() {
 		visibleUnitList.clear();
 		visibleQuadUnitList.clear();
 		//inVisibleUnitList.clear();
@@ -131,14 +131,14 @@ public:
 		visibleUnitList.reserve(500);
 		visibleQuadUnitList.reserve(500);
 	}
-	void clearNonVolatileCacheData() {
+	inline void clearNonVolatileCacheData() {
 		visibleObjectList.clear();
 		visibleScaledCellList.clear();
 
 		visibleObjectList.reserve(500);
 		visibleScaledCellList.reserve(500);
 	}
-	void clearFrustrumData() {
+	inline void clearFrustrumData() {
 		frustumData = vector<vector<float> >(6,vector<float>(4,0));
 		proj = vector<float>(16,0);
 		modl = vector<float>(16,0);
@@ -313,7 +313,7 @@ private:
 
 	class SurfaceData {
 	public:
-		SurfaceData() {
+		inline SurfaceData() {
 			uniqueId=0;
 			bufferCount=0;
 			textureHandle=0;
@@ -335,8 +335,8 @@ private:
 	
 	class MapRenderer {
 	public:
-		MapRenderer(): map(NULL) {}
-		~MapRenderer() { destroy(); }
+		inline MapRenderer(): map(NULL) {}
+		inline ~MapRenderer() { destroy(); }
 		void render(const Map* map,float coordStep,VisibleQuadContainerCache &qCache);
 		void renderVisibleLayers(const Map* map,float coordStep,VisibleQuadContainerCache &qCache);
 		void destroy();
@@ -346,7 +346,7 @@ private:
 
 		const Map* map;
 		struct Layer {
-			Layer(int th):
+			inline Layer(int th):
 				vbo_vertices(0), vbo_normals(0), 
 				vbo_fowTexCoords(0), vbo_surfTexCoords(0),
 				vbo_indices(0), indexCount(0),
@@ -409,8 +409,8 @@ public:
 	void endGame(bool isFinalEnd);
 
 	//get
-	int getTriangleCount() const	{return triangleCount;}
-	int getPointCount() const		{return pointCount;}
+	inline int getTriangleCount() const	{return triangleCount;}
+	inline int getPointCount() const		{return pointCount;}
 
 	//misc
 	void reloadResources();
@@ -431,8 +431,8 @@ public:
 	void endFont(Font *font, ResourceScope rs, bool mustExistInList=false);
 	void resetFontManager(ResourceScope rs);
 
-	TextRenderer2D *getTextRenderer() const	{return textRenderer;}
-	TextRenderer3D *getTextRenderer3D() const	{return textRenderer3D;}
+	inline TextRenderer2D *getTextRenderer() const	{return textRenderer;}
+	inline TextRenderer3D *getTextRenderer3D() const	{return textRenderer3D;}
 
 	void manageParticleSystem(ParticleSystem *particleSystem, ResourceScope rs);
 	void cleanupParticleSystems(vector<ParticleSystem *> &particleSystems,ResourceScope rs);
@@ -532,8 +532,8 @@ public:
 	//misc
 	void loadConfig();
 	void saveScreen(const string &path,int w=0, int h=0);
-	Quad2i getVisibleQuad() const		{return visibleQuad;}
-	Quad2i getVisibleQuadFromCamera() const		{return visibleQuadFromCamera;}
+	inline Quad2i getVisibleQuad() const		{return visibleQuad;}
+	inline Quad2i getVisibleQuadFromCamera() const		{return visibleQuadFromCamera;}
 	void renderTeamColorPlane();
 	void renderTeamColorCircle();
 
@@ -541,28 +541,28 @@ public:
 	static Shadows strToShadows(const string &s);
 	static string shadowsToStr(Shadows shadows);
 
-	const Game * getGame() { return game; }
+	inline const Game * getGame() { return game; }
 
 	void setAllowRenderUnitTitles(bool value);
-	bool getAllowRenderUnitTitles() { return allowRenderUnitTitles; }
+	inline bool getAllowRenderUnitTitles() { return allowRenderUnitTitles; }
 	void renderUnitTitles(Font2D *font, Vec3f color);
 	void renderUnitTitles3D(Font3D *font, Vec3f color);
 	Vec3f computeScreenPosition(const Vec3f &worldPos);
 
 	void setPhotoMode(bool value) { photoMode = value; }
 
-	bool getNo2DMouseRendering() const { return no2DMouseRendering; }
+	inline bool getNo2DMouseRendering() const { return no2DMouseRendering; }
 	void setNo2DMouseRendering(bool value) { no2DMouseRendering = value; }
 
-	bool getShowDebugUI() const { return showDebugUI; }
+	inline bool getShowDebugUI() const { return showDebugUI; }
 	void setShowDebugUI(bool value) { showDebugUI = value; }
 
-	int getShowDebugUILevel() const { return showDebugUILevel; }
+	inline int getShowDebugUILevel() const { return showDebugUILevel; }
 	void setShowDebugUILevel(int value) { showDebugUILevel=value; }
 	void cycleShowDebugUILevel();
 
 	void setLastRenderFps(int value);
-	int getLastRenderFps() const { return lastRenderFps;}
+	inline int getLastRenderFps() const { return lastRenderFps;}
 
 	VisibleQuadContainerCache & getQuadCache(bool updateOnDirtyFrame=true,bool forceNew=false);
 	void removeObjectFromQuadCache(const Object *o);
@@ -577,10 +577,10 @@ public:
 
 	static Texture2D * findFactionLogoTexture(string logoFilename);
 	static Texture2D * preloadTexture(string logoFilename);
-	int getCachedSurfaceDataSize() const { return mapSurfaceData.size(); }
+	inline int getCachedSurfaceDataSize() const { return mapSurfaceData.size(); }
 
 	void setCustom3dMenuList(GLuint *customlist3dMenu) { this->customlist3dMenu = customlist3dMenu; }
-	GLuint * getCustom3dMenuList() const { return this->customlist3dMenu; }
+	inline GLuint * getCustom3dMenuList() const { return this->customlist3dMenu; }
 
 	void init3dListMenu(const MainMenu *mm);
 

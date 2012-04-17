@@ -156,38 +156,38 @@ public:
 	void endScenario(); //to die before selection does
 
 	//get
-	int getMaxPlayers() const						{return map.getMaxPlayers();}
-	int getThisFactionIndex() const					{return thisFactionIndex;}
+	inline int getMaxPlayers() const						{return map.getMaxPlayers();}
+	inline int getThisFactionIndex() const					{return thisFactionIndex;}
 
-	int getThisTeamIndex() const					{return thisTeamIndex;}
-	void setThisTeamIndex(int team) 				{ thisTeamIndex=team;}
+	inline int getThisTeamIndex() const					{return thisTeamIndex;}
+	inline void setThisTeamIndex(int team) 				{ thisTeamIndex=team;}
 
-	const Faction *getThisFaction() const			{return factions[thisFactionIndex];}
-	Faction *getThisFactionPtr() 					{return factions[thisFactionIndex];}
+	inline const Faction *getThisFaction() const			{return factions[thisFactionIndex];}
+	inline Faction *getThisFactionPtr() 					{return factions[thisFactionIndex];}
 
-	int getFactionCount() const						{return factions.size();}
-	const Map *getMap() const 						{return &map;}
-	Map *getMapPtr()  								{return &map;}
+	inline int getFactionCount() const						{return factions.size();}
+	inline const Map *getMap() const 						{return &map;}
+	inline Map *getMapPtr()  								{return &map;}
 
-	const Tileset *getTileset() const 				{return &tileset;}
-	const TechTree *getTechTree() const 			{return techTree;}
-	const Scenario *getScenario() const 			{return &scenario;}
-	const TimeFlow *getTimeFlow() const				{return &timeFlow;}
-	Tileset *getTileset() 							{return &tileset;}
-	Map *getMap() 									{return &map;}
+	inline const Tileset *getTileset() const 				{return &tileset;}
+	inline const TechTree *getTechTree() const 			{return techTree;}
+	inline const Scenario *getScenario() const 			{return &scenario;}
+	inline const TimeFlow *getTimeFlow() const				{return &timeFlow;}
+	inline Tileset *getTileset() 							{return &tileset;}
+	inline Map *getMap() 									{return &map;}
 	Cartographer* getCartographer()					{return cartographer;}
 	RoutePlanner* getRoutePlanner()					{return routePlanner;}
-	const Faction *getFaction(int i) const			{return factions[i];}
-	Faction *getFaction(int i) 						{return factions[i];}
-	const Minimap *getMinimap() const				{return &minimap;}
-	Minimap *getMiniMapObject() 					{return &minimap;}
-	const Stats *getStats() const					{return &stats;};
-	Stats *getStats()								{return &stats;};
-	const WaterEffects *getWaterEffects() const		{return &waterEffects;}
-	const WaterEffects *getAttackEffects() const		{return &attackEffects;}
+	inline const Faction *getFaction(int i) const			{return factions[i];}
+	inline Faction *getFaction(int i) 						{return factions[i];}
+	inline const Minimap *getMinimap() const				{return &minimap;}
+	inline Minimap *getMiniMapObject() 					{return &minimap;}
+	inline const Stats *getStats() const					{return &stats;};
+	inline Stats *getStats()								{return &stats;};
+	inline const WaterEffects *getWaterEffects() const		{return &waterEffects;}
+	inline const WaterEffects *getAttackEffects() const		{return &attackEffects;}
 	int getNextUnitId(Faction *faction);
 	int getNextCommandGroupId();
-	int getFrameCount() const						{return frameCount;}
+	inline int getFrameCount() const						{return frameCount;}
 
 	//init & load
 	void init(Game *game, bool createUnits, bool initFactions=true);
@@ -201,8 +201,8 @@ public:
 	Checksum loadMap(const string &path, Checksum* checksum);
 	Checksum loadScenario(const string &path, Checksum* checksum,bool resetCurrentScenario=false,const XmlNode *rootNode=NULL);
 	void setQueuedScenario(string scenarioName,bool keepFactions);
-	string getQueuedScenario() const { return queuedScenarioName; }
-	bool getQueuedScenarioKeepFactions() const { return queuedScenarioKeepFactions; }
+	inline string getQueuedScenario() const { return queuedScenarioName; }
+	inline bool getQueuedScenarioKeepFactions() const { return queuedScenarioKeepFactions; }
 	void initUnitsForScenario();
 
 	//misc
@@ -249,7 +249,7 @@ public:
 	const string getSystemMacroValue(const string key);
 	const string getPlayerName(int factionIndex);
 
-	Game * getGame() { return game; }
+	inline Game * getGame() { return game; }
 	const GameSettings * getGameSettings() const;
 
 	GameSettings * getGameSettingsPtr();
@@ -266,7 +266,7 @@ public:
 	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
 	bool showWorldForPlayer(int factionIndex) const;
 
-	UnitUpdater * getUnitUpdater() { return &unitUpdater; }
+	inline UnitUpdater * getUnitUpdater() { return &unitUpdater; }
 
 	void removeResourceTargetFromCache(const Vec2i &pos);
 

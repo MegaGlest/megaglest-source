@@ -117,7 +117,7 @@ public:
 	void clearUnitPrecache(Unit *unit);
 	void removeUnitPrecache(Unit *unit);
 
-	unsigned int getAttackWarningCount() const { return attackWarnings.size(); }
+	inline unsigned int getAttackWarningCount() const { return attackWarnings.size(); }
 	std::pair<bool,Unit *> unitBeingAttacked(const Unit *unit);
 	void unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast,float *currentDistToUnit=NULL);
 	vector<Unit*> enemyUnitsOnRange(const Unit *unit,const AttackSkillType *ast);
