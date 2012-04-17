@@ -105,7 +105,7 @@ void* ftpOpenDir(const char* path)
 const char* ftpReadDir(void* dirHandle)
 {
     WIN32_FIND_DATA findData;
-	readDir_S* p = dirHandle;
+	readDir_S* p = (readDir_S *)dirHandle;
 
 	if(dirHandle == NULL)
 		return NULL;

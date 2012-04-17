@@ -94,8 +94,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;../../source/win32_deps/xerces-c-3.0.1/src;../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude;../../source/win32_deps/lpng141;../../source/win32_deps/jpeg-8a;../../source/win32_deps/SDL-1.2.x/include;../../source/shared_lib/include/platform/sdl;../../source/win32_deps/openal-soft-1.12.854/include;../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;../../source/win32_deps/curl-7.21.3/include;../../source/shared_lib/include/map;../../source/shared_lib/include/platform/miniupnpc;../../source/shared_lib/include/libircclient/include;../../source/shared_lib/include/feathery_ftp</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/shared_lib/include;../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/win32_deps/include;"../../source/win32_deps/xerces-c-3.0.1/src";"../../source/win32_deps/xerces-c-3.0.1/src/xercesc/xinclude";../../source/win32_deps/lpng141;"../../source/win32_deps/jpeg-8a";"../../source/win32_deps/SDL-1.2.x/include";../../source/shared_lib/include/platform/sdl;"../../source/win32_deps/openal-soft-1.12.854/include";../../source/shared_lib/include/sound/openal;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/streflop/libm_flt32_source;../../source/shared_lib/include/platform/common;"../../source/win32_deps/curl-7.21.3/include";../../source/shared_lib/include/map;../../source/shared_lib/include/platform/miniupnpc;../../source/shared_lib/include/libircclient/include;../../source/shared_lib/include/feathery_ftp;"../../source/win32_deps/ftgl-2.1.3-rc5/src";"../../source/win32_deps/freetype-2.4.4/include";"../../source/win32_deps/glew-1.7.0/include";../../source/shared_lib/include/graphics/md5;"../../source/shared_lib/include/graphics/freetype-gl";../../source/shared_lib/include/streflop/softfloat;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;STREFLOP_RANDOM_GEN_SIZE=32;LIBM_COMPILING_FLT32;CURL_STATICLIB;UNICODE;USE_FTGL;TA3D_PLATFORM_MSVC;TA3D_PLATFORM_WINDOWS;STATICLIB;USE_FREETYPEGL;GLEW_STATIC%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -167,6 +167,7 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
     </ClCompile>
     <ClCompile Include="..\..\source\shared_lib\sources\platform\sdl\gl_wrap.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\glob.cpp" />
     <ClCompile Include="..\..\source\win32_deps\src\glprocs.c" />
     <ClCompile Include="..\..\source\shared_lib\sources\libircclient\src\libircclient.c" />
     <ClCompile Include="..\..\source\shared_lib\sources\map\map_preview.cpp" />
@@ -240,7 +241,6 @@
     <ClCompile Include="..\..\source\shared_lib\sources\platform\sdl\window_gl.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\factory_repository.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\gl_wrap_billy.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\glob.c" />
     <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\platform_util.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\platform\posix\ircclient.cpp" />
   </ItemGroup>

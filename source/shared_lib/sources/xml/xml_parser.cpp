@@ -285,12 +285,12 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 
         // Determine stream size
 		xmlFile.seekg(0, ios::end);
-        size_t size = xmlFile.tellg();
+        streampos size = xmlFile.tellg();
         xmlFile.seekg(0);
 
         // Load data and add terminating 0
         vector<char> buffer;
-        buffer.resize(size + 1);
+        buffer.resize(size + (streampos)1);
         xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
         buffer[size] = 0;
 

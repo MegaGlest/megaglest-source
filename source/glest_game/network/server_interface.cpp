@@ -27,7 +27,7 @@
 #include <set>
 #include <iostream>
 #include "map_preview.h"
-
+#include <iterator>
 #include "leak_dumper.h"
 
 using namespace std;
