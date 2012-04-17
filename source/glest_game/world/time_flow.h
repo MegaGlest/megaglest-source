@@ -51,11 +51,11 @@ public:
 	}
 	void init(Tileset *tileset);
 
-	float getTime() const				{return time;}
-	bool isDay() const					{return time>dawn && time<dusk;}
-	bool isNight() const				{return !isDay();}
-	bool isTotalNight() const			{return time<dawn+1.f || time>dusk-1.f;}
-	float getTimeInc() const			{return timeInc;}
+	inline float getTime() const				{return time;}
+	inline bool isDay() const					{return time>dawn && time<dusk;}
+	inline bool isNight() const				{return !isDay();}
+	inline bool isTotalNight() const			{return time<dawn+1.f || time>dusk-1.f;}
+	inline float getTimeInc() const			{return timeInc;}
 
 	Vec3f computeLightColor() const;
 	void update();

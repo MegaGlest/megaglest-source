@@ -64,9 +64,9 @@ public:
 	inline Unit *getUnitWithEmptyCellMap(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return unitsWithEmptyCellMap[field];}
 	inline float getHeight() const				{return height;}
 
-	void setUnit(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} units[field]= unit;}
-	void setUnitWithEmptyCellMap(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} unitsWithEmptyCellMap[field]= unit;}
-	void setHeight(float height)		{this->height= height;}
+	inline void setUnit(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} units[field]= unit;}
+	inline void setUnitWithEmptyCellMap(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} unitsWithEmptyCellMap[field]= unit;}
+	inline void setHeight(float height)		{this->height= height;}
 
 	inline bool isFree(Field field) const {
 		bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
@@ -134,34 +134,34 @@ public:
 
 	void end(); //to kill particles
 	//get
-	const Vec3f &getVertex() const				{return vertex;}
-	float getHeight() const						{return vertex.y;}
-	const Vec3f &getColor() const				{return color;}
-	const Vec3f &getNormal() const				{return normal;}
-	int getSurfaceType() const					{return surfaceType;}
-	const Texture2D *getSurfaceTexture() const	{return surfaceTexture;}
-	Object *getObject() const					{return object;}
-	Resource *getResource() const				{return object==NULL? NULL: object->getResource();}
-	const Vec2f &getFowTexCoord() const			{return fowTexCoord;}
-	const Vec2f &getSurfTexCoord() const		{return surfTexCoord;}
-	bool getNearSubmerged() const				{return nearSubmerged;}
+	inline const Vec3f &getVertex() const				{return vertex;}
+	inline float getHeight() const						{return vertex.y;}
+	inline const Vec3f &getColor() const				{return color;}
+	inline const Vec3f &getNormal() const				{return normal;}
+	inline int getSurfaceType() const					{return surfaceType;}
+	inline const Texture2D *getSurfaceTexture() const	{return surfaceTexture;}
+	inline Object *getObject() const					{return object;}
+	inline Resource *getResource() const				{return object==NULL? NULL: object->getResource();}
+	inline const Vec2f &getFowTexCoord() const			{return fowTexCoord;}
+	inline const Vec2f &getSurfTexCoord() const		{return surfTexCoord;}
+	inline bool getNearSubmerged() const				{return nearSubmerged;}
 
 	inline bool isVisible(int teamIndex) const		{return visible[teamIndex];}
 	inline bool isExplored(int teamIndex) const		{return explored[teamIndex];}
 
 	//set
-	void setVertex(const Vec3f &vertex)			{this->vertex= vertex;}
-	void setHeight(float height, bool cellChangedFromOriginalMapLoadValue=false);
-	void setNormal(const Vec3f &normal)			{this->normal= normal;}
-	void setColor(const Vec3f &color)			{this->color= color;}
-	void setSurfaceType(int surfaceType)		{this->surfaceType= surfaceType;}
-	void setSurfaceTexture(const Texture2D *st)	{this->surfaceTexture= st;}
-	void setObject(Object *object)				{this->object= object;}
-	void setFowTexCoord(const Vec2f &ftc)		{this->fowTexCoord= ftc;}
-	void setSurfTexCoord(const Vec2f &stc)		{this->surfTexCoord= stc;}
+	inline void setVertex(const Vec3f &vertex)			{this->vertex= vertex;}
+	inline void setHeight(float height, bool cellChangedFromOriginalMapLoadValue=false);
+	inline void setNormal(const Vec3f &normal)			{this->normal= normal;}
+	inline void setColor(const Vec3f &color)			{this->color= color;}
+	inline void setSurfaceType(int surfaceType)		{this->surfaceType= surfaceType;}
+	inline void setSurfaceTexture(const Texture2D *st)	{this->surfaceTexture= st;}
+	inline void setObject(Object *object)				{this->object= object;}
+	inline void setFowTexCoord(const Vec2f &ftc)		{this->fowTexCoord= ftc;}
+	inline void setSurfTexCoord(const Vec2f &stc)		{this->surfTexCoord= stc;}
 	void setExplored(int teamIndex, bool explored);
     void setVisible(int teamIndex, bool visible);
-	void setNearSubmerged(bool nearSubmerged)	{this->nearSubmerged= nearSubmerged;}
+    inline void setNearSubmerged(bool nearSubmerged)	{this->nearSubmerged= nearSubmerged;}
 
 	//misc
 	void deleteResource();

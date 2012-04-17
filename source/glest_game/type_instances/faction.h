@@ -151,12 +151,12 @@ public:
 	Faction();
 	~Faction();
 
-	void addLivingUnits(int id) { livingUnits.insert(id); }
-	void addLivingUnitsp(Unit *unit) { livingUnitsp.insert(unit); }
+	inline void addLivingUnits(int id) { livingUnits.insert(id); }
+	inline void addLivingUnitsp(Unit *unit) { livingUnitsp.insert(unit); }
 
-	bool isUnitInLivingUnitsp(Unit *unit) { return (livingUnitsp.find(unit) != livingUnitsp.end()); }
-	void deleteLivingUnits(int id) { livingUnits.erase(id); }
-	void deleteLivingUnitsp(Unit *unit) { livingUnitsp.erase(unit); }
+	inline bool isUnitInLivingUnitsp(Unit *unit) { return (livingUnitsp.find(unit) != livingUnitsp.end()); }
+	inline void deleteLivingUnits(int id) { livingUnits.erase(id); }
+	inline void deleteLivingUnitsp(Unit *unit) { livingUnitsp.erase(unit); }
 
 	//std::map<int,int> unitsMovingList;
 	void addUnitToMovingList(int unitId);
@@ -175,32 +175,32 @@ public:
 		bool giveResources, const XmlNode *loadWorldNode=NULL);
 	void end();
 
-	bool getFactionDisconnectHandled() const { return factionDisconnectHandled;}
+	inline bool getFactionDisconnectHandled() const { return factionDisconnectHandled;}
 	void setFactionDisconnectHandled(bool value) { factionDisconnectHandled=value;}
 
     //get
 	const Resource *getResource(const ResourceType *rt) const;
-	const Resource *getResource(int i) const			{return &resources[i];}
+	inline const Resource *getResource(int i) const			{return &resources[i];}
 	int getStoreAmount(const ResourceType *rt) const;
-	const FactionType *getType() const					{return factionType;}
-	int getIndex() const								{return index;}
+	inline const FactionType *getType() const					{return factionType;}
+	inline int getIndex() const								{return index;}
 
-	int getTeam() const									{return teamIndex;}
+	inline int getTeam() const									{return teamIndex;}
 	void setTeam(int team) 								{teamIndex=team;}
 
-	TechTree * getTechTree() const						{ return techTree; }
+	inline TechTree * getTechTree() const						{ return techTree; }
 	const SwitchTeamVote * getFirstSwitchTeamVote() const;
 	SwitchTeamVote * getSwitchTeamVote(int factionIndex);
 	void setSwitchTeamVote(SwitchTeamVote &vote);
-	int getCurrentSwitchTeamVoteFactionIndex() const { return currentSwitchTeamVoteFactionIndex; }
+	inline int getCurrentSwitchTeamVoteFactionIndex() const { return currentSwitchTeamVoteFactionIndex; }
 	void setCurrentSwitchTeamVoteFactionIndex(int index) { currentSwitchTeamVoteFactionIndex = index; }
 
 	bool getCpuControl(bool enableServerControlledAI, bool isNetworkGame, NetworkRole role) const;
 	bool getCpuControl() const;
-	bool getCpuEasyControl() const						{return control==ctCpuEasy;}
-	bool getCpuUltraControl() const						{return control==ctCpuUltra;}
-	bool getCpuMegaControl() const						{return control==ctCpuMega;}
-	ControlType getControlType() const					{return control;}
+	inline bool getCpuEasyControl() const						{return control==ctCpuEasy;}
+	inline bool getCpuUltraControl() const						{return control==ctCpuUltra;}
+	inline bool getCpuMegaControl() const						{return control==ctCpuMega;}
+	inline ControlType getControlType() const					{return control;}
 
 	FactionPersonalityType getPersonalityType() const;
 	void setPersonalityType(FactionPersonalityType pType) { overridePersonalityType=pType; }
@@ -210,10 +210,10 @@ public:
 	int getUnitCount() const;
 	Mutex * getUnitMutex() {return unitsMutex;}
 
-	const UpgradeManager *getUpgradeManager() const		{return &upgradeManager;}
-	const Texture2D *getTexture() const					{return texture;}
-	int getStartLocationIndex() const					{return startLocationIndex;}
-	bool getThisFaction() const							{return thisFaction;}
+	inline const UpgradeManager *getUpgradeManager() const		{return &upgradeManager;}
+	inline const Texture2D *getTexture() const					{return texture;}
+	inline int getStartLocationIndex() const					{return startLocationIndex;}
+	inline bool getThisFaction() const							{return thisFaction;}
 
 	//upgrades
 	void startUpgrade(const UpgradeType *ut);
@@ -259,7 +259,7 @@ public:
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type);
 	Vec2i getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type);
 	void cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr);
-	int getCacheResourceTargetListSize() const { return cacheResourceTargetList.size(); }
+	inline int getCacheResourceTargetListSize() const { return cacheResourceTargetList.size(); }
 
 	Unit * findClosestUnitWithSkillClass(const Vec2i &pos,const CommandClass &cmdClass,
 										const std::vector<SkillClass> &skillClassList,
@@ -267,7 +267,7 @@ public:
 
 	void deletePixels();
 
-	World * getWorld() { return world; }
+	inline World * getWorld() { return world; }
 	int getFrameCount();
 	void signalWorkerThread(int frameIndex);
 	bool isWorkerThreadSignalCompleted(int frameIndex);
