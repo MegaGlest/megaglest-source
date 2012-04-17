@@ -75,7 +75,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	//Read file
 	is.seekg(0, ios::end);
-	size_t length = is.tellg();
+	streampos length = is.tellg();
 	if (length < 8) {
 		return NULL;
 	}

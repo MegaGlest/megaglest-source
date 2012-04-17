@@ -30,7 +30,7 @@
 #include "cache_manager.h"
 #include "string_utils.h"
 #include "map_preview.h"
-
+#include <iterator>
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{

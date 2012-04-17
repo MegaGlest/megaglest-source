@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <set>
+#include <iterator>
 #include "platform_util.h"
 #include "conversion.h"
 
