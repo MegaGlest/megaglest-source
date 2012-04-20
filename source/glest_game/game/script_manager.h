@@ -12,10 +12,13 @@
 #ifndef _GLEST_GAME_SCRIPT_MANAGER_H_
 #define _GLEST_GAME_SCRIPT_MANAGER_H_
 
-#include <string>
-//#include <queue>
-#include <list>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <string>
+#include <list>
 #include "lua_script.h"
 #include "components.h"
 #include "game_constants.h"

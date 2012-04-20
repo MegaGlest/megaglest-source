@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_UPGRADETYPE_H_
 #define _GLEST_GAME_UPGRADETYPE_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "element_type.h"
 #include "checksum.h"
 #include "conversion.h"

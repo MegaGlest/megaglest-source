@@ -12,6 +12,11 @@
 #ifndef _SHARED_UTIL_AUTO_TEST_H_
 #define _SHARED_UTIL_AUTO_TEST_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <ctime>
 #include "randomgen.h"
 #include <string>

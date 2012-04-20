@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_COMMAND_H_
 #define _GLEST_GAME_COMMAND_H_
 
-#include <cstdlib>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <cstdlib>
 #include "unit.h"
 #include "vec.h"
 #include "game_constants.h"

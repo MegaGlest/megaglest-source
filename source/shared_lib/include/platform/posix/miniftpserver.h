@@ -12,10 +12,15 @@
 #ifndef _SHARED_PLATFORMCOMMON_MINIFTPSERVERTHREAD_H_
 #define _SHARED_PLATFORMCOMMON_MINIFTPSERVERTHREAD_H_
 
+#ifdef WIN32
+  #include <winsock2.h>
+  #include <winsock.h>
+#endif
+
 #include "base_thread.h"
 #include <vector>
 #include <string>
-#include "types.h"
+#include "data_types.h"
 #include "socket.h"
 
 #include "leak_dumper.h"

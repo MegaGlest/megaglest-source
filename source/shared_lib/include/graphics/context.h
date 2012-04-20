@@ -12,7 +12,7 @@
 #ifndef _SHARED_GRAPHICS_CONTEXT_H_
 #define _SHARED_GRAPHICS_CONTEXT_H_ 
 
-#include "types.h"
+#include "data_types.h"
 #include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{

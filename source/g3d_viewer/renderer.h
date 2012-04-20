@@ -12,12 +12,10 @@
 #ifndef _SHADER_G3DVIEWER_RENDERER_H_
 #define _SHADER_G3DVIEWER_RENDERER_H_
 
-/*
-#include "model_renderer.h"
-#include "texture_manager.h"
-#include "model.h"
-#include "texture.h"
-*/
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
 #include "model_renderer.h"
 #include "texture_manager.h"

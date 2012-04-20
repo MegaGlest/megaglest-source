@@ -13,7 +13,7 @@
 #define _MAPPREVIEW_MAP_H_
 
 #include "util.h"
-#include "types.h"
+#include "data_types.h"
 #include "randomgen.h"
 #include "vec.h"
 #include <vector>

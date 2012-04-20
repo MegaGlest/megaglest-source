@@ -12,6 +12,11 @@
 #ifndef _SHARED_PLATFORMCOMMON_IRCTHREAD_H_
 #define _SHARED_PLATFORMCOMMON_IRCTHREAD_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "base_thread.h"
 #include <vector>
 #include <string>

@@ -9,10 +9,13 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "unit_type.h"
-
 #include <cassert>
-
 #include "util.h"
 #include "upgrade_type.h"
 #include "resource_type.h"

@@ -13,7 +13,7 @@
 #define _SHARED_SOUND_SOUNDPLAYER_H_
 
 #include "sound.h"
-#include "types.h"
+#include "data_types.h"
 #include "leak_dumper.h"
 
 using Shared::Platform::uint32;

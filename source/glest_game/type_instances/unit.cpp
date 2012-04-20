@@ -8,10 +8,10 @@
 //	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
+
+#define NOMINMAX
 #include "faction.h"
-
 #include <cassert>
-
 #include "unit.h"
 #include "unit_particle_type.h"
 #include "world.h"

@@ -14,7 +14,7 @@
 #define _GAME_SEARCH_INLUENCE_MAP_H_
 
 #include "vec.h"
-#include "types.h"
+#include "data_types.h"
 
 #include <algorithm>
 

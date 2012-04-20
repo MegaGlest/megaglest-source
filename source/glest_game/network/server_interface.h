@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_SERVERINTERFACE_H_
 #define _GLEST_GAME_SERVERINTERFACE_H_
 
-#include <vector>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <vector>
 #include "game_constants.h"
 #include "network_interface.h"
 #include "connection_slot.h"

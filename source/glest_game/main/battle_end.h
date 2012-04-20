@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_BATTLEEND_H_
 #define _GLEST_GAME_BATTLEEND_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "program.h"
 #include "stats.h"
 #include "leak_dumper.h"

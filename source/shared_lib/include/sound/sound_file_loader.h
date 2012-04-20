@@ -14,7 +14,7 @@
 
 #include <string>
 #include <fstream>
-#include "types.h"
+#include "data_types.h"
 #include "factory.h"
 #include "leak_dumper.h"
 

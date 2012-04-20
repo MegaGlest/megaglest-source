@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_TECHTREE_H_
 #define _GLEST_GAME_TECHTREE_H_
 
-#include <set>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <set>
 #include "util.h"
 #include "resource_type.h"
 #include "faction_type.h"

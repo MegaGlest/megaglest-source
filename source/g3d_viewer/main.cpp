@@ -528,19 +528,26 @@ void MainWindow::setupStartupSettings() {
 }
 
 MainWindow::~MainWindow(){
-	delete renderer;
-	renderer = NULL;
-	delete model;
-	model = NULL;
 	delete timer;
 	timer = NULL;
-	delete glCanvas;
+
+	delete model;
+	model = NULL;
+
+	delete renderer;
+	renderer = NULL;
+
+	//delete glCanvas;
+	if(glCanvas) glCanvas->Destroy();
 	glCanvas = NULL;
 
 }
 
 void MainWindow::init() {
-#if wxCHECK_VERSION(2, 9, 1)
+
+#if wxCHECK_VERSION(2, 9, 3)
+	glCanvas->setCurrentGLContext();
+#elif wxCHECK_VERSION(2, 9, 1)
 
 #else
 	glCanvas->SetCurrent();
@@ -700,7 +707,21 @@ void MainWindow::onClose(wxCloseEvent &event){
 	//printf("OnClose about to END\n");
 	//fflush(stdout);
 
-	delete this;
+	delete timer;
+	timer = NULL;
+
+	delete model;
+	model = NULL;
+
+	delete renderer;
+	renderer = NULL;
+
+	//delete glCanvas;
+	if(glCanvas) glCanvas->Destroy();
+	glCanvas = NULL;
+
+	//delete this;
+	this->Destroy();
 }
 
 // for the mousewheel

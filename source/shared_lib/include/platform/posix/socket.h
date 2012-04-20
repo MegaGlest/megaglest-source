@@ -12,23 +12,11 @@
 #ifndef _SHARED_PLATFORM_SOCKET_H_
 #define _SHARED_PLATFORM_SOCKET_H_
 
-#include <string>
-
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <map>
-#include <vector>
-#include "base_thread.h"
-#include "simple_threads.h"
-#include "types.h"
-
-using std::string;
-
 #ifdef WIN32
     #ifdef __MINGW32__
 	   #include <winsock2.h>
     #else
+       #include <winsock2.h>
        #include <winsock.h>
     #endif
 
@@ -43,6 +31,18 @@ using std::string;
 	typedef int PLATFORM_SOCKET;
 
 #endif
+
+#include <string>
+#include <errno.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <map>
+#include <vector>
+#include "base_thread.h"
+#include "simple_threads.h"
+#include "data_types.h"
+
+using std::string;
 
 #include "leak_dumper.h"
 

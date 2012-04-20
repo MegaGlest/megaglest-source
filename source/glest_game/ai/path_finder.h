@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_PATHFINDER_H_
 #define _GLEST_GAME_PATHFINDER_H_
 
-#include "vec.h"
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include "vec.h"
 #include <vector>
 #include <map>
 #include "game_constants.h"

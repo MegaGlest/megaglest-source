@@ -14,6 +14,11 @@
 #ifndef _GLEST_GAME_SEARCH_ENGINE_
 #define _GLEST_GAME_SEARCH_ENGINE_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "math_util.h"
 #include "game_constants.h"
 

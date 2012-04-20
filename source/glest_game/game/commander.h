@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_COMMANDER_H_
 #define _GLEST_GAME_COMMANDER_H_
 
-#include <vector>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <vector>
 #include "vec.h"
 #include "selection.h"
 #include "command_type.h"

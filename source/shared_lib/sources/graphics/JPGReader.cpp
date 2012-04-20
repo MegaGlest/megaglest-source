@@ -12,7 +12,7 @@
 #include "JPGReader.h"
 #include "FileReader.h"
 
-#include "types.h"
+#include "data_types.h"
 #include "pixmap.h"
 #include <stdexcept>
 #include <jpeglib.h>

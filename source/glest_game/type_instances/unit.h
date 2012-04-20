@@ -11,6 +11,11 @@
 #ifndef _GLEST_GAME_UNIT_H_
 #define _GLEST_GAME_UNIT_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "model.h"
 #include "upgrade_type.h"
 #include "particle.h"

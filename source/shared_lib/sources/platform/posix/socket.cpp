@@ -29,6 +29,7 @@
 #ifdef WIN32
 
   #include <windows.h>
+  #include <winsock2.h>
   #include <winsock.h>
   #include <iphlpapi.h>
   #include <strstream>

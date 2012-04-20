@@ -14,7 +14,7 @@
 
 #include <string>
 #include "vec.h"
-#include "types.h"
+#include "data_types.h"
 #include <map>
 #include "checksum.h"
 #include "leak_dumper.h"

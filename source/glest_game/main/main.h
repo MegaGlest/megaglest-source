@@ -13,7 +13,6 @@
 #define _GLEST_GAME_MAIN_H_
 
 #include <ctime>
-
 #include "program.h"
 #include "window_gl.h"
 #include "leak_dumper.h"

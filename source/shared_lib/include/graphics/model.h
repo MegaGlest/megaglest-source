@@ -14,7 +14,7 @@
 
 #include <string>
 #include <map>
-#include "types.h"
+#include "data_types.h"
 #include "pixmap.h"
 #include "texture_manager.h"
 #include "texture.h"

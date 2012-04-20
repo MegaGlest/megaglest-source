@@ -8,6 +8,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#define NOMINMAX
 #include "renderer.h"
 
 #include "texture_gl.h"
@@ -24,9 +25,9 @@
 #include "faction.h"
 #include "factory_repository.h"
 #include <cstdlib>
-#include <algorithm>
 #include "cache_manager.h"
 #include "network_manager.h"
+#include <algorithm>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;

@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_PROGRAM_H_
 #define _GLEST_GAME_PROGRAM_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "context.h"
 #include "platform_util.h"
 #include "window_gl.h"

@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_CLIENTINTERFACE_H_
 #define _GLEST_GAME_CLIENTINTERFACE_H_
 
-#include <vector>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <vector>
 #include "network_interface.h"
 #include "socket.h"
 #include "leak_dumper.h"

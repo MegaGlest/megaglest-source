@@ -17,13 +17,20 @@
 #include <string>
 #include <SDL.h>
 #include <cassert>
-#include "types.h"
+#include "data_types.h"
 #include "vec.h"
 #include "leak_dumper.h"
 
 using std::map;
 using std::string;
 using Shared::Graphics::Vec2i;
+
+#if SDL_VERSION_ATLEAST(2,0,0)
+
+typedef SDL_Keysym SDL_keysym;
+typedef SDL_Keycode SDLKey;
+
+#endif
 
 namespace Shared{ namespace Platform{
 

@@ -28,7 +28,7 @@
 
 #include <string>
 #include "font.h"
-#include "types.h"
+#include "data_types.h"
 #include <SDL.h>
 #include "leak_dumper.h"
 

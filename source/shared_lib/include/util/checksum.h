@@ -14,7 +14,7 @@
 
 #include <string>
 #include <map>
-#include "types.h"
+#include "data_types.h"
 #include "thread.h"
 #include "leak_dumper.h"
 

@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_SOUNDRENDERER_H_
 #define _GLEST_GAME_SOUNDRENDERER_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "sound.h"
 #include "sound_player.h"
 #include "window.h"

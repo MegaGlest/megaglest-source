@@ -12,9 +12,13 @@
 #ifndef _GLEST_GAME_GAMEUTIL_H_
 #define _GLEST_GAME_GAMEUTIL_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <string>
 #include <vector>
-
 #include "util.h"
 #include "leak_dumper.h"
 
