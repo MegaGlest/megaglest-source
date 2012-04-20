@@ -85,9 +85,19 @@ if not "%SVNVERSION%" == "." set CL=/DSVNVERSIONHEADER
 if not "%SVNVERSION%" == "."  echo building with CL [%CL%]
 if not "%SVNVERSION%" == "." echo #define SVNVERSION "%SVNVERSION%" > ..\..\source\glest_game\facilities\svnversion.h
 
+set msBuildMaxCPU=
+SET BuildInParallel=false
+if %NUMBER_OF_PROCESSORS% GTR 2 (
+                SET NumberOfProcessesToUseForBuild=2
+                SET BuildInParallel=true
+				SET msBuildMaxCPU=/maxcpucount:%NumberOfProcessesToUseForBuild%)
+
+ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%]
 if "%2" == "rebuild" echo Doing a FULL REBUILD...
-if "%2" == "rebuild" msbuild /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
-if not "%2" == "rebuild" msbuild /p:Configuration=Release Glest_vc2010.sln
+rem if "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
+if "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
+rem if not "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release Glest_vc2010.sln
+if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release Glest_vc2010.sln
 
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
