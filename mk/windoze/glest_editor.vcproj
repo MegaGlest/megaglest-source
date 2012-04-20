@@ -307,10 +307,6 @@
 				RelativePath="..\..\source\glest_map_editor\program.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\source\glest_map_editor\renderer.cpp"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>
