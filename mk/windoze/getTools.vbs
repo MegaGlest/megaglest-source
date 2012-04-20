@@ -1,5 +1,5 @@
 ' Set your settings
-strFileURL = "http://master.dl.sourceforge.net/project/megaglest/7z.exe"
+strFileURL = "http://www.soft-haus.com/glest/tools/7z.exe"
 strHDLocation = "..\..\data\glest_game\7z.exe"
 
 WScript.Echo "----------------------------------------"
@@ -7,7 +7,11 @@ WScript.Echo "About to download 7z.exe from:"
 WScript.Echo strFileURL & ", please wait..."
 
 ' Fetch the file
-Set objXMLHTTP = CreateObject("MSXML2.XMLHTTP")
+Set objXMLHTTP =CreateObject("WinHttp.WinHttpRequest.5.1")
+If objXMLHTTP Is Nothing Then Set objXMLHTTP = CreateObject("WinHttp.WinHttpRequest")
+If objXMLHTTP Is Nothing Then Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
+If objXMLHTTP Is Nothing Then Set objXMLHTTP = CreateObject("Microsoft.XMLHTTP")
+
 objXMLHTTP.open "GET", strFileURL, false
 objXMLHTTP.send()
 
@@ -34,7 +38,7 @@ End if
 Set objXMLHTTP = Nothing
 
 ' Set your settings
-strFileURL = "http://master.dl.sourceforge.net/project/megaglest/7z.dll"
+strFileURL = "http://www.soft-haus.com/glest/tools/7z.dll"
 strHDLocation = "..\..\data\glest_game\7z.dll"
 
 WScript.Echo "----------------------------------------"
@@ -61,7 +65,42 @@ If objXMLHTTP.Status = 200 Then
   objADOStream.SaveToFile strHDLocation
   objADOStream.Close
   Set objADOStream = Nothing
-  WScript.Echo "7z.exe has been downloaded successfully to: " 
+  WScript.Echo "7z.dll has been downloaded successfully to: " 
+  WScript.Echo strHDLocation
+  WScript.Echo "----------------------------------------"
+End if
+
+Set objXMLHTTP = Nothing
+
+' Set your settings
+strFileURL = "http://www.soft-haus.com/glest/tools/wget.exe"
+strHDLocation = "..\..\data\glest_game\wget.exe"
+
+WScript.Echo "----------------------------------------"
+WScript.Echo "About to download wget.exe from:"
+WScript.Echo strFileURL & ", please wait..."
+
+' Fetch the file
+Set objXMLHTTP = CreateObject("MSXML2.XMLHTTP")
+objXMLHTTP.open "GET", strFileURL, false
+objXMLHTTP.send()
+
+If objXMLHTTP.Status = 200 Then
+  Set objADOStream = CreateObject("ADODB.Stream")
+  objADOStream.Open
+  objADOStream.Type = 1 'adTypeBinary
+
+  objADOStream.Write objXMLHTTP.ResponseBody
+  objADOStream.Position = 0    'Set the stream position to the start
+
+  Set objFSO = Createobject("Scripting.FileSystemObject")
+  If objFSO.Fileexists(strHDLocation) Then objFSO.DeleteFile strHDLocation
+  Set objFSO = Nothing
+
+  objADOStream.SaveToFile strHDLocation
+  objADOStream.Close
+  Set objADOStream = Nothing
+  WScript.Echo "wget.exe has been downloaded successfully to: " 
   WScript.Echo strHDLocation
   WScript.Echo "----------------------------------------"
 End if

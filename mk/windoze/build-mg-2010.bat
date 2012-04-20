@@ -6,11 +6,26 @@ ECHO Changing to build folder [%~dp0]
 cd /d "%~dp0"
 
 ECHO Checking for windows binary runtime tools...
-if NOT EXIST "..\..\data\glest_game\7z.exe" cscript getTools.vbs
-if NOT EXIST "..\..\data\glest_game\7z.dll" cscript getTools.vbs
-if NOT EXIST ..\..\source\windows_deps\NUL cscript getVC2010Deps.vbs
-if NOT EXIST ..\..\source\windows_deps\NUL call "..\..\data\glest_game\7z.exe" x ..\..\source\windows_deps.7z
+if NOT EXIST ..\..\data\glest_game\7z.exe call cscript getTools.vbs
+if NOT EXIST ..\..\data\glest_game\7z.dll call cscript getTools.vbs
+if NOT EXIST ..\..\data\glest_game\wget.exe call cscript getTools.vbs
 
+set depfolder=windows_deps
+set depfile=%depfolder%.7z 
+
+if NOT EXIST ..\..\source\%depfolder%\NUL goto checkDepIntegrity
+
+:getDepFile
+if NOT EXIST ..\..\source\%depfolder%\NUL call ..\..\data\glest_game\wget.exe -c -O ..\..\source\%depfile%  http://master.dl.sourceforge.net/project/megaglest/%depfile%
+if NOT EXIST ..\..\source\%depfolder%\NUL call ..\..\data\glest_game\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
+goto processBuildStageA
+
+:checkDepIntegrity
+call ..\..\data\glest_game\7z.exe t ..\..\source\%depfile% >nul
+if NOT ERRORLEVEL 0 goto getDepFile
+goto processBuildStageA
+
+:processBuildStageA
 call CopyWindowsRuntimeDlls.bat nopause
 
 rem setup the Visual Studio 2010 environment
