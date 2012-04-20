@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_DAMAGEMULTIPLIER_H_
 #define _GLEST_GAME_DAMAGEMULTIPLIER_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <string>
 #include "xml_parser.h"
 #include "leak_dumper.h"

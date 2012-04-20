@@ -12,9 +12,13 @@
 #ifndef _GLEST_GAME_NETWORKTYPES_H_
 #define _GLEST_GAME_NETWORKTYPES_H_
 
-#include <string>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
-#include "types.h"
+#include <string>
+#include "data_types.h"
 #include "vec.h"
 #include "command.h"
 #include "leak_dumper.h"

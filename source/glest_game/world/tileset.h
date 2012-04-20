@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_TILESET_H_
 #define _GLEST_GAME_TILESET_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <map>
 #include "graphics_interface.h"
 #include "xml_parser.h"

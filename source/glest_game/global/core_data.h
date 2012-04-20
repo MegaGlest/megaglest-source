@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_COREDATA_H_
 #define _GLEST_GAME_COREDATA_H_
 
-#include <string>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <string>
 #include "sound.h"
 #include "font.h"
 #include "texture.h"

@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_STATS_H_
 #define _GLEST_GAME_STATS_H_
 
-#include <string>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <string>
 #include "game_constants.h"
 #include "faction.h"
 #include "faction_type.h"

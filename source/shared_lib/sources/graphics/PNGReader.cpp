@@ -11,7 +11,7 @@
 
 #include "PNGReader.h"
 
-#include "types.h"
+#include "data_types.h"
 #include "pixmap.h"
 #include <stdexcept>
 #include <png.h>

@@ -12,9 +12,13 @@
 #ifndef _GLEST_GAME_PARTICLETYPE_H_
 #define _GLEST_GAME_PARTICLETYPE_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <string>
 #include <list>
-
 #include "particle.h"
 #include "factory.h"
 #include "texture.h"

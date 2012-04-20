@@ -12,6 +12,11 @@
 #ifndef _SHARED_UTIL_LOGGER_H_
 #define _SHARED_UTIL_LOGGER_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <string>
 #include <deque>
 

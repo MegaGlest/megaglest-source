@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_AIRULE_H_
 #define _GLEST_GAME_AIRULE_H_
 
-#include <string>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <string>
 #include "vec.h"
 #include "skill_type.h"
 #include "leak_dumper.h"

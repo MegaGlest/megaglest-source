@@ -435,7 +435,16 @@ void MainWindow::onClose(wxCloseEvent &event) {
 		wxCommandEvent ev;
 		MainWindow::onMenuFileSave(ev);
 	}
-	delete this;
+
+	delete program;
+	program = NULL;
+
+	//delete glCanvas;
+	if(glCanvas) glCanvas->Destroy();
+	glCanvas = NULL;
+
+	//delete this;
+	this->Destroy();
 }
 
 void MainWindow::setupStartupSettings() {

@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_SCENARIO_H_
 #define _GLEST_GAME_SCENARIO_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <string>
 #include <vector>
 #include "xml_parser.h"

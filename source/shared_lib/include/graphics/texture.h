@@ -12,7 +12,7 @@
 #ifndef _SHARED_GRAPHICS_TEXTURE_H_
 #define _SHARED_GRAPHICS_TEXTURE_H_
 
-#include "types.h"
+#include "data_types.h"
 #include "pixmap.h"
 #include <string>
 #include "leak_dumper.h"

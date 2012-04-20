@@ -14,7 +14,7 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "types.h"
+#include "data_types.h"
 #include "util.h"
 #include "game_settings.h"
 

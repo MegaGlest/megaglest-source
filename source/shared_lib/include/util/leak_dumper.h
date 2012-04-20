@@ -21,6 +21,7 @@
 // START - Special includes because the use a special new operator that we cannot override
 #include <string>
 #include "rapidxml.hpp"
+
 #include <xercesc/dom/DOM.hpp>
 // END - Special includes because the use a special new operator that we cannot override
 

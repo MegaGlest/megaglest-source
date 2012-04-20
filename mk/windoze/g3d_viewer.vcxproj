@@ -84,8 +84,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalOptions>/arch:SSE2 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>"..\..\source\win32_deps\wxWidgets-2.8.10\lib\vc_lib\mswd";"..\..\source\win32_deps\wxWidgets-2.8.10\include\msvc";..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\win32_deps\include;..\..\source\shared_lib\include\graphics;"..\..\source\win32_deps\wxWidgets-2.8.10\include";..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;"../../source/win32_deps/SDL-1.2.x/include";"../../source/win32_deps/curl-7.21.3/include";..\..\source\glest_game\graphics;..\..\source\shared_lib\include\xml;"../../source/win32_deps/xerces-c-3.0.1/src";..\..\source\glest_game\global;..\..\source\glest_game\sound;..\..\source\shared_lib\include\sound;..\..\source\glest_game\game;../../source/shared_lib/include/map;../../source/win32_deps/lpng141;..\..\source\glest_game\facilities;"../../source/win32_deps/glew-1.7.0/include";%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB;UNICODE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\source\windows_deps\wxWidgets-2.9.3\lib\vc_lib\mswu;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\graphics\gl;..\..\source\windows_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\windows_deps\wxWidgets-2.9.3\include;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;../../source/windows_deps/SDL-1.2.15/include;../../source/windows_deps/curl-7.21.3/include;..\..\source\glest_game\graphics;..\..\source\shared_lib\include\xml;../../source/windows_deps/xerces-c-3.1.1/src;..\..\source\glest_game\global;..\..\source\glest_game\sound;..\..\source\shared_lib\include\sound;..\..\source\glest_game\game;../../source/shared_lib/include/map;../../source/windows_deps/lpng1510;..\..\source\glest_game\facilities;../../source/windows_deps/glew-1.7.0/include;..\..\source\shared_lib\include\xml\rapidxml;../../source/shared_lib/include/platform/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;NDEBUG;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -97,13 +97,15 @@
       <PrecompiledHeaderOutputFile>c:\temp\release\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>wxbase28.lib;wxbase28_net.lib;wxbase28_xml.lib;wxexpat.lib;wxjpeg.lib;wxmsw28_adv.lib;wxmsw28_aui.lib;wxmsw28_core.lib;wxmsw28_gl.lib;wxmsw28_html.lib;wxmsw28_media.lib;wxmsw28_qa.lib;wxmsw28_richtext.lib;wxmsw28_xrc.lib;wxregex.lib;wxtiff.lib;wxzlib.lib;winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;Dbghelp.lib;sdl.lib;sdlmain.lib;dxguid.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;xerces-c_3.lib;libpng.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>../../source/win32_deps/lib;../../build/$(Configuration)/libglest;../../source/shared_lib/sources/streflop/libstreflop;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>wxbase29u.lib;wxbase29u_net.lib;wxbase29u_xml.lib;wxexpat.lib;wxjpeg.lib;wxtiff.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_core.lib;wxmsw29u_gl.lib;wxmsw29u_html.lib;wxmsw29u_media.lib;wxmsw29u_qa.lib;wxmsw29u_richtext.lib;wxmsw29u_xrc.lib;wxregexu.lib;winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;Dbghelp.lib;sdl.lib;sdlmain.lib;dxguid.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;xerces-c_static_3.lib;libpng15.lib;jpeg.lib;ftgl_static.lib;freetype244MT.lib;glew32s.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)\megaglest_g3dviewer.exe</OutputFile>
+      <AdditionalLibraryDirectories>../../source/windows_deps/lib;../../build/$(Configuration)/libglest;../../source/shared_lib/sources/streflop/libstreflop;$(DXSDK_DIR)/lib/x86;../../source/windows_deps/Microsoft DirectX SDK %28November 2007%29/Lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <OptimizeReferences>
       </OptimizeReferences>
       <EnableCOMDATFolding>

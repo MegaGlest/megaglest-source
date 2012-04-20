@@ -13,6 +13,11 @@
 #ifndef _GLEST_GAME_ROUTEPLANNER_H_
 #define _GLEST_GAME_ROUTEPLANNER_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "game_constants.h"
 #include "influence_map.h"
 #include "annotated_map.h"
@@ -25,7 +30,7 @@
 #include "node_pool.h"
 
 #include "world.h"
-#include "types.h"
+#include "data_types.h"
 
 #define PF_TRACE() SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__)
 

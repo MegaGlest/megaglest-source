@@ -13,7 +13,7 @@
 #define _SHARED_UTIL_CONVERSION_H_
 
 #include <string>
-#include "types.h"
+#include "data_types.h"
 #include "leak_dumper.h"
 
 using std::string;

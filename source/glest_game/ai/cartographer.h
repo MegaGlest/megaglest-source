@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_CARTOGRAPHER_H_
 #define _GLEST_GAME_CARTOGRAPHER_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "game_constants.h"
 #include "influence_map.h"
 #include "annotated_map.h"

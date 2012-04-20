@@ -12,6 +12,11 @@
 #ifndef _MAPEDITOR_MAIN_H_
 #define _MAPEDITOR_MAIN_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <string>
 #include <vector>
 

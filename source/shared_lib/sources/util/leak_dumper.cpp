@@ -11,6 +11,8 @@
 #include "leak_dumper.h"
 
 #ifdef SL_LEAK_DUMP
+#include "platform_util.h"
+#include <time.h>
 
 bool AllocInfo::application_binary_initialized = false;
 //static AllocRegistry memoryLeaks = AllocRegistry::getInstance();
@@ -30,14 +32,19 @@ AllocRegistry::~AllocRegistry() {
 
 void AllocRegistry::dump(const char *path) {
 #ifdef WIN32
-	FILE* f= = _wfopen(utf8_decode(path).c_str(), L"wt");
+	FILE* f= _wfopen(utf8_decode(path).c_str(), L"wt");
 #else
 	FILE *f= fopen(path, "wt");
 #endif
 	int leakCount=0;
 	size_t leakBytes=0;
 
-	fprintf(f, "Memory leak dump\n\n");
+	time_t debugTime = time(NULL);
+    struct tm *loctime = localtime (&debugTime);
+    char szBuf2[100]="";
+    strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+
+	fprintf(f, "Memory leak dump at: %s\n\n",szBuf2);
 
 	for(int i=0; i<maxAllocs; ++i){
 		AllocInfo &info = allocs[i];
@@ -58,7 +65,7 @@ void AllocRegistry::dump(const char *path) {
 
 	fclose(f);
 
-	printf("Memory leak dump summary:\n");
+	printf("Memory leak dump summary at: %s\n",szBuf2);
 	printf("Total leaks: %d, %lu bytes\n", leakCount, leakBytes);
 	printf("Total allocations: %d, %lu bytes\n", allocCount, allocBytes);
 	printf("Not monitored allocations: %d, %lu bytes\n", nonMonitoredCount, nonMonitoredBytes);

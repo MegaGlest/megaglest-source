@@ -15,12 +15,15 @@
 #ifndef _GLEST_GAME_PATHFINDER_NODE_POOL_H_
 #define _GLEST_GAME_PATHFINDER_NODE_POOL_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "vec.h"
 #include "game_constants.h"
-
 #include "heap.h"
-#include "types.h"
-
+#include "data_types.h"
 #include <algorithm>
 #include <set>
 #include <list>

@@ -18,13 +18,13 @@
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
 #include <string>
+
+#include "data_types.h"
 #ifdef DEBUG_PERFORMANCE_MUTEXES
 #include "platform_common.h"
 #endif
 
-//#include "util.h"
 #include <vector>
-#include "types.h"
 //#include "leak_dumper.h"
 
 // =====================================================
@@ -39,6 +39,7 @@ using namespace Shared::PlatformCommon;
 namespace Shared { namespace Platform {
 
 class Mutex;
+//class uint32;
 
 class Thread {
 public:

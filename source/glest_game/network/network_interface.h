@@ -12,17 +12,19 @@
 #ifndef _GLEST_GAME_NETWORKINTERFACE_H_
 #define _GLEST_GAME_NETWORKINTERFACE_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include <string>
 #include <vector>
-
 #include "checksum.h"
 #include "network_message.h"
 #include "network_types.h"
-
 #include "game_settings.h"
-
 #include "thread.h"
-#include "types.h"
+#include "data_types.h"
 #include <time.h>
 #include "leak_dumper.h"
 

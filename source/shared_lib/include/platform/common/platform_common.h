@@ -20,7 +20,7 @@
 #include <stdexcept>
 #include <list>
 
-#include "types.h"
+#include "data_types.h"
 #include "checksum.h"
 #include <utility>
 #include <SDL.h>

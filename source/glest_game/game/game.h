@@ -12,8 +12,12 @@
 #ifndef _GLEST_GAME_GAME_H_
 #define _GLEST_GAME_GAME_H_
 
-#include <vector>
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
 
+#include <vector>
 #include "gui.h"
 #include "game_camera.h"
 #include "world.h"
@@ -23,7 +27,7 @@
 #include "script_manager.h"
 #include "game_settings.h"
 #include "network_interface.h"
-#include "types.h"
+#include "data_types.h"
 #include "leak_dumper.h"
 
 using std::vector;

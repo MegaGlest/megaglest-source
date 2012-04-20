@@ -21,7 +21,7 @@
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include "util.h"
-#include "types.h"
+#include "data_types.h"
 #include "properties.h"
 #include "platform_common.h"
 #include "platform_util.h"

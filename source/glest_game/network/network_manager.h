@@ -13,7 +13,6 @@
 #define _GLEST_GAME_NETWORKMANAGER_H_
 
 #include <cassert>
-
 #include "socket.h"
 #include "checksum.h"
 #include "server_interface.h"

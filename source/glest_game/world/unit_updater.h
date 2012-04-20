@@ -12,6 +12,11 @@
 #ifndef _GLEST_GAME_UNITUPDATER_H_
 #define _GLEST_GAME_UNITUPDATER_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "gui.h"
 #include "particle.h"
 #include "randomgen.h"

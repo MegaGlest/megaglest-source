@@ -8,6 +8,11 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
 #include "math_wrapper.h"
 #include "main.h"
 
@@ -3357,6 +3362,8 @@ int glestMain(int argc, char** argv) {
 		    char langValue[1024]="";
 		    wcstombs(langValue,sysLocale, 1023);
 			const char *lang_locale = &langValue[0];
+
+			delete [] sysLocale;
 #else
 			const char *lang_locale = setlocale(LC_ALL,"");
 #endif
