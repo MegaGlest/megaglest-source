@@ -8,8 +8,8 @@ cd /d "%~dp0"
 ECHO Checking for windows binary runtime tools...
 if NOT EXIST "..\..\data\glest_game\7z.exe" cscript getTools.vbs
 if NOT EXIST "..\..\data\glest_game\7z.dll" cscript getTools.vbs
-if NOT EXIST "..\..\source\windows_deps\nul" cscript getVC2010Deps.vbs
-if NOT EXIST "..\..\source\windows_deps\nul" call "..\..\data\glest_game\7z.exe" x ..\..\source\windows_deps.7z
+if NOT EXIST ..\..\source\windows_deps\NUL cscript getVC2010Deps.vbs
+if NOT EXIST ..\..\source\windows_deps\NUL call "..\..\data\glest_game\7z.exe" x ..\..\source\windows_deps.7z
 
 call CopyWindowsRuntimeDlls.bat nopause
 
