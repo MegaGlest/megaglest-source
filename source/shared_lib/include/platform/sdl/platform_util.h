@@ -127,9 +127,9 @@ struct stringformatter {
 
 #endif
 
-}}//end namespace
 
 #endif
 
+}}//end namespace
 
 #endif
