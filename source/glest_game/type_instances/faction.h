@@ -210,9 +210,15 @@ public:
 	void setPersonalityType(FactionPersonalityType pType) { overridePersonalityType=pType; }
 	int getAIBehaviorStaticOverideValue(AIBehaviorStaticValueCategory type) const;
 
-	Unit *getUnit(int i) const;
-	int getUnitCount() const;
-	Mutex * getUnitMutex() {return unitsMutex;}
+	inline Unit *getUnit(int i) const {
+		Unit *result = units[i];
+		return result;
+	}
+	inline int getUnitCount() const {
+		int result = units.size();
+		return result;
+	}
+	inline Mutex * getUnitMutex() {return unitsMutex;}
 
 	inline const UpgradeManager *getUpgradeManager() const		{return &upgradeManager;}
 	inline const Texture2D *getTexture() const					{return texture;}

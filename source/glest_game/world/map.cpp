@@ -690,15 +690,6 @@ bool Map::isFreeCell(const Vec2i &pos, Field field) const {
 		(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
 }
 
-bool Map::isFreeCellOrMightBeFreeSoon(Vec2i originPos, const Vec2i &pos, Field field) const {
-	return
-		isInside(pos) &&
-		isInsideSurface(toSurfCoords(pos)) &&
-		getCell(pos)->isFreeOrMightBeFreeSoon(originPos,pos,field) &&
-		(field==fAir || getSurfaceCell(toSurfCoords(pos))->isFree()) &&
-		(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
-}
-
 bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const {
 	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
 		if(unit->getCurrField() != field) {
@@ -740,25 +731,6 @@ bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const {
 
 		if(sc->isVisible(teamIndex)) {
 			return isFreeCell(pos, field);
-		}
-		else if(sc->isExplored(teamIndex)) {
-			return field==fLand? sc->isFree() && !getDeepSubmerged(getCell(pos)): true;
-		}
-		else {
-			return true;
-		}
-	}
-
-	//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-	return false;
-}
-
-bool Map::isAproxFreeCellOrMightBeFreeSoon(Vec2i originPos,const Vec2i &pos, Field field, int teamIndex) const {
-	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
-		const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
-
-		if(sc->isVisible(teamIndex)) {
-			return isFreeCellOrMightBeFreeSoon(originPos, pos, field);
 		}
 		else if(sc->isExplored(teamIndex)) {
 			return field==fLand? sc->isFree() && !getDeepSubmerged(getCell(pos)): true;

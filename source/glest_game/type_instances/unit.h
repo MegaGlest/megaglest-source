@@ -23,6 +23,7 @@
 #include "game_constants.h"
 #include "platform_common.h"
 #include <vector>
+#include "faction.h"
 #include "leak_dumper.h"
 
 //#define LEAK_CHECK_UNITS
@@ -40,7 +41,7 @@ using Shared::PlatformCommon::Chrono;
 using Shared::PlatformCommon::ValueCheckerVault;
 
 class Map;
-class Faction;
+//class Faction;
 class Unit;
 class Command;
 class SkillType;
@@ -459,8 +460,12 @@ public:
     inline float getAnimProgress() const				{return animProgress;}
     inline float getHightlight() const					{return highlight;}
     inline int getProgress2() const					{return progress2;}
-	int getFactionIndex() const;
-	int getTeam() const;
+	inline int getFactionIndex() const {
+		return faction->getIndex();
+	}
+	inline int getTeam() const {
+		return faction->getTeam();
+	}
 	inline int getHp() const							{return hp;}
 	inline int getEp() const							{return ep;}
 	int getProductionPercent() const;
@@ -544,7 +549,12 @@ public:
 
     //command related
 	bool anyCommand(bool validateCommandtype=false) const;
-	Command *getCurrCommand() const;
+	inline Command *getCurrCommand() const {
+		if(commands.empty() == false) {
+			return commands.front();
+		}
+		return NULL;
+	}
 	void replaceCurrCommand(Command *cmd);
 	int getCountOfProducedUnits(const UnitType *ut) const;
 	unsigned int getCommandSize() const;
@@ -612,7 +622,34 @@ public:
 	//void setBadHarvestPosList(std::vector<std::pair<Vec2i,Chrono> > value) { badHarvestPosList = value; }
 	void addBadHarvestPos(const Vec2i &value);
 	void removeBadHarvestPos(const Vec2i &value);
-	bool isBadHarvestPos(const Vec2i &value,bool checkPeerUnits=true) const;
+	inline bool isBadHarvestPos(const Vec2i &value,bool checkPeerUnits=true) const {
+		bool result = false;
+		if(badHarvestPosList.empty() == true) {
+			return result;
+		}
+
+		std::map<Vec2i,int>::const_iterator iter = badHarvestPosList.find(value);
+		if(iter != badHarvestPosList.end()) {
+			result = true;
+		}
+		else if(checkPeerUnits == true) {
+			// Check if any other units of similar type have this position tagged
+			// as bad?
+			for(int i = 0; i < this->getFaction()->getUnitCount(); ++i) {
+				Unit *peerUnit = this->getFaction()->getUnit(i);
+				if( peerUnit != NULL && peerUnit->getId() != this->getId() &&
+					peerUnit->getType()->hasCommandClass(ccHarvest) == true &&
+					peerUnit->getType()->getSize() <= this->getType()->getSize()) {
+					if(peerUnit->isBadHarvestPos(value,false) == true) {
+						result = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return result;
+	}
 	void cleanupOldBadHarvestPos();
 
 	void setLastHarvestResourceTarget(const Vec2i *pos);

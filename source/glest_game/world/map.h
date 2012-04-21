@@ -342,8 +342,34 @@ public:
 	inline static Vec2i toUnitCoords(const Vec2i &surfPos)		{return surfPos * cellScale;}
 	static string getMapPath(const string &mapName, string scenarioDir="", bool errorOnNotFound=true);
 
-	bool isFreeCellOrMightBeFreeSoon(Vec2i originPos, const Vec2i &pos, Field field) const;
-	bool isAproxFreeCellOrMightBeFreeSoon(Vec2i originPos,const Vec2i &pos, Field field, int teamIndex) const;
+	inline bool isFreeCellOrMightBeFreeSoon(Vec2i originPos, const Vec2i &pos, Field field) const {
+		return
+			isInside(pos) &&
+			isInsideSurface(toSurfCoords(pos)) &&
+			getCell(pos)->isFreeOrMightBeFreeSoon(originPos,pos,field) &&
+			(field==fAir || getSurfaceCell(toSurfCoords(pos))->isFree()) &&
+			(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
+	}
+
+	inline bool isAproxFreeCellOrMightBeFreeSoon(Vec2i originPos,const Vec2i &pos, Field field, int teamIndex) const {
+		if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
+			const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
+
+			if(sc->isVisible(teamIndex)) {
+				return isFreeCellOrMightBeFreeSoon(originPos, pos, field);
+			}
+			else if(sc->isExplored(teamIndex)) {
+				return field==fLand? sc->isFree() && !getDeepSubmerged(getCell(pos)): true;
+			}
+			else {
+				return true;
+			}
+		}
+
+		//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+		return false;
+	}
+
 	bool aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
 
 	string getMapFile() const { return mapFile; }

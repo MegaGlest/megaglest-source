@@ -10,7 +10,7 @@
 // ==============================================================
 
 #define NOMINMAX
-#include "faction.h"
+
 #include <cassert>
 #include "unit.h"
 #include "unit_particle_type.h"
@@ -592,14 +592,6 @@ void Unit::setModelFacing(CardinalDir value) {
 }
 
 // ====================================== get ======================================
-
-int Unit::getFactionIndex() const{
-	return faction->getIndex();
-}
-
-int Unit::getTeam() const{
-	return faction->getTeam();
-}
 
 Vec2i Unit::getCenteredPos() const {
 	if(type == NULL) {
@@ -1263,14 +1255,6 @@ Command *Unit::getCurrrentCommandThreadSafe() {
 		return commands.front();
 	}
 
-	return NULL;
-}
-
-//return current command, assert that there is always one command
-Command *Unit::getCurrCommand() const {
-	if(commands.empty() == false) {
-		return commands.front();
-	}
 	return NULL;
 }
 
@@ -3307,35 +3291,6 @@ void Unit::removeBadHarvestPos(const Vec2i &value) {
 		badHarvestPosList.erase(value);
 	}
 	cleanupOldBadHarvestPos();
-}
-
-bool Unit::isBadHarvestPos(const Vec2i &value, bool checkPeerUnits) const {
-	bool result = false;
-	if(badHarvestPosList.empty() == true) {
-		return result;
-	}
-
-	std::map<Vec2i,int>::const_iterator iter = badHarvestPosList.find(value);
-	if(iter != badHarvestPosList.end()) {
-		result = true;
-	}
-	else if(checkPeerUnits == true) {
-		// Check if any other units of similar type have this position tagged
-		// as bad?
-		for(int i = 0; i < this->getFaction()->getUnitCount(); ++i) {
-			Unit *peerUnit = this->getFaction()->getUnit(i);
-			if( peerUnit != NULL && peerUnit->getId() != this->getId() &&
-				peerUnit->getType()->hasCommandClass(ccHarvest) == true &&
-				peerUnit->getType()->getSize() <= this->getType()->getSize()) {
-				if(peerUnit->isBadHarvestPos(value,false) == true) {
-					result = true;
-					break;
-				}
-			}
-		}
-	}
-
-	return result;
 }
 
 void Unit::cleanupOldBadHarvestPos() {
