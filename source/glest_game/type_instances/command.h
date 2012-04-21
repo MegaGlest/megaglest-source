@@ -62,12 +62,12 @@ public:
     Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing); 
 
     //get
-	const CommandType *getCommandType() const	{return commandType;}
-	Vec2i getPos() const						{return pos;}
-	Vec2i getOriginalPos() const				{return originalPos;}
-	Unit* getUnit() const						{return unitRef.getUnit();}
-	const UnitType* getUnitType() const			{return unitType;}
-	CardinalDir getFacing() const				{return facing;}
+	inline const CommandType *getCommandType() const	{return commandType;}
+	inline Vec2i getPos() const						{return pos;}
+	inline Vec2i getOriginalPos() const				{return originalPos;}
+	inline Unit* getUnit() const						{return unitRef.getUnit();}
+	inline const UnitType* getUnitType() const			{return unitType;}
+	inline CardinalDir getFacing() const				{return facing;}
 	
 	//Priority: commands of higher priority will cancel commands of lower priority
 	virtual int getPriority();
@@ -80,15 +80,14 @@ public:
 
     void setUnit(Unit *unit);
 
-	void setStateType(CommandStateType value) 	{ stateType = value; }
-	CommandStateType getStateType() const		{ return stateType; }
+    inline void setStateType(CommandStateType value) 	{ stateType = value; }
+    inline CommandStateType getStateType() const		{ return stateType; }
 
-	void setStateValue(int value) 	{ stateValue = value; }
-	int getStateValue() const		{ return stateValue; }
+    inline void setStateValue(int value) 	{ stateValue = value; }
+    inline int getStateValue() const		{ return stateValue; }
 
-
-	void setUnitCommandGroupId(int value) 	{ unitCommandGroupId = value; }
-	int getUnitCommandGroupId() const		{ return unitCommandGroupId; }
+    inline void setUnitCommandGroupId(int value) 	{ unitCommandGroupId = value; }
+    inline int getUnitCommandGroupId() const		{ return unitCommandGroupId; }
 
     std::string toString() const;
 

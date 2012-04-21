@@ -303,6 +303,87 @@ private:
 		return result;
 	}
 
+	inline void doAStarPathSearch(bool & nodeLimitReached, int & whileLoopCount,
+			int & unitFactionIndex, bool & pathFound, Node *& node, const Vec2i & finalPos,
+			const bool tryJPSPathfinder, std::map<Vec2i,bool> closedNodes,
+			std::map<Vec2i,Vec2i> cameFrom, std::map<std::pair<Vec2i,Vec2i> ,
+			bool> canAddNode, Unit *& unit, int & maxNodeCount)  {
+		while(nodeLimitReached == false) {
+			whileLoopCount++;
+			if(factions[unitFactionIndex].openNodesList.empty() == true) {
+				pathFound = false;
+				break;
+			}
+			node = minHeuristicFastLookup(factions[unitFactionIndex]);
+			if(node->pos == finalPos || node->exploredCell == false) {
+				pathFound = true;
+				break;
+			}
+			if(tryJPSPathfinder == true) {
+				closedNodes[node->pos] = true;
+			}
+			if(factions[unitFactionIndex].closedNodesList.find(node->heuristic) == factions[unitFactionIndex].closedNodesList.end()) {
+				factions[unitFactionIndex].closedNodesList[node->heuristic].clear();
+			}
+			factions[unitFactionIndex].closedNodesList[node->heuristic].push_back(node);
+			factions[unitFactionIndex].openPosList[node->pos] = true;
+			if(tryJPSPathfinder == true) {
+				astarJPS(cameFrom, node, finalPos, closedNodes, canAddNode, unit, nodeLimitReached, maxNodeCount);
+			}
+			else {
+				int failureCount = 0;
+				int cellCount = 0;
+				int tryDirection = factions[unitFactionIndex].random.randRange(0, 3);
+				if(tryDirection == 3){
+					for(int i = 1;i >= -1 && nodeLimitReached == false;--i){
+						for(int j = -1;j <= 1 && nodeLimitReached == false;++j){
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false){
+								failureCount++;
+							}
+							cellCount++;
+						}
+
+					}
+
+				}
+				else if(tryDirection == 2) {
+					for(int i = -1;i <= 1 && nodeLimitReached == false;++i){
+						for(int j = 1;j >= -1 && nodeLimitReached == false;--j){
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false){
+								failureCount++;
+							}
+							cellCount++;
+						}
+
+					}
+
+				}
+				else if(tryDirection == 1) {
+						for(int i = -1;i <= 1 && nodeLimitReached == false;++i){
+							for(int j = -1;j <= 1 && nodeLimitReached == false;++j){
+								if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false){
+									failureCount++;
+								}
+								cellCount++;
+							}
+
+						}
+
+					}
+				else{
+					for(int i = 1;i >= -1 && nodeLimitReached == false;--i){
+						for(int j = 1;j >= -1 && nodeLimitReached == false;--j){
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false){
+								failureCount++;
+							}
+							cellCount++;
+						}
+					}
+				}
+			}
+		}
+	}
+
 };
 
 }}//end namespace

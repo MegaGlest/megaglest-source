@@ -218,7 +218,9 @@ public:
 
 	//has
     bool hasCommandType(const CommandType *commandType) const;
-	bool hasCommandClass(CommandClass commandClass) const;
+	inline bool hasCommandClass(CommandClass commandClass) const {
+		return firstCommandTypeOfClass[commandClass]!=NULL;
+	}
     bool hasSkillType(const SkillType *skillType) const;
     bool hasSkillClass(SkillClass skillClass) const;
     inline bool hasCellMap() const										{return cellMap!=NULL;}

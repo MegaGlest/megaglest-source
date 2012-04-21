@@ -888,10 +888,6 @@ bool UnitType::hasCommandType(const CommandType *commandType) const {
     return false;
 }
 
-bool UnitType::hasCommandClass(CommandClass commandClass) const {
-	return firstCommandTypeOfClass[commandClass]!=NULL;
-}
-
 bool UnitType::hasSkillType(const SkillType *skillType) const {
     assert(skillType!=NULL);
     for(int i=0; i<skillTypes.size(); ++i) {

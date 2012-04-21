@@ -497,16 +497,6 @@ bool Faction::canUnitsPathfind() {
 	return result;
 }
 
-Unit * Faction::getUnit(int i) const {
-	Unit *result = units[i];
-	return result;
-}
-
-int Faction::getUnitCount() const {
-	int result = units.size();
-	return result;
-}
-
 void Faction::signalWorkerThread(int frameIndex) {
 	if(workerThread != NULL) {
 		workerThread->signalPathfinder(frameIndex);
