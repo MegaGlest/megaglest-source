@@ -90,7 +90,7 @@ SET BuildInParallel=false
 if %NUMBER_OF_PROCESSORS% GTR 2 (
                 SET NumberOfProcessesToUseForBuild=2
                 SET BuildInParallel=true
-				SET msBuildMaxCPU=/maxcpucount:%NumberOfProcessesToUseForBuild%)
+				SET msBuildMaxCPU=/maxcpucount)
 
 ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%]
 if "%2" == "rebuild" echo Doing a FULL REBUILD...
