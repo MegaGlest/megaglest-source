@@ -20,53 +20,57 @@ macro(special_check_for_sse _max_sse_level_desired)
   include(CheckCXXSourceRuns)
   include(CheckCSourceRuns)
 
-  if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
-   set(SSE_FLAGS)
-  
-   set(CMAKE_REQUIRED_FLAGS "-msse3")
-   check_cxx_source_runs("
-    #include <pmmintrin.h>
-  
-    int main()
-    {
-       __m128d a, b;
-       double vals[2] = {0};
-       a = _mm_loadu_pd(vals);
-       b = _mm_hadd_pd(a,a);
-       _mm_storeu_pd(vals, b);
-       return 0;
-    }"
-    HAS_SSE3_EXTENSIONS)
-  
-   set(CMAKE_REQUIRED_FLAGS "-msse2")
-   check_cxx_source_runs("
-    #include <emmintrin.h>
-  
-    int main()
-    {
-        __m128d a, b;
-        double vals[2] = {0};
-        a = _mm_loadu_pd(vals);
-        b = _mm_add_pd(a,a);
-        _mm_storeu_pd(vals,b);
-        return 0;
-     }"
-     HAS_SSE2_EXTENSIONS)
-  
-   set(CMAKE_REQUIRED_FLAGS "-msse")
-   check_cxx_source_runs("
-    #include <xmmintrin.h>
-    int main()
-    {
-        __m128 a, b;
-        float vals[4] = {0};
-        a = _mm_loadu_ps(vals);
-        b = a;
-        b = _mm_add_ps(a,b);
-        _mm_storeu_ps(vals,b);
-        return 0;
-    }"
-    HAS_SSE_EXTENSIONS)
+  IF(NOT MINGW)
+          if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
+           set(SSE_FLAGS)
+          
+           set(CMAKE_REQUIRED_FLAGS "-msse3")
+           check_cxx_source_runs("
+            #include <pmmintrin.h>
+          
+            int main()
+            {
+               __m128d a, b;
+               double vals[2] = {0};
+               a = _mm_loadu_pd(vals);
+               b = _mm_hadd_pd(a,a);
+               _mm_storeu_pd(vals, b);
+               return 0;
+            }"
+            HAS_SSE3_EXTENSIONS)
+          
+           set(CMAKE_REQUIRED_FLAGS "-msse2")
+           check_cxx_source_runs("
+            #include <emmintrin.h>
+          
+            int main()
+            {
+                __m128d a, b;
+                double vals[2] = {0};
+                a = _mm_loadu_pd(vals);
+                b = _mm_add_pd(a,a);
+                _mm_storeu_pd(vals,b);
+                return 0;
+             }"
+             HAS_SSE2_EXTENSIONS)
+          
+           set(CMAKE_REQUIRED_FLAGS "-msse")
+           check_cxx_source_runs("
+            #include <xmmintrin.h>
+            int main()
+            {
+                __m128 a, b;
+                float vals[4] = {0};
+                a = _mm_loadu_ps(vals);
+                b = a;
+                b = _mm_add_ps(a,b);
+                _mm_storeu_ps(vals,b);
+                return 0;
+            }"
+            HAS_SSE_EXTENSIONS)
+   ELSE()
+        set(HAS_SSE_EXTENSIONS ON)
+   ENDIF()
   
    set(CMAKE_REQUIRED_FLAGS)
   
@@ -113,17 +117,21 @@ macro(special_check_for_x87)
 
   if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
   
-   check_cxx_source_runs("
-    int main()
-    {
-       unsigned short fpu_mode;
-       do { asm volatile (\"fstcw %0\" : \"=m\" (fpu_mode) : ); } while (0);
-       fpu_mode &= 0xFCFF; 
-       do { asm volatile (\"fclex \\\\n fldcw %0\" : : \"m\" (fpu_mode)); } while (0);
+   IF(NOT MINGW)
+           check_cxx_source_runs("
+            int main()
+            {
+               unsigned short fpu_mode;
+               do { asm volatile (\"fstcw %0\" : \"=m\" (fpu_mode) : ); } while (0);
+               fpu_mode &= 0xFCFF; 
+               do { asm volatile (\"fclex \\\\n fldcw %0\" : : \"m\" (fpu_mode)); } while (0);
 
-       return 0;
-    }"
-    HAS_X87_SUPPORT)
+               return 0;
+            }"
+            HAS_X87_SUPPORT)
+   ELSE()
+        set(HAS_X87_SUPPORT On)
+   ENDIF()
   
    if(HAS_X87_SUPPORT)
     message(STATUS "Found X87 support.")
