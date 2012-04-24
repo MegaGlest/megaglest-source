@@ -127,7 +127,7 @@ void PlatformExceptionHandler::install(string dumpFileName){
 string PlatformExceptionHandler::getStackTrace() {
 	 string result = "\nStack Trace:\n";
 
-
+#ifndef __MINGW32__
 /*
 	 unsigned int   i;
 	 const int max_stack_count = 25;
@@ -231,6 +231,7 @@ string PlatformExceptionHandler::getStackTrace() {
 
         SymCleanup(hProcess);
 	}
+#endif
 	return result;
 }
 
