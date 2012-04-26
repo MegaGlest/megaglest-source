@@ -13,16 +13,23 @@ if NOT EXIST ..\..\data\glest_game\wget.exe call cscript getTools.vbs
 set depfolder=win32_deps
 set depfile=%depfolder%.7z 
 
+dir ..\..\source\
+if NOT EXIST ..\..\source\%depfolder%\NUL echo folder not found [%depfolder%]
 if NOT EXIST ..\..\source\%depfolder%\NUL goto checkDepIntegrity
+goto processBuildStageA
 
 :getDepFile
-if NOT EXIST ..\..\source\%depfolder%\NUL call ..\..\data\glest_game\wget.exe -c -O ..\..\source\%depfile%  http://master.dl.sourceforge.net/project/megaglest/%depfile%
-if NOT EXIST ..\..\source\%depfolder%\NUL call ..\..\data\glest_game\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
+ECHO Retrieving windows dependency archive...
+call ..\..\data\glest_game\wget.exe -c -O ..\..\source\%depfile%  http://master.dl.sourceforge.net/project/megaglest/%depfile%
+call ..\..\data\glest_game\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 
 :checkDepIntegrity
+ECHO Looking for windows dependency archive...
 call ..\..\data\glest_game\7z.exe t ..\..\source\%depfile% >nul
-if NOT ERRORLEVEL 0 goto getDepFile
+set 7ztestdep=%ERRORLEVEL%
+ECHO Result of windows dependency archive [%7ztestdep%]
+if NOT "%7ztestdep%" == "0" goto getDepFile
 goto processBuildStageA
 
 :processBuildStageA
