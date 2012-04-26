@@ -571,7 +571,11 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 		throwLuaError("Can not get vec2i from Lua state, value on the stack is not a table");
 	}
 
+#if LUA_VERSION_NUM > 501
+	if(lua_rawlen(luaState, argumentIndex)!=2){
+#else
 	if(luaL_getn(luaState, argumentIndex)!=2){
+#endif
 		throwLuaError("Can not get vec2i from Lua state, array size not 2");
 	}
 
@@ -643,7 +647,11 @@ void LuaArguments::throwLuaError(const string &message) const{
 			stackString+= "String: " + string(luaL_checkstring(luaState, -i));
 		}
 		else if(lua_istable(luaState, -i)){
+#if LUA_VERSION_NUM > 501
+			stackString+= "Table (" + intToStr(lua_rawlen(luaState, -i)) + ")";
+#else
 			stackString+= "Table (" + intToStr(luaL_getn(luaState, -i)) + ")";
+#endif
 		}
 		else
 		{
