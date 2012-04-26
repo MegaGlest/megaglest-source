@@ -16,12 +16,15 @@ set depfile=%depfolder%.7z
 if NOT EXIST ..\..\source\%depfolder%\NUL goto checkDepIntegrity
 
 :getDepFile
+ECHO Retrieving windows dependency archive...
 if NOT EXIST ..\..\source\%depfolder%\NUL call ..\..\data\glest_game\wget.exe -c -O ..\..\source\%depfile%  http://master.dl.sourceforge.net/project/megaglest/%depfile%
 if NOT EXIST ..\..\source\%depfolder%\NUL call ..\..\data\glest_game\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 
 :checkDepIntegrity
+ECHO Looking for windows dependency archive...
 call ..\..\data\glest_game\7z.exe t ..\..\source\%depfile% >nul
+ECHO Result of windows dependency archive [%ERRORLEVEL%]
 if NOT ERRORLEVEL 0 goto getDepFile
 goto processBuildStageA
 
