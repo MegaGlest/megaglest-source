@@ -13,7 +13,10 @@ if NOT EXIST ..\..\data\glest_game\wget.exe call cscript getTools.vbs
 set depfolder=windows_deps
 set depfile=%depfolder%.7z 
 
+dir ..\..\source\
+if NOT EXIST ..\..\source\%depfolder%\NUL echo folder not found [%depfolder%]
 if NOT EXIST ..\..\source\%depfolder%\NUL goto checkDepIntegrity
+goto processBuildStageA
 
 :getDepFile
 ECHO Retrieving windows dependency archive...
