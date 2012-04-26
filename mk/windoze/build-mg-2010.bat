@@ -24,8 +24,9 @@ goto processBuildStageA
 :checkDepIntegrity
 ECHO Looking for windows dependency archive...
 call ..\..\data\glest_game\7z.exe t ..\..\source\%depfile% >nul
-ECHO Result of windows dependency archive [%ERRORLEVEL%]
-if NOT ERRORLEVEL 0 goto getDepFile
+set 7ztestdep=%ERRORLEVEL%
+ECHO Result of windows dependency archive [%7ztestdep%]
+if NOT "%7ztestdep%" == "0" goto getDepFile
 goto processBuildStageA
 
 :processBuildStageA
