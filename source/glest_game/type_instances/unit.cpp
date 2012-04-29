@@ -391,6 +391,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	lastAttackerUnitId = -1;
 	lastAttackedUnitId = -1;
 	causeOfDeath = ucodNone;
+	pathfindFailedConsecutiveFrameCount = 0;
 
 	targetRotationZ=.0f;
 	targetRotationX=.0f;
@@ -3772,6 +3773,9 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("lastAttackedUnitId",intToStr(lastAttackedUnitId), mapTagReplacements);
 //	CauseOfDeathType causeOfDeath;
 	unitNode->addAttribute("causeOfDeath",intToStr(causeOfDeath), mapTagReplacements);
+
+	//pathfindFailedConsecutiveFrameCount
+	unitNode->addAttribute("pathfindFailedConsecutiveFrameCount",intToStr(pathfindFailedConsecutiveFrameCount), mapTagReplacements);
 }
 
 Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *faction, World *world) {
@@ -4176,6 +4180,8 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	result->lastAttackedUnitId = unitNode->getAttribute("lastAttackedUnitId")->getIntValue();
 //	CauseOfDeathType causeOfDeath;
 	result->causeOfDeath = static_cast<CauseOfDeathType>(unitNode->getAttribute("causeOfDeath")->getIntValue());
+
+	result->pathfindFailedConsecutiveFrameCount = unitNode->getAttribute("pathfindFailedConsecutiveFrameCount")->getIntValue();
 
 	if(result->alive) {
 		world->getMapPtr()->putUnitCells(result, newUnitPos);

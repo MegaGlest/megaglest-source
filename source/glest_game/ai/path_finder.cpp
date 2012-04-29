@@ -763,7 +763,15 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	if(maxNodeCount < 0) {
 		maxNodeCount = factions[unit->getFactionIndex()].useMaxNodeCount;
+
+		//printf("AStar set maxNodeCount = %d\n",maxNodeCount);
 	}
+
+	if(maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 10) {
+		maxNodeCount = 200;
+		//printf("AStar maxpath cut for unit [%d - %s]  to %d\n",unit->getId(),unit->getFullName().c_str(), maxNodeCount);
+	}
+
 	UnitPathInterface *path= unit->getPath();
 	int unitFactionIndex = unit->getFactionIndex();
 
@@ -1095,9 +1103,16 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		doAStarPathSearch(nodeLimitReached, whileLoopCount, unitFactionIndex,
 							pathFound, node, finalPos, tryJPSPathfinder,
-							closedNodes, cameFrom, canAddNode, unit, maxNodeCount);
+							closedNodes, cameFrom, canAddNode, unit, maxNodeCount,frameIndex);
 
 		// Now see if the unit is eligble for pathfind max nodes boost?
+		if(nodeLimitReached == true) {
+			unit->incrementPathfindFailedConsecutiveFrameCount();
+		}
+		else {
+			unit->resetPathfindFailedConsecutiveFrameCount();
+		}
+
 		if(nodeLimitReached == true && maxNodeCount != pathFindNodesAbsoluteMax) {
 			if(unit->isLastPathfindFailedFrameWithinCurrentFrameTolerance() == true) {
 				if(frameIndex < 0) {
