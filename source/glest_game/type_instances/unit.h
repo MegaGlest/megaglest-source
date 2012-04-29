@@ -436,6 +436,8 @@ private:
 	int lastAttackedUnitId;
 	CauseOfDeathType causeOfDeath;
 
+	uint32 pathfindFailedConsecutiveFrameCount;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -447,6 +449,10 @@ public:
     //const std::pair<const SkillType *,std::vector<Unit *> > & getCurrentAttackBoostUnits() const { return currentAttackBoostUnits; }
     const UnitAttackBoostEffectOriginator & getAttackBoostOriginatorEffect() const { return currentAttackBoostOriginatorEffect; }
     bool unitHasAttackBoost(const AttackBoost *boost, const Unit *source) const;
+
+    inline uint32 getPathfindFailedConsecutiveFrameCount() const { return pathfindFailedConsecutiveFrameCount; }
+    inline void incrementPathfindFailedConsecutiveFrameCount() { pathfindFailedConsecutiveFrameCount++; }
+    inline void resetPathfindFailedConsecutiveFrameCount() { pathfindFailedConsecutiveFrameCount=0; }
 
     //queries
     Command *getCurrrentCommandThreadSafe();

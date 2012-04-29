@@ -212,8 +212,9 @@ private:
 		bool result = false;
 		Vec2i sucPos= node->pos + Vec2i(i, j);
 
-	//	std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > >::iterator iterFind1 = factions[unit->getFactionIndex()].mapFromToNodeList.find(unit->getType()->getId());
-	//	if(iterFind1 != factions[unit->getFactionIndex()].mapFromToNodeList.end()) {
+		int unitFactionIndex = unit->getFactionIndex();
+	//	std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > >::iterator iterFind1 = factions[unitFactionIndex].mapFromToNodeList.find(unit->getType()->getId());
+	//	if(iterFind1 != factions[unitFactionIndex].mapFromToNodeList.end()) {
 	//		std::map<Vec2i,std::map<Vec2i, bool> >::iterator iterFind2 = iterFind1->second.find(node->pos);
 	//		if(iterFind2 != iterFind1->second.end()) {
 	//			std::map<Vec2i, bool>::iterator iterFind3 = iterFind2->second.find(sucPos);
@@ -226,21 +227,22 @@ private:
 
 		//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
 		//bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, node->pos, sucPos);
-		if(openPos(sucPos, factions[unit->getFactionIndex()]) == false &&
+		if(openPos(sucPos, factions[unitFactionIndex]) == false &&
 				canUnitMoveSoon(unit, node->pos, sucPos) == true) {
 			//if node is not open and canMove then generate another node
-			Node *sucNode= newNode(factions[unit->getFactionIndex()],maxNodeCount);
+			Node *sucNode= newNode(factions[unitFactionIndex],maxNodeCount);
 			if(sucNode != NULL) {
 				sucNode->pos= sucPos;
 				sucNode->heuristic= heuristic(sucNode->pos, finalPos);
 				sucNode->prev= node;
 				sucNode->next= NULL;
 				sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
-				if(factions[unit->getFactionIndex()].openNodesList.find(sucNode->heuristic) == factions[unit->getFactionIndex()].openNodesList.end()) {
-					factions[unit->getFactionIndex()].openNodesList[sucNode->heuristic].clear();
+				if(factions[unitFactionIndex].openNodesList.find(sucNode->heuristic) == factions[unitFactionIndex].openNodesList.end()) {
+					factions[unitFactionIndex].openNodesList[sucNode->heuristic].clear();
+					//factions[unitFactionIndex].openNodesList[sucNode->heuristic].reserve(PathFinder::pathFindNodesMax);
 				}
-				factions[unit->getFactionIndex()].openNodesList[sucNode->heuristic].push_back(sucNode);
-				factions[unit->getFactionIndex()].openPosList[sucNode->pos] = true;
+				factions[unitFactionIndex].openNodesList[sucNode->heuristic].push_back(sucNode);
+				factions[unitFactionIndex].openPosList[sucNode->pos] = true;
 
 				result = true;
 			}
@@ -249,7 +251,7 @@ private:
 			}
 		}
 
-	//	factions[unit->getFactionIndex()].mapFromToNodeList[unit->getType()->getId()][node->pos][sucPos] = result;
+	//	factions[unitFactionIndex].mapFromToNodeList[unit->getType()->getId()][node->pos][sucPos] = result;
 		return result;
 	}
 
@@ -307,14 +309,20 @@ private:
 			int & unitFactionIndex, bool & pathFound, Node *& node, const Vec2i & finalPos,
 			const bool tryJPSPathfinder, std::map<Vec2i,bool> closedNodes,
 			std::map<Vec2i,Vec2i> cameFrom, std::map<std::pair<Vec2i,Vec2i> ,
-			bool> canAddNode, Unit *& unit, int & maxNodeCount)  {
+			bool> canAddNode, Unit *& unit, int & maxNodeCount, int curFrameIndex)  {
+
+		Chrono chrono;
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+		chrono.start();
+
+		FactionState &factionState = factions[unitFactionIndex];
 		while(nodeLimitReached == false) {
 			whileLoopCount++;
-			if(factions[unitFactionIndex].openNodesList.empty() == true) {
+			if(factionState.openNodesList.empty() == true) {
 				pathFound = false;
 				break;
 			}
-			node = minHeuristicFastLookup(factions[unitFactionIndex]);
+			node = minHeuristicFastLookup(factionState);
 			if(node->pos == finalPos || node->exploredCell == false) {
 				pathFound = true;
 				break;
@@ -322,58 +330,54 @@ private:
 			if(tryJPSPathfinder == true) {
 				closedNodes[node->pos] = true;
 			}
-			if(factions[unitFactionIndex].closedNodesList.find(node->heuristic) == factions[unitFactionIndex].closedNodesList.end()) {
-				factions[unitFactionIndex].closedNodesList[node->heuristic].clear();
+			if(factionState.closedNodesList.find(node->heuristic) == factionState.closedNodesList.end()) {
+				factionState.closedNodesList[node->heuristic].clear();
+				//factionState.closedNodesList[node->heuristic].reserve(PathFinder::pathFindNodesMax);
 			}
-			factions[unitFactionIndex].closedNodesList[node->heuristic].push_back(node);
-			factions[unitFactionIndex].openPosList[node->pos] = true;
+			factionState.closedNodesList[node->heuristic].push_back(node);
+			factionState.openPosList[node->pos] = true;
 			if(tryJPSPathfinder == true) {
 				astarJPS(cameFrom, node, finalPos, closedNodes, canAddNode, unit, nodeLimitReached, maxNodeCount);
 			}
 			else {
-				int failureCount = 0;
-				int cellCount = 0;
-				int tryDirection = factions[unitFactionIndex].random.randRange(0, 3);
-				if(tryDirection == 3){
-					for(int i = 1;i >= -1 && nodeLimitReached == false;--i){
-						for(int j = -1;j <= 1 && nodeLimitReached == false;++j){
-							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false){
+				int failureCount 	= 0;
+				int cellCount 		= 0;
+				int tryDirection 	= factionState.random.randRange(0, 3);
+
+				if(tryDirection == 3) {
+					for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
+						for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
 								failureCount++;
 							}
 							cellCount++;
 						}
-
 					}
-
 				}
 				else if(tryDirection == 2) {
-					for(int i = -1;i <= 1 && nodeLimitReached == false;++i){
-						for(int j = 1;j >= -1 && nodeLimitReached == false;--j){
-							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false){
+					for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
+						for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
 								failureCount++;
 							}
 							cellCount++;
 						}
-
 					}
-
 				}
 				else if(tryDirection == 1) {
-						for(int i = -1;i <= 1 && nodeLimitReached == false;++i){
-							for(int j = -1;j <= 1 && nodeLimitReached == false;++j){
-								if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false){
-									failureCount++;
-								}
-								cellCount++;
+					for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
+						for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+								failureCount++;
 							}
-
+							cellCount++;
 						}
-
 					}
-				else{
-					for(int i = 1;i >= -1 && nodeLimitReached == false;--i){
-						for(int j = 1;j >= -1 && nodeLimitReached == false;--j){
-							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false){
+				}
+				else {
+					for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
+						for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
+							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
 								failureCount++;
 							}
 							cellCount++;
@@ -381,6 +385,12 @@ private:
 					}
 				}
 			}
+		}
+
+		//!!!
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount);
+		if(chrono.getMillis() > 1) {
+			printf("AStar for unit [%d - %s] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d curFrameIndex = %d travel distance = %f\n",unit->getId(),unit->getFullName().c_str(), (long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount,curFrameIndex,unit->getPos().dist(finalPos));
 		}
 	}
 
