@@ -102,6 +102,9 @@ namespace rapidxml
         ///////////////////////////////////////////////////////////////////////////
         // Internal printing operations
 
+        template<class OutIt, class Ch>
+        inline OutIt print_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
+
         // Print children of the node                               
         template<class OutIt, class Ch>
         inline OutIt print_children(OutIt out, const xml_node<Ch> *node, int flags, int indent)
