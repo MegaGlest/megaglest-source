@@ -390,7 +390,7 @@ private:
 		//!!!
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount);
 		if(chrono.getMillis() > 1) {
-			printf("AStar for unit [%d - %s] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d curFrameIndex = %d travel distance = %f\n",unit->getId(),unit->getFullName().c_str(), (long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount,curFrameIndex,unit->getPos().dist(finalPos));
+			//printf("AStar for unit [%d - %s] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d curFrameIndex = %d travel distance = %f\n",unit->getId(),unit->getFullName().c_str(), (long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount,curFrameIndex,unit->getPos().dist(finalPos));
 		}
 	}
 
