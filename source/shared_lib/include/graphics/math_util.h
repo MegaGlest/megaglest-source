@@ -184,10 +184,10 @@ public:
 
 	Rect2<T> computeBoundingRect() const{
 		return Rect2i(
-			min(p[0].x, p[1].x), 
-			min(p[0].y, p[2].y), 
-			max(p[2].x, p[3].x), 
-			max(p[1].y, p[3].y));
+			std::min(p[0].x, p[1].x),
+			std::min(p[0].y, p[2].y),
+			std::max(p[2].x, p[3].x),
+			std::max(p[1].y, p[3].y));
 	}
 
 	bool isInside(const Vec2<T> &pt) const{

@@ -22,6 +22,8 @@
 
 #ifdef WIN32
   #include <io.h> // for open()
+#else
+  #include <unistd.h>
 #endif
 
 #include <sys/stat.h> // for open()
