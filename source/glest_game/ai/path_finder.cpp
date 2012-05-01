@@ -767,9 +767,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		//printf("AStar set maxNodeCount = %d\n",maxNodeCount);
 	}
 
-	if(maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 10) {
+	if(maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 3) {
+		int orgmaxNodeCount = maxNodeCount;
 		maxNodeCount = 200;
-		//printf("AStar maxpath cut for unit [%d - %s]  to %d\n",unit->getId(),unit->getFullName().c_str(), maxNodeCount);
+		//printf("AStar maxpath cut for unit [%d - %s]  to %d [orig: %d] [unit->getPathfindFailedConsecutiveFrameCount(): %d]\n",unit->getId(),unit->getFullName().c_str(), maxNodeCount,orgmaxNodeCount,unit->getPathfindFailedConsecutiveFrameCount());
 	}
 
 	UnitPathInterface *path= unit->getPath();
