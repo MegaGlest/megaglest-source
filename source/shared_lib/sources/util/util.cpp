@@ -736,28 +736,6 @@ int round(float f){
 
 // ==================== misc ====================
 
-bool fileExists(const string &path) {
-#ifdef WIN32
-	wstring wstr = utf8_decode(path);
-	FILE* file= _wfopen(wstr.c_str(), L"rb");
-#else
-	FILE* file= fopen(path.c_str(), "rb");
-#endif
-	if(file != NULL) {
-		fclose(file);
-		return true;
-	}
-	else {
-		//int fileErrno = errno;
-#ifdef WIN32
-        int fileErrno = errno;
-		DWORD error = GetLastError();
-		string strError = "[#6] Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
-#endif
-	}
-	return false;
-}
-
 bool checkVersionComptability(string clientVersionString, string serverVersionString) {
 	bool compatible = (clientVersionString == serverVersionString);
 	if(compatible == false) {

@@ -37,6 +37,7 @@ private:
 
 	Properties strings;
 	Properties scenarioStrings;
+	Properties techTreeStrings;
 
 	std::map<string,Properties> otherLanguageStrings;
 
@@ -54,10 +55,12 @@ public:
 
 	void loadStrings(string uselanguage, bool loadFonts=true, bool fallbackToDefault=false);
 	void loadScenarioStrings(string scenarioDir, string scenarioName);
+	void loadTechTreeStrings(string techTree);
 
 	string get(const string &s,string uselanguage="", bool fallbackToDefault=false);
 	bool hasString(const string &s, string uselanguage="", bool fallbackToDefault=false);
 	string getScenarioString(const string &s);
+	string getTechTreeString(const string &s, const char *defaultValue=NULL);
 
 	string getLanguage() const { return language; }
 	bool isLanguageLocal(string compareLanguage) const;

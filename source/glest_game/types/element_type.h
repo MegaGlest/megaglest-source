@@ -53,8 +53,8 @@ public:
 	virtual ~DisplayableType(){};
 
 	//get
-	string getName() const				{return name;}
-	const Texture2D *getImage() const	{return image;}
+	virtual string getName(bool translatedValue=false) const	 { return name; }
+	virtual const Texture2D *getImage() const	{ return image; }
 
 	//virtual void saveGame(XmlNode *rootNode) const;
 };

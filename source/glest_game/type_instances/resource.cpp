@@ -60,7 +60,7 @@ void Resource::init(const ResourceType *rt, const Vec2i &pos) {
 string Resource::getDescription() const {
      string str;
 
-     str+= type->getName();
+     str+= type->getName(true);
      str+="\n";
      str+= intToStr(amount);
      str+="/";

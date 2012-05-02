@@ -168,6 +168,9 @@ public:
 // =====================================================
 void Tokenize(const string& str,vector<string>& tokens,const string& delimiters = " ");
 bool isdir(const char *path);
+bool fileExists(const string &path);
+inline bool folderExists(const string &path) { return isdir(path.c_str()); }
+
 void findDirs(string path, vector<string> &results, bool errorOnNotFound,bool keepDuplicates);
 void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound=false,bool keepDuplicates=false);
 void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true,bool keepDuplicates=false);

@@ -769,7 +769,7 @@ void Gui::computeDisplay(){
 	const Object *selectedResourceObject =getSelectedResourceObject();
 	if(selection.isEmpty() && selectedResourceObject != NULL) {
 		Resource *r = selectedResourceObject->getResource();
-		display.setTitle(r->getType()->getName());
+		display.setTitle(r->getType()->getName(true));
 		display.setText(lang.get("Amount")+ ": "+intToStr(r->getAmount())+" / "+intToStr(r->getType()->getDefResPerPatch()));
 		//display.setProgressBar(r->);
 		display.setUpImage(0, r->getType()->getImage());
