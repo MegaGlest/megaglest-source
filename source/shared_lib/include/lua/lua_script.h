@@ -14,16 +14,17 @@
 
 #include <string>
 #include <lua.hpp>
-#include <vec.h>
+#include "vec.h"
 #include "xml_parser.h"
 #include "leak_dumper.h"
 
 using std::string;
 
 using Shared::Graphics::Vec2i;
+using Shared::Graphics::Vec4i;
 using Shared::Xml::XmlNode;
 
-namespace Shared{ namespace Lua{
+namespace Shared { namespace Lua {
 
 typedef lua_State LuaHandle;
 typedef int(*LuaFunction)(LuaHandle*);
@@ -32,7 +33,7 @@ typedef int(*LuaFunction)(LuaHandle*);
 //	class LuaScript
 // =====================================================
 
-class LuaScript{
+class LuaScript {
 private:
 	LuaHandle *luaState;
 	int argumentCount;
@@ -63,7 +64,7 @@ private:
 //	class LuaArguments
 // =====================================================
 
-class LuaArguments{
+class LuaArguments {
 private:
 	lua_State *luaState;
 	int returnCount;
@@ -75,11 +76,13 @@ public:
 	string getString(int argumentIndex) const;
 	void * getGenericData(int argumentIndex) const;
 	Vec2i getVec2i(int argumentIndex) const;
+	Vec4i getVec4i(int argumentIndex) const;
 	int getReturnCount() const					{return returnCount;}
 
 	void returnInt(int value);
 	void returnString(const string &value);
 	void returnVec2i(const Vec2i &value);
+	void returnVec4i(const Vec4i &value);
 	void returnVectorInt(const vector<int> &value);
 
 private:

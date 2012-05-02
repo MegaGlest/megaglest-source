@@ -100,7 +100,9 @@ enum CellTriggerEventType {
 	ctet_Unit,
 	ctet_UnitPos,
 	ctet_Faction,
-	ctet_FactionPos
+	ctet_FactionPos,
+	ctet_UnitAreaPos,
+	ctet_FactionAreaPos
 };
 
 class CellTriggerEvent {
@@ -110,6 +112,7 @@ public:
 	int sourceId;
 	int destId;
 	Vec2i destPos;
+	Vec2i destPosEnd;
 
 	int triggerCount;
 
@@ -268,6 +271,10 @@ private:
 	int registerCellTriggerEventForUnitToLocation(int sourceUnitId, const Vec2i &pos);
 	int registerCellTriggerEventForFactionToUnit(int sourceFactionId, int destUnitId);
 	int registerCellTriggerEventForFactionToLocation(int sourceFactionId, const Vec2i &pos);
+
+	int registerCellAreaTriggerEventForUnitToLocation(int sourceUnitId, const Vec4i &pos);
+	int registerCellAreaTriggerEventForFactionToLocation(int sourceFactionId, const Vec4i &pos);
+
 	int getCellTriggerEventCount(int eventId);
 	void unregisterCellTriggerEvent(int eventId);
 	int startTimerEvent();
@@ -372,6 +379,10 @@ private:
 	static int registerCellTriggerEventForUnitToLocation(LuaHandle* luaHandle);
 	static int registerCellTriggerEventForFactionToUnit(LuaHandle* luaHandle);
 	static int registerCellTriggerEventForFactionToLocation(LuaHandle* luaHandle);
+
+	static int registerCellAreaTriggerEventForUnitToLocation(LuaHandle* luaHandle);
+	static int registerCellAreaTriggerEventForFactionToLocation(LuaHandle* luaHandle);
+
 	static int getCellTriggerEventCount(LuaHandle* luaHandle);
 	static int unregisterCellTriggerEvent(LuaHandle* luaHandle);
 	static int startTimerEvent(LuaHandle* luaHandle);
