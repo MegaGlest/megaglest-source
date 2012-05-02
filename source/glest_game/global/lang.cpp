@@ -24,6 +24,7 @@
 #include "core_data.h"
 #include "renderer.h"
 #include <algorithm>
+#include "config.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -238,6 +239,48 @@ void Lang::loadScenarioStrings(string scenarioDir, string scenarioName){
 	}
 }
 
+void Lang::loadTechTreeStrings(string techTree) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] techTree = [%s]\n",__FILE__,__FUNCTION__,__LINE__,techTree.c_str());
+
+	string currentPath = "";
+	Config &config = Config::getInstance();
+    vector<string> techPaths = config.getPathListForType(ptTechs);
+    for(int idx = 0; idx < techPaths.size(); idx++) {
+        string &techPath = techPaths[idx];
+		endPathWithSlash(techPath);
+
+        //printf("techPath [%s]\n",techPath.c_str());
+
+		if(folderExists(techPath + techTree) == true) {
+			currentPath = techPath;
+			endPathWithSlash(currentPath);
+			break;
+		}
+    }
+
+	string techTreeFolder = currentPath + techTree + "/";
+	string path = techTreeFolder + "lang/" + techTree + "_" + language + ".lng";
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
+	techTreeStrings.clear();
+
+	//try to load the current language first
+	if(fileExists(path)) {
+		techTreeStrings.load(path);
+	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path not found [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
+		//try english otherwise
+		path = techTreeFolder + "lang/" + techTree + "_english.lng";
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
+		if(fileExists(path)) {
+			techTreeStrings.load(path);
+		}
+	}
+}
+
 bool Lang::hasString(const string &s, string uselanguage, bool fallbackToDefault) {
 	bool result = false;
 	try {
@@ -327,6 +370,27 @@ string Lang::getScenarioString(const string &s) {
 	}
 	catch(exception &ex) {
 		if(scenarioStrings.getpath() != "") {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		}
+		return "???" + s + "???";
+	}
+}
+
+string Lang::getTechTreeString(const string &s,const char *defaultValue) {
+	try{
+		string result = "";
+
+		if(techTreeStrings.hasString(s) == true || defaultValue == NULL) {
+			result = techTreeStrings.getString(s);
+		}
+		else if(defaultValue != NULL) {
+			result = defaultValue;
+		}
+		replaceAll(result, "\\n", "\n");
+		return result;
+	}
+	catch(exception &ex) {
+		if(techTreeStrings.getpath() != "") {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		}
 		return "???" + s + "???";

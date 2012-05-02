@@ -54,7 +54,7 @@ string RequirableType::getReqDesc() const{
 		if(getUnitReq(i) == NULL) {
 			throw megaglest_runtime_error("getUnitReq(i) == NULL");
 		}
-        reqString+= getUnitReq(i)->getName();
+        reqString+= getUnitReq(i)->getName(true);
         reqString+= "\n";
 		anyReqs= true;
     }
@@ -64,12 +64,12 @@ string RequirableType::getReqDesc() const{
 			throw megaglest_runtime_error("getUpgradeReq(i) == NULL");
 		}
 
-    	reqString+= getUpgradeReq(i)->getName();
+    	reqString+= getUpgradeReq(i)->getName(true);
         reqString+= "\n";
 		anyReqs= true;
     }
 
-	string str= getName();
+	string str= getName(true);
 	if(anyReqs){
 		return str + " " + Lang::getInstance().get("Reqs") + ":\n" + reqString;
 	}
@@ -125,11 +125,11 @@ string ProducibleType::getReqDesc() const {
 	return getReqDesc(false);
 }
 string ProducibleType::getReqDesc(bool ignoreResourceRequirements) const {
-    string str= getName()+" "+Lang::getInstance().get("Reqs")+":\n";
+    string str= getName(true) + " " + Lang::getInstance().get("Reqs") + ":\n";
     if(ignoreResourceRequirements == false) {
 		for(int i=0; i<getCostCount(); ++i){
 			if(getCost(i)->getAmount()!=0){
-				str+= getCost(i)->getType()->getName();
+				str+= getCost(i)->getType()->getName(true);
 				str+= ": "+ intToStr(getCost(i)->getAmount());
 				str+= "\n";
 			}
@@ -137,12 +137,12 @@ string ProducibleType::getReqDesc(bool ignoreResourceRequirements) const {
     }
 
     for(int i=0; i<getUnitReqCount(); ++i){
-        str+= getUnitReq(i)->getName();
+        str+= getUnitReq(i)->getName(true);
         str+= "\n";
     }
 
     for(int i=0; i<getUpgradeReqCount(); ++i){
-        str+= getUpgradeReq(i)->getName();
+        str+= getUpgradeReq(i)->getName(true);
         str+= "\n";
     }
 

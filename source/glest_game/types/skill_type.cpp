@@ -191,7 +191,7 @@ string AttackBoost::getDesc() const{
 
     	if(boostUnitList.empty() == false) {
 			for(int i=0; i<boostUnitList.size(); ++i){
-				str+= "  "+boostUnitList[i]->getName()+"\n";
+				str+= "  "+boostUnitList[i]->getName(true)+"\n";
 			}
     	}
     	else

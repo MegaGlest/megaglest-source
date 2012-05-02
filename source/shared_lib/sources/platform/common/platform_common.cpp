@@ -421,6 +421,28 @@ bool isdir(const char *path)
   return ret;
 }
 
+bool fileExists(const string &path) {
+#ifdef WIN32
+	wstring wstr = utf8_decode(path);
+	FILE* file= _wfopen(wstr.c_str(), L"rb");
+#else
+	FILE* file= fopen(path.c_str(), "rb");
+#endif
+	if(file != NULL) {
+		fclose(file);
+		return true;
+	}
+	else {
+		//int fileErrno = errno;
+#ifdef WIN32
+        int fileErrno = errno;
+		DWORD error = GetLastError();
+		string strError = "[#6] Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
+#endif
+	}
+	return false;
+}
+
 void removeFolder(const string path) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 

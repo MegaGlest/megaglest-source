@@ -416,6 +416,15 @@ const string Properties::getString(const string &key, const char *defaultValueIf
 	}
 }
 
+bool Properties::hasString(const string &key) const {
+	PropertyMap::const_iterator it;
+	it= propertyMap.find(key);
+	if(it == propertyMap.end()) {
+		return false;
+	}
+	return true;
+}
+
 void Properties::setInt(const string &key, int value){
 	setString(key, intToStr(value));
 }

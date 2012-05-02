@@ -203,7 +203,6 @@ float saturate(float value);
 int round(float f);
 
 //misc
-bool fileExists(const string &path);
 bool checkVersionComptability(string clientVersionString, string serverVersionString);
 
 template<typename T>

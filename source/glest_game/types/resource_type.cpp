@@ -185,6 +185,13 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 	}
 }
 
+string ResourceType::getName(bool translatedValue) const {
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("ResourceTypeName_" + name,name.c_str());
+}
+
 // ==================== misc ====================
 
 ResourceClass ResourceType::strToRc(const string &s){

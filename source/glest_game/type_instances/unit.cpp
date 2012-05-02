@@ -798,7 +798,7 @@ string Unit::getFullName() const{
 	if(type == NULL) {
 	    throw megaglest_runtime_error("type == NULL in Unit::getFullName()!");
 	}
-	str += type->getName();
+	str += type->getName(true);
 	return str;
 }
 
@@ -2501,7 +2501,7 @@ string Unit::getDescExtension() const{
 			if(i == 0){
 				str+= "\n" + lang.get("OrdersOnQueue") + ": ";
 			}
-			str+= "\n#" + intToStr(i + 1) + " " + ct->getName();
+			str+= "\n#" + intToStr(i + 1) + " " + ct->getName(true);
 			++it;
 		}
 	}
@@ -2572,7 +2572,7 @@ string Unit::getDesc() const {
 
 	//load
 	if(loadCount!=0){
-		str+= "\n" + lang.get("Load")+ ": " + intToStr(loadCount) +"  " + loadType->getName();
+		str+= "\n" + lang.get("Load")+ ": " + intToStr(loadCount) +"  " + loadType->getName(true);
 	}
 
 	//consumable production
@@ -2581,13 +2581,13 @@ string Unit::getDesc() const {
 		if(r->getType()->getClass() == rcConsumable) {
 			str+= "\n";
 			str+= r->getAmount() < 0 ? lang.get("Produce")+": ": lang.get("Consume")+": ";
-			str+= intToStr(abs(r->getAmount())) + " " + r->getType()->getName();
+			str+= intToStr(abs(r->getAmount())) + " " + r->getType()->getName(true);
 		}
 	}
 
 	//command info
     if(commands.empty() == false) {
-		str+= "\n" + commands.front()->getCommandType()->getName();
+		str+= "\n" + commands.front()->getCommandType()->getName(true);
 		if(commands.size() > 1) {
 			str+= "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
 		}
@@ -2598,7 +2598,7 @@ string Unit::getDesc() const {
 			for(int i = 0; i < getType()->getStoredResourceCount(); ++i) {
 				const Resource *r= getType()->getStoredResource(i);
 				str+= "\n" + lang.get("Store") + ": ";
-				str+= intToStr(r->getAmount()) + " " + r->getType()->getName();
+				str+= intToStr(r->getAmount()) + " " + r->getType()->getName(true);
 			}
 		}
 	}

@@ -63,7 +63,7 @@ ProduceTask::ProduceTask(const ResourceType *resourceType) : Task() {
 string ProduceTask::toString() const{
 	string str= "Produce ";
 	if(unitType!=NULL){
-		str+= unitType->getName();
+		str+= unitType->getName(true);
 	}
 	return str;
 }
@@ -141,7 +141,7 @@ BuildTask::BuildTask(const UnitType *unitType, const Vec2i &pos){
 string BuildTask::toString() const{
 	string str= "Build ";
 	if(unitType!=NULL){
-		str+= unitType->getName();
+		str+= unitType->getName(true);
 	}
 	return str;
 }

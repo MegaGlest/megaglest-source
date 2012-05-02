@@ -527,7 +527,7 @@ string HarvestCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	}
 	str+=lang.get("Resources")+":\n";
 	for(int i=0; i<getHarvestedResourceCount(); ++i){
-		str+= getHarvestedResource(i)->getName()+"\n";
+		str+= getHarvestedResource(i)->getName(true)+"\n";
 	}
 	str+=harvestSkillType->getBoostDesc();
     return str;
@@ -601,7 +601,7 @@ string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	}
     str+="\n"+lang.get("CanRepair")+":\n";
     for(int i=0; i<repairableUnits.size(); ++i){
-        str+= (static_cast<const UnitType*>(repairableUnits[i]))->getName()+"\n";
+        str+= (static_cast<const UnitType*>(repairableUnits[i]))->getName(true)+"\n";
     }
 	str+=repairSkillType->getBoostDesc();
     return str;

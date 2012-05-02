@@ -63,6 +63,7 @@ public:
     		std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string techtreePath);
 
+    virtual string getName(bool translatedValue=false) const;
     //get
 	int getClass() const			{return resourceClass;}
 	int getTilesetObject() const	{return tilesetObject;}

@@ -487,7 +487,7 @@ string UpgradeType::getReqDesc() const{
 	if(getEffectCount()>0){
 		str+= lang.get("AffectedUnits")+"\n";
 		for(int i=0; i<getEffectCount(); ++i){
-					str+= indent+getEffect(i)->getName()+"\n";
+					str+= indent+getEffect(i)->getName(true)+"\n";
 		}
 	}
 	return str;

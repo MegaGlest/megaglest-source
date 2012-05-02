@@ -17,10 +17,13 @@
 #include <algorithm>
 #include "xml_parser.h"
 #include "config.h"
-#include "util.h"
+//#include "util.h"
+#include "platform_common.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
+using namespace Shared::PlatformCommon;
 using Shared::Xml::XmlNode;
 
 namespace Glest{ namespace Game{
