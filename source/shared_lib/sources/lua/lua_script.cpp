@@ -20,7 +20,7 @@
 using namespace std;
 using namespace Shared::Util;
 
-namespace Shared{ namespace Lua{
+namespace Shared { namespace Lua {
 
 //
 // This class wraps streflop for LuaScript. We need to toggle the data type
@@ -590,6 +590,42 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 	return v;
 }
 
+Vec4i LuaArguments::getVec4i(int argumentIndex) const {
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	Vec4i v;
+
+	if(!lua_istable(luaState, argumentIndex)){
+		throwLuaError("Can not get vec4i from Lua state, value on the stack is not a table");
+	}
+
+#if LUA_VERSION_NUM > 501
+	if(lua_rawlen(luaState, argumentIndex) != 4 ) {
+#else
+	if(luaL_getn(luaState, argumentIndex) != 4) {
+#endif
+		throwLuaError("Can not get vec4i from Lua state, array size not 4");
+	}
+
+	lua_rawgeti(luaState, argumentIndex, 1);
+	v.x= luaL_checkint(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	lua_rawgeti(luaState, argumentIndex, 2);
+	v.y= luaL_checkint(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	lua_rawgeti(luaState, argumentIndex, 3);
+	v.z= luaL_checkint(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	lua_rawgeti(luaState, argumentIndex, 4);
+	v.w= luaL_checkint(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	return v;
+}
+
 void LuaArguments::returnInt(int value){
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
@@ -616,6 +652,27 @@ void LuaArguments::returnVec2i(const Vec2i &value){
 
 	lua_pushnumber(luaState, value.y);
 	lua_rawseti(luaState, -2, 2);
+}
+
+void LuaArguments::returnVec4i(const Vec4i &value) {
+	//Lua_STREFLOP_Wrapper streflopWrapper;
+
+	++returnCount;
+
+	lua_newtable(luaState);
+
+	lua_pushnumber(luaState, value.x);
+	lua_rawseti(luaState, -2, 1);
+
+	lua_pushnumber(luaState, value.y);
+	lua_rawseti(luaState, -2, 2);
+
+	lua_pushnumber(luaState, value.z);
+	lua_rawseti(luaState, -2, 3);
+
+	lua_pushnumber(luaState, value.w);
+	lua_rawseti(luaState, -2, 4);
+
 }
 
 void LuaArguments::returnVectorInt(const vector<int> &value) {

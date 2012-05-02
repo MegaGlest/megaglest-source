@@ -133,6 +133,9 @@ void CellTriggerEvent::saveGame(XmlNode *rootNode) {
 	cellTriggerEventNode->addAttribute("destPos",destPos.getString(), mapTagReplacements);
 //	int triggerCount;
 	cellTriggerEventNode->addAttribute("triggerCount",intToStr(triggerCount), mapTagReplacements);
+
+//	Vec2i destPosEnd;
+	cellTriggerEventNode->addAttribute("destPosEnd",destPosEnd.getString(), mapTagReplacements);
 }
 
 void CellTriggerEvent::loadGame(const XmlNode *rootNode) {
@@ -143,6 +146,10 @@ void CellTriggerEvent::loadGame(const XmlNode *rootNode) {
 	destId = cellTriggerEventNode->getAttribute("destId")->getIntValue();
 	destPos = Vec2i::strToVec2(cellTriggerEventNode->getAttribute("destPos")->getValue());
 	triggerCount = cellTriggerEventNode->getAttribute("triggerCount")->getIntValue();
+
+	if(cellTriggerEventNode->hasAttribute("destPosEnd") == true) {
+		destPosEnd = Vec2i::strToVec2(cellTriggerEventNode->getAttribute("destPosEnd")->getValue());
+	}
 }
 
 TimerTriggerEvent::TimerTriggerEvent() {
@@ -184,9 +191,9 @@ void TimerTriggerEvent::loadGame(const XmlNode *rootNode) {
 // =====================================================
 //	class ScriptManager
 // =====================================================
-ScriptManager* ScriptManager::thisScriptManager= NULL;
-const int ScriptManager::messageWrapCount= 30;
-const int ScriptManager::displayTextWrapCount= 64;
+ScriptManager* ScriptManager::thisScriptManager		= NULL;
+const int ScriptManager::messageWrapCount			= 30;
+const int ScriptManager::displayTextWrapCount		= 64;
 
 ScriptManager::ScriptManager() {
 	world = NULL;
@@ -278,6 +285,10 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(registerCellTriggerEventForUnitToLocation, "registerCellTriggerEventForUnitToLocation");
 	luaScript.registerFunction(registerCellTriggerEventForFactionToUnit, "registerCellTriggerEventForFactionToUnit");
 	luaScript.registerFunction(registerCellTriggerEventForFactionToLocation, "registerCellTriggerEventForFactionToLocation");
+
+	luaScript.registerFunction(registerCellAreaTriggerEventForUnitToLocation, "registerCellAreaTriggerEventForUnitToLocation");
+	luaScript.registerFunction(registerCellAreaTriggerEventForFactionToLocation, "registerCellAreaTriggerEventForFactionToLocation");
+
 	luaScript.registerFunction(getCellTriggerEventCount, "getCellTriggerEventCount");
 	luaScript.registerFunction(unregisterCellTriggerEvent, "unregisterCellTriggerEvent");
 	luaScript.registerFunction(startTimerEvent, "startTimerEvent");
@@ -595,6 +606,26 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 			}
 			break;
 
+			case ctet_UnitAreaPos:
+			{
+				if(movingUnit->getId() == event.sourceId) {
+					bool srcInDst = false;
+					for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
+						for(int y = event.destPos.y; srcInDst == false && y <= event.destPosEnd.y; ++y) {
+							srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s, srcInDst = %d\n",
+																__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId,Vec2i(x,y).getString().c_str(),srcInDst);
+						}
+					}
+
+					if(srcInDst == true) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					}
+					triggerEvent = srcInDst;
+				}
+			}
+			break;
+
 			case ctet_Faction:
 			{
 				Unit *destUnit = world->findUnitById(event.destId);
@@ -625,6 +656,26 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 					bool srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), event.destPos,movingUnit->getPos());
 					if(srcInDst == true) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					}
+					triggerEvent = srcInDst;
+				}
+			}
+			break;
+
+			case ctet_FactionAreaPos:
+			{
+				if(movingUnit->getFactionIndex() == event.sourceId) {
+					//printf("ctet_FactionPos event.destPos = [%s], movingUnit->getPos() [%s]\n",event.destPos.getString().c_str(),movingUnit->getPos().getString().c_str());
+
+					bool srcInDst = false;
+					for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
+						for(int y = event.destPos.y; srcInDst == false && y <= event.destPosEnd.y; ++y) {
+
+							srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
+							if(srcInDst == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							}
+						}
 					}
 					triggerEvent = srcInDst;
 				}
@@ -958,6 +1009,23 @@ int ScriptManager::registerCellTriggerEventForUnitToLocation(int sourceUnitId, c
 	return eventId;
 }
 
+int ScriptManager::registerCellAreaTriggerEventForUnitToLocation(int sourceUnitId, const Vec4i &pos) {
+	CellTriggerEvent trigger;
+	trigger.type = ctet_UnitAreaPos;
+	trigger.sourceId = sourceUnitId;
+	trigger.destPos.x = pos.x;
+	trigger.destPos.y = pos.y;
+	trigger.destPosEnd.x = pos.z;
+	trigger.destPosEnd.y = pos.w;
+
+	int eventId = currentEventId++;
+	CellTriggerEventList[eventId] = trigger;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Unit: %d will trigger cell event when reaching pos: %s, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,sourceUnitId,pos.getString().c_str(),eventId);
+
+	return eventId;
+}
+
 int ScriptManager::registerCellTriggerEventForFactionToUnit(int sourceFactionId, int destUnitId) {
 	CellTriggerEvent trigger;
 	trigger.type = ctet_Faction;
@@ -977,6 +1045,23 @@ int ScriptManager::registerCellTriggerEventForFactionToLocation(int sourceFactio
 	trigger.type = ctet_FactionPos;
 	trigger.sourceId = sourceFactionId;
 	trigger.destPos = pos;
+
+	int eventId = currentEventId++;
+	CellTriggerEventList[eventId] = trigger;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]Faction: %d will trigger cell event when reaching pos: %s, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,sourceFactionId,pos.getString().c_str(),eventId);
+
+	return eventId;
+}
+
+int ScriptManager::registerCellAreaTriggerEventForFactionToLocation(int sourceFactionId, const Vec4i &pos) {
+	CellTriggerEvent trigger;
+	trigger.type = ctet_FactionAreaPos;
+	trigger.sourceId = sourceFactionId;
+	trigger.destPos.x = pos.x;
+	trigger.destPos.y = pos.y;
+	trigger.destPosEnd.x = pos.z;
+	trigger.destPosEnd.y = pos.w;
 
 	int eventId = currentEventId++;
 	CellTriggerEventList[eventId] = trigger;
@@ -1563,6 +1648,13 @@ int ScriptManager::registerCellTriggerEventForUnitToLocation(LuaHandle* luaHandl
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::registerCellAreaTriggerEventForUnitToLocation(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	int result = thisScriptManager->registerCellAreaTriggerEventForUnitToLocation(luaArguments.getInt(-2),luaArguments.getVec4i(-1));
+	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
 int ScriptManager::registerCellTriggerEventForFactionToUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	int result = thisScriptManager->registerCellTriggerEventForFactionToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
@@ -1573,6 +1665,13 @@ int ScriptManager::registerCellTriggerEventForFactionToUnit(LuaHandle* luaHandle
 int ScriptManager::registerCellTriggerEventForFactionToLocation(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	int result = thisScriptManager->registerCellTriggerEventForFactionToLocation(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
+	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::registerCellAreaTriggerEventForFactionToLocation(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	int result = thisScriptManager->registerCellAreaTriggerEventForFactionToLocation(luaArguments.getInt(-2),luaArguments.getVec4i(-1));
 	luaArguments.returnInt(result);
 	return luaArguments.getReturnCount();
 }
