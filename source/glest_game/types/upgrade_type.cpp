@@ -476,6 +476,13 @@ const UpgradeType * UpgradeTypeBase::loadGame(const XmlNode *rootNode, Faction *
 
 // ==================== misc ====================
 
+string UpgradeType::getName(bool translatedValue) const {
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("UpgradeTypeName_" + name,name.c_str());
+}
+
 string UpgradeType::getReqDesc() const{
 	Lang &lang= Lang::getInstance();
     string str= ProducibleType::getReqDesc();

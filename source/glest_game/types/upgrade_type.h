@@ -81,6 +81,7 @@ protected:
     std::map<string,int> prodSpeedMorphIsMultiplierValueList;
 
 public:
+
 	int getMaxHp() const			{return maxHp;}
 	bool getMaxHpIsMultiplier() const			{return maxHpIsMultiplier;}
 	int getMaxHpRegeneration() const			{return maxHpRegeneration;}
@@ -157,6 +158,8 @@ public:
     void load(const string &dir, const TechTree *techTree,
     		const FactionType *factionType, Checksum* checksum,
     		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
+
+    virtual string getName(bool translatedValue=false) const;
 
     //get all
 	int getEffectCount() const				{return effects.size();}

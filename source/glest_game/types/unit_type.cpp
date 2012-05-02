@@ -982,6 +982,13 @@ string UnitType::getReqDesc() const{
 		return ProducibleType::getReqDesc()+"\nLimits: "+resultTxt;
 }
 
+string UnitType::getName(bool translatedValue) const {
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("UnitTypeName_" + name,name.c_str());
+}
+
 std::string UnitType::toString() const {
 	std::string result = "";
 

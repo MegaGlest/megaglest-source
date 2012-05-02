@@ -157,6 +157,8 @@ public:
     		const FactionType *factionType, Checksum* checksum,
     		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
 
+    virtual string getName(bool translatedValue=false) const;
+
 	//get
     inline int getId() const									{return id;}
     inline int getMaxHp() const								{return maxHp;}
