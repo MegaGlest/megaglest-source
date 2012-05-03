@@ -213,24 +213,21 @@ void SystemFlags::globalCleanupHTTP() {
 	}
 }
 
-SystemFlags::SystemFlagsType & SystemFlags::getSystemSettingType(DebugType type) {
-	if(SystemFlags::debugLogFileList == NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+SystemFlags::SystemFlagsType * SystemFlags::setupRequiredMembers() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
-			//throw megaglest_runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
-			//static SystemFlagsType *result = new SystemFlagsType();
-			static SystemFlagsType result;
-			result.enabled = SystemFlags::VERBOSE_MODE_ENABLED;
-			return result;
-		}
-		else {
-			SystemFlags::init(false);
-		}
+	if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
+		//throw megaglest_runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
+		//static SystemFlagsType *result = new SystemFlagsType();
+		static SystemFlags::SystemFlagsType result;
+		result.enabled = SystemFlags::VERBOSE_MODE_ENABLED;
+		return &result;
 	}
-
-	return (*debugLogFileList)[type];
+	else {
+		SystemFlags::init(false);
+		return NULL;
+	}
 }
 
 void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
