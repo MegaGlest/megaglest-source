@@ -76,6 +76,7 @@ const char *UnitType::propertyNames[]= {"burnable", "rotated_climb"};
 
 UnitType::UnitType() : ProducibleType() {
 
+	countInVictoryConditions = ucvcNotSet;
 	meetingPointImage = NULL;
     lightColor= Vec3f(0.f);
     light= false;
@@ -172,6 +173,16 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		const XmlNode *unitNode= xmlTree.getRootNode();
 
 		const XmlNode *parametersNode= unitNode->getChild("parameters");
+
+		if(parametersNode->hasChild("count-in-victory-conditions") == true) {
+			bool countUnit = parametersNode->getChild("count-in-victory-conditions")->getAttribute("value")->getBoolValue();
+			if(countUnit == true) {
+				countInVictoryConditions = ucvcTrue;
+			}
+			else {
+				countInVictoryConditions = ucvcFalse;
+			}
+		}
 
 		//size
 		//checkItemInVault(&(this->size),this->size);
@@ -1052,6 +1063,8 @@ std::string UnitType::toString() const {
 	}
 
 	result += " meetingPoint = " + intToStr(meetingPoint);
+
+	result += " countInVictoryConditions = " + intToStr(countInVictoryConditions);
 
 	return result;
 }

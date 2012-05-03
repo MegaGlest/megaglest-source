@@ -77,6 +77,12 @@ enum UnitClass {
 
 typedef vector<UnitParticleSystemType*> DamageParticleSystemTypes;
 
+enum UnitCountsInVictoryConditions {
+	ucvcNotSet,
+	ucvcTrue,
+	ucvcFalse
+};
+
 class UnitType: public ProducibleType, public ValueCheckerVault {
 public:
 	enum Property {
@@ -148,6 +154,8 @@ private:
 	const CommandType *firstCommandTypeOfClass[ccCount];
     const SkillType *firstSkillTypeOfClass[scCount];
 
+    UnitCountsInVictoryConditions countInVictoryConditions;
+
 public:
 	//creation and loading
     UnitType();
@@ -159,6 +167,7 @@ public:
 
     virtual string getName(bool translatedValue=false) const;
 
+    UnitCountsInVictoryConditions getCountInVictoryConditions() const { return countInVictoryConditions; }
 	//get
     inline int getId() const									{return id;}
     inline int getMaxHp() const								{return maxHp;}
