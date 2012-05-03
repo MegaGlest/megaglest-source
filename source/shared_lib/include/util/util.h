@@ -129,6 +129,8 @@ protected:
 	static bool haveSpecialOutputCommandLineOption;
 	static bool curl_global_init_called;
 
+	static SystemFlagsType * setupRequiredMembers();
+
 public:
 
 	static CURL *curl_handle;
@@ -141,7 +143,18 @@ public:
 	~SystemFlags();
 
 	static void init(bool haveSpecialOutputCommandLineOption);
-	static SystemFlagsType & getSystemSettingType(DebugType type);
+	//static SystemFlagsType & getSystemSettingType(DebugType type);
+	inline static SystemFlagsType & getSystemSettingType(DebugType type) {
+		if(SystemFlags::debugLogFileList == NULL) {
+			SystemFlagsType *result = setupRequiredMembers();
+			if(result != NULL) {
+				return *result;
+			}
+		}
+
+		return (*debugLogFileList)[type];
+	}
+
 	static size_t httpWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 	static std::string getHTTP(std::string URL,CURL *handle=NULL, int timeOut=-1, CURLcode *savedResult=NULL);
 	static std::string escapeURL(std::string URL, CURL *handle=NULL);
