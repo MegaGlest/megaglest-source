@@ -38,6 +38,7 @@ private:
 	Properties strings;
 	Properties scenarioStrings;
 	Properties techTreeStrings;
+	Properties techTreeStringsDefault;
 
 	std::map<string,Properties> otherLanguageStrings;
 

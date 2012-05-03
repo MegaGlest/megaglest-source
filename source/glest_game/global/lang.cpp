@@ -260,9 +260,11 @@ void Lang::loadTechTreeStrings(string techTree) {
 
 	string techTreeFolder = currentPath + techTree + "/";
 	string path = techTreeFolder + "lang/" + techTree + "_" + language + ".lng";
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+	string pathDefault = techTreeFolder + "lang/" + techTree + "_default.lng";
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] pathDefault = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),pathDefault.c_str());
 
 	techTreeStrings.clear();
+	techTreeStringsDefault.clear();
 
 	//try to load the current language first
 	if(fileExists(path)) {
@@ -278,6 +280,10 @@ void Lang::loadTechTreeStrings(string techTree) {
 		if(fileExists(path)) {
 			techTreeStrings.load(path);
 		}
+	}
+
+	if(fileExists(pathDefault)) {
+		techTreeStringsDefault.load(pathDefault);
 	}
 }
 
@@ -381,7 +387,15 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 		string result = "";
 
 		if(techTreeStrings.hasString(s) == true || defaultValue == NULL) {
-			result = techTreeStrings.getString(s);
+			if(techTreeStrings.hasString(s) == false && techTreeStringsDefault.hasString(s) == true) {
+				result = techTreeStringsDefault.getString(s);
+			}
+			else {
+				result = techTreeStrings.getString(s);
+			}
+		}
+		else if(techTreeStringsDefault.hasString(s) == true) {
+			result = techTreeStringsDefault.getString(s);
 		}
 		else if(defaultValue != NULL) {
 			result = defaultValue;
