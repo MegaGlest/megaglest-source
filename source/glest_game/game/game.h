@@ -256,6 +256,7 @@ private:
 	void checkWinnerStandard();
 	void checkWinnerScripted();
 	bool hasBuilding(const Faction *faction);
+	bool factionLostGame(const Faction *faction);
 	void incSpeed();
 	void decSpeed();
 	int getUpdateLoops();

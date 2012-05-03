@@ -3263,7 +3263,8 @@ void Game::checkWinnerStandard() {
 		std::map<int,int> teamsAlive;
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			if(i != world.getThisFactionIndex()) {
-				if(hasBuilding(world.getFaction(i))) {
+				//if(hasBuilding(world.getFaction(i))) {
+				if(factionLostGame(world.getFaction(i)) == false) {
 					teamsAlive[world.getFaction(i)->getTeam()] = teamsAlive[world.getFaction(i)->getTeam()] + 1;
 				}
 			}
@@ -3306,7 +3307,8 @@ void Game::checkWinnerStandard() {
 	else {
 		//lose
 		bool lose= false;
-		if(hasBuilding(world.getThisFaction()) == false) {
+		//if(hasBuilding(world.getThisFaction()) == false) {
+		if(factionLostGame(world.getThisFaction()) == true) {
 			lose= true;
 			for(int i=0; i<world.getFactionCount(); ++i) {
 				if(world.getFaction(i)->getPersonalityType() != fpt_Observer) {
@@ -3342,7 +3344,9 @@ void Game::checkWinnerStandard() {
 			for(int i = 0; i < world.getFactionCount(); ++i) {
 				if(i != world.getThisFactionIndex()) {
 					if(world.getFaction(i)->getPersonalityType() != fpt_Observer) {
-						if(hasBuilding(world.getFaction(i)) && world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
+						//if(hasBuilding(world.getFaction(i)) &&
+						if(factionLostGame(world.getFaction(i)) == false &&
+								world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
 							win= false;
 						}
 					}
@@ -3411,6 +3415,22 @@ void Game::checkWinnerScripted() {
 			showLoseMessageBox();
 		}
 	}
+}
+
+bool Game::factionLostGame(const Faction *faction) {
+	for(int i=0; i<faction->getUnitCount(); ++i) {
+		const UnitType *ut = faction->getUnit(i)->getType();
+		if(ut->getCountInVictoryConditions() == ucvcNotSet) {
+			if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
+				return false;
+			}
+		}
+		else if(ut->getCountInVictoryConditions() == ucvcTrue) {
+			return false;
+		}
+	}
+	return true;
+
 }
 
 bool Game::hasBuilding(const Faction *faction) {
