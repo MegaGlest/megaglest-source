@@ -317,6 +317,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\glest_game\ai\fast_path_finder.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\facilities\game_util.cpp"
 				>
 			</File>
@@ -392,6 +396,10 @@
 			</File>
 			<File
 				RelativePath="..\..\source\glest_game\ai\cluster_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\fast_path_finder.h"
 				>
 			</File>
 			<File
