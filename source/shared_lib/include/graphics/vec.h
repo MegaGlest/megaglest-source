@@ -172,7 +172,7 @@ public:
 		return x*v.x+y*v.y;
 	}
 
-	float dist(const Vec2<T> &v) const{
+	inline float dist(const Vec2<T> &v) const{
 		return Vec2<T>(v-*this).length();
 	}
 
@@ -392,7 +392,7 @@ public:
 		return x*v.x + y*v.y + z*v.z;
 	}
 
-	float dist(const Vec3<T> &v) const{
+	inline float dist(const Vec3<T> &v) const{
 		return Vec3<T>(v-*this).length();
 	}
 

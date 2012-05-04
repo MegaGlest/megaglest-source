@@ -307,12 +307,29 @@ FastAINode * FastAINode::getNodeForEdgeIndex(int index,void *userData) const {
 			resultNode = map->getCellNode(pos.x-1,pos.y-1,false);
 			break;
 	}
-	if(resultNode != NULL) {
-		Unit *unit = (Unit *)userData;
-		if(resultNode->getPos() != unit->getCurrentPathFinderDesiredFinalPos()) {
-			if(map->aproxCanMoveSoon(unit, pos, resultNode->getPos()) == false) {
+	bool checkCellObjects = true;
+	if(checkCellObjects == true && resultNode != NULL) {
+		FastAINodeCache *nodeCache = (FastAINodeCache *)userData;
+		std::map<Vec2i,std::map<Vec2i,bool> >::const_iterator iterFind = nodeCache->cachedCanMoveSoonList.find(pos);
+		if(iterFind != nodeCache->cachedCanMoveSoonList.end() &&
+			iterFind->second.find(resultNode->getPos()) != iterFind->second.end()) {
+			const std::map<Vec2i,bool> &mapCache2 = iterFind->second;
+			std::map<Vec2i,bool>::const_iterator iterFind2 = mapCache2.find(resultNode->getPos());
+
+			if(iterFind2->second == false) {
 				resultNode = NULL;
 			}
+		}
+		else {
+			const Vec2i &nodePos = resultNode->getPos();
+
+			if(resultNode->getPos() != nodeCache->unit->getCurrentPathFinderDesiredFinalPos()) {
+				if(map->aproxCanMoveSoon(nodeCache->unit, pos, resultNode->getPos()) == false) {
+					resultNode = NULL;
+				}
+			}
+
+			nodeCache->cachedCanMoveSoonList[pos][nodePos] = (resultNode != NULL);
 		}
 	}
 
@@ -323,7 +340,38 @@ float FastAINode::getDistance(const AI_Node *node,void *userData) {
 	return pos.dist(dynamic_cast<const FastAINode *>(node)->pos);
 }
 float FastAINode::getCost(void *userData) {
-	return 1.0f;
+	float result = 1.0f;
+//	bool checkCellObjects = true;
+//	if(checkCellObjects == true) {
+//		FastAINode *resultNode = map->getCellNode(pos,false);
+//		if(resultNode != NULL) {
+//			FastAINodeCache *nodeCache = (FastAINodeCache *)userData;
+//			std::map<Vec2i,std::map<Vec2i,bool> >::const_iterator iterFind = nodeCache->cachedCanMoveSoonList.find(pos);
+//			if(iterFind != nodeCache->cachedCanMoveSoonList.end() &&
+//				iterFind->second.find(resultNode->getPos()) != iterFind->second.end()) {
+//				const std::map<Vec2i,bool> &mapCache2 = iterFind->second;
+//				std::map<Vec2i,bool>::const_iterator iterFind2 = mapCache2.find(resultNode->getPos());
+//
+//				if(iterFind2->second == false) {
+//					resultNode = NULL;
+//					result = 9999999;
+//				}
+//			}
+//			else {
+//				const Vec2i &nodePos = resultNode->getPos();
+//
+//				if(resultNode->getPos() != nodeCache->unit->getCurrentPathFinderDesiredFinalPos()) {
+//					if(map->aproxCanMoveSoon(nodeCache->unit, pos, resultNode->getPos()) == false) {
+//						resultNode = NULL;
+//						result = 9999999;
+//					}
+//				}
+//
+//				nodeCache->cachedCanMoveSoonList[pos][nodePos] = (resultNode != NULL);
+//			}
+//		}
+//	}
+	return result;
 }
 
 unsigned int FastAINode::getEdgeCount(void *userData) const {
@@ -1127,104 +1175,6 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 	return true;
 }
 
-//checks if a unit can move from between 2 cells using only visible cells (for pathfinding)
-bool Map::aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const {
-	if(isInside(pos1) == false || isInsideSurface(toSurfCoords(pos1)) == false ||
-	   isInside(pos2) == false || isInsideSurface(toSurfCoords(pos2)) == false) {
-
-		//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-		return false;
-	}
-
-	int size= unit->getType()->getSize();
-	int teamIndex= unit->getTeam();
-	Field field= unit->getCurrField();
-
-	//single cell units
-	if(size == 1) {
-		if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),pos2, field, teamIndex) == false) {
-
-			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-			return false;
-		}
-		if(pos1.x != pos2.x && pos1.y != pos2.y) {
-			if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),Vec2i(pos1.x, pos2.y), field, teamIndex) == false) {
-
-				//Unit *cellUnit = getCell(Vec2i(pos1.x, pos2.y))->getUnit(field);
-				//Object * obj = getSurfaceCell(toSurfCoords(Vec2i(pos1.x, pos2.y)))->getObject();
-
-				//printf("[%s] Line: %d returning false cell [%s] free [%d] cell unitid = %d object class = %d\n",__FUNCTION__,__LINE__,Vec2i(pos1.x, pos2.y).getString().c_str(),this->isFreeCell(Vec2i(pos1.x, pos2.y),field),(cellUnit != NULL ? cellUnit->getId() : -1),(obj != NULL ? obj->getType()->getClass() : -1));
-				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-				return false;
-			}
-			if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
-				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-				return false;
-			}
-		}
-
-		bool isBadHarvestPos = false;
-		if(unit != NULL) {
-			Command *command= unit->getCurrCommand();
-			if(command != NULL) {
-				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
-				if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
-					isBadHarvestPos = true;
-				}
-			}
-		}
-
-		if(unit == NULL || isBadHarvestPos == true) {
-
-			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-			return false;
-		}
-
-		return true;
-	}
-	//multi cell units
-	else {
-		for(int i = pos2.x; i < pos2.x + size; ++i) {
-			for(int j = pos2.y; j < pos2.y + size; ++j) {
-
-				Vec2i cellPos = Vec2i(i,j);
-				if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
-					if(getCell(cellPos)->getUnit(unit->getCurrField()) != unit) {
-						if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),cellPos, field, teamIndex) == false) {
-
-							//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-							return false;
-						}
-					}
-				}
-				else {
-
-					//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-					return false;
-				}
-			}
-		}
-
-		bool isBadHarvestPos = false;
-		if(unit != NULL) {
-			Command *command= unit->getCurrCommand();
-			if(command != NULL) {
-				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
-				if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
-					isBadHarvestPos = true;
-				}
-			}
-		}
-
-		if(unit == NULL || isBadHarvestPos == true) {
-
-			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
-			return false;
-		}
-
-	}
-	return true;
-}
 
 Vec2i Map::computeRefPos(const Selection *selection) const {
     Vec2i total= Vec2i(0);

@@ -27,6 +27,7 @@
 #include <cassert>
 #include "unit_type.h"
 #include "fast_path_finder.h"
+#include "command.h"
 #include "leak_dumper.h"
 
 
@@ -192,6 +193,15 @@ public:
 //
 ///	Represents the game map (and loads it from a gbm file)
 // =====================================================
+
+class FastAINodeCache {
+public:
+	FastAINodeCache(Unit *unit) {
+		this->unit = unit;
+	}
+	Unit *unit;
+	std::map<Vec2i,std::map<Vec2i,bool> > cachedCanMoveSoonList;
+};
 
 class FastAINode : public AI_Node {
 protected:
@@ -432,7 +442,118 @@ public:
 		return false;
 	}
 
-	bool aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const;
+	//checks if a unit can move from between 2 cells using only visible cells (for pathfinding)
+	inline bool aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const {
+		if(isInside(pos1) == false || isInsideSurface(toSurfCoords(pos1)) == false ||
+		   isInside(pos2) == false || isInsideSurface(toSurfCoords(pos2)) == false) {
+
+			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+			return false;
+		}
+
+		int size= unit->getType()->getSize();
+		int teamIndex= unit->getTeam();
+		Field field= unit->getCurrField();
+
+		const bool *cachedResult = unit->getFaction()->aproxCanMoveSoonCached(size,field,pos1,pos2);
+		if(cachedResult != NULL) {
+			return *cachedResult;
+		}
+
+		//single cell units
+		if(size == 1) {
+			if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),pos2, field, teamIndex) == false) {
+
+				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+				unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
+				return false;
+			}
+			if(pos1.x != pos2.x && pos1.y != pos2.y) {
+				if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),Vec2i(pos1.x, pos2.y), field, teamIndex) == false) {
+
+					//Unit *cellUnit = getCell(Vec2i(pos1.x, pos2.y))->getUnit(field);
+					//Object * obj = getSurfaceCell(toSurfCoords(Vec2i(pos1.x, pos2.y)))->getObject();
+
+					//printf("[%s] Line: %d returning false cell [%s] free [%d] cell unitid = %d object class = %d\n",__FUNCTION__,__LINE__,Vec2i(pos1.x, pos2.y).getString().c_str(),this->isFreeCell(Vec2i(pos1.x, pos2.y),field),(cellUnit != NULL ? cellUnit->getId() : -1),(obj != NULL ? obj->getType()->getClass() : -1));
+					//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+					unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
+					return false;
+				}
+				if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
+					//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+					unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
+					return false;
+				}
+			}
+
+			bool isBadHarvestPos = false;
+			if(unit != NULL) {
+				Command *command= unit->getCurrCommand();
+				if(command != NULL) {
+					const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+					if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+						isBadHarvestPos = true;
+					}
+				}
+			}
+
+			if(unit == NULL || isBadHarvestPos == true) {
+
+				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+				unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
+				return false;
+			}
+
+			unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, true);
+			return true;
+		}
+		//multi cell units
+		else {
+			for(int i = pos2.x; i < pos2.x + size; ++i) {
+				for(int j = pos2.y; j < pos2.y + size; ++j) {
+
+					Vec2i cellPos = Vec2i(i,j);
+					if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
+						if(getCell(cellPos)->getUnit(unit->getCurrField()) != unit) {
+							if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),cellPos, field, teamIndex) == false) {
+
+								//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+								unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
+								return false;
+							}
+						}
+					}
+					else {
+
+						//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+						unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
+						return false;
+					}
+				}
+			}
+
+			bool isBadHarvestPos = false;
+			if(unit != NULL) {
+				Command *command= unit->getCurrCommand();
+				if(command != NULL) {
+					const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+					if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+						isBadHarvestPos = true;
+					}
+				}
+			}
+
+			if(unit == NULL || isBadHarvestPos == true) {
+
+				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+				unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
+				return false;
+			}
+
+		}
+		unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, true);
+		return true;
+	}
 
 	string getMapFile() const { return mapFile; }
 

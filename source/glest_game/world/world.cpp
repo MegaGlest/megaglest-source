@@ -399,6 +399,7 @@ void World::updateAllFactionUnits() {
 			throw megaglest_runtime_error("faction == NULL");
 		}
 		faction->clearUnitsPathfinding();
+		faction->clearAproxCanMoveSoonCached();
 	}
 
 	// Signal the faction threads to do any pre-processing
