@@ -26,6 +26,7 @@
 #include "selection.h"
 #include <cassert>
 #include "unit_type.h"
+#include "fast_path_finder.h"
 #include "leak_dumper.h"
 
 
@@ -192,6 +193,35 @@ public:
 ///	Represents the game map (and loads it from a gbm file)
 // =====================================================
 
+class FastAINode : public AI_Node {
+protected:
+	Vec2i pos;
+	const Map *map;
+	static const int NODE_EDGE_COUNT = 8;
+
+	FastAINode * getNodeForEdgeIndex(int index,void *userData) const;
+
+public:
+
+	FastAINode() {
+		this->map = NULL;
+	}
+	FastAINode(Vec2i &pos,const Map *map) {
+		this->pos = pos;
+		this->map = map;
+	}
+	void setData(Vec2i pos, const Map *map) {
+		this->pos = pos;
+		this->map = map;
+	}
+	inline const Vec2i & getPos() const { return pos; }
+
+    virtual float        getDistance(const AI_Node *node, void *userData);
+    virtual float        getCost(void *userData);
+    virtual unsigned int getEdgeCount(void *userData) const;
+    virtual AI_Node *    getEdge(int index, void *userData) const;
+};
+
 class Map {
 public:
 	static const int cellScale;	//number of cells per surfaceCell
@@ -210,6 +240,7 @@ private:
 	int maxPlayers;
 	Cell *cells;
 	SurfaceCell *surfaceCells;
+	FastAINode *cellNodes;
 	Vec2i *startLocations;
 	Checksum checksumValue;
 	float maxMapHeight;
@@ -229,13 +260,20 @@ public:
 	Checksum load(const string &path, TechTree *techTree, Tileset *tileset);
 
 	//get
-	inline Cell *getCell(int x, int y) const {
+	inline Cell *getCell(int x, int y, bool errorOnInvalid=true) const {
 		int arrayIndex = y * w + x;
 		if(arrayIndex < 0 || arrayIndex >= getCellArraySize()) {
+			if(errorOnInvalid == false) {
+				return NULL;
+			}
 			//abort();
 			throw megaglest_runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
 		}
 		else if(cells == NULL) {
+			if(errorOnInvalid == false) {
+				return NULL;
+			}
+
 			throw megaglest_runtime_error("cells == NULL");
 		}
 
@@ -243,6 +281,30 @@ public:
 	}
 	inline Cell *getCell(const Vec2i &pos) const {
 		return getCell(pos.x, pos.y);
+	}
+
+	//get
+	inline FastAINode *getCellNode(Vec2i pos, bool errorOnInvalid=true) const {
+		return getCellNode(pos.x, pos.y, errorOnInvalid);
+	}
+	inline FastAINode *getCellNode(int x, int y, bool errorOnInvalid=true) const {
+		int arrayIndex = y * w + x;
+		if(arrayIndex < 0 || arrayIndex >= getCellArraySize()) {
+			if(errorOnInvalid == false) {
+				return NULL;
+			}
+			//abort();
+			throw megaglest_runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
+		}
+		else if(cellNodes == NULL) {
+			if(errorOnInvalid == false) {
+				return NULL;
+			}
+
+			throw megaglest_runtime_error("cellNodes == NULL");
+		}
+
+		return &cellNodes[arrayIndex];
 	}
 
 	inline int getCellArraySize() const {

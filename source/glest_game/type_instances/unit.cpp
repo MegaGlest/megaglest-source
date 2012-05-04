@@ -3776,6 +3776,8 @@ void Unit::saveGame(XmlNode *rootNode) {
 
 	//pathfindFailedConsecutiveFrameCount
 	unitNode->addAttribute("pathfindFailedConsecutiveFrameCount",intToStr(pathfindFailedConsecutiveFrameCount), mapTagReplacements);
+
+	unitNode->addAttribute("currentPathFinderDesiredFinalPos",currentPathFinderDesiredFinalPos.getString(), mapTagReplacements);
 }
 
 Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *faction, World *world) {
@@ -4189,6 +4191,10 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	}
 
 	result->meetingPos = Vec2i::strToVec2(unitNode->getAttribute("meetingPos")->getValue());
+
+	if(unitNode->hasAttribute("currentPathFinderDesiredFinalPos")) {
+		result->currentPathFinderDesiredFinalPos = Vec2i::strToVec2(unitNode->getAttribute("currentPathFinderDesiredFinalPos")->getValue());
+	}
     return result;
 }
 

@@ -437,6 +437,7 @@ private:
 	CauseOfDeathType causeOfDeath;
 
 	uint32 pathfindFailedConsecutiveFrameCount;
+	Vec2i currentPathFinderDesiredFinalPos;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
@@ -445,6 +446,9 @@ public:
     //static bool isUnitDeleted(void *unit);
 
     static void setGame(Game *value) { game=value;}
+
+    void setCurrentPathFinderDesiredFinalPos(const Vec2i &finalPos) { currentPathFinderDesiredFinalPos = finalPos; }
+    Vec2i getCurrentPathFinderDesiredFinalPos() const { return currentPathFinderDesiredFinalPos; }
 
     //const std::pair<const SkillType *,std::vector<Unit *> > & getCurrentAttackBoostUnits() const { return currentAttackBoostUnits; }
     const UnitAttackBoostEffectOriginator & getAttackBoostOriginatorEffect() const { return currentAttackBoostOriginatorEffect; }

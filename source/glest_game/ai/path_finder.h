@@ -24,7 +24,7 @@
 #include "skill_type.h"
 #include "map.h"
 #include "unit.h"
-
+#include "fast_path_finder.h"
 #include "leak_dumper.h"
 
 using std::vector;
@@ -111,6 +111,11 @@ public:
 			//mapFromToNodeList.clear();
 			//lastFromToNodeListFrame = -100;
 			badCellList.clear();
+
+			fa = createFastAstar();
+		}
+		~FactionState() {
+			//fa = NULL;
 		}
 		std::map<Vec2i, bool> openPosList;
 		std::map<float, Nodes> openNodesList;
@@ -127,6 +132,8 @@ public:
 		//std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > > mapFromToNodeList;
 
 		std::map<int,std::map<Field,BadUnitNodeList> > badCellList;
+
+		FastAstar *fa;
 	};
 	typedef vector<FactionState> FactionStateList;
 
@@ -145,6 +152,7 @@ private:
 
 	FactionStateList factions;
 	const Map *map;
+	bool minorDebugPathfinder;
 
 public:
 	PathFinder();
@@ -162,6 +170,7 @@ public:
 	void loadGame(const XmlNode *rootNode);
 
 private:
+	TravelState aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1);
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1);
 	//Node *newNode(FactionState &faction,int maxNodeCount);
 	inline static Node *newNode(FactionState &faction, int maxNodeCount) {
