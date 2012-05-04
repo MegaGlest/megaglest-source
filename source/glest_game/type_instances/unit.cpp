@@ -857,10 +857,6 @@ bool Unit::isBuilt() const{
     return (isBeingBuilt() == false);
 }
 
-bool Unit::isPutrefacting() const{
-	return deadCount!=0;
-}
-
 bool Unit::isAlly(const Unit *unit) const {
 	if(unit == NULL) {
 		char szBuf[4096]="";

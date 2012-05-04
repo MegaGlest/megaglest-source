@@ -220,17 +220,23 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 	int unitFactionIndex = unit->getFactionIndex();
 
+	bool minorDebugPathfinderPerformance = false;
+	Chrono chrono;
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+	if(minorDebugPathfinderPerformance) chrono.start();
+
+	uint32 searched_node_count = 0;
 	minorDebugPathfinder = false;
 	bool enableFastPathfinder = Config::getInstance().getBool("EnableFastPathFinder","false");
 	if(enableFastPathfinder == true) {
 		if(minorDebugPathfinder) printf("Fast Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
 
-		ts = aStarFast(unit, finalPos, false, frameIndex, maxNodeCount);
+		ts = aStarFast(unit, finalPos, false, frameIndex, maxNodeCount,&searched_node_count);
 	}
 	else {
 		if(minorDebugPathfinder) printf("Legacy Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
 
-		ts = aStar(unit, finalPos, false, frameIndex, maxNodeCount);
+		ts = aStar(unit, finalPos, false, frameIndex, maxNodeCount,&searched_node_count);
 	}
 
 	//post actions
@@ -309,10 +315,10 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 										int maxBailoutNodeCount = (PathFinder::pathFindBailoutRadius * 2);
 
 										if(enableFastPathfinder == true) {
-											ts= aStarFast(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount);
+											ts= aStarFast(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount,&searched_node_count);
 										}
 										else {
-											ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount);
+											ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount,&searched_node_count);
 										}
 									}
 								}
@@ -336,10 +342,10 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 										int maxBailoutNodeCount = (PathFinder::pathFindBailoutRadius * 2);
 
 										if(enableFastPathfinder == true) {
-											ts= aStarFast(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount);
+											ts= aStarFast(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount,&searched_node_count);
 										}
 										else {
-											ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount);
+											ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount,&searched_node_count);
 										}
 									}
 								}
@@ -387,6 +393,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 						if(frameIndex < 0) {
 							unit->setCurrSkill(scStop);
 						}
+
+						if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar #2 took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName().c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
 						return tsBlocked;
 					}
 				}
@@ -405,6 +413,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 						}
 
 						if(minorDebugPathfinder) printf("Pathfind Unit [%d - %s] INT BAILOUT ATTEMPT BLOCKED frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex);
+
+						if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar #3 took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName().c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
 						return tsBlocked;
 					}
 				}
@@ -414,12 +424,16 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			}
 			break;
 	}
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() >= 1) printf("In [%s::%s Line: %d] fastastar took [%lld] msecs, ts = %d nodeSearchCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),ts,nodeSearchCount);
+	if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName().c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
+
 	return ts;
 }
 
 // ==================== PRIVATE ==================== 
 
-TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, int frameIndex, int maxNodeCount) {
+TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, int frameIndex, int maxNodeCount,uint32 *searched_node_count) {
 	TravelState ts = tsImpossible;
 
 	Chrono chrono;
@@ -447,9 +461,6 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 	if(frameIndex >= 0) {
 		clearUnitPrecache(unit);
 	}
-
-/////////////////////////////////////
-
 
 	// check the pre-cache to see if we can re-use a cached path
 	if(frameIndex < 0) {
@@ -677,7 +688,6 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 	//b) loop
 	bool pathFound			= true;
 	bool nodeLimitReached	= false;
-	Node *node				= NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -738,20 +748,15 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 	}
 	//
 
-	// START
-	// Do the a-star base pathfind work if required
-
-///////////////////////////////////////
-
-
 	//finalPos= computeNearestFreePos(unit, finalPos);
 
+	FastAINodeCache nodeCache(unit);
 	// Start of New Fast AStar
 	FastAINode *fromNode = map->getCellNode(unit->getPos());
 	FastAINode *toNode = map->getCellNode(finalPos);
 	//FastAstar *fa = createFastAstar();
 	FastAstar *fa = factions[unitFactionIndex].fa;
-	astarStartSearch(fa,fromNode,toNode, unit);
+	astarStartSearch(fa,fromNode,toNode, &nodeCache);
 
 	pathFound = false;
 	unsigned int nodeSearchCount=0;
@@ -765,6 +770,9 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 		}
 
 		solution = getSolution(fa,count);
+	}
+	if(searched_node_count != NULL) {
+		*searched_node_count = nodeSearchCount;
 	}
 
 	if(count <= 1 || getLastSearchState(fa) != SEARCH_STATE_SUCCEEDED) {
@@ -1265,7 +1273,7 @@ void PathFinder::astarJPS(std::map<Vec2i,Vec2i> cameFrom, Node *& node,
 
 //route a unit using A* algorithm
 TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout,
-		int frameIndex, int maxNodeCount) {
+		int frameIndex, int maxNodeCount, uint32 *searched_node_count) {
 
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
@@ -1621,6 +1629,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		doAStarPathSearch(nodeLimitReached, whileLoopCount, unitFactionIndex,
 							pathFound, node, finalPos, tryJPSPathfinder,
 							closedNodes, cameFrom, canAddNode, unit, maxNodeCount,frameIndex);
+
+		if(searched_node_count != NULL) {
+			*searched_node_count = whileLoopCount;
+		}
 
 		// Now see if the unit is eligble for pathfind max nodes boost?
 		if(nodeLimitReached == true) {

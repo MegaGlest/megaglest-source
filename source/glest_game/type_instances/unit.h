@@ -530,7 +530,9 @@ public:
     bool isBeingBuilt() const;
     bool isBuilt() const;
     bool isAnimProgressBound() const;
-    bool isPutrefacting() const;
+    bool isPutrefacting() const {
+    	return deadCount!=0;
+    }
 	bool isAlly(const Unit *unit) const;
 	bool isDamaged() const;
 	bool isInteresting(InterestingUnitType iut) const;

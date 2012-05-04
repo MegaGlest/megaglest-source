@@ -151,9 +151,32 @@ private:
 	TechTree *techTree;
 	const XmlNode *loadWorldNode;
 
+	std::map<int,std::map<Field, std::map<Vec2i,bool> > > mapSharedPathFinderCache;
+
 public:
 	Faction();
 	~Faction();
+
+	inline const bool * aproxCanMoveSoonCached(int size, Field field, const Vec2i &pos1, const Vec2i &pos2) const {
+		const bool *result = NULL;
+//		std::map<int,std::map<Field, std::map<Vec2i,bool> > >::const_iterator iterFind1 = mapSharedPathFinderCache.find(size);
+//		if(iterFind1 != mapSharedPathFinderCache.end()) {
+//			std::map<Field, std::map<Vec2i,bool> >::const_iterator iterFind2 = iterFind1->second.find(field);
+//			if(iterFind2 != iterFind1->second.end()) {
+//				std::map<Vec2i,bool>::const_iterator iterFind3 = iterFind2->second.find(pos2);
+//				if(iterFind3 != iterFind2->second.end()) {
+//					result = &iterFind3->second;
+//				}
+//			}
+//		}
+		return result;
+	}
+	inline void addAproxCanMoveSoonCached(int size, Field field, const Vec2i &pos1, const Vec2i &pos2,bool result) {
+		//mapSharedPathFinderCache[size][field][pos2]=result;
+	}
+	inline void clearAproxCanMoveSoonCached() {
+		//mapSharedPathFinderCache.clear();
+	}
 
 	inline void addLivingUnits(int id) { livingUnits.insert(id); }
 	inline void addLivingUnitsp(Unit *unit) { livingUnitsp.insert(unit); }

@@ -170,8 +170,8 @@ public:
 	void loadGame(const XmlNode *rootNode);
 
 private:
-	TravelState aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1);
-	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1);
+	TravelState aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
+	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
 	//Node *newNode(FactionState &faction,int maxNodeCount);
 	inline static Node *newNode(FactionState &faction, int maxNodeCount) {
 		if( faction.nodePoolCount < faction.nodePool.size() &&
