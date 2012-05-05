@@ -28,6 +28,7 @@
 #include "unit_type.h"
 #include "fast_path_finder.h"
 #include "command.h"
+#include "checksum.h"
 #include "leak_dumper.h"
 
 
@@ -207,6 +208,7 @@ class FastAINode : public AI_Node {
 protected:
 	Vec2i pos;
 	const Map *map;
+	int32 hashCode;
 	static const int NODE_EDGE_COUNT = 8;
 
 	FastAINode * getNodeForEdgeIndex(int index,void *userData) const;
@@ -219,17 +221,26 @@ public:
 	FastAINode(Vec2i &pos,const Map *map) {
 		this->pos = pos;
 		this->map = map;
+		Checksum result;
+		result.addInt(pos.x);
+		result.addInt(pos.y);
+		hashCode = result.getSum();
 	}
 	void setData(Vec2i pos, const Map *map) {
 		this->pos = pos;
 		this->map = map;
+		Checksum result;
+		result.addInt(pos.x);
+		result.addInt(pos.y);
+		hashCode = result.getSum();
 	}
 	inline const Vec2i & getPos() const { return pos; }
 
-    virtual float        getDistance(const AI_Node *node, void *userData);
-    virtual float        getCost(void *userData);
+    virtual float         getDistance(const AI_Node *node, void *userData);
+    virtual float         getCost(void *userData);
     virtual unsigned int getEdgeCount(void *userData) const;
-    virtual AI_Node *    getEdge(int index, void *userData) const;
+    virtual AI_Node *     getEdge(int index, void *userData) const;
+    inline virtual int32 getHashCode() const { return hashCode; }
 };
 
 class Map {

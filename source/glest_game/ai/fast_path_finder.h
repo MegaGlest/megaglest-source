@@ -115,7 +115,9 @@ Copyright (C)2001-2005 Justin Heyes-Jones
 //**  releaseFastAstar(fa);
 //**
 //*******************************
+#include "data_types.h"
 
+using namespace Shared::Platform;
 
 class AI_Node
 {
@@ -124,6 +126,7 @@ public:
   virtual float        getCost(void *userData) = 0;
   virtual unsigned int getEdgeCount(void *userData) const = 0;
   virtual AI_Node *    getEdge(int index,void *userData) const = 0;
+  virtual int32 		getHashCode() const = 0;
 };
 
 enum SearchState {
