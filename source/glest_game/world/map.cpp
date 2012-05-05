@@ -341,6 +341,12 @@ float FastAINode::getDistance(const AI_Node *node,void *userData) {
 }
 float FastAINode::getCost(void *userData) {
 	float result = 1.0f;
+
+//	FastAINodeCache *nodeCache = (FastAINodeCache *)userData;
+//	if(map->aproxCanMoveSoon(nodeCache->unit, pos, pos) == false) {
+//		result = 100000;
+//	}
+
 //	bool checkCellObjects = true;
 //	if(checkCellObjects == true) {
 //		FastAINode *resultNode = map->getCellNode(pos,false);
