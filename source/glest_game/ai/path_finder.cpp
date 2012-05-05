@@ -860,15 +860,15 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 					factions[unitFactionIndex].precachedPath[unit->getId()].push_back(nodePos);
 				}
 				else {
-					if(i < pathFindRefresh) {
-					//if(i < pathFindRefresh ||
-					//	(whileLoopCount >= pathFindExtendRefreshForNodeCount &&
-					//	 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
+					//if(i < pathFindRefresh) {
+					if(i < pathFindRefresh ||
+						(nodeSearchCount >= pathFindExtendRefreshForNodeCount &&
+						 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 						path->add(nodePos);
 					}
-					//else if(tryLastPathCache == false) {
-					//	break;
-					//}
+					else if(tryLastPathCache == false) {
+						break;
+					}
 
 					//if(tryLastPathCache == true && basicPathFinder) {
 					if(basicPathFinder) {

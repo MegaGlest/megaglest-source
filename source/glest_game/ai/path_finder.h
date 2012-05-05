@@ -25,6 +25,9 @@
 #include "map.h"
 #include "unit.h"
 #include "fast_path_finder.h"
+//#include <tr1/unordered_map>
+//using namespace std::tr1;
+
 #include "leak_dumper.h"
 
 using std::vector;

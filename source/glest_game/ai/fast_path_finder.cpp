@@ -627,11 +627,11 @@ public: // methods
 				// heap now unsorted
 				m_OpenList.push_back( (*successor) );
 
-				if (m_OpenList[0]->f == m_OpenList[m_OpenList.size()-1]->f) {
-					Node *aux = m_OpenList[0];
-					m_OpenList[0] = m_OpenList[m_OpenList.size()-1];
-					m_OpenList[m_OpenList.size()-1] = aux;
-				}
+//				if (m_OpenList[0]->f == m_OpenList[m_OpenList.size()-1]->f) {
+//					Node *aux = m_OpenList[0];
+//					m_OpenList[0] = m_OpenList[m_OpenList.size()-1];
+//					m_OpenList[m_OpenList.size()-1] = aux;
+//				}
 				// sort back element into heap
 				push_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
 

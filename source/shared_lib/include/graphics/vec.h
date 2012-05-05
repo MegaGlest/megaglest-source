@@ -20,6 +20,9 @@
 #include <stdexcept>
 #include <stdlib.h>
 #include <stdio.h>
+//#include <tr1/unordered_map>
+//using namespace std::tr1;
+
 #include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
@@ -101,6 +104,15 @@ public:
 		this->x= x;
 		this->y= y;
 	}
+
+	//template<typename S>
+	//size_t operator()(const Vec2<S> &v) const {
+	//	return hash<T>()(v.x) ^ hash<T>()(v.y);
+	//}
+	//template<typename S>
+	//bool operator()(const Vec2<S> &a, const Vec2<S> &b) const {
+	//	return a == b;
+	//}
 
 	T *ptr(){
 		return reinterpret_cast<T*>(this);
