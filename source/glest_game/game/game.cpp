@@ -542,7 +542,8 @@ void Game::loadHudTexture(const GameSettings *settings)
 	//printf("In loadHudTexture, scenarioDir [%s]\n",scenarioDir.c_str());
 
 	for(int i=0; i < settings->getFactionCount(); ++i ) {
-		if(settings->getFactionControl(i) == ctHuman){
+		if((settings->getFactionControl(i) == ctHuman) || (settings->getFactionControl(i) == ctNetwork
+		        && settings->getThisFactionIndex() == i)){
 			factionName= settings->getFactionTypeName(i);
 			break;
 		}
