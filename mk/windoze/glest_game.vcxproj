@@ -272,6 +272,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\glest_game\ai\fast_path_finder.h" />
+    <ClInclude Include="..\..\source\glest_game\ai\IntrHashSet.hpp" />
+    <ClInclude Include="..\..\source\glest_game\ai\IntrHeapHash.hpp" />
     <ClInclude Include="..\..\source\glest_game\facilities\auto_test.h" />
     <ClInclude Include="..\..\source\glest_game\facilities\components.h" />
     <ClInclude Include="..\..\source\glest_game\facilities\game_util.h" />

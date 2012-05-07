@@ -12,7 +12,10 @@
 #ifndef __INTRUSIVE_HEAP_HASH_SET_HPP__
 #define __INTRUSIVE_HEAP_HASH_SET_HPP__
 
+#ifndef WIN32
 #include <inttypes.h>
+#endif
+
 #include <vector>
 #include "IntrHashSet.hpp"
 

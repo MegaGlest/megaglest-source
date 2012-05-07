@@ -407,6 +407,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\glest_game\ai\IntrHashSet.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\ai\IntrHeapHash.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\ai\node_pool.cpp"
 				>
 			</File>
