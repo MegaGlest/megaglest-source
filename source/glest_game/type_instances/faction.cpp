@@ -288,6 +288,9 @@ void FactionThread::execute() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
+		bool minorDebugPerformance = false;
+		Chrono chrono;
+
 		//unsigned int idx = 0;
 		for(;this->faction != NULL;) {
 			if(getQuitStatus() == true) {
@@ -323,6 +326,10 @@ void FactionThread::execute() {
 				}
 
 				MutexSafeWrapper safeMutex(faction->getUnitMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+				if(minorDebugPerformance) chrono.start();
+
 				int unitCount = faction->getUnitCount();
 				for(int j = 0; j < unitCount; ++j) {
 					Unit *unit = faction->getUnit(j);
@@ -330,12 +337,27 @@ void FactionThread::execute() {
 						throw megaglest_runtime_error("unit == NULL");
 					}
 
+					int64 elapsed1 = 0;
+					if(minorDebugPerformance) elapsed1 = chrono.getMillis();
+
 					bool update = unit->needToUpdate();
+
+					if(minorDebugPerformance && (chrono.getMillis() - elapsed1) >= 1) printf("Faction [%d - %s] #1-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed1);
+
 					//update = true;
 					if(update == true) {
+
+						int64 elapsed2 = 0;
+						if(minorDebugPerformance) elapsed2 = chrono.getMillis();
+
 						world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
+
+						if(minorDebugPerformance && (chrono.getMillis() - elapsed2) >= 1) printf("Faction [%d - %s] #2-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed2);
 					}
 				}
+
+				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
+
 				safeMutex.ReleaseLock();
 
 				setTaskCompleted(frameIndex.first);
@@ -468,17 +490,21 @@ int Faction::getUnitMovingListCount() {
 }
 
 void Faction::addUnitToPathfindingList(int unitId) {
+	//printf("ADD (1) Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
 	unitsPathfindingList[unitId] = getWorld()->getFrameCount();
+	//printf("ADD (2) Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
 }
 void Faction::removeUnitFromPathfindingList(int unitId) {
 	unitsPathfindingList.erase(unitId);
 }
 
 int Faction::getUnitPathfindingListCount() {
+	//printf("GET Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
 	return unitsPathfindingList.size();
 }
 
 void Faction::clearUnitsPathfinding() {
+	//printf("CLEAR Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
 	unitsPathfindingList.clear();
 }
 

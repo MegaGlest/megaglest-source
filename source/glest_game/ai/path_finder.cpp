@@ -120,17 +120,19 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 	unit->setCurrentPathFinderDesiredFinalPos(finalPos);
 
+	//printf("Unit Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
+
 	if(frameIndex >= 0) {
 		clearUnitPrecache(unit);
 	}
-	else {
+	//else {
 		if(unit->getFaction()->canUnitsPathfind() == true) {
 			unit->getFaction()->addUnitToPathfindingList(unit->getId());
 		}
 		else {
 			return tsBlocked;
 		}
-	}
+	//}
 
 //	if(frameIndex != factions[unit->getFactionIndex()].lastFromToNodeListFrame) {
 //		if(factions[unit->getFactionIndex()].mapFromToNodeList.size() > 0) {

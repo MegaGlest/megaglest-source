@@ -297,20 +297,38 @@ void UnitUpdater::updateUnit(Unit *unit) {
 
 //VERY IMPORTANT: compute next state depending on the first order of the list
 void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
-	// Clear previous cached unit data
-	if(frameIndex >= 0) {
-		clearUnitPrecache(unit);
-	}
-
+	bool minorDebugPerformance = false;
 	Chrono chrono;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+	if((minorDebugPerformance == true && frameIndex > 0) || SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	//if unit has command process it
-    if(unit->anyCommand()) {
+    bool hasCommand = (unit->anyCommand());
+
+    if((minorDebugPerformance && frameIndex > 0) && chrono.getMillis() >= 1) printf("UnitUpdate [%d - %s] #1-unit threaded updates on frame: %d took [%lld] msecs\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex,(long long int)chrono.getMillis());
+
+	int64 elapsed1 = 0;
+	if(minorDebugPerformance && frameIndex > 0) elapsed1 = chrono.getMillis();
+
+    if(hasCommand == true) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit [%s] has command [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str(), unit->getCurrCommand()->toString().c_str());
 
-    	CommandClass cc = unit->getCurrCommand()->getCommandType()->commandTypeClass;
-		unit->getCurrCommand()->getCommandType()->update(this, unit, frameIndex);
+    	bool commandUsesPathFinder = (frameIndex < 0);
+    	if(frameIndex > 0) {
+    		commandUsesPathFinder = unit->getCurrCommand()->getCommandType()->usesPathfinder();
+
+    		// Clear previous cached unit data
+    		if(commandUsesPathFinder == true) {
+    			clearUnitPrecache(unit);
+    		}
+    	}
+    	if(commandUsesPathFinder == true) {
+    		unit->getCurrCommand()->getCommandType()->update(this, unit, frameIndex);
+    	}
+
+    	if((minorDebugPerformance && frameIndex > 0) && (chrono.getMillis() - elapsed1) >= 1) {
+    		//CommandClass cc = unit->getCurrCommand()->getCommandType()->commandTypeClass;
+    		printf("UnitUpdate [%d - %s] #2-unit threaded updates on frame: %d commandUsesPathFinder = %d took [%lld] msecs\nCommand: %s\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex,commandUsesPathFinder,(long long int)chrono.getMillis() - elapsed1,unit->getCurrCommand()->toString().c_str());
+    	}
 	}
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -330,6 +348,7 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 		}
     }
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    if((minorDebugPerformance && frameIndex > 0) && chrono.getMillis() >= 1) printf("UnitUpdate [%d - %s] #3-unit threaded updates on frame: %d took [%lld] msecs\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex,(long long int)chrono.getMillis());
 }
 
 // ==================== updateStop ====================

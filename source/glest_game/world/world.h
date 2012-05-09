@@ -265,7 +265,13 @@ public:
 	void setFogOfWar(bool value);
 	std::string DumpWorldToLog(bool consoleBasicInfoOnly = false) const;
 
-	int getUpdateFps(int factionIndex) const;
+	inline int getUpdateFps(int factionIndex) const {
+		int result = GameConstants::updateFps;
+		//if(factionIndex != -1 && staggeredFactionUpdates == true) {
+		//	result = (GameConstants::updateFps / GameConstants::maxPlayers);
+		//}
+		return result;
+	}
 	bool canTickWorld() const;
 
 	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);

@@ -446,7 +446,7 @@ public: // methods
 	}
 
 	// Set Start and goal states
-	void SetStartAndGoalStates( UserState &Start, UserState &Goal, void *userData ) {
+	inline void SetStartAndGoalStates( UserState &Start, UserState &Goal, void *userData ) {
 		this->userData = userData;
 
 	    // Reinit nodes pool after previous searches
@@ -486,7 +486,7 @@ public: // methods
 	}
 
 	// Advances search one step
-	SearchState SearchStep(unsigned int &searchCount) 	{
+	inline SearchState SearchStep(unsigned int &searchCount) 	{
 		searchCount = 0;
 		// Firstly break if the user has not initialised the search
 		assert( (m_State > SEARCH_STATE_NOT_INITIALISED) &&	(m_State < SEARCH_STATE_INVALID) );
@@ -643,7 +643,7 @@ public: // methods
 
 	// User calls this to add a successor to a list of successors
 	// when expanding the search frontier
-	bool AddSuccessor( UserState &State ) {
+	inline bool AddSuccessor( UserState &State ) {
 		Node *node = AllocateNode();
 		if( node ) {
 			node->m_UserState = State;
@@ -659,7 +659,7 @@ public: // methods
 	// Free the solution nodes
 	// This is done to clean up all used Node memory when you are done with the
 	// search
-	void FreeSolutionNodes() {
+	inline void FreeSolutionNodes() {
 		Node *n = m_Start;
 		if( m_Start && m_Start->child ) {
 			do {
@@ -688,7 +688,7 @@ public: // methods
 	// Functions for traversing the solution
 
 	// Get start node
-	UserState *GetSolutionStart() {
+	inline UserState *GetSolutionStart() {
 		m_CurrentSolutionNode = m_Start;
 		if( m_Start ) {
 			return &m_Start->m_UserState;
@@ -699,7 +699,7 @@ public: // methods
 	}
 
 	// Get next node
-	UserState *GetSolutionNext() {
+	inline UserState *GetSolutionNext() {
 		if( m_CurrentSolutionNode )	{
 			if( m_CurrentSolutionNode->child ) {
 		        m_CurrentSolutionNode = m_CurrentSolutionNode->child;
@@ -711,7 +711,7 @@ public: // methods
 	}
 
 	// Get end node
-	UserState *GetSolutionEnd() {
+	inline UserState *GetSolutionEnd() {
 		m_CurrentSolutionNode = m_Goal;
 		if( m_Goal ) {
 			return &m_Goal->m_UserState;
@@ -722,7 +722,7 @@ public: // methods
 	}
 
 	// Step solution iterator backwards
-	UserState *GetSolutionPrev() 	{
+	inline UserState *GetSolutionPrev() 	{
 		if( m_CurrentSolutionNode ) 	{
 			if( m_CurrentSolutionNode->parent ) {
 		        m_CurrentSolutionNode = m_CurrentSolutionNode->parent;
@@ -1054,7 +1054,7 @@ public:
   ~FastAstar(void) {
   }
 
-  void startSearch(AI_Node *from,AI_Node *to,void *userData) {
+  inline void startSearch(AI_Node *from,AI_Node *to,void *userData) {
 	  mSolution.clear();
 	  MapSearchNode start(from);
 	  MapSearchNode end(to);
@@ -1062,11 +1062,11 @@ public:
 	  mAstarSearch.SetStartAndGoalStates(start,end,userData);
   }
 
-  SearchState getLastSearchState() {
+  inline SearchState getLastSearchState() {
 	  return lastSearchState;
   }
 
-  bool searchStep(unsigned int &searchCount) {
+  inline bool searchStep(unsigned int &searchCount) {
     bool ret = false;
 
     SearchState state = mAstarSearch.SearchStep(searchCount);
@@ -1087,7 +1087,7 @@ public:
 				mSolution.push_back(ai);
 				node = mAstarSearch.GetSolutionNext();
 			  }
-			  mAstarSearch.FreeSolutionNodes();
+			  //mAstarSearch.FreeSolutionNodes();
 			}
 			ret = true;
 			break;
@@ -1105,7 +1105,7 @@ public:
     return ret;
   }
 
-  AI_Node ** getSolution(unsigned int &count) {
+  inline AI_Node ** getSolution(unsigned int &count) {
     AI_Node **ret = 0;
     count = 0;
     if ( !mSolution.empty() ) {

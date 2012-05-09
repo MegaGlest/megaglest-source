@@ -375,7 +375,7 @@ void World::updateAllFactionUnits() {
 	// Prioritize grouped command units so closest units to target go first
 	// units
 	int factionCount = getFactionCount();
-
+	//printf("===== STARTING Frame: %d\n",frameCount);
 //	Config &config= Config::getInstance();
 //	bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
 //
@@ -444,6 +444,8 @@ void World::updateAllFactionUnits() {
 		if(faction == NULL) {
 			throw megaglest_runtime_error("faction == NULL");
 		}
+
+		faction->clearUnitsPathfinding();
 
 		int unitCount = faction->getUnitCount();
 		for(int j = 0; j < unitCount; ++j) {
@@ -573,14 +575,6 @@ bool World::canTickWorld() const {
 	}
 
 	return needToTick;
-}
-
-int World::getUpdateFps(int factionIndex) const {
-	int result = GameConstants::updateFps;
-	//if(factionIndex != -1 && staggeredFactionUpdates == true) {
-	//	result = (GameConstants::updateFps / GameConstants::maxPlayers);
-	//}
-	return result;
 }
 
 bool World::canTickFaction(int factionIdx) {
