@@ -104,6 +104,7 @@ public:
 	}
 	//Priority: commands of higher priority will cancel commands of lower priority
 	virtual int getTypePriority() const {return 10;}
+	virtual bool usesPathfinder() const= 0;
 
     //get
     CommandClass getClass() const;
@@ -131,6 +132,8 @@ public:
 	virtual int getTypePriority() const							{return 100000;}
     //get
 	const StopSkillType *getStopSkillType() const	{return stopSkillType;};
+
+	virtual bool usesPathfinder() const { return false; }
 };
 
 
@@ -153,6 +156,8 @@ public:
 
     //get
 	const MoveSkillType *getMoveSkillType() const	{return moveSkillType;};
+
+	virtual bool usesPathfinder() const { return true; }
 };
 
 
@@ -178,6 +183,8 @@ public:
     //get
 	const MoveSkillType * getMoveSkillType() const			{return moveSkillType;}
 	const AttackSkillType * getAttackSkillType() const		{return attackSkillType;}
+
+	virtual bool usesPathfinder() const { return true; }
 };
 
 // =======================================
@@ -201,6 +208,8 @@ public:
     //get
 	const StopSkillType * getStopSkillType() const		{return stopSkillType;}
 	const AttackSkillType * getAttackSkillType() const	{return attackSkillType;}
+
+	virtual bool usesPathfinder() const { return false; }
 };
 
 
@@ -233,6 +242,8 @@ public:
 	const UnitType * getBuilding(int i) const		{return buildings[i];}
 	StaticSound *getStartSound() const				{return startSounds.getRandSound();}
 	StaticSound *getBuiltSound() const				{return builtSounds.getRandSound();}
+
+	virtual bool usesPathfinder() const { return true; }
 };
 
 
@@ -270,6 +281,8 @@ public:
 	int getHarvestedResourceCount() const					{return harvestedResources.size();}
 	const ResourceType* getHarvestedResource(int i) const	{return harvestedResources[i];}
 	bool canHarvest(const ResourceType *resourceType) const;
+
+	virtual bool usesPathfinder() const { return true; }
 };
 
 
@@ -301,6 +314,7 @@ public:
 	int getRepairCount() const					{return repairableUnits.size();}
 	const UnitType * getRepair(int i) const		{return repairableUnits[i];}
 
+	virtual bool usesPathfinder() const { return true; }
 };
 
 
@@ -329,6 +343,8 @@ public:
     //get
 	const ProduceSkillType *getProduceSkillType() const	{return produceSkillType;}
 	const UnitType *getProducedUnit() const				{return producedUnit;}
+
+	virtual bool usesPathfinder() const { return false; }
 };
 
 
@@ -357,6 +373,8 @@ public:
     //get
 	const UpgradeSkillType *getUpgradeSkillType() const		{return upgradeSkillType;}
 	const UpgradeType *getProducedUpgrade() const			{return producedUpgrade;}
+
+	virtual bool usesPathfinder() const { return false; }
 };
 
 // ===============================
@@ -387,6 +405,8 @@ public:
 	const UnitType *getMorphUnit() const				{return morphUnit;}
 	int getDiscount() const								{return discount;}
 	bool getIgnoreResourceRequirements() const			{return ignoreResourceRequirements;}
+
+	virtual bool usesPathfinder() const { return false; }
 };
 
 // ===============================
@@ -405,6 +425,8 @@ public:
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
 	virtual string toString() const;
+
+	virtual bool usesPathfinder() const { return false; }
 };
 
 // ===============================
