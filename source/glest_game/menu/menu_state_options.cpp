@@ -201,6 +201,20 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		listBoxShadows.setSelectedItemIndex(clamp(Renderer::strToShadows(str), 0, Renderer::sCount-1));
 		currentLine-=lineOffset;
 
+		//shadows
+		labelShadowTextureSize.registerGraphicComponent(containerName,"labelShadowTextureSize");
+		labelShadowTextureSize.init(currentLabelStart, currentLine);
+		labelShadowTextureSize.setText(lang.get("ShadowTextureSize"));
+
+		listBoxShadowTextureSize.registerGraphicComponent(containerName,"listBoxShadowTextureSize");
+		listBoxShadowTextureSize.init(currentColumnStart, currentLine, 170);
+		listBoxShadowTextureSize.pushBackItem("256");
+		listBoxShadowTextureSize.pushBackItem("512");
+		listBoxShadowTextureSize.pushBackItem("1024");
+		listBoxShadowTextureSize.setSelectedItemIndex(1,false);
+		listBoxShadowTextureSize.setSelectedItem(intToStr(config.getInt("ShadowTextureSize","512")),false);
+		currentLine-=lineOffset;
+
 		//textures 3d
 		labelTextures3D.registerGraphicComponent(containerName,"labelTextures3D");
 		labelTextures3D.init(currentLabelStart, currentLine);
@@ -610,6 +624,7 @@ void MenuStateOptions::reloadUI() {
 
 
 	labelShadows.setText(lang.get("Shadows"));
+	labelShadowTextureSize.setText(lang.get("ShadowTextureSize"));
 
 	listboxData.clear();
 	for(int i= 0; i<Renderer::sCount; ++i){
@@ -813,6 +828,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 	{
 		listBoxLang.mouseClick(x, y);
 		listBoxShadows.mouseClick(x, y);
+		listBoxShadowTextureSize.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
 		if(listBoxGammaCorrection.mouseClick(x, y)){
 			float gammaValue=strToFloat(listBoxGammaCorrection.getSelectedItem());
@@ -1055,6 +1071,8 @@ void MenuStateOptions::render(){
         renderer.renderLabel(&labelRainEffectSeparator);
         renderer.renderCheckBox(&checkBoxRainEffectMenu);
 
+		renderer.renderLabel(&labelShadowTextureSize);
+		renderer.renderListBox(&listBoxShadowTextureSize);
 	}
 
 	renderer.renderConsole(&console,false,true);
@@ -1079,6 +1097,9 @@ void MenuStateOptions::saveConfig(){
 
 	int index= listBoxShadows.getSelectedItemIndex();
 	config.setString("Shadows", Renderer::shadowsToStr(static_cast<Renderer::Shadows>(index)));
+
+	string texSizeString= listBoxShadowTextureSize.getSelectedItem();
+	config.setInt("ShadowTextureSize",strToInt(texSizeString) );
 
 	config.setBool("Windowed", checkBoxFullscreenWindowed.getValue());
 	config.setString("Filter", listBoxFilter.getSelectedItem());

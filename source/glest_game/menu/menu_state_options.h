@@ -128,6 +128,9 @@ private:
 	GraphicLabel labelGammaCorrection;
 	GraphicListBox listBoxGammaCorrection;
 
+	GraphicLabel labelShadowTextureSize;
+	GraphicListBox listBoxShadowTextureSize;
+
 	map<string,string> languageList;
 
 public:
