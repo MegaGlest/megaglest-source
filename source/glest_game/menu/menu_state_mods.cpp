@@ -90,6 +90,9 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	int installButtonYPos = scrollListsYPos-listBoxLength-20;
 
 	int returnLineY = 80;
+	enableMapPreview = config.getBool("MapPreview","true");
+	validMapPreview = false;
+    mapPreviewTexture=NULL;
 
 	//create
 	techInfoXPos = 10;
@@ -831,10 +834,10 @@ MapInfo MenuStateMods::loadMapInfo(string file) {
 	return mapInfo;
 */
 
-	MapInfo mapInfo;
 	//memset(&mapInfo,0,sizeof(mapInfo));
 	try{
 		Lang &lang= Lang::getInstance();
+		// Not painting properly so this is on hold
 		MapPreview::loadMapInfo(file, &mapInfo, lang.get("MaxPlayers"),lang.get("Size"),true);
 	}
 	catch(exception &e) {
@@ -1145,6 +1148,7 @@ void MenuStateMods::cleanUp() {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	cleanupPreviewTexture();
+	cleanupMapPreviewTexture();
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -1806,10 +1810,15 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 						bool remoteHasMap = (mapCacheList.find(mapName) != mapCacheList.end());
 						if(remoteHasMap) {
 							showRemoteDesription(&mapCacheList[selectedMapName]);
+							if(mapCacheList[selectedMapName].localCRC!=""){
+								loadMapPreview(mapName);
+							}
 						}
 						else {
 							showLocalDescription(mapName);
+							loadMapPreview(mapName);
 						}
+
 					}
 					break;
 				}
@@ -1926,12 +1935,37 @@ void MenuStateMods::showLocalDescription(string name) {
 	Lang &lang= Lang::getInstance();
 	modInfoSelected=NULL;
 	cleanupPreviewTexture();
+	validMapPreview=false;
+	cleanupMapPreviewTexture();
 	modDescrLabel.setText(lang.get("ModOnlyLocal")+":\n'"+name+"'");
 }
+
+void MenuStateMods::loadMapPreview(string mapName) {
+	Config &config = Config::getInstance();
+	cleanupMapPreviewTexture();
+	vector<string> mapPaths = config.getPathListForType(ptMaps);
+	string &mapPath = mapPaths[1];
+	endPathWithSlash(mapPath);
+	mapPath += mapName;
+	MapInfo mapInfo = loadMapInfo(mapPath);
+	if(enableMapPreview == true) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		mapPreview.loadFromFile(mapPath.c_str());
+
+		//printf("Loading map preview MAP\n");
+		cleanupMapPreviewTexture();
+		validMapPreview=true;
+	}
+}
+
+
 
 void MenuStateMods::showRemoteDesription(ModInfo *modInfo) {
 	//displayModPreviewImage = false;
 	modInfoSelected = modInfo;
+	validMapPreview=false;
+	cleanupMapPreviewTexture();
 
 	string modText = modInfo->description;
 	replaceAll(modText, "\\n", "\n");
@@ -2026,6 +2060,22 @@ void MenuStateMods::cleanupPreviewTexture() {
 		Renderer::getInstance().endTexture(rsGlobal, modPreviewImage, false);
 	}
 	modPreviewImage = NULL;
+}
+
+void MenuStateMods::cleanupMapPreviewTexture() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	//printf("CLEANUP map preview texture\n");
+	if(mapPreviewTexture != NULL) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		mapPreviewTexture->end();
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		delete mapPreviewTexture;
+		mapPreviewTexture = NULL;
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 
@@ -2311,6 +2361,23 @@ void MenuStateMods::render() {
 			Vec4f colorWithAlpha = Vec4f(ORANGE.x,ORANGE.y,ORANGE.z,anim);
 			renderer.renderLabel(&pleaseWaitLabel,&colorWithAlpha);
 		}
+		if(validMapPreview){
+			if(mapPreviewTexture != NULL) {
+				renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
+			}
+			if(enableMapPreview && (mapPreview.hasFileLoaded() == true)) {
+
+				int mouseX = mainMenu->getMouseX();
+				int mouseY = mainMenu->getMouseY();
+				int mouse2dAnim = mainMenu->getMouse2dAnim();
+
+				if(mapPreviewTexture == NULL) {
+					renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+					renderer.renderMapPreview(&mapPreview, true, 10, 350, &mapPreviewTexture);
+				}
+			}
+		}
+
 	}
 	catch(const std::exception &ex) {
 		char szBuf[1024]="";
