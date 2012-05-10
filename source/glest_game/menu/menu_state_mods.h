@@ -138,6 +138,12 @@ private:
 	ModMenuState modMenuState;
 	ModMenuState oldMenuState;
 
+	bool enableMapPreview;
+	bool validMapPreview;
+	MapInfo mapInfo;
+	MapPreview mapPreview;
+	Texture2D *mapPreviewTexture;
+
 	int keyButtonsToRender;
 	int keyButtonsYBase;
 	int keyButtonsXBase;
@@ -195,6 +201,7 @@ private:
 	void refreshScenarios();
 
 	void showLocalDescription(string name);
+	void loadMapPreview(string name);
 	void showRemoteDesription(ModInfo *modInfo);
 
 	std::map<string,int32> mapCRCUpdateList;
@@ -227,6 +234,7 @@ private:
 
     string getPreviewImageFileForMod(const ModInfo *modInfo);
     void cleanupPreviewTexture();
+    void cleanupMapPreviewTexture();
 };
 
 }}//end namespace
