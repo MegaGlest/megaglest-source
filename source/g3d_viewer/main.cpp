@@ -1255,6 +1255,8 @@ void MainWindow::loadModel(string path) {
 
 void MainWindow::loadParticle(string path) {
 	if(timer) timer->Stop();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 	if(path != "" && fileExists(path) == true) {
 		renderer->end();
 		unitParticleSystems.clear();
@@ -1269,9 +1271,11 @@ void MainWindow::loadParticle(string path) {
 			this->particlePathList.clear();
 			this->particlePathList.push_back(path);
 		}
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] added file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 	}
 
-	try{
+	try {
 	if(this->particlePathList.empty() == false) {
         string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
@@ -1288,13 +1292,14 @@ void MainWindow::loadParticle(string path) {
 
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] looking for unit XML [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitXML.c_str());
+
 			//int size   = -1;
 			//int height = -1;
+			int size  = 0;
+			int height= 0;
 
 			if(fileExists(unitXML) == true) {
-
-				int size  = 0;
-				int height= 0;
 				{
 				XmlTree xmlTree;
 				xmlTree.load(unitXML,Properties::getTagReplacementValues());
@@ -1307,36 +1312,43 @@ void MainWindow::loadParticle(string path) {
 				}
 
                 // std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
-
-				std::map<string,vector<pair<string, string> > > loadedFileList;
-                UnitParticleSystemType *unitParticleSystemType = new UnitParticleSystemType();
-                unitParticleSystemType->load(NULL, dir, dir + folderDelimiter + particlePath, //### if we knew which particle it was, we could be more accurate
-                		renderer,loadedFileList,"g3dviewer","");
-                unitParticleSystemTypes.push_back(unitParticleSystemType);
-
-                for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
-                    UnitParticleSystem *ups= new UnitParticleSystem(200);
-                    (*it)->setValues(ups);
-                    if(size > 0) {
-                        //getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
-                        Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
-                        ups->setPos(vec);
-                    }
-                    //ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
-                    ups->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
-                    unitParticleSystems.push_back(ups);
-                    renderer->manageParticleSystem(ups);
-
-                    ups->setVisible(true);
-                }
-
-                if(path != "" && fileExists(path) == true) {
-                    renderer->initModelManager();
-                    if(initTextureManager) {
-                    	renderer->initTextureManager();
-                    }
-                }
 			}
+			else {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] unit XML NOT FOUND [%s] using default position values\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitXML.c_str());
+
+				int size  = 1;
+				int height= 1;
+			}
+
+			std::map<string,vector<pair<string, string> > > loadedFileList;
+            UnitParticleSystemType *unitParticleSystemType = new UnitParticleSystemType();
+            unitParticleSystemType->load(NULL, dir, dir + folderDelimiter + particlePath, //### if we knew which particle it was, we could be more accurate
+            		renderer,loadedFileList,"g3dviewer","");
+            unitParticleSystemTypes.push_back(unitParticleSystemType);
+
+            for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
+                UnitParticleSystem *ups= new UnitParticleSystem(200);
+                (*it)->setValues(ups);
+                if(size > 0) {
+                    //getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
+                    Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+                    ups->setPos(vec);
+                }
+                //ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
+                ups->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+                unitParticleSystems.push_back(ups);
+                renderer->manageParticleSystem(ups);
+
+                ups->setVisible(true);
+            }
+
+            if(path != "" && fileExists(path) == true) {
+                renderer->initModelManager();
+                if(initTextureManager) {
+                	renderer->initTextureManager();
+                }
+            }
+
 		}
 		SetTitle(ToUnicode(titlestring));
 	}
@@ -1387,8 +1399,8 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
-			int size   = -1;
-			int height = -1;
+			int size   = 1;
+			int height = 1;
 
 			if(fileExists(unitXML) == true) {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitXML.c_str(),idx);
@@ -1503,8 +1515,8 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
-			int size   = -1;
-			int height = -1;
+			int size   = 1;
+			int height = 1;
 
 			if(fileExists(unitXML) == true) {
 				XmlTree xmlTree;
