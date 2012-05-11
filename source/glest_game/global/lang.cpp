@@ -287,6 +287,54 @@ void Lang::loadTechTreeStrings(string techTree) {
 	}
 }
 
+void Lang::loadTilesetStrings(string tileset) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tileset = [%s]\n",__FILE__,__FUNCTION__,__LINE__,tileset.c_str());
+
+	string currentPath = "";
+	Config &config = Config::getInstance();
+    vector<string> tilesetPaths = config.getPathListForType(ptTilesets);
+    for(int idx = 0; idx < tilesetPaths.size(); idx++) {
+        string &tilesetPath = tilesetPaths[idx];
+		endPathWithSlash(tilesetPath);
+
+        //printf("tilesetPath [%s]\n",tilesetPath.c_str());
+
+		if(folderExists(tilesetPath + tileset) == true) {
+			currentPath = tilesetPath;
+			endPathWithSlash(currentPath);
+			break;
+		}
+    }
+
+	string tilesetFolder = currentPath + tileset + "/";
+	string path = tilesetFolder + "lang/" + tileset + "_" + language + ".lng";
+	string pathDefault = tilesetFolder + "lang/" + tileset + "_default.lng";
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s] pathDefault = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),pathDefault.c_str());
+
+	tilesetStrings.clear();
+	tilesetStringsDefault.clear();
+
+	//try to load the current language first
+	if(fileExists(path)) {
+		tilesetStrings.load(path);
+	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path not found [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
+		//try english otherwise
+		path = tilesetFolder + "lang/" + tileset + "_english.lng";
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
+
+		if(fileExists(path)) {
+			tilesetStrings.load(path);
+		}
+	}
+
+	if(fileExists(pathDefault)) {
+		tilesetStringsDefault.load(pathDefault);
+	}
+}
+
 bool Lang::hasString(const string &s, string uselanguage, bool fallbackToDefault) {
 	bool result = false;
 	try {
@@ -405,6 +453,35 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 	}
 	catch(exception &ex) {
 		if(techTreeStrings.getpath() != "") {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		}
+		return "???" + s + "???";
+	}
+}
+
+string Lang::getTilesetString(const string &s,const char *defaultValue) {
+	try{
+		string result = "";
+
+		if(tilesetStrings.hasString(s) == true || defaultValue == NULL) {
+			if(tilesetStrings.hasString(s) == false && tilesetStringsDefault.hasString(s) == true) {
+				result = tilesetStringsDefault.getString(s);
+			}
+			else {
+				result = tilesetStrings.getString(s);
+			}
+		}
+		else if(tilesetStringsDefault.hasString(s) == true) {
+			result = tilesetStringsDefault.getString(s);
+		}
+		else if(defaultValue != NULL) {
+			result = defaultValue;
+		}
+		replaceAll(result, "\\n", "\n");
+		return result;
+	}
+	catch(exception &ex) {
+		if(tilesetStrings.getpath() != "") {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		}
 		return "???" + s + "???";
