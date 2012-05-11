@@ -132,7 +132,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int aHeadPos=240;
 	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
-	//int networkPos=networkHeadPos-labelOffset;
 	int xoffset=0;
 
 	//state
@@ -185,19 +184,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxAllowObservers.setSelectedItemIndex(0);
 	listBoxAllowObservers.setEditable(false);
 
-
-	// Enable Observer Mode
-	//labelEnableObserverMode.registerGraphicComponent(containerName,"labelEnableObserverMode");
-	//labelEnableObserverMode.init(xoffset+460, aHeadPos, 80);
-
-//	listBoxEnableObserverMode.registerGraphicComponent(containerName,"listBoxEnableObserverMode");
-//	listBoxEnableObserverMode.init(xoffset+460, aPos, 80);
-//	listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
-//	listBoxEnableObserverMode.pushBackItem(lang.get("No"));
-//	listBoxEnableObserverMode.setSelectedItemIndex(0);
-//	listBoxEnableObserverMode.setEditable(false);
-//	labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
-
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
 	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
@@ -237,7 +223,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxPathFinderType.setEditable(false);
 
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	//listBoxPlayerStatus.init(10, 600, 150);
 	listBoxPlayerStatus.init(xoffset+650, 180, 150);
 	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
 	listBoxPlayerStatus.setLighted(true);
@@ -245,8 +230,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
 	playerStatuses.push_back(lang.get("PlayerStatusReady"));
 	listBoxPlayerStatus.setItems(playerStatuses);
-
-
 
 	// Network Frame Period
 	xoffset=0;
@@ -268,12 +251,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelMap.setText(lang.get("Map"));
 
     //tileset listBox
-	//listBoxTileset.init(500, 260, 150);
 	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
 	listBoxTileset.init(xoffset+460, mapPos, 150);
 	listBoxTileset.setEditable(false);
-    //listBoxTileset.setItems(results);
-	//labelTileset.init(500, 290);
 
 	labelTileset.registerGraphicComponent(containerName,"labelTileset");
 	labelTileset.init(xoffset+460, mapHeadPos);
@@ -281,10 +261,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 
     //tech Tree listBox
-	//listBoxTechTree.init(700, 260, 150);
 	listBoxTechTree.setEditable(false);
-    //listBoxTechTree.setItems(results);
-	//labelTechTree.init(700, 290);
 
 	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
 	listBoxTechTree.init(xoffset+650, mapPos, 150);
@@ -340,7 +317,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
 	labelRMultiplier.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-	//labelRMultiplier.setText(lang.get("RMultiplier"));
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
     labelFaction.init(xoffset+430, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
@@ -412,36 +388,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
-//  	string scenarioDir = "";
-//  	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
-//  	vector<string> invalidMapList;
-//  	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
-//	if (allMaps.empty()) {
-//        throw megaglest_runtime_error("No maps were found!");
-//	}
-//	results.clear();
-//	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
-//	mapFiles = results;
-//
-//	copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
-//	copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
-//	std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
-//
-//	for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
-//		if(loadMapInfo(Map::getMapPath(mapFiles.at(i), "", false), &mapInfo, false) == true) {
-//			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
-//			formattedPlayerSortedMaps[mapInfo.players].push_back(formatString(mapFiles.at(i)));
-//			formattedMapFiles.push_back(formatString(mapFiles.at(i)));
-//			//if(config.getString("InitialMap", "Conflict") == formattedPlayerSortedMaps[mapInfo.players].back()){
-//			//	initialMapSelection= i;
-//			//}
-//		}
-//	}
-//    //listBoxMap.setItems(formattedPlayerSortedMaps[0]);
-//	listBoxMap.setItems(formattedMapFiles);
 	setupMapList("");
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
-    //listBoxMap.setSelectedItemIndex(initialMapSelection);
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(220, 180, 125);
@@ -460,24 +408,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	GraphicComponent::applyAllCustomProperties(containerName);
 
 	//tileset listBox
-//    findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
-//    std::vector<string> tilesetsFormatted = tilesetFiles;
-//	std::for_each(tilesetsFormatted.begin(), tilesetsFormatted.end(), FormatString());
-//	listBoxTileset.setItems(tilesetsFormatted);
 	setupTilesetList("");
 
-//    findDirs(config.getPathListForType(ptTechs), techTreeFiles);
-//    //reloadFactions(true);
-//    int initialTechSelection=0;
-//    std::vector<string> techsFormatted = techTreeFiles;
-//	for(int i= 0; i < techsFormatted.size(); i++){
-//		techsFormatted.at(i)= formatString(techsFormatted.at(i));
-//		if(config.getString("InitialTechTree", "Megapack") == techsFormatted.at(i)){
-//			initialTechSelection= i;
-//		}
-//	}
-//    listBoxTechTree.setItems(techsFormatted);
-//    listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 	int initialTechSelection = setupTechList("");
 	listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
@@ -528,11 +460,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		resultsScenarios.push_back(formatString(scenarioFiles[i]));
 	}
     listBoxScenario.setItems(resultsScenarios);
-    //if(resultsScenarios.empty() == true) {
     checkBoxScenario.setEnabled(false);
-    //}
-
-
 
     if(config.getBool("EnableFTPXfer","true") == true) {
         ClientInterface *clientInterface = networkManager.getClientInterface();
@@ -622,13 +550,6 @@ void MenuStateConnectedGame::reloadUI() {
 	observerItems.push_back(lang.get("No"));
 	observerItems.push_back(lang.get("Yes"));
 	listBoxAllowObservers.setItems(observerItems);
-
-	//vector<string> observerModeItems;
-	//observerModeItems.push_back(lang.get("Yes"));
-	//observerModeItems.push_back(lang.get("No"));
-	//listBoxEnableObserverMode.setItems(observerModeItems);
-
-	//labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
 
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
@@ -946,7 +867,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	if(clientInterface->isConnected() == true) {
 		int myCurrentIndex= -1;
 		for(int i= 0; i < GameConstants::maxPlayers; ++i) {// find my current index by looking at editable listBoxes
-			if(listBoxFactions[i].getEditable() &&
+			if(//listBoxFactions[i].getEditable() &&
 				clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) == i) {
 				myCurrentIndex= i;
 			}
@@ -998,7 +919,10 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 					}
 				}
 				//if(grabSlotButton[i].mouseClick(x, y)) {
-				//	printf("Send slot switch request for slot = %d, myCurrentIndex = %d name [%s] control = %d\n",i,myCurrentIndex,labelNetStatus[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex());
+				//	printf("Send slot switch request for slot = %d, myCurrentIndex = %d name [%s] control = %d, mapInfo.players = %d\n",i,myCurrentIndex,labelNetStatus[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex(),mapInfo.players);
+				//}
+				//else {
+				//	printf("No Click i = %d!\n",i);
 				//}
 
 				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
@@ -1014,12 +938,18 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 						//printf("Switch slot from %d to %d\n",myCurrentIndex,i);
 
+						string desiredFactionName = listBoxFactions[myCurrentIndex].getSelectedItem();
+						int desiredTeamIndex = listBoxTeams[myCurrentIndex].getSelectedItemIndex();
+						if(checkBoxScenario.getValue() == true) {
+							desiredFactionName = listBoxFactions[i].getSelectedItem();
+							desiredTeamIndex = listBoxTeams[i].getSelectedItemIndex();
+						}
+
 						clientInterface->sendSwitchSetupRequest(
-								listBoxFactions[myCurrentIndex].getSelectedItem(),
+								desiredFactionName,
 						        myCurrentIndex,
 						        i,
-						        listBoxTeams[myCurrentIndex].getSelectedItemIndex(),
-						        //labelPlayerNames[myCurrentIndex].getText(),
+						        desiredTeamIndex,
 						        getHumanPlayerName(),
 						        getNetworkPlayerStatus(),
 						        switchSetupRequestFlagType,
@@ -1170,10 +1100,6 @@ void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButton) {
 
     try {
-        //CoreData &coreData= CoreData::getInstance();
-        //SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-        //int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
-
         if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1189,8 +1115,6 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
             if(loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true) == true) {
             	labelMapInfo.setText(mapInfo.desc);
             }
@@ -1198,186 +1122,37 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
             	labelMapInfo.setText("???");
             }
 
-            //updateControlers();
-            //updateNetworkSlots();
-
-            //if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-            //    needToRepublishToMasterserver = true;
-            //}
-
-            //if(hasNetworkGameSettings() == true) {
-            	//delay publishing for 5 seconds
-            //	needToPublishDelayed=true;
-            //	mapPublishingDelayTimer=time(NULL);
-            //}
-
-            //broadCastGameSettingsToMasterserver();
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxFogOfWar.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-//            cleanupMapPreviewTexture();
-//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//                needToRepublishToMasterserver = true;
-//            }
-//
-//            if(hasNetworkGameSettings() == true) {
-//                needToSetChangedGameSettings = true;
-//                lastSetChangedGameSettings   = time(NULL);
-//            }
-
-        	//broadCastGameSettingsToMasterserver();
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxAllowObservers.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-//            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-//
-//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//                needToRepublishToMasterserver = true;
-//            }
-//
-//            reloadFactions(true);
-//
-//            if(hasNetworkGameSettings() == true) {
-//                needToSetChangedGameSettings = true;
-//                lastSetChangedGameSettings   = time(NULL);
-//            }
-
-        	//broadCastGameSettingsToMasterserver();
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-        //else if(listBoxEnableObserverMode.mouseClick(x, y)) {
-            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//                needToRepublishToMasterserver = true;
-//            }
-//
-//            if(hasNetworkGameSettings() == true)
-//            {
-//                needToSetChangedGameSettings = true;
-//                lastSetChangedGameSettings   = time(NULL);
-//            }
-
-        	//broadCastGameSettingsToMasterserver();
-        //	needToBroadcastServerSettings=true;
-        //	broadcastServerSettingsDelayTimer=time(NULL);
-        //}
         else if (listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//                needToRepublishToMasterserver = true;
-//            }
-//
-//            if(hasNetworkGameSettings() == true)
-//            {
-//                needToSetChangedGameSettings = true;
-//                lastSetChangedGameSettings   = time(NULL);
-//            }
-
-        	//broadCastGameSettingsToMasterserver();
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
         else if(listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//                needToRepublishToMasterserver = true;
-//            }
-//
-//            if(hasNetworkGameSettings() == true)
-//            {
-//                needToSetChangedGameSettings = true;
-//                lastSetChangedGameSettings   = time(NULL);
-//            }
-
-        	//broadCastGameSettingsToMasterserver();
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-//        else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
-//            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-//
-//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//                needToRepublishToMasterserver = true;
-//            }
-//
-//            if(hasNetworkGameSettings() == true)
-//            {
-//                needToSetChangedGameSettings = true;
-//                lastSetChangedGameSettings   = time(NULL);
-//            }
-//        }
-//        else if (listBoxAdvanced.mouseClick(x, y)) {
-//            //TODO
-//        }
         else if(listBoxTileset.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//                needToRepublishToMasterserver = true;
-//            }
-//            if(hasNetworkGameSettings() == true)
-//            {
-//
-//            	//delay publishing for 5 seconds
-//            	needToPublishDelayed=true;
-//            	mapPublishingDelayTimer=time(NULL);
-//            }
-
-        	//broadCastGameSettingsToMasterserver();
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-//        else if(listBoxMapFilter.mouseClick(x, y)){
-//            MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-//            switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
-//
-//            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
-//
-//            loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
-//            labelMapInfo.setText(mapInfo.desc);
-//            updateControlers();
-//            updateNetworkSlots();
-//
-//            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//                needToRepublishToMasterserver = true;
-//            }
-//
-//            if(hasNetworkGameSettings() == true)
-//            {
-//                needToSetChangedGameSettings = true;
-//                lastSetChangedGameSettings   = time(NULL);
-//            }
-//        }
         else if(listBoxTechTree.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             reloadFactions(false,"");
-
-            //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-            //if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-            //    needToRepublishToMasterserver = true;
-            //}
-
-            //if(hasNetworkGameSettings() == true)
-            //{
-            //    needToSetChangedGameSettings = true;
-            //    lastSetChangedGameSettings   = time(NULL);
-            //}
-
-            //broadCastGameSettingsToMasterserver();
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
@@ -1388,20 +1163,15 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	ClientInterface* clientInterface= networkManager.getClientInterface();
 
             for(int i=0; i<mapInfo.players; ++i) {
-                //MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-                //if (listBoxAdvanced.getSelectedItemIndex() == 1) {
-                    // set multiplier
-                    if(listBoxRMultiplier[i].mouseClick(x, y)) {
-                    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-                    	//broadCastGameSettingsToMasterserver();
-                    	needToBroadcastServerSettings=true;
-                    	broadcastServerSettingsDelayTimer=time(NULL);
-                    }
-                //}
+				// set multiplier
+				if(listBoxRMultiplier[i].mouseClick(x, y)) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					//broadCastGameSettingsToMasterserver();
+					needToBroadcastServerSettings=true;
+					broadcastServerSettingsDelayTimer=time(NULL);
+				}
 
                 //ensure thet only 1 human player is present
-                //int oldSelectedIndex = listBoxControls[i].getSelectedItemIndex();
                 if(clientInterface != NULL && clientInterface->getGameSettings() != NULL &&
                 		clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxControls[i].mouseClick(x, y)) {
@@ -1414,7 +1184,6 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 
                     updateResourceMultiplier(i);
 
-                	//broadCastGameSettingsToMasterserver();
                 	needToBroadcastServerSettings=true;
                 	broadcastServerSettingsDelayTimer=time(NULL);
                 }
@@ -1429,7 +1198,6 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         				listBoxFactions[i].setSelectedItemIndex(0);
         			}
 
-        			//broadCastGameSettingsToMasterserver();
                 	needToBroadcastServerSettings=true;
                 	broadcastServerSettingsDelayTimer=time(NULL);
                 }
@@ -1445,8 +1213,6 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                         //lastSelectedTeamIndex[i] = -1;
                     }
 
-
-                    //broadCastGameSettingsToMasterserver();
                 	needToBroadcastServerSettings=true;
                 	broadcastServerSettingsDelayTimer=time(NULL);
                 }
@@ -1476,8 +1242,6 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 		CoreData::getInstance().saveGameSettingsToFile(HEADLESS_SAVED_GAME_FILENAME,&gameSettings,true);
 	}
 
-	//forceWaitForShutdown = false;
-	//closeUnusedSlots();
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	soundRenderer.playFx(coreData.getClickSoundC());
@@ -1486,14 +1250,10 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 
 	//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
 
-    //clientInterface->setGameSettings(&gameSettings);
     clientInterface->broadcastGameStart(&gameSettings);
 }
 
 string MenuStateConnectedGame::getCurrentMapFile() {
-	//int i=listBoxMapFilter.getSelectedItemIndex();
-	//int mapIndex=listBoxMap.getSelectedItemIndex();
-	//return playerSortedMaps[i].at(mapIndex);
 	int mapIndex=listBoxMap.getSelectedItemIndex();
 	return mapFiles[mapIndex];
 }
@@ -1509,7 +1269,6 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
         endPathWithSlash(techPath);
 
         if(listBoxTechTree.getSelectedItemIndex() >= 0 && listBoxTechTree.getSelectedItemIndex() < techTreeFiles.size()) {
-			//findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
 			findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
         }
         if(results.empty() == false) {
@@ -1572,15 +1331,12 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	int factionCount= 0;
-	//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     // Test flags values
     //gameSettings->setFlagTypes1(ft1_show_map_resources);
     //
-
-	//gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
 
 	if(checkBoxScenario.getValue() == true) {
 		gameSettings->setScenario(scenarioInfo.name);
@@ -1729,43 +1485,12 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
 				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers + fpt_Observer));
 			}
-//			else if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
-//				if(lastSelectedTeamIndex[i] >= 0 && lastSelectedTeamIndex[i] + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
-//					if(lastSelectedTeamIndex[i] == 0) {
-//						lastSelectedTeamIndex[i] = GameConstants::maxPlayers-1;
-//					}
-//					else if(lastSelectedTeamIndex[i] == GameConstants::maxPlayers-1) {
-//						lastSelectedTeamIndex[i] = 0;
-//					}
-//
-//					listBoxTeams[i].setSelectedItemIndex(lastSelectedTeamIndex[i]);
-//				}
-//				else {
-//					listBoxTeams[i].setSelectedItem(intToStr(1));
-//				}
-//			}
 
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
 			//printf("!!! setStartLocationIndex #1 slotIndex = %d, i = %d\n",slotIndex, i);
 
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-//				if(serverInterface->getSlot(i) != NULL &&
-//                   serverInterface->getSlot(i)->isConnected()) {
-//
-//					gameSettings->setNetworkPlayerStatuses(slotIndex,serverInterface->getSlot(i)->getNetworkPlayerStatus());
-//
-//					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, connectionSlot->getName() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,serverInterface->getSlot(i)->getName().c_str());
-//
-//					gameSettings->setNetworkPlayerName(slotIndex, serverInterface->getSlot(i)->getName());
-//					labelPlayerNames[i].setText(serverInterface->getSlot(i)->getName());
-//				}
-//				else {
-//					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, playername unconnected\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i);
-//
-//					gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
-//					labelPlayerNames[i].setText("");
-//				}
 			}
 			else if (listBoxControls[i].getSelectedItemIndex() != ctHuman) {
 				AIPlayerCount++;
@@ -1778,8 +1503,6 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			factionCount++;
 		}
 		else {
-			//gameSettings->setNetworkPlayerName("");
-			//gameSettings->setNetworkPlayerStatuses(factionCount, 0);
 			labelPlayerNames[i].setText("");
 		}
     }
@@ -2031,11 +1754,10 @@ void MenuStateConnectedGame::render() {
 			}
 
 			renderer.renderListBox(&listBoxControls[i]);
-			if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
+			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
 				renderer.renderListBox(&listBoxRMultiplier[i]);
 				renderer.renderListBox(&listBoxFactions[i]);
 				renderer.renderListBox(&listBoxTeams[i]);
-				//renderer.renderLabel(&labelNetStatus[i]);
 
 				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) &&
 					(labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)) {
@@ -2716,11 +2438,6 @@ void MenuStateConnectedGame::update() {
 				GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
 				setupUIFromGameSettings(gameSettings, errorOnMissingData);
 			}
-
-//			for(int i= mapInfo.players; i< GameConstants::maxPlayers; ++i) {
-//				listBoxControls[i].setEditable(false);
-//				listBoxControls[i].setEnabled(false);
-//			}
 
 			//update lobby
 			clientInterface= NetworkManager::getInstance().getClientInterface();
@@ -3863,8 +3580,10 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				if(gameSettings->getFactionControl(i) != ctNetworkUnassigned) {
 					listBoxControls[slot].setSelectedItemIndex(ctHuman);
 				}
-				listBoxFactions[slot].setEditable(true);
-				listBoxTeams[slot].setEditable(true);
+				if(checkBoxScenario.getValue() == false) {
+					listBoxFactions[slot].setEditable(true);
+					listBoxTeams[slot].setEditable(true);
+				}
 
 				if(labelPlayerNames[slot].getText() == "" &&
 					gameSettings->getNetworkPlayerName(i) != "" &&
@@ -3878,8 +3597,6 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 			needToSetChangedGameSettings = true;
 			lastSetChangedGameSettings   = time(NULL);
-
-			//mustSwitchPlayerName = true;
 		}
 	}
 
