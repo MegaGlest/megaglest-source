@@ -361,6 +361,9 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error: " + path + "\n" + e.what());
 	}
+
+    Lang &lang = Lang::getInstance();
+    lang.loadTilesetStrings(name);
 }
 
 Tileset::~Tileset() {

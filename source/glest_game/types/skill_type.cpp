@@ -581,20 +581,31 @@ string SkillType::skillClassToStr(SkillClass skillClass) {
 
 string SkillType::fieldToStr(Field field) {
 	Lang &lang= Lang::getInstance();
+	string fieldName = "";
 	switch(field) {
-	case fLand:
-		if(lang.hasString("FieldLand") == true) {
-			return lang.get("FieldLand");
-		}
-		return "Land";
-	case fAir:
-		if(lang.hasString("FieldAir") == true) {
-			return lang.get("FieldAir");
-		}
-		return "Air";
-	default:
-		assert(false);
-		return "";
+		case fLand:
+			if(lang.hasString("FieldLand") == true) {
+				fieldName = lang.get("FieldLand");
+			}
+			else {
+				fieldName = "Land";
+			}
+			//return "Land";
+			return lang.getTilesetString("FieldLandName",fieldName.c_str());
+
+		case fAir:
+			if(lang.hasString("FieldAir") == true) {
+				fieldName = lang.get("FieldAir");
+			}
+			else {
+				fieldName = "Air";
+			}
+
+			//return "Air";
+			return lang.getTilesetString("FieldAirName",fieldName.c_str());
+		default:
+			assert(false);
+			return "";
 	};
 }
 
