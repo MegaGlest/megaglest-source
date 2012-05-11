@@ -121,14 +121,21 @@ void AmbientSounds::load(const string &dir, const XmlNode *xmlNode,
 Checksum Tileset::loadTileset(const vector<string> pathList, const string &tilesetName,
 		Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
     Checksum tilesetChecksum;
+
+    bool found = false;
     for(int idx = 0; idx < pathList.size(); idx++) {
 		string currentPath = pathList[idx];
 		endPathWithSlash(currentPath);
         string path = currentPath + tilesetName;
         if(isdir(path.c_str()) == true) {
             load(path, checksum, &tilesetChecksum, loadedFileList);
+            found = true;
             break;
         }
+    }
+    if(found == false) {
+		throw megaglest_runtime_error("Error could not find tileset [" + tilesetName + "]\n");
+
     }
     return tilesetChecksum;
 }
@@ -162,6 +169,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		//printf("About to load tileset [%s]\n",path.c_str());
 		//parse xml
 		XmlTree xmlTree;
 		xmlTree.load(path,Properties::getTagReplacementValues());
