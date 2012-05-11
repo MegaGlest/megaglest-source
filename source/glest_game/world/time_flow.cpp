@@ -49,11 +49,16 @@ void TimeFlow::update() {
 
 	//sounds
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	AmbientSounds *ambientSounds= tileset->getAmbientSounds();
+	AmbientSounds *ambientSounds= NULL;
+	if(tileset != NULL) {
+		ambientSounds = tileset->getAmbientSounds();
+	}
 
 	//day
 	if(lastTime<dawn && time>=dawn){
-		soundRenderer.stopAmbient(ambientSounds->getNight());
+		if(ambientSounds != NULL) {
+			soundRenderer.stopAmbient(ambientSounds->getNight());
+		}
 		UnitParticleSystem::isNight=false;
 	}
 	UnitParticleSystem::lightColor=computeLightColor();
@@ -61,12 +66,14 @@ void TimeFlow::update() {
 	if((lastTime<dawn && time>=dawn) || firstTime){
 		
 		//day sound
-		if(ambientSounds->isEnabledDayStart() && !firstTime){
-			soundRenderer.playFx(ambientSounds->getDayStart());
-		}
-		if(ambientSounds->isEnabledDay()){
-			if(ambientSounds->getAlwaysPlayDay() || tileset->getWeather()==wSunny){
-				soundRenderer.playAmbient(ambientSounds->getDay());
+		if(ambientSounds != NULL) {
+			if(ambientSounds->isEnabledDayStart() && !firstTime){
+				soundRenderer.playFx(ambientSounds->getDayStart());
+			}
+			if(ambientSounds->isEnabledDay()){
+				if(ambientSounds->getAlwaysPlayDay() || tileset->getWeather()==wSunny){
+					soundRenderer.playAmbient(ambientSounds->getDay());
+				}
 			}
 		}
 		firstTime= false;
@@ -74,18 +81,22 @@ void TimeFlow::update() {
 
 	//night
 	if(lastTime<dusk && time>=dusk){
-		soundRenderer.stopAmbient(ambientSounds->getDay());
+		if(ambientSounds != NULL) {
+			soundRenderer.stopAmbient(ambientSounds->getDay());
+		}
 		UnitParticleSystem::isNight=true;
 	}
 
 	if(lastTime<dusk && time>=dusk){		
 		//night
-		if(ambientSounds->isEnabledNightStart()){
-			soundRenderer.playFx(ambientSounds->getNightStart());
-		}	
-		if(ambientSounds->isEnabledNight()){
-			if(ambientSounds->getAlwaysPlayNight() || tileset->getWeather()==wSunny){
-				soundRenderer.playAmbient(ambientSounds->getNight());
+		if(ambientSounds != NULL) {
+			if(ambientSounds->isEnabledNightStart()){
+				soundRenderer.playFx(ambientSounds->getNightStart());
+			}
+			if(ambientSounds->isEnabledNight()){
+				if(ambientSounds->getAlwaysPlayNight() || tileset->getWeather()==wSunny){
+					soundRenderer.playAmbient(ambientSounds->getNight());
+				}
 			}
 		}
 	}
@@ -99,29 +110,31 @@ void TimeFlow::update() {
 Vec3f TimeFlow::computeLightColor() const {
 	Vec3f color;
 
-	float time=getTime();
+	if(tileset != NULL) {
+		float time=getTime();
 
-	const float transition= 2;
-	const float dayStart= TimeFlow::dawn;
-	const float dayEnd= TimeFlow::dusk-transition;
-	const float nightStart= TimeFlow::dusk;
-	const float nightEnd= TimeFlow::dawn-transition;
+		const float transition= 2;
+		const float dayStart= TimeFlow::dawn;
+		const float dayEnd= TimeFlow::dusk-transition;
+		const float nightStart= TimeFlow::dusk;
+		const float nightEnd= TimeFlow::dawn-transition;
 
-	if(time>dayStart && time<dayEnd) {
-		color= tileset->getSunLightColor();
-	}
-	else if(time>nightStart || time<nightEnd) {
-		color= tileset->getMoonLightColor();
-	}
-	else if(time>=dayEnd && time<=nightStart) {
-		color= tileset->getSunLightColor().lerp((time-dayEnd)/transition, tileset->getMoonLightColor());
-	}
-	else if(time>=nightEnd && time<=dayStart) {
-		color= tileset->getMoonLightColor().lerp((time-nightEnd)/transition, tileset->getSunLightColor());
-	}
-	else {
-		assert(false);
-		color= tileset->getSunLightColor();
+		if(time>dayStart && time<dayEnd) {
+			color= tileset->getSunLightColor();
+		}
+		else if(time>nightStart || time<nightEnd) {
+			color= tileset->getMoonLightColor();
+		}
+		else if(time>=dayEnd && time<=nightStart) {
+			color= tileset->getSunLightColor().lerp((time-dayEnd)/transition, tileset->getMoonLightColor());
+		}
+		else if(time>=nightEnd && time<=dayStart) {
+			color= tileset->getMoonLightColor().lerp((time-nightEnd)/transition, tileset->getSunLightColor());
+		}
+		else {
+			assert(false);
+			color= tileset->getSunLightColor();
+		}
 	}
 	return color;
 }
