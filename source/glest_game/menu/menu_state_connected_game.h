@@ -59,16 +59,6 @@ private:
 	GraphicLabel labelInfo;
 	GraphicButton buttonRestoreLastSettings;
 
-	//GraphicLabel labelEnableObserverMode;
-	//GraphicListBox listBoxEnableObserverMode;
-	//GraphicLabel labelEnableServerControlledAI;
-	//GraphicListBox listBoxEnableServerControlledAI;
-	//GraphicLabel labelNetworkPauseGameForLaggedClients;
-	//GraphicListBox listBoxNetworkPauseGameForLaggedClients;
-
-	//GraphicListBox listBoxNetworkFramePeriod;
-	//GraphicLabel labelNetworkFramePeriod;
-
 	GraphicLabel labelPathFinderType;
 	GraphicListBox listBoxPathFinderType;
 
@@ -139,7 +129,6 @@ private:
 	MapPreview mapPreview;
 
 	GraphicMessageBox mainMessageBox;
-	//int mainMessageBoxState;
 
 	std::string lastMissingMap;
 	std::string lastMissingTechtree;
