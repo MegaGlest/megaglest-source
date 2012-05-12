@@ -477,7 +477,8 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 						throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 					}
 
-					if(i < pathFindRefresh ||
+					//if(i < pathFindRefresh ||
+					if(i < unit->getPathFindRefreshCellCount() ||
 						(factions[unitFactionIndex].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
 						 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 						//!!! Test MV
@@ -502,7 +503,8 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 							throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 						}
 
-						if(i < pathFindRefresh ||
+						//if(i < pathFindRefresh ||
+						if(i < unit->getPathFindRefreshCellCount() ||
 								(factions[unitFactionIndex].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
 								 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 							path->add(nodePos);
@@ -584,7 +586,8 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 											factions[unitFactionIndex].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
 										else {
-											if(pathCount < pathFindRefresh) {
+											//if(pathCount < pathFindRefresh) {
+											if(pathCount < unit->getPathFindRefreshCellCount()) {
 												basicPathFinder->add(cachedPath[k]);
 											}
 											basicPathFinder->addToLastPathCache(cachedPath[k]);
@@ -618,7 +621,8 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 									unit->setUsePathfinderExtendedMaxNodes(false);
 									return ts;
 								}
-								else if(j - i > pathFindRefresh) {
+								//else if(j - i > pathFindRefresh) {
+								else if(j - i > unit->getPathFindRefreshCellCount()) {
 									//on the way
 									ts= tsMoving;
 
@@ -639,7 +643,8 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 											factions[unitFactionIndex].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
 										else {
-											if(pathCount < pathFindRefresh) {
+											//if(pathCount < pathFindRefresh) {
+											if(pathCount < unit->getPathFindRefreshCellCount()) {
 												basicPathFinder->add(cachedPath[k]);
 											}
 											basicPathFinder->addToLastPathCache(cachedPath[k]);
@@ -862,8 +867,8 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 					factions[unitFactionIndex].precachedPath[unit->getId()].push_back(nodePos);
 				}
 				else {
-					//if(i < pathFindRefresh) {
-					if(i < pathFindRefresh ||
+					//if(i < pathFindRefresh ||
+					if(i < unit->getPathFindRefreshCellCount() ||
 						(nodeSearchCount >= pathFindExtendRefreshForNodeCount &&
 						 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 						path->add(nodePos);
@@ -1322,7 +1327,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 					}
 
-					if(i < pathFindRefresh ||
+					//if(i < pathFindRefresh ||
+					if(i < unit->getPathFindRefreshCellCount() ||
 						(factions[unitFactionIndex].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
 						 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 						//!!! Test MV
@@ -1347,7 +1353,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 							throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 						}
 
-						if(i < pathFindRefresh ||
+						//if(i < pathFindRefresh ||
+						if(i < unit->getPathFindRefreshCellCount() ||
 								(factions[unitFactionIndex].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
 								 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 							path->add(nodePos);
@@ -1426,7 +1433,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 											factions[unitFactionIndex].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
 										else {
-											if(pathCount < pathFindRefresh) {
+											//if(pathCount < pathFindRefresh) {
+											if(pathCount < unit->getPathFindRefreshCellCount()) {
 												basicPathFinder->add(cachedPath[k]);
 											}
 											basicPathFinder->addToLastPathCache(cachedPath[k]);
@@ -1460,7 +1468,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									unit->setUsePathfinderExtendedMaxNodes(false);
 									return ts;
 								}
-								else if(j - i > pathFindRefresh) {
+								//else if(j - i > pathFindRefresh) {
+								else if(j - i > unit->getPathFindRefreshCellCount()) {
 									//on the way
 									ts= tsMoving;
 
@@ -1481,7 +1490,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 											factions[unitFactionIndex].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
 										else {
-											if(pathCount < pathFindRefresh) {
+											//if(pathCount < pathFindRefresh) {
+											if(pathCount < unit->getPathFindRefreshCellCount()) {
 												basicPathFinder->add(cachedPath[k]);
 											}
 											basicPathFinder->addToLastPathCache(cachedPath[k]);
@@ -1765,7 +1775,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				factions[unitFactionIndex].precachedPath[unit->getId()].push_back(nodePos);
 			}
 			else {
-				if(i < pathFindRefresh ||
+				//if(i < pathFindRefresh ||
+				if(i < unit->getPathFindRefreshCellCount() ||
 					(whileLoopCount >= pathFindExtendRefreshForNodeCount &&
 					 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 					path->add(nodePos);

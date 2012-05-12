@@ -439,6 +439,9 @@ private:
 	uint32 pathfindFailedConsecutiveFrameCount;
 	Vec2i currentPathFinderDesiredFinalPos;
 
+	RandomGen random;
+	int pathFindRefreshCellCount;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     ~Unit();
@@ -446,6 +449,8 @@ public:
     //static bool isUnitDeleted(void *unit);
 
     static void setGame(Game *value) { game=value;}
+
+    inline int getPathFindRefreshCellCount() const { return pathFindRefreshCellCount; }
 
     void setCurrentPathFinderDesiredFinalPos(const Vec2i &finalPos) { currentPathFinderDesiredFinalPos = finalPos; }
     Vec2i getCurrentPathFinderDesiredFinalPos() const { return currentPathFinderDesiredFinalPos; }
