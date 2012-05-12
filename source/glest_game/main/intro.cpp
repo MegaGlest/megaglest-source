@@ -499,8 +499,14 @@ Intro::Intro(Program *program):
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
 			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
+			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
-			VideoPlayer player(introVideoFile.c_str(),screen,screen->w,screen->h,screen->format->BitsPerPixel);
+			VideoPlayer player(introVideoFile.c_str(),
+								screen,
+								screen->w,
+								screen->h,
+								screen->format->BitsPerPixel,
+								vlcPluginsPath);
 			player.PlayVideo();
 			return;
 		}

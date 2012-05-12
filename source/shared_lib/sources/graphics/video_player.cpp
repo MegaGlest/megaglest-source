@@ -74,12 +74,13 @@ static void display(void *data, void *id) {
 }
 
 VideoPlayer::VideoPlayer(string filename, SDL_Surface *surface,
-		int width, int height,int colorBits) {
+		int width, int height,int colorBits,string pluginsPath) {
 	this->filename = filename;
 	this->surface = surface;
 	this->width = width;
 	this->height = height;
 	this->colorBits = colorBits;
+	this->pluginsPath = pluginsPath;
 	this->stop = false;
 }
 
@@ -99,11 +100,18 @@ void VideoPlayer::PlayVideo() {
 	libvlc_instance_t *libvlc = NULL;
 	libvlc_media_t *m = NULL;
 	libvlc_media_player_t *mp = NULL;
+
+	string pluginParam = "";
+	if(pluginsPath != "") {
+		pluginParam = "--plugin-path=" + pluginsPath;
+	}
+
 	char const *vlc_argv[] =
 	{
 		//"--no-audio", /* skip any audio track */
 		"--no-xlib", /* tell VLC to not use Xlib */
 		"--no-video-title-show",
+		pluginParam.c_str(),
 	};
 	int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);
 #endif

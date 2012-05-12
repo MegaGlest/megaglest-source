@@ -25,10 +25,13 @@ protected:
 	int width;
 	int height;
 	int colorBits;
+	string pluginsPath;
+
 	bool stop;
 
 public:
-	VideoPlayer(string filename, SDL_Surface *surface, int width, int height,int colorBits);
+	VideoPlayer(string filename, SDL_Surface *surface, int width, int height,
+			int colorBits, string pluginsPath);
 	virtual ~VideoPlayer();
 
 	void PlayVideo();
