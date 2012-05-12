@@ -133,6 +133,8 @@ bool Checksum::addFileToSum(const string &path) {
 */
 
     bool fileExists = false;
+
+/*
 #ifdef WIN32
 	FILE* file= _wfopen(utf8_decode(path).c_str(), L"rb");
 #else
@@ -144,7 +146,7 @@ bool Checksum::addFileToSum(const string &path) {
 
 		bool isXMLFile = (EndsWith(path, ".xml") == true);
 		bool inCommentTag=false;
-		char buf[4096]="";  /* Should be large enough. */
+		char buf[4096]="";  // Should be large enough.
 		int bufSize = sizeof buf;
 		while(!feof(file)) {
 			//int8 byte= 0;
@@ -187,6 +189,71 @@ bool Checksum::addFileToSum(const string &path) {
 		throw megaglest_runtime_error("Can not open file: " + path);
 	}
 	fclose(file);
+*/
+
+#if defined(WIN32) && !defined(__MINGW32__)
+	wstring wstr = utf8_decode(path);
+	FILE *fp = _wfopen(wstr.c_str(), L"r");
+	ifstream ifs(fp);
+#else
+    ifstream ifs(path.c_str());
+#endif
+
+    if (!ifs) {
+        fileExists = true;
+		addString(lastFile(path));
+
+		bool isXMLFile = (EndsWith(path, ".xml") == true);
+		bool inCommentTag=false;
+
+		// Determine the file length
+		ifs.seekg(0, ios::end);
+		std::size_t size=ifs.tellg();
+		ifs.seekg(0, ios::beg);
+
+		int bufSize = size / sizeof(char);
+		// Create a vector to store the data
+		std::vector<char> buf(bufSize);
+		// Load the data
+		ifs.read((char*)&buf[0], buf.size());
+
+	    for(unsigned int i = 0; i < buf.size(); ++i) {
+	    	// Ignore Spaces in XML files as they are
+	    	// ONLY for formatting
+	    	if(isXMLFile == true) {
+	    		if(inCommentTag == true) {
+	    			if(buf[i] == '>' && i >= 3 && buf[i-1] == '-' && buf[i-2] == '-') {
+	    				inCommentTag = false;
+	    				//printf("TURNING OFF comment TAG, i = %d [%c]",i,buf[i]);
+	    			}
+	    			else {
+	    				//printf("SKIPPING XML comment character, i = %d [%c]",i,buf[i]);
+	    			}
+	    			continue;
+	    		}
+	    		//else if(buf[i] == '-' && i >= 4 && buf[i-1] == '-' && buf[i-2] == '!' && buf[i-3] == '<') {
+	    		else if(buf[i] == '<' && i+4 < bufSize && buf[i+1] == '!' && buf[i+2] == '-' && buf[i+3] == '-') {
+    				inCommentTag = true;
+    				//printf("TURNING ON comment TAG, i = %d [%c]",i,buf[i]);
+    				continue;
+	    		}
+	    		else if(buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r') {
+	    			//printf("SKIPPING special character, i = %d [%c]",i,buf[i]);
+	    			continue;
+	    	    }
+	    	}
+	 		addByte(buf[i]);
+	    }
+
+		// Close the file
+		ifs.close();
+    }
+#if defined(WIN32) && !defined(__MINGW32__)
+	if(fp) {
+		fclose(fp);
+	}
+#endif
+
     return fileExists;
 }
 
