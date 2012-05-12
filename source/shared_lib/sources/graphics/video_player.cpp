@@ -101,15 +101,15 @@ void VideoPlayer::PlayVideo() {
 	libvlc_media_t *m = NULL;
 	libvlc_media_player_t *mp = NULL;
 
-	string pluginParam = "";
-	if(pluginsPath != "") {
-		pluginParam = "--plugin-path=" + pluginsPath;
-	}
+//	string pluginParam = "";
+//	if(pluginsPath != "") {
+//		pluginParam = "--plugin-path=" + pluginsPath;
+//	}
 
 	std::vector<const char *> vlc_argv;
 	vlc_argv.push_back("--no-xlib" /* tell VLC to not use Xlib */);
 	vlc_argv.push_back("--no-video-title-show");
-	vlc_argv.push_back(pluginParam.c_str());
+//	vlc_argv.push_back(pluginParam.c_str());
 	int vlc_argc = vlc_argv.size();
 
 //	char const *vlc_argv[] =
@@ -153,22 +153,37 @@ void VideoPlayer::PlayVideo() {
 	 *  Initialise libVLC
 	 */
 	libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
-	if(libvlc == NULL && pluginParam == "") {
-		pluginParam = "--plugin-path=c:\\program files\\videolan\\plugins";
-		vlc_argv[2] = pluginParam.c_str();
-
+	if(libvlc == NULL) {
+#if defined(WIN32)
+		_putenv("VLC_PLUGIN_PATH=c:\\program files\\videolan\\plugins");
+#else
+		setenv("VLC_PLUGIN_PATH","c:\\program files\\videolan\\plugins",1);
+#endif
 		libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+
 		if(libvlc == NULL) {
-			pluginParam = "--plugin-path=\\program files\\videolan\\plugins";
-			vlc_argv[2] = pluginParam.c_str();
-
-			pluginParam = "--plugin-path=c:\\program files (x86)\\videolan\\plugins";
-			vlc_argv[2] = pluginParam.c_str();
-
+#if defined(WIN32)
+			_putenv("VLC_PLUGIN_PATH=\\program files\\videolan\\plugins");
+#else
+			setenv("VLC_PLUGIN_PATH","\\program files\\videolan\\plugins",1);
+#endif
 			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
 			if(libvlc == NULL) {
-				pluginParam = "--plugin-path=\\program files (x86)\\videolan\\plugins";
-				vlc_argv[2] = pluginParam.c_str();
+#if defined(WIN32)
+				_putenv("VLC_PLUGIN_PATH=c:\\program files (x86)\\videolan\\plugins");
+#else
+				setenv("VLC_PLUGIN_PATH","c:\\program files (x86)\\videolan\\plugins",1);
+#endif
+				libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+
+				if(libvlc == NULL) {
+#if defined(WIN32)
+					_putenv("VLC_PLUGIN_PATH=\\program files (x86)\\videolan\\plugins");
+#else
+					setenv("VLC_PLUGIN_PATH","\\program files (x86)\\videolan\\plugins",1);
+#endif
+					libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+				}
 			}
 		}
 	}
