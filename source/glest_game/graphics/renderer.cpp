@@ -4399,7 +4399,6 @@ void Renderer::renderWater() {
 		return;
 	}
 
-	bool closed= false;
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
@@ -4419,7 +4418,7 @@ void Renderer::renderWater() {
     glDisable(GL_TEXTURE_2D);
 
 	glEnable(GL_BLEND);
-	if(textures3D){
+	if(textures3D) {
 		Texture3D *waterTex= world->getTileset()->getWaterTex();
 		if(waterTex == NULL) {
 			throw megaglest_runtime_error("waterTex == NULL");
@@ -4444,6 +4443,10 @@ void Renderer::renderWater() {
 
 	assertGl();
 
+	int thisTeamIndex= world->getThisTeamIndex();
+	bool cellExplored = world->showWorldForPlayer(world->getThisFactionIndex());
+	bool closed= false;
+
 	Rect2i boundingRect= visibleQuad.computeBoundingRect();
 	Rect2i scaledRect= boundingRect/Map::cellScale;
 	scaledRect.clamp(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
@@ -4453,7 +4456,6 @@ void Renderer::renderWater() {
         glBegin(GL_TRIANGLE_STRIP);
 
 		for(int i=scaledRect.p[0].x; i<=scaledRect.p[1].x; ++i){
-
 			SurfaceCell *tc0= map->getSurfaceCell(i, j);
             SurfaceCell *tc1= map->getSurfaceCell(i, j+1);
 			if(tc0 == NULL) {
@@ -4463,14 +4465,11 @@ void Renderer::renderWater() {
 				throw megaglest_runtime_error("tc1 == NULL");
 			}
 
-			int thisTeamIndex= world->getThisTeamIndex();
-
-			bool cellExplored = world->showWorldForPlayer(world->getThisFactionIndex());
             if(cellExplored == false) {
                 cellExplored = (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex));
             }
 
-			if(tc0->getNearSubmerged() && cellExplored == true) {
+			if(cellExplored == true && tc0->getNearSubmerged()) {
 				glNormal3f(0.f, 1.f, 0.f);
                 closed= false;
 
@@ -4501,8 +4500,7 @@ void Renderer::renderWater() {
 
             }
             else{
-				if(!closed){
-
+				if(closed == false) {
 					pointCount+= 2;
 
 					//vertex 1
@@ -6668,11 +6666,6 @@ Vec4f Renderer::computeMoonPos(float time) {
 #else
 	return Vec4f(-cos(ang)*moonDist, sin(ang)*moonDist, 0.f, 0.f);
 #endif
-}
-
-Vec4f Renderer::computeWaterColor(float waterLevel, float cellHeight) {
-	const float waterFactor= 1.5f;
-	return Vec4f(1.f, 1.f, 1.f, clamp((waterLevel-cellHeight)*waterFactor, 0.f, 1.f));
 }
 
 // ==================== fast render ====================

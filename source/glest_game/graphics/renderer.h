@@ -597,7 +597,10 @@ private:
 	float computeMoonAngle(float time);
 	Vec4f computeSunPos(float time);
 	Vec4f computeMoonPos(float time);
-	Vec4f computeWaterColor(float waterLevel, float cellHeight);
+	inline Vec4f computeWaterColor(float waterLevel, float cellHeight) {
+		const float waterFactor= 1.5f;
+		return Vec4f(1.f, 1.f, 1.f, clamp((waterLevel-cellHeight) * waterFactor, 0.f, 1.f));
+	}
 	void checkExtension(const string &extension, const string &msg);
 
 	//selection render
