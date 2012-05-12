@@ -341,21 +341,21 @@ private:
 			}
 			// Attempt to speed up pathfinding, only count up found path nodes
 			// to the # we need till we will refresh anyways
-			else {
-				//build next pointers
-				int currentPathNodeCount = 0;
-				Node *currNode= node;
-				while(currNode->prev != NULL) {
-					currentPathNodeCount++;
-					currNode->prev->next= currNode;
-					currNode= currNode->prev;
-				}
-
-				if(currentPathNodeCount > PathFinder::pathFindRefresh) {
-					pathFound = true;
-					break;
-				}
-			}
+//			else {
+//				//build next pointers
+//				int currentPathNodeCount = 0;
+//				Node *currNode= node;
+//				while(currNode->prev != NULL) {
+//					currentPathNodeCount++;
+//					currNode->prev->next= currNode;
+//					currNode= currNode->prev;
+//				}
+//
+//				if(currentPathNodeCount > (PathFinder::pathFindRefresh * 2)) {
+//					pathFound = true;
+//					break;
+//				}
+//			}
 
 			if(tryJPSPathfinder == true) {
 				closedNodes[node->pos] = true;
