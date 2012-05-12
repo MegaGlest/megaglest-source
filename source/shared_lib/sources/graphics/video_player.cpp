@@ -14,6 +14,9 @@
 #include <SDL.h>
 #include <SDL_mutex.h>
 #include <vector>
+#if defined(WIN32)
+#include <windows.h>
+#endif
 
 #ifdef HAS_LIBVLC
 #include <vlc/vlc.h>
@@ -154,26 +157,19 @@ void VideoPlayer::PlayVideo() {
 	 */
 	libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
 	if(libvlc == NULL) {
-
 		// For windows check registry for install path
 #if defined(WIN32) && !defined(__MINGW32__)
-		// example from: http://stackoverflow.com/questions/1387769/create-registry-entry-to-associate-file-extension-with-application-in-c
-		//[HKEY_CURRENT_USER\Software\Classes\blergcorp.blergapp.v1\shell\open\command]
-		//@="c:\path\to\app.exe \"%1\""
-		//[HKEY_CURRENT_USER\Software\Classes\.blerg]
-		//@="blergcorp.blergapp.v1"
-
 		//Open the registry key.
 		wstring subKey = L"Software\\VideoLAN\\VLC";
 		HKEY keyHandle;
-		DWORD dwDisposition;
+		//DWORD dwDisposition;
 		LONG lres = RegOpenKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, KEY_READ, &keyHandle);
 		if(lres == ERROR_SUCCESS) {
 			std::string strValue;
 			//GetStringRegKey(keyHandle, L"", strValue, L"");
-			WCHAR szBuffer[4096];
+			char szBuffer[4096];
 			DWORD dwBufferSize = sizeof(szBuffer);
-			ULONG nError = RegQueryValueEx(keyHandle, "", 0, NULL, (LPBYTE)szBuffer, &dwBufferSize);
+			ULONG nError = RegQueryValueEx(keyHandle, L"", 0, NULL, (LPBYTE)szBuffer, &dwBufferSize);
 			if (ERROR_SUCCESS == nError) {
 				strValue = szBuffer;
 			}
@@ -182,10 +178,10 @@ void VideoPlayer::PlayVideo() {
 
 			if(strValue != "") {
 #if defined(WIN32)
-				strValue = "VLC_PLUGIN_PATH="strValue;
+				strValue = "VLC_PLUGIN_PATH=" + strValue;
 				_putenv(strValue.c_str());
 #else
-				setenv("VLC_PLUGIN_PATH","c:\\program files\\videolan\\vlc\\plugins",1);
+				setenv("VLC_PLUGIN_PATH",strValue.c_str(),1);
 #endif
 				libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
 			}
