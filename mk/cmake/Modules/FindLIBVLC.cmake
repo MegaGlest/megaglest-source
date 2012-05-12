@@ -1,78 +1,92 @@
+
 # CMake module to search for LIBVLC (VLC library)
-# Author: Rohit Yadav <rohityadav89@gmail.com>
+# Authors: Rohit Yadav <rohityadav89@gmail.com>
+#          Harald Sitter <apachelogger@ubuntu.com>
 #
 # If it's found it sets LIBVLC_FOUND to TRUE
 # and following variables are set:
 #    LIBVLC_INCLUDE_DIR
 #    LIBVLC_LIBRARY
+#    LIBVLC_VERSION
 
+if(NOT LIBVLC_MIN_VERSION)
+    set(LIBVLC_MIN_VERSION "0.0")
+endif(NOT LIBVLC_MIN_VERSION)
 
-# FIND_PATH and FIND_LIBRARY normally search standard locations
+# find_path and find_library normally search standard locations
 # before the specified paths. To search non-standard paths first,
 # FIND_* is invoked first with specified paths and NO_DEFAULT_PATH
 # and then again with no specified paths to search the default
 # locations. When an earlier FIND_* succeeds, subsequent FIND_*s
 # searching for the same item do nothing.
 
+if (NOT WIN32)
+    find_package(PkgConfig)
+    pkg_check_modules(PC_LIBVLC libvlc)
+    set(LIBVLC_DEFINITIONS ${PC_LIBVLC_CFLAGS_OTHER})
+endif (NOT WIN32)
+
 #Put here path to custom location
 #example: /home/user/vlc/include etc..
-FIND_PATH(LIBVLC_INCLUDE_DIR vlc/vlc.h
-  HINTS "$ENV{LIBVLC_INCLUDE_PATH}"
-  PATHS
-    #Mac OS and Contribs
-    "${CMAKE_CURRENT_SOURCE_DIR}/contribs/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/contribs/include/vlc"
-    # Env
+find_path(LIBVLC_INCLUDE_DIR vlc/vlc.h
+HINTS "$ENV{LIBVLC_INCLUDE_PATH}"
+PATHS
     "$ENV{LIB_DIR}/include"
     "$ENV{LIB_DIR}/include/vlc"
-    #
     "/usr/include"
     "/usr/include/vlc"
     "/usr/local/include"
     "/usr/local/include/vlc"
     #mingw
     c:/msys/local/include
-  )
-FIND_PATH(LIBVLC_INCLUDE_DIR PATHS "${CMAKE_INCLUDE_PATH}/vlc" NAMES vlc.h)
+)
+find_path(LIBVLC_INCLUDE_DIR PATHS "${CMAKE_INCLUDE_PATH}/vlc" NAMES vlc.h 
+        HINTS ${PC_LIBVLC_INCLUDEDIR} ${PC_LIBVLC_INCLUDE_DIRS})
 
 #Put here path to custom location
 #example: /home/user/vlc/lib etc..
-FIND_LIBRARY(LIBVLC_LIBRARY NAMES vlc libvlc
-  HINTS "$ENV{LIBVLC_LIBRARY_PATH}"
-  PATHS
+find_library(LIBVLC_LIBRARY NAMES vlc libvlc
+HINTS "$ENV{LIBVLC_LIBRARY_PATH}" ${PC_LIBVLC_LIBDIR} ${PC_LIBVLC_LIBRARY_DIRS}
+PATHS
     "$ENV{LIB_DIR}/lib"
-    #Mac OS
-    "${CMAKE_CURRENT_SOURCE_DIR}/contribs/lib"
-    "${CMAKE_CURRENT_SOURCE_DIR}/contribs/plugins"
     #mingw
     c:/msys/local/lib
-  )
-FIND_LIBRARY(LIBVLC_LIBRARY NAMES vlc libvlc)
-FIND_LIBRARY(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore
-  HINTS "$ENV{LIBVLC_LIBRARY_PATH}"
-  PATHS
+)
+find_library(LIBVLC_LIBRARY NAMES vlc libvlc)
+find_library(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore
+HINTS "$ENV{LIBVLC_LIBRARY_PATH}" ${PC_LIBVLC_LIBDIR} ${PC_LIBVLC_LIBRARY_DIRS}
+PATHS
     "$ENV{LIB_DIR}/lib"
-    #Mac OS
-    "${CMAKE_CURRENT_SOURCE_DIR}/contribs/lib"
-    "${CMAKE_CURRENT_SOURCE_DIR}/contribs/plugins"
     #mingw
     c:/msys/local/lib
-  )
-FIND_LIBRARY(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore)
+)
+find_library(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore)
 
-IF (LIBVLC_INCLUDE_DIR AND LIBVLC_LIBRARY AND LIBVLCCORE_LIBRARY)
-   SET(LIBVLC_FOUND TRUE)
-ENDIF (LIBVLC_INCLUDE_DIR AND LIBVLC_LIBRARY AND LIBVLCCORE_LIBRARY)
+set(LIBVLC_VERSION ${PC_LIBVLC_VERSION})
+if (NOT LIBVLC_VERSION)
+# TODO: implement means to detect version on windows (vlc --version && regex? ... ultimately we would get it from a header though...)
+endif (NOT LIBVLC_VERSION)
 
-IF (LIBVLC_FOUND)
-   IF (NOT LIBVLC_FIND_QUIETLY)
-      MESSAGE(STATUS "Found LibVLC include-dir path: ${LIBVLC_INCLUDE_DIR}")
-      MESSAGE(STATUS "Found LibVLC library path:${LIBVLC_LIBRARY}")
-      MESSAGE(STATUS "Found LibVLCcore library path:${LIBVLCCORE_LIBRARY}")
-   ENDIF (NOT LIBVLC_FIND_QUIETLY)
-ELSE (LIBVLC_FOUND)
-   IF (LIBVLC_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "Could not find LibVLC")
-   ENDIF (LIBVLC_FIND_REQUIRED)
-ENDIF (LIBVLC_FOUND)
+if (LIBVLC_INCLUDE_DIR AND LIBVLC_LIBRARY AND LIBVLCCORE_LIBRARY)
+set(LIBVLC_FOUND TRUE)
+endif (LIBVLC_INCLUDE_DIR AND LIBVLC_LIBRARY AND LIBVLCCORE_LIBRARY)
+
+if (LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
+    message(WARNING "LibVLC version not found: version searched: ${LIBVLC_MIN_VERSION}, found ${LIBVLC_VERSION}\nUnless you are on Windows this is bound to fail.")
+# TODO: only activate once version detection can be garunteed (which is currently not the case on windows)
+#     set(LIBVLC_FOUND FALSE)
+endif (LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
+
+if (LIBVLC_FOUND)
+    if (NOT LIBVLC_FIND_QUIETLY)
+        message(STATUS "Found LibVLC include-dir path: ${LIBVLC_INCLUDE_DIR}")
+        message(STATUS "Found LibVLC library path:${LIBVLC_LIBRARY}")
+        message(STATUS "Found LibVLCcore library path:${LIBVLCCORE_LIBRARY}")
+        message(STATUS "Found LibVLC version: ${LIBVLC_VERSION} (searched for: ${LIBVLC_MIN_VERSION})")
+    endif (NOT LIBVLC_FIND_QUIETLY)
+else (LIBVLC_FOUND)
+    if (LIBVLC_FIND_REQUIRED)
+        message(FATAL_ERROR "Could not find LibVLC")
+    endif (LIBVLC_FIND_REQUIRED)
+endif (LIBVLC_FOUND)
 
