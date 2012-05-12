@@ -12,8 +12,8 @@
 #include <GL/glew.h>
 #include "video_player.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_mutex.h>
+#include <SDL.h>
+#include <SDL_mutex.h>
 
 #ifdef HAS_LIBVLC
 #include <vlc/vlc.h>
