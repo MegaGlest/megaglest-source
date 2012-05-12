@@ -24,6 +24,9 @@
 //#include "glm.h"
 //#include "md5util.h"
 //#include "Mathlib.h"
+
+#include "video_player.h"
+
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -489,6 +492,20 @@ Intro::Intro(Program *program):
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	if(VideoPlayer::hasBackEndVideoPlayer() == true) {
+		//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+		string introVideoFile = getGameCustomCoreDataPath(data_path, "data/core/menu/videos/intro.avi");
+		if(fileExists(introVideoFile)) {
+			Context *c= GraphicsInterface::getInstance().getCurrentContext();
+			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+
+			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
+			VideoPlayer player(introVideoFile.c_str(),screen,screen->w,screen->h,screen->format->BitsPerPixel);
+			player.PlayVideo();
+			return;
+		}
+	}
+
 	soundRenderer.playMusic(CoreData::getInstance().getIntroMusic());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -616,6 +633,7 @@ void Intro::render() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
+
 	int difTime=0;
 
 	canRender();

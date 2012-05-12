@@ -156,7 +156,6 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			screen = NULL;
 		}
 
-
 		screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
 		if(screen == 0) {
 			std::ostringstream msg;

@@ -116,7 +116,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	        INCLUDE_DIRECTORIES(${LUAJIT_INCLUDE_DIR})
 	        IF(UNIX)
-		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUAJIT_LIBRARIES})
+		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUAJIT_LIBRARIES} "libdl.so")
 	        ENDIF()
         ELSE()
                 MESSAGE(STATUS "**WARNING: LUAJIT NOT found and will grealy affect Lua performance.")
@@ -124,7 +124,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	        FIND_PACKAGE(LUA REQUIRED)
 	        INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIR})
 	        IF(UNIX)
-		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUA_LIBRARIES})
+		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUA_LIBRARIES} "libdl.so")
 	        ENDIF()
         ENDIF()
 
@@ -227,6 +227,18 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
 	ENDIF()
+
+	FIND_PACKAGE(LIBVLC)
+        IF(LIBVLC_FOUND)
+                MESSAGE(STATUS "**NOTE: LIBVLC found so intro videos are supported.")
+	        INCLUDE_DIRECTORIES(${LIBVLC_INCLUDE_DIR})
+	        IF(UNIX)
+		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LIBVLC_LIBRARY})
+                        ADD_DEFINITIONS(-DHAS_LIBVLC)
+	        ENDIF()
+        ELSE()
+                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so intro videos are NOT supported.")
+        ENDIF()
 
 	#########################################################################################
 	# megaglest lib
