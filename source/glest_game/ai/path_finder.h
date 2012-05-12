@@ -323,9 +323,9 @@ private:
 			std::map<Vec2i,Vec2i> cameFrom, std::map<std::pair<Vec2i,Vec2i> ,
 			bool> canAddNode, Unit *& unit, int & maxNodeCount, int curFrameIndex)  {
 
-		Chrono chrono;
+		//Chrono chrono;
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-		chrono.start();
+		//chrono.start();
 
 		FactionState &factionState = factions[unitFactionIndex];
 		while(nodeLimitReached == false) {
@@ -339,6 +339,24 @@ private:
 				pathFound = true;
 				break;
 			}
+			// Attempt to speed up pathfinding, only count up found path nodes
+			// to the # we need till we will refresh anyways
+			else {
+				//build next pointers
+				int currentPathNodeCount = 0;
+				Node *currNode= node;
+				while(currNode->prev != NULL) {
+					currentPathNodeCount++;
+					currNode->prev->next= currNode;
+					currNode= currNode->prev;
+				}
+
+				if(currentPathNodeCount > PathFinder::pathFindRefresh) {
+					pathFound = true;
+					break;
+				}
+			}
+
 			if(tryJPSPathfinder == true) {
 				closedNodes[node->pos] = true;
 			}
@@ -401,9 +419,9 @@ private:
 
 		//!!!
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount);
-		if(chrono.getMillis() > 1) {
+		//if(chrono.getMillis() > 1) {
 			//printf("AStar for unit [%d - %s] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d curFrameIndex = %d travel distance = %f\n",unit->getId(),unit->getFullName().c_str(), (long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount,curFrameIndex,unit->getPos().dist(finalPos));
-		}
+		//}
 	}
 
 };
