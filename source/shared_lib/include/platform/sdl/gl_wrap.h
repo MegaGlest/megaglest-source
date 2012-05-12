@@ -59,6 +59,8 @@ public:
 	virtual void makeCurrent();
 	virtual void swapBuffers();
 
+	SDL_Surface * getScreen() { return screen; }
+
 	DeviceContextHandle getHandle() const	{ return 0; }
 };
 

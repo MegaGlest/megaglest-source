@@ -40,6 +40,7 @@ public:
 	virtual void swapBuffers();
 
 	const PlatformContextGl *getPlatformContextGl() const	{return &pcgl;}
+	PlatformContextGl *getPlatformContextGlPtr() {return &pcgl;}
 };
 
 }}}//end namespace
