@@ -11,9 +11,9 @@
 
 #include <GL/glew.h>
 #include "video_player.h"
-
 #include <SDL.h>
 #include <SDL_mutex.h>
+#include <vector>
 
 #ifdef HAS_LIBVLC
 #include <vlc/vlc.h>
@@ -106,14 +106,20 @@ void VideoPlayer::PlayVideo() {
 		pluginParam = "--plugin-path=" + pluginsPath;
 	}
 
-	char const *vlc_argv[] =
-	{
-		//"--no-audio", /* skip any audio track */
-		"--no-xlib", /* tell VLC to not use Xlib */
-		"--no-video-title-show",
-		pluginParam.c_str(),
-	};
-	int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);
+	std::vector<const char *> vlc_argv;
+	vlc_argv.push_back("--no-xlib" /* tell VLC to not use Xlib */);
+	vlc_argv.push_back("--no-video-title-show");
+	vlc_argv.push_back(pluginParam.c_str());
+	int vlc_argc = vlc_argv.size();
+
+//	char const *vlc_argv[] =
+//	{
+//		//"--no-audio", /* skip any audio track */
+//		"--no-xlib", /* tell VLC to not use Xlib */
+//		"--no-video-title-show",
+//		pluginParam.c_str(),
+//	};
+//	int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);
 #endif
 
 	SDL_Surface *empty = NULL;
@@ -141,18 +147,42 @@ void VideoPlayer::PlayVideo() {
 			colorBits, 0x001f, 0x07e0, 0xf800, 0);
 	ctx.mutex = SDL_CreateMutex();
 
+	bool successLoadingVLC = false;
 #ifdef HAS_LIBVLC
 	/*
 	 *  Initialise libVLC
 	 */
-	libvlc = libvlc_new(vlc_argc, vlc_argv);
-	m = libvlc_media_new_path(libvlc, filename.c_str());
-	mp = libvlc_media_player_new_from_media(m);
-	libvlc_media_release(m);
+	libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+	if(libvlc == NULL && pluginParam == "") {
+		pluginParam = "--plugin-path=c:\\program files\\videolan\\plugins";
+		vlc_argv[2] = pluginParam.c_str();
 
-	libvlc_video_set_callbacks(mp, lock, unlock, display, &ctx);
-	libvlc_video_set_format(mp, "RV16", width, height, this->surface->pitch);
-	libvlc_media_player_play(mp);
+		libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		if(libvlc == NULL) {
+			pluginParam = "--plugin-path=\\program files\\videolan\\plugins";
+			vlc_argv[2] = pluginParam.c_str();
+
+			pluginParam = "--plugin-path=c:\\program files (x86)\\videolan\\plugins";
+			vlc_argv[2] = pluginParam.c_str();
+
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+			if(libvlc == NULL) {
+				pluginParam = "--plugin-path=\\program files (x86)\\videolan\\plugins";
+				vlc_argv[2] = pluginParam.c_str();
+			}
+		}
+	}
+	if(libvlc != NULL) {
+		m = libvlc_media_new_path(libvlc, filename.c_str());
+		mp = libvlc_media_player_new_from_media(m);
+		libvlc_media_release(m);
+
+		libvlc_video_set_callbacks(mp, lock, unlock, display, &ctx);
+		libvlc_video_set_format(mp, "RV16", width, height, this->surface->pitch);
+		libvlc_media_player_play(mp);
+
+		successLoadingVLC = true;
+	}
 #endif
 
 	/*
@@ -160,7 +190,7 @@ void VideoPlayer::PlayVideo() {
 	 */
 
 	bool needToQuit = false;
-	while(!done && stop == false) {
+	while(successLoadingVLC == true && !done && stop == false) {
 		action = 0;
 
 		/* Keys: enter (fullscreen), space (pause), escape (quit) */
@@ -217,12 +247,14 @@ void VideoPlayer::PlayVideo() {
 	}
 
 #ifdef HAS_LIBVLC
-	/*
-	 * Stop stream and clean up libVLC
-	 */
-	libvlc_media_player_stop(mp);
-	libvlc_media_player_release(mp);
-	libvlc_release(libvlc);
+	if(libvlc != NULL) {
+		/*
+		 * Stop stream and clean up libVLC
+		 */
+		libvlc_media_player_stop(mp);
+		libvlc_media_player_release(mp);
+		libvlc_release(libvlc);
+	}
 #endif
 
 	/*
