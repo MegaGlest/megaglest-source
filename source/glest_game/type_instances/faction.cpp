@@ -2013,11 +2013,6 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 
 		//	Allies allies;
 		allies.clear();
-//		for(unsigned int i = 0; i < allies.size(); ++i) {
-//			Faction *ally = allies[i];
-//			XmlNode *allyNode = factionNode->addChild("Ally");
-//			allyNode->addAttribute("allyFactionIndex",intToStr(ally->getIndex()), mapTagReplacements);
-//		}
 		vector<XmlNode *> allyNodeList = factionNode->getChildList("Ally");
 		for(unsigned int i = 0; i < allyNodeList.size(); ++i) {
 			XmlNode *allyNode = allyNodeList[i];

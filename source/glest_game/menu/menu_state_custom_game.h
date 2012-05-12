@@ -51,6 +51,7 @@ private:
 	GraphicLabel labelMapInfo;
 	//GraphicLabel labelEnableObserverMode;
 	//GraphicLabel labelEnableServerControlledAI;
+	GraphicLabel labelLocalGameVersion;
 	GraphicLabel labelLocalIP;
 	GraphicLabel labelGameName;
 	GraphicLabel labelGameNameLabel;

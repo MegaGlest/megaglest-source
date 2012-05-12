@@ -178,8 +178,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int networkPos=networkHeadPos-labelOffset;
 	int xoffset=10;
 
+	labelLocalGameVersion.registerGraphicComponent(containerName,"labelLocalGameVersion");
+	labelLocalGameVersion.init(10, networkHeadPos+labelOffset);
+
 	labelLocalIP.registerGraphicComponent(containerName,"labelLocalIP");
-	labelLocalIP.init(210, networkHeadPos+labelOffset);
+	labelLocalIP.init(360, networkHeadPos+labelOffset);
 
 	string ipText = "none";
 	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
@@ -197,6 +200,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	string serverPort=config.getString("ServerPort", intToStr(GameConstants::serverPort).c_str());
 	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 	ServerSocket::setExternalPort(strToInt(externalPort));
+
+	if(EndsWith(glestVersionString, "-dev") == false){
+		labelLocalGameVersion.setText(glestVersionString);
+	}
+	else {
+		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
+	}
 
 	xoffset=70;
 	// MapFilter
@@ -676,6 +686,14 @@ void MenuStateCustomGame::reloadUI() {
 
     console.resetFonts();
 	mainMessageBox.init(lang.get("Ok"));
+
+
+	if(EndsWith(glestVersionString, "-dev") == false){
+		labelLocalGameVersion.setText(glestVersionString);
+	}
+	else {
+		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
+	}
 
 	vector<string> teamItems, controlItems, results , rMultiplier;
 
@@ -1836,6 +1854,8 @@ void MenuStateCustomGame::render() {
 					renderer.renderLabel(&labelNetStatus[i]);
 				}
 			}
+
+			renderer.renderLabel(&labelLocalGameVersion);
 			renderer.renderLabel(&labelLocalIP);
 			renderer.renderLabel(&labelMap);
 
