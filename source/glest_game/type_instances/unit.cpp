@@ -401,7 +401,9 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
     this->unitPath = unitpath;
     this->unitPath->setMap(map);
 
-    RandomGen random;
+    //RandomGen random;
+    random.init(id);
+	pathFindRefreshCellCount = random.randRange(10,20);
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
 		throw megaglest_runtime_error("#2 Invalid path position = " + pos.getString());
@@ -3487,6 +3489,9 @@ std::string Unit::toString() const {
 
     result += "inBailOutAttempt = " + intToStr(inBailOutAttempt) + "\n";
 
+    result += "random = " + intToStr(random.getLastNumber()) + "\n";
+    result += "pathFindRefreshCellCount = " + intToStr(pathFindRefreshCellCount) + "\n";
+
 	return result;
 }
 
@@ -3774,6 +3779,9 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("pathfindFailedConsecutiveFrameCount",intToStr(pathfindFailedConsecutiveFrameCount), mapTagReplacements);
 
 	unitNode->addAttribute("currentPathFinderDesiredFinalPos",currentPathFinderDesiredFinalPos.getString(), mapTagReplacements);
+
+	unitNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+	unitNode->addAttribute("pathFindRefreshCellCount",intToStr(pathFindRefreshCellCount), mapTagReplacements);
 }
 
 Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *faction, World *world) {
@@ -4191,6 +4199,14 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	if(unitNode->hasAttribute("currentPathFinderDesiredFinalPos")) {
 		result->currentPathFinderDesiredFinalPos = Vec2i::strToVec2(unitNode->getAttribute("currentPathFinderDesiredFinalPos")->getValue());
 	}
+
+	if(unitNode->hasAttribute("random")) {
+		result->random.setLastNumber(unitNode->getAttribute("random")->getIntValue());
+	}
+	if(unitNode->hasAttribute("pathFindRefreshCellCount")) {
+		result->pathFindRefreshCellCount = unitNode->getAttribute("pathFindRefreshCellCount")->getIntValue();
+	}
+
     return result;
 }
 
