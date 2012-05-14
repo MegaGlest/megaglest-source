@@ -106,7 +106,7 @@ static void display(void *data, void *id) {
     (void) data;
 }
 
-#if defined(HAS_LIBVLC) && defined(LIBVLC_VERSION_PRE_2)
+#if defined(HAS_LIBVLC) && defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 static void catchError(libvlc_exception_t *ex) {
     if(libvlc_exception_raised(ex)) {
         fprintf(stderr, "exception: %s\n", libvlc_exception_get_message(ex));
@@ -160,7 +160,7 @@ void VideoPlayer::PlayVideo() {
 	std::vector<const char *> vlc_argv;
 	vlc_argv.push_back("--no-xlib" /* tell VLC to not use Xlib */);
 	vlc_argv.push_back("--no-video-title-show");
-#ifdef LIBVLC_VERSION_PRE_2
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 	char clock[64], cunlock[64], cdata[64];
     	char cwidth[32], cheight[32], cpitch[32];
 	/*
@@ -235,7 +235,7 @@ void VideoPlayer::PlayVideo() {
 	 */
 	if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
 
-#ifdef LIBVLC_VERSION_PRE_2
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 	libvlc_exception_t ex;
 	libvlc_exception_init(&ex);
 
@@ -294,7 +294,7 @@ void VideoPlayer::PlayVideo() {
 */
 
 	if(libvlc != NULL) {
-#ifdef LIBVLC_VERSION_PRE_2
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		m = libvlc_media_new(libvlc, filename.c_str(), &ex);
 		catchError(&ex);
 
@@ -303,12 +303,12 @@ void VideoPlayer::PlayVideo() {
 #endif
 		libvlc_media_release(m);
 
-#ifndef LIBVLC_VERSION_PRE_2
+#if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_13)
 		libvlc_video_set_callbacks(mp, lock, unlock, display, &ctx);
 		libvlc_video_set_format(mp, "RV16", width, height, this->surface->pitch);
 #endif
 		
-#ifdef LIBVLC_VERSION_PRE_2
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		libvlc_media_player_play(mp,&ex);
 #else
 		libvlc_media_player_play(mp);
@@ -384,7 +384,7 @@ void VideoPlayer::PlayVideo() {
 		/*
 		 * Stop stream and clean up libVLC
 		 */
-#ifdef LIBVLC_VERSION_PRE_2
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		libvlc_media_player_stop(mp,&ex);
 		catchError(&ex);
 #else

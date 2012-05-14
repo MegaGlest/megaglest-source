@@ -22,7 +22,7 @@ sync_support_libs(){
 	local _cp="/bin/cp"
 	#local skip_deps="libm.so libpthread.so libstdc++.so libgcc_s.so libc.so libdl.so libX11.so libpulse libfusion libdirect libnvidia libXext librt libxcb libICE libSM libXtst libwrap libdbus libXau libXdmcp libnsl libFLAC libGL"
 	local skip_deps=""
-	local keep_deps="libcurl libgnu libicu liblua libxerces libjpeg libpng libwx libgtk libgdk libftgl libfreetype" 
+	local keep_deps="libcurl libgnu libicu liblua libxerces libjpeg libpng libwx libgtk libgdk libftgl libfreetype libvlc" 
 	
 	local scan_via_skiplist=1 
 
