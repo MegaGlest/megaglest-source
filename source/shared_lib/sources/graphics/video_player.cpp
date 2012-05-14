@@ -14,12 +14,42 @@
 #include <SDL.h>
 #include <SDL_mutex.h>
 #include <vector>
+
 #if defined(WIN32)
 #include <windows.h>
 #endif
 
 #ifdef HAS_LIBVLC
 #include <vlc/vlc.h>
+#endif
+
+#if defined(WIN32)
+/**
+* @param location The location of the registry key. For example "Software\\Bethesda Softworks\\Morrowind"
+* @param name the name of the registry key, for example "Installed Path"
+* @return the value of the key or an empty string if an error occured.
+*/
+std::string getRegKey(const std::string& location, const std::string& name){
+    HKEY key;
+    CHAR value[1024]; 
+    DWORD bufLen = 1024*sizeof(CHAR);
+    long ret;
+    ret = RegOpenKeyExA(HKEY_LOCAL_MACHINE, location.c_str(), 0, KEY_QUERY_VALUE, &key);
+    if( ret != ERROR_SUCCESS ){
+        return std::string();
+    }
+    ret = RegQueryValueExA(key, name.c_str(), 0, 0, (LPBYTE) value, &bufLen);
+    RegCloseKey(key);
+    if ( (ret != ERROR_SUCCESS) || (bufLen > 1024*sizeof(TCHAR)) ){
+        return std::string();
+    }
+    string stringValue = value;
+    size_t i = stringValue.length();
+    while( i > 0 && stringValue[i-1] == '\0' ){
+        --i;
+    }
+    return stringValue.substr(0,i); 
+}
 #endif
 
 struct ctx {
@@ -77,13 +107,16 @@ static void display(void *data, void *id) {
 }
 
 VideoPlayer::VideoPlayer(string filename, SDL_Surface *surface,
-		int width, int height,int colorBits,string pluginsPath) {
+		int width, int height,int colorBits,string pluginsPath,
+		bool verboseEnabled) {
 	this->filename = filename;
 	this->surface = surface;
 	this->width = width;
 	this->height = height;
 	this->colorBits = colorBits;
 	this->pluginsPath = pluginsPath;
+	this->verboseEnabled = verboseEnabled;
+
 	this->stop = false;
 }
 
@@ -112,7 +145,10 @@ void VideoPlayer::PlayVideo() {
 	std::vector<const char *> vlc_argv;
 	vlc_argv.push_back("--no-xlib" /* tell VLC to not use Xlib */);
 	vlc_argv.push_back("--no-video-title-show");
-//	vlc_argv.push_back(pluginParam.c_str());
+	if(verboseEnabled) vlc_argv.push_back("--verbose=2");
+#if defined(WIN32)
+	if(verboseEnabled) _putenv("VLC_VERBOSE=2");
+#endif
 	int vlc_argc = vlc_argv.size();
 
 //	char const *vlc_argv[] =
@@ -155,73 +191,55 @@ void VideoPlayer::PlayVideo() {
 	/*
 	 *  Initialise libVLC
 	 */
+	if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
 	libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+#if defined(WIN32)
 	if(libvlc == NULL) {
 		// For windows check registry for install path
-#if defined(WIN32) && !defined(__MINGW32__)
-		//Open the registry key.
-		wstring subKey = L"Software\\VideoLAN\\VLC";
-		HKEY keyHandle;
-		//DWORD dwDisposition;
-		LONG lres = RegOpenKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, KEY_READ, &keyHandle);
-		if(lres == ERROR_SUCCESS) {
-			std::string strValue;
-			//GetStringRegKey(keyHandle, L"", strValue, L"");
-			char szBuffer[4096];
-			DWORD dwBufferSize = sizeof(szBuffer);
-			ULONG nError = RegQueryValueEx(keyHandle, L"", 0, NULL, (LPBYTE)szBuffer, &dwBufferSize);
-			if (ERROR_SUCCESS == nError) {
-				strValue = szBuffer;
-			}
-
-			RegCloseKey(keyHandle);
-
-			if(strValue != "") {
-#if defined(WIN32)
-				strValue = "VLC_PLUGIN_PATH=" + strValue;
-				_putenv(strValue.c_str());
-#else
-				setenv("VLC_PLUGIN_PATH",strValue.c_str(),1);
-#endif
-				libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
-			}
-		}
-#endif
-
-		if(libvlc == NULL) {
-#if defined(WIN32)
-			_putenv("VLC_PLUGIN_PATH=c:\\program files\\videolan\\vlc\\plugins");
-#else
-			setenv("VLC_PLUGIN_PATH","c:\\program files\\videolan\\vlc\\plugins",1);
-#endif
-			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
-		}
-		if(libvlc == NULL) {
-#if defined(WIN32)
-			_putenv("VLC_PLUGIN_PATH=\\program files\\videolan\\vlc\\plugins");
-#else
-			setenv("VLC_PLUGIN_PATH","\\program files\\videolan\\vlc\\plugins",1);
-#endif
-			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
-			if(libvlc == NULL) {
-#if defined(WIN32)
-				_putenv("VLC_PLUGIN_PATH=c:\\program files (x86)\\videolan\\vlc\\plugins");
-#else
-				setenv("VLC_PLUGIN_PATH","c:\\program files (x86)\\videolan\\vlc\\plugins",1);
-#endif
-				libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
-
-				if(libvlc == NULL) {
-#if defined(WIN32)
-					_putenv("VLC_PLUGIN_PATH=\\program files (x86)\\videolan\\vlc\\plugins");
-#else
-					setenv("VLC_PLUGIN_PATH","\\program files (x86)\\videolan\\vlc\\plugins",1);
-#endif
-					libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		std::string strValue = getRegKey("Software\\VideoLAN\\VLC", "InstallDir");
+		if(strValue != "") {
+			if(strValue.length() >= 2) {
+				if(strValue[0] == '"') {
+					strValue = strValue.erase(0);
+				}
+				if(strValue[strValue.length()-1] == '"') {
+					strValue = strValue.erase(strValue.length()-1);
 				}
 			}
+			strValue = "VLC_PLUGIN_PATH=" + strValue;
+			_putenv(strValue.c_str());
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+
+		if(libvlc == NULL) {
+			_putenv("VLC_PLUGIN_PATH=c:\\program files\\videolan\\vlc\\plugins");
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+		if(libvlc == NULL) {
+			_putenv("VLC_PLUGIN_PATH=\\program files\\videolan\\vlc\\plugins");
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+		if(libvlc == NULL) {
+			_putenv("VLC_PLUGIN_PATH=c:\\program files (x86)\\videolan\\vlc\\plugins");
+			
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+		if(libvlc == NULL) {
+			_putenv("VLC_PLUGIN_PATH=\\program files (x86)\\videolan\\vlc\\plugins");
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
 		}
 	}
+#endif
+
 	if(libvlc != NULL) {
 		m = libvlc_media_new_path(libvlc, filename.c_str());
 		mp = libvlc_media_player_new_from_media(m);

@@ -75,6 +75,32 @@ std::wstring utf8_decode(const std::string &str) {
     return wstrTo;
 }
 
+/**
+* @param location The location of the registry key. For example "Software\\Bethesda Softworks\\Morrowind"
+* @param name the name of the registry key, for example "Installed Path"
+* @return the value of the key or an empty string if an error occured.
+*/
+std::string getRegKey(const std::string& location, const std::string& name){
+    HKEY key;
+    CHAR value[1024]; 
+    DWORD bufLen = 1024*sizeof(CHAR);
+    long ret;
+    ret = RegOpenKeyExA(HKEY_LOCAL_MACHINE, location.c_str(), 0, KEY_QUERY_VALUE, &key);
+    if( ret != ERROR_SUCCESS ){
+        return std::string();
+    }
+    ret = RegQueryValueExA(key, name.c_str(), 0, 0, (LPBYTE) value, &bufLen);
+    RegCloseKey(key);
+    if ( (ret != ERROR_SUCCESS) || (bufLen > 1024*sizeof(TCHAR)) ){
+        return std::string();
+    }
+    string stringValue = value;
+    size_t i = stringValue.length();
+    while( i > 0 && stringValue[i-1] == '\0' ){
+        --i;
+    }
+    return stringValue.substr(0,i); 
+}
 
 LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 
