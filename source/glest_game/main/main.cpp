@@ -11,6 +11,7 @@
 #ifdef WIN32
     #include <winsock2.h>
     #include <winsock.h>
+    #include <process.h>
 #endif
 
 #include "math_wrapper.h"
@@ -2724,6 +2725,75 @@ int glestMain(int argc, char** argv) {
 	//char *ptr = new char[200];
 //	printf("END ALLOC char 200\n");
 //	return -1;
+
+
+#if defined(WIN32)
+	//printf("*** VLC START ****\n");
+	//if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+	if(getenv("VLC_PLUGIN_PATH") == NULL) {
+		//printf("*** VLC C ****\n");
+
+		// For windows check registry for install path
+		std::string strValue = getRegKey("Software\\VideoLAN\\VLC", "InstallDir");
+		if(strValue != "") {
+			if(strValue.length() >= 2) {
+				if(strValue[0] == '"') {
+					strValue = strValue.erase(0);
+				}
+				if(strValue[strValue.length()-1] == '"') {
+					strValue = strValue.erase(strValue.length()-1);
+				}
+				if(strValue[strValue.length()-1] != '\\') {
+					strValue += "\\";
+				}
+			}
+			strValue += "plugins";
+			string newstrValue = "VLC_PLUGIN_PATH=" + strValue;
+			_putenv(newstrValue.c_str());
+			//bool result = SetEnvironmentVariableA("VLC_PLUGIN_PATH",strValue.c_str());
+			
+			//Open the registry key.
+			wstring subKey = L"Environment";
+			HKEY keyHandle;
+			DWORD dwDisposition;
+			RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
+			//Set the value.
+			std::auto_ptr<wchar_t> wstr(Ansi2WideString(strValue.c_str()));
+	
+			wstring vlcPluginPath = wstring(wstr.get());
+			DWORD len = (DWORD) sizeof(wchar_t) * vlcPluginPath.length() + 1;
+			RegSetValueEx(keyHandle, L"VLC_PLUGIN_PATH", 0, REG_SZ, (PBYTE)vlcPluginPath.c_str(), len);
+			RegCloseKey(keyHandle);
+
+			subKey = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
+			RegCreateKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
+			//Set the value.
+			wstr.reset(Ansi2WideString(strValue.c_str()));
+			vlcPluginPath = wstring(wstr.get());
+			len = (DWORD) sizeof(wchar_t) * vlcPluginPath.length() + 1;
+			RegSetValueEx(keyHandle, L"VLC_PLUGIN_PATH", 0, REG_SZ, (PBYTE)vlcPluginPath.c_str(), len);
+			RegCloseKey(keyHandle);
+
+			RegFlushKey(keyHandle);
+
+			string test = "SET " + newstrValue;
+			system(test.c_str());
+			DWORD dwReturnValue=0;
+			LRESULT error1 = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)
+				L"Environment", SMTO_ABORTIFHUNG, 5000, &dwReturnValue);
+			//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) "Environment", SMTO_ABORTIFHUNG, 10000, NULL );
+			//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 10000, NULL );
+			//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) TEXT("Environment"), SMTO_ABORTIFHUNG,10000, &dwReturnValue);
+
+			//printf("*** VLC D [%s] error1 = %d dwReturnValue = %d ****\n",getenv("VLC_PLUGIN_PATH"),error1,dwReturnValue);
+			//system(argv[0]);
+			const char *const *newargv = &argv[1];
+			 _execv( argv[0], newargv );
+			return 0;
+		}
+	}
+#endif
+
 
 	PlatformExceptionHandler::application_binary= executable_path(argv[0],true);
 	mg_app_name = GameConstants::application_name;

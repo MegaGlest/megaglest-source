@@ -90,6 +90,7 @@ LONG WINAPI UnhandledExceptionFilter2(struct _EXCEPTION_POINTERS *ExceptionInfo)
 LPWSTR Ansi2WideString(LPCSTR lpaszString);
 std::string utf8_encode(const std::wstring wstr);
 std::wstring utf8_decode(const std::string &str);
+std::string getRegKey(const std::string& location, const std::string& name);
 
 void message(string message);
 bool ask(string message);
