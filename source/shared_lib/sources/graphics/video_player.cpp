@@ -106,6 +106,17 @@ static void display(void *data, void *id) {
     (void) data;
 }
 
+#if defined(HAS_LIBVLC) && defined(LIBVLC_VERSION_PRE_2)
+static void catchError(libvlc_exception_t *ex) {
+    if(libvlc_exception_raised(ex)) {
+        fprintf(stderr, "exception: %s\n", libvlc_exception_get_message(ex));
+        //exit(1);
+    }
+
+    libvlc_exception_clear(ex);
+}
+#endif
+
 VideoPlayer::VideoPlayer(string filename, SDL_Surface *surface,
 		int width, int height,int colorBits,string pluginsPath,
 		bool verboseEnabled) {
@@ -131,6 +142,10 @@ bool VideoPlayer::hasBackEndVideoPlayer() {
 	return false;
 }
 void VideoPlayer::PlayVideo() {
+	struct ctx ctx;
+	ctx.width = width;
+	ctx.height = height;
+	ctx.rawData = (void *) malloc(width * height * 4);
 
 #ifdef HAS_LIBVLC
 	libvlc_instance_t *libvlc = NULL;
@@ -145,6 +160,38 @@ void VideoPlayer::PlayVideo() {
 	std::vector<const char *> vlc_argv;
 	vlc_argv.push_back("--no-xlib" /* tell VLC to not use Xlib */);
 	vlc_argv.push_back("--no-video-title-show");
+#ifdef LIBVLC_VERSION_PRE_2
+	char clock[64], cunlock[64], cdata[64];
+    	char cwidth[32], cheight[32], cpitch[32];
+	/*
+         *  Initialise libVLC
+	 */
+	sprintf(clock, "%lld", (long long int)(intptr_t)lock);
+	sprintf(cunlock, "%lld", (long long int)(intptr_t)unlock);
+	sprintf(cdata, "%lld", (long long int)(intptr_t)&ctx);
+	sprintf(cwidth, "%i", width);
+	sprintf(cheight, "%i", height);
+	sprintf(cpitch, "%i", colorBits);
+
+	vlc_argv.push_back("--vout");
+	vlc_argv.push_back("vmem");
+	vlc_argv.push_back("--vmem-width");
+	vlc_argv.push_back(cwidth);
+        vlc_argv.push_back("--vmem-height");
+	vlc_argv.push_back(cheight);
+        vlc_argv.push_back("--vmem-pitch");
+	vlc_argv.push_back(cpitch);
+        vlc_argv.push_back("--vmem-chroma");
+	vlc_argv.push_back("RV16");
+        vlc_argv.push_back("--vmem-lock");
+	vlc_argv.push_back(clock);
+        vlc_argv.push_back("--vmem-unlock");
+	vlc_argv.push_back(cunlock);
+        vlc_argv.push_back("--vmem-data");
+	vlc_argv.push_back(cdata);
+
+#endif
+
 	if(verboseEnabled) vlc_argv.push_back("--verbose=2");
 #if defined(WIN32)
 	if(verboseEnabled) _putenv("VLC_VERBOSE=2");
@@ -165,11 +212,6 @@ void VideoPlayer::PlayVideo() {
 	SDL_Event event;
 
 	int done = 0, action = 0, pause = 0, n = 0;
-
-	struct ctx ctx;
-	ctx.width = width;
-	ctx.height = height;
-	ctx.rawData = (void *) malloc(width * height * 4);
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
@@ -192,8 +234,16 @@ void VideoPlayer::PlayVideo() {
 	 *  Initialize libVLC
 	 */
 	if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
-	libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
 
+#ifdef LIBVLC_VERSION_PRE_2
+	libvlc_exception_t ex;
+	libvlc_exception_init(&ex);
+
+	libvlc = libvlc_new(vlc_argc, &vlc_argv[0],&ex);
+	catchError(&ex);
+#else
+	libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+#endif
 /* It is meaningless to try all this because we have to restart mg to pickup new env vars
 #if defined(WIN32)
 	if(libvlc == NULL) {
@@ -244,13 +294,25 @@ void VideoPlayer::PlayVideo() {
 */
 
 	if(libvlc != NULL) {
-		m = libvlc_media_new_path(libvlc, filename.c_str());
+#ifdef LIBVLC_VERSION_PRE_2
+		m = libvlc_media_new(libvlc, filename.c_str(), &ex);
+		catchError(&ex);
+
+#else
 		mp = libvlc_media_player_new_from_media(m);
+#endif
 		libvlc_media_release(m);
 
+#ifndef LIBVLC_VERSION_PRE_2
 		libvlc_video_set_callbacks(mp, lock, unlock, display, &ctx);
 		libvlc_video_set_format(mp, "RV16", width, height, this->surface->pitch);
+#endif
+		
+#ifdef LIBVLC_VERSION_PRE_2
+		libvlc_media_player_play(mp,&ex);
+#else
 		libvlc_media_player_play(mp);
+#endif
 
 		successLoadingVLC = true;
 	}
@@ -322,7 +384,12 @@ void VideoPlayer::PlayVideo() {
 		/*
 		 * Stop stream and clean up libVLC
 		 */
+#ifdef LIBVLC_VERSION_PRE_2
+		libvlc_media_player_stop(mp,&ex);
+		catchError(&ex);
+#else
 		libvlc_media_player_stop(mp);
+#endif
 		libvlc_media_player_release(mp);
 		libvlc_release(libvlc);
 	}
