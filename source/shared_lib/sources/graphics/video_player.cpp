@@ -189,10 +189,12 @@ void VideoPlayer::PlayVideo() {
 	bool successLoadingVLC = false;
 #ifdef HAS_LIBVLC
 	/*
-	 *  Initialise libVLC
+	 *  Initialize libVLC
 	 */
 	if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
 	libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+
+/* It is meaningless to try all this because we have to restart mg to pickup new env vars
 #if defined(WIN32)
 	if(libvlc == NULL) {
 		// For windows check registry for install path
@@ -239,6 +241,7 @@ void VideoPlayer::PlayVideo() {
 		}
 	}
 #endif
+*/
 
 	if(libvlc != NULL) {
 		m = libvlc_media_new_path(libvlc, filename.c_str());
