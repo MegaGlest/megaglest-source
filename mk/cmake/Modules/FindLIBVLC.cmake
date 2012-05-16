@@ -45,24 +45,35 @@ PATHS
 find_path(LIBVLC_INCLUDE_DIR PATHS "${CMAKE_INCLUDE_PATH}/vlc" NAMES vlc.h 
         HINTS ${PC_LIBVLC_INCLUDEDIR} ${PC_LIBVLC_INCLUDE_DIRS})
 
+# dream on libvlc doesn't support static linking
+OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+set(LIBVLC_LIB_NAMES vlc libvlc)
+set(LIBVLC_LIB_CORE_NAMES vlccore libvlccore)
+IF(WANT_STATIC_LIBS)
+    set(LIBVLC_LIB_NAMES libvlc.a ${LIBVLC_LIB_NAMES})
+    set(LIBVLC_LIB_CORE_NAMES libvlccore.a ${LIBVLC_LIB_CORE_NAMES})
+
+    message(STATUS "Looking for LIBVLC static libs")
+ENDIF()
+
 #Put here path to custom location
 #example: /home/user/vlc/lib etc..
-find_library(LIBVLC_LIBRARY NAMES vlc libvlc
+find_library(LIBVLC_LIBRARY NAMES ${LIBVLC_LIB_NAMES}
 HINTS "$ENV{LIBVLC_LIBRARY_PATH}" ${PC_LIBVLC_LIBDIR} ${PC_LIBVLC_LIBRARY_DIRS}
 PATHS
     "$ENV{LIB_DIR}/lib"
     #mingw
     c:/msys/local/lib
 )
-find_library(LIBVLC_LIBRARY NAMES vlc libvlc)
-find_library(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore
+find_library(LIBVLC_LIBRARY NAMES ${LIBVLC_LIB_NAMES})
+find_library(LIBVLCCORE_LIBRARY NAMES ${LIBVLC_LIB_CORE_NAMES}
 HINTS "$ENV{LIBVLC_LIBRARY_PATH}" ${PC_LIBVLC_LIBDIR} ${PC_LIBVLC_LIBRARY_DIRS}
 PATHS
     "$ENV{LIB_DIR}/lib"
     #mingw
     c:/msys/local/lib
 )
-find_library(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore)
+find_library(LIBVLCCORE_LIBRARY NAMES ${LIBVLC_LIB_CORE_NAMES})
 
 set(LIBVLC_VERSION ${PC_LIBVLC_VERSION})
 if (NOT LIBVLC_VERSION)
