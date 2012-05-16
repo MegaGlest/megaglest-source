@@ -70,7 +70,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libstreflop.lib libcurl.lib glew32s.lib freetype244MT.lib;libvlc.lib;"
+				AdditionalDependencies="libstreflop.lib libcurl.lib glew32s.lib freetype244MT.lib libvlc.lib"
 				AdditionalLibraryDirectories=".\;..\..\source\win32_deps\lib;../../source/win32_deps/libircclient/build/lib"
 			/>
 			<Tool
@@ -146,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libstreflop.lib libcurl.lib glew32s.lib freetype244MT.lib;libvlc.lib;"
+				AdditionalDependencies="libstreflop.lib libcurl.lib glew32s.lib freetype244MT.lib libvlc.lib"
 				AdditionalLibraryDirectories=".\;..\..\source\win32_deps\lib;../../source/win32_deps/libircclient/build/lib"
 			/>
 			<Tool
