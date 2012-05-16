@@ -302,8 +302,10 @@ void VideoPlayer::PlayVideo() {
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		m = libvlc_media_new(libvlc, filename.c_str(), &ex);
 		catchError(&ex);
-
+		mp = libvlc_media_player_new_from_media(m);
 #else
+		/* Create a new item */
+		m = libvlc_media_new_path(libvlc, filename.c_str());
 		mp = libvlc_media_player_new_from_media(m);
 #endif
 		libvlc_media_release(m);
