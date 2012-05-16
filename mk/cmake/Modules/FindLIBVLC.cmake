@@ -46,15 +46,15 @@ find_path(LIBVLC_INCLUDE_DIR PATHS "${CMAKE_INCLUDE_PATH}/vlc" NAMES vlc.h
         HINTS ${PC_LIBVLC_INCLUDEDIR} ${PC_LIBVLC_INCLUDE_DIRS})
 
 # dream on libvlc doesn't support static linking
-OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+#OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
 set(LIBVLC_LIB_NAMES vlc libvlc)
 set(LIBVLC_LIB_CORE_NAMES vlccore libvlccore)
-IF(WANT_STATIC_LIBS)
-    set(LIBVLC_LIB_NAMES libvlc.a ${LIBVLC_LIB_NAMES})
-    set(LIBVLC_LIB_CORE_NAMES libvlccore.a ${LIBVLC_LIB_CORE_NAMES})
+#IF(WANT_STATIC_LIBS)
+#    set(LIBVLC_LIB_NAMES libvlc.a ${LIBVLC_LIB_NAMES})
+#    set(LIBVLC_LIB_CORE_NAMES libvlccore.a ${LIBVLC_LIB_CORE_NAMES})
 
-    message(STATUS "Looking for LIBVLC static libs")
-ENDIF()
+#    message(STATUS "Looking for LIBVLC static libs")
+#ENDIF()
 
 #Put here path to custom location
 #example: /home/user/vlc/lib etc..
