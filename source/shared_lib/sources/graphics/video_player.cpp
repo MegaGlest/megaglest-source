@@ -20,6 +20,20 @@
 #endif
 
 #ifdef HAS_LIBVLC
+
+//MSVC++ 11.0 _MSC_VER = 1700 (Visual Studio 2011)
+//MSVC++ 10.0 _MSC_VER = 1600 (Visual Studio 2010)
+//MSVC++ 9.0  _MSC_VER = 1500 (Visual Studio 2008)
+#if defined(_MSC_VER) && _MSC_VER < 1600
+
+// Older versions of VC++ don't include stdint.h
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+
+#endif
+
 #include <vlc/vlc.h>
 #endif
 
