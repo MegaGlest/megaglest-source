@@ -160,6 +160,11 @@ void VideoPlayer::PlayVideo() {
 	std::vector<const char *> vlc_argv;
 	vlc_argv.push_back("--no-xlib" /* tell VLC to not use Xlib */);
 	vlc_argv.push_back("--no-video-title-show");
+#if defined(LIBVLC_VERSION_PRE_2)
+	string fullPluginsParam = "--plugin-path=" + pluginsPath;
+	vlc_argv.push_back(fullPluginsParam.c_str());
+#endif
+
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 	char clock[64], cunlock[64], cdata[64];
     	char cwidth[32], cheight[32], cpitch[32];

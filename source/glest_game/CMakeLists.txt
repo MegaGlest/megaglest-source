@@ -95,6 +95,27 @@ IF(BUILD_MEGAGLEST)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
 	ENDIF()
 
+        #SET(LIBVLC_MIN_VERSION "2.0.1")
+	FIND_PACKAGE(LIBVLC)
+
+        IF(LIBVLC_FOUND AND NOT LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
+                MESSAGE(STATUS "**NOTE: LIBVLC found so intro videos are supported.")
+	        INCLUDE_DIRECTORIES(${LIBVLC_INCLUDE_DIR})
+	        IF(UNIX)
+		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LIBVLCCORE_LIBRARY} ${LIBVLC_LIBRARY})
+                        ADD_DEFINITIONS(-DHAS_LIBVLC)
+	        ENDIF()
+		IF(LIBVLC_VERSION_PRE_V2)
+			ADD_DEFINITIONS(-DLIBVLC_VERSION_PRE_2)
+		ENDIF()
+		IF(LIBVLC_VERSION_PRE_1_1_13)
+			ADD_DEFINITIONS(-DLIBVLC_VERSION_PRE_1_1_13)
+		ENDIF()
+		
+        ELSE()
+                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so intro videos are NOT supported.")
+        ENDIF()
+
 	#########################################################################################
 	# megaglest game
 
