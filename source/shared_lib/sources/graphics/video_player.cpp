@@ -67,16 +67,19 @@ std::string getRegKey(const std::string& location, const std::string& name){
 #endif
 
 struct ctx {
-	GLuint textureId; // Texture ID
+    GLuint textureId; // Texture ID
     SDL_Surface *surf;
     SDL_mutex *mutex;
-	int width;
-	int height;
-	void *rawData;
+    int width;
+    int height;
+    void *rawData;
+    bool verboseEnabled;
 };
 
 // Load a texture
 static void loadTexture(struct ctx *ctx) {
+   if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
+
    void *rawData = ctx->rawData;
    Uint8 * pixelSource = 0;
    Uint8 * pixelDestination = (Uint8 *) rawData;
@@ -99,6 +102,7 @@ static void loadTexture(struct ctx *ctx) {
 
 static void *lock(void *data, void **p_pixels) {
     struct ctx *ctx = (struct ctx *)data;
+    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 
     SDL_LockMutex(ctx->mutex);
     SDL_LockSurface(ctx->surf);
@@ -109,6 +113,7 @@ static void *lock(void *data, void **p_pixels) {
 
 static void unlock(void *data, void *id, void *const *p_pixels) {
     struct ctx *ctx = (struct ctx *)data;
+    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 
     /* VLC just rendered the video, but we can also render stuff */
     SDL_UnlockSurface(ctx->surf);
@@ -117,7 +122,8 @@ static void unlock(void *data, void *id, void *const *p_pixels) {
 
 static void display(void *data, void *id) {
     /* VLC wants to display the video */
-    (void) data;
+    struct ctx *ctx = (struct ctx *)data;
+    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 }
 
 #if defined(HAS_LIBVLC) && defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
@@ -160,6 +166,7 @@ void VideoPlayer::PlayVideo() {
 	ctx.width = width;
 	ctx.height = height;
 	ctx.rawData = (void *) malloc(width * height * 4);
+	ctx.verboseEnabled = verboseEnabled;
 
 #ifdef HAS_LIBVLC
 	libvlc_instance_t *libvlc = NULL;
@@ -172,7 +179,11 @@ void VideoPlayer::PlayVideo() {
 //	}
 
 	std::vector<const char *> vlc_argv;
-	vlc_argv.push_back("--no-xlib" /* tell VLC to not use Xlib */);
+	vlc_argv.push_back("-I");
+	vlc_argv.push_back("dummy"); /* Don't use any interface */
+	vlc_argv.push_back("--no-media-library");
+	vlc_argv.push_back("--ignore-config"); /* Don't use VLC's config */
+	vlc_argv.push_back("--no-xlib"); /* tell VLC to not use Xlib */
 	vlc_argv.push_back("--no-video-title-show");
 #if defined(LIBVLC_VERSION_PRE_2)
 	string fullPluginsParam = "--plugin-path=" + pluginsPath;
@@ -212,6 +223,7 @@ void VideoPlayer::PlayVideo() {
 #endif
 
 	if(verboseEnabled) vlc_argv.push_back("--verbose=2");
+	if(verboseEnabled) vlc_argv.push_back("--extraintf=logger"); //log anything
 #if defined(WIN32)
 	if(verboseEnabled) _putenv("VLC_VERBOSE=2");
 #endif
@@ -263,6 +275,9 @@ void VideoPlayer::PlayVideo() {
 #else
 	libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
 #endif
+
+	if(verboseEnabled) printf("In [%s] Line: %d, libvlc [%p]\n",__FUNCTION__,__LINE__,libvlc);
+
 /* It is meaningless to try all this because we have to restart mg to pickup new env vars
 #if defined(WIN32)
 	if(libvlc == NULL) {
@@ -315,12 +330,18 @@ void VideoPlayer::PlayVideo() {
 	if(libvlc != NULL) {
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		m = libvlc_media_new(libvlc, filename.c_str(), &ex);
+		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,m);
+
 		catchError(&ex);
 		mp = libvlc_media_player_new_from_media(m);
+		if(verboseEnabled) printf("In [%s] Line: %d, mp [%p]\n",__FUNCTION__,__LINE__,mp);
 #else
 		/* Create a new item */
 		m = libvlc_media_new_path(libvlc, filename.c_str());
+		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,m);
+
 		mp = libvlc_media_player_new_from_media(m);
+		if(verboseEnabled) printf("In [%s] Line: %d, mp [%p]\n",__FUNCTION__,__LINE__,mp);
 #endif
 		libvlc_media_release(m);
 
@@ -330,10 +351,12 @@ void VideoPlayer::PlayVideo() {
 #endif
 		
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
-		libvlc_media_player_play(mp,&ex);
+		int play_result = libvlc_media_player_play(mp,&ex);
 #else
-		libvlc_media_player_play(mp);
+		int play_result = libvlc_media_player_play(mp);
 #endif
+
+		if(verboseEnabled) printf("In [%s] Line: %d, play_result [%d]\n",__FUNCTION__,__LINE__,play_result);
 
 		successLoadingVLC = true;
 	}
