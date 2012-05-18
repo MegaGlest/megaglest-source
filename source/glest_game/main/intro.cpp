@@ -495,7 +495,22 @@ Intro::Intro(Program *program):
 
 	if(VideoPlayer::hasBackEndVideoPlayer() == true) {
 		//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-		string introVideoFile = getGameCustomCoreDataPath(data_path, "data/core/menu/videos/intro.avi");
+		//string introVideoFile = getGameCustomCoreDataPath(data_path, "data/core/menu/videos/intro.avi");
+		string introVideoFile = "";
+		string introVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/intro.*";
+		vector<string> introVideos;
+		findAll(introVideoPath, introVideos, false, false);
+		for(int i = 0; i < introVideos.size(); ++i) {
+			string video = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/" + introVideos[i];
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if intro video [%s] exists\n",video.c_str());
+
+			if(fileExists(video)) {
+				introVideoFile = video;
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
+				break;
+			}
+		}
+
 		if(fileExists(introVideoFile)) {
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
 			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
