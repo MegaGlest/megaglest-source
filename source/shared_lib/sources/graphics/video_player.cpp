@@ -73,6 +73,7 @@ struct ctx {
     int width;
     int height;
     void *rawData;
+    bool isPlaying;
     bool verboseEnabled;
 };
 
@@ -134,6 +135,32 @@ static void catchError(libvlc_exception_t *ex) {
     }
 
     libvlc_exception_clear(ex);
+}
+#endif
+
+#if defined(HAS_LIBVLC)
+void trapPlayingEvent(const libvlc_event_t *evt, void *data) {
+    struct ctx *ctx = (struct ctx *)data;
+    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
+    ctx->isPlaying = true;
+}
+
+void trapEndReachedEvent(const libvlc_event_t *evt, void *data) {
+    struct ctx *ctx = (struct ctx *)data;
+    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
+    ctx->isPlaying = false;
+}
+
+void trapBufferingEvent(const libvlc_event_t *evt, void *data) {
+    struct ctx *ctx = (struct ctx *)data;
+    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
+    ctx->isPlaying = true;
+}
+
+void trapErrorEvent(const libvlc_event_t *evt, void *data) {
+    struct ctx *ctx = (struct ctx *)data;
+    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
+    ctx->isPlaying = false;
 }
 #endif
 
@@ -348,6 +375,20 @@ void VideoPlayer::PlayVideo() {
 #if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_13)
 		libvlc_video_set_callbacks(mp, lock, unlock, display, &ctx);
 		libvlc_video_set_format(mp, "RV16", width, height, this->surface->pitch);
+
+		// Get an event manager for the media player.
+		//libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mp, &ex);
+		libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mp);
+		if(eventManager) {
+//			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapPlayingEvent, NULL, &ex);
+//			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, NULL, &ex);
+//			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, NULL, &ex);
+//			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, NULL, &ex);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapPlayingEvent, &ctx);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, &ctx);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, &ctx);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, &ctx);
+		}
 #endif
 		
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
@@ -367,7 +408,8 @@ void VideoPlayer::PlayVideo() {
 	 */
 
 	bool needToQuit = false;
-	while(successLoadingVLC == true && !done && stop == false) {
+	while(successLoadingVLC == true && ctx.isPlaying == true &&
+			done == 0 && stop == false) {
 		action = 0;
 
 		/* Keys: enter (fullscreen), space (pause), escape (quit) */
