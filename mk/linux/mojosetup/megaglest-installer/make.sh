@@ -198,6 +198,12 @@ if [ $REPACKONLY -eq 0 ]; then
 	cd data
 	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh megaglest"
 	$copyGlestDeptsCmd
+
+	LIBVLC_DIR=`ldd megaglest | grep "libvlc\." | sort -u | awk '{print $3}' | xargs dirname`
+	echo LibVLC installed in [$LIBVLC_DIR]
+	cp -r $LIBVLC_DIR/vlc lib/
+	#exit 1
+
 	cd ..
 fi
 
