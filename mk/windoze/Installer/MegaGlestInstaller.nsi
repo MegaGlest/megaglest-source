@@ -3,8 +3,8 @@
 
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.6.0
-!define APVER 3.6.0.2
+!define APVER_OLD 3.6.0.2
+!define APVER 3.6.1
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
@@ -222,6 +222,10 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\servers.ini"
   File "..\..\..\data\glest_game\openal32.dll"
   File "..\..\..\data\glest_game\xerces-c_3_0.dll"
+  
+  File "..\..\..\data\glest_game\libvlccore.dll"
+  File "..\..\..\data\glest_game\libvlc.dll"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\plugins"
   
   SetOutPath "$INSTDIR\blender\"
   File "..\..\..\data\glest_game\xml2g.exe"
