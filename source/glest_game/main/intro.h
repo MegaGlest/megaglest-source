@@ -110,6 +110,7 @@ private:
 	//GLMmodel* test;
 	//Shared::Graphics::md5::Md5Object *md5Test;
 
+	bool exitAfterIntroVideo;
 	void cleanup();
 	void renderModelBackground();
 

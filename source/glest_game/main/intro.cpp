@@ -100,6 +100,7 @@ Intro::Intro(Program *program):
 	mouseX = 0;
 	mouseY = 0;
 	mouse2d = 0;
+	exitAfterIntroVideo = false;
 
 	Renderer &renderer= Renderer::getInstance();
 	//renderer.init3dListMenu(NULL);
@@ -509,6 +510,7 @@ Intro::Intro(Program *program):
 								vlcPluginsPath,
 								SystemFlags::VERBOSE_MODE_ENABLED);
 			player.PlayVideo();
+			exitAfterIntroVideo = true;
 			return;
 		}
 	}
@@ -530,6 +532,10 @@ Intro::~Intro() {
 }
 
 void Intro::update() {
+	if(exitAfterIntroVideo == true) {
+		mouseUpLeft(0, 0);
+		return;
+	}
 	timer++;
 	if(timer > introTime * GameConstants::updateFps / 1000){
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
