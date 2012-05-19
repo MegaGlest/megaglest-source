@@ -96,7 +96,8 @@ void MainMenu::init() {
 	Renderer::getInstance().initMenu(this);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-			Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
+		CoreData::getInstance().hasMainMenuVideoFilename() == true) {
 		string introVideoFile = CoreData::getInstance().getMainMenuVideoFilename();
 		if(introVideoFile != "" && fileExists(introVideoFile)) {
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
@@ -159,11 +160,11 @@ void MainMenu::render() {
 
 //syncronus update
 void MainMenu::update(){
-	if(menuBackgroundVideo != NULL) {
+	if(menuBackgroundVideo == NULL) {
 		Renderer::getInstance().updateParticleManager(rsMenu);
 	}
 	mouse2dAnim= (mouse2dAnim +1) % Renderer::maxMouse2dAnim;
-	if(menuBackgroundVideo != NULL) {
+	if(menuBackgroundVideo == NULL) {
 		menuBackground.update();
 	}
 	state->update();
