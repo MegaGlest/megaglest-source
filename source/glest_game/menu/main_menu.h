@@ -27,6 +27,10 @@
 #include "game_settings.h"
 #include "leak_dumper.h"
 
+namespace Shared { namespace Graphics {
+	class VideoPlayer;
+}}
+
 namespace Glest{ namespace Game{
 
 class MenuState;
@@ -47,6 +51,7 @@ private:
 	//shared
 	GameSettings gameSettings;
 	MenuBackground menuBackground;
+	Shared::Graphics::VideoPlayer *menuBackgroundVideo;
 
 	MenuState *state;
 

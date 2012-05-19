@@ -1158,7 +1158,9 @@ void MenuStateOptions::saveConfig(){
     soundRenderer.setMusicVolume(CoreData::getInstance().getMenuMusic());
     program->startSoundSystem();
 
-	soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
+    if(CoreData::getInstance().hasMainMenuVideoFilename() == false) {
+    	soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
+    }
 
 	Renderer::getInstance().loadConfig();
 }

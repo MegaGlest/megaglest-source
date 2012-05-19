@@ -493,32 +493,19 @@ Intro::Intro(Program *program):
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(VideoPlayer::hasBackEndVideoPlayer() == true) {
-		//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-		//string introVideoFile = getGameCustomCoreDataPath(data_path, "data/core/menu/videos/intro.avi");
-		string introVideoFile = "";
-		string introVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/intro.*";
-		vector<string> introVideos;
-		findAll(introVideoPath, introVideos, false, false);
-		for(int i = 0; i < introVideos.size(); ++i) {
-			string video = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/" + introVideos[i];
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if intro video [%s] exists\n",video.c_str());
-
-			if(fileExists(video)) {
-				introVideoFile = video;
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
-				break;
-			}
-		}
-
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
+		CoreData::getInstance().hasIntroVideoFilename() == true) {
+		string introVideoFile = CoreData::getInstance().getIntroVideoFilename();
 		if(fileExists(introVideoFile)) {
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
 			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
 			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
-			VideoPlayer player(introVideoFile.c_str(),
+			Shared::Graphics::VideoPlayer player(introVideoFile.c_str(),
 								screen,
+								-1,-1,
 								screen->w,
 								screen->h,
 								screen->format->BitsPerPixel,
@@ -548,7 +535,8 @@ Intro::~Intro() {
 
 void Intro::update() {
 	if(exitAfterIntroVideo == true) {
-		mouseUpLeft(0, 0);
+		//mouseUpLeft(0, 0);
+		cleanup();
 		return;
 	}
 	timer++;
@@ -854,7 +842,9 @@ void Intro::mouseUpLeft(int x, int y) {
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
+	if(CoreData::getInstance().hasMainMenuVideoFilename() == false) {
+		soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
