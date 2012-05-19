@@ -535,8 +535,8 @@ Intro::~Intro() {
 
 void Intro::update() {
 	if(exitAfterIntroVideo == true) {
-		//mouseUpLeft(0, 0);
-		cleanup();
+		mouseUpLeft(0, 0);
+		//cleanup();
 		return;
 	}
 	timer++;
