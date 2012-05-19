@@ -2775,6 +2775,7 @@ int glestMain(int argc, char** argv) {
 	Properties::setApplicationPath(executable_path(argv[0]));
 	Properties::setGameVersion(glestVersionString);
 
+/*	
 #if defined(WIN32)
 	printf("Path [%s]\n",executable_path(argv[0]).c_str());
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
@@ -2848,19 +2849,18 @@ int glestMain(int argc, char** argv) {
 				fclose(stdout);
 				fclose(stderr);
 
-/*
-				int myin = _dup(_fileno(stdin));
-				int myout = _dup(_fileno(stdout));
-				int myerr = _dup(_fileno(stderr));
+				// int myin = _dup(_fileno(stdin));
+				// int myout = _dup(_fileno(stdout));
+				// int myerr = _dup(_fileno(stderr));
 
-				fclose(stdin);
-				fclose(stdout);
-				fclose(stderr);
+				// fclose(stdin);
+				// fclose(stdout);
+				// fclose(stderr);
 
-				_dup2(myin,0);
-				_dup2(myout,1);
-				_dup2(myerr,2);
-*/
+				// _dup2(myin,0);
+				// _dup2(myout,1);
+				// _dup2(myerr,2);
+
 				//fcntl(fd, F_SETFD, FD_CLOEXEC);
 				//fcntl(fd, F_SETFL, fcntl(fd, F_GETFD) | FD_CLOEXEC));
 
@@ -2879,6 +2879,7 @@ int glestMain(int argc, char** argv) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("*** VLC E [%s]\n",getenv("VLC_PLUGIN_PATH"));
 	}
 #endif
+*/
 
     ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
 
