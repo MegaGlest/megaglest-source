@@ -14,31 +14,52 @@
 #include <string>
 
 class SDL_Surface;
+class ctx;
 
 using namespace std;
+
+namespace Shared{ namespace Graphics{
 
 class VideoPlayer {
 protected:
 
 	string filename;
 	SDL_Surface *surface;
+	int x;
+	int y;
 	int width;
 	int height;
 	int colorBits;
+
+	bool successLoadingLib;
 	string pluginsPath;
 	bool verboseEnabled;
 
 	bool stop;
+	bool finished;
+
+	ctx *ctxPtr;
+
+	void init();
 
 public:
-	VideoPlayer(string filename, SDL_Surface *surface, int width, int height,
-			int colorBits, string pluginsPath,bool verboseEnabled=false);
+	VideoPlayer(string filename, SDL_Surface *surface, int x, int y,
+			int width, int height, int colorBits,
+			string pluginsPath,bool verboseEnabled=false);
 	virtual ~VideoPlayer();
 
 	void PlayVideo();
 	void StopVideo() { stop = true; }
 
+	bool initPlayer();
+	void closePlayer();
+
+	bool playFrame(bool swapBuffers = true);
+	bool isPlaying() const;
+
 	static bool hasBackEndVideoPlayer();
 };
+
+}}
 
 #endif /* VIDEO_PLAYER_H_ */

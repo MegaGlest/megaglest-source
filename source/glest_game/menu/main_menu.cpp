@@ -26,6 +26,7 @@
 #include "network_message.h"
 #include "socket.h"
 #include "menu_state_root.h"
+#include "video_player.h"
 
 #include "leak_dumper.h"
 
@@ -44,9 +45,7 @@ namespace Glest{ namespace Game{
 // ===================== PUBLIC ========================
 MenuState * MainMenu::oldstate=NULL;
 
-MainMenu::MainMenu(Program *program):
-	ProgramState(program)
-{
+MainMenu::MainMenu(Program *program) : ProgramState(program), menuBackgroundVideo(NULL) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	mouseX=100;
@@ -71,6 +70,11 @@ void MainMenu::reloadUI() {
 MainMenu::~MainMenu() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	if(menuBackgroundVideo != NULL) {
+		menuBackgroundVideo->closePlayer();
+		delete menuBackgroundVideo;
+		menuBackgroundVideo = NULL;
+	}
 	delete state;
 	state = NULL;
 	delete oldstate;
@@ -90,16 +94,33 @@ MainMenu::~MainMenu() {
 
 void MainMenu::init() {
 	Renderer::getInstance().initMenu(this);
+
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+			Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+		string introVideoFile = CoreData::getInstance().getMainMenuVideoFilename();
+		if(introVideoFile != "" && fileExists(introVideoFile)) {
+			Context *c= GraphicsInterface::getInstance().getCurrentContext();
+			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+
+			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
+			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
+			menuBackgroundVideo = new VideoPlayer(introVideoFile.c_str(),
+								screen,
+								0,0,
+								screen->w,
+								screen->h,
+								screen->format->BitsPerPixel,
+								vlcPluginsPath,
+								SystemFlags::VERBOSE_MODE_ENABLED);
+			menuBackgroundVideo->initPlayer();
+		}
+	}
 }
 
 //asynchronus render update
 void MainMenu::render() {
-
-	//Config &config= Config::getInstance();
 	Renderer &renderer= Renderer::getInstance();
-	//CoreData &coreData= CoreData::getInstance();
 
-	//fps++;
 	canRender();
 	incrementFps();
 
@@ -109,14 +130,22 @@ void MainMenu::render() {
 
 			//3d
 			renderer.reset3dMenu();
-
 			renderer.clearZBuffer();
-			renderer.loadCameraMatrix(menuBackground.getCamera());
-			renderer.renderMenuBackground(&menuBackground);
-			renderer.renderParticleManager(rsMenu);
+
+			if(menuBackgroundVideo == NULL) {
+				renderer.loadCameraMatrix(menuBackground.getCamera());
+				renderer.renderMenuBackground(&menuBackground);
+				renderer.renderParticleManager(rsMenu);
+			}
 
 			//2d
 			renderer.reset2d();
+
+			if(menuBackgroundVideo != NULL) {
+				if(menuBackgroundVideo->isPlaying() == true) {
+					menuBackgroundVideo->playFrame(false);
+				}
+			}
 		}
 		state->render();
 
@@ -130,9 +159,13 @@ void MainMenu::render() {
 
 //syncronus update
 void MainMenu::update(){
-	Renderer::getInstance().updateParticleManager(rsMenu);
+	if(menuBackgroundVideo != NULL) {
+		Renderer::getInstance().updateParticleManager(rsMenu);
+	}
 	mouse2dAnim= (mouse2dAnim +1) % Renderer::maxMouse2dAnim;
-	menuBackground.update();
+	if(menuBackgroundVideo != NULL) {
+		menuBackground.update();
+	}
 	state->update();
 }
 

@@ -88,6 +88,9 @@ private:
 	Font3D *menuFontVeryBig3D;
 	Font3D *consoleFont3D;
 
+	string introVideoFilename;
+	string mainMenuVideoFilename;
+
 public:
 
 	enum TextureSystemType {
@@ -173,6 +176,12 @@ public:
     Font3D *getMenuFontBig3D() const			{return menuFontBig3D;}
 	Font3D *getMenuFontVeryBig3D() const		{return menuFontVeryBig3D;}
     Font3D *getConsoleFont3D() const			{return consoleFont3D;}
+
+    string getMainMenuVideoFilename() const { return mainMenuVideoFilename; }
+    bool hasMainMenuVideoFilename() const;
+
+    string getIntroVideoFilename() const { return introVideoFilename; }
+    bool hasIntroVideoFilename() const;
 
     void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0);
     bool loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);

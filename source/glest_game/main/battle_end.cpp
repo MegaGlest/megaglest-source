@@ -80,7 +80,9 @@ BattleEnd::~BattleEnd() {
 	delete originState;
 	originState = NULL;
 
-	SoundRenderer::getInstance().playMusic(CoreData::getInstance().getMenuMusic());
+	if(CoreData::getInstance().hasMainMenuVideoFilename() == false) {
+		SoundRenderer::getInstance().playMusic(CoreData::getInstance().getMenuMusic());
+	}
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

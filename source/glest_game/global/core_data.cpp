@@ -21,6 +21,7 @@
 #include "game_util.h"
 #include "lang.h"
 #include "game_settings.h"
+#include "video_player.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Sound;
@@ -76,6 +77,9 @@ CoreData::CoreData() {
 	menuFontBig3D=NULL;
 	menuFontVeryBig3D=NULL;
 	consoleFont3D=NULL;
+
+	introVideoFilename="";
+	mainMenuVideoFilename="";
 }
 
 CoreData::~CoreData() {
@@ -397,6 +401,51 @@ void CoreData::load() {
 		}
 	}
 
+
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+			Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+
+		introVideoFilename = "";
+		string introVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/intro.*";
+		vector<string> introVideos;
+		findAll(introVideoPath, introVideos, false, false);
+		for(int i = 0; i < introVideos.size(); ++i) {
+			string video = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/" + introVideos[i];
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if intro video [%s] exists\n",video.c_str());
+
+			if(fileExists(video)) {
+				introVideoFilename = video;
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
+				break;
+			}
+		}
+
+		mainMenuVideoFilename = "";
+		string mainVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/main.*";
+		vector<string> mainVideos;
+		findAll(mainVideoPath, mainVideos, false, false);
+		for(int i = 0; i < mainVideos.size(); ++i) {
+			string video = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/" + mainVideos[i];
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if intro video [%s] exists\n",video.c_str());
+
+			if(fileExists(video)) {
+				mainMenuVideoFilename = video;
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
+				break;
+			}
+		}
+	}
+}
+
+bool CoreData::hasIntroVideoFilename() const {
+	bool result = (introVideoFilename != "" && fileExists(introVideoFilename) == true);
+	return result;
+}
+
+bool CoreData::hasMainMenuVideoFilename() const {
+	bool result = (mainMenuVideoFilename != "" && fileExists(mainMenuVideoFilename) == true);
+	return result;
 }
 
 void CoreData::loadFonts() {

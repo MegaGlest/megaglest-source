@@ -66,16 +66,55 @@ std::string getRegKey(const std::string& location, const std::string& name){
 }
 #endif
 
-struct ctx {
+class ctx {
+public:
+	ctx() {
+		empty = NULL;
+	    textureId = 0; // Texture ID
+	    surf = NULL;
+	    mutex = NULL;
+	    x= 0;
+	    y = 0;
+	    width = 0;
+	    height = 0;
+	    rawData = NULL;
+	    isPlaying = 0;
+	    needToQuit = false;
+	    verboseEnabled = 0;
+
+#ifdef HAS_LIBVLC
+		libvlc = NULL;
+		m = NULL;
+		mp = NULL;
+		vlc_argv.clear();
+		vlc_argv_str.clear();
+#endif
+	}
+
+	SDL_Surface *empty;
     GLuint textureId; // Texture ID
     SDL_Surface *surf;
     SDL_mutex *mutex;
+    int x;
+    int y;
     int width;
     int height;
     void *rawData;
     bool isPlaying;
+    bool needToQuit;
     bool verboseEnabled;
+
+#ifdef HAS_LIBVLC
+	libvlc_instance_t *libvlc;
+	libvlc_media_t *m;
+	libvlc_media_player_t *mp;
+
+	std::vector<const char *> vlc_argv;
+	std::vector<string> vlc_argv_str;
+#endif
 };
+
+namespace Shared{ namespace Graphics{
 
 // Load a texture
 static void loadTexture(struct ctx *ctx) {
@@ -165,21 +204,45 @@ void trapErrorEvent(const libvlc_event_t *evt, void *data) {
 #endif
 
 VideoPlayer::VideoPlayer(string filename, SDL_Surface *surface,
-		int width, int height,int colorBits,string pluginsPath,
-		bool verboseEnabled) {
+		int x, int y,int width, int height,int colorBits,string pluginsPath,
+		bool verboseEnabled) : ctxPtr(NULL) {
 	this->filename = filename;
 	this->surface = surface;
+	this->x = x;
+	this->y = y;
 	this->width = width;
 	this->height = height;
 	this->colorBits = colorBits;
 	this->pluginsPath = pluginsPath;
 	this->verboseEnabled = verboseEnabled;
-
 	this->stop = false;
+	this->finished = false;
+	this->successLoadingLib = false;
+
+	init();
+}
+
+void VideoPlayer::init() {
+    //verboseEnabled = true;
+	ctxPtr = new ctx();
+	ctxPtr->x = x;
+	ctxPtr->y = y;
+	ctxPtr->width = width;
+	ctxPtr->height = height;
+	ctxPtr->rawData = (void *) malloc(width * height * 4);
+	ctxPtr->verboseEnabled = verboseEnabled;
 }
 
 VideoPlayer::~VideoPlayer() {
+	if(ctxPtr != NULL) {
+		if(ctxPtr->rawData != NULL) {
+			free(ctxPtr->rawData);
+			ctxPtr->rawData = NULL;
+		}
 
+		delete ctxPtr;
+		ctxPtr = NULL;
+	}
 }
 
 bool VideoPlayer::hasBackEndVideoPlayer() {
@@ -188,14 +251,255 @@ bool VideoPlayer::hasBackEndVideoPlayer() {
 #endif
 	return false;
 }
-void VideoPlayer::PlayVideo() {
-    //verboseEnabled = true;
-	struct ctx ctx;
-	ctx.width = width;
-	ctx.height = height;
-	ctx.rawData = (void *) malloc(width * height * 4);
-	ctx.verboseEnabled = verboseEnabled;
 
+bool VideoPlayer::initPlayer() {
+#ifdef HAS_LIBVLC
+	ctxPtr->libvlc = NULL;
+	ctxPtr->m = NULL;
+	ctxPtr->mp = NULL;
+	ctxPtr->vlc_argv.clear();
+	ctxPtr->vlc_argv.push_back("--intf=dummy");
+	ctxPtr->vlc_argv.push_back("--no-media-library");
+	ctxPtr->vlc_argv.push_back("--ignore-config"); /* Don't use VLC's config */
+	ctxPtr->vlc_argv.push_back("--no-xlib"); /* tell VLC to not use Xlib */
+	ctxPtr->vlc_argv.push_back("--no-video-title-show");
+
+#if defined(LIBVLC_VERSION_PRE_2)
+	ctxPtr->vlc_argv_str.push_back("--plugin-path=" + pluginsPath);
+	ctxPtr->vlc_argv.push_back(ctxPtr->vlc_argv_str[ctxPtr->vlc_argv_str.size()-1].c_str());
+#endif
+
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+	char clock[64], cunlock[64], cdata[64];
+    char cwidth[32], cheight[32], cpitch[32];
+	/*
+         *  Initialise libVLC
+	 */
+	sprintf(clock, "%lld", (long long int)(intptr_t)lock);
+	sprintf(cunlock, "%lld", (long long int)(intptr_t)unlock);
+	sprintf(cdata, "%lld", (long long int)(intptr_t)ctxPtr);
+	sprintf(cwidth, "%i", width);
+	sprintf(cheight, "%i", height);
+	sprintf(cpitch, "%i", colorBits);
+
+	vlc_argv.push_back("--vout");
+	vlc_argv.push_back("vmem");
+	vlc_argv.push_back("--vmem-width");
+	ctxPtr->vlc_argv_str.push_back(cwidth);
+	ctxPtr->vlc_argv.push_back(ctxPtr->vlc_argv_str[ctxPtr->vlc_argv_str.size()-1].c_str());
+    vlc_argv.push_back("--vmem-height");
+	ctxPtr->vlc_argv_str.push_back(cheight);
+	ctxPtr->vlc_argv.push_back(ctxPtr->vlc_argv_str[ctxPtr->vlc_argv_str.size()-1].c_str());
+    vlc_argv.push_back("--vmem-pitch");
+	ctxPtr->vlc_argv_str.push_back(cpitch);
+	ctxPtr->vlc_argv.push_back(ctxPtr->vlc_argv_str[ctxPtr->vlc_argv_str.size()-1].c_str());
+    vlc_argv.push_back("--vmem-chroma");
+	vlc_argv.push_back("RV16");
+    vlc_argv.push_back("--vmem-lock");
+	ctxPtr->vlc_argv_str.push_back(clock);
+	ctxPtr->vlc_argv.push_back(ctxPtr->vlc_argv_str[ctxPtr->vlc_argv_str.size()-1].c_str());
+    vlc_argv.push_back("--vmem-unlock");
+	ctxPtr->vlc_argv_str.push_back(cunlock);
+	ctxPtr->vlc_argv.push_back(ctxPtr->vlc_argv_str[ctxPtr->vlc_argv_str.size()-1].c_str());
+    vlc_argv.push_back("--vmem-data");
+	ctxPtr->vlc_argv_str.push_back(cdata);
+	ctxPtr->vlc_argv.push_back(ctxPtr->vlc_argv_str[ctxPtr->vlc_argv_str.size()-1].c_str());
+
+#endif
+
+	if(verboseEnabled) ctxPtr->vlc_argv.push_back("--verbose=2");
+	if(verboseEnabled) ctxPtr->vlc_argv.push_back("--extraintf=logger"); //log anything
+#if defined(WIN32)
+	if(verboseEnabled) _putenv("VLC_VERBOSE=2");
+#endif
+	int vlc_argc = ctxPtr->vlc_argv.size();
+
+//	char const *vlc_argv[] =
+//	{
+//		//"--no-audio", /* skip any audio track */
+//		"--no-xlib", /* tell VLC to not use Xlib */
+//		"--no-video-title-show",
+//		pluginParam.c_str(),
+//	};
+//	int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);
+#endif
+
+	ctxPtr->empty = NULL;
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	// Init Texture
+	glGenTextures(1, &ctxPtr->textureId);
+	glBindTexture(GL_TEXTURE_2D, ctxPtr->textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	ctxPtr->empty = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
+			colorBits, 0, 0, 0, 0);
+	ctxPtr->surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
+			colorBits, 0x001f, 0x07e0, 0xf800, 0);
+	ctxPtr->mutex = SDL_CreateMutex();
+
+#ifdef HAS_LIBVLC
+	/*
+	 *  Initialize libVLC
+	 */
+	if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+	libvlc_exception_t ex;
+	libvlc_exception_init(&ex);
+
+	ctxPtr->libvlc = libvlc_new(ctxPtr->vlc_argc, &ctxPtr->vlc_argv[0],&ex);
+	catchError(&ex);
+#else
+	ctxPtr->libvlc = libvlc_new(vlc_argc, &ctxPtr->vlc_argv[0]);
+#endif
+
+	if(verboseEnabled) printf("In [%s] Line: %d, libvlc [%p]\n",__FUNCTION__,__LINE__,ctxPtr->libvlc);
+
+/* It is meaningless to try all this because we have to restart mg to pickup new env vars
+#if defined(WIN32)
+	if(libvlc == NULL) {
+		// For windows check registry for install path
+		std::string strValue = getRegKey("Software\\VideoLAN\\VLC", "InstallDir");
+		if(strValue != "") {
+			if(strValue.length() >= 2) {
+				if(strValue[0] == '"') {
+					strValue = strValue.erase(0);
+				}
+				if(strValue[strValue.length()-1] == '"') {
+					strValue = strValue.erase(strValue.length()-1);
+				}
+			}
+			strValue = "VLC_PLUGIN_PATH=" + strValue;
+			_putenv(strValue.c_str());
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+
+		if(libvlc == NULL) {
+			_putenv("VLC_PLUGIN_PATH=c:\\program files\\videolan\\vlc\\plugins");
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+		if(libvlc == NULL) {
+			_putenv("VLC_PLUGIN_PATH=\\program files\\videolan\\vlc\\plugins");
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+		if(libvlc == NULL) {
+			_putenv("VLC_PLUGIN_PATH=c:\\program files (x86)\\videolan\\vlc\\plugins");
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+		if(libvlc == NULL) {
+			_putenv("VLC_PLUGIN_PATH=\\program files (x86)\\videolan\\vlc\\plugins");
+
+			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
+			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
+		}
+	}
+#endif
+*/
+
+	if(ctxPtr->libvlc != NULL) {
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+		ctxPtr->m = libvlc_media_new(ctxPtr->libvlc, filename.c_str(), &ex);
+		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,ctxPtr->m);
+
+		catchError(&ex);
+		ctxPtr->mp = libvlc_media_player_new_from_media(ctxPtr->m);
+		if(verboseEnabled) printf("In [%s] Line: %d, mp [%p]\n",__FUNCTION__,__LINE__,ctxPtr->mp);
+#else
+		/* Create a new item */
+		ctxPtr->m = libvlc_media_new_path(ctxPtr->libvlc, filename.c_str());
+		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,ctxPtr->m);
+
+		ctxPtr->mp = libvlc_media_player_new_from_media(ctxPtr->m);
+		if(verboseEnabled) printf("In [%s] Line: %d, mp [%p]\n",__FUNCTION__,__LINE__,ctxPtr->mp);
+#endif
+		libvlc_media_release(ctxPtr->m);
+
+#if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_13)
+		libvlc_video_set_callbacks(ctxPtr->mp, lock, unlock, display, ctxPtr);
+		libvlc_video_set_format(ctxPtr->mp, "RV16", width, height, this->surface->pitch);
+
+		// Get an event manager for the media player.
+		//libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mp, &ex);
+		libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(ctxPtr->mp);
+		if(eventManager) {
+//			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapPlayingEvent, NULL, &ex);
+//			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, NULL, &ex);
+//			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, NULL, &ex);
+//			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, NULL, &ex);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapPlayingEvent, ctxPtr);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, ctxPtr);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, ctxPtr);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, ctxPtr);
+		}
+#endif
+
+		ctxPtr->isPlaying = true;
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+		int play_result = libvlc_media_player_play(ctxPtr->mp,&ex);
+#else
+		int play_result = libvlc_media_player_play(ctxPtr->mp);
+#endif
+
+		//SDL_Delay(5);
+		if(verboseEnabled) printf("In [%s] Line: %d, play_result [%d]\n",__FUNCTION__,__LINE__,play_result);
+
+		successLoadingLib = (play_result == 0);
+	}
+#endif
+
+	return successLoadingLib;
+}
+
+void VideoPlayer::closePlayer() {
+#ifdef HAS_LIBVLC
+	if(ctxPtr->libvlc != NULL) {
+		//
+		// Stop stream and clean up libVLC
+		//
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+		libvlc_media_player_stop(ctxPtr->mp,&ex);
+		catchError(&ex);
+#else
+		libvlc_media_player_stop(ctxPtr->mp);
+#endif
+		libvlc_media_player_release(ctxPtr->mp);
+		libvlc_release(ctxPtr->libvlc);
+	}
+#endif
+
+	//
+	// Close window and clean up libSDL
+	//
+	if(ctxPtr->mutex != NULL) {
+		SDL_DestroyMutex(ctxPtr->mutex);
+	}
+	if(ctxPtr->surf != NULL) {
+		SDL_FreeSurface(ctxPtr->surf);
+	}
+	if(ctxPtr->empty != NULL) {
+		SDL_FreeSurface(ctxPtr->empty);
+	}
+
+	glDeleteTextures(1, &ctxPtr->textureId);
+
+	if(ctxPtr->needToQuit == true) {
+		SDL_Event quit_event = {SDL_QUIT};
+		SDL_PushEvent(&quit_event);
+	}
+}
+
+void VideoPlayer::PlayVideo() {
+/*
 #ifdef HAS_LIBVLC
 	libvlc_instance_t *libvlc = NULL;
 	libvlc_media_t *m = NULL;
@@ -209,8 +513,8 @@ void VideoPlayer::PlayVideo() {
 	std::vector<const char *> vlc_argv;
 	vlc_argv.push_back("--intf=dummy");
 	vlc_argv.push_back("--no-media-library");
-	vlc_argv.push_back("--ignore-config"); /* Don't use VLC's config */
-	vlc_argv.push_back("--no-xlib"); /* tell VLC to not use Xlib */
+	vlc_argv.push_back("--ignore-config"); // Don't use VLC's config
+	vlc_argv.push_back("--no-xlib"); // tell VLC to not use Xlib
 	vlc_argv.push_back("--no-video-title-show");
 #if defined(LIBVLC_VERSION_PRE_2)
 	string fullPluginsParam = "--plugin-path=" + pluginsPath;
@@ -220,12 +524,12 @@ void VideoPlayer::PlayVideo() {
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 	char clock[64], cunlock[64], cdata[64];
     	char cwidth[32], cheight[32], cpitch[32];
-	/*
-         *  Initialise libVLC
-	 */
+	//
+    //  Initialise libVLC
+	//
 	sprintf(clock, "%lld", (long long int)(intptr_t)lock);
 	sprintf(cunlock, "%lld", (long long int)(intptr_t)unlock);
-	sprintf(cdata, "%lld", (long long int)(intptr_t)&ctx);
+	sprintf(cdata, "%lld", (long long int)(intptr_t)ctxPtr);
 	sprintf(cwidth, "%i", width);
 	sprintf(cheight, "%i", height);
 	sprintf(cpitch, "%i", colorBits);
@@ -258,8 +562,8 @@ void VideoPlayer::PlayVideo() {
 
 //	char const *vlc_argv[] =
 //	{
-//		//"--no-audio", /* skip any audio track */
-//		"--no-xlib", /* tell VLC to not use Xlib */
+//		//"--no-audio", // skip any audio track
+//		"--no-xlib", // tell VLC to not use Xlib
 //		"--no-video-title-show",
 //		pluginParam.c_str(),
 //	};
@@ -267,30 +571,24 @@ void VideoPlayer::PlayVideo() {
 #endif
 
 	SDL_Surface *empty = NULL;
-	SDL_Event event;
-
-	int done = 0, action = 0, pause = 0, n = 0;
-
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
-
 	// Init Texture
-	glGenTextures(1, &ctx.textureId);
-	glBindTexture(GL_TEXTURE_2D, ctx.textureId);
+	glGenTextures(1, &ctxPtr->textureId);
+	glBindTexture(GL_TEXTURE_2D, ctxPtr->textureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	empty = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
 			colorBits, 0, 0, 0, 0);
-	ctx.surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
+	ctxPtr->surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
 			colorBits, 0x001f, 0x07e0, 0xf800, 0);
-	ctx.mutex = SDL_CreateMutex();
+	ctxPtr->mutex = SDL_CreateMutex();
 
-	bool successLoadingVLC = false;
 #ifdef HAS_LIBVLC
-	/*
-	 *  Initialize libVLC
-	 */
+	//
+	//  Initialize libVLC
+	//
 	if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
 
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
@@ -305,7 +603,7 @@ void VideoPlayer::PlayVideo() {
 
 	if(verboseEnabled) printf("In [%s] Line: %d, libvlc [%p]\n",__FUNCTION__,__LINE__,libvlc);
 
-/* It is meaningless to try all this because we have to restart mg to pickup new env vars
+// It is meaningless to try all this because we have to restart mg to pickup new env vars
 #if defined(WIN32)
 	if(libvlc == NULL) {
 		// For windows check registry for install path
@@ -352,7 +650,7 @@ void VideoPlayer::PlayVideo() {
 		}
 	}
 #endif
-*/
+//
 
 	if(libvlc != NULL) {
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
@@ -363,7 +661,7 @@ void VideoPlayer::PlayVideo() {
 		mp = libvlc_media_player_new_from_media(m);
 		if(verboseEnabled) printf("In [%s] Line: %d, mp [%p]\n",__FUNCTION__,__LINE__,mp);
 #else
-		/* Create a new item */
+		// Create a new item
 		m = libvlc_media_new_path(libvlc, filename.c_str());
 		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,m);
 
@@ -373,7 +671,7 @@ void VideoPlayer::PlayVideo() {
 		libvlc_media_release(m);
 
 #if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_13)
-		libvlc_video_set_callbacks(mp, lock, unlock, display, &ctx);
+		libvlc_video_set_callbacks(mp, lock, unlock, display, ctxPtr);
 		libvlc_video_set_format(mp, "RV16", width, height, this->surface->pitch);
 
 		// Get an event manager for the media player.
@@ -384,14 +682,14 @@ void VideoPlayer::PlayVideo() {
 //			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, NULL, &ex);
 //			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, NULL, &ex);
 //			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, NULL, &ex);
-			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapPlayingEvent, &ctx);
-			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, &ctx);
-			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, &ctx);
-			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, &ctx);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapPlayingEvent, ctxPtr);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, ctxPtr);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, ctxPtr);
+			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, ctxPtr);
 		}
 #endif
 		
-		ctx.isPlaying = true;
+		ctxPtr->isPlaying = true;
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		int play_result = libvlc_media_player_play(mp,&ex);
 #else
@@ -401,77 +699,24 @@ void VideoPlayer::PlayVideo() {
 		//SDL_Delay(5);
 		if(verboseEnabled) printf("In [%s] Line: %d, play_result [%d]\n",__FUNCTION__,__LINE__,play_result);
 
-		successLoadingVLC = (play_result == 0);
+		successLoadingLib = (play_result == 0);
 	}
 #endif
 
-	/*
-	 *  Main loop
-	 */
-
+	//
+	 /  Main loop
+	 //
+	//int done = 0, action = 0, pause = 0, n = 0;
 	bool needToQuit = false;
-	while(successLoadingVLC == true && ctx.isPlaying == true &&
-			done == 0 && stop == false) {
-		action = 0;
-
-		/* Keys: enter (fullscreen), space (pause), escape (quit) */
-		while( SDL_PollEvent( &event ) ) {
-			switch(event.type) {
-			case SDL_QUIT:
-				done = 1;
-				needToQuit = true;
-				break;
-			case SDL_KEYDOWN:
-				action = event.key.keysym.sym;
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				done = 1;
-				break;
-			}
-		}
-
-		if(!done && stop == false) {
-			switch(action) {
-			case SDLK_ESCAPE:
-				done = 1;
-				break;
-			case SDLK_RETURN:
-				//options ^= SDL_FULLSCREEN;
-				//screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, options);
-				done = 1;
-				break;
-			case ' ':
-				//pause = !pause;
-				break;
-			}
-
-			if(!pause) {
-				n++;
-			}
-
-			loadTexture(&ctx); // Loading the texture
-
-			// Square
-			glBegin(GL_QUADS);
-			 glTexCoord2d(0, 1);
-			 glVertex2f(-0.85, 0.85);
-			 glTexCoord2d(1, 1);
-			 glVertex2f(0.85, 0.85);
-			 glTexCoord2d(1, 0);
-			 glVertex2f(0.85, -0.85);
-			 glTexCoord2d(0, 0);
-			 glVertex2f(-0.85, -0.85);
-			glEnd();
-
-			SDL_GL_SwapBuffers();
-		}
+	while(isPlaying() == true) {
+		needToQuit = playFrame();
 	}
 
 #ifdef HAS_LIBVLC
 	if(libvlc != NULL) {
-		/*
-		 * Stop stream and clean up libVLC
-		 */
+		//
+		 / Stop stream and clean up libVLC
+		 //
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		libvlc_media_player_stop(mp,&ex);
 		catchError(&ex);
@@ -483,18 +728,168 @@ void VideoPlayer::PlayVideo() {
 	}
 #endif
 
-	/*
-	 * Close window and clean up libSDL
-	 */
-	SDL_DestroyMutex(ctx.mutex);
-	SDL_FreeSurface(ctx.surf);
+	//
+	 / Close window and clean up libSDL
+	 //
+	SDL_DestroyMutex(ctxPtr->mutex);
+	SDL_FreeSurface(ctxPtr->surf);
 	SDL_FreeSurface(empty);
 
-	glDeleteTextures(1, &ctx.textureId);
-	free(ctx.rawData);
+	glDeleteTextures(1, &ctxPtr->textureId);
 
 	if(needToQuit == true) {
 		SDL_Event quit_event = {SDL_QUIT};
 		SDL_PushEvent(&quit_event);
 	}
+*/
+
+	initPlayer();
+	for(;isPlaying() == true;) {
+		playFrame();
+	}
+	closePlayer();
 }
+
+bool VideoPlayer::isPlaying() const {
+	bool result = (successLoadingLib == true &&
+					ctxPtr != NULL && ctxPtr->isPlaying == true &&
+					finished == false && stop == false);
+	return result;
+}
+
+bool VideoPlayer::playFrame(bool swapBuffers) {
+	//bool needToQuit = false;
+	int action = 0, pause = 0, n = 0;
+	if(successLoadingLib == true &&
+		ctxPtr != NULL && ctxPtr->isPlaying == true &&
+		finished == false && stop == false) {
+		action = 0;
+
+		SDL_Event event;
+		/* Keys: enter (fullscreen), space (pause), escape (quit) */
+		while( SDL_PollEvent( &event ) ) {
+			switch(event.type) {
+			case SDL_QUIT:
+				finished = true;
+				ctxPtr->needToQuit = true;
+				break;
+			case SDL_KEYDOWN:
+				action = event.key.keysym.sym;
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				finished = true;
+				break;
+			}
+		}
+
+		if(finished == false && stop == false) {
+			switch(action) {
+			case SDLK_ESCAPE:
+				finished = true;
+				break;
+			case SDLK_RETURN:
+				//options ^= SDL_FULLSCREEN;
+				//screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, options);
+				finished = true;
+				break;
+			case ' ':
+				//pause = !pause;
+				break;
+			}
+
+			if(pause == 0) {
+				n++;
+			}
+
+		    //assertGl();
+
+			glPushAttrib(GL_ENABLE_BIT);
+
+			//glDisable(GL_LIGHTING);
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_BLEND);
+
+			loadTexture(ctxPtr); // Loading the texture
+			// Square
+//			glBegin(GL_QUADS);
+//			 glTexCoord2d(0, 1);
+//			 glVertex2f(-0.85, 0.85);
+//			 glTexCoord2d(1, 1);
+//			 glVertex2f(0.85, 0.85);
+//			 glTexCoord2d(1, 0);
+//			 glVertex2f(0.85, -0.85);
+//			 glTexCoord2d(0, 0);
+//			 glVertex2f(-0.85, -0.85);
+//			glEnd();
+
+//			glBegin(GL_TRIANGLE_STRIP);
+//				glTexCoord2i(0, 1);
+//				glVertex2i(1, 1+600);
+//				glTexCoord2i(0, 0);
+//				glVertex2i(1, 1);
+//				glTexCoord2i(1, 1);
+//				glVertex2i(1+800, 1+600);
+//				glTexCoord2i(1, 0);
+//				glVertex2i(1+800, 600);
+//			glEnd();
+
+//			glBegin(GL_TRIANGLE_STRIP);
+//				glTexCoord2i(0, 1);
+//				glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height);
+//				glTexCoord2i(0, 0);
+//				glVertex2i(ctxPtr->x, ctxPtr->y);
+//				glTexCoord2i(1, 1);
+//				glVertex2i(ctxPtr->x + ctxPtr->width, ctxPtr->y + ctxPtr->height);
+//				glTexCoord2i(1, 0);
+//				glVertex2i(ctxPtr->x + ctxPtr->width, ctxPtr->y);
+//			glEnd();
+
+			if(ctxPtr->x == -1 || ctxPtr->y == -1) {
+				glBegin(GL_QUADS);
+				 glTexCoord2d(0, 1);
+				 glVertex2f(-0.85, 0.85);
+				 glTexCoord2d(1, 1);
+				 glVertex2f(0.85, 0.85);
+				 glTexCoord2d(1, 0);
+				 glVertex2f(0.85, -0.85);
+				 glTexCoord2d(0, 0);
+				 glVertex2f(-0.85, -0.85);
+				glEnd();
+			}
+			else {
+//				glBegin(GL_QUADS);
+//				 glTexCoord2d(0, 1);
+//				 glVertex2f(ctxPtr->x, ctxPtr->y + ctxPtr->height);
+//				 glTexCoord2d(1, 1);
+//				 glVertex2f(ctxPtr->x + ctxPtr->width, ctxPtr->y + ctxPtr->height);
+//				 glTexCoord2d(1, 0);
+//				 glVertex2f(ctxPtr->x + ctxPtr->width, ctxPtr->y);
+//				 glTexCoord2d(0, 0);
+//				 glVertex2f(ctxPtr->x, ctxPtr->y);
+//				glEnd();
+
+				glBegin(GL_TRIANGLE_STRIP);
+					glTexCoord2i(0, 1);
+					glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height * 0.80);
+					glTexCoord2i(0, 0);
+					glVertex2i(ctxPtr->x, ctxPtr->y);
+					glTexCoord2i(1, 1);
+					glVertex2i(ctxPtr->x+ctxPtr->width * 0.60, ctxPtr->y+ctxPtr->height * 0.80);
+					glTexCoord2i(1, 0);
+					glVertex2i(ctxPtr->x+ctxPtr->width * 0.60, ctxPtr->y);
+				glEnd();
+
+			}
+
+			glPopAttrib();
+
+			if(swapBuffers == true) {
+				SDL_GL_SwapBuffers();
+			}
+		}
+	}
+
+	return ctxPtr->needToQuit;
+}
+
+}}
