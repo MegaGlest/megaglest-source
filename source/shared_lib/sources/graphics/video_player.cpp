@@ -189,6 +189,7 @@ bool VideoPlayer::hasBackEndVideoPlayer() {
 	return false;
 }
 void VideoPlayer::PlayVideo() {
+    //verboseEnabled = true;
 	struct ctx ctx;
 	ctx.width = width;
 	ctx.height = height;
@@ -206,8 +207,7 @@ void VideoPlayer::PlayVideo() {
 //	}
 
 	std::vector<const char *> vlc_argv;
-	vlc_argv.push_back("-I");
-	vlc_argv.push_back("dummy"); /* Don't use any interface */
+	vlc_argv.push_back("--intf=dummy");
 	vlc_argv.push_back("--no-media-library");
 	vlc_argv.push_back("--ignore-config"); /* Don't use VLC's config */
 	vlc_argv.push_back("--no-xlib"); /* tell VLC to not use Xlib */
@@ -391,15 +391,17 @@ void VideoPlayer::PlayVideo() {
 		}
 #endif
 		
+		ctx.isPlaying = true;
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		int play_result = libvlc_media_player_play(mp,&ex);
 #else
 		int play_result = libvlc_media_player_play(mp);
 #endif
 
+		//SDL_Delay(5);
 		if(verboseEnabled) printf("In [%s] Line: %d, play_result [%d]\n",__FUNCTION__,__LINE__,play_result);
 
-		successLoadingVLC = true;
+		successLoadingVLC = (play_result == 0);
 	}
 #endif
 
