@@ -1285,6 +1285,13 @@ int World::getUnitFactionIndex(int unitId) {
 	}
 	return unit->getFactionIndex();
 }
+const string World::getUnitName(int unitId) {
+	Unit* unit= findUnitById(unitId);
+	if(unit == NULL) {
+		throw megaglest_runtime_error("Can not find Faction unit to get position unitId = " + intToStr(unitId));
+	}
+	return unit->getFullName();
+}
 
 int World::getUnitCount(int factionIndex) {
 	if(factionIndex < factions.size()) {

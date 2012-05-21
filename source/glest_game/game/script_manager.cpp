@@ -309,6 +309,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(setUnitPosition, "setUnitPosition");
 
 	luaScript.registerFunction(getUnitFaction, "unitFaction");
+	luaScript.registerFunction(getUnitName, "unitName");
 	luaScript.registerFunction(getResourceAmount, "resourceAmount");
 
 	luaScript.registerFunction(getLastCreatedUnitName, "lastCreatedUnitName");
@@ -1258,6 +1259,11 @@ int ScriptManager::getUnitFaction(int unitId) {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return world->getUnitFactionIndex(unitId);
 }
+const string ScriptManager::getUnitName(int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->getUnitName(unitId);
+}
 
 int ScriptManager::getResourceAmount(const string &resourceName, int factionIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1779,6 +1785,12 @@ int ScriptManager::getUnitFaction(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	int factionIndex= thisScriptManager->getUnitFaction(luaArguments.getInt(-1));
 	luaArguments.returnInt(factionIndex);
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::getUnitName(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	const string unitname = thisScriptManager->getUnitName(luaArguments.getInt(-1));
+	luaArguments.returnString(unitname);
 	return luaArguments.getReturnCount();
 }
 
