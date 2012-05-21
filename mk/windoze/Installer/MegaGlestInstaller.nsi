@@ -226,6 +226,7 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\libvlccore.dll"
   File "..\..\..\data\glest_game\libvlc.dll"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\plugins"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\lua"
   
   SetOutPath "$INSTDIR\blender\"
   File "..\..\..\data\glest_game\xml2g.exe"
