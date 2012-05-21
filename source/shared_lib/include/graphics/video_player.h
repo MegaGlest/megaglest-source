@@ -13,7 +13,7 @@
 
 #include <string>
 
-typedef struct SDL_Surface;
+struct SDL_Surface;
 class ctx;
 
 using namespace std;
