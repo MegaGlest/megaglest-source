@@ -304,6 +304,7 @@ private:
 	Vec2i getStartLocation(int factionIndex);
 	Vec2i getUnitPosition(int unitId);
 	int getUnitFaction(int unitId);
+	const string getUnitName(int unitId);
 	int getResourceAmount(const string &resourceName, int factionIndex);
 	const string &getLastCreatedUnitName();
 	int getLastCreatedUnitId();
@@ -410,6 +411,7 @@ private:
 	static int getStartLocation(LuaHandle* luaHandle);
 	static int getUnitPosition(LuaHandle* luaHandle);
 	static int getUnitFaction(LuaHandle* luaHandle);
+	static int getUnitName(LuaHandle* luaHandle);
 	static int getResourceAmount(LuaHandle* luaHandle);
 	static int getLastCreatedUnitName(LuaHandle* luaHandle);
 	static int getLastCreatedUnitId(LuaHandle* luaHandle);

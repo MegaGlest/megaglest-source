@@ -248,6 +248,7 @@ public:
 	void setUnitPosition(int unitId, Vec2i pos);
 
 	int getUnitFactionIndex(int unitId);
+	const string getUnitName(int unitId);
 	int getUnitCount(int factionIndex);
 	int getUnitCountOfType(int factionIndex, const string &typeName);
 
