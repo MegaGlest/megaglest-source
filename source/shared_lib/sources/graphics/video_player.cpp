@@ -14,6 +14,7 @@
 #include <SDL.h>
 #include <SDL_mutex.h>
 #include <vector>
+#include <time.h>
 
 #if defined(WIN32)
 #include <windows.h>
@@ -131,7 +132,7 @@ public:
 namespace Shared{ namespace Graphics{
 
 // Load a texture
-static void loadTexture(struct ctx *ctx) {
+static void loadTexture(class ctx *ctx) {
    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 
    void *rawData = ctx->rawData;
@@ -139,8 +140,8 @@ static void loadTexture(struct ctx *ctx) {
    Uint8 * pixelDestination = (Uint8 *) rawData;
    Uint32 pix = 0;
 
-   for (unsigned int i = ctx->height; i > 0; i--) {
-      for (unsigned int j = 0; j < ctx->width; j++) {
+   for ( int i = ctx->height; i > 0; i--) {
+      for (int j = 0; j < ctx->width; j++) {
          pixelSource = (Uint8 *) ctx->surf->pixels + (i-1) * ctx->surf->pitch + j * 2;
          pix = *(Uint16 *) pixelSource;
          SDL_GetRGBA(pix, ctx->surf->format, &(pixelDestination[0]), &(pixelDestination[1]), &(pixelDestination[2]), &(pixelDestination[3]));
@@ -155,7 +156,7 @@ static void loadTexture(struct ctx *ctx) {
 }
 
 static void *lock(void *data, void **p_pixels) {
-    struct ctx *ctx = (struct ctx *)data;
+    class ctx *ctx = (class ctx *)data;
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 
     SDL_LockMutex(ctx->mutex);
@@ -166,7 +167,7 @@ static void *lock(void *data, void **p_pixels) {
 }
 
 static void unlock(void *data, void *id, void *const *p_pixels) {
-    struct ctx *ctx = (struct ctx *)data;
+    class ctx *ctx = (class ctx *)data;
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 
     /* VLC just rendered the video, but we can also render stuff */
@@ -176,7 +177,7 @@ static void unlock(void *data, void *id, void *const *p_pixels) {
 
 static void display(void *data, void *id) {
     /* VLC wants to display the video */
-    struct ctx *ctx = (struct ctx *)data;
+    class ctx *ctx = (class ctx *)data;
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 }
 
@@ -195,32 +196,32 @@ static void catchError(libvlc_exception_t *ex) {
 
 /*
 void trapPlayingEvent(const libvlc_event_t *evt, void *data) {
-    struct ctx *ctx = (struct ctx *)data;
+    class ctx *ctx = (class ctx *)data;
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
     ctx->isPlaying = true;
     ctx->started = true;
 }
 
 void trapEndReachedEvent(const libvlc_event_t *evt, void *data) {
-    struct ctx *ctx = (struct ctx *)data;
+    class ctx *ctx = (class ctx *)data;
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
     ctx->isPlaying = false;
 }
 
 void trapBufferingEvent(const libvlc_event_t *evt, void *data) {
-    struct ctx *ctx = (struct ctx *)data;
+    class ctx *ctx = (class ctx *)data;
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
     ctx->isPlaying = true;
 }
 
 void trapErrorEvent(const libvlc_event_t *evt, void *data) {
-    struct ctx *ctx = (struct ctx *)data;
+    class ctx *ctx = (class ctx *)data;
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
     ctx->isPlaying = false;
 }
 */
 void callbacks( const libvlc_event_t* event, void* data ) {
-	struct ctx *ctx = (struct ctx *)data;
+	class ctx *ctx = (class ctx *)data;
 	if(ctx->verboseEnabled) printf("In [%s] Line: %d event [%d]\n",__FUNCTION__,__LINE__,event->type);
 	switch ( event->type ) {
 	    case libvlc_MediaPlayerPlaying:
@@ -1311,13 +1312,13 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 			if(ctxPtr->x == -1 || ctxPtr->y == -1) {
 				glBegin(GL_QUADS);
 				 glTexCoord2d(0, 1);
-				 glVertex2f(-0.85, 0.85);
+				 glVertex2f(-0.85f, 0.85f);
 				 glTexCoord2d(1, 1);
-				 glVertex2f(0.85, 0.85);
+				 glVertex2f(0.85f, 0.85f);
 				 glTexCoord2d(1, 0);
-				 glVertex2f(0.85, -0.85);
+				 glVertex2f(0.85f, -0.85f);
 				 glTexCoord2d(0, 0);
-				 glVertex2f(-0.85, -0.85);
+				 glVertex2f(-0.85f, -0.85f);
 				glEnd();
 			}
 			else {
