@@ -99,7 +99,7 @@ void MainMenu::init() {
 		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
 		CoreData::getInstance().hasMainMenuVideoFilename() == true) {
 		string introVideoFile = CoreData::getInstance().getMainMenuVideoFilename();
-		if(introVideoFile != "" && fileExists(introVideoFile)) {
+		//if(introVideoFile != "" && fileExists(introVideoFile)) {
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
 			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
@@ -114,7 +114,7 @@ void MainMenu::init() {
 								vlcPluginsPath,
 								SystemFlags::VERBOSE_MODE_ENABLED);
 			menuBackgroundVideo->initPlayer();
-		}
+		//}
 	}
 }
 
