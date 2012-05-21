@@ -927,7 +927,12 @@ void VideoPlayer::closePlayer() {
 #else
 		libvlc_media_player_stop(ctxPtr->mp);
 #endif
+		if(ctxPtr->mlp != NULL) {
+			libvlc_media_list_player_release(ctxPtr->mlp);
+			ctxPtr->mlp = NULL;
+		}
 		libvlc_media_player_release(ctxPtr->mp);
+		ctxPtr->mp = NULL;
 		libvlc_release(ctxPtr->libvlc);
 	}
 #endif
