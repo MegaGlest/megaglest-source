@@ -80,6 +80,8 @@ public:
 	    rawData = NULL;
 	    started = false;
 	    error = false;
+	    stopped = false;
+	    end_of_media = false;
 	    isPlaying = 0;
 	    needToQuit = false;
 	    verboseEnabled = 0;
@@ -107,6 +109,8 @@ public:
     void *rawData;
     bool started;
     bool error;
+    bool stopped;
+    bool end_of_media;
     bool isPlaying;
     bool needToQuit;
     bool verboseEnabled;
@@ -220,31 +224,32 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 	if(ctx->verboseEnabled) printf("In [%s] Line: %d event [%d]\n",__FUNCTION__,__LINE__,event->type);
 	switch ( event->type ) {
 	    case libvlc_MediaPlayerPlaying:
-	        //qDebug() << "Media player playing";
-	        //self->emit playing();
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerPlaying\n");
-	        ctx->isPlaying = true;
+	    	ctx->end_of_media = false;
+	    	ctx->error = false;
+	    	ctx->stopped = false;
+	    	ctx->isPlaying = true;
 	        ctx->started = true;
 
 	        break;
 	    case libvlc_MediaPlayerPaused:
-	        //qDebug() << "Media player paused";
-	        //self->emit paused();
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerPaused\n");
 	        break;
 	    case libvlc_MediaPlayerStopped:
-	        //qDebug() << "Media player stopped";
-	        //self->emit stopped();
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerStopped\n");
+	    	ctx->stopped = true;
+
 	        break;
 	    case libvlc_MediaPlayerEndReached:
-	        //qDebug() << "Media player end reached";
-	        //self->emit endReached();
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerEndReached\n");
-	    	ctx->isPlaying = false;
+	    	if(ctx->started == true && ctx->error == false) {
+	    		ctx->isPlaying = false;
+	    	}
+
+	    	ctx->end_of_media = true;
+
 	        break;
 	    case libvlc_MediaPlayerTimeChanged:
-	        //self->emit timeChanged( event->u.media_player_time_changed.new_time );
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerTimeChanged\n");
 	        break;
 	    case libvlc_MediaPlayerPositionChanged:
@@ -253,63 +258,50 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerPositionChanged\n");
 	        break;
 	    case libvlc_MediaPlayerLengthChanged:
-	        //self->emit lengthChanged( event->u.media_player_length_changed.new_length );
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerLengthChanged\n");
 	        break;
 	    case libvlc_MediaPlayerSnapshotTaken:
-	        //self->emit snapshotTaken( event->u.media_player_snapshot_taken.psz_filename );
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerSnapshotTaken\n");
 	        break;
 	    case libvlc_MediaPlayerEncounteredError:
-	        //qDebug() << '[' << (void*)self << "] libvlc_MediaPlayerEncounteredError received."
-	        //        << "This is not looking good...";
-	        //self->emit errorEncountered();
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerEncounteredError\n");
-	    	ctx->isPlaying = false;
+	    	if(ctx->started == false) {
+	    		ctx->isPlaying = false;
+	    	}
 	    	ctx->error = true;
+
+
 	        break;
 	    case libvlc_MediaPlayerSeekableChanged:
-	        // TODO: Later change it to an event that corresponds volume change, when this thing gets fixed in libvlc
-	        //self->emit volumeChanged();
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerSeekableChanged\n");
 	        break;
-
 	    case libvlc_MediaPlayerPausableChanged:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerPausableChanged\n");
 	        break;
-
 	    case libvlc_MediaPlayerTitleChanged:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerTitleChanged\n");
 	        break;
-
 	    case libvlc_MediaPlayerNothingSpecial:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerNothingSpecial\n");
 	        break;
-
 	    case libvlc_MediaPlayerOpening:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerOpening\n");
 	        break;
-
 	    case libvlc_MediaPlayerBuffering:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerBuffering\n");
 	        break;
-
 	    case libvlc_MediaPlayerForward:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerForward\n");
 	        break;
-
 	    case libvlc_MediaPlayerBackward:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerBackward\n");
 	        break;
-
 	    case libvlc_MediaStateChanged:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaStateChanged\n");
 	        break;
-
 	    case libvlc_MediaParsedChanged:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaParsedChanged\n");
 	        break;
-
 	    case libvlc_MediaPlayerVout:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerVout\n");
 	        break;
@@ -326,7 +318,6 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 	    case libvlc_MediaListWillDeleteItem:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaListWillDeleteItem\n");
 	        break;
-
 	    case libvlc_MediaListViewItemAdded:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaListViewItemAdded\n");
 	        break;
@@ -339,18 +330,22 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 	    case libvlc_MediaListViewWillDeleteItem:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaListViewWillDeleteItem\n");
 	        break;
-
 	    case libvlc_MediaListPlayerPlayed:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaListPlayerPlayed\n");
 	        break;
 	    case libvlc_MediaListPlayerNextItemSet:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaListPlayerNextItemSet\n");
-	        ctx->isPlaying = true;
-	        ctx->started = true;
+	        //ctx->isPlaying = true;
+	        //ctx->started = true;
+	    	ctx->end_of_media = false;
+	    	ctx->error = false;
+	    	ctx->stopped = false;
 
 	        break;
 	    case libvlc_MediaListPlayerStopped:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaListPlayerStopped\n");
+	    	ctx->stopped = true;
+
 	        break;
 
 	    case libvlc_MediaDiscovererStarted:
@@ -359,7 +354,6 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 	    case libvlc_MediaDiscovererEnded:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaDiscovererEndedvvvvvvvvv\n");
 	        break;
-
 	    case libvlc_VlmMediaAdded:
 	    	if(ctx->verboseEnabled) printf("libvlc_VlmMediaAdded\n");
 	        break;
@@ -374,6 +368,8 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 	        break;
 	    case libvlc_VlmMediaInstanceStopped:
 	    	if(ctx->verboseEnabled) printf("libvlc_VlmMediaInstanceStopped\n");
+	    	ctx->stopped = true;
+
 	        break;
 	    case libvlc_VlmMediaInstanceStatusInit:
 	    	if(ctx->verboseEnabled) printf("libvlc_VlmMediaInstanceStatusInit\n");
@@ -423,7 +419,6 @@ VideoPlayer::VideoPlayer(string filename, SDL_Surface *surface,
 }
 
 void VideoPlayer::init() {
-    //verboseEnabled = true;
 	ctxPtr = new ctx();
 	ctxPtr->x = x;
 	ctxPtr->y = y;
@@ -608,7 +603,9 @@ bool VideoPlayer::initPlayer() {
 #endif
 */
 
-	const string HTTP_PREFIX = "http";
+	const string HTTP_PREFIX 					= "http";
+	const double MAX_VIDEO_START_MILLISECONDS	= 20;
+
 	if(ctxPtr->libvlc != NULL) {
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
 		ctxPtr->m = libvlc_media_new(ctxPtr->libvlc, filename.c_str(), &ex);
@@ -666,15 +663,185 @@ bool VideoPlayer::initPlayer() {
 //				libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, NULL, &ex);
 //				libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, NULL, &ex);
 
-				//libvlc_event_attach( eventManager, libvlc_MediaPlayerVout, callbacks, ctxPtr );
-
-				//libvlc_event_attach( eventManager, libvlc_MediaListPlayerPlayed, callbacks, ctxPtr );
 				int event_added = libvlc_event_attach( eventManager, libvlc_MediaListPlayerNextItemSet, callbacks, ctxPtr );
 				if(event_added != 0) {
 					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListPlayerNextItemSet]\n");
 				}
-				//libvlc_event_attach( eventManager, libvlc_MediaListPlayerStopped, callbacks, ctxPtr );
+			}
+		}
+		//else {
+			//libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mp, &ex);
+			libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(ctxPtr->mp);
+			if(eventManager) {
+				int event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerSnapshotTaken,   callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerSnapshotTaken]\n");
+				}
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerTimeChanged,     callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerTimeChanged]\n");
+//				}
 
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerPlaying,         callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerPlaying]\n");
+				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerPaused,          callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerPaused]\n");
+				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerStopped,         callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerStopped]\n");
+				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerEndReached,      callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerEndReached]\n");
+				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerPositionChanged, callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerPositionChanged]\n");
+				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerLengthChanged,   callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerLengthChanged]\n");
+				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerEncounteredError,callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerEncounteredError]\n");
+				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerPausableChanged, callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerPausableChanged]\n");
+				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerSeekableChanged, callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerSeekableChanged]\n");
+				}
+
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaStateChanged, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaStateChanged]\n");
+//				}
+
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaParsedChanged, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaParsedChanged]\n");
+//				}
+
+				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerVout, callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerVout]\n");
+				}
+
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListItemAdded, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListItemAdded]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListWillAddItem, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListWillAddItem]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListItemDeleted, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListItemDeleted]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListWillDeleteItem, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListWillDeleteItem]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListViewItemAdded, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListViewItemAdded]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListViewWillAddItem, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListViewWillAddItem]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListViewItemDeleted, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListViewItemDeleted]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListViewWillDeleteItem, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListViewWillDeleteItem]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListPlayerPlayed, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListPlayerPlayed]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListPlayerNextItemSet, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListPlayerNextItemSet]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaListPlayerStopped, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListPlayerStopped]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaDiscovererStarted, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaDiscovererStarted]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_MediaDiscovererEnded, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_MediaDiscovererEnded]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaAdded, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaAdded]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaRemoved, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaRemoved]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaChanged, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaChanged]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStarted, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStarted]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStopped, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStopped]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusInit, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStatusInit]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusOpening, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStatusOpening]\n");
+//				}
+//
 //				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusPlaying, callbacks, ctxPtr );
 //				if(event_added != 0) {
 //					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStatusPlaying]\n");
@@ -694,69 +861,9 @@ bool VideoPlayer::initPlayer() {
 //				if(event_added != 0) {
 //					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStatusError]\n");
 //				}
-			}
-		}
-		else {
-			//libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mp, &ex);
-			libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(ctxPtr->mp);
-			if(eventManager) {
-		//			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapPlayingEvent, NULL, &ex);
-		//			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, NULL, &ex);
-		//			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, NULL, &ex);
-		//			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, NULL, &ex);
-
-		//			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapPlayingEvent, ctxPtr);
-		//			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapEndReachedEvent, ctxPtr);
-		//			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapBufferingEvent, ctxPtr);
-		//			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, ctxPtr);
-
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerSnapshotTaken,   callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerTimeChanged,     callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerPlaying,         callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerPaused,          callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerStopped,         callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerEndReached,      callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerPositionChanged, callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerLengthChanged,   callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerEncounteredError,callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerPausableChanged, callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerSeekableChanged, callbacks, ctxPtr );
-
-				//libvlc_event_attach( eventManager, libvlc_MediaStateChanged, callbacks, ctxPtr );
-				//libvlc_event_attach( eventManager, libvlc_MediaParsedChanged, callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaPlayerVout, callbacks, ctxPtr );
-
-				//libvlc_event_attach( eventManager, libvlc_MediaListItemAdded, callbacks, ctxPtr );
-				//libvlc_event_attach( eventManager, libvlc_MediaListWillAddItem, callbacks, ctxPtr );
-				//libvlc_event_attach( eventManager, libvlc_MediaListItemDeleted, callbacks, ctxPtr );
-				//libvlc_event_attach( eventManager, libvlc_MediaListWillDeleteItem, callbacks, ctxPtr );
-
-		//		    libvlc_event_attach( eventManager, libvlc_MediaListViewItemAdded, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_MediaListViewWillAddItem, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_MediaListViewItemDeleted, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_MediaListViewWillDeleteItem, callbacks, ctxPtr );
-		//
-		//		    libvlc_event_attach( eventManager, libvlc_MediaListPlayerPlayed, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_MediaListPlayerNextItemSet, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_MediaListPlayerStopped, callbacks, ctxPtr );
-		//
-		//		    libvlc_event_attach( eventManager, libvlc_MediaDiscovererStarted, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_MediaDiscovererEnded, callbacks, ctxPtr );
-		//
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaAdded, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaRemoved, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaChanged, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStarted, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStopped, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusInit, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusOpening, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusPlaying, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusPause, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusEnd, callbacks, ctxPtr );
-		//		    libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusError, callbacks, ctxPtr );
 
 			}
-		}
+		//}
 
 		//libvlc_media_release(ctxPtr->m);
 #endif
@@ -791,10 +898,13 @@ bool VideoPlayer::initPlayer() {
 		successLoadingLib = (play_result == 0);
 
 		time_t waitStart = time(NULL);
-		for(;difftime(time(NULL),waitStart) <= 20 &&
+		for(;difftime(time(NULL),waitStart) <= MAX_VIDEO_START_MILLISECONDS &&
 			 successLoadingLib == true &&
-			 ctxPtr->error == false &&
+			 (ctxPtr->error == false || ctxPtr->stopped == false) &&
 			 ctxPtr->started == false;) {
+			if(ctxPtr->started == true) {
+				break;
+			}
 			SDL_Delay(10);
 		}
 
@@ -1098,8 +1208,11 @@ void VideoPlayer::PlayVideo() {
 bool VideoPlayer::isPlaying() const {
 	bool result = (successLoadingLib == true &&
 					ctxPtr != NULL && ctxPtr->isPlaying == true &&
-					ctxPtr->error == false &&
+					//ctxPtr->error == false &&
+					(ctxPtr->error == false || ctxPtr->stopped == false) &&
 					finished == false && stop == false);
+
+	if(ctxPtr->verboseEnabled) printf("isPlaying isPlaying = %d,error = %d, stopped = %d, end_of_media = %d\n",ctxPtr->isPlaying,ctxPtr->error,ctxPtr->stopped,ctxPtr->end_of_media);
 	return result;
 }
 
