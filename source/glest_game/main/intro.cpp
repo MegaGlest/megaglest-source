@@ -497,7 +497,7 @@ Intro::Intro(Program *program):
 		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
 		CoreData::getInstance().hasIntroVideoFilename() == true) {
 		string introVideoFile = CoreData::getInstance().getIntroVideoFilename();
-		if(fileExists(introVideoFile)) {
+		//if(fileExists(introVideoFile)) {
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
 			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
@@ -514,7 +514,7 @@ Intro::Intro(Program *program):
 			player.PlayVideo();
 			exitAfterIntroVideo = true;
 			return;
-		}
+		//}
 	}
 
 	soundRenderer.playMusic(CoreData::getInstance().getIntroMusic());
