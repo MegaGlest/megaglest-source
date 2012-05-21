@@ -669,14 +669,31 @@ bool VideoPlayer::initPlayer() {
 				//libvlc_event_attach( eventManager, libvlc_MediaPlayerVout, callbacks, ctxPtr );
 
 				//libvlc_event_attach( eventManager, libvlc_MediaListPlayerPlayed, callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_MediaListPlayerNextItemSet, callbacks, ctxPtr );
+				int event_added = libvlc_event_attach( eventManager, libvlc_MediaListPlayerNextItemSet, callbacks, ctxPtr );
+				if(event_added != 0) {
+					printf("ERROR CANNOT ADD EVENT [libvlc_MediaListPlayerNextItemSet]\n");
+				}
 				//libvlc_event_attach( eventManager, libvlc_MediaListPlayerStopped, callbacks, ctxPtr );
 
-				libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusPlaying, callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusPause, callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusEnd, callbacks, ctxPtr );
-				libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusError, callbacks, ctxPtr );
-
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusPlaying, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStatusPlaying]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusPause, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStatusPause]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusEnd, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStatusEnd]\n");
+//				}
+//
+//				event_added = libvlc_event_attach( eventManager, libvlc_VlmMediaInstanceStatusError, callbacks, ctxPtr );
+//				if(event_added != 0) {
+//					printf("ERROR CANNOT ADD EVENT [libvlc_VlmMediaInstanceStatusError]\n");
+//				}
 			}
 		}
 		else {
@@ -773,8 +790,11 @@ bool VideoPlayer::initPlayer() {
 
 		successLoadingLib = (play_result == 0);
 
-		for(;successLoadingLib == true && ctxPtr->error == false &&
-			  ctxPtr->started == false;) {
+		time_t waitStart = time(NULL);
+		for(;difftime(time(NULL),waitStart) <= 20 &&
+			 successLoadingLib == true &&
+			 ctxPtr->error == false &&
+			 ctxPtr->started == false;) {
 			SDL_Delay(10);
 		}
 
