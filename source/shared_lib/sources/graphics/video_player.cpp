@@ -1333,15 +1333,22 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 //				 glVertex2f(ctxPtr->x, ctxPtr->y);
 //				glEnd();
 
+#ifdef WIN32
+				const double HEIGHT_MULTIPLIER 	= 1.0;
+				const double WIDTH_MULTIPLIER 		= 1.0;
+#else
+				const double HEIGHT_MULTIPLIER 	= 0.80;
+				const double WIDTH_MULTIPLIER 		= 0.60;
+#endif
 				glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2i(0, 1);
-					glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height * 0.80);
+					glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height * HEIGHT_MULTIPLIER);
 					glTexCoord2i(0, 0);
 					glVertex2i(ctxPtr->x, ctxPtr->y);
 					glTexCoord2i(1, 1);
-					glVertex2i(ctxPtr->x+ctxPtr->width * 0.60, ctxPtr->y+ctxPtr->height * 0.80);
+					glVertex2i(ctxPtr->x+ctxPtr->width * WIDTH_MULTIPLIER, ctxPtr->y+ctxPtr->height * HEIGHT_MULTIPLIER);
 					glTexCoord2i(1, 0);
-					glVertex2i(ctxPtr->x+ctxPtr->width * 0.60, ctxPtr->y);
+					glVertex2i(ctxPtr->x+ctxPtr->width * WIDTH_MULTIPLIER, ctxPtr->y);
 				glEnd();
 
 			}
