@@ -319,7 +319,8 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 
 	setTaskSignalled(false);
 
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
 	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	lastExecuteTimestamp = time(NULL);
@@ -357,7 +358,8 @@ void SimpleTaskThread::setOverrideShutdownTask(taskFunctionCallback *ptr) {
 
 bool SimpleTaskThread::isThreadExecutionLagging() {
 	bool result = false;
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
 	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
@@ -409,11 +411,12 @@ void SimpleTaskThread::execute() {
                 else if(runTask == true) {
                     if(getQuitStatus() == false) {
                     	ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
-                    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                    	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                         this->simpleTaskInterface->simpleTask(this);
-                        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+                        //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-                        static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+                        //static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+                        string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
                         MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
                         mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
                     	lastExecuteTimestamp = time(NULL);
@@ -463,7 +466,8 @@ void SimpleTaskThread::execute() {
 }
 
 void SimpleTaskThread::setTaskSignalled(bool value) {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
 	mutexTaskSignaller.setOwnerId(mutexOwnerId);
 	taskSignalled = value;
@@ -472,7 +476,8 @@ void SimpleTaskThread::setTaskSignalled(bool value) {
 
 bool SimpleTaskThread::getTaskSignalled() {
 	bool retval = false;
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
 	mutexTaskSignaller.setOwnerId(mutexOwnerId);
 	retval = taskSignalled;
