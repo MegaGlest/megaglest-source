@@ -1339,7 +1339,11 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 #else
 				const double HEIGHT_MULTIPLIER 	= 0.80;
 				const double WIDTH_MULTIPLIER 		= 0.60;
+//				const double HEIGHT_MULTIPLIER 	= 1.0;
+//				const double WIDTH_MULTIPLIER 		= 1.0;
+
 #endif
+
 				glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2i(0, 1);
 					glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height * HEIGHT_MULTIPLIER);

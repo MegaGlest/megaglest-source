@@ -257,11 +257,18 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(giveKills, "giveKills");
 	luaScript.registerFunction(morphToUnit, "morphToUnit");
 	luaScript.registerFunction(moveToUnit, "moveToUnit");
+
 	luaScript.registerFunction(playStaticSound, "playStaticSound");
 	luaScript.registerFunction(playStreamingSound, "playStreamingSound");
 	luaScript.registerFunction(stopStreamingSound, "stopStreamingSound");
 	luaScript.registerFunction(stopAllSound, "stopAllSound");
 	luaScript.registerFunction(togglePauseGame, "togglePauseGame");
+
+	luaScript.registerFunction(playStaticVideo, "playStaticVideo");
+	//luaScript.registerFunction(playStreamingVideo, "playStreamingVideo");
+	//luaScript.registerFunction(stopStreamingVideo, "stopStreamingVideo");
+	luaScript.registerFunction(stopAllVideo, "stopAllVideo");
+
 	luaScript.registerFunction(giveResource, "giveResource");
 	luaScript.registerFunction(givePositionCommand, "givePositionCommand");
 	luaScript.registerFunction(giveProductionCommand, "giveProductionCommand");
@@ -877,6 +884,29 @@ void ScriptManager::stopAllSound() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	world->stopAllSound();
+}
+
+void ScriptManager::playStaticVideo(const string &playVideo) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",__FILE__,__FUNCTION__,__LINE__,playVideo.c_str());
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->playStaticVideo(playVideo);
+}
+void ScriptManager::playStreamingVideo(const string &playVideo) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",__FILE__,__FUNCTION__,__LINE__,playVideo.c_str());
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->playStreamingVideo(playVideo);
+}
+
+void ScriptManager::stopStreamingVideo(const string &playVideo) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",__FILE__,__FUNCTION__,__LINE__,playVideo.c_str());
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->stopStreamingVideo(playVideo);
+}
+
+void ScriptManager::stopAllVideo() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->stopAllVideo();
 }
 
 void ScriptManager::togglePauseGame(int pauseStatus) {
@@ -1547,6 +1577,38 @@ int ScriptManager::stopAllSound(LuaHandle* luaHandle) {
 	thisScriptManager->stopAllSound();
 	return luaArguments.getReturnCount();
 }
+
+
+
+int ScriptManager::playStaticVideo(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+	thisScriptManager->playStaticVideo(luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::playStreamingVideo(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+	thisScriptManager->playStreamingVideo(luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::stopStreamingVideo(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+	thisScriptManager->stopStreamingVideo(luaArguments.getString(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::stopAllVideo(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	thisScriptManager->stopAllVideo();
+	return luaArguments.getReturnCount();
+}
+
+
 
 int ScriptManager::togglePauseGame(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);

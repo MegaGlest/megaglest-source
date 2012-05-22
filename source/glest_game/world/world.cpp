@@ -2033,6 +2033,22 @@ int World::getNextCommandGroupId() {
 	return ++nextCommandGroupId;
 }
 
+void World::playStaticVideo(const string &playVideo) {
+	this->game->playStaticVideo(playVideo);
+}
+
+void World::playStreamingVideo(const string &playVideo) {
+	this->game->playStreamingVideo(playVideo);
+}
+
+void World::stopStreamingVideo(const string &playVideo) {
+	this->game->stopStreamingVideo(playVideo);
+}
+
+void World::stopAllVideo() {
+	this->game->stopAllVideo();
+}
+
 void World::removeResourceTargetFromCache(const Vec2i &pos) {
 	for(int i= 0; i < factions.size(); ++i) {
 		factions[i]->removeResourceTargetFromCache(pos);
