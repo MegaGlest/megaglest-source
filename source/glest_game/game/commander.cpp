@@ -470,12 +470,12 @@ void Commander::trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) 
 }
 
 void Commander::tryPauseGame() const {
-	NetworkCommand command(this->world,nctPauseResume, true);
+	NetworkCommand command(this->world,nctPauseResume, 1);
 	pushNetworkCommand(&command);
 }
 
 void Commander::tryResumeGame() const {
-	NetworkCommand command(this->world,nctPauseResume, false);
+	NetworkCommand command(this->world,nctPauseResume, 0);
 	pushNetworkCommand(&command);
 }
 

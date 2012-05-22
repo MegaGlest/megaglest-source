@@ -24,6 +24,8 @@
 #include "checksum.h"
 #include "auto_test.h"
 #include "menu_state_keysetup.h"
+#include "video_player.h"
+
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -59,6 +61,8 @@ Game::Game() : ProgramState(NULL) {
 
 	originalDisplayMsgCallback = NULL;
 	aiInterfaces.clear();
+	videoPlayer = NULL;
+	playingStaticVideo = false;
 
 	mouse2d=0;
 	mouseX=0;
@@ -212,6 +216,8 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	this->masterserverMode = masterserverMode;
+	videoPlayer = NULL;
+	playingStaticVideo = false;
 
 	if(this->masterserverMode == true) {
 		printf("Starting a new game...\n");
@@ -329,6 +335,10 @@ Game::~Game() {
 	world.end();	//must die before selection because of referencers
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,aiInterfaces.size());
+
+	delete videoPlayer;
+	videoPlayer = NULL;
+	playingStaticVideo = false;
 
 	// MUST DO THIS LAST!!!! Because objects above have pointers to things like
 	// unit particles and fade them out etc and this end method deletes the original
@@ -1337,6 +1347,13 @@ void Game::update() {
 		//else if(role == nrClient) {
 		else {
 			commander.signalNetworkUpdate(this);
+
+			if(playingStaticVideo == true) {
+				if(videoPlayer->isPlaying() == false) {
+					playingStaticVideo = false;
+					tryPauseToggle(false);
+				}
+			}
 		}
 
 		//call the chat manager
@@ -1780,6 +1797,50 @@ int Game::getFirstUnusedTeamNumber() {
 	}
 
 	return result;
+}
+
+void Game::setupRenderForVideo() {
+	Renderer &renderer= Renderer::getInstance();
+	renderer.clearBuffers();
+	//3d
+	renderer.reset3dMenu();
+	renderer.clearZBuffer();
+	//2d
+	renderer.reset2d();
+}
+
+void Game::tryPauseToggle(bool pauseValue) {
+	bool allowAdminMenuItems = false;
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	NetworkRole role = networkManager.getNetworkRole();
+	if(role == nrServer) {
+		allowAdminMenuItems = true;
+	}
+	else if(role == nrClient) {
+		ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
+
+		if(clientInterface != NULL &&
+			gameSettings.getMasterserver_admin() == clientInterface->getSessionKey()) {
+			allowAdminMenuItems = true;
+		}
+	}
+
+	bool isNetworkGame 				= this->gameSettings.isNetworkGame();
+	//printf("Try Pause allowAdminMenuItems = %d, pauseValue = %d\n",allowAdminMenuItems,pauseValue);
+
+	if(allowAdminMenuItems) {
+		if(pauseValue == true) {
+			commander.tryPauseGame();
+		}
+		else {
+			if(isNetworkGame == false) {
+				setPaused(pauseValue, true);
+			}
+			else {
+				commander.tryResumeGame();
+			}
+		}
+	}
 }
 
 void Game::mouseDownLeft(int x, int y) {
@@ -3115,6 +3176,8 @@ void Game::render2d() {
 		}
 	}
 
+	renderVideoPlayer();
+
 	renderer.renderPopupMenu(&popupMenu);
 	renderer.renderPopupMenu(&popupMenuSwitchTeams);
 
@@ -3611,6 +3674,108 @@ void Game::addNetworkCommandToReplayList(NetworkCommand* networkCommand, int wor
 		replayCommandList.push_back(make_pair(worldFrameCount,*networkCommand));
 	}
 }
+
+void Game::renderVideoPlayer() {
+	if(videoPlayer != NULL) {
+		if(videoPlayer->isPlaying() == true) {
+			videoPlayer->playFrame(false);
+		}
+		else {
+			delete videoPlayer;
+			videoPlayer = NULL;
+		}
+	}
+}
+
+void Game::playStaticVideo(const string &playVideo) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+
+		//togglePauseGame(true,true);
+		tryPauseToggle(true);
+		setupRenderForVideo();
+
+
+//		Context *c= GraphicsInterface::getInstance().getCurrentContext();
+//		SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+//
+//		string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
+//		//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
+//		Shared::Graphics::VideoPlayer player(playVideo.c_str(),
+//							screen,
+//							0,0,
+//							screen->w,
+//							screen->h,
+//							screen->format->BitsPerPixel,
+//							vlcPluginsPath,
+//							SystemFlags::VERBOSE_MODE_ENABLED);
+//		player.PlayVideo();
+		//}
+		//tryPauseToggle(false);
+
+		playStreamingVideo(playVideo);
+		playingStaticVideo = true;
+	}
+}
+void Game::playStreamingVideo(const string &playVideo) {
+	if(videoPlayer == NULL) {
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+			Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+			Context *c= GraphicsInterface::getInstance().getCurrentContext();
+			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+
+			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
+
+			videoPlayer = new Shared::Graphics::VideoPlayer(playVideo.c_str(),
+					screen,
+					0,0,
+					screen->w,
+					screen->h,
+					screen->format->BitsPerPixel,
+					vlcPluginsPath,
+					SystemFlags::VERBOSE_MODE_ENABLED);
+		}
+	}
+	else {
+		if(videoPlayer->isPlaying() == false) {
+			delete videoPlayer;
+			videoPlayer = NULL;
+
+			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+				Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+				Context *c= GraphicsInterface::getInstance().getCurrentContext();
+				SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+
+				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
+
+				videoPlayer = new Shared::Graphics::VideoPlayer(playVideo.c_str(),
+									screen,
+									0,0,
+									screen->w,
+									screen->h,
+									screen->format->BitsPerPixel,
+									vlcPluginsPath,
+									SystemFlags::VERBOSE_MODE_ENABLED);
+			}
+		}
+	}
+
+	if(videoPlayer != NULL) {
+		videoPlayer->initPlayer();
+	}
+}
+void Game::stopStreamingVideo(const string &playVideo) {
+	if(videoPlayer != NULL) {
+		videoPlayer->StopVideo();
+	}
+}
+
+void Game::stopAllVideo() {
+	if(videoPlayer != NULL) {
+		videoPlayer->StopVideo();
+	}
+}
+
 
 void Game::saveGame(){
 	string file = this->saveGame(GameConstants::saveGameFilePattern);

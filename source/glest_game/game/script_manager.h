@@ -256,6 +256,11 @@ private:
 	void stopAllSound();
 	void togglePauseGame(int pauseStatus);
 
+	void playStaticVideo(const string &playVideo);
+	void playStreamingVideo(const string &playVideo);
+	void stopStreamingVideo(const string &playVideo);
+	void stopAllVideo();
+
 	void giveResource(const string &resourceName, int factionIndex, int amount);
 	void givePositionCommand(int unitId, const string &producedName, const Vec2i &pos);
 	void giveProductionCommand(int unitId, const string &producedName);
@@ -360,6 +365,11 @@ private:
 	static int stopStreamingSound(LuaHandle* luaHandle);
 	static int stopAllSound(LuaHandle* luaHandle);
 	static int togglePauseGame(LuaHandle* luaHandle);
+
+	static int playStaticVideo(LuaHandle* luaHandle);
+	static int playStreamingVideo(LuaHandle* luaHandle);
+	static int stopStreamingVideo(LuaHandle* luaHandle);
+	static int stopAllVideo(LuaHandle* luaHandle);
 
 	static int giveResource(LuaHandle* luaHandle);
 	static int givePositionCommand(LuaHandle* luaHandle);

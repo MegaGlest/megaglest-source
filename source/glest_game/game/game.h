@@ -34,6 +34,10 @@ using std::vector;
 using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
 
+namespace Shared { namespace Graphics {
+	class VideoPlayer;
+}}
+
 namespace Glest{ namespace Game{
 
 class GraphicMessageBox;
@@ -160,6 +164,10 @@ private:
 	int lastworldFrameCountForReplay;
 	std::vector<std::pair<int,NetworkCommand> > replayCommandList;
 
+	std::vector<string> streamingVideos;
+	Shared::Graphics::VideoPlayer *videoPlayer;
+	bool playingStaticVideo;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
@@ -188,6 +196,8 @@ public:
 
 	bool getPaused();
 	void setPaused(bool value, bool forceAllowPauseStateChange=false);
+	void tryPauseToggle(bool pause);
+	void setupRenderForVideo();
 	void saveGame();
 	const int getTotalRenderFps() const					{return totalRenderFps;}
 
@@ -241,6 +251,11 @@ public:
 
 	void endGame();
 
+	void playStaticVideo(const string &playVideo);
+	void playStreamingVideo(const string &playVideo);
+	void stopStreamingVideo(const string &playVideo);
+	void stopAllVideo();
+
 	string saveGame(string name);
 	static void loadGame(string name,Program *programPtr,bool isMasterserverMode);
 
@@ -279,6 +294,8 @@ private:
 	void setupPopupMenus(bool checkClientAdminOverrideOnly);
 
 	string getDebugStats(std::map<int,string> &factionDebugInfo);
+
+	void renderVideoPlayer();
 };
 
 }}//end namespace

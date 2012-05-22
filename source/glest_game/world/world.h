@@ -280,6 +280,11 @@ public:
 
 	inline UnitUpdater * getUnitUpdater() { return &unitUpdater; }
 
+	void playStaticVideo(const string &playVideo);
+	void playStreamingVideo(const string &playVideo);
+	void stopStreamingVideo(const string &playVideo);
+	void stopAllVideo();
+
 	void removeResourceTargetFromCache(const Vec2i &pos);
 
 	string getExploredCellsLookupItemCacheStats();
