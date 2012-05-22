@@ -377,16 +377,19 @@ bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 void SimpleTaskThread::execute() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	void *ptr_cpy = this->ptr;
 	bool mustDeleteSelf = false;
 	{
     {
         RunningStatusSafeWrapper runningStatus(this);
         try {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
             if(getQuitStatus() == true) {
                 return;
             }
 
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 
             unsigned int idx = 0;
@@ -406,7 +409,9 @@ void SimpleTaskThread::execute() {
                 else if(runTask == true) {
                     if(getQuitStatus() == false) {
                     	ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+                    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
                         this->simpleTaskInterface->simpleTask(this);
+                        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
                         static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
                         MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
@@ -429,9 +434,11 @@ void SimpleTaskThread::execute() {
 
                 sleep(this->millisecsBetweenExecutions);
             }
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] END\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
         	mustDeleteSelf = getDeleteSelfOnExecutionDone();
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         }
         catch(const exception &ex) {
             SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -445,8 +452,11 @@ void SimpleTaskThread::execute() {
     }
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(mustDeleteSelf == true) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(isThreadDeleted(ptr_cpy) == false) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			delete this;
 		}
 	}
