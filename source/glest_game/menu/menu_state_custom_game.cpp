@@ -2621,12 +2621,16 @@ void MenuStateCustomGame::shutdownTask(BaseThread *callingThread) {
 void MenuStateCustomGame::setupTaskStatic(BaseThread *callingThread) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	CURL *handle = SystemFlags::initHTTP();
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	callingThread->setGenericData<CURL>(handle);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 void MenuStateCustomGame::shutdownTaskStatic(BaseThread *callingThread) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	CURL *handle = callingThread->getGenericData<CURL>();
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	SystemFlags::cleanupHTTP(&handle);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {

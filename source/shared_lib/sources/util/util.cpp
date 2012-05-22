@@ -184,10 +184,12 @@ CURL *SystemFlags::initHTTP() {
 	if(SystemFlags::curl_global_init_called == false) {
 		SystemFlags::curl_global_init_called = true;
 		//printf("HTTP init\n");
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] calling curl_global_init\n",__FILE__,__FUNCTION__,__LINE__);
 		CURLcode result = curl_global_init(CURL_GLOBAL_ALL);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
 		//printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
 	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] calling curl_easy_init\n",__FILE__,__FUNCTION__,__LINE__);
 	CURL *handle = curl_easy_init();
 	if(handle == NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] ERROR handle = NULL\n",__FILE__,__FUNCTION__,__LINE__);
