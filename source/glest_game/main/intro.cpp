@@ -498,19 +498,27 @@ Intro::Intro(Program *program):
 		CoreData::getInstance().hasIntroVideoFilename() == true) {
 		string introVideoFile = CoreData::getInstance().getIntroVideoFilename();
 		//if(fileExists(introVideoFile)) {
+
+			renderer.clearBuffers();
+			renderer.reset3dMenu();
+			renderer.clearZBuffer();
+			renderer.reset2d();
+
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
 			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
 			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
-			Shared::Graphics::VideoPlayer player(introVideoFile.c_str(),
-								screen,
-								-1,-1,
-								screen->w,
-								screen->h,
-								screen->format->BitsPerPixel,
-								vlcPluginsPath,
-								SystemFlags::VERBOSE_MODE_ENABLED);
+			Shared::Graphics::VideoPlayer player(
+					&Renderer::getInstance(),
+					introVideoFile.c_str(),
+					screen,
+					0,0,
+					screen->w,
+					screen->h,
+					screen->format->BitsPerPixel,
+					vlcPluginsPath,
+					SystemFlags::VERBOSE_MODE_ENABLED);
 			player.PlayVideo();
 			exitAfterIntroVideo = true;
 			return;

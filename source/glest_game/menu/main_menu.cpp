@@ -105,14 +105,16 @@ void MainMenu::init() {
 
 			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
-			menuBackgroundVideo = new VideoPlayer(introVideoFile.c_str(),
-								screen,
-								0,0,
-								screen->w,
-								screen->h,
-								screen->format->BitsPerPixel,
-								vlcPluginsPath,
-								SystemFlags::VERBOSE_MODE_ENABLED);
+			menuBackgroundVideo = new VideoPlayer(
+					&Renderer::getInstance(),
+					introVideoFile.c_str(),
+					screen,
+					0,0,
+					screen->w,
+					screen->h,
+					screen->format->BitsPerPixel,
+					vlcPluginsPath,
+					SystemFlags::VERBOSE_MODE_ENABLED);
 			menuBackgroundVideo->initPlayer();
 		//}
 	}

@@ -8533,4 +8533,47 @@ void Renderer::renderPopupMenu(PopupMenu *menu) {
 
 }
 
+void Renderer::setupRenderForVideo() {
+	clearBuffers();
+	//3d
+	reset3dMenu();
+	clearZBuffer();
+	//2d
+	reset2d();
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+}
+
+void Renderer::renderVideoLoading(int progressPercent) {
+	//printf("Rendering progress progressPercent = %d\n",progressPercent);
+	setupRenderForVideo();
+
+	Lang &lang= Lang::getInstance();
+	string textToRender = lang.get("PleaseWait");
+	const Metrics &metrics= Metrics::getInstance();
+
+	if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
+
+		int renderX = 0;
+		int renderY = 0;
+		int w= metrics.getVirtualW();
+		renderX = (w / 2) - (CoreData::getInstance().getMenuFontBig3D()->getMetrics()->getTextWidth(textToRender) / 2);
+		int h= metrics.getVirtualH();
+		renderY = (h / 2) + (CoreData::getInstance().getMenuFontBig3D()->getMetrics()->getHeight(textToRender) / 2);
+
+		renderText3D(
+				textToRender,
+				CoreData::getInstance().getMenuFontBig3D(),
+				Vec3f(1.f, 1.f, 0.f),
+				renderX, renderY, false);
+	}
+	else {
+		renderText(
+				textToRender,
+				CoreData::getInstance().getMenuFontBig(),
+				Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2),
+				(metrics.getScreenH() / 2), true);
+	}
+    swapBuffers();
+}
+
 }}//end namespace

@@ -1801,12 +1801,13 @@ int Game::getFirstUnusedTeamNumber() {
 
 void Game::setupRenderForVideo() {
 	Renderer &renderer= Renderer::getInstance();
-	renderer.clearBuffers();
+	//renderer.clearBuffers();
 	//3d
-	renderer.reset3dMenu();
-	renderer.clearZBuffer();
+	//renderer.reset3dMenu();
+	//renderer.clearZBuffer();
 	//2d
-	renderer.reset2d();
+	//renderer.reset2d();
+	renderer.setupRenderForVideo();
 }
 
 void Game::tryPauseToggle(bool pauseValue) {
@@ -3726,7 +3727,9 @@ void Game::playStreamingVideo(const string &playVideo) {
 
 			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 
-			videoPlayer = new Shared::Graphics::VideoPlayer(playVideo.c_str(),
+			videoPlayer = new Shared::Graphics::VideoPlayer(
+					&Renderer::getInstance(),
+					playVideo.c_str(),
 					screen,
 					0,0,
 					screen->w,
@@ -3748,14 +3751,16 @@ void Game::playStreamingVideo(const string &playVideo) {
 
 				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 
-				videoPlayer = new Shared::Graphics::VideoPlayer(playVideo.c_str(),
-									screen,
-									0,0,
-									screen->w,
-									screen->h,
-									screen->format->BitsPerPixel,
-									vlcPluginsPath,
-									SystemFlags::VERBOSE_MODE_ENABLED);
+				videoPlayer = new Shared::Graphics::VideoPlayer(
+						&Renderer::getInstance(),
+						playVideo.c_str(),
+						screen,
+						0,0,
+						screen->w,
+						screen->h,
+						screen->format->BitsPerPixel,
+						vlcPluginsPath,
+						SystemFlags::VERBOSE_MODE_ENABLED);
 			}
 		}
 	}

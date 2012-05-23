@@ -70,6 +70,7 @@ std::string getRegKey(const std::string& location, const std::string& name){
 class ctx {
 public:
 	ctx() {
+		loadingCB = NULL;
 		empty = NULL;
 	    textureId = 0; // Texture ID
 	    surf = NULL;
@@ -99,6 +100,7 @@ public:
 #endif
 	}
 
+	Shared::Graphics::VideoLoadingCallbackInterface *loadingCB;
 	SDL_Surface *empty;
     GLuint textureId; // Texture ID
     SDL_Surface *surf;
@@ -399,9 +401,10 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 
 #endif
 
-VideoPlayer::VideoPlayer(string filename, SDL_Surface *surface,
+VideoPlayer::VideoPlayer(VideoLoadingCallbackInterface *loadingCB, string filename, SDL_Surface *surface,
 		int x, int y,int width, int height,int colorBits,string pluginsPath,
 		bool verboseEnabled) : ctxPtr(NULL) {
+	this->loadingCB = loadingCB;
 	this->filename = filename;
 	this->surface = surface;
 	this->x = x;
@@ -421,6 +424,7 @@ VideoPlayer::VideoPlayer(string filename, SDL_Surface *surface,
 
 void VideoPlayer::init() {
 	ctxPtr = new ctx();
+	ctxPtr->loadingCB = loadingCB;
 	ctxPtr->x = x;
 	ctxPtr->y = y;
 	ctxPtr->width = width;
@@ -605,7 +609,7 @@ bool VideoPlayer::initPlayer() {
 */
 
 	const string HTTP_PREFIX 					= "http";
-	const double MAX_VIDEO_START_MILLISECONDS	= 20;
+	const double MAX_VIDEO_START_MILLISECONDS	= 20.0;
 
 	if(ctxPtr->libvlc != NULL) {
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
@@ -906,7 +910,11 @@ bool VideoPlayer::initPlayer() {
 			if(ctxPtr->started == true) {
 				break;
 			}
-			SDL_Delay(10);
+			if(this->loadingCB != NULL) {
+				int progress = ((difftime(time(NULL),waitStart) / MAX_VIDEO_START_MILLISECONDS) * 100.0);
+				this->loadingCB->renderVideoLoading(progress);
+			}
+			SDL_Delay(1);
 		}
 
 		//SDL_Delay(5000);
