@@ -37,6 +37,7 @@
 #include "graphics_interface.h"
 #include "base_renderer.h"
 #include "simple_threads.h"
+#include "video_player.h"
 
 #ifdef DEBUG_RENDERING_ENABLED
 #	define IF_DEBUG_EDITION(x) x
@@ -179,7 +180,8 @@ public:
 class Renderer : public RendererInterface,
 				 public BaseRenderer,
 				 // This is for screen saver thread
-				 public SimpleTaskCallbackInterface {
+				 public SimpleTaskCallbackInterface,
+				 public VideoLoadingCallbackInterface {
 public:
 	//progress bar
 	static const int maxProgressBar;
@@ -590,6 +592,9 @@ public:
 	void init3dListMenu(const MainMenu *mm);
 
 	void setProgram(Program *program) { this->program = program; }
+
+	void setupRenderForVideo();
+	virtual void renderVideoLoading(int progressPercent);
 
 private:
 	//private misc

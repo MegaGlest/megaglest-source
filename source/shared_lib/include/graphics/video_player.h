@@ -20,6 +20,12 @@ using namespace std;
 
 namespace Shared{ namespace Graphics{
 
+class VideoLoadingCallbackInterface {
+public:
+	/** a value from 1 to 100 representing % done */
+	virtual void renderVideoLoading(int progressPercent) = 0;
+};
+
 class VideoPlayer {
 protected:
 
@@ -38,12 +44,13 @@ protected:
 	bool stop;
 	bool finished;
 
+	VideoLoadingCallbackInterface *loadingCB;
 	ctx *ctxPtr;
 
 	void init();
 
 public:
-	VideoPlayer(string filename, SDL_Surface *surface, int x, int y,
+	VideoPlayer(VideoLoadingCallbackInterface *loadingCB, string filename, SDL_Surface *surface, int x, int y,
 			int width, int height, int colorBits,
 			string pluginsPath,bool verboseEnabled=false);
 	virtual ~VideoPlayer();
