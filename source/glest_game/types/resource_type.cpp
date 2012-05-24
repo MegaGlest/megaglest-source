@@ -39,12 +39,15 @@ ResourceType::ResourceType() {
 	recoup_cost = false;
     model = NULL;
     displayInHud = false;
+    cleanupMemory = true;
 }
 
-ResourceType::~ResourceType(){
-	while(!(particleTypes.empty())){
-		delete particleTypes.back();
-		particleTypes.pop_back();
+ResourceType::~ResourceType() {
+	if(cleanupMemory == true) {
+		while(particleTypes.empty() == false) {
+			delete particleTypes.back();
+			particleTypes.pop_back();
+		}
 	}
 }
 

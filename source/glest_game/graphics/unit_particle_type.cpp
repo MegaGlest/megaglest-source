@@ -192,6 +192,16 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
 	}
 }
 
+ObjectParticleSystemType::ObjectParticleSystemType() : UnitParticleSystemType() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s Line: %d] NEW [%p]\n",__FUNCTION__,__LINE__,this);
+}
+ObjectParticleSystemType::~ObjectParticleSystemType() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) {
+		printf("In [%s Line: %d] NEW [%p]\n",__FUNCTION__,__LINE__,this);
+		printf("%s\n",PlatformExceptionHandler::getStackTrace().c_str());
+	}
+}
+
 const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	// whilst we extend ParticleSystemType we don't use ParticleSystemType::setValues()
 	// add instances of all children; some settings will cascade to all children

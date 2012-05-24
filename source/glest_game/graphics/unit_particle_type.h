@@ -72,6 +72,7 @@ protected:
 
 public:
 	UnitParticleSystemType();
+	virtual ~UnitParticleSystemType() {};
 
 	void load(const XmlNode *particleSystemNode, const string &dir,
 			RendererInterface *newTexture, std::map<string,vector<pair<string, string> > > &loadedFileList,
@@ -90,7 +91,10 @@ public:
 	virtual void saveGame(XmlNode *rootNode);
 };
 
-class ObjectParticleSystemType: public UnitParticleSystemType{
+class ObjectParticleSystemType: public UnitParticleSystemType {
+public:
+	ObjectParticleSystemType();
+	virtual ~ObjectParticleSystemType();
 };
 
 }}//end namespace
