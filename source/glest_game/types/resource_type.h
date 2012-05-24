@@ -55,6 +55,7 @@ private:
 
     Model *model;
     ObjectParticleSystemTypes particleTypes;
+    bool cleanupMemory;
 
 public:
     ResourceType();
@@ -77,6 +78,7 @@ public:
 	bool hasParticles()	const		{return !particleTypes.empty();}
 	const ObjectParticleSystemTypes *getObjectParticleSystemTypes()	const {return &particleTypes;}
 
+	void setCleanupMemory(bool value) { cleanupMemory = value; }
 
 	static ResourceClass strToRc(const string &s);
 	void deletePixels();

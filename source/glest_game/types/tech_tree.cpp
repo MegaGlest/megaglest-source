@@ -234,6 +234,10 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 TechTree::~TechTree() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTechtree","",true), true);
+	resourceTypes.clear();
+	factionTypes.clear();
+	armorTypes.clear();
+	attackTypes.clear();
 }
 
 std::vector<std::string> TechTree::validateFactionTypes() {
@@ -256,6 +260,10 @@ std::vector<std::string> TechTree::validateFactionTypes() {
 std::vector<std::string> TechTree::validateResourceTypes() {
 	std::vector<std::string> results;
 	ResourceTypes resourceTypesNotUsed = resourceTypes;
+	for (unsigned int i = 0; i < resourceTypesNotUsed.size(); ++i) {
+		ResourceType &rt = resourceTypesNotUsed[i];
+		rt.setCleanupMemory(false);
+	}
 	for (unsigned int i = 0; i < factionTypes.size(); ++i) {
 		//printf("Validating [%d / %d] faction [%s]\n",i,(int)factionTypes.size(),factionTypes[i].getName().c_str());
 
