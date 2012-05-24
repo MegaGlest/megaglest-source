@@ -8631,6 +8631,11 @@ void Renderer::renderVideoLoading(int progressPercent) {
 	string textToRender = lang.get("PleaseWait");
 	const Metrics &metrics= Metrics::getInstance();
 
+	float anim= GraphicComponent::getAnim();
+	if(anim < 0.5f) {
+		anim = 1.f - anim;
+	}
+
 	if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
 
 		int renderX = 0;
@@ -8643,14 +8648,14 @@ void Renderer::renderVideoLoading(int progressPercent) {
 		renderText3D(
 				textToRender,
 				CoreData::getInstance().getMenuFontBig3D(),
-				Vec3f(1.f, 1.f, 0.f),
+				Vec4f(1.f, 1.f, 0.f,anim),
 				renderX, renderY, false);
 	}
 	else {
 		renderText(
 				textToRender,
 				CoreData::getInstance().getMenuFontBig(),
-				Vec3f(1.f, 1.f, 0.f), (metrics.getScreenW() / 2),
+				Vec4f(1.f, 1.f, 0.f,anim), (metrics.getScreenW() / 2),
 				(metrics.getScreenH() / 2), true);
 	}
     swapBuffers();
