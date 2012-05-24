@@ -149,7 +149,7 @@ private:
 	int saveGamePopupMenuIndex;
 	int loadGamePopupMenuIndex;
 	int keyboardSetupPopupMenuIndex;
-	GLuint statelist3dMenu;
+	//GLuint statelist3dMenu;
 	ProgramState *currentUIState;
 
 	bool masterserverMode;
