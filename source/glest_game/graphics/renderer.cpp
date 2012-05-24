@@ -8631,10 +8631,9 @@ void Renderer::renderVideoLoading(int progressPercent) {
 	string textToRender = lang.get("PleaseWait");
 	const Metrics &metrics= Metrics::getInstance();
 
-	float anim= GraphicComponent::getAnim();
-	if(anim < 0.5f) {
-		anim = 1.f - anim;
-	}
+	static Chrono cycle(true);
+	static float anim = 0.0f;
+	static bool animCycleUp = true;
 
 	if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
 
@@ -8659,6 +8658,25 @@ void Renderer::renderVideoLoading(int progressPercent) {
 				(metrics.getScreenH() / 2), true);
 	}
     swapBuffers();
+
+    if(cycle.getCurMillis() % 50 == 0) {
+    	if(animCycleUp == true) {
+			anim += 0.1;
+			if(anim > 1.f) {
+				anim= 1.f;
+				cycle.reset();
+				animCycleUp = false;
+			}
+    	}
+    	else {
+			anim -= 0.1;
+			if(anim < 0.f) {
+				anim= 0.f;
+				cycle.reset();
+				animCycleUp = true;
+			}
+    	}
+    }
 }
 
 }}//end namespace
