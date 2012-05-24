@@ -275,13 +275,15 @@ private:
 	ParticleManager *particleManager[rsCount];
 
 	//state lists
-	GLuint list3d;
-	bool list3dValid;
-	GLuint list2d;
-	bool list2dValid;
-	GLuint list3dMenu;
-	bool list3dMenuValid;
-	GLuint *customlist3dMenu;
+	//GLuint list3d;
+	//bool list3dValid;
+	//GLuint list2d;
+	//bool list2dValid;
+	//GLuint list3dMenu;
+	//bool list3dMenuValid;
+	//GLuint *customlist3dMenu;
+	const MainMenu *mm3d;
+	const MainMenu *custom_mm3d;
 
 	//shadows
 	GLuint shadowMapHandle;
@@ -586,8 +588,10 @@ public:
 	static Texture2D * preloadTexture(string logoFilename);
 	inline int getCachedSurfaceDataSize() const { return mapSurfaceData.size(); }
 
-	void setCustom3dMenuList(GLuint *customlist3dMenu) { this->customlist3dMenu = customlist3dMenu; }
-	inline GLuint * getCustom3dMenuList() const { return this->customlist3dMenu; }
+	//void setCustom3dMenuList(GLuint *customlist3dMenu) { this->customlist3dMenu = customlist3dMenu; }
+	//inline GLuint * getCustom3dMenuList() const { return this->customlist3dMenu; }
+	void setCustom3dMenu(const MainMenu *mm) { this->custom_mm3d = mm; }
+	const MainMenu * getCustom3dMenu() { return this->custom_mm3d; }
 
 	void init3dListMenu(const MainMenu *mm);
 
@@ -637,6 +641,9 @@ private:
     static Texture2D::Filter strToTextureFilter(const string &s);
     void cleanupScreenshotThread();
 
+    void render2dMenuSetup();
+    void render3dSetup();
+    void render3dMenuSetup(const MainMenu *mm);
 };
 
 }} //end namespace

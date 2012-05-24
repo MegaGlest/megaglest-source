@@ -1680,8 +1680,8 @@ void Game::renderWorker() {
 	}
 	else {
 		Renderer &renderer= Renderer::getInstance();
-		if(renderer.getCustom3dMenuList() != NULL) {
-			renderer.setCustom3dMenuList(NULL);
+		if(renderer.getCustom3dMenu() != NULL) {
+			renderer.setCustom3dMenu(NULL);
 		}
 	}
 
@@ -1924,7 +1924,7 @@ void Game::mouseDownLeft(int x, int y) {
 				MainMenu *newMenu = new MainMenu(program); // open keyboard shortcuts setup screen
 				currentUIState = newMenu;
 				Renderer &renderer= Renderer::getInstance();
-				renderer.setCustom3dMenuList(&statelist3dMenu);
+				renderer.setCustom3dMenu(newMenu);
 				//currentUIState->load();
 				currentUIState->init();
 

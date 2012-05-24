@@ -183,13 +183,15 @@ Renderer::Renderer() : BaseRenderer() {
 	shadowMapHandle=0;
 	shadowMapHandleValid=false;
 
-	list3d=0;
-	list3dValid=false;
-	list2d=0;
-	list2dValid=false;
-	list3dMenu=0;
-	list3dMenuValid=false;
-	customlist3dMenu=NULL;
+	//list3d=0;
+	//list3dValid=false;
+	//list2d=0;
+	//list2dValid=false;
+	//list3dMenu=0;
+	//list3dMenuValid=false;
+	//customlist3dMenu=NULL;
+	mm3d = NULL;
+	custom_mm3d = NULL;
 
 	this->program = NULL;
 
@@ -533,7 +535,9 @@ void Renderer::initMenu(const MainMenu *mm) {
 void Renderer::reset3d() {
 	assertGl();
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-	glCallList(list3d);
+	//glCallList(list3d);
+	render3dSetup();
+
 	pointCount= 0;
 	triangleCount= 0;
 	assertGl();
@@ -542,18 +546,21 @@ void Renderer::reset3d() {
 void Renderer::reset2d() {
 	assertGl();
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
-	glCallList(list2d);
+	//glCallList(list2d);
+	render2dMenuSetup();
 	assertGl();
 }
 
 void Renderer::reset3dMenu() {
 	assertGl();
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
-	if(this->customlist3dMenu != NULL) {
-		glCallList(*this->customlist3dMenu);
+	if(this->custom_mm3d != NULL) {
+		render3dMenuSetup(this->custom_mm3d);
+		//glCallList(*this->customlist3dMenu);
 	}
 	else {
-		glCallList(list3dMenu);
+		render3dMenuSetup(this->mm3d);
+		//glCallList(list3dMenu);
 	}
 
 	assertGl();
@@ -591,10 +598,10 @@ void Renderer::end() {
 	}
 
 	//delete 2d list
-	if(list2dValid == true) {
-		glDeleteLists(list2d, 1);
-		list2dValid=false;
-	}
+	//if(list2dValid == true) {
+	//	glDeleteLists(list2d, 1);
+	//	list2dValid=false;
+	//}
 
 	Renderer::rendererEnded = true;
 }
@@ -621,10 +628,10 @@ void Renderer::endScenario() {
 		shadowMapHandleValid=false;
 	}
 
-	if(list3dValid == true) {
-		glDeleteLists(list3d, 1);
-		list3dValid=false;
-	}
+	//if(list3dValid == true) {
+	//	glDeleteLists(list3d, 1);
+	//	list3dValid=false;
+	//}
 
 	//worldToScreenPosCache.clear();
 	ReleaseSurfaceVBOs();
@@ -664,10 +671,10 @@ void Renderer::endGame(bool isFinalEnd) {
 		shadowMapHandleValid=false;
 	}
 
-	if(list3dValid == true) {
-		glDeleteLists(list3d, 1);
-		list3dValid=false;
-	}
+	//if(list3dValid == true) {
+	//	glDeleteLists(list3d, 1);
+	//	list3dValid=false;
+	//}
 
 	//worldToScreenPosCache.clear();
 	ReleaseSurfaceVBOs();
@@ -695,12 +702,12 @@ void Renderer::endMenu() {
 		return;
 	}
 
-	if(this->customlist3dMenu != NULL) {
-		glDeleteLists(*this->customlist3dMenu,1);
-	}
-	else {
-		glDeleteLists(list3dMenu, 1);
-	}
+	//if(this->customlist3dMenu != NULL) {
+	//	glDeleteLists(*this->customlist3dMenu,1);
+	//}
+	//else {
+	//	glDeleteLists(list3dMenu, 1);
+	//}
 }
 
 void Renderer::reloadResources() {
@@ -6973,113 +6980,117 @@ void Renderer::init3dList() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	const Metrics &metrics= Metrics::getInstance();
+	render3dSetup();
+	//const Metrics &metrics= Metrics::getInstance();
 
-    assertGl();
+    //assertGl();
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    //if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	list3d= glGenLists(1);
-	assertGl();
-	list3dValid=true;
+	//list3d= glGenLists(1);
+	//assertGl();
+	//list3dValid=true;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	glNewList(list3d, GL_COMPILE_AND_EXECUTE);
+	//glNewList(list3d, GL_COMPILE_AND_EXECUTE);
 	//need to execute, because if not gluPerspective takes no effect and gluLoadMatrix is wrong
+	//render3dSetup();
+	//glEndList();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//misc
-		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
-		glClearColor(fowColor.x, fowColor.y, fowColor.z, fowColor.w);
-		glFrontFace(GL_CW);
-		glEnable(GL_CULL_FACE);
-		loadProjectionMatrix();
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//texture state
-		glActiveTexture(shadowTexUnit);
-		glDisable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		glActiveTexture(fowTexUnit);
-		glDisable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		glActiveTexture(baseTexUnit);
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//material state
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, defAmbientColor.ptr());
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, defDiffuseColor.ptr());
-		glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-		glColor4fv(defColor.ptr());
-
-		//blend state
-		glDisable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		//alpha test state
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.f);
-
-		//depth test state
-		glEnable(GL_DEPTH_TEST);
-		glDepthMask(GL_TRUE);
-		glDepthFunc(GL_LESS);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//lighting state
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-
-		//matrix mode
-		glMatrixMode(GL_MODELVIEW);
-
-		//stencil test
-		glDisable(GL_STENCIL_TEST);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//fog
-		const Tileset *tileset= NULL;
-		if(game != NULL && game->getWorld() != NULL) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			tileset = game->getWorld()->getTileset();
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		if(tileset != NULL && tileset->getFog()) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			glEnable(GL_FOG);
-			if(tileset->getFogMode()==fmExp) {
-				glFogi(GL_FOG_MODE, GL_EXP);
-			}
-			else {
-				glFogi(GL_FOG_MODE, GL_EXP2);
-			}
-
-			glFogf(GL_FOG_DENSITY, tileset->getFogDensity());
-			glFogfv(GL_FOG_COLOR, tileset->getFogColor().ptr());
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	glEndList();
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//assert
-	assertGl();
+	//assertGl();
+}
+
+void Renderer::render3dSetup() {
+	const Metrics &metrics= Metrics::getInstance();
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	//misc
+	glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
+	glClearColor(fowColor.x, fowColor.y, fowColor.z, fowColor.w);
+	glFrontFace(GL_CW);
+	glEnable(GL_CULL_FACE);
+	loadProjectionMatrix();
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	//texture state
+	glActiveTexture(shadowTexUnit);
+	glDisable(GL_TEXTURE_2D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	glActiveTexture(fowTexUnit);
+	glDisable(GL_TEXTURE_2D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	glActiveTexture(baseTexUnit);
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	//material state
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, defAmbientColor.ptr());
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, defDiffuseColor.ptr());
+	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+	glColor4fv(defColor.ptr());
+
+	//blend state
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//alpha test state
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.f);
+
+	//depth test state
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	//lighting state
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	//matrix mode
+	glMatrixMode(GL_MODELVIEW);
+
+	//stencil test
+	glDisable(GL_STENCIL_TEST);
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	//fog
+	const Tileset *tileset= NULL;
+	if(game != NULL && game->getWorld() != NULL) {
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		tileset = game->getWorld()->getTileset();
+	}
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if(tileset != NULL && tileset->getFog()) {
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		glEnable(GL_FOG);
+		if(tileset->getFogMode()==fmExp) {
+			glFogi(GL_FOG_MODE, GL_EXP);
+		}
+		else {
+			glFogi(GL_FOG_MODE, GL_EXP2);
+		}
+
+		glFogf(GL_FOG_DENSITY, tileset->getFogDensity());
+		glFogfv(GL_FOG_COLOR, tileset->getFogColor().ptr());
+	}
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void Renderer::init2dList() {
@@ -7087,47 +7098,48 @@ void Renderer::init2dList() {
 		return;
 	}
 
+//	//this list sets the state for the 2d rendering
+//	list2d= glGenLists(1);
+//	assertGl();
+//	list2dValid=true;
+//
+//	glNewList(list2d, GL_COMPILE);
+//	render2dMenuSetup();
+//	glEndList();
+//
+//	assertGl();
+}
+
+void Renderer::render2dMenuSetup() {
 	const Metrics &metrics= Metrics::getInstance();
+	//projection
+	glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, metrics.getVirtualW(), 0, metrics.getVirtualH(), 0, 1);
 
-	//this list sets the state for the 2d rendering
-	list2d= glGenLists(1);
-	assertGl();
-	list2dValid=true;
+	//modelview
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
-	glNewList(list2d, GL_COMPILE);
+	//disable everything
+	glDisable(GL_BLEND);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_FOG);
+	glDisable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+	glActiveTexture(baseTexUnit);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glDisable(GL_TEXTURE_2D);
 
-		//projection
-		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0, metrics.getVirtualW(), 0, metrics.getVirtualH(), 0, 1);
+	//blend func
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		//modelview
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		//disable everything
-		glDisable(GL_BLEND);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_STENCIL_TEST);
-		glDisable(GL_FOG);
-		glDisable(GL_CULL_FACE);
-		glFrontFace(GL_CCW);
-		glActiveTexture(baseTexUnit);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glDisable(GL_TEXTURE_2D);
-
-		//blend func
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		//color
-		glColor4f(1.f, 1.f, 1.f, 1.f);
-
-	glEndList();
-
-	assertGl();
+	//color
+	glColor4f(1.f, 1.f, 1.f, 1.f);
 }
 
 void Renderer::init3dListMenu(const MainMenu *mm) {
@@ -7135,6 +7147,8 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 		return;
 	}
 
+	this->mm3d = mm;
+/*
 	assertGl();
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -7229,9 +7243,75 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 
 	//assert
 	assertGl();
+*/
 }
 
+void Renderer::render3dMenuSetup(const MainMenu *mm) {
+	const Metrics &metrics= Metrics::getInstance();
+	const MenuBackground *mb = NULL;
+	if(mm != NULL) {
+		mb = mm->getConstMenuBackground();
+	}
 
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//misc
+	glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
+	glClearColor(0.4f, 0.4f, 0.4f, 1.f);
+	glFrontFace(GL_CW);
+	glEnable(GL_CULL_FACE);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, 1000000);
+
+	//texture state
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	//material state
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, defAmbientColor.ptr());
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, defDiffuseColor.ptr());
+	glColor4fv(defColor.ptr());
+	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+
+	//blend state
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//alpha test state
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.f);
+
+	//depth test state
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+
+	//lighting state
+	glEnable(GL_LIGHTING);
+
+	//matrix mode
+	glMatrixMode(GL_MODELVIEW);
+
+	//stencil test
+	glDisable(GL_STENCIL_TEST);
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	//fog
+	if(mb != NULL && mb->getFog()) {
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		glEnable(GL_FOG);
+		glFogi(GL_FOG_MODE, GL_EXP2);
+		glFogf(GL_FOG_DENSITY, mb->getFogDensity());
+	}
+
+	//assert
+	assertGl();
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
 // ==================== misc ====================
 
 void Renderer::loadProjectionMatrix() {
