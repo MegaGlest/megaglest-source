@@ -30,6 +30,7 @@ class VideoPlayer {
 protected:
 
 	string filename;
+	string filenameFallback;
 	SDL_Surface *surface;
 	int x;
 	int y;
@@ -49,10 +50,16 @@ protected:
 
 	void init();
 
+	void cleanupPlayer();
+	bool initPlayer(string mediaURL);
+
 public:
-	VideoPlayer(VideoLoadingCallbackInterface *loadingCB, string filename, SDL_Surface *surface, int x, int y,
-			int width, int height, int colorBits,
-			string pluginsPath,bool verboseEnabled=false);
+	VideoPlayer(VideoLoadingCallbackInterface *loadingCB,
+				 string filename,
+				 string filenameFallback,
+				 SDL_Surface *surface, int x, int y,
+				 int width, int height, int colorBits,
+				 string pluginsPath,bool verboseEnabled=false);
 	virtual ~VideoPlayer();
 
 	void PlayVideo();

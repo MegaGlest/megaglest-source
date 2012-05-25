@@ -67,6 +67,9 @@ std::string getRegKey(const std::string& location, const std::string& name){
 }
 #endif
 
+const string HTTP_PREFIX 					= "http";
+const double MAX_VIDEO_START_MILLISECONDS	= 10.0;
+
 class ctx {
 public:
 	ctx() {
@@ -401,11 +404,15 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 
 #endif
 
-VideoPlayer::VideoPlayer(VideoLoadingCallbackInterface *loadingCB, string filename, SDL_Surface *surface,
-		int x, int y,int width, int height,int colorBits,string pluginsPath,
-		bool verboseEnabled) : ctxPtr(NULL) {
+VideoPlayer::VideoPlayer(VideoLoadingCallbackInterface *loadingCB,
+							string filename,
+							string filenameFallback,
+							SDL_Surface *surface,
+							int x, int y,int width, int height,int colorBits,
+							string pluginsPath, bool verboseEnabled) : ctxPtr(NULL) {
 	this->loadingCB = loadingCB;
 	this->filename = filename;
+	this->filenameFallback = filenameFallback;
 	this->surface = surface;
 	this->x = x;
 	this->y = y;
@@ -434,6 +441,17 @@ void VideoPlayer::init() {
 }
 
 VideoPlayer::~VideoPlayer() {
+	cleanupPlayer();
+}
+
+bool VideoPlayer::hasBackEndVideoPlayer() {
+#ifdef HAS_LIBVLC
+	return true;
+#endif
+	return false;
+}
+
+void VideoPlayer::cleanupPlayer() {
 	if(ctxPtr != NULL) {
 		if(ctxPtr->rawData != NULL) {
 			free(ctxPtr->rawData);
@@ -445,14 +463,7 @@ VideoPlayer::~VideoPlayer() {
 	}
 }
 
-bool VideoPlayer::hasBackEndVideoPlayer() {
-#ifdef HAS_LIBVLC
-	return true;
-#endif
-	return false;
-}
-
-bool VideoPlayer::initPlayer() {
+bool VideoPlayer::initPlayer(string mediaURL) {
 #ifdef HAS_LIBVLC
 	ctxPtr->libvlc = NULL;
 	ctxPtr->m = NULL;
@@ -608,12 +619,9 @@ bool VideoPlayer::initPlayer() {
 #endif
 */
 
-	const string HTTP_PREFIX 					= "http";
-	const double MAX_VIDEO_START_MILLISECONDS	= 20.0;
-
 	if(ctxPtr->libvlc != NULL) {
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
-		ctxPtr->m = libvlc_media_new(ctxPtr->libvlc, filename.c_str(), &ex);
+		ctxPtr->m = libvlc_media_new(ctxPtr->libvlc, mediaURL.c_str(), &ex);
 		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,ctxPtr->m);
 
 		catchError(&ex);
@@ -622,23 +630,21 @@ bool VideoPlayer::initPlayer() {
 
 		libvlc_media_release(ctxPtr->m);
 #else
-		if(filename.find(HTTP_PREFIX) == 0) {
+		if(mediaURL.find(HTTP_PREFIX) == 0) {
 			ctxPtr->mlp = libvlc_media_list_player_new(ctxPtr->libvlc);
 			ctxPtr->ml = libvlc_media_list_new(ctxPtr->libvlc);
-			ctxPtr->m = libvlc_media_new_location(ctxPtr->libvlc, filename.c_str());
+			ctxPtr->m = libvlc_media_new_location(ctxPtr->libvlc, mediaURL.c_str());
 
 			libvlc_media_list_add_media(ctxPtr->ml, ctxPtr->m);
 		}
 		else {
-			ctxPtr->m = libvlc_media_new_path(ctxPtr->libvlc, filename.c_str());
+			ctxPtr->m = libvlc_media_new_path(ctxPtr->libvlc, mediaURL.c_str());
 		}
 
 		/* Create a new item */
-		//ctxPtr->m = libvlc_media_new_path(ctxPtr->libvlc, filename.c_str());
-		//ctxPtr->m = libvlc_media_new_location(ctxPtr->libvlc, filename.c_str());
 		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,ctxPtr->m);
 
-		if(filename.find(HTTP_PREFIX) == 0) {
+		if(mediaURL.find(HTTP_PREFIX) == 0) {
 			ctxPtr->mp = libvlc_media_player_new(ctxPtr->libvlc);
 		}
 		else {
@@ -650,7 +656,7 @@ bool VideoPlayer::initPlayer() {
 
 		libvlc_media_release(ctxPtr->m);
 
-		if(filename.find(HTTP_PREFIX) == 0) {
+		if(mediaURL.find(HTTP_PREFIX) == 0) {
 			// Use our media list
 			libvlc_media_list_player_set_media_list(ctxPtr->mlp, ctxPtr->ml);
 
@@ -659,7 +665,7 @@ bool VideoPlayer::initPlayer() {
 		}
 
 		// Get an event manager for the media player.
-		if(filename.find(HTTP_PREFIX) == 0) {
+		if(mediaURL.find(HTTP_PREFIX) == 0) {
 			libvlc_event_manager_t *eventManager = libvlc_media_list_player_event_manager(ctxPtr->mlp);
 
 			if(eventManager) {
@@ -886,7 +892,7 @@ bool VideoPlayer::initPlayer() {
 		int play_result = libvlc_media_player_play(ctxPtr->mp,&ex);
 #else
 		int play_result = 0;
-		if(filename.find(HTTP_PREFIX) == 0) {
+		if(mediaURL.find(HTTP_PREFIX) == 0) {
 			libvlc_media_list_player_play(ctxPtr->mlp);
 		}
 		else {
@@ -902,6 +908,18 @@ bool VideoPlayer::initPlayer() {
 
 		successLoadingLib = (play_result == 0);
 
+	}
+#endif
+
+	return successLoadingLib;
+}
+
+bool VideoPlayer::initPlayer() {
+
+#ifdef HAS_LIBVLC
+
+	bool result = initPlayer(this->filename);
+	if(result == true) {
 		time_t waitStart = time(NULL);
 		for(;difftime(time(NULL),waitStart) <= MAX_VIDEO_START_MILLISECONDS &&
 			 successLoadingLib == true &&
@@ -916,9 +934,33 @@ bool VideoPlayer::initPlayer() {
 			}
 			SDL_Delay(1);
 		}
-
-		//SDL_Delay(5000);
 	}
+
+	if(isPlaying() == false && this->filenameFallback != "") {
+		closePlayer();
+		cleanupPlayer();
+
+		init();
+
+		result = initPlayer(this->filenameFallback);
+		if(result == true) {
+			time_t waitStart = time(NULL);
+			for(;difftime(time(NULL),waitStart) <= MAX_VIDEO_START_MILLISECONDS &&
+				 successLoadingLib == true &&
+				 (ctxPtr->error == false || ctxPtr->stopped == false) &&
+				 ctxPtr->started == false;) {
+				if(ctxPtr->started == true) {
+					break;
+				}
+				if(this->loadingCB != NULL) {
+					int progress = ((difftime(time(NULL),waitStart) / MAX_VIDEO_START_MILLISECONDS) * 100.0);
+					this->loadingCB->renderVideoLoading(progress);
+				}
+				SDL_Delay(1);
+			}
+		}
+	}
+
 #endif
 
 	return successLoadingLib;

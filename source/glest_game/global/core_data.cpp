@@ -408,6 +408,7 @@ void CoreData::load() {
 		Config &config= Config::getInstance();
 
 		introVideoFilename = config.getString("IntroVideoURL","");
+		introVideoFilenameFallback = config.getString("IntroVideoURLFallback","");
 		if(introVideoFilename == "") {
 			string introVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/intro.*";
 			vector<string> introVideos;
@@ -425,6 +426,7 @@ void CoreData::load() {
 		}
 
 		mainMenuVideoFilename = config.getString("MainMenuVideoURL","");
+		mainMenuVideoFilenameFallback = config.getString("MainMenuVideoURLFallback","");
 		if(mainMenuVideoFilename == "") {
 			string mainVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/main.*";
 			vector<string> mainVideos;

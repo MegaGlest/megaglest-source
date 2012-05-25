@@ -99,24 +99,25 @@ void MainMenu::init() {
 		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
 		CoreData::getInstance().hasMainMenuVideoFilename() == true) {
 		string introVideoFile = CoreData::getInstance().getMainMenuVideoFilename();
-		//if(introVideoFile != "" && fileExists(introVideoFile)) {
-			Context *c= GraphicsInterface::getInstance().getCurrentContext();
-			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+		string introVideoFileFallback = CoreData::getInstance().getMainMenuVideoFilenameFallback();
 
-			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
-			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
-			menuBackgroundVideo = new VideoPlayer(
-					&Renderer::getInstance(),
-					introVideoFile.c_str(),
-					screen,
-					0,0,
-					screen->w,
-					screen->h,
-					screen->format->BitsPerPixel,
-					vlcPluginsPath,
-					SystemFlags::VERBOSE_MODE_ENABLED);
-			menuBackgroundVideo->initPlayer();
-		//}
+		Context *c= GraphicsInterface::getInstance().getCurrentContext();
+		SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+
+		string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
+		//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
+		menuBackgroundVideo = new VideoPlayer(
+				&Renderer::getInstance(),
+				introVideoFile,
+				introVideoFileFallback,
+				screen,
+				0,0,
+				screen->w,
+				screen->h,
+				screen->format->BitsPerPixel,
+				vlcPluginsPath,
+				SystemFlags::VERBOSE_MODE_ENABLED);
+		menuBackgroundVideo->initPlayer();
 	}
 }
 
