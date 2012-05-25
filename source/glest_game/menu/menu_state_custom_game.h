@@ -20,6 +20,10 @@
 
 using namespace Shared::Map;
 
+namespace Shared { namespace Graphics {
+	class VideoPlayer;
+}}
+
 namespace Glest { namespace Game {
 
 class SwitchSetupRequest;
@@ -168,6 +172,7 @@ private:
 	string currentFactionName_factionPreview;
 	string currentFactionLogo;
 	Texture2D *factionTexture;
+	Shared::Graphics::VideoPlayer *factionVideo;
 
 	MapPreview mapPreview;
 	Texture2D *mapPreviewTexture;

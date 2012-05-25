@@ -62,6 +62,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	broadcastServerSettingsDelayTimer=0;
 	lastGameSettingsReceivedCount=0;
 
+	this->factionVideo = NULL;
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
 
@@ -648,6 +649,12 @@ MenuStateConnectedGame::~MenuStateConnectedGame() {
 	}
 
 	cleanupMapPreviewTexture();
+
+	if(factionVideo != NULL) {
+		factionVideo->closePlayer();
+		delete factionVideo;
+		factionVideo = NULL;
+	}
 }
 
 void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
@@ -1674,6 +1681,12 @@ void MenuStateConnectedGame::render() {
 			//renderer.renderTextureQuad(60+575+80,365,200,225,factionTexture,1);
 			renderer.renderTextureQuad(800,600,200,150,factionTexture,1);
 		}
+		if(factionVideo != NULL) {
+			if(factionVideo->isPlaying() == true) {
+				factionVideo->playFrame(false);
+			}
+		}
+
 		if(mapPreviewTexture != NULL) {
 			renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
 			//printf("=================> Rendering map preview texture\n");
@@ -3610,13 +3623,51 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				currentTechName_factionPreview=gameSettings->getTech();
 				currentFactionName_factionPreview=gameSettings->getFactionTypeName(gameSettings->getThisFactionIndex());
 
-				string factionLogo = Game::findFactionLogoFile(gameSettings, NULL,"preview_screen.*");
-				if(factionLogo == "") {
-					factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
+				string factionVideoUrl = Game::findFactionLogoFile(gameSettings, NULL,"preview_video.*");
+				if(factionVideoUrl != "") {
+					if(currentFactionLogo != factionVideoUrl) {
+						currentFactionLogo = factionVideoUrl;
+						if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+							Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+
+							if(factionVideo != NULL) {
+								factionVideo->closePlayer();
+								delete factionVideo;
+								factionVideo = NULL;
+							}
+							string introVideoFile = factionVideoUrl;
+							string introVideoFileFallback = "";
+
+							Context *c= GraphicsInterface::getInstance().getCurrentContext();
+							SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+
+							string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
+							//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
+							factionVideo = new VideoPlayer(
+									&Renderer::getInstance(),
+									introVideoFile,
+									introVideoFileFallback,
+									screen,
+									0,0,
+									screen->w,
+									screen->h,
+									screen->format->BitsPerPixel,
+									vlcPluginsPath,
+									SystemFlags::VERBOSE_MODE_ENABLED);
+							factionVideo->initPlayer();
+						}
+					}
 				}
-				if(currentFactionLogo != factionLogo) {
-					currentFactionLogo = factionLogo;
-					loadFactionTexture(currentFactionLogo);
+
+				if(factionVideo == NULL) {
+					string factionLogo = Game::findFactionLogoFile(gameSettings, NULL,"preview_screen.*");
+					if(factionLogo == "") {
+						factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
+					}
+					if(currentFactionLogo != factionLogo) {
+						currentFactionLogo = factionLogo;
+						loadFactionTexture(currentFactionLogo);
+					}
 				}
 			}
 		}
