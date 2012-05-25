@@ -89,7 +89,9 @@ private:
 	Font3D *consoleFont3D;
 
 	string introVideoFilename;
+	string introVideoFilenameFallback;
 	string mainMenuVideoFilename;
+	string mainMenuVideoFilenameFallback;
 
 public:
 
@@ -179,9 +181,13 @@ public:
 
     string getMainMenuVideoFilename() const { return mainMenuVideoFilename; }
     bool hasMainMenuVideoFilename() const;
+    string getMainMenuVideoFilenameFallback() const { return mainMenuVideoFilenameFallback; }
+    bool hasMainMenuVideoFilenameFallback() const;
 
     string getIntroVideoFilename() const { return introVideoFilename; }
     bool hasIntroVideoFilename() const;
+    string getIntroVideoFilenameFallback() const { return introVideoFilenameFallback; }
+    bool hasIntroVideoFilenameFallback() const;
 
     void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0);
     bool loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);

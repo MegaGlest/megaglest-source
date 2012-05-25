@@ -3729,7 +3729,8 @@ void Game::playStreamingVideo(const string &playVideo) {
 
 			videoPlayer = new Shared::Graphics::VideoPlayer(
 					&Renderer::getInstance(),
-					playVideo.c_str(),
+					playVideo,
+					"",
 					screen,
 					0,0,
 					screen->w,
@@ -3753,7 +3754,8 @@ void Game::playStreamingVideo(const string &playVideo) {
 
 				videoPlayer = new Shared::Graphics::VideoPlayer(
 						&Renderer::getInstance(),
-						playVideo.c_str(),
+						playVideo,
+						"",
 						screen,
 						0,0,
 						screen->w,
