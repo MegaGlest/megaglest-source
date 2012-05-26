@@ -2519,8 +2519,34 @@ void MenuStateCustomGame::update() {
 				currentTechName_factionPreview=gameSettings.getTech();
 				currentFactionName_factionPreview=gameSettings.getFactionTypeName(gameSettings.getThisFactionIndex());
 
-				string factionVideoUrl = Game::findFactionLogoFile(&gameSettings, NULL,"preview_video.*");
+				string factionVideoUrl = "";
+				string factionVideoUrlFallback = "";
+
+				string factionDefinitionXML = Game::findFactionLogoFile(&gameSettings, NULL,currentFactionName_factionPreview + ".xml");
+				if(factionDefinitionXML != "" && currentFactionName_factionPreview != GameConstants::RANDOMFACTION_SLOTNAME &&
+						currentFactionName_factionPreview != GameConstants::OBSERVER_SLOTNAME && fileExists(factionDefinitionXML) == true) {
+					XmlTree	xmlTree;
+					std::map<string,string> mapExtraTagReplacementValues;
+					xmlTree.load(factionDefinitionXML, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
+					const XmlNode *factionNode= xmlTree.getRootNode();
+					if(factionNode->hasAttribute("faction-preview-video") == true) {
+						factionVideoUrl = factionNode->getAttribute("faction-preview-video")->getValue();
+					}
+
+					factionVideoUrlFallback = Game::findFactionLogoFile(&gameSettings, NULL,"preview_video.*");
+					if(factionVideoUrl == "") {
+						factionVideoUrl = factionVideoUrlFallback;
+						factionVideoUrlFallback = "";
+					}
+				}
+				//printf("currentFactionName_factionPreview [%s] random [%s] observer [%s] factionVideoUrl [%s]\n",currentFactionName_factionPreview.c_str(),GameConstants::RANDOMFACTION_SLOTNAME,GameConstants::OBSERVER_SLOTNAME,factionVideoUrl.c_str());
+
 				if(factionVideoUrl != "") {
+					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+					if(CoreData::getInstance().getMenuMusic()->getVolume() != 0) {
+						CoreData::getInstance().getMenuMusic()->setVolume(0);
+					}
+
 					if(currentFactionLogo != factionVideoUrl) {
 						currentFactionLogo = factionVideoUrl;
 						if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
@@ -2532,7 +2558,7 @@ void MenuStateCustomGame::update() {
 								factionVideo = NULL;
 							}
 							string introVideoFile = factionVideoUrl;
-							string introVideoFileFallback = "";
+							string introVideoFileFallback = factionVideoUrlFallback;
 
 							Context *c= GraphicsInterface::getInstance().getCurrentContext();
 							SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
@@ -2552,6 +2578,21 @@ void MenuStateCustomGame::update() {
 									SystemFlags::VERBOSE_MODE_ENABLED);
 							factionVideo->initPlayer();
 						}
+					}
+				}
+				else {
+					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+					//switch on music again!!
+					Config &config = Config::getInstance();
+					float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+					if(CoreData::getInstance().getMenuMusic()->getVolume() != configVolume) {
+						CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+					}
+
+					if(factionVideo != NULL) {
+						factionVideo->closePlayer();
+						delete factionVideo;
+						factionVideo = NULL;
 					}
 				}
 
