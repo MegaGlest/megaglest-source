@@ -186,7 +186,7 @@ static void display(void *data, void *id) {
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 }
 
-#if defined(HAS_LIBVLC) && defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(HAS_LIBVLC) && defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 static void catchError(libvlc_exception_t *ex) {
     if(libvlc_exception_raised(ex)) {
         fprintf(stderr, "exception: %s\n", libvlc_exception_get_message(ex));
@@ -482,7 +482,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 	ctxPtr->vlc_argv.push_back(ctxPtr->vlc_argv_str[ctxPtr->vlc_argv_str.size()-1].c_str());
 #endif
 
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 	char clock[64], cunlock[64], cdata[64];
     char cwidth[32], cheight[32], cpitch[32];
 	/*
@@ -558,7 +558,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 	 */
 	if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
 
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 	libvlc_exception_t ex;
 	libvlc_exception_init(&ex);
 
@@ -620,7 +620,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 */
 
 	if(ctxPtr->libvlc != NULL) {
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 		ctxPtr->m = libvlc_media_new(ctxPtr->libvlc, mediaURL.c_str(), &ex);
 		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,ctxPtr->m);
 
@@ -880,7 +880,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 #endif
 
 
-#if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_13)
+#if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_0)
 		libvlc_video_set_callbacks(ctxPtr->mp, lock, unlock, display, ctxPtr);
 		libvlc_video_set_format(ctxPtr->mp, "RV16", width, height, this->surface->pitch);
 
@@ -888,7 +888,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 
 		ctxPtr->isPlaying = true;
 
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 		int play_result = libvlc_media_player_play(ctxPtr->mp,&ex);
 #else
 		int play_result = 0;
@@ -972,7 +972,7 @@ void VideoPlayer::closePlayer() {
 		//
 		// Stop stream and clean up libVLC
 		//
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 		libvlc_media_player_stop(ctxPtr->mp,&ex);
 		catchError(&ex);
 #else
@@ -1032,7 +1032,7 @@ void VideoPlayer::PlayVideo() {
 	vlc_argv.push_back(fullPluginsParam.c_str());
 #endif
 
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 	char clock[64], cunlock[64], cdata[64];
     	char cwidth[32], cheight[32], cpitch[32];
 	//
@@ -1102,7 +1102,7 @@ void VideoPlayer::PlayVideo() {
 	//
 	if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
 
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 	libvlc_exception_t ex;
 	libvlc_exception_init(&ex);
 
@@ -1164,7 +1164,7 @@ void VideoPlayer::PlayVideo() {
 //
 
 	if(libvlc != NULL) {
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 		m = libvlc_media_new(libvlc, filename.c_str(), &ex);
 		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,m);
 
@@ -1181,7 +1181,7 @@ void VideoPlayer::PlayVideo() {
 #endif
 		libvlc_media_release(m);
 
-#if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_13)
+#if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_0)
 		libvlc_video_set_callbacks(mp, lock, unlock, display, ctxPtr);
 		libvlc_video_set_format(mp, "RV16", width, height, this->surface->pitch);
 
@@ -1201,7 +1201,7 @@ void VideoPlayer::PlayVideo() {
 #endif
 		
 		ctxPtr->isPlaying = true;
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 		int play_result = libvlc_media_player_play(mp,&ex);
 #else
 		int play_result = libvlc_media_player_play(mp);
@@ -1228,7 +1228,7 @@ void VideoPlayer::PlayVideo() {
 		//
 		 / Stop stream and clean up libVLC
 		 //
-#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_13)
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 		libvlc_media_player_stop(mp,&ex);
 		catchError(&ex);
 #else
