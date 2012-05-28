@@ -121,15 +121,17 @@ void BattleEnd::render() {
 	canRender();
 	incrementFps();
 
+	//printf("In [%s::%s Line: %d] renderToTexture [%p]\n",__FILE__,__FUNCTION__,__LINE__,renderToTexture);
 	if(renderToTexture != NULL) {
 		//printf("Rendering from texture!\n");
 
 		renderer.clearBuffers();
 		renderer.reset3dMenu();
 		renderer.clearZBuffer();
-		renderer.renderBackground(renderToTexture);
 
 		renderer.reset2d();
+
+		renderer.renderBackground(renderToTexture);
 
 		renderer.renderButton(&buttonExit);
 
