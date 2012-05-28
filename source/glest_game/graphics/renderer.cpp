@@ -190,8 +190,8 @@ Renderer::Renderer() : BaseRenderer() {
 	//list3dMenu=0;
 	//list3dMenuValid=false;
 	//customlist3dMenu=NULL;
-	mm3d = NULL;
-	custom_mm3d = NULL;
+	this->mm3d = NULL;
+	this->custom_mm3d = NULL;
 
 	this->program = NULL;
 
@@ -554,6 +554,9 @@ void Renderer::reset2d() {
 void Renderer::reset3dMenu() {
 	assertGl();
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
+
+	//printf("In [%s::%s Line: %d] this->custom_mm3d [%p] this->mm3d [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->custom_mm3d,this->mm3d);
+
 	if(this->custom_mm3d != NULL) {
 		render3dMenuSetup(this->custom_mm3d);
 		//glCallList(*this->customlist3dMenu);
@@ -7148,6 +7151,8 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 	}
 
 	this->mm3d = mm;
+	//printf("In [%s::%s Line: %d] this->custom_mm3d [%p] this->mm3d [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->custom_mm3d,this->mm3d);
+
 /*
 	assertGl();
 

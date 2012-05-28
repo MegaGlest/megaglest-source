@@ -136,6 +136,8 @@ void MainMenu::render() {
 			renderer.reset3dMenu();
 			renderer.clearZBuffer();
 
+			//printf("In [%s::%s Line: %d] menuBackgroundVideo [%p]\n",__FILE__,__FUNCTION__,__LINE__,menuBackgroundVideo);
+
 			if(menuBackgroundVideo == NULL) {
 				renderer.loadCameraMatrix(menuBackground.getCamera());
 				renderer.renderMenuBackground(&menuBackground);
