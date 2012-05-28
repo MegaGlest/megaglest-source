@@ -190,7 +190,7 @@ Renderer::Renderer() : BaseRenderer() {
 	//list3dMenu=0;
 	//list3dMenuValid=false;
 	//customlist3dMenu=NULL;
-	this->mm3d = NULL;
+	//this->mm3d = NULL;
 	this->custom_mm3d = NULL;
 
 	this->program = NULL;
@@ -527,7 +527,7 @@ void Renderer::initMenu(const MainMenu *mm) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	init3dListMenu(mm);
+	//init3dListMenu(mm);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -562,7 +562,8 @@ void Renderer::reset3dMenu() {
 		//glCallList(*this->customlist3dMenu);
 	}
 	else {
-		render3dMenuSetup(this->mm3d);
+		render3dMenuSetup(this->menu);
+		//render3dMenuSetup(this->mm3d);
 		//glCallList(list3dMenu);
 	}
 
@@ -7150,7 +7151,7 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 		return;
 	}
 
-	this->mm3d = mm;
+	//this->mm3d = mm;
 	//printf("In [%s::%s Line: %d] this->custom_mm3d [%p] this->mm3d [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->custom_mm3d,this->mm3d);
 
 /*
