@@ -282,7 +282,7 @@ private:
 	//GLuint list3dMenu;
 	//bool list3dMenuValid;
 	//GLuint *customlist3dMenu;
-	const MainMenu *mm3d;
+	//const MainMenu *mm3d;
 	const MainMenu *custom_mm3d;
 
 	//shadows
