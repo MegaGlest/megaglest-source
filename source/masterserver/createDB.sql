@@ -1,8 +1,8 @@
----
---- Table structure and sample data for the MegaGlest master server
----
---- SQL should be compatible to MySQL 5.0
----
+-- 
+-- Table structure and sample data for the MegaGlest master server
+-- 
+-- SQL should be compatible to MySQL 5.0
+-- 
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `glestmaps` (
   `disabled` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`mapname`),
   KEY `mapname` (`mapname`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `glesttilesets` (
   `updatetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
@@ -83,3 +83,4 @@ CREATE TABLE IF NOT EXISTS `glestscenarios` (
   PRIMARY KEY (`scenarioname`),
   KEY `scenarioname` (`scenarioname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
