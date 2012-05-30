@@ -2346,7 +2346,9 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 	//attack enemies that can attack first
 	float distToUnit=-1;
+	float distToStandingUnit=-1;
 	Unit* enemySeen = NULL;
+	Unit* attackingEnemySeen = NULL;
     for(int i = 0; i< enemies.size(); ++i) {
     	Unit *enemy = enemies[i];
 
@@ -2357,20 +2359,41 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
     			enemySeen 	= enemy;
                 result		= true;
     		}
+    		float currentDist=unit->getCenteredPos().dist(enemy->getCenteredPos());
     		// Attackers get first priority
     		if(enemy->getType()->hasSkillClass(scAttack) == true) {
     			// Select closest attacking unit
-    			if(distToUnit < 0 || unit->getCenteredPos().dist(enemy->getCenteredPos()) < distToUnit) {
-    				distToUnit = unit->getCenteredPos().dist(enemy->getCenteredPos());
+    			if(distToUnit < 0 ||  currentDist< distToUnit) {
+    				distToUnit = currentDist;
 					*rangedPtr	= enemies[i];
 					enemySeen	= enemies[i];
 					result		= true;
+    			}
+
+    			// ctCpuUltra,
+    			// ctCpuMega,
+
+    			if(unit->getFaction()->getControlType()==ctCpuUltra ||
+    				unit->getFaction()->getControlType()==ctCpuMega) {
+        			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
+        			    if(enemies[i]->getCurrSkill()->getClass()==scAttack) {
+        			    	distToStandingUnit = currentDist;
+        			    	attackingEnemySeen=enemies[i];
+        			    }
+        			}
     			}
     			//break;
     		}
     	}
     }
-
+    if(unit->getFaction()->getControlType()==ctCpuUltra ||
+		unit->getFaction()->getControlType()==ctCpuMega) {
+    	if(attackingEnemySeen!=NULL) {
+    		*rangedPtr 	= attackingEnemySeen;
+    		enemySeen 	= attackingEnemySeen;
+    		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
+    	}
+    }
 
 /*
 		if(enemies[i]->getType()->hasSkillClass(scAttack) &&
