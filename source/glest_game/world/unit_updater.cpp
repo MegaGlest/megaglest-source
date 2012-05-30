@@ -2346,9 +2346,9 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 
 	//attack enemies that can attack first
 	float distToUnit=-1;
-	float distToStandingUnit=-1;
+//TT	float distToStandingUnit=-1;
 	Unit* enemySeen = NULL;
-	Unit* attackingEnemySeen = NULL;
+//TT	Unit* attackingEnemySeen = NULL;
     for(int i = 0; i< enemies.size(); ++i) {
     	Unit *enemy = enemies[i];
 
@@ -2370,32 +2370,29 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 					result		= true;
     			}
 
-    			// ctCpuUltra,
-    			// ctCpuMega,
-
-    			if(unit->getFaction()->getControlType()==ctCpuUltra ||
-    				unit->getFaction()->getControlType()==ctCpuMega) {
-        			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
-        			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
-        			    	distToStandingUnit = currentDist;
-        			    	attackingEnemySeen=enemies[i];
-        			    }
-        			}
-    			}
+//TT
+//    			if(unit->getFaction()->getControlType()==ctCpuUltra ||
+//    				unit->getFaction()->getControlType()==ctCpuMega) {
+//        			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
+//        			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
+//        			    	distToStandingUnit = currentDist;
+//        			    	attackingEnemySeen=enemies[i];
+//        			    }
+//        			}
+//    			}
     			//break;
     		}
     	}
     }
 
-    random.randRange(0, 1);
-    if(unit->getFaction()->getControlType()==ctCpuUltra ||
-		unit->getFaction()->getControlType()==ctCpuMega) {
-    	if( attackingEnemySeen!=NULL && random.randRange(0,2)>0 ) {
-    		*rangedPtr 	= attackingEnemySeen;
-    		enemySeen 	= attackingEnemySeen;
-    		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
-    	}
-    }
+//TT    if(unit->getFaction()->getControlType()==ctCpuUltra ||
+//		unit->getFaction()->getControlType()==ctCpuMega) {
+//    	if( attackingEnemySeen!=NULL && random.randRange(0,2)!=2 ) {
+//    		*rangedPtr 	= attackingEnemySeen;
+//    		enemySeen 	= attackingEnemySeen;
+//    		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
+//    	}
+//    }
 
 /*
 		if(enemies[i]->getType()->hasSkillClass(scAttack) &&
