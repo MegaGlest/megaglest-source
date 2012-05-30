@@ -2386,9 +2386,11 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
     		}
     	}
     }
+
+    random.randRange(0, 1);
     if(unit->getFaction()->getControlType()==ctCpuUltra ||
 		unit->getFaction()->getControlType()==ctCpuMega) {
-    	if(attackingEnemySeen!=NULL) {
+    	if( attackingEnemySeen!=NULL && random.randRange(0,2)>0 ) {
     		*rangedPtr 	= attackingEnemySeen;
     		enemySeen 	= attackingEnemySeen;
     		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
