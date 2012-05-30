@@ -2376,7 +2376,7 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
     			if(unit->getFaction()->getControlType()==ctCpuUltra ||
     				unit->getFaction()->getControlType()==ctCpuMega) {
         			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
-        			    if(enemies[i]->getCurrSkill()->getClass()==scAttack) {
+        			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
         			    	distToStandingUnit = currentDist;
         			    	attackingEnemySeen=enemies[i];
         			    }
