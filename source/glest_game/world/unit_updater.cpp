@@ -2345,10 +2345,14 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	}
 
 	//attack enemies that can attack first
-	float distToUnit=-1;
-//TT	float distToStandingUnit=-1;
-	Unit* enemySeen = NULL;
-//TT	Unit* attackingEnemySeen = NULL;
+	float distToUnit= -1;
+	float distToStandingUnit= -1;
+	Unit* enemySeen= NULL;
+	Unit* attackingEnemySeen= NULL;
+	ControlType controlType= unit->getFaction()->getControlType();
+	bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
+	bool isMega= controlType == ctCpuMega || controlType == ctNetworkCpuMega;
+
     for(int i = 0; i< enemies.size(); ++i) {
     	Unit *enemy = enemies[i];
 
@@ -2370,53 +2374,25 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 					result		= true;
     			}
 
-//TT
-//    			if(unit->getFaction()->getControlType()==ctCpuUltra ||
-//    				unit->getFaction()->getControlType()==ctCpuMega) {
-//        			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
-//        			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
-//        			    	distToStandingUnit = currentDist;
-//        			    	attackingEnemySeen=enemies[i];
-//        			    }
-//        			}
-//    			}
-    			//break;
+    			if(isUltra || isMega) {
+        			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
+        			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
+        			    	distToStandingUnit = currentDist;
+        			    	attackingEnemySeen=enemies[i];
+        			    }
+        			}
+    			}
     		}
     	}
     }
 
-//TT    if(unit->getFaction()->getControlType()==ctCpuUltra ||
-//		unit->getFaction()->getControlType()==ctCpuMega) {
-//    	if( attackingEnemySeen!=NULL && random.randRange(0,2)!=2 ) {
-//    		*rangedPtr 	= attackingEnemySeen;
-//    		enemySeen 	= attackingEnemySeen;
-//    		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
-//    	}
-//    }
-
-/*
-		if(enemies[i]->getType()->hasSkillClass(scAttack) &&
-			enemies[i]->isAlive() == true ) {
-            *rangedPtr= enemies[i];
-			enemySeen=enemies[i];
-            result=true;
-            break;
-        }
+    if(isUltra || isMega) {
+    	if( attackingEnemySeen!=NULL && random.randRange(0,2)!=2 ) {
+    		*rangedPtr 	= attackingEnemySeen;
+    		enemySeen 	= attackingEnemySeen;
+    		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
+    	}
     }
-
-/*
-    if(result == false) {
-		//any enemy
-		for(int i= 0; i < enemies.size(); ++i) {
-			if(enemies[i]->isAlive() == true) {
-				*rangedPtr= enemies[i];
-				enemySeen= enemies[i];
-				result= true;
-				break;
-			}
-		}
-	}
-*/
 
 	if(result == true) {
 		//const Unit* teamUnit	= NULL;
