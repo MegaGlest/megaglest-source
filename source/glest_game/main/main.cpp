@@ -3361,12 +3361,6 @@ int glestMain(int argc, char** argv) {
 		UPNP_Tools::isUPNP = !config.getBool("DisableUPNP","false");
 		Texture::useTextureCompression = config.getBool("EnableTextureCompression","false");
 
-		if(config.getString("CustomMenuTextColor","") != "") {
-			string customMenuTextColor = config.getString("CustomMenuTextColor");
-			Vec3f customTextColor = Vec3f::strToVec3(customMenuTextColor);
-			GraphicComponent::setCustomTextColor(customTextColor);
-		}
-
 		// 256 for English
 		// 30000 for Chinese
 		Font::charCount    		= config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());
