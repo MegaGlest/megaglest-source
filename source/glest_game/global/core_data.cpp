@@ -423,6 +423,22 @@ void CoreData::load() {
 					break;
 				}
 			}
+
+			if(introVideoFilename == "") {
+				introVideoPath = data_path + "data/core/menu/videos/intro.*";
+				introVideos.clear();
+				findAll(introVideoPath, introVideos, false, false);
+				for(int i = 0; i < introVideos.size(); ++i) {
+					string video = data_path + "data/core/menu/videos/" + introVideos[i];
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if intro video [%s] exists\n",video.c_str());
+
+					if(fileExists(video)) {
+						introVideoFilename = video;
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
+						break;
+					}
+				}
+			}
 		}
 
 		mainMenuVideoFilename = config.getString("MainMenuVideoURL","");
@@ -439,6 +455,22 @@ void CoreData::load() {
 					mainMenuVideoFilename = video;
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
 					break;
+				}
+			}
+
+			if(mainMenuVideoFilename == "") {
+				mainVideoPath = data_path + "data/core/menu/videos/main.*";
+				mainVideos.clear();
+				findAll(mainVideoPath, mainVideos, false, false);
+				for(int i = 0; i < mainVideos.size(); ++i) {
+					string video = data_path + "data/core/menu/videos/" + mainVideos[i];
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if intro video [%s] exists\n",video.c_str());
+
+					if(fileExists(video)) {
+						mainMenuVideoFilename = video;
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
+						break;
+					}
 				}
 			}
 		}
