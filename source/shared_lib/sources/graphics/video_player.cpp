@@ -1383,16 +1383,17 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 //				 glVertex2f(ctxPtr->x, ctxPtr->y);
 //				glEnd();
 
-#ifdef WIN32
-				const double HEIGHT_MULTIPLIER 	= 1.0;
-				const double WIDTH_MULTIPLIER 		= 1.0;
-#else
-				const double HEIGHT_MULTIPLIER 	= 0.80;
-				const double WIDTH_MULTIPLIER 		= 0.60;
+				const double HEIGHT_DEFAULT 	= 768;
+				const double WIDTH_DEFAULT 	= 1024;
+
+//				const double HEIGHT_MULTIPLIER 	= 0.80;
+//				const double WIDTH_MULTIPLIER 		= 0.60;
 //				const double HEIGHT_MULTIPLIER 	= 1.0;
 //				const double WIDTH_MULTIPLIER 		= 1.0;
+				const double HEIGHT_MULTIPLIER 	= HEIGHT_DEFAULT / ctxPtr->height;
+				const double WIDTH_MULTIPLIER 		= WIDTH_DEFAULT / ctxPtr->width;
 
-#endif
+				//printf("w x h = %d x %d\n",ctxPtr->width,ctxPtr->height);
 
 				glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2i(0, 1);
