@@ -1,6 +1,6 @@
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//	Copyright (C) 2001-2008 Martiï¿½o Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -3360,6 +3360,12 @@ int glestMain(int argc, char** argv) {
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
 		UPNP_Tools::isUPNP = !config.getBool("DisableUPNP","false");
 		Texture::useTextureCompression = config.getBool("EnableTextureCompression","false");
+
+		if(config.getString("CustomMenuTextColor","") != "") {
+			string customMenuTextColor = config.getString("CustomMenuTextColor");
+			Vec3f customTextColor = Vec3f::strToVec3(customMenuTextColor);
+			GraphicComponent::setCustomTextColor(customTextColor);
+		}
 
 		// 256 for English
 		// 30000 for Chinese

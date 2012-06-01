@@ -35,6 +35,8 @@ float GraphicComponent::anim= 0.f;
 float GraphicComponent::fade= 0.f;
 const float GraphicComponent::animSpeed= 0.02f;
 const float GraphicComponent::fadeSpeed= 0.01f;
+// WHITE
+Vec3f GraphicComponent::customTextColor = Vec3f(1.0,1.0,1.0);
 
 std::map<std::string, std::map<std::string, GraphicComponent *> > GraphicComponent::registeredGraphicComponentList;
 

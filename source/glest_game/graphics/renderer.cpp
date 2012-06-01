@@ -2826,14 +2826,14 @@ void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverrid
 	}
 
 	//button
-	Vec4f fontColor;
+	Vec4f fontColor(GraphicComponent::getCustomTextColor());
 
 	if(fontColorOverride != NULL) {
 		fontColor= *fontColorOverride;
 	}
 	else {
 		// white shadowed is default ( in the menu for example )
-		fontColor=Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+		fontColor.w = GraphicComponent::getFade();
 	}
 
 	//Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
