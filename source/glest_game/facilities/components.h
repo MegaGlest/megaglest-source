@@ -62,12 +62,16 @@ protected:
 
 	static float anim;
 	static float fade;
+	static Vec3f customTextColor;
 
 	string instanceName;
 
 public:
 	GraphicComponent(std::string containerName="", std::string objName="");
 	virtual ~GraphicComponent(){}
+
+	static void setCustomTextColor(Vec3f value) { customTextColor = value; }
+	static Vec3f getCustomTextColor() { return customTextColor; }
 
 	static void clearRegisteredComponents(std::string containerName="");
 	static void clearRegisterGraphicComponent(std::string containerName, std::string objName);
@@ -138,7 +142,7 @@ private:
 
 public:
 	GraphicLabel();
-	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=Vec3f(1.f, 1.f, 1.f), bool wordWrap=false);
+	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=GraphicComponent::customTextColor, bool wordWrap=false);
 
 	bool getCentered() const	{return centered;}
 	void setCentered(bool centered)	{this->centered= centered;}
@@ -206,7 +210,7 @@ private:
 	
 public:
 	GraphicListBox(std::string containerName="", std::string objName="");
-    void init(int x, int y, int w=defW, int h=defH, Vec3f textColor=Vec3f(1.f, 1.f, 1.f));
+    void init(int x, int y, int w=defW, int h=defH, Vec3f textColor=GraphicComponent::customTextColor);
     
 	int getItemCount() const				{return items.size();}
 	string getItem(int index) const			{return items[index];}
