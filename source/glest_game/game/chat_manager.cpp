@@ -137,7 +137,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
                             console->addLine(text,false,playerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
 						}
 
-						gameNetworkInterface->sendTextMessage(text, teamMode? thisTeamIndex: -1, false, "");
+						gameNetworkInterface->sendTextMessage("*"+text, teamMode? thisTeamIndex: -1, false, "");
 						if(inMenu == false) {
 							editEnabled= false;
 						}
@@ -430,20 +430,22 @@ void ChatManager::updateNetwork() {
 				if(teamIndex == -1 || teamIndex == thisTeamIndex) {
 					if(msg.targetLanguage == "" || lang.isLanguageLocal(msg.targetLanguage) == true) {
 						bool teamMode = (teamIndex != -1 && teamIndex == thisTeamIndex);
-						console->addLine(msg.chatText, true, msg.chatPlayerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
-
-						//!!!
 						string playerName = gameNetworkInterface->getHumanPlayerName();
-
 						if(this->manualPlayerNameOverride != "") {
 							playerName = this->manualPlayerNameOverride;
 						}
-			        	if(msg.chatText.find(playerName) != string::npos){
+
+			        	if(StartsWith(msg.chatText,"*") && msg.chatText.find(playerName) != string::npos){
 			        		CoreData &coreData= CoreData::getInstance();
 			        		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 			        		soundRenderer.playFx(coreData.getHighlightSound());
+			        		console->addLine(msg.chatText.substr(1,msg.chatText.size()), true, msg.chatPlayerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
 			        	}
+			        	else {
+			        		console->addLine(msg.chatText, true, msg.chatPlayerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
+			        	}
+
 					}
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Added text to console\n",__FILE__,__FUNCTION__);
