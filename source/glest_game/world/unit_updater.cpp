@@ -2191,17 +2191,17 @@ bool UnitUpdater::searchForResource(Unit *unit, const HarvestCommandType *hct) {
     return false;
 }
 
-bool UnitUpdater::attackerOnSight(const Unit *unit, Unit **rangedPtr){
+bool UnitUpdater::attackerOnSight(Unit *unit, Unit **rangedPtr){
 	int range= unit->getType()->getSight();
 	return unitOnRange(unit, range, rangedPtr, NULL);
 }
 
-bool UnitUpdater::attackableOnSight(const Unit *unit, Unit **rangedPtr, const AttackSkillType *ast){
+bool UnitUpdater::attackableOnSight(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast){
 	int range= unit->getType()->getSight();
 	return unitOnRange(unit, range, rangedPtr, ast);
 }
 
-bool UnitUpdater::attackableOnRange(const Unit *unit, Unit **rangedPtr, const AttackSkillType *ast){
+bool UnitUpdater::attackableOnRange(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast){
 	int range= ast->getTotalAttackRange(unit->getTotalUpgrade());
 	return unitOnRange(unit, range, rangedPtr, ast);
 }
@@ -2295,7 +2295,7 @@ void UnitUpdater::findEnemiesForCell(const Vec2i pos, int size, int sightRange, 
 }
 
 //if the unit has any enemy on range
-bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
+bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 							  const AttackSkillType *ast) {
     vector<Unit*> enemies;
 	bool result=false;
@@ -2348,11 +2348,11 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 	float distToUnit= -1;
 	Unit* enemySeen= NULL;
 
-//TT	float distToStandingUnit= -1;
-//	Unit* attackingEnemySeen= NULL;
-//	ControlType controlType= unit->getFaction()->getControlType();
-//	bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
-//	bool isMega= controlType == ctCpuMega || controlType == ctNetworkCpuMega;
+	float distToStandingUnit= -1;
+	Unit* attackingEnemySeen= NULL;
+	ControlType controlType= unit->getFaction()->getControlType();
+	bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
+	bool isMega= controlType == ctCpuMega || controlType == ctNetworkCpuMega;
 
 	//printf("unit %d has control:%d\n",unit->getId(),controlType);
     for(int i = 0; i< enemies.size(); ++i) {
@@ -2376,25 +2376,25 @@ bool UnitUpdater::unitOnRange(const Unit *unit, int range, Unit **rangedPtr,
 					result		= true;
     			}
 
-//TT    			if(isUltra || isMega) {
-//        			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
-//        			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
-//        			    	distToStandingUnit = currentDist;
-//        			    	attackingEnemySeen=enemies[i];
-//        			    }
-//        			}
-//    			}
+    			if(isUltra || isMega) {
+        			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
+        			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
+        			    	distToStandingUnit = currentDist;
+        			    	attackingEnemySeen=enemies[i];
+        			    }
+        			}
+    			}
     		}
     	}
     }
 
-//TT    if(isUltra || isMega) {
-//    	if( attackingEnemySeen!=NULL && random.randRange(0,2)!=2 ) {
-//    		*rangedPtr 	= attackingEnemySeen;
-//    		enemySeen 	= attackingEnemySeen;
-//    		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
-//    	}
-//    }
+    if(isUltra || isMega) {
+    	if( attackingEnemySeen!=NULL && unit->getRandom()->randRange(0,2)!=2 ) {
+    		*rangedPtr 	= attackingEnemySeen;
+    		enemySeen 	= attackingEnemySeen;
+    		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
+    	}
+    }
 
 	if(result == true) {
 		//const Unit* teamUnit	= NULL;
