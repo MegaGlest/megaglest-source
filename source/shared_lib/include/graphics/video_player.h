@@ -48,6 +48,7 @@ protected:
 	VideoLoadingCallbackInterface *loadingCB;
 	ctx *ctxPtr;
 
+	static bool disabled;
 	void init();
 
 	void cleanupPlayer();
@@ -61,6 +62,9 @@ public:
 				 int width, int height, int colorBits,
 				 string pluginsPath,bool verboseEnabled=false);
 	virtual ~VideoPlayer();
+
+	static void setDisabled(bool value) { disabled = value; }
+	static bool getDisabled() { return disabled; }
 
 	void PlayVideo();
 	void StopVideo() { stop = true; }

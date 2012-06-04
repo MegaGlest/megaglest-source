@@ -2989,6 +2989,25 @@ int glestMain(int argc, char** argv) {
 #endif
 	}
 
+	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||
+        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) 			== true ||
+        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_XERCES_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 				== true ||
+        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])    == true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== true) {
+		VideoPlayer::setDisabled(true);
+	}
+
 	//throw megaglest_runtime_error("Test!");
 
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) == true) {
@@ -4396,7 +4415,6 @@ int glestMain(int argc, char** argv) {
 		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
 			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO])    == true) {
-
 			runTechValidationReport(argc, argv);
 
 		    delete mainWindow;
