@@ -199,7 +199,7 @@ bool Checksum::addFileToSum(const string &path) {
     ifstream ifs(path.c_str());
 #endif
 
-    if (!ifs) {
+    if (ifs) {
         fileExists = true;
 		addString(lastFile(path));
 
@@ -258,6 +258,7 @@ bool Checksum::addFileToSum(const string &path) {
 }
 
 int32 Checksum::getSum() {
+	//printf("Getting checksum for files [%d]\n",fileList.size());
 	if(fileList.size() > 0) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,fileList.size());
 
@@ -268,8 +269,12 @@ int32 Checksum::getSum() {
 			MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 			if(Checksum::fileListCache.find(iterMap->first) == Checksum::fileListCache.end()) {
 				Checksum fileResult;
-				fileResult.addFileToSum(iterMap->first);
+				bool fileAddedOk = fileResult.addFileToSum(iterMap->first);
 				Checksum::fileListCache[iterMap->first] = fileResult.getSum();
+				//printf("fileAddedOk = %d for file [%s] CRC [%d]\n",fileAddedOk,iterMap->first.c_str(),Checksum::fileListCache[iterMap->first]);
+			}
+			else {
+				//printf("Getting checksum from CACHE for file [%s] CRC [%d]\n",iterMap->first.c_str(),Checksum::fileListCache[iterMap->first]);
 			}
 			newResult.addSum(Checksum::fileListCache[iterMap->first]);
 		}

@@ -1473,6 +1473,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 
 								mapExtraTagReplacementValues = Properties::getTagReplacementValues(&mapExtraTagReplacementValues);
 								Properties::applyTagsToValue(expandedNewCommonFileName,&mapExtraTagReplacementValues);
+								replaceAll(expandedNewCommonFileName, "//", "/");
 								createDirectoryPaths(extractDirectoryPathFromFile(expandedNewCommonFileName));
 
 								if(svnPurgeFiles == true) {
@@ -1841,11 +1842,11 @@ void runTechValidationForPath(string techPath, string techName,
 					Checksum checksum;
 					checksum.addFile(fileName);
 					int32 crcValue = checksum.getSum();
-	//				if(crcValue == 0) {
-	//					char szBuf[4096]="";
-	//					sprintf(szBuf,"Error calculating CRC for file [%s]",fileName.c_str());
-	//					throw megaglest_runtime_error(szBuf);
-	//				}
+					if(crcValue == 0) {
+						char szBuf[4096]="";
+						sprintf(szBuf,"Error calculating CRC for file [%s]",fileName.c_str());
+						throw megaglest_runtime_error(szBuf);
+					}
 	//				else {
 	//					printf("** CRC for file [%s] is [%d] and has %d parents\n",fileName.c_str(),crcValue,(int)iterMap->second.size());
 	//				}
@@ -1868,6 +1869,8 @@ void runTechValidationForPath(string techPath, string techName,
 							printf("\nWarning, duplicate files were detected - START:\n=====================\n");
 						}
 
+						printf("----- START duplicate files for CRC [%d] count [%d] first file is [%s]\n",iterMap->first,fileList.size(),fileList[0].c_str());
+
 						map<string,int> parentList;
 						for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 							string duplicateFile = fileList[idx];
@@ -1888,7 +1891,25 @@ void runTechValidationForPath(string techPath, string techName,
 									parentList[iterFind->second[jdx].first]++;
 								}
 							}
+
+							//!!!
+							string newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
+							string expandedNewCommonFileName = newCommonFileName;
+							std::map<string,string> mapExtraTagReplacementValues;
+							string techCommonData = techPath + techName + "/commondata/";
+							replaceAll(techCommonData, "//", "/");
+							mapExtraTagReplacementValues["$COMMONDATAPATH"] = techCommonData;
+							mapExtraTagReplacementValues = Properties::getTagReplacementValues(&mapExtraTagReplacementValues);
+							Properties::applyTagsToValue(expandedNewCommonFileName,&mapExtraTagReplacementValues);
+							replaceAll(expandedNewCommonFileName, "//", "/");
+
+							//printf("**** Checking for partial commondata scenario [%s] [%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+							//if(StartsWith(duplicateFile, expandedNewCommonFileName) == true) {
+							//	throw megaglest_runtime_error("ERROR, this configuration has partial common data and duplicates, aborting..");
+							//}
 						}
+
+						printf("----- Finding parents for duplicate files [%d] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 
 						for(map<string,int>::iterator iterMap1 = parentList.begin();
 								iterMap1 != parentList.end(); ++iterMap1) {
@@ -1902,12 +1923,17 @@ void runTechValidationForPath(string techPath, string techName,
 						if(purgeDuplicateFiles == true) {
 							//printf("\nPurge Duplicate Files detected - START:\n=====================\n");
 
+							printf("----- move / remove duplicate files [%d] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+							// First move first duplicate to commondata and delete all other copies
 							string newCommonFileName = "";
 							for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 								string duplicateFile = fileList[idx];
 								string fileExt = extractExtension(duplicateFile);
 								if(fileExt == "wav" || fileExt == "ogg") {
 									off_t fileSize = getFileSize(duplicateFile);
+
+									printf("#1 [%d / %d] removing duplicate [%s]\n",idx,fileList.size(),duplicateFile.c_str());
+
 									if(idx == 0) {
 										newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
 
@@ -1921,6 +1947,7 @@ void runTechValidationForPath(string techPath, string techName,
 										mapExtraTagReplacementValues["$COMMONDATAPATH"] = techCommonData;
 										mapExtraTagReplacementValues = Properties::getTagReplacementValues(&mapExtraTagReplacementValues);
 										Properties::applyTagsToValue(expandedNewCommonFileName,&mapExtraTagReplacementValues);
+										replaceAll(expandedNewCommonFileName, "//", "/");
 										createDirectoryPaths(extractDirectoryPathFromFile(expandedNewCommonFileName));
 
 										if(svnPurgeFiles == true) {
@@ -1936,6 +1963,8 @@ void runTechValidationForPath(string techPath, string techName,
 										}
 										else {
 											//int result = 0;
+											printf("moving duplicate [%s] to common data [%s] expanded to [%s]\n",duplicateFile.c_str(),newCommonFileName.c_str(),expandedNewCommonFileName.c_str());
+
 											int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 											if(result != 0) {
 												char szBuf[4096]="";
@@ -1959,6 +1988,7 @@ void runTechValidationForPath(string techPath, string techName,
 											printf("*** Duplicate file:\n[%s]\nwas svn deleted\n",duplicateFile.c_str());
 										}
 										else {
+											printf("removing duplicate [%s]\n",duplicateFile.c_str());
 											removeFile(duplicateFile);
 										}
 										printf("*** Duplicate file:\n[%s]\nwas removed\n",duplicateFile.c_str());
@@ -1970,8 +2000,10 @@ void runTechValidationForPath(string techPath, string techName,
 								}
 							}
 
+							printf("----- update XML files fpr duplicate files [%d] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 							std::map<string,int> mapUniqueParentList;
 
+							// Update the XML files to point to the new single copy in commondata
 							for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 								string duplicateFile = fileList[idx];
 								string fileExt = extractExtension(duplicateFile);
@@ -1987,9 +2019,35 @@ void runTechValidationForPath(string techPath, string techName,
 												bool foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, false);
 												printf("foundText = %d\n",foundText);
 												if(foundText == false) {
-													char szBuf[4096]="";
-													sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
-													throw megaglest_runtime_error(szBuf);
+
+													string techCommonData = techPath + techName + "/commondata/";
+													replaceAll(techCommonData, "//", "/");
+
+													//printf("WARNING #1 techCommonData check\n[%s]\n[%s]\n",techCommonData.c_str(),searchText.c_str());
+
+													if(StartsWith(searchText, techCommonData) == true) {
+														printf("WARNING #1 [%d] techCommonData check\n[%s]\n[%s]\n[%s]\n[%s]\n",
+																foundText,parentFile.c_str(),techCommonData.c_str(),searchText.c_str(),newCommonFileName.c_str());
+
+														replaceAll(searchText, techCommonData, "$COMMONDATAPATH/");
+														foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, false);
+
+														printf("WARNING #2 [%d] techCommonData check\n[%s]\n[%s]\n[%s]\n[%s]\n",
+																foundText,parentFile.c_str(),techCommonData.c_str(),searchText.c_str(),newCommonFileName.c_str());
+													}
+													if(foundText == false) {
+														//printf("Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
+
+														char szBuf[8096]="";
+														sprintf(szBuf,"Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+														printf("\n\n=================================================\n%s",szBuf);
+
+														throw megaglest_runtime_error(szBuf);
+													}
+
+													//char szBuf[4096]="";
+													//sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
+													//throw megaglest_runtime_error(szBuf);
 												}
 												mapUniqueParentList[parentFile]++;
 											}
@@ -2037,11 +2095,13 @@ void runTechValidationForPath(string techPath, string techName,
 												string techCommonData = techPath + techName + "/commondata/";
 												replaceAll(techCommonData, "//", "/");
 
-												//printf("ERROR techCommonData check\n[%s]\n[%s]\n",techCommonData.c_str(),searchText.c_str());
+												//printf("WARNING #1 techCommonData check\n[%s]\n[%s]\n",techCommonData.c_str(),searchText.c_str());
 
 												if(StartsWith(searchText, techCommonData) == true) {
 													replaceAll(searchText, techCommonData, "$COMMONDATAPATH/");
 													foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, true);
+
+													//printf("WARNING #2 techCommonData check\n[%s]\n[%s]\n[%s]\n",techCommonData.c_str(),searchText.c_str(),newCommonFileName.c_str());
 												}
 												if(foundText == false) {
 													//printf("Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
@@ -2060,6 +2120,9 @@ void runTechValidationForPath(string techPath, string techName,
 
 							//printf("\nPurge Duplicate Files DISABLED - END:\n=====================\n");
 						}
+
+
+						printf("----- END duplicate files [%d] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 					}
 				}
 				if(foundDuplicates == true) {
