@@ -602,6 +602,7 @@ public:
     int update2();
     bool update();
 	void tick();
+	RandomGen* getRandom() { return &random; }
 
 	bool applyAttackBoost(const AttackBoost *boost, const Unit *source);
 	void deapplyAttackBoost(const AttackBoost *boost, const Unit *source);

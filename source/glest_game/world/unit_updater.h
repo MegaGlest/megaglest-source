@@ -145,10 +145,10 @@ private:
 
 	//misc
     bool searchForResource(Unit *unit, const HarvestCommandType *hct);
-    bool attackerOnSight(const Unit *unit, Unit **enemyPtr);
-    bool attackableOnSight(const Unit *unit, Unit **enemyPtr, const AttackSkillType *ast);
-    bool attackableOnRange(const Unit *unit, Unit **enemyPtr, const AttackSkillType *ast);
-	bool unitOnRange(const Unit *unit, int range, Unit **enemyPtr, const AttackSkillType *ast);
+    bool attackerOnSight(Unit *unit, Unit **enemyPtr);
+    bool attackableOnSight(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast);
+    bool attackableOnRange(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast);
+	bool unitOnRange(Unit *unit, int range, Unit **enemyPtr, const AttackSkillType *ast);
 	void enemiesAtDistance(const Unit *unit, const Unit *priorityUnit, int distance, vector<Unit*> &enemies);
 
 	Unit * findPeerUnitBuilder(Unit *unit);
