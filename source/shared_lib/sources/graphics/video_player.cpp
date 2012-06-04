@@ -38,6 +38,7 @@ typedef unsigned __int64 uint64_t;
 #include <vlc/vlc.h>
 #endif
 
+
 #if defined(WIN32)
 /**
 * @param location The location of the registry key. For example "Software\\Bethesda Softworks\\Morrowind"
@@ -135,6 +136,8 @@ public:
 };
 
 namespace Shared{ namespace Graphics{
+
+bool VideoPlayer::disabled = false;
 
 // Load a texture
 static void loadTexture(class ctx *ctx) {
@@ -430,6 +433,9 @@ VideoPlayer::VideoPlayer(VideoLoadingCallbackInterface *loadingCB,
 }
 
 void VideoPlayer::init() {
+	if(VideoPlayer::disabled == true) {
+		return;
+	}
 	ctxPtr = new ctx();
 	ctxPtr->loadingCB = loadingCB;
 	ctxPtr->x = x;
@@ -464,6 +470,10 @@ void VideoPlayer::cleanupPlayer() {
 }
 
 bool VideoPlayer::initPlayer(string mediaURL) {
+	if(VideoPlayer::disabled == true) {
+		return true;
+	}
+
 #ifdef HAS_LIBVLC
 	ctxPtr->libvlc = NULL;
 	ctxPtr->m = NULL;
@@ -915,6 +925,9 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 }
 
 bool VideoPlayer::initPlayer() {
+	if(VideoPlayer::disabled == true) {
+		return true;
+	}
 
 #ifdef HAS_LIBVLC
 
@@ -1010,6 +1023,10 @@ void VideoPlayer::closePlayer() {
 }
 
 void VideoPlayer::PlayVideo() {
+	if(VideoPlayer::disabled == true) {
+		return;
+	}
+
 /*
 #ifdef HAS_LIBVLC
 	libvlc_instance_t *libvlc = NULL;
@@ -1273,6 +1290,10 @@ bool VideoPlayer::isPlaying() const {
 }
 
 bool VideoPlayer::playFrame(bool swapBuffers) {
+	if(VideoPlayer::disabled == true) {
+		return false;
+	}
+
 	//bool needToQuit = false;
 	int action = 0, pause = 0, n = 0;
 	if(successLoadingLib == true &&
