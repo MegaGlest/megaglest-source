@@ -205,11 +205,16 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	ENDIF(USE_FTGL)
 
 	IF(MINIUPNPC_VERSION_PRE1_5)
-		ADD_DEFINITIONS(-DMINIUPNPC_VERSION_PRE1_5)
+	        ADD_DEFINITIONS(-DMINIUPNPC_VERSION_PRE1_5)
+                message(STATUS "Adding macro for miniupnpc version: pre v1.5")
 	ENDIF()
 	IF(MINIUPNPC_VERSION_PRE1_6)
 		ADD_DEFINITIONS(-DMINIUPNPC_VERSION_PRE1_6)
+                message(STATUS "Adding macro for miniupnpc version: pre v1.6")
 	ENDIF()
+        IF(NOT MINIUPNPC_VERSION_PRE1_5 AND NOT MINIUPNPC_VERSION_PRE1_6)
+                message(STATUS "**No macro's required for miniupnpc version")
+        ENDIF()
 
 	OPTION(USE_FREETYPEGL "Use Freetype-GL for on-screen fonts" OFF)
 	if(USE_FREETYPEGL)
