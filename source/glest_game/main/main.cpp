@@ -1869,7 +1869,7 @@ void runTechValidationForPath(string techPath, string techName,
 							printf("\nWarning, duplicate files were detected - START:\n=====================\n");
 						}
 
-						printf("----- START duplicate files for CRC [%d] count [%d] first file is [%s]\n",iterMap->first,fileList.size(),fileList[0].c_str());
+						printf("----- START duplicate files for CRC [%d] count [%lu] first file is [%s]\n",iterMap->first,fileList.size(),fileList[0].c_str());
 
 						map<string,int> parentList;
 						for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
@@ -1909,7 +1909,7 @@ void runTechValidationForPath(string techPath, string techName,
 							//}
 						}
 
-						printf("----- Finding parents for duplicate files [%d] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+						printf("----- Finding parents for duplicate files [%lu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 
 						for(map<string,int>::iterator iterMap1 = parentList.begin();
 								iterMap1 != parentList.end(); ++iterMap1) {
@@ -1923,7 +1923,7 @@ void runTechValidationForPath(string techPath, string techName,
 						if(purgeDuplicateFiles == true) {
 							//printf("\nPurge Duplicate Files detected - START:\n=====================\n");
 
-							printf("----- move / remove duplicate files [%d] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+							printf("----- move / remove duplicate files [%lu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 							// First move first duplicate to commondata and delete all other copies
 							string newCommonFileName = "";
 							for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
@@ -1932,7 +1932,7 @@ void runTechValidationForPath(string techPath, string techName,
 								if(fileExt == "wav" || fileExt == "ogg") {
 									off_t fileSize = getFileSize(duplicateFile);
 
-									printf("#1 [%d / %d] removing duplicate [%s]\n",idx,fileList.size(),duplicateFile.c_str());
+									printf("#1 [%d / %lu] removing duplicate [%s]\n",idx,fileList.size(),duplicateFile.c_str());
 
 									if(idx == 0) {
 										newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
@@ -2000,7 +2000,7 @@ void runTechValidationForPath(string techPath, string techName,
 								}
 							}
 
-							printf("----- update XML files fpr duplicate files [%d] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+							printf("----- update XML files for duplicate files [%lu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 							std::map<string,int> mapUniqueParentList;
 
 							// Update the XML files to point to the new single copy in commondata
@@ -2122,7 +2122,7 @@ void runTechValidationForPath(string techPath, string techName,
 						}
 
 
-						printf("----- END duplicate files [%d] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+						printf("----- END duplicate files [%lu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 					}
 				}
 				if(foundDuplicates == true) {

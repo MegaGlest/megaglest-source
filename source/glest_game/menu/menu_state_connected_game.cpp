@@ -1667,6 +1667,14 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	buttonRestoreLastSettings.mouseMove(x, y);
 }
 
+bool MenuStateConnectedGame::isVideoPlaying() {
+	bool result = false;
+	if(factionVideo != NULL) {
+		result = factionVideo->isPlaying();
+	}
+	return result;
+}
+
 void MenuStateConnectedGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();

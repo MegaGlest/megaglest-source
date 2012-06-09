@@ -103,6 +103,10 @@ MainMenu::~MainMenu() {
 void MainMenu::init() {
 	Renderer::getInstance().initMenu(this);
 
+	initBackgroundVideo();
+}
+
+void MainMenu::initBackgroundVideo() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
 		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
 		CoreData::getInstance().hasMainMenuVideoFilename() == true) {
@@ -138,6 +142,19 @@ void MainMenu::render() {
 
 	if(state->isMasterserverMode() == false) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+
+			if(state->isVideoPlaying() == true) {
+				if(menuBackgroundVideo != NULL) {
+					if(menuBackgroundVideo->isPlaying() == true) {
+						menuBackgroundVideo->closePlayer();
+						delete menuBackgroundVideo;
+						menuBackgroundVideo = NULL;
+					}
+				}
+			}
+			else if(menuBackgroundVideo == NULL) {
+				initBackgroundVideo();
+			}
 			renderer.clearBuffers();
 
 			//3d

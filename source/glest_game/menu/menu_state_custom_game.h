@@ -223,6 +223,7 @@ public:
     virtual bool isInSpecialKeyCaptureEvent();
     virtual bool isMasterserverMode() const;
 
+    virtual bool isVideoPlaying();
 private:
 
     bool hasNetworkGameSettings();

@@ -214,6 +214,8 @@ public:
 
     virtual void reloadUI();
 
+    virtual bool isVideoPlaying();
+
 private:
 
     bool hasNetworkGameSettings();
