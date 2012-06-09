@@ -1736,6 +1736,14 @@ bool MenuStateCustomGame::isMasterserverMode() const {
 	//return false;
 }
 
+bool MenuStateCustomGame::isVideoPlaying() {
+	bool result = false;
+	if(factionVideo != NULL) {
+		result = factionVideo->isPlaying();
+	}
+	return result;
+}
+
 void MenuStateCustomGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();

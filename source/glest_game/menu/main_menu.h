@@ -59,6 +59,8 @@ private:
     int mouseX, mouseY;
     int mouse2dAnim;
 
+    void initBackgroundVideo();
+
 public:
 	MainMenu(Program *program);
     ~MainMenu();
@@ -118,6 +120,8 @@ public:
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 	virtual void consoleAddLine(string line);
 	virtual void reloadUI();
+
+	virtual bool isVideoPlaying() { return false; };
 };
 
 }}//end namespace
