@@ -81,6 +81,9 @@ const char  *GAME_ARGS[] = {
 
 	"--use-font",
 	"--font-basesize",
+
+	"--disable-videos",
+
 	"--verbose"
 
 };
@@ -146,6 +149,9 @@ enum GAME_ARG_TYPE {
 
 	GAME_ARG_USE_FONT,
 	GAME_ARG_FONT_BASESIZE,
+
+	GAME_ARG_DISABLE_VIDEOS,
+
 	GAME_ARG_VERBOSE_MODE,
 
 	GAME_ARG_END
@@ -424,9 +430,11 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample:");
 	printf("\n  %s %s=$APPLICATIONDATAPATH/data/core/fonts/Vera.ttf",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_FONT]);
 
-	printf("\n%s=x\t\t\toverride the font base size.",GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
+	printf("\n%s=x\t\toverride the font base size.",GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
 	printf("\n                     \t\tWhere x is the numeric base font size to use.");
 	printf("\n                     \t\texample: %s %s=5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
+
+	printf("\n%s\t\tdisables video playback.",GAME_ARGS[GAME_ARG_DISABLE_VIDEOS]);
 
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 

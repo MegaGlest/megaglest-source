@@ -3437,6 +3437,14 @@ int glestMain(int argc, char** argv) {
 			}
 		}
 
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_VIDEOS]) == true) {
+			VideoPlayer::setDisabled(true);
+		}
+		else if(config.getBool("EnableVideos","true") == false) {
+			VideoPlayer::setDisabled(true);
+		}
+
         // Set some statics based on ini entries
 		SystemFlags::ENABLE_THREADED_LOGGING = config.getBool("ThreadedLogging","true");
 		FontGl::setDefault_fontType(config.getString("DefaultFont",FontGl::getDefault_fontType().c_str()));
