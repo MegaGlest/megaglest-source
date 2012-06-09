@@ -54,6 +54,7 @@ private:
 	string networkPlayerNames[GameConstants::maxPlayers];
 	int    networkPlayerStatuses[GameConstants::maxPlayers];
 	string networkPlayerLanguages[GameConstants::maxPlayers];
+	int    networkPlayerGameStatus[GameConstants::maxPlayers];
 
 	ControlType factionControls[GameConstants::maxPlayers];
 	int resourceMultiplierIndex[GameConstants::maxPlayers];
@@ -89,6 +90,8 @@ private:
 
 public:
 
+    static string playerDisconnectedText;
+
     GameSettings() {
     	defaultUnits=false;
     	defaultResources=false;
@@ -114,6 +117,7 @@ public:
     		resourceMultiplierIndex[i] = 1.0f;
     		teams[i] = 0;
     		startLocationIndex[i] = i;
+    		networkPlayerGameStatus[i] = 0;
     	}
 
     	flagTypes1 = ft1_none;
@@ -129,16 +133,24 @@ public:
 	// default copy constructor will do fine, and will maintain itself ;)
 
 	//get
-	const string &getDescription() const						{return description;}
-	const string &getMap() const 								{return map;}
-	const string &getTileset() const							{return tileset;}
-	const string &getTech() const								{return tech;}
-	const string &getScenario() const							{return scenario;}
-	const string &getScenarioDir() const						{return scenarioDir;}
+	const string &getDescription() const							{return description;}
+	const string &getMap() const 									{return map;}
+	const string &getTileset() const								{return tileset;}
+	const string &getTech() const									{return tech;}
+	const string &getScenario() const								{return scenario;}
+	const string &getScenarioDir() const							{return scenarioDir;}
 	const string &getFactionTypeName(int factionIndex) const	{return factionTypeNames[factionIndex];}
-	const string &getNetworkPlayerName(int factionIndex) const  {return networkPlayerNames[factionIndex];}
+	string getNetworkPlayerName(int factionIndex) const  {
+		string result = networkPlayerNames[factionIndex];
+		if(networkPlayerGameStatus[factionIndex] == 1) {
+			result = playerDisconnectedText + result;
+		}
+		return result;
+	}
 	const int    getNetworkPlayerStatuses(int factionIndex) const { return networkPlayerStatuses[factionIndex];}
 	const string getNetworkPlayerLanguages(int factionIndex) const { return networkPlayerLanguages[factionIndex];}
+
+	const int    getNetworkPlayerGameStatus(int factionIndex) const { return networkPlayerGameStatus[factionIndex];}
 
 	const vector<string> getUniqueNetworkPlayerLanguages() const {
 		vector<string> languageList;
@@ -213,6 +225,8 @@ public:
 	void setFactionTypeName(int factionIndex, const string& factionTypeName)	{this->factionTypeNames[factionIndex]= factionTypeName;}
 	void setNetworkPlayerName(int factionIndex,const string& playername)    {this->networkPlayerNames[factionIndex]= playername;}
 	void setNetworkPlayerStatuses(int factionIndex,int status)    			{this->networkPlayerStatuses[factionIndex]= status;}
+
+	void setNetworkPlayerGameStatus(int factionIndex,int status)    			{this->networkPlayerGameStatus[factionIndex]= status;}
 	void setNetworkPlayerLanguages(int factionIndex, string language) 		{this->networkPlayerLanguages[factionIndex]=language;}
 
 	void setFactionControl(int factionIndex, ControlType controller)		{this->factionControls[factionIndex]= controller;}
@@ -334,6 +348,14 @@ public:
 			networkPlayerStatusesNode->addAttribute("status",intToStr(networkPlayerStatuses[idx]), mapTagReplacements);
 		}
 
+		//		int    networkPlayerStatuses[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *networkPlayerStatusesNode = gameSettingsNode->addChild("networkPlayerGameStatus");
+			networkPlayerStatusesNode->addAttribute("game_status",intToStr(networkPlayerGameStatus[idx]), mapTagReplacements);
+		}
+
+
+
 //		string networkPlayerLanguages[GameConstants::maxPlayers];
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
 			XmlNode *networkPlayerLanguagesNode = gameSettingsNode->addChild("networkPlayerLanguages");
@@ -449,6 +471,12 @@ public:
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
 			const XmlNode *networkPlayerStatusesNode = gameSettingsNode->getChild("networkPlayerStatuses",idx);
 			networkPlayerStatuses[idx] = networkPlayerStatusesNode->getAttribute("status")->getIntValue();
+		}
+
+		//		int    networkPlayerStatuses[GameConstants::maxPlayers];
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *networkPlayerGameStatusNode = gameSettingsNode->getChild("networkPlayerGameStatus",idx);
+			networkPlayerGameStatus[idx] = networkPlayerGameStatusNode->getAttribute("game_status")->getIntValue();
 		}
 
 //		string networkPlayerLanguages[GameConstants::maxPlayers];

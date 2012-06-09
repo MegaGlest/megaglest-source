@@ -479,6 +479,11 @@ void Commander::tryResumeGame() const {
 	pushNetworkCommand(&command);
 }
 
+void Commander::tryNetworkPlayerDisconnected(int factionIndex) const {
+	NetworkCommand command(this->world,nctPlayerStatusChange, factionIndex, 1);
+	pushNetworkCommand(&command);
+}
+
 // ==================== PRIVATE ====================
 
 CommandResult Commander::computeResult(const CommandResultContainer &results) const {
@@ -801,7 +806,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
         }
             break;
 
-        case nctPauseResume: {
+        case nctPauseResume:
+        	{
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPauseResume\n",__FILE__,__FUNCTION__,__LINE__);
 
         	commandWasHandled = true;
@@ -812,11 +818,28 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
        		//printf("nctPauseResume pauseGame = %d\n",pauseGame);
        		game->setPaused(pauseGame,true);
 
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
-        }
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPauseResume\n",__FILE__,__FUNCTION__,__LINE__);
+        	}
             break;
+
+        case nctPlayerStatusChange:
+			{
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPlayerStatusChange\n",__FILE__,__FUNCTION__,__LINE__);
+
+			commandWasHandled = true;
+
+			int factionIndex = networkCommand->getUnitId();
+			int playerStatus = networkCommand->getCommandTypeId();
+
+    		if(playerStatus == 1) {
+    			GameSettings *settings = world->getGameSettingsPtr();
+    			settings->setNetworkPlayerGameStatus(factionIndex,1);
+    		}
+
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPlayerStatusChange\n",__FILE__,__FUNCTION__,__LINE__);
+			}
+			break;
 
     }
 

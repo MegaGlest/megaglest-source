@@ -34,6 +34,7 @@ using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
+string GameSettings::playerDisconnectedText = "";
 Game *thisGamePtr = NULL;
 
 // =====================================================
@@ -838,6 +839,8 @@ void Game::init(bool initForPreviewOnly) {
 	Map *map= world.getMap();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
+	GameSettings::playerDisconnectedText = "*" + lang.get("Disconnect") + "* - ";
+
 	if(map == NULL) {
 		throw megaglest_runtime_error("map == NULL");
 	}
@@ -1549,7 +1552,9 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						server->isClientConnected(faction->getStartLocationIndex()) == false) {
 					faction->setFactionDisconnectHandled(true);
 
-					char szBuf[1024]="";
+					Lang &lang= Lang::getInstance();
+
+					char szBuf[4096]="";
 					if(faction->getPersonalityType() != fpt_Observer) {
 						faction->setControlType(ctCpu);
 						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
@@ -1557,15 +1562,15 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 						logger.add(szBuf, true);
 
-						Lang &lang= Lang::getInstance();
 						string msg = "Player #%d [%s] has disconnected, switching player to AI mode!";
 						if(lang.hasString("GameSwitchPlayerToAI")) {
 							msg = lang.get("GameSwitchPlayerToAI");
 						}
 						sprintf(szBuf,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+
+						commander.tryNetworkPlayerDisconnected(i);
 					}
 					else {
-						Lang &lang= Lang::getInstance();
 						string msg = "Player #%d [%s] has disconnected, but player was only an observer!";
 						if(lang.hasString("GameSwitchPlayerObserverToAI")) {
 							msg = lang.get("GameSwitchPlayerObserverToAI");
@@ -1573,7 +1578,6 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						sprintf(szBuf,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 					}
 
-					Lang &lang= Lang::getInstance();
 					const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
 					for(unsigned int j = 0; j < languageList.size(); ++j) {
 						bool localEcho = (languageList[j] == lang.getLanguage());
