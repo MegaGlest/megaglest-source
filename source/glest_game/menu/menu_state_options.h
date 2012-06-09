@@ -131,6 +131,9 @@ private:
 	GraphicLabel labelShadowTextureSize;
 	GraphicListBox listBoxShadowTextureSize;
 
+	GraphicLabel labelVideos;
+	GraphicCheckBox checkBoxVideos;
+
 	map<string,string> languageList;
 
 public:

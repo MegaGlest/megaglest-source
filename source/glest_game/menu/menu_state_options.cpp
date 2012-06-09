@@ -304,6 +304,13 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		checkBoxRainEffect.setValue(config.getBool("RainEffect","true"));
 		currentLine-=lineOffset;
 
+		labelVideos.registerGraphicComponent(containerName,"labelVideos");
+		labelVideos.init(currentLabelStart ,currentLine);
+		labelVideos.setText(lang.get("EnableVideos"));
+
+		checkBoxVideos.registerGraphicComponent(containerName,"checkBoxVideos");
+		checkBoxVideos.init(currentColumnStart ,currentLine );
+		checkBoxVideos.setValue(config.getBool("EnableVideos","true"));
 
 		// end
 
@@ -648,6 +655,8 @@ void MenuStateOptions::reloadUI() {
 
 	labelRainEffect.setText(lang.get("RainEffect"));
 
+	labelVideos.setText(lang.get("EnableVideos"));
+
 	labelMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	labelMiscSection.setText(lang.get("Misc"));
@@ -875,9 +884,11 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
         checkBoxDisableScreenshotConsoleText.mouseClick(x, y);
         checkBoxMouseMoveScrollsWorld.mouseClick(x, y);
-            checkBoxVisibleHud.mouseClick(x, y);
-            checkBoxRainEffect.mouseClick(x,y);
-            checkBoxRainEffectMenu.mouseClick(x,y);
+        checkBoxVisibleHud.mouseClick(x, y);
+        checkBoxRainEffect.mouseClick(x,y);
+        checkBoxRainEffectMenu.mouseClick(x,y);
+
+		checkBoxVideos.mouseClick(x,y);
 	}
 }
 
@@ -920,6 +931,8 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxVisibleHud.mouseMove(x, y);
 	checkBoxRainEffect.mouseMove(x, y);
 	checkBoxRainEffectMenu.mouseMove(x, y);
+
+	checkBoxVideos.mouseMove(x, y);
 }
 
 bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
@@ -1073,6 +1086,9 @@ void MenuStateOptions::render(){
 
 		renderer.renderLabel(&labelShadowTextureSize);
 		renderer.renderListBox(&listBoxShadowTextureSize);
+
+        renderer.renderLabel(&labelVideos);
+        renderer.renderCheckBox(&checkBoxVideos);
 	}
 
 	renderer.renderConsole(&console,false,true);
@@ -1134,6 +1150,8 @@ void MenuStateOptions::saveConfig(){
     config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
     config.setBool("RainEffect", checkBoxRainEffect.getValue());
     config.setBool("RainEffectMenu", checkBoxRainEffectMenu.getValue());
+
+    config.setBool("EnableVideos", checkBoxVideos.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
 	string selectedResolution=listBoxScreenModes.getSelectedItem();

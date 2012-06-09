@@ -451,6 +451,10 @@ VideoPlayer::~VideoPlayer() {
 }
 
 bool VideoPlayer::hasBackEndVideoPlayer() {
+	if(VideoPlayer::disabled == true) {
+		return false;
+	}
+
 #ifdef HAS_LIBVLC
 	return true;
 #endif
@@ -981,7 +985,7 @@ bool VideoPlayer::initPlayer() {
 
 void VideoPlayer::closePlayer() {
 #ifdef HAS_LIBVLC
-	if(ctxPtr->libvlc != NULL) {
+	if(ctxPtr != NULL && ctxPtr->libvlc != NULL) {
 		//
 		// Stop stream and clean up libVLC
 		//
@@ -1004,21 +1008,23 @@ void VideoPlayer::closePlayer() {
 	//
 	// Close window and clean up libSDL
 	//
-	if(ctxPtr->mutex != NULL) {
-		SDL_DestroyMutex(ctxPtr->mutex);
-	}
-	if(ctxPtr->surf != NULL) {
-		SDL_FreeSurface(ctxPtr->surf);
-	}
-	if(ctxPtr->empty != NULL) {
-		SDL_FreeSurface(ctxPtr->empty);
-	}
+	if(ctxPtr != NULL) {
+		if(ctxPtr->mutex != NULL) {
+			SDL_DestroyMutex(ctxPtr->mutex);
+		}
+		if(ctxPtr->surf != NULL) {
+			SDL_FreeSurface(ctxPtr->surf);
+		}
+		if(ctxPtr->empty != NULL) {
+			SDL_FreeSurface(ctxPtr->empty);
+		}
 
-	glDeleteTextures(1, &ctxPtr->textureId);
+		glDeleteTextures(1, &ctxPtr->textureId);
 
-	if(ctxPtr->needToQuit == true) {
-		SDL_Event quit_event = {SDL_QUIT};
-		SDL_PushEvent(&quit_event);
+		if(ctxPtr->needToQuit == true) {
+			SDL_Event quit_event = {SDL_QUIT};
+			SDL_PushEvent(&quit_event);
+		}
 	}
 }
 
@@ -1285,7 +1291,7 @@ bool VideoPlayer::isPlaying() const {
 					(ctxPtr->error == false || ctxPtr->stopped == false) &&
 					finished == false && stop == false);
 
-	if(ctxPtr->verboseEnabled) printf("isPlaying isPlaying = %d,error = %d, stopped = %d, end_of_media = %d\n",ctxPtr->isPlaying,ctxPtr->error,ctxPtr->stopped,ctxPtr->end_of_media);
+	if(ctxPtr != NULL && ctxPtr->verboseEnabled) printf("isPlaying isPlaying = %d,error = %d, stopped = %d, end_of_media = %d\n",ctxPtr->isPlaying,ctxPtr->error,ctxPtr->stopped,ctxPtr->end_of_media);
 	return result;
 }
 
