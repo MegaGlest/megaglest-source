@@ -113,7 +113,7 @@ public:
 	void trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) const;
 	void tryPauseGame() const;
 	void tryResumeGame() const;
-
+	void tryNetworkPlayerDisconnected(int factionIndex) const;
 
 	Command* buildCommand(const NetworkCommand* networkCommand) const;
 
