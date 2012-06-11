@@ -839,7 +839,7 @@ void Game::init(bool initForPreviewOnly) {
 	Map *map= world.getMap();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
-	GameSettings::playerDisconnectedText = "*" + lang.get("Disconnect") + "* - ";
+	GameSettings::playerDisconnectedText = "*" + lang.get("AI") + "* ";
 
 	if(map == NULL) {
 		throw megaglest_runtime_error("map == NULL");
