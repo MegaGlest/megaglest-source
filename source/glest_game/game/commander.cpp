@@ -831,10 +831,11 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 			int factionIndex = networkCommand->getUnitId();
 			int playerStatus = networkCommand->getCommandTypeId();
 
+			GameSettings *settings = world->getGameSettingsPtr();
     		if(playerStatus == 1) {
-    			GameSettings *settings = world->getGameSettingsPtr();
     			settings->setNetworkPlayerGameStatus(factionIndex,1);
     		}
+    		this->world->getStats()->setPlayerName(factionIndex,settings->getNetworkPlayerName(factionIndex));
 
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPlayerStatusChange\n",__FILE__,__FUNCTION__,__LINE__);

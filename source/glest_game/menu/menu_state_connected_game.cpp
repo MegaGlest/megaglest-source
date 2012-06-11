@@ -1503,7 +1503,8 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 				AIPlayerCount++;
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, playername is AI (blank)\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i);
 
-				gameSettings->setNetworkPlayerName(slotIndex, string("AI") + intToStr(AIPlayerCount));
+				Lang &lang= Lang::getInstance();
+				gameSettings->setNetworkPlayerName(slotIndex, lang.get("AI") + intToStr(AIPlayerCount));
 				labelPlayerNames[i].setText("");
 			}
 
