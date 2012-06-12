@@ -148,10 +148,14 @@ private:
 	int pauseGamePopupMenuIndex;
 	int saveGamePopupMenuIndex;
 	int loadGamePopupMenuIndex;
+	int markCellPopupMenuIndex;
 	int keyboardSetupPopupMenuIndex;
 	//GLuint statelist3dMenu;
 	ProgramState *currentUIState;
 
+	bool isMarkCellEnabled;
+	Texture2D *markCellTexture;
+	std::map<Vec2i, MarkedCell> mapMarkedCellList;
 	bool masterserverMode;
 
 	StrSound *currentAmbientSound;
@@ -172,6 +176,10 @@ public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
     ~Game();
+
+    bool isMarkCellMode() const { return isMarkCellEnabled; }
+    const Texture2D * getMarkCellTexture() const { return markCellTexture; }
+    std::map<Vec2i, MarkedCell> getMapMarkedCellList() const { return mapMarkedCellList; }
 
     bool isMasterserverMode() const { return masterserverMode; }
     //get
@@ -296,6 +304,8 @@ private:
 	string getDebugStats(std::map<int,string> &factionDebugInfo);
 
 	void renderVideoPlayer();
+
+	void updateNetworkMarkedCells();
 };
 
 }}//end namespace

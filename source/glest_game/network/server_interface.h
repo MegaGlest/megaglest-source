@@ -113,7 +113,12 @@ public:
     virtual void waitUntilReady(Checksum *checksum);
     virtual void sendTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage);
     void sendTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage, int lockedSlotIndex);
+
     void queueTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage);
+
+    virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note);
+    void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note, int lockedSlotIndex);
+
     virtual void quitGame(bool userManuallyQuit);
     virtual string getNetworkStatus();
     ServerSocket *getServerSocket()
@@ -224,6 +229,7 @@ protected:
     void checkForLaggingClients(std::map<int,bool> &mapSlotSignalledList, std::map<int,ConnectionSlotEvent> &eventList, std::map<PLATFORM_SOCKET,bool> &socketTriggeredList,std::vector <string> &errorMsgList);
     void executeNetworkCommandsFromClients();
     void dispatchPendingChatMessages(std::vector <string> &errorMsgList);
+    void dispatchPendingMarkCellMessages(std::vector <string> &errorMsgList);
 
     void shutdownMasterserverPublishThread();
 };

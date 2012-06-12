@@ -127,6 +127,25 @@ void NetworkInterface::clearChatInfo() {
 	}
 }
 
+std::vector<MarkedCell> NetworkInterface::getMarkedCellList(bool clearList) {
+	std::vector<MarkedCell> result;
+	if(markedCellList.empty() == false) {
+		result = markedCellList;
+
+		if(clearList == true) {
+			markedCellList.clear();
+		}
+	}
+	return result;
+}
+
+void NetworkInterface::clearMarkedCellList() {
+	if(markedCellList.empty() == false) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] markedCellList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,markedCellList.size());
+		markedCellList.clear();
+	}
+}
+
 std::string NetworkInterface::getIpAddress() {
 	std::string result = "";
 

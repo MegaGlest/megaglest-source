@@ -1582,11 +1582,11 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 	}
 //	float blue=0.0f;
 //	float green=0.4f;
-	if(game!=NULL && game->getGui()!=NULL){
+	if(game != NULL && game->getGui() != NULL) {
 		const Gui *gui=game->getGui();
 		const Display *display=gui->getDisplay();
 		int downPos= display->getDownSelectedPos();
-		if(downPos!=Display::invalidPos){
+		if(downPos != Display::invalidPos){
 			// in state of doing something
 			const Texture2D *texture= display->getDownImage(downPos);
 			renderTextureQuad(x+18,y-50,32,32,texture,0.8f);
@@ -1606,6 +1606,11 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 //				}
 //			}
 //		}
+
+		if(game->isMarkCellMode() == true) {
+			const Texture2D *texture= game->getMarkCellTexture();
+			renderTextureQuad(x-18,y-50,32,32,texture,0.8f);
+		}
 	}
 
 	float color1 = 0.0, color2 = 0.0;
@@ -5456,6 +5461,8 @@ void Renderer::renderMinimap(){
 
 	}
 
+	renderMarkedCellsOnMinimap();
+
     //draw camera
 	float wRatio= static_cast<float>(metrics.getMinimapW()) / world->getMap()->getW();
 	float hRatio= static_cast<float>(metrics.getMinimapH()) / world->getMap()->getH();
@@ -5501,6 +5508,102 @@ void Renderer::renderMinimap(){
     glPopAttrib();
 
 	assertGl();
+}
+
+void Renderer::renderMarkedCellsOnMinimap() {
+	// Draw marked cells
+	std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();
+	if(markedCells.empty() == false) {
+		const Map *map= game->getWorld()->getMap();
+	    const World *world= game->getWorld();
+		const Minimap *minimap= world->getMinimap();
+
+		if(minimap == NULL || minimap->getTexture() == NULL) {
+			return;
+		}
+
+		const GameCamera *gameCamera= game->getGameCamera();
+		const Pixmap2D *pixmap= minimap->getTexture()->getPixmapConst();
+		const Metrics &metrics= Metrics::getInstance();
+		const WaterEffects *attackEffects= world->getAttackEffects();
+
+		int mx= metrics.getMinimapX();
+		int my= metrics.getMinimapY();
+		int mw= metrics.getMinimapW();
+		int mh= metrics.getMinimapH();
+
+		Vec2f zoom= Vec2f(
+			static_cast<float>(mw)/ pixmap->getW(),
+			static_cast<float>(mh)/ pixmap->getH());
+
+		uint32 unitIdx=0;
+		vector<Vec2f> unit_vertices;
+		unit_vertices.resize(markedCells.size()*4);
+		vector<Vec4f> unit_colors;
+		unit_colors.resize(markedCells.size()*4);
+
+		for(std::map<Vec2i, MarkedCell>::iterator iterMap =markedCells.begin();
+				iterMap != markedCells.end(); ++iterMap) {
+			MarkedCell &bm = iterMap->second;
+			if(bm.getFaction() != NULL && bm.getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam()) {
+				Vec2i pos= bm.getTargetPos() / Map::cellScale;
+				float size= 0.5f;
+				//Vec3f color=  bm.color;
+				Vec3f color=  bm.getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
+				float alpha = 0.65;
+
+				unit_colors[unitIdx] = Vec4f(color.x,color.y,color.z,alpha);
+				unit_vertices[unitIdx] = Vec2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
+				unitIdx++;
+
+				unit_colors[unitIdx] = Vec4f(color.x,color.y,color.z,alpha);
+				unit_vertices[unitIdx] = Vec2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
+				unitIdx++;
+
+				unit_colors[unitIdx] = Vec4f(color.x,color.y,color.z,alpha);
+				unit_vertices[unitIdx] = Vec2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));
+				unitIdx++;
+
+				unit_colors[unitIdx] = Vec4f(color.x,color.y,color.z,alpha);
+				unit_vertices[unitIdx] = Vec2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
+				unitIdx++;
+			}
+		}
+
+		if(unitIdx > 0) {
+			glEnable(GL_BLEND);
+
+			glEnableClientState(GL_COLOR_ARRAY);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glColorPointer(4,GL_FLOAT, 0, &unit_colors[0]);
+			glVertexPointer(2, GL_FLOAT, 0, &unit_vertices[0]);
+			glDrawArrays(GL_QUADS, 0, unitIdx);
+			//glDrawArrays(GL_TRIANGLE_STRIP, 0, unitIdx);
+			glDisableClientState(GL_COLOR_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+
+			glDisable(GL_BLEND);
+		}
+	}
+}
+void Renderer::renderVisibleMarkedCells() {
+	// Draw marked cells
+	std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();
+	if(markedCells.empty() == false) {
+		for(std::map<Vec2i, MarkedCell>::iterator iterMap =markedCells.begin();
+				iterMap != markedCells.end(); ++iterMap) {
+			MarkedCell &bm = iterMap->second;
+			if(bm.getFaction() != NULL && bm.getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam()) {
+				const Map *map= game->getWorld()->getMap();
+				std::pair<bool,Vec3f> bmVisible = posInCellQuadCache(
+						map->toSurfCoords(bm.getTargetPos()));
+				if(bmVisible.first == true) {
+					const Texture2D *texture= game->getMarkCellTexture();
+					renderTextureQuad(bmVisible.second.x,bmVisible.second.y+10,32,32,texture,0.8f);
+				}
+			}
+		}
+	}
 }
 
 void Renderer::renderDisplay() {
@@ -5884,7 +5987,7 @@ void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel
 
 // ==================== computing ====================
 
-bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos){
+bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos, bool exactCoords) {
 	assertGl();
 	const Map* map= game->getWorld()->getMap();
 	const Metrics &metrics= Metrics::getInstance();
@@ -5916,7 +6019,12 @@ bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos){
 		&worldX, &worldY, &worldZ);
 
 	//conver coords to int
-	worldPos= Vec2i(static_cast<int>(worldX+0.5f), static_cast<int>(worldZ+0.5f));
+	if(exactCoords == true) {
+		worldPos= Vec2i(static_cast<int>(worldX), static_cast<int>(worldZ));
+	}
+	else {
+		worldPos= Vec2i(static_cast<int>(worldX+0.5f), static_cast<int>(worldZ+0.5f));
+	}
 
 	//clamp coords to map size
 	return map->isInside(worldPos);
@@ -7969,6 +8077,8 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 				//int loops2=0;
 
+				std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();
+
 				const Rect2i mapBounds(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
 				Quad2i scaledQuad = visibleQuad / Map::cellScale;
 				PosQuadIterator pqis(map,scaledQuad);
@@ -7978,6 +8088,19 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 						//loops2++;
 						if(VisibleQuadContainerCache::enableFrustumCalcs == false) {
 							quadCache.visibleScaledCellList.push_back(pos);
+
+							if(markedCells.empty() == false) {
+								if(markedCells.find(pos) != markedCells.end()) {
+									//printf("#1 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = %lu\n",pos.getString().c_str(),markedCells.size());
+								//if(markedCells.empty() == false) {
+									//SurfaceCell *sc = map->getSurfaceCell(pos);
+									//quadCache.visibleScaledCellToScreenPosList[pos]=computeScreenPosition(sc->getVertex());
+									updateMarkedCellScreenPosQuadCache(pos);
+								}
+								else {
+									//printf("#1 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = %lu\n",pos.getString().c_str(),markedCells.size());
+								}
+							}
 						}
 						else {
 							SurfaceCell *sc = map->getSurfaceCell(pos);
@@ -7987,6 +8110,18 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 							if(insideQuad == true) {
 								quadCache.visibleScaledCellList.push_back(pos);
+
+								if(markedCells.empty() == false) {
+									if(markedCells.find(pos) != markedCells.end()) {
+										//printf("#2 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = %lu\n",pos.getString().c_str(),markedCells.size());
+									//if(markedCells.empty() == false) {
+										//quadCache.visibleScaledCellToScreenPosList[pos]=computeScreenPosition(sc->getVertex());
+										updateMarkedCellScreenPosQuadCache(pos);
+									}
+									else {
+										//printf("#2 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = %lu\n",pos.getString().c_str(),markedCells.size());
+									}
+								}
 							}
 						}
 					}
@@ -7999,6 +8134,47 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 	}
 
 	return quadCache;
+}
+
+void Renderer::updateMarkedCellScreenPosQuadCache(Vec2i pos) {
+	const World *world= game->getWorld();
+	const Map *map= world->getMap();
+
+	SurfaceCell *sc = map->getSurfaceCell(pos);
+	quadCache.visibleScaledCellToScreenPosList[pos]=computeScreenPosition(sc->getVertex());
+}
+
+void Renderer::forceQuadCacheUpdate() {
+	quadCache.cacheFrame = -1;
+
+	Vec2i clearPos(-1,-1);
+	quadCache.lastVisibleQuad.p[0] = clearPos;
+	quadCache.lastVisibleQuad.p[1] = clearPos;
+	quadCache.lastVisibleQuad.p[2] = clearPos;
+	quadCache.lastVisibleQuad.p[3] = clearPos;
+}
+
+std::pair<bool,Vec3f> Renderer::posInCellQuadCache(Vec2i pos) {
+	std::pair<bool,Vec3f> result = make_pair(false,Vec3f());
+	if(std::find(
+			quadCache.visibleScaledCellList.begin(),
+			quadCache.visibleScaledCellList.end(),
+			pos) != quadCache.visibleScaledCellList.end()) {
+		result.first = true;
+		result.second = quadCache.visibleScaledCellToScreenPosList[pos];
+	}
+	return result;
+}
+
+Vec3f Renderer::getMarkedCellScreenPosQuadCache(Vec2i pos) {
+	Vec3f result(-1,-1,-1);
+	if(std::find(
+			quadCache.visibleScaledCellList.begin(),
+			quadCache.visibleScaledCellList.end(),
+			pos) != quadCache.visibleScaledCellList.end()) {
+		result = quadCache.visibleScaledCellToScreenPosList[pos];
+	}
+	return result;
 }
 
 void Renderer::beginRenderToTexture(Texture2D **renderToTexture) {

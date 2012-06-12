@@ -471,6 +471,20 @@ void ClientInterface::updateLobby() {
         }
         break;
 
+        case nmtMarkCell:
+        {
+        	NetworkMessageMarkCell networkMessageMarkCell;
+            if(receiveMessage(&networkMessageMarkCell)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtMarkCell\n",__FILE__,__FUNCTION__);
+
+            	MarkedCell msg(networkMessageMarkCell.getTarget(),
+            			       networkMessageMarkCell.getFactionIndex(),
+            			       networkMessageMarkCell.getText().c_str());
+        		this->addMarkedCell(msg);
+            }
+        }
+        break;
+
         case nmtLaunch:
         case nmtBroadCastSetup:
         {
@@ -656,12 +670,8 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 				case nmtText:
 				{
-					time_t receiveTimeElapsed = time(NULL);
+					//time_t receiveTimeElapsed = time(NULL);
 					NetworkMessageText networkMessageText;
-	//				while(receiveMessage(&networkMessageText) == false &&
-	//					  isConnected() == true &&
-	//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 1000)) {
-	//				}
 					bool gotCmd = receiveMessage(&networkMessageText);
 					if(gotCmd == false) {
 						throw megaglest_runtime_error("error retrieving nmtText returned false!");
@@ -675,6 +685,20 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 				}
 				break;
+
+		        case nmtMarkCell:
+		        {
+		        	NetworkMessageMarkCell networkMessageMarkCell;
+		            if(receiveMessage(&networkMessageMarkCell)) {
+		            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtMarkCell\n",__FILE__,__FUNCTION__);
+
+		            	MarkedCell msg(networkMessageMarkCell.getTarget(),
+		            			       networkMessageMarkCell.getFactionIndex(),
+		            			       networkMessageMarkCell.getText().c_str());
+		        		this->addMarkedCell(msg);
+		            }
+		        }
+		        break;
 
 				case nmtLaunch:
 				case nmtBroadCastSetup:
@@ -1168,6 +1192,14 @@ void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool ec
 	}
 }
 
+void ClientInterface::sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note) {
+	string humanPlayerName = getHumanPlayerName();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] humanPlayerName = [%s] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,humanPlayerName.c_str(),playerIndex);
+
+	NetworkMessageMarkCell networkMessageMarkCell(targetPos,factionIndex, note);
+	sendMessage(&networkMessageMarkCell);
+}
+
 void ClientInterface::sendPingMessage(int32 pingFrequency, int64 pingTime) {
 	NetworkMessagePing networkMessagePing(pingFrequency,pingTime);
 	sendMessage(&networkMessagePing);
@@ -1355,6 +1387,20 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
     		this->addChatInfo(msg);
 			}
 			break;
+
+        case nmtMarkCell:
+			{
+			discard = true;
+			NetworkMessageMarkCell networkMessageMarkCell;
+			receiveMessage(&networkMessageMarkCell);
+
+			MarkedCell msg(networkMessageMarkCell.getTarget(),
+						   networkMessageMarkCell.getFactionIndex(),
+						   networkMessageMarkCell.getText().c_str());
+			this->addMarkedCell(msg);
+			}
+			break;
+
 		case nmtSynchNetworkGameData:
 			{
 			discard = true;

@@ -43,6 +43,7 @@ enum NetworkMessageType {
 	nmtSwitchSetupRequest,
 	nmtPlayerIndexMessage,
 	nmtLoadingStatusMessage,
+	nmtMarkCell,
 
 	nmtCount
 };
@@ -728,6 +729,44 @@ public:
 };
 #pragma pack(pop)
 
+
+// =====================================================
+//	class NetworkMessageText
+//
+//	Mark a Cell message nmtMarkCell
+// =====================================================
+
+#pragma pack(push, 1)
+class NetworkMessageMarkCell: public NetworkMessage {
+private:
+	static const int maxTextStringSize= 500;
+
+private:
+	struct Data{
+		int8 messageType;
+
+		int16 targetX;
+		int16 targetY;
+		int8 factionIndex;
+		NetworkString<maxTextStringSize> text;
+	};
+
+private:
+	Data data;
+
+public:
+	NetworkMessageMarkCell(){}
+	NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text);
+
+	string getText() const			{ return data.text.getString(); }
+	Vec2i getTarget() const		{ return Vec2i(data.targetX,data.targetY); }
+	int getFactionIndex() const  { return data.factionIndex; }
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+	NetworkMessageMarkCell * getCopy() const;
+};
+#pragma pack(pop)
 
 }}//end namespace
 

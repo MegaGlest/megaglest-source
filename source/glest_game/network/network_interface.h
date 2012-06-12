@@ -82,6 +82,39 @@ public:
 
 };
 
+class MarkedCell {
+protected:
+	Vec2i targetPos;
+	const Faction *faction;
+	int factionIndex;
+	string note;
+
+public:
+	MarkedCell() {
+		faction = NULL;
+		factionIndex = -1;
+		note = "";
+	}
+	MarkedCell(Vec2i targetPos,const Faction *faction,string note) {
+		this->targetPos = targetPos;
+		this->faction = faction;
+		this->factionIndex = -1;
+		this->note = note;
+	}
+	MarkedCell(Vec2i targetPos,int factionIndex,string note) {
+		this->targetPos = targetPos;
+		this->faction = NULL;
+		this->factionIndex = factionIndex;
+		this->note = note;
+	}
+
+	Vec2i getTargetPos() const { return targetPos; }
+	const Faction * getFaction() const { return faction; }
+	void setFaction(const Faction *faction) { this->faction = faction; }
+	int getFactionIndex() const { return factionIndex; }
+	string getNote() const { return note; }
+};
+
 typedef int (*DisplayMessageFunction)(const char *msg, bool exit);
 
 class NetworkInterface {
@@ -97,6 +130,7 @@ protected:
 
 	std::vector<ChatMsgInfo> chatTextList;
 	NetworkMessagePing lastPingInfo;
+	std::vector<MarkedCell> markedCellList;
 
 	static DisplayMessageFunction pCB_DisplayMessage;
 	void DisplayErrorMessage(string sErr, bool closeSocket=true);
@@ -147,6 +181,10 @@ public:
     std::vector<ChatMsgInfo> getChatTextList(bool clearList);
 	void clearChatInfo();
 	void addChatInfo(const ChatMsgInfo &msg) { chatTextList.push_back(msg); }
+
+    std::vector<MarkedCell> getMarkedCellList(bool clearList);
+	void clearMarkedCellList();
+	void addMarkedCell(const MarkedCell &msg) { markedCellList.push_back(msg); }
 
 	virtual bool getConnectHasHandshaked() const= 0;
 
@@ -199,6 +237,8 @@ public:
 	virtual void sendTextMessage(const string &text, int teamIndex,bool echoLocal,
 			string targetLanguage)= 0;
 	virtual void quitGame(bool userManuallyQuit)=0;
+
+	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note) = 0;
 
 	//misc
 	virtual string getNetworkStatus() = 0;
