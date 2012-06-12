@@ -1094,6 +1094,45 @@ void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsg
 	}
 }
 
+void ServerInterface::dispatchPendingMarkCellMessages(std::vector <string> &errorMsgList) {
+	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+		MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+		ConnectionSlot* connectionSlot= slots[i];
+		if(connectionSlot != NULL &&
+		   connectionSlot->getMarkedCellList(false).empty() == false) {
+			try {
+				std::vector<MarkedCell> chatText = connectionSlot->getMarkedCellList(true);
+				for(int chatIdx = 0;
+					exitServer == false && slots[i] != NULL &&
+					chatIdx < chatText.size(); chatIdx++) {
+					connectionSlot= slots[i];
+					if(connectionSlot != NULL) {
+						MarkedCell msg(chatText[chatIdx]);
+						this->addMarkedCell(msg);
+
+						NetworkMessageMarkCell networkMessageMarkCell(msg.getTargetPos(),msg.getFactionIndex(),msg.getNote());
+						broadcastMessage(&networkMessageMarkCell, connectionSlot->getPlayerIndex(),i);
+
+						//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtText chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
+					}
+				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+				// Its possible that the slot is disconnected here
+				// so check the original pointer again
+				if(slots[i] != NULL) {
+					slots[i]->clearMarkedCellList();
+				}
+			}
+			catch(const exception &ex) {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+				errorMsgList.push_back(ex.what());
+			}
+		}
+	}
+}
+
 void ServerInterface::update() {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
@@ -1165,6 +1204,8 @@ void ServerInterface::update() {
 				// Step #5 dispatch pending chat messages
 				dispatchPendingChatMessages(errorMsgList);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+
+				dispatchPendingMarkCellMessages(errorMsgList);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
@@ -1332,6 +1373,41 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 
 				}
 				break;
+
+			case nmtMarkCell:
+				{
+				discard = true;
+				NetworkMessageMarkCell networkMessageMarkCell;
+				connectionSlot->receiveMessage(&networkMessageMarkCell);
+
+            	MarkedCell msg(networkMessageMarkCell.getTarget(),
+            			       networkMessageMarkCell.getFactionIndex(),
+            			       networkMessageMarkCell.getText().c_str());
+
+            	this->addMarkedCell(msg);
+
+//				string newChatText     = msg.chatText.c_str();
+//				//string newChatSender   = msg.chatSender.c_str();
+//				int newChatTeamIndex   = msg.chatTeamIndex;
+//				int newChatPlayerIndex = msg.chatPlayerIndex;
+//				string newChatLanguage = msg.targetLanguage.c_str();
+//
+//				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 about to broadcast nmtText chatText [%s] chatTeamIndex = %d, newChatPlayerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex);
+//
+//				NetworkMessageText networkMessageText(newChatText.c_str(),newChatTeamIndex,newChatPlayerIndex,newChatLanguage);
+//				broadcastMessage(&networkMessageText, connectionSlot->getPlayerIndex());
+
+            	NetworkMessageMarkCell networkMessageMarkCellBroadcast(
+            			networkMessageMarkCell.getTarget(),
+     			        networkMessageMarkCell.getFactionIndex(),
+     			        networkMessageMarkCell.getText().c_str());
+				broadcastMessage(&networkMessageMarkCellBroadcast, connectionSlot->getPlayerIndex());
+
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtMarkCell chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
+
+				}
+				break;
+
 			case nmtSynchNetworkGameData:
 				{
 				discard = true;
@@ -1670,6 +1746,20 @@ void ServerInterface::sendTextMessage(const string& text, int teamIndex, bool ec
 		ChatMsgInfo msg(text.c_str(),teamIndex,networkMessageText.getPlayerIndex(), targetLanguage);
 		this->addChatInfo(msg);
 	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void ServerInterface::sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note) {
+	sendMarkCellMessage(targetPos, factionIndex, note, -1);
+}
+
+void ServerInterface::sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note, int lockedSlotIndex) {
+	//printf("Line: %d text [%s] echoLocal = %d\n",__LINE__,text.c_str(),echoLocal);
+	//assert(text.length() > 0);
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] text [%s] teamIndex = %d, echoLocal = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),teamIndex,echoLocal,lockedSlotIndex);
+	NetworkMessageMarkCell networkMessageMarkCell(targetPos,factionIndex, note);
+	broadcastMessage(&networkMessageMarkCell, -1, lockedSlotIndex);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

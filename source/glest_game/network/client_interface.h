@@ -41,7 +41,6 @@ private:
 
 private:
 	ClientSocket *clientSocket;
-	//GameSettings gameSettings;
 	string serverName;
 	bool introDone;
 	bool launchGame;
@@ -86,6 +85,8 @@ public:
 	virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal,
 			string targetLanguage);
 	virtual void quitGame(bool userManuallyQuit);
+
+	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note);
 
 	//misc
 	virtual string getNetworkStatus() ;

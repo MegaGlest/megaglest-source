@@ -103,6 +103,7 @@ protected:
 		visibleUnitList		= obj.visibleUnitList;
 		visibleQuadUnitList = obj.visibleQuadUnitList;
 		visibleScaledCellList = obj.visibleScaledCellList;
+		visibleScaledCellToScreenPosList = obj.visibleScaledCellToScreenPosList;
 		lastVisibleQuad		= obj.lastVisibleQuad;
 		frustumData			= obj.frustumData;
 		proj				= obj.proj;
@@ -140,6 +141,7 @@ public:
 	inline void clearNonVolatileCacheData() {
 		visibleObjectList.clear();
 		visibleScaledCellList.clear();
+		visibleScaledCellToScreenPosList.clear();
 
 		visibleObjectList.reserve(500);
 		visibleScaledCellList.reserve(500);
@@ -156,6 +158,7 @@ public:
 	std::vector<Unit   *> visibleQuadUnitList;
 	std::vector<Unit   *> visibleUnitList;
 	std::vector<Vec2i> visibleScaledCellList;
+	std::map<Vec2i,Vec3f> visibleScaledCellToScreenPosList;
 
 	static bool enableFrustumCalcs;
 	vector<vector<float> > frustumData;
@@ -519,7 +522,7 @@ public:
 	void renderMenuBackground(Camera *camera, float fade, Model *mainModel, vector<Model *> characterModels,const Vec3f characterPosition, float anim);
 
 	//computing
-    bool computePosition(const Vec2i &screenPos, Vec2i &worldPos);
+    bool computePosition(const Vec2i &screenPos, Vec2i &worldPos,bool exactCoords=false);
 	void computeSelected(Selection::UnitContainer &units, const Object *&obj, const bool withObjectSelection, const Vec2i &posDown, const Vec2i &posUp);
 	void selectUsingColorPicking(Selection::UnitContainer &units, const Object *&obj,const bool withObjectSelection,const Vec2i &posDown, const Vec2i &posUp);
 	void selectUsingSelectionBuffer(Selection::UnitContainer &units,const Object *&obj, const bool withObjectSelection,const Vec2i &posDown, const Vec2i &posUp);
@@ -574,6 +577,13 @@ public:
 	inline int getLastRenderFps() const { return lastRenderFps;}
 
 	VisibleQuadContainerCache & getQuadCache(bool updateOnDirtyFrame=true,bool forceNew=false);
+	std::pair<bool,Vec3f> posInCellQuadCache(Vec2i pos);
+	Vec3f getMarkedCellScreenPosQuadCache(Vec2i pos);
+	void updateMarkedCellScreenPosQuadCache(Vec2i pos);
+	void forceQuadCacheUpdate();
+	void renderVisibleMarkedCells();
+	void renderMarkedCellsOnMinimap();
+
 	void removeObjectFromQuadCache(const Object *o);
 	void removeUnitFromQuadCache(const Unit *unit);
 

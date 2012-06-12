@@ -979,4 +979,39 @@ void NetworkMessageLoadingStatus::send(Socket* socket) const
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
+// =====================================================
+//	class NetworkMessageMarkCell
+// =====================================================
+
+NetworkMessageMarkCell::NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text) {
+	if(text.length() >= maxTextStringSize) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
+	}
+
+	data.messageType	= nmtMarkCell;
+	data.text			= text;
+	data.targetX		= target.x;
+	data.targetY		= target.y;
+	data.factionIndex 	= factionIndex;
+}
+
+NetworkMessageMarkCell * NetworkMessageMarkCell::getCopy() const {
+	NetworkMessageMarkCell *copy = new NetworkMessageMarkCell();
+	copy->data = this->data;
+	return copy;
+}
+
+bool NetworkMessageMarkCell::receive(Socket* socket){
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	data.text.nullTerminate();
+	return result;
+}
+
+void NetworkMessageMarkCell::send(Socket* socket) const{
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
+
+	assert(data.messageType == nmtMarkCell);
+	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
 }}//end namespace
