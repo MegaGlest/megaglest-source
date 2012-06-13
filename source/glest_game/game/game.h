@@ -149,12 +149,15 @@ private:
 	int saveGamePopupMenuIndex;
 	int loadGamePopupMenuIndex;
 	int markCellPopupMenuIndex;
+	int unmarkCellPopupMenuIndex;
 	int keyboardSetupPopupMenuIndex;
 	//GLuint statelist3dMenu;
 	ProgramState *currentUIState;
 
 	bool isMarkCellEnabled;
 	Texture2D *markCellTexture;
+	bool isUnMarkCellEnabled;
+	Texture2D *unmarkCellTexture;
 	std::map<Vec2i, MarkedCell> mapMarkedCellList;
 	bool masterserverMode;
 
@@ -179,6 +182,9 @@ public:
 
     bool isMarkCellMode() const { return isMarkCellEnabled; }
     const Texture2D * getMarkCellTexture() const { return markCellTexture; }
+    bool isUnMarkCellMode() const { return isUnMarkCellEnabled; }
+    const Texture2D * getUnMarkCellTexture() const { return unmarkCellTexture; }
+
     std::map<Vec2i, MarkedCell> getMapMarkedCellList() const { return mapMarkedCellList; }
 
     bool isMasterserverMode() const { return masterserverMode; }
@@ -306,6 +312,7 @@ private:
 	void renderVideoPlayer();
 
 	void updateNetworkMarkedCells();
+	void updateNetworkUnMarkedCells();
 };
 
 }}//end namespace

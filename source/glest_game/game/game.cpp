@@ -115,10 +115,13 @@ Game::Game() : ProgramState(NULL) {
 	saveGamePopupMenuIndex = -1;
 	loadGamePopupMenuIndex = -1;
 	markCellPopupMenuIndex = -1;
+	unmarkCellPopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 
 	isMarkCellEnabled = false;
 	markCellTexture = NULL;
+	isUnMarkCellEnabled = false;
+	unmarkCellTexture = NULL;
 
 	masterserverMode = false;
 	currentUIState=NULL;
@@ -167,10 +170,13 @@ void Game::resetMembers() {
 	saveGamePopupMenuIndex = -1;
 	loadGamePopupMenuIndex = -1;
 	markCellPopupMenuIndex = -1;
+	unmarkCellPopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 
 	isMarkCellEnabled = false;
 	markCellTexture = NULL;
+	isUnMarkCellEnabled = false;
+	unmarkCellTexture = NULL;
 
 	currentUIState = NULL;
 
@@ -741,6 +747,8 @@ void Game::load(int loadTypes) {
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	const string markCellTextureFilename = data_path + "data/core/misc_textures/mark_cell.png";
 	markCellTexture = Renderer::findFactionLogoTexture(markCellTextureFilename);
+	const string unmarkCellTextureFilename = data_path + "data/core/misc_textures/unmark_cell.png";
+	unmarkCellTexture = Renderer::findFactionLogoTexture(unmarkCellTextureFilename);
 
     string scenarioDir = "";
     if(gameSettings.getScenarioDir() != "") {
@@ -1153,6 +1161,8 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 
 		menuItems.push_back(lang.get("MarkCell"));
 		markCellPopupMenuIndex = menuItems.size()-1;
+		menuItems.push_back(lang.get("UnMarkCell"));
+		unmarkCellPopupMenuIndex = menuItems.size()-1;
 
 		if(allowAdminMenuItems == true){
 			menuItems.push_back(lang.get("PauseResumeGame"));
@@ -1383,6 +1393,7 @@ void Game::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		updateNetworkMarkedCells();
+		updateNetworkUnMarkedCells();
 
 		//check for quiting status
 		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
@@ -1567,6 +1578,33 @@ void Game::updateNetworkMarkedCells() {
 				Map *map= world.getMap();
 				Vec2i surfaceCellPos = map->toSurfCoords(mc.getTargetPos());
 				mapMarkedCellList[surfaceCellPos] = mc;
+			}
+		}
+	}
+	catch(const std::exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+}
+
+void Game::updateNetworkUnMarkedCells() {
+	try {
+		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+
+		if(gameNetworkInterface != NULL &&
+				gameNetworkInterface->getUnMarkedCellList(false).empty() == false) {
+			Lang &lang= Lang::getInstance();
+
+			std::vector<UnMarkedCell> chatList = gameNetworkInterface->getUnMarkedCellList(true);
+			for(int idx = 0; idx < chatList.size(); idx++) {
+				UnMarkedCell mc = chatList[idx];
+				mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex()));
+
+				Map *map= world.getMap();
+				Vec2i surfaceCellPos = map->toSurfCoords(mc.getTargetPos());
+				mapMarkedCellList.erase(surfaceCellPos);
 			}
 		}
 	}
@@ -1916,6 +1954,7 @@ void Game::mouseDownLeft(int x, int y) {
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		bool messageBoxClick= false;
 		bool originalIsMarkCellEnabled = isMarkCellEnabled;
+		bool originalIsUnMarkCellEnabled = isUnMarkCellEnabled;
 
 		if(popupMenu.mouseClick(x, y)) {
 			std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
@@ -2014,6 +2053,9 @@ void Game::mouseDownLeft(int x, int y) {
 			}
 			else if(result.first == markCellPopupMenuIndex) {
 				isMarkCellEnabled = true;
+			}
+			else if(result.first == unmarkCellPopupMenuIndex) {
+				isUnMarkCellEnabled = true;
 			}
 		}
 		else if(popupMenuSwitchTeams.mouseClick(x, y)) {
@@ -2119,6 +2161,30 @@ void Game::mouseDownLeft(int x, int y) {
 						//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
 						renderer.forceQuadCacheUpdate();
 					}
+					if(originalIsUnMarkCellEnabled == true && isUnMarkCellEnabled == true) {
+						Vec2i surfaceCellPos = map->toSurfCoords(Vec2i(xCell,yCell));
+						SurfaceCell *sc = map->getSurfaceCell(surfaceCellPos);
+						Vec3f vertex = sc->getVertex();
+						Vec2i targetPos(vertex.x,vertex.z);
+
+						//MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
+						//mapMarkedCellList[surfaceCellPos] = mc;
+						if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
+							MarkedCell mc = mapMarkedCellList[surfaceCellPos];
+							if(mc.getFaction() == world.getThisFaction()) {
+								mapMarkedCellList.erase(surfaceCellPos);
+								GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+								gameNetworkInterface->sendUnMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex());
+							}
+						}
+						//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+
+						isUnMarkCellEnabled = false;
+
+						Renderer &renderer= Renderer::getInstance();
+						//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
+						renderer.forceQuadCacheUpdate();
+					}
 				}
 			}
 			//display panel
@@ -2153,6 +2219,32 @@ void Game::mouseDownLeft(int x, int y) {
 
 					isMarkCellEnabled = false;
 
+					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
+					renderer.forceQuadCacheUpdate();
+				}
+
+				if(originalIsUnMarkCellEnabled == true && isUnMarkCellEnabled == true) {
+					Vec2i targetPos;
+					Vec2i screenPos(x,y);
+					Renderer &renderer= Renderer::getInstance();
+					renderer.computePosition(screenPos, targetPos);
+					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
+
+					//MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
+					//mapMarkedCellList[surfaceCellPos] = mc;
+					if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
+						MarkedCell mc = mapMarkedCellList[surfaceCellPos];
+						if(mc.getFaction() == world.getThisFaction()) {
+							mapMarkedCellList.erase(surfaceCellPos);
+							GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+							gameNetworkInterface->sendUnMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex());
+						}
+					}
+					//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+
+					isUnMarkCellEnabled = false;
+
+					//Renderer &renderer= Renderer::getInstance();
 					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
 					renderer.forceQuadCacheUpdate();
 				}

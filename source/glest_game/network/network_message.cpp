@@ -1014,4 +1014,33 @@ void NetworkMessageMarkCell::send(Socket* socket) const{
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
+// =====================================================
+//	class NetworkMessageUnMarkCell
+// =====================================================
+
+NetworkMessageUnMarkCell::NetworkMessageUnMarkCell(Vec2i target, int factionIndex) {
+	data.messageType	= nmtUnMarkCell;
+	data.targetX		= target.x;
+	data.targetY		= target.y;
+	data.factionIndex 	= factionIndex;
+}
+
+NetworkMessageUnMarkCell * NetworkMessageUnMarkCell::getCopy() const {
+	NetworkMessageUnMarkCell *copy = new NetworkMessageUnMarkCell();
+	copy->data = this->data;
+	return copy;
+}
+
+bool NetworkMessageUnMarkCell::receive(Socket* socket){
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	return result;
+}
+
+void NetworkMessageUnMarkCell::send(Socket* socket) const{
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtUnMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
+
+	assert(data.messageType == nmtUnMarkCell);
+	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
 }}//end namespace
