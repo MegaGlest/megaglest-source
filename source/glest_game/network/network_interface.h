@@ -115,6 +115,34 @@ public:
 	string getNote() const { return note; }
 };
 
+class UnMarkedCell {
+protected:
+	Vec2i targetPos;
+	const Faction *faction;
+	int factionIndex;
+
+public:
+	UnMarkedCell() {
+		faction = NULL;
+		factionIndex = -1;
+	}
+	UnMarkedCell(Vec2i targetPos,const Faction *faction) {
+		this->targetPos = targetPos;
+		this->faction = faction;
+		this->factionIndex = -1;
+	}
+	UnMarkedCell(Vec2i targetPos,int factionIndex) {
+		this->targetPos = targetPos;
+		this->faction = NULL;
+		this->factionIndex = factionIndex;
+	}
+
+	Vec2i getTargetPos() const { return targetPos; }
+	const Faction * getFaction() const { return faction; }
+	void setFaction(const Faction *faction) { this->faction = faction; }
+	int getFactionIndex() const { return factionIndex; }
+};
+
 typedef int (*DisplayMessageFunction)(const char *msg, bool exit);
 
 class NetworkInterface {
@@ -131,6 +159,7 @@ protected:
 	std::vector<ChatMsgInfo> chatTextList;
 	NetworkMessagePing lastPingInfo;
 	std::vector<MarkedCell> markedCellList;
+	std::vector<UnMarkedCell> unmarkedCellList;
 
 	static DisplayMessageFunction pCB_DisplayMessage;
 	void DisplayErrorMessage(string sErr, bool closeSocket=true);
@@ -186,6 +215,10 @@ public:
 	void clearMarkedCellList();
 	void addMarkedCell(const MarkedCell &msg) { markedCellList.push_back(msg); }
 
+    std::vector<UnMarkedCell> getUnMarkedCellList(bool clearList);
+	void clearUnMarkedCellList();
+	void addUnMarkedCell(const UnMarkedCell &msg) { unmarkedCellList.push_back(msg); }
+
 	virtual bool getConnectHasHandshaked() const= 0;
 
 	NetworkMessagePing getLastPingInfo() const { return lastPingInfo; }
@@ -239,6 +272,7 @@ public:
 	virtual void quitGame(bool userManuallyQuit)=0;
 
 	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note) = 0;
+	virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) = 0;
 
 	//misc
 	virtual string getNetworkStatus() = 0;

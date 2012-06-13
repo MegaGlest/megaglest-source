@@ -44,6 +44,7 @@ enum NetworkMessageType {
 	nmtPlayerIndexMessage,
 	nmtLoadingStatusMessage,
 	nmtMarkCell,
+	nmtUnMarkCell,
 
 	nmtCount
 };
@@ -731,7 +732,7 @@ public:
 
 
 // =====================================================
-//	class NetworkMessageText
+//	class NetworkMessageMarkCell
 //
 //	Mark a Cell message nmtMarkCell
 // =====================================================
@@ -765,6 +766,40 @@ public:
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 	NetworkMessageMarkCell * getCopy() const;
+};
+#pragma pack(pop)
+
+// =====================================================
+//	class NetworkUnMessageMarkCell
+//
+//	Mark a Cell message nmtUnMarkCell
+// =====================================================
+
+#pragma pack(push, 1)
+class NetworkMessageUnMarkCell: public NetworkMessage {
+
+private:
+	struct Data{
+		int8 messageType;
+
+		int16 targetX;
+		int16 targetY;
+		int8 factionIndex;
+	};
+
+private:
+	Data data;
+
+public:
+	NetworkMessageUnMarkCell(){}
+	NetworkMessageUnMarkCell(Vec2i target, int factionIndex);
+
+	Vec2i getTarget() const		{ return Vec2i(data.targetX,data.targetY); }
+	int getFactionIndex() const  { return data.factionIndex; }
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+	NetworkMessageUnMarkCell * getCopy() const;
 };
 #pragma pack(pop)
 

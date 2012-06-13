@@ -1611,6 +1611,10 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 			const Texture2D *texture= game->getMarkCellTexture();
 			renderTextureQuad(x-18,y-50,32,32,texture,0.8f);
 		}
+		if(game->isUnMarkCellMode() == true) {
+			const Texture2D *texture= game->getUnMarkCellTexture();
+			renderTextureQuad(x-18,y-50,32,32,texture,0.8f);
+		}
 	}
 
 	float color1 = 0.0, color2 = 0.0;

@@ -484,6 +484,18 @@ void ClientInterface::updateLobby() {
             }
         }
         break;
+        case nmtUnMarkCell:
+        {
+        	NetworkMessageUnMarkCell networkMessageMarkCell;
+            if(receiveMessage(&networkMessageMarkCell)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtMarkCell\n",__FILE__,__FUNCTION__);
+
+            	UnMarkedCell msg(networkMessageMarkCell.getTarget(),
+            			       networkMessageMarkCell.getFactionIndex());
+        		this->addUnMarkedCell(msg);
+            }
+        }
+        break;
 
         case nmtLaunch:
         case nmtBroadCastSetup:
@@ -696,6 +708,19 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		            			       networkMessageMarkCell.getFactionIndex(),
 		            			       networkMessageMarkCell.getText().c_str());
 		        		this->addMarkedCell(msg);
+		            }
+		        }
+		        break;
+
+		        case nmtUnMarkCell:
+		        {
+		        	NetworkMessageUnMarkCell networkMessageMarkCell;
+		            if(receiveMessage(&networkMessageMarkCell)) {
+		            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtMarkCell\n",__FILE__,__FUNCTION__);
+
+		            	UnMarkedCell msg(networkMessageMarkCell.getTarget(),
+		            			       networkMessageMarkCell.getFactionIndex());
+		        		this->addUnMarkedCell(msg);
 		            }
 		        }
 		        break;
@@ -1200,6 +1225,14 @@ void ClientInterface::sendMarkCellMessage(Vec2i targetPos, int factionIndex, str
 	sendMessage(&networkMessageMarkCell);
 }
 
+void ClientInterface::sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) {
+	string humanPlayerName = getHumanPlayerName();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] humanPlayerName = [%s] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,humanPlayerName.c_str(),playerIndex);
+
+	NetworkMessageUnMarkCell networkMessageMarkCell(targetPos,factionIndex);
+	sendMessage(&networkMessageMarkCell);
+}
+
 void ClientInterface::sendPingMessage(int32 pingFrequency, int64 pingTime) {
 	NetworkMessagePing networkMessagePing(pingFrequency,pingTime);
 	sendMessage(&networkMessagePing);
@@ -1398,6 +1431,18 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 						   networkMessageMarkCell.getFactionIndex(),
 						   networkMessageMarkCell.getText().c_str());
 			this->addMarkedCell(msg);
+			}
+			break;
+
+        case nmtUnMarkCell:
+			{
+			discard = true;
+			NetworkMessageUnMarkCell networkMessageMarkCell;
+			receiveMessage(&networkMessageMarkCell);
+
+			UnMarkedCell msg(networkMessageMarkCell.getTarget(),
+						   networkMessageMarkCell.getFactionIndex());
+			this->addUnMarkedCell(msg);
 			}
 			break;
 
