@@ -62,6 +62,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	broadcastServerSettingsDelayTimer=0;
 	lastGameSettingsReceivedCount=0;
 
+	soundConnectionCount=0;
+
 	this->factionVideo = NULL;
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
@@ -404,6 +406,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonRestoreLastSettings.init(480, 180, 220);
 	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
 
+	// write hint to console:
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+	console.addLine(lang.get("To switch off music press") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
 	chatManager.init(&console, -1,true);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
@@ -2532,6 +2538,27 @@ void MenuStateConnectedGame::update() {
 			//console732
             console.update();
 
+            // check for need to switch music on again
+			GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
+			int currentConnectionCount=0;
+			for(int i=0; i < GameConstants::maxPlayers; ++i) {
+				if(gameSettings->getNetworkPlayerName(i) != "" &&
+						gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)
+				{
+					currentConnectionCount++;
+				}
+			}
+    		if(currentConnectionCount > soundConnectionCount){
+    			soundConnectionCount = currentConnectionCount;
+    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+    			//switch on music again!!
+    			Config &config = Config::getInstance();
+    			float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+    			CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+    		}
+    		soundConnectionCount = currentConnectionCount;
+
+
 		}
 		catch(const runtime_error &ex) {
 			char szBuf[8096]="";
@@ -2706,6 +2733,23 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 			//if(key == configKeys.getCharKey("ShowFullConsole")) {
 			if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 				showFullConsole= true;
+			}
+			else if(isKeyPressed(configKeys.getSDLKey("ToggleMusic"),key) == true) {
+				Config &config = Config::getInstance();
+				Lang &lang= Lang::getInstance();
+
+				float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+				float currentVolume = CoreData::getInstance().getMenuMusic()->getVolume();
+				if(currentVolume > 0) {
+					CoreData::getInstance().getMenuMusic()->setVolume(0.f);
+					console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+				}
+				else {
+					CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+					//If the config says zero, use the default music volume
+					//gameMusic->setVolume(configVolume ? configVolume : 0.9);
+					console.addLine(lang.get("GameMusic"));
+				}
 			}
 			//else if(key == configKeys.getCharKey("SaveGUILayout")) {
 			else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
