@@ -103,6 +103,8 @@ private:
 	time_t lastSetChangedGameSettings;
 	bool updateDataSynchDetailText;
 
+	int soundConnectionCount;
+
 	//Console console;
 	ChatManager chatManager;
 	bool showFullConsole;
