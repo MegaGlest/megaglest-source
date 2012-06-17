@@ -733,6 +733,13 @@ void Game::load(int loadTypes) {
 	string tilesetName= gameSettings.getTileset();
 	string techName= gameSettings.getTech();
 	string scenarioName= gameSettings.getScenario();
+	string data_path= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	// loadHints
+
+		if(data_path != ""){
+			endPathWithSlash(data_path);
+		}
+	logger.loadGameHints(getGameCustomCoreDataPath(data_path, "data/core/hint/hint_english.lng"));
 
 	if((loadTypes & lgt_FactionPreview) == lgt_FactionPreview) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -742,9 +749,10 @@ void Game::load(int loadTypes) {
 		SDL_PumpEvents();
 	}
 
+
+
 	loadHudTexture(&gameSettings);
 
-	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	const string markCellTextureFilename = data_path + "data/core/misc_textures/mark_cell.png";
 	markCellTexture = Renderer::findFactionLogoTexture(markCellTextureFilename);
 	const string unmarkCellTextureFilename = data_path + "data/core/misc_textures/unmark_cell.png";
