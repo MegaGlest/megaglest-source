@@ -19,6 +19,7 @@
 #include "util.h"
 #include "platform_common.h"
 #include "platform_util.h"
+#include "randomgen.h"
 
 #ifdef WIN32
 #include <shlwapi.h>
@@ -416,6 +417,21 @@ const string Properties::getString(const string &key, const char *defaultValueIf
 	}
 }
 
+const string Properties::getRandomString(const bool realrandom) const{
+	PropertyMap::const_iterator it;
+	int max=getPropertyCount();
+	int randomIndex=-1;
+	if(realrandom == true){
+		randomIndex=rand()%max;
+	}
+	else{
+		RandomGen randgen;
+		randomIndex=randgen.randRange(0,max);
+	}
+	string s=getString(randomIndex);
+	return (s != "" ? s : "nothing found");
+}
+
 bool Properties::hasString(const string &key) const {
 	PropertyMap::const_iterator it;
 	it= propertyMap.find(key);
@@ -450,9 +466,6 @@ string Properties::toString(){
 
 	return rStr;
 }
-
-
-
 
 bool Properties::getBool(const char *key, const char *defaultValueIfNotFound) const{
 	try{

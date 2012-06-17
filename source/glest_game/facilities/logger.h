@@ -21,12 +21,14 @@
 #include <deque>
 
 #include "texture.h"
+#include "properties.h"
 #include "components.h"
 #include "leak_dumper.h"
 
 using std::string;
 using std::deque;
 using Shared::Graphics::Texture2D;
+using Shared::Util::Properties;
 
 namespace Glest{ namespace Game{
 
@@ -49,6 +51,8 @@ private:
 	string subtitle;
 	string current;
 	Texture2D *loadingTexture;
+	Properties gameHints;
+	string gameHintToShow;
 	int progress;
 	bool showProgressBar;
 
@@ -77,6 +81,7 @@ public:
 
 	void add(const string str, bool renderScreen= false, const string statusText="");
 	void loadLoadingScreen(string filepath);
+	void loadGameHints(string filepath);
 	void renderLoadingScreen();
 
 	void setCancelLoadingEnabled(bool value);

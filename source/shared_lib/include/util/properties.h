@@ -73,6 +73,7 @@ public:
 	bool getBool(const char *key,const char *defaultValueIfNotFound=NULL) const;
 	float getFloat(const char *key,const char *defaultValueIfNotFound=NULL) const;
 	const string getString(const char *key,const char *defaultValueIfNotFound=NULL) const;
+	const string getRandomString(const bool realrandom) const;
 
 	void setInt(const string &key, int value);
 	void setBool(const string &key, bool value);
