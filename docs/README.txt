@@ -31,6 +31,7 @@ Hardware requirements:
 * Graphics chip supporting OpenGL 1.3 with GL_ARB_env_crossbar and shader
   extensions (=OpenGL 1.4 or glUseProgramObjectARB etc.) or higher
   (dedicated video card with hardware 3D acceleration recommended)
+* 256 MB video memory (either dedicated or shared)
 * Audio chip supporting OpenAL
 
 Software requirements:
