@@ -52,6 +52,7 @@ private:
 	string current;
 	Texture2D *loadingTexture;
 	Properties gameHints;
+	Properties gameHintsTranslation;
 	string gameHintToShow;
 	int progress;
 	bool showProgressBar;
@@ -81,13 +82,14 @@ public:
 
 	void add(const string str, bool renderScreen= false, const string statusText="");
 	void loadLoadingScreen(string filepath);
-	void loadGameHints(string filepath);
+	void loadGameHints(string filePathEnglish,string filePathTranslation,bool clearList);
 	void renderLoadingScreen();
 
 	void setCancelLoadingEnabled(bool value);
 	bool getCancelLoading() const { return cancelSelected; }
 	void setCancelLoading(bool value) { cancelSelected = value; }
 	void handleMouseClick(int x, int y);
+	void clearHints();
 
 	void clear();
 

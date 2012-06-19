@@ -264,6 +264,7 @@ void Game::endGame() {
     Logger &logger= Logger::getInstance();
 	Renderer &renderer= Renderer::getInstance();
 
+	logger.clearHints();
 	logger.loadLoadingScreen("");
 	logger.setState(Lang::getInstance().get("Deleting"));
 	//logger.add("Game", true);
@@ -739,7 +740,19 @@ void Game::load(int loadTypes) {
 		if(data_path != ""){
 			endPathWithSlash(data_path);
 		}
-	logger.loadGameHints(getGameCustomCoreDataPath(data_path, "data/core/hint/hint_english.lng"));
+		string englishFile=getGameCustomCoreDataPath(data_path, "data/core/hint/hint_"+Lang::getInstance().getDefaultLanguage()+".lng");
+		string languageFile=getGameCustomCoreDataPath(data_path, "data/core/hint/hint_"+ Lang::getInstance().getLanguage() +".lng");
+		if(fileExists(languageFile) == false){
+			// if there is no language specific file use english instead
+			languageFile=englishFile;
+		}
+		if(fileExists(englishFile) == false){
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] file [%s] not found\n",__FILE__,__FUNCTION__,__LINE__,englishFile.c_str());
+		} else {
+			logger.loadGameHints(englishFile,languageFile,true);
+		}
+
+
 
 	if((loadTypes & lgt_FactionPreview) == lgt_FactionPreview) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
