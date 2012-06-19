@@ -417,7 +417,7 @@ const string Properties::getString(const string &key, const char *defaultValueIf
 	}
 }
 
-const string Properties::getRandomString(const bool realrandom) const{
+const string Properties::getRandomKey(const bool realrandom) const{
 	PropertyMap::const_iterator it;
 	int max=getPropertyCount();
 	int randomIndex=-1;
@@ -428,7 +428,7 @@ const string Properties::getRandomString(const bool realrandom) const{
 		RandomGen randgen;
 		randomIndex=randgen.randRange(0,max);
 	}
-	string s=getString(randomIndex);
+	string s=getKey(randomIndex);
 	return (s != "" ? s : "nothing found");
 }
 

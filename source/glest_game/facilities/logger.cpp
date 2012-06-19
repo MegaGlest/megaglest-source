@@ -115,19 +115,48 @@ void Logger::loadLoadingScreen(string filepath) {
 	}
 }
 
-void Logger::loadGameHints(string filepath) {
+void Logger::loadGameHints(string filePathEnglish,string filePathTranslation,bool clearList) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	if(filepath == "") {
+	if((filePathEnglish == "") || (filePathTranslation == "")) {
 		return;
 	}
 	else {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
-		gameHints.load(filepath,false);
-		gameHintToShow=gameHints.getRandomString(true);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filePathEnglish = [%s]\n filePathTranslation = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filePathEnglish.c_str(),filePathTranslation.c_str());
+		gameHints.load(filePathEnglish,clearList);
+		gameHintsTranslation.load(filePathTranslation,clearList);
+		string key=gameHints.getRandomKey(true);
+		string tmpString=gameHintsTranslation.getString(key,"");
+		if(tmpString!=""){
+			gameHintToShow=tmpString;
+		}
+		else {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] key [%s] not found for [%s] hint translation\n",__FILE__,__FUNCTION__,__LINE__,key.c_str(),Lang::getInstance().getLanguage().c_str());
+			tmpString=gameHints.getString(key,"");
+			if(tmpString!=""){
+				gameHintToShow=tmpString;
+			}
+			else {
+				gameHintToShow="Problems to resolve hint key '"+key+"'";
+			}
+		}
 		replaceAll(gameHintToShow, "\\n", "\n");
+
+		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+		vector<pair<string,string> > mergedKeySettings = configKeys.getMergedProperties();
+		for(unsigned int j = 0; j < mergedKeySettings.size(); ++j) {
+            pair<string,string> &property = mergedKeySettings[j];
+            replaceAll(gameHintToShow, "#"+property.first+"#", property.second);
+		}
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+}
+
+void Logger::clearHints() {
+	gameHintToShow="";
+	gameHints.clear();
+	gameHintsTranslation.clear();
 }
 
 void Logger::handleMouseClick(int x, int y) {
