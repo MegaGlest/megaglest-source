@@ -208,10 +208,12 @@ void MainMenu::mouseMove(int x, int y, const MouseState *ms){
 
 //returns if exiting
 void MainMenu::mouseDownLeft(int x, int y){
+	if(GraphicComponent::getFade()<0.2f) return;
 	state->mouseClick(x, y, mbLeft);
 }
 
 void MainMenu::mouseDownRight(int x, int y){
+	if(GraphicComponent::getFade()<0.2f) return;
 	state->mouseClick(x, y, mbRight);
 }
 
