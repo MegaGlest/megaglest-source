@@ -496,7 +496,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				this->clearChatInfo();
 
 				bool gotTextMsg = true;
-				for(;this->hasDataToRead() == true && gotTextMsg == true;) {
+				bool gotCellMarkerMsg = true;
+				for(;this->hasDataToRead() == true &&
+					  (gotTextMsg == true || gotCellMarkerMsg == true);) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
 					NetworkMessageType networkMessageType= getNextMessageType();
@@ -504,6 +506,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkMessageType = %d\n",__FILE__,__FUNCTION__,__LINE__,networkMessageType);
 
 					gotTextMsg = false;
+					gotCellMarkerMsg = false;
 					//process incoming commands
 					switch(networkMessageType) {
 
@@ -572,7 +575,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					            			       networkMessageMarkCell.getText().c_str());
 
 					            	this->addMarkedCell(msg);
-									//gotTextMsg = true;
+					            	gotCellMarkerMsg = true;
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
@@ -601,7 +604,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					            			       networkMessageMarkCell.getFactionIndex());
 
 					            	this->addUnMarkedCell(msg);
-									//gotTextMsg = true;
+					            	gotCellMarkerMsg = true;
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
