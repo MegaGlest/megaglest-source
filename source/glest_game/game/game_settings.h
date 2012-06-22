@@ -88,6 +88,8 @@ private:
     int aiAcceptSwitchTeamPercentChance;
     int masterserver_admin;
 
+    int masterserver_admin_factionIndex;
+
 public:
 
     static string playerDisconnectedText;
@@ -128,6 +130,7 @@ public:
 		factionCRCList.clear();
 		aiAcceptSwitchTeamPercentChance = 30;
 		masterserver_admin = -1;
+		masterserver_admin_factionIndex = -1;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -264,6 +267,9 @@ public:
 	int getMasterserver_admin() const 								{ return masterserver_admin;}
 	void setMasterserver_admin(int value)							{ masterserver_admin = value; }
 
+	int getMasterserver_admin_faction_index() const 								{ return masterserver_admin_factionIndex;}
+	void setMasterserver_admin_faction_index(int value)							{ masterserver_admin_factionIndex = value; }
+
 	string toString() const {
 		string result = "";
 
@@ -310,6 +316,7 @@ public:
 
 		result += "aiAcceptSwitchTeamPercentChance = " + intToStr(aiAcceptSwitchTeamPercentChance) + "\n";
 		result += "masterserver_admin = " + intToStr(masterserver_admin) + "\n";
+		result += "masterserver_admin_factionIndex = " + intToStr(masterserver_admin_factionIndex) + "\n";
 
 		return result;
 	}
@@ -434,6 +441,8 @@ public:
 		gameSettingsNode->addAttribute("aiAcceptSwitchTeamPercentChance",intToStr(aiAcceptSwitchTeamPercentChance), mapTagReplacements);
 //	    int masterserver_admin;
 		gameSettingsNode->addAttribute("masterserver_admin",intToStr(masterserver_admin), mapTagReplacements);
+
+		gameSettingsNode->addAttribute("masterserver_admin_factionIndex",intToStr(masterserver_admin_factionIndex), mapTagReplacements);
 	}
 
 	void loadGame(const XmlNode *rootNode) {
@@ -559,6 +568,10 @@ public:
 		aiAcceptSwitchTeamPercentChance = gameSettingsNode->getAttribute("aiAcceptSwitchTeamPercentChance")->getIntValue();
 //	    int masterserver_admin;
 		masterserver_admin = gameSettingsNode->getAttribute("masterserver_admin")->getIntValue();
+
+		if(gameSettingsNode->hasAttribute("masterserver_admin_factionIndex") == true) {
+			masterserver_admin_factionIndex = gameSettingsNode->getAttribute("masterserver_admin_factionIndex")->getIntValue();
+		}
 	}
 
 };

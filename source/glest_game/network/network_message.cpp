@@ -182,6 +182,7 @@ NetworkMessageLaunch::NetworkMessageLaunch() {
 	}
 	data.aiAcceptSwitchTeamPercentChance = 0;
 	data.masterserver_admin = -1;
+	data.masterserver_admin_factionIndex = -1;
 }
 
 NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType) {
@@ -244,6 +245,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 
 	data.aiAcceptSwitchTeamPercentChance = gameSettings->getAiAcceptSwitchTeamPercentChance();
 	data.masterserver_admin = gameSettings->getMasterserver_admin();
+	data.masterserver_admin_factionIndex = gameSettings->getMasterserver_admin_faction_index();
 
 	data.scenario = gameSettings->getScenario();
 }
@@ -294,6 +296,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 
 	gameSettings->setAiAcceptSwitchTeamPercentChance(data.aiAcceptSwitchTeamPercentChance);
 	gameSettings->setMasterserver_admin(data.masterserver_admin);
+	gameSettings->setMasterserver_admin_faction_index(data.masterserver_admin_factionIndex);
 
 	gameSettings->setScenario(data.scenario.getString());
 }

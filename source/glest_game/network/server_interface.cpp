@@ -1296,6 +1296,8 @@ void ServerInterface::update() {
 				sendTextMessage(sMsg,-1, true,"");
 
 				this->gameSettings.setMasterserver_admin(slots[iFirstConnectedSlot]->getSessionKey());
+				this->gameSettings.setMasterserver_admin_faction_index(slots[iFirstConnectedSlot]->getPlayerIndex());
+
 				this->broadcastGameSetup(&this->gameSettings);
 			}
 		}
