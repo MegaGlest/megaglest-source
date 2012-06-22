@@ -219,7 +219,7 @@ public:
 
 	bool toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const;
 	bool toRenderUnit(const Unit *unit) const;
-	bool toRenderUnit(const Unit *unit, std::pair<Vec2i, const UnitType *> pendingUnit) const;
+	bool toRenderUnit(const UnitBuildInfo &pendingUnit) const;
 
 
 	Unit *nearestStore(const Vec2i &pos, int factionIndex, const ResourceType *rt);

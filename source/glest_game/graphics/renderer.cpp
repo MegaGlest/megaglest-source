@@ -394,7 +394,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 	SurfaceData::nextUniqueId = 1;
 	mapSurfaceData.clear();
 	this->game= game;
-	//worldToScreenPosCache.clear();
+	worldToScreenPosCache.clear();
 
 	//vars
 	shadowMapFrame= 0;
@@ -637,7 +637,7 @@ void Renderer::endScenario() {
 	//	list3dValid=false;
 	//}
 
-	//worldToScreenPosCache.clear();
+	worldToScreenPosCache.clear();
 	ReleaseSurfaceVBOs();
 	mapSurfaceData.clear();
 }
@@ -680,7 +680,7 @@ void Renderer::endGame(bool isFinalEnd) {
 	//	list3dValid=false;
 	//}
 
-	//worldToScreenPosCache.clear();
+	worldToScreenPosCache.clear();
 	ReleaseSurfaceVBOs();
 	mapSurfaceData.clear();
 }
@@ -1755,7 +1755,9 @@ void Renderer::renderMouse3d() {
 			modelRenderer->begin(true, true, false);
 
 			const UnitType *building= gui->getBuilding();
-			renderGhostModel(building, pos);
+			const Gui *gui= game->getGui();
+
+			renderGhostModel(building, pos, gui->getSelectedFacing());
 
 			modelRenderer->end();
 
@@ -4593,7 +4595,7 @@ void Renderer::renderTeamColorPlane(){
 	}
 }
 
-void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,Vec4f *forceColor) {
+void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,CardinalDir facing, Vec4f *forceColor) {
 	//const UnitType *building= gui->getBuilding();
 	//const Vec2i &pos= gui->getPosObjWorld();
 
@@ -4631,8 +4633,8 @@ void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,Vec4f 
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
 	Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
 
-	if(gui->getSelectedFacing() != CardinalDir::NORTH) {
-		float rotateAmount = gui->getSelectedFacing() * 90.f;
+	if(facing != CardinalDir::NORTH) {
+		float rotateAmount = facing * 90.f;
 		if(rotateAmount > 0) {
 			glRotatef(rotateAmount, 0.f, 1.f, 0.f);
 		}
@@ -4772,7 +4774,6 @@ void Renderer::renderUnitsToBuild(const int renderFps) {
 
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitBuildList.empty() == false) {
-		Vec4f modelColor= Vec4f(0.f, 1.f, 0.f, 0.5f);
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushAttrib(GL_CURRENT_BIT | GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
@@ -4786,8 +4787,11 @@ void Renderer::renderUnitsToBuild(const int renderFps) {
 
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < qCache.visibleQuadUnitBuildList.size(); ++visibleUnitIndex) {
-			std::pair<Vec2i, const UnitType *> &buildUnit = qCache.visibleQuadUnitBuildList[visibleUnitIndex];
-			renderGhostModel(buildUnit.second, buildUnit.first,&modelColor);
+			const UnitBuildInfo &buildUnit = qCache.visibleQuadUnitBuildList[visibleUnitIndex];
+			//Vec4f modelColor= Vec4f(0.f, 1.f, 0.f, 0.5f);
+			const Vec3f teamColor = buildUnit.unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0);
+			Vec4f modelColor= Vec4f(teamColor.x,teamColor.y,teamColor.z,0.5f);
+			renderGhostModel(buildUnit.buildUnit, buildUnit.pos, buildUnit.facing, &modelColor);
 
 			//printf("Rendering to build unit index = %d\n",visibleUnitIndex);
 		}
@@ -6105,9 +6109,9 @@ bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos, bool exa
 
 // This method takes world co-ordinates and translates them to screen co-ords
 Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
-	//if(worldToScreenPosCache.find(worldPos) != worldToScreenPosCache.end()) {
-	//	return worldToScreenPosCache[worldPos];
-	//}
+	if(worldToScreenPosCache.find(worldPos) != worldToScreenPosCache.end()) {
+		return worldToScreenPosCache[worldPos];
+	}
 	assertGl();
 
 	const Metrics &metrics= Metrics::getInstance();
@@ -6135,7 +6139,7 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 		&screenX, &screenY, &screenZ);
 
 	Vec3f screenPos(screenX,screenY,screenZ);
-	//worldToScreenPosCache[worldPos]=screenPos;
+	worldToScreenPosCache[worldPos]=screenPos;
 
 	return screenPos;
 }
@@ -8055,6 +8059,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 			//}
 			//else {
 			quadCache.clearVolatileCacheData();
+			worldToScreenPosCache.clear();
 			//}
 
 			// Unit calculations
@@ -8097,8 +8102,8 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 					bool unitBuildPending = unit->isBuildCommandPending();
 					if(unitBuildPending == true) {
-						std::pair<Vec2i, const UnitType *> pendingUnit = unit->getBuildCommandPendingInfo();
-						const Vec2i &pos = pendingUnit.first;
+						const UnitBuildInfo &pendingUnit = unit->getBuildCommandPendingInfo();
+						const Vec2i &pos = pendingUnit.pos;
 						const Map *map= world->getMap();
 
 						bool unitBuildCheckedForRender = false;
@@ -8108,8 +8113,8 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 						if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
 							Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 							//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
-							bool insideQuad 	= CubeInFrustum(quadCache.frustumData, pos3f.x, pos3f.y, pos3f.z, pendingUnit.second->getSize());
-							bool renderInMap 	= world->toRenderUnit(unit,pendingUnit);
+							bool insideQuad 	= CubeInFrustum(quadCache.frustumData, pos3f.x, pos3f.y, pos3f.z, pendingUnit.buildUnit->getSize());
+							bool renderInMap 	= world->toRenderUnit(pendingUnit);
 							if(insideQuad == false || renderInMap == false) {
 								if(renderInMap == true) {
 									quadCache.visibleQuadUnitBuildList.push_back(pendingUnit);
@@ -8124,7 +8129,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 						if(unitBuildCheckedForRender == false) {
 							bool insideQuad 	= visibleQuad.isInside(pos);
-							bool renderInMap 	= world->toRenderUnit(unit,pendingUnit);
+							bool renderInMap 	= world->toRenderUnit(pendingUnit);
 							if(insideQuad == true && renderInMap == true) {
 								quadCache.visibleQuadUnitBuildList.push_back(pendingUnit);
 							}

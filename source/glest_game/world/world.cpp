@@ -827,21 +827,21 @@ bool World::toRenderUnit(const Unit *unit) const {
          map.getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->isExplored(thisTeamIndex));
 }
 
-bool World::toRenderUnit(const Unit *unit, std::pair<Vec2i, const UnitType *> pendingUnit) const {
-    if(unit == NULL) {
+bool World::toRenderUnit(const UnitBuildInfo &pendingUnit) const {
+    if(pendingUnit.unit == NULL) {
     	throw megaglest_runtime_error("unit == NULL");
     }
 
     if(showWorldForPlayer(thisFactionIndex) == true) {
         return true;
     }
-    if(unit->getTeam() != thisTeamIndex) {
+    if(pendingUnit.unit->getTeam() != thisTeamIndex) {
     	return false;
     }
 
 	return
-        (map.getSurfaceCell(Map::toSurfCoords(pendingUnit.first))->isVisible(thisTeamIndex) &&
-         map.getSurfaceCell(Map::toSurfCoords(pendingUnit.first))->isExplored(thisTeamIndex) );
+        (map.getSurfaceCell(Map::toSurfCoords(pendingUnit.pos))->isVisible(thisTeamIndex) &&
+         map.getSurfaceCell(Map::toSurfCoords(pendingUnit.pos))->isExplored(thisTeamIndex) );
 }
 
 void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequirements) {
