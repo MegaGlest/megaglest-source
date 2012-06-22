@@ -2225,7 +2225,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 				if(originalIsMarkCellEnabled == true && isMarkCellEnabled == true) {
 					Vec2i targetPos;
-					Vec2i screenPos(x,y);
+					Vec2i screenPos(x,y-60);
 					Renderer &renderer= Renderer::getInstance();
 					renderer.computePosition(screenPos, targetPos);
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
@@ -2246,7 +2246,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 				if(originalIsUnMarkCellEnabled == true && isUnMarkCellEnabled == true) {
 					Vec2i targetPos;
-					Vec2i screenPos(x,y);
+					Vec2i screenPos(x,y-35);
 					Renderer &renderer= Renderer::getInstance();
 					renderer.computePosition(screenPos, targetPos);
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
