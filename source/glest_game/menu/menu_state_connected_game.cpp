@@ -1745,6 +1745,8 @@ void MenuStateConnectedGame::render() {
 
 	    renderer.renderListBox(&listBoxPlayerStatus);
 
+	    NetworkManager &networkManager= NetworkManager::getInstance();
+	    ClientInterface *clientInterface = networkManager.getClientInterface();
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 	    	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
 	    		//printf("Player #%d [%s] control = %d\n",i,labelPlayerNames[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex());
@@ -1763,8 +1765,26 @@ void MenuStateConnectedGame::render() {
 
 			if(crcPlayerTextureCache[i] != NULL) {
 				// Render the player # label the player's color
+				//printf("clientInterface->getGameSettings()->getMasterserver_admin_faction_index() = %d\n",clientInterface->getGameSettings()->getMasterserver_admin_faction_index());
+
 				Vec3f playerColor = crcPlayerTextureCache[i]->getPixmap()->getPixel3f(0, 0);
-				renderer.renderLabel(&labelPlayers[i],&playerColor);
+				if(clientInterface != NULL &&
+					clientInterface->getGameSettings() != NULL &&
+					clientInterface->getGameSettings()->getMasterserver_admin() > 0 &&
+					clientInterface->getGameSettings()->getMasterserver_admin_faction_index() == i) {
+
+					if(difftime(time(NULL),timerLabelFlash) < 1) {
+						renderer.renderLabel(&labelPlayers[i],&playerColor);
+					}
+					else {
+						Vec4f flashColor=Vec4f(playerColor.x, playerColor.y, playerColor.z, 0.45f);
+			            renderer.renderLabel(&labelPlayers[i],&flashColor);
+					}
+
+				}
+				else {
+					renderer.renderLabel(&labelPlayers[i],&playerColor);
+				}
 
 				// Blend the color with white so make it more readable
 				//Vec4f newColor(1.f, 1.f, 1.f, 0.57f);
@@ -1816,9 +1836,6 @@ void MenuStateConnectedGame::render() {
 		}
 		else {
             renderer.renderLabel(&labelDataSynchInfo,&WHITE);
-            if(difftime(time(NULL),timerLabelFlash) > 2) {
-                timerLabelFlash = time(NULL);
-            }
 		}
 
 		renderer.renderLabel(&labelMap);
@@ -1915,6 +1932,10 @@ void MenuStateConnectedGame::render() {
 		}
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
+
+        if(difftime(time(NULL),timerLabelFlash) > 2) {
+            timerLabelFlash = time(NULL);
+        }
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";

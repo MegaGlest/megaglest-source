@@ -3213,6 +3213,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 							(serverInterface->getSlot(i)->getConnectedTime() > 0 && serverInterface->getSlot(i)->getConnectedTime() < clientConnectedTime)) {
 						clientConnectedTime = serverInterface->getSlot(i)->getConnectedTime();
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());
+						gameSettings->setMasterserver_admin_faction_index(serverInterface->getSlot(i)->getPlayerIndex());
 						labelGameName.setText(serverInterface->getSlot(i)->getName()+" controls");
 						//printf("slot = %d, admin key [%d] slot connected time[%lu] clientConnectedTime [%lu]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
 					}

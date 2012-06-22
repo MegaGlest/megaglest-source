@@ -1168,6 +1168,7 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 					clientInterface->isMasterServerAdminOverride() == true))) {
 		if(checkClientAdminOverrideOnly == true) {
 			gameSettings.setMasterserver_admin(clientInterface->getSessionKey());
+			gameSettings.setMasterserver_admin_faction_index(clientInterface->getPlayerIndex());
 		}
 		//PopupMenu popupMenu;
 		std::vector<string> menuItems;
