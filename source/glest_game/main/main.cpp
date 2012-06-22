@@ -2181,6 +2181,7 @@ void runTechValidationReport(int argc, char** argv) {
             {
             printf("\n---------------- Loading scenario inside world ----------------\n");
 
+            bool scenarioFound = false;
             World world;
             double purgedMegaBytes=0;
             std::vector<string> filteredFactionList;
@@ -2197,9 +2198,10 @@ void runTechValidationReport(int argc, char** argv) {
                 for(int idx2 = 0; idx2 < scenarioList.size(); idx2++) {
                     string &scenarioName = scenarioList[idx2];
 
-                    //printf("Found Scenario [%s] looking for [%s]\n",scenarioName.c_str(),validateScenarioName.c_str());
+                    //printf("Comparing Scenario [%s] looking for [%s]\n",scenarioName.c_str(),validateScenarioName.c_str());
 
                     if(scenarioName == validateScenarioName) {
+                    	scenarioFound = true;
 
                     	string file = scenarioPath + scenarioName + "/" + scenarioName + ".xml";
 
@@ -2210,12 +2212,35 @@ void runTechValidationReport(int argc, char** argv) {
 
                     	// Self Contained techtree?
                     	string scenarioTechtree = scenarioPath + scenarioName + "/" + techName + "/" + techName + ".xml";
+
+                    	printf("\nFound Scenario [%s] looking for techtree [%s]...\n",scenarioName.c_str(),scenarioTechtree.c_str());
+
                     	if(fileExists(scenarioTechtree) == true) {
                     		string techPath = scenarioPath + scenarioName + "/";
 
-                    		printf("Found Scenario [%s] with custom techtree [%s] validating...\n",scenarioName.c_str(),techName.c_str());
+                    		printf("\nFound Scenario [%s] with custom techtree [%s] validating...\n",scenarioName.c_str(),techName.c_str());
                     		runTechValidationForPath(techPath, techName, filteredFactionList,
                     					world, 	purgeUnusedFiles, showDuplicateFiles, false, false, purgedMegaBytes);
+                    	}
+                    	else {
+                    	    vector<string> techPaths = config.getPathListForType(ptTechs);
+                    	    for(int idx = 0; idx < techPaths.size(); idx++) {
+                    	        string &techPath = techPaths[idx];
+                    			endPathWithSlash(techPath);
+
+                    	        //printf("techPath [%s]\n",techPath.c_str());
+
+
+                    			//string techPath = scenarioPath + scenarioName + "/";
+                    			scenarioTechtree = techPath + "/" + techName + "/" + techName + ".xml";
+                    			if(fileExists(scenarioTechtree) == true) {
+                    				printf("\nFound Scenario [%s] with techtree [%s] validating...\n",scenarioName.c_str(),techName.c_str());
+                    				runTechValidationForPath(techPath, techName, filteredFactionList,
+                    					world, 	purgeUnusedFiles, showDuplicateFiles, false, false, purgedMegaBytes);
+
+                    				break;
+                    			}
+                    	    }
                     	}
 //
 //
@@ -2225,6 +2250,9 @@ void runTechValidationReport(int argc, char** argv) {
                 }
             }
 
+            if(scenarioFound == false) {
+            	printf("\nWARNING, the scenario [%s] was NOT FOUND!\n",validateScenarioName.c_str());
+            }
             printf("\n====== Finished Validation ======\n");
             }
             return;
