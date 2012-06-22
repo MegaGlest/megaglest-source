@@ -159,7 +159,7 @@ public:
 	Quad2i lastVisibleQuad;
 	std::vector<Object *> visibleObjectList;
 	std::vector<Unit   *> visibleQuadUnitList;
-	std::vector<std::pair<Vec2i, const UnitType *> > visibleQuadUnitBuildList;
+	std::vector<UnitBuildInfo> visibleQuadUnitBuildList;
 	std::vector<Unit   *> visibleUnitList;
 	std::vector<Vec2i> visibleScaledCellList;
 	std::map<Vec2i,Vec3f> visibleScaledCellToScreenPosList;
@@ -321,7 +321,7 @@ private:
 	Mutex saveScreenShotThreadAccessor;
 	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
 
-	//std::map<Vec3f,Vec3f> worldToScreenPosCache;
+	std::map<Vec3f,Vec3f> worldToScreenPosCache;
 
 	//bool masterserverMode;
 
@@ -468,7 +468,7 @@ public:
 	void renderMouse2d(int mouseX, int mouseY, int anim, float fade= 0.f);
     void renderMouse3d();
 
-    void renderGhostModel(const UnitType *building, const Vec2i pos,Vec4f *forceColor=NULL);
+    void renderGhostModel(const UnitType *building, const Vec2i pos,CardinalDir facing,Vec4f *forceColor=NULL);
 
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);

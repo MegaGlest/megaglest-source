@@ -83,6 +83,19 @@ enum CauseOfDeathType {
 	ucodStarvedRegeneration
 };
 
+class UnitBuildInfo {
+public:
+	UnitBuildInfo() {
+		unit = NULL;
+		//pos;
+		buildUnit = NULL;
+	}
+	const Unit *unit;
+	CardinalDir facing;
+	Vec2i pos;
+	const UnitType *buildUnit;
+};
+
 // =====================================================
 // 	class UnitObserver
 // =====================================================
@@ -535,7 +548,7 @@ public:
     bool isBeingBuilt() const;
     bool isBuilt() const;
     bool isBuildCommandPending() const;
-    std::pair<Vec2i, const UnitType *> getBuildCommandPendingInfo() const;
+    UnitBuildInfo getBuildCommandPendingInfo() const;
 
     bool isAnimProgressBound() const;
     bool isPutrefacting() const {

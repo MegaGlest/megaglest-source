@@ -875,16 +875,17 @@ bool Unit::isBuildCommandPending() const {
 	return result;
 }
 
-std::pair<Vec2i, const UnitType *> Unit::getBuildCommandPendingInfo() const {
-	std::pair<Vec2i, const UnitType *> result;
-	result.second = NULL;
+UnitBuildInfo Unit::getBuildCommandPendingInfo() const {
+	UnitBuildInfo result;
 
 	Command *command= this->getCurrCommand();
 	if(command != NULL) {
 		const BuildCommandType *bct= dynamic_cast<const BuildCommandType*>(command->getCommandType());
 		if(bct != NULL) {
-			result.first = command->getOriginalPos();
-			result.second = command->getUnitType();
+			result.pos = command->getOriginalPos();
+			result.facing = command->getFacing();
+			result.buildUnit = command->getUnitType();
+			result.unit = this;
 		}
 	}
 
