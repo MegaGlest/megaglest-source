@@ -475,8 +475,10 @@ public:
 
 		//		int    networkPlayerStatuses[GameConstants::maxPlayers];
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
-			const XmlNode *networkPlayerGameStatusNode = gameSettingsNode->getChild("networkPlayerGameStatus",idx);
-			networkPlayerGameStatus[idx] = networkPlayerGameStatusNode->getAttribute("game_status")->getIntValue();
+			if(gameSettingsNode->hasChildAtIndex("networkPlayerGameStatus",idx) == true) {
+				const XmlNode *networkPlayerGameStatusNode = gameSettingsNode->getChild("networkPlayerGameStatus",idx);
+				networkPlayerGameStatus[idx] = networkPlayerGameStatusNode->getAttribute("game_status")->getIntValue();
+			}
 		}
 
 //		string networkPlayerLanguages[GameConstants::maxPlayers];
