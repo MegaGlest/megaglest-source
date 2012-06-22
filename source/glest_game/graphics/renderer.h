@@ -102,6 +102,7 @@ protected:
 		visibleObjectList	= obj.visibleObjectList;
 		visibleUnitList		= obj.visibleUnitList;
 		visibleQuadUnitList = obj.visibleQuadUnitList;
+		visibleQuadUnitBuildList = obj.visibleQuadUnitBuildList;
 		visibleScaledCellList = obj.visibleScaledCellList;
 		visibleScaledCellToScreenPosList = obj.visibleScaledCellToScreenPosList;
 		lastVisibleQuad		= obj.lastVisibleQuad;
@@ -133,10 +134,12 @@ public:
 	inline void clearVolatileCacheData() {
 		visibleUnitList.clear();
 		visibleQuadUnitList.clear();
+		visibleQuadUnitBuildList.clear();
 		//inVisibleUnitList.clear();
 
 		visibleUnitList.reserve(500);
 		visibleQuadUnitList.reserve(500);
+		visibleQuadUnitBuildList.reserve(100);
 	}
 	inline void clearNonVolatileCacheData() {
 		visibleObjectList.clear();
@@ -156,6 +159,7 @@ public:
 	Quad2i lastVisibleQuad;
 	std::vector<Object *> visibleObjectList;
 	std::vector<Unit   *> visibleQuadUnitList;
+	std::vector<std::pair<Vec2i, const UnitType *> > visibleQuadUnitBuildList;
 	std::vector<Unit   *> visibleUnitList;
 	std::vector<Vec2i> visibleScaledCellList;
 	std::map<Vec2i,Vec3f> visibleScaledCellToScreenPosList;
@@ -463,6 +467,9 @@ public:
     //basic rendering
 	void renderMouse2d(int mouseX, int mouseY, int anim, float fade= 0.f);
     void renderMouse3d();
+
+    void renderGhostModel(const UnitType *building, const Vec2i pos,Vec4f *forceColor=NULL);
+
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
 	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false, int overrideMaxConsoleLines=-1);
@@ -511,6 +518,7 @@ public:
 
 	void renderWater();
     void renderUnits(const int renderFps);
+    void renderUnitsToBuild(const int renderFps);
 
 	void renderSelectionEffects();
 	void renderWaterEffects();

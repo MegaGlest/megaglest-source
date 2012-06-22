@@ -827,6 +827,23 @@ bool World::toRenderUnit(const Unit *unit) const {
          map.getSurfaceCell(Map::toSurfCoords(unit->getTargetPos()))->isExplored(thisTeamIndex));
 }
 
+bool World::toRenderUnit(const Unit *unit, std::pair<Vec2i, const UnitType *> pendingUnit) const {
+    if(unit == NULL) {
+    	throw megaglest_runtime_error("unit == NULL");
+    }
+
+    if(showWorldForPlayer(thisFactionIndex) == true) {
+        return true;
+    }
+    if(unit->getTeam() != thisTeamIndex) {
+    	return false;
+    }
+
+	return
+        (map.getSurfaceCell(Map::toSurfCoords(pendingUnit.first))->isVisible(thisTeamIndex) &&
+         map.getSurfaceCell(Map::toSurfCoords(pendingUnit.first))->isExplored(thisTeamIndex) );
+}
+
 void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequirements) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgradesIfRequired = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),ignoreRequirements);
 	Unit* unit= findUnitById(unitId);

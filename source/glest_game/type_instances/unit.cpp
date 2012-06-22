@@ -859,6 +859,38 @@ bool Unit::isBuilt() const{
     return (isBeingBuilt() == false);
 }
 
+bool Unit::isBuildCommandPending() const {
+	bool result = false;
+
+	Command *command= this->getCurrCommand();
+	if(command != NULL) {
+		const BuildCommandType *bct= dynamic_cast<const BuildCommandType*>(command->getCommandType());
+		if(bct != NULL) {
+			if(this->getCurrSkill()->getClass() != scBuild) {
+				result = true;
+			}
+		}
+	}
+
+	return result;
+}
+
+std::pair<Vec2i, const UnitType *> Unit::getBuildCommandPendingInfo() const {
+	std::pair<Vec2i, const UnitType *> result;
+	result.second = NULL;
+
+	Command *command= this->getCurrCommand();
+	if(command != NULL) {
+		const BuildCommandType *bct= dynamic_cast<const BuildCommandType*>(command->getCommandType());
+		if(bct != NULL) {
+			result.first = command->getOriginalPos();
+			result.second = command->getUnitType();
+		}
+	}
+
+	return result;
+}
+
 bool Unit::isAlly(const Unit *unit) const {
 	if(unit == NULL) {
 		char szBuf[4096]="";

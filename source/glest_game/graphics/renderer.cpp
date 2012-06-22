@@ -1736,14 +1736,13 @@ void Renderer::renderMouse3d() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	GLUquadricObj *cilQuadric;
-	Vec4f color;
-
 	assertGl();
 
 	if((mouse3d->isEnabled() || gui->isPlacingBuilding()) && gui->isValidPosObjWorld()) {
+		const Vec2i &pos= gui->getPosObjWorld();
+
 		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
+
 		glPushAttrib(GL_CURRENT_BIT | GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glDisable(GL_STENCIL_TEST);
@@ -1751,43 +1750,23 @@ void Renderer::renderMouse3d() {
 		glEnable(GL_COLOR_MATERIAL);
 		glDepthMask(GL_FALSE);
 
-		const Vec2i &pos= gui->getPosObjWorld();
-
-		Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
-
 		if(gui->isPlacingBuilding()) {
-			const UnitType *building= gui->getBuilding();
-
-			//selection building emplacement
-			float offset= building->getSize()/2.f-0.5f;
-			glTranslatef(pos3f.x+offset, pos3f.y, pos3f.z+offset);
-
-			//choose color
-			if(map->isFreeCells(pos, building->getSize(), fLand)){
-				color= Vec4f(1.f, 1.f, 1.f, 0.5f);
-			}
-			else {
-				color= Vec4f(1.f, 0.f, 0.f, 0.5f);
-			}
 
 			modelRenderer->begin(true, true, false);
-			glColor4fv(color.ptr());
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
-			Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
 
-			if(gui->getSelectedFacing() != CardinalDir::NORTH) {
-				float rotateAmount = gui->getSelectedFacing() * 90.f;
-				if(rotateAmount > 0) {
-					glRotatef(rotateAmount, 0.f, 1.f, 0.f);
-				}
-			}
+			const UnitType *building= gui->getBuilding();
+			renderGhostModel(building, pos);
 
-			buildingModel->updateInterpolationData(0.f, false);
-			modelRenderer->render(buildingModel);
-			glDisable(GL_COLOR_MATERIAL);
 			modelRenderer->end();
+
+			glDisable(GL_COLOR_MATERIAL);
+			glPopAttrib();
 		}
 		else {
+			glPushMatrix();
+			Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+			Vec4f color;
+			GLUquadricObj *cilQuadric;
 			//standard mouse
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_CULL_FACE);
@@ -1808,9 +1787,9 @@ void Renderer::renderMouse3d() {
 			gluCylinder(cilQuadric, 0.7f, 0.f, 0.f, 4, 1);
 			gluDeleteQuadric(cilQuadric);
 
+			glPopAttrib();
+			glPopMatrix();
 		}
-		glPopAttrib();
-		glPopMatrix();
 	}
 
 }
@@ -4614,7 +4593,56 @@ void Renderer::renderTeamColorPlane(){
 	}
 }
 
+void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,Vec4f *forceColor) {
+	//const UnitType *building= gui->getBuilding();
+	//const Vec2i &pos= gui->getPosObjWorld();
 
+	const Gui *gui= game->getGui();
+	//const Mouse3d *mouse3d= gui->getMouse3d();
+	const Map *map= game->getWorld()->getMap();
+	if(map == NULL) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	glPushMatrix();
+	Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+
+	//selection building placement
+	float offset= building->getSize()/2.f-0.5f;
+	glTranslatef(pos3f.x+offset, pos3f.y, pos3f.z+offset);
+
+	//choose color
+	Vec4f color;
+	if(forceColor != NULL) {
+		color = *forceColor;
+	}
+	else {
+		if(map->isFreeCells(pos, building->getSize(), fLand)) {
+			color= Vec4f(1.f, 1.f, 1.f, 0.5f);
+		}
+		else {
+			color= Vec4f(1.f, 0.f, 0.f, 0.5f);
+		}
+	}
+
+	glColor4fv(color.ptr());
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color.ptr());
+	Model *buildingModel= building->getFirstStOfClass(scStop)->getAnimation();
+
+	if(gui->getSelectedFacing() != CardinalDir::NORTH) {
+		float rotateAmount = gui->getSelectedFacing() * 90.f;
+		if(rotateAmount > 0) {
+			glRotatef(rotateAmount, 0.f, 1.f, 0.f);
+		}
+	}
+
+	buildingModel->updateInterpolationData(0.f, false);
+	modelRenderer->render(buildingModel);
+
+	glPopMatrix();
+}
 
 void Renderer::renderUnits(const int renderFps) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
@@ -4729,6 +4757,47 @@ void Renderer::renderUnits(const int renderFps) {
 
 	// reset alpha
 	glAlphaFunc(GL_GREATER, 0.0f);
+	//assert
+	assertGl();
+
+}
+
+void Renderer::renderUnitsToBuild(const int renderFps) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	//assert
+	assertGl();
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitBuildList.empty() == false) {
+		Vec4f modelColor= Vec4f(0.f, 1.f, 0.f, 0.5f);
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushAttrib(GL_CURRENT_BIT | GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_BLEND);
+		glDisable(GL_STENCIL_TEST);
+		glDepthFunc(GL_LESS);
+		glEnable(GL_COLOR_MATERIAL);
+		glDepthMask(GL_FALSE);
+
+		modelRenderer->begin(true, true, false);
+
+		for(int visibleUnitIndex = 0;
+				visibleUnitIndex < qCache.visibleQuadUnitBuildList.size(); ++visibleUnitIndex) {
+			std::pair<Vec2i, const UnitType *> &buildUnit = qCache.visibleQuadUnitBuildList[visibleUnitIndex];
+			renderGhostModel(buildUnit.second, buildUnit.first,&modelColor);
+
+			//printf("Rendering to build unit index = %d\n",visibleUnitIndex);
+		}
+
+		modelRenderer->end();
+
+		glDisable(GL_COLOR_MATERIAL);
+		glPopAttrib();
+	}
+
 	//assert
 	assertGl();
 
@@ -7994,7 +8063,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				for(int j = 0; j < faction->getUnitCount(); ++j) {
 					Unit *unit= faction->getUnit(j);
 
-
+					bool unitCheckedForRender = false;
 					if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
 						//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
 						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z, unit->getType()->getSize());
@@ -8004,25 +8073,71 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 							if(renderInMap == true) {
 								quadCache.visibleUnitList.push_back(unit);
 							}
-							continue; // no more need to check any further;
+							unitCheckedForRender = true; // no more need to check any further;
 							// Currently don't need this list
 							//quadCache.inVisibleUnitList.push_back(unit);
 						}
 					}
+					if(unitCheckedForRender == false) {
+						bool insideQuad 	= visibleQuad.isInside(unit->getPos());
+						bool renderInMap 	= world->toRenderUnit(unit);
+						if(insideQuad == true && renderInMap == true) {
+							quadCache.visibleQuadUnitList.push_back(unit);
+						}
+						else {
+							unit->setVisible(false);
+							// Currently don't need this list
+							//quadCache.inVisibleUnitList.push_back(unit);
+						}
 
-					bool insideQuad 	= visibleQuad.isInside(unit->getPos());
-					bool renderInMap 	= world->toRenderUnit(unit);
-					if(insideQuad == true && renderInMap == true) {
-						quadCache.visibleQuadUnitList.push_back(unit);
-					}
-					else {
-						unit->setVisible(false);
-						// Currently don't need this list
-						//quadCache.inVisibleUnitList.push_back(unit);
+						if(renderInMap == true) {
+							quadCache.visibleUnitList.push_back(unit);
+						}
 					}
 
-					if(renderInMap == true) {
-						quadCache.visibleUnitList.push_back(unit);
+					bool unitBuildPending = unit->isBuildCommandPending();
+					if(unitBuildPending == true) {
+						std::pair<Vec2i, const UnitType *> pendingUnit = unit->getBuildCommandPendingInfo();
+						const Vec2i &pos = pendingUnit.first;
+						const Map *map= world->getMap();
+
+						bool unitBuildCheckedForRender = false;
+
+						//printf("#1 Unit is about to build another unit\n");
+
+						if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
+							Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+							//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
+							bool insideQuad 	= CubeInFrustum(quadCache.frustumData, pos3f.x, pos3f.y, pos3f.z, pendingUnit.second->getSize());
+							bool renderInMap 	= world->toRenderUnit(unit,pendingUnit);
+							if(insideQuad == false || renderInMap == false) {
+								if(renderInMap == true) {
+									quadCache.visibleQuadUnitBuildList.push_back(pendingUnit);
+								}
+								unitBuildCheckedForRender = true; // no more need to check any further;
+								// Currently don't need this list
+								//quadCache.inVisibleUnitList.push_back(unit);
+							}
+
+							//printf("#2 Unit build added? insideQuad = %d, renderInMap = %d\n",insideQuad,renderInMap);
+						}
+
+						if(unitBuildCheckedForRender == false) {
+							bool insideQuad 	= visibleQuad.isInside(pos);
+							bool renderInMap 	= world->toRenderUnit(unit,pendingUnit);
+							if(insideQuad == true && renderInMap == true) {
+								quadCache.visibleQuadUnitBuildList.push_back(pendingUnit);
+							}
+							else {
+								//unit->setVisible(false);
+								// Currently don't need this list
+								//quadCache.inVisibleUnitList.push_back(unit);
+							}
+
+							//printf("#3 Unit build added? insideQuad = %d, renderInMap = %d\n",insideQuad,renderInMap);
+						}
+
+						//printf("#4 quadCache.visibleQuadUnitBuildList.size() = %d\n",quadCache.visibleQuadUnitBuildList.size());
 					}
 				}
 			}
