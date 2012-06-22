@@ -534,6 +534,9 @@ public:
     bool isOperative() const;
     bool isBeingBuilt() const;
     bool isBuilt() const;
+    bool isBuildCommandPending() const;
+    std::pair<Vec2i, const UnitType *> getBuildCommandPendingInfo() const;
+
     bool isAnimProgressBound() const;
     bool isPutrefacting() const {
     	return deadCount!=0;
