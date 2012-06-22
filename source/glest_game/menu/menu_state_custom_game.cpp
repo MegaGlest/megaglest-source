@@ -3201,7 +3201,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		for(int i= 0; i < mapInfo.players; ++i) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 				if(	serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->isConnected()) {
