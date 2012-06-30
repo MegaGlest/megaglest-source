@@ -2114,6 +2114,33 @@ bool valid_utf8_file(const char* file_name) {
 	return result;
 }
 
+string getFileTextContents(string path) {
+#if defined(WIN32) && !defined(__MINGW32__)
+	FILE *fp = _wfopen(utf8_decode(path).c_str(), L"rb");
+	ifstream xmlFile(fp);
+#else
+	ifstream xmlFile(path.c_str(),ios::binary);
+#endif
+	if(xmlFile.is_open() == false) {
+		throw megaglest_runtime_error("Can not open file: [" + path + "]");
+	}
+
+	xmlFile.unsetf(ios::skipws);
+
+	// Determine stream size
+	xmlFile.seekg(0, ios::end);
+	streampos size = xmlFile.tellg();
+	xmlFile.seekg(0);
+
+	// Load data and add terminating 0
+	vector<char> buffer;
+	buffer.resize(size + (streampos)1);
+	xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
+	buffer[size] = 0;
+
+	return &buffer.front();
+}
+
 // =====================================
 //         ModeInfo
 // =====================================

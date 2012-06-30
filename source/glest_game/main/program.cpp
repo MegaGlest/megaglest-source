@@ -269,7 +269,8 @@ void Program::initScenario(WindowGl *window, string autoloadScenarioName) {
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
-	mainMenu->setState(new MenuStateScenario(this, mainMenu, Config::getInstance().getPathListForType(ptScenarios),autoloadScenarioName));
+	mainMenu->setState(new MenuStateScenario(this, mainMenu, false,
+			Config::getInstance().getPathListForType(ptScenarios),autoloadScenarioName));
 }
 
 Program::~Program(){

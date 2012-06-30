@@ -356,6 +356,24 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 		luaScript.loadCode("function " + script->getName() + "()" + script->getCode() + "end\n", script->getName());
 	}
 
+
+	//!!!
+//	string data_path= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+//	if(data_path != ""){
+//		endPathWithSlash(data_path);
+//	}
+//	string sandboxScriptFilename = data_path + "data/core/scripts/sandbox.lua";
+//	string sandboxLuaCode = getFileTextContents(sandboxScriptFilename);
+//
+//	//luaScript.loadCode(sandboxLuaCode + "\n", "megaglest_lua_sandbox");
+//	luaScript.setSandboxWrapperFunctionName("runsandboxed");
+//	luaScript.setSandboxCode(sandboxLuaCode);
+//	luaScript.runCode(sandboxLuaCode);
+
+//	// Setup the lua security sandbox here
+//	luaScript.beginCall("megaglest_lua_sandbox");
+//	luaScript.endCall();
+
 	//setup message box
 	messageBox.init( Lang::getInstance().get("Ok") );
 	messageBox.setEnabled(false);

@@ -96,7 +96,8 @@ void MenuStateNewGame::mouseClick(int x, int y, MouseButton mouseButton){
     }
 	else if(buttonScenario.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateScenario(program, mainMenu, Config::getInstance().getPathListForType(ptScenarios)));
+		mainMenu->setState(new MenuStateScenario(program, mainMenu, false,
+				Config::getInstance().getPathListForType(ptScenarios)));
     }
 	else if(buttonJoinGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
@@ -108,7 +109,8 @@ void MenuStateNewGame::mouseClick(int x, int y, MouseButton mouseButton){
     }
 	else if(buttonTutorial.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateScenario(program, mainMenu, Config::getInstance().getPathListForType(ptTutorials)));
+		mainMenu->setState(new MenuStateScenario(program, mainMenu, true,
+				Config::getInstance().getPathListForType(ptTutorials)));
     }
     else if(buttonReturn.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
