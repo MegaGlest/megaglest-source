@@ -47,8 +47,10 @@ private:
 	bool enableScenarioTexturePreview;
 	Texture2D *scenarioLogoTexture;
 
+	bool isTutorialMode;
+
 public:
-	MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList, string autoloadScenarioName="");
+	MenuStateScenario(Program *program, MainMenu *mainMenu, bool isTutorialMode, const vector<string> &dirList, string autoloadScenarioName="");
 	virtual ~MenuStateScenario();
 
     void mouseClick(int x, int y, MouseButton mouseButton);

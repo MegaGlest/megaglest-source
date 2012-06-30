@@ -50,6 +50,8 @@ LuaScript::LuaScript() {
 
 	currentLuaFunction = "";
 	currentLuaFunctionIsValid = false;
+	sandboxWrapperFunctionName = "";
+	sandboxCode = "";
 	luaState= luaL_newstate();
 
 	luaL_openlibs(luaState);
@@ -409,7 +411,7 @@ LuaScript::~LuaScript() {
 	lua_close(luaState);
 }
 
-void LuaScript::loadCode(const string &code, const string &name){
+void LuaScript::loadCode(string code, string name){
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
 	//printf("Code [%s]\nName [%s]\n",code.c_str(),name.c_str());
@@ -443,7 +445,22 @@ void LuaScript::loadCode(const string &code, const string &name){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
 }
 
-void LuaScript::beginCall(const string& functionName) {
+void LuaScript::setSandboxWrapperFunctionName(string name) {
+	sandboxWrapperFunctionName = name;
+}
+
+void LuaScript::setSandboxCode(string code) {
+	sandboxCode = code;
+}
+
+int LuaScript::runCode(string code) {
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	int errorCode = luaL_dostring(luaState,code.c_str());
+	return errorCode;
+}
+
+void LuaScript::beginCall(string functionName) {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
 	currentLuaFunction = functionName;
@@ -451,8 +468,19 @@ void LuaScript::beginCall(const string& functionName) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());
 
+	//string funcLuaFunction = functionName;
+//	if(sandboxWrapperFunctionName != "" && sandboxCode != "") {
+//		int errorCode= runCode(sandboxCode);
+//		if(errorCode !=0 ) {
+//			throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+//		}
+//		//functionName = sandboxWrapperFunctionName;
+//	}
 	lua_getglobal(luaState, functionName.c_str());
+
 	currentLuaFunctionIsValid = lua_isfunction(luaState,lua_gettop(luaState));
+
+	//printf("currentLuaFunctionIsValid = %d functionName [%s]\n",currentLuaFunctionIsValid,functionName.c_str());
 	argumentCount= 0;
 }
 
@@ -462,9 +490,32 @@ void LuaScript::endCall() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] currentLuaFunction [%s], currentLuaFunctionIsValid = %d\n",__FILE__,__FUNCTION__,__LINE__,currentLuaFunction.c_str(),currentLuaFunctionIsValid);
 
 	if(currentLuaFunctionIsValid == true) {
-		int errorCode= lua_pcall(luaState, argumentCount, 0, 0);
-		if(errorCode !=0 ) {
-			throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+		if(sandboxWrapperFunctionName != "" && sandboxCode != "") {
+			//lua_pushstring(luaState, currentLuaFunction.c_str());   // push 1st argument, the real lua function
+			//argumentCount = 1;
+
+			string safeWrapper = sandboxWrapperFunctionName + " [[" + currentLuaFunction + "()]]";
+			printf("Trying to execute [%s]\n",safeWrapper.c_str());
+			int errorCode= runCode(safeWrapper);
+			if(errorCode !=0 ) {
+				throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+			}
+
+			//printf("Trying to execute [%s]\n",currentLuaFunction.c_str());
+			//lua_getglobal(luaState, sandboxWrapperFunctionName.c_str());
+			//argumentCount = 1;
+			//lua_pushstring( luaState, currentLuaFunction.c_str() );
+
+//			int errorCode= lua_pcall(luaState, argumentCount, 0, 0);
+//			if(errorCode !=0 ) {
+//				throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+//			}
+		}
+		else {
+			int errorCode= lua_pcall(luaState, argumentCount, 0, 0);
+			if(errorCode !=0 ) {
+				throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+			}
 		}
 	}
 	else
@@ -473,7 +524,7 @@ void LuaScript::endCall() {
 	}
 }
 
-void LuaScript::registerFunction(LuaFunction luaFunction, const string &functionName) {
+void LuaScript::registerFunction(LuaFunction luaFunction, string functionName) {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] functionName [%s]\n",__FILE__,__FUNCTION__,__LINE__,functionName.c_str());

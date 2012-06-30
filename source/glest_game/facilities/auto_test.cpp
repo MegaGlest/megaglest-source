@@ -70,7 +70,7 @@ void AutoTest::updateNewGame(Program *program, MainMenu *mainMenu) {
 		mainMenu->setState(new MenuStateCustomGame(program, mainMenu, false, pNewGame, true, &gameSettings));
 	}
 	else {
-		mainMenu->setState(new MenuStateScenario(program, mainMenu,
+		mainMenu->setState(new MenuStateScenario(program, mainMenu, false,
 				Config::getInstance().getPathListForType(ptScenarios)));
 	}
 }

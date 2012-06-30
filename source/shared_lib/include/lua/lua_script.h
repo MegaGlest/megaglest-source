@@ -39,6 +39,8 @@ private:
 	int argumentCount;
 	string currentLuaFunction;
 	bool currentLuaFunctionIsValid;
+	string sandboxWrapperFunctionName;
+	string sandboxCode;
 
 	void DumpGlobals();
 
@@ -46,12 +48,16 @@ public:
 	LuaScript();
 	~LuaScript();
 
-	void loadCode(const string &code, const string &name);
+	void loadCode(string code, string name);
 
-	void beginCall(const string& functionName);
+	void beginCall(string functionName);
 	void endCall();
 
-	void registerFunction(LuaFunction luaFunction, const string &functionName);
+	int runCode(const string code);
+	void setSandboxWrapperFunctionName(string name);
+	void setSandboxCode(string code);
+
+	void registerFunction(LuaFunction luaFunction, string functionName);
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);

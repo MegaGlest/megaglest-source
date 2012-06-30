@@ -31,10 +31,13 @@ using namespace	Shared::Xml;
 // 	class MenuStateScenario
 // =====================================================
 
-MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const vector<string> &dirList, string autoloadScenarioName):
+MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
+		bool isTutorialMode, const vector<string> &dirList, string autoloadScenarioName) :
     MenuState(program, mainMenu, "scenario")
 {
 	containerName = "Scenario";
+	this->isTutorialMode = isTutorialMode;
+
 	enableScenarioTexturePreview = Config::getInstance().getBool("EnableScenarioTexturePreview","true");
 	scenarioLogoTexture=NULL;
 	previewLoadDelayTimer=time(NULL);
@@ -88,7 +91,12 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
 	buttonReturn.setText(lang.get("Return"));
 	buttonPlayNow.setText(lang.get("PlayNow"));
 
-    labelScenario.setText(lang.get("Scenario"));
+	if(this->isTutorialMode == true) {
+		labelScenario.setText(lang.get("Tutorial"));
+	}
+	else {
+		labelScenario.setText(lang.get("Scenario"));
+	}
 
     //scenario listbox
 	findDirs(dirList, results);
@@ -96,7 +104,14 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
     //printf("scenarioFiles[0] [%s]\n",scenarioFiles[0].c_str());
 
 	if(results.empty() == true) {
-        throw megaglest_runtime_error("There are no scenarios found to load");
+        //throw megaglest_runtime_error("There are no scenarios found to load");
+        mainMessageBoxState=1;
+        if(this->isTutorialMode == true) {
+        	showMessageBox( "Error: There are no tutorials found to load", "Error detected", false);
+        }
+        else {
+        	showMessageBox( "Error: There are no scenarios found to load", "Error detected", false);
+        }
 	}
 	for(int i= 0; i<results.size(); ++i){
 		results[i] = formatString(results[i]);
@@ -104,8 +119,10 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu, const
     listBoxScenario.setItems(results);
 
     try {
-        loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
-        labelInfo.setText(scenarioInfo.desc);
+    	if(listBoxScenario.getSelectedItemIndex() > 0) {
+    		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
+    		labelInfo.setText(scenarioInfo.desc);
+    	}
 
         GraphicComponent::applyAllCustomProperties(containerName);
     }
@@ -281,23 +298,25 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 
 void MenuStateScenario::loadScenarioPreviewTexture(){
 	if(enableScenarioTexturePreview == true) {
-		GameSettings gameSettings;
-		loadGameSettings(&scenarioInfo, &gameSettings);
+		if(listBoxScenario.getSelectedItemIndex() >= 0) {
+			GameSettings gameSettings;
+			loadGameSettings(&scenarioInfo, &gameSettings);
 
-		string scenarioLogo 	= "";
-		bool loadingImageUsed 	= false;
+			string scenarioLogo 	= "";
+			bool loadingImageUsed 	= false;
 
-		Game::extractScenarioLogoFile(&gameSettings, scenarioLogo, loadingImageUsed);
+			Game::extractScenarioLogoFile(&gameSettings, scenarioLogo, loadingImageUsed);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogo [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioLogo.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogo [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioLogo.c_str());
 
-		if(scenarioLogo != "") {
-			cleanupPreviewTexture();
-			scenarioLogoTexture = Renderer::findFactionLogoTexture(scenarioLogo);
-		}
-		else {
-			cleanupPreviewTexture();
-			scenarioLogoTexture = NULL;
+			if(scenarioLogo != "") {
+				cleanupPreviewTexture();
+				scenarioLogoTexture = Renderer::findFactionLogoTexture(scenarioLogo);
+			}
+			else {
+				cleanupPreviewTexture();
+				scenarioLogoTexture = NULL;
+			}
 		}
 	}
 }
