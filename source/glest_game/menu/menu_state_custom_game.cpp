@@ -3223,7 +3223,32 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				}
 			}
 		}
-		if(!masterserver_admin_found)
+		if(masterserver_admin_found == false ) {
+			for(int i=mapInfo.players; i < GameConstants::maxPlayers; ++i) {
+				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+				ConnectionSlot *slot = serverInterface->getSlot(i);
+
+				if(	serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->isConnected()) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+					//printf("slot = %d serverInterface->getSlot(i)->getConnectedTime() = %d session key [%d]\n",i,serverInterface->getSlot(i)->getConnectedTime(),serverInterface->getSlot(i)->getSessionKey());
+
+					if(clientConnectedTime == 0 ||
+							(serverInterface->getSlot(i)->getConnectedTime() > 0 && serverInterface->getSlot(i)->getConnectedTime() < clientConnectedTime)) {
+						clientConnectedTime = serverInterface->getSlot(i)->getConnectedTime();
+						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());
+						gameSettings->setMasterserver_admin_faction_index(serverInterface->getSlot(i)->getPlayerIndex());
+						labelGameName.setText(serverInterface->getSlot(i)->getName()+" controls");
+						//printf("slot = %d, admin key [%d] slot connected time[%lu] clientConnectedTime [%lu]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
+					}
+					if(serverInterface->getSlot(i)->getSessionKey() == gameSettings->getMasterserver_admin()){
+						masterserver_admin_found=true;
+					}
+				}
+			}
+		}
+
+		if(masterserver_admin_found == false)
 		{
 			labelGameName.setText("headless("+defaultPlayerName+")");
 		}
