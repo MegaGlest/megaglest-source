@@ -95,6 +95,7 @@ private:
 	std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
 	int ExploredCellsLookupItemCacheTimerCount;
 
+	bool enableFowAlphaCellsLookupItemCache;
 	std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > > FowAlphaCellsLookupItemCache;
 
 public:

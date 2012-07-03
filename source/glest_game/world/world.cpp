@@ -45,7 +45,7 @@ time_t ExploredCellsLookupItem::lastDebug = 0;
 
 // ===================== PUBLIC ========================
 
-World::World(){
+World::World() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
@@ -56,6 +56,8 @@ World::World(){
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
 	FowAlphaCellsLookupItemCache.clear();
+	// Disable this cache as it takes too much RAM (not sure if its worth the performance gain)
+	enableFowAlphaCellsLookupItemCache = false;
 
 	nextCommandGroupId = 0;
 	techTree = NULL;
@@ -65,6 +67,7 @@ World::World(){
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
 	MaxExploredCellsLookupItemCache= config.getInt("MaxExploredCellsLookupItemCache",intToStr(MaxExploredCellsLookupItemCache).c_str());
+	//MaxExploredCellsLookupItemCache = 0;
 
 	routePlanner = 0;
 	cartographer = 0;
@@ -1773,15 +1776,16 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 				}
 
 				//explore
+				float posLength = currRelPos.length();
 				//if(Vec2i(0).dist(currRelPos) < surfSightRange + indirectSightRange + 1) {
-				if(currRelPos.length() < surfSightRange + indirectSightRange + 1) {
+				if(posLength < surfSightRange + indirectSightRange + 1) {
                     sc->setExplored(teamIndex, true);
                     item.exploredCellList.push_back(sc);
 				}
 
 				//visible
 				//if(Vec2i(0).dist(currRelPos) < surfSightRange) {
-				if(currRelPos.length() < surfSightRange) {
+				if(posLength < surfSightRange) {
 					sc->setVisible(teamIndex, true);
 					item.visibleCellList.push_back(sc);
 				}
@@ -1966,18 +1970,20 @@ void World::computeFow(int factionIdxToTick) {
 						int sightRange= unit->getType()->getSight();
 
 						bool foundInCache = false;
-						std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > >::iterator iterMap = FowAlphaCellsLookupItemCache.find(unit->getPos());
-						if(iterMap != FowAlphaCellsLookupItemCache.end()) {
-							std::map<int, FowAlphaCellsLookupItem>::iterator iterMap2 = iterMap->second.find(sightRange);
-							if(iterMap2 != iterMap->second.end()) {
-								foundInCache = true;
+						if(enableFowAlphaCellsLookupItemCache == true) {
+							std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > >::iterator iterMap = FowAlphaCellsLookupItemCache.find(unit->getPos());
+							if(iterMap != FowAlphaCellsLookupItemCache.end()) {
+								std::map<int, FowAlphaCellsLookupItem>::iterator iterMap2 = iterMap->second.find(sightRange);
+								if(iterMap2 != iterMap->second.end()) {
+									foundInCache = true;
 
-								FowAlphaCellsLookupItem &cellList = iterMap2->second;
-								for(int k = 0; k < cellList.surfPosList.size(); ++k) {
-									Vec2i &surfPos = cellList.surfPosList[k];
-									float &alpha = cellList.alphaList[k];
+									FowAlphaCellsLookupItem &cellList = iterMap2->second;
+									for(int k = 0; k < cellList.surfPosList.size(); ++k) {
+										Vec2i &surfPos = cellList.surfPosList[k];
+										float &alpha = cellList.alphaList[k];
 
-									minimap.incFowTextureAlphaSurface(surfPos, alpha);
+										minimap.incFowTextureAlphaSurface(surfPos, alpha);
+									}
 								}
 							}
 						}
@@ -2012,8 +2018,10 @@ void World::computeFow(int factionIdxToTick) {
 								itemCache.alphaList.push_back(alpha);
 							}
 
-							if(itemCache.surfPosList.empty() == false) {
-								FowAlphaCellsLookupItemCache[unit->getPos()][sightRange] = itemCache;
+							if(enableFowAlphaCellsLookupItemCache == true) {
+								if(itemCache.surfPosList.empty() == false) {
+									FowAlphaCellsLookupItemCache[unit->getPos()][sightRange] = itemCache;
+								}
 							}
 						}
 					}

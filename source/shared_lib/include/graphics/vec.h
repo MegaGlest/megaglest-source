@@ -114,73 +114,73 @@ public:
 	//	return a == b;
 	//}
 
-	T *ptr(){
+	inline T *ptr(){
 		return reinterpret_cast<T*>(this);
 	}
 
-	const T *ptr() const{
+	inline const T *ptr() const {
 		return reinterpret_cast<const T*>(this);
 	}
 
-	Vec2<T> & operator=(const Vec2<T> &v) {
+	inline Vec2<T> & operator=(const Vec2<T> &v) {
 		this->x= v.x;
 		this->y= v.y;
 		return *this;
 	}
 
-	bool operator ==(const Vec2<T> &v) const{
+	inline bool operator ==(const Vec2<T> &v) const{
 		return x==v.x && y==v.y;
 	}
 
-	bool operator !=(const Vec2<T> &v) const{
+	inline bool operator !=(const Vec2<T> &v) const{
 		return x!=v.x || y!=v.y;
 	}
 
-	Vec2<T> operator +(const Vec2<T> &v) const{
+	inline Vec2<T> operator +(const Vec2<T> &v) const{
 		return Vec2(x+v.x, y+v.y);
 	}
 
-	Vec2<T> operator -(const Vec2<T> &v) const{
+	inline Vec2<T> operator -(const Vec2<T> &v) const{
 		return Vec2(x-v.x, y-v.y);
 	}
 
-	Vec2<T> operator -() const{
+	inline Vec2<T> operator -() const{
 		return Vec2(-x, -y);
 	}
 
-	Vec2<T> operator *(const Vec2<T> &v) const{
+	inline Vec2<T> operator *(const Vec2<T> &v) const{
 		return Vec2(x*v.x, y*v.y);
 	}
 
-	Vec2<T> operator *(T s) const{
+	inline Vec2<T> operator *(T s) const{
 		return Vec2(x*s, y*s);
 	}
 
-	Vec2<T> operator /(const Vec2<T> &v) const{
+	inline Vec2<T> operator /(const Vec2<T> &v) const{
 		return Vec2(x/v.x, y/v.y);
 	}
 
-	Vec2<T> operator /(T s) const{
+	inline Vec2<T> operator /(T s) const{
 		return Vec2(x/s, y/s);
 	}
 
-	Vec2<T> operator +=(const Vec2<T> &v){
+	inline Vec2<T> operator +=(const Vec2<T> &v){
 		x+=v.x; 
 		y+=v.y;
 		return *this;
 	}
 
-	Vec2<T> operator -=(const Vec2<T> &v){
+	inline Vec2<T> operator -=(const Vec2<T> &v){
 		x-=v.x; 
 		y-=v.y;
 		return *this;
 	}
 
-	Vec2<T> lerp(T t, const Vec2<T> &v) const{
+	inline Vec2<T> lerp(T t, const Vec2<T> &v) const{
 		return *this + (v - *this)*t;
 	}
 
-	T dot(const Vec2<T> &v) const{
+	inline T dot(const Vec2<T> &v) const{
 		return x*v.x+y*v.y;
 	}
 
@@ -189,11 +189,11 @@ public:
 	}
 
 	// strict week ordering, so Vec2<T> can be used as key for set<> or map<>
-	bool operator<(const Vec2<T> &v) const {
+	inline bool operator<(const Vec2<T> &v) const {
 		return x < v.x || (x == v.x && y < v.y);
 	}
 
-	float length() const{
+	inline float length() const{
 #ifdef USE_STREFLOP
 		return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y)));
 #else
@@ -201,13 +201,13 @@ public:
 #endif
 	}
 
-	void normalize(){
+	inline void normalize(){
 		T m= length(); 
 		x/= m;
 		y/= m;
 	}
 	
-	Vec2<T> rotate(float rad){
+	inline Vec2<T> rotate(float rad){
 		const float
 #ifdef USE_STREFLOP
 			c = streflop::cosf(rad),
@@ -219,11 +219,11 @@ public:
 		return Vec2<T>(x*c-y*s,x*s+y*c);
 	}
 
-	Vec2<T> rotateAround(float rad,const Vec2<T>& pt){
+	inline Vec2<T> rotateAround(float rad,const Vec2<T>& pt){
 		return pt+(*this-pt).rotate(rad);
 	}
 
-	std::string getString() const {
+	inline std::string getString() const {
 		std::ostringstream streamOut;
 		streamOut << "x [" << x;
 		streamOut << "] y [" << y << "]";
@@ -263,7 +263,7 @@ public:
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream &stream, const Vec2<T> &vec) {
+inline std::ostream& operator<<(std::ostream &stream, const Vec2<T> &vec) {
 	return stream << "(" << vec.x << ", " << vec.y << ")";
 }
 
@@ -327,80 +327,80 @@ public:
 		this->z= v.z;
 	}
 
-	T *ptr(){
+	inline T *ptr(){
 		return reinterpret_cast<T*>(this);
 	}
 
-	const T *ptr() const{
+	inline const T *ptr() const{
 		return reinterpret_cast<const T*>(this);
 	}
 
-	Vec3<T> & operator=(const Vec3<T> &v) {
+	inline Vec3<T> & operator=(const Vec3<T> &v) {
 		this->x= v.x;
 		this->y= v.y;
 		this->z= v.z;
 		return *this;
 	}
 
-	bool operator ==(const Vec3<T> &v) const{
+	inline bool operator ==(const Vec3<T> &v) const{
 		return x==v.x && y==v.y && z==v.z;
 	}
 
-	bool operator !=(const Vec3<T> &v) const{
+	inline bool operator !=(const Vec3<T> &v) const{
 		return x!=v.x || y!=v.y || z!=v.z;
 	}
 
-	Vec3<T> operator +(const Vec3<T> &v) const{
+	inline Vec3<T> operator +(const Vec3<T> &v) const{
 		return Vec3(x+v.x, y+v.y, z+v.z);
 	}
 
-	Vec3<T> operator -(const Vec3<T> &v) const{
+	inline Vec3<T> operator -(const Vec3<T> &v) const{
 		return Vec3(x-v.x, y-v.y, z-v.z);
 	}
 
-	Vec3<T> operator -() const{
+	inline Vec3<T> operator -() const{
 		return Vec3(-x, -y, -z);
 	}
 
-	Vec3<T> operator *(const Vec3<T> &v) const{
+	inline Vec3<T> operator *(const Vec3<T> &v) const{
 		return Vec3(x*v.x, y*v.y, z*v.z);
 	}
 
-	Vec3<T> operator *(T s) const{
+	inline Vec3<T> operator *(T s) const{
 		return Vec3(x*s, y*s, z*s);
 	}
 
-	Vec3<T> operator /(const Vec3<T> &v) const{
+	inline Vec3<T> operator /(const Vec3<T> &v) const{
 		return Vec3(x/v.x, y/v.y, z/v.z);
 	}
 
-	Vec3<T> operator /(T s) const{
+	inline Vec3<T> operator /(T s) const{
 		return Vec3(x/s, y/s, z/s);
 	}
 
-	Vec3<T> operator +=(const Vec3<T> &v){
+	inline Vec3<T> operator +=(const Vec3<T> &v){
 		x+=v.x; 
 		y+=v.y;
 		z+=v.z;
 		return *this;
 	}
 
-	Vec3<T> operator -=(const Vec3<T> &v){
+	inline Vec3<T> operator -=(const Vec3<T> &v){
 		x-=v.x;
 		y-=v.y;
 		z-=v.z;
 		return *this;
 	}
 
-	bool operator <(const Vec3<T> &v) const {
+	inline bool operator <(const Vec3<T> &v) const {
 		return x < v.x || (x == v.x && y < v.y) || (x == v.x && y == v.y && z < v.z);
 	}
 
-	Vec3<T> lerp(T t, const Vec3<T> &v) const{
+	inline Vec3<T> lerp(T t, const Vec3<T> &v) const{
 		return *this + (v - *this) * t;
 	}
 
-	T dot(const Vec3<T> &v) const{
+	inline T dot(const Vec3<T> &v) const{
 		return x*v.x + y*v.y + z*v.z;
 	}
 
@@ -408,7 +408,7 @@ public:
 		return Vec3<T>(v-*this).length();
 	}
 
-	float length() const{
+	inline float length() const{
 #ifdef USE_STREFLOP
 		return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y + z*z)));
 #else
@@ -416,33 +416,33 @@ public:
 #endif
 	}
 
-	void normalize(){
+	inline void normalize(){
 		T m= length(); 
 		x/= m;
 		y/= m;
 		z/= m;
 	}
 
-	Vec3<T> getNormalized() const{
+	inline Vec3<T> getNormalized() const{
 		T m= length();
 		return Vec3<T>(x/m, y/m, z/m);
 	}
 
-	Vec3<T> cross(const Vec3<T> &v) const{
+	inline Vec3<T> cross(const Vec3<T> &v) const{
 		return Vec3<T>(
 			this->y*v.z-this->z*v.y,
 			this->z*v.x-this->x*v.z,
 			this->x*v.y-this->y*v.x);
 	}
 
-	Vec3<T> normal(const Vec3<T> &p1, const Vec3<T> &p2) const{
+	inline Vec3<T> normal(const Vec3<T> &p1, const Vec3<T> &p2) const{
 		Vec3<T> rv;
 		rv= (p2-*this).cross(p1-*this);
 		rv.normalize();
 		return rv;
 	}
 
-	Vec3<T> normal(const Vec3<T> &p1, const Vec3<T> &p2, const Vec3<T> &p3, const Vec3<T> &p4) const{
+	inline Vec3<T> normal(const Vec3<T> &p1, const Vec3<T> &p2, const Vec3<T> &p3, const Vec3<T> &p4) const{
 		Vec3<T> rv;
 
 		rv= this->normal(p1, p2);
@@ -453,7 +453,7 @@ public:
 		return rv;
 	}
 
-	std::string getString() const {
+	inline std::string getString() const {
 		std::ostringstream streamOut;
 		streamOut << "x [" << x;
 		streamOut << "] y [" << y;
@@ -580,15 +580,15 @@ public:
 		this->w= 1;
 	}
 
-	T *ptr(){
+	inline T *ptr(){
 		return reinterpret_cast<T*>(this);
 	}
 
-	const T *ptr() const{
+	inline const T *ptr() const{
 		return reinterpret_cast<const T*>(this);
 	}
 
-	Vec4<T> & operator=(const Vec4<T> &v) {
+	inline Vec4<T> & operator=(const Vec4<T> &v) {
 		this->x= v.x;
 		this->y= v.y;
 		this->z= v.z;
@@ -596,43 +596,43 @@ public:
 		return *this;
 	}
 
-	bool operator ==(const Vec4<T> &v) const{
+	inline bool operator ==(const Vec4<T> &v) const{
 		return x==v.x && y==v.y && z==v.z && w==v.w;
 	}
 
-	bool operator !=(const Vec4<T> &v) const{
+	inline bool operator !=(const Vec4<T> &v) const{
 		return x!=v.x || y!=v.y || z!=v.z || w!=v.w;
 	}
 
-	Vec4<T> operator +(const Vec4<T> &v) const{
+	inline Vec4<T> operator +(const Vec4<T> &v) const{
 		return Vec4(x+v.x, y+v.y, z+v.z, w+v.w);
 	}
 
-	Vec4<T> operator -(const Vec4<T> &v) const{
+	inline Vec4<T> operator -(const Vec4<T> &v) const{
 		return Vec4(x-v.x, y-v.y, z-v.z, w-v.w);
 	}
 
-	Vec4<T> operator -() const{
+	inline Vec4<T> operator -() const{
 		return Vec4(-x, -y, -z, -w);
 	}
 
-	Vec4<T> operator *(const Vec4<T> &v) const{
+	inline Vec4<T> operator *(const Vec4<T> &v) const{
 		return Vec4(x*v.x, y*v.y, z*v.z, w*v.w);
 	}
 
-	Vec4<T> operator *(T s) const{
+	inline Vec4<T> operator *(T s) const{
 		return Vec4(x*s, y*s, z*s, w*s);
 	}
 
-	Vec4<T> operator /(const Vec4<T> &v) const{
+	inline Vec4<T> operator /(const Vec4<T> &v) const{
 		return Vec4(x/v.x, y/v.y, z/v.z, w/v.w);
 	}
 
-	Vec4<T> operator /(T s) const{
+	inline Vec4<T> operator /(T s) const{
 		return Vec4(x/s, y/s, z/s, w/s);
 	}
 
-	Vec4<T> operator +=(const Vec4<T> &v){
+	inline Vec4<T> operator +=(const Vec4<T> &v){
 		x+=v.x; 
 		y+=v.y;
 		z+=v.z;
@@ -640,26 +640,28 @@ public:
 		return *this;
 	}
 
-	Vec4<T> operator -=(const Vec4<T> &v){
+	inline Vec4<T> operator -=(const Vec4<T> &v){
 		x-=v.x; 
 		y-=v.y;
 		z-=v.z;
 		w-=w.z;
 		return *this;
 	}
-	bool operator <(const Vec4<T> &v) const {
-		return x < v.x || (x == v.x && y < v.y) || (x == v.x && y == v.y && z < v.z) || (x == v.x && y == v.y && z == v.z && w < v.w);
+	inline bool operator <(const Vec4<T> &v) const {
+		return x < v.x || (x == v.x && y < v.y) ||
+				(x == v.x && y == v.y && z < v.z) ||
+				(x == v.x && y == v.y && z == v.z && w < v.w);
 	}
 
-	Vec4<T> lerp(T t, const Vec4<T> &v) const{
+	inline Vec4<T> lerp(T t, const Vec4<T> &v) const{
 		return *this + (v - *this) *t;
 	}
 
-	T dot(const Vec4<T> &v) const{
+	inline T dot(const Vec4<T> &v) const{
 		return x*v.x + y*v.y + z*v.z + w*v.w;
 	}
 
-	std::string getString() const {
+	inline std::string getString() const {
 		std::ostringstream streamOut;
 		streamOut << "x [" << x;
 		streamOut << "] y [" << y;
