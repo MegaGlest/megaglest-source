@@ -41,6 +41,7 @@ public:
 class PlatformExceptionHandler {
 public:
 	static string application_binary;
+	static bool disableBacktrace;
 	static string getStackTrace();
 
 	virtual ~PlatformExceptionHandler() {}

@@ -31,6 +31,7 @@ namespace Shared { namespace Platform {
 //	class PlatformExceptionHandler
 // =====================================================
 string PlatformExceptionHandler::application_binary="";
+bool PlatformExceptionHandler::disableBacktrace = false;
 PlatformExceptionHandler *PlatformExceptionHandler::thisPointer= NULL;
 
 // Constructs object and convert lpaszString to Unicode
@@ -152,7 +153,10 @@ void PlatformExceptionHandler::install(string dumpFileName){
 
 string PlatformExceptionHandler::getStackTrace() {
 	 string result = "\nStack Trace:\n";
-
+	 if(PlatformExceptionHandler::disableBacktrace == true) {
+		 result += "disabled...";
+		 return result;
+	 }
 #ifndef __MINGW32__
 /*
 	 unsigned int   i;

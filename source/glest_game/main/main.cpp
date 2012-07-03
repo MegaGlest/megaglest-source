@@ -2986,6 +2986,7 @@ int glestMain(int argc, char** argv) {
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]) == true) {
         disableBacktrace = true;
     }
+    PlatformExceptionHandler::disableBacktrace= disableBacktrace;
 
 //    UErrorCode status = U_ZERO_ERROR;
 //	u_init(&status);
