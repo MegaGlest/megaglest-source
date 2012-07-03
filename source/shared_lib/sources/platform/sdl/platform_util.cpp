@@ -32,6 +32,7 @@ using namespace std;
 namespace Shared{ namespace Platform{
 
 string PlatformExceptionHandler::application_binary="";
+bool PlatformExceptionHandler::disableBacktrace = false;
 
 // This was the simplest, most portable solution i could find in 5 mins for linux
 int MessageBox(int handle, const char *msg, const char *title, int buttons) {
@@ -161,11 +162,16 @@ static int getFileAndLine(char *function, void *address, char *file, size_t flen
 #endif
 
 string PlatformExceptionHandler::getStackTrace() {
-	string errMsg = "";
+	string errMsg = "\nStack Trace:\n";
+	 if(PlatformExceptionHandler::disableBacktrace == true) {
+		 errMsg += "disabled...";
+		 return errMsg;
+	 }
+
 //#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
 #if defined(HAS_GCC_BACKTRACE)
 //        if(disableBacktrace == false && sdl_quitCalled == false) {
-        errMsg = "\nStack Trace:\n";
+        //errMsg = "\nStack Trace:\n";
         //errMsg += "To find line #'s use:\n";
         //errMsg += "readelf --debug-dump=decodedline %s | egrep 0xaddress-of-stack\n";
 
