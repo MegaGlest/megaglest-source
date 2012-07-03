@@ -172,17 +172,22 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 
 	if(mainMessageBox.getEnabled()){
 		int button= 0;
-		if(mainMessageBox.mouseClick(x, y, button))
-		{
+		if(mainMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
 			if(button==0) {
 				mainMessageBox.setEnabled(false);
+
+				if(scenarioFiles.empty() == true && mainMessageBoxState ==1) {
+					mainMenu->setState(new MenuStateNewGame(program, mainMenu));
+					return;
+				}
 			}
 		}
 	}
 	else if(buttonReturn.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
+		return;
     }
 	else if(buttonPlayNow.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundC());
