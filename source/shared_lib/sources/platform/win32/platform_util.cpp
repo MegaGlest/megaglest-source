@@ -411,6 +411,11 @@ void init_win32() {
 
 	::SetClassLong(hwnd, GCL_HICON, iconPtr);
 #endif
+
+	SetWindowLong(hwnd, GWL_EXSTYLE, 0);
+    SetWindowLong(hwnd, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+    //SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, fsWidth, fsHeight, SWP_SHOWWINDOW);
 }
 void done_win32() {
 	::DestroyIcon(icon);
