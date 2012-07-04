@@ -76,6 +76,7 @@ private:
 
 public:
 	static string application_binary;
+	static bool disableBacktrace;
 	static string getStackTrace();
 
 	void install(string dumpFileName);
