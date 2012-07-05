@@ -36,7 +36,7 @@
 namespace Glest{ namespace Game{
 
 static const string ITEM_MISSING 					= "***missing***";
-const int MASTERSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
+const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
 static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGamSettings.mgg";
 
 using namespace Shared::Util;
@@ -1017,7 +1017,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 		}
 
-		if(isMasterserverAdmin() == true) {
+		if(isHeadlessAdmin() == true) {
 			//printf("#1 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
 			mouseClickAdmin(x, y, mouseButton);
 		}
@@ -1025,7 +1025,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-bool MenuStateConnectedGame::isMasterserverAdmin() {
+bool MenuStateConnectedGame::isHeadlessAdmin() {
 	bool result = false;
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
@@ -1043,13 +1043,13 @@ bool MenuStateConnectedGame::isMasterserverAdmin() {
 	return result;
 }
 
-void MenuStateConnectedGame::broadCastGameSettingsToMasterserver(bool forceNow) {
-	if(isMasterserverAdmin() == false) {
+void MenuStateConnectedGame::broadCastGameSettingsToHeadlessServer(bool forceNow) {
+	if(isHeadlessAdmin() == false) {
 		return;
 	}
 
 	if(forceNow == true ||
-		(needToBroadcastServerSettings == true && difftime(time(NULL),broadcastServerSettingsDelayTimer) >= MASTERSERVER_BROADCAST_SETTINGS_SECONDS)) {
+		((needToBroadcastServerSettings == true ) && ( difftime(time(NULL),broadcastServerSettingsDelayTimer) >= HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS))) {
 		//printf("In [%s:%s] Line: %d forceNow = %d broadcastServerSettingsDelayTimer = %lu, now =%lu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,forceNow,broadcastServerSettingsDelayTimer,time(NULL));
 
 		needToBroadcastServerSettings = false;
@@ -1960,25 +1960,25 @@ void MenuStateConnectedGame::update() {
 
 	if(clientInterface != NULL && clientInterface->isConnected()) {
 		//printf("#2 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
-		broadCastGameSettingsToMasterserver(false);
+		broadCastGameSettingsToHeadlessServer(false);
 
-		listBoxMap.setEditable(isMasterserverAdmin());
-		buttonPlayNow.setVisible(isMasterserverAdmin());
-		buttonRestoreLastSettings.setVisible(isMasterserverAdmin());
-		listBoxTechTree.setEditable(isMasterserverAdmin());
-		listBoxTileset.setEditable(isMasterserverAdmin());
-		listBoxEnableSwitchTeamMode.setEditable(isMasterserverAdmin());
-		listBoxAISwitchTeamAcceptPercent.setEditable(isMasterserverAdmin());
-		listBoxFogOfWar.setEditable(isMasterserverAdmin());
+		listBoxMap.setEditable(isHeadlessAdmin());
+		buttonPlayNow.setVisible(isHeadlessAdmin());
+		buttonRestoreLastSettings.setVisible(isHeadlessAdmin());
+		listBoxTechTree.setEditable(isHeadlessAdmin());
+		listBoxTileset.setEditable(isHeadlessAdmin());
+		listBoxEnableSwitchTeamMode.setEditable(isHeadlessAdmin());
+		listBoxAISwitchTeamAcceptPercent.setEditable(isHeadlessAdmin());
+		listBoxFogOfWar.setEditable(isHeadlessAdmin());
 		//listBoxEnableObserverMode.setEditable(isMasterserverAdmin());
-		listBoxAllowObservers.setEditable(isMasterserverAdmin());
+		listBoxAllowObservers.setEditable(isHeadlessAdmin());
 
-		if(isMasterserverAdmin() == true) {
+		if(isHeadlessAdmin() == true) {
 			for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
-				listBoxControls[i].setEditable(isMasterserverAdmin());
-				listBoxRMultiplier[i].setEditable(isMasterserverAdmin());
-				listBoxFactions[i].setEditable(isMasterserverAdmin());
-				listBoxTeams[i].setEditable(isMasterserverAdmin());
+				listBoxControls[i].setEditable(isHeadlessAdmin());
+				listBoxRMultiplier[i].setEditable(isHeadlessAdmin());
+				listBoxFactions[i].setEditable(isHeadlessAdmin());
+				listBoxTeams[i].setEditable(isHeadlessAdmin());
 			}
 		}
 
@@ -2480,7 +2480,7 @@ void MenuStateConnectedGame::update() {
 			//bool mustSwitchPlayerName = false;
 			if(clientInterface->getGameSettingsReceived() &&
 					lastGameSettingsReceivedCount != clientInterface->getGameSettingsReceivedCount()) {
-				broadCastGameSettingsToMasterserver(needToBroadcastServerSettings);
+				broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
 
 				lastGameSettingsReceivedCount = clientInterface->getGameSettingsReceivedCount();
 				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
@@ -3579,7 +3579,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 	for(int i=0; i<GameConstants::maxPlayers; ++i) {
 		listBoxControls[i].setSelectedItemIndex(ctClosed);
 
-		if(isMasterserverAdmin() == false) {
+		if(isHeadlessAdmin() == false) {
 			listBoxFactions[i].setEditable(false);
 			listBoxTeams[i].setEditable(false);
 		}
