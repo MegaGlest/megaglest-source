@@ -193,7 +193,7 @@ private:
     vector<pair<string,int32> > factionCRCList;
 
     bool forceWaitForShutdown;
-    bool masterserverMode;
+    bool headlessServerMode;
     bool masterserverModeMinimalResources;
     int lastMasterServerSettingsUpdateCount;
 

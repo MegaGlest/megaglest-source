@@ -242,8 +242,8 @@ private:
     void loadGameSettings(GameSettings *gameSettings);
     void reloadFactions(bool keepExistingSelectedItem,string scenario);
     void PlayNow(bool saveGame);
-    bool isMasterserverAdmin();
-    void broadCastGameSettingsToMasterserver(bool forceNow);
+    bool isHeadlessAdmin();
+    void broadCastGameSettingsToHeadlessServer(bool forceNow);
     void updateResourceMultiplier(const int index);
 
     void RestoreLastGameSettings();

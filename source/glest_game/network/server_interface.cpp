@@ -22,6 +22,7 @@
 #include <time.h>
 #include "util.h"
 #include "game_util.h"
+#include "map.h"
 #include "miniftpserver.h"
 #include "window.h"
 #include <set>
@@ -126,6 +127,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	if (allMaps.empty()) {
         throw megaglest_runtime_error("No maps were found!");
 	}
+	std::sort(allMaps.begin(),allMaps.end());
 	results.clear();
 	copy(allMaps.begin(), allMaps.end(), std::back_inserter(results));
 	mapFiles = results;
@@ -2088,12 +2090,73 @@ void ServerInterface::validateGameSettings(GameSettings *serverGameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",__FILE__,__FUNCTION__);
 
 	string mapFile = serverGameSettings->getMap();
+	bool useNext=false;
+	printf("Trying to set map to [%s]. Current map is [%s]\n",serverGameSettings->getMap().c_str(),gameSettings.getMap().c_str());
 	if(find(mapFiles.begin(),mapFiles.end(),mapFile) == mapFiles.end()) {
-		printf("Reverting map from [%s] to [%s]\n",serverGameSettings->getMap().c_str(),gameSettings.getMap().c_str());
+		printf("map not found on this server\n");
+		int currentIndex=-1;
+		string currentMap=gameSettings.getMap();
+		for (int i=0 ;i<mapFiles.size(); i++) {
+			string current=mapFiles[i];
+			if(current==currentMap)
+			{
+			 	currentIndex=i;
+			 	break;
+			}
+		}
+		if(currentIndex==-1){
+			serverGameSettings->setMap(gameSettings.getMap());
+		} else {
+			if(mapFile>gameSettings.getMap()){
+				printf("mapFile>gameSettings [%s] > [%s]\n",mapFile.c_str(),gameSettings.getMap().c_str());
 
+				int nextIndex=-1;
+				for (int i=0 ;i<mapFiles.size(); i++) {
+					string current=mapFiles[i];
+					if(current>mapFile)
+					{
+						nextIndex=i;
+					 	break;
+					}
+				}
+				if(nextIndex>-1){
+					serverGameSettings->setMap(mapFiles[nextIndex]);
+					//printf("switch up\n");
+				} else {
+					//printf("overflow top\n");
+					serverGameSettings->setMap(mapFiles[0]);
+				}
+
+			}
+			else
+			{
+				printf("mapFile<gameSettings [%s] < [%s]\n",mapFile.c_str(),gameSettings.getMap().c_str());
+				int nextIndex=-1;
+				for (int i=mapFiles.size()-1 ;i>-1; i--) {
+					string current=mapFiles[i];
+					if(current<mapFile)
+					{
+						nextIndex=i;
+						break;
+					}
+				}
+
+				if(nextIndex>-1){
+					serverGameSettings->setMap(mapFiles[nextIndex]);
+					//printf("switch down\n");
+				} else {
+					//printf("overflow bottom\n");
+					serverGameSettings->setMap(mapFiles[(mapFiles.size()-1)]);
+				}
+			}
+			printf("switching map from [%s] to [%s]\n",mapFile.c_str(),serverGameSettings->getMap().c_str());
+		}
 		serverGameSettings->setMapFilterIndex(gameSettings.getMapFilterIndex());
-		serverGameSettings->setMap(gameSettings.getMap());
-		serverGameSettings->setMapCRC(gameSettings.getMapCRC());
+
+		Checksum checksum;
+		string file = Map::getMapPath(serverGameSettings->getMap(),"",false);
+		checksum.addFile(file);
+		serverGameSettings->setMapCRC(checksum.getSum());
 	}
 
 	string tilesetFile = serverGameSettings->getTileset();

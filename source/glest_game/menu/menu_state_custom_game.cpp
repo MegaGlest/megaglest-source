@@ -39,8 +39,8 @@ using namespace Shared::Util;
 
 const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS   	= 10;
 const int MASTERSERVER_BROADCAST_PUBLISH_SECONDS   	= 6;
-const int MASTERSERVER_BROADCAST_MAP_DELAY_SECONDS 	= 5;
-const int MASTERSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
+const int BROADCAST_MAP_DELAY_SECONDS 	= 5;
+const int BROADCAST_SETTINGS_SECONDS  	= 4;
 static const char *SAVED_GAME_FILENAME 				= "lastCustomGamSettings.mgg";
 
 struct FormatString {
@@ -60,8 +60,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		MenuState(program, mainMenu, "new-game") {
 	try {
 
-	this->masterserverMode = masterserverMode;
-	if(this->masterserverMode == true) {
+	this->headlessServerMode = masterserverMode;
+	if(this->headlessServerMode == true) {
 		printf("Waiting for players to join and start a game...\n");
 	}
 
@@ -356,7 +356,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxPublishServer.init(50, networkPos, 100);
 	listBoxPublishServer.pushBackItem(lang.get("Yes"));
 	listBoxPublishServer.pushBackItem(lang.get("No"));
-	if(this->masterserverMode == true ||
+	if(this->headlessServerMode == true ||
 		(openNetworkSlots == true && parentMenuState != pLanGame)) {
 		listBoxPublishServer.setSelectedItemIndex(0);
 	}
@@ -372,7 +372,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelGameName.init(150, networkHeadPos-2*labelOffset,100);
 	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	if(this->masterserverMode == false) {
+	if(this->headlessServerMode == false) {
 		labelGameName.setText(defaultPlayerName+"'s game");
 	}
 	else {
@@ -559,7 +559,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	//init controllers
 	if(serverInitError == false) {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-		if(this->masterserverMode == true) {
+		if(this->headlessServerMode == true) {
 			listBoxControls[0].setSelectedItemIndex(ctNetwork);
 		}
 		else {
@@ -782,7 +782,7 @@ void MenuStateCustomGame::reloadUI() {
 
 	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	if(this->masterserverMode == false) {
+	if(this->headlessServerMode == false) {
 		labelGameName.setText(defaultPlayerName+"'s game");
 	}
 	else {
@@ -1670,7 +1670,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			cleanup();
-			Game *newGame = new Game(program, &gameSettings, this->masterserverMode);
+			Game *newGame = new Game(program, &gameSettings, this->headlessServerMode);
 			forceWaitForShutdown = false;
 			program->setState(newGame);
 			return;
@@ -1732,7 +1732,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 }
 
 bool MenuStateCustomGame::isMasterserverMode() const {
-	return (this->masterserverMode == true && this->masterserverModeMinimalResources == true);
+	return (this->headlessServerMode == true && this->masterserverModeMinimalResources == true);
 	//return false;
 }
 
@@ -2138,7 +2138,7 @@ void MenuStateCustomGame::update() {
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
 
-			if(this->masterserverMode == false) {
+			if(this->headlessServerMode == false) {
 				listBoxPublishServer.setSelectedItemIndex(1);
 			}
 
@@ -2156,7 +2156,7 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-		if(this->masterserverMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
+		if(this->headlessServerMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
 				serverInterface->getGameSettings() != NULL) {
 			const GameSettings *settings = serverInterface->getGameSettings();
 			//printf("\n\n\n\n=====#1 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),settings->toString().c_str());
@@ -2172,7 +2172,7 @@ void MenuStateCustomGame::update() {
             //printf("\n\n\n\n=====#1.1 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),gameSettings.toString().c_str());
 
 		}
-		if(this->masterserverMode == true && serverInterface->getMasterserverAdminRequestLaunch() == true) {
+		if(this->headlessServerMode == true && serverInterface->getMasterserverAdminRequestLaunch() == true) {
 			serverInterface->setMasterserverAdminRequestLaunch(false);
 			safeMutex.ReleaseLock();
 
@@ -2405,7 +2405,8 @@ void MenuStateCustomGame::update() {
 
 		bool checkDataSynch = (serverInterface->getAllowGameDataSynchCheck() == true &&
 					needToSetChangedGameSettings == true &&
-					difftime(time(NULL),lastSetChangedGameSettings) >= MASTERSERVER_BROADCAST_SETTINGS_SECONDS);
+					(( difftime(time(NULL),lastSetChangedGameSettings) >= BROADCAST_SETTINGS_SECONDS)||
+					(this->headlessServerMode == true)));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -2419,15 +2420,15 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-		if(this->masterserverMode == true || hasOneNetworkSlotOpen == true) {
-			if(this->masterserverMode == true) {
+		if(this->headlessServerMode == true || hasOneNetworkSlotOpen == true) {
+			if(this->headlessServerMode == true) {
 				listBoxPublishServer.setSelectedItemIndex(0);
 			}
 			listBoxPublishServer.setEditable(true);
 			//listBoxEnableServerControlledAI.setEditable(true);
 
 			// Masterserver always needs one network slot
-			if(this->masterserverMode == true && hasOneNetworkSlotOpen == false) {
+			if(this->headlessServerMode == true && hasOneNetworkSlotOpen == false) {
 				for(int i= 0; i < mapInfo.players; ++i) {
 					if(listBoxControls[i].getSelectedItemIndex() != ctNetwork &&
 						listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
@@ -2469,7 +2470,8 @@ void MenuStateCustomGame::update() {
 		}
 		if(needToPublishDelayed) {
 			// this delay is done to make it possible to switch over maps which are not meant to be distributed
-			if(difftime(time(NULL), mapPublishingDelayTimer) >= MASTERSERVER_BROADCAST_MAP_DELAY_SECONDS){
+			if((difftime(time(NULL), mapPublishingDelayTimer) >= BROADCAST_MAP_DELAY_SECONDS) ||
+					(this->headlessServerMode == true)	){
 				// after 5 seconds we are allowed to publish again!
 				needToSetChangedGameSettings = true;
 				lastSetChangedGameSettings   = time(NULL);
@@ -2477,8 +2479,8 @@ void MenuStateCustomGame::update() {
 				needToPublishDelayed=false;
 			}
 		}
-		if(needToPublishDelayed == false || masterserverMode == true) {
-			bool broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= MASTERSERVER_BROADCAST_SETTINGS_SECONDS);
+		if(needToPublishDelayed == false || headlessServerMode == true) {
+			bool broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= BROADCAST_SETTINGS_SECONDS);
 
 			//printf("broadCastSettings = %d\n",broadCastSettings);
 
@@ -2857,7 +2859,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
             ServerInterface *serverInterface= NetworkManager::getInstance().getServerInterface(false);
             if(serverInterface != NULL) {
 
-            	if(this->masterserverMode == false || (serverInterface->getGameSettingsUpdateCount() <= lastMasterServerSettingsUpdateCount)) {
+            	if(this->headlessServerMode == false || (serverInterface->getGameSettingsUpdateCount() <= lastMasterServerSettingsUpdateCount)) {
                     GameSettings gameSettings;
                     loadGameSettings(&gameSettings);
 
@@ -2925,7 +2927,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(this->masterserverMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
+	if(this->headlessServerMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
 			serverInterface->getGameSettings() != NULL) {
 		const GameSettings *settings = serverInterface->getGameSettings();
 		//printf("\n\n\n\n=====#3 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),settings->toString().c_str());
@@ -3193,7 +3195,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 	//printf("this->masterserverMode = %d\n",this->masterserverMode);
 
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		time_t clientConnectedTime = 0;
 		bool masterserver_admin_found=false;
 		//printf("mapInfo.players [%d]\n",mapInfo.players);
@@ -3618,7 +3620,7 @@ void MenuStateCustomGame::updateControlers() {
 		}
 
 		if(humanPlayer == false) {
-			if(this->masterserverMode == false) {
+			if(this->headlessServerMode == false) {
 				listBoxControls[0].setSelectedItemIndex(ctHuman);
 				labelPlayerNames[0].setText("");
 				labelPlayerNames[0].setText(getHumanPlayerName());
