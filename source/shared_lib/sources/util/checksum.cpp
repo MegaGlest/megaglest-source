@@ -265,10 +265,11 @@ int32 Checksum::getSum() {
 		Checksum newResult;
 
 		{
-		MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
+
 		for(std::map<string,int32>::iterator iterMap = fileList.begin();
 			iterMap != fileList.end(); ++iterMap) {
 
+			MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 			if(Checksum::fileListCache.find(iterMap->first) == Checksum::fileListCache.end()) {
 				Checksum fileResult;
 				bool fileAddedOk = fileResult.addFileToSum(iterMap->first);
@@ -281,6 +282,9 @@ int32 Checksum::getSum() {
 			newResult.addSum(Checksum::fileListCache[iterMap->first]);
 		}
 		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,fileList.size());
+
 		return newResult.getSum();
 	}
 	return sum;

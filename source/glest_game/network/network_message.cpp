@@ -41,6 +41,9 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryR
 	if(socket != NULL) {
 		int dataReceived = socket->receive(data, dataSize, tryReceiveUntilDataSizeMet);
 		if(dataReceived != dataSize) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, dataReceived = %d dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataReceived,dataSize);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] WARNING, dataReceived = %d dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataReceived,dataSize);
+
 			if(socket != NULL && socket->getSocketId() > 0) {
 				throw megaglest_runtime_error("Error receiving NetworkMessage, dataReceived = " + intToStr(dataReceived) + ", dataSize = " + intToStr(dataSize));
 			}
