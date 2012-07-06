@@ -949,6 +949,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
     try {
 		if(serverInfo != "") {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------> serverInfo [%s]\n",serverInfo.c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			std::vector<std::string> serverList;
 			Tokenize(serverInfo,serverList,"\n");
@@ -1002,9 +1003,13 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 					sprintf(szBuf,"%s",masterServerInfo->getServerTitle().c_str());
 					masterServerInfo->setServerTitle(szBuf);
 
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 					serverLines.push_back(new ServerLine( masterServerInfo, i, serverLinesYBase, serverLinesLineHeight, containerName));
 				}
 				else {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 					Lang &lang= Lang::getInstance();
 					labelTitle.setText("*** " + lang.get("AvailableServers") + "[" + intToStr(serverEntities.size()) + "][" + intToStr(MIN_FIELDS_EXPECTED) + "] [" + serverInfo + "]");
 
@@ -1013,7 +1018,11 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error, no masterserver defined!\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		}
 
     }
