@@ -645,7 +645,17 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, int32 &value) {
 			time_t refreshDate = 0;
 			int32 crcValue = 0;
 			time_t lastUpdateDate = 0;
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s]\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str());
+			}
+
 			int readbytes = fscanf(fp,"%20ld,%20d,%20ld",&refreshDate,&crcValue,&lastUpdateDate);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s] readbytes = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),readbytes);
+			}
+
 			fclose(fp);
 
 			result.second = lastUpdateDate;
