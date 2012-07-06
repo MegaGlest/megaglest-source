@@ -1435,6 +1435,10 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 
 		char *dataAsCharPointer = reinterpret_cast<char *>(data);
 		int additionalBytes = receive(&dataAsCharPointer[bytesReceived], newBufferSize, tryReceiveUntilDataSizeMet);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, additionalBytes = %d\n",__FILE__,__FUNCTION__,__LINE__,additionalBytes);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] WARNING, additionalBytes = %d\n",__FILE__,__FUNCTION__,__LINE__,additionalBytes);
+
 		if(additionalBytes > 0) {
 			bytesReceived += additionalBytes;
 		}
