@@ -94,165 +94,198 @@ void FileCRCPreCacheThread::execute() {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] techsPerWorker = %d, MAX_FileCRCPreCacheThread_WORKER_THREADS = %d, techPaths.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,techsPerWorker,MAX_FileCRCPreCacheThread_WORKER_THREADS,(int)techPaths.size());
 
 					unsigned int consumedWorkers = 0;
-					for(unsigned int workerIdx = 0; workerIdx < MAX_FileCRCPreCacheThread_WORKER_THREADS; ++workerIdx) {
-						if(getQuitStatus() == true) {
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-							break;
-						}
 
-						unsigned int currentWorkerMax = (techPaths.size() - consumedWorkers);
-						if(currentWorkerMax > techsPerWorker) {
-							currentWorkerMax = techsPerWorker;
-						}
+					try {
+						for(unsigned int workerIdx = 0; workerIdx < MAX_FileCRCPreCacheThread_WORKER_THREADS; ++workerIdx) {
+							if(getQuitStatus() == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								break;
+							}
 
-						vector<string> workerTechList;
-						unsigned int endConsumerIndex = consumedWorkers + currentWorkerMax;
-						for(unsigned int idx = consumedWorkers; idx < endConsumerIndex; idx++) {
-							string techName = techPaths[idx];
-							workerTechList.push_back(techName);
+							unsigned int currentWorkerMax = (techPaths.size() - consumedWorkers);
+							if(currentWorkerMax > techsPerWorker) {
+								currentWorkerMax = techsPerWorker;
+							}
 
-							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Spawning CRC thread for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,(int)techPaths.size());
-						}
+							vector<string> workerTechList;
+							unsigned int endConsumerIndex = consumedWorkers + currentWorkerMax;
+							for(unsigned int idx = consumedWorkers; idx < endConsumerIndex; idx++) {
+								string techName = techPaths[idx];
+								workerTechList.push_back(techName);
 
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %d, currentWorkerMax = %d, endConsumerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);
+								if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Spawning CRC thread for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,(int)techPaths.size());
+							}
 
-						// Pause before launching this worker thread
-						time_t pauseTime = time(NULL);
-						while(getQuitStatus() == false &&
-								difftime(time(NULL),pauseTime) <= PAUSE_SECONDS_BETWEEN_WORKERS) {
-							sleep(25);
-						}
-						if(getQuitStatus() == true) {
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-							break;
-						}
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %d, currentWorkerMax = %d, endConsumerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);
+
+							// Pause before launching this worker thread
+							time_t pauseTime = time(NULL);
+							while(getQuitStatus() == false &&
+									difftime(time(NULL),pauseTime) <= PAUSE_SECONDS_BETWEEN_WORKERS) {
+								sleep(25);
+							}
+							if(getQuitStatus() == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								break;
+							}
 
 
-						FileCRCPreCacheThread *workerThread =
-								new FileCRCPreCacheThread(techDataPaths,
-										workerTechList,
-										this->processTechCB);
-						workerThread->setUniqueID(__FILE__);
-						preCacheWorkerThreadList.push_back(workerThread);
-						workerThread->start();
+							FileCRCPreCacheThread *workerThread =
+									new FileCRCPreCacheThread(techDataPaths,
+											workerTechList,
+											this->processTechCB);
+							workerThread->setUniqueID(__FILE__);
+							preCacheWorkerThreadList.push_back(workerThread);
+							workerThread->start();
 
-						consumedWorkers += currentWorkerMax;
+							consumedWorkers += currentWorkerMax;
 
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Spawning CRC thread, preCacheWorkerThreadList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)preCacheWorkerThreadList.size());
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Spawning CRC thread, preCacheWorkerThreadList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)preCacheWorkerThreadList.size());
 
-						if(consumedWorkers >= techPaths.size()) {
-							break;
+							if(consumedWorkers >= techPaths.size()) {
+								break;
+							}
 						}
 					}
+			        catch(const exception &ex) {
+			            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			        }
+			        catch(...) {
+			            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
+			            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+			        }
 
 					sleep(0);
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Waiting for Spawned CRC threads to complete, preCacheWorkerThreadList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)preCacheWorkerThreadList.size());
 					bool hasRunningWorkerThread = true;
-					for(;hasRunningWorkerThread == true;) {
-						hasRunningWorkerThread = false;
-						for(unsigned int idx = 0; idx < preCacheWorkerThreadList.size(); idx++) {
-							FileCRCPreCacheThread *workerThread = preCacheWorkerThreadList[idx];
 
-							if(workerThread != NULL) {
-								//vector<Texture2D *> textureList = workerThread->getPendingTextureList(-1);
-								//addPendingTextureList(textureList);
-
-								if(workerThread->getRunningStatus() == true) {
-									hasRunningWorkerThread = true;
-									if(getQuitStatus() == true &&
-										workerThread->getQuitStatus() == false) {
-										workerThread->signalQuit();
-									}
-								}
-								else if(workerThread->getRunningStatus() == false) {
-									sleep(10);
-									delete workerThread;
-									preCacheWorkerThreadList[idx] = NULL;
-								}
-							}
-						}
-
-						if(	getQuitStatus() == false &&
-							hasRunningWorkerThread == true) {
-							sleep(10);
-						}
-						else if(getQuitStatus() == true) {
+					try {
+						for(;hasRunningWorkerThread == true;) {
+							hasRunningWorkerThread = false;
 							for(unsigned int idx = 0; idx < preCacheWorkerThreadList.size(); idx++) {
 								FileCRCPreCacheThread *workerThread = preCacheWorkerThreadList[idx];
-								if(workerThread != NULL && workerThread->getQuitStatus() == false) {
-									workerThread->signalQuit();
+
+								if(workerThread != NULL) {
+									//vector<Texture2D *> textureList = workerThread->getPendingTextureList(-1);
+									//addPendingTextureList(textureList);
+
+									if(workerThread->getRunningStatus() == true) {
+										hasRunningWorkerThread = true;
+										if(getQuitStatus() == true &&
+											workerThread->getQuitStatus() == false) {
+											workerThread->signalQuit();
+										}
+									}
+									else if(workerThread->getRunningStatus() == false) {
+										sleep(10);
+										delete workerThread;
+										preCacheWorkerThreadList[idx] = NULL;
+									}
+								}
+							}
+
+							if(	getQuitStatus() == false &&
+								hasRunningWorkerThread == true) {
+								sleep(10);
+							}
+							else if(getQuitStatus() == true) {
+								for(unsigned int idx = 0; idx < preCacheWorkerThreadList.size(); idx++) {
+									FileCRCPreCacheThread *workerThread = preCacheWorkerThreadList[idx];
+									if(workerThread != NULL && workerThread->getQuitStatus() == false) {
+										workerThread->signalQuit();
+									}
 								}
 							}
 						}
 					}
+			        catch(const exception &ex) {
+			            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			        }
+			        catch(...) {
+			            SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
+			            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+			        }
+
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("********************** CRC Controller thread took %.2f seconds END **********************\n",difftime(time(NULL),elapsedTime));
                 }
             }
         	else {
-        		for(unsigned int idx = 0; idx < workerThreadTechPaths.size(); idx++) {
-					string techName = this->workerThreadTechPaths[idx];
-					if(getQuitStatus() == true) {
-						break;
-					}
-					//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread START for tech [%s] ---------------------------\n",techName.c_str());
-					//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
+        		try {
+					for(unsigned int idx = 0; idx < workerThreadTechPaths.size(); idx++) {
+						string techName = this->workerThreadTechPaths[idx];
+						if(getQuitStatus() == true) {
+							break;
+						}
+						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread START for tech [%s] ---------------------------\n",techName.c_str());
+						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caching CRC value for Tech [%s]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str());
 
-					time_t elapsedTime = time(NULL);
-					// Clear existing CRC to force a CRC refresh
-					string pathSearchString     = string("/") + techName + string("/*");
-					const string filterFileExt  = ".xml";
-					//clearFolderTreeContentsCheckSum(techDataPaths, pathSearchString, filterFileExt);
-					//clearFolderTreeContentsCheckSumList(techDataPaths, pathSearchString, filterFileExt);
+						time_t elapsedTime = time(NULL);
+						// Clear existing CRC to force a CRC refresh
+						string pathSearchString     = string("/") + techName + string("/*");
+						const string filterFileExt  = ".xml";
+						//clearFolderTreeContentsCheckSum(techDataPaths, pathSearchString, filterFileExt);
+						//clearFolderTreeContentsCheckSumList(techDataPaths, pathSearchString, filterFileExt);
 
-					if(getQuitStatus() == true) {
-						break;
-					}
+						if(getQuitStatus() == true) {
+							break;
+						}
 
-					//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread running for tech [%s] ---------------------------\n",techName.c_str());
-					if(getQuitStatus() == false) {
-						int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL, true);
+						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread running for tech [%s] ---------------------------\n",techName.c_str());
+						if(getQuitStatus() == false) {
+							int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL, true);
 
-						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+							//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 
-						vector<string> results;
-					    for(unsigned int idx = 0; idx < techDataPaths.size(); idx++) {
-					        string &techPath = techDataPaths[idx];
-					        endPathWithSlash(techPath);
-					        findAll(techPath + techName + "/factions/*.", results, false, false);
-					        if(results.empty() == false) {
-					            break;
-					        }
-					    }
-
-					    if(results.empty() == true) {
-							for(unsigned int factionIdx = 0; factionIdx < results.size(); ++factionIdx) {
-								string factionName = results[factionIdx];
-								int32 factionCRC   = 0;
-								factionCRC   = getFolderTreeContentsCheckSumRecursively(techDataPaths, "/" + techName + "/factions/" + factionName + "/*", ".xml", NULL, true);
+							vector<string> results;
+							for(unsigned int idx = 0; idx < techDataPaths.size(); idx++) {
+								string &techPath = techDataPaths[idx];
+								endPathWithSlash(techPath);
+								findAll(techPath + techName + "/factions/*.", results, false, false);
+								if(results.empty() == false) {
+									break;
+								}
 							}
-					    }
 
-						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
-					}
+							if(results.empty() == true) {
+								for(unsigned int factionIdx = 0; factionIdx < results.size(); ++factionIdx) {
+									string factionName = results[factionIdx];
+									int32 factionCRC   = 0;
+									factionCRC   = getFolderTreeContentsCheckSumRecursively(techDataPaths, "/" + techName + "/factions/" + factionName + "/*", ".xml", NULL, true);
+								}
+							}
 
-//					if(processTechCB) {
-//						vector<Texture2D *> files = processTechCB->processTech(techName);
-//						for(unsigned int logoIdx = 0; logoIdx < files.size(); ++logoIdx) {
-//							addPendingTexture(files[logoIdx]);
-//
-//							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread added texture [%s] for tech [%s] ---------------------------\n",files[logoIdx]->getPath().c_str(),techName.c_str());
-//						}
-//					}
+							//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+						}
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread END for tech [%s] ---------------------------\n",techName.c_str());
+	//					if(processTechCB) {
+	//						vector<Texture2D *> files = processTechCB->processTech(techName);
+	//						for(unsigned int logoIdx = 0; logoIdx < files.size(); ++logoIdx) {
+	//							addPendingTexture(files[logoIdx]);
+	//
+	//							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread added texture [%s] for tech [%s] ---------------------------\n",files[logoIdx]->getPath().c_str(),techName.c_str());
+	//						}
+	//					}
 
-					if(getQuitStatus() == true) {
-						break;
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread END for tech [%s] ---------------------------\n",techName.c_str());
+
+						if(getQuitStatus() == true) {
+							break;
+						}
 					}
         		}
+                catch(const exception &ex) {
+                    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+                }
+                catch(...) {
+                    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] UNKNOWN Error\n",__FILE__,__FUNCTION__,__LINE__);
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
+                }
         	}
         }
         catch(const exception &ex) {
@@ -264,8 +297,8 @@ void FileCRCPreCacheThread::execute() {
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
         }
 
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting, getDeleteSelfOnExecutionDone() = %d\n",__FILE__,__FUNCTION__,__LINE__,getDeleteSelfOnExecutionDone());
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] FILE CRC PreCache thread is exiting, getDeleteSelfOnExecutionDone() = %d\n",__FILE__,__FUNCTION__,__LINE__,getDeleteSelfOnExecutionDone());
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] FILE CRC PreCache thread is exiting...\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] FILE CRC PreCache thread is exiting...\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	deleteSelfIfRequired();
 }
