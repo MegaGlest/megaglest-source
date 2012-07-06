@@ -263,10 +263,12 @@ int32 Checksum::getSum() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,fileList.size());
 
 		Checksum newResult;
+
+		{
+		MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 		for(std::map<string,int32>::iterator iterMap = fileList.begin();
 			iterMap != fileList.end(); ++iterMap) {
 
-			MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 			if(Checksum::fileListCache.find(iterMap->first) == Checksum::fileListCache.end()) {
 				Checksum fileResult;
 				bool fileAddedOk = fileResult.addFileToSum(iterMap->first);
@@ -277,6 +279,7 @@ int32 Checksum::getSum() {
 				//printf("Getting checksum from CACHE for file [%s] CRC [%d]\n",iterMap->first.c_str(),Checksum::fileListCache[iterMap->first]);
 			}
 			newResult.addSum(Checksum::fileListCache[iterMap->first]);
+		}
 		}
 		return newResult.getSum();
 	}
