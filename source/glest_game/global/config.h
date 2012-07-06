@@ -36,14 +36,17 @@ using Shared::Util::Properties;
 enum ConfigType {
     cfgMainGame,
     cfgUserGame,
+    cfgTempGame,
     cfgMainKeys,
-    cfgUserKeys
+    cfgUserKeys,
+    cfgTempKeys
 };
 
 class Config {
 private:
 
 	std::pair<Properties,Properties> properties;
+	Properties tempProperties;
 	std::pair<ConfigType,ConfigType> cfgType;
 	std::pair<string,string> fileNameParameter;
 	std::pair<string,string> fileName;
@@ -92,10 +95,10 @@ public:
 	//char getCharKey(const char *key) const;
 	SDLKey getSDLKey(const char *key) const;
 
-	void setInt(const string &key, int value);
-	void setBool(const string &key, bool value);
-	void setFloat(const string &key, float value);
-	void setString(const string &key, const string &value);
+	void setInt(const string &key, int value, bool tempBuffer=false);
+	void setBool(const string &key, bool value, bool tempBuffer=false);
+	void setFloat(const string &key, float value, bool tempBuffer=false);
+	void setString(const string &key, const string &value, bool tempBuffer=false);
 
     vector<string> getPathListForType(PathType type, string scenarioDir = "");
 
