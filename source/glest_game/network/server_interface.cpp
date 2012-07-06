@@ -79,8 +79,9 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	serverSocketAdmin				= new ServerSocket(true);
 	serverSocketAdmin->setBlock(false);
 	serverSocketAdmin->setBindPort(Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str()));
-	serverSocketAdmin->setBindSpecificAddress("127.0.0.1");
-	serverSocketAdmin->listen(5);
+	//serverSocketAdmin->setBindSpecificAddress("127.0.0.1");
+	serverSocketAdmin->setBindSpecificAddress(Config::getInstance().getString("ServerAdminBindAddress", "127.0.0.1"));
+	//serverSocketAdmin->listen(5);
 
 	maxFrameCountLagAllowed 				= Config::getInstance().getInt("MaxFrameCountLagAllowed", intToStr(maxFrameCountLagAllowed).c_str());
 	maxFrameCountLagAllowedEver 			= Config::getInstance().getInt("MaxFrameCountLagAllowedEver", intToStr(maxFrameCountLagAllowedEver).c_str());
@@ -372,6 +373,9 @@ void ServerInterface::addSlot(int playerIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(playerIndex >= 0 && playerIndex < GameConstants::maxPlayers);
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
+	if(serverSocketAdmin->isSocketValid() == false) {
+		serverSocketAdmin->listen(5);
+	}
 	if(serverSocket.isPortBound() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		serverSocket.bind(serverSocket.getBindPort());
