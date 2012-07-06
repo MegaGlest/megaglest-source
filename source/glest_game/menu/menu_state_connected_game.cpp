@@ -3842,6 +3842,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 		std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
 		//printf("#5\n");
 
+		formattedMapFiles.clear();
 		for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
 			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
 
