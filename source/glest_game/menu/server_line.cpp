@@ -95,6 +95,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 		//loadingTexture = renderer.newTexture2D(rsGlobal);
 		countryTexture->setMipmap(true);
 		//loadingTexture->getPixmap()->load(filepath);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,logoFile.c_str());
 		countryTexture->load(logoFile);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
