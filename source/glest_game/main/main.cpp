@@ -3262,16 +3262,16 @@ int glestMain(int argc, char** argv) {
 
 					printf("Forcing internal port# %d, external port# %d\n",internalPort,externalPort);
 
-					config.setInt("ServerPort",internalPort);
-					config.setInt("MasterServerExternalPort",externalPort);
-					config.setInt("FTPServerPort",internalPort+1);
+					config.setInt("ServerPort",internalPort,true);
+					config.setInt("MasterServerExternalPort",externalPort,true);
+					config.setInt("FTPServerPort",internalPort+1,true);
 
 					if(paramPartPortsTokens.size() >= 3 && paramPartPortsTokens[2].length() > 0) {
 						int statusPort = strToInt(paramPartPortsTokens[2]);
 
 						printf("Forcing status port# %d\n",statusPort);
 
-						config.setInt("ServerAdminPort",statusPort);
+						config.setInt("ServerAdminPort",statusPort,true);
 					}
 				}
 				else {
@@ -3306,7 +3306,7 @@ int glestMain(int argc, char** argv) {
 
 	    if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_SOUND]) == true ||
 	    	hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-	    	config.setString("FactorySound","None");
+	    	config.setString("FactorySound","None",true);
 	    	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
 	    		//Logger::getInstance().setMasterserverMode(true);
 	    		//Model::setMasterserverMode(true);
@@ -3356,10 +3356,10 @@ int glestMain(int argc, char** argv) {
 				Tokenize(settings,paramPartTokens,"x");
 				if(paramPartTokens.size() >= 2) {
 					int newScreenWidth 	= strToInt(paramPartTokens[0]);
-					config.setInt("ScreenWidth",newScreenWidth);
+					config.setInt("ScreenWidth",newScreenWidth,true);
 
 					int newScreenHeight = strToInt(paramPartTokens[1]);
-					config.setInt("ScreenHeight",newScreenHeight);
+					config.setInt("ScreenHeight",newScreenHeight,true);
 				}
 				else {
 		            printf("\nInvalid missing resolution settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -3388,7 +3388,7 @@ int glestMain(int argc, char** argv) {
 				printf("Forcing colorbits [%s]\n",settings.c_str());
 
 				int newColorBits = strToInt(settings);
-				config.setInt("ColorBits",newColorBits);
+				config.setInt("ColorBits",newColorBits,true);
 			}
 			else {
 				printf("\nInvalid missing colorbits settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -3411,7 +3411,7 @@ int glestMain(int argc, char** argv) {
 				printf("Forcing depthbits [%s]\n",settings.c_str());
 
 				int newDepthBits = strToInt(settings);
-				config.setInt("DepthBits",newDepthBits);
+				config.setInt("DepthBits",newDepthBits,true);
 			}
 			else {
 				printf("\nInvalid missing depthbits setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -3434,7 +3434,7 @@ int glestMain(int argc, char** argv) {
 				printf("Forcing fullscreen [%s]\n",settings.c_str());
 
 				bool newFullScreenMode = strToBool(settings);
-				config.setBool("Windowed",!newFullScreenMode);
+				config.setBool("Windowed",!newFullScreenMode,true);
 			}
 			else {
 				printf("\nInvalid missing fullscreen setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -3457,7 +3457,7 @@ int glestMain(int argc, char** argv) {
 				printf("Forcing gamma [%s]\n",settings.c_str());
 
 				float newGammaValue = strToFloat(settings);
-				config.setFloat("GammaValue",newGammaValue);
+				config.setFloat("GammaValue",newGammaValue,true);
 			}
 			else {
 				printf("\nInvalid missing gamma setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -3614,7 +3614,7 @@ int glestMain(int argc, char** argv) {
     		printf("Running in auto test mode\n");
     	}
 		if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTO_TEST])) == true) {
-			Config::getInstance().setBool("AutoTest","true");
+			Config::getInstance().setBool("AutoTest","true",true);
 
 			int foundParamIndIndex = -1;
 			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTO_TEST]) + string("="),&foundParamIndIndex);
