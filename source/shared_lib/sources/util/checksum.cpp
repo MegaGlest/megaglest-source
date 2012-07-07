@@ -250,7 +250,7 @@ bool Checksum::addFileToSum(const string &path) {
 
 #if defined(WIN32) && !defined(__MINGW32__)
 	wstring wstr = utf8_decode(path);
-	FILE *fp = _wfopen(wstr.c_str(), L"r");
+	FILE *fp = _wfopen(wstr.c_str(), L"rb");
 	ifstream ifs(fp);
 #else
     ifstream ifs(path.c_str());
@@ -277,7 +277,7 @@ bool Checksum::addFileToSum(const string &path) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] buf.size() = %d, path [%s], isXMLFile = %d\n",__FILE__,__FUNCTION__,__LINE__,buf.size(), path.c_str(),isXMLFile);
 
 		if(isXMLFile == true) {
-			for(unsigned int i = 0; i < buf.size(); ++i) {
+			for(std::size_t i = 0; i < buf.size(); ++i) {
 				// Ignore Spaces in XML files as they are
 				// ONLY for formatting
 				//if(isXMLFile == true) {
@@ -285,9 +285,11 @@ bool Checksum::addFileToSum(const string &path) {
 						if(buf[i] == '>' && i >= 3 && buf[i-1] == '-' && buf[i-2] == '-') {
 							inCommentTag = false;
 							//printf("TURNING OFF comment TAG, i = %d [%c]",i,buf[i]);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
 						}
 						else {
 							//printf("SKIPPING XML comment character, i = %d [%c]",i,buf[i]);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
 						}
 						continue;
 					}
@@ -295,10 +297,12 @@ bool Checksum::addFileToSum(const string &path) {
 					else if(buf[i] == '<' && i+4 < bufSize && buf[i+1] == '!' && buf[i+2] == '-' && buf[i+3] == '-') {
 						inCommentTag = true;
 						//printf("TURNING ON comment TAG, i = %d [%c]",i,buf[i]);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
 						continue;
 					}
 					else if(buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r') {
 						//printf("SKIPPING special character, i = %d [%c]",i,buf[i]);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
 						continue;
 					}
 				//}
