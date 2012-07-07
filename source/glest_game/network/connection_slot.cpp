@@ -781,17 +781,43 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 										throw megaglest_runtime_error(szBuf);
 									}
 
-									GameSettings gameSettingsBuffer;
-									networkMessageLaunch.buildGameSettings(&gameSettingsBuffer);
+									int minHeadLessPlayersRequired = Config::getInstance().getInt("MinHeadlessPlayersRequired","2");
+									if(networkMessageLaunch.getMessageType() == nmtLaunch &&
+											this->serverInterface->getConnectedSlotCount() < minHeadLessPlayersRequired) {
+								    	Lang &lang= Lang::getInstance();
+								    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+								    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+											char szBuf[4096]="";
 
-									//printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
-									//printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
+											string msgTemplate = "You must have have at least %d player(s) connected to start this game!";
+											if(lang.hasString("HeadlessAdminRequiresMorePlayers") == true) {
+												msgTemplate = lang.get("HeadlessAdminRequiresMorePlayers",languageList[i]);
+											}
+					#ifdef WIN32
+											_snprintf(szBuf,4095,msgTemplate.c_str(),minHeadLessPlayersRequired);
+					#else
+											snprintf(szBuf,4095,msgTemplate.c_str(),minHeadLessPlayersRequired);
+					#endif
+											if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
-									//this->serverInterface->setGameSettings(&gameSettingsBuffer,false);
-									this->serverInterface->broadcastGameSetup(&gameSettingsBuffer, true);
+											string sMsg = szBuf;
+											bool echoLocal = lang.isLanguageLocal(languageList[i]);
+											this->serverInterface->sendTextMessage(sMsg,-1, echoLocal, languageList[i], this->getPlayerIndex());
+								    	}
+									}
+									else {
+										GameSettings gameSettingsBuffer;
+										networkMessageLaunch.buildGameSettings(&gameSettingsBuffer);
 
-									if(networkMessageLaunch.getMessageType() == nmtLaunch) {
-										this->serverInterface->setMasterserverAdminRequestLaunch(true);
+										//printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
+										//printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
+
+										//this->serverInterface->setGameSettings(&gameSettingsBuffer,false);
+										this->serverInterface->broadcastGameSetup(&gameSettingsBuffer, true);
+
+										if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+											this->serverInterface->setMasterserverAdminRequestLaunch(true);
+										}
 									}
 								}
 								else {

@@ -79,7 +79,7 @@ void NetworkManager::update() {
 }
 
 bool NetworkManager::isNetworkGame() {
-	return networkRole==nrClient || (networkRole==nrServer && getServerInterface()->getConnectedSlotCount()>0);
+	return networkRole==nrClient || (networkRole==nrServer && getServerInterface()->getSlotCount() > 0);
 }
 
 GameNetworkInterface* NetworkManager::getGameNetworkInterface(bool throwErrorOnNull) {
