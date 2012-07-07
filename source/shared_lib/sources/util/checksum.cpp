@@ -47,11 +47,13 @@ Checksum::Checksum() {
 	c2= 22719;
 }
 
-void Checksum::addByte(int8 value) {
+int32 Checksum::addByte(int8 value) {
 	int32 cipher= (value ^ (r >> 8));
 
 	r= (cipher + r) * c1 + c2;
 	sum += cipher;
+
+	return cipher;
 }
 
 void Checksum::addSum(int32 value) {
@@ -217,6 +219,8 @@ bool Checksum::addFileToSum(const string &path) {
 		// Load the data
 		ifs.read((char*)&buf[0], buf.size());
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] buf.size() = %d, path [%s], isXMLFile = %d\n",__FILE__,__FUNCTION__,__LINE__,buf.size(), path.c_str(),isXMLFile);
+
 	    for(unsigned int i = 0; i < buf.size(); ++i) {
 	    	// Ignore Spaces in XML files as they are
 	    	// ONLY for formatting
@@ -242,7 +246,9 @@ bool Checksum::addFileToSum(const string &path) {
 	    			continue;
 	    	    }
 	    	}
-	 		addByte(buf[i]);
+	 		int32 cipher = addByte(buf[i]);
+
+	 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %d / %d, cipher = %d\n",__FILE__,__FUNCTION__,__LINE__,i,buf.size(), cipher);
 	    }
 
 		// Close the file
