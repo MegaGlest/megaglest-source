@@ -138,7 +138,9 @@ public:
     bool switchSlot(int fromPlayerIndex, int toPlayerIndex);
     void removeSlot(int playerIndex, int lockedSlotIndex = -1);
     ConnectionSlot *getSlot(int playerIndex);
+    int getSlotCount();
     int getConnectedSlotCount();
+
     int getOpenSlotCount();
     bool launchGame(const GameSettings *gameSettings);
 	void validateGameSettings(GameSettings *serverGameSettings);

@@ -523,11 +523,22 @@ bool ServerInterface::hasClientConnection() {
 	return result;
 }
 
+int ServerInterface::getSlotCount() {
+	int slotCount = 0;
+	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+		MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+		if(slots[i] != NULL) {
+			++slotCount;
+		}
+	}
+	return slotCount;
+}
+
 int ServerInterface::getConnectedSlotCount() {
 	int connectedSlotCount = 0;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
-		if(slots[i] != NULL) {
+		if(slots[i] != NULL && slots[i]->isConnected() == true) {
 			++connectedSlotCount;
 		}
 	}
