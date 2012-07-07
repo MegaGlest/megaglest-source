@@ -658,8 +658,23 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 
 			fclose(fp);
 
+			struct tm future;       /* as in future date */
+			future.tm_sec = 0;
+			future.tm_min = 0;
+			future.tm_hour = 0;
+			future.tm_mday = 6;     /* 1st */
+			future.tm_mon = 6;      /* July */
+			future.tm_year = 2012 - 1900; /* 2038 in years since 1900 */
+			future.tm_isdst = 0;          /* Daylight Saving not in affect (UTC) */
+			#ifdef _BSD_SOURCE
+			future.tm_zone = "UTC";
+			#endif
+
+			time_t tBadCRCDate = mktime( &future );
+
 			result.second = lastUpdateDate;
 			if(	refreshDate > 0 &&
+				refreshDate > tBadCRCDate &&
 				time(NULL) < refreshDate) {
 
 				result.first = true;
