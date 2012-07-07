@@ -787,6 +787,10 @@ int XmlAttribute::getIntValue() const {
 	return strToInt(value);
 }
 
+uint32 XmlAttribute::getUIntValue() const {
+	return strToUInt(value);
+}
+
 int XmlAttribute::getIntValue(int min, int max) const {
 	int i= strToInt(value);
 	if(i<min || i>max){

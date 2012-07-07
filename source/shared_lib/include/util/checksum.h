@@ -29,28 +29,30 @@ namespace Shared{ namespace Util{
 
 class Checksum {
 private:
-	int32	sum;
+	uint32	sum;
 	int32	r;
     int32	c1;
     int32	c2;
-	std::map<string,int32> fileList;
+	std::map<string,uint32> fileList;
 
 	static Mutex fileListCacheSynchAccessor;
-	static std::map<string,int32> fileListCache;
+	static std::map<string,uint32> fileListCache;
 
-	void addSum(int32 value);
+	void addSum(uint32 value);
 	bool addFileToSum(const string &path);
 
 public:
 	Checksum();
 
-	int32 getSum();
-	int32 getFinalFileListSum();
-	int32 getFileCount();
+	uint32 getSum();
+	uint32 getFinalFileListSum();
+	uint32 getFileCount();
 
-	int32 addByte(int8 value);
+	//uint32 addByte(int8 value);
+	uint32 addByte(const char value);
+	uint32 addBytes(const void *_data, size_t _size);
 	void addString(const string &value);
-	int32 addInt(const int32 &value);
+	uint32 addInt(const int32 &value);
 	void addFile(const string &path);
 
 	static void removeFileFromCache(const string file);

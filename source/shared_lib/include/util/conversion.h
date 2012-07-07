@@ -24,13 +24,16 @@ namespace Shared { namespace Util {
 
 bool strToBool(const string &s);
 int strToInt(const string &s);
+uint32 strToUInt(const string &s);
 float strToFloat(const string &s); 
 
 bool strToBool(const string &s, bool *b);
 bool strToInt(const string &s, int *i);
+bool strToUInt(const string &s, uint32 *i);
 bool strToFloat(const string &s, float *f);
 
 string boolToStr(bool b);
+string uIntToStr(uint32 i);
 string intToStr(int64 i);
 string intToHex(int i);
 string floatToStr(float f,int precsion=2);

@@ -1580,7 +1580,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 						if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
 							factionName != GameConstants::OBSERVER_SLOTNAME) {
 							//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
-							int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
+							uint32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
 							if(factionCRC == 0) {
 								factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 							}
@@ -2035,7 +2035,7 @@ void MenuStateConnectedGame::update() {
 
                 MutexSafeWrapper safeMutexFTPProgress(ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL,string(__FILE__) + "_" + intToStr(__LINE__));
 
-                int32 tilesetCRC = lastCheckedCRCTilesetValue;
+                uint32 tilesetCRC = lastCheckedCRCTilesetValue;
                 if(lastCheckedCRCTilesetName != gameSettings->getTileset() &&
                 	gameSettings->getTileset() != "") {
 					//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
@@ -2049,7 +2049,7 @@ void MenuStateConnectedGame::update() {
 					lastCheckedCRCTilesetName = gameSettings->getTileset();
                 }
 
-                int32 techCRC = lastCheckedCRCTechtreeValue;
+                uint32 techCRC = lastCheckedCRCTechtreeValue;
                 if(lastCheckedCRCTechtreeName != gameSettings->getTech() &&
                 	gameSettings->getTech() != "") {
 					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
@@ -2090,7 +2090,7 @@ void MenuStateConnectedGame::update() {
 	    					factionName != GameConstants::OBSERVER_SLOTNAME &&
 	    					factionName != ITEM_MISSING) {
 
-	    					int32 factionCRC   = 0;
+	    					uint32 factionCRC   = 0;
 	                    	time_t now = time(NULL);
 	                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml");
 
@@ -2108,9 +2108,9 @@ void MenuStateConnectedGame::update() {
 	            			}
 
 	            			if(factionCRC != 0) {
-								vector<pair<string,int32> > serverFactionCRCList = gameSettings->getFactionCRCList();
+								vector<pair<string,uint32> > serverFactionCRCList = gameSettings->getFactionCRCList();
 								for(unsigned int factionIdx1 = 0; factionIdx1 < serverFactionCRCList.size(); ++factionIdx1) {
-									pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx1];
+									pair<string,uint32> &serverFaction = serverFactionCRCList[factionIdx1];
 									if(serverFaction.first == factionName) {
 										if(serverFaction.second != factionCRC) {
 											factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
@@ -2125,7 +2125,7 @@ void MenuStateConnectedGame::update() {
 	    			//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
                 }
 
-                int32 mapCRC = lastCheckedCRCMapValue;
+                uint32 mapCRC = lastCheckedCRCMapValue;
                 if(lastCheckedCRCMapName != gameSettings->getMap() &&
                 	gameSettings->getMap() != "") {
 					Checksum checksum;
@@ -2210,14 +2210,14 @@ void MenuStateConnectedGame::update() {
 
 								string mismatchedFactionText = "";
 								vector<string> mismatchedFactionTextList;
-								vector<pair<string,int32> > serverFactionCRCList = gameSettings->getFactionCRCList();
+								vector<pair<string,uint32> > serverFactionCRCList = gameSettings->getFactionCRCList();
 
 								for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
-									pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx];
+									pair<string,uint32> &serverFaction = serverFactionCRCList[factionIdx];
 
 									bool foundFaction = false;
 									for(unsigned int clientFactionIdx = 0; clientFactionIdx < factionCRCList.size(); ++clientFactionIdx) {
-										pair<string,int32> &clientFaction = factionCRCList[clientFactionIdx];
+										pair<string,uint32> &clientFaction = factionCRCList[clientFactionIdx];
 
 										if(serverFaction.first == clientFaction.first) {
 											foundFaction = true;
@@ -2271,11 +2271,11 @@ void MenuStateConnectedGame::update() {
 								}
 
 								for(unsigned int clientFactionIdx = 0; clientFactionIdx < factionCRCList.size(); ++clientFactionIdx) {
-									pair<string,int32> &clientFaction = factionCRCList[clientFactionIdx];
+									pair<string,uint32> &clientFaction = factionCRCList[clientFactionIdx];
 
 									bool foundFaction = false;
 									for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
-										pair<string,int32> &serverFaction = serverFactionCRCList[factionIdx];
+										pair<string,uint32> &serverFaction = serverFactionCRCList[factionIdx];
 
 										if(serverFaction.first == clientFaction.first) {
 											foundFaction = true;

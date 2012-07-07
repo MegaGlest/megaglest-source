@@ -187,10 +187,10 @@ private:
     string lastCheckedCRCTilesetName;
     string lastCheckedCRCTechtreeName;
     string lastCheckedCRCMapName;
-    int32 lastCheckedCRCTilesetValue;
-    int32 lastCheckedCRCTechtreeValue;
-    int32 lastCheckedCRCMapValue;
-    vector<pair<string,int32> > factionCRCList;
+    uint32 lastCheckedCRCTilesetValue;
+    uint32 lastCheckedCRCTechtreeValue;
+    uint32 lastCheckedCRCMapValue;
+    vector<pair<string,uint32> > factionCRCList;
 
     bool forceWaitForShutdown;
     bool headlessServerMode;

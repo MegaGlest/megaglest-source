@@ -836,12 +836,12 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									}
 
 									//tileset
-									int32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + serverInterface->getGameSettings()->getTileset() + string("/*"), ".xml", NULL);
-									int32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
+									uint32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + serverInterface->getGameSettings()->getTileset() + string("/*"), ".xml", NULL);
+									uint32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
 									Checksum checksum;
 									string file = Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir,false);
 									checksum.addFile(file);
-									int32 mapCRC = checksum.getSum();
+									uint32 mapCRC = checksum.getSum();
 
 									networkGameDataSynchCheckOkMap      = (networkMessageSynchNetworkGameDataStatus.getMapCRC() == mapCRC);
 									networkGameDataSynchCheckOkTile     = (networkMessageSynchNetworkGameDataStatus.getTilesetCRC() == tilesetCRC);
@@ -896,7 +896,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 												this->setNetworkGameDataSynchCheckTechMismatchReport(report);
 											}
 											if(networkGameDataSynchCheckOkMap == false) {
-												vctFileList.push_back(std::pair<string,int32>(Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir,false),mapCRC));
+												vctFileList.push_back(std::pair<string,uint32>(Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir,false),mapCRC));
 											}
 
 											//for(int i = 0; i < vctFileList.size(); i++)

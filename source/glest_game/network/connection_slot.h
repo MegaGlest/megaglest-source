@@ -113,7 +113,7 @@ private:
 	int playerIndex;
 	string name;
 	bool ready;
-	vector<std::pair<string,int32> > vctFileList;
+	vector<std::pair<string,uint32> > vctFileList;
 	bool receivedNetworkGameStatus;
 	time_t connectedTime;
 	bool gotIntro;

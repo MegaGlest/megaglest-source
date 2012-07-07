@@ -182,20 +182,20 @@ void setCRCCacheFilePath(string path);
 
 std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt);
 void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchString, const string filterFileExt);
-int32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum,bool forceNoCache=false);
+uint32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum,bool forceNoCache=false);
 time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> paths, string pathSearchString, const string filterFileExt);
 
 std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(const string &path, const string filterFileExt);
 void clearFolderTreeContentsCheckSum(const string &path, const string filterFileExt);
-int32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum,bool forceNoCache=false);
+uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum,bool forceNoCache=false);
 
 std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt);
 void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearchString, const string filterFileExt);
-vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
+vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, vector<std::pair<string,uint32> > *recursiveMap);
 
 std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(const string &path, const string filterFileExt);
 void clearFolderTreeContentsCheckSumList(const string &path, const string filterFileExt);
-vector<std::pair<string,int32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,int32> > *recursiveMap);
+vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(const string &path, const string &filterFileExt, vector<std::pair<string,uint32> > *recursiveMap);
 
 void createDirectoryPaths(string  Path);
 string extractFileFromDirectoryPath(string filename);
@@ -270,7 +270,7 @@ string getFileTextContents(string path);
 class ValueCheckerVault {
 
 protected:
-	std::map<const void *,int32> vaultList;
+	std::map<const void *,uint32> vaultList;
 
 	void addItemToVault(const void *ptr,int value);
 	void checkItemInVault(const void *ptr,int value) const;
