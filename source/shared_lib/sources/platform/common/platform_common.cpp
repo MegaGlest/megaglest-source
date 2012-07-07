@@ -612,7 +612,7 @@ string getFormattedCRCCacheFileName(std::pair<string,string> cacheKeys) {
 
 	Checksum checksum;
 	checksum.addString(crcCacheFile);
-	string result = getCRCCacheFilePath() + "CRC_CACHE_" + intToStr(checksum.getSum());
+	string result = getCRCCacheFilePath() + "CRC_CACHE_" + uIntToStr(checksum.getSum());
 	//printf("result [%s]\n",result.c_str());
 	return result;
 }
@@ -650,7 +650,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s]\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str());
 			}
 
-			int readbytes = fscanf(fp,"%20ld,%20d,%20ld",&refreshDate,&crcValue,&lastUpdateDate);
+			int readbytes = fscanf(fp,"%20ld,%20u,%20ld",&refreshDate,&crcValue,&lastUpdateDate);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s] readbytes = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),readbytes);
@@ -671,7 +671,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 			        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,
-							"=-=-=-=- READ CACHE for Cache file [%s] refreshDate = %ld [%s], crcValue = %d\n",
+							"=-=-=-=- READ CACHE for Cache file [%s] refreshDate = %ld [%s], crcValue = %u\n",
 							crcCacheFile.c_str(),refreshDate, szBuf1, crcValue);
 				}
 			}
@@ -687,7 +687,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,
-							"=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %d\n",
+							"=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %u\n",
 							crcCacheFile.c_str(),now, szBuf1, refreshDate, szBuf2, crcValue);
 				}
 			}
@@ -728,10 +728,10 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue) {
         char szBuf1[100]="";
         strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
 
-		fprintf(fp,"%ld,%d,%ld",refreshDate,crcValue,now);
+		fprintf(fp,"%ld,%u,%ld",refreshDate,crcValue,now);
 		fclose(fp);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %d, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %u, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());
 	}
 }
 
