@@ -48,7 +48,7 @@ public:
 	int32 getFinalFileListSum();
 	int32 getFileCount();
 
-	void addByte(int8 value);
+	int32 addByte(int8 value);
 	void addString(const string &value);
 	int32 addInt(const int32 &value);
 	void addFile(const string &path);
