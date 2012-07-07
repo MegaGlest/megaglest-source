@@ -304,12 +304,12 @@ bool Checksum::addFileToSum(const string &path) {
 				//}
 				uint32 cipher = addByte(buf[i]);
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %d / %d, cipher = %d\n",__FILE__,__FUNCTION__,__LINE__,i,buf.size(), cipher);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %d / %d, cipher = %u\n",__FILE__,__FUNCTION__,__LINE__,i,buf.size(), cipher);
 			}
 		}
 		else {
 			uint32 cipher = addBytes(&buf[0],buf.size());
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %d, cipher = %d\n",__FILE__,__FUNCTION__,__LINE__,buf.size(), cipher);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %d, cipher = %u\n",__FILE__,__FUNCTION__,__LINE__,buf.size(), cipher);
 		}
 
 		// Close the file
