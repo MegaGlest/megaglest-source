@@ -384,7 +384,7 @@ private:
 			int indexCount;
 			const int textureHandle;
 			string texturePath;
-			int32 textureCRC;
+			uint32 textureCRC;
 		};
 		typedef std::vector<Layer*> Layers;
 		Layers layers;

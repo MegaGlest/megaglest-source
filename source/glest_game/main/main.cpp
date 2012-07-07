@@ -1397,14 +1397,14 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 	}
 
 	if(showDuplicateFiles == true) {
-		std::map<int32,vector<string> > mapDuplicateFiles;
+		std::map<uint32,vector<string> > mapDuplicateFiles;
 		// Now check for duplicate data content
 		for(std::map<string,vector<pair<string, string> > >::iterator iterMap = loadedFileList.begin();
 			iterMap != loadedFileList.end(); ++iterMap) {
 			string fileName = iterMap->first;
 			Checksum checksum;
 			checksum.addFile(fileName);
-			int32 crcValue = checksum.getSum();
+			uint32 crcValue = checksum.getSum();
 			mapDuplicateFiles[crcValue].push_back(fileName);
 		}
 
@@ -1415,7 +1415,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		int duplicateCount=0;
 
 		bool foundDuplicates = false;
-		for(std::map<int32,vector<string> >::iterator iterMap = mapDuplicateFiles.begin();
+		for(std::map<uint32,vector<string> >::iterator iterMap = mapDuplicateFiles.begin();
 			iterMap != mapDuplicateFiles.end(); ++iterMap) {
 			vector<string> &fileList = iterMap->second;
 			if(fileList.size() > 1) {
@@ -1834,14 +1834,14 @@ void runTechValidationForPath(string techPath, string techName,
 			}
 
 			if(showDuplicateFiles == true) {
-				std::map<int32,vector<string> > mapDuplicateFiles;
+				std::map<uint32,vector<string> > mapDuplicateFiles;
 				// Now check for duplicate data content
 				for(std::map<string,vector<pair<string, string> > >::iterator iterMap = loadedFileList.begin();
 					iterMap != loadedFileList.end(); ++iterMap) {
 					string fileName = iterMap->first;
 					Checksum checksum;
 					checksum.addFile(fileName);
-					int32 crcValue = checksum.getSum();
+					uint32 crcValue = checksum.getSum();
 					if(crcValue == 0) {
 						char szBuf[4096]="";
 						sprintf(szBuf,"Error calculating CRC for file [%s]",fileName.c_str());
@@ -1860,7 +1860,7 @@ void runTechValidationForPath(string techPath, string techName,
 				int duplicateCount=0;
 
 				bool foundDuplicates = false;
-				for(std::map<int32,vector<string> >::iterator iterMap = mapDuplicateFiles.begin();
+				for(std::map<uint32,vector<string> >::iterator iterMap = mapDuplicateFiles.begin();
 					iterMap != mapDuplicateFiles.end(); ++iterMap) {
 					vector<string> &fileList = iterMap->second;
 					if(fileList.size() > 1) {
@@ -3736,9 +3736,9 @@ int glestMain(int argc, char** argv) {
 				if(file != "") {
 					Checksum checksum;
 					checksum.addFile(file);
-					int32 crcValue = checksum.getSum();
+					uint32 crcValue = checksum.getSum();
 
-					printf("CRC value for map [%s] file [%s] is [%d]\n",itemName.c_str(),file.c_str(),crcValue);
+					printf("CRC value for map [%s] file [%s] is [%u]\n",itemName.c_str(),file.c_str(),crcValue);
 				}
 				else {
 					printf("Map [%s] was NOT FOUND\n",itemName.c_str());
@@ -3765,9 +3765,9 @@ int glestMain(int argc, char** argv) {
 			Tokenize(paramValue,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string itemName = paramPartTokens[1];
-				int32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+				uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
 				if(crcValue != 0) {
-					printf("CRC value for tileset [%s] is [%d]\n",itemName.c_str(),crcValue);
+					printf("CRC value for tileset [%s] is [%u]\n",itemName.c_str(),crcValue);
 				}
 				else {
 					printf("Tileset [%s] was NOT FOUND\n",itemName.c_str());
@@ -3794,9 +3794,9 @@ int glestMain(int argc, char** argv) {
 			Tokenize(paramValue,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string itemName = paramPartTokens[1];
-				int32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + itemName + "/*", ".xml", NULL, true);
+				uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + itemName + "/*", ".xml", NULL, true);
 				if(crcValue != 0) {
-					printf("CRC value for techtree [%s] is [%d]\n",itemName.c_str(),crcValue);
+					printf("CRC value for techtree [%s] is [%u]\n",itemName.c_str(),crcValue);
 				}
 				else {
 					printf("Techtree [%s] was NOT FOUND\n",itemName.c_str());
@@ -3823,9 +3823,9 @@ int glestMain(int argc, char** argv) {
 			Tokenize(paramValue,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string itemName = paramPartTokens[1];
-				int32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), "/" + itemName + "/*", ".xml", NULL, true);
+				uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), "/" + itemName + "/*", ".xml", NULL, true);
 				if(crcValue != 0) {
-					printf("CRC value for scenario [%s] is [%d]\n",itemName.c_str(),crcValue);
+					printf("CRC value for scenario [%s] is [%u]\n",itemName.c_str(),crcValue);
 				}
 				else {
 					printf("Scenario [%s] was NOT FOUND\n",itemName.c_str());
@@ -3855,9 +3855,9 @@ int glestMain(int argc, char** argv) {
 				string itemName = paramPartTokens[1];
 				string itemNameFilter = paramPartTokens[2];
 				//printf("\n\nitemName [%s] itemNameFilter [%s]\n",itemName.c_str(),itemNameFilter.c_str());
-				int32 crcValue = getFolderTreeContentsCheckSumRecursively(itemName, itemNameFilter, NULL, true);
+				uint32 crcValue = getFolderTreeContentsCheckSumRecursively(itemName, itemNameFilter, NULL, true);
 
-				printf("CRC value for path [%s] filter [%s] is [%d]\n",itemName.c_str(),itemNameFilter.c_str(),crcValue);
+				printf("CRC value for path [%s] filter [%s] is [%u]\n",itemName.c_str(),itemNameFilter.c_str(),crcValue);
 
 				return -1;
 			}

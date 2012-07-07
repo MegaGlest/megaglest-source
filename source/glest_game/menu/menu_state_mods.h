@@ -204,7 +204,7 @@ private:
 	void loadMapPreview(string name);
 	void showRemoteDesription(ModInfo *modInfo);
 
-	std::map<string,int32> mapCRCUpdateList;
+	std::map<string,uint32> mapCRCUpdateList;
 public:
 
 	MenuStateMods(Program *program, MainMenu *mainMenu);

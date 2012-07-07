@@ -49,6 +49,18 @@ int strToInt(const string &s){
 	return intValue;
 }
 
+uint32 strToUInt(const string &s){
+	char *endChar;
+	setlocale(LC_NUMERIC, "C");
+	uint32 intValue= strtoul(s.c_str(), &endChar, 10);
+
+	if(*endChar!='\0'){
+		throw megaglest_runtime_error("Error converting from string to uint, found: [" + s + "]");
+	}
+
+	return intValue;
+}
+
 
 float strToFloat(const string &s){
 	char *endChar;
@@ -88,6 +100,18 @@ bool strToInt(const string &s, int *i) {
 	return true;
 }
 
+bool strToUInt(const string &s, uint32 *i) {
+	char *endChar;
+
+	setlocale(LC_NUMERIC, "C");
+	*i= strtoul(s.c_str(), &endChar, 10);
+
+	if(*endChar!='\0'){
+		return false;
+	}
+	return true;
+}
+
 bool strToFloat(const string &s, float *f) {
 	char *endChar;
 	setlocale(LC_NUMERIC, "C");
@@ -111,6 +135,12 @@ string boolToStr(bool b) {
 string intToStr(int64 i) {
 	char str[strSize]="";
 	snprintf(str, strSize-1, "%lld", (long long int)i);
+	return (str[0] != '\0' ? str : "");
+}
+
+string uIntToStr(uint32 i) {
+	char str[strSize]="";
+	snprintf(str, strSize-1, "%u", i);
 	return (str[0] != '\0' ? str : "");
 }
 

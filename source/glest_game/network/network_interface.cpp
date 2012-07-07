@@ -372,7 +372,7 @@ void FileTransferSocketThread::execute()
 
                     Checksum checksum;
                     checksum.addFile(file.fileName);
-                    int32 crc = checksum.getSum();
+                    uint32 crc = checksum.getSum();
                     if(file.filecrc != crc)
                     {
                         //int ii = 0;

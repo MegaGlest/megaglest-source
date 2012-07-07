@@ -17,6 +17,7 @@
 #include <xercesc/util/XercesDefs.hpp>
 #include <map>
 #include "rapidxml/rapidxml.hpp"
+#include "data_types.h"
 #include "leak_dumper.h"
 
 using namespace rapidxml;
@@ -187,6 +188,7 @@ public:
 
 	bool getBoolValue() const;
 	int getIntValue() const;
+	Shared::Platform::uint32 getUIntValue() const;
 	int getIntValue(int min, int max) const;
 	float getFloatValue() const;
 	float getFloatValue(float min, float max) const;

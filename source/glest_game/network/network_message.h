@@ -167,7 +167,7 @@ class NetworkMessageReady: public NetworkMessage{
 private:
 	struct Data{
 		int8 messageType;
-		int32 checksum;
+		uint32 checksum;
 	};
 
 private:
@@ -175,9 +175,9 @@ private:
 
 public:
 	NetworkMessageReady();
-	NetworkMessageReady(int32 checksum);
+	NetworkMessageReady(uint32 checksum);
 
-	int32 getChecksum() const	{return data.checksum;}
+	uint32 getChecksum() const	{return data.checksum;}
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
@@ -210,11 +210,11 @@ private:
 		int32 networkPlayerStatuses[GameConstants::maxPlayers]; //networkPlayerStatuses
 		NetworkString<maxSmallStringSize> networkPlayerLanguages[GameConstants::maxPlayers];
 
-		int32 mapCRC;
-		int32 tilesetCRC;
-		int32 techCRC;
+		uint32 mapCRC;
+		uint32 tilesetCRC;
+		uint32 techCRC;
 		NetworkString<maxSmallStringSize> factionNameList[maxFactionCRCCount];
-		int32 factionCRCList[maxFactionCRCCount];
+		uint32 factionCRCList[maxFactionCRCCount];
 
 		int8 factionControls[GameConstants::maxPlayers];
 		int8 resourceMultiplierIndex[GameConstants::maxPlayers];
@@ -255,7 +255,7 @@ public:
 	int getMapCRC() const { return data.mapCRC; }
 	int getTilesetCRC() const { return data.tilesetCRC; }
 	int getTechCRC() const { return data.techCRC; }
-	vector<pair<string,int32> > getFactionCRCList() const;
+	vector<pair<string,uint32> > getFactionCRCList() const;
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
@@ -395,22 +395,22 @@ private:
 		NetworkString<maxStringSize> tileset;
 		NetworkString<maxStringSize> tech;
 
-		int32 mapCRC;
-		int32 tilesetCRC;
-		int32 techCRC;
+		uint32 mapCRC;
+		uint32 tilesetCRC;
+		uint32 techCRC;
 
-		int32 techCRCFileCount;
+		uint32 techCRCFileCount;
 	};
 
 	static const int32 HeaderSize = sizeof(DataHeader);
 
 	struct DataDetail {
 		NetworkString<maxStringSize> techCRCFileList[maxFileCRCCount];
-		int32 techCRCFileCRCList[maxFileCRCCount];
+		uint32 techCRCFileCRCList[maxFileCRCCount];
 	};
 
 	static const int32 DetailSize1 = sizeof(NetworkString<maxStringSize>);
-	static const int32 DetailSize2 = sizeof(int32);
+	static const int32 DetailSize2 = sizeof(uint32);
 
 	struct Data {
 		DataHeader header;
@@ -431,15 +431,15 @@ public:
 	string getTileset() const   {return data.header.tileset.getString();}
 	string getTech() const		{return data.header.tech.getString();}
 
-	int32 getMapCRC() const		{return data.header.mapCRC;}
-	int32 getTilesetCRC() const	{return data.header.tilesetCRC;}
-	int32 getTechCRC() const	{return data.header.techCRC;}
+	uint32 getMapCRC() const		{return data.header.mapCRC;}
+	uint32 getTilesetCRC() const	{return data.header.tilesetCRC;}
+	uint32 getTechCRC() const	{return data.header.techCRC;}
 
-	int32 getTechCRCFileCount() const {return data.header.techCRCFileCount;}
+	uint32 getTechCRCFileCount() const {return data.header.techCRCFileCount;}
 	const NetworkString<maxStringSize> * getTechCRCFileList() const {return &data.detail.techCRCFileList[0];}
-	const int32 * getTechCRCFileCRCList() const {return data.detail.techCRCFileCRCList;}
+	const uint32 * getTechCRCFileCRCList() const {return data.detail.techCRCFileCRCList;}
 
-	string getTechCRCFileMismatchReport(vector<std::pair<string,int32> > &vctFileList);
+	string getTechCRCFileMismatchReport(vector<std::pair<string,uint32> > &vctFileList);
 };
 #pragma pack(pop)
 
@@ -463,21 +463,21 @@ private:
 	struct DataHeader {
 		int8 messageType;
 
-		int32 mapCRC;
-		int32 tilesetCRC;
-		int32 techCRC;
+		uint32 mapCRC;
+		uint32 tilesetCRC;
+		uint32 techCRC;
 
-		int32 techCRCFileCount;
+		uint32 techCRCFileCount;
 	};
 	static const int32 HeaderSize = sizeof(DataHeader);
 
 	struct DataDetail {
 		NetworkString<maxStringSize> techCRCFileList[maxFileCRCCount];
-		int32 techCRCFileCRCList[maxFileCRCCount];
+		uint32 techCRCFileCRCList[maxFileCRCCount];
 	};
 
 	static const int32 DetailSize1 = sizeof(NetworkString<maxStringSize>);
-	static const int32 DetailSize2 = sizeof(int32);
+	static const int32 DetailSize2 = sizeof(uint32);
 
 	struct Data {
 		DataHeader header;
@@ -489,20 +489,20 @@ private:
 
 public:
     NetworkMessageSynchNetworkGameDataStatus() {};
-	NetworkMessageSynchNetworkGameDataStatus(int32 mapCRC, int32 tilesetCRC, int32 techCRC, vector<std::pair<string,int32> > &vctFileList);
+	NetworkMessageSynchNetworkGameDataStatus(uint32 mapCRC, uint32 tilesetCRC, uint32 techCRC, vector<std::pair<string,uint32> > &vctFileList);
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 
-	int32 getMapCRC() const		{return data.header.mapCRC;}
-	int32 getTilesetCRC() const	{return data.header.tilesetCRC;}
-	int32 getTechCRC() const	{return data.header.techCRC;}
+	uint32 getMapCRC() const		{return data.header.mapCRC;}
+	uint32 getTilesetCRC() const	{return data.header.tilesetCRC;}
+	uint32 getTechCRC() const	{return data.header.techCRC;}
 
-	int32 getTechCRCFileCount() const {return data.header.techCRCFileCount;}
+	uint32 getTechCRCFileCount() const {return data.header.techCRCFileCount;}
 	const NetworkString<maxStringSize> * getTechCRCFileList() const {return &data.detail.techCRCFileList[0];}
-	const int32 * getTechCRCFileCRCList() const {return data.detail.techCRCFileCRCList;}
+	const uint32 * getTechCRCFileCRCList() const {return data.detail.techCRCFileCRCList;}
 
-	string getTechCRCFileMismatchReport(string techtree, vector<std::pair<string,int32> > &vctFileList);
+	string getTechCRCFileMismatchReport(string techtree, vector<std::pair<string,uint32> > &vctFileList);
 
 };
 #pragma pack(pop)
@@ -524,9 +524,9 @@ private:
 	struct Data{
 		int8 messageType;
 
-		int32 totalFileCount;
-		int32 fileIndex;
-		int32 fileCRC;
+		uint32 totalFileCount;
+		uint32 fileIndex;
+		uint32 fileCRC;
 		NetworkString<maxStringSize> fileName;
 	};
 
@@ -535,14 +535,14 @@ private:
 
 public:
     NetworkMessageSynchNetworkGameDataFileCRCCheck() {};
-	NetworkMessageSynchNetworkGameDataFileCRCCheck(int32 totalFileCount, int32 fileIndex, int32 fileCRC, const string fileName);
+	NetworkMessageSynchNetworkGameDataFileCRCCheck(uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName);
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;
 
-	int32 getTotalFileCount() const	{return data.totalFileCount;}
-	int32 getFileIndex() const	    {return data.fileIndex;}
-	int32 getFileCRC() const	    {return data.fileCRC;}
+	uint32 getTotalFileCount() const	{return data.totalFileCount;}
+	uint32 getFileIndex() const	    {return data.fileIndex;}
+	uint32 getFileCRC() const	    {return data.fileCRC;}
 	string getFileName() const		{return data.fileName.getString();}
 };
 #pragma pack(pop)

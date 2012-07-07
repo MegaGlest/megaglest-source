@@ -345,7 +345,7 @@ class FileInfo
 public:
     string fileName;
     int64 filesize;
-    int32 filecrc;
+    uint32 filecrc;
 };
 
 class FileTransferSocketThread : public Thread

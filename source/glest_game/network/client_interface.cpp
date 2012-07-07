@@ -339,10 +339,10 @@ void ClientInterface::updateLobby() {
                 this->setNetworkGameDataSynchCheckTechMismatchReport("");
                 this->setReceivedDataSynchCheck(false);
 
-				int32 tilesetCRC = 0;
-				int32 techCRC	 = 0;
-				int32 mapCRC	 = 0;
-				vector<std::pair<string,int32> > vctFileList;
+				uint32 tilesetCRC = 0;
+				uint32 techCRC	 = 0;
+				uint32 mapCRC	 = 0;
+				vector<std::pair<string,uint32> > vctFileList;
 
 				try {
 					Config &config = Config::getInstance();
@@ -424,7 +424,7 @@ void ClientInterface::updateLobby() {
                 Checksum checksum;
                 string file = networkMessageSynchNetworkGameDataFileCRCCheck.getFileName();
                 checksum.addFile(file);
-                int32 fileCRC = checksum.getSum();
+                uint32 fileCRC = checksum.getSum();
 
                 if(fileCRC != networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC())
                 {

@@ -80,10 +80,10 @@ private:
 
 	uint32 flagTypes1;
 
-    int32 mapCRC;
-    int32 tilesetCRC;
-    int32 techCRC;
-    vector<pair<string,int32> > factionCRCList;
+    uint32 mapCRC;
+    uint32 tilesetCRC;
+    uint32 techCRC;
+    vector<pair<string,uint32> > factionCRCList;
 
     int aiAcceptSwitchTeamPercentChance;
     int masterserver_admin;
@@ -212,10 +212,10 @@ public:
 	PathFinderType getPathFinderType() const { return pathFinderType; }
 	uint32 getFlagTypes1() const             { return flagTypes1;}
 
-	int32 getMapCRC() const { return mapCRC; }
-	int32 getTilesetCRC() const { return tilesetCRC; }
-	int32 getTechCRC() const { return techCRC; }
-	vector<pair<string,int32> > getFactionCRCList() const { return factionCRCList; }
+	uint32 getMapCRC() const { return mapCRC; }
+	uint32 getTilesetCRC() const { return tilesetCRC; }
+	uint32 getTechCRC() const { return techCRC; }
+	vector<pair<string,uint32> > getFactionCRCList() const { return factionCRCList; }
 
 	//set
 	void setDescription(const string& description)						{this->description= description;}
@@ -255,11 +255,11 @@ public:
 
 	void setFlagTypes1(uint32 value)                                {this->flagTypes1 = value; }
 
-	void setMapCRC(int32 value)     { mapCRC = value; }
-	void setTilesetCRC(int32 value) { tilesetCRC = value; }
-	void setTechCRC(int32 value)    { techCRC = value; }
+	void setMapCRC(uint32 value)     { mapCRC = value; }
+	void setTilesetCRC(uint32 value) { tilesetCRC = value; }
+	void setTechCRC(uint32 value)    { techCRC = value; }
 
-	void setFactionCRCList(vector<pair<string,int32> > value) { factionCRCList = value; }
+	void setFactionCRCList(vector<pair<string,uint32> > value) { factionCRCList = value; }
 
 	int getAiAcceptSwitchTeamPercentChance() const 					{ return aiAcceptSwitchTeamPercentChance;}
 	void setAiAcceptSwitchTeamPercentChance(int value)				{ aiAcceptSwitchTeamPercentChance = value; }
@@ -306,12 +306,12 @@ public:
 		result += "networkPauseGameForLaggedClients = " + intToStr(networkPauseGameForLaggedClients) + "\n";
 		result += "pathFinderType = " + intToStr(pathFinderType) + "\n";
 		result += "flagTypes1 = " + intToStr(flagTypes1) + "\n";
-		result += "mapCRC = " + intToStr(mapCRC) + "\n";
-		result += "tilesetCRC = " + intToStr(tilesetCRC) + "\n";
-		result += "techCRC = " + intToStr(techCRC) + "\n";
+		result += "mapCRC = " + uIntToStr(mapCRC) + "\n";
+		result += "tilesetCRC = " + uIntToStr(tilesetCRC) + "\n";
+		result += "techCRC = " + uIntToStr(techCRC) + "\n";
 
 		for(unsigned int i = 0; i < factionCRCList.size(); ++i) {
-			result += "factionCRCList name [" + factionCRCList[i].first + "] CRC = " + intToStr(factionCRCList[i].second) + "\n";
+			result += "factionCRCList name [" + factionCRCList[i].first + "] CRC = " + uIntToStr(factionCRCList[i].second) + "\n";
 		}
 
 		result += "aiAcceptSwitchTeamPercentChance = " + intToStr(aiAcceptSwitchTeamPercentChance) + "\n";
@@ -424,18 +424,18 @@ public:
 //		uint32 flagTypes1;
 		gameSettingsNode->addAttribute("flagTypes1",intToStr(flagTypes1), mapTagReplacements);
 //	    int32 mapCRC;
-		gameSettingsNode->addAttribute("mapCRC",intToStr(mapCRC), mapTagReplacements);
+		gameSettingsNode->addAttribute("mapCRC",uIntToStr(mapCRC), mapTagReplacements);
 //	    int32 tilesetCRC;
-		gameSettingsNode->addAttribute("tilesetCRC",intToStr(tilesetCRC), mapTagReplacements);
+		gameSettingsNode->addAttribute("tilesetCRC",uIntToStr(tilesetCRC), mapTagReplacements);
 //	    int32 techCRC;
-		gameSettingsNode->addAttribute("techCRC",intToStr(techCRC), mapTagReplacements);
+		gameSettingsNode->addAttribute("techCRC",uIntToStr(techCRC), mapTagReplacements);
 //	    vector<pair<string,int32> > factionCRCList;
 		for(unsigned int i = 0; i < factionCRCList.size(); ++i) {
-			const pair<string,int32> &item = factionCRCList[i];
+			const pair<string,uint32> &item = factionCRCList[i];
 
 			XmlNode *factionCRCListNode = gameSettingsNode->addChild("factionCRCList");
 			factionCRCListNode->addAttribute("key",item.first, mapTagReplacements);
-			factionCRCListNode->addAttribute("value",intToStr(item.second), mapTagReplacements);
+			factionCRCListNode->addAttribute("value",uIntToStr(item.second), mapTagReplacements);
 		}
 //	    int aiAcceptSwitchTeamPercentChance;
 		gameSettingsNode->addAttribute("aiAcceptSwitchTeamPercentChance",intToStr(aiAcceptSwitchTeamPercentChance), mapTagReplacements);
@@ -551,11 +551,11 @@ public:
 //		uint32 flagTypes1;
 		flagTypes1 = gameSettingsNode->getAttribute("flagTypes1")->getIntValue();
 //	    int32 mapCRC;
-		mapCRC = gameSettingsNode->getAttribute("mapCRC")->getIntValue();
+		mapCRC = gameSettingsNode->getAttribute("mapCRC")->getUIntValue();
 //	    int32 tilesetCRC;
-		tilesetCRC = gameSettingsNode->getAttribute("tilesetCRC")->getIntValue();
+		tilesetCRC = gameSettingsNode->getAttribute("tilesetCRC")->getUIntValue();
 //	    int32 techCRC;
-		techCRC = gameSettingsNode->getAttribute("techCRC")->getIntValue();
+		techCRC = gameSettingsNode->getAttribute("techCRC")->getUIntValue();
 //	    vector<pair<string,int32> > factionCRCList;
 //		for(unsigned int i = 0; i < factionCRCList.size(); ++i) {
 //			const pair<string,int32> &item = factionCRCList[i];
