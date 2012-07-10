@@ -2317,6 +2317,13 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 	int slotCountUsed = 1;
 	int slotCountHumans = 1;
 	int slotCountConnectedPlayers = 1;
+
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		slotCountUsed = 0;
+		slotCountHumans = 0;
+		slotCountConnectedPlayers = 0;
+	}
+
 	Config & config = Config::getInstance();
 	std::map < string, string > publishToServerInfo;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
