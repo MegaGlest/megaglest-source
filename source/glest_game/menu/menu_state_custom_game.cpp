@@ -2662,6 +2662,8 @@ void MenuStateCustomGame::publishToMasterserver() {
 	loadGameSettings(&gameSettings);
 	Config &config= Config::getInstance();
 	//string serverinfo="";
+
+	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 	publishToServerInfo.clear();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
