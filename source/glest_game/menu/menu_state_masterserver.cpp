@@ -1074,6 +1074,7 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 				//update lobby
 				clientInterface->updateLobby();
 				sleep(0);
+				//this->render();
 			}
 		}
 		if( clientInterface->isConnected() == true &&
