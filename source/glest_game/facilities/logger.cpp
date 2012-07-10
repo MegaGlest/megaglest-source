@@ -244,13 +244,13 @@ void Logger::renderLoadingScreen() {
 	if(gameHintToShow!=""){
 		if(Renderer::renderText3DEnabled) {
 			renderer.renderText3D(
-					"Hint: "+gameHintToShow, coreData.getMenuFontBig3D(), Vec3f(1.f),
+					"Hint:\n"+gameHintToShow, coreData.getMenuFontBig3D(), Vec3f(1.f),
 						xLocation*1.5f,
 						90 * metrics.getVirtualH() / 100, false);
 		}
 		else {
 			renderer.renderText(
-					"Hint: "+gameHintToShow, coreData.getMenuFontBig(), Vec3f(1.f),
+					"Hint:\n"+gameHintToShow, coreData.getMenuFontBig(), Vec3f(1.f),
 				xLocation*1.5f,
 				90 * metrics.getVirtualH() / 100, false);
 
