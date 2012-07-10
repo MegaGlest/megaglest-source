@@ -510,7 +510,8 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 	const Unit* unit = NULL;
 	if( networkCommand->getNetworkCommandType() != nctSwitchTeam &&
 		networkCommand->getNetworkCommandType() != nctSwitchTeamVote &&
-		networkCommand->getNetworkCommandType() != nctPauseResume) {
+		networkCommand->getNetworkCommandType() != nctPauseResume &&
+		networkCommand->getNetworkCommandType() != nctPlayerStatusChange) {
 		unit= world->findUnitById(networkCommand->getUnitId());
 		if(unit == NULL) {
 			char szBuf[1024]="";
