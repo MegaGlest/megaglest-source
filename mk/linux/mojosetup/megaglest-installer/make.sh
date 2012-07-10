@@ -149,8 +149,8 @@ if [ $REPACKONLY -eq 0 ]; then
 	cp "$CURRENTDIR/$megaglest_linux_path/glest.ini" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/megaglest.bmp" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/glestkeys.ini" $INSTALLDATADIR
-        cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_configurator" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_configurator" ${INSTALLDATADIR}
+#        cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_configurator" $INSTALLDATADIR
+#	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_configurator" ${INSTALLDATADIR}
         cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_mapeditor" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_editor" ${INSTALLDATADIR}
         cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_g3dviewer" $INSTALLDATADIR
@@ -166,7 +166,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	# Now copy all glest data
 	echo Copying live MegaGlest data files...
 
-	cp "$CURRENTDIR/$megaglest_data_path/configuration.xml" $INSTALLDATADIR
+#	cp "$CURRENTDIR/$megaglest_data_path/configuration.xml" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_data_path/megaglest.ico" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_data_path/megaglest_uninstall.ico" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_data_path/g3dviewer.ico" ${INSTALLDATADIR}
