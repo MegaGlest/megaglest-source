@@ -2078,7 +2078,10 @@ void MenuStateCustomGame::update() {
 			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			return;
+
+			if(this->headlessServerMode == false) {
+				return;
+			}
 		}
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		Lang& lang= Lang::getInstance();
@@ -2431,9 +2434,20 @@ void MenuStateCustomGame::update() {
 
 			// Masterserver always needs one network slot
 			if(this->headlessServerMode == true && hasOneNetworkSlotOpen == false) {
+				bool anyoneConnected = false;
 				for(int i= 0; i < mapInfo.players; ++i) {
-					if(listBoxControls[i].getSelectedItemIndex() != ctNetwork &&
-						listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
+					MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+					ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+					ConnectionSlot *slot = serverInterface->getSlot(i);
+					if(slot != NULL && slot->isConnected() == true) {
+						anyoneConnected = true;
+						break;
+					}
+				}
+
+				for(int i= 0; i < mapInfo.players; ++i) {
+					if(anyoneConnected == false && listBoxControls[i].getSelectedItemIndex() != ctNetwork) {
 						listBoxControls[i].setSelectedItemIndex(ctNetwork);
 					}
 				}
