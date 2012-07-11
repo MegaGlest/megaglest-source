@@ -2339,7 +2339,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 		}
 	}
 	publishToServerInfo["glestVersion"] = glestVersionString;
-	publishToServerInfo["platform"] = getPlatformNameString();
+	publishToServerInfo["platform"] = getPlatformNameString() + "-" + getSVNRevisionString();
 	publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
 	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game";
 	publishToServerInfo["tech"] = this->getGameSettings()->getTech();
