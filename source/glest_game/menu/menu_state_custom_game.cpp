@@ -2698,9 +2698,14 @@ void MenuStateCustomGame::publishToMasterserver() {
 	//ip is automatically set
 
 	//game setup info:
-	publishToServerInfo["tech"] = listBoxTechTree.getSelectedItem();
-	publishToServerInfo["map"] = listBoxMap.getSelectedItem();
-	publishToServerInfo["tileset"] = listBoxTileset.getSelectedItem();
+
+	//publishToServerInfo["tech"] = listBoxTechTree.getSelectedItem();
+    publishToServerInfo["tech"] = techTreeFiles[listBoxTechTree.getSelectedItemIndex()];
+	//publishToServerInfo["map"] = listBoxMap.getSelectedItem();
+    publishToServerInfo["map"] = getCurrentMapFile();
+	//publishToServerInfo["tileset"] = listBoxTileset.getSelectedItem();
+    publishToServerInfo["tileset"] = tilesetFiles[listBoxTileset.getSelectedItemIndex()];
+
 	publishToServerInfo["activeSlots"] = intToStr(slotCountUsed);
 	publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
 	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
