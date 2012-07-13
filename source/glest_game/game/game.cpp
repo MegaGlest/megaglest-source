@@ -2531,26 +2531,46 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			//if(Window::isKeyDown() == false)
 			if(!camLeftButtonDown && !camRightButtonDown && !camUpButtonDown && !camDownButtonDown)
 			{
-				bool mouseMoveScrollsWorld = Config::getInstance().getBool("MouseMoveScrollsWorld","true");
-				if(mouseMoveScrollsWorld == true) {
-					if (y < 10) {
-						gameCamera.setMoveZ(-scrollSpeed);
-					}
-					else if (y > metrics.getVirtualH() - 10) {
-						gameCamera.setMoveZ(scrollSpeed);
-					}
-					else {
-						gameCamera.setMoveZ(0);
-					}
+				if(ms->get(mbLeft) && metrics.isInMinimap(x, y)) {
+					int xm= x - metrics.getMinimapX();
+					int ym= y - metrics.getMinimapY();
 
-					if (x < 10) {
-						gameCamera.setMoveX(-scrollSpeed);
+					Map *map= world.getMap();
+					int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
+					int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
+
+					if(map->isInside(xCell, yCell) && map->isInsideSurface(map->toSurfCoords(Vec2i(xCell,yCell)))) {
+						if(gui.isSelectingPos()){
+							gui.mouseDownLeftGraphics(xCell, yCell, true);
+						}
+						else
+						{
+							gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+						}
 					}
-					else if (x > metrics.getVirtualW() - 10) {
-						gameCamera.setMoveX(scrollSpeed);
-					}
-					else {
-						gameCamera.setMoveX(0);
+				}
+				else {
+					bool mouseMoveScrollsWorld = Config::getInstance().getBool("MouseMoveScrollsWorld","true");
+					if(mouseMoveScrollsWorld == true) {
+						if (y < 10) {
+							gameCamera.setMoveZ(-scrollSpeed);
+						}
+						else if (y > metrics.getVirtualH() - 10) {
+							gameCamera.setMoveZ(scrollSpeed);
+						}
+						else {
+							gameCamera.setMoveZ(0);
+						}
+
+						if (x < 10) {
+							gameCamera.setMoveX(-scrollSpeed);
+						}
+						else if (x > metrics.getVirtualW() - 10) {
+							gameCamera.setMoveX(scrollSpeed);
+						}
+						else {
+							gameCamera.setMoveX(0);
+						}
 					}
 				}
 			}
