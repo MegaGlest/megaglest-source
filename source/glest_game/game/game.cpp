@@ -770,6 +770,8 @@ void Game::load(int loadTypes) {
 	markCellTexture = Renderer::findFactionLogoTexture(markCellTextureFilename);
 	const string unmarkCellTextureFilename = data_path + "data/core/misc_textures/unmark_cell.png";
 	unmarkCellTexture = Renderer::findFactionLogoTexture(unmarkCellTextureFilename);
+	const string highlightCellTextureFilename = data_path + "data/core/misc_textures/pointer.png";
+	highlightCellTexture = Renderer::findFactionLogoTexture(highlightCellTextureFilename);
 
     string scenarioDir = "";
     if(gameSettings.getScenarioDir() != "") {
@@ -1416,6 +1418,7 @@ void Game::update() {
 
 		updateNetworkMarkedCells();
 		updateNetworkUnMarkedCells();
+		updateNetworkHighligtedCells();
 
 		//check for quiting status
 		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
@@ -1636,6 +1639,49 @@ void Game::updateNetworkUnMarkedCells() {
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
+}
+
+void Game::updateNetworkHighligtedCells() {
+	try {
+		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+
+		//update the current entries
+		for(int idx = highlightedCells.size()-1; idx >= 0; idx--) {
+			MarkedCell *mc = &highlightedCells[idx];
+			mc->decrementAliveCount();
+			if(mc->getAliveCount()<0){
+				highlightedCells.erase(highlightedCells.begin()+idx);
+			}
+		}
+
+		if(gameNetworkInterface != NULL &&
+				gameNetworkInterface->getHighlightedCellList(false).empty() == false) {
+			Lang &lang= Lang::getInstance();
+			std::vector<MarkedCell> highlighList = gameNetworkInterface->getHighlightedCellList(true);
+			for(int idx = 0; idx < highlighList.size(); idx++) {
+				MarkedCell mc = highlighList[idx]; // I want a copy here
+				mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex())); // set faction pointer
+				addOrReplaceInHighlightedCells(mc);
+			}
+		}
+	}
+	catch(const std::exception &ex) {
+		char szBuf[1024]="";
+		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+}
+
+void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
+	for(int i = highlightedCells.size()-1; i >= 0; i--) {
+		MarkedCell *currentMc = &highlightedCells[i];
+		if(currentMc->getFactionIndex()==mc.getFactionIndex()){
+			highlightedCells.erase(highlightedCells.begin()+i);
+		}
+	}
+	mc.setAliveCount(200);
+	highlightedCells.push_back(mc);
 }
 
 void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role) {
@@ -2163,6 +2209,20 @@ void Game::mouseDownLeft(int x, int y) {
 						gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
 					}
 
+					if(isKeyDown(vkShift)) {
+						Vec2i surfaceCellPos = map->toSurfCoords(Vec2i(xCell,yCell));
+						SurfaceCell *sc = map->getSurfaceCell(surfaceCellPos);
+						Vec3f vertex = sc->getVertex();
+						Vec2i targetPos(vertex.x,vertex.z);
+
+						MarkedCell mc(targetPos,world.getThisFaction(),"none");
+						addOrReplaceInHighlightedCells(mc);
+
+						GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+						gameNetworkInterface->sendHighlightCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex());
+					}
+
+
 					if(originalIsMarkCellEnabled == true && isMarkCellEnabled == true) {
 						Vec2i surfaceCellPos = map->toSurfCoords(Vec2i(xCell,yCell));
 						SurfaceCell *sc = map->getSurfaceCell(surfaceCellPos);
@@ -2223,6 +2283,21 @@ void Game::mouseDownLeft(int x, int y) {
 			//graphics panel
 			else {
 				gui.mouseDownLeftGraphics(x, y, false);
+
+				if(isKeyDown(vkShift)) {
+					Vec2i targetPos;
+					Vec2i screenPos(x,y-60);
+					Renderer &renderer= Renderer::getInstance();
+					renderer.computePosition(screenPos, targetPos);
+					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
+
+
+					MarkedCell mc(targetPos,world.getThisFaction(),"none");
+					addOrReplaceInHighlightedCells(mc);
+
+					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+					gameNetworkInterface->sendHighlightCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex());
+				}
 
 				if(originalIsMarkCellEnabled == true && isMarkCellEnabled == true) {
 					Vec2i targetPos;
@@ -3194,6 +3269,7 @@ void Game::render3d(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderParticleManager]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+
 	//mouse 3d
 	renderer.renderMouse3d();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderMouse3d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
@@ -3378,6 +3454,9 @@ void Game::render2d() {
 
     //selection
 	renderer.renderSelectionQuad();
+
+	//highlighted Cells
+	renderer.renderHighlightedCellsOnMinimap();
 
 	if(switchTeamConfirmMessageBox.getEnabled() == true) {
 		renderer.renderMessageBox(&switchTeamConfirmMessageBox);

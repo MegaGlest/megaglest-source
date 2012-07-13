@@ -1149,6 +1149,45 @@ void ServerInterface::dispatchPendingMarkCellMessages(std::vector <string> &erro
 		}
 	}
 }
+void ServerInterface::dispatchPendingHighlightCellMessages(std::vector <string> &errorMsgList) {
+	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+		MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+		ConnectionSlot* connectionSlot= slots[i];
+		if(connectionSlot != NULL &&
+		   connectionSlot->getHighlightedCellList(false).empty() == false) {
+			try {
+				std::vector<MarkedCell> highlightedCells = connectionSlot->getHighlightedCellList(true);
+				for(int chatIdx = 0;
+					exitServer == false && slots[i] != NULL &&
+					chatIdx < highlightedCells.size(); chatIdx++) {
+					connectionSlot= slots[i];
+					if(connectionSlot != NULL) {
+						MarkedCell msg(highlightedCells[chatIdx]);
+						this->setHighlightedCell(msg);
+
+						NetworkMessageHighlightCell networkMessageHighlightCell(msg.getTargetPos(),msg.getFactionIndex());
+						printf("und jetzt für alle\n");
+						broadcastMessage(&networkMessageHighlightCell, connectionSlot->getPlayerIndex(),i);
+
+						//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast  chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatTeamIndex);
+					}
+				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] i = %d\n",__FILE__,__FUNCTION__,__LINE__,i);
+				// Its possible that the slot is disconnected here
+				// so check the original pointer again
+				if(slots[i] != NULL) {
+					slots[i]->clearHighlightedCellList();
+				}
+			}
+			catch(const exception &ex) {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+				errorMsgList.push_back(ex.what());
+			}
+		}
+	}
+}
 
 void ServerInterface::dispatchPendingUnMarkCellMessages(std::vector <string> &errorMsgList) {
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
@@ -1263,6 +1302,8 @@ void ServerInterface::update() {
 
 				dispatchPendingMarkCellMessages(errorMsgList);
 				dispatchPendingUnMarkCellMessages(errorMsgList);
+
+				dispatchPendingHighlightCellMessages(errorMsgList);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
@@ -1473,6 +1514,27 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 				broadcastMessage(&networkMessageMarkCellBroadcast, connectionSlot->getPlayerIndex());
 
 				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtMarkCell chatText [%s] chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatText.c_str(),newChatTeamIndex);
+
+				}
+				break;
+			case nmtHighlightCell:
+				{
+				discard = true;
+				NetworkMessageHighlightCell networkMessageHighlightCell;
+				connectionSlot->receiveMessage(&networkMessageHighlightCell);
+
+            	MarkedCell msg(networkMessageHighlightCell.getTarget(),
+            			networkMessageHighlightCell.getFactionIndex(),
+            			"none");
+
+            	this->setHighlightedCell(msg);
+
+            	NetworkMessageHighlightCell networkMessageHighlightCellBroadcast(
+            			networkMessageHighlightCell.getTarget(),
+            			networkMessageHighlightCell.getFactionIndex());
+				broadcastMessage(&networkMessageHighlightCellBroadcast, connectionSlot->getPlayerIndex());
+
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast nmtMarkCell  chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatTeamIndex);
 
 				}
 				break;
@@ -1831,6 +1893,20 @@ void ServerInterface::sendMarkCellMessage(Vec2i targetPos, int factionIndex, str
 	broadcastMessage(&networkMessageMarkCell, -1, lockedSlotIndex);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
+
+void ServerInterface::sendHighlightCellMessage(Vec2i targetPos, int factionIndex) {
+	sendHighlightCellMessage(targetPos, factionIndex, -1);
+}
+
+void ServerInterface::sendHighlightCellMessage(Vec2i targetPos, int factionIndex, int lockedSlotIndex) {
+	//printf("Line: %d echoLocal = %d\n",__LINE__,echoLocal);
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] teamIndex = %d, echoLocal = %d, lockedSlotIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,teamIndex,echoLocal,lockedSlotIndex);
+	NetworkMessageHighlightCell networkMessageHighlightCell(targetPos,factionIndex);
+	broadcastMessage(&networkMessageHighlightCell, -1, lockedSlotIndex);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 
 void ServerInterface::sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) {
 	sendUnMarkCellMessage(targetPos, factionIndex, -1);

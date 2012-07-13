@@ -165,6 +165,36 @@ void NetworkInterface::clearUnMarkedCellList() {
 	}
 }
 
+std::vector<MarkedCell> NetworkInterface::getHighlightedCellList(bool clearList) {
+	std::vector<MarkedCell> result;
+	if(highlightedCellList.empty() == false) {
+		result = highlightedCellList;
+
+		if(clearList == true) {
+			highlightedCellList.clear();
+		}
+	}
+	return result;
+}
+
+void NetworkInterface::clearHighlightedCellList() {
+	if(highlightedCellList.empty() == false) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] markedCellList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,markedCellList.size());
+		highlightedCellList.clear();
+	}
+}
+
+void NetworkInterface::setHighlightedCell(const MarkedCell &msg){
+	for(int idx = 0; idx < highlightedCellList.size(); idx++) {
+		MarkedCell mc = highlightedCellList[idx];
+		if(mc.getFactionIndex()==msg.getFactionIndex()){
+			highlightedCellList.erase(highlightedCellList.begin()+ idx);
+			break;
+		}
+	}
+	highlightedCellList.push_back(msg);
+}
+
 std::string NetworkInterface::getIpAddress() {
 	std::string result = "";
 

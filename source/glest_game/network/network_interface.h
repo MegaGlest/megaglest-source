@@ -88,24 +88,28 @@ protected:
 	const Faction *faction;
 	int factionIndex;
 	string note;
+	int aliveCount;
 
 public:
 	MarkedCell() {
 		faction = NULL;
 		factionIndex = -1;
 		note = "";
+		aliveCount=200;
 	}
 	MarkedCell(Vec2i targetPos,const Faction *faction,string note) {
 		this->targetPos = targetPos;
 		this->faction = faction;
 		this->factionIndex = -1;
 		this->note = note;
+		aliveCount=200;
 	}
 	MarkedCell(Vec2i targetPos,int factionIndex,string note) {
 		this->targetPos = targetPos;
 		this->faction = NULL;
 		this->factionIndex = factionIndex;
 		this->note = note;
+		aliveCount=200;
 	}
 
 	Vec2i getTargetPos() const { return targetPos; }
@@ -113,6 +117,9 @@ public:
 	void setFaction(const Faction *faction) { this->faction = faction; }
 	int getFactionIndex() const { return factionIndex; }
 	string getNote() const { return note; }
+	void decrementAliveCount() { this->aliveCount--; }
+	int getAliveCount() const { return aliveCount; }
+	void setAliveCount(int value) { this->aliveCount = value; }
 };
 
 class UnMarkedCell {
@@ -166,6 +173,8 @@ protected:
 
 	virtual Mutex * getServerSynchAccessor() = 0;
 
+	std::vector<MarkedCell> highlightedCellList;
+
 public:
 	static const int readyWaitTimeout;
 	GameSettings gameSettings;
@@ -218,6 +227,10 @@ public:
     std::vector<UnMarkedCell> getUnMarkedCellList(bool clearList);
 	void clearUnMarkedCellList();
 	void addUnMarkedCell(const UnMarkedCell &msg) { unmarkedCellList.push_back(msg); }
+
+    std::vector<MarkedCell> getHighlightedCellList(bool clearList);
+	void clearHighlightedCellList();
+	void setHighlightedCell(const MarkedCell &msg);
 
 	virtual bool getConnectHasHandshaked() const= 0;
 
@@ -273,6 +286,8 @@ public:
 
 	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note) = 0;
 	virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) = 0;
+	virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex) = 0;
+
 
 	//misc
 	virtual string getNetworkStatus() = 0;

@@ -1049,4 +1049,30 @@ void NetworkMessageUnMarkCell::send(Socket* socket) const{
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
+// =====================================================
+//	class NetworkMessageHighlightCell
+// =====================================================
+
+NetworkMessageHighlightCell::NetworkMessageHighlightCell(Vec2i target, int factionIndex) {
+
+	data.messageType	= nmtHighlightCell;
+	data.targetX		= target.x;
+	data.targetY		= target.y;
+	data.factionIndex 	= factionIndex;
+}
+
+
+bool NetworkMessageHighlightCell::receive(Socket* socket){
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	return result;
+}
+
+void NetworkMessageHighlightCell::send(Socket* socket) const{
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
+
+	assert(data.messageType == nmtHighlightCell);
+	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+
 }}//end namespace
