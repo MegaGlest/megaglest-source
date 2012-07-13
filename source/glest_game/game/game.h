@@ -96,6 +96,7 @@ private:
 	bool gameOver;
 	bool renderNetworkStatus;
 	bool showFullConsole;
+	bool setMarker;
 	bool mouseMoved;
 	float scrollSpeed;
 	bool camLeftButtonDown;

@@ -4790,7 +4790,7 @@ void Renderer::renderUnitsToBuild(const int renderFps) {
 			const UnitBuildInfo &buildUnit = qCache.visibleQuadUnitBuildList[visibleUnitIndex];
 			//Vec4f modelColor= Vec4f(0.f, 1.f, 0.f, 0.5f);
 			const Vec3f teamColor = buildUnit.unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0);
-			Vec4f modelColor= Vec4f(teamColor.x,teamColor.y,teamColor.z,0.2f);
+			Vec4f modelColor= Vec4f(teamColor.x,teamColor.y,teamColor.z,0.4f);
 			renderGhostModel(buildUnit.buildUnit, buildUnit.pos, buildUnit.facing, &modelColor);
 
 			//printf("Rendering to build unit index = %d\n",visibleUnitIndex);
