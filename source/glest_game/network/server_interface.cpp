@@ -1166,10 +1166,7 @@ void ServerInterface::dispatchPendingHighlightCellMessages(std::vector <string> 
 						this->setHighlightedCell(msg);
 
 						NetworkMessageHighlightCell networkMessageHighlightCell(msg.getTargetPos(),msg.getFactionIndex());
-						printf("und jetzt für alle\n");
 						broadcastMessage(&networkMessageHighlightCell, connectionSlot->getPlayerIndex(),i);
-
-						//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] after broadcast  chatTeamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,newChatTeamIndex);
 					}
 				}
 

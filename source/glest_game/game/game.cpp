@@ -80,6 +80,7 @@ Game::Game() : ProgramState(NULL) {
 	gameOver=false;
 	renderNetworkStatus=false;
 	showFullConsole=false;
+	setMarker=false;
 	mouseMoved=false;
 	scrollSpeed=0;
 	camLeftButtonDown=false;
@@ -205,7 +206,7 @@ void Game::resetMembers() {
 	renderNetworkStatus= false;
 	speed= sNormal;
 	showFullConsole= false;
-
+	setMarker = false;
 	camLeftButtonDown=false;
 	camRightButtonDown=false;
 	camUpButtonDown=false;
@@ -2206,10 +2207,12 @@ void Game::mouseDownLeft(int x, int y) {
 					}
 					else
 					{
-						gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+						if(!setMarker) {
+							gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+						}
 					}
 
-					if(isKeyDown(vkShift)) {
+					if(setMarker) {
 						Vec2i surfaceCellPos = map->toSurfCoords(Vec2i(xCell,yCell));
 						SurfaceCell *sc = map->getSurfaceCell(surfaceCellPos);
 						Vec3f vertex = sc->getVertex();
@@ -2284,7 +2287,7 @@ void Game::mouseDownLeft(int x, int y) {
 			else {
 				gui.mouseDownLeftGraphics(x, y, false);
 
-				if(isKeyDown(vkShift)) {
+				if(setMarker) {
 					Vec2i targetPos;
 					Vec2i screenPos(x,y-60);
 					Renderer &renderer= Renderer::getInstance();
@@ -2620,7 +2623,9 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 						}
 						else
 						{
-							gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+							if(!setMarker) {
+								gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+							}
 						}
 					}
 				}
@@ -2776,6 +2781,9 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//else if(key == configKeys.getCharKey("ShowFullConsole")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key, false) == true) {
 				showFullConsole= true;
+			}
+			else if(isKeyPressed(configKeys.getSDLKey("SetMarker"),key, false) == true) {
+				setMarker= true;
 			}
 			//else if(key == configKeys.getCharKey("TogglePhotoMode")) {
 			else if(isKeyPressed(configKeys.getSDLKey("TogglePhotoMode"),key, false) == true) {
@@ -3021,6 +3029,9 @@ void Game::keyUp(SDL_KeyboardEvent key) {
 			//if(key == configKeys.getCharKey("ShowFullConsole")) {
 			if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 				showFullConsole= false;
+			}
+			else if(isKeyPressed(configKeys.getSDLKey("SetMarker"),key) == true) {
+				setMarker= false;
 			}
 			//else if(key == configKeys.getCharKey("CameraRotateLeft") ||
 			//		key == configKeys.getCharKey("CameraRotateRight")) {
