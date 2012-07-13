@@ -592,6 +592,8 @@ public:
 	void renderVisibleMarkedCells();
 	void renderMarkedCellsOnMinimap();
 
+	void renderHighlightedCellsOnMinimap();
+
 	void removeObjectFromQuadCache(const Object *o);
 	void removeUnitFromQuadCache(const Unit *unit);
 

@@ -45,6 +45,7 @@ enum NetworkMessageType {
 	nmtLoadingStatusMessage,
 	nmtMarkCell,
 	nmtUnMarkCell,
+	nmtHighlightCell,
 
 	nmtCount
 };
@@ -803,6 +804,43 @@ public:
 	NetworkMessageUnMarkCell * getCopy() const;
 };
 #pragma pack(pop)
+
+// =====================================================
+//	class NetworkHighlightCellMessage
+//
+//	Highlight a Cell message
+// =====================================================
+
+
+#pragma pack(push, 1)
+class NetworkMessageHighlightCell: public NetworkMessage {
+private:
+	static const int maxTextStringSize= 500;
+
+private:
+	struct Data{
+		int8 messageType;
+
+		int16 targetX;
+		int16 targetY;
+		int8 factionIndex;
+	};
+
+private:
+	Data data;
+
+public:
+	NetworkMessageHighlightCell(){}
+	NetworkMessageHighlightCell(Vec2i target, int factionIndex);
+
+	Vec2i getTarget() const		{ return Vec2i(data.targetX,data.targetY); }
+	int getFactionIndex() const  { return data.factionIndex; }
+
+	virtual bool receive(Socket* socket);
+	virtual void send(Socket* socket) const;
+};
+#pragma pack(pop)
+
 
 }}//end namespace
 

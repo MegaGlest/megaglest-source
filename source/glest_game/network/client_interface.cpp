@@ -499,6 +499,19 @@ void ClientInterface::updateLobby() {
             }
         }
         break;
+        case nmtHighlightCell:
+        {
+        	NetworkMessageHighlightCell networkMessageHighlightCell;
+            if(receiveMessage(&networkMessageHighlightCell)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtHighlightCell\n",__FILE__,__FUNCTION__);
+
+            	MarkedCell msg(networkMessageHighlightCell.getTarget(),
+            			networkMessageHighlightCell.getFactionIndex(),
+            			       "none");
+        		this->setHighlightedCell(msg);
+            }
+        }
+        break;
 
         case nmtLaunch:
         case nmtBroadCastSetup:
@@ -727,6 +740,20 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		            }
 		        }
 		        break;
+		        case nmtHighlightCell:
+		        {
+		        	NetworkMessageHighlightCell networkMessageHighlightCell;
+		            if(receiveMessage(&networkMessageHighlightCell)) {
+		            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtHighlightCell\n",__FILE__,__FUNCTION__);
+
+		            	MarkedCell msg(networkMessageHighlightCell.getTarget(),
+		            			networkMessageHighlightCell.getFactionIndex(),
+		            			       "none");
+		        		this->setHighlightedCell(msg);
+		            }
+		        }
+		        break;
+
 
 				case nmtLaunch:
 				case nmtBroadCastSetup:
@@ -1228,6 +1255,13 @@ void ClientInterface::sendMarkCellMessage(Vec2i targetPos, int factionIndex, str
 	sendMessage(&networkMessageMarkCell);
 }
 
+void ClientInterface::sendHighlightCellMessage(Vec2i targetPos, int factionIndex) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
+
+	NetworkMessageHighlightCell networkMessageHighlightCell(targetPos,factionIndex);
+	sendMessage(&networkMessageHighlightCell);
+}
+
 void ClientInterface::sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) {
 	string humanPlayerName = getHumanPlayerName();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] humanPlayerName = [%s] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,humanPlayerName.c_str(),playerIndex);
@@ -1446,6 +1480,19 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 			UnMarkedCell msg(networkMessageMarkCell.getTarget(),
 						   networkMessageMarkCell.getFactionIndex());
 			this->addUnMarkedCell(msg);
+			}
+			break;
+
+        case nmtHighlightCell:
+			{
+			discard = true;
+			NetworkMessageHighlightCell networkMessageHighlightCell;
+			receiveMessage(&networkMessageHighlightCell);
+
+			MarkedCell msg(networkMessageHighlightCell.getTarget(),
+					networkMessageHighlightCell.getFactionIndex(),
+						   "none");
+			this->setHighlightedCell(msg);
 			}
 			break;
 

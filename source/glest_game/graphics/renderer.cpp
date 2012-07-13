@@ -5587,6 +5587,50 @@ void Renderer::renderMinimap(){
 	assertGl();
 }
 
+void Renderer::renderHighlightedCellsOnMinimap() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+	// Draw marked cells
+	const std::vector<MarkedCell> *highlightedCells = game->getHighlightedCells();
+	if(highlightedCells->empty() == false) {
+		const Map *map= game->getWorld()->getMap();
+	    const World *world= game->getWorld();
+		const Minimap *minimap= world->getMinimap();
+		int pointersize=10;
+		if(minimap == NULL || minimap->getTexture() == NULL) {
+			return;
+		}
+
+		const GameCamera *gameCamera= game->getGameCamera();
+		const Pixmap2D *pixmap= minimap->getTexture()->getPixmapConst();
+		const Metrics &metrics= Metrics::getInstance();
+
+
+		int mx= metrics.getMinimapX();
+		int my= metrics.getMinimapY();
+		int mw= metrics.getMinimapW();
+		int mh= metrics.getMinimapH();
+
+		Vec2f zoom= Vec2f(
+			static_cast<float>(mw)/ pixmap->getW()/2,
+			static_cast<float>(mh)/ pixmap->getH()/2);
+
+		for(int i=0;i<highlightedCells->size();i++) {
+			const MarkedCell *mc=&highlightedCells->at(i);
+			if(mc->getFaction() != NULL && mc->getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam()) {
+				const Texture2D *texture= game->getHighlightCellTexture();
+				Vec3f color=  mc->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
+				float alpha = 0.49f+0.5f/(mc->getAliveCount()%15);
+				Vec2i pos=mc->getTargetPos();
+				if(texture!=NULL){
+					renderTextureQuad((int)(pos.x*zoom.x)+pointersize, my + mh-(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&color);
+				}
+			}
+		}
+	}
+}
+
 void Renderer::renderMarkedCellsOnMinimap() {
 	// Draw marked cells
 	std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();

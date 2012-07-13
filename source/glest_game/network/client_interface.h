@@ -88,7 +88,7 @@ public:
 
 	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note);
 	virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex);
-
+	virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex);
 	//misc
 	virtual string getNetworkStatus() ;
 

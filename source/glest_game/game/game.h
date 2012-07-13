@@ -159,6 +159,8 @@ private:
 	bool isUnMarkCellEnabled;
 	Texture2D *unmarkCellTexture;
 	std::map<Vec2i, MarkedCell> mapMarkedCellList;
+	Texture2D *highlightCellTexture;
+	std::vector<MarkedCell> highlightedCells;
 	bool masterserverMode;
 
 	StrSound *currentAmbientSound;
@@ -186,6 +188,10 @@ public:
     const Texture2D * getUnMarkCellTexture() const { return unmarkCellTexture; }
 
     std::map<Vec2i, MarkedCell> getMapMarkedCellList() const { return mapMarkedCellList; }
+
+    const Texture2D * getHighlightCellTexture() const { return highlightCellTexture; }
+    const std::vector<MarkedCell> * getHighlightedCells() const { return &highlightedCells; }
+    void addOrReplaceInHighlightedCells(MarkedCell mc);
 
     bool isMasterserverMode() const { return masterserverMode; }
     //get
@@ -313,6 +319,8 @@ private:
 
 	void updateNetworkMarkedCells();
 	void updateNetworkUnMarkedCells();
+	void updateNetworkHighligtedCells();
+
 };
 
 }}//end namespace

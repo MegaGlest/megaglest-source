@@ -119,6 +119,9 @@ public:
     virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note);
     void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note, int lockedSlotIndex);
 
+	virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex);
+    void sendHighlightCellMessage(Vec2i targetPos, int factionIndex, int lockedSlotIndex);
+
     virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex);
     void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex, int lockedSlotIndex);
 
@@ -236,6 +239,8 @@ protected:
     void dispatchPendingChatMessages(std::vector <string> &errorMsgList);
     void dispatchPendingMarkCellMessages(std::vector <string> &errorMsgList);
     void dispatchPendingUnMarkCellMessages(std::vector <string> &errorMsgList);
+    void dispatchPendingHighlightCellMessages(std::vector <string> &errorMsgList);
+
 
     void shutdownMasterserverPublishThread();
 };
