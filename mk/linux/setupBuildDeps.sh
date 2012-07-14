@@ -66,6 +66,12 @@ else
 	#Release:        11.4
 	#Codename:       Celadon
 	#
+	# OpenSuSE 12.1
+	#LSB support:  1
+	#Distribution: SUSE LINUX
+	#Release:      12.1
+	#Codename:     Asparagus
+	#
 	# Arch
 	#LSB Version:    n/a
 	#Distributor ID: archlinux
@@ -149,8 +155,9 @@ case $distribution in
 		case $release in
 			6.0*)
 				apt-get install build-essential subdistribution automake autoconf autogen cmake cmake-curses-gui
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libluajit-5.1-dev libftgl-dev libminiupnpc-dev libvlc-dev librtmp-dev libgtk2.0-dev
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
+				# No libvlc-dev since version (1.1.3) in Debian 6.0/Squeeze is incompatible, no libluajit-5.1-dev because it is not available on Debian 6.0/Squeeze, cf. http://glest.org/glest_board/?topic=8460
+				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libminiupnpc-dev librtmp-dev libgtk2.0-dev
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
 			*)
@@ -211,6 +218,15 @@ case $distribution in
 				;;
 			*)
 				alternative='yum groupinstall "Development Tools"; yum install subdistribution automake autoconf autogen cmake; yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel'
+				unsupported_release
+				exit 1
+				;;
+		esac
+		;;
+
+	archlinux)
+		case $release in
+			rolling)
 				unsupported_release
 				exit 1
 				;;
