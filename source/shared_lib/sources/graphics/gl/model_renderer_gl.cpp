@@ -103,7 +103,7 @@ void ModelRendererGl::end() {
 	assertGl();
 }
 
-void ModelRendererGl::render(Model *model) {
+void ModelRendererGl::render(Model *model,int renderMode) {
 	//assertions
 	assert(rendering);
 	assertGl();
@@ -138,8 +138,12 @@ void ModelRendererGl::renderNormalsOnly(Model *model) {
 
 // ===================== PRIVATE =======================
 
-void ModelRendererGl::renderMesh(Mesh *mesh) {
+void ModelRendererGl::renderMesh(Mesh *mesh,int renderMode) {
 
+	if(renderMode==rmSelection && mesh->getNoSelect()==true)
+	{// don't render this and do nothing
+		return;
+	}
 	//assertions
 	assertGl();
 

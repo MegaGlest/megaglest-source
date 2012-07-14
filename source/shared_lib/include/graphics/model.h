@@ -70,6 +70,7 @@ private:
 	//properties
 	bool twoSided;
 	bool customColor;
+	bool noSelect;
 
 	uint32 textureFlags;
 
@@ -123,6 +124,7 @@ public:
 	//properties
 	bool getTwoSided() const		{return twoSided;}
 	bool getCustomTexture() const	{return customColor;}
+	bool getNoSelect() const		{return noSelect;}
 
 	//external data
 	const InterpolationData *getInterpolationData() const	{return interpolationData;}

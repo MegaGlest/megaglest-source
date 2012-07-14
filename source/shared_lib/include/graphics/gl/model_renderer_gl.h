@@ -34,7 +34,7 @@ public:
 	ModelRendererGl();
 	virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback);
 	virtual void end();
-	virtual void render(Model *model);
+	virtual void render(Model *model,int renderMode=rmNormal);
 	virtual void renderNormalsOnly(Model *model);
 
 	void setDuplicateTexCoords(bool duplicateTexCoords)			{this->duplicateTexCoords= duplicateTexCoords;}
@@ -42,7 +42,7 @@ public:
 
 private:
 	
-	void renderMesh(Mesh *mesh);
+	void renderMesh(Mesh *mesh,int renderMode=rmNormal);
 	void renderMeshNormals(Mesh *mesh);
 };
 
