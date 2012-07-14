@@ -215,6 +215,7 @@ public:
 
 	void removeUnitFromSelection(const Unit *unit);
 
+	Uint64 getTickCount()					{return tickCount;}
 	bool getPaused();
 	void setPaused(bool value, bool forceAllowPauseStateChange=false);
 	void tryPauseToggle(bool pause);

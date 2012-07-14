@@ -62,6 +62,7 @@ Mesh::Mesh() {
 
 	twoSided= false;
 	customColor= false;
+	noSelect= false;
 
 	textureFlags=0;
 
@@ -242,6 +243,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	//misc
 	twoSided= false;
 	customColor= false;
+	noSelect= false;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d meshIndex = %d\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex);
 
@@ -327,6 +329,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	//misc
 	twoSided= (meshHeader.properties & mp3TwoSided) != 0;
 	customColor= (meshHeader.properties & mp3CustomColor) != 0;
+	noSelect = false;
 
 	textureFlags= 0;
 	if((meshHeader.properties & mp3NoTexture) != mp3NoTexture) {
@@ -464,6 +467,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	//properties
 	customColor= (meshHeader.properties & mpfCustomColor) != 0;
 	twoSided= (meshHeader.properties & mpfTwoSided) != 0;
+	noSelect= (meshHeader.properties & mpfNoSelect) != 0;
 
 	//material
 	diffuseColor= Vec3f(meshHeader.diffuseColor);
@@ -536,6 +540,9 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	}
 	if(twoSided) {
 		meshHeader.properties |= mpfTwoSided;
+	}
+	if(noSelect) {
+		meshHeader.properties |= mpfNoSelect;
 	}
 
 	meshHeader.textures = textureFlags;

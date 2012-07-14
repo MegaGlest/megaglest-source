@@ -1756,7 +1756,6 @@ void Renderer::renderMouse3d() {
 
 			const UnitType *building= gui->getBuilding();
 			const Gui *gui= game->getGui();
-
 			renderGhostModel(building, pos, gui->getSelectedFacing());
 
 			modelRenderer->end();
@@ -4625,7 +4624,9 @@ void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,Cardin
 			color= Vec4f(1.f, 1.f, 1.f, 0.5f);
 		}
 		else {
-			color= Vec4f(1.f, 0.f, 0.f, 0.5f);
+//			Uint64 tc=game->getTickCount();
+//			float red=0.49f+((tc%4*1.0f)/2);
+			color= Vec4f(1.0f, 0.f, 0.f, 0.5f);
 		}
 	}
 
@@ -7005,7 +7006,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 
 			//assertGl();
 
-			modelRenderer->render(model);
+			modelRenderer->render(model,rmSelection);
 
 			glPopMatrix();
 

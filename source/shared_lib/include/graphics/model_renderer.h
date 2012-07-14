@@ -18,6 +18,14 @@
 
 namespace Shared{ namespace Graphics{
 
+enum RenderMode{
+	rmNormal,
+	rmSelection,
+
+	renderModeCount
+};
+
+
 class Texture;
 
 // =====================================================
@@ -50,7 +58,7 @@ public:
 
 	virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback= NULL)=0;
 	virtual void end()=0;
-	virtual void render(Model *model)=0;
+	virtual void render(Model *model,int renderMode=rmNormal)=0;
 	virtual void renderNormalsOnly(Model *model)=0;
 };
 
