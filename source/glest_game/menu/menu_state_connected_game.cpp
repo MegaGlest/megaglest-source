@@ -65,6 +65,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	soundConnectionCount=0;
 
 	this->factionVideo = NULL;
+	factionVideoSwitchedOffVolume=false;
 	currentTechName_factionPreview="";
 	currentFactionName_factionPreview="";
 
@@ -3723,6 +3724,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 					if(CoreData::getInstance().getMenuMusic()->getVolume() != 0) {
 						CoreData::getInstance().getMenuMusic()->setVolume(0);
+						factionVideoSwitchedOffVolume=true;
 					}
 
 					if(currentFactionLogo != factionVideoUrl) {
@@ -3763,8 +3765,11 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					//switch on music again!!
 					Config &config = Config::getInstance();
 					float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
-					if(CoreData::getInstance().getMenuMusic()->getVolume() != configVolume) {
-						CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+					if(factionVideoSwitchedOffVolume){
+						if(CoreData::getInstance().getMenuMusic()->getVolume() != configVolume) {
+							CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+						}
+						factionVideoSwitchedOffVolume=false;
 					}
 
 					if(factionVideo != NULL) {
