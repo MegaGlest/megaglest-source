@@ -173,6 +173,7 @@ private:
 	string currentFactionLogo;
 	Texture2D *factionTexture;
 	Shared::Graphics::VideoPlayer *factionVideo;
+	bool factionVideoSwitchedOffVolume;
 
 	MapPreview mapPreview;
 	Texture2D *mapPreviewTexture;

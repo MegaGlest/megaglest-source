@@ -1663,7 +1663,6 @@ void World::initUnits() {
 	//					}
 	//				}
 					placeUnitAtLocation(map.getStartLocation(startLocationIndex), generationArea, unit, true);
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 				}
 			}
 
