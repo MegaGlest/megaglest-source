@@ -1,0 +1,333 @@
+#!/bin/sh
+#
+# MegaGlest System Report
+#
+# Examines the Linux operating environment of a MegaGlest installation and 
+# dumps this information into REPORT_LOCATION for support purposes.
+#
+# -----------------------------------------------------------------------------
+#
+# Written by Tom Reynolds <tomreyn[at]megaglest.org>
+# Copyright (c) 2012 Tom Reynolds, The Megaglest Team, under GNU GPL v3.0
+#
+# -----------------------------------------------------------------------------
+#
+# Configuration section
+
+# Location to write report to
+#REPORT_LOCATION=
+
+# MegaGlest installation directory, see --help
+#INSTALLATION_LOCATION=
+
+# Make user press Enter to exit
+#PAUSE=1
+
+# End of configuration section
+#
+# -----------------------------------------------------------------------------
+#
+
+LANG=C
+VERSION='0.3'
+MYNAME=`basename $0`
+DEFAULT_REPORT_FILENAME=system_report.log
+
+if [ "$1"'x' = '-vx' -o "$1"'x' = '--versionx' ]
+then
+	echo 'MegaGlest System Report '"$VERSION"
+	echo ''
+	exit 0
+fi
+
+if [ "$1"'x' = '-hx' -o "$1"'x' = '--helpx' ]
+then
+	echo 'Usage:'
+	echo ' '"$MYNAME"' <OPTION>'
+	echo ' '"$MYNAME"' [INSTALLATION LOCATION]'
+	echo ''
+	echo 'Available options:'
+	echo ' --version   output version information and exit'
+	echo ' --help      display this help and exit'
+	echo ''
+	echo 'INSTALLATION LOCATION is an optional argument which specifies the MegaGlest'
+	echo 'installation directory, containing the "start_megaglest" wrapper script.'
+	echo ''
+	exit 0
+fi
+
+
+if [ "$REPORT_LOCATION"'x' = 'x' ]
+then
+	REPORT_LOCATION=$DEFAULT_REPORT_FILENAME
+fi
+
+if [ "$PAUSE"'x' = 'x' ]
+then
+	PAUSE=1
+fi
+
+# Check whether report file is writable
+rm -f "$REPORT_LOCATION"
+touch "$REPORT_LOCATION" >/dev/null 2>&1
+if [ "$?"'x' != '0x' ]
+then # Unable to write report file
+	rm -f /tmp/$DEFAULT_REPORT_FILENAME
+	touch /tmp/$DEFAULT_REPORT_FILENAME >/dev/null 2>&1
+	if [ "$?"'x' != '0x' ]
+	then # Unable to write to backup report file location
+		echo 'ERROR: Unable to write to either '"$REPORT_LOCATION"' or /tmp/'"$DEFAULT_REPORT_FILENAME" >&2
+		echo '       Please edit this script and set REPORT_LOCATION to a writable location.' >&2
+		echo '' >&2
+		rm -f "$REPORT_LOCATION"
+		exit 1
+	else # Writing to backup report file location succeeded
+		echo 'WARNING: Unable to write to '"$REPORT_LOCATION"'.'
+		echo '         I will write to /tmp/'"$DEFAULT_REPORT_FILENAME"' (which is writable) instead.' >&2
+		echo '' >&2
+		REPORT_LOCATION=/tmp/$DEFAULT_REPORT_FILENAME
+	fi
+fi
+rm -f "$REPORT_LOCATION"
+
+
+installation_location_unusable () {
+	echo 'ERROR: The INSTALLATION_LOCATION you provided is unusable:' >&2
+	echo '  '"$INSTALLATION_LOCATION" >&2
+	echo '' >&2
+	echo 'Please specify the directory you installed to (which must contain the' >&2
+	echo 'start_megaglest script) as first parameter to this script, e.g.:' >&2
+	echo '  '"$MYNAME"' /home/paulo/MegaGlest-3' >&2
+	echo '' >&2
+	echo 'You may try to use the following commands to locate the script:' >&2
+	echo '  locate -b '"'"'\start_megaglest'"'" >&2
+	echo '  find -type f -name start_megaglest ~/' >&2
+	echo '  sudo find -type f -name start_megaglest /' >&2
+	echo '' >&2
+	echo 'Please be aware that this script is written to work with installations created' >&2
+	echo 'using the installation instructions on http://megaglest.org. It may or may not' >&2
+	echo 'work with variants of MegaGlest which were packaged by your Linux distribution.' >&2
+	echo '' >&2
+}
+
+# Locate MegaGlest installation location
+if [ "$INSTALLATION_LOCATION"'x' != 'x' ] # The user provided an installation directory via env. variable
+then
+	if [ -f "$INSTALLATION_LOCATION/start_megaglest" -o -h "$INSTALLATION_LOCATION/start_megaglest" ]
+	then # The user provided an installation directory which is usable
+		true
+	else # The user provided an installation directory which is NOT usable
+		installation_location_unusable
+		exit 1
+	fi
+else # The user did not specify the $INSTALLATION_LOCATION environment variable
+	if [ "$1"'x' != 'x' ]
+	then # The user did, however, specify the installation location as a command line argument
+		INSTALLATION_LOCATION=$1
+		if [ -f "$INSTALLATION_LOCATION/start_megaglest" -o -h "$INSTALLATION_LOCATION/start_megaglest" ]
+		then # The user provided an installation directory which is usable
+			true
+		else # The user provided an installation directory which is NOT usable
+			installation_location_unusable
+			exit 1
+		fi
+	else # The user did not specify the installation location at all
+		if [ -f ~/megaglest/start_megaglest -o -h ~/megaglest/start_megaglest ]
+		then # However, there is a usable installation at ~/megaglest/ 
+			INSTALLATION_LOCATION=~/megaglest
+			echo 'WARNING: Using automatically selected installation directory ~/megaglest' >&2
+			echo '         This is usually what you want. To manually specify it, see --help.' >&2
+			echo '' >&2
+		else # Failed to guess the installation location, so give up.
+			echo 'ERROR: Unable to determine MegaGlest installation location.' >&2
+			echo '' >&2
+			echo 'Please specify the directory you installed to (which must contain the' >&2
+			echo 'start_megaglest script) as first parameter to this script, e.g.:' >&2
+			echo '  '"$MYNAME"' /home/paulo/MegaGlest-3' >&2
+			echo '' >&2
+			echo 'You may try to use the following commands to locate the script:' >&2
+			echo '  locate -b '"'"'\start_megaglest'"'" >&2
+			echo '  find -type f -name start_megaglest ~/' >&2
+			echo '  sudo find -type f -name start_megaglest /' >&2
+			echo '' >&2
+			echo 'Please be aware that this script is written to work with installations' >&2
+			echo 'created using the instructions on megaglest.org. It may not work with' >&2
+			echo 'variants of MegaGlest which were packaged by your Linux distribution.' >&2
+			echo '' >&2
+			exit 1
+		fi
+	fi
+fi
+
+
+# Start gathering information, writing it to REPORT_LOCATION
+echo 'Gathering information on this computer and MegaGlest, please stand by.'
+echo ''
+echo '--------------------------------------------------------------------------------' >> $REPORT_LOCATION
+echo '                        MEGAGLEST SYSTEM REPORT '"$VERSION" >> $REPORT_LOCATION
+echo '                      '"`date -Ru`" >> $REPORT_LOCATION
+echo '--------------------------------------------------------------------------------' >> $REPORT_LOCATION
+
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '***** Operating system *********************************************************' | tee -a $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+if [ `which lsb_release`'x' = 'x' ]
+then # no lsb_release in path
+	lsb=0
+	if [ -e /etc/debian_version ];   then distribution='Debian';   release='unknown release version'; codename=`cat /etc/debian_version`;   fi
+	if [ -e /etc/SuSE-release ];     then distribution='SuSE';     release='unknown release version'; codename=`cat /etc/SuSE-release`;     fi
+	if [ -e /etc/fedora-release ];   then distribution='Fedora';   release='unknown release version'; codename=`cat /etc/fedora-release`;   fi
+	if [ -e /etc/redhat-release ];   then distribution='Redhat';   release='unknown release version'; codename=`cat /etc/redhat-release`;   fi
+	if [ -e /etc/mandrake-release ]; then distribution='Mandrake'; release='unknown release version'; codename=`cat /etc/mandrake-release`; fi
+else
+	lsb=1
+	distribution=`lsb_release -i | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }'`
+	release=`lsb_release -r | awk -F':' '{ gsub(/^[  \t]*/,"",$2); print $2 }'`
+	codename=`lsb_release -c | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }'`
+fi
+echo '* Distribution: '"$distribution" >> $REPORT_LOCATION
+echo '* Release:      '"$release" >> $REPORT_LOCATION
+echo '* Codename:     '"$codename" >> $REPORT_LOCATION
+echo '* LSB support:  '"$lsb" >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '>>> uname -a' >> $REPORT_LOCATION
+uname -a >> $REPORT_LOCATION 2>&1
+sleep 1
+echo '' >> $REPORT_LOCATION
+echo '>>> cat /etc/issue' >> $REPORT_LOCATION
+cat /etc/issue >> $REPORT_LOCATION 2>&1
+sleep 1
+
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '***** MegaGlest version ********************************************************' | tee -a $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+
+# Currently commented out due to http://glest.org/glest_board/?topic=8482
+#if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
+#then # Only run this if MegaGlest didn't already fail last time it was run
+	echo ' (I will now try to run MegaGlest, but it should quit automatically.)'
+	echo '' >> $REPORT_LOCATION
+	echo '>>> ./start_megaglest --version' >> $REPORT_LOCATION
+	$INSTALLATION_LOCATION/start_megaglest --version >> $REPORT_LOCATION 2>&1
+	if [ "$?"'x' = '0x' ]
+	then # all cool
+		ERROR_RUNNING_MEGAGLEST=0
+	else # an error occurred
+		ERROR_RUNNING_MEGAGLEST=1
+	fi
+	sleep 1
+#else
+#	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
+#	echo '>>> SKIPPED: ./start_megaglest --version' >> $REPORT_LOCATION
+#fi
+
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '***** MegaGlest configuration **************************************************' | tee -a $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+
+# Currently commented out due to http://glest.org/glest_board/?topic=8482
+#if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
+#then # Only run this if MegaGlest didn't already fail last time it was run
+	echo ' (I will now try to run MegaGlest, but it should quit automatically.)'
+	echo '' >> $REPORT_LOCATION
+	echo '>>> ./start_megaglest --show-ini-settings' >> $REPORT_LOCATION
+	$INSTALLATION_LOCATION/start_megaglest --show-ini-settings >> $REPORT_LOCATION 2>&1
+	if [ "$?"'x' = '0x' ]
+	then # all cool
+		ERROR_RUNNING_MEGAGLEST=0
+	else # an error occurred
+		ERROR_RUNNING_MEGAGLEST=1
+	fi
+	sleep 1
+#else
+#	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
+#	echo '>>> SKIPPED: ./start_megaglest --show-ini-settings' >> $REPORT_LOCATION
+#fi
+
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '***** CPU **********************************************************************' | tee -a $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '>>> cat /proc/cpuinfo | awk -F : '"'"'/^model name/ { print $2 }' >> $REPORT_LOCATION
+cat /proc/cpuinfo | awk -F : '/^model name/ { print $2 }' >> $REPORT_LOCATION
+sleep 1
+
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '***** Memory *******************************************************************' | tee -a $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '>>> free -mt' >> $REPORT_LOCATION
+free -mt >> $REPORT_LOCATION
+sleep 1
+
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '***** Graphics *****************************************************************' | tee -a $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+
+echo ">>> lspci -knnv | grep -EA10 '(VGA|Display)'" >> $REPORT_LOCATION
+lspci -knnv | grep -EA10 '(VGA|Display)' >> $REPORT_LOCATION
+sleep 1
+echo '' >> $REPORT_LOCATION
+echo '>>> glxinfo' >> $REPORT_LOCATION
+glxinfo >> $REPORT_LOCATION 2>&1
+sleep 1
+echo '' >> $REPORT_LOCATION
+echo '>>> xrandr' >> $REPORT_LOCATION
+xrandr >> $REPORT_LOCATION  2>&1
+sleep 1
+
+# Currently commented out due to http://glest.org/glest_board/?topic=8482
+#if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
+#then # Only run this if MegaGlest didn't already fail last time it was run
+	echo ' (I will now try to run MegaGlest, but it should quit automatically.)'
+	echo '' >> $REPORT_LOCATION
+	echo '>>> ./start_megaglest --opengl-info' >> $REPORT_LOCATION
+	$INSTALLATION_LOCATION/start_megaglest --opengl-info >> $REPORT_LOCATION 2>&1
+	if [ "$?"'x' = '0x' ]
+	then # all cool
+		ERROR_RUNNING_MEGAGLEST=0
+	else # an error occurred
+		ERROR_RUNNING_MEGAGLEST=1
+	fi
+	sleep 1
+#else
+#	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
+#	echo '>>> SKIPPED: ./start_megaglest --opengl-info' >> $REPORT_LOCATION
+#fi	
+
+echo '' >> $REPORT_LOCATION
+echo '--------------------------------------------------------------------------------' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+
+echo ''
+echo 'Processing complete.'
+sleep 1
+echo ''
+echo 'Please find your report in this file:'
+echo '  '"$REPORT_LOCATION"
+echo ''
+echo 'Please post this report to a pastebin such as (one of)'
+echo '  http://paste.megaglest.org'
+echo '  http://pastebin.com'
+echo ''
+echo 'After posting it there you will be taken to a new Internet address. Please'
+echo 'take note of this new location/URL/Internet address and make it available to'
+echo 'the MegaGlest developers. Unless you were instructed to do otherwise, please'
+echo 'post both the Internet address of where you uploaded to and a verbose'
+echo 'description of the issues you are experiencing at'
+echo '  http://forums.megaglest.org'
+echo ''
+echo 'Thank you for making it easy for us to assist you.'
+echo ''
+
+if [ "$PAUSE"'x' = '1x' -o "$PAUSE"'x' = 'truex' ]
+then
+	echo 'Press Enter to exit.'
+	read input >/dev/null
+fi
