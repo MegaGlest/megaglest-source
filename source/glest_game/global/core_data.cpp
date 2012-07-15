@@ -365,6 +365,7 @@ void CoreData::load() {
 	clickSoundC.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_c.wav"));
 	attentionSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/attention.wav"));
 	highlightSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/highlight.wav"));
+	markerSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/sonar.wav"));
 
 	XmlTree xmlTree;
 	//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
