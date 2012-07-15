@@ -81,6 +81,7 @@ Game::Game() : ProgramState(NULL) {
 	renderNetworkStatus=false;
 	showFullConsole=false;
 	setMarker=false;
+	cameraDragAllowed=false;
 	mouseMoved=false;
 	scrollSpeed=0;
 	camLeftButtonDown=false;
@@ -2006,7 +2007,7 @@ void Game::mouseDownLeft(int x, int y) {
 	if(this->masterserverMode == true) {
 		return;
 	}
-
+	cameraDragAllowed=false;
 	if(currentUIState != NULL) {
 		currentUIState->mouseDownLeft(x, y);
 		return;
@@ -2208,6 +2209,7 @@ void Game::mouseDownLeft(int x, int y) {
 					else
 					{
 						if(!setMarker) {
+							cameraDragAllowed=true;
 							gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
 						}
 					}
@@ -2623,7 +2625,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 						}
 						else
 						{
-							if(!setMarker) {
+							if(cameraDragAllowed == true) {
 								gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
 							}
 						}

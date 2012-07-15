@@ -97,6 +97,7 @@ private:
 	bool renderNetworkStatus;
 	bool showFullConsole;
 	bool setMarker;
+	bool cameraDragAllowed;
 	bool mouseMoved;
 	float scrollSpeed;
 	bool camLeftButtonDown;
