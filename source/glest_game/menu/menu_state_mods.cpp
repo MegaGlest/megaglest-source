@@ -889,7 +889,7 @@ string MenuStateMods::refreshTechModInfo(string techInfo) {
 		if(itemPath.empty()==false){
 		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
-		   modinfo.localCRC=intToStr(crc);
+		   modinfo.localCRC=uIntToStr(crc);
 		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
 		else {
@@ -939,7 +939,7 @@ string MenuStateMods::refreshTilesetModInfo(string tilesetInfo) {
 		if(itemPath.empty()==false){
 		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
-		   modinfo.localCRC=intToStr(crc);
+		   modinfo.localCRC=uIntToStr(crc);
 		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
 		else {
@@ -1041,7 +1041,7 @@ string MenuStateMods::getMapCRC(string mapName) {
 		if (fileExists(itemPath)){
 			checksum.addFile(itemPath);
 			int crc=checksum.getSum();
-			result=intToStr(crc);
+			result=uIntToStr(crc);
 			//printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
 		else result="";
@@ -1090,7 +1090,7 @@ string MenuStateMods::refreshScenarioModInfo(string scenarioInfo) {
 		if(itemPath.empty()==false){
 		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
-		   modinfo.localCRC=intToStr(crc);
+		   modinfo.localCRC=uIntToStr(crc);
 		   //printf(" itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
 		else {
