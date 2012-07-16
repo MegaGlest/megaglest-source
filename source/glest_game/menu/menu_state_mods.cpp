@@ -409,7 +409,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	if(config.getString("Masterserver","") != "") {
 		string baseURL = config.getString("Masterserver");
-		string phpVersionParam = config.getString("phpVersionParam","?version=1");
+		string phpVersionParam = config.getString("phpVersionParam","?version=0.1");
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] About to call first http url, base [%s]..\n",__FILE__,__FUNCTION__,__LINE__,baseURL.c_str());
 
