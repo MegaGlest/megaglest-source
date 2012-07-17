@@ -186,6 +186,7 @@ string PlatformExceptionHandler::getStackTrace() {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         char szBuf[8096]="";
+        string strBuf = "";
         for(size_t i = 1; i < stack_depth; i++) {
             void *lineAddress = stack_addrs[i]; //getStackAddress(stackIndex);
 
@@ -223,15 +224,22 @@ string PlatformExceptionHandler::getStackTrace() {
                 }
                 //fprintf(out, "    %s:%s\n", stack.strings[i], function);
 
-                sprintf(szBuf,"%s:%s address [%p]",stack_strings[i],function,lineAddress);
+                //sprintf(szBuf,"%s:%s address [%p]",stack_strings[i],function,lineAddress);
+                strBuf = string(stack_strings[i]) + ":" + string(function);
+                sprintf(szBuf,"address [%p]",lineAddress);
+                strBuf += szBuf;
             }
             else {
                 // didn't find the mangled name, just print the whole line
                 //fprintf(out, "    %s\n", stack.strings[i]);
-                sprintf(szBuf,"%s address [%p]",stack_strings[i],lineAddress);
+                //sprintf(szBuf,"%s address [%p]",stack_strings[i],lineAddress);
+            	strBuf = stack_strings[i];
+                sprintf(szBuf,"address [%p]",lineAddress);
+                strBuf += szBuf;
             }
 
-            errMsg += string(szBuf);
+            //errMsg += string(szBuf);
+            errMsg += strBuf;
             char file[8096]="";
             int line = getFileAndLine(function, lineAddress, file, 8096);
             if(line >= 0) {
