@@ -29,7 +29,7 @@
 #
 
 LANG=C
-VERSION='0.3'
+VERSION='0.3.1'
 MYNAME=`basename $0`
 DEFAULT_REPORT_FILENAME=system_report.log
 
@@ -161,16 +161,68 @@ fi
 
 
 # Start gathering information, writing it to REPORT_LOCATION
-echo 'Gathering information on this computer and MegaGlest, please stand by.'
+cat <<'EOF'
+
+                                                                         a.     
+     __,.  ._a,,           v          ..                                =ma;    
+   <wVUXSc<ZA2YS>         j[        _a2`            :.                 .]W#=;   
+  ]ZgQ#Zq2Xmmmmmoc    .. jX( _ss,%_wXZ'    _a,       i                _u)W#>>   
+ =ZmWXY!3Qm$Z13WQo,.adUXXS3;uASoZXXnnSauudZXSn.      +;.           _=%|IcWWmm;  
+ 3qQEe .nQBd` 1dQZsdSmmmqmnZqmBW#BWomwwwwwmX8I        3,        ._iii=<in3WWm'  
+.S**X( .n?S2  <2TCXSUXZS1SXXXGZ"?nnXXZd8X3Ev+`        -h, s,. .=v+||1+<nmo$m#   
+:n|<#;  n|ve  :z+{2|vmaaonSi)d` _nn(d1{d{c|v.          ]kdmms=>Iv=|lnwZ!`  ?[   
+.1+<X;  3|ve  :2|ve|voonvnS>Ie<dX13ak>{SXs=n.           4WP4k;<<vsuw2!`         
+ vaaX; .nsvo  )c<oc|3m#ZmI2><XSd#c|1e|iaao|v.          _)Qswpc=vomY^            
+ {dWp(  nmp2  dqm21q2o="vn2vudXZ!{ivv%3mXo>v:       ._|||3mBmo%Z"`              
+ =v$SowwommXwwSmX()3Q2oaZm3zWmoouGmEvQv~)Sm{>     .=||||=)Qr]Ze                 
+.X2SomqqmQWmgwmXX( {dQmqmUn+3WQgqmBmnAouXdWon` ._||||++=+imom#'                 
+ )u####ZZZZZZ###X( -{X##Zsn;~3Z##XXXoZdGZ###p_=|||++++<vnn$mWe                  
+  X?"^- .    -~"Y'   -~~ {v>  -""YXm#mZ3d!"|||||=+|+<unv" )#.                   
+                         :n(       -"{Sd'=||i|==+|sun}^   -m:                   
+                          {z        _#Z|ii|====iao1o(      X;                   
+                          =o       .jZ||>==+<vu21oZP       ];    _;<i,_______us,
+                           v.    _=v#(+=<adS2nouZSd`       )(   _2 3vn22121211v;
+                           +; ._|iid+==wX1Isi%|lno'  ._    .(  .d( 3viillIlll|i`
+                            |=|ii|||=<dnlvXZZZc|nSisuS(    _i,_d1=_XzSSXX1|IXo%.
+                         ._|iii|=+|iumSmZX!~^!1%onvnun`  _dS111nIdY111124v|v]qo.
+                       .=iii|==+|voX*Zmm1e    2{XZd#ve  _UqwZmgpvnZXXwoi]nwi:~~ 
+                    ._|iii|++|iuS2"`:XUDv`  _i2{+33E|  .ZqSoX1XCvBsoXX1>]nmv.   
+                  _=iii||+|<voS*~   )ei|v.<dS11vaoIl%  ]21vosvXlvSlvvon=]nXl.   
+                _|ili||||iuS2!`     :1||{dSwXS%|iXi|c  ]1+|Iliiina|||iIn]1|v.   
+             .=illi||||soSe^        .v||)odS??1||vi|i .di|3XX#Si3dGoa%|{]o|{.   
+           .=ili||||vuX2!-          _wc|ine. :o%|vs|s_j2%|)e""X|vv*YSX|<voi{:   
+         _<vIl|||ivoXe^           _wmX{oqo2nuZSoudvsISnvn%iIss2%n%n=aCcino|{=   
+       _|iI||||iaoX}~           .aZ!` -XXWmwwwmUoXdmmmm1nXmqonqevqonnwooZnou1.  
+     .||ii|||vuSe"`            :>~     -?X#ZZZX2{o#XXXXv;?X#UAX1vXZUXS2!oXXXv.  
+    =l||||<uoX}~                         -""""- :Y""~]Xq; -"!!^nv>!!?"`-Y""!!   
+   =l||iaoX2"`                                                 )o;              
+ .=iiau2*"`                                                    :2=              
+ =+|""--                                                        v>              
+                                                                <(              
+                                                                 s              
+                                                                 <.             
+                       -  S Y S T E M   R E P O R T -            -;             
+                                                                  :             
+EOF
+echo '                                   v'"$VERSION"''
+echo ''
+echo '________________________________________________________________________________'
+echo ''
+echo '            Collecting information on this computer and MegaGlest.'
+echo ''
+echo '                              Please stand by...'
+echo '________________________________________________________________________________'
+echo ''
 echo ''
 echo '--------------------------------------------------------------------------------' >> $REPORT_LOCATION
-echo '                        MEGAGLEST SYSTEM REPORT '"$VERSION" >> $REPORT_LOCATION
+echo '                       MEGAGLEST SYSTEM REPORT '"$VERSION" >> $REPORT_LOCATION
 echo '                      '"`date -Ru`" >> $REPORT_LOCATION
 echo '--------------------------------------------------------------------------------' >> $REPORT_LOCATION
 
+echo ' →  Operating system'
 echo '' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
-echo '***** Operating system *********************************************************' | tee -a $REPORT_LOCATION
+echo '***** Operating system *********************************************************' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
 if [ `which lsb_release`'x' = 'x' ]
 then # no lsb_release in path
@@ -199,18 +251,19 @@ echo '>>> cat /etc/issue' >> $REPORT_LOCATION
 cat /etc/issue >> $REPORT_LOCATION 2>&1
 sleep 1
 
+echo ' →  MegaGlest version'
 echo '' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
-echo '***** MegaGlest version ********************************************************' | tee -a $REPORT_LOCATION
+echo '***** MegaGlest version ********************************************************' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
 
 # Currently commented out due to http://glest.org/glest_board/?topic=8482
 #if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
 #then # Only run this if MegaGlest didn't already fail last time it was run
-	echo ' (I will now try to run MegaGlest, but it should quit automatically.)'
+	echo '    (I will now try to run MegaGlest, but it should quit automatically.)'
 	echo '' >> $REPORT_LOCATION
-	echo '>>> ./start_megaglest --version' >> $REPORT_LOCATION
-	$INSTALLATION_LOCATION/start_megaglest --version >> $REPORT_LOCATION 2>&1
+	echo '>>> ./start_megaglest --use-language=en --version' >> $REPORT_LOCATION
+	$INSTALLATION_LOCATION/start_megaglest --use-language=en --version >> $REPORT_LOCATION 2>&1
 	if [ "$?"'x' = '0x' ]
 	then # all cool
 		ERROR_RUNNING_MEGAGLEST=0
@@ -220,73 +273,40 @@ echo '' >> $REPORT_LOCATION
 	sleep 1
 #else
 #	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
-#	echo '>>> SKIPPED: ./start_megaglest --version' >> $REPORT_LOCATION
+#	echo '>>> SKIPPED: ./start_megaglest --use-language=en --version' >> $REPORT_LOCATION
 #fi
 
+echo ' →  CPU'
 echo '' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
-echo '***** MegaGlest configuration **************************************************' | tee -a $REPORT_LOCATION
-echo '' >> $REPORT_LOCATION
-
-# Currently commented out due to http://glest.org/glest_board/?topic=8482
-#if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
-#then # Only run this if MegaGlest didn't already fail last time it was run
-	echo ' (I will now try to run MegaGlest, but it should quit automatically.)'
-	echo '' >> $REPORT_LOCATION
-	echo '>>> ./start_megaglest --show-ini-settings' >> $REPORT_LOCATION
-	$INSTALLATION_LOCATION/start_megaglest --show-ini-settings >> $REPORT_LOCATION 2>&1
-	if [ "$?"'x' = '0x' ]
-	then # all cool
-		ERROR_RUNNING_MEGAGLEST=0
-	else # an error occurred
-		ERROR_RUNNING_MEGAGLEST=1
-	fi
-	sleep 1
-#else
-#	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
-#	echo '>>> SKIPPED: ./start_megaglest --show-ini-settings' >> $REPORT_LOCATION
-#fi
-
-echo '' >> $REPORT_LOCATION
-echo '' >> $REPORT_LOCATION
-echo '***** CPU **********************************************************************' | tee -a $REPORT_LOCATION
+echo '***** CPU **********************************************************************' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
 echo '>>> cat /proc/cpuinfo | awk -F : '"'"'/^model name/ { print $2 }' >> $REPORT_LOCATION
 cat /proc/cpuinfo | awk -F : '/^model name/ { print $2 }' >> $REPORT_LOCATION
 sleep 1
 
+echo ' →  Memory'
 echo '' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
-echo '***** Memory *******************************************************************' | tee -a $REPORT_LOCATION
+echo '***** Memory *******************************************************************' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
 echo '>>> free -mt' >> $REPORT_LOCATION
 free -mt >> $REPORT_LOCATION
 sleep 1
 
+echo ' →  MegaGlest configuration'
 echo '' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
-echo '***** Graphics *****************************************************************' | tee -a $REPORT_LOCATION
+echo '***** MegaGlest configuration **************************************************' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
-
-echo ">>> lspci -knnv | grep -EA10 '(VGA|Display)'" >> $REPORT_LOCATION
-lspci -knnv | grep -EA10 '(VGA|Display)' >> $REPORT_LOCATION
-sleep 1
-echo '' >> $REPORT_LOCATION
-echo '>>> glxinfo' >> $REPORT_LOCATION
-glxinfo >> $REPORT_LOCATION 2>&1
-sleep 1
-echo '' >> $REPORT_LOCATION
-echo '>>> xrandr' >> $REPORT_LOCATION
-xrandr >> $REPORT_LOCATION  2>&1
-sleep 1
 
 # Currently commented out due to http://glest.org/glest_board/?topic=8482
 #if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
 #then # Only run this if MegaGlest didn't already fail last time it was run
-	echo ' (I will now try to run MegaGlest, but it should quit automatically.)'
+	echo '    (I will now try to run MegaGlest, but it should quit automatically.)'
 	echo '' >> $REPORT_LOCATION
-	echo '>>> ./start_megaglest --opengl-info' >> $REPORT_LOCATION
-	$INSTALLATION_LOCATION/start_megaglest --opengl-info >> $REPORT_LOCATION 2>&1
+	echo '>>> ./start_megaglest --use-language=en --show-ini-settings' >> $REPORT_LOCATION
+	$INSTALLATION_LOCATION/start_megaglest --use-language=en --show-ini-settings >> $REPORT_LOCATION 2>&1
 	if [ "$?"'x' = '0x' ]
 	then # all cool
 		ERROR_RUNNING_MEGAGLEST=0
@@ -296,8 +316,72 @@ sleep 1
 	sleep 1
 #else
 #	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
-#	echo '>>> SKIPPED: ./start_megaglest --opengl-info' >> $REPORT_LOCATION
+#	echo '>>> SKIPPED: ./start_megaglest --use-language=en --show-ini-settings' >> $REPORT_LOCATION
+#fi
+
+echo ' →  Graphics'
+echo '' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+echo '***** Graphics *****************************************************************' >> $REPORT_LOCATION
+echo '' >> $REPORT_LOCATION
+
+if [ "`which lspci`"'x' = 'x' ]
+then # not available in search path
+	echo 'WARNING: "lspci" utility is not available.' >&2
+	echo '         Consider installing it to provide more useful information on your system.' >&2
+	echo '' >&2
+	echo '>>> SKIPPED: lspci -knnv | grep -EA10 '"'"'(VGA|Display)'"'" >> $REPORT_LOCATION
+else # it's available
+	echo ">>> lspci -knnv | grep -EA10 '(VGA|Display)'" >> $REPORT_LOCATION
+	lspci -knnv | grep -EA10 '(VGA|Display)' >> $REPORT_LOCATION 2>&1
+fi
+sleep 1
+echo '' >> $REPORT_LOCATION
+
+if [ "`which xrandr`"'x' = 'x' ]
+then # not available in search path
+	echo 'WARNING: "xrandr" utility is not available.' >&2
+	echo '         Consider installing it to provide more useful information on your system.' >&2
+	echo '' >&2
+	echo '>>> SKIPPED: xrandr' >> $REPORT_LOCATION
+else # it's available
+	echo ">>> xrandr" >> $REPORT_LOCATION
+	xrandr >> $REPORT_LOCATION 2>&1
+fi
+sleep 1
+echo '' >> $REPORT_LOCATION
+
+# Currently commented out due to http://glest.org/glest_board/?topic=8482
+#if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
+#then # Only run this if MegaGlest didn't already fail last time it was run
+	echo '    (I will now try to run MegaGlest, but it should quit automatically.)'
+	echo '' >> $REPORT_LOCATION
+	echo '>>> ./start_megaglest --use-language=en --opengl-info' >> $REPORT_LOCATION
+	$INSTALLATION_LOCATION/start_megaglest --use-language=en --opengl-info >> $REPORT_LOCATION 2>&1
+	if [ "$?"'x' = '0x' ]
+	then # all cool
+		ERROR_RUNNING_MEGAGLEST=0
+	else # an error occurred
+		ERROR_RUNNING_MEGAGLEST=1
+	fi
+	sleep 1
+#else
+#	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
+#	echo '>>> SKIPPED: ./start_megaglest --use-language=en --opengl-info' >> $REPORT_LOCATION
 #fi	
+
+if [ "`which glxinfo`"'x' = 'x' ]
+then # not available in search path
+	echo 'WARNING: "glxinfo" utility is not available.' >&2
+	echo '         Consider installing it to provide more useful information on your system.' >&2
+	echo '' >&2
+	echo '>>> SKIPPED: glxinfo -l' >> $REPORT_LOCATION
+else # it's available
+	echo ">>> glxinfo -l" >> $REPORT_LOCATION
+	glxinfo -l >> $REPORT_LOCATION 2>&1
+fi
+sleep 1
+echo '' >> $REPORT_LOCATION
 
 echo '' >> $REPORT_LOCATION
 echo '--------------------------------------------------------------------------------' >> $REPORT_LOCATION
@@ -306,28 +390,32 @@ echo '' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
 
 echo ''
-echo 'Processing complete.'
+echo ' Processing complete.'
+echo '________________________________________________________________________________'
 sleep 1
 echo ''
-echo 'Please find your report in this file:'
-echo '  '"$REPORT_LOCATION"
+echo ' Please find your report in this file:'
+echo '   '"$REPORT_LOCATION"
 echo ''
-echo 'Please post this report to a pastebin such as (one of)'
-echo '  http://paste.megaglest.org'
-echo '  http://pastebin.com'
+echo ' Please post this report to a pastebin such as (one of)'
+echo '   http://paste.megaglest.org'
+echo '   http://pastebin.com'
 echo ''
-echo 'After posting it there you will be taken to a new Internet address. Please'
-echo 'take note of this new location/URL/Internet address and make it available to'
-echo 'the MegaGlest developers. Unless you were instructed to do otherwise, please'
-echo 'post both the Internet address of where you uploaded to and a verbose'
-echo 'description of the issues you are experiencing at'
-echo '  http://forums.megaglest.org'
+echo ' After posting it there you will be taken to a new Internet address. Please'
+echo ' take note of this new location/URL/Internet address and make it available to'
+echo ' the MegaGlest developers. Unless you were instructed to do otherwise, please'
+echo ' post both the Internet address of where you uploaded to and a verbose'
+echo ' description of the issues you are experiencing at'
+echo '   http://forums.megaglest.org'
 echo ''
-echo 'Thank you for making it easy for us to assist you.'
+echo ' Thank you for making it easy for us to assist you,'
 echo ''
+echo '   -- The MegaGlest development team'
 
 if [ "$PAUSE"'x' = '1x' -o "$PAUSE"'x' = 'truex' ]
 then
-	echo 'Press Enter to exit.'
+	echo '________________________________________________________________________________'
+	echo ''
+	echo '           Please read all of the above, then press return to exit.'
 	read input >/dev/null
 fi
