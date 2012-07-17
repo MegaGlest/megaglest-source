@@ -1055,7 +1055,7 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
 
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
             printParameterHelp(argv[0],false);
-            return -1;
+            return 1;
         }
     }
     else if(config != NULL) {
@@ -1089,7 +1089,7 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
 
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
             printParameterHelp(argv[0],false);
-            return -1;
+            return 1;
         }
     }
 
@@ -1113,7 +1113,7 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
 
             printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
             printParameterHelp(argv[0],false);
-            return -1;
+            return 1;
         }
     }
     else if(config != NULL) {
@@ -3020,7 +3020,7 @@ int glestMain(int argc, char** argv) {
 		foundInvalidArgs == true) {
 
 		printParameterHelp(argv[0],foundInvalidArgs);
-		return -1;
+		return 2;
 	}
 
 	//off_t fileSize = getFileSize(argv[0]);
@@ -3142,7 +3142,7 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== false) {
-		return -1;
+		return 0;
 	}
 
 	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MOD])) == true) {
@@ -3168,7 +3168,7 @@ int glestMain(int argc, char** argv) {
 		else {
 			printf("\nInvalid mod pathname specified on commandline [%s] mod [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 			printParameterHelp(argv[0],foundInvalidArgs);
-			return -1;
+			return 1;
 		}
 	}
 
@@ -3277,13 +3277,13 @@ int glestMain(int argc, char** argv) {
 				else {
 		            printf("\nInvalid ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 		            //printParameterHelp(argv[0],false);
-		            return -1;
+		            return 1;
 				}
 			}
 	        else {
 	            printf("\nInvalid missing ports specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
-	            return -1;
+	            return 1;
 	        }
     	}
 
@@ -3364,13 +3364,13 @@ int glestMain(int argc, char** argv) {
 				else {
 		            printf("\nInvalid missing resolution settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 		            //printParameterHelp(argv[0],false);
-		            return -1;
+		            return 1;
 				}
 			}
 	        else {
 	            printf("\nInvalid missing resolution setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
-	            return -1;
+	            return 1;
 	        }
         }
 
@@ -3393,7 +3393,7 @@ int glestMain(int argc, char** argv) {
 			else {
 				printf("\nInvalid missing colorbits settings specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				//printParameterHelp(argv[0],false);
-				return -1;
+				return 1;
 			}
 		}
 
@@ -3416,7 +3416,7 @@ int glestMain(int argc, char** argv) {
 			else {
 				printf("\nInvalid missing depthbits setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				//printParameterHelp(argv[0],false);
-				return -1;
+				return 1;
 			}
 		}
 
@@ -3439,7 +3439,7 @@ int glestMain(int argc, char** argv) {
 			else {
 				printf("\nInvalid missing fullscreen setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				//printParameterHelp(argv[0],false);
-				return -1;
+				return 1;
 			}
 		}
 
@@ -3462,7 +3462,7 @@ int glestMain(int argc, char** argv) {
 			else {
 				printf("\nInvalid missing gamma setting specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				//printParameterHelp(argv[0],false);
-				return -1;
+				return 1;
 			}
 		}
 
@@ -3537,7 +3537,7 @@ int glestMain(int argc, char** argv) {
 
         if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) == true) {
             ShowINISettings(argc,argv,config,configKeys);
-            return -1;
+            return 0;
         }
 
         //setVBOSupported(false);
@@ -3574,7 +3574,7 @@ int glestMain(int argc, char** argv) {
 	        else {
 	            printf("\nInvalid missing language specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
-	            return -1;
+	            return 1;
 	        }
     	}
     	else {
@@ -3682,7 +3682,7 @@ int glestMain(int argc, char** argv) {
 	            printf("\nInvalid missing font base size specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
 
-	            return -1;
+	            return 1;
 	        }
     	}
 
@@ -3714,7 +3714,7 @@ int glestMain(int argc, char** argv) {
 	        else {
 	            printf("\nInvalid missing font specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
-	            return -1;
+	            return 1;
 	        }
     	}
 
@@ -3742,15 +3742,16 @@ int glestMain(int argc, char** argv) {
 				}
 				else {
 					printf("Map [%s] was NOT FOUND\n",itemName.c_str());
+					return 1;
 				}
 
-				return -1;
+				return 0;
 			}
 	        else {
 	            printf("\nInvalid missing map specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
 
-	            return -1;
+	            return 1;
 	        }
     	}
 
@@ -3771,15 +3772,16 @@ int glestMain(int argc, char** argv) {
 				}
 				else {
 					printf("Tileset [%s] was NOT FOUND\n",itemName.c_str());
+					return 1;
 				}
 
-				return -1;
+				return 0;
 			}
 	        else {
 	            printf("\nInvalid missing tileset specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
 
-	            return -1;
+	            return 0;
 	        }
     	}
 
@@ -3800,15 +3802,16 @@ int glestMain(int argc, char** argv) {
 				}
 				else {
 					printf("Techtree [%s] was NOT FOUND\n",itemName.c_str());
+					return 1;
 				}
 
-				return -1;
+				return 0;
 			}
 	        else {
 	            printf("\nInvalid missing techtree specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
 
-	            return -1;
+	            return 0;
 	        }
     	}
 
@@ -3829,15 +3832,16 @@ int glestMain(int argc, char** argv) {
 				}
 				else {
 					printf("Scenario [%s] was NOT FOUND\n",itemName.c_str());
+					return 1;
 				}
 
-				return -1;
+				return 0;
 			}
 	        else {
 	            printf("\nInvalid missing scenario specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 	            //printParameterHelp(argv[0],false);
 
-	            return -1;
+	            return 0;
 	        }
     	}
 
@@ -3859,7 +3863,7 @@ int glestMain(int argc, char** argv) {
 
 				printf("CRC value for path [%s] filter [%s] is [%u]\n",itemName.c_str(),itemNameFilter.c_str(),crcValue);
 
-				return -1;
+				return 0;
 			}
 	        else {
 	        	if(paramPartTokens.size() < 2) {
@@ -3871,7 +3875,7 @@ int glestMain(int argc, char** argv) {
 
 	            //printParameterHelp(argv[0],false);
 
-	            return -1;
+	            return 1;
 	        }
     	}
 
@@ -3915,7 +3919,7 @@ int glestMain(int argc, char** argv) {
 			}
 			printf("===========================================\nTotal: %lu\n",maps.size());
 
-            return -1;
+            return 0;
     	}
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) == true) {
@@ -3982,7 +3986,7 @@ int glestMain(int argc, char** argv) {
 			}
 			printf("===========================================\nTotal Techtrees: %lu\n",results.size());
 
-            return -1;
+            return 0;
     	}
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) == true) {
@@ -4025,7 +4029,7 @@ int glestMain(int argc, char** argv) {
 			}
 			printf("===========================================\nTotal: %lu\n",results.size());
 
-            return -1;
+            return 0;
     	}
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) == true) {
@@ -4089,7 +4093,7 @@ int glestMain(int argc, char** argv) {
 			}
 			printf("===========================================\nTotal: %lu\n",results.size());
 
-            return -1;
+            return 0;
     	}
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) == true) {
@@ -4153,7 +4157,7 @@ int glestMain(int argc, char** argv) {
 			}
 			printf("===========================================\nTotal: %lu\n",results.size());
 
-            return -1;
+            return 0;
     	}
 
 		//vector<string> techPaths;
@@ -4322,7 +4326,7 @@ int glestMain(int argc, char** argv) {
 				printf("\nInvalid map name specified on commandline [%s] map [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
-				return -1;
+				return 1;
 			}
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT])) == true) {
@@ -4345,7 +4349,7 @@ int glestMain(int argc, char** argv) {
 				printf("\nInvalid host specified on commandline [%s] host [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
-				return -1;
+				return 1;
 			}
 		}
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LOADSCENARIO])) == true) {
@@ -4368,7 +4372,7 @@ int glestMain(int argc, char** argv) {
 				printf("\nInvalid scenario name specified on commandline [%s] scenario [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
-				return -1;
+				return 1;
 			}
 		}
 		else {
@@ -4387,7 +4391,7 @@ int glestMain(int argc, char** argv) {
 			printf("%s",renderer.getGlMoreInfo().c_str());
 
 			delete mainWindow;
-			return -1;
+			return 0;
 		}
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CONVERT_MODELS]) == true) {
@@ -4453,6 +4457,7 @@ int glestMain(int argc, char** argv) {
 			    Window::handleEvent();
 				SDL_PumpEvents();
 
+				int result = 0;
 				char szTextBuf[1024]="";
 				for(unsigned int i =0; i < models.size(); ++i) {
 					string &file = models[i];
@@ -4490,6 +4495,7 @@ int glestMain(int argc, char** argv) {
 						modelLoadedOk = true;
 					}
 					catch(const exception &ex) {
+						result = 1;
 						printf("ERROR loading model [%s] message [%s]\n",file.c_str(),ex.what());
 					}
 
@@ -4502,13 +4508,13 @@ int glestMain(int argc, char** argv) {
 				}
 
 				delete mainWindow;
-				return -1;
+				return result;
 			}
 			else {
 				printf("\nInvalid model specified on commandline [%s] texture [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
-				return -1;
+				return 1;
 			}
     	}
 
@@ -4518,14 +4524,14 @@ int glestMain(int argc, char** argv) {
 			runTechValidationReport(argc, argv);
 
 		    delete mainWindow;
-		    return -1;
+		    return 0;
 		}
 
 		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) == true) {
 			runTilesetValidationReport(argc, argv);
 
 		    delete mainWindow;
-		    return -1;
+		    return 0;
 		}
 
 		gameInitialized = true;

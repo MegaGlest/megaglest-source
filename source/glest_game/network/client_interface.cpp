@@ -880,7 +880,8 @@ void ClientInterface::updateKeyframe(int frameCount) {
 	//chrono.start();
 
 	if(quit == false) {
-		bool testThreaded = Config::getInstance().getBool("ThreadedNetworkClient","false");
+		//bool testThreaded = Config::getInstance().getBool("ThreadedNetworkClient","false");
+		bool testThreaded = false;
 		if(testThreaded == false) {
 			updateFrame(&frameCount);
 			Commands &frameCmdList = cachedPendingCommands[frameCount];

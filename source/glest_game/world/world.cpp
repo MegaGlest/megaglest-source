@@ -257,8 +257,19 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 
 	//minimap must be init after sum computation
 	initMinimap();
-	if(createUnits){
-		initUnits();
+
+	bool gotError = false;
+	char szErrBuf[8096]="";
+
+	try {
+		if(createUnits){
+			initUnits();
+		}
+	}
+	catch(const std::exception &ex) {
+		gotError = true;
+		sprintf(szErrBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szErrBuf);
 	}
 
 	if(loadWorldNode != NULL) {
@@ -268,6 +279,10 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 
 	//initExplorationState(); ... was only for !fog-of-war, now handled in initCells()
 	computeFow();
+
+	if(gotError == true) {
+		throw megaglest_runtime_error(szErrBuf);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1596,12 +1611,15 @@ void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, b
 	}
 	else {
 		string unitName = unit->getType()->getName();
+		string unitFactionName = unit->getFaction()->getType()->getName();
+		int unitFactionIndex = unit->getFactionIndex();
+
 		delete unit;
 		unit = NULL;
 
 		char szBuf[4096]="";
 		sprintf(szBuf,"Unit: [%s] can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #%d name: [%s]",
-				unitName.c_str(),unit->getFactionIndex(),unit->getFaction()->getType()->getName().c_str());
+				unitName.c_str(),unitFactionIndex,unitFactionName.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	if (unit->getType()->hasSkillClass(scBeBuilt)) {
@@ -1619,59 +1637,55 @@ void World::initUnits() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingGenerateGameElements","",true), true);
 
-	//put starting units
-	if(loadWorldNode == NULL) {
-		for(int i = 0; i < getFactionCount(); ++i) {
-			Faction *f= factions[i];
-			const FactionType *ft= f->getType();
-			for(int j = 0; j < ft->getStartingUnitCount(); ++j) {
-				const UnitType *ut= ft->getStartingUnit(j);
-				int initNumber= ft->getStartingUnitAmount(j);
+	bool gotError = false;
+	char szErrBuf[8096]="";
+	try {
+		//put starting units
+		if(loadWorldNode == NULL) {
+			for(int i = 0; i < getFactionCount(); ++i) {
+				Faction *f= factions[i];
+				const FactionType *ft= f->getType();
+				for(int j = 0; j < ft->getStartingUnitCount(); ++j) {
+					const UnitType *ut= ft->getStartingUnit(j);
+					int initNumber= ft->getStartingUnitAmount(j);
 
-				for(int l = 0; l < initNumber; l++) {
+					for(int l = 0; l < initNumber; l++) {
 
-					UnitPathInterface *newpath = NULL;
-					switch(game->getGameSettings()->getPathFinderType()) {
-						case pfBasic:
-							newpath = new UnitPathBasic();
-							break;
-						case pfRoutePlanner:
-							newpath = new UnitPath();
-							break;
-						default:
-							throw megaglest_runtime_error("detected unsupported pathfinder type!");
+						UnitPathInterface *newpath = NULL;
+						switch(game->getGameSettings()->getPathFinderType()) {
+							case pfBasic:
+								newpath = new UnitPathBasic();
+								break;
+							case pfRoutePlanner:
+								newpath = new UnitPath();
+								break;
+							default:
+								throw megaglest_runtime_error("detected unsupported pathfinder type!");
+						}
+
+						Unit *unit= new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
+						int startLocationIndex= f->getStartLocationIndex();
+						placeUnitAtLocation(map.getStartLocation(startLocationIndex), generationArea, unit, true);
 					}
-
-					Unit *unit= new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
-
-					int startLocationIndex= f->getStartLocationIndex();
-
-	//				if(placeUnit(map.getStartLocation(startLocationIndex), generationArea, unit, true)) {
-	//					unit->create(true);
-	//					unit->born();
-	//				}
-	//				else {
-	//					string unitName = unit->getType()->getName();
-	//					delete unit;
-	//					unit = NULL;
-	//					throw megaglest_runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
-	//				}
-	//				if (unit->getType()->hasSkillClass(scBeBuilt)) {
-	//					map.flatternTerrain(unit);
-	//					if(cartographer != NULL) {
-	//						cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
-	//					}
-	//				}
-					placeUnitAtLocation(map.getStartLocation(startLocationIndex), generationArea, unit, true);
 				}
-			}
 
-			// Ensure Starting Resource Amount are adjusted to max store levels
-			f->limitResourcesToStore();
+				// Ensure Starting Resource Amount are adjusted to max store levels
+				f->limitResourcesToStore();
+			}
 		}
 	}
+	catch(const std::exception &ex) {
+		gotError = true;
+		sprintf(szErrBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szErrBuf);
+	}
+
 	map.computeNormals();
 	map.computeInterpolatedHeights();
+
+	if(gotError == true) {
+		throw megaglest_runtime_error(szErrBuf);
+	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

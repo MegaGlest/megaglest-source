@@ -915,7 +915,21 @@ void Game::init(bool initForPreviewOnly) {
 		SDL_PumpEvents();
 	}
 
-	world.init(this, gameSettings.getDefaultUnits());
+	try {
+		world.init(this, gameSettings.getDefaultUnits());
+	}
+	catch(const exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		if(errorMessageBox.getEnabled() == false) {
+			ErrorDisplayMessage(ex.what(),true);
+		}
+	}
+
 	if(loadGameNode != NULL) {
 		//world.getMapPtr()->loadGame(loadGameNode,&world);
 	}
@@ -1509,7 +1523,21 @@ void Game::update() {
 
 				this->load(lgt_FactionPreview | lgt_TileSet | lgt_Map | lgt_Scenario);
 
-				world.init(this, gameSettings.getDefaultUnits(),false);
+				try {
+					world.init(this, gameSettings.getDefaultUnits(),false);
+				}
+				catch(const exception &ex) {
+					char szBuf[4096]="";
+					sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+					SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+					if(errorMessageBox.getEnabled() == false) {
+						ErrorDisplayMessage(ex.what(),true);
+					}
+				}
+
 				world.initUnitsForScenario();
 				Map *map= world.getMap();
 				gameCamera.init(map->getW(), map->getH());
