@@ -1686,7 +1686,9 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 	highlightedCells.push_back(mc);
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	soundRenderer.playFx(coreData.getMarkerSound());
+	if(mc.getFaction() != NULL && mc.getFaction()->getTeam() == getWorld()->getThisFaction()->getTeam()) {
+		soundRenderer.playFx(coreData.getMarkerSound());
+	}
 }
 
 void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role) {
