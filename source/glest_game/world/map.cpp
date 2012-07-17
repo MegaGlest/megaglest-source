@@ -469,8 +469,8 @@ Vec2i Map::getStartLocation(int locationIndex) const {
 		char szBuf[4096]="";
 		sprintf(szBuf,"locationIndex >= maxPlayers [%d] [%d]",locationIndex, maxPlayers);
 		printf("%s\n",szBuf);
-		//throw megaglest_runtime_error(szBuf);
-		assert(locationIndex < maxPlayers);
+		throw megaglest_runtime_error(szBuf);
+		//assert(locationIndex < maxPlayers);
 	}
 	else if(startLocations == NULL) {
 		throw megaglest_runtime_error("startLocations == NULL");

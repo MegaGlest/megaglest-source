@@ -509,13 +509,13 @@ int mainSetup(int argc, char **argv) {
 	     // Use this for masterserver mode for timers like Chrono
 		 if(SDL_Init(SDL_INIT_TIMER) < 0)  {
 	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
-	        return 1;
+	        return 3;
 	     }
 	}
 	else {
 		 if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {
 			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
-			return 1;
+			return 3;
 		 }
 		SDL_EnableUNICODE(1);
 		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
