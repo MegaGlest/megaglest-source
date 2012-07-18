@@ -119,6 +119,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     listBoxScenario.setItems(results);
 
     try {
+    	printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),scenarioFiles.size());
     	if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
     		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
     		labelInfo.setText(scenarioInfo.desc);
