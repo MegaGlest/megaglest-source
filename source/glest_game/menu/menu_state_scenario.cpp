@@ -196,8 +196,10 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 	}
     else if(listBoxScenario.mouseClick(x, y)){
         try {
-            loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
-            labelInfo.setText(scenarioInfo.desc);
+        	if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+        		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+        		labelInfo.setText(scenarioInfo.desc);
+        	}
         }
         catch(const std::exception &ex) {
             char szBuf[4096]="";
@@ -261,14 +263,16 @@ void MenuStateScenario::update() {
 			this->autoloadScenarioName = "";
 		}
 		else {
-			loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
-			labelInfo.setText(scenarioInfo.desc);
+			if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+				loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+				labelInfo.setText(scenarioInfo.desc);
 
-			SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-			CoreData &coreData= CoreData::getInstance();
-			soundRenderer.playFx(coreData.getClickSoundC());
-			launchGame();
-			return;
+				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+				CoreData &coreData= CoreData::getInstance();
+				soundRenderer.playFx(coreData.getClickSoundC());
+				launchGame();
+				return;
+			}
 		}
 	}
 
@@ -303,7 +307,8 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 
 void MenuStateScenario::loadScenarioPreviewTexture(){
 	if(enableScenarioTexturePreview == true) {
-		if(listBoxScenario.getSelectedItemIndex() >= 0) {
+		//if(listBoxScenario.getSelectedItemIndex() >= 0) {
+		if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
 			GameSettings gameSettings;
 			loadGameSettings(&scenarioInfo, &gameSettings);
 
