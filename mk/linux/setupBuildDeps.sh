@@ -176,6 +176,13 @@ case $distribution in
 				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libluajit-5.1-dev libftgl-dev
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
+			10.04)
+				apt-get install build-essential subversion automake autoconf autogen cmake
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libluajit-5.1-dev libftgl-dev
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				;;
+
 			11.10|12.04)
 				apt-get install build-essential subversion automake autoconf autogen cmake
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
