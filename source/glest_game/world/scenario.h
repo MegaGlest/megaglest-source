@@ -43,7 +43,34 @@ enum Difficulty {
     dInsane
 };
 
-struct ScenarioInfo {
+class ScenarioInfo {
+
+public:
+	ScenarioInfo() {
+		difficulty = 0;
+		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+			factionControls[i] = ctClosed;
+			teams[i] = 0;
+			factionTypeNames[i] = "";
+			resourceMultipliers[i] = 0;
+		}
+
+	    mapName = "";
+	    tilesetName = "";
+	    techTreeName = "";
+
+		defaultUnits = false;
+		defaultResources = false;
+		defaultVictoryConditions = false;
+
+	    desc = "";
+
+	    fogOfWar = false;
+	    fogOfWar_exploredFlag = false;
+
+	    file = "";
+	    name = "";
+	}
 	int difficulty;
     ControlType factionControls[GameConstants::maxPlayers];
     int teams[GameConstants::maxPlayers];
