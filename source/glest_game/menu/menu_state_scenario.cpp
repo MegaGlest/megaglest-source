@@ -119,7 +119,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     listBoxScenario.setItems(results);
 
     try {
-    	if(listBoxScenario.getSelectedItemIndex() > 0) {
+    	if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
     		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
     		labelInfo.setText(scenarioInfo.desc);
     	}

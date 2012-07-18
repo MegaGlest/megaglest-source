@@ -162,7 +162,18 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	xmlTree.load(file,Properties::getTagReplacementValues());
 
     const XmlNode *scenarioNode= xmlTree.getRootNode();
+    if(scenarioNode == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"scenarioNode == NULL for file [%s]\n",file.c_str());
+		throw std::runtime_error(szBuf);
+    }
 	const XmlNode *difficultyNode= scenarioNode->getChild("difficulty");
+    if(difficultyNode == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"difficultyNode == NULL for file [%s]\n",file.c_str());
+		throw std::runtime_error(szBuf);
+    }
+
 	scenarioInfo->difficulty = difficultyNode->getAttribute("value")->getIntValue();
 	if( scenarioInfo->difficulty < dVeryEasy || scenarioInfo->difficulty > dInsane ) {
 		char szBuf[4096]="";
@@ -171,6 +182,11 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	}
 
 	const XmlNode *playersNode= scenarioNode->getChild("players");
+    if(playersNode == NULL) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"playersNode == NULL for file [%s]\n",file.c_str());
+		throw std::runtime_error(szBuf);
+    }
 
     for(int i= 0; i < GameConstants::maxPlayers; ++i) {
     	XmlNode* playerNode=NULL;
@@ -179,6 +195,12 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 
     	if(playersNode->hasChildAtIndex("player",i)) {
         	playerNode = playersNode->getChild("player", i);
+            if(playerNode == NULL) {
+        		char szBuf[4096]="";
+        		sprintf(szBuf,"playerNode == NULL for index = %d for file [%s]\n",i,file.c_str());
+        		throw std::runtime_error(szBuf);
+            }
+
         	factionControl = strToControllerType( playerNode->getAttribute("control")->getValue() );
 
         	if(playerNode->getAttribute("resource_multiplier",false) != NULL) {
@@ -221,6 +243,37 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
         else {
             scenarioInfo->teams[i]= 0;
             scenarioInfo->factionTypeNames[i]= "";
+        }
+
+        if(scenarioNode->getChild("map") == NULL) {
+    		char szBuf[4096]="";
+    		sprintf(szBuf,"map == NULL for file [%s]\n",file.c_str());
+    		throw std::runtime_error(szBuf);
+        }
+        if(scenarioNode->getChild("tileset") == NULL) {
+    		char szBuf[4096]="";
+    		sprintf(szBuf,"tileset == NULL for file [%s]\n",file.c_str());
+    		throw std::runtime_error(szBuf);
+        }
+        if(scenarioNode->getChild("tech-tree") == NULL) {
+    		char szBuf[4096]="";
+    		sprintf(szBuf,"tech-tree == NULL for file [%s]\n",file.c_str());
+    		throw std::runtime_error(szBuf);
+        }
+        if(scenarioNode->getChild("default-units") == NULL) {
+    		char szBuf[4096]="";
+    		sprintf(szBuf,"default-units == NULL for file [%s]\n",file.c_str());
+    		throw std::runtime_error(szBuf);
+        }
+        if(scenarioNode->getChild("default-resources") == NULL) {
+    		char szBuf[4096]="";
+    		sprintf(szBuf,"default-resources == NULL for file [%s]\n",file.c_str());
+    		throw std::runtime_error(szBuf);
+        }
+        if(scenarioNode->getChild("default-victory-conditions") == NULL) {
+    		char szBuf[4096]="";
+    		sprintf(szBuf,"default-victory-conditions == NULL for file [%s]\n",file.c_str());
+    		throw std::runtime_error(szBuf);
         }
 
         scenarioInfo->mapName = scenarioNode->getChild("map")->getAttribute("value")->getValue();
