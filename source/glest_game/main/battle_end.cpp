@@ -299,6 +299,9 @@ void BattleEnd::render() {
 			if(stats.getControl(i) != ctHuman && stats.getControl(i) != ctNetwork ) {
 				controlString += "\nx " + floatToStr(stats.getResourceMultiplier(i),1);
 			}
+			else if(stats.getPlayerLeftBeforeEnd(i)==true){
+				controlString += "\n( " +lang.get("Cpu")+" )";
+			}
 
 			if(score == bestScore && stats.getVictory(i)) {
 				if(CoreData::getInstance().getGameWinnerTexture() != NULL) {
