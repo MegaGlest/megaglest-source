@@ -198,7 +198,7 @@ ObjectParticleSystemType::ObjectParticleSystemType() : UnitParticleSystemType() 
 ObjectParticleSystemType::~ObjectParticleSystemType() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) {
 		printf("In [%s Line: %d] NEW [%p]\n",__FUNCTION__,__LINE__,this);
-		printf("%s\n",PlatformExceptionHandler::getStackTrace().c_str());
+		//printf("%s\n",PlatformExceptionHandler::getStackTrace().c_str());
 	}
 }
 
