@@ -119,7 +119,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     listBoxScenario.setItems(results);
 
     try {
-    	printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),scenarioFiles.size());
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
     	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
     		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
     		labelInfo.setText(scenarioInfo.desc);
@@ -197,7 +197,7 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 	}
     else if(listBoxScenario.mouseClick(x, y)){
         try {
-        	printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),scenarioFiles.size());
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 
         	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
         		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
