@@ -155,8 +155,8 @@ string Scenario::getFunctionName(const XmlNode *scriptNode){
 
 void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	//printf("[%s:%s] Line: %d file [%s]\n",__FILE__,__FUNCTION__,__LINE__,file.c_str());
-	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
-	printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
+	//printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
 
     Lang &lang= Lang::getInstance();
 
