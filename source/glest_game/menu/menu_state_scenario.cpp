@@ -290,7 +290,7 @@ void MenuStateScenario::update() {
 }
 
 void MenuStateScenario::launchGame() {
-	printf("In [%s::%s Line: %d] scenarioInfo.file [%s] [%s][%s][%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioInfo.file.c_str(),scenarioInfo.tilesetName.c_str(),scenarioInfo.mapName.c_str(),scenarioInfo.techTreeName.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioInfo.file [%s] [%s][%s][%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioInfo.file.c_str(),scenarioInfo.tilesetName.c_str(),scenarioInfo.mapName.c_str(),scenarioInfo.techTreeName.c_str());
 
 	if(scenarioInfo.file != "" && scenarioInfo.tilesetName != "" && scenarioInfo.mapName != "" && scenarioInfo.techTreeName != "") {
 		GameSettings gameSettings;
