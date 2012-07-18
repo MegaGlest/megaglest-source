@@ -28,6 +28,7 @@ PlayerStats::PlayerStats() {
 	unitsProduced = 0;
 	resourcesHarvested = 0;
 	playerName = "";
+	playerLeftBeforeEnd = false;
 	playerColor = Vec3f(0,0,0);
 }
 
@@ -85,6 +86,9 @@ string PlayerStats::getStats() const {
 	}
 
 	result += playerName + " (" + controlString + ") ";
+	if(control == ctNetwork && playerLeftBeforeEnd==true ) {
+		result += "player left before end ";
+	}
 	result += "faction: " + factionTypeName + " ";
 	result += "Team: " + intToStr(teamIndex) + " ";
 	result += "victory: " + boolToStr(victory) + " ";

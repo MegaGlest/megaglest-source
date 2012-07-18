@@ -3844,6 +3844,10 @@ void Game::checkWinnerScripted() {
 	}
 }
 
+bool Game::factionLostGame(int factionIndex) {
+	return factionLostGame(world.getFaction(factionIndex));
+}
+
 bool Game::factionLostGame(const Faction *faction) {
 	for(int i=0; i<faction->getUnitCount(); ++i) {
 		const UnitType *ut = faction->getUnit(i)->getType();
@@ -3857,7 +3861,6 @@ bool Game::factionLostGame(const Faction *faction) {
 		}
 	}
 	return true;
-
 }
 
 bool Game::hasBuilding(const Faction *faction) {

@@ -835,9 +835,10 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 			GameSettings *settings = world->getGameSettingsPtr();
     		if(playerStatus == 1) {
     			settings->setNetworkPlayerGameStatus(factionIndex,1);
+        		if(!world->getGame()->getGameOver()&& !this->world->getGame()->factionLostGame(factionIndex)){
+        			this->world->getStats()->setPlayerLeftBeforeEnd(factionIndex,true);
+        		}
     		}
-    		this->world->getStats()->setPlayerName(factionIndex,settings->getNetworkPlayerName(factionIndex));
-
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPlayerStatusChange\n",__FILE__,__FUNCTION__,__LINE__);
 			}

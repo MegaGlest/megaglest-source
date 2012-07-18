@@ -284,6 +284,8 @@ public:
 
 	void addNetworkCommandToReplayList(NetworkCommand* networkCommand,int worldFrameCount);
 
+	bool factionLostGame(int factionIndex);
+
 private:
 	//render
     void render3d();
