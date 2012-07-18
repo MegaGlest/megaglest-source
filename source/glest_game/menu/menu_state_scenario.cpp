@@ -120,7 +120,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 
     try {
     	printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),scenarioFiles.size());
-    	if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+    	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
     		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
     		labelInfo.setText(scenarioInfo.desc);
     	}
@@ -199,7 +199,7 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
         try {
         	printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),scenarioFiles.size());
 
-        	if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+        	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
         		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
         		labelInfo.setText(scenarioInfo.desc);
         	}
@@ -266,7 +266,7 @@ void MenuStateScenario::update() {
 			this->autoloadScenarioName = "";
 		}
 		else {
-			if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+			if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
 				loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
 				labelInfo.setText(scenarioInfo.desc);
 
@@ -315,7 +315,7 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 void MenuStateScenario::loadScenarioPreviewTexture(){
 	if(enableScenarioTexturePreview == true) {
 		//if(listBoxScenario.getSelectedItemIndex() >= 0) {
-		if(listBoxScenario.getSelectedItemIndex() > 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+		if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
 			GameSettings gameSettings;
 			loadGameSettings(&scenarioInfo, &gameSettings);
 
