@@ -661,6 +661,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
         		faction->setTeam(newTeam);
         		GameSettings *settings = world->getGameSettingsPtr();
         		settings->setTeam(factionIndex,newTeam);
+        		world->getStats()->setTeam(factionIndex, newTeam);
 
         		if(factionIndex == world->getThisFactionIndex()) {
         			world->setThisTeamIndex(newTeam);
@@ -753,6 +754,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
         		faction->setTeam(vote->newTeam);
         		GameSettings *settings = world->getGameSettingsPtr();
         		settings->setTeam(factionIndex,vote->newTeam);
+        		world->getStats()->setTeam(factionIndex, vote->newTeam);
 
         		if(factionIndex == world->getThisFactionIndex()) {
         			world->setThisTeamIndex(vote->newTeam);
