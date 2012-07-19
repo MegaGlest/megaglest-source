@@ -29,7 +29,7 @@
 #
 
 LANG=C
-VERSION='0.3.1'
+VERSION='0.3.2'
 MYNAME=`basename $0`
 DEFAULT_REPORT_FILENAME=system_report.log
 
@@ -238,15 +238,19 @@ else
 	release=`lsb_release -r | awk -F':' '{ gsub(/^[  \t]*/,"",$2); print $2 }'`
 	codename=`lsb_release -c | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }'`
 fi
+architecture=`uname -m`
 echo '* Distribution: '"$distribution" >> $REPORT_LOCATION
 echo '* Release:      '"$release" >> $REPORT_LOCATION
 echo '* Codename:     '"$codename" >> $REPORT_LOCATION
+echo '* Architecture: '"$architecture" >> $REPORT_LOCATION
 echo '* LSB support:  '"$lsb" >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
+
 echo '>>> uname -a' >> $REPORT_LOCATION
 uname -a >> $REPORT_LOCATION 2>&1
 sleep 1
 echo '' >> $REPORT_LOCATION
+
 echo '>>> cat /etc/issue' >> $REPORT_LOCATION
 cat /etc/issue >> $REPORT_LOCATION 2>&1
 sleep 1
