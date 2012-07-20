@@ -46,6 +46,7 @@ public:
 	int resourcesHarvested;
 	string playerName;
 	bool playerLeftBeforeEnd;
+	int timePlayerLeft;
 	Vec3f playerColor;
 
 	string getStats() const;
@@ -113,7 +114,12 @@ public:
 	int getResourcesHarvested(int factionIndex) const			{return playerStats[factionIndex].resourcesHarvested;}
 	string getPlayerName(int factionIndex) const				{return playerStats[factionIndex].playerName;}
 	bool getPlayerLeftBeforeEnd(int factionIndex) const			{return playerStats[factionIndex].playerLeftBeforeEnd;}
+	void setPlayerLeftBeforeEnd(int factionIndex, bool value) 	{playerStats[factionIndex].playerLeftBeforeEnd = value; }
 	Vec3f getPlayerColor(int factionIndex) const				{ return playerStats[factionIndex].playerColor;}
+
+	int getTimePlayerLeft(int factionIndex) const			{return playerStats[factionIndex].timePlayerLeft;}
+	void setTimePlayerLeft(int factionIndex, int value) 	{playerStats[factionIndex].timePlayerLeft = value; }
+
 
 	bool getIsMasterserverMode() const							{ return isMasterserverMode; }
 	void setIsMasterserverMode(bool value) 						{ isMasterserverMode = value; }
@@ -135,7 +141,6 @@ public:
 	void produce(int producerFactionIndex, bool isProductionCounted);
 	void harvest(int harvesterFactionIndex, int amount);
 	void setPlayerName(int playerIndex, string value) 	{playerStats[playerIndex].playerName = value; }
-	void setPlayerLeftBeforeEnd(int playerIndex, bool value) 	{playerStats[playerIndex].playerLeftBeforeEnd = value; }
 	void setPlayerColor(int playerIndex, Vec3f value)	{playerStats[playerIndex].playerColor = value; }
 
 	void addFramesToCalculatePlaytime()  		{this->framesToCalculatePlaytime++; }

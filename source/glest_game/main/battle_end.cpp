@@ -311,7 +311,13 @@ void BattleEnd::render() {
 
 			Vec3f color = stats.getPlayerColor(i);
 			if(stats.getPlayerName(i) != "") {
-				textRenderer->render(stats.getPlayerName(i).c_str(), textX, bm+400, false, &color);
+				string textToRender=stats.getPlayerName(i);
+				if(stats.getPlayerLeftBeforeEnd(i)==true){
+					textToRender+="\n("+
+							floatToStr((float)stats.getTimePlayerLeft(i) / (float)GameConstants::updateFps / 60.0,2)+")";
+				}
+
+				textRenderer->render(textToRender.c_str(), textX, bm+400, false, &color);
 			}
 			else {
 				textRenderer->render((lang.get("Player") + " " + intToStr(i+1)).c_str(), textX, bm+400,false, &color);
@@ -378,6 +384,7 @@ void BattleEnd::render() {
 			}
 		}
 
+		textRenderer->render("\n"+(lang.get("left at (min)")), lm, bm+400);
 		textRenderer->render(lang.get("Result"), lm, bm+360);
 		textRenderer->render(lang.get("Control"), lm, bm+320);
 		textRenderer->render(lang.get("Faction"), lm, bm+280);

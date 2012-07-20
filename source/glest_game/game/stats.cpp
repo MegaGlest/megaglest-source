@@ -29,6 +29,7 @@ PlayerStats::PlayerStats() {
 	resourcesHarvested = 0;
 	playerName = "";
 	playerLeftBeforeEnd = false;
+	timePlayerLeft = -1;
 	playerColor = Vec3f(0,0,0);
 }
 
