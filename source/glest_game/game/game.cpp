@@ -2809,6 +2809,11 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] key = [%d - %c] pausegame [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key,key,configKeys.getCharKey("PauseGame"));
 
+			//printf("SDL [%d] key [%d][%d]\n",configKeys.getSDLKey("SetMarker"),key.keysym.unicode,key.keysym.sym);
+			bool setMarkerKeyAllowsModifier = false;
+			if(configKeys.getSDLKey("SetMarker") == SDLK_RALT || configKeys.getSDLKey("SetMarker") == SDLK_LALT) {
+				setMarkerKeyAllowsModifier = true;
+			}
 			//if(key == configKeys.getCharKey("RenderNetworkStatus")) {
 			if(isKeyPressed(configKeys.getSDLKey("RenderNetworkStatus"),key, false) == true) {
 				renderNetworkStatus= !renderNetworkStatus;
@@ -2817,7 +2822,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			else if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key, false) == true) {
 				showFullConsole= true;
 			}
-			else if(isKeyPressed(configKeys.getSDLKey("SetMarker"),key, false) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("SetMarker"),key, setMarkerKeyAllowsModifier) == true) {
 				setMarker= true;
 			}
 			//else if(key == configKeys.getCharKey("TogglePhotoMode")) {
