@@ -1240,6 +1240,7 @@ int Socket::send(const void *data, int dataSize) {
 	    	attemptCount++;
 	    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 
+	    	MutexSafeWrapper safeMutex(dataSynchAccessorWrite,CODE_AT_LINE);
             if(isConnected() == true) {
             	struct timeval timeVal;
             	timeVal.tv_sec = 1;
@@ -1256,7 +1257,7 @@ int Socket::send(const void *data, int dataSize) {
 //	        	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
 //	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
-	        	MutexSafeWrapper safeMutex(dataSynchAccessorWrite,CODE_AT_LINE);
+
 #ifdef __APPLE__
                 bytesSent = ::send(sock, (const char *)data, dataSize, SO_NOSIGPIPE);
 #else
@@ -1267,12 +1268,14 @@ int Socket::send(const void *data, int dataSize) {
                     break;
                 }
 
-                safeMutex.ReleaseLock();
+                //safeMutex.ReleaseLock();
 
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during send, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
 	        }
 	        else {
                 int iErr = getLastSocketError();
+
+                safeMutex.ReleaseLock();
                 disconnectSocket();
 
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,bytesSent,getLastSocketErrorFormattedText(&iErr).c_str());
@@ -1298,6 +1301,7 @@ int Socket::send(const void *data, int dataSize) {
 	    	attemptCount++;
 	    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,totalBytesSent);
 
+	    	MutexSafeWrapper safeMutex(dataSynchAccessorWrite,CODE_AT_LINE);
             if(isConnected() == true) {
             	struct timeval timeVal;
             	timeVal.tv_sec = 1;
@@ -1314,7 +1318,7 @@ int Socket::send(const void *data, int dataSize) {
 //	        	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
 //	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
-                MutexSafeWrapper safeMutex(dataSynchAccessorWrite,CODE_AT_LINE);
+
 	        	const char *sendBuf = (const char *)data;
 #ifdef __APPLE__
 			    bytesSent = ::send(sock, &sendBuf[totalBytesSent], dataSize - totalBytesSent, SO_NOSIGPIPE);
@@ -1330,12 +1334,12 @@ int Socket::send(const void *data, int dataSize) {
                     break;
                 }
 
-			    safeMutex.ReleaseLock();
-
 			    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] retry send returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesSent);
 	        }
 	        else {
                 int iErr = getLastSocketError();
+
+                safeMutex.ReleaseLock();
                 disconnectSocket();
 
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesSent,getLastSocketErrorFormattedText(&iErr).c_str());
