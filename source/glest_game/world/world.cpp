@@ -259,12 +259,26 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	initMinimap();
 
 	bool gotError = false;
+	bool skipStackTrace = false;
 	string sErrBuf = "";
 
 	try {
 		if(createUnits) {
 			initUnits();
 		}
+	}
+	catch(const megaglest_runtime_error &ex) {
+		gotError = true;
+		if(ex.wantStackTrace() == true) {
+			char szErrBuf[8096]="";
+			sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		}
+		else {
+			skipStackTrace = true;
+			sErrBuf = ex.what();
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 	}
 	catch(const std::exception &ex) {
 		gotError = true;
@@ -283,7 +297,7 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	computeFow();
 
 	if(gotError == true) {
-		throw megaglest_runtime_error(sErrBuf);
+		throw megaglest_runtime_error(sErrBuf,!skipStackTrace);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1622,7 +1636,7 @@ void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, b
 		char szBuf[4096]="";
 		sprintf(szBuf,"Unit: [%s] can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #%d name: [%s]",
 				unitName.c_str(),unitFactionIndex,unitFactionName.c_str());
-		throw megaglest_runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf,false);
 	}
 	if (unit->getType()->hasSkillClass(scBeBuilt)) {
 		map.flatternTerrain(unit);
@@ -1640,6 +1654,7 @@ void World::initUnits() {
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingGenerateGameElements","",true), true);
 
 	bool gotError = false;
+	bool skipStackTrace = false;
 	string sErrBuf="";
 	try {
 		//put starting units
@@ -1676,6 +1691,19 @@ void World::initUnits() {
 			}
 		}
 	}
+	catch(const megaglest_runtime_error &ex) {
+		gotError = true;
+		if(ex.wantStackTrace() == true) {
+			char szErrBuf[8096]="";
+			sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		}
+		else {
+			skipStackTrace = true;
+			sErrBuf = ex.what();
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+	}
 	catch(const std::exception &ex) {
 		gotError = true;
 		char szErrBuf[8096]="";
@@ -1688,7 +1716,7 @@ void World::initUnits() {
 	map.computeInterpolatedHeights();
 
 	if(gotError == true) {
-		throw megaglest_runtime_error(sErrBuf);
+		throw megaglest_runtime_error(sErrBuf,!skipStackTrace);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

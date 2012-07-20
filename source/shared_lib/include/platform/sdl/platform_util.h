@@ -29,8 +29,12 @@ using std::exception;
 namespace Shared { namespace Platform {
 
 class megaglest_runtime_error : public runtime_error {
+protected:
+	bool noStackTrace;
 public:
-    megaglest_runtime_error(const string& __arg);
+    megaglest_runtime_error(const string& __arg,bool noStackTrace=false);
+
+    bool wantStackTrace() const { return noStackTrace; }
 };
 
 #ifndef WIN32
