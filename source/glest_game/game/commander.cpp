@@ -839,6 +839,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     			settings->setNetworkPlayerGameStatus(factionIndex,1);
         		if(!world->getGame()->getGameOver()&& !this->world->getGame()->factionLostGame(factionIndex)){
         			this->world->getStats()->setPlayerLeftBeforeEnd(factionIndex,true);
+        			this->world->getStats()->setTimePlayerLeft(factionIndex,this->world->getStats()->getFramesToCalculatePlaytime());
         		}
     		}
 
