@@ -241,17 +241,30 @@ void Logger::renderLoadingScreen() {
 				56 * metrics.getVirtualH() / 100, false);
 		}
 	}
-	if(gameHintToShow!=""){
+
+	if(gameHintToShow != "") {
+		Lang &lang= Lang::getInstance();
+		string hintText = lang.get("Hint");
+		char szBuf[8096]="";
+		sprintf(szBuf,hintText.c_str(),gameHintToShow.c_str());
+		hintText = szBuf;
+
 		if(Renderer::renderText3DEnabled) {
+			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig3D()->getMetrics()->getTextWidth(hintText) / 2);
+
 			renderer.renderText3D(
-					"Hint:\n"+gameHintToShow, coreData.getMenuFontBig3D(), Vec3f(1.f),
-						xLocation*1.5f,
-						90 * metrics.getVirtualH() / 100, false);
+					hintText, coreData.getMenuFontBig3D(), Vec3f(1.f),
+					//xLocation*1.5f,
+					xLocationHint,
+					90 * metrics.getVirtualH() / 100, false);
 		}
 		else {
+			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig()->getMetrics()->getTextWidth(hintText) / 2);
+
 			renderer.renderText(
-					"Hint:\n"+gameHintToShow, coreData.getMenuFontBig(), Vec3f(1.f),
-				xLocation*1.5f,
+					hintText, coreData.getMenuFontBig(), Vec3f(1.f),
+				//xLocation*1.5f,
+				xLocationHint,
 				90 * metrics.getVirtualH() / 100, false);
 
 		}
