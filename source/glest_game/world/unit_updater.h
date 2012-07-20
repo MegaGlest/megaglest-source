@@ -81,7 +81,7 @@ private:
 	PathFinder *pathFinder;
 	RoutePlanner *routePlanner;
 	Game *game;
-	RandomGen random;
+	//RandomGen random;
 	float attackWarnRange;
 	AttackWarnings attackWarnings;
 

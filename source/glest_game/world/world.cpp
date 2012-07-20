@@ -259,7 +259,7 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	initMinimap();
 
 	bool gotError = false;
-	char szErrBuf[8096]="";
+	string sErrBuf = "";
 
 	try {
 		if(createUnits) {
@@ -267,12 +267,11 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 		}
 	}
 	catch(const std::exception &ex) {
-		//printf("***A\n");
 		gotError = true;
-		sprintf(szErrBuf,"In [%s::%s %d]\nerror [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		SystemFlags::OutputDebug(SystemFlags::debugError,szErrBuf);
-
-		//printf("***B\n");
+		char szErrBuf[8096]="";
+		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 	}
 
 	if(loadWorldNode != NULL) {
@@ -284,7 +283,7 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	computeFow();
 
 	if(gotError == true) {
-		throw megaglest_runtime_error(szErrBuf);
+		throw megaglest_runtime_error(sErrBuf);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1641,7 +1640,7 @@ void World::initUnits() {
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingGenerateGameElements","",true), true);
 
 	bool gotError = false;
-	char szErrBuf[8096]="";
+	string sErrBuf="";
 	try {
 		//put starting units
 		if(loadWorldNode == NULL) {
@@ -1679,15 +1678,17 @@ void World::initUnits() {
 	}
 	catch(const std::exception &ex) {
 		gotError = true;
-		sprintf(szErrBuf,"In [%s::%s %d]\nerror [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		SystemFlags::OutputDebug(SystemFlags::debugError,szErrBuf);
+		char szErrBuf[8096]="";
+		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 	}
 
 	map.computeNormals();
 	map.computeInterpolatedHeights();
 
 	if(gotError == true) {
-		throw megaglest_runtime_error(szErrBuf);
+		throw megaglest_runtime_error(sErrBuf);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }

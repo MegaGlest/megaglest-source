@@ -2068,7 +2068,8 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	float damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
 
 	//compute damage
-	damage += random.randRange(-var, var);
+	//damage += random.randRange(-var, var);
+	damage += attacker->getRandom()->randRange(-var, var);
 	damage /= distance+1;
 	damage -= armor;
 	damage *= damageMultiplier;
@@ -2625,7 +2626,7 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 //	RoutePlanner *routePlanner;
 //	Game *game;
 //	RandomGen random;
-	unitupdaterNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
+	//unitupdaterNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	float attackWarnRange;
 	unitupdaterNode->addAttribute("attackWarnRange",floatToStr(attackWarnRange), mapTagReplacements);
 //	AttackWarnings attackWarnings;
@@ -2638,7 +2639,7 @@ void UnitUpdater::loadGame(const XmlNode *rootNode) {
 	const XmlNode *unitupdaterNode = rootNode->getChild("UnitUpdater");
 
 	pathFinder->loadGame(unitupdaterNode);
-	random.setLastNumber(unitupdaterNode->getAttribute("random")->getIntValue());
+	//random.setLastNumber(unitupdaterNode->getAttribute("random")->getIntValue());
 //	float attackWarnRange;
 	attackWarnRange = unitupdaterNode->getAttribute("attackWarnRange")->getFloatValue();
 }
