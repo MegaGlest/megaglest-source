@@ -120,24 +120,34 @@ Text * FontMetrics::getTextHandler() {
 }
 
 float FontMetrics::getTextWidth(const string &str) {
+	string longestLine = "";
+    vector<string> lineTokens;
+    Tokenize(str,lineTokens,"\n");
+    for(unsigned int i = 0; i < lineTokens.size(); ++i) {
+    	string currentStr = lineTokens[i];
+    	if(currentStr.length() > longestLine.length()) {
+    		longestLine = currentStr;
+    	}
+    }
+
 	if(textHandler != NULL) {
 		//printf("str [%s] textHandler->Advance = %f Font::scaleFontValue = %f\n",str.c_str(),textHandler->Advance(str.c_str()),Font::scaleFontValue);
-		return (textHandler->Advance(str.c_str()) * Font::scaleFontValue);
+		return (textHandler->Advance(longestLine.c_str()) * Font::scaleFontValue);
 		//return (textHandler->Advance(str.c_str()));
 	}
 	else {
 		float width= 0.f;
-		for(unsigned int i=0; i< str.size() && (int)i < Font::charCount; ++i){
-			if(str[i] >= Font::charCount) {
-				string sError = "str[i] >= Font::charCount, [" + str + "] i = " + intToStr(i);
+		for(unsigned int i=0; i< longestLine.size() && (int)i < Font::charCount; ++i){
+			if(longestLine[i] >= Font::charCount) {
+				string sError = "str[i] >= Font::charCount, [" + longestLine + "] i = " + intToStr(i);
 				throw megaglest_runtime_error(sError);
 			}
 			//Treat 2 byte characters as spaces
-			if(str[i] < 0) {
+			if(longestLine[i] < 0) {
 				width+= (widths[97]); // This is the letter a which is a normal wide character and good to use for spacing
 			}
 			else {
-				width+= widths[str[i]];
+				width+= widths[longestLine[i]];
 			}
 		}
 		return width;
