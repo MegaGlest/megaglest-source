@@ -244,7 +244,7 @@ void Logger::renderLoadingScreen() {
 
 	if(gameHintToShow != "") {
 		Lang &lang= Lang::getInstance();
-		string hintText = lang.get("Hint");
+		string hintText = lang.get("Hint","",true);
 		char szBuf[8096]="";
 		sprintf(szBuf,hintText.c_str(),gameHintToShow.c_str());
 		hintText = szBuf;
