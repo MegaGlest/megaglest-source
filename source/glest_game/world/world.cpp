@@ -262,14 +262,17 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	char szErrBuf[8096]="";
 
 	try {
-		if(createUnits){
+		if(createUnits) {
 			initUnits();
 		}
 	}
 	catch(const std::exception &ex) {
+		//printf("***A\n");
 		gotError = true;
-		sprintf(szErrBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		sprintf(szErrBuf,"In [%s::%s %d]\nerror [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szErrBuf);
+
+		//printf("***B\n");
 	}
 
 	if(loadWorldNode != NULL) {
@@ -1676,7 +1679,7 @@ void World::initUnits() {
 	}
 	catch(const std::exception &ex) {
 		gotError = true;
-		sprintf(szErrBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		sprintf(szErrBuf,"In [%s::%s %d]\nerror [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szErrBuf);
 	}
 
