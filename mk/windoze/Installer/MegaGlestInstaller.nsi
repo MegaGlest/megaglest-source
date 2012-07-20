@@ -58,6 +58,10 @@ Page instfiles
 UninstPage uninstConfirm
 UninstPage instfiles
 
+Function .onInit
+    InitPluginsDir
+FunctionEnd
+
 Function myGUIInit
   SetOutPath '$PLUGINSDIR'
   File megaglestinstallscreen.jpg
