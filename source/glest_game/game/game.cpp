@@ -918,6 +918,23 @@ void Game::init(bool initForPreviewOnly) {
 	try {
 		world.init(this, gameSettings.getDefaultUnits());
 	}
+	catch(const megaglest_runtime_error &ex) {
+		string sErrBuf = "";
+		if(ex.wantStackTrace() == true) {
+			char szErrBuf[8096]="";
+			sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		}
+		else {
+			sErrBuf = ex.what();
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		if(errorMessageBox.getEnabled() == false) {
+			ErrorDisplayMessage(ex.what(),true);
+		}
+	}
 	catch(const exception &ex) {
 		char szErrBuf[8096]="";
 		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);

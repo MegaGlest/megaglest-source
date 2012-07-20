@@ -256,8 +256,8 @@ string PlatformExceptionHandler::getStackTrace() {
 	return errMsg;
 }
 
-megaglest_runtime_error::megaglest_runtime_error(const string& __arg)
-	: std::runtime_error(__arg + PlatformExceptionHandler::getStackTrace()) {
+megaglest_runtime_error::megaglest_runtime_error(const string& __arg,bool noStackTrace)
+	: std::runtime_error(noStackTrace ? __arg + PlatformExceptionHandler::getStackTrace() : __arg), noStackTrace(noStackTrace) {
 }
 
 }}//end namespace
