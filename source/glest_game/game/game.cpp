@@ -919,11 +919,11 @@ void Game::init(bool initForPreviewOnly) {
 		world.init(this, gameSettings.getDefaultUnits());
 	}
 	catch(const exception &ex) {
-		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+		char szErrBuf[8096]="";
+		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
 		if(errorMessageBox.getEnabled() == false) {
 			ErrorDisplayMessage(ex.what(),true);
@@ -1527,8 +1527,8 @@ void Game::update() {
 					world.init(this, gameSettings.getDefaultUnits(),false);
 				}
 				catch(const exception &ex) {
-					char szBuf[4096]="";
-					sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+					char szBuf[8096]="";
+					sprintf(szBuf,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 					SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
