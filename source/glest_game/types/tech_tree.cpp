@@ -342,7 +342,10 @@ const ResourceType *TechTree::getFirstTechResourceType() const{
                return getResourceType(i);
      }
 
-	 throw megaglest_runtime_error("This tech tree has no resources defined, at least one is required");
+     char szBuf[8096]="";
+     sprintf(szBuf,"The referenced tech tree [%s] is either missing or has no resources defined but at least one resource is required.",this->name.c_str());
+	 //throw megaglest_runtime_error("This tech tree has no resources defined, at least one is required");
+     throw megaglest_runtime_error(szBuf);
 }
 
 const ResourceType *TechTree::getResourceType(const string &name) const{
