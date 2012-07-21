@@ -113,6 +113,11 @@ Renderer::~Renderer() {
 	//resources
 	delete particleManager;
 	delete modelManager;
+
+	if(GraphicsInterface::getInstance().getFactory() != NULL) {
+		delete GraphicsInterface::getInstance().getFactory();
+		GraphicsInterface::getInstance().setFactory(NULL);
+	}
 }
 
 Renderer * Renderer::getInstance() {
@@ -174,8 +179,11 @@ Model * Renderer::getNewModel() {
 void Renderer::init() {
 	assertGl();
 
-	GraphicsFactory *gf= new GraphicsFactoryGl();
-	GraphicsInterface::getInstance().setFactory(gf);
+	GraphicsFactory *gf= GraphicsInterface::getInstance().getFactory();
+	if(gf == NULL) {
+		gf= new GraphicsFactoryGl();
+		GraphicsInterface::getInstance().setFactory(gf);
+	}
 
 	modelRenderer= gf->newModelRenderer();
 	textureManager= gf->newTextureManager();

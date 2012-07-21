@@ -284,7 +284,8 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 		        wxSize(Renderer::windowW, Renderer::windowH)),
 		        model(NULL), glCanvas(NULL), renderer(NULL),
 		        initTextureManager(true), timer(NULL),
-		        startupSettingsInited(false)
+		        startupSettingsInited(false),
+		        fileDialog(NULL)
 {
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
@@ -530,6 +531,9 @@ void MainWindow::setupStartupSettings() {
 MainWindow::~MainWindow(){
 	delete timer;
 	timer = NULL;
+
+	delete fileDialog;
+	fileDialog = NULL;
 
 	delete model;
 	model = NULL;
