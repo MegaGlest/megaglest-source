@@ -80,6 +80,7 @@ MainWindow::MainWindow(string appPath)
 		, menuBar(NULL)
 		, panel(NULL)
         , glCanvas(NULL)
+		, fileDialog(NULL)
         , program(NULL), boxsizer(NULL), startupSettingsInited(false) {
 
 	menuFile=NULL;
@@ -468,6 +469,9 @@ void MainWindow::setupStartupSettings() {
 }
 
 MainWindow::~MainWindow() {
+	delete fileDialog;
+	fileDialog = NULL;
+
 	delete program;
 	program = NULL;
 

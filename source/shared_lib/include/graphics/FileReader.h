@@ -99,6 +99,8 @@ public:
 	 * can be read or not depending on the file content*/
 	virtual bool canRead(ifstream& file) const;
 
+	virtual void cleanupExtensions();
+
 	/**Reads a file
 	 * This method tries to read the file with the specified filepath
 	 * If it fails, either <code>null</code> is returned or an exception
@@ -137,6 +139,7 @@ public:
 	virtual T* read(ifstream& file, const string& path, T* former) const = 0;
 
 	virtual ~FileReader() {
+		cleanupExtensions();
 	}; //Well ... these objects aren't supposed to be destroyed
 };
 
@@ -280,6 +283,18 @@ FileReader<T>::FileReader(std::vector<string> extensions): extensions(extensions
 			(getFileReadersMap())[nextExtension[i]] = (curPossibleReaders = new vector<FileReader<T> const *>());
 		}
 		curPossibleReaders->push_back(this);
+	}
+}
+
+template <typename T>
+void FileReader<T>::cleanupExtensions() {
+	std::vector<string> nextExtension = extensions;
+	for(unsigned int i = 0; i < nextExtension.size(); ++i) {
+		vector<FileReader<T> const* >* curPossibleReaders = (getFileReadersMap())[nextExtension[i]];
+		if (curPossibleReaders != NULL) {
+			delete curPossibleReaders;
+			(getFileReadersMap())[nextExtension[i]] = NULL;
+		}
 	}
 }
 
