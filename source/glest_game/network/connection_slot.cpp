@@ -497,8 +497,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				bool gotTextMsg = true;
 				bool gotCellMarkerMsg = true;
-				for(;this->hasDataToRead() == true &&
-					  (gotTextMsg == true || gotCellMarkerMsg == true);) {
+				bool waitForLaggingClient = false;
+				for(;waitForLaggingClient == true ||
+						(this->hasDataToRead() == true &&
+						 (gotTextMsg == true || gotCellMarkerMsg == true));) {
+					waitForLaggingClient = false;
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
 					NetworkMessageType networkMessageType= getNextMessageType();
@@ -1127,6 +1130,28 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									return;
 								}
 							}
+					}
+
+					//!!!
+					double LAG_CHECK_GRACE_PERIOD 		= 15;
+					double maxFrameCountLagAllowed 		= 7;
+					double maxClientLagTimeAllowed 		= 7;
+
+					if(this->serverInterface->getGameStartTime() > 0 &&
+							difftime(time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD) {
+						if(this->isConnected() == true) {
+							double clientLag = this->serverInterface->getCurrentFrameCount() - this->getCurrentFrameCount();
+							double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
+							double clientLagTime = difftime(time(NULL),this->getLastReceiveCommandListTime());
+
+							// New lag check
+							if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
+								(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed)) {
+								waitForLaggingClient = true;
+
+								printf("*TESTING*: Waiting for lagging client playerIndex = %d clientLagCount = %f [%f]\n",playerIndex,clientLagCount,clientLagTime);
+							}
+						}
 					}
 				}
 

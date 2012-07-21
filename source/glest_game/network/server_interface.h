@@ -104,6 +104,8 @@ public:
     //    return &serverSocket;
     //}
 
+	time_t getGameStartTime() const { return gameStartTime; }
+
     virtual void close();
     virtual void update();
     virtual void updateLobby()  { };

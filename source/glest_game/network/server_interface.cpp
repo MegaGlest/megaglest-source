@@ -657,7 +657,8 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 	try {
 		alreadyInLagCheck = true;
 
-		if(difftime(time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) {
+		if(gameStartTime > 0 &&
+				difftime(time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) {
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				double clientLag = this->getCurrentFrameCount() - connectionSlot->getCurrentFrameCount();
 				double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
