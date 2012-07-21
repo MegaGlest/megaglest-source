@@ -1153,7 +1153,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								waitForLaggingClient = true;
 								if(waitedForLaggingClient == false) {
 									waitedForLaggingClient = true;
-									printf("*TESTING*: START Waiting for lagging client playerIndex = %d clientLagCount = %f [%f]\n",playerIndex,clientLagCount,clientLagTime);
+									printf("*TESTING*: START Waiting for lagging client playerIndex = %d [%s] clientLagCount = %f [%f]\n",playerIndex,name.c_str(),clientLagCount,clientLagTime);
 								}
 							}
 						}
@@ -1161,7 +1161,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				}
 
 				if(waitedForLaggingClient == true) {
-					printf("*TESTING*: FINISHED Waiting for lagging client playerIndex = %d\n",playerIndex);
+					printf("*TESTING*: FINISHED Waiting for lagging client playerIndex = %d [%s]\n",playerIndex,name.c_str());
 				}
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
