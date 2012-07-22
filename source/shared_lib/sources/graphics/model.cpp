@@ -117,6 +117,9 @@ void Mesh::end() {
 // ========================== shadows & interpolation =========================
 
 void Mesh::buildInterpolationData(){
+	if(interpolationData != NULL) {
+		printf("**WARNING possible memory leak [Mesh::buildInterpolationData()]\n");
+	}
 	interpolationData= new InterpolationData(this);
 }
 

@@ -35,11 +35,13 @@ private:
 
 	std::map<float, std::map<bool, Vec3f *> > cacheVertices;
 	std::map<float, std::map<bool, Vec3f *> > cacheNormals;
-	bool enableCache;
+	static bool enableCache;
 
 public:
 	InterpolationData(const Mesh *mesh);
 	~InterpolationData();
+
+	static void setEnableCache(bool enabled) { enableCache = enabled; }
 
 	const Vec3f *getVertices() const	{return vertices==NULL? mesh->getVertices(): vertices;}
 	const Vec3f *getNormals() const		{return normals==NULL? mesh->getNormals(): normals;}
