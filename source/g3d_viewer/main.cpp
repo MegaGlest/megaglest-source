@@ -25,6 +25,8 @@
 #include "game_constants.h"
 #include <wx/stdpaths.h>
 #include <platform_util.h>
+//#include "interpolation.h"
+
 #ifndef WIN32
 #include <errno.h>
 #endif
@@ -62,6 +64,7 @@ const string g3dviewerVersionString= "v1.3.6";
 string fileFormat = "png";
 
 namespace Glest { namespace Game {
+
 string getGameReadWritePath(string lookupKey) {
 	string path = "";
     if(path == "" && getenv("GLESTHOME") != NULL) {
@@ -2035,6 +2038,8 @@ END_EVENT_TABLE()
 // ===============================================
 
 bool App::OnInit() {
+	//InterpolationData::setEnableCache(false);
+
 	SystemFlags::VERBOSE_MODE_ENABLED  = false;
 	//Renderer::windowW = 1920;
 	//Renderer::windowH = 1440;

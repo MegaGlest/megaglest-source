@@ -30,6 +30,8 @@ namespace Shared{ namespace Graphics{
 //	class InterpolationData
 // =====================================================
 
+bool InterpolationData::enableCache = false;
+
 InterpolationData::InterpolationData(const Mesh *mesh) {
 	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 
@@ -42,8 +44,6 @@ InterpolationData::InterpolationData(const Mesh *mesh) {
 		vertices= new Vec3f[mesh->getVertexCount()];
 		normals= new Vec3f[mesh->getVertexCount()];
 	}
-
-	enableCache = true;
 
 	cacheVertices.clear();
 	cacheNormals.clear();
