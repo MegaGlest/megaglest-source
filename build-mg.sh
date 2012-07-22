@@ -4,6 +4,7 @@
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
+LANG=C
 NUMCORES=`cat /proc/cpuinfo | grep -cE '^processor'`
 
 mkdir -p build
@@ -30,5 +31,5 @@ echo 'BUILD COMPLETE.'
 echo ''
 echo 'To launch MegaGlest from the current directory, use:'
 echo '  mk/linux/megaglest --ini-path=mk/linux/ --data-path=mk/linux/'
-echo 'To launch MegaGlest from within the build directory, use:'
-echo '  ../mk/linux/megaglest --ini-path=../mk/linux/ --data-path=../mk/linux/'
+echo 'Or change into mk/linux and run it from there:'
+echo '  ./megaglest --ini-path=./ --data-path=./'
