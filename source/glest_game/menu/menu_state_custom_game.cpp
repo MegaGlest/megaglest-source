@@ -1642,6 +1642,39 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+		// Last check, stop human player from being in same slot as network
+		if(isMasterserverMode() == false) {
+			bool hasHuman = false;
+			for(int i= 0; i < mapInfo.players; ++i) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+				// Check for random faction selection and choose the faction now
+				if(listBoxControls[i].getSelectedItemIndex() == ctHuman) {
+					hasHuman = true;
+					break;
+				}
+			}
+			if(hasHuman == false) {
+				mainMessageBoxState=1;
+
+				Lang &lang= Lang::getInstance();
+				char szMsg[1024]="";
+				strcpy(szMsg,lang.get("NetworkSlotNoHumanErrorUI","",true).c_str());
+				showMessageBox(szMsg, "", false);
+
+		    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+		    	for(unsigned int j = 0; j < languageList.size(); ++j) {
+					char szMsg[1024]="";
+					strcpy(szMsg,lang.get("NetworkSlotNoHumanError","",true).c_str());
+
+					serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
+		    	}
+
+				safeMutex.ReleaseLock();
+				return;
+			}
+		}
+
 		// Tell the server Interface whether or not to publish game status updates to masterserver
 		serverInterface->setNeedToRepublishToMasterserver(listBoxPublishServer.getSelectedItemIndex() == 0);
 
@@ -3649,9 +3682,45 @@ void MenuStateCustomGame::updateControlers() {
 
 		if(humanPlayer == false) {
 			if(this->headlessServerMode == false) {
-				listBoxControls[0].setSelectedItemIndex(ctHuman);
-				labelPlayerNames[0].setText("");
-				labelPlayerNames[0].setText(getHumanPlayerName());
+				bool foundNewSlotForHuman = false;
+				for(int i = 0; i < mapInfo.players; ++i) {
+					if(listBoxControls[i].getSelectedItemIndex() == ctClosed) {
+						listBoxControls[i].setSelectedItemIndex(ctHuman);
+						labelPlayerNames[i].setText("");
+						labelPlayerNames[i].setText(getHumanPlayerName());
+
+						foundNewSlotForHuman = true;
+						break;
+					}
+				}
+
+				if(foundNewSlotForHuman == false) {
+					for(int i = 0; i < mapInfo.players; ++i) {
+						if(listBoxControls[i].getSelectedItemIndex() == ctClosed ||
+							listBoxControls[i].getSelectedItemIndex() == ctCpuEasy ||
+							listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+							listBoxControls[i].getSelectedItemIndex() == ctCpuUltra ||
+							listBoxControls[i].getSelectedItemIndex() == ctCpuMega) {
+							listBoxControls[i].setSelectedItemIndex(ctHuman);
+							labelPlayerNames[i].setText("");
+							labelPlayerNames[i].setText(getHumanPlayerName());
+
+							foundNewSlotForHuman = true;
+							break;
+						}
+					}
+				}
+
+				if(foundNewSlotForHuman == false) {
+					ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+					ConnectionSlot *slot = serverInterface->getSlot(0);
+					if(slot != NULL && slot->isConnected() == true) {
+						serverInterface->removeSlot(0);
+					}
+					listBoxControls[0].setSelectedItemIndex(ctHuman);
+					labelPlayerNames[0].setText("");
+					labelPlayerNames[0].setText(getHumanPlayerName());
+				}
 			}
 		}
 
