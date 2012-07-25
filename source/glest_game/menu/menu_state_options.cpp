@@ -941,12 +941,18 @@ bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
 
 void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 	if(activeInputLabel != NULL) {
-		//if(key == vkBack) {
-		if(isKeyPressed(SDLK_BACKSPACE,key) == true) {
-			string text= activeInputLabel->getText();
-			if(text.size() > 1) {
-				text.erase(text.end()-2);
+		string text= activeInputLabel->getText();
+		if(isKeyPressed(SDLK_BACKSPACE,key) == true && text.length() > 0) {
+			size_t found = text.find_last_of("_");
+			if (found == string::npos) {
+				text.erase(text.end() - 1);
 			}
+			else {
+				if(text.size() > 1) {
+					text.erase(text.end() - 2);
+				}
+			}
+
 			activeInputLabel->setText(text);
 		}
 	}
