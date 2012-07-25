@@ -527,13 +527,17 @@ void MenuStateJoinGame::keyDown(SDL_KeyboardEvent key) {
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-		//if(key == vkBack) {
-		if(isKeyPressed(SDLK_BACKSPACE,key) == true) {
+		string text = labelServerIp.getText();
+		if(isKeyPressed(SDLK_BACKSPACE,key) == true && text.length() > 0) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			string text= labelServerIp.getText();
-
-			if(text.size() > 1) {
-				text.erase(text.end()-2);
+			size_t found = text.find_last_of("_");
+			if (found == string::npos) {
+				text.erase(text.end() - 1);
+			}
+			else {
+				if(text.size() > 1) {
+					text.erase(text.end() - 2);
+				}
 			}
 
 			labelServerIp.setText(text);
