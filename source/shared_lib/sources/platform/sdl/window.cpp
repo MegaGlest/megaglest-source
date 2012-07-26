@@ -1022,4 +1022,13 @@ bool isAllowedInputTextKey(SDLKey key) {
 	return result;
 }
 
+bool Window::isKeyStateModPressed(int mod) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("isKeyStateModPressed mod = %d, keystate.mod = %d, keystate.mod & mod = %d\n",mod,keystate.mod,(keystate.mod & mod));
+
+	if(keystate.mod & mod) {
+		return true;
+	}
+	return false;
+}
+
 }}//end namespace
