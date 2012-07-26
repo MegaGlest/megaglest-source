@@ -586,7 +586,13 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 				char szCharText[20]="";
 				sprintf(szCharText,"%c",key);
 				char *utfStr = String::ConvertToUTF8(&szCharText[0]);
-				text.insert(text.end() -1, utfStr[0]);
+				if(text.size() > 0) {
+					text.insert(text.end() -1, utfStr[0]);
+				}
+				else {
+					text = utfStr[0];
+				}
+
 				delete [] utfStr;
 
 				labelServerIp.setText(text);
@@ -596,7 +602,13 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 		else if (key == SDLK_PERIOD) {
 			if(labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
-				text.insert(text.end()-1, '.');
+				if(text.size() > 0) {
+					text.insert(text.end() -1, '.');
+				}
+				else {
+					text = ".";
+				}
+
 				labelServerIp.setText(text);
 			}
 		}

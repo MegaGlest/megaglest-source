@@ -140,6 +140,9 @@ private:
 	int centeredW;
 	int centeredH;
 
+	bool editModeEnabled;
+	int maxEditWidth;
+
 public:
 	GraphicLabel();
 	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=GraphicComponent::customTextColor, bool wordWrap=false);
@@ -158,6 +161,12 @@ public:
 
 	bool getWordWrap() const { return wordWrap; }
 	void setWordWrap(bool value) { wordWrap = value; }
+
+	void setEditModeEnabled(bool value) { editModeEnabled = value; }
+	bool getEditModeEnabled() const { return editModeEnabled; }
+
+	void setMaxEditWidth(int value) { maxEditWidth = value; }
+	int getMaxEditWidth() const { return maxEditWidth; }
 
 };
 
