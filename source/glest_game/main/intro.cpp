@@ -499,6 +499,8 @@ Intro::Intro(Program *program):
 		string introVideoFile = CoreData::getInstance().getIntroVideoFilename();
 		string introVideoFileFallback = CoreData::getInstance().getIntroVideoFilenameFallback();
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Intro Video [%s] [%s]\n",introVideoFile.c_str(),introVideoFileFallback.c_str());
+
 		//renderer.clearBuffers();
 		//renderer.reset3dMenu();
 		//renderer.clearZBuffer();
