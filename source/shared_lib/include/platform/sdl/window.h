@@ -135,6 +135,7 @@ public:
 	static const bool getIsFullScreen() { return isFullScreen; }
 	static void setIsFullScreen(bool value) { isFullScreen = value; }
 	//static SDL_keysym getKeystate() { return keystate; }
+	static bool isKeyStateModPressed(int mod);
 
 	Window();
 	virtual ~Window();

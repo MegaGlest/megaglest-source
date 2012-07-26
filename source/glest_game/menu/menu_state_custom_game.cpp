@@ -1240,60 +1240,73 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						//printf("listBoxControls[i].mouseClick(x, y) is TRUE i = %d newcontrol = %d\n",i,listBoxControls[i].getSelectedItemIndex());
 
-						// Skip over networkunassigned
-						if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned &&
-							selectedControlItemIndex != ctNetworkUnassigned) {
-							listBoxControls[i].mouseClick(x, y);
+						int slotsToChangeStart = i;
+						int slotsToChangeEnd = i;
+						// If control is pressed while changing player types then change all other slots to same type
+						if(Window::isKeyStateModPressed(KMOD_CTRL) == true) {
+							slotsToChangeStart = 0;
+							slotsToChangeEnd = mapInfo.players-1;
 						}
 
-						//look for human players
-						int humanIndex1= -1;
-						int humanIndex2= -1;
-						for(int j = 0; j < GameConstants::maxPlayers; ++j) {
-							ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
-							if(ct == ctHuman) {
-								if(humanIndex1 == -1) {
-									humanIndex1= j;
-								}
-								else {
-									humanIndex2= j;
+						for(int index = slotsToChangeStart; index <= slotsToChangeEnd; ++index) {
+							if(index != i) {
+								listBoxControls[index].setSelectedItemIndex(listBoxControls[i].getSelectedItemIndex());
+							}
+							// Skip over networkunassigned
+							if(listBoxControls[index].getSelectedItemIndex() == ctNetworkUnassigned &&
+								selectedControlItemIndex != ctNetworkUnassigned) {
+								listBoxControls[index].mouseClick(x, y);
+							}
+
+							//look for human players
+							int humanIndex1= -1;
+							int humanIndex2= -1;
+							for(int j = 0; j < GameConstants::maxPlayers; ++j) {
+								ControlType ct= static_cast<ControlType>(listBoxControls[j].getSelectedItemIndex());
+								if(ct == ctHuman) {
+									if(humanIndex1 == -1) {
+										humanIndex1= j;
+									}
+									else {
+										humanIndex2= j;
+									}
 								}
 							}
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
+
+							//no human
+							if(humanIndex1 == -1 && humanIndex2 == -1) {
+								listBoxControls[index].setSelectedItemIndex(ctHuman);
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,index,labelPlayerNames[index].getText().c_str());
+
+								//printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
+							}
+							//2 humans
+							else if(humanIndex1 != -1 && humanIndex2 != -1) {
+								int closeSlotIndex = (humanIndex1 == index ? humanIndex2: humanIndex1);
+								int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
+
+								string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
+								//printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
+
+								listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
+								labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
+							}
+							updateNetworkSlots();
+
+							if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+								needToRepublishToMasterserver = true;
+							}
+
+							if(hasNetworkGameSettings() == true) {
+								needToSetChangedGameSettings = true;
+								lastSetChangedGameSettings   = time(NULL);
+							}
+							updateResourceMultiplier(index);
 						}
-
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] humanIndex1 = %d, humanIndex2 = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,humanIndex1,humanIndex2);
-
-						//no human
-						if(humanIndex1 == -1 && humanIndex2 == -1) {
-							listBoxControls[i].setSelectedItemIndex(ctHuman);
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
-
-							//printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
-						}
-						//2 humans
-						else if(humanIndex1 != -1 && humanIndex2 != -1) {
-							int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
-							int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
-
-							string origPlayName = labelPlayerNames[closeSlotIndex].getText();
-
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
-							//printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
-
-							listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
-							labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
-						}
-						updateNetworkSlots();
-
-						if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-							needToRepublishToMasterserver = true;
-						}
-
-						if(hasNetworkGameSettings() == true) {
-							needToSetChangedGameSettings = true;
-							lastSetChangedGameSettings   = time(NULL);
-						}
-						updateResourceMultiplier(i);
 					}
 					else if(buttonClearBlockedPlayers.mouseClick(x, y)) {
 						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
