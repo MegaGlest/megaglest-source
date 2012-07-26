@@ -380,6 +380,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelGameName.setText("headless ("+defaultPlayerName+")");
 	}
 	labelGameName.setMaxEditWidth(20);
+	labelGameName.setMaxEditRenderWidth(160);
 	// Network Frame Period
 	//labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
 	//labelNetworkFramePeriod.init(xoffset+230, networkHeadPos, 80);
@@ -538,6 +539,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
 		labelPlayerNames[i].setText("*");
 		labelPlayerNames[i].setMaxEditWidth(16);
+		labelPlayerNames[i].setMaxEditRenderWidth(135);
 
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);

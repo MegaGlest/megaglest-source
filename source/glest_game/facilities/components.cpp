@@ -279,6 +279,7 @@ GraphicLabel::GraphicLabel() {
 	centeredH = 1;
 	editModeEnabled = false;
 	maxEditWidth = -1;
+	maxEditRenderWidth = -1;
 }
 
 void GraphicLabel::init(int x, int y, int w, int h, bool centered, Vec3f textColor, bool wordWrap) {
