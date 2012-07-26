@@ -373,6 +373,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
 		labelPlayerNames[i].setText("");
 		labelPlayerNames[i].setMaxEditWidth(16);
+		labelPlayerNames[i].setMaxEditRenderWidth(135);
 
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);

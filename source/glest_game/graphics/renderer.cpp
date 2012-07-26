@@ -2364,13 +2364,20 @@ Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
 	return textPos;
 }
 
-void Renderer::renderTextSurroundingBox(int x, int y, int w, int h,int maxEditWidth) {
+void Renderer::renderTextSurroundingBox(int x, int y, int w, int h,
+		int maxEditWidth, int maxEditRenderWidth) {
 	//glColor4fv(color.ptr());
 	//glBegin(GL_QUADS); // Start drawing a quad primitive
 
-	if(maxEditWidth >= 0 && maxEditWidth > w) {
-		//printf("B w = %d maxEditWidth = %d\n",w,maxEditWidth);
-		w = maxEditWidth;
+	//printf("A w = %d maxEditWidth = %d maxEditRenderWidth = %d\n",w,maxEditWidth,maxEditRenderWidth);
+	if(maxEditWidth >= 0 || maxEditRenderWidth >= 0) {
+		//printf("B w = %d maxEditWidth = %d maxEditRenderWidth = %d\n",w,maxEditWidth,maxEditRenderWidth);
+		if(maxEditRenderWidth >= 0) {
+			w = maxEditRenderWidth;
+		}
+		else {
+			w = maxEditWidth;
+		}
 	}
 	//printf("HI!!!\n");
 	glPointSize(20.0f);
@@ -2388,7 +2395,7 @@ void Renderer::renderTextSurroundingBox(int x, int y, int w, int h,int maxEditWi
 
 void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 		float alpha, int x, int y, int w, int h, bool centeredW, bool centeredH,
-		bool editModeEnabled,int maxEditWidth) {
+		bool editModeEnabled,int maxEditWidth, int maxEditRenderWidth) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -2404,16 +2411,19 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 	}
 
 	if(editModeEnabled) {
-		if(maxEditWidth >= 0) {
+		if(maxEditWidth >= 0 || maxEditRenderWidth >= 0) {
+			int useWidth = maxEditWidth;
 			string temp = "";
-			for(int i = 0; i < maxEditWidth; ++i) {
+			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
 			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Font::scaleFontValue);
-			maxEditWidth = (int)lineWidth;
+			useWidth = (int)lineWidth;
+
+			maxEditWidth = useWidth;
 		}
 
-		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth);
+		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth,maxEditRenderWidth);
 	}
 	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
@@ -2536,7 +2546,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 
 void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 		const Vec3f &color, int x, int y, int w, int h, bool centeredW,
-		bool centeredH, bool editModeEnabled,int maxEditWidth) {
+		bool centeredH, bool editModeEnabled,int maxEditWidth, int maxEditRenderWidth) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -2552,16 +2562,19 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 	}
 
 	if(editModeEnabled) {
-		if(maxEditWidth >= 0) {
+		if(maxEditWidth >= 0 || maxEditRenderWidth >= 0) {
+			int useWidth = maxEditWidth;
 			string temp = "";
-			for(int i = 0; i < maxEditWidth; ++i) {
+			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
 			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Font::scaleFontValue);
-			maxEditWidth = (int)lineWidth;
+			useWidth = (int)lineWidth;
+
+			maxEditWidth = useWidth;
 		}
 
-		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth);
+		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth,maxEditRenderWidth);
 	}
 	glColor3fv(color.ptr());
 	//textRenderer3D->begin(font);
@@ -2614,7 +2627,7 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, 
 
 void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 		const Vec4f &color, int x, int y, int w, int h, bool centeredW,
-		bool centeredH, bool editModeEnabled,int maxEditWidth) {
+		bool centeredH, bool editModeEnabled,int maxEditWidth, int maxEditRenderWidth) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -2631,16 +2644,19 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 	}
 
 	if(editModeEnabled) {
-		if(maxEditWidth >= 0) {
+		if(maxEditWidth >= 0 || maxEditRenderWidth >= 0) {
+			int useWidth = maxEditWidth;
 			string temp = "";
-			for(int i = 0; i < maxEditWidth; ++i) {
+			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
 			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Font::scaleFontValue);
-			maxEditWidth = (int)lineWidth;
+			useWidth = (int)lineWidth;
+
+			maxEditWidth = useWidth;
 		}
 
-		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth);
+		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth,maxEditRenderWidth);
 	}
 	glColor4fv(color.ptr());
 	//textRenderer3D->begin(font);
@@ -2822,7 +2838,8 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 				//printf("Label render C\n");
 				renderTextBoundingBox3D(lines[i], label->getFont3D(), (*color),
 						x, y, w, h, label->getCenteredW(),label->getCenteredH(),
-						label->getEditModeEnabled(),label->getMaxEditWidth());
+						label->getEditModeEnabled(),label->getMaxEditWidth(),
+						label->getMaxEditRenderWidth());
 			}
 			else {
 				//printf("Label render D\n");
@@ -2837,7 +2854,8 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 				renderTextBoundingBox3D(lines[i], label->getFont3D(),
 						GraphicComponent::getFade(), x, y, w, h,
 						label->getCenteredW(),label->getCenteredH(),
-						label->getEditModeEnabled(),label->getMaxEditWidth());
+						label->getEditModeEnabled(),label->getMaxEditWidth(),
+						label->getMaxEditRenderWidth());
 			}
 			else {
 				//printf("Label render F\n");
@@ -2964,7 +2982,7 @@ void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverrid
 		if(renderText3DEnabled == true) {
 			//renderText3D(button->getText(), button->getFont3D(), color,x + (w / 2), y + (h / 2), true);
 			renderTextBoundingBox3D(button->getText(), button->getFont3D(),
-					color, x, y, w, h, true, true,false,-1);
+					color, x, y, w, h, true, true,false,-1,-1);
 		}
 		else {
 			renderText(button->getText(), button->getFont(), color,x + (w / 2), y + (h / 2), true);
@@ -2975,7 +2993,7 @@ void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverrid
 			//renderText3D(button->getText(), button->getFont3D(),disabledTextColor,
 			//       x + (w / 2), y + (h / 2), true);
 			renderTextBoundingBox3D(button->getText(), button->getFont3D(),disabledTextColor,
-						       x, y, w, h, true, true,false,-1);
+						       x, y, w, h, true, true,false,-1,-1);
 		}
 		else {
 			renderText(button->getText(), button->getFont(),disabledTextColor,
@@ -7786,7 +7804,7 @@ void Renderer::renderProgressBar3D(int size, int x, int y, Font3D *font, int cus
 	//printf("Render progress bar3d renderText [%s] y = %d, centeredText = %d\n",renderText.c_str(),y, centeredText);
 
 	renderTextBoundingBox3D(renderText, font, defColor, x, y, maxSize,
-			progressbarHeight, true, true, false,-1);
+			progressbarHeight, true, true, false,-1,-1);
 }
 
 void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int customWidth,
@@ -8993,7 +9011,7 @@ void Renderer::renderPopupMenu(PopupMenu *menu) {
 		renderTextBoundingBox3D(
 				menu->getHeader(), menu->getFont3D(),fontColor,
 				menu->getX(), menu->getY()+93*menu->getH()/100,menu->getW(),0,
-			true,false, false,-1 );
+			true,false, false,-1,-1);
 
 	}
 	else {

@@ -142,6 +142,7 @@ private:
 
 	bool editModeEnabled;
 	int maxEditWidth;
+	int maxEditRenderWidth;
 
 public:
 	GraphicLabel();
@@ -169,6 +170,9 @@ public:
 
 	void setMaxEditWidth(int value) { maxEditWidth = value; }
 	int getMaxEditWidth() const { return maxEditWidth; }
+
+	void setMaxEditRenderWidth(int value) { maxEditRenderWidth = value; }
+	int getMaxEditRenderWidth() const { return maxEditRenderWidth; }
 
 };
 

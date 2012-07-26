@@ -382,6 +382,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
 		labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelPlayerName.setMaxEditWidth(16);
+		labelPlayerName.setMaxEditRenderWidth(200);
 		currentLine-=lineOffset;
 
 		//FontSizeAdjustment
