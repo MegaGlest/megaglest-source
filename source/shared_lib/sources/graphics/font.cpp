@@ -121,13 +121,21 @@ Text * FontMetrics::getTextHandler() {
 
 float FontMetrics::getTextWidth(const string &str) {
 	string longestLine = "";
-    vector<string> lineTokens;
-    Tokenize(str,lineTokens,"\n");
-    for(unsigned int i = 0; i < lineTokens.size(); ++i) {
-    	string currentStr = lineTokens[i];
-    	if(currentStr.length() > longestLine.length()) {
-    		longestLine = currentStr;
-    	}
+	size_t found = str.find("\n");
+	if (found == string::npos) {
+		longestLine = str;
+	}
+	else {
+		vector<string> lineTokens;
+		Tokenize(str,lineTokens,"\n");
+		if(lineTokens.size() > 0) {
+			for(unsigned int i = 0; i < lineTokens.size(); ++i) {
+				string currentStr = lineTokens[i];
+				if(currentStr.length() > longestLine.length()) {
+					longestLine = currentStr;
+				}
+			}
+		}
     }
 
 	if(textHandler != NULL) {
