@@ -372,6 +372,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
 		labelPlayerNames[i].setText("");
+		labelPlayerNames[i].setMaxEditWidth(16);
 
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
@@ -2725,6 +2726,8 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
 
 void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 	if(activeInputLabel != NULL) {
+
+		/*
 		string text = activeInputLabel->getText();
 
 		//if(key == vkBack && text.length() > 0) {
@@ -2741,6 +2744,14 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 
 			activeInputLabel->setText(text);
 
+			switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+		}
+		*/
+
+		bool handled = keyDownEditLabel(key, &activeInputLabel);
+		if(handled == true) {
 			switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
             needToSetChangedGameSettings = true;
             lastSetChangedGameSettings   = time(NULL);
@@ -2785,7 +2796,8 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 
 void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 	if(activeInputLabel != NULL) {
-		int maxTextSize= 16;
+		/*
+		int maxTextSize= activeInputLabel->getMaxEditWidth();
 	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 			if(&labelPlayerNames[i] == activeInputLabel) {
 				SDLKey key = extractKeyPressed(c);
@@ -2805,7 +2817,13 @@ void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 						sprintf(szCharText,"%c",key);
 						char *utfStr = String::ConvertToUTF8(&szCharText[0]);
 						if(utfStr != NULL) {
-							text.insert(text.end() -1, utfStr[0]);
+							if(text.size() > 0) {
+								text.insert(text.end() -1, utfStr[0]);
+							}
+							else {
+								text = utfStr[0];
+							}
+
 							delete [] utfStr;
 
 							activeInputLabel->setText(text);
@@ -2818,6 +2836,14 @@ void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 				}
 			}
 	    }
+	    */
+
+		bool handled = keyPressEditLabel(c, &activeInputLabel);
+		if(handled == true) {
+			switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
+            needToSetChangedGameSettings = true;
+            lastSetChangedGameSettings   = time(NULL);
+		}
 	}
 	else {
 		chatManager.keyPress(c);
@@ -2842,6 +2868,7 @@ void MenuStateConnectedGame::keyUp(SDL_KeyboardEvent key) {
 }
 
 void MenuStateConnectedGame::setActiveInputLabel(GraphicLabel *newLable) {
+	/*
 	if(newLable != NULL) {
 		if( newLable==activeInputLabel){
 			return;
@@ -2860,9 +2887,14 @@ void MenuStateConnectedGame::setActiveInputLabel(GraphicLabel *newLable) {
 			text = text.substr(0,found);
 		}
 		activeInputLabel->setText(text);
+		activeInputLabel->setEditModeEnabled(false);
 	}
 	activeInputLabel = newLable;
-
+	if(activeInputLabel != NULL) {
+		activeInputLabel->setEditModeEnabled(true);
+	}
+	*/
+	MenuState::setActiveInputLabel(newLable,&activeInputLabel);
 }
 
 string MenuStateConnectedGame::getHumanPlayerName() {

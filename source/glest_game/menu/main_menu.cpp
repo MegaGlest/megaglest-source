@@ -27,6 +27,7 @@
 #include "socket.h"
 #include "menu_state_root.h"
 #include "video_player.h"
+#include "string_utils.h"
 
 #include "leak_dumper.h"
 
@@ -332,6 +333,106 @@ void MenuState::consoleAddLine(string line) {
 
 void MenuState::reloadUI() {
 	console.resetFonts();
+}
+
+void MenuState::setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activeInputLabelPtr) {
+	GraphicLabel *activeInputLabelEdit = *activeInputLabelPtr;
+	if(newLabel != NULL) {
+		if(newLabel == activeInputLabelEdit) {
+			return;
+		}
+		string text= newLabel->getText();
+		size_t found = text.find_last_of("_");
+		if (found == string::npos || found != text.length()-1) {
+			text += "_";
+		}
+		newLabel->setText(text);
+	}
+	if(activeInputLabelEdit != NULL && activeInputLabelEdit->getText().empty() == false) {
+		string text= activeInputLabelEdit->getText();
+		size_t found = text.find_last_of("_");
+		if (found != string::npos && found == text.length()-1) {
+			//printf("Removing trailing edit char, found = %d [%d][%s]\n",found,text.length(),text.c_str());
+			text = text.substr(0,found);
+		}
+		activeInputLabelEdit->setText(text);
+		activeInputLabelEdit->setEditModeEnabled(false);
+	}
+	if(newLabel != NULL) {
+		*activeInputLabelPtr = newLabel;
+		newLabel->setEditModeEnabled(true);
+	}
+	else {
+		*activeInputLabelPtr = NULL;
+	}
+}
+
+bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr) {
+	bool eventHandled = false;
+	GraphicLabel *activeInputLabel = *activeInputLabelPtr;
+	if(activeInputLabel != NULL) {
+		int maxTextSize= activeInputLabel->getMaxEditWidth();
+
+		SDLKey key = extractKeyPressed(c);
+		if(isKeyPressed(SDLK_ESCAPE,c,false) == true ||
+				isKeyPressed(SDLK_RETURN,c,false) == true ) {
+			setActiveInputLabel(NULL,activeInputLabelPtr);
+			eventHandled = true;
+			return eventHandled;
+		}
+		//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
+		//   (c=='-') || (c=='(') || (c==')')) {
+		if(isAllowedInputTextKey(key)) {
+			if(activeInputLabel->getText().size() < maxTextSize) {
+				string text= activeInputLabel->getText();
+				//text.insert(text.end()-1, key);
+				char szCharText[20]="";
+				sprintf(szCharText,"%c",key);
+				char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+				if(text.size() > 0) {
+					size_t found = text.find_last_of("_");
+					if (found == string::npos || found != text.length()-1) {
+						text.insert(text.end(), utfStr[0]);
+					}
+					else {
+						text.insert(text.end() -1, utfStr[0]);
+					}
+				}
+				else {
+					text = utfStr[0];
+				}
+				delete [] utfStr;
+
+				activeInputLabel->setText(text);
+
+				eventHandled = true;
+			}
+		}
+	}
+	return eventHandled;
+}
+
+bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr) {
+	bool eventHandled = false;
+	GraphicLabel *activeInputLabel = *activeInputLabelPtr;
+	if(activeInputLabel != NULL) {
+		string text = activeInputLabel->getText();
+		if(isKeyPressed(SDLK_BACKSPACE,c) == true && text.length() > 0) {
+			size_t found = text.find_last_of("_");
+			if (found == string::npos || found != text.length()-1) {
+				text.erase(text.end() - 1);
+			}
+			else {
+				if(text.size() > 1) {
+					text.erase(text.end() - 2);
+				}
+			}
+
+			activeInputLabel->setText(text);
+			eventHandled = true;
+		}
+	}
+	return eventHandled;
 }
 
 }}//end namespace

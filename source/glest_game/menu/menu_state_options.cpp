@@ -381,6 +381,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 		labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
 		labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+		labelPlayerName.setMaxEditWidth(16);
 		currentLine-=lineOffset;
 
 		//FontSizeAdjustment
@@ -941,6 +942,7 @@ bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
 
 void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 	if(activeInputLabel != NULL) {
+		/*
 		string text= activeInputLabel->getText();
 		if(isKeyPressed(SDLK_BACKSPACE,key) == true && text.length() > 0) {
 			size_t found = text.find_last_of("_");
@@ -955,43 +957,51 @@ void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 
 			activeInputLabel->setText(text);
 		}
+		*/
+		keyDownEditLabel(key, &activeInputLabel);
 	}
 }
 
 void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
-	if(activeInputLabel!=NULL) {
+	if(activeInputLabel != NULL) {
 	    //printf("[%d]\n",c); fflush(stdout);
-		if(&labelPlayerName==activeInputLabel) {
+		if(&labelPlayerName == activeInputLabel) {
+			/*
 			SDLKey key = extractKeyPressed(c);
 			if((key>='0' && key<='9')||(key>='a' && key<='z')||(key>='A' && key<='Z')||
 				 (key>=(192-256) && key<=(255-256))||
 				 (key=='-')||(key=='_')||(key=='(')||(key==')')){
 			//if(isAllowedInputTextKey(key)) {
-				const int maxTextSize= 16;
+				const int maxTextSize= activeInputLabel->getMaxEditWidth();
 				if(activeInputLabel->getText().size()<maxTextSize){
 					string text= activeInputLabel->getText();
 					//text.insert(text.end()-1, key);
 					char szCharText[20]="";
 					sprintf(szCharText,"%c",key);
 					char *utfStr = String::ConvertToUTF8(&szCharText[0]);
-					text.insert(text.end() -1, utfStr[0]);
+					if(text.size() > 0) {
+						text.insert(text.end() -1, utfStr[0]);
+					}
+					else {
+						text = utfStr[0];
+					}
 					delete [] utfStr;
 
 					activeInputLabel->setText(text);
 				}
 			}
+			*/
+			keyPressEditLabel(c, &activeInputLabel);
 		}
 	}
 	else {
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		//if(c == configKeys.getCharKey("SaveGUILayout")) {
 		if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
 			GraphicComponent::saveAllCustomProperties(containerName);
 			//Lang &lang= Lang::getInstance();
 			//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
 		}
 	}
-
 }
 
 void MenuStateOptions::render(){
@@ -1189,8 +1199,8 @@ void MenuStateOptions::saveConfig(){
 	Renderer::getInstance().loadConfig();
 }
 
-void MenuStateOptions::setActiveInputLable(GraphicLabel *newLable)
-{
+void MenuStateOptions::setActiveInputLable(GraphicLabel *newLable) {
+	/*
 	if(newLable!=NULL){
 		string text= newLable->getText();
 		size_t found;
@@ -1210,8 +1220,15 @@ void MenuStateOptions::setActiveInputLable(GraphicLabel *newLable)
 			text=text.substr(0,found);
 		}
 		activeInputLabel->setText(text);
+		activeInputLabel->setEditModeEnabled(false);
 	}
 	activeInputLabel=newLable;
+	if(activeInputLabel != NULL) {
+		activeInputLabel->setEditModeEnabled(true);
+	}
+	*/
+
+	MenuState::setActiveInputLabel(newLable,&activeInputLabel);
 }
 
 }}//end namespace

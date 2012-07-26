@@ -491,9 +491,11 @@ public:
 	void renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth=-1, string prefixLabel="", bool centeredText=true);
 
 	Vec2f getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, int w, int h, bool centeredW, bool centeredH);
-	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, int w, int h, bool centeredW, bool centeredH);
-	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, int w, int h, bool centeredW, bool centeredH);
-	void renderTextBoundingBox3D(const string &text, Font3D *font, float alpha, int x, int y, int w, int h, bool centeredW, bool centeredH);
+	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, int w, int h, bool centeredW, bool centeredH, bool editModeEnabled, int maxEditWidth);
+	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, int w, int h, bool centeredW, bool centeredH, bool editModeEnabled,int maxEditWidth);
+	void renderTextBoundingBox3D(const string &text, Font3D *font, float alpha, int x, int y, int w, int h, bool centeredW, bool centeredH, bool editModeEnabled,int maxEditWidth);
+
+	void renderTextSurroundingBox(int x, int y, int w, int h,int maxEditWidth);
 
 	void beginRenderToTexture(Texture2D **renderToTexture);
 	void endRenderToTexture(Texture2D **renderToTexture);

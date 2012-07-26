@@ -103,6 +103,12 @@ protected:
 	const char *containerName;
 	Console console;
 
+protected:
+
+	void setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activeInputLabelPtr);
+	bool keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr);
+	bool keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr);
+
 public:
 	MenuState(Program *program, MainMenu *mainMenu, const string &stateName);
 	virtual ~MenuState();
