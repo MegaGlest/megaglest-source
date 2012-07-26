@@ -147,6 +147,8 @@ public:
 	GraphicLabel();
 	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=GraphicComponent::customTextColor, bool wordWrap=false);
 
+	virtual bool mouseMove(int x, int y);
+
 	bool getCentered() const	{return centered;}
 	void setCentered(bool centered)	{this->centered= centered;}
 

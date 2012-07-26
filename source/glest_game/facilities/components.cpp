@@ -288,6 +288,24 @@ void GraphicLabel::init(int x, int y, int w, int h, bool centered, Vec3f textCol
 	this->wordWrap = wordWrap;
 }
 
+bool GraphicLabel::mouseMove(int x, int y) {
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	int useWidth = w;
+	if(text.length() > 0 && font3D != NULL) {
+		float lineWidth = (font3D->getTextHandler()->Advance(text.c_str()) * Font::scaleFontValue);
+		useWidth = (int)lineWidth;
+	}
+
+    return
+        x > this->x &&
+        y > this->y &&
+        x < this->x + useWidth &&
+        y < this->y + h;
+}
+
 bool GraphicLabel::getCenteredW() const {
 	bool result = (centered || centeredW == 1);
 	return result;
