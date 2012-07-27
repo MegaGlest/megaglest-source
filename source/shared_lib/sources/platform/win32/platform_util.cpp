@@ -395,8 +395,7 @@ void init_win32() {
 
 	SDL_SysWMinfo wminfo;
 	SDL_VERSION(&wminfo.version)
-	if (SDL_GetWMInfo(&wminfo) != 1)
-	{
+	if (SDL_GetWMInfo(&wminfo) != 1) {
 		// error: wrong SDL version
 	}
 
@@ -412,11 +411,26 @@ void init_win32() {
 	::SetClassLong(hwnd, GCL_HICON, iconPtr);
 #endif
 
+	ontop_win32(0, 0);
+}
+
+void ontop_win32(int width, int height) {
+	SDL_SysWMinfo wminfo;
+	SDL_VERSION(&wminfo.version)
+	if (SDL_GetWMInfo(&wminfo) != 1) {
+		// error: wrong SDL version
+	}
+
+	HWND hwnd = wminfo.window;
+
 	SetWindowLong(hwnd, GWL_EXSTYLE, 0);
     SetWindowLong(hwnd, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
-    //SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, fsWidth, fsHeight, SWP_SHOWWINDOW);
+    if(width > 0 && height > 0) {
+    	SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, width, height, SWP_SHOWWINDOW);
+    }
 }
+
 void done_win32() {
 	::DestroyIcon(icon);
 }
