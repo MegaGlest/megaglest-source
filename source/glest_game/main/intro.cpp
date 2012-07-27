@@ -93,6 +93,14 @@ Intro::Intro(Program *program):
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CoreData &coreData= CoreData::getInstance();
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+		(Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == false ||
+		CoreData::getInstance().hasIntroVideoFilename() == false)) {
+		soundRenderer.playMusic(CoreData::getInstance().getIntroMusic());
+	}
+
 	const Metrics &metrics= Metrics::getInstance();
 	int w= metrics.getVirtualW();
 	int h= metrics.getVirtualH();
@@ -489,8 +497,6 @@ Intro::Intro(Program *program):
 	//md5Test = Shared::Graphics::md5::getMD5ObjectFromLoaderScript("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/test/mv1/mv1.loader");
 	//md5Test = Shared::Graphics::md5::getMD5ObjectFromLoaderScript("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/test/mv1/mv2.loader");
 
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
@@ -526,8 +532,6 @@ Intro::Intro(Program *program):
 		exitAfterIntroVideo = true;
 		return;
 	}
-
-	soundRenderer.playMusic(CoreData::getInstance().getIntroMusic());
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
