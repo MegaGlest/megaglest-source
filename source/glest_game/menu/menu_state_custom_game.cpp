@@ -3762,7 +3762,8 @@ void MenuStateCustomGame::closeUnusedSlots(){
 	try {
 		if(checkBoxScenario.getValue() == false) {
 			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-			for(int i= 0; i<mapInfo.players; ++i){
+			//for(int i= 0; i<mapInfo.players; ++i){
+			for(int i= 0; i < GameConstants::maxPlayers; ++i){
 				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
 						listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
 					if(serverInterface->getSlot(i) == NULL ||
@@ -3800,7 +3801,10 @@ void MenuStateCustomGame::updateNetworkSlots() {
         }
 
 		for(int i= 0; i < GameConstants::maxPlayers; ++i) {
-			if(serverInterface->getSlot(i) == NULL &&
+			ConnectionSlot *slot = serverInterface->getSlot(i);
+			//printf("A i = %d control type = %d slot [%p]\n",i,listBoxControls[i].getSelectedItemIndex(),slot);
+
+			if(slot == NULL &&
 				listBoxControls[i].getSelectedItemIndex() == ctNetwork)	{
 				try {
 					serverInterface->addSlot(i);
@@ -3822,9 +3826,11 @@ void MenuStateCustomGame::updateNetworkSlots() {
 					listBoxControls[i].setSelectedItemIndex(ctCpu);
 				}
 			}
-			ConnectionSlot *slot = serverInterface->getSlot(i);
+			slot = serverInterface->getSlot(i);
 			if(slot != NULL) {
-				if(listBoxControls[i].getSelectedItemIndex() != ctNetwork) {
+				if((listBoxControls[i].getSelectedItemIndex() != ctNetwork) ||
+					(listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
+						slot->isConnected() == false && i >= mapInfo.players)) {
 					if(slot->getCanAcceptConnections() == true) {
 						slot->setCanAcceptConnections(false);
 					}
