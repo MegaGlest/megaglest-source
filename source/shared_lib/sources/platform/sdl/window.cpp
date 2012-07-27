@@ -401,6 +401,9 @@ void Window::setStyle(WindowStyle windowStyle) {
 
 void Window::create() {
 	// nothing here
+#ifdef WIN32
+	ontop_win32(this->w,this->h);
+#endif
 }
 
 void Window::destroy() {
