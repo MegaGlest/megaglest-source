@@ -57,6 +57,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -64,9 +65,9 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/shared_lib/include/tinyxml;../../source/glest_game/ai;../../source/glest_game/facilities;../../source/glest_game/game;../../source/glest_game/global;../../source/glest_game/graphics;../../source/glest_game/gui;../../source/glest_game/main;../../source/glest_game/menu;../../source/glest_game/network;../../source/glest_game/sound;../../source/glest_game/type_instances;../../source/glest_game/types;../../source/glest_game/world;../../source/win32_deps/include;../../source/win32_deps/xerces-c-3.0.1/src;../../source/win32_deps/SDL-1.2.x/include;../../source/shared_lib/include/platform/sdl;../../source/shared_lib/include/sound/openal;../../source/win32_deps/openal-soft-1.12.854/include;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;../../source/win32_deps/curl-7.21.3/include;../../source/shared_lib/include/map;../../source/win32_deps/libircclient/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../source/shared_lib/include/graphics;../../source/shared_lib/include/graphics/gl;../../source/shared_lib/include/platform;../../source/shared_lib/include/platform/win32;../../source/shared_lib/include/sound;../../source/shared_lib/include/sound/ds8;../../source/shared_lib/include/util;../../source/shared_lib/include/lua;../../source/shared_lib/include/xml;../../source/shared_lib/include/xml/rapidxml;../../source/glest_game/ai;../../source/glest_game/facilities;../../source/glest_game/game;../../source/glest_game/global;../../source/glest_game/graphics;../../source/glest_game/gui;../../source/glest_game/main;../../source/glest_game/menu;../../source/glest_game/network;../../source/glest_game/sound;../../source/glest_game/type_instances;../../source/glest_game/types;../../source/glest_game/world;../../source/windows_deps/include;../../source/windows_deps/xerces-c-3.1.1/src;../../source/windows_deps/SDL-1.2.15/include;../../source/shared_lib/include/platform/sdl;../../source/shared_lib/include/sound/openal;../../source/windows_deps/openal-soft-1.14/include;../../source/shared_lib/include/platform/posix;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;../../source/windows_deps/curl-7.21.3/include;../../source/shared_lib/include/map;../../source/windows_deps/libircclient/include;../../source/windows_deps/glew-1.7.0/include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;XML_LIBRARY;USE_PCH=1;_CRT_SECURE_NO_WARNINGS;USE_STREFLOP;STREFLOP_SSE;LIBM_COMPILING_FLT32;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;XML_LIBRARY;USE_PCH=1;_CRT_SECURE_NO_WARNINGS;USE_STREFLOP;STREFLOP_SSE;LIBM_COMPILING_FLT32;CURL_STATICLIB;UNICODE;XERCES_STATIC_LIBRARY;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -87,14 +88,20 @@
       <DisableSpecificWarnings>4018;4244;4250;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>dsound.lib;dxguid.lib;ogg_static.lib;vorbis_static.lib;vorbisfile_static.lib;opengl32.lib;glu32.lib;wsock32.lib;libglest.lib;mmc.lib;lua5.1.lib;xerces-c_3.lib;Dbghelp.lib;libpng.lib;jpeg.lib;zlib.lib;sdl.lib;sdlmain.lib;winmm.lib;openal32.lib;iphlpapi.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;libircclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../source/win32_deps/lib;../../build/$(Configuration)/libglest;../../source/shared_lib/sources/streflop/libstreflop;../../source/win32_deps/libircclient/build/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dsound.lib;dxguid.lib;glew32s.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;opengl32.lib;glu32.lib;wsock32.lib;libglest.lib;mmc.lib;lua.lib;xerces-c_static_3D.lib;Dbghelp.lib;libpng15.lib;jpeg.lib;zlibstat.lib;sdl.lib;sdlmain.lib;winmm.lib;openal32.lib;iphlpapi.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;libircclient.lib;freetype244MT_D.lib;ftgl_static_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../source/windows_deps/lib;../../build/$(Configuration)/libglest;../../source/shared_lib/sources/streflop/libstreflop;$(DXSDK_DIR)/lib/x86;../../source/windows_deps/Microsoft DirectX SDK %28November 2007%29/Lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <TargetMachine>MachineX86</TargetMachine>
+      <OutputFile>$(OutDir)\megaglest.exe</OutputFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <ProgramDatabaseFile>$(OutDir)\megaglest.pdb</ProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
