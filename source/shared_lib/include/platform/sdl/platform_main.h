@@ -475,6 +475,13 @@ int mainSetup(int argc, char **argv) {
     	throw megaglest_runtime_error(szBuf);
     }
 
+    SystemFlags::VERBOSE_MODE_ENABLED  = false;
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
+        SystemFlags::VERBOSE_MODE_ENABLED  = true;
+    }
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||
@@ -497,7 +504,11 @@ int mainSetup(int argc, char **argv) {
 	if( haveSpecialOutputCommandLineOption == false) {
 #ifdef USE_STREFLOP
 #define STREFLOP_NO_DENORMALS
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	
 	streflop_init<streflop::Simple>();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 #endif
 	}
 
@@ -507,19 +518,27 @@ int mainSetup(int argc, char **argv) {
 	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true ||
 	   hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]))) {
 	     // Use this for masterserver mode for timers like Chrono
+		 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		 if(SDL_Init(SDL_INIT_TIMER) < 0)  {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
 	        return 3;
 	     }
 	}
 	else {
+		 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		 if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
 			return 3;
 		 }
-		SDL_EnableUNICODE(1);
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+		 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		 SDL_EnableUNICODE(1);
+		 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		 SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	return 0;
 }
 
