@@ -17,6 +17,7 @@
 #include "randomgen.h"
 #include "vec.h"
 #include <vector>
+#include <string>
 
 using Shared::Platform::int8;
 using Shared::Platform::int32;
