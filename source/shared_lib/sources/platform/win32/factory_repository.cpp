@@ -32,21 +32,22 @@ GraphicsFactory *FactoryRepository::getGraphicsFactory(const string &name){
 		return &graphicsFactoryGl2;
 	}
 
-	throw megaglest_runtime_error("Unknown graphics factory: " + name);
+	throw megaglest_runtime_error("Unknown graphics factory: [" + name + "]");
 }
 
 SoundFactory *FactoryRepository::getSoundFactory(const string &name){
-	if(name == "DirectSound8"){
-		return &soundFactoryDs8;
-	}
-	else if(name == "OpenAL") {
+	// deprecated as of 3.6.1
+	//if(name == "DirectSound8"){
+	//	return &soundFactoryDs8;
+	//}
+	if(name == "OpenAL") {
 		return &soundFactoryOpenAL;
 	}
 	else if(name == "" || name == "None") {
 		return &soundFactoryNone;
 	}
 
-	throw megaglest_runtime_error("Unknown sound factory: " + name);
+	throw megaglest_runtime_error("Unknown sound factory: [" + name + "]");
 }
 
 }}//end namespace
