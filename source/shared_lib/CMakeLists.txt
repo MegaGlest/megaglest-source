@@ -251,7 +251,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		graphics
 		graphics/freetype-gl
 		graphics/gl
-		graphics/md5
+		graphics/iqm
 		lua
 		map	
 		platform/common
