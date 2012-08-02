@@ -1,4 +1,8 @@
 <?php
+//	Copyright (C) 2012 Mark Vejvoda, Titus Tscharntke and Tom Reynolds
+//	The Megaglest Team, under GNU GPL v3.0
+// ==============================================================
+
 	define( 'INCLUSION_PERMITTED', true );
 	require_once( 'config.php' );
 	require_once( 'functions.php' );

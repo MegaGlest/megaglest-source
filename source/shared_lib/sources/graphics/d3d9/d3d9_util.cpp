@@ -1,3 +1,10 @@
+// ==============================================================
+//	This file is part of MegaGlest Shared Library (www.megaglest.org)
+//
+//	Copyright (C) 2012 Mark Vejvoda, Titus Tscharntke
+//	The Megaglest Team, under GNU GPL v3.0
+// ==============================================================
+
 #include "d3d9_util.h"
 
 namespace Shared{ namespace Graphics{ namespace D3d9{

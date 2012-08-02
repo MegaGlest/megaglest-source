@@ -3,6 +3,9 @@
 -- 
 -- SQL should be compatible to MySQL 5.0
 -- 
+--	Copyright (C) 2012 Mark Vejvoda, Titus Tscharntke and Tom Reynolds
+--	The Megaglest Team, under GNU GPL v3.0
+-- ==============================================================
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 

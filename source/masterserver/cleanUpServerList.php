@@ -1,4 +1,8 @@
 <?php
+//	Copyright (C) 2012 Mark Vejvoda, Titus Tscharntke and Tom Reynolds
+//	The Megaglest Team, under GNU GPL v3.0
+// ==============================================================
+
 	// This script can be invoked directly by a cron job on a regular basis:
 	// /path/to/php -f /path/to/script.php
 
