@@ -4,10 +4,13 @@
 // ==============================================================
 
 	define( 'INCLUSION_PERMITTED', true );
+
 	require_once( 'config.php' );
 	require_once( 'functions.php' );
-
 	define( 'DB_LINK', db_connect() );
+
+	// allow for automatic refreshing in web browser by appending '?refresh=VALUE', where VALUE is a numeric value in seconds.
+	define( 'REFRESH_INTERVAL', (int) $_GET['refresh'] );
 
 	// consider replacing this by a cron job
 	cleanupServerList();
@@ -26,103 +29,134 @@
 
 	// Representation starts here
 	header( 'Content-Type: text/html; charset=utf-8' );
-echo <<<END
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-	<head>
-		<title>MegaGlest gameservers</title>
-		<style type="text/css">
-			body {
-			}
-
-			table {
-				width:      100%;
-				border:     2px solid black;
-			}
-
-			th, td { 
-				width:      300;
-				border:     1px solid black;
-				text-align: left;
-			}
-		</style>
-	</head>
-	<body>
-		<table>
-			<tr>
-				<th>glestVersion</th>
-				<th>platform</th>
-				<th>binaryCompileDate</th>
-				<th>serverTitle</th>
-				<th>ip</th>
-				<th>tech</th>
-				<th>map</th>
-				<th>tileset</th>
-				<th>activeSlots</th>
-				<th>networkSlots</th>
-				<th>connectedClients</th>
-				<th>externalServerPort</th>
-				<th>country</th>
-				<th>status</th>
-			</tr>
-
-END;
+	if ( REFRESH_INTERVAL != 0 ) {
+		header( 'Refresh: ' . REFRESH_INTERVAL );
+	}
+	echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">' . PHP_EOL;
+	echo '<html>' . PHP_EOL;
+	echo '<head>' . PHP_EOL;
+	echo '	<title>' . htmlspecialchars( PRODUCT_NAME ) . ' gameservers</title>' . PHP_EOL;
+	echo '	<style type="text/css">' . PHP_EOL;
+	echo '		body {' . PHP_EOL;
+	echo '		}' . PHP_EOL;
+	echo '' . PHP_EOL;
+	echo '		table {' . PHP_EOL;
+	echo '			width:      100%;' . PHP_EOL;
+	echo '			border:     2px solid black;' . PHP_EOL;
+	echo '		}' . PHP_EOL;
+	echo '' . PHP_EOL;
+	echo '		th, td { ' . PHP_EOL;
+	echo '			width:      300;' . PHP_EOL;
+	echo '			border:     1px solid black;' . PHP_EOL;
+	echo '			text-align: left;' . PHP_EOL;
+	echo '		}' . PHP_EOL;
+	echo '	</style>' . PHP_EOL;
+	echo '</head>' . PHP_EOL;
+	echo '<body>' . PHP_EOL;
+	echo '	<table>' . PHP_EOL;
+	echo '		<tr>' . PHP_EOL;
+	echo '			<th title="glestVersion">Version</th>' . PHP_EOL;
+	echo '			<th title="status">Status</th>' . PHP_EOL;
+	echo '			<th title="country">Country</th>' . PHP_EOL;
+	echo '			<th title="serverTitle">Title</th>' . PHP_EOL;
+	echo '			<th title="tech">Techtree</th>' . PHP_EOL;
+	echo '			<th title="connectedClients">Network players</th>' . PHP_EOL;
+	echo '			<th title="networkSlots">Network slots</th>' . PHP_EOL;
+	echo '			<th title="activeSlots">Total slots</th>' . PHP_EOL;
+	echo '			<th title="map">Map</th>' . PHP_EOL;
+	echo '			<th title="tileset">Tileset</th>' . PHP_EOL;
+	echo '			<th title="ip">IPv4 address</th>' . PHP_EOL;
+	echo '			<th title="externalServerPort">Game protocol port</th>' . PHP_EOL;
+	echo '			<th title="platform">Platform</th>' . PHP_EOL;
+	echo '			<th title="binaryCompileDate">Build date</th>' . PHP_EOL;
+	echo '		</tr>' . PHP_EOL;
 
 	foreach( $all_servers as $server )
 	{
-		//array_walk( $server, 'htmlspecialchars', 'ENT_QUOTES' );
 		echo "\t\t\t" . '<tr>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['glestVersion'],        ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['platform'],            ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['binaryCompileDate'],   ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['serverTitle'],         ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['ip'],                  ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['tech'],                ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['map'],                 ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['tileset'],             ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['activeSlots'],         ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['networkSlots'],        ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['connectedClients'],    ENT_QUOTES ) . '</td>' . PHP_EOL;
-		echo "\t\t\t\t<td>" . htmlspecialchars( $server['externalServerPort'],  ENT_QUOTES ) . '</td>' . PHP_EOL;
+
+		// glestVersion
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['glestVersion'], ENT_QUOTES ), PHP_EOL );
+
+		// status
+		$status_code = $server['status'];
+		if ( $status_code == 0)
+		{
+			$gameFull = ( $server['networkSlots'] <= $server['connectedClients'] );
+			if ( $gameFull == true )
+			{
+				$status_code = 1;
+			}
+		}
+		switch ( $status_code ) 
+		{
+			case 0:
+				$status_title = 'waiting for players';
+				$status_class = 'waiting_for_players';
+				break;
+			case 1:
+				$status_title = 'game full, pending start';
+				$status_class = 'game_full_pending_start';
+				break;
+			case 2:
+				$status_title = 'in progress';
+				$status_class = 'in_progress';
+				break;
+			case 3:
+				$status_title = 'finished';
+				$status_class = 'finished';
+				break;
+			default:
+				$status_title = 'unknown';
+				$status_class = 'unknown';
+		}
+		printf( "\t\t\t\t<td class=\"%s\">%s</td>%s", $status_class, htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
+
+		// country
 		if ( $server['country'] !== '' ) {
 			$flagfile = 'flags/' . strtolower( $server['country'] ).'.png';
 			if ( file_exists( $flagfile ) ) {
-		                echo "\t\t\t\t<td>" . '<img src="' . $flagfile . '" title="' . $server['country'] . '" alt="' . $server['country'] . ' country flag" />' . '</td>' . PHP_EOL;
+		                printf( "\t\t\t\t<td><img src=\"%s\" title=\"%s\" alt=\"%s country flag\" /></td>", $flagfile,  $server['country'], $server['country'], PHP_EOL );
 			} else {
-				echo "\t\t\t\t<td>" . 'unknown' . '</td>' . PHP_EOL;
+				printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['country'], ENT_QUOTES ), PHP_EOL );
 			}
 		}
 		else {
-			echo "\t\t\t\t<td>" . htmlspecialchars( $server['country'],  ENT_QUOTES ) . '</td>' . PHP_EOL;
+			printf( "\t\t\t\t<td>unknown</td>%s", PHP_EOL );
 		}
 
-		$calculatedStatus = $server['status'];
-		if($calculatedStatus == 0)
-		{
-			$gameFull = ($server['networkSlots'] <= $server['connectedClients']);
-			if($gameFull == true)
-			{
-				$calculatedStatus = 1;
-			}
-		}
+		// serverTitle
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['serverTitle'],        ENT_QUOTES ), PHP_EOL );
 
-		switch($calculatedStatus) 
-		{
-			case 0:
-				echo "\t\t\t\t<td>" . htmlspecialchars( "waiting for players",    ENT_QUOTES ) . '</td>' . PHP_EOL;
-				break;
-			case 1:
-				echo "\t\t\t\t<td>" . htmlspecialchars( "game full, pending start",    ENT_QUOTES ) . '</td>' . PHP_EOL;
-				break;
-			case 2:
-				echo "\t\t\t\t<td>" . htmlspecialchars( "in progress",    ENT_QUOTES ) . '</td>' . PHP_EOL;
-				break;
-			case 3:
-				echo "\t\t\t\t<td>" . htmlspecialchars( "finished",    ENT_QUOTES ) . '</td>' . PHP_EOL;
-				break;
-			default:
-				echo "\t\t\t\t<td>" . htmlspecialchars( "unknown: " . $server['status'],    ENT_QUOTES ) . '</td>' . PHP_EOL;
-		}
+		// tech
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['tech'],               ENT_QUOTES ), PHP_EOL );
+
+		// connectedClients
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['connectedClients'],   ENT_QUOTES ), PHP_EOL );
+
+		// networkSlots
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['networkSlots'],       ENT_QUOTES ), PHP_EOL );
+
+		// activeSlots
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['activeSlots'],        ENT_QUOTES ), PHP_EOL );
+
+		// map
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['map'],                ENT_QUOTES ), PHP_EOL );
+
+		// tileset
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['tileset'],            ENT_QUOTES ), PHP_EOL );
+
+		// ip
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['ip'],                 ENT_QUOTES ), PHP_EOL );
+
+		// externalServerPort
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['externalServerPort'], ENT_QUOTES ), PHP_EOL );
+
+		// platform
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['platform'],           ENT_QUOTES ), PHP_EOL );
+
+		// binaryCompileDate
+		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['binaryCompileDate'],  ENT_QUOTES ), PHP_EOL );
 
 		echo "\t\t\t" . '</tr>' . PHP_EOL;
 	}
