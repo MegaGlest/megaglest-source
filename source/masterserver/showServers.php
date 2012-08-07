@@ -32,9 +32,10 @@
 	if ( REFRESH_INTERVAL != 0 ) {
 		header( 'Refresh: ' . REFRESH_INTERVAL );
 	}
-	echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">' . PHP_EOL;
+	echo '<!DOCTYPE HTML>' . PHP_EOL;
 	echo '<html>' . PHP_EOL;
 	echo '	<head>' . PHP_EOL;
+	echo '		<meta charset="UTF-8" />' . PHP_EOL;
 	echo '		<title>' . htmlspecialchars( PRODUCT_NAME ) . ' gameservers</title>' . PHP_EOL;
 	echo '		<link rel="stylesheet" type="text/css" href="style/screen.css" />' . PHP_EOL;
 	echo '	</head>' . PHP_EOL;
@@ -103,7 +104,7 @@
 		if ( $server['country'] !== '' ) {
 			$flagfile = 'flags/' . strtolower( $server['country'] ).'.png';
 			if ( file_exists( $flagfile ) ) {
-		                printf( "\t\t\t\t<td><img src=\"%s\" title=\"%s\" alt=\"%s country flag\" /></td>", $flagfile,  $server['country'], $server['country'], PHP_EOL );
+		                printf( "\t\t\t\t<td><img src=\"%s\" title=\"%s\" alt=\"%s country flag\" /></td>%s", $flagfile,  $server['country'], $server['country'], PHP_EOL );
 			} else {
 				printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['country'], ENT_QUOTES ), PHP_EOL );
 			}
