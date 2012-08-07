@@ -12,6 +12,9 @@
 	// allow for automatic refreshing in web browser by appending '?refresh=VALUE', where VALUE is a numeric value in seconds.
 	define( 'REFRESH_INTERVAL', (int) $_GET['refresh'] );
 
+	// allow for filtering by gameserver version
+	define( 'FILTER_VERSION', $_GET['version'] );
+
 	// consider replacing this by a cron job
 	cleanupServerList();
 
@@ -30,7 +33,11 @@
 	// Representation starts here
 	header( 'Content-Type: text/html; charset=utf-8' );
 	if ( REFRESH_INTERVAL != 0 ) {
-		header( 'Refresh: ' . REFRESH_INTERVAL );
+		if ( REFRESH_INTERVAL <= 10 ) {
+			header( 'Refresh: 10:' );
+		} else {
+			header( 'Refresh: ' . REFRESH_INTERVAL );
+		}
 	}
 	echo '<!DOCTYPE HTML>' . PHP_EOL;
 	echo '<html>' . PHP_EOL;
@@ -61,99 +68,120 @@
 
 	foreach( $all_servers as $server )
 	{
-		echo "\t\t\t" . '<tr>' . PHP_EOL;
-
-		// glestVersion
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['glestVersion'], ENT_QUOTES ), PHP_EOL );
-
-		// status
-		$status_code = $server['status'];
-		if ( $status_code == 0)
+		# Filter by version if requested
+		if ( FILTER_VERSION == $server['glestVersion'] OR FILTER_VERSION == '' )
 		{
-			$gameFull = ( $server['networkSlots'] <= $server['connectedClients'] );
-			if ( $gameFull == true )
+			echo "\t\t\t" . '<tr>' . PHP_EOL;
+
+			// glestVersion
+			printf( "\t\t\t\t<td><a href=\"?version=%s\">%s</a></td>%s", htmlspecialchars( $server['glestVersion'], ENT_QUOTES ), htmlspecialchars( $server['glestVersion'], ENT_QUOTES ), PHP_EOL );
+
+			// status
+			$status_code = $server['status'];
+			if ( $status_code == 0)
 			{
-				$status_code = 1;
+				$gameFull = ( $server['networkSlots'] <= $server['connectedClients'] );
+				if ( $gameFull == true )
+				{
+					$status_code = 1;
+				}
 			}
-		}
-		switch ( $status_code ) 
-		{
-			case 0:
-				$status_title = 'waiting for players';
-				$status_class = 'waiting_for_players';
-				break;
-			case 1:
-				$status_title = 'game full, pending start';
-				$status_class = 'game_full_pending_start';
-				break;
-			case 2:
-				$status_title = 'in progress';
-				$status_class = 'in_progress';
-				break;
-			case 3:
-				$status_title = 'finished';
-				$status_class = 'finished';
-				break;
-			default:
-				$status_title = 'unknown';
-				$status_class = 'unknown';
-		}
-		printf( "\t\t\t\t<td class=\"%s\">%s</td>%s", $status_class, htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
-
-		// country
-		if ( $server['country'] !== '' ) {
-			$flagfile = 'flags/' . strtolower( $server['country'] ).'.png';
-			if ( file_exists( $flagfile ) ) {
-		                printf( "\t\t\t\t<td><img src=\"%s\" title=\"%s\" alt=\"%s country flag\" /></td>%s", $flagfile,  $server['country'], $server['country'], PHP_EOL );
-			} else {
-				printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['country'], ENT_QUOTES ), PHP_EOL );
+			switch ( $status_code ) 
+			{
+				case 0:
+					$status_title = 'waiting for players';
+					$status_class = 'waiting_for_players';
+					break;
+				case 1:
+					$status_title = 'game full, pending start';
+					$status_class = 'game_full_pending_start';
+					break;
+				case 2:
+					$status_title = 'in progress';
+					$status_class = 'in_progress';
+					break;
+				case 3:
+					$status_title = 'finished';
+					$status_class = 'finished';
+					break;
+				default:
+					$status_title = 'unknown';
+					$status_class = 'unknown';
 			}
+			printf( "\t\t\t\t<td title=\"%s\" class=\"%s\">%s</td>%s", $server['status'], $status_class, htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
+
+			// country
+			if ( $server['country'] !== '' ) {
+				$flagfile = 'flags/' . strtolower( $server['country'] ).'.png';
+				if ( file_exists( $flagfile ) ) {
+					printf( "\t\t\t\t<td><img src=\"%s\" title=\"%s\" alt=\"%s country flag\" /></td>%s", $flagfile,  $server['country'], $server['country'], PHP_EOL );
+				} else {
+					printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['country'], ENT_QUOTES ), PHP_EOL );
+				}
+			}
+			else {
+				printf( "\t\t\t\t<td>unknown</td>%s", PHP_EOL );
+			}
+
+			// serverTitle
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['serverTitle'],        ENT_QUOTES ), PHP_EOL );
+
+			// tech
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['tech'],               ENT_QUOTES ), PHP_EOL );
+
+			// connectedClients
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['connectedClients'],   ENT_QUOTES ), PHP_EOL );
+
+			// networkSlots
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['networkSlots'],       ENT_QUOTES ), PHP_EOL );
+
+			// activeSlots
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['activeSlots'],        ENT_QUOTES ), PHP_EOL );
+
+			// map
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['map'],                ENT_QUOTES ), PHP_EOL );
+
+			// tileset
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['tileset'],            ENT_QUOTES ), PHP_EOL );
+
+			// ip
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['ip'],                 ENT_QUOTES ), PHP_EOL );
+
+			// externalServerPort
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['externalServerPort'], ENT_QUOTES ), PHP_EOL );
+
+			// platform
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['platform'],           ENT_QUOTES ), PHP_EOL );
+
+			// binaryCompileDate
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['binaryCompileDate'],  ENT_QUOTES ), PHP_EOL );
+
+			echo "\t\t\t" . '</tr>' . PHP_EOL;
 		}
-		else {
-			printf( "\t\t\t\t<td>unknown</td>%s", PHP_EOL );
-		}
-
-		// serverTitle
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['serverTitle'],        ENT_QUOTES ), PHP_EOL );
-
-		// tech
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['tech'],               ENT_QUOTES ), PHP_EOL );
-
-		// connectedClients
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['connectedClients'],   ENT_QUOTES ), PHP_EOL );
-
-		// networkSlots
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['networkSlots'],       ENT_QUOTES ), PHP_EOL );
-
-		// activeSlots
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['activeSlots'],        ENT_QUOTES ), PHP_EOL );
-
-		// map
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['map'],                ENT_QUOTES ), PHP_EOL );
-
-		// tileset
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['tileset'],            ENT_QUOTES ), PHP_EOL );
-
-		// ip
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['ip'],                 ENT_QUOTES ), PHP_EOL );
-
-		// externalServerPort
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['externalServerPort'], ENT_QUOTES ), PHP_EOL );
-
-		// platform
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['platform'],           ENT_QUOTES ), PHP_EOL );
-
-		// binaryCompileDate
-		printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['binaryCompileDate'],  ENT_QUOTES ), PHP_EOL );
-
-		echo "\t\t\t" . '</tr>' . PHP_EOL;
 	}
+
+	echo '		</table>' . PHP_EOL;
+
+	echo '		<p>' . PHP_EOL;
+	echo '			<br />' . PHP_EOL;
+	echo '		</p>' . PHP_EOL;
+
+	if ( FILTER_VERSION != '' )
+	{
+		echo "\t\t<p>Filters active:</p>" . PHP_EOL;
+		echo "\t\t<ul>" . PHP_EOL;
+		printf( "\t\t\t<li>Version <a href=\"?\">%s</a></li>%s", htmlspecialchars( FILTER_VERSION, ENT_QUOTES ), PHP_EOL );
+		echo "\t\t</ul>" . PHP_EOL;
+	}
+
+	echo '		<p>Usage:</p>' . PHP_EOL;
+	echo '		<ul>' . PHP_EOL;
+	echo '			<li>You can have this page auto <a href="?refresh=60">refresh every 60 seconds</a> by appending <code>?refresh=60</code> to the URL. Minimum refresh time is 10 seconds.</li>' . PHP_EOL;
+	echo '			<li>The parameters used by the masterserver API will display when you move your mouse pointer over any of the table headings.</li>' . PHP_EOL;
+	echo '		</ul>' . PHP_EOL;
+	echo '	</body>' . PHP_EOL;
+	echo '</html>' . PHP_EOL;
+
 	unset( $all_servers );
 	unset( $server );
-
-echo <<<END
-		</table>
-	</body>
-</html>
-END;
 ?>
