@@ -1,0 +1,41 @@
+/*
+ ==============================================================
+ 	Copyright: (C) 2012 Mark Vejvoda, Titus Tscharntke and Tom Reynolds
+ 	The Megaglest Team, under GNU GPL v3.0
+ ==============================================================
+*/
+
+body {
+	font-family: sans-serif;
+}
+
+table {
+	width:      100%;
+	border:     2px solid black;
+}
+
+th, td { 
+	border:     1px solid black;
+	padding:    5px;
+	text-align: left;
+}
+
+.waiting_for_players {
+	background-color: LightGreen;
+}
+
+.game_full_pending_start {
+	background-color: Yellow;
+}
+
+.in_progress {
+	background-color: Tomato;
+}
+
+.finished {
+	background-color: LightGray;
+}
+
+.unknown {
+	background-color: Red;
+}
