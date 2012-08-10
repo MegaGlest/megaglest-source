@@ -511,6 +511,70 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 						break;
 					}
 				}
+				// Check if this is a linked faction
+				else {
+					//!!!
+					string factionXMLFile = path + factionName + ".xml";
+
+					//printf("A factionXMLFile [%s]\n",factionXMLFile.c_str());
+
+					if(fileExists(factionXMLFile) == true) {
+						XmlTree	xmlTreeFaction(XML_RAPIDXML_ENGINE);
+						std::map<string,string> mapExtraTagReplacementValues;
+						xmlTreeFaction.load(factionXMLFile, Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true,true);
+
+						const XmlNode *rootNode= xmlTreeFaction.getRootNode();
+
+						//printf("B factionXMLFile [%s] root name [%s] root first child name [%s]\n",factionXMLFile.c_str(),rootNode->getName().c_str(),rootNode->getChild(0)->getName().c_str());
+						//printf("B factionXMLFile [%s] root name [%s]\n",factionXMLFile.c_str(),rootNode->getName().c_str());
+						if(rootNode->hasChild("link") == true) {
+							rootNode = rootNode->getChild("link");
+						}
+						if(rootNode->getName() == "link" && rootNode->hasChild("techtree") == true) {
+							const XmlNode *linkNode = rootNode;
+
+							//printf("C factionXMLFile [%s]\n",factionXMLFile.c_str());
+
+							//if(linkNode->hasChild("techtree") == true) {
+							const XmlNode *techtreeNode = linkNode->getChild("techtree");
+
+							string linkedTechTreeName = techtreeNode->getAttribute("name")->getValue();
+
+							//printf("D factionXMLFile [%s] linkedTechTreeName [%s]\n",factionXMLFile.c_str(),linkedTechTreeName.c_str());
+
+							if(linkedTechTreeName != "") {
+								path = currentPath + linkedTechTreeName + "/" + "factions" + "/" + factionName;
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
+								if(isdir(path.c_str()) == true) {
+									endPathWithSlash(path);
+
+									//printf("E path [%s]\n",path.c_str());
+
+									loadScreenList.clear();
+									findAll(path + factionLogoFilter, loadScreenList, false, false);
+									if(loadScreenList.empty() == false) {
+										string factionLogo = path + loadScreenList[0];
+										if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
+
+										//printf("F factionLogo [%s]\n",factionLogo.c_str());
+
+										if(fileExists(factionLogo) == true) {
+											if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
+
+											result = factionLogo;
+											if(logger != NULL) {
+												logger->loadLoadingScreen(result);
+											}
+											loadingImageUsed = true;
+											break;
+										}
+									}
+								}
+							}
+							//}
+						}
+					}
+				}
 			}
 
 			if(loadingImageUsed == true) {
