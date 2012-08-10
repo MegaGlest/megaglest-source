@@ -15,6 +15,19 @@
 	// allow for filtering by gameserver version
 	define( 'FILTER_VERSION', $_GET['version'] );
 
+	define( 'MGG_HOST', $_GET['mgg_host'] );
+	define( 'MGG_PORT', $_GET['mgg_port'] );
+
+	if ( MGG_HOST != '' ) {
+		$body = MGG_HOST . ':' . MGG_PORT;
+		header( 'Content-Type: application/x-megaglest-gameserver; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="megaglest_gameserver.mgg' );
+		header( 'Content-Length: ' . strlen( $body ));
+		header( 'Accept-Ranges: bytes' );
+		echo $body;
+		exit;
+	}
+
 	// consider replacing this by a cron job
 	cleanupServerList();
 
@@ -34,7 +47,7 @@
 	header( 'Content-Type: text/html; charset=utf-8' );
 	if ( REFRESH_INTERVAL != 0 ) {
 		if ( REFRESH_INTERVAL <= 10 ) {
-			header( 'Refresh: 10:' );
+			header( 'Refresh: 10' );
 		} else {
 			header( 'Refresh: ' . REFRESH_INTERVAL );
 		}
