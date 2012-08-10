@@ -54,10 +54,12 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		                     bool hardware_acceleration,
 		                     bool fullscreen_anti_aliasing, float gammaValue) {
 	
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Window::setupGraphicsScreen(depthBits, stencilBits, hardware_acceleration, fullscreen_anti_aliasing);
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	int flags = SDL_OPENGL;
@@ -149,6 +151,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		}
 	#endif
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,resW,resH,colorBits);
 
 		if(screen != NULL) {
@@ -156,8 +159,12 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			screen = NULL;
 		}
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 		screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
 		if(screen == 0) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 			std::ostringstream msg;
 			msg << "Couldn't set video mode "
 				<< resW << "x" << resH << " (" << colorBits
@@ -203,22 +210,37 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			}
 		}
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d] BEFORE glewInit call\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		
 		GLuint err = glewInit();
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d] AFTER glewInit call err = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,err);
+
 		if (GLEW_OK != err) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 			fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
 			//return 1;
 			throw std::runtime_error((char *)glewGetErrorString(err));
 		}
 		//fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 		int bufferSize = (resW * resH * BaseColorPickEntity::COLOR_COMPONENTS);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 		BaseColorPickEntity::init(bufferSize);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		if(gammaValue != 0.0) {
 			//printf("Attempting to call SDL_SetGamma using value %f\n", gammaValue);
-
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			if (SDL_SetGamma(gammaValue, gammaValue, gammaValue) < 0) {
 				printf("WARNING, SDL_SetGamma failed using value %f [%s]\n", gammaValue,SDL_GetError());
 			}

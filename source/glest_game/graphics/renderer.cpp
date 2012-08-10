@@ -350,43 +350,84 @@ void Renderer::reinitAll() {
 // ==================== init ====================
 
 void Renderer::init() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	Config &config= Config::getInstance();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	loadConfig();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	if(config.getBool("CheckGlCaps")){
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 		checkGlCaps();
 	}
 
-	if(config.getBool("FirstTime")){
-		config.setBool("FirstTime", false);
-		autoConfig();
-		config.save();
+	if(glActiveTexture == NULL) {
+		char szBuf[8096]="";
+		sprintf(szBuf,"Error: glActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		throw megaglest_runtime_error(szBuf);
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if(config.getBool("FirstTime")){
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		config.setBool("FirstTime", false);
+		autoConfig();
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		config.save();
+	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	modelManager[rsGlobal]->init();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	textureManager[rsGlobal]->init();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	fontManager[rsGlobal]->init();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	init2dList();
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	glHint(GL_FOG_HINT, GL_FASTEST);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//glHint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
 	glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	//glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
 
 	//glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
 	glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 }
 
 void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	this->gameCamera = gameCamera;
 	VisibleQuadContainerCache::enableFrustumCalcs = Config::getInstance().getBool("EnableFrustrumCalcs","true");
 	quadCache = VisibleQuadContainerCache();
@@ -401,6 +442,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 	shadowMapFrame= 0;
 	waterAnim= 0;
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
@@ -408,6 +450,7 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 	}
 
 	//check gl caps
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	checkGlOptionalCaps();
 
 	//shadows
@@ -7246,6 +7289,17 @@ void Renderer::checkGlCaps() {
 		return;
 	}
 
+	if(glActiveTexture == NULL) {
+		string message;
+
+		message += "Your system supports OpenGL version \"";
+ 		message += getGlVersion() + string("\"\n");
+ 		message += "MegaGlest needs a version that supports\n";
+ 		message += "glActiveTexture (OpenGL 1.3) or the ARB_multitexture extension.";
+
+ 		throw megaglest_runtime_error(message.c_str());
+	}
+
 	//opengl 1.3
 	//if(!isGlVersionSupported(1, 3, 0)) {
 	if(glewIsSupported("GL_VERSION_1_3") == false) {
@@ -7271,6 +7325,7 @@ void Renderer::checkGlOptionalCaps() {
 		return;
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//shadows
 	if(shadows == sProjected || shadows == sShadowMapping) {
 		if(getGlMaxTextureUnits() < 3) {
@@ -7278,12 +7333,15 @@ void Renderer::checkGlOptionalCaps() {
 		}
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//shadow mapping
 	if(shadows == sShadowMapping) {
 		checkExtension("GL_ARB_shadow", "Shadow Mapping");
 		//checkExtension("GL_ARB_shadow_ambient", "Shadow Mapping");
 		//checkExtension("GL_ARB_depth_texture", "Shadow Mapping");
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void Renderer::checkExtension(const string &extension, const string &msg) {
@@ -7291,10 +7349,12 @@ void Renderer::checkExtension(const string &extension, const string &msg) {
 		return;
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(!isGlExtensionSupported(extension.c_str())) {
 		string str= "OpenGL extension not supported: " + extension +  ", required for " + msg;
 		throw megaglest_runtime_error(str);
 	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 // ==================== init 3d lists ====================
@@ -7304,9 +7364,13 @@ void Renderer::init3dList() {
 		return;
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	render3dSetup();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	//const Metrics &metrics= Metrics::getInstance();
 
     //assertGl();
@@ -7331,6 +7395,7 @@ void Renderer::init3dList() {
 }
 
 void Renderer::render3dSetup() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	const Metrics &metrics= Metrics::getInstance();
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -7342,6 +7407,8 @@ void Renderer::render3dSetup() {
 	loadProjectionMatrix();
 
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//texture state
 	glActiveTexture(shadowTexUnit);
@@ -7358,6 +7425,8 @@ void Renderer::render3dSetup() {
 
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	//material state
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, defAmbientColor.ptr());
@@ -7368,6 +7437,8 @@ void Renderer::render3dSetup() {
 	//blend state
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//alpha test state
 	glEnable(GL_ALPHA_TEST);
@@ -7391,6 +7462,7 @@ void Renderer::render3dSetup() {
 	glDisable(GL_STENCIL_TEST);
 
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//fog
 	const Tileset *tileset= NULL;
@@ -7437,6 +7509,8 @@ void Renderer::init2dList() {
 }
 
 void Renderer::render2dMenuSetup() {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	const Metrics &metrics= Metrics::getInstance();
 	//projection
 	glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
@@ -7444,9 +7518,13 @@ void Renderer::render2dMenuSetup() {
 	glLoadIdentity();
 	glOrtho(0, metrics.getVirtualW(), 0, metrics.getVirtualH(), 0, 1);
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	//modelview
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//disable everything
 	glDisable(GL_BLEND);
@@ -7457,15 +7535,32 @@ void Renderer::render2dMenuSetup() {
 	glDisable(GL_FOG);
 	glDisable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
-	glActiveTexture(baseTexUnit);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if(glActiveTexture != NULL) {
+		glActiveTexture(baseTexUnit);
+	}
+	else {
+		char szBuf[8096]="";
+		sprintf(szBuf,"In [%s::%s] Line: %d\nglActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glDisable(GL_TEXTURE_2D);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//blend func
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//color
 	glColor4f(1.f, 1.f, 1.f, 1.f);
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void Renderer::init3dListMenu(const MainMenu *mm) {
@@ -7575,6 +7670,8 @@ void Renderer::init3dListMenu(const MainMenu *mm) {
 }
 
 void Renderer::render3dMenuSetup(const MainMenu *mm) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	const Metrics &metrics= Metrics::getInstance();
 	const MenuBackground *mb = NULL;
 	if(mm != NULL) {
