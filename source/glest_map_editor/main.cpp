@@ -431,12 +431,13 @@ void MainWindow::init(string fname) {
 }
 
 void MainWindow::onClose(wxCloseEvent &event) {
-	if( wxMessageDialog(NULL, ToUnicode("Do you want to save the current map?"),
-		ToUnicode("Question"), wxYES_NO | wxYES_DEFAULT).ShowModal() == wxID_YES) {
-		wxCommandEvent ev;
-		MainWindow::onMenuFileSave(ev);
+	if(program != NULL && program->getMap()->getHasChanged() == true) {
+		if( wxMessageDialog(NULL, ToUnicode("Do you want to save the current map?"),
+			ToUnicode("Question"), wxYES_NO | wxYES_DEFAULT).ShowModal() == wxID_YES) {
+			wxCommandEvent ev;
+			MainWindow::onMenuFileSave(ev);
+		}
 	}
-
 	delete program;
 	program = NULL;
 
