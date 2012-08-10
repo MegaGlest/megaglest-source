@@ -349,13 +349,13 @@ void message(string message){
 	std::cerr << "******************************************************\n";
 
 	LPWSTR wstr = Ansi2WideString(message.c_str());
-	MessageBox(NULL, wstr, L"Message", MB_OK);
+	MessageBox(NULL, wstr, L"Message", MB_OK | MB_SYSTEMMODAL);
 	delete [] wstr;
 }
 
 bool ask(string message){
 	LPWSTR wstr = Ansi2WideString(message.c_str());	
-	bool result = MessageBox(NULL, wstr, L"Confirmation", MB_YESNO)==IDYES;
+	bool result = MessageBox(NULL, wstr, L"Confirmation", MB_YESNO | MB_SYSTEMMODAL) == IDYES;
 	delete [] wstr;
 	return result;
 }
@@ -372,7 +372,7 @@ void exceptionMessage(const exception &excp){
 
 	LPWSTR wstr = Ansi2WideString(message.c_str());	
 	LPWSTR wstr1 = Ansi2WideString(title.c_str());	
-	MessageBox(NULL, wstr, wstr1, MB_ICONSTOP | MB_OK | MB_TASKMODAL);
+	MessageBox(NULL, wstr, wstr1, MB_ICONSTOP | MB_OK | MB_SYSTEMMODAL);
 	delete [] wstr;
 	delete [] wstr1;
 }

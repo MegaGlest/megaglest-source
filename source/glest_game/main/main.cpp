@@ -401,25 +401,31 @@ public:
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				mainProgram->showMessage(errMsg.c_str());
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
-                    //program->getState()->render();
-                    Window::handleEvent();
-                    mainProgram->loop();
 
-                    //printf("\nhandle error #1\n");
-                }
+				if(glActiveTexture != NULL) {
+					for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
+						//program->getState()->render();
+						Window::handleEvent();
+						mainProgram->loop();
+
+						//printf("\nhandle error #1\n");
+					}
+				}
 			}
 			else {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				mainProgram->showMessage(errMsg.c_str());
                 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
-                    //program->renderProgramMsgBox();
-                    Window::handleEvent();
-                    mainProgram->loop();
 
-                    //printf("\nhandle error #2\n");
-                }
+				if(glActiveTexture != NULL) {
+					for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
+						//program->renderProgramMsgBox();
+						Window::handleEvent();
+						mainProgram->loop();
+
+						//printf("\nhandle error #2\n");
+					}
+				}
 			}
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         }
