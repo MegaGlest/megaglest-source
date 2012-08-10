@@ -105,7 +105,7 @@ XmlIo::~XmlIo() {
 	cleanup();
 }
 
-XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation) {
+XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
 	//printf("Load file using Xerces engine [%s]\n",path.c_str());
 
 	try {
@@ -263,7 +263,7 @@ XmlIoRapid::~XmlIoRapid() {
 	cleanup();
 }
 
-XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation) {
+XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
 	Chrono chrono;
 	chrono.start();
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using RapidXml to load file [%s]\n",path.c_str());
@@ -390,6 +390,7 @@ void XmlIoRapid::save(const string &path, const XmlNode *node){
 XmlTree::XmlTree(xml_engine_parser_type engine_type) {
 	rootNode= NULL;
 	this->engine_type = engine_type;
+	this->skipStackCheck = false;
 }
 
 void XmlTree::init(const string &name){
@@ -400,30 +401,33 @@ typedef std::vector<XmlTree*> LoadStack;
 //static LoadStack loadStack;
 static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
 
-void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues, bool noValidation) {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
+void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues, bool noValidation,bool skipStackCheck) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] skipStackCheck = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),skipStackCheck);
 
-	//printf("XmlTree::load p [%p]\n",this);
-	assert(!loadPath.size());
+	this->skipStackCheck = skipStackCheck;
+	if(this->skipStackCheck == false) {
+		//printf("XmlTree::load p [%p]\n",this);
+		assert(!loadPath.size());
 
-	LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
-	Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
-	MutexSafeWrapper safeMutex(&mutex);
+		LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
+		Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
+		MutexSafeWrapper safeMutex(&mutex);
 
-	for(LoadStack::iterator it= loadStack.begin(); it!= loadStack.end(); ++it){
-		if((*it)->loadPath == path){
-			throw megaglest_runtime_error(path + " recursively included");
+		for(LoadStack::iterator it= loadStack.begin(); it!= loadStack.end(); ++it){
+			if((*it)->loadPath == path){
+				throw megaglest_runtime_error(path + " recursively included");
+			}
 		}
+		loadStack.push_back(this);
+		safeMutex.ReleaseLock();
 	}
-	loadStack.push_back(this);
-	safeMutex.ReleaseLock();
 
 	loadPath = path;
 	if(this->engine_type == XML_XERCES_ENGINE) {
-		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation);
+		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation,this->skipStackCheck);
 	}
 	else {
-		this->rootNode= XmlIoRapid::getInstance().load(path, mapTagReplacementValues, noValidation);
+		this->rootNode= XmlIoRapid::getInstance().load(path, mapTagReplacementValues, noValidation,this->skipStackCheck);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
@@ -441,15 +445,17 @@ void XmlTree::save(const string &path){
 XmlTree::~XmlTree() {
 	//printf("XmlTree::~XmlTree p [%p]\n",this);
 
-	LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
-	Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
-	MutexSafeWrapper safeMutex(&mutex);
+	if(this->skipStackCheck == false) {
+		LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
+		Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
+		MutexSafeWrapper safeMutex(&mutex);
 
-	LoadStack::iterator it= find(loadStack.begin(),loadStack.end(),this);
-	if(it != loadStack.end()) {
-		loadStack.erase(it);
+		LoadStack::iterator it= find(loadStack.begin(),loadStack.end(),this);
+		if(it != loadStack.end()) {
+			loadStack.erase(it);
+		}
+		safeMutex.ReleaseLock();
 	}
-	safeMutex.ReleaseLock();
 
 	delete rootNode;
 }

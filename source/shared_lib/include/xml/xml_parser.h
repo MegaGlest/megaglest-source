@@ -64,7 +64,7 @@ public:
 	~XmlIo();
 	void cleanup();
 
-	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation=false);
+	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation=false, bool skipStackCheck=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -81,7 +81,7 @@ public:
 	~XmlIoRapid();
 	void cleanup();
 
-	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation=false);
+	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation=false,bool skipStackCheck=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -94,6 +94,7 @@ private:
 	XmlNode *rootNode;
 	string loadPath;
 	xml_engine_parser_type engine_type;
+	bool skipStackCheck;
 private:
 	XmlTree(XmlTree&);
 	void operator =(XmlTree&);
@@ -103,7 +104,7 @@ public:
 	~XmlTree();
 
 	void init(const string &name);
-	void load(const string &path, std::map<string,string> mapTagReplacementValues, bool noValidation=false);
+	void load(const string &path, std::map<string,string> mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false);
 	void save(const string &path);
 
 	XmlNode *getRootNode() const	{return rootNode;}
