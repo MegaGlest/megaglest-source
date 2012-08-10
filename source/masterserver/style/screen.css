@@ -9,6 +9,10 @@ body {
 	font-family: sans-serif;
 }
 
+h1 {
+	text-align: center;
+}
+
 table {
 	width:      100%;
 	border:     2px solid black;
@@ -17,7 +21,12 @@ table {
 th, td { 
 	border:     1px solid black;
 	padding:    5px;
-	text-align: left;
+	text-align: center;
+	text-transform: capitalize;
+}
+
+th {
+	background-color: LightGray;
 }
 
 .waiting_for_players {
@@ -33,7 +42,7 @@ th, td {
 }
 
 .finished {
-	background-color: LightGray;
+	background-color: Gray;
 }
 
 .unknown {
