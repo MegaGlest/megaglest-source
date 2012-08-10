@@ -393,10 +393,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\shared_lib\sources\graphics\md5\ShaderManager.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\source\shared_lib\sources\streflop\SMath.cpp"
 				>
 			</File>
@@ -440,10 +436,6 @@
 				Name="graphics"
 				>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\graphics\md5\ArbProgram.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\source\shared_lib\sources\graphics\BMPReader.cpp"
 					>
 				</File>
@@ -476,15 +468,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\sources\graphics\md5\GlErrors.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\source\shared_lib\sources\graphics\graphics_interface.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\shared_lib\sources\graphics\md5\Image.cpp"
 					>
 				</File>
 				<File
@@ -497,18 +481,6 @@
 				</File>
 				<File
 					RelativePath="..\..\source\shared_lib\sources\graphics\JPGReader.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\shared_lib\sources\graphics\md5\Md5Model.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\shared_lib\sources\graphics\md5\md5Texture.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\shared_lib\sources\graphics\md5\md5util.cpp"
 					>
 				</File>
 				<File
@@ -836,10 +808,6 @@
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\include\graphics\freetype-gl\markup.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\shared_lib\include\graphics\md5\md5Texture.h"
 				>
 			</File>
 			<File
