@@ -13,11 +13,14 @@
 
 #include "graphics_factory_gl.h"
 #include "graphics_interface.h"
+#include "config.h"
 //#include <png.h>
 #include <memory>
 
 using namespace Shared::Graphics;
 using namespace Shared::Graphics::Gl;
+using namespace Glest::Game;
+using namespace Shared::Util;
 
 namespace Shared{ namespace G3dViewer{
 
@@ -139,6 +142,18 @@ void Renderer::transform(float rotX, float rotY, float zoom) {
 }
 
 void Renderer::checkGlCaps() {
+
+	if(glActiveTexture == NULL) {
+		string message;
+
+		message += "Your system supports OpenGL version \"";
+ 		message += getGlVersion() + string("\"\n");
+ 		message += "MegaGlest needs a version that supports\n";
+ 		message += "glActiveTexture (OpenGL 1.3) or the ARB_multitexture extension.";
+
+ 		throw megaglest_runtime_error(message.c_str());
+	}
+
 	//opengl 1.3
 	//if(!isGlVersionSupported(1, 3, 0)) {
 	if(glewIsSupported("GL_VERSION_1_3") == false) {
@@ -183,6 +198,20 @@ void Renderer::init() {
 	if(gf == NULL) {
 		gf= new GraphicsFactoryGl();
 		GraphicsInterface::getInstance().setFactory(gf);
+	}
+
+	Config &config = Config::getInstance();
+	if(config.getBool("CheckGlCaps")){
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		checkGlCaps();
+	}
+
+	if(glActiveTexture == NULL) {
+		char szBuf[8096]="";
+		sprintf(szBuf,"Error: glActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	modelRenderer= gf->newModelRenderer();
