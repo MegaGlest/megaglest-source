@@ -52,6 +52,7 @@ MapPreview::MapPreview() {
 	desc = "";
 	author = "";
 	refAlt = DEFAULT_MAP_CELL_HEIGHT;
+	hasChanged = false;
 }
 
 MapPreview::~MapPreview() {
@@ -138,6 +139,7 @@ void MapPreview::glestChangeHeight(int x, int y, int height, int radius) {
 					if ((height > 0 && newAlt > oldAlt) || (height < 0 && newAlt < oldAlt) || height == 0) {
 						if (newAlt >= 0 && newAlt <= 20) {
 							cells[i][j].height = static_cast<float>(newAlt);
+							hasChanged = true;
 						}
 					}
 				}
@@ -164,6 +166,7 @@ void MapPreview::pirateChangeHeight(int x, int y, int height, int radius) {
 	if (radius == 1) {
 		if(inside(x, y)){
 			cells[x][y].height = (float)goalAlt;
+			hasChanged = true;
 		}
 		return;
 	}
@@ -322,6 +325,7 @@ void MapPreview::pirateChangeHeight(int x, int y, int height, int radius) {
 							((newAlt - cells[i][j].height) < 0 && height < 0) ||
 							height == 0) {
 						cells[i][j].height = newAlt;
+						hasChanged = true;
 					}
 				}
 		}
@@ -330,11 +334,13 @@ void MapPreview::pirateChangeHeight(int x, int y, int height, int radius) {
 
 void MapPreview::setHeight(int x, int y, float height) {
 	cells[x][y].height = height;
+	hasChanged = true;
 }
 
 void MapPreview::setRefAlt(int x, int y) {
 	if (inside(x, y)) {
 		refAlt = static_cast<int>(cells[x][y].height);
+		hasChanged = true;
 	}
 }
 
@@ -364,6 +370,8 @@ void MapPreview::flipX() {
 	//	delete [] oldCells[i];
 	//}
 	//delete [] oldCells;
+
+	hasChanged = true;
 }
 
 void MapPreview::flipY() {
@@ -393,19 +401,23 @@ void MapPreview::flipY() {
 	//	delete [] oldCells[i];
 	//}
 	//delete [] oldCells;
+
+	hasChanged = true;
 }
 
 // Copy a cell in the map from one cell to another, used by MirrorXY etc
 void MapPreview::copyXY(int x, int y, int sx, int sy) {
-		cells[x][y].height   = cells[sx][sy].height;
-		cells[x][y].object   = cells[sx][sy].object;
-		cells[x][y].resource = cells[sx][sy].resource;
-		cells[x][y].surface  = cells[sx][sy].surface;
+	cells[x][y].height   = cells[sx][sy].height;
+	cells[x][y].object   = cells[sx][sy].object;
+	cells[x][y].resource = cells[sx][sy].resource;
+	cells[x][y].surface  = cells[sx][sy].surface;
+
+	hasChanged = true;
 }
 
 // swap a cell in the map with another, used by rotate etc
 void MapPreview::swapXY(int x, int y, int sx, int sy) {
-	if(inside(x, y) && inside(sx, sy)){
+	if(inside(x, y) && inside(sx, sy)) {
 		float tmpHeight= cells[x][y].height;
 		cells[x][y].height= cells[sx][sy].height;
 		cells[sx][sy].height= tmpHeight;
@@ -421,12 +433,14 @@ void MapPreview::swapXY(int x, int y, int sx, int sy) {
 		int tmpSurface= cells[x][y].surface;
 		cells[x][y].surface= cells[sx][sy].surface;
 		cells[sx][sy].surface= tmpSurface;
+
+		hasChanged = true;
 	}
 }
 
 void MapPreview::changeSurface(int x, int y, MapSurfaceType surface, int radius) {
-	int i, j;
-	int dist;
+	int i = 0, j = 0;
+	int dist = 0;
 
 	for (i = x - radius + 1; i < x + radius; i++) {
 		for (j = y - radius + 1; j < y + radius; j++) {
@@ -434,6 +448,7 @@ void MapPreview::changeSurface(int x, int y, MapSurfaceType surface, int radius)
 				dist = get_dist(i - x, j - y);
 				if (radius > dist) {  // was >=
 					cells[i][j].surface = surface;
+					hasChanged = true;
 				}
 			}
 		}
@@ -442,11 +457,12 @@ void MapPreview::changeSurface(int x, int y, MapSurfaceType surface, int radius)
 
 void MapPreview::setSurface(int x, int y, MapSurfaceType surface) {
 	cells[x][y].surface = surface;
+	hasChanged = true;
 }
 
 void MapPreview::changeObject(int x, int y, int object, int radius) {
-	int i, j;
-	int dist;
+	int i = 0, j = 0;
+	int dist = 0;
 
 	for (i = x - radius + 1; i < x + radius; i++) {
 		for (j = y - radius + 1; j < y + radius; j++) {
@@ -455,6 +471,7 @@ void MapPreview::changeObject(int x, int y, int object, int radius) {
 				if (radius > dist) {  // was >=
 					cells[i][j].object = object;
 					cells[i][j].resource = 0;
+					hasChanged = true;
 				}
 			}
 		}
@@ -463,12 +480,15 @@ void MapPreview::changeObject(int x, int y, int object, int radius) {
 
 void MapPreview::setObject(int x, int y, int object) {
 	cells[x][y].object = object;
-	if (object != 0) cells[x][y].resource = 0;
+	if (object != 0) {
+		cells[x][y].resource = 0;
+	}
+	hasChanged = true;
 }
 
 void MapPreview::changeResource(int x, int y, int resource, int radius) {
-	int i, j;
-	int dist;
+	int i = 0, j = 0;
+	int dist = 0;
 
 	for (i = x - radius + 1; i < x + radius; i++) {
 		for (j = y - radius + 1; j < y + radius; j++) {
@@ -477,6 +497,7 @@ void MapPreview::changeResource(int x, int y, int resource, int radius) {
 				if (radius > dist) {  // was >=
 					cells[i][j].resource = resource;
 					cells[i][j].object = 0;
+					hasChanged = true;
 				}
 			}
 		}
@@ -485,13 +506,17 @@ void MapPreview::changeResource(int x, int y, int resource, int radius) {
 
 void MapPreview::setResource(int x, int y, int resource) {
 	cells[x][y].resource = resource;
-	if (resource != 0) cells[x][y].object = 0;
+	if (resource != 0) {
+		cells[x][y].object = 0;
+	}
+	hasChanged = true;
 }
 
 void MapPreview::changeStartLocation(int x, int y, int faction) {
 	if ((faction - 1) < maxFactions && inside(x, y)) {
 		startLocations[faction].x = x;
 		startLocations[faction].y = y;
+		hasChanged = true;
 	}
 }
 
@@ -549,6 +574,7 @@ void MapPreview::reset(int w, int h, float alt, MapSurfaceType surf) {
 			cells[i][j].surface = surf;
 		}
 	}
+	hasChanged = true;
 }
 
 void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
@@ -624,6 +650,8 @@ void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
 	//		delete [] oldCells[i];
 	//	delete [] oldCells;
 	//}
+
+	hasChanged = true;
 }
 
 void MapPreview::resetFactions(int maxPlayers) {
@@ -647,18 +675,23 @@ void MapPreview::resetFactions(int maxPlayers) {
 		startLocations[i].x = 0;
 		startLocations[i].y = 0;
 	}
+
+	hasChanged = true;
 }
 
 void MapPreview::setTitle(const string &title) {
 	this->title = title;
+	hasChanged = true;
 }
 
 void MapPreview::setDesc(const string &desc) {
 	this->desc = desc;
+	hasChanged = true;
 }
 
 void MapPreview::setAuthor(const string &author) {
 	this->author = author;
+	hasChanged = true;
 }
 
 void MapPreview::setAdvanced(int heightFactor, int waterLevel, int cliffLevel, int cameraHeight) {
@@ -666,6 +699,7 @@ void MapPreview::setAdvanced(int heightFactor, int waterLevel, int cliffLevel, i
 	this->waterLevel = waterLevel;
 	this->cliffLevel = cliffLevel;
 	this->cameraHeight = cameraHeight;
+	hasChanged = true;
 }
 
 void MapPreview::randomizeHeights() {
@@ -673,6 +707,7 @@ void MapPreview::randomizeHeights() {
 	sinRandomize(0);
 	decalRandomize(4);
 	sinRandomize(1);
+	hasChanged = true;
 }
 
 void MapPreview::randomize() {
@@ -689,6 +724,7 @@ void MapPreview::randomize() {
 		sl.y = static_cast<int>(h * slNoiseFactor * (((i + slPlaceFactorY) / 2) % 2) + h * (1.f - slNoiseFactor) / 2.f);
 		startLocations[i] = sl;
 	}
+	hasChanged = true;
 }
 
 void MapPreview::switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2) {
@@ -697,9 +733,11 @@ void MapPreview::switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2) {
 			for (int j = 0; j < h; ++j) {
 				if (cells[i][j].surface == surf1) {
 					cells[i][j].surface = surf2;
+					hasChanged = true;
 				}
 				else if (cells[i][j].surface == surf2) {
 					cells[i][j].surface = surf1;
+					hasChanged = true;
 				}
 			}
 		}
@@ -780,6 +818,7 @@ void MapPreview::loadFromFile(const string &path) {
 
 		fileLoaded = true;
 		mapFileLoaded = path;
+		hasChanged = false;
 	}
 	else {
 #ifdef WIN32
@@ -855,12 +894,13 @@ void MapPreview::saveToFile(const string &path) {
 
 		fclose(f1);
 
+		hasChanged = false;
 	}
 	else {
 		throw megaglest_runtime_error("Error opening map file: " + path);
 	}
 
-	void randomHeight(int x, int y, int height);
+	//void randomHeight(int x, int y, int height);
 }
 
 // ==================== PRIVATE ====================
@@ -869,6 +909,7 @@ void MapPreview::resetHeights(int height) {
 	for (int i = 0; i < w; ++i) {
 		for (int j = 0; j < h; ++j) {
 			cells[i][j].height = static_cast<float>(height);
+			hasChanged = true;
 		}
 	}
 }
@@ -924,6 +965,7 @@ void MapPreview::decalRandomize(int strenght) {
 
 void MapPreview::applyNewHeight(float newHeight, int x, int y, int strenght) {
 	cells[x][y].height = static_cast<float>(((cells[x][y].height * strenght) + newHeight) / (strenght + 1));
+	hasChanged = true;
 }
 
 bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPlayersTitle,string i18nMapSizeTitle,bool errorOnInvalidMap) {

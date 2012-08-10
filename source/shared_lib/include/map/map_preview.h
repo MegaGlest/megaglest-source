@@ -149,10 +149,15 @@ private:
 
 	bool fileLoaded;
 	string mapFileLoaded;
+	bool hasChanged;
 
 public:
 	MapPreview();
 	~MapPreview();
+
+	bool getHasChanged() const { return hasChanged; }
+	void setHasChanged(bool value) { hasChanged = value; }
+
 	float getHeight(int x, int y) const;
 	bool isCliff(int x,int y);
 	MapSurfaceType getSurface(int x, int y) const;
