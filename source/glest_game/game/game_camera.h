@@ -113,6 +113,15 @@ public:
 	void setMoveY(float f)		{this->move.y= f;}
 	void setMoveZ(float f)		{this->move.z= f;}
 
+	inline bool isMoving() const {
+		return (this->move.x != 0.0 || this->move.y != 0.0 || this->move.z != 0.0);
+	}
+	inline void stopMove() {
+		this->move.x = 0.0;
+		this->move.y = 0.0;
+		this->move.z = 0.0;
+	}
+
 	void stop() {
 		destPos = pos;
 		destAng.x = vAng;
