@@ -460,6 +460,7 @@ public:
 
     //lights and camera
 	void setupLighting();
+	void setupLightingForRotatedModel();
 	void loadGameCameraMatrix();
 	void loadCameraMatrix(const Camera *camera);
 	void computeVisibleQuad();
