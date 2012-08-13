@@ -1004,6 +1004,34 @@ void Renderer::setupLighting() {
 	assertGl();
 }
 
+void Renderer::setupLightingForRotatedModel() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	const World *world= game->getWorld();
+	const GameCamera *gameCamera= game->getGameCamera();
+	const TimeFlow *timeFlow= world->getTimeFlow();
+	float time= timeFlow->getTime();
+
+	assertGl();
+
+    //sun/moon light
+	Vec3f lightColor= timeFlow->computeLightColor();
+	Vec3f fogColor= world->getTileset()->getFogColor();
+	Vec4f lightPos= timeFlow->isDay()? computeSunPos(time): computeMoonPos(time);
+	//nearestLightPos= lightPos;
+
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos.ptr());
+	glLightfv(GL_LIGHT0, GL_AMBIENT, Vec4f(lightColor*lightAmbFactor, 1.f).ptr());
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, Vec4f(lightColor, 1.f).ptr());
+	glLightfv(GL_LIGHT0, GL_SPECULAR, Vec4f(0.0f, 0.0f, 0.f, 1.f).ptr());
+
+	glFogfv(GL_FOG_COLOR, Vec4f(fogColor*lightColor, 1.f).ptr());
+
+	assertGl();
+}
+
 void Renderer::loadGameCameraMatrix() {
 	const GameCamera *gameCamera= game->getGameCamera();
 
@@ -4507,6 +4535,10 @@ void Renderer::renderObjects(const int renderFps) {
 		glPushMatrix();
 		glTranslatef(v.x, v.y, v.z);
 		glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
+
+		if(o->getRotation() != 0.0) {
+			setupLightingForRotatedModel();
+		}
 
 		//objModel->updateInterpolationData(0.f, true);
 		objModel->updateInterpolationData(o->getAnimProgress(), true);

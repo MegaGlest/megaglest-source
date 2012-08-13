@@ -261,8 +261,11 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 					}
 				}
 
-			//rotationAllowed
-			if(modelNode->hasChild("rotationAllowed")){
+				//rotationAllowed
+				if(modelNode->hasAttribute("rotationAllowed") == true) {
+					tmt->setRotationAllowed(modelNode->getAttribute("rotationAllowed")->getBoolValue());
+				}
+				else if(modelNode->hasChild("rotationAllowed")){
 					const XmlNode *rotationAllowedNode= modelNode->getChild("rotationAllowed");
 					tmt->setRotationAllowed(rotationAllowedNode->getAttribute("value")->getBoolValue());
 				}
