@@ -2241,6 +2241,36 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	}
 }
 
+void Renderer::renderClock() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	const Metrics &metrics = Metrics::getInstance();
+	const World *world = game->getWorld();
+	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
+
+	int hours = world->getTimeFlow()->getTime();
+	int minutes = (world->getTimeFlow()->getTime() - hours) * 100 * 0.6; // scale 100 to 60
+
+	char szBuf[100]="";
+	sprintf(szBuf,"%.2d:%.2d",hours,minutes);
+	string str = szBuf;
+
+	if(renderText3DEnabled == true) {
+		renderTextShadow3D(
+			str, CoreData::getInstance().getDisplayFontSmall3D(),
+			fontColor,
+			10, metrics.getVirtualH()-160, false);
+	}
+	else {
+		renderTextShadow(
+			str, CoreData::getInstance().getDisplayFontSmall(),
+			fontColor,
+			10, metrics.getVirtualH()-160, false);
+	}
+}
+
 void Renderer::renderResourceStatus() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
