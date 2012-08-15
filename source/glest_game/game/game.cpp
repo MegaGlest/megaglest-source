@@ -3768,6 +3768,11 @@ void Game::render2d() {
 		}
 	}
 
+	// clock
+	if(photoModeEnabled == false) {
+		renderer.renderClock();
+	}
+
     //resource info
 	if(photoModeEnabled == false) {
 		if(this->masterserverMode == false) {
