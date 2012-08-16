@@ -2247,27 +2247,45 @@ void Renderer::renderClock() {
 	}
 
 	Config &config= Config::getInstance();
-	if(config.getBool("InGameClock","true") == false) {
+	if(config.getBool("InGameClock","true") == false && config.getBool("InGameLocalClock","true") == false) {
 		return;
 	}
 
+	string str = "";
 	const Metrics &metrics = Metrics::getInstance();
 	const World *world = game->getWorld();
 	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
 
-	int hours = world->getTimeFlow()->getTime();
-	int minutes = (world->getTimeFlow()->getTime() - hours) * 100 * 0.6; // scale 100 to 60
+	//sprintf(szBuf,"%s %.2d:%.2d %s %s",lang.get("GameTime","",true).c_str(),hours,minutes,lang.get("LocalTime","",true).c_str(),szBuf2);
+	if(config.getBool("InGameClock","true") == true) {
+		int hours = world->getTimeFlow()->getTime();
+		int minutes = (world->getTimeFlow()->getTime() - hours) * 100 * 0.6; // scale 100 to 60
 
-	time_t nowTime = time(NULL);
-    struct tm *loctime = localtime(&nowTime);
-    char szBuf2[100]="";
-    strftime(szBuf2,100,"%H:%M",loctime);
+		Lang &lang= Lang::getInstance();
+		char szBuf[200]="";
+		sprintf(szBuf,"%s %.2d:%.2d",lang.get("GameTime","",true).c_str(),hours,minutes);
+		if(str != "") {
+			str += " ";
+		}
+		str += szBuf;
+	}
 
-	Lang &lang= Lang::getInstance();
-	char szBuf[200]="";
-	sprintf(szBuf,"%s %.2d:%.2d %s %s",lang.get("GameTime","",true).c_str(),hours,minutes,lang.get("LocalTime","",true).c_str(),szBuf2);
+	if(config.getBool("InGameLocalClock","true") == true) {
+		time_t nowTime = time(NULL);
+		struct tm *loctime = localtime(&nowTime);
+		char szBuf2[100]="";
+		strftime(szBuf2,100,"%H:%M",loctime);
 
-	string str = szBuf;
+		Lang &lang= Lang::getInstance();
+		char szBuf[200]="";
+		sprintf(szBuf,"%s %s",lang.get("LocalTime","",true).c_str(),szBuf2);
+		if(str != "") {
+			str += " ";
+		}
+		str += szBuf;
+	}
+
+	//string str = szBuf;
 
 	if(renderText3DEnabled == true) {
 		renderTextShadow3D(
