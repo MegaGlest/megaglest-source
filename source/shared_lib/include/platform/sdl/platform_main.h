@@ -84,6 +84,8 @@ const char  *GAME_ARGS[] = {
 
 	"--disable-videos",
 
+	"--disable-opengl-checks",
+
 	"--verbose"
 
 };
@@ -151,6 +153,8 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_FONT_BASESIZE,
 
 	GAME_ARG_DISABLE_VIDEOS,
+
+	GAME_ARG_DISABLE_OPENGL_CAPS_CHECK,
 
 	GAME_ARG_VERBOSE_MODE,
 
@@ -435,6 +439,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample: %s %s=5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
 
 	printf("\n%s\t\tdisables video playback.",GAME_ARGS[GAME_ARG_DISABLE_VIDEOS]);
+
+	printf("\n%s\t\tdisables opengl capability checks (for corrupt or flaky video drivers).",GAME_ARGS[GAME_ARG_DISABLE_OPENGL_CAPS_CHECK]);
+
 
 	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 

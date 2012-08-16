@@ -3320,6 +3320,12 @@ int glestMain(int argc, char** argv) {
 	    	}
 	    }
 
+	    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_OPENGL_CAPS_CHECK]) == true ||
+	    		config.getBool("CheckGlCaps") == false) {
+	    	printf("**WARNING** disabling opengl capability checking...\n");
+	    	config.setBool("CheckGlCaps",false,true);
+	    }
+
 	    bool enableATIHacks = config.getBool("EnableATIHacks","false");
 	    if(enableATIHacks == true) {
 	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Enabling ATI video card hacks\n");
