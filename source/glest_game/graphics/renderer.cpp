@@ -2246,6 +2246,11 @@ void Renderer::renderClock() {
 		return;
 	}
 
+	Config &config= Config::getInstance();
+	if(config.getBool("InGameClock","true") == false) {
+		return;
+	}
+
 	const Metrics &metrics = Metrics::getInstance();
 	const World *world = game->getWorld();
 	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
@@ -2253,8 +2258,15 @@ void Renderer::renderClock() {
 	int hours = world->getTimeFlow()->getTime();
 	int minutes = (world->getTimeFlow()->getTime() - hours) * 100 * 0.6; // scale 100 to 60
 
-	char szBuf[100]="";
-	sprintf(szBuf,"%.2d:%.2d",hours,minutes);
+	time_t nowTime = time(NULL);
+    struct tm *loctime = localtime(&nowTime);
+    char szBuf2[100]="";
+    strftime(szBuf2,100,"%H:%M",loctime);
+
+	Lang &lang= Lang::getInstance();
+	char szBuf[200]="";
+	sprintf(szBuf,"%s %.2d:%.2d %s %s",lang.get("GameTime","",true).c_str(),hours,minutes,lang.get("LocalTime","",true).c_str(),szBuf2);
+
 	string str = szBuf;
 
 	if(renderText3DEnabled == true) {
