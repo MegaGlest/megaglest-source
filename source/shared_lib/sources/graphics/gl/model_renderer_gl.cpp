@@ -113,7 +113,7 @@ void ModelRendererGl::render(Model *model,int renderMode) {
 	//render every mesh
 	//if(model->getIsStaticModel() == true) {
 	for(uint32 i = 0;  i < model->getMeshCount(); ++i) {
-		renderMesh(model->getMeshPtr(i));
+		renderMesh(model->getMeshPtr(i),renderMode);
 	}
 	//}
 	//assertions

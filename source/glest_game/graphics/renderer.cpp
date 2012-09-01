@@ -7347,7 +7347,7 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 					//assertGl();
 				}
 
-				modelRenderer->render(objModel);
+				modelRenderer->render(objModel,resourceOnly?rmSelection:rmNormal);
 
 				glPopMatrix();
 
