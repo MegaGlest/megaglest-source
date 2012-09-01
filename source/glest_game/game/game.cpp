@@ -2721,18 +2721,6 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			}
 		}
 		else {
-			//main window
-			if(isInSpecialKeyCaptureEvent() == true &&
-				gameCamera.isMoving() == true) {
-
-				camUpButtonDown= false;
-				camDownButtonDown = false;
-				camLeftButtonDown = false;
-				camRightButtonDown = false;
-
-				gameCamera.stopMove();
-			}
-
 			//if(Window::isKeyDown() == false)
 			if(!camLeftButtonDown && !camRightButtonDown && !camUpButtonDown && !camDownButtonDown)
 			{
@@ -2758,7 +2746,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 				}
 				else {
 					bool mouseMoveScrollsWorld = Config::getInstance().getBool("MouseMoveScrollsWorld","true");
-					if(mouseMoveScrollsWorld == true && isInSpecialKeyCaptureEvent() == false) {
+					if(mouseMoveScrollsWorld == true) {
 						if (y < 10) {
 							gameCamera.setMoveZ(-scrollSpeed);
 						}
@@ -2888,9 +2876,18 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 		}
 
 		Lang &lang= Lang::getInstance();
-
+		bool formerChatState=chatManager.getEditEnabled();
 		//send key to the chat manager
 		chatManager.keyDown(key);
+
+		if( formerChatState==false && chatManager.getEditEnabled()) {
+				camUpButtonDown= false;
+				camDownButtonDown = false;
+				camLeftButtonDown = false;
+				camRightButtonDown = false;
+
+				gameCamera.stopMove();
+		}
 
 		//printf("GAME KEYDOWN #1\n");
 
@@ -3116,17 +3113,6 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				saveGame();
 			}
 		}
-		else if(isInSpecialKeyCaptureEvent() == true &&
-			gameCamera.isMoving() == true) {
-
-			camUpButtonDown= false;
-			camDownButtonDown = false;
-			camLeftButtonDown = false;
-			camRightButtonDown = false;
-
-			gameCamera.stopMove();
-		}
-
 
 		//throw megaglest_runtime_error("Test Error!");
 	}
@@ -3163,17 +3149,6 @@ void Game::keyUp(SDL_KeyboardEvent key) {
 		}
 
 		if(chatManager.getEditEnabled()) {
-			if(isInSpecialKeyCaptureEvent() == true &&
-				gameCamera.isMoving() == true) {
-
-				camUpButtonDown= false;
-				camDownButtonDown = false;
-				camLeftButtonDown = false;
-				camRightButtonDown = false;
-
-				gameCamera.stopMove();
-			}
-
 			//send key to the chat manager
 			chatManager.keyUp(key);
 		}
