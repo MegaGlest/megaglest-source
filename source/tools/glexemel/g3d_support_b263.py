@@ -103,7 +103,7 @@
 bl_info = {
 	"name": "G3D Mesh Import/Export",
 	"author": "various, see head of script",
-	"version": (0, 5, 1),
+	"version": (0, 5, 2),
 	"blender": (2, 63, 0),
 	#"api": 36079,
 	"location": "File > Import-Export",
@@ -213,6 +213,10 @@ class G3DMeshHeaderv4:										 #Read Meshheader
 			self.istwosided = True
 		else:
 			self.istwosided = False
+		if self.properties & 4:
+			self.noselect = True
+		else:
+			self.noselect = False
 		if self.textures & 1:						#PropertyBit is Mesh Textured ?
 			temp = fileID.read(struct.calcsize(self.texname_format))
 			data = struct.unpack(self.texname_format,temp)
@@ -307,12 +311,12 @@ def createMesh(filename,header,data):						  #Create a Mesh inside Blender
 			uv.append([0,0])
 			uv.append([0,0])
 			faceuv.append([uv,0,0,0])
-	mesh.faces.add(len(faces)//4)
-	mesh.faces.foreach_set("vertices_raw", faces)
-	mesh.faces.foreach_set("use_smooth", [True] * len(mesh.faces))
+	mesh.tessfaces.add(len(faces)//4)
+	mesh.tessfaces.foreach_set("vertices_raw", faces)
+	mesh.tessfaces.foreach_set("use_smooth", [True] * len(mesh.tessfaces))
+	mesh.g3d_customColor = header.customalpha
 	mesh.show_double_sided = header.istwosided
-	mesh.update_tag()
-	mesh.update()   #Update changes to Mesh
+	mesh.g3d_noSelect = header.noselect
 	#===================================================================================================
 	#Material Setup
 	#===================================================================================================
@@ -329,7 +333,6 @@ def createMesh(filename,header,data):						  #Create a Mesh inside Blender
 			matdata.diffuse_color = (header.diffusecolor[0], header.diffusecolor[1],header.diffusecolor[2])
 			matdata.alpha = header.opacity
 			matdata.specular_color = (header.specularcolor[0], header.specularcolor[1],header.specularcolor[2])
-		matdata.use_face_texture_alpha = header.customalpha
 		materials.append(matdata)
 
 		for material in materials:
@@ -338,13 +341,11 @@ def createMesh(filename,header,data):						  #Create a Mesh inside Blender
 
 		countm = 0
 		psktexname="psk" + str(countm)
-		mesh.uv_textures.new(name=psktexname)
+		mesh.tessface_uv_textures.new(name=psktexname)
 		if (len(faceuv) > 0):
-			for countm in range(len(mesh.uv_textures)):
-				mesh.update()
-				uvtex = mesh.uv_textures[countm] #add one uv texture
-				mesh.update()
-				for i, face in enumerate(mesh.faces):
+			for countm in range(len(mesh.tessface_uv_textures)):
+				uvtex = mesh.tessface_uv_textures[countm] #add one uv texture
+				for i, face in enumerate(mesh.tessfaces):
 					blender_tface = uvtex.data[i] #face
 					mfaceuv = faceuv[i]
 					if countm == faceuv[i][1]:
@@ -357,7 +358,6 @@ def createMesh(filename,header,data):						  #Create a Mesh inside Blender
 						blender_tface.uv1 = [0,0]
 						blender_tface.uv2 = [0,0]
 						blender_tface.uv3 = [0,0]
-	mesh.update()
 	imported.append(meshobj)			#Add to Imported Objects
 	sk = meshobj.shape_key_add()
 	#mesh.shape_keys.use_relative = False
@@ -371,7 +371,9 @@ def createMesh(filename,header,data):						  #Create a Mesh inside Blender
 			sk.data[i//3].co[2]= data.vertices[x*header.vertexcount*3 + i +2]
 		#meshobj.keyframe_insert("location",-1, frame=(x+1))
 		#meshobj.keyframe_insert(data_path="data.vertices", frame=(x+1))
+	# update polygon structures from tessfaces
 	mesh.update()
+	mesh.update_tag()
 	return
 ###########################################################################
 # Import
