@@ -806,8 +806,8 @@ void Game::load(int loadTypes) {
 		if(data_path != ""){
 			endPathWithSlash(data_path);
 		}
-		string englishFile=getGameCustomCoreDataPath(data_path, "data/core/hint/hint_"+Lang::getInstance().getDefaultLanguage()+".lng");
-		string languageFile=getGameCustomCoreDataPath(data_path, "data/core/hint/hint_"+ Lang::getInstance().getLanguage() +".lng");
+		string englishFile=getGameCustomCoreDataPath(data_path, "data/lang/hint/hint_"+Lang::getInstance().getDefaultLanguage()+".lng");
+		string languageFile=getGameCustomCoreDataPath(data_path, "data/lang/hint/hint_"+ Lang::getInstance().getLanguage() +".lng");
 		if(fileExists(languageFile) == false){
 			// if there is no language specific file use english instead
 			languageFile=englishFile;
