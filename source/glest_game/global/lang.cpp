@@ -408,7 +408,9 @@ string Lang::get(const string &s, string uselanguage, bool fallbackToDefault) {
 		}
 
 		//printf("#2 fallbackToDefault = %d [%s] uselanguage [%s] DEFAULT_LANGUAGE  [%s] this->language [%s]\n",fallbackToDefault,s.c_str(),uselanguage.c_str(),DEFAULT_LANGUAGE,this->language.c_str());
-		if(fallbackToDefault == true && uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
+
+		//if(fallbackToDefault == true && uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
+		if( uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
 			return get(s, DEFAULT_LANGUAGE, false);
 		}
 
