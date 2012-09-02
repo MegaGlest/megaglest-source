@@ -55,6 +55,9 @@ public:
 	virtual void mouseMove(int x, int y, const MouseState *ms);
 	//virtual void tick();
 	virtual void reloadUI();
+
+private:
+	const string getTimeString(int frames);
 };
 
 }}//end namespace

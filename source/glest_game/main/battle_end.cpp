@@ -92,6 +92,27 @@ BattleEnd::~BattleEnd() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+const string BattleEnd::getTimeString(int frames) {
+	int framesleft=frames;
+	int hours=(int) frames / (float)GameConstants::updateFps / 3600.0;
+	framesleft=framesleft-hours*3600*GameConstants::updateFps;
+	int minutes=(int) framesleft / (float)GameConstants::updateFps / 60.0;
+	framesleft=framesleft-minutes*60*GameConstants::updateFps;
+	int seconds=(int) framesleft / (float)GameConstants::updateFps;
+	framesleft=framesleft-seconds*GameConstants::updateFps;
+
+	string hourstr=intToStr(hours);
+	if(hours<10) hourstr="0"+hourstr;
+
+	string minutestr=intToStr(minutes);
+	if(minutes<10) minutestr="0"+minutestr;
+
+	string secondstr=intToStr(seconds);
+	if(seconds<10) secondstr="0"+secondstr;
+
+	return hourstr+":"+minutestr+":"+secondstr;
+}
+
 void BattleEnd::update() {
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateBattleEnd(program);
@@ -305,7 +326,7 @@ void BattleEnd::render() {
 
 			if(score == bestScore && stats.getVictory(i)) {
 				if(CoreData::getInstance().getGameWinnerTexture() != NULL) {
-					renderer.renderTextureQuad(textX, bm+380,-1,-1,CoreData::getInstance().getGameWinnerTexture(),0.7f);
+					renderer.renderTextureQuad(textX, bm+420,-1,-1,CoreData::getInstance().getGameWinnerTexture(),0.7f);
 				}
 			}
 
@@ -313,8 +334,7 @@ void BattleEnd::render() {
 			if(stats.getPlayerName(i) != "") {
 				string textToRender=stats.getPlayerName(i);
 				if(stats.getPlayerLeftBeforeEnd(i)==true){
-					textToRender+="\n("+
-							floatToStr((float)stats.getTimePlayerLeft(i) / (float)GameConstants::updateFps / 60.0,2)+")";
+					textToRender+="\n("+getTimeString(stats.getTimePlayerLeft(i))+")";
 				}
 
 				textRenderer->render(textToRender.c_str(), textX, bm+400, false, &color);
@@ -384,7 +404,7 @@ void BattleEnd::render() {
 			}
 		}
 
-		textRenderer->render("\n"+(lang.get("left at (min)")), lm, bm+400);
+		textRenderer->render("\n"+(lang.get("left at")), lm, bm+400);
 		textRenderer->render(lang.get("Result"), lm, bm+360);
 		textRenderer->render(lang.get("Control"), lm, bm+320);
 		textRenderer->render(lang.get("Faction"), lm, bm+280);
@@ -421,9 +441,9 @@ void BattleEnd::render() {
 		textRenderer->render(header, lm+250, bm+550);
 
 		//GameConstants::updateFps
-		//string header2 = lang.get("GameDuration") + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
+		//string header2 = lang.get("GameDurationTime","",true) + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
 
-		string header2 = lang.get("GameDuration") + ": " + floatToStr((float)stats.getFramesToCalculatePlaytime() / (float)GameConstants::updateFps / 60.0,2);
+		string header2 = lang.get("GameDurationTime","",true) + ": " + getTimeString(stats.getFramesToCalculatePlaytime());
 		textRenderer->render(header2, lm+250, bm+530);
 
 		header2 = lang.get("GameMaxConcurrentUnitCount") + ": " + intToStr(stats.getMaxConcurrentUnitCount());
