@@ -37,10 +37,11 @@ Console::Console() {
 	timeElapsed		= 0.0f;
 	xPos=20;
 	yPos=20;
-	lineHeight=20;
+	lineHeight=Config::getInstance().getInt("FontConsoleBaseSize","18")+2;
 	font=CoreData::getInstance().getConsoleFont();
 	font3D=CoreData::getInstance().getConsoleFont3D();
 	stringToHighlight="";
+	onlyChatMessagesInStoredLines=true;
 }
 
 void Console::resetFonts() {
@@ -101,9 +102,11 @@ void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textCo
 		if(lines.size() > maxLines) {
 			lines.pop_back();
 		}
-		storedLines.insert(storedLines.begin(), info);
-		if(storedLines.size() > maxStoredLines) {
-			storedLines.pop_back();
+		if(onlyChatMessagesInStoredLines==false || info.PlayerIndex!=-1) {
+			storedLines.insert(storedLines.begin(), info);
+			if(storedLines.size() > maxStoredLines) {
+				storedLines.pop_back();
+			}
 		}
 	}
 	catch(const exception &ex) {
