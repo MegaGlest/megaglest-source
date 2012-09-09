@@ -75,12 +75,16 @@ private:
 	int lineHeight;
 	Font2D *font;
 	Font3D *font3D;
+	bool onlyChatMessagesInStoredLines;
 
 public:
 	Console();
 
 	int getStoredLineCount() const		{return storedLines.size();}
 	int getLineCount() const			{return lines.size();}
+	bool getOnlyChatMessagesInStoredLines() const { return onlyChatMessagesInStoredLines ;}
+	void setOnlyChatMessagesInStoredLines(bool value)	{this->onlyChatMessagesInStoredLines= value;}
+
 	int getXPos() const {return xPos;}
 	void setXPos(int xPos)	{this->xPos= xPos;}
 	int getYPos() const {return yPos;}
