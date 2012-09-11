@@ -1361,7 +1361,7 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 }
 
 //put a units into the cells
-void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
+void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 	assert(unit != NULL);
 	if(unit == NULL) {
 		throw megaglest_runtime_error("ut == NULL");
@@ -1369,6 +1369,19 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos) {
 
     bool canPutInCell = true;
 	const UnitType *ut= unit->getType();
+
+	// block space for morphing units
+	if(ignoreSkill==false &&
+			unit->getCurrSkill() != NULL &&
+	        unit->getCurrSkill()->getClass() == scMorph) {
+		Command *command= unit->getCurrCommand();
+		if(command != NULL && command->getCommandType()->commandTypeClass == ccMorph){
+			const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
+			if(unit->getType()->getSize()<=mct->getMorphUnit()->getSize()){
+				ut=mct->getMorphUnit();
+			}
+		}
+	}
 
 	for(int i = 0; i < ut->getSize(); ++i) {
 		for(int j = 0; j < ut->getSize(); ++j) {
@@ -1438,6 +1451,16 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 	}
 
 	const UnitType *ut= unit->getType();
+
+	if(unit->getCurrSkill() != NULL &&
+	        unit->getCurrSkill()->getClass() == scMorph) {
+		Command *command= unit->getCurrCommand();
+		const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
+		if(unit->getType()->getSize()<=mct->getMorphUnit()->getSize()){
+			ut=mct->getMorphUnit();
+		}
+	}
+
 
 	for(int i=0; i<ut->getSize(); ++i){
 		for(int j=0; j<ut->getSize(); ++j){

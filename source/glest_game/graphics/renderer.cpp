@@ -5062,6 +5062,47 @@ void Renderer::renderTeamColorEffect(Vec3f &v, int heigth, int size, Vec3f color
 
 }
 
+void Renderer::renderMorphEffects(){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.empty() == false) {
+		bool initialized=false;
+		for(int visibleUnitIndex = 0;
+							visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+			if(unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() == scMorph) {
+				Command *command= unit->getCurrCommand();
+				if(command != NULL && command->getCommandType()->commandTypeClass == ccMorph){
+					const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
+					const UnitType* mType=mct->getMorphUnit();
+
+					if(!initialized){
+						glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
+						glDisable(GL_LIGHTING);
+						glDisable(GL_TEXTURE_2D);
+						glDepthFunc(GL_ALWAYS);
+						glDisable(GL_STENCIL_TEST);
+						glDisable(GL_CULL_FACE);
+						glEnable(GL_BLEND);
+						glLineWidth(2.f);
+						initialized=true;
+					}
+
+					Vec3f currVec= unit->getCurrVectorFlat();
+					glColor4f(0.2f, 0.2f, 0.2f, 0.4f);
+					renderSelectionCircle(currVec, mType->getSize(), 0.8f, 0.55f);
+				}
+			}
+		}
+		if(initialized) {
+			glPopAttrib();
+		}
+	}
+}
+
 
 
 void Renderer::renderSelectionEffects() {
