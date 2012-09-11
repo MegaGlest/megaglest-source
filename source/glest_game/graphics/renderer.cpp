@@ -5080,33 +5080,36 @@ void Renderer::renderMorphEffects(){
 					const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
 					const UnitType* mType=mct->getMorphUnit();
 
-					if(!initialized){
-						const World *world= game->getWorld();
-						frameCycle=world->getFrameCount() % 40;
+					if(mType->getSize()>unit->getType()->getSize() ||
+							mType->getField()!=unit->getType()->getField()){
+						if(!initialized){
+							const World *world= game->getWorld();
+							frameCycle=world->getFrameCount() % 40;
 
-						glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
-						glDisable(GL_LIGHTING);
-						glDisable(GL_TEXTURE_2D);
-						glDepthFunc(GL_ALWAYS);
-						glDisable(GL_STENCIL_TEST);
-						glDisable(GL_CULL_FACE);
-						glEnable(GL_BLEND);
-						glLineWidth(2.f);
-						initialized=true;
-					}
+							glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
+							glDisable(GL_LIGHTING);
+							glDisable(GL_TEXTURE_2D);
+							glDepthFunc(GL_ALWAYS);
+							glDisable(GL_STENCIL_TEST);
+							glDisable(GL_CULL_FACE);
+							glEnable(GL_BLEND);
+							glLineWidth(2.f);
+							initialized=true;
+						}
 
-					Vec3f currVec= unit->getCurrVectorFlat();
-					currVec=Vec3f(currVec.x,currVec.y+0.3f,currVec.z);
-					if(mType->getField() == fAir && unit->getType()->getField()== fLand) {
-						currVec=Vec3f(currVec.x,currVec.y+World::airHeight,currVec.z);
-					}
-					if(mType->getField() == fLand && unit->getType()->getField()== fAir) {
-						currVec=Vec3f(currVec.x,currVec.y-World::airHeight,currVec.z);
-					}
+						Vec3f currVec= unit->getCurrVectorFlat();
+						currVec=Vec3f(currVec.x,currVec.y+0.3f,currVec.z);
+						if(mType->getField() == fAir && unit->getType()->getField()== fLand) {
+							currVec=Vec3f(currVec.x,currVec.y+World::airHeight,currVec.z);
+						}
+						if(mType->getField() == fLand && unit->getType()->getField()== fAir) {
+							currVec=Vec3f(currVec.x,currVec.y-World::airHeight,currVec.z);
+						}
 
-					float color=frameCycle*0.4f/40;
-					glColor4f(color,color, 0.4f, 0.4f);
-					renderSelectionCircle(currVec, mType->getSize(), frameCycle*0.85f/40, 0.2f);
+						float color=frameCycle*0.4f/40;
+						glColor4f(color,color, 0.4f, 0.4f);
+						renderSelectionCircle(currVec, mType->getSize(), frameCycle*0.85f/40, 0.2f);
+					}
 				}
 			}
 		}
