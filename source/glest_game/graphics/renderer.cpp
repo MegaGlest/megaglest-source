@@ -5070,6 +5070,7 @@ void Renderer::renderMorphEffects(){
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitList.empty() == false) {
 		bool initialized=false;
+		int frameCycle=0;
 		for(int visibleUnitIndex = 0;
 							visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
@@ -5080,6 +5081,9 @@ void Renderer::renderMorphEffects(){
 					const UnitType* mType=mct->getMorphUnit();
 
 					if(!initialized){
+						const World *world= game->getWorld();
+						frameCycle=world->getFrameCount() % 20;
+
 						glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
 						glDisable(GL_LIGHTING);
 						glDisable(GL_TEXTURE_2D);
@@ -5092,8 +5096,17 @@ void Renderer::renderMorphEffects(){
 					}
 
 					Vec3f currVec= unit->getCurrVectorFlat();
-					glColor4f(0.2f, 0.2f, 0.2f, 0.4f);
-					renderSelectionCircle(currVec, mType->getSize(), 0.8f, 0.55f);
+					currVec=Vec3f(currVec.x,currVec.y+0.3f,currVec.z);
+					if(mType->getField() == fAir && unit->getType()->getField()== fLand) {
+						currVec=Vec3f(currVec.x,currVec.y+World::airHeight,currVec.z);
+					}
+					if(mType->getField() == fLand && unit->getType()->getField()== fAir) {
+						currVec=Vec3f(currVec.x,currVec.y-World::airHeight,currVec.z);
+					}
+
+					float color=frameCycle*0.4f/20;
+					glColor4f(color,color, 0.4f, 0.4f);
+					renderSelectionCircle(currVec, mType->getSize(), frameCycle*0.99f/20, 0.2f);
 				}
 			}
 		}
