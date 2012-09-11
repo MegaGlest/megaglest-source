@@ -1012,7 +1012,6 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		this->animationRandomCycleCount = 0;
 	}
 	this->currSkill= currSkill;
-
 }
 
 void Unit::setCurrSkill(SkillClass sc) {
@@ -2949,6 +2948,12 @@ CommandResult Unit::undoCommand(Command *command){
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
+	}
+
+	if(this->currSkill->getClass() == scMorph){
+		// clear cells of morphed unit and set those of current unit!
+		map->clearUnitCells(this, this->getPos());
+		map->putUnitCells(this, this->getPos(),true);
 	}
 
 	//return cost

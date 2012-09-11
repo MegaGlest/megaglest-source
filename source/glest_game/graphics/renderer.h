@@ -560,6 +560,7 @@ public:
 	inline Quad2i getVisibleQuadFromCamera() const		{return visibleQuadFromCamera;}
 	void renderTeamColorPlane();
 	void renderTeamColorCircle();
+	void renderMorphEffects();
 
 	//static
 	static Shadows strToShadows(const string &s);
