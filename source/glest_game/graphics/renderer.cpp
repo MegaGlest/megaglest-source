@@ -5082,7 +5082,7 @@ void Renderer::renderMorphEffects(){
 
 					if(!initialized){
 						const World *world= game->getWorld();
-						frameCycle=world->getFrameCount() % 20;
+						frameCycle=world->getFrameCount() % 40;
 
 						glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
 						glDisable(GL_LIGHTING);
@@ -5104,9 +5104,9 @@ void Renderer::renderMorphEffects(){
 						currVec=Vec3f(currVec.x,currVec.y-World::airHeight,currVec.z);
 					}
 
-					float color=frameCycle*0.4f/20;
+					float color=frameCycle*0.4f/40;
 					glColor4f(color,color, 0.4f, 0.4f);
-					renderSelectionCircle(currVec, mType->getSize(), frameCycle*0.99f/20, 0.2f);
+					renderSelectionCircle(currVec, mType->getSize(), frameCycle*0.85f/40, 0.2f);
 				}
 			}
 		}
