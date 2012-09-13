@@ -837,32 +837,11 @@ bool Map::isFreeCell(const Vec2i &pos, Field field) const {
 		(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
 }
 
-bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const {
-	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
-		if(unit->getCurrField() != field) {
-			return isFreeCell(pos, field);
-		}
+
+bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const{
+	if(isInside(pos)){
 		Cell *c= getCell(pos);
-		if(c->getUnit(unit->getCurrField()) == unit) {
-			if(unit->getCurrField() == fAir) {
-				if(field == fAir) {
-					return true;
-				}
-				const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
-				if(sc != NULL) {
-					if(getDeepSubmerged(sc) == true) {
-						return false;
-					}
-					else if(field == fLand) {
-						if(sc->isFree() == false) {
-							return false;
-						}
-						else if(c->getUnit(field) != NULL) {
-							return false;
-						}
-					}
-				}
-			}
+		if(c->getUnit(field)==unit){
 			return true;
 		}
 		else{
@@ -871,6 +850,42 @@ bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) c
 	}
 	return false;
 }
+
+//TT: this is much more complicated compared with the old one above. I think its no more needed
+//bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const {
+//	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
+//		if(unit->getCurrField() != field) {
+//			return isFreeCell(pos, field);
+//		}
+//		Cell *c= getCell(pos);
+//		if(c->getUnit(unit->getCurrField()) == unit) {
+//			if(unit->getCurrField() == fAir) {
+//				if(field == fAir) {
+//					return true;
+//				}
+//				const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
+//				if(sc != NULL) {
+//					if(getDeepSubmerged(sc) == true) {
+//						return false;
+//					}
+//					else if(field == fLand) {
+//						if(sc->isFree() == false) {
+//							return false;
+//						}
+//						else if(c->getUnit(field) != NULL) {
+//							return false;
+//						}
+//					}
+//				}
+//			}
+//			return true;
+//		}
+//		else{
+//			return isFreeCell(pos, field);
+//		}
+//	}
+//	return false;
+//}
 
 bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const {
 	if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
@@ -1382,7 +1397,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 			}
 		}
 	}
-
+	Field field=ut->getField();
 	for(int i = 0; i < ut->getSize(); ++i) {
 		for(int j = 0; j < ut->getSize(); ++j) {
 			Vec2i currPos= pos + Vec2i(i, j);
@@ -1392,9 +1407,10 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 			}
 
 			if( ut->hasCellMap() == false || ut->getCellMapCell(i, j, unit->getModelFacing())) {
-				if(getCell(currPos)->getUnit(unit->getCurrField()) != NULL &&
-                   getCell(currPos)->getUnit(unit->getCurrField()) != unit) {
+				if(getCell(currPos)->getUnit(field) != NULL &&
+                   getCell(currPos)->getUnit(field) != unit) {
 
+// TT: is this ok ?
                     // If unit tries to move into a cell where another unit resides
                     // cancel the move command
                     if(unit->getCurrSkill() != NULL &&
@@ -1409,22 +1425,36 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
                         //      unit->toString().c_str(),
                         //      getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
                     }
-                    // If the unit trying to move into the cell is not in the moving state
-                    // it is likely being created or morphed so we will will log the error
-                    else {
-                        canPutInCell = false;
-				        // throw megaglest_runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
-                        SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
-                              __FILE__,__FUNCTION__,__LINE__,
-                              currPos.getString().c_str(),
-                              unit->toString().c_str(),
-                              getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
-                    }
+//TT: Nonsens?
+//                    else {
+//                        // If the unit trying to move into the cell is not in the moving state
+//                        // it is likely being created or morphed so we will will log the error
+//                        canPutInCell = false;
+//				        // throw megaglest_runtime_error("getCell(currPos)->getUnit(unit->getCurrField()) != NULL");
+//                        SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR [getCell(currPos)->getUnit(unit->getCurrField()) != NULL] currPos [%s] unit [%s] cell unit [%s]\n",
+//                              __FILE__,__FUNCTION__,__LINE__,
+//                              currPos.getString().c_str(),
+//                              unit->toString().c_str(),
+//                              getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
+//                    }
+				}
+				if(getCell(currPos)->getUnit(field) == NULL ||
+				                   getCell(currPos)->getUnit(field) == unit) {
+					if(unit->getCurrSkill() != NULL &&
+                       unit->getCurrSkill()->getClass() == scMorph &&
+                       unit->getType()->getName(false)!=ut->getName(false)){
+                    	// unit is beeing morphed to another unit with maybe other field.
+                    	getCell(currPos)->setUnit(field, unit);
+                    	canPutInCell = false;
+					}
+	                if(canPutInCell == true) {
+	                    getCell(currPos)->setUnit(unit->getCurrField(), unit);
+	                }
+				}
+				else {
+					throw megaglest_runtime_error("trying to move into occupied cell and field");
 				}
 
-                if(canPutInCell == true) {
-                    getCell(currPos)->setUnit(unit->getCurrField(), unit);
-                }
 			}
 			else if(ut->hasCellMap() == true &&
 					ut->getAllowEmptyCellMap() == true &&
@@ -1444,20 +1474,23 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 }
 
 //removes a unit from cells
-void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
+void Map::clearUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 	assert(unit != NULL);
 	if(unit == NULL) {
 		throw megaglest_runtime_error("unit == NULL");
 	}
 
 	const UnitType *ut= unit->getType();
+	bool currentField=unit->getCurrField();
 
-	if(unit->getCurrSkill() != NULL &&
+	if(ignoreSkill==false &&
+			unit->getCurrSkill() != NULL &&
 	        unit->getCurrSkill()->getClass() == scMorph) {
 		Command *command= unit->getCurrCommand();
 		const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
 		if(unit->getType()->getSize()<=mct->getMorphUnit()->getSize()){
 			ut=mct->getMorphUnit();
+			currentField=ut->getField();
 		}
 	}
 
@@ -1485,14 +1518,14 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos) {
 				//}
 
                 // Only clear the cell if its the unit we expect to clear out of it
-                if(getCell(currPos)->getUnit(unit->getCurrField()) == unit) {
-                    getCell(currPos)->setUnit(unit->getCurrField(), NULL);
+                if(getCell(currPos)->getUnit(currentField) == unit) {
+                    getCell(currPos)->setUnit(currentField, NULL);
                 }
 			}
 			else if(ut->hasCellMap() == true &&
 					ut->getAllowEmptyCellMap() == true &&
 					ut->hasEmptyCellMap() == true) {
-				getCell(currPos)->setUnitWithEmptyCellMap(unit->getCurrField(), NULL);
+				getCell(currPos)->setUnitWithEmptyCellMap(currentField, NULL);
 
 				//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] currPos = %s unit = %s\n",
                 //             __FILE__,__FUNCTION__,__LINE__,

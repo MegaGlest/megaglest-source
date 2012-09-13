@@ -397,7 +397,7 @@ public:
 	bool aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > *lookupCache=NULL) const;
 	bool canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2,std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > *lookupCache=NULL) const;
     void putUnitCells(Unit *unit, const Vec2i &pos,bool ignoreSkill = false);
-	void clearUnitCells(Unit *unit, const Vec2i &pos);
+	void clearUnitCells(Unit *unit, const Vec2i &pos,bool ignoreSkill = false);
 
 	Vec2i computeRefPos(const Selection *selection) const;
 	Vec2i computeDestPos(	const Vec2i &refUnitPos, const Vec2i &unitPos,
