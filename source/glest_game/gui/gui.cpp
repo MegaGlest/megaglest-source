@@ -1318,7 +1318,8 @@ void Gui::loadGame(const XmlNode *rootNode, World *world) {
 	selection.loadGame(guiNode,world);
 //	SelectionQuad selectionQuad;
 //	int lastQuadCalcFrame;
-	lastQuadCalcFrame = guiNode->getAttribute("lastQuadCalcFrame")->getIntValue();
+	// don't load this! lastQuadCalcFrame = guiNode->getAttribute("lastQuadCalcFrame")->getIntValue();
+	lastQuadCalcFrame = game->getTotalRenderFps();
 //	int selectionCalculationFrameSkip;
 	selectionCalculationFrameSkip = guiNode->getAttribute("selectionCalculationFrameSkip")->getIntValue();
 //	int minQuadSize;
