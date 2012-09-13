@@ -2702,8 +2702,9 @@ bool Unit::morph(const MorphCommandType *mct){
     Field morphUnitField=fLand;
     if(morphUnitType->getField(fAir)) morphUnitField=fAir;
     if(morphUnitType->getField(fLand)) morphUnitField=fLand;
+    map->clearUnitCells(this, pos, false);
     if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this,morphUnitType)) {
-		map->clearUnitCells(this, pos);
+		map->clearUnitCells(this, pos, true);
 		faction->deApplyStaticCosts(type,mct);
 
 		checkItemInVault(&this->hp,this->hp);
