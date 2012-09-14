@@ -1564,7 +1564,10 @@ void Unit::kill() {
 	}
 
 	//do the cleaning
-	map->clearUnitCells(this, pos);
+	//clear commands ( and their blocking fields )
+	clearCommands();
+
+	map->clearUnitCells(this, pos, true);
 	if(isBeingBuilt() == false) {
 		faction->removeStore(type);
 	}
@@ -1572,8 +1575,6 @@ void Unit::kill() {
 
 	notifyObservers(UnitObserver::eKill);
 
-	//clear commands
-	clearCommands();
 
 	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
 	//unitUpdater->clearUnitPrecache(this);
@@ -2951,12 +2952,11 @@ CommandResult Unit::undoCommand(Command *command){
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if(this->currSkill->getClass() == scMorph){
+	if(getCurrCommand() == command && this->currSkill->getClass() == scMorph ){
 		// clear cells of morphed unit and set those of current unit!
 		map->clearUnitCells(this, this->getPos());
 		map->putUnitCells(this, this->getPos(),true);
 	}
-
 	//return cost
 	const ProducibleType *produced= command->getCommandType()->getProduced();
 	if(produced!=NULL){
