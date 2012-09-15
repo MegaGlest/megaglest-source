@@ -1902,7 +1902,6 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 			unit->setCurrSkill(mct->getMorphSkillType());
 			// block space for morphing units ( block space before and after morph ! )
 			map->putUnitCells(unit, unit->getPos());
-			map->putUnitCells(unit, unit->getPos(), true);
 		}
 		else{
 			if(unit->getFactionIndex()==world->getThisFactionIndex()){
