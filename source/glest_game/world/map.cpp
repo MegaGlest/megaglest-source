@@ -1381,9 +1381,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 	if(unit == NULL) {
 		throw megaglest_runtime_error("ut == NULL");
 	}
-
-    bool canPutInCell = true;
-	const UnitType *ut= unit->getType();
+	putUnitCellsPrivate(unit, pos, unit->getType(), false);
 
 	// block space for morphing units
 	if(ignoreSkill==false &&
@@ -1393,10 +1391,19 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 		if(command != NULL && command->getCommandType()->commandTypeClass == ccMorph){
 			const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
 			if(unit->getType()->getSize()<=mct->getMorphUnit()->getSize()){
-				ut=mct->getMorphUnit();
+				putUnitCellsPrivate(unit, pos, mct->getMorphUnit(),true);
 			}
 		}
 	}
+}
+
+void Map::putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, bool isMorph) {
+	assert(unit != NULL);
+	if(unit == NULL) {
+		throw megaglest_runtime_error("ut == NULL");
+	}
+
+    bool canPutInCell = true;
 	Field field=ut->getField();
 	for(int i = 0; i < ut->getSize(); ++i) {
 		for(int j = 0; j < ut->getSize(); ++j) {
@@ -1440,9 +1447,7 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 				}
 				if(getCell(currPos)->getUnit(field) == NULL ||
 				                   getCell(currPos)->getUnit(field) == unit) {
-					if(unit->getCurrSkill() != NULL &&
-                       unit->getCurrSkill()->getClass() == scMorph &&
-                       unit->getType()->getName(false)!=ut->getName(false)){
+					if(isMorph){
                     	// unit is beeing morphed to another unit with maybe other field.
                     	getCell(currPos)->setUnit(field, unit);
                     	canPutInCell = false;

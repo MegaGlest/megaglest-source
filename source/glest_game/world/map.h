@@ -576,6 +576,7 @@ private:
 	void smoothSurface(Tileset *tileset);
 	void computeNearSubmerged();
 	void computeCellColors();
+    void putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, bool isMorph);
 };
 
 
