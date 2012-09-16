@@ -118,6 +118,8 @@ private:
 	GraphicListBox listBoxEnableSwitchTeamMode;
 	GraphicLabel labelAISwitchTeamAcceptPercent;
 	GraphicListBox listBoxAISwitchTeamAcceptPercent;
+	GraphicLabel labelFallbackCpuMultiplier;
+	GraphicListBox listBoxFallbackCpuMultiplier;
 
 	GraphicCheckBox checkBoxScenario;
 	GraphicLabel labelScenario;

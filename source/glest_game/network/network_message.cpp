@@ -184,6 +184,7 @@ NetworkMessageLaunch::NetworkMessageLaunch() {
 		data.factionCRCList[i] = 0;
 	}
 	data.aiAcceptSwitchTeamPercentChance = 0;
+	data.cpuReplacementMultiplier = 10 ;
 	data.masterserver_admin = -1;
 	data.masterserver_admin_factionIndex = -1;
 }
@@ -245,7 +246,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 //		data.teams[i]= -1;
 //		data.startLocationIndex[i]= 0;
 //	}
-
+	data.cpuReplacementMultiplier = gameSettings->getFallbackCpuMultiplier();
 	data.aiAcceptSwitchTeamPercentChance = gameSettings->getAiAcceptSwitchTeamPercentChance();
 	data.masterserver_admin = gameSettings->getMasterserver_admin();
 	data.masterserver_admin_factionIndex = gameSettings->getMasterserver_admin_faction_index();
@@ -298,6 +299,8 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 	}
 
 	gameSettings->setAiAcceptSwitchTeamPercentChance(data.aiAcceptSwitchTeamPercentChance);
+	gameSettings->setFallbackCpuMultiplier(data.cpuReplacementMultiplier);
+
 	gameSettings->setMasterserver_admin(data.masterserver_admin);
 	gameSettings->setMasterserver_admin_faction_index(data.masterserver_admin_factionIndex);
 

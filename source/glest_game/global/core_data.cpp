@@ -836,6 +836,7 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
 	saveGameFile << "FlagTypes1=" << gameSettings->getFlagTypes1() << std::endl;
 	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings->getEnableObserverModeAtEndGame() << std::endl;
 	saveGameFile << "AiAcceptSwitchTeamPercentChance=" << gameSettings->getAiAcceptSwitchTeamPercentChance() << std::endl;
+	saveGameFile << "FallbackCpuMultiplier=" << gameSettings->getFallbackCpuMultiplier() << std::endl;
 	saveGameFile << "PathFinderType=" << gameSettings->getPathFinderType() << std::endl;
 	saveGameFile << "EnableServerControlledAI=" << gameSettings->getEnableServerControlledAI() << std::endl;
 	saveGameFile << "NetworkFramePeriod=" << gameSettings->getNetworkFramePeriod() << std::endl;
@@ -904,6 +905,7 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 	gameSettings->setFlagTypes1(properties.getInt("FlagTypes1","0"));
 	gameSettings->setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
 	gameSettings->setAiAcceptSwitchTeamPercentChance(properties.getInt("AiAcceptSwitchTeamPercentChance","30"));
+	gameSettings->setFallbackCpuMultiplier(properties.getInt("FallbackCpuMultiplier","1"));
 
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(properties.getInt("PathFinderType",intToStr(pfBasic).c_str())));
 	gameSettings->setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","true"));
