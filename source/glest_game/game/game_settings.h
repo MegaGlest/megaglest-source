@@ -59,13 +59,14 @@ private:
 	ControlType factionControls[GameConstants::maxPlayers];
 	int resourceMultiplierIndex[GameConstants::maxPlayers];
 
+
 	int thisFactionIndex;
 	int factionCount;
 	int teams[GameConstants::maxPlayers];
 	int startLocationIndex[GameConstants::maxPlayers];
 	int mapFilterIndex;
 
-
+	int fallbackCpuMultiplier;
 	bool defaultUnits;
 	bool defaultResources;
 	bool defaultVictoryConditions;
@@ -131,6 +132,7 @@ public:
 		aiAcceptSwitchTeamPercentChance = 30;
 		masterserver_admin = -1;
 		masterserver_admin_factionIndex = -1;
+    	fallbackCpuMultiplier = 1.0f;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -263,6 +265,9 @@ public:
 
 	int getAiAcceptSwitchTeamPercentChance() const 					{ return aiAcceptSwitchTeamPercentChance;}
 	void setAiAcceptSwitchTeamPercentChance(int value)				{ aiAcceptSwitchTeamPercentChance = value; }
+
+	int getFallbackCpuMultiplier() const 					{ return fallbackCpuMultiplier;}
+	void setFallbackCpuMultiplier(int value)					{ fallbackCpuMultiplier = value; }
 
 	int getMasterserver_admin() const 								{ return masterserver_admin;}
 	void setMasterserver_admin(int value)							{ masterserver_admin = value; }

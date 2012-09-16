@@ -188,6 +188,20 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxAllowObservers.setSelectedItemIndex(0);
 	listBoxAllowObservers.setEditable(false);
 
+	for(int i=0; i<45; ++i){
+		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
+	}
+
+	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
+	labelFallbackCpuMultiplier.init(xoffset+460, aHeadPos, 80);
+	labelFallbackCpuMultiplier.setText(lang.get("FallbackCpuMultiplier"));
+
+	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
+	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
+	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
+	listBoxFallbackCpuMultiplier.setSelectedItemIndex(0);
+
+
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
 	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
@@ -349,9 +363,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	controlItems.push_back(lang.get("NetworkUnassigned"));
 	controlItems.push_back(lang.get("Human"));
 
-	for(int i=0; i<45; ++i){
-		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
-	}
 
 	if(config.getBool("EnableNetworkCpu","false") == true) {
 		controlItems.push_back(lang.get("NetworkCpuEasy"));
@@ -555,6 +566,7 @@ void MenuStateConnectedGame::reloadUI() {
 	listBoxFogOfWar.setItems(fowItems);
 
 	labelAllowObservers.setText(lang.get("AllowObservers"));
+	labelFallbackCpuMultiplier.setText(lang.get("FallbackCpuMultiplier"));
 
 	vector<string> observerItems;
 	observerItems.push_back(lang.get("No"));
@@ -575,6 +587,12 @@ void MenuStateConnectedGame::reloadUI() {
 		aiswitchteamModeItems.push_back(intToStr(i));
 	}
 	listBoxAISwitchTeamAcceptPercent.setItems(aiswitchteamModeItems);
+
+	vector<string> rMultiplier;
+	for(int i=0; i<45; ++i){
+		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
+	}
+	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
 
 	labelPathFinderType.setText(lang.get("PathFinderType"));
 
@@ -1161,6 +1179,11 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
+        else if(listBoxFallbackCpuMultiplier.getEnabled() && listBoxFallbackCpuMultiplier.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
+        }
         else if(listBoxTileset.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	needToBroadcastServerSettings=true;
@@ -1470,6 +1493,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
+	gameSettings->setFallbackCpuMultiplier(listBoxFallbackCpuMultiplier.getSelectedItemIndex());
 
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
@@ -1844,6 +1868,7 @@ void MenuStateConnectedGame::render() {
 		renderer.renderLabel(&labelMap);
 		renderer.renderLabel(&labelFogOfWar);
 		renderer.renderLabel(&labelAllowObservers);
+		renderer.renderLabel(&labelFallbackCpuMultiplier);
 		renderer.renderLabel(&labelTileset);
 		renderer.renderLabel(&labelTechTree);
 		renderer.renderLabel(&labelControl);
@@ -1869,6 +1894,7 @@ void MenuStateConnectedGame::render() {
 
 		renderer.renderListBox(&listBoxEnableSwitchTeamMode);
 		renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
+		renderer.renderListBox(&listBoxFallbackCpuMultiplier);
 
 		renderer.renderButton(&buttonPlayNow);
 		renderer.renderButton(&buttonRestoreLastSettings);
@@ -1972,6 +1998,7 @@ void MenuStateConnectedGame::update() {
 		listBoxTileset.setEditable(isHeadlessAdmin());
 		listBoxEnableSwitchTeamMode.setEditable(isHeadlessAdmin());
 		listBoxAISwitchTeamAcceptPercent.setEditable(isHeadlessAdmin());
+		listBoxFallbackCpuMultiplier.setEditable(isHeadlessAdmin());
 		listBoxFogOfWar.setEditable(isHeadlessAdmin());
 		//listBoxEnableObserverMode.setEditable(isMasterserverAdmin());
 		listBoxAllowObservers.setEditable(isHeadlessAdmin());
@@ -3595,6 +3622,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
 	}
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings->getAiAcceptSwitchTeamPercentChance()));
+	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings->getFallbackCpuMultiplier());
 
 //				if(gameSettings->getEnableObserverModeAtEndGame()) {
 //					listBoxEnableObserverMode.setSelectedItemIndex(0);

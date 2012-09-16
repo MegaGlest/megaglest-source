@@ -237,6 +237,7 @@ private:
 		uint32 flagTypes1;
 
 		int8 aiAcceptSwitchTeamPercentChance;
+		int8 cpuReplacementMultiplier;
 		int32 masterserver_admin;
 		int32 masterserver_admin_factionIndex;
 

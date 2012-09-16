@@ -289,6 +289,19 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
 	listBoxAllowObservers.setSelectedItemIndex(0);
 
+	for(int i=0; i<45; ++i){
+		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
+	}
+
+	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
+	labelFallbackCpuMultiplier.init(xoffset+460, aHeadPos, 80);
+	labelFallbackCpuMultiplier.setText(lang.get("FallbackCpuMultiplier"));
+
+	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
+	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
+	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
+	listBoxFallbackCpuMultiplier.setSelectedItemIndex(5);
+
 	// View Map At End Of Game
 	//labelEnableObserverMode.registerGraphicComponent(containerName,"labelEnableObserverMode");
 	//labelEnableObserverMode.init(xoffset+460, aHeadPos, 80);
@@ -550,10 +563,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		listBoxRMultiplier[i].setSelectedItemIndex(5);
 		labelNetStatus[i].setText("");
     }
-
-
-    //labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
-
 
 	loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
 
@@ -848,7 +857,7 @@ void MenuStateCustomGame::reloadUI() {
 		listBoxControls[i].setItems(controlItems);
     }
 
-    //labelEnableObserverMode.setText(lang.get("EnableObserverMode"));
+    labelFallbackCpuMultiplier.setText(lang.get("FallbackCpuMultiplier"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1107,6 +1116,19 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				}
 			}
 			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFallbackCpuMultiplier.getEditable() == true && listBoxFallbackCpuMultiplier.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1764,6 +1786,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 
 		listBoxEnableSwitchTeamMode.mouseMove(x, y);
 		listBoxAISwitchTeamAcceptPercent.mouseMove(x, y);
+		listBoxFallbackCpuMultiplier.mouseMove(x, y);
 
 		labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
 		listBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
@@ -1933,7 +1956,7 @@ void MenuStateCustomGame::render() {
 			if(listBoxAdvanced.getSelectedItemIndex() == 1) {
 				renderer.renderLabel(&labelFogOfWar);
 				renderer.renderLabel(&labelAllowObservers);
-				//renderer.renderLabel(&labelEnableObserverMode);
+				renderer.renderLabel(&labelFallbackCpuMultiplier);
 				renderer.renderLabel(&labelPathFinderType);
 
 				renderer.renderLabel(&labelEnableSwitchTeamMode);
@@ -1946,6 +1969,7 @@ void MenuStateCustomGame::render() {
 
 				renderer.renderListBox(&listBoxEnableSwitchTeamMode);
 				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
+				renderer.renderListBox(&listBoxFallbackCpuMultiplier);
 			}
 			renderer.renderLabel(&labelTileset);
 			renderer.renderLabel(&labelMapFilter);
@@ -2480,6 +2504,7 @@ void MenuStateCustomGame::update() {
 			if(this->headlessServerMode == true) {
 				listBoxPublishServer.setSelectedItemIndex(0);
 			}
+			listBoxFallbackCpuMultiplier.setEditable(true);
 			listBoxPublishServer.setEditable(true);
 			//listBoxEnableServerControlledAI.setEditable(true);
 
@@ -2509,6 +2534,8 @@ void MenuStateCustomGame::update() {
 		else {
 			listBoxPublishServer.setSelectedItemIndex(1);
 			listBoxPublishServer.setEditable(false);
+			listBoxFallbackCpuMultiplier.setEditable(false);
+			listBoxFallbackCpuMultiplier.setSelectedItemIndex(5);
 
             ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
             serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
@@ -3082,6 +3109,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
+	gameSettings->setFallbackCpuMultiplier(listBoxFallbackCpuMultiplier.getSelectedItemIndex());
 
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
@@ -3538,6 +3566,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	listBoxEnableSwitchTeamMode.setSelectedItem((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching ? lang.get("Yes") : lang.get("No"));
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
+	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings.getFallbackCpuMultiplier());
 
 	listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 
@@ -4288,6 +4317,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			listBoxPathFinderType.setEditable(false);
 			listBoxEnableSwitchTeamMode.setEditable(false);
 			listBoxAISwitchTeamAcceptPercent.setEditable(false);
+			listBoxFallbackCpuMultiplier.setEditable(false);
 			listBoxMap.setEditable(false);
 			listBoxTileset.setEditable(false);
 			listBoxMapFilter.setEditable(false);
@@ -4307,6 +4337,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			listBoxPathFinderType.setEditable(true);
 			listBoxEnableSwitchTeamMode.setEditable(true);
 			listBoxAISwitchTeamAcceptPercent.setEditable(true);
+			listBoxFallbackCpuMultiplier.setEditable(true);
 			listBoxMap.setEditable(true);
 			listBoxTileset.setEditable(true);
 			listBoxMapFilter.setEditable(true);
