@@ -886,9 +886,16 @@ string MenuStateMods::refreshTechModInfo(string techInfo) {
 		modinfo.type = mt_Techtree;
 
 		string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + modinfo.name + string("/*");
-		if(itemPath.empty()==false){
+		if(itemPath.empty() == false) {
 		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
-		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   uint32 crc = getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   if(crc == 0) {
+				itemPath = config.getPathListForType(ptTechs,"")[0] + "/" + modinfo.name + string("/*");
+				if(itemPath.empty() == false) {
+				   forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+				   crc = getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+				}
+		   }
 		   modinfo.localCRC=uIntToStr(crc);
 		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
@@ -936,14 +943,25 @@ string MenuStateMods::refreshTilesetModInfo(string tilesetInfo) {
 		modinfo.type = mt_Tileset;
 
 		string itemPath = config.getPathListForType(ptTilesets,"")[1] + "/" + modinfo.name + string("/*");
-		if(itemPath.empty()==false){
+		if(itemPath.empty() == false) {
 		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
-		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   uint32 crc = getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   if(crc == 0) {
+				itemPath = config.getPathListForType(ptTilesets,"")[0] + "/" + modinfo.name + string("/*");
+				if(itemPath.empty() == false) {
+				   forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+				   crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+				}
+		   }
 		   modinfo.localCRC=uIntToStr(crc);
 		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+
+		   //printf("#1 refreshTilesetModInfo name [%s] modInfo.crc [%s] modInfo.localCRC [%s]\n",modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str());
 		}
 		else {
 			modinfo.localCRC="";
+
+			//printf("#2 refreshTilesetModInfo name [%s] modInfo.crc [%s] modInfo.localCRC [%s]\n",modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str());
 		}
 
 		tilesetCacheList[modinfo.name] = modinfo;
@@ -1040,11 +1058,22 @@ string MenuStateMods::getMapCRC(string mapName) {
 		string itemPath = mappaths[1] + "/" + mapName;
 		if (fileExists(itemPath)){
 			checksum.addFile(itemPath);
-			int crc=checksum.getSum();
+			uint32 crc=checksum.getSum();
 			result=uIntToStr(crc);
 			//printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
-		else result="";
+		else {
+			itemPath = mappaths[0] + "/" + mapName;
+			if (fileExists(itemPath)){
+				checksum.addFile(itemPath);
+				uint32 crc=checksum.getSum();
+				result=uIntToStr(crc);
+				//printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+			}
+			else {
+				result="";
+			}
+		}
 	}
 	else {
 		result="";
@@ -1087,9 +1116,16 @@ string MenuStateMods::refreshScenarioModInfo(string scenarioInfo) {
 		modinfo.type = mt_Scenario;
 
 		string itemPath = config.getPathListForType(ptScenarios,"")[1] + "/" + modinfo.name + string("/*");
-		if(itemPath.empty()==false){
+		if(itemPath.empty() == false) {
 		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
-		   int crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   uint32 crc = getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   if(crc == 0) {
+				itemPath = config.getPathListForType(ptScenarios,"")[0] + "/" + modinfo.name + string("/*");
+				if(itemPath.empty() == false) {
+				   forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+				   crc = getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+				}
+		   }
 		   modinfo.localCRC=uIntToStr(crc);
 		   //printf(" itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
 		}
@@ -1499,9 +1535,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					Config &config = Config::getInstance();
 					string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + selectedTechName + string("/*");
 					bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
-					if( strToInt(modInfo.crc) != 0 &&
-						strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
+					if( strToUInt(modInfo.crc) != 0 &&
+							strToUInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%u]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
 
 						mainMessageBoxState = ftpmsg_ReplaceTechtree;
 						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
@@ -1580,9 +1616,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					string itemPath = config.getPathListForType(ptTilesets,"")[1] + "/" + selectedTilesetName + string("/*");
 					bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 
-					if( strToInt(modInfo.crc) != 0 &&
-						strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL));
+					if( strToUInt(modInfo.crc) != 0 &&
+						strToUInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh)) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%u] [%s]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL),itemPath.c_str());
 
 						mainMessageBoxState = ftpmsg_ReplaceTileset;
 						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
@@ -1729,9 +1765,9 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					string itemPath = config.getPathListForType(ptScenarios,"")[1] + "/" + selectedScenarioName + string("/*");
 					bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
 
-					if( strToInt(modInfo.crc) != 0 &&
-						strToInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%d]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
+					if( strToUInt(modInfo.crc) != 0 &&
+						strToUInt(modInfo.crc) != getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh)) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC [%u]\n",__FILE__,__FUNCTION__,__LINE__,getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL));
 
 						mainMessageBoxState = ftpmsg_ReplaceScenario;
 						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
@@ -2191,6 +2227,8 @@ void MenuStateMods::render() {
 						}
 						else {
 							//printf("modInfo.name=%s modInfo.crc=%s modInfo.localCRC=%s\n",modInfo.name.c_str(),modInfo.crc.c_str(),modInfo.localCRC.c_str());
+							//printf("name [%s] modInfo.crc [%s] modInfo.localCRC [%s]\n",modInfo.name.c_str(),modInfo.crc.c_str(),modInfo.localCRC.c_str());
+
 							keyTilesetButtons[i]->setCustomTexture(CoreData::getInstance().getOnServerDifferentTexture());
 						}
 					}
