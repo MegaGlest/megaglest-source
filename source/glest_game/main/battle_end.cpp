@@ -321,7 +321,7 @@ void BattleEnd::render() {
 				controlString += "\nx " + floatToStr(stats.getResourceMultiplier(i),1);
 			}
 			else if(stats.getPlayerLeftBeforeEnd(i)==true){
-				controlString += "\n( " +lang.get("Cpu")+" )";
+				controlString += "\n" +lang.get("CpuUltra")+"\nx "+floatToStr(stats.getResourceMultiplier(i),1);
 			}
 
 			if(score == bestScore && stats.getVictory(i)) {
