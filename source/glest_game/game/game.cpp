@@ -1825,7 +1825,7 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 
 					char szBuf[4096]="";
 					if(faction->getPersonalityType() != fpt_Observer) {
-						faction->setControlType(ctCpu);
+						faction->setControlType(ctCpuUltra);
 						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
 						sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);

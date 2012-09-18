@@ -838,7 +838,11 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     		if(playerStatus == 1) {
     			settings->setNetworkPlayerGameStatus(factionIndex,1);
         		if(!world->getGame()->getGameOver()&& !this->world->getGame()->factionLostGame(factionIndex)){
+        			// use the fallback multiplier here
+        			settings->setResourceMultiplierIndex(factionIndex,settings->getFallbackCpuMultiplier());
+        			// mark player as "leaver"
         			this->world->getStats()->setPlayerLeftBeforeEnd(factionIndex,true);
+        			// set disconnect time for endgame stats
         			this->world->getStats()->setTimePlayerLeft(factionIndex,this->world->getStats()->getFramesToCalculatePlaytime());
         		}
     		}

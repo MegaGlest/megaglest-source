@@ -82,7 +82,8 @@ string PlayerStats::getStats() const {
 		};
 	}
 
-	if(control != ctHuman && control != ctNetwork ) {
+	if(control != ctHuman && control != ctNetwork ||
+			control == ctNetwork && playerLeftBeforeEnd==true) {
 		controlString += " x " + floatToStr(resourceMultiplier,1);
 	}
 
