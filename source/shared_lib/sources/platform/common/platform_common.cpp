@@ -610,8 +610,11 @@ string getFormattedCRCCacheFileName(std::pair<string,string> cacheKeys) {
 	//replaceAll(crcCacheFile, ".", "_");
 	//return getCRCCacheFilePath() + crcCacheFile;
 
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cacheKeys.first = [%s] cacheKeys.second [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,cacheKeys.first.c_str(),cacheKeys.second.c_str());
+
 	Checksum checksum;
 	checksum.addString(crcCacheFile);
+	//checksum.addString(lastFile(crcCacheFile));
 	string result = getCRCCacheFilePath() + "CRC_CACHE_" + uIntToStr(checksum.getSum());
 	//printf("result [%s]\n",result.c_str());
 	return result;

@@ -366,6 +366,18 @@ uint32 Checksum::getFinalFileListSum() {
 	return getSum();
 }
 
+//uint32 Checksum::getFinalFileListSum() {
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] sum = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sum);
+//
+//	sum = 0;
+//	//return getSum();
+//	sum = getSum();
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] sum = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sum);
+//
+//	return sum;
+//}
+
 uint32 Checksum::getFileCount() {
 	return (uint32)fileList.size();
 }
