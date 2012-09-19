@@ -2787,7 +2787,13 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 	}
 	else {
 		//send key to the chat manager
-		chatManager.keyDown(key);
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		ClientInterface *clientInterface = networkManager.getClientInterface();
+		if(clientInterface != NULL &&
+				clientInterface->isConnected() == true &&
+				clientInterface->getIntroDone() == true) {
+			chatManager.keyDown(key);
+		}
 		if(chatManager.getEditEnabled() == false) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
@@ -2874,13 +2880,25 @@ void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 		}
 	}
 	else {
-		chatManager.keyPress(c);
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		ClientInterface *clientInterface = networkManager.getClientInterface();
+		if(clientInterface != NULL &&
+				clientInterface->isConnected() == true &&
+				clientInterface->getIntroDone() == true) {
+			chatManager.keyPress(c);
+		}
 	}
 }
 
 void MenuStateConnectedGame::keyUp(SDL_KeyboardEvent key) {
 	if(activeInputLabel==NULL) {
-		chatManager.keyUp(key);
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		ClientInterface *clientInterface = networkManager.getClientInterface();
+		if(clientInterface != NULL &&
+				clientInterface->isConnected() == true &&
+				clientInterface->getIntroDone() == true) {
+			chatManager.keyUp(key);
+		}
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
