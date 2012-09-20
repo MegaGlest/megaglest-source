@@ -3628,7 +3628,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, gameSettings.getNetworkPlayerName(i) [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,gameSettings.getNetworkPlayerName(i).c_str());
 
-		labelPlayerNames[slotIndex].setText(gameSettings.getNetworkPlayerName(i));
+		//labelPlayerNames[slotIndex].setText(gameSettings.getNetworkPlayerName(i));
 	}
 
 	//SetActivePlayerNameEditor();
