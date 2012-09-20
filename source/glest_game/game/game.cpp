@@ -121,6 +121,8 @@ Game::Game() : ProgramState(NULL) {
 	keyboardSetupPopupMenuIndex = -1;
 
 	isMarkCellEnabled = false;
+	isMarkCellTextEnabled = false;
+
 	markCellTexture = NULL;
 	isUnMarkCellEnabled = false;
 	unmarkCellTexture = NULL;
@@ -176,6 +178,8 @@ void Game::resetMembers() {
 	keyboardSetupPopupMenuIndex = -1;
 
 	isMarkCellEnabled = false;
+	isMarkCellTextEnabled = false;
+
 	markCellTexture = NULL;
 	isUnMarkCellEnabled = false;
 	unmarkCellTexture = NULL;
@@ -2349,14 +2353,17 @@ void Game::mouseDownLeft(int x, int y) {
 						Vec2i targetPos(vertex.x,vertex.z);
 
 						MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
-						mapMarkedCellList[surfaceCellPos] = mc;
 
-						GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-						gameNetworkInterface->sendMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex(),mc.getNote());
+						//GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+						//gameNetworkInterface->sendMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex(),mc.getNote());
 
 						//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 						isMarkCellEnabled = false;
+						cellMarkedData = mc;
+						cellMarkedPos = surfaceCellPos;
+						isMarkCellTextEnabled = true;
+						chatManager.switchOnEdit(this,500);
 
 						Renderer &renderer= Renderer::getInstance();
 						//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
@@ -2426,14 +2433,19 @@ void Game::mouseDownLeft(int x, int y) {
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 					MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
-					mapMarkedCellList[surfaceCellPos] = mc;
+					cellMarkedData = mc;
+					//mapMarkedCellList[surfaceCellPos] = mc;
 
-					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-					gameNetworkInterface->sendMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex(),mc.getNote());
+					//GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+					//gameNetworkInterface->sendMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex(),mc.getNote());
 
 					//printf("#2 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 					isMarkCellEnabled = false;
+					cellMarkedData = mc;
+					cellMarkedPos = surfaceCellPos;
+					isMarkCellTextEnabled = true;
+					chatManager.switchOnEdit(this,500);
 
 					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
 					renderer.forceQuadCacheUpdate();
@@ -2805,8 +2817,9 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 
 		lastMousePos.x = mouseX;
 		lastMousePos.y = mouseY;
-		Renderer::getInstance().computePosition(Vec2i(mouseX, mouseY), mouseCellPos);
 
+		Renderer &renderer= Renderer::getInstance();
+		renderer.computePosition(Vec2i(mouseX, mouseY), mouseCellPos);
 	}
 	catch(const exception &ex) {
 		char szBuf[4096]="";
@@ -2857,6 +2870,32 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
+	}
+}
+
+void Game::processInputText(string text, bool cancelled) {
+	isMarkCellTextEnabled = false;
+
+	if(cancelled == false) {
+		//printf("Note [%s]\n",text.c_str());
+
+		if(text.find("\\n") != text.npos) {
+			replaceAll(text, "\\n", "\n");
+		}
+		if(text.find("\\t") != text.npos) {
+			replaceAll(text, "\\t", "\t");
+		}
+
+		cellMarkedData.setNote(text);
+		//MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
+		//mapMarkedCellList[surfaceCellPos] = mc;
+		mapMarkedCellList[cellMarkedPos] = cellMarkedData;
+
+		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+		gameNetworkInterface->sendMarkCellMessage(cellMarkedData.getTargetPos(),cellMarkedData.getFaction()->getIndex(),cellMarkedData.getNote());
+
+		Renderer &renderer= Renderer::getInstance();
+		renderer.forceQuadCacheUpdate();
 	}
 }
 
@@ -3598,6 +3637,7 @@ void Game::render2d() {
 	}
 
 	renderer.renderVisibleMarkedCells();
+	renderer.renderVisibleMarkedCells(true,lastMousePos.x,lastMousePos.y);
 
     //selection
 	renderer.renderSelectionQuad();

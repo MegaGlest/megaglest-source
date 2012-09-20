@@ -57,7 +57,7 @@ enum LoadGameItem {
 //
 //	Main game class
 // =====================================================
-class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface {
+class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface, public CustomInputCallbackInterface {
 public:
 	static const float highlightTime;
 	enum Speed{
@@ -157,6 +157,10 @@ private:
 	ProgramState *currentUIState;
 
 	bool isMarkCellEnabled;
+	Vec2i cellMarkedPos;
+	MarkedCell cellMarkedData;
+	bool isMarkCellTextEnabled;
+
 	Texture2D *markCellTexture;
 	bool isUnMarkCellEnabled;
 	Texture2D *unmarkCellTexture;
@@ -326,6 +330,7 @@ private:
 	void updateNetworkUnMarkedCells();
 	void updateNetworkHighligtedCells();
 
+	virtual void processInputText(string text, bool cancelled);
 };
 
 }}//end namespace

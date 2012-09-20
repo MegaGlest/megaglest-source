@@ -120,6 +120,8 @@ public:
 	void decrementAliveCount() { this->aliveCount--; }
 	int getAliveCount() const { return aliveCount; }
 	void setAliveCount(int value) { this->aliveCount = value; }
+
+	void setNote(string value) { note = value; }
 };
 
 class UnMarkedCell {

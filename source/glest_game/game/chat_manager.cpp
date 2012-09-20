@@ -47,6 +47,8 @@ ChatManager::ChatManager() {
 	font=CoreData::getInstance().getConsoleFont();
 	font3D=CoreData::getInstance().getConsoleFont3D();
 	inMenu=false;
+	customCB = NULL;
+	this->maxCustomTextLength = maxTextLenght;
 }
 
 void ChatManager::init(Console* console, int thisTeamIndex, const bool inMenu, string manualPlayerNameOverride) {
@@ -69,13 +71,18 @@ void ChatManager::keyUp(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	try {
-		if(editEnabled) {
+		if(editEnabled == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
 			if(isKeyPressed(SDLK_ESCAPE,key,false) == true) {
 				text.clear();
 				textCharLength.clear();
 				editEnabled= false;
+
+				if(customCB != NULL) {
+					customCB->processInputText(text,true);
+					customCB = NULL;
+				}
 			}
 		}
 	}
@@ -127,24 +134,34 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 
 					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 					if(text.empty() == false) {
-						string playerName 	= gameNetworkInterface->getHumanPlayerName();
-						int playerIndex 	= gameNetworkInterface->getHumanPlayerIndex();
 
-						if(this->manualPlayerNameOverride != "") {
-						    console->addLine(text,false,this->manualPlayerNameOverride,Vec3f(1.f, 1.f, 1.f),teamMode);
-						}
-						else {
-                            console->addLine(text,false,playerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
-						}
+						if(customCB == NULL) {
+							string playerName 	= gameNetworkInterface->getHumanPlayerName();
+							int playerIndex 	= gameNetworkInterface->getHumanPlayerIndex();
 
-						gameNetworkInterface->sendTextMessage("*"+text, teamMode? thisTeamIndex: -1, false, "");
-//						if(inMenu == false) {
-//							editEnabled= false;
-//						}
+							if(this->manualPlayerNameOverride != "") {
+								console->addLine(text,false,this->manualPlayerNameOverride,Vec3f(1.f, 1.f, 1.f),teamMode);
+							}
+							else {
+								console->addLine(text,false,playerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
+							}
+
+							gameNetworkInterface->sendTextMessage("*"+text, teamMode? thisTeamIndex: -1, false, "");
+	//						if(inMenu == false) {
+	//							editEnabled= false;
+	//						}
+						}
 					}
 					else {
 						editEnabled= false;
 					}
+
+					if(customCB != NULL) {
+						customCB->processInputText(text,false);
+						editEnabled= false;
+						customCB = NULL;
+					}
+
 					text.clear();
 					textCharLength.clear();
 				}
@@ -309,7 +326,8 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 void ChatManager::keyPress(SDL_KeyboardEvent c) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 
-	if(editEnabled && text.size() < maxTextLenght) {
+	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
+	if(editEnabled && text.size() < maxTextLenAllowed) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 		//space is the first meaningful code
 		wchar_t key = extractKeyPressedUnicode(c);
@@ -318,10 +336,17 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 	}
 }
 
-void ChatManager::switchOnEdit() {
+void ChatManager::switchOnEdit(CustomInputCallbackInterface *customCB,int maxCustomTextLength) {
 	editEnabled= true;
 	text.clear();
 	textCharLength.clear();
+	this->customCB = customCB;
+	if(maxCustomTextLength > 0) {
+		this->maxCustomTextLength = maxCustomTextLength;
+	}
+	else {
+		this->maxCustomTextLength = maxTextLenght;
+	}
 }
 
 void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
@@ -402,7 +427,8 @@ void ChatManager::updateAutoCompleteBuffer() {
 }
 
 void ChatManager::addText(string text) {
-	if(editEnabled && text.size() + this->text.size() < maxTextLenght) {
+	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
+	if(editEnabled && text.size() + this->text.size() < maxTextLenAllowed) {
 		this->text += text;
 	}
 }
