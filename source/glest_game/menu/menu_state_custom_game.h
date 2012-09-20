@@ -246,12 +246,13 @@ private:
 	void updateAllResourceMultiplier();
 	void updateResourceMultiplier(const int index);
 	string getCurrentMapFile();
-	GameSettings loadGameSettingsFromFile(std::string fileName);
 	void setActiveInputLabel(GraphicLabel *newLable);
 	string getHumanPlayerName(int index=-1);
 
 	void loadFactionTexture(string filepath);
 
+	GameSettings loadGameSettingsFromFile(std::string fileName);
+	void loadGameSettings(std::string fileName);
 	void RestoreLastGameSettings();
 	void PlayNow(bool saveGame);
 

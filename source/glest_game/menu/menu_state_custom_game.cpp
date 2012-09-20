@@ -41,7 +41,9 @@ const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS   	= 10;
 const int MASTERSERVER_BROADCAST_PUBLISH_SECONDS   	= 6;
 const int BROADCAST_MAP_DELAY_SECONDS 	= 5;
 const int BROADCAST_SETTINGS_SECONDS  	= 4;
-static const char *SAVED_GAME_FILENAME 				= "lastCustomGamSettings.mgg";
+static const char *SAVED_GAME_FILENAME 				= "lastCustomGameSettings.mgg";
+static const char *DEFAULT_GAME_FILENAME 			= "data/defaultGameSetup.mgg";
+static const char *DEFAULT_NETWORKGAME_FILENAME 	= "data/defaultNetworkGameSetup.mgg";
 
 struct FormatString {
 	void operator()(string &s) {
@@ -682,6 +684,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	publishToMasterserverThread->setUniqueID(__FILE__);
 	publishToMasterserverThread->start();
 
+	if(openNetworkSlots==true){
+		loadGameSettings(DEFAULT_NETWORKGAME_FILENAME);
+	}
+	else {
+		loadGameSettings(DEFAULT_GAME_FILENAME);
+	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	}
@@ -1499,9 +1507,9 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 		listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
 }
 
-void MenuStateCustomGame::RestoreLastGameSettings() {
+void MenuStateCustomGame::loadGameSettings(std::string fileName) {
 	// Ensure we have set the gamesettings at least once
-	GameSettings gameSettings = loadGameSettingsFromFile(SAVED_GAME_FILENAME);
+	GameSettings gameSettings = loadGameSettingsFromFile(fileName);
 	if(gameSettings.getMap() == "") {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1521,6 +1529,10 @@ void MenuStateCustomGame::RestoreLastGameSettings() {
 		needToSetChangedGameSettings = true;
 		lastSetChangedGameSettings   = time(NULL);
 	}
+}
+
+void MenuStateCustomGame::RestoreLastGameSettings() {
+	loadGameSettings(SAVED_GAME_FILENAME);
 }
 
 void MenuStateCustomGame::PlayNow(bool saveGame) {
