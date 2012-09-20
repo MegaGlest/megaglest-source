@@ -577,7 +577,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&networkMessageMarkCell)) {
 					            	MarkedCell msg(networkMessageMarkCell.getTarget(),
 					            			       networkMessageMarkCell.getFactionIndex(),
-					            			       networkMessageMarkCell.getText().c_str());
+					            			       networkMessageMarkCell.getText().c_str(),
+					            			       networkMessageMarkCell.getPlayerIndex());
 
 					            	this->addMarkedCell(msg);
 					            	gotCellMarkerMsg = true;
@@ -635,7 +636,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								NetworkMessageHighlightCell networkMessageHighlightCell;
 								if(receiveMessage(&networkMessageHighlightCell)) {
 					            	MarkedCell msg(networkMessageHighlightCell.getTarget(),
-					            			networkMessageHighlightCell.getFactionIndex(),"none");
+					            			networkMessageHighlightCell.getFactionIndex(),"none",-1);
 
 					            	this->setHighlightedCell(msg);
 					            	gotCellMarkerMsg = true;

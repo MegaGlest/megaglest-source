@@ -2240,7 +2240,17 @@ void Game::mouseDownLeft(int x, int y) {
 				saveGame();
 			}
 			else if(result.first == markCellPopupMenuIndex) {
-				isMarkCellEnabled = true;
+				int totalMarkedCellsForPlayer = 0;
+				for(std::map<Vec2i, MarkedCell>::iterator iterMap = mapMarkedCellList.begin();
+						iterMap != mapMarkedCellList.end(); ++iterMap) {
+					MarkedCell &bm = iterMap->second;
+					if(bm.getPlayerIndex() == world.getThisFaction()->getStartLocationIndex()) {
+						totalMarkedCellsForPlayer++;
+					}
+				}
+				if(totalMarkedCellsForPlayer < 5) {
+					isMarkCellEnabled = true;
+				}
 			}
 			else if(result.first == unmarkCellPopupMenuIndex) {
 				isUnMarkCellEnabled = true;
@@ -2338,7 +2348,7 @@ void Game::mouseDownLeft(int x, int y) {
 						Vec3f vertex = sc->getVertex();
 						Vec2i targetPos(vertex.x,vertex.z);
 
-						MarkedCell mc(targetPos,world.getThisFaction(),"none");
+						MarkedCell mc(targetPos,world.getThisFaction(),"none",world.getThisFaction()->getStartLocationIndex());
 						addOrReplaceInHighlightedCells(mc);
 
 						GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
@@ -2352,7 +2362,7 @@ void Game::mouseDownLeft(int x, int y) {
 						Vec3f vertex = sc->getVertex();
 						Vec2i targetPos(vertex.x,vertex.z);
 
-						MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
+						MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note",world.getThisFaction()->getStartLocationIndex());
 
 						//GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 						//gameNetworkInterface->sendMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex(),mc.getNote());
@@ -2418,7 +2428,7 @@ void Game::mouseDownLeft(int x, int y) {
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 
-					MarkedCell mc(targetPos,world.getThisFaction(),"none");
+					MarkedCell mc(targetPos,world.getThisFaction(),"none",world.getThisFaction()->getStartLocationIndex());
 					addOrReplaceInHighlightedCells(mc);
 
 					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
@@ -2432,7 +2442,7 @@ void Game::mouseDownLeft(int x, int y) {
 					renderer.computePosition(screenPos, targetPos);
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
-					MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
+					MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note",world.getThisFaction()->getStartLocationIndex());
 					cellMarkedData = mc;
 					//mapMarkedCellList[surfaceCellPos] = mc;
 
@@ -2892,7 +2902,7 @@ void Game::processInputText(string text, bool cancelled) {
 		mapMarkedCellList[cellMarkedPos] = cellMarkedData;
 
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-		gameNetworkInterface->sendMarkCellMessage(cellMarkedData.getTargetPos(),cellMarkedData.getFaction()->getIndex(),cellMarkedData.getNote());
+		gameNetworkInterface->sendMarkCellMessage(cellMarkedData.getTargetPos(),cellMarkedData.getFaction()->getIndex(),cellMarkedData.getNote(),cellMarkedData.getFaction()->getStartLocationIndex());
 
 		Renderer &renderer= Renderer::getInstance();
 		renderer.forceQuadCacheUpdate();
