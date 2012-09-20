@@ -2189,7 +2189,10 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	if(chatManager->getEditEnabled()) {
 		string text="";
 
-		if(chatManager->getInMenu()) {
+		if(chatManager->isInCustomInputMode() == true) {
+			text += lang.get("CellHint");
+		}
+		else if(chatManager->getInMenu()) {
 			text += lang.get("Chat");
 		}
 		else if(chatManager->getTeamMode()) {
@@ -5992,7 +5995,11 @@ void Renderer::renderMarkedCellsOnMinimap() {
 		}
 	}
 }
-void Renderer::renderVisibleMarkedCells() {
+void Renderer::renderVisibleMarkedCells(bool renderTextHint,int x, int y) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	// Draw marked cells
 	std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();
 	if(markedCells.empty() == false) {
@@ -6004,8 +6011,34 @@ void Renderer::renderVisibleMarkedCells() {
 				std::pair<bool,Vec3f> bmVisible = posInCellQuadCache(
 						map->toSurfCoords(bm.getTargetPos()));
 				if(bmVisible.first == true) {
-					const Texture2D *texture= game->getMarkCellTexture();
-					renderTextureQuad(bmVisible.second.x,bmVisible.second.y+10,32,32,texture,0.8f);
+					if(renderTextHint == true) {
+						if(bm.getNote() != "") {
+							bool validPosObjWorld= x > bmVisible.second.x &&
+													y > bmVisible.second.y &&
+													x < bmVisible.second.x + 32 &&
+													y < bmVisible.second.y + 32;
+
+							if(validPosObjWorld) {
+								//printf("Checking for hint text render mouse [%d,%d] marker pos [%d,%d] validPosObjWorld = %d, hint [%s]\n",x,y,bm.getTargetPos().x,bm.getTargetPos().y,validPosObjWorld,bm.getNote().c_str());
+
+								//Lang &lang= Lang::getInstance();
+								Vec4f fontColor = Vec4f(1.0f, 1.0f, 1.0f, 0.25f);
+
+								if(renderText3DEnabled == true) {
+									renderTextShadow3D(bm.getNote(), CoreData::getInstance().getConsoleFont3D(), fontColor,
+											bmVisible.second.x, bmVisible.second.y);
+								}
+								else {
+									renderTextShadow(bm.getNote(), CoreData::getInstance().getConsoleFont(), fontColor,
+											bmVisible.second.x, bmVisible.second.y);
+								}
+							}
+						}
+					}
+					else {
+						const Texture2D *texture= game->getMarkCellTexture();
+						renderTextureQuad(bmVisible.second.x,bmVisible.second.y+10,32,32,texture,0.8f);
+					}
 				}
 			}
 		}

@@ -594,7 +594,7 @@ public:
 	Vec3f getMarkedCellScreenPosQuadCache(Vec2i pos);
 	void updateMarkedCellScreenPosQuadCache(Vec2i pos);
 	void forceQuadCacheUpdate();
-	void renderVisibleMarkedCells();
+	void renderVisibleMarkedCells(bool renderTextHint=false,int x=-1, int y=-1);
 	void renderMarkedCellsOnMinimap();
 
 	void renderHighlightedCellsOnMinimap();
