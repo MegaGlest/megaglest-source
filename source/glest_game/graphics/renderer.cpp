@@ -1681,11 +1681,11 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 
 		if(game->isMarkCellMode() == true) {
 			const Texture2D *texture= game->getMarkCellTexture();
-			renderTextureQuad(x-18,y-50,32,32,texture,0.8f);
+			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
 		}
 		if(game->isUnMarkCellMode() == true) {
 			const Texture2D *texture= game->getUnMarkCellTexture();
-			renderTextureQuad(x-18,y-50,32,32,texture,0.8f);
+			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
 		}
 	}
 
@@ -6003,6 +6003,9 @@ void Renderer::renderVisibleMarkedCells(bool renderTextHint,int x, int y) {
 	// Draw marked cells
 	std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();
 	if(markedCells.empty() == false) {
+		const Texture2D *texture= game->getMarkCellTexture();
+		const int yOffset = 10;
+
 		for(std::map<Vec2i, MarkedCell>::iterator iterMap =markedCells.begin();
 				iterMap != markedCells.end(); ++iterMap) {
 			MarkedCell &bm = iterMap->second;
@@ -6014,9 +6017,9 @@ void Renderer::renderVisibleMarkedCells(bool renderTextHint,int x, int y) {
 					if(renderTextHint == true) {
 						if(bm.getNote() != "") {
 							bool validPosObjWorld= x > bmVisible.second.x &&
-													y > bmVisible.second.y &&
-													x < bmVisible.second.x + 32 &&
-													y < bmVisible.second.y + 32;
+													y > bmVisible.second.y + yOffset &&
+													x < bmVisible.second.x + texture->getTextureWidth() &&
+													y < bmVisible.second.y + yOffset + texture->getTextureHeight();
 
 							if(validPosObjWorld) {
 								//printf("Checking for hint text render mouse [%d,%d] marker pos [%d,%d] validPosObjWorld = %d, hint [%s]\n",x,y,bm.getTargetPos().x,bm.getTargetPos().y,validPosObjWorld,bm.getNote().c_str());
@@ -6036,8 +6039,9 @@ void Renderer::renderVisibleMarkedCells(bool renderTextHint,int x, int y) {
 						}
 					}
 					else {
-						const Texture2D *texture= game->getMarkCellTexture();
-						renderTextureQuad(bmVisible.second.x,bmVisible.second.y+10,32,32,texture,0.8f);
+						renderTextureQuad(
+								bmVisible.second.x,bmVisible.second.y + yOffset,
+								texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
 					}
 				}
 			}
