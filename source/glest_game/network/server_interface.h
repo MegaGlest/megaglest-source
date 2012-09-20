@@ -118,8 +118,8 @@ public:
 
     void queueTextMessage(const string & text, int teamIndex, bool echoLocal, string targetLanguage);
 
-    virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note);
-    void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note, int lockedSlotIndex);
+    virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note,int playerIndex);
+    void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note, int playerIndex, int lockedSlotIndex);
 
 	virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex);
     void sendHighlightCellMessage(Vec2i targetPos, int factionIndex, int lockedSlotIndex);

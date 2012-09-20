@@ -752,6 +752,7 @@ private:
 		int16 targetX;
 		int16 targetY;
 		int8 factionIndex;
+		int8 playerIndex;
 		NetworkString<maxTextStringSize> text;
 	};
 
@@ -760,11 +761,12 @@ private:
 
 public:
 	NetworkMessageMarkCell(){}
-	NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text);
+	NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text, int playerIndex);
 
 	string getText() const			{ return data.text.getString(); }
 	Vec2i getTarget() const		{ return Vec2i(data.targetX,data.targetY); }
 	int getFactionIndex() const  { return data.factionIndex; }
+	int getPlayerIndex() const { return data.playerIndex; }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket) const;

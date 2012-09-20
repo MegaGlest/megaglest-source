@@ -86,7 +86,7 @@ public:
 			string targetLanguage);
 	virtual void quitGame(bool userManuallyQuit);
 
-	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note);
+	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note,int playerIndex);
 	virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex);
 	virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex);
 	//misc

@@ -482,7 +482,8 @@ void ClientInterface::updateLobby() {
 
             	MarkedCell msg(networkMessageMarkCell.getTarget(),
             			       networkMessageMarkCell.getFactionIndex(),
-            			       networkMessageMarkCell.getText().c_str());
+            			       networkMessageMarkCell.getText().c_str(),
+            			       networkMessageMarkCell.getPlayerIndex());
         		this->addMarkedCell(msg);
             }
         }
@@ -507,7 +508,7 @@ void ClientInterface::updateLobby() {
 
             	MarkedCell msg(networkMessageHighlightCell.getTarget(),
             			networkMessageHighlightCell.getFactionIndex(),
-            			       "none");
+            			       "none",-1);
         		this->setHighlightedCell(msg);
             }
         }
@@ -722,7 +723,8 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 		            	MarkedCell msg(networkMessageMarkCell.getTarget(),
 		            			       networkMessageMarkCell.getFactionIndex(),
-		            			       networkMessageMarkCell.getText().c_str());
+		            			       networkMessageMarkCell.getText().c_str(),
+		            			       networkMessageMarkCell.getPlayerIndex());
 		        		this->addMarkedCell(msg);
 		            }
 		        }
@@ -748,7 +750,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 		            	MarkedCell msg(networkMessageHighlightCell.getTarget(),
 		            			networkMessageHighlightCell.getFactionIndex(),
-		            			       "none");
+		            			       "none",-1);
 		        		this->setHighlightedCell(msg);
 		            }
 		        }
@@ -1248,11 +1250,11 @@ void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool ec
 	}
 }
 
-void ClientInterface::sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note) {
+void ClientInterface::sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note,int playerIndex) {
 	string humanPlayerName = getHumanPlayerName();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] humanPlayerName = [%s] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,humanPlayerName.c_str(),playerIndex);
 
-	NetworkMessageMarkCell networkMessageMarkCell(targetPos,factionIndex, note);
+	NetworkMessageMarkCell networkMessageMarkCell(targetPos,factionIndex, note,playerIndex);
 	sendMessage(&networkMessageMarkCell);
 }
 
@@ -1467,7 +1469,8 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 
 			MarkedCell msg(networkMessageMarkCell.getTarget(),
 						   networkMessageMarkCell.getFactionIndex(),
-						   networkMessageMarkCell.getText().c_str());
+						   networkMessageMarkCell.getText().c_str(),
+						   networkMessageMarkCell.getPlayerIndex());
 			this->addMarkedCell(msg);
 			}
 			break;
@@ -1492,7 +1495,7 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 
 			MarkedCell msg(networkMessageHighlightCell.getTarget(),
 					networkMessageHighlightCell.getFactionIndex(),
-						   "none");
+						   "none",-1);
 			this->setHighlightedCell(msg);
 			}
 			break;

@@ -87,6 +87,7 @@ protected:
 	Vec2i targetPos;
 	const Faction *faction;
 	int factionIndex;
+	int playerIndex;
 	string note;
 	int aliveCount;
 
@@ -94,20 +95,23 @@ public:
 	MarkedCell() {
 		faction = NULL;
 		factionIndex = -1;
+		playerIndex = -1;
 		note = "";
 		aliveCount=200;
 	}
-	MarkedCell(Vec2i targetPos,const Faction *faction,string note) {
+	MarkedCell(Vec2i targetPos,const Faction *faction,string note, int playerIndex) {
 		this->targetPos = targetPos;
 		this->faction = faction;
 		this->factionIndex = -1;
+		this->playerIndex = playerIndex;
 		this->note = note;
 		aliveCount=200;
 	}
-	MarkedCell(Vec2i targetPos,int factionIndex,string note) {
+	MarkedCell(Vec2i targetPos,int factionIndex,string note, int playerIndex) {
 		this->targetPos = targetPos;
 		this->faction = NULL;
 		this->factionIndex = factionIndex;
+		this->playerIndex = playerIndex;
 		this->note = note;
 		aliveCount=200;
 	}
@@ -120,8 +124,10 @@ public:
 	void decrementAliveCount() { this->aliveCount--; }
 	int getAliveCount() const { return aliveCount; }
 	void setAliveCount(int value) { this->aliveCount = value; }
+	int getPlayerIndex() const { return playerIndex; }
 
 	void setNote(string value) { note = value; }
+	void setPlayerIndex(int value) { playerIndex = value; }
 };
 
 class UnMarkedCell {
@@ -286,7 +292,7 @@ public:
 			string targetLanguage)= 0;
 	virtual void quitGame(bool userManuallyQuit)=0;
 
-	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note) = 0;
+	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note,int playerIndex) = 0;
 	virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) = 0;
 	virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex) = 0;
 

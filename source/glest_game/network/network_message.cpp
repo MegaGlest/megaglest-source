@@ -992,7 +992,7 @@ void NetworkMessageLoadingStatus::send(Socket* socket) const
 //	class NetworkMessageMarkCell
 // =====================================================
 
-NetworkMessageMarkCell::NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text) {
+NetworkMessageMarkCell::NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text, int playerIndex) {
 	if(text.length() >= maxTextStringSize) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 	}
@@ -1002,6 +1002,7 @@ NetworkMessageMarkCell::NetworkMessageMarkCell(Vec2i target, int factionIndex, c
 	data.targetX		= target.x;
 	data.targetY		= target.y;
 	data.factionIndex 	= factionIndex;
+	data.playerIndex	= playerIndex;
 }
 
 NetworkMessageMarkCell * NetworkMessageMarkCell::getCopy() const {
