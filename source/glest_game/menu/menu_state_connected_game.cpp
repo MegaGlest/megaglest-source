@@ -37,7 +37,7 @@ namespace Glest{ namespace Game{
 
 static const string ITEM_MISSING 					= "***missing***";
 const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
-static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGamSettings.mgg";
+static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGameSettings.mgg";
 
 using namespace Shared::Util;
 
