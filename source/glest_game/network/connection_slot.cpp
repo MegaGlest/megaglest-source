@@ -250,7 +250,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->sessionKey 		= 0;
 	this->serverInterface	= serverInterface;
 	this->playerIndex		= playerIndex;
-	this->playerStatus		= 0;
+	this->playerStatus		= npst_None;
 	this->playerLanguage	= "";
 	this->currentFrameCount = 0;
 	this->currentLagCount	= 0;

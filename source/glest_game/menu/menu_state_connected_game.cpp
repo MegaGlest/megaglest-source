@@ -1565,7 +1565,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
-			gameSettings->setNetworkPlayerStatuses(slotIndex, 0);
+			gameSettings->setNetworkPlayerStatuses(slotIndex, npst_Disconnected);
 			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
 
 			closedCount++;
@@ -3709,6 +3709,10 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 						labelPlayerStatus[slot].setText(lang.get("PlayerStatusSetup"));
 						labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.f, 0.f));
 						break;
+					case npst_Disconnected:
+						labelPlayerStatus[slot].setText(lang.get("Closed"));
+						break;
+
 					default:
 						labelPlayerStatus[slot].setText("");
 						break;

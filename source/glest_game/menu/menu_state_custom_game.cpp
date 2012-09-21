@@ -2305,6 +2305,10 @@ void MenuStateCustomGame::update() {
 								labelPlayerStatus[i].setText(lang.get("PlayerStatusSetup"));
 								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.f, 0.f));
 								break;
+							case npst_Disconnected:
+								labelPlayerStatus[i].setText(lang.get("Closed"));
+								break;
+
 							default:
 								labelPlayerStatus[i].setText("");
 								break;
@@ -3220,7 +3224,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		}
 		else {
 			//gameSettings->setNetworkPlayerName("");
-			gameSettings->setNetworkPlayerStatuses(factionCount, 0);
+			gameSettings->setNetworkPlayerStatuses(factionCount, npst_Disconnected);
 			labelPlayerNames[i].setText("");
 		}
     }

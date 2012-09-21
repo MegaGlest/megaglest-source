@@ -41,6 +41,13 @@ enum FlagTypes1 {
     //ft1_xx                  = 0x10,
 };
 
+enum NetworkPlayerStatusType {
+	npst_None					= 0,
+	npst_PickSettings			= 1,
+	npst_BeRightBack			= 2,
+	npst_Ready					= 3,
+	npst_Disconnected			= 4
+};
 
 class GameSettings {
 private:
@@ -114,7 +121,7 @@ public:
     	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
     		factionTypeNames[i] = "";
     		networkPlayerNames[i] = "";
-    		networkPlayerStatuses[i] = 0;
+    		networkPlayerStatuses[i] = npst_None;
     		networkPlayerLanguages[i] = DEFAULT_LANG;
     		factionControls[i] = ctClosed;
     		resourceMultiplierIndex[i] = 1.0f;
@@ -147,7 +154,7 @@ public:
 	const string &getFactionTypeName(int factionIndex) const	{return factionTypeNames[factionIndex];}
 	string getNetworkPlayerName(int factionIndex) const  {
 		string result = networkPlayerNames[factionIndex];
-		if(networkPlayerGameStatus[factionIndex] == 1) {
+		if(networkPlayerStatuses[factionIndex] == npst_Disconnected) {
 			result = playerDisconnectedText + result;
 		}
 		return result;

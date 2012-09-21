@@ -4309,7 +4309,7 @@ int glestMain(int argc, char** argv) {
 				for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 					ControlType ct= ctClosed;
 
-					gameSettings->setNetworkPlayerStatuses(i, 0);
+					gameSettings->setNetworkPlayerStatuses(i, npst_None);
 					gameSettings->setFactionControl(i, ct);
 					gameSettings->setStartLocationIndex(i, i);
 					gameSettings->setResourceMultiplierIndex(i, 10);
@@ -4318,7 +4318,7 @@ int glestMain(int argc, char** argv) {
 
 				ControlType ct= ctHuman;
 
-				gameSettings->setNetworkPlayerStatuses(0, 0);
+				gameSettings->setNetworkPlayerStatuses(0, npst_None);
 				gameSettings->setFactionControl(0, ct);
 				gameSettings->setFactionTypeName(0, formatString(GameConstants::OBSERVER_SLOTNAME));
 				gameSettings->setTeam(0, GameConstants::maxPlayers + fpt_Observer - 1);
