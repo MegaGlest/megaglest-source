@@ -2233,11 +2233,12 @@ void Game::mouseDownLeft(int x, int y) {
 				for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
 
-					//printf("faction->getPersonalityType() = %d index [%d,%d] control [%d]\n",faction->getPersonalityType(),world.getThisFaction()->getIndex(),faction->getIndex(),faction->getControlType());
+					//printf("faction->getPersonalityType() = %d index [%d,%d] control [%d] networkstatus [%d]\n",faction->getPersonalityType(),world.getThisFaction()->getIndex(),faction->getIndex(),faction->getControlType(),this->gameSettings.getNetworkPlayerStatuses(i));
 
 					if(faction->getPersonalityType() != fpt_Observer &&
 						world.getThisFaction()->getIndex() != faction->getIndex() &&
-						faction->getControlType() == ctNetwork) {
+						faction->getControlType() == ctNetwork &&
+						this->gameSettings.getNetworkPlayerStatuses(i) != npst_Disconnected) {
 
 						char szBuf[1024]="";
 						if(lang.hasString("DisconnectNetorkPlayerIndex") == true) {

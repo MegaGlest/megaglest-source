@@ -601,13 +601,6 @@ enum SwitchSetupRequestFlagType {
 	ssrft_PlayerStatus			= 0x20
 };
 
-enum NetworkPlayerStatusType {
-	npst_None					= 0x00,
-	npst_PickSettings			= 0x01,
-	npst_BeRightBack			= 0x02,
-	npst_Ready					= 0x04
-};
-
 #pragma pack(push, 1)
 class SwitchSetupRequest: public NetworkMessage{
 private:
