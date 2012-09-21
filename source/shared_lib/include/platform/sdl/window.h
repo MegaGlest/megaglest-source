@@ -19,9 +19,11 @@
 #include <cassert>
 #include "data_types.h"
 #include "vec.h"
+#include <vector>
 #include "leak_dumper.h"
 
 using std::map;
+using std::vector;
 using std::string;
 using Shared::Graphics::Vec2i;
 
@@ -213,6 +215,7 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input);
 bool isAllowedInputTextKey(SDLKey key);
 
 wchar_t extractKeyPressedUnicode(SDL_KeyboardEvent input);
+vector<int> extractKeyPressedUnicodeLength(string text);
 bool isAllowedInputTextKey(wchar_t &key);
 
 }}//end namespace

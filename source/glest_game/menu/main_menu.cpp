@@ -347,6 +347,7 @@ void MenuState::setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activ
 			text += "_";
 		}
 		newLabel->setText(text);
+		textCharLength = extractKeyPressedUnicodeLength(text);
 	}
 	if(activeInputLabelEdit != NULL && activeInputLabelEdit->getText().empty() == false) {
 		string text= activeInputLabelEdit->getText();
@@ -356,6 +357,7 @@ void MenuState::setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activ
 			text = text.substr(0,found);
 		}
 		activeInputLabelEdit->setText(text);
+		textCharLength = extractKeyPressedUnicodeLength(text);
 		activeInputLabelEdit->setEditModeEnabled(false);
 	}
 	if(newLabel != NULL) {
@@ -377,6 +379,7 @@ bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInpu
 		if(isKeyPressed(SDLK_ESCAPE,c,false) == true ||
 				isKeyPressed(SDLK_RETURN,c,false) == true ) {
 			setActiveInputLabel(NULL,activeInputLabelPtr);
+			textCharLength.clear();
 			eventHandled = true;
 			return eventHandled;
 		}
@@ -386,22 +389,51 @@ bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInpu
 			if(activeInputLabel->getText().size() < maxTextSize) {
 				string text= activeInputLabel->getText();
 				//text.insert(text.end()-1, key);
-				char szCharText[20]="";
-				sprintf(szCharText,"%c",key);
-				char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+
+				//char szCharText[20]="";
+				//sprintf(szCharText,"%c",key);
+				//char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+
+				wchar_t keyW = extractKeyPressedUnicode(c);
+				wchar_t textAppend[] = { keyW, 0 };
+				wchar_t newKey = textAppend[0];
+
+				char buf[4] = {0};
+				if (newKey < 0x80) {
+					buf[0] = newKey;
+					textCharLength.push_back(1);
+					//printf("1 char, textCharLength = %d\n",textCharLength.size());
+				}
+				else if (newKey < 0x800) {
+					buf[0] = (0xC0 | newKey >> 6);
+					buf[1] = (0x80 | newKey & 0x3F);
+					textCharLength.push_back(2);
+					//printf("2 char, textCharLength = %d\n",textCharLength.size());
+				}
+				else {
+					buf[0] = (0xE0 | newKey >> 12);
+					buf[1] = (0x80 | newKey >> 6 & 0x3F);
+					buf[2] = (0x80 | newKey & 0x3F);
+					textCharLength.push_back(3);
+					//printf("3 char, textCharLength = %d\n",textCharLength.size());
+				}
+
 				if(text.size() > 0) {
 					size_t found = text.find_last_of("_");
 					if (found == string::npos || found != text.length()-1) {
-						text.insert(text.end(), utfStr[0]);
+						//text.insert(text.end(), utfStr[0]);
+						//text.insert(text.end(), buf);
+						text += buf;
 					}
 					else {
-						text.insert(text.end() -1, utfStr[0]);
+						//text.insert(text.end() -1, utfStr[0]);
+						text.insert(text.end() -1, buf[0]);
 					}
 				}
 				else {
-					text = utfStr[0];
+					text = buf;
 				}
-				delete [] utfStr;
+				//delete [] utfStr;
 
 				activeInputLabel->setText(text);
 
@@ -418,6 +450,9 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 	if(activeInputLabel != NULL) {
 		string text = activeInputLabel->getText();
 		if(isKeyPressed(SDLK_BACKSPACE,c) == true && text.length() > 0) {
+			//printf("BSPACE text [%s]\n",text.c_str());
+
+/*
 			size_t found = text.find_last_of("_");
 			if (found == string::npos || found != text.length()-1) {
 				text.erase(text.end() - 1);
@@ -427,7 +462,48 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 					text.erase(text.end() - 2);
 				}
 			}
+*/
 
+			bool hasUnderscore = false;
+			bool delChar = false;
+			size_t found = text.find_last_of("_");
+			if (found == string::npos || found != text.length()-1) {
+				//printf("A text.length() = %d textCharLength.size() = %d\n",text.length(),textCharLength.size());
+
+				if(textCharLength[textCharLength.size()-1] >= 1) {
+					//textCharLength[textCharLength.size()-1] = text.length();
+					delChar = true;
+				}
+			}
+			else {
+				//printf("B text.length() = %d textCharLength.size() = %d\n",text.length(),textCharLength.size());
+
+				hasUnderscore = true;
+				if(textCharLength.size() >= 2 && textCharLength[textCharLength.size()-2] >= 1) {
+					//textCharLength[textCharLength.size()-2] = text.length();
+					delChar = true;
+				}
+			}
+			if(delChar == true) {
+				if(hasUnderscore) {
+					if(textCharLength.size() > 1) {
+						for(unsigned int i = 0; i < textCharLength[textCharLength.size()-2]; ++i) {
+							text.erase(text.end() -2);
+						}
+						//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
+						textCharLength.pop_back();
+						textCharLength.pop_back();
+						textCharLength.push_back(1);
+					}
+				}
+				else {
+					for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
+						text.erase(text.end() -1);
+					}
+					//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
+					textCharLength.pop_back();
+				}
+			}
 			activeInputLabel->setText(text);
 			eventHandled = true;
 		}

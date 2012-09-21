@@ -103,6 +103,8 @@ protected:
 	const char *containerName;
 	Console console;
 
+	vector<int> textCharLength;
+
 protected:
 
 	void setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activeInputLabelPtr);
