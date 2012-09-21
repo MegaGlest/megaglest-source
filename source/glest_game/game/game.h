@@ -141,9 +141,14 @@ private:
 
 	PopupMenu popupMenu;
 	PopupMenu popupMenuSwitchTeams;
+	PopupMenu popupMenuDisconnectPlayer;
 
 	std::map<int,int> switchTeamIndexMap;
 	GraphicMessageBox switchTeamConfirmMessageBox;
+
+	std::map<int,int> disconnectPlayerIndexMap;
+	int playerIndexDisconnect;
+	GraphicMessageBox disconnectPlayerConfirmMessageBox;
 
 	int exitGamePopupMenuIndex;
 	int joinTeamPopupMenuIndex;
@@ -153,6 +158,7 @@ private:
 	int markCellPopupMenuIndex;
 	int unmarkCellPopupMenuIndex;
 	int keyboardSetupPopupMenuIndex;
+	int disconnectPlayerPopupMenuIndex;
 	//GLuint statelist3dMenu;
 	ProgramState *currentUIState;
 
