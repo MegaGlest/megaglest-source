@@ -48,6 +48,8 @@ const float PHOTO_MODE_MAXHEIGHT = 500.0;
 const int CREATE_NEW_TEAM = -100;
 const int CANCEL_SWITCH_TEAM = -1;
 
+const int CANCEL_DISCONNECT_PLAYER = -1;
+
 const float Game::highlightTime= 0.5f;
 
 int fadeMusicMilliseconds = 3500;
@@ -110,7 +112,14 @@ Game::Game() : ProgramState(NULL) {
 	popupMenuSwitchTeams.setEnabled(false);
 	popupMenuSwitchTeams.setVisible(false);
 
+	popupMenuDisconnectPlayer.setEnabled(false);
+	popupMenuDisconnectPlayer.setVisible(false);
+
 	switchTeamConfirmMessageBox.setEnabled(false);
+	disconnectPlayerConfirmMessageBox.setEnabled(false);
+
+	disconnectPlayerIndexMap.clear();
+
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
 	pauseGamePopupMenuIndex = -1;
@@ -119,6 +128,7 @@ Game::Game() : ProgramState(NULL) {
 	markCellPopupMenuIndex = -1;
 	unmarkCellPopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
+	disconnectPlayerPopupMenuIndex = -1;
 
 	isMarkCellEnabled = false;
 	isMarkCellTextEnabled = false;
@@ -167,7 +177,14 @@ void Game::resetMembers() {
 	popupMenuSwitchTeams.setEnabled(false);
 	popupMenuSwitchTeams.setVisible(false);
 
+	popupMenuDisconnectPlayer.setEnabled(false);
+	popupMenuDisconnectPlayer.setVisible(false);
+
 	switchTeamConfirmMessageBox.setEnabled(false);
+	disconnectPlayerConfirmMessageBox.setEnabled(false);
+
+	disconnectPlayerIndexMap.clear();
+
 	exitGamePopupMenuIndex = -1;
 	joinTeamPopupMenuIndex = -1;
 	pauseGamePopupMenuIndex = -1;
@@ -176,6 +193,7 @@ void Game::resetMembers() {
 	markCellPopupMenuIndex = -1;
 	unmarkCellPopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
+	disconnectPlayerPopupMenuIndex = -1;
 
 	isMarkCellEnabled = false;
 	isMarkCellTextEnabled = false;
@@ -1300,9 +1318,15 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 //				menuItems.push_back(lang.get("LoadGame"));
 //				loadGamePopupMenuIndex= menuItems.size() - 1;
 			}
+
+			if(gameSettings.isNetworkGame() == true){
+				menuItems.push_back(lang.get("DisconnectNetorkPlayer"));
+				disconnectPlayerPopupMenuIndex= menuItems.size() - 1;
+			}
 		}
 		menuItems.push_back(lang.get("Keyboardsetup"));
 		keyboardSetupPopupMenuIndex = menuItems.size()-1;
+
 		menuItems.push_back(lang.get("Cancel"));
 
 		popupMenu.setW(100);
@@ -1313,6 +1337,9 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 
 		popupMenuSwitchTeams.setEnabled(false);
 		popupMenuSwitchTeams.setVisible(false);
+
+		popupMenuDisconnectPlayer.setEnabled(false);
+		popupMenuDisconnectPlayer.setVisible(false);
 	}
 }
 
@@ -2199,6 +2226,42 @@ void Game::mouseDownLeft(int x, int y) {
 				popupMenuSwitchTeams.setEnabled(true);
 				popupMenuSwitchTeams.setVisible(true);
 			}
+			else if(result.first == disconnectPlayerPopupMenuIndex) {
+				Lang &lang= Lang::getInstance();
+				disconnectPlayerIndexMap.clear();
+				std::vector<string> menuItems;
+				for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+
+					//printf("faction->getPersonalityType() = %d index [%d,%d] control [%d]\n",faction->getPersonalityType(),world.getThisFaction()->getIndex(),faction->getIndex(),faction->getControlType());
+
+					if(faction->getPersonalityType() != fpt_Observer &&
+						world.getThisFaction()->getIndex() != faction->getIndex() &&
+						faction->getControlType() == ctNetwork) {
+
+						char szBuf[1024]="";
+						if(lang.hasString("DisconnectNetorkPlayerIndex") == true) {
+							sprintf(szBuf,lang.get("DisconnectNetorkPlayerIndex").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						}
+						else {
+							sprintf(szBuf,"Disconnect player #%d - %s:",faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						}
+
+						menuItems.push_back(szBuf);
+
+						disconnectPlayerIndexMap[menuItems.size()-1] = faction->getStartLocationIndex();
+					}
+				}
+
+				menuItems.push_back(lang.get("Cancel"));
+				disconnectPlayerIndexMap[menuItems.size()-1] = CANCEL_DISCONNECT_PLAYER;
+
+				popupMenuDisconnectPlayer.setW(100);
+				popupMenuDisconnectPlayer.setH(100);
+				popupMenuDisconnectPlayer.init(lang.get("DisconnectNetorkPlayer"),menuItems);
+				popupMenuDisconnectPlayer.setEnabled(true);
+				popupMenuDisconnectPlayer.setVisible(true);
+			}
 			else if(result.first == keyboardSetupPopupMenuIndex) {
 				MainMenu *newMenu = new MainMenu(program); // open keyboard shortcuts setup screen
 				currentUIState = newMenu;
@@ -2302,6 +2365,70 @@ void Game::mouseDownLeft(int x, int y) {
 					break;
 			}
 		}
+		else if(popupMenuDisconnectPlayer.mouseClick(x, y)) {
+			//popupMenuSwitchTeams
+			std::pair<int,string> result = popupMenuDisconnectPlayer.mouseClickedMenuItem(x, y);
+			//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
+
+			popupMenuDisconnectPlayer.setEnabled(false);
+			popupMenuDisconnectPlayer.setVisible(false);
+
+			//bool isNetworkGame = this->gameSettings.isNetworkGame();
+
+			int playerIndex = disconnectPlayerIndexMap[result.first];
+			switch(playerIndex) {
+				case CANCEL_DISCONNECT_PLAYER:
+					break;
+				default:
+//					if(isNetworkGame == true) {
+//						const Faction *faction = world.getThisFaction();
+//						commander.trySwitchTeam(faction,teamIndex);
+//					}
+//					else {
+//						const Faction *faction = world.getThisFaction();
+//						commander.trySwitchTeam(faction,teamIndex);
+//					}
+
+
+					GameSettings *settings = world.getGameSettingsPtr();
+					Lang &lang= Lang::getInstance();
+
+					char szBuf[1024]="";
+					if(lang.hasString("DisconnectNetorkPlayerIndexConfirm") == true) {
+						sprintf(szBuf,lang.get("DisconnectNetorkPlayerIndexConfirm").c_str(),playerIndex,settings->getNetworkPlayerName(playerIndex).c_str());
+					}
+					else {
+						sprintf(szBuf,"Confirm disconnection for player #%d - %s?",playerIndex,settings->getNetworkPlayerName(playerIndex).c_str());
+					}
+
+					disconnectPlayerConfirmMessageBox.setText(szBuf);
+					disconnectPlayerConfirmMessageBox.init(lang.get("Yes"), lang.get("No"));
+					disconnectPlayerConfirmMessageBox.setEnabled(true);
+
+					playerIndexDisconnect = playerIndex;
+
+					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+					if(gameNetworkInterface != NULL) {
+						Lang &lang= Lang::getInstance();
+						const vector<string> languageList = settings->getUniqueNetworkPlayerLanguages();
+						for(unsigned int i = 0; i < languageList.size(); ++i) {
+							char szMsg[1024]="";
+							if(lang.hasString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]) == true) {
+								sprintf(szMsg,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),playerIndex,settings->getNetworkPlayerName(playerIndex).c_str());
+							}
+							else {
+								sprintf(szMsg,"Notice - Admin is warning to disconnect player #%d - %s!",playerIndex+1,settings->getNetworkPlayerName(playerIndex).c_str());
+							}
+							bool localEcho = lang.isLanguageLocal(languageList[i]);
+							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+						}
+
+						sleep(10);
+					}
+
+					break;
+			}
+		}
 
 		if(switchTeamConfirmMessageBox.getEnabled() == true) {
 			int button= -1;
@@ -2314,6 +2441,17 @@ void Game::mouseDownLeft(int x, int y) {
 
 				const Faction *faction = world.getThisFaction();
 				commander.trySwitchTeamVote(faction,vote);
+			}
+		}
+		else if(disconnectPlayerConfirmMessageBox.getEnabled() == true) {
+			int button= -1;
+			if(disconnectPlayerConfirmMessageBox.mouseClick(x,y,button)) {
+				disconnectPlayerConfirmMessageBox.setEnabled(false);
+
+				if(button == 0) {
+					const Faction *faction = world.getThisFaction();
+					commander.tryDisconnectNetworkPlayer(faction,playerIndexDisconnect);
+				}
 			}
 		}
 
@@ -2717,6 +2855,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 
 		popupMenu.mouseMove(x, y);
 		popupMenuSwitchTeams.mouseMove(x, y);
+		popupMenuDisconnectPlayer.mouseMove(x, y);
 
 		const Metrics &metrics = Metrics::getInstance();
 
@@ -2800,6 +2939,10 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 
 			if(switchTeamConfirmMessageBox.getEnabled() == true) {
 				switchTeamConfirmMessageBox.mouseMove(x,y);
+			}
+
+			if(disconnectPlayerConfirmMessageBox.getEnabled() == true) {
+				disconnectPlayerConfirmMessageBox.mouseMove(x,y);
 			}
 
 			if (mainMessageBox.getEnabled()) {
@@ -3665,6 +3808,10 @@ void Game::render2d() {
 		renderer.renderMessageBox(&switchTeamConfirmMessageBox);
 	}
 
+	if(disconnectPlayerConfirmMessageBox.getEnabled() == true) {
+		renderer.renderMessageBox(&disconnectPlayerConfirmMessageBox);
+	}
+
 	//exit message box
 	if(errorMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&errorMessageBox);
@@ -3700,6 +3847,7 @@ void Game::render2d() {
 
 	renderer.renderPopupMenu(&popupMenu);
 	renderer.renderPopupMenu(&popupMenuSwitchTeams);
+	renderer.renderPopupMenu(&popupMenuDisconnectPlayer);
 
 	if(program != NULL) program->renderProgramMsgBox();
 

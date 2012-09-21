@@ -469,6 +469,11 @@ void Commander::trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) 
 	pushNetworkCommand(&command);
 }
 
+void Commander::tryDisconnectNetworkPlayer(const Faction* faction, int playerIndex) const {
+	NetworkCommand command(this->world,nctDisconnectNetworkPlayer, faction->getIndex(), playerIndex);
+	pushNetworkCommand(&command);
+}
+
 void Commander::tryPauseGame() const {
 	NetworkCommand command(this->world,nctPauseResume, 1);
 	pushNetworkCommand(&command);
@@ -511,7 +516,8 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 	if( networkCommand->getNetworkCommandType() != nctSwitchTeam &&
 		networkCommand->getNetworkCommandType() != nctSwitchTeamVote &&
 		networkCommand->getNetworkCommandType() != nctPauseResume &&
-		networkCommand->getNetworkCommandType() != nctPlayerStatusChange) {
+		networkCommand->getNetworkCommandType() != nctPlayerStatusChange &&
+		networkCommand->getNetworkCommandType() != nctDisconnectNetworkPlayer) {
 		unit= world->findUnitById(networkCommand->getUnitId());
 		if(unit == NULL) {
 			char szBuf[1024]="";
@@ -806,6 +812,48 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
             if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",__FILE__,__FUNCTION__,__LINE__);
+        }
+            break;
+
+    	case nctDisconnectNetworkPlayer: {
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctDisconnectNetworkPlayer\n",__FILE__,__FUNCTION__,__LINE__);
+
+        	commandWasHandled = true;
+
+        	NetworkManager &networkManager= NetworkManager::getInstance();
+        	NetworkRole role = networkManager.getNetworkRole();
+        	GameSettings *settings = world->getGameSettingsPtr();
+
+        	if(role == nrServer) {
+				int factionIndex = networkCommand->getUnitId();
+				int playerIndex = networkCommand->getCommandTypeId();
+
+				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+				if(gameNetworkInterface != NULL) {
+//
+//					Lang &lang= Lang::getInstance();
+//					const vector<string> languageList = settings->getUniqueNetworkPlayerLanguages();
+//					for(unsigned int i = 0; i < languageList.size(); ++i) {
+//						char szMsg[1024]="";
+//						if(lang.hasString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]) == true) {
+//							sprintf(szMsg,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),playerIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+//						}
+//						else {
+//							sprintf(szMsg,"Notice - Admin is disconnecting player #%d - %s",playerIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+//						}
+//						bool localEcho = lang.isLanguageLocal(languageList[i]);
+//						gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+//					}
+//
+//					sleep(10);
+					ServerInterface *server = networkManager.getServerInterface();
+					if(server->isClientConnected(playerIndex) == true) {
+						ConnectionSlot *slot = server->getSlot(playerIndex);
+						slot->close();
+					}
+				}
+        	}
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctDisconnectNetworkPlayer\n",__FILE__,__FUNCTION__,__LINE__);
         }
             break;
 

@@ -111,6 +111,7 @@ public:
 	void trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const;
 	void trySwitchTeam(const Faction* faction, int teamIndex) const;
 	void trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) const;
+	void tryDisconnectNetworkPlayer(const Faction* faction, int playerIndex) const;
 	void tryPauseGame() const;
 	void tryResumeGame() const;
 	void tryNetworkPlayerDisconnected(int factionIndex) const;
