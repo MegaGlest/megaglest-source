@@ -936,6 +936,34 @@ wchar_t extractKeyPressedUnicode(SDL_KeyboardEvent input) {
 	return c;
 }
 
+vector<int> extractKeyPressedUnicodeLength(string text) {
+	vector<int> result;
+	unsigned int i = 0;
+	for(i = 0; i < text.length();) {
+		char c = text[i];
+		wchar_t keyW = c;
+		wchar_t textAppend[] = { keyW, 0 };
+
+		if(textAppend) {
+			wchar_t newKey = textAppend[0];
+			if (newKey < 0x80) {
+				result.push_back(1);
+				//printf("1 char, textCharLength = %d\n",textCharLength.size());
+			}
+			else if (newKey < 0x800) {
+				result.push_back(2);
+				//printf("2 char, textCharLength = %d\n",textCharLength.size());
+			}
+			else {
+				result.push_back(3);
+				//printf("3 char, textCharLength = %d\n",textCharLength.size());
+			}
+			i += result[result.size()-1];
+		}
+	}
+	return result;
+}
+
 SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 	SDLKey c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
