@@ -2248,8 +2248,14 @@ void Game::mouseDownLeft(int x, int y) {
 						totalMarkedCellsForPlayer++;
 					}
 				}
-				if(totalMarkedCellsForPlayer < 5) {
+
+				const int MAX_MARKER_COUNT = 5;
+				if(totalMarkedCellsForPlayer < MAX_MARKER_COUNT) {
 					isMarkCellEnabled = true;
+				}
+				else {
+					Lang &lang= Lang::getInstance();
+					console.addLine(lang.get("MaxMarkerCount") + " " + intToStr(MAX_MARKER_COUNT));
 				}
 			}
 			else if(result.first == unmarkCellPopupMenuIndex) {
