@@ -2952,7 +2952,8 @@ CommandResult Unit::undoCommand(Command *command){
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if(getCurrCommand() == command && this->currSkill->getClass() == scMorph ){
+	if(getCurrCommand() == command && command->getCommandType()->getClass()==ccMorph
+			&& this->currSkill->getClass() == scMorph ){
 		// clear cells of morphed unit and set those of current unit!
 		map->clearUnitCells(this, this->getPos());
 		map->putUnitCells(this, this->getPos(),true);
