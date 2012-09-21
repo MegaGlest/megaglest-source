@@ -345,6 +345,7 @@ private:
 	int progress2;
 	int kills;
 	int enemyKills;
+	bool morphFieldsBlocked;
 
 	UnitReference targetRef;
 
@@ -562,6 +563,10 @@ public:
 	inline void setCurrField(Field currField)					{this->currField= currField;}
     void setCurrSkill(const SkillType *currSkill);
     void setCurrSkill(SkillClass sc);
+
+    void setMorphFieldsBlocked ( bool value ) {this->morphFieldsBlocked=value;}
+	bool getMorphFieldsBlocked() const { return morphFieldsBlocked; }
+
     inline void setLoadCount(int loadCount)					{this->loadCount= loadCount;}
     inline void setLoadType(const ResourceType *loadType)		{this->loadType= loadType;}
     inline void setProgress2(int progress2)					{this->progress2= progress2;}

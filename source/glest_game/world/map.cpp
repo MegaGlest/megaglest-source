@@ -1390,9 +1390,8 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 		Command *command= unit->getCurrCommand();
 		if(command != NULL && command->getCommandType()->commandTypeClass == ccMorph){
 			const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
-			if(unit->getType()->getSize()<=mct->getMorphUnit()->getSize()){
-				putUnitCellsPrivate(unit, pos, mct->getMorphUnit(),true);
-			}
+			putUnitCellsPrivate(unit, pos, mct->getMorphUnit(),true);
+			unit->setMorphFieldsBlocked(true);
 		}
 	}
 }
@@ -1490,12 +1489,14 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 
 	if(ignoreSkill==false &&
 			unit->getCurrSkill() != NULL &&
-	        unit->getCurrSkill()->getClass() == scMorph) {
+	        unit->getCurrSkill()->getClass() == scMorph &&
+	        unit->getMorphFieldsBlocked() == true) {
 		Command *command= unit->getCurrCommand();
 		const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
 		if(unit->getType()->getSize()<=mct->getMorphUnit()->getSize()){
 			ut=mct->getMorphUnit();
 			currentField=ut->getField();
+			unit->setMorphFieldsBlocked(false);
 		}
 	}
 

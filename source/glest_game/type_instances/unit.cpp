@@ -424,6 +424,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	this->ignoreCheckCommand = false;
 	this->inBailOutAttempt = false;
 	this->lastHarvestResourceTarget.first = Vec2i(0);
+	this->morphFieldsBlocked=false;
 	//this->lastBadHarvestListPurge = 0;
 
 	level= NULL;
