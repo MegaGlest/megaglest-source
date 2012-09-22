@@ -112,14 +112,14 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	FIND_PACKAGE(LUAJIT)
         IF(LUAJIT_FOUND)
-                MESSAGE(STATUS "**NOTE: LUAJIT found and will grealy improve Lua performance.")
+                MESSAGE(STATUS "**NOTE: LUAJIT found, this should improve Lua performance.")
 
 	        INCLUDE_DIRECTORIES(${LUAJIT_INCLUDE_DIR})
 	        IF(UNIX)
 		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUAJIT_LIBRARIES} "libdl.so")
 	        ENDIF()
         ELSE()
-                MESSAGE(STATUS "**WARNING: LUAJIT NOT found and will grealy affect Lua performance.")
+                MESSAGE(STATUS "**WARNING: LUAJIT NOT found, so Lua performance may suffer.")
 
 	        FIND_PACKAGE(LUA REQUIRED)
 	        INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIR})
@@ -225,7 +225,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	FIND_PACKAGE(LIBVLC)
 
         IF(LIBVLC_FOUND AND NOT LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
-                MESSAGE(STATUS "**NOTE: LIBVLC found so intro videos are supported.")
+                MESSAGE(STATUS "**NOTE: LIBVLC found so videos are supported.")
 	        INCLUDE_DIRECTORIES(${LIBVLC_INCLUDE_DIR})
 	        IF(UNIX)
 		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LIBVLCCORE_LIBRARY} ${LIBVLC_LIBRARY})
@@ -239,7 +239,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		ENDIF()
 		
         ELSE()
-                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so intro videos are NOT supported.")
+                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so videos are NOT supported.")
         ENDIF()
 
 	#########################################################################################
@@ -293,7 +293,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
                 message(STATUS "Adding macro for miniupnpc version: pre v1.6")
 	ENDIF()
         IF(NOT MINIUPNPC_VERSION_PRE1_5 AND NOT MINIUPNPC_VERSION_PRE1_6)
-                message(STATUS "**No macro's required for miniupnpc version")
+                message(STATUS "**No macros required for miniupnpc version")
         ENDIF()
 
 	IF(APPLE)
@@ -323,7 +323,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	ENDIF()
 
 	if(NOT IRCCLIENT_FOUND)
-		MESSAGE(STATUS "*** Using EMBEDDED libircclient since dev system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
+		MESSAGE(STATUS "*** Using EMBEDDED libircclient since this system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
 
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)
