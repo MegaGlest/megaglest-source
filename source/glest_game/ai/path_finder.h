@@ -24,7 +24,7 @@
 #include "skill_type.h"
 #include "map.h"
 #include "unit.h"
-#include "fast_path_finder.h"
+
 //#include <tr1/unordered_map>
 //using namespace std::tr1;
 
@@ -114,8 +114,6 @@ public:
 			//mapFromToNodeList.clear();
 			//lastFromToNodeListFrame = -100;
 			badCellList.clear();
-
-			fa = createFastAstar();
 		}
 		~FactionState() {
 			//fa = NULL;
@@ -135,8 +133,6 @@ public:
 		//std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > > mapFromToNodeList;
 
 		std::map<int,std::map<Field,BadUnitNodeList> > badCellList;
-
-		FastAstar *fa;
 	};
 	typedef vector<FactionState> FactionStateList;
 
@@ -173,7 +169,6 @@ public:
 	void loadGame(const XmlNode *rootNode);
 
 private:
-	TravelState aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
 	//Node *newNode(FactionState &faction,int maxNodeCount);
 	inline static Node *newNode(FactionState &faction, int maxNodeCount) {

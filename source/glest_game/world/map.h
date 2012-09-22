@@ -26,7 +26,6 @@
 #include "selection.h"
 #include <cassert>
 #include "unit_type.h"
-#include "fast_path_finder.h"
 #include "command.h"
 #include "checksum.h"
 #include "leak_dumper.h"
@@ -204,47 +203,6 @@ public:
 	std::map<Vec2i,std::map<Vec2i,bool> > cachedCanMoveSoonList;
 };
 
-class FastAINode : public AI_Node {
-protected:
-	Vec2i pos;
-	const Map *map;
-	int32 hashCode;
-	static const int NODE_EDGE_COUNT = 8;
-
-	FastAINode * getNodeForEdgeIndex(int index,void *userData) const;
-
-public:
-
-	FastAINode() {
-		this->map = NULL;
-		hashCode=0;
-	}
-	FastAINode(Vec2i &pos,const Map *map) {
-		this->pos = pos;
-		this->map = map;
-		Checksum result;
-		result.addInt(pos.x);
-		result.addInt(pos.y);
-		hashCode = result.getSum();
-	}
-	virtual ~FastAINode() {}
-	void setData(Vec2i pos, const Map *map) {
-		this->pos = pos;
-		this->map = map;
-		Checksum result;
-		result.addInt(pos.x);
-		result.addInt(pos.y);
-		hashCode = result.getSum();
-	}
-	inline const Vec2i & getPos() const { return pos; }
-
-    virtual float         getDistance(const AI_Node *node, void *userData);
-    virtual float         getCost(void *userData);
-    virtual unsigned int getEdgeCount(void *userData) const;
-    virtual AI_Node *     getEdge(int index, void *userData) const;
-    inline virtual int32 getHashCode() const { return hashCode; }
-};
-
 class Map {
 public:
 	static const int cellScale;	//number of cells per surfaceCell
@@ -263,7 +221,6 @@ private:
 	int maxPlayers;
 	Cell *cells;
 	SurfaceCell *surfaceCells;
-	FastAINode *cellNodes;
 	Vec2i *startLocations;
 	Checksum checksumValue;
 	float maxMapHeight;
@@ -304,30 +261,6 @@ public:
 	}
 	inline Cell *getCell(const Vec2i &pos) const {
 		return getCell(pos.x, pos.y);
-	}
-
-	//get
-	inline FastAINode *getCellNode(Vec2i pos, bool errorOnInvalid=true) const {
-		return getCellNode(pos.x, pos.y, errorOnInvalid);
-	}
-	inline FastAINode *getCellNode(int x, int y, bool errorOnInvalid=true) const {
-		int arrayIndex = y * w + x;
-		if(arrayIndex < 0 || arrayIndex >= getCellArraySize()) {
-			if(errorOnInvalid == false) {
-				return NULL;
-			}
-			//abort();
-			throw megaglest_runtime_error("arrayIndex >= getCellArraySize(), arrayIndex = " + intToStr(arrayIndex) + " w = " + intToStr(w) + " h = " + intToStr(h));
-		}
-		else if(cellNodes == NULL) {
-			if(errorOnInvalid == false) {
-				return NULL;
-			}
-
-			throw megaglest_runtime_error("cellNodes == NULL");
-		}
-
-		return &cellNodes[arrayIndex];
 	}
 
 	inline int getCellArraySize() const {
