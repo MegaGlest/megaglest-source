@@ -1135,26 +1135,29 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							}
 					}
 
-					//!!!
-					double LAG_CHECK_GRACE_PERIOD 		= 15;
-					double maxFrameCountLagAllowed 		= 10;
-					double maxClientLagTimeAllowed 		= 8;
+					// This may end up continuously lagging and not disconnecting players who have
+					// just the 'wrong' amount of lag (but not enough to be horrible for a disconnect)
+					if(Config::getInstance().getBool("AutoClientLagCorrection","true") == true) {
+						double LAG_CHECK_GRACE_PERIOD 		= 15;
+						double maxFrameCountLagAllowed 		= 10;
+						double maxClientLagTimeAllowed 		= 8;
 
-					if(this->serverInterface->getGameStartTime() > 0 &&
-							difftime(time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD) {
-						if(this->isConnected() == true) {
-							double clientLag = this->serverInterface->getCurrentFrameCount() - this->getCurrentFrameCount();
-							double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
-							double clientLagTime = difftime(time(NULL),this->getLastReceiveCommandListTime());
+						if(this->serverInterface->getGameStartTime() > 0 &&
+								difftime(time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD) {
+							if(this->isConnected() == true) {
+								double clientLag = this->serverInterface->getCurrentFrameCount() - this->getCurrentFrameCount();
+								double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
+								double clientLagTime = difftime(time(NULL),this->getLastReceiveCommandListTime());
 
-							// New lag check
-							if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
-								(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed)) {
+								// New lag check
+								if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
+									(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed)) {
 
-								waitForLaggingClient = true;
-								if(waitedForLaggingClient == false) {
-									waitedForLaggingClient = true;
-									printf("*TESTING*: START Waiting for lagging client playerIndex = %d [%s] clientLagCount = %f [%f]\n",playerIndex,name.c_str(),clientLagCount,clientLagTime);
+									waitForLaggingClient = true;
+									if(waitedForLaggingClient == false) {
+										waitedForLaggingClient = true;
+										printf("*TESTING*: START Waiting for lagging client playerIndex = %d [%s] clientLagCount = %f [%f]\n",playerIndex,name.c_str(),clientLagCount,clientLagTime);
+									}
 								}
 							}
 						}
