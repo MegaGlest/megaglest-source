@@ -220,7 +220,7 @@ void Renderer::init() {
 
 	if(glActiveTexture == NULL) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"Error: glActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		sprintf(szBuf,"Error: glActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!");
 		throw megaglest_runtime_error(szBuf);
 	}
 

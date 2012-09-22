@@ -389,7 +389,7 @@ void Renderer::init() {
 
 	if(glActiveTexture == NULL) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"Error: glActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		sprintf(szBuf,"Error: glActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!");
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1024,7 +1024,7 @@ void Renderer::setupLightingForRotatedModel() {
 	}
 
 	const World *world= game->getWorld();
-	const GameCamera *gameCamera= game->getGameCamera();
+	//const GameCamera *gameCamera= game->getGameCamera();
 	const TimeFlow *timeFlow= world->getTimeFlow();
 	float time= timeFlow->getTime();
 
@@ -4842,7 +4842,7 @@ void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,Cardin
 	//const UnitType *building= gui->getBuilding();
 	//const Vec2i &pos= gui->getPosObjWorld();
 
-	const Gui *gui= game->getGui();
+	//const Gui *gui= game->getGui();
 	//const Mouse3d *mouse3d= gui->getMouse3d();
 	const Map *map= game->getWorld()->getMap();
 	if(map == NULL) {
@@ -5897,7 +5897,7 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 	// Draw marked cells
 	const std::vector<MarkedCell> *highlightedCells = game->getHighlightedCells();
 	if(highlightedCells->empty() == false) {
-		const Map *map= game->getWorld()->getMap();
+		//const Map *map= game->getWorld()->getMap();
 	    const World *world= game->getWorld();
 		const Minimap *minimap= world->getMinimap();
 		int pointersize=10;
@@ -5905,12 +5905,12 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 			return;
 		}
 
-		const GameCamera *gameCamera= game->getGameCamera();
+		//const GameCamera *gameCamera= game->getGameCamera();
 		const Pixmap2D *pixmap= minimap->getTexture()->getPixmapConst();
 		const Metrics &metrics= Metrics::getInstance();
 
 
-		int mx= metrics.getMinimapX();
+		//int mx= metrics.getMinimapX();
 		int my= metrics.getMinimapY();
 		int mw= metrics.getMinimapW();
 		int mh= metrics.getMinimapH();
@@ -5938,7 +5938,7 @@ void Renderer::renderMarkedCellsOnMinimap() {
 	// Draw marked cells
 	std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();
 	if(markedCells.empty() == false) {
-		const Map *map= game->getWorld()->getMap();
+		//const Map *map= game->getWorld()->getMap();
 	    const World *world= game->getWorld();
 		const Minimap *minimap= world->getMinimap();
 
@@ -5946,10 +5946,10 @@ void Renderer::renderMarkedCellsOnMinimap() {
 			return;
 		}
 
-		const GameCamera *gameCamera= game->getGameCamera();
+		//const GameCamera *gameCamera= game->getGameCamera();
 		const Pixmap2D *pixmap= minimap->getTexture()->getPixmapConst();
 		const Metrics &metrics= Metrics::getInstance();
-		const WaterEffects *attackEffects= world->getAttackEffects();
+		//const WaterEffects *attackEffects= world->getAttackEffects();
 
 		int mx= metrics.getMinimapX();
 		int my= metrics.getMinimapY();

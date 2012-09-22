@@ -1742,7 +1742,7 @@ void Game::updateNetworkMarkedCells() {
 
 		if(gameNetworkInterface != NULL &&
 				gameNetworkInterface->getMarkedCellList(false).empty() == false) {
-			Lang &lang= Lang::getInstance();
+			//Lang &lang= Lang::getInstance();
 
 			std::vector<MarkedCell> chatList = gameNetworkInterface->getMarkedCellList(true);
 			for(int idx = 0; idx < chatList.size(); idx++) {
@@ -1769,7 +1769,7 @@ void Game::updateNetworkUnMarkedCells() {
 
 		if(gameNetworkInterface != NULL &&
 				gameNetworkInterface->getUnMarkedCellList(false).empty() == false) {
-			Lang &lang= Lang::getInstance();
+			//Lang &lang= Lang::getInstance();
 
 			std::vector<UnMarkedCell> chatList = gameNetworkInterface->getUnMarkedCellList(true);
 			for(int idx = 0; idx < chatList.size(); idx++) {
@@ -1805,7 +1805,7 @@ void Game::updateNetworkHighligtedCells() {
 
 		if(gameNetworkInterface != NULL &&
 				gameNetworkInterface->getHighlightedCellList(false).empty() == false) {
-			Lang &lang= Lang::getInstance();
+			//Lang &lang= Lang::getInstance();
 			std::vector<MarkedCell> highlighList = gameNetworkInterface->getHighlightedCellList(true);
 			for(int idx = 0; idx < highlighList.size(); idx++) {
 				MarkedCell mc = highlighList[idx]; // I want a copy here
