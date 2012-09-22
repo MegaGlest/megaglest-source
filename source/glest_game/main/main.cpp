@@ -103,7 +103,9 @@ static bool gameInitialized 					= false;
 
 static Program *mainProgram 					= NULL;
 static FileCRCPreCacheThread *preCacheThread	= NULL;
-//static string runtimeErrorMsg 					= "";
+#ifdef WIN32
+static string runtimeErrorMsg 					= "";
+#endif
 
 void cleanupCRCThread() {
 	if(preCacheThread != NULL) {
