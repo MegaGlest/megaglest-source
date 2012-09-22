@@ -3876,9 +3876,6 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		case pfBasic:
 			newpath = new UnitPathBasic();
 			break;
-		case pfRoutePlanner:
-			newpath = new UnitPath();
-			break;
 		default:
 			throw megaglest_runtime_error("detected unsupported pathfinder type!");
     }

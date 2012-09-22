@@ -32,7 +32,6 @@ class Unit;
 class Map;
 class ScriptManager;
 class PathFinder;
-class RoutePlanner;
 
 // =====================================================
 //	class UnitUpdater
@@ -79,7 +78,6 @@ private:
 	Console *console;
 	ScriptManager *scriptManager;
 	PathFinder *pathFinder;
-	RoutePlanner *routePlanner;
 	Game *game;
 	//RandomGen random;
 	float attackWarnRange;

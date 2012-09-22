@@ -245,7 +245,7 @@ public:
 	Vec2i peek()			{return back();}	 /**< peek at the next position			 */
 	void pop()				{this->pop_back();}	/**< pop the next position off the path */
 #else
-	// new style, for the new RoutePlanner
+	// new style
 	Vec2i peek()			{return front();}	 /**< peek at the next position			 */
 	//virtual Vec2i pop()		{ Vec2i p= front(); erase(begin()); return p; }	/**< pop the next position off the path */
 	void pop()		{ erase(begin()); }	/**< pop the next position off the path */

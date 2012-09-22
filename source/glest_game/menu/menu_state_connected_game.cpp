@@ -233,9 +233,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
 	listBoxPathFinderType.init(xoffset+650, aPos, 150);
 	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
-	if(config.getBool("EnableRoutePlannerPathfinder","false") == true) {
-		listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRoutePlanner"));
-	}
 
 	listBoxPathFinderType.setSelectedItemIndex(0);
 	listBoxPathFinderType.setEditable(false);
@@ -598,9 +595,6 @@ void MenuStateConnectedGame::reloadUI() {
 
 	vector<string> pathfinderItems;
 	pathfinderItems.push_back(lang.get("PathFinderTypeRegular"));
-	if(config.getBool("EnableRoutePlannerPathfinder","false") == true) {
-		pathfinderItems.push_back(lang.get("PathFinderTypeRoutePlanner"));
-	}
 	listBoxPathFinderType.setItems(pathfinderItems);
 
 	labelMap.setText(lang.get("Map"));

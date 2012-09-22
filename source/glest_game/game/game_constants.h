@@ -73,8 +73,7 @@ const Vec4f WHITE(1.0f, 1.0f, 1.0f, 1.0f);
 const Vec4f ORANGE(1.0f, 0.7f, 0.0f, 1.0f);
 
 enum PathFinderType {
-	pfBasic,
-	pfRoutePlanner
+	pfBasic
 };
 
 enum TravelState {

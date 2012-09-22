@@ -22,7 +22,6 @@
 #include "sound_renderer.h"
 #include "game_settings.h"
 #include "cache_manager.h"
-#include "route_planner.h"
 #include <iostream>
 #include "sound.h"
 #include "sound_renderer.h"
@@ -68,9 +67,6 @@ World::World() {
 
 	MaxExploredCellsLookupItemCache= config.getInt("MaxExploredCellsLookupItemCache",intToStr(MaxExploredCellsLookupItemCache).c_str());
 	//MaxExploredCellsLookupItemCache = 0;
-
-	routePlanner = 0;
-	cartographer = 0;
 
 	frameCount= 0;
 	//nextUnitId= 0;
@@ -122,9 +118,6 @@ void World::cleanup() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	delete routePlanner;
-	routePlanner = 0;
-
 	for(std::map<string,StaticSound *>::iterator iterMap = staticSoundList.begin();
 		iterMap != staticSoundList.end(); ++iterMap) {
 		delete iterMap->second;
@@ -139,8 +132,6 @@ void World::cleanup() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	delete cartographer;
-	cartographer = 0;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -243,12 +234,6 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	initCells(fogOfWar); //must be done after knowing faction number and dimensions
 	initMap();
 	initSplattedTextures();
-
-	// must be done after initMap()
-	if(gs->getPathFinderType() != pfBasic) {
-		routePlanner = new RoutePlanner(this);
-		cartographer = new Cartographer(this);
-	}
 
 	unitUpdater.init(game);
 	if(loadWorldNode != NULL) {
@@ -709,10 +694,6 @@ void World::tick() {
 			}
 		}
 	}
-
-	if(cartographer != NULL) {
-		cartographer->tick();
-	}
 }
 
 Unit* World::findUnitById(int id) const {
@@ -940,9 +921,6 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		switch(game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
 				newpath = new UnitPathBasic();
-				break;
-			case pfRoutePlanner:
-				newpath = new UnitPath();
 				break;
 			default:
 				throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -1605,9 +1583,6 @@ void World::initUnitsForScenario() {
 
 			if (unit->getType()->hasSkillClass(scBeBuilt)) {
 				map.flatternTerrain(unit);
-				if(cartographer != NULL) {
-					cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
-				}
 			}
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 		}
@@ -1640,9 +1615,6 @@ void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, b
 	}
 	if (unit->getType()->hasSkillClass(scBeBuilt)) {
 		map.flatternTerrain(unit);
-		if(cartographer != NULL) {
-			cartographer->updateMapMetrics(unit->getPos(), unit->getType()->getSize());
-		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit created for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
@@ -1672,9 +1644,6 @@ void World::initUnits() {
 						switch(game->getGameSettings()->getPathFinderType()) {
 							case pfBasic:
 								newpath = new UnitPathBasic();
-								break;
-							case pfRoutePlanner:
-								newpath = new UnitPath();
 								break;
 							default:
 								throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -2325,8 +2294,6 @@ void World::saveGame(XmlNode *rootNode) {
 //	RandomGen random;
 	worldNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	ScriptManager* scriptManager;
-//	Cartographer *cartographer;
-//	RoutePlanner *routePlanner;
 //
 //	int thisFactionIndex;
 	worldNode->addAttribute("thisFactionIndex",intToStr(thisFactionIndex), mapTagReplacements);
