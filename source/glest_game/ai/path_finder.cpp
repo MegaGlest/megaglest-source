@@ -229,7 +229,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 	uint32 searched_node_count = 0;
 	minorDebugPathfinder = false;
-	bool enableFastPathfinder = Config::getInstance().getBool("EnableFastPathFinder","false");
+	//bool enableFastPathfinder = Config::getInstance().getBool("EnableFastPathFinder","false");
+	bool enableFastPathfinder = false;
 	if(enableFastPathfinder == true) {
 		if(minorDebugPathfinder) printf("Fast Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
 
