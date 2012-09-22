@@ -849,7 +849,12 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 					ServerInterface *server = networkManager.getServerInterface();
 					if(server->isClientConnected(playerIndex) == true) {
 						ConnectionSlot *slot = server->getSlot(playerIndex);
-						slot->close();
+						if(slot != NULL) {
+							NetworkMessageQuit networkMessageQuit;
+							slot->sendMessage(&networkMessageQuit);
+							sleep(5);
+							slot->close();
+						}
 					}
 				}
         	}
