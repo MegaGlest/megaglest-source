@@ -219,7 +219,7 @@ void ServerInterface::shutdownMasterserverPublishThread() {
 		time_t elapsed = time(NULL);
 		publishToMasterserverThread->signalQuit();
 		for(;publishToMasterserverThread->canShutdown(false) == false &&
-			difftime(time(NULL),elapsed) <= 15;) {
+			difftime((long int)time(NULL),elapsed) <= 15;) {
 			//sleep(150);
 		}
 		if(publishToMasterserverThread->canShutdown(true)) {
@@ -658,13 +658,13 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 		alreadyInLagCheck = true;
 
 		if(gameStartTime > 0 &&
-				difftime(time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) {
+				difftime((long int)time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) {
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				double clientLag = this->getCurrentFrameCount() - connectionSlot->getCurrentFrameCount();
 				double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
 				connectionSlot->setCurrentLagCount(clientLagCount);
 
-				double clientLagTime = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
+				double clientLagTime = difftime((long int)time(NULL),connectionSlot->getLastReceiveCommandListTime());
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -869,7 +869,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 	std::map<int,bool> slotsCompleted;
 	for(bool threadsDone = false;
 		exitServer == false && threadsDone == false &&
-		difftime(time(NULL),waitForThreadElapsed) < MAX_SLOT_THREAD_WAIT_TIME;) {
+		difftime((long int)time(NULL),waitForThreadElapsed) < MAX_SLOT_THREAD_WAIT_TIME;) {
 		threadsDone = true;
 		// Examine all threads for completion of delegation
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
@@ -932,7 +932,7 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 	std::map<int,bool> slotsWarnedList;
 	for(bool threadsDone = false;
 		exitServer == false && threadsDone == false &&
-		difftime(time(NULL),waitForThreadElapsed) < MAX_SLOT_THREAD_WAIT_TIME;) {
+		difftime((long int)time(NULL),waitForThreadElapsed) < MAX_SLOT_THREAD_WAIT_TIME;) {
 		threadsDone = true;
 		// Examine all threads for completion of delegation
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
@@ -978,9 +978,9 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 						if((clientLagExceededOrWarned.first == true && gameSettings.getNetworkPauseGameForLaggedClients() == true)) { // ||
 							//(clientLagExceededOrWarned.second == true && slotsWarnedAndRetried[i] == false)) {
 
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d, difftime(time(NULL),waitForClientsElapsed) = %.2f, MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = %.2f\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second,difftime(time(NULL),waitForClientsElapsed),MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d, difftime(time(NULL),waitForClientsElapsed) = %.2f, MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = %.2f\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second,difftime((long int)time(NULL),waitForClientsElapsed),MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE);
 
-							if(difftime(time(NULL),waitForClientsElapsed) < MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE) {
+							if(difftime((long int)time(NULL),waitForClientsElapsed) < MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE) {
 								if(connectionSlot != NULL) {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",__FILE__,__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
 
@@ -1011,7 +1011,7 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				try {
 					if(gameHasBeenInitiated == true &&
-						difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+						difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
 
 						//printf("\n\n\n^^^^^^^^^^^^^^ PART A\n\n\n");
 
@@ -1306,7 +1306,7 @@ void ServerInterface::update() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			else if(gameHasBeenInitiated == true &&
-					difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+					difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
 				//printf("\nServerInterface::update -- E1\n");
 
 				//std::map<int,ConnectionSlotEvent> eventList;
@@ -1318,7 +1318,7 @@ void ServerInterface::update() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 		else if(gameHasBeenInitiated == true &&
-				difftime(time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+				difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
 			//printf("\nServerInterface::update -- F\n");
 
 			std::map<int,ConnectionSlotEvent> eventList;
@@ -1764,7 +1764,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 			}
 		}
 
-		Window::handleEvent();
+		Shared::Platform::Window::handleEvent();
 	}
 
 	if(logger.getCancelLoading() == true) {
@@ -1941,7 +1941,7 @@ string ServerInterface::getNetworkStatus() {
 		if(connectionSlot!= NULL) {
 			if(connectionSlot->isConnected()) {
 				int clientLagCount 					= connectionSlot->getCurrentLagCount();
-				double lastClientCommandListTimeLag = difftime(time(NULL),connectionSlot->getLastReceiveCommandListTime());
+				double lastClientCommandListTimeLag = difftime((long int)time(NULL),connectionSlot->getLastReceiveCommandListTime());
 				//float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
 				char szBuf[1024]="";
 				//sprintf(szBuf,", lag = %d [%.2f], ping = %.2fms",clientLagCount,lastClientCommandListTimeLag,pingTime);
@@ -2305,7 +2305,7 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 
 			time_t tStart = time(NULL);
 			bool gotAckFromAllClients = false;
-			while(gotAckFromAllClients == false && difftime(time(NULL),tStart) <= 5) {
+			while(gotAckFromAllClients == false && difftime((long int)time(NULL),tStart) <= 5) {
 				gotAckFromAllClients = true;
 				for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 					//printf("===> START slot %d - About to setGameSettings #1\n",i);
@@ -2341,7 +2341,7 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 
 			time_t tStart = time(NULL);
 			bool gotAckFromAllClients = false;
-			while(gotAckFromAllClients == false && difftime(time(NULL),tStart) <= 5) {
+			while(gotAckFromAllClients == false && difftime((long int)time(NULL),tStart) <= 5) {
 				gotAckFromAllClients = true;
 				for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 					//printf("===> START slot %d - About to setGameSettings 2\n",i);
@@ -2440,7 +2440,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 void ServerInterface::simpleTask(BaseThread *callingThread) {
 	MutexSafeWrapper safeMutex(masterServerThreadAccessor,CODE_AT_LINE);
 
-	if(difftime(time(NULL),lastMasterserverHeartbeatTime) >= MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS) {
+	if(difftime((long int)time(NULL),lastMasterserverHeartbeatTime) >= MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		lastMasterserverHeartbeatTime = time(NULL);
@@ -2532,7 +2532,7 @@ std::string ServerInterface::DumpStatsToLog(bool dumpToStringOnly) const {
 				const int HOURS_IN_DAY = 24;
 				const int MINUTES_IN_HOUR = 60;
 				const int SECONDS_IN_MINUTE = 60;
-				int InSeconds = difftime(time(NULL),slot->getConnectedTime());
+				int InSeconds = difftime((long int)time(NULL),slot->getConnectedTime());
 				// compute seconds
 				int seconds = InSeconds % SECONDS_IN_MINUTE ;
 				// throw away seconds used in previous statement and convert to minutes
@@ -2588,7 +2588,7 @@ void ServerInterface::notifyBadClientConnectAttempt(string ipAddress) {
 	//printf("In [%s::%s Line: %d] ipAddress [%s]\n",__FILE__,__FUNCTION__,__LINE__,ipAddress.c_str());
 
 	if(badClientConnectIPList.find(ipAddress) == badClientConnectIPList.end()) {
-		badClientConnectIPList[ipAddress] = make_pair(0,time(NULL));
+		badClientConnectIPList[ipAddress] = make_pair(0,(long int)time(NULL));
 		//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
@@ -2598,7 +2598,7 @@ void ServerInterface::notifyBadClientConnectAttempt(string ipAddress) {
 	const uint64 BLOCK_BAD_CLIENT_CONNECT_MAX_ATTEMPTS 	= Config::getInstance().getInt("BlockBadClientConnectMaxAttempts", "6");
 	bool addToBlockedClientsList 						= false;
 
-	if(difftime(time(NULL),lastBadConnectionAttempt.second) <= BLOCK_BAD_CLIENT_CONNECT_MAX_SECONDS) {
+	if(difftime((long int)time(NULL),lastBadConnectionAttempt.second) <= BLOCK_BAD_CLIENT_CONNECT_MAX_SECONDS) {
 		//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(lastBadConnectionAttempt.first+1 > BLOCK_BAD_CLIENT_CONNECT_MAX_ATTEMPTS) {

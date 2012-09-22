@@ -217,6 +217,7 @@ public:
 
 	FastAINode() {
 		this->map = NULL;
+		hashCode=0;
 	}
 	FastAINode(Vec2i &pos,const Map *map) {
 		this->pos = pos;
@@ -226,6 +227,7 @@ public:
 		result.addInt(pos.y);
 		hashCode = result.getSum();
 	}
+	virtual ~FastAINode() {}
 	void setData(Vec2i pos, const Map *map) {
 		this->pos = pos;
 		this->map = map;

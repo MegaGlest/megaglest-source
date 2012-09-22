@@ -205,6 +205,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 								parts[parts.size()-1] += szBuf;
 							}
 							lastCharacterWasSpecial = false;
+							break;
 					}
 				}
 
@@ -221,6 +222,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 							break;
 						default:
 							font->getTextHandler()->Render(parts[i].c_str());
+							break;
 					}
 				}
 			}
@@ -299,6 +301,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 								parts[parts.size()-1] += szBuf;
 							}
 							lastCharacterWasSpecial = false;
+							break;
 					}
 				}
 
@@ -315,6 +318,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 							break;
 						default:
 							font->getTextHandler()->Render(parts[i].c_str());
+							break;
 					}
 				}
 			}
@@ -590,6 +594,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 							parts[parts.size()-1] += szBuf;
 						}
 						lastCharacterWasSpecial = false;
+						break;
 				}
 			}
 
@@ -635,6 +640,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 							font->getTextHandler()->Render(parts[i].c_str());
 							specialFTGLErrorCheckWorkaround(parts[i]);
 						}
+						break;
 				}
 			}
 		}

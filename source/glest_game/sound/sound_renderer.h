@@ -61,7 +61,7 @@ private:
 
 public:
 	//misc
-	~SoundRenderer();
+	virtual ~SoundRenderer();
 	static SoundRenderer &getInstance();
 	bool init(Window *window);
 	void update();

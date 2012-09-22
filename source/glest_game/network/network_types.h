@@ -103,7 +103,23 @@ private:
 	int32 unitCommandGroupId;
 
 public:
-	NetworkCommand(){};
+	NetworkCommand() {
+		networkCommandType=0;
+		unitId=0;
+		unitTypeId=0;
+		commandTypeId=0;
+		positionX=0;
+		positionY=0;
+		targetId=0;
+		wantQueue=0;
+		fromFactionIndex=0;
+		unitFactionUnitCount=0;
+		unitFactionIndex=0;
+		commandStateType=0;
+		commandStateValue=0;
+		unitCommandGroupId=0;
+	}
+
 	NetworkCommand(
 		World *world,
 		int networkCommandType,

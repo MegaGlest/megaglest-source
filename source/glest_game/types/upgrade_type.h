@@ -81,6 +81,7 @@ protected:
     std::map<string,int> prodSpeedMorphIsMultiplierValueList;
 
 public:
+    virtual ~UpgradeTypeBase() {}
 
 	int getMaxHp() const			{return maxHp;}
 	bool getMaxHpIsMultiplier() const			{return maxHpIsMultiplier;}
@@ -180,6 +181,7 @@ public:
 class TotalUpgrade: public UpgradeTypeBase {
 public:
 	TotalUpgrade();
+	virtual ~TotalUpgrade() {}
 
 	void reset();
 	void sum(const UpgradeTypeBase *ut, const Unit *unit);

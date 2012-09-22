@@ -106,6 +106,16 @@ Renderer::Renderer() {
 	green = 0.3f;
 	blue = 0.3f;
 	alpha = 1.0f;
+
+	customTextureRed=NULL;
+	customTextureBlue=NULL;
+	customTextureGreen=NULL;
+	customTextureYellow=NULL;
+	customTextureWhite=NULL;
+	customTextureCyan=NULL;
+	customTextureOrange=NULL;
+	customTextureMagenta=NULL;
+	particleManager=NULL;
 }
 
 Renderer::~Renderer() {
@@ -346,6 +356,7 @@ void Renderer::reset(int w, int h, PlayerColor playerColor) {
 		break;
 	default:
 		assert(false);
+		break;
 	}
 	meshCallbackTeamColor.setTeamTexture(customTexture);
 
@@ -479,6 +490,7 @@ Texture2D * Renderer::getPlayerColorTexture(PlayerColor playerColor) {
 		break;
 	default:
 		assert(false);
+		break;
 	}
 
 	return customTexture;

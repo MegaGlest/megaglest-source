@@ -46,6 +46,7 @@ class Object;
 class ObjectStateInterface {
 public:
 	virtual void removingObjectEvent(Object *object) = 0;
+	virtual ~ObjectStateInterface() {}
 };
 
 class Object : public BaseColorPickEntity {
@@ -69,7 +70,7 @@ private:
 
 public:
 	Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos);
-	~Object();
+	virtual ~Object();
 
 	void end(); //to kill particles
 	void initParticles();

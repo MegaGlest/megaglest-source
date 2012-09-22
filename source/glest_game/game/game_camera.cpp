@@ -58,6 +58,7 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 	//config
 	speed= 15.f / GameConstants::cameraFps;
 	clampBounds= !Config::getInstance().getBool("PhotoMode");
+	clampDisable = false;
 
 	vAng= startingVAng;
     hAng= startingHAng;
@@ -122,6 +123,14 @@ void GameCamera::setPos(Vec2f pos){
 	destPos.z = pos.y;
 }
 
+void GameCamera::setPos(Vec3f pos){
+	this->pos= pos;
+	//clampPosXZ(0.0f, (float)limitX, 0.0f, (float)limitY);
+	destPos.x = pos.x;
+	destPos.y = pos.y;
+	destPos.z = pos.z;
+}
+
 void GameCamera::update(){
 
 	//move XZ
@@ -143,13 +152,13 @@ void GameCamera::update(){
 		}
 		if(move.y>0){
 			moveUp(speed * move.y);
-			if(clampBounds && pos.y<maxHeight){
+			if(clampDisable == false && clampBounds && pos.y<maxHeight){
 				rotateHV(0.f, -speed * 1.7f * move.y);
 			}
 		}
 		if(move.y<0){
 			moveUp(speed * move.y);
-			if(clampBounds && pos.y>minHeight){
+			if(clampDisable == false && clampBounds && pos.y>minHeight){
 				rotateHV(0.f, -speed * 1.7f * move.y);
 			}
 		}
@@ -182,7 +191,7 @@ void GameCamera::update(){
 
 	clampAng();
 
-	if(clampBounds){
+	if(clampDisable == false && clampBounds){
 		clampPosXYZ(0.0f, (float)limitX, minHeight, maxHeight, 0.0f, (float)limitY);
 	}
 }
@@ -341,6 +350,10 @@ void GameCamera::save(XmlNode *node) const {
 // ==================== PRIVATE ====================
 
 void GameCamera::clampPosXZ(float x1, float x2, float z1, float z2){
+	if(clampDisable == true) {
+		return;
+	}
+
 	if(pos.x < x1)		pos.x = x1;
 	if(destPos.x < x1)	destPos.x = x1;
 	if(pos.z < z1)		pos.z = z1;
@@ -352,6 +365,10 @@ void GameCamera::clampPosXZ(float x1, float x2, float z1, float z2){
 }
 
 void GameCamera::clampPosXYZ(float x1, float x2, float y1, float y2, float z1, float z2){
+	if(clampDisable == true) {
+		return;
+	}
+
 	if(pos.x < x1)		pos.x = x1;
 	if(destPos.x < x1)	destPos.x = x1;
 	if(pos.y < y1)		pos.y = y1;
@@ -373,6 +390,10 @@ void GameCamera::rotateHV(float h, float v){
 }
 
 void GameCamera::clampAng() {
+	if(clampDisable == true) {
+		return;
+	}
+
 	if(vAng > maxVAng)		vAng = maxVAng;
 	if(destAng.x > maxVAng)	destAng.x = maxVAng;
 	if(vAng < minVAng)		vAng = minVAng;

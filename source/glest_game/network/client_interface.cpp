@@ -77,7 +77,7 @@ void ClientInterface::shutdownNetworkCommandListThread() {
 		time_t elapsed = time(NULL);
 		networkCommandListThread->signalQuit();
 		for(;networkCommandListThread->canShutdown(false) == false &&
-			difftime(time(NULL),elapsed) <= 15;) {
+			difftime((long int)time(NULL),elapsed) <= 15;) {
 			//sleep(150);
 		}
 		if(networkCommandListThread->canShutdown(true)) {
@@ -168,7 +168,7 @@ void ClientInterface::update() {
 		}
 	}
 
-	double lastSendElapsed = difftime(time(NULL),lastNetworkCommandListSendTime);
+	double lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -583,8 +583,8 @@ void ClientInterface::updateLobby() {
     }
 
 	if( clientSocket != NULL && clientSocket->isConnected() == true &&
-		gotIntro == false && difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",__FILE__,__FUNCTION__,__LINE__,difftime(time(NULL),connectedTime));
+		gotIntro == false && difftime((long int)time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",__FILE__,__FUNCTION__,__LINE__,difftime((long int)time(NULL),connectedTime));
 		close();
 	}
 }
@@ -605,7 +605,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 				if(clientSimulationLagStartTime == 0) {
 					clientSimulationLagStartTime = time(NULL);
 				}
-				if(difftime(time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
+				if(difftime((long int)time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
 					sleep(Config::getInstance().getInt("SimulateClientLag","0"));
 				}
 			}
@@ -820,6 +820,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					close();
 					done= true;
 					}
+					break;
 			}
 
 			if(isConnected() == false && quit == true) {
@@ -1138,7 +1139,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 				return;
 			}
 
-			Window::handleEvent();
+			Shared::Platform::Window::handleEvent();
 			// sleep a bit
 			sleep(waitSleepTime);
 		}

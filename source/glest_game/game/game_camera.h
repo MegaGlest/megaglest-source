@@ -79,6 +79,7 @@ private:
 	//config
 	float speed;
 	bool clampBounds;
+	bool clampDisable;
 	//float maxRenderDistance;
 	float maxHeight;
 	float minHeight;
@@ -108,6 +109,7 @@ public:
     //set
 	void setRotate(float rotate){this->rotate= rotate;}
 	void setPos(Vec2f pos);
+	void setPos(Vec3f pos);
 
 	void setMoveX(float f)		{this->move.x= f;}
 	void setMoveY(float f)		{this->move.y= f;}
@@ -148,6 +150,7 @@ public:
 	void save(XmlNode *node) const;
 
 	void setClampBounds(bool value) { clampBounds = value; }
+	void setClampDisabled(bool value) { clampDisable = value; };
 	void setMaxHeight(float value);
 	float getCalculatedDefault() const{ return calculatedDefault; }
 	void setCalculatedDefault(float calculatedDefault);
@@ -156,6 +159,9 @@ public:
 	void setFov(float value) { fov = value; }
 	void setMinVAng(float value) { minVAng = value; }
 	void setMaxVAng(float value) { maxVAng = value; }
+
+	void setHAng(float value) { hAng=value;};
+	void setVAng(float value) { vAng=value;}
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);

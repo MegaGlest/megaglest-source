@@ -366,7 +366,7 @@ private:
 				vbo_vertices(0), vbo_normals(0), 
 				vbo_fowTexCoords(0), vbo_surfTexCoords(0),
 				vbo_indices(0), indexCount(0),
-				textureHandle(th) {}
+				textureHandle(th),textureCRC(0) {}
 			~Layer();
 			void load_vbos(bool vboEnabled);
 			void render(VisibleQuadContainerCache &qCache);
@@ -444,7 +444,7 @@ public:
 	Texture3D *newTexture3D(ResourceScope rs);
 	Font2D *newFont(ResourceScope rs);
 	Font3D *newFont3D(ResourceScope rs);
-	void endFont(Font *font, ResourceScope rs, bool mustExistInList=false);
+	void endFont(Shared::Graphics::Font *font, ResourceScope rs, bool mustExistInList=false);
 	void resetFontManager(ResourceScope rs);
 
 	inline TextRenderer2D *getTextRenderer() const	{return textRenderer;}

@@ -90,7 +90,7 @@ enum AttackBoostTargetType {
 class AttackBoost {
 public:
 	AttackBoost();
-	~AttackBoost();
+	virtual ~AttackBoost();
 	bool enabled;
 	bool allowMultipleBoosts;
 	int radius;

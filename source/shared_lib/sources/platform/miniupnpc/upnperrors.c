@@ -98,6 +98,7 @@ const char * strupnperror(int err)
 		break;
 	default:
 		s = NULL;
+		break;
 	}
 	return s;
 }

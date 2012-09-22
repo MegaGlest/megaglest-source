@@ -91,7 +91,7 @@ private:
 
 	int updateFps, lastUpdateFps, avgUpdateFps;
 	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps,currentAvgRenderFpsTotal;
-	Uint64 tickCount;
+	uint64 tickCount;
 	bool paused;
 	bool gameOver;
 	bool renderNetworkStatus;

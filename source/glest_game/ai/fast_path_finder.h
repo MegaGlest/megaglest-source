@@ -127,6 +127,8 @@ public:
   virtual unsigned int getEdgeCount(void *userData) const = 0;
   virtual AI_Node *    getEdge(int index,void *userData) const = 0;
   virtual int32 		getHashCode() const = 0;
+
+  virtual ~AI_Node() {}
 };
 
 enum SearchState {

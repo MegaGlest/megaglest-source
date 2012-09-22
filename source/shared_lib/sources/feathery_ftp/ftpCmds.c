@@ -233,7 +233,7 @@ LOCAL int ftpCmdPort(int sessionId, const char* args, int len)
 		}
 	}
 	// TODO Derzeit wird die übergebene IP nicht beachtet, sondern nur die IP des Control-Sockets verwendet
-	clientIp[0] = clientIp[0];
+	//clientIp[0] = clientIp[0];
 	if(ftpGetSession(sessionId)->passiveDataSocket >= 0)
 	{
 		if(VERBOSE_MODE_ENABLED) printf("In ftpCmdPort about to Close socket = %d for sessionId = %d\n",ftpGetSession(sessionId)->passiveDataSocket,sessionId);
@@ -701,6 +701,7 @@ LOCAL int ftpCmdType(int sessionId, const char* args, int len)
 		break;
 	default:
 		ftpSendMsg(MSG_NORMAL, sessionId, 504, ftpMsg028);
+		break;
 	}
 
 	return 0;
@@ -799,6 +800,7 @@ LOCAL int ftpCmdStru(int sessionId, const char* args, int len)
 		break;
 	default:
 		ftpSendMsg(MSG_NORMAL, sessionId, 504, ftpMsg031);
+		break;
 	}
 	return 0;
 }

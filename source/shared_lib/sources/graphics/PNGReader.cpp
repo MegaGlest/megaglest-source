@@ -38,10 +38,9 @@ static void user_read_data(png_structp read_ptr, png_bytep data, png_size_t leng
 	}
 }
 
-static void user_write_data(png_structp png_ptr, png_bytep data, png_size_t length) {
-}
+//static void user_write_data(png_structp png_ptr, png_bytep data, png_size_t length) {}
 
-static void user_flush_data(png_structp png_ptr) {}
+//static void user_flush_data(png_structp png_ptr) {}
 
 /**Get Extension array, initialised*/
 //static inline const string* getExtensionsPng() {
@@ -178,6 +177,7 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 						for (unsigned int i = 0; i < picComponents; ++i) {
 							pixels[location+xPic+i] = l;
 						}
+						break;
 						//TODO: Error
 				}
 			}
@@ -327,6 +327,7 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 						for (unsigned int i = 0; i < picComponents; ++i) {
 							pixels[location+xPic+i] = l;
 						}
+						break;
 						//TODO: Error
 				}
 			}

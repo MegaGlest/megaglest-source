@@ -161,7 +161,7 @@ private:
 
 public:
     Program();
-    ~Program();
+    virtual ~Program();
 
     static Program *getInstance()	{return singleton;}
 

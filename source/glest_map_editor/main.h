@@ -341,6 +341,7 @@ public:
 	App() : wxApp() {
 		mainWindow = NULL;
 	}
+	virtual ~App() {}
 	virtual bool OnInit();
 	virtual int MainLoop();
 	virtual int OnExit();

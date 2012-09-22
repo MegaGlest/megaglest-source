@@ -173,6 +173,7 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
 
 		throw megaglest_runtime_error(szBuf);
 	}
+	return NULL;
 }
 
 void XmlIo::save(const string &path, const XmlNode *node){

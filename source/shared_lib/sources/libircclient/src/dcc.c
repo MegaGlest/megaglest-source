@@ -202,6 +202,8 @@ static void libirc_dcc_add_descriptors (irc_session_t * ircsession, fd_set *in_s
 
              if ( dcc->dccmode == LIBIRC_DCC_SENDFILE && dcc->incoming_offset < 4 )
 				libirc_add_to_set (dcc->sock, in_set, maxfd);
+
+             break;
 		}
 	}
 

@@ -575,8 +575,9 @@ string SkillType::skillClassToStr(SkillClass skillClass) {
 	case scUpgrade: return "Upgrade";
 	default:
 		assert(false);
-		return "";
-	};
+		break;
+	}
+	return "";
 }
 
 string SkillType::fieldToStr(Field field) {
@@ -605,8 +606,9 @@ string SkillType::fieldToStr(Field field) {
 			return lang.getTilesetString("FieldAirName",fieldName.c_str());
 		default:
 			assert(false);
-			return "";
-	};
+			break;
+	}
+	return "";
 }
 
 void SkillType::saveGame(XmlNode *rootNode) {

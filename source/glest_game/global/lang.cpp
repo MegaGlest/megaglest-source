@@ -416,6 +416,7 @@ string Lang::get(const string &s, string uselanguage, bool fallbackToDefault) {
 
 		return "???" + s + "???";
 	}
+	return "???" + s + "???";
 }
 
 string Lang::getScenarioString(const string &s) {
@@ -430,6 +431,7 @@ string Lang::getScenarioString(const string &s) {
 		}
 		return "???" + s + "???";
 	}
+	return "???" + s + "???";
 }
 
 string Lang::getTechTreeString(const string &s,const char *defaultValue) {
@@ -459,6 +461,7 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 		}
 		return "???" + s + "???";
 	}
+	return "???" + s + "???";
 }
 
 string Lang::getTilesetString(const string &s,const char *defaultValue) {
@@ -488,6 +491,7 @@ string Lang::getTilesetString(const string &s,const char *defaultValue) {
 		}
 		return "???" + s + "???";
 	}
+	return "???" + s + "???";
 }
 
 bool Lang::fileMatchesISO630Code(string uselanguage, string testLanguageFile) {

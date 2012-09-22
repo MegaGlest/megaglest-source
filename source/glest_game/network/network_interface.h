@@ -244,7 +244,7 @@ public:
 
 	NetworkMessagePing getLastPingInfo() const { return lastPingInfo; }
 	double getLastPingLag() const {
-		return difftime(time(NULL),lastPingInfo.getPingReceivedLocalTime());
+		return difftime((long int)time(NULL),lastPingInfo.getPingReceivedLocalTime());
 	}
 
 	std::string getIpAddress();

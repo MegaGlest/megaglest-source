@@ -22,6 +22,7 @@ namespace Shared{ namespace Graphics{
 
 class VideoLoadingCallbackInterface {
 public:
+	virtual ~VideoLoadingCallbackInterface() {}
 	/** a value from 1 to 100 representing % done */
 	virtual void renderVideoLoading(int progressPercent) = 0;
 };

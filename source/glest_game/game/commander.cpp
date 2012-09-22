@@ -968,6 +968,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
                 default:
                     assert(false);
+                    break;
             }
         }
         else {

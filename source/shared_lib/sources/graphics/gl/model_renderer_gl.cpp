@@ -31,6 +31,7 @@ ModelRendererGl::ModelRendererGl() {
 	rendering= false;
 	duplicateTexCoords= false;
 	secondaryTexCoordUnit= 1;
+	lastTexture=0;
 }
 
 void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback) {

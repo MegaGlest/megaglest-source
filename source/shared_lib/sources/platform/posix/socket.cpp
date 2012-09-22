@@ -349,6 +349,7 @@ void Ip::Inet_NtoA(uint32 addr, char * ipbuf)
 }
 
 // convert a string represenation of an IP address into its numeric equivalent
+/*
 static uint32 Inet_AtoN(const char * buf)
 {
    // net_server inexplicably doesn't have this function; so I'll just fake it
@@ -368,7 +369,7 @@ static uint32 Inet_AtoN(const char * buf)
    }
    return ret;
 }
-
+*/
 /*
 static void PrintNetworkInterfaceInfos()
 {
@@ -793,6 +794,8 @@ Socket::Socket(PLATFORM_SOCKET sock) {
 	MutexSafeWrapper safeMutexSocketDestructorFlag(inSocketDestructorSynchAccessor,CODE_AT_LINE);
 	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
 	this->inSocketDestructor = false;
+	lastThreadedPing = 0;
+	lastDebugEvent = 0;
 	//safeMutexSocketDestructorFlag.ReleaseLock();
 
 	//this->pingThread = NULL;
@@ -933,7 +936,7 @@ Socket::~Socket() {
 	for(time_t elapsed = time(NULL);
 		(dataSynchAccessorRead->getRefCount() > 0 ||
 		 dataSynchAccessorWrite->getRefCount() > 0) &&
-		 difftime(time(NULL),elapsed) <= 2;) {
+		 difftime((long int)time(NULL),elapsed) <= 2;) {
 		printf("Waiting in socket destructor\n");
 		//sleep(0);
 	}
@@ -1149,7 +1152,7 @@ int Socket::getDataToRead(bool wantImmediateReply) {
     if(isSocketValid() == true)
     {
     	//int loopCount = 1;
-    	for(time_t elapsed = time(NULL); difftime(time(NULL),elapsed) < 1;) {
+    	for(time_t elapsed = time(NULL); difftime((long int)time(NULL),elapsed) < 1;) {
 			/* ioctl isn't posix, but the following seems to work on all modern
 			 * unixes */
 	#ifndef WIN32
@@ -1236,7 +1239,7 @@ int Socket::send(const void *data, int dataSize) {
 		int attemptCount = 0;
 	    time_t tStartTimer = time(NULL);
 	    while((bytesSent < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) &&
-	    		(difftime(time(NULL),tStartTimer) <= MAX_SEND_WAIT_SECONDS)) {
+	    		(difftime((long int)time(NULL),tStartTimer) <= MAX_SEND_WAIT_SECONDS)) {
 	    	attemptCount++;
 	    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount);
 
@@ -1297,7 +1300,7 @@ int Socket::send(const void *data, int dataSize) {
 	    time_t tStartTimer = time(NULL);
 	    while(((bytesSent > 0 && totalBytesSent < dataSize) ||
 	    		(bytesSent < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN)) &&
-	    		(difftime(time(NULL),tStartTimer) <= MAX_SEND_WAIT_SECONDS)) {
+	    		(difftime((long int)time(NULL),tStartTimer) <= MAX_SEND_WAIT_SECONDS)) {
 	    	attemptCount++;
 	    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] attemptCount = %d, totalBytesSent = %d\n",__FILE__,__FUNCTION__,__LINE__,attemptCount,totalBytesSent);
 
@@ -1399,7 +1402,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 
 	    time_t tStartTimer = time(NULL);
 	    while((bytesReceived < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) &&
-	    		(difftime(time(NULL),tStartTimer) <= MAX_RECV_WAIT_SECONDS)) {
+	    		(difftime((long int)time(NULL),tStartTimer) <= MAX_RECV_WAIT_SECONDS)) {
 	        if(isConnected() == false) {
                 int iErr = getLastSocketError();
                 disconnectSocket();
@@ -1512,7 +1515,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) &&
-	    		(difftime(time(NULL),tStartTimer) <= MAX_PEEK_WAIT_SECONDS)) {
+	    		(difftime((long int)time(NULL),tStartTimer) <= MAX_PEEK_WAIT_SECONDS)) {
 /*
 	        if(isConnected() == false) {
                 int iErr = getLastSocketError();
@@ -1978,7 +1981,7 @@ void BroadCastClientSocketThread::execute() {
 
 			try	{
 				// Keep getting packets forever.
-				for( time_t elapsed = time(NULL); difftime(time(NULL),elapsed) <= 5; ) {
+				for( time_t elapsed = time(NULL); difftime((long int)time(NULL),elapsed) <= 5; ) {
 					alen = sizeof(struct sockaddr);
 					int nb=0;// The number of bytes read.
 					bool gotData = (nb = recvfrom(bcfd, buff, 10024, 0, (struct sockaddr *) &bcSender, &alen)) > 0;
@@ -2061,6 +2064,7 @@ ServerSocket::ServerSocket(bool basicMode) : Socket() {
 	//ServerSocket::upnpdiscoverThread = NULL;
 	//safeMutexUPNP.ReleaseLock();
 
+	boundPort = 0;
 	portBound = false;
 	broadCastThread = NULL;
 	if(this->basicMode == false) {
@@ -2791,7 +2795,7 @@ void BroadCastSocketThread::execute() {
 						strcat(buff,ipList[idx1].c_str());
 					}
 
-					if(difftime(time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
+					if(difftime((long int)time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
 						elapsed = time(NULL);
 
 						bool pauseBroadCast = getPauseBroadcast();

@@ -61,6 +61,7 @@ public:
     Command(const CommandType *ct, Unit *unit); 
     Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing); 
 
+    virtual ~Command() {}
     //get
 	inline const CommandType *getCommandType() const	{return commandType;}
 	inline Vec2i getPos() const						{return pos;}

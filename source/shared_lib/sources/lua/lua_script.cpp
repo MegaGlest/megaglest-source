@@ -552,6 +552,7 @@ string LuaScript::errorToString(int errorCode) {
 			break;
 		default:
 			error+= "Unknown error";
+			break;
 	}
 
 	error += string(": ")+luaL_checkstring(luaState, -1);

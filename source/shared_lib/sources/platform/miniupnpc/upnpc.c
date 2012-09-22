@@ -573,6 +573,7 @@ int main(int argc, char ** argv)
 			default:
 				printf("Found device (igd ?) : %s\n", urls.controlURL);
 				printf("Trying to continue anyway\n");
+				break;
 			}
 			printf("Local LAN ip address : %s\n", lanaddr);
 			#if 0
@@ -662,6 +663,7 @@ int main(int argc, char ** argv)
 			default:
 				fprintf(stderr, "Unknown switch -%c\n", command);
 				retcode = 1;
+				break;
 			}
 
 			FreeUPNPUrls(&urls);

@@ -121,7 +121,7 @@ private:
 	void checkExtension(const string &extension, const string &msg);
 
 public:
-	~Renderer();
+	virtual ~Renderer();
 	static Renderer *getInstance();
 
 	void init();
