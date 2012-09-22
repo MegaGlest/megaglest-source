@@ -243,6 +243,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	this->mutexSocket = new Mutex();
+	this->socket = NULL;
 	this->mutexCloseConnection = new Mutex();
 	this->mutexPendingNetworkCommandList = new Mutex();
 	this->socketSynchAccessor = new Mutex();
@@ -452,7 +453,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					if(this->isConnected() == true) {
 					//RandomGen random;
 					//sessionKey = random.randRange(-100000, 100000);
-					srand(time(NULL) / (this->playerIndex + 1));
+					srand((unsigned int)time(NULL) / (this->playerIndex + 1));
 					sessionKey = rand() % 1000000;
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] accepted new client connection, serverInterface->getOpenSlotCount() = %d, sessionKey = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount(),sessionKey);
@@ -1143,11 +1144,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						double maxClientLagTimeAllowed 		= 8;
 
 						if(this->serverInterface->getGameStartTime() > 0 &&
-								difftime(time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD) {
+								difftime((long int)time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD) {
 							if(this->isConnected() == true) {
 								double clientLag = this->serverInterface->getCurrentFrameCount() - this->getCurrentFrameCount();
 								double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
-								double clientLagTime = difftime(time(NULL),this->getLastReceiveCommandListTime());
+								double clientLagTime = difftime((long int)time(NULL),this->getLastReceiveCommandListTime());
 
 								// New lag check
 								if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
@@ -1200,7 +1201,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 void ConnectionSlot::validateConnection() {
 	if(this->isConnected() == true && 
 		gotIntro == false && connectedTime > 0 &&
-		difftime(time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
+		difftime((long int)time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
 		close();
 	}
 }

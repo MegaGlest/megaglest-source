@@ -288,7 +288,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 		        model(NULL), glCanvas(NULL), renderer(NULL),
 		        initTextureManager(true), timer(NULL),
 		        startupSettingsInited(false),
-		        fileDialog(NULL)
+		        fileDialog(NULL),colorPicker(NULL)
 {
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
@@ -297,6 +297,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	string iniFilePath = extractDirectoryPathFromFile(config.getFileName(false));
     //getGlPlatformExtensions();
 
+	isControlKeyPressed = false;
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 	//int args[] = { WX_GL_RGBA, WX_GL_MIN_ALPHA,  0  }; // to prevent flicker
 	glCanvas = new GlCanvas(this, args);
@@ -2508,8 +2509,9 @@ int App::MainLoop(){
 	}
 	catch(const exception &e){
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Exception"), wxOK | wxICON_ERROR).ShowModal();
-		return 0;
+		return 1;
 	}
+	return 0;
 }
 
 int App::OnExit(){

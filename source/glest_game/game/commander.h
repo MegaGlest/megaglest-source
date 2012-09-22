@@ -52,6 +52,7 @@ class SwitchTeamVote;
 class CommanderNetworkCallbackInterface {
 public:
 	virtual void commanderNetworkUpdateTask(int id) = 0;
+	virtual ~CommanderNetworkCallbackInterface() {}
 };
 
 class CommanderNetworkThread : public BaseThread
@@ -88,7 +89,7 @@ private:
 
 public:
     Commander();
-    ~Commander();
+    virtual ~Commander();
 
     void signalNetworkUpdate(Game *game);
     void init(World *world);

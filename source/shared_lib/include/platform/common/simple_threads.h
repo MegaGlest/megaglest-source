@@ -30,6 +30,7 @@ namespace Shared { namespace PlatformCommon {
 class FileCRCPreCacheThreadCallbackInterface {
 public:
 	virtual vector<Texture2D *> processTech(string techName) = 0;
+	virtual ~FileCRCPreCacheThreadCallbackInterface() {}
 };
 
 // =====================================================
@@ -74,6 +75,8 @@ public:
 
 	virtual void setupTask(BaseThread *callingThread) { }
 	virtual void shutdownTask(BaseThread *callingThread) { }
+
+	virtual ~SimpleTaskCallbackInterface() {}
 };
 
 class SimpleTaskThread : public BaseThread

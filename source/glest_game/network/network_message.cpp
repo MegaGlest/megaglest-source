@@ -136,6 +136,7 @@ NetworkMessagePing::NetworkMessagePing(int32 pingFrequency, int64 pingTime){
 	data.messageType= nmtPing;
 	data.pingFrequency= pingFrequency;
 	data.pingTime= pingTime;
+	pingReceivedLocalTime=0;
 }
 
 bool NetworkMessagePing::receive(Socket* socket){

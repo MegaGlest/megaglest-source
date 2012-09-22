@@ -106,6 +106,13 @@ Game::Game() : ProgramState(NULL) {
 	program=NULL;
 	gameStarted=false;
 
+	highlightCellTexture=NULL;
+	lastMasterServerGameStatsDump=0;
+	lastMaxUnitCalcTime=0;
+	lastRenderLog2d=0;
+	playerIndexDisconnect=0;
+	tickCount=0;
+
 	popupMenu.setEnabled(false);
 	popupMenu.setVisible(false);
 
@@ -846,7 +853,7 @@ void Game::load(int loadTypes) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		Game::findFactionLogoFile(&gameSettings, &logger);
 
-		Window::handleEvent();
+		Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 	}
 
@@ -883,7 +890,7 @@ void Game::load(int loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-    Window::handleEvent();
+    Shared::Platform::Window::handleEvent();
 	SDL_PumpEvents();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -921,7 +928,7 @@ void Game::load(int loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-    Window::handleEvent();
+    Shared::Platform::Window::handleEvent();
 	SDL_PumpEvents();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -934,7 +941,7 @@ void Game::load(int loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-    Window::handleEvent();
+    Shared::Platform::Window::handleEvent();
 	SDL_PumpEvents();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -997,7 +1004,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Window::handleEvent();
+		Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 	}
 
@@ -1042,7 +1049,7 @@ void Game::init(bool initForPreviewOnly) {
 	if(initForPreviewOnly == false) {
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Window::handleEvent();
+		Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 
 		gui.init(this);
@@ -1083,7 +1090,7 @@ void Game::init(bool initForPreviewOnly) {
 	if(initForPreviewOnly == false) {
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Window::handleEvent();
+		Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 
 		scriptManager.init(&world, &gameCamera,loadGameNode);
@@ -1122,7 +1129,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Window::handleEvent();
+		Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 
 		if(world.getFactionCount() == 1 && world.getFaction(0)->getPersonalityType() == fpt_Observer) {
@@ -1174,7 +1181,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Window::handleEvent();
+		Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
@@ -1833,7 +1840,7 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 
 void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role) {
 	if(role == nrServer && isNetworkGame == true &&
-			difftime(time(NULL),lastNetworkPlayerConnectionCheck) >= NETWORK_PLAYER_CONNECTION_CHECK_SECONDS) {
+			difftime((long int)time(NULL),lastNetworkPlayerConnectionCheck) >= NETWORK_PLAYER_CONNECTION_CHECK_SECONDS) {
 		lastNetworkPlayerConnectionCheck = time(NULL);
 		Logger &logger= Logger::getInstance();
 		ServerInterface *server = NetworkManager::getInstance().getServerInterface();
@@ -1945,7 +1952,7 @@ void Game::render() {
 		    string str="";
 		    std::map<int,string> factionDebugInfo;
 
-			if( difftime(time(NULL),lastMasterServerGameStatsDump) >= GAME_STATS_DUMP_INTERVAL) {
+			if( difftime((long int)time(NULL),lastMasterServerGameStatsDump) >= GAME_STATS_DUMP_INTERVAL) {
 				lastMasterServerGameStatsDump = time(NULL);
 				str = getDebugStats(factionDebugInfo);
 
@@ -2884,7 +2891,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 				gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
 				mouseX=lastMousePos.x;
 				mouseY=lastMousePos.y;
-				Window::revertMousePos();
+				Shared::Platform::Window::revertMousePos();
 
 				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				return;
@@ -3632,7 +3639,7 @@ void Game::render3d(){
 void Game::updateWorldStats() {
     world.getStats()->setWorldTimeElapsed(world.getTimeFlow()->getTime());
 
-    if(difftime(time(NULL),lastMaxUnitCalcTime) >= 1) {
+    if(difftime((long int)time(NULL),lastMaxUnitCalcTime) >= 1) {
     	lastMaxUnitCalcTime = time(NULL);
 
 		int totalUnitcount = 0;
@@ -3867,7 +3874,7 @@ void Game::render2d() {
     std::map<int,string> factionDebugInfo;
 
 	if( renderer.getShowDebugUI() == true ||
-		(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1)) {
+		(perfLogging == true && difftime((long int)time(NULL),lastRenderLog2d) >= 1)) {
 		str = getDebugStats(factionDebugInfo);
 	}
 
@@ -3973,7 +3980,7 @@ void Game::render2d() {
     //2d mouse
 	renderer.renderMouse2d(mouseX, mouseY, mouse2d, gui.isSelectingPos()? 1.f: 0.f);
 
-	if(perfLogging == true && difftime(time(NULL),lastRenderLog2d) >= 1) {
+	if(perfLogging == true && difftime((long int)time(NULL),lastRenderLog2d) >= 1) {
 		lastRenderLog2d = time(NULL);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] Statistics: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,str.c_str());

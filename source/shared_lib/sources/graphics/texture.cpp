@@ -26,7 +26,8 @@ const int Texture::defaultSize       = 256;
 const int Texture::defaultComponents = 4;
 bool Texture::useTextureCompression  = false;
 
-/* Quick utility function for texture creation */
+// Quick utility function for texture creation
+/*
 static int powerOfTwo(int input) {
 		int value = 1;
 
@@ -35,6 +36,7 @@ static int powerOfTwo(int input) {
 		}
 		return value;
 }
+*/
 
 Texture::Texture() {
 	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);

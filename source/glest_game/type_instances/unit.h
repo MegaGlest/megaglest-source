@@ -289,7 +289,7 @@ class UnitAttackBoostEffect {
 public:
 
 	UnitAttackBoostEffect();
-	~UnitAttackBoostEffect();
+	virtual ~UnitAttackBoostEffect();
 
 	const AttackBoost *boost;
 	const Unit *source;
@@ -303,7 +303,7 @@ class UnitAttackBoostEffectOriginator {
 public:
 
 	UnitAttackBoostEffectOriginator();
-	~UnitAttackBoostEffectOriginator();
+	virtual ~UnitAttackBoostEffectOriginator();
 
 	const SkillType *skillType;
 	std::vector<int> currentAttackBoostUnits;
@@ -458,7 +458,7 @@ private:
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
-    ~Unit();
+    virtual ~Unit();
 
     //static bool isUnitDeleted(void *unit);
 

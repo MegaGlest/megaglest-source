@@ -55,6 +55,8 @@ class FTPClientValidationInterface {
 public:
 	virtual int isValidClientType(uint32 clientIp) = 0;
 	virtual int isClientAllowedToGetFile(uint32 clientIp, const char *username, const char *filename) = 0;
+
+	virtual ~FTPClientValidationInterface() {}
 };
 
 
@@ -62,6 +64,8 @@ public:
 class UPNPInitInterface {
 public:
 	virtual void UPNPInitStatus(bool result) = 0;
+
+	virtual ~UPNPInitInterface() {}
 };
 
 //
@@ -71,6 +75,7 @@ public:
 class DiscoveredServersInterface {
 public:
 	virtual void DiscoveredServers(std::vector<string> serverList) = 0;
+	virtual ~DiscoveredServersInterface() {}
 };
 
 // =====================================================

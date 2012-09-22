@@ -161,6 +161,20 @@ Renderer::Renderer() : BaseRenderer() {
 	//assert(0==1);
 
 	Renderer::rendererEnded = false;
+	shadowAlpha = 0;
+	shadowFrameSkip = 0;
+	triangleCount = 0;
+	smoothedRenderFps = 0;
+	shadowTextureSize = 0;
+	shadows = sDisabled;
+	shadowMapFrame = 0;
+	textures3D = false;
+	photoMode = false;
+	focusArrows = false;
+	pointCount = 0;
+	maxLights = 0;
+	waterAnim = 0;
+
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
 	this->game = NULL;
@@ -246,7 +260,7 @@ void Renderer::cleanupScreenshotThread() {
     if(saveScreenShotThread) {
 		saveScreenShotThread->signalQuit();
 		for(time_t elapsed = time(NULL);
-			getSaveScreenQueueSize() > 0 && difftime(time(NULL),elapsed) <= 7;) {
+			getSaveScreenQueueSize() > 0 && difftime((long int)time(NULL),elapsed) <= 7;) {
 			sleep(0);
 		}
 		if(saveScreenShotThread->canShutdown(true) == true &&
@@ -870,7 +884,7 @@ Font3D *Renderer::newFont3D(ResourceScope rs){
 	return fontManager[rs]->newFont3D();
 }
 
-void Renderer::endFont(Font *font, ResourceScope rs, bool mustExistInList) {
+void Renderer::endFont(Shared::Graphics::Font *font, ResourceScope rs, bool mustExistInList) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -1633,7 +1647,7 @@ void Renderer::computeVisibleQuad() {
 					visibleQuad.p[3].x,visibleQuad.p[3].y);
 			}
 		}
-		catch(PROJECTION_TO_INFINITY e) {
+		catch(PROJECTION_TO_INFINITY &e) {
 			if(debug) printf("hmm staring at the horizon %d\n",(int)e);
 			// use historic code solution
 			visibleQuad = this->gameCamera->computeVisibleQuad();
@@ -2551,7 +2565,7 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
-			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Font::scaleFontValue);
+			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Shared::Graphics::Font::scaleFontValue);
 			useWidth = (int)lineWidth;
 
 			maxEditWidth = useWidth;
@@ -2622,7 +2636,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			throw megaglest_runtime_error("font->getTextHandler() == NULL (5)");
 		}
 
-		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * Font::scaleFontValue);
+		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * Shared::Graphics::Font::scaleFontValue);
 		if(lineWidth < w) {
 			pos.x += ((w / 2.f) - (lineWidth / 2.f));
 		}
@@ -2638,7 +2652,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 
 		//const Metrics &metrics= Metrics::getInstance();
 		//float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
-		float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
+		float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Shared::Graphics::Font::scaleFontValue);
 		//lineHeight=metrics.toVirtualY(lineHeight);
 		//lineHeight= lineHeight / (2.f + 0.2f * FontMetrics::DEFAULT_Y_OFFSET_FACTOR);
 		//pos.y += (h / 2.f) - (lineHeight / 2.f);
@@ -2651,7 +2665,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			//if(Font::forceFTGLFonts == true) {
 				// First go to top of bounding box
 				pos.y += (h - lineHeight);
-				pos.y -= ((h - lineHeight) / Font::scaleFontValueCenterHFactor);
+				pos.y -= ((h - lineHeight) / Shared::Graphics::Font::scaleFontValueCenterHFactor);
 //			}
 //			else {
 //				pos.y += (float)(((float)h) / 2.0);
@@ -2702,7 +2716,7 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
-			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Font::scaleFontValue);
+			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Shared::Graphics::Font::scaleFontValue);
 			useWidth = (int)lineWidth;
 
 			maxEditWidth = useWidth;
@@ -2784,7 +2798,7 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
-			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Font::scaleFontValue);
+			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Shared::Graphics::Font::scaleFontValue);
 			useWidth = (int)lineWidth;
 
 			maxEditWidth = useWidth;
@@ -5261,6 +5275,7 @@ void Renderer::renderSelectionEffects() {
 					break;
 				default:
 					arrowColor= Vec3f(1.f, 1.f, 0.f);
+					break;
 				}
 
 				//arrow target

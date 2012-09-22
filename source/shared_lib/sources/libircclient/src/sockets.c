@@ -101,6 +101,7 @@ static int socket_connect (socket_t * sock, const struct sockaddr *saddr, sockle
 
 		return 0;
 	}
+	return 0;
 }
 
 

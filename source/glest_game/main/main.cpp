@@ -103,7 +103,7 @@ static bool gameInitialized 					= false;
 
 static Program *mainProgram 					= NULL;
 static FileCRCPreCacheThread *preCacheThread	= NULL;
-static string runtimeErrorMsg 					= "";
+//static string runtimeErrorMsg 					= "";
 
 void cleanupCRCThread() {
 	if(preCacheThread != NULL) {
@@ -114,14 +114,14 @@ void cleanupCRCThread() {
 		time_t elapsed = time(NULL);
 		preCacheThread->signalQuit();
 		for(;preCacheThread->canShutdown(false) == false &&
-			difftime(time(NULL),elapsed) <= MAX_THREAD_WAIT;) {
+			difftime((long int)time(NULL),elapsed) <= MAX_THREAD_WAIT;) {
 			//sleep(150);
 		}
-		if(difftime(time(NULL),elapsed) <= MAX_THREAD_WAIT) {
+		if(difftime((long int)time(NULL),elapsed) <= MAX_THREAD_WAIT) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("B - shutting down crc threads\n");
 
 			for(;preCacheThread->shutdownAndWait() == false &&
-				difftime(time(NULL),elapsed) <= MAX_THREAD_WAIT;) {
+				difftime((long int)time(NULL),elapsed) <= MAX_THREAD_WAIT;) {
 			}
 			if(preCacheThread->getRunningStatus() == false) {
 				delete preCacheThread;
@@ -173,7 +173,7 @@ static void cleanupProcessObjects() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("start running threads = %lu\n",Thread::getThreadList().size());
 	time_t elapsed = time(NULL);
     for(;Thread::getThreadList().size() > 0 &&
-    	 difftime(time(NULL),elapsed) <= 10;) {
+    	 difftime((long int)time(NULL),elapsed) <= 10;) {
     	//sleep(0);
     }
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("end running threads = %lu\n",Thread::getThreadList().size());
@@ -405,7 +405,7 @@ public:
 				if(glActiveTexture != NULL) {
 					for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
 						//program->getState()->render();
-						Window::handleEvent();
+						Shared::Platform::Window::handleEvent();
 						mainProgram->loop();
 
 						//printf("\nhandle error #1\n");
@@ -420,7 +420,7 @@ public:
 				if(glActiveTexture != NULL) {
 					for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
 						//program->renderProgramMsgBox();
-						Window::handleEvent();
+						Shared::Platform::Window::handleEvent();
 						mainProgram->loop();
 
 						//printf("\nhandle error #2\n");
@@ -891,9 +891,9 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 				renderer.setShowDebugUI(!showDebugUI);
 			}
 		}
-		else if(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL) &&
+		else if((keystate.mod & (KMOD_LCTRL | KMOD_RCTRL)) &&
 				isKeyPressed(configKeys.getSDLKey("SwitchLanguage"),key) == true) {
-			if(keystate.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
+			if((keystate.mod & (KMOD_LSHIFT | KMOD_RSHIFT))) {
 				//toggleLanguage("");
 			    this->triggerLanguageToggle = true;
 			    this->triggerLanguage = "";
@@ -3333,7 +3333,7 @@ int glestMain(int argc, char** argv) {
 	    }
 
         if(config.getBool("ForceFTGLFonts","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_FORCE_FTGLFONTS]) == true) {
-        	Font::forceFTGLFonts = true;
+        	Shared::Graphics::Font::forceFTGLFonts = true;
         	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Forcing Legacy Fonts Enabled\n");
         	printf("**WARNING** Forcing use of FTGL Fonts\n");
         }
@@ -3342,7 +3342,7 @@ int glestMain(int argc, char** argv) {
         }
 
         if(config.getBool("EnableLegacyFonts","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]) == true) {
-        	Font::forceLegacyFonts = true;
+        	Shared::Graphics::Font::forceLegacyFonts = true;
         	Renderer::renderText3DEnabled = false;
         	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Forcing Legacy Fonts Enabled\n");
         	printf("**WARNING** Forcing Legacy Fonts Enabled\n");
@@ -3494,14 +3494,14 @@ int glestMain(int argc, char** argv) {
 
 		// 256 for English
 		// 30000 for Chinese
-		Font::charCount    		= config.getInt("FONT_CHARCOUNT",intToStr(Font::charCount).c_str());
-		Font::fontTypeName 		= config.getString("FONT_TYPENAME",Font::fontTypeName.c_str());
-		Font::fontIsMultibyte 	= config.getBool("FONT_MULTIBYTE",intToStr(Font::fontIsMultibyte).c_str());
-		Font::fontIsRightToLeft	= config.getBool("FONT_RIGHTTOLEFT",intToStr(Font::fontIsRightToLeft).c_str());
-		Font::baseSize			= config.getInt("FONT_BASE_SIZE",intToStr(Font::baseSize).c_str());
-		Font::scaleFontValue				= config.getFloat("FONT_SCALE_SIZE",floatToStr(Font::scaleFontValue).c_str());
-		Font::scaleFontValueCenterHFactor	= config.getFloat("FONT_SCALE_CENTERH_FACTOR",floatToStr(Font::scaleFontValueCenterHFactor).c_str());
-		Font::langHeightText				= config.getString("FONT_HEIGHT_TEXT",Font::langHeightText.c_str());
+		Shared::Graphics::Font::charCount    		= config.getInt("FONT_CHARCOUNT",intToStr(Shared::Graphics::Font::charCount).c_str());
+		Shared::Graphics::Font::fontTypeName 		= config.getString("FONT_TYPENAME",Shared::Graphics::Font::fontTypeName.c_str());
+		Shared::Graphics::Font::fontIsMultibyte 	= config.getBool("FONT_MULTIBYTE",intToStr(Shared::Graphics::Font::fontIsMultibyte).c_str());
+		Shared::Graphics::Font::fontIsRightToLeft	= config.getBool("FONT_RIGHTTOLEFT",intToStr(Shared::Graphics::Font::fontIsRightToLeft).c_str());
+		Shared::Graphics::Font::baseSize			= config.getInt("FONT_BASE_SIZE",intToStr(Shared::Graphics::Font::baseSize).c_str());
+		Shared::Graphics::Font::scaleFontValue				= config.getFloat("FONT_SCALE_SIZE",floatToStr(Shared::Graphics::Font::scaleFontValue).c_str());
+		Shared::Graphics::Font::scaleFontValueCenterHFactor	= config.getFloat("FONT_SCALE_CENTERH_FACTOR",floatToStr(Shared::Graphics::Font::scaleFontValueCenterHFactor).c_str());
+		Shared::Graphics::Font::langHeightText				= config.getString("FONT_HEIGHT_TEXT",Shared::Graphics::Font::langHeightText.c_str());
 
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
@@ -3514,8 +3514,8 @@ int glestMain(int argc, char** argv) {
 			SystemFlags::DEFAULT_HTTP_TIMEOUT = config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str());
 		}
 
-		bool allowAltEnterFullscreenToggle = config.getBool("AllowAltEnterFullscreenToggle",boolToStr(Window::getAllowAltEnterFullscreenToggle()).c_str());
-		Window::setAllowAltEnterFullscreenToggle(allowAltEnterFullscreenToggle);
+		bool allowAltEnterFullscreenToggle = config.getBool("AllowAltEnterFullscreenToggle",boolToStr(Shared::Platform::Window::getAllowAltEnterFullscreenToggle()).c_str());
+		Shared::Platform::Window::setAllowAltEnterFullscreenToggle(allowAltEnterFullscreenToggle);
 
 		if(config.getBool("noTeamColors","false") == true) {
 			MeshCallbackTeamColor::noTeamColors = true;
@@ -3524,7 +3524,7 @@ int glestMain(int argc, char** argv) {
         // Setup debug logging etc
 		setupLogging(config, haveSpecialOutputCommandLineOption);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte, Font::fontIsRightToLeft);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte, Shared::Graphics::Font::fontIsRightToLeft);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
@@ -3560,7 +3560,7 @@ int glestMain(int argc, char** argv) {
         }
 
         if(config.getBool("EnableVSynch","false") == true) {
-        	Window::setTryVSynch(true);
+        	Shared::Platform::Window::setTryVSynch(true);
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**ENABLED OPENGL VSYNCH**\n");
         }
 
@@ -3671,7 +3671,7 @@ int glestMain(int argc, char** argv) {
         lang.loadStrings(language,false, true);
 
         if(	lang.hasString("FONT_HEIGHT_TEXT")) {
-        	Font::langHeightText = config.getString("FONT_HEIGHT_TEXT",Font::langHeightText.c_str());
+        	Shared::Graphics::Font::langHeightText = config.getString("FONT_HEIGHT_TEXT",Shared::Graphics::Font::langHeightText.c_str());
         }
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_FONT_BASESIZE]) == true) {
@@ -3688,7 +3688,7 @@ int glestMain(int argc, char** argv) {
 				//printf("#1 Forcing font [%s] paramPartTokens.size() = %d, paramValue [%s]\n",newfont.c_str(),paramPartTokens.size(),paramValue.c_str());
 				printf("Forcing font base size[%s]\n",newfontBaseSize.c_str());
 
-				Font::baseSize = strToInt(newfontBaseSize);
+				Shared::Graphics::Font::baseSize = strToInt(newfontBaseSize);
 			}
 	        else {
 	            printf("\nInvalid missing font base size specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -3698,8 +3698,8 @@ int glestMain(int argc, char** argv) {
 	        }
     	}
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte,Font::fontIsRightToLeft);
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",Font::charCount,Font::fontTypeName.c_str(),Shared::Platform::charSet,Font::fontIsMultibyte,Font::fontIsRightToLeft);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_FONT]) == true) {
 			int foundParamIndIndex = -1;
@@ -4466,7 +4466,7 @@ int glestMain(int argc, char** argv) {
 				}
 
 			    sleep(0);
-			    Window::handleEvent();
+			    Shared::Platform::Window::handleEvent();
 				SDL_PumpEvents();
 
 				int result = 0;
@@ -4497,7 +4497,7 @@ int glestMain(int argc, char** argv) {
 				    renderer.swapBuffers();
 
 				    sleep(0);
-				    Window::handleEvent();
+				    Shared::Platform::Window::handleEvent();
 					SDL_PumpEvents();
 
 					Model *model = renderer.newModel(rsGlobal);
@@ -4618,7 +4618,7 @@ int glestMain(int argc, char** argv) {
 	    //throw megaglest_runtime_error("Test!");
 
 		//main loop
-		while(program->isShutdownApplicationEnabled() == false && Window::handleEvent()) {
+		while(program->isShutdownApplicationEnabled() == false && Shared::Platform::Window::handleEvent()) {
 			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 
 				if(disableheadless_console == false) {

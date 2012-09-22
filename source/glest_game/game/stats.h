@@ -87,6 +87,7 @@ public:
 		maxConcurrentUnitCount			= 0;
 		totalEndGameConcurrentUnitCount	= 0;
 		isMasterserverMode				= false;
+		timePlayed						= 0;
 	}
 
 	void init(int factionCount, int thisFactionIndex, const string &description);

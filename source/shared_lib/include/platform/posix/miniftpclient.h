@@ -44,7 +44,7 @@ enum FTP_Client_CallbackType {
 
 class FTPClientCallbackInterface {
 public:
-
+	virtual ~FTPClientCallbackInterface() {}
     struct FtpProgressStats {
       double download_total;
       double download_now;

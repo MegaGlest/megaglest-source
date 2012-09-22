@@ -6,6 +6,7 @@
 #include "vec.h"
 #include <map>
 #include <string>
+#include "conversion.h"
 #include <stdexcept>
 
 // ==============================================================
@@ -21,6 +22,7 @@
 
 using namespace Shared::Graphics;
 using namespace std;
+using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 

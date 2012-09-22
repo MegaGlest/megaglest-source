@@ -1370,7 +1370,7 @@ string extractLastDirectoryFromPath(string Path) {
 		}
 		else {
 			for(int i = lastDirectory-1; i >= 0; --i) {
-				if(Path[i] == '/' || Path[i] == '\\' && i > 0) {
+				if((Path[i] == '/' || Path[i] == '\\') && i > 0) {
 					result = Path.erase( 0, i);
 					break;
 				}

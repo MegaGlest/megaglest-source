@@ -307,6 +307,7 @@ void ParticleRendererGl::setBlendMode(ParticleSystem::BlendMode blendMode){
 		break;
 	default:
 		assert(false);
+		break;
 	}
 }
 

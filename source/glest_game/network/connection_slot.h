@@ -67,6 +67,7 @@ public:
 class ConnectionSlotCallbackInterface {
 public:
 	virtual void slotUpdateTask(ConnectionSlotEvent *event) = 0;
+	virtual ~ConnectionSlotCallbackInterface() {}
 };
 
 class ConnectionSlotThread : public BaseThread

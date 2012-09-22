@@ -80,6 +80,7 @@ void fillPixels(uint8 *texturePixels, const Pixmap2D *pixmap){
 				break;
 			default:
 				assert(false);
+				break;
 			}
 		}
 	}

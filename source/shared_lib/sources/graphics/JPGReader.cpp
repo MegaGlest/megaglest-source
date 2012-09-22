@@ -195,6 +195,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 						for (int i = 0; i < picComponents; ++i) {
 							pixels[location+xPic+i] = l;
 						}
+						break;
 						//TODO: Error
 				}
 			}

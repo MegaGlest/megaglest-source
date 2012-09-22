@@ -31,6 +31,7 @@
 #include <iterator>
 #include "map_preview.h"
 #include "string_utils.h"
+#include "network_message.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -252,7 +253,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxTileset.init(xoffset+460, mapPos, 150);
     //listBoxTileset.setItems(results);
 	setupTilesetList("");
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
 
     //tech Tree listBox
@@ -903,7 +904,7 @@ void MenuStateCustomGame::cleanup() {
     		time_t elapsed = time(NULL);
     		publishToMasterserverThread->signalQuit();
     		for(;publishToMasterserverThread->canShutdown(false) == false &&
-    			difftime(time(NULL),elapsed) <= 15;) {
+    			difftime((long int)time(NULL),elapsed) <= 15;) {
     			//sleep(150);
     		}
     		if(publishToMasterserverThread->canShutdown(true)) {
@@ -1273,7 +1274,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						int slotsToChangeStart = i;
 						int slotsToChangeEnd = i;
 						// If control is pressed while changing player types then change all other slots to same type
-						if(Window::isKeyStateModPressed(KMOD_CTRL) == true) {
+						if(Shared::Platform::Window::isKeyStateModPressed(KMOD_CTRL) == true) {
 							slotsToChangeStart = 0;
 							slotsToChangeEnd = mapInfo.players-1;
 						}
@@ -1561,7 +1562,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 				// Max 1000 tries to get a random, unused faction
 				for(int findRandomFaction = 1; findRandomFaction < 1000; ++findRandomFaction) {
-					srand(time(NULL) + findRandomFaction);
+					srand((unsigned int)time(NULL) + findRandomFaction);
 					int selectedFactionIndex = rand() % listBoxFactions[i].getItemCount();
 					string selectedFactionName = listBoxFactions[i].getItem(selectedFactionIndex);
 
@@ -2196,7 +2197,7 @@ void MenuStateCustomGame::update() {
 
 		if(needToLoadTextures) {
 			// this delay is done to make it possible to switch faster
-			if(difftime(time(NULL), previewLoadDelayTimer) >= 2){
+			if(difftime((long int)time(NULL), previewLoadDelayTimer) >= 2){
 				//loadScenarioPreviewTexture();
 				needToLoadTextures= false;
 			}
@@ -2501,7 +2502,7 @@ void MenuStateCustomGame::update() {
 
 		bool checkDataSynch = (serverInterface->getAllowGameDataSynchCheck() == true &&
 					needToSetChangedGameSettings == true &&
-					(( difftime(time(NULL),lastSetChangedGameSettings) >= BROADCAST_SETTINGS_SECONDS)||
+					(( difftime((long int)time(NULL),lastSetChangedGameSettings) >= BROADCAST_SETTINGS_SECONDS)||
 					(this->headlessServerMode == true)));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -2558,7 +2559,7 @@ void MenuStateCustomGame::update() {
 			//listBoxEnableServerControlledAI.setEditable(false);
 		}
 
-		bool republishToMaster = (difftime(time(NULL),lastMasterserverPublishing) >= MASTERSERVER_BROADCAST_PUBLISH_SECONDS);
+		bool republishToMaster = (difftime((long int)time(NULL),lastMasterserverPublishing) >= MASTERSERVER_BROADCAST_PUBLISH_SECONDS);
 
 		if(republishToMaster == true) {
 			if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -2580,7 +2581,7 @@ void MenuStateCustomGame::update() {
 		}
 		if(needToPublishDelayed) {
 			// this delay is done to make it possible to switch over maps which are not meant to be distributed
-			if((difftime(time(NULL), mapPublishingDelayTimer) >= BROADCAST_MAP_DELAY_SECONDS) ||
+			if((difftime((long int)time(NULL), mapPublishingDelayTimer) >= BROADCAST_MAP_DELAY_SECONDS) ||
 					(this->headlessServerMode == true)	){
 				// after 5 seconds we are allowed to publish again!
 				needToSetChangedGameSettings = true;
@@ -2590,7 +2591,7 @@ void MenuStateCustomGame::update() {
 			}
 		}
 		if(needToPublishDelayed == false || headlessServerMode == true) {
-			bool broadCastSettings = (difftime(time(NULL),lastSetChangedGameSettings) >= BROADCAST_SETTINGS_SECONDS);
+			bool broadCastSettings = (difftime((long int)time(NULL),lastSetChangedGameSettings) >= BROADCAST_SETTINGS_SECONDS);
 
 			//printf("broadCastSettings = %d\n",broadCastSettings);
 
@@ -2885,7 +2886,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
                 hasClientConnection = serverInterface->hasClientConnection();
             }
         }
-        bool needPing = (difftime(time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
+        bool needPing = (difftime((long int)time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
 
         if(callingThread->getQuitStatus() == true) {
             return;
@@ -2940,7 +2941,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
 
                 // Give things another chance to see if we can get a connection from the master server
                 if(tMasterserverErrorElapsed > 0 &&
-                		difftime(time(NULL),tMasterserverErrorElapsed) > MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS) {
+                		difftime((long int)time(NULL),tMasterserverErrorElapsed) > MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS) {
                 	showMasterserverError=true;
                 	masterServererErrorToShow = (serverInfo != "" ? serverInfo : "No Reply");
                 }
@@ -2950,7 +2951,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
                 	}
 
                 	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error checking response from masterserver elapsed seconds = %.2f / %d\nResponse:\n%s\n",
-                			extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,difftime(time(NULL),tMasterserverErrorElapsed),MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS,serverInfo.c_str());
+                			extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,difftime((long int)time(NULL),tMasterserverErrorElapsed),MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS,serverInfo.c_str());
 
                 	needToRepublishToMasterserver = true;
                 }

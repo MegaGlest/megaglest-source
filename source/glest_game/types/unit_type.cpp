@@ -84,6 +84,17 @@ UnitType::UnitType() : ProducibleType() {
 	armorType= NULL;
 	rotatedBuildPos=0;
 
+	field = fLand;
+	id = 0;
+	meetingPoint = false;
+	rotationAllowed = false;
+
+	countUnitDeathInStats=false;
+	countUnitProductionInStats=false;
+	countUnitKillInStats=false;
+	countKillForUnitUpgrade=false;
+
+
     for(int i=0; i<ccCount; ++i){
         firstCommandTypeOfClass[i]= NULL;
     }
@@ -919,6 +930,7 @@ bool UnitType::isOfClass(UnitClass uc) const{
 		return hasSkillClass(scBeBuilt);
 	default:
 		assert(false);
+		break;
 	}
 	return false;
 }

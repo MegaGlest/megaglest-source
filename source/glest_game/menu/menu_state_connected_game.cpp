@@ -1070,7 +1070,7 @@ void MenuStateConnectedGame::broadCastGameSettingsToHeadlessServer(bool forceNow
 	}
 
 	if(forceNow == true ||
-		((needToBroadcastServerSettings == true ) && ( difftime(time(NULL),broadcastServerSettingsDelayTimer) >= HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS))) {
+		((needToBroadcastServerSettings == true ) && ( difftime((long int)time(NULL),broadcastServerSettingsDelayTimer) >= HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS))) {
 		//printf("In [%s:%s] Line: %d forceNow = %d broadcastServerSettingsDelayTimer = %lu, now =%lu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,forceNow,broadcastServerSettingsDelayTimer,time(NULL));
 
 		needToBroadcastServerSettings = false;
@@ -1800,7 +1800,7 @@ void MenuStateConnectedGame::render() {
 					clientInterface->getGameSettings()->getMasterserver_admin() > 0 &&
 					clientInterface->getGameSettings()->getMasterserver_admin_faction_index() == i) {
 
-					if(difftime(time(NULL),timerLabelFlash) < 1) {
+					if(difftime((long int)time(NULL),timerLabelFlash) < 1) {
 						renderer.renderLabel(&labelPlayers[i],&playerColor);
 					}
 					else {
@@ -1858,7 +1858,7 @@ void MenuStateConnectedGame::render() {
 		renderer.renderLabel(&labelStatus);
 		renderer.renderLabel(&labelInfo);
 
-		if(difftime(time(NULL),timerLabelFlash) < 1) {
+		if(difftime((long int)time(NULL),timerLabelFlash) < 1) {
 		    renderer.renderLabel(&labelDataSynchInfo,&RED);
 		}
 		else {
@@ -1962,7 +1962,7 @@ void MenuStateConnectedGame::render() {
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole,true);
 
-        if(difftime(time(NULL),timerLabelFlash) > 2) {
+        if(difftime((long int)time(NULL),timerLabelFlash) > 2) {
             timerLabelFlash = time(NULL);
         }
 	}
@@ -2012,11 +2012,11 @@ void MenuStateConnectedGame::update() {
 			}
 		}
 
-		if(difftime(time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
+		if(difftime((long int)time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			lastNetworkSendPing = time(NULL);
-			clientInterface->sendPingMessage(GameConstants::networkPingInterval, time(NULL));
+			clientInterface->sendPingMessage(GameConstants::networkPingInterval, (int64)time(NULL));
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] pingCount = %d, clientInterface->getLastPingLag() = %f, GameConstants::networkPingInterval = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pingCount, clientInterface->getLastPingLag(),GameConstants::networkPingInterval);
 
@@ -2101,7 +2101,7 @@ void MenuStateConnectedGame::update() {
 
                     	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 1;
             			if(	lastUpdateDate <= 0 ||
-            				difftime(time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS) {
+            				difftime((long int)time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS) {
             				techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL, true);
             				//clientInterface->sendTextMessage("#3 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
             			}
@@ -2126,7 +2126,7 @@ void MenuStateConnectedGame::update() {
 
 	                    	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
 	            			if(	lastUpdateDate <= 0 ||
-	            				difftime(time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS ||
+	            				difftime((long int)time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS ||
 	            				(techCRC != 0 && techCRC != gameSettings->getTechCRC())) {
 	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 	            			}

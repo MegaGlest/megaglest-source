@@ -398,6 +398,7 @@ string Scenario::controllerTypeToStr(const ControlType &ct) {
 		default:
 			printf("Error control = %d\n",ct);
 			//assert(false);
+			break;
 	}
 
 	return controlString;

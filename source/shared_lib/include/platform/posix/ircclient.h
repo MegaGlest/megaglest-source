@@ -46,6 +46,8 @@ void normalizeNick(char *nick);
 class IRCCallbackInterface {
 public:
     virtual void IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count) = 0;
+
+    virtual ~IRCCallbackInterface() {}
 };
 
 class IRCThread : public BaseThread

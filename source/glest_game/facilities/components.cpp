@@ -296,7 +296,7 @@ bool GraphicLabel::mouseMove(int x, int y) {
 
 	int useWidth = w;
 	if(text.length() > 0 && font3D != NULL) {
-		float lineWidth = (font3D->getTextHandler()->Advance(text.c_str()) * Font::scaleFontValue);
+		float lineWidth = (font3D->getTextHandler()->Advance(text.c_str()) * Shared::Graphics::Font::scaleFontValue);
 		useWidth = (int)lineWidth;
 	}
 
@@ -833,7 +833,7 @@ void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 	int maxButtonWidth = -1;
 	for(unsigned int i = 0; i < menuItems.size(); ++i) {
 		int currentButtonWidth = -1;
-		if(font3D != NULL && Font::forceLegacyFonts == false) {
+		if(font3D != NULL && Shared::Graphics::Font::forceLegacyFonts == false) {
 			FontMetrics *fontMetrics= font3D->getMetrics();
 			if(fontMetrics) {
 				currentButtonWidth = fontMetrics->getTextWidth(menuItems[i]);

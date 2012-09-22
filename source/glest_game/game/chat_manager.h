@@ -38,6 +38,7 @@ class Console;
 class CustomInputCallbackInterface {
 public:
 	virtual void processInputText(string text, bool cancelled) = 0;
+	virtual ~CustomInputCallbackInterface() {}
 };
 
 // =====================================================

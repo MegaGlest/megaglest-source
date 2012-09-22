@@ -79,11 +79,12 @@ string PlayerStats::getStats() const {
 		default:
 			printf("Error control = %d\n",control);
 			assert(false);
+			break;
 		};
 	}
 
-	if(control != ctHuman && control != ctNetwork ||
-			control == ctNetwork && playerLeftBeforeEnd==true) {
+	if((control != ctHuman && control != ctNetwork) ||
+			(control == ctNetwork && playerLeftBeforeEnd == true)) {
 		controlString += " x " + floatToStr(resourceMultiplier,1);
 	}
 

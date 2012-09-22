@@ -772,6 +772,7 @@ void GameParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 				break;
 			default:
 				assert(false);
+				break;
 		}
 	}
 }
@@ -900,6 +901,7 @@ UnitParticleSystem::UnitParticleSystem(int particleCount) :
 	radius= 0.5f;
 	speed= 0.01f;
 	windSpeed= Vec3f(0.0f);
+	minRadius = 0.0;
 
 	setParticleSize(0.6f);
 	setColorNoEnergy(Vec4f(1.0f, 0.5f, 0.0f, 1.0f));
@@ -1403,6 +1405,7 @@ AttackParticleSystem::AttackParticleSystem(int particleCount) :
 	GameParticleSystem(particleCount){
 	primitive= pQuad;
 	gravity= 0.0f;
+	sizeNoEnergy = 0.0;
 }
 
 void AttackParticleSystem::saveGame(XmlNode *rootNode) {
@@ -1520,6 +1523,7 @@ void ProjectileParticleSystem::update(){
 
 			default:
 				assert(false);
+				break;
 		}
 
 		direction= pos - lastPos;
@@ -1729,6 +1733,7 @@ SplashParticleSystem::SplashParticleSystem(int particleCount) :
 	verticalSpreadB= 0.0f;
 	horizontalSpreadA= 1.0f;
 	horizontalSpreadB= 0.0f;
+	startEmissionRate= 0.0f;
 }
 
 SplashParticleSystem::~SplashParticleSystem(){

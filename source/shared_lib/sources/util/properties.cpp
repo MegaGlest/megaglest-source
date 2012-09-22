@@ -359,6 +359,7 @@ bool Properties::getBool(const string &key, const char *defaultValueIfNotFound) 
 		//throw megaglest_runtime_error("Error accessing value: " + key + " in: " + path+"\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + key + " in: " + path+"\n[" + e.what() + "]");
 	}
+	return false;
 }
 
 int Properties::getInt(const string &key,const char *defaultValueIfNotFound) const{
@@ -370,6 +371,7 @@ int Properties::getInt(const string &key,const char *defaultValueIfNotFound) con
 		//throw megaglest_runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
+	return 0;
 }
 
 int Properties::getInt(const string &key, int min, int max,const char *defaultValueIfNotFound) const{
@@ -389,6 +391,7 @@ float Properties::getFloat(const string &key, const char *defaultValueIfNotFound
 		//throw megaglest_runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
+	return 0.0;
 }
 
 float Properties::getFloat(const string &key, float min, float max, const char *defaultValueIfNotFound) const{
@@ -476,6 +479,7 @@ bool Properties::getBool(const char *key, const char *defaultValueIfNotFound) co
 		//throw megaglest_runtime_error("Error accessing value: " + string(key) + " in: " + path+"\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path+"\n[" + e.what() + "]");
 	}
+	return false;
 }
 
 int Properties::getInt(const char *key,const char *defaultValueIfNotFound) const{
@@ -487,6 +491,7 @@ int Properties::getInt(const char *key,const char *defaultValueIfNotFound) const
 		//throw megaglest_runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
+	return 0;
 }
 
 float Properties::getFloat(const char *key, const char *defaultValueIfNotFound) const{
@@ -498,6 +503,7 @@ float Properties::getFloat(const char *key, const char *defaultValueIfNotFound) 
 		//throw megaglest_runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
+	return 0.0;
 }
 
 const string Properties::getString(const char *key, const char *defaultValueIfNotFound) const{

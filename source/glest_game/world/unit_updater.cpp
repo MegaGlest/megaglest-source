@@ -464,6 +464,7 @@ void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 
 		default:
 			unit->finishCommand();
+			break;
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -557,6 +558,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 						break;
 					default:
 						unit->finishCommand();
+						break;
 					}
 /*
 					case tsMoving:

@@ -241,6 +241,7 @@ class BaseColorPickEntity {
 
 public:
     BaseColorPickEntity();
+    virtual ~BaseColorPickEntity() {}
 
     static const int COLOR_COMPONENTS = 4;
     static void init(int bufferSize);
@@ -253,8 +254,6 @@ public:
 
     string getColorDescription() const;
     virtual string getUniquePickName() const = 0;
-
-    ~BaseColorPickEntity() {};
 
 private:
 	unsigned char uniqueColorID[COLOR_COMPONENTS];

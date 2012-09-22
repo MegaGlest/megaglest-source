@@ -184,7 +184,7 @@ static void unlock(void *data, void *id, void *const *p_pixels) {
 }
 
 static void display(void *data, void *id) {
-    /* VLC wants to display the video */
+    // VLC wants to display the video
     class ctx *ctx = (class ctx *)data;
     if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 }

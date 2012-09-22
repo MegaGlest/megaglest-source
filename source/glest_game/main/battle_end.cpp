@@ -314,6 +314,7 @@ void BattleEnd::render() {
 				default:
 					printf("Error control = %d for i = %d\n",stats.getControl(i),i);
 					assert(false);
+					break;
 				};
 			}
 
