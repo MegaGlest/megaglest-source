@@ -349,7 +349,6 @@ void Ip::Inet_NtoA(uint32 addr, char * ipbuf)
 }
 
 // convert a string represenation of an IP address into its numeric equivalent
-/*
 static uint32 Inet_AtoN(const char * buf)
 {
    // net_server inexplicably doesn't have this function; so I'll just fake it
@@ -369,7 +368,7 @@ static uint32 Inet_AtoN(const char * buf)
    }
    return ret;
 }
-*/
+
 /*
 static void PrintNetworkInterfaceInfos()
 {
