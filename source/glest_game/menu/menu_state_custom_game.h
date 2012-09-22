@@ -97,8 +97,8 @@ private:
 	GraphicLabel labelNetworkPauseGameForLaggedClients;
 	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
 
-	GraphicLabel labelPathFinderType;
-	GraphicListBox listBoxPathFinderType;
+	//GraphicLabel labelPathFinderType;
+	//GraphicListBox listBoxPathFinderType;
 
 	GraphicLabel labelMapFilter;
 	GraphicListBox listBoxMapFilter;
