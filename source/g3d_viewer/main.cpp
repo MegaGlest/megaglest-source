@@ -1324,8 +1324,8 @@ void MainWindow::loadParticle(string path) {
 			else {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] unit XML NOT FOUND [%s] using default position values\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitXML.c_str());
 
-				int size  = 1;
-				int height= 1;
+				size  = 1;
+				height= 1;
 			}
 
 			std::map<string,vector<pair<string, string> > > loadedFileList;

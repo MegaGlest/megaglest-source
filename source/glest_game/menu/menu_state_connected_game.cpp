@@ -3804,7 +3804,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				//printf("currentFactionName_factionPreview [%s] random [%s] observer [%s] factionVideoUrl [%s]\n",currentFactionName_factionPreview.c_str(),GameConstants::RANDOMFACTION_SLOTNAME,GameConstants::OBSERVER_SLOTNAME,factionVideoUrl.c_str());
 
 				if(factionVideoUrl != "") {
-					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+					//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 					if(CoreData::getInstance().getMenuMusic()->getVolume() != 0) {
 						CoreData::getInstance().getMenuMusic()->setVolume(0);
 						factionVideoSwitchedOffVolume=true;
@@ -3844,7 +3844,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					}
 				}
 				else {
-					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+					//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 					//switch on music again!!
 					Config &config = Config::getInstance();
 					float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);

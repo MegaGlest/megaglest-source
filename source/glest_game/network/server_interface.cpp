@@ -2181,7 +2181,7 @@ void ServerInterface::validateGameSettings(GameSettings *serverGameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",__FILE__,__FUNCTION__);
 
 	string mapFile = serverGameSettings->getMap();
-	bool useNext=false;
+	//bool useNext=false;
 	printf("Trying to set map to [%s]. Current map is [%s]\n",serverGameSettings->getMap().c_str(),gameSettings.getMap().c_str());
 	if(find(mapFiles.begin(),mapFiles.end(),mapFile) == mapFiles.end()) {
 		printf("map not found on this server\n");

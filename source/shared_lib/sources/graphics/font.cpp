@@ -128,7 +128,7 @@ float FontMetrics::getTextWidth(const string &str) {
 	else {
 		vector<string> lineTokens;
 		Tokenize(str,lineTokens,"\n");
-		if(lineTokens.size() > 0) {
+		if(lineTokens.empty() == false) {
 			for(unsigned int i = 0; i < lineTokens.size(); ++i) {
 				string currentStr = lineTokens[i];
 				if(currentStr.length() > longestLine.length()) {

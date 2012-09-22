@@ -822,10 +822,10 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
         	NetworkManager &networkManager= NetworkManager::getInstance();
         	NetworkRole role = networkManager.getNetworkRole();
-        	GameSettings *settings = world->getGameSettingsPtr();
+        	//GameSettings *settings = world->getGameSettingsPtr();
 
         	if(role == nrServer) {
-				int factionIndex = networkCommand->getUnitId();
+				//int factionIndex = networkCommand->getUnitId();
 				int playerIndex = networkCommand->getCommandTypeId();
 
 				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();

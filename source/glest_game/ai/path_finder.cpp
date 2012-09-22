@@ -220,7 +220,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		maxNodeCount= PathFinder::pathFindNodesAbsoluteMax;
 	}
 
-	int unitFactionIndex = unit->getFactionIndex();
+	//int unitFactionIndex = unit->getFactionIndex();
 
 	bool minorDebugPathfinderPerformance = false;
 	Chrono chrono;
@@ -449,7 +449,7 @@ TravelState PathFinder::aStarFast(Unit *unit, Vec2i finalPos, bool inBailout, in
 	}
 
 	if(maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 3) {
-		int orgmaxNodeCount = maxNodeCount;
+		//int orgmaxNodeCount = maxNodeCount;
 		maxNodeCount = 200;
 		//printf("AStar maxpath cut for unit [%d - %s]  to %d [orig: %d] [unit->getPathfindFailedConsecutiveFrameCount(): %d]\n",unit->getId(),unit->getFullName().c_str(), maxNodeCount,orgmaxNodeCount,unit->getPathfindFailedConsecutiveFrameCount());
 	}
@@ -1300,7 +1300,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 
 	if(maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 3) {
-		int orgmaxNodeCount = maxNodeCount;
+		//int orgmaxNodeCount = maxNodeCount;
 		maxNodeCount = 200;
 		//printf("AStar maxpath cut for unit [%d - %s]  to %d [orig: %d] [unit->getPathfindFailedConsecutiveFrameCount(): %d]\n",unit->getId(),unit->getFullName().c_str(), maxNodeCount,orgmaxNodeCount,unit->getPathfindFailedConsecutiveFrameCount());
 	}
