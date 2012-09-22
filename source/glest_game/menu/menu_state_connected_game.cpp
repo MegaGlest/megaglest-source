@@ -226,16 +226,16 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
 	listBoxAISwitchTeamAcceptPercent.setEditable(false);
 
-	labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
-	labelPathFinderType.init(xoffset+650, aHeadPos, 80);
-	labelPathFinderType.setText(lang.get("PathFinderType"));
+	//labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
+	//labelPathFinderType.init(xoffset+650, aHeadPos, 80);
+	//labelPathFinderType.setText(lang.get("PathFinderType"));
 
-	listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
-	listBoxPathFinderType.init(xoffset+650, aPos, 150);
-	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
+	//listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
+	//listBoxPathFinderType.init(xoffset+650, aPos, 150);
+	//listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
 
-	listBoxPathFinderType.setSelectedItemIndex(0);
-	listBoxPathFinderType.setEditable(false);
+	//listBoxPathFinderType.setSelectedItemIndex(0);
+	//listBoxPathFinderType.setEditable(false);
 
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
 	listBoxPlayerStatus.init(xoffset+650, 180, 150);
@@ -591,11 +591,11 @@ void MenuStateConnectedGame::reloadUI() {
 	}
 	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
 
-	labelPathFinderType.setText(lang.get("PathFinderType"));
+	//labelPathFinderType.setText(lang.get("PathFinderType"));
 
-	vector<string> pathfinderItems;
-	pathfinderItems.push_back(lang.get("PathFinderTypeRegular"));
-	listBoxPathFinderType.setItems(pathfinderItems);
+	//vector<string> pathfinderItems;
+	//pathfinderItems.push_back(lang.get("PathFinderTypeRegular"));
+	//listBoxPathFinderType.setItems(pathfinderItems);
 
 	labelMap.setText(lang.get("Map"));
 
@@ -1475,7 +1475,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 	//gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
 	gameSettings->setEnableObserverModeAtEndGame(true);
-	gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
+	//gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
 	valueFlags1 = gameSettings->getFlagTypes1();
 	if(listBoxEnableSwitchTeamMode.getSelectedItemIndex() == 0) {
@@ -1878,13 +1878,13 @@ void MenuStateConnectedGame::render() {
 		renderer.renderListBox(&listBoxTechTree);
 
 		//renderer.renderLabel(&labelEnableObserverMode);
-		renderer.renderLabel(&labelPathFinderType);
+		//renderer.renderLabel(&labelPathFinderType);
 
 		renderer.renderLabel(&labelEnableSwitchTeamMode);
 		renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
 
 		//renderer.renderListBox(&listBoxEnableObserverMode);
-		renderer.renderListBox(&listBoxPathFinderType);
+		//renderer.renderListBox(&listBoxPathFinderType);
 
 		renderer.renderListBox(&listBoxEnableSwitchTeamMode);
 		renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
@@ -3642,12 +3642,12 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 //				else {
 //					listBoxEnableObserverMode.setSelectedItemIndex(1);
 //				}
-	if(gameSettings->getPathFinderType() == pfBasic) {
-		listBoxPathFinderType.setSelectedItemIndex(0);
-	}
-	else {
-		listBoxPathFinderType.setSelectedItemIndex(1);
-	}
+//	if(gameSettings->getPathFinderType() == pfBasic) {
+//		listBoxPathFinderType.setSelectedItemIndex(0);
+//	}
+//	else {
+//		listBoxPathFinderType.setSelectedItemIndex(1);
+//	}
 
 	// Control
 	for(int i=0; i<GameConstants::maxPlayers; ++i) {

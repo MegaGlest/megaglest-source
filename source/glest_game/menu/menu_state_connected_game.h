@@ -63,8 +63,8 @@ private:
 	GraphicLabel labelInfo;
 	GraphicButton buttonRestoreLastSettings;
 
-	GraphicLabel labelPathFinderType;
-	GraphicListBox listBoxPathFinderType;
+	//GraphicLabel labelPathFinderType;
+	//GraphicListBox listBoxPathFinderType;
 
 	GraphicLabel labelMapPlayerCount;
 	GraphicListBox listBoxMapPlayerCount;

@@ -338,14 +338,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
 
 	// Which Pathfinder
-	labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
-	labelPathFinderType.init(xoffset+650, aHeadPos, 80);
-	labelPathFinderType.setText(lang.get("PathFinderType"));
+	//labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
+	//labelPathFinderType.init(xoffset+650, aHeadPos, 80);
+	//labelPathFinderType.setText(lang.get("PathFinderType"));
 
-	listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
-	listBoxPathFinderType.init(xoffset+650, aPos, 150);
-	listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
-	listBoxPathFinderType.setSelectedItemIndex(0);
+	//listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
+	//listBoxPathFinderType.init(xoffset+650, aPos, 150);
+	//listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
+	//listBoxPathFinderType.setSelectedItemIndex(0);
 
 	// Advanced Options
 	labelAdvanced.registerGraphicComponent(containerName,"labelAdvanced");
@@ -774,11 +774,11 @@ void MenuStateCustomGame::reloadUI() {
 
 	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
 
-	labelPathFinderType.setText(lang.get("PathFinderType"));
+	//labelPathFinderType.setText(lang.get("PathFinderType"));
 
 	listBoxData.clear();
-	listBoxData.push_back(lang.get("PathFinderTypeRegular"));
-	listBoxPathFinderType.setItems(listBoxData);
+	//listBoxData.push_back(lang.get("PathFinderTypeRegular"));
+	//listBoxPathFinderType.setItems(listBoxData);
 
 	// Advanced Options
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
@@ -1144,19 +1144,19 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
-			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true)
-				{
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-			}
+//			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				if(hasNetworkGameSettings() == true)
+//				{
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//			}
 			else if (listBoxAdvanced.mouseClick(x, y)) {
 				//TODO
 			}
@@ -1798,8 +1798,8 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 		labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
 		listBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
 
-		labelPathFinderType.mouseMove(x, y);
-		listBoxPathFinderType.mouseMove(x, y);
+		//labelPathFinderType.mouseMove(x, y);
+		//listBoxPathFinderType.mouseMove(x, y);
 	}
 	listBoxTileset.mouseMove(x, y);
 	listBoxMapFilter.mouseMove(x, y);
@@ -1964,7 +1964,7 @@ void MenuStateCustomGame::render() {
 				renderer.renderLabel(&labelFogOfWar);
 				renderer.renderLabel(&labelAllowObservers);
 				renderer.renderLabel(&labelFallbackCpuMultiplier);
-				renderer.renderLabel(&labelPathFinderType);
+				//renderer.renderLabel(&labelPathFinderType);
 
 				renderer.renderLabel(&labelEnableSwitchTeamMode);
 				renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
@@ -1972,7 +1972,7 @@ void MenuStateCustomGame::render() {
 				renderer.renderListBox(&listBoxFogOfWar);
 				renderer.renderListBox(&listBoxAllowObservers);
 				//renderer.renderListBox(&listBoxEnableObserverMode);
-				renderer.renderListBox(&listBoxPathFinderType);
+				//renderer.renderListBox(&listBoxPathFinderType);
 
 				renderer.renderListBox(&listBoxEnableSwitchTeamMode);
 				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
@@ -3108,7 +3108,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 	//gameSettings->setEnableObserverModeAtEndGame(listBoxEnableObserverMode.getSelectedItemIndex() == 0);
 	gameSettings->setEnableObserverModeAtEndGame(true);
-	gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
+	//gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
 	valueFlags1 = gameSettings->getFlagTypes1();
 	if(listBoxEnableSwitchTeamMode.getSelectedItemIndex() == 0) {
@@ -3579,7 +3579,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
 	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings.getFallbackCpuMultiplier());
 
-	listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
+	//listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 
 	//listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
 
@@ -4325,7 +4325,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(false);
 			listBoxAllowObservers.setEditable(false);
-			listBoxPathFinderType.setEditable(false);
+			//listBoxPathFinderType.setEditable(false);
 			listBoxEnableSwitchTeamMode.setEditable(false);
 			listBoxAISwitchTeamAcceptPercent.setEditable(false);
 			listBoxFallbackCpuMultiplier.setEditable(false);
@@ -4345,7 +4345,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(true);
 			listBoxAllowObservers.setEditable(true);
-			listBoxPathFinderType.setEditable(true);
+			//listBoxPathFinderType.setEditable(true);
 			listBoxEnableSwitchTeamMode.setEditable(true);
 			listBoxAISwitchTeamAcceptPercent.setEditable(true);
 			listBoxFallbackCpuMultiplier.setEditable(true);
