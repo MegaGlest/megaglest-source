@@ -316,7 +316,6 @@ public:
 		return isInsideSurface(sPos.x, sPos.y);
 	}
 	bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit=NULL,bool fallbackToPeersHarvestingSameResource=false,Vec2i *resourceClickPos=NULL) const;
-	bool isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec2i &resourcePos) const;
 
 	//free cells
 	bool isFreeCell(const Vec2i &pos, Field field) const;

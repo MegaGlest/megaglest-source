@@ -23,7 +23,6 @@
 #include "util.h"
 #include "game_settings.h"
 #include "platform_util.h"
-#include "pos_iterator.h"
 #include "faction.h"
 #include "command.h"
 #include "map_preview.h"
@@ -659,24 +658,6 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 	}
 
 	return resourceNear;
-}
-
-//returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
-bool Map::isResourceNear(const Vec2i &pos, int size, const ResourceType *rt, Vec2i &resourcePos) const {
-	Vec2i p1 = pos + Vec2i(-size);
-	Vec2i p2 = pos + Vec2i(size);
-	Util::PerimeterIterator iter(p1, p2);
-	while (iter.more()) {
-		Vec2i cur = iter.next();
-		if (isInside(cur) && isInsideSurface(toSurfCoords(cur))) {
-			Resource *r = getSurfaceCell(toSurfCoords(cur))->getResource();
-			if (r && r->getType() == rt) {
-				resourcePos = cur;
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 // ==================== free cells ====================

@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include "cartographer.h"
 #include "core_data.h"
 #include "config.h"
 #include "game.h"
@@ -24,7 +23,6 @@
 #include "particle_type.h"
 #include "path_finder.h"
 #include "renderer.h"
-#include "route_planner.h"
 #include "sound.h"
 #include "sound_renderer.h"
 #include "upgrade.h"
@@ -51,7 +49,6 @@ UnitUpdater::UnitUpdater() {
 	this->map= NULL;
 	this->console= NULL;
 	this->scriptManager= NULL;
-	this->routePlanner = NULL;
 	this->pathFinder = NULL;
 	//UnitRangeCellsLookupItemCacheTimerCount = 0;
 	attackWarnRange=0;
@@ -66,7 +63,6 @@ void UnitUpdater::init(Game *game){
 	this->map= world->getMap();
 	this->console= game->getConsole();
 	this->scriptManager= game->getScriptManager();
-	this->routePlanner = NULL;
 	this->pathFinder = NULL;
 	attackWarnRange=Config::getInstance().getFloat("AttackWarnRange","50.0");
 	//UnitRangeCellsLookupItemCacheTimerCount = 0;
@@ -75,9 +71,6 @@ void UnitUpdater::init(Game *game){
 		case pfBasic:
 			pathFinder = new PathFinder();
 			pathFinder->init(map);
-			break;
-		case pfRoutePlanner:
-			routePlanner = world->getRoutePlanner();
 			break;
 		default:
 			throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -225,9 +218,6 @@ void UnitUpdater::updateUnit(Unit *unit) {
 						switch(this->game->getGameSettings()->getPathFinderType()) {
 							case pfBasic:
 								newpath = new UnitPathBasic();
-								break;
-							case pfRoutePlanner:
-								newpath = new UnitPath();
 								break;
 							default:
 								throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -440,9 +430,6 @@ void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 		case pfBasic:
 			tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
 			break;
-		case pfRoutePlanner:
-			tsValue = routePlanner->findPath(unit, pos);
-			break;
 		default:
 			throw megaglest_runtime_error("detected unsupported pathfinder type!");
     }
@@ -530,9 +517,6 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
 				tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
-				break;
-			case pfRoutePlanner:
-				tsValue = routePlanner->findPath(unit, pos);
 				break;
 			default:
 				throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -740,9 +724,6 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 				tsValue = pathFinder->findPath(unit, buildPos, NULL, frameIndex);
 				}
 				break;
-			case pfRoutePlanner:
-				tsValue = routePlanner->findPathToBuildSite(unit, ut, command->getPos(), command->getFacing());
-				break;
 			default:
 				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    }
@@ -773,9 +754,6 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] tsArrived about to call map->isFreeCells() for command->getPos() = %s, ut->getSize() = %d\n",__FILE__,__FUNCTION__,__LINE__,command->getPos().getString().c_str(),ut->getSize());
 						canOccupyCell = map->isFreeCells(command->getPos(), ut->getSize(), fLand);
 						break;
-					case pfRoutePlanner:
-						canOccupyCell = map->canOccupy(command->getPos(), ut->getField(), ut, command->getFacing());
-						break;
 					default:
 						throw megaglest_runtime_error("detected unsupported pathfinder type!");
 				}
@@ -790,9 +768,6 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					switch(this->game->getGameSettings()->getPathFinderType()) {
 						case pfBasic:
 							newpath = new UnitPathBasic();
-							break;
-						case pfRoutePlanner:
-							newpath = new UnitPath();
 							break;
 						default:
 							throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -819,9 +794,6 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 
 					switch(this->game->getGameSettings()->getPathFinderType()) {
 						case pfBasic:
-							break;
-						case pfRoutePlanner:
-							world->getCartographer()->updateMapMetrics(builtUnit->getPos(), builtUnit->getType()->getSight());
 							break;
 						default:
 							throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -973,9 +945,6 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    					}
 	    				}
 	    				break;
-	    			case pfRoutePlanner:
-	    				canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
-	    				break;
 	    			default:
 	    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 	    	    }
@@ -1000,9 +969,6 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 							switch(this->game->getGameSettings()->getPathFinderType()) {
 								case pfBasic:
-									unit->setLoadType(r->getType());
-									break;
-								case pfRoutePlanner:
 									unit->setLoadType(r->getType());
 									break;
 								default:
@@ -1036,12 +1002,6 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 								unit->setCurrSkill(hct->getMoveSkillType());
 							}
 		    				break;
-		    			case pfRoutePlanner:
-							tsValue = routePlanner->findPathToResource(unit, command->getPos(), r->getType());
-							if (tsValue == tsMoving && frameIndex < 0) {
-								unit->setCurrSkill(hct->getMoveSkillType());
-							}
-		    				break;
 		    			default:
 		    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
 		    	    }
@@ -1061,9 +1021,6 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 										}
 									}
 								}
-								break;
-							case pfRoutePlanner:
-								canHarvestDestPos = map->isResourceNear(unit->getPos(), unit->getType()->getSize(), r->getType(), targetPos);
 								break;
 							default:
 								throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -1086,9 +1043,6 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 									switch(this->game->getGameSettings()->getPathFinderType()) {
 										case pfBasic:
-											unit->setLoadType(r->getType());
-											break;
-										case pfRoutePlanner:
 											unit->setLoadType(r->getType());
 											break;
 										default:
@@ -1120,13 +1074,6 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 								switch(this->game->getGameSettings()->getPathFinderType()) {
 									case pfBasic:
 										tsValue = pathFinder->findPath(unit, targetPos, &wasStuck, frameIndex);
-										if (tsValue == tsMoving && frameIndex < 0) {
-											unit->setCurrSkill(hct->getMoveSkillType());
-											command->setPos(targetPos);
-										}
-										break;
-									case pfRoutePlanner:
-										tsValue = routePlanner->findPathToResource(unit, targetPos, r->getType());
 										if (tsValue == tsMoving && frameIndex < 0) {
 											unit->setCurrSkill(hct->getMoveSkillType());
 											command->setPos(targetPos);
@@ -1180,9 +1127,6 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
 	    				tsValue = pathFinder->findPath(unit, store->getCenteredPos(), NULL, frameIndex);
-	    				break;
-	    			case pfRoutePlanner:
-	    				tsValue = routePlanner->findPathToStore(unit, store);
 	    				break;
 	    			default:
 	    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -1309,9 +1253,6 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 								switch(this->game->getGameSettings()->getPathFinderType()) {
 									case pfBasic:
-										break;
-									case pfRoutePlanner:
-										world->getCartographer()->onResourceDepleted(Map::toSurfCoords(unit->getTargetPos()), rt);
 										break;
 									default:
 										throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -1669,16 +1610,6 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 
 							ts = pathFinder->findPath(unit, repairPos, NULL, frameIndex);
 							break;
-						case pfRoutePlanner:
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-							if (repaired && !repaired->getType()->isMobile()) {
-								ts = routePlanner->findPathToBuildSite(unit, repaired->getType(), repaired->getPos(), repaired->getModelFacing());
-							}
-							else {
-								ts = routePlanner->findPath(unit, repairPos);
-							}
-							break;
 						default:
 							throw megaglest_runtime_error("detected unsupported pathfinder type!");
 					}
@@ -1812,9 +1743,6 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 				case pfBasic:
 					newpath = new UnitPathBasic();
 					break;
-				case pfRoutePlanner:
-					newpath = new UnitPath();
-					break;
 				default:
 					throw megaglest_runtime_error("detected unsupported pathfinder type!");
 		    }
@@ -1921,10 +1849,6 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
     		switch(this->game->getGameSettings()->getPathFinderType()) {
     			case pfBasic:
     				break;
-    			case pfRoutePlanner:
-    				oldSize = unit->getType()->getSize();
-    				needMapUpdate = unit->getType()->isMobile() != mct->getMorphUnit()->isMobile();
-    				break;
     			default:
     				throw megaglest_runtime_error("detected unsupported pathfinder type!");
     	    }
@@ -1937,12 +1861,6 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 				}
 	    		switch(this->game->getGameSettings()->getPathFinderType()) {
 	    			case pfBasic:
-	    				break;
-	    			case pfRoutePlanner:
-						if (needMapUpdate) {
-							int size = max(oldSize, unit->getType()->getSize());
-							world->getCartographer()->updateMapMetrics(unit->getPos(), size);
-						}
 	    				break;
 	    			default:
 	    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -1967,56 +1885,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 
 // ==================== updateMove ====================
 void UnitUpdater::updateSwitchTeam(Unit *unit, int frameIndex) {
-//	Chrono chrono;
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-//
-//    Command *command= unit->getCurrCommand();
-//    const MoveCommandType *mct= static_cast<const MoveCommandType*>(command->getCommandType());
-//
-//	Vec2i pos= command->getUnit()!=NULL? command->getUnit()->getCenteredPos(): command->getPos();
-//
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-//		char szBuf[4096]="";
-//		sprintf(szBuf,"[updateMove] pos [%s] unit [%d - %s] cmd [%s]",pos.getString().c_str(),unit->getId(),unit->getFullName().c_str(),command->toString().c_str());
-//		unit->logSynchData(__FILE__,__LINE__,szBuf);
-//	}
-//
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-//
-//	TravelState tsValue = tsImpossible;
-//	switch(this->game->getGameSettings()->getPathFinderType()) {
-//		case pfBasic:
-//			tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
-//			break;
-//		case pfRoutePlanner:
-//			tsValue = routePlanner->findPath(unit, pos);
-//			break;
-//		default:
-//			throw megaglest_runtime_error("detected unsupported pathfinder type!");
-//    }
-//
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-//
-//	if(frameIndex < 0) {
-//		switch (tsValue) {
-//		case tsMoving:
-//			unit->setCurrSkill(mct->getMoveSkillType());
-//			break;
-//
-//		case tsBlocked:
-//			unit->setCurrSkill(scStop);
-//			if(unit->getPath()->isBlocked()){
-//				unit->finishCommand();
-//			}
-//			break;
-//
-//		default:
-//			unit->finishCommand();
-//		}
-//	}
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
-
 
 // ==================== updateAttack ====================
 
@@ -2093,11 +1962,6 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
-				break;
-			case pfRoutePlanner:
-				if (!attacked->getType()->isMobile()) {
-					world->getCartographer()->updateMapMetrics(attacked->getPos(), attacked->getType()->getSize());
-				}
 				break;
 			default:
 				throw megaglest_runtime_error("detected unsupported pathfinder type!");
@@ -2627,7 +2491,6 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 //	ScriptManager *scriptManager;
 //	PathFinder *pathFinder;
 	pathFinder->saveGame(unitupdaterNode);
-//	RoutePlanner *routePlanner;
 //	Game *game;
 //	RandomGen random;
 	//unitupdaterNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);

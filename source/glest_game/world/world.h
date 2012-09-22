@@ -49,8 +49,6 @@ class Config;
 class Game;
 class GameSettings;
 class ScriptManager;
-class Cartographer;
-class RoutePlanner;
 class StaticSound;
 class StrSound;
 
@@ -123,8 +121,6 @@ private:
 	RandomGen random;
 
 	ScriptManager* scriptManager;
-	Cartographer *cartographer;
-	RoutePlanner *routePlanner;
 
 	int thisFactionIndex;
 	int thisTeamIndex;
@@ -181,8 +177,6 @@ public:
 	inline const TimeFlow *getTimeFlow() const				{return &timeFlow;}
 	inline Tileset *getTileset() 							{return &tileset;}
 	inline Map *getMap() 									{return &map;}
-	Cartographer* getCartographer()					{return cartographer;}
-	RoutePlanner* getRoutePlanner()					{return routePlanner;}
 	inline const Faction *getFaction(int i) const			{return factions[i];}
 	inline Faction *getFaction(int i) 						{return factions[i];}
 	inline const Minimap *getMinimap() const				{return &minimap;}
