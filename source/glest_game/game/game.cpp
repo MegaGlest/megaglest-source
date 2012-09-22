@@ -2250,7 +2250,8 @@ void Game::mouseDownLeft(int x, int y) {
 
 						menuItems.push_back(szBuf);
 
-						disconnectPlayerIndexMap[menuItems.size()-1] = faction->getStartLocationIndex();
+						//disconnectPlayerIndexMap[menuItems.size()-1] = faction->getStartLocationIndex();
+						disconnectPlayerIndexMap[menuItems.size()-1] = faction->getIndex();
 					}
 				}
 
@@ -2376,8 +2377,9 @@ void Game::mouseDownLeft(int x, int y) {
 
 			//bool isNetworkGame = this->gameSettings.isNetworkGame();
 
-			int playerIndex = disconnectPlayerIndexMap[result.first];
-			switch(playerIndex) {
+			//int playerIndex = disconnectPlayerIndexMap[result.first];
+			int factionIndex = disconnectPlayerIndexMap[result.first];
+			switch(factionIndex) {
 				case CANCEL_DISCONNECT_PLAYER:
 					break;
 				default:
@@ -2396,17 +2398,17 @@ void Game::mouseDownLeft(int x, int y) {
 
 					char szBuf[1024]="";
 					if(lang.hasString("DisconnectNetorkPlayerIndexConfirm") == true) {
-						sprintf(szBuf,lang.get("DisconnectNetorkPlayerIndexConfirm").c_str(),playerIndex,settings->getNetworkPlayerName(playerIndex).c_str());
+						sprintf(szBuf,lang.get("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 					else {
-						sprintf(szBuf,"Confirm disconnection for player #%d - %s?",playerIndex,settings->getNetworkPlayerName(playerIndex).c_str());
+						sprintf(szBuf,"Confirm disconnection for player #%d - %s?",factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 
 					disconnectPlayerConfirmMessageBox.setText(szBuf);
 					disconnectPlayerConfirmMessageBox.init(lang.get("Yes"), lang.get("No"));
 					disconnectPlayerConfirmMessageBox.setEnabled(true);
 
-					playerIndexDisconnect = playerIndex;
+					playerIndexDisconnect = world.getFaction(factionIndex)->getStartLocationIndex();
 
 					GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 					if(gameNetworkInterface != NULL) {
@@ -2415,10 +2417,10 @@ void Game::mouseDownLeft(int x, int y) {
 						for(unsigned int i = 0; i < languageList.size(); ++i) {
 							char szMsg[1024]="";
 							if(lang.hasString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]) == true) {
-								sprintf(szMsg,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),playerIndex,settings->getNetworkPlayerName(playerIndex).c_str());
+								sprintf(szMsg,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
 							}
 							else {
-								sprintf(szMsg,"Notice - Admin is warning to disconnect player #%d - %s!",playerIndex+1,settings->getNetworkPlayerName(playerIndex).c_str());
+								sprintf(szMsg,"Notice - Admin is warning to disconnect player #%d - %s!",factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
 							}
 							bool localEcho = lang.isLanguageLocal(languageList[i]);
 							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
