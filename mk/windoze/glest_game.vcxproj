@@ -188,21 +188,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\glest_game\ai\fast_path_finder.cpp" />
     <ClCompile Include="..\..\source\glest_game\facilities\auto_test.cpp" />
     <ClCompile Include="..\..\source\glest_game\facilities\components.cpp" />
     <ClCompile Include="..\..\source\glest_game\facilities\game_util.cpp" />
     <ClCompile Include="..\..\source\glest_game\facilities\logger.cpp" />
-    <ClCompile Include="..\..\source\glest_game\facilities\pos_iterator.cpp" />
     <ClCompile Include="..\..\source\glest_game\ai\ai.cpp" />
     <ClCompile Include="..\..\source\glest_game\ai\ai_interface.cpp" />
     <ClCompile Include="..\..\source\glest_game\ai\ai_rule.cpp" />
-    <ClCompile Include="..\..\source\glest_game\ai\annotated_map.cpp" />
-    <ClCompile Include="..\..\source\glest_game\ai\cartographer.cpp" />
-    <ClCompile Include="..\..\source\glest_game\ai\cluster_map.cpp" />
-    <ClCompile Include="..\..\source\glest_game\ai\node_pool.cpp" />
     <ClCompile Include="..\..\source\glest_game\ai\path_finder.cpp" />
-    <ClCompile Include="..\..\source\glest_game\ai\route_planner.cpp" />
     <ClCompile Include="..\..\source\glest_game\game\chat_manager.cpp" />
     <ClCompile Include="..\..\source\glest_game\game\commander.cpp" />
     <ClCompile Include="..\..\source\glest_game\game\console.cpp" />
@@ -214,7 +207,6 @@
     <ClCompile Include="..\..\source\glest_game\global\core_data.cpp" />
     <ClCompile Include="..\..\source\glest_game\global\lang.cpp" />
     <ClCompile Include="..\..\source\glest_game\global\metrics.cpp" />
-    <ClCompile Include="..\..\source\glest_game\graphics\debug_renderer.cpp" />
     <ClCompile Include="..\..\source\glest_game\graphics\particle_type.cpp" />
     <ClCompile Include="..\..\source\glest_game\graphics\renderer.cpp" />
     <ClCompile Include="..\..\source\glest_game\graphics\unit_particle_type.cpp" />
@@ -278,25 +270,14 @@
     <ClCompile Include="..\..\source\glest_game\world\world.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\source\glest_game\ai\fast_path_finder.h" />
-    <ClInclude Include="..\..\source\glest_game\ai\IntrHashSet.hpp" />
-    <ClInclude Include="..\..\source\glest_game\ai\IntrHeapHash.hpp" />
     <ClInclude Include="..\..\source\glest_game\facilities\auto_test.h" />
     <ClInclude Include="..\..\source\glest_game\facilities\components.h" />
     <ClInclude Include="..\..\source\glest_game\facilities\game_util.h" />
     <ClInclude Include="..\..\source\glest_game\facilities\logger.h" />
-    <ClInclude Include="..\..\source\glest_game\facilities\pos_iterator.h" />
     <ClInclude Include="..\..\source\glest_game\ai\ai.h" />
     <ClInclude Include="..\..\source\glest_game\ai\ai_interface.h" />
     <ClInclude Include="..\..\source\glest_game\ai\ai_rule.h" />
-    <ClInclude Include="..\..\source\glest_game\ai\annotated_map.h" />
-    <ClInclude Include="..\..\source\glest_game\ai\cartographer.h" />
-    <ClInclude Include="..\..\source\glest_game\ai\cluster_map.h" />
-    <ClInclude Include="..\..\source\glest_game\ai\influence_map.h" />
-    <ClInclude Include="..\..\source\glest_game\ai\node_pool.h" />
     <ClInclude Include="..\..\source\glest_game\ai\path_finder.h" />
-    <ClInclude Include="..\..\source\glest_game\ai\route_planner.h" />
-    <ClInclude Include="..\..\source\glest_game\ai\search_engine.h" />
     <ClInclude Include="..\..\source\glest_game\game\chat_manager.h" />
     <ClInclude Include="..\..\source\glest_game\game\commander.h" />
     <ClInclude Include="..\..\source\glest_game\game\console.h" />
@@ -311,7 +292,6 @@
     <ClInclude Include="..\..\source\glest_game\global\core_data.h" />
     <ClInclude Include="..\..\source\glest_game\global\lang.h" />
     <ClInclude Include="..\..\source\glest_game\global\metrics.h" />
-    <ClInclude Include="..\..\source\glest_game\graphics\debug_renderer.h" />
     <ClInclude Include="..\..\source\glest_game\graphics\particle_type.h" />
     <ClInclude Include="..\..\source\glest_game\graphics\renderer.h" />
     <ClInclude Include="..\..\source\glest_game\gui\display.h" />
