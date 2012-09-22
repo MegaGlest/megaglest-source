@@ -424,10 +424,21 @@ bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInpu
 						//text.insert(text.end(), utfStr[0]);
 						//text.insert(text.end(), buf);
 						text += buf;
+
+						//printf("Insert A [%s][%s]\n",text.c_str(),buf);
 					}
 					else {
 						//text.insert(text.end() -1, utfStr[0]);
-						text.insert(text.end() -1, buf[0]);
+						//text.insert(text.end() -1, buf[0]);
+						text = text.substr(0,found) + buf + "_";
+
+						int lastCharLen = textCharLength[textCharLength.size()-1];
+						textCharLength.pop_back();
+						textCharLength.pop_back();
+						textCharLength.push_back(lastCharLen);
+						textCharLength.push_back(1);
+
+						//printf("Insert B [%s][%s]\n",text.c_str(),buf);
 					}
 				}
 				else {
@@ -487,8 +498,15 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 			if(delChar == true) {
 				if(hasUnderscore) {
 					if(textCharLength.size() > 1) {
+						//printf("Underscore erase start\n");
+						//for(unsigned int i = 0; i < textCharLength.size(); ++i) {
+						//	printf("len = %d [%d]\n",i,textCharLength[i]);
+						//}
+
 						for(unsigned int i = 0; i < textCharLength[textCharLength.size()-2]; ++i) {
+							//printf("erase A1 i = %d [%s]\n",i,text.c_str());
 							text.erase(text.end() -2);
+							//printf("erase A2 i = %d [%s]\n",i,text.c_str());
 						}
 						//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
 						textCharLength.pop_back();
@@ -498,7 +516,9 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 				}
 				else {
 					for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
+						//printf("erase B1 i = %d [%s]\n",i,text.c_str());
 						text.erase(text.end() -1);
+						//printf("erase B2 i = %d [%s]\n",i,text.c_str());
 					}
 					//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
 					textCharLength.pop_back();
