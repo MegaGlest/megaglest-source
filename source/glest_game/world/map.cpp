@@ -279,142 +279,6 @@ void SurfaceCell::loadGame(const XmlNode *rootNode, int index, World *world) {
 // 	class Map
 // =====================================================
 
-FastAINode * FastAINode::getNodeForEdgeIndex(int index,void *userData) const {
-	FastAINode *resultNode = NULL;
-	switch(index) {
-		case 0: // north
-			resultNode = map->getCellNode(pos.x,pos.y-1,false);
-			break;
-		case 1: // north east
-			resultNode = map->getCellNode(pos.x+1,pos.y-1,false);
-			break;
-		case 2: // east
-			resultNode = map->getCellNode(pos.x+1,pos.y,false);
-			break;
-		case 3: // south east
-			resultNode = map->getCellNode(pos.x+1,pos.y+1,false);
-			break;
-		case 4: // south
-			resultNode = map->getCellNode(pos.x,pos.y+1,false);
-			break;
-		case 5: // south west
-			resultNode = map->getCellNode(pos.x-1,pos.y+1,false);
-			break;
-		case 6: // west
-			resultNode = map->getCellNode(pos.x-1,pos.y,false);
-			break;
-		case 7: // north west
-			resultNode = map->getCellNode(pos.x-1,pos.y-1,false);
-			break;
-	}
-	bool checkCellObjects = true;
-	if(checkCellObjects == true && resultNode != NULL) {
-		FastAINodeCache *nodeCache = (FastAINodeCache *)userData;
-		std::map<Vec2i,std::map<Vec2i,bool> >::const_iterator iterFind = nodeCache->cachedCanMoveSoonList.find(pos);
-		if(iterFind != nodeCache->cachedCanMoveSoonList.end() &&
-			iterFind->second.find(resultNode->getPos()) != iterFind->second.end()) {
-			const std::map<Vec2i,bool> &mapCache2 = iterFind->second;
-			std::map<Vec2i,bool>::const_iterator iterFind2 = mapCache2.find(resultNode->getPos());
-
-			if(iterFind2->second == false) {
-				resultNode = NULL;
-			}
-		}
-		else {
-			const Vec2i &nodePos = resultNode->getPos();
-
-			if(resultNode->getPos() != nodeCache->unit->getCurrentPathFinderDesiredFinalPos()) {
-				if(map->aproxCanMoveSoon(nodeCache->unit, pos, resultNode->getPos()) == false) {
-					resultNode = NULL;
-				}
-			}
-
-			nodeCache->cachedCanMoveSoonList[pos][nodePos] = (resultNode != NULL);
-		}
-	}
-
-	return resultNode;
-}
-
-float FastAINode::getDistance(const AI_Node *node,void *userData) {
-	return pos.dist(dynamic_cast<const FastAINode *>(node)->pos);
-}
-float FastAINode::getCost(void *userData) {
-	float result = 1.0f;
-
-//	FastAINodeCache *nodeCache = (FastAINodeCache *)userData;
-//	if(map->aproxCanMoveSoon(nodeCache->unit, pos, pos) == false) {
-//		result = 100000;
-//	}
-
-//	bool checkCellObjects = true;
-//	if(checkCellObjects == true) {
-//		FastAINode *resultNode = map->getCellNode(pos,false);
-//		if(resultNode != NULL) {
-//			FastAINodeCache *nodeCache = (FastAINodeCache *)userData;
-//			std::map<Vec2i,std::map<Vec2i,bool> >::const_iterator iterFind = nodeCache->cachedCanMoveSoonList.find(pos);
-//			if(iterFind != nodeCache->cachedCanMoveSoonList.end() &&
-//				iterFind->second.find(resultNode->getPos()) != iterFind->second.end()) {
-//				const std::map<Vec2i,bool> &mapCache2 = iterFind->second;
-//				std::map<Vec2i,bool>::const_iterator iterFind2 = mapCache2.find(resultNode->getPos());
-//
-//				if(iterFind2->second == false) {
-//					resultNode = NULL;
-//					result = 9999999;
-//				}
-//			}
-//			else {
-//				const Vec2i &nodePos = resultNode->getPos();
-//
-//				if(resultNode->getPos() != nodeCache->unit->getCurrentPathFinderDesiredFinalPos()) {
-//					if(map->aproxCanMoveSoon(nodeCache->unit, pos, resultNode->getPos()) == false) {
-//						resultNode = NULL;
-//						result = 9999999;
-//					}
-//				}
-//
-//				nodeCache->cachedCanMoveSoonList[pos][nodePos] = (resultNode != NULL);
-//			}
-//		}
-//	}
-	return result;
-}
-
-unsigned int FastAINode::getEdgeCount(void *userData) const {
-	unsigned int result = 0;
-	for(unsigned int index = 0; index < NODE_EDGE_COUNT; ++index) {
-		FastAINode *resultNode = getNodeForEdgeIndex(index,userData);
-		if(resultNode != NULL) {
-			result++;
-		}
-	}
-	return result;
-}
-
-AI_Node * FastAINode::getEdge(int index,void *userData) const {
-	FastAINode *result = NULL;
-
-	unsigned int edgeCount = getEdgeCount(userData);
-	if(edgeCount < NODE_EDGE_COUNT) {
-		int edgeIndex = -1;
-
-		for(unsigned int index2 = 0; index2 < NODE_EDGE_COUNT; ++index2) {
-			result = getNodeForEdgeIndex(index2,userData);
-			if(result != NULL) {
-				edgeIndex++;
-
-				if(edgeIndex == index) {
-					return result;
-				}
-			}
-			result = NULL;
-		}
-		return result;
-	}
-	result = getNodeForEdgeIndex(index,userData);
-	return result;
-};
-
 // ===================== PUBLIC ========================
 
 const int Map::cellScale= 2;
@@ -423,7 +287,6 @@ const int Map::mapScale= 2;
 Map::Map() {
 	cells= NULL;
 	surfaceCells= NULL;
-	cellNodes=NULL;
 	startLocations= NULL;
 
 	title="";
@@ -446,8 +309,6 @@ Map::~Map() {
 	cells = NULL;
 	delete [] surfaceCells;
 	surfaceCells = NULL;
-	delete [] cellNodes;
-	cellNodes = NULL;
 	delete [] startLocations;
 	startLocations = NULL;
 }
@@ -545,14 +406,6 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 
 			//cells
 			cells= new Cell[getCellArraySize()];
-			cellNodes = new FastAINode[getCellArraySize()];
-			for(unsigned int x = 0; x < w; ++x) {
-				for(unsigned int y = 0; y < h; ++y) {
-					int arrayIndex = y * w + x;
-					FastAINode &cellNode = cellNodes[arrayIndex];
-					cellNode.setData(Vec2i(x,y),this);
-				}
-			}
 			surfaceCells= new SurfaceCell[getSurfaceCellArraySize()];
 
 			//read heightmap
