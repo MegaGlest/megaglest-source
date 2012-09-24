@@ -132,8 +132,8 @@ Game::Game() : ProgramState(NULL) {
 	pauseGamePopupMenuIndex = -1;
 	saveGamePopupMenuIndex = -1;
 	loadGamePopupMenuIndex = -1;
-	markCellPopupMenuIndex = -1;
-	unmarkCellPopupMenuIndex = -1;
+	//markCellPopupMenuIndex = -1;
+	//unmarkCellPopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 	disconnectPlayerPopupMenuIndex = -1;
 
@@ -197,8 +197,8 @@ void Game::resetMembers() {
 	pauseGamePopupMenuIndex = -1;
 	saveGamePopupMenuIndex = -1;
 	loadGamePopupMenuIndex = -1;
-	markCellPopupMenuIndex = -1;
-	unmarkCellPopupMenuIndex = -1;
+	//markCellPopupMenuIndex = -1;
+	//unmarkCellPopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 	disconnectPlayerPopupMenuIndex = -1;
 
@@ -1307,10 +1307,10 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 			joinTeamPopupMenuIndex = menuItems.size()-1;
 		}
 
-		menuItems.push_back(lang.get("MarkCell"));
-		markCellPopupMenuIndex = menuItems.size()-1;
-		menuItems.push_back(lang.get("UnMarkCell"));
-		unmarkCellPopupMenuIndex = menuItems.size()-1;
+		//menuItems.push_back(lang.get("MarkCell"));
+		//markCellPopupMenuIndex = menuItems.size()-1;
+		//menuItems.push_back(lang.get("UnMarkCell"));
+		//unmarkCellPopupMenuIndex = menuItems.size()-1;
 
 		if(allowAdminMenuItems == true){
 			menuItems.push_back(lang.get("PauseResumeGame"));
@@ -2153,6 +2153,26 @@ void Game::tryPauseToggle(bool pauseValue) {
 	}
 }
 
+void Game::startMarkCell() {
+	int totalMarkedCellsForPlayer = 0;
+	for(std::map<Vec2i, MarkedCell>::iterator iterMap = mapMarkedCellList.begin();
+			iterMap != mapMarkedCellList.end(); ++iterMap) {
+		MarkedCell &bm = iterMap->second;
+		if(bm.getPlayerIndex() == world.getThisFaction()->getStartLocationIndex()) {
+			totalMarkedCellsForPlayer++;
+		}
+	}
+
+	const int MAX_MARKER_COUNT = 5;
+	if(totalMarkedCellsForPlayer < MAX_MARKER_COUNT) {
+		isMarkCellEnabled = true;
+	}
+	else {
+		Lang &lang= Lang::getInstance();
+		console.addLine(lang.get("MaxMarkerCount") + " " + intToStr(MAX_MARKER_COUNT));
+	}
+}
+
 void Game::mouseDownLeft(int x, int y) {
 	if(this->masterserverMode == true) {
 		return;
@@ -2309,28 +2329,12 @@ void Game::mouseDownLeft(int x, int y) {
 			else if(result.first == saveGamePopupMenuIndex){
 				saveGame();
 			}
-			else if(result.first == markCellPopupMenuIndex) {
-				int totalMarkedCellsForPlayer = 0;
-				for(std::map<Vec2i, MarkedCell>::iterator iterMap = mapMarkedCellList.begin();
-						iterMap != mapMarkedCellList.end(); ++iterMap) {
-					MarkedCell &bm = iterMap->second;
-					if(bm.getPlayerIndex() == world.getThisFaction()->getStartLocationIndex()) {
-						totalMarkedCellsForPlayer++;
-					}
-				}
-
-				const int MAX_MARKER_COUNT = 5;
-				if(totalMarkedCellsForPlayer < MAX_MARKER_COUNT) {
-					isMarkCellEnabled = true;
-				}
-				else {
-					Lang &lang= Lang::getInstance();
-					console.addLine(lang.get("MaxMarkerCount") + " " + intToStr(MAX_MARKER_COUNT));
-				}
-			}
-			else if(result.first == unmarkCellPopupMenuIndex) {
-				isUnMarkCellEnabled = true;
-			}
+			//else if(result.first == markCellPopupMenuIndex) {
+			//	startMarkCell();
+			//}
+			//else if(result.first == unmarkCellPopupMenuIndex) {
+			//	isUnMarkCellEnabled = true;
+			//}
 		}
 		else if(popupMenuSwitchTeams.mouseClick(x, y)) {
 			//popupMenuSwitchTeams
@@ -3066,6 +3070,23 @@ void Game::processInputText(string text, bool cancelled) {
 	}
 }
 
+void Game::startCameraFollowUnit() {
+	Selection *selection= gui.getSelectionPtr();
+	if(selection->getCount() == 1) {
+		Unit *currentUnit = selection->getUnitPtr(0);
+		if(currentUnit != NULL) {
+			currentCameraFollowUnit = currentUnit;
+			currentCameraFollowUnit->setCameraFollowUnit(true);
+		}
+	}
+	else {
+		if(currentCameraFollowUnit != NULL) {
+			currentCameraFollowUnit->setCameraFollowUnit(false);
+			currentCameraFollowUnit = NULL;
+		}
+	}
+}
+
 void Game::keyDown(SDL_KeyboardEvent key) {
 	if(this->masterserverMode == true) {
 		return;
@@ -3106,7 +3127,8 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 
 			//printf("SDL [%d] key [%d][%d]\n",configKeys.getSDLKey("SetMarker"),key.keysym.unicode,key.keysym.sym);
 			bool setMarkerKeyAllowsModifier = false;
-			if(configKeys.getSDLKey("SetMarker") == SDLK_RALT || configKeys.getSDLKey("SetMarker") == SDLK_LALT) {
+			if( configKeys.getSDLKey("SetMarker") == SDLK_RALT ||
+				configKeys.getSDLKey("SetMarker") == SDLK_LALT) {
 				setMarkerKeyAllowsModifier = true;
 			}
 			//if(key == configKeys.getCharKey("RenderNetworkStatus")) {
@@ -3188,6 +3210,11 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//reset camera mode to normal
 			//else if(key == configKeys.getCharKey("ResetCameraMode")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ResetCameraMode"),key, false) == true) {
+				if(currentCameraFollowUnit != NULL) {
+					currentCameraFollowUnit->setCameraFollowUnit(false);
+					currentCameraFollowUnit = NULL;
+				}
+
 				gameCamera.resetPosition();
 			}
 			//pause
@@ -3244,6 +3271,15 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				if(speedChangesAllowed){
 					decSpeed();
 				}
+			}
+			else if(isKeyPressed(configKeys.getSDLKey("BookmarkAdd"),key, false) == true) {
+				startMarkCell();
+			}
+			else if(isKeyPressed(configKeys.getSDLKey("BookmarkRemove"),key, false) == true) {
+				isUnMarkCellEnabled = true;
+			}
+			else if(isKeyPressed(configKeys.getSDLKey("CameraFollowSelectedUnit"),key, false) == true) {
+				startCameraFollowUnit();
 			}
 			//exit
 			//else if(key == configKeys.getCharKey("ExitKey")) {
