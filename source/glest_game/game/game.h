@@ -155,8 +155,8 @@ private:
 	int pauseGamePopupMenuIndex;
 	int saveGamePopupMenuIndex;
 	int loadGamePopupMenuIndex;
-	int markCellPopupMenuIndex;
-	int unmarkCellPopupMenuIndex;
+	//int markCellPopupMenuIndex;
+	//int unmarkCellPopupMenuIndex;
 	int keyboardSetupPopupMenuIndex;
 	int disconnectPlayerPopupMenuIndex;
 	//GLuint statelist3dMenu;
@@ -188,6 +188,8 @@ private:
 	std::vector<string> streamingVideos;
 	Shared::Graphics::VideoPlayer *videoPlayer;
 	bool playingStaticVideo;
+
+	Unit *currentCameraFollowUnit;
 
 public:
 	Game();
@@ -337,6 +339,9 @@ private:
 	void updateNetworkHighligtedCells();
 
 	virtual void processInputText(string text, bool cancelled);
+
+	void startMarkCell();
+	void startCameraFollowUnit();
 };
 
 }}//end namespace

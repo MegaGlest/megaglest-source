@@ -297,6 +297,7 @@ Map::Map() {
 	h=0;
 	surfaceW=0;
 	surfaceH=0;
+	surfaceSize=(surfaceW * surfaceH);
 	maxPlayers=0;
 	maxMapHeight=0;
 }
@@ -374,8 +375,11 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			waterLevel= static_cast<float>((header.waterLevel-0.01f)/heightFactor);
 			title= header.title;
 			maxPlayers= header.maxFactions;
+
 			surfaceW= header.width;
 			surfaceH= header.height;
+			surfaceSize=(surfaceW * surfaceH);
+
 			w= surfaceW*cellScale;
 			h= surfaceH*cellScale;
 			cliffLevel = 0;

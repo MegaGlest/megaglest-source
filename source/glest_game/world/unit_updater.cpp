@@ -1247,7 +1247,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 							//if resource exausted, then delete it and stop
 							if (sc->decAmount(1)) {
-								const ResourceType *rt = r->getType();
+								//const ResourceType *rt = r->getType();
 								sc->deleteResource();
 								world->removeResourceTargetFromCache(unitTargetPos);
 
@@ -1843,8 +1843,8 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
     else{
 		unit->update2();
         if(unit->getProgress2()>mct->getProduced()->getProductionTime()){
-			int oldSize = 0;
-			bool needMapUpdate = false;
+			//int oldSize = 0;
+			//bool needMapUpdate = false;
 
     		switch(this->game->getGameSettings()->getPathFinderType()) {
     			case pfBasic:

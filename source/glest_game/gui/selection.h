@@ -76,6 +76,7 @@ public:
 	bool isMeetable() const;
 	int getCount() const				{return selectedUnits.size();}
 	const Unit *getUnit(int i) const	{return selectedUnits[i];}
+	Unit *getUnitPtr(int i) 			{return selectedUnits[i];}
 	const Unit *getFrontUnit() const	{return selectedUnits.front();}
 	Vec3f getRefPos() const;
 	bool hasUnit(const Unit* unit) const;

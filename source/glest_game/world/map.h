@@ -218,6 +218,8 @@ private:
 	int h;
 	int surfaceW;
 	int surfaceH;
+	int surfaceSize;
+
 	int maxPlayers;
 	Cell *cells;
 	SurfaceCell *surfaceCells;
@@ -267,7 +269,8 @@ public:
 		return (w * h);
 	}
 	inline int getSurfaceCellArraySize() const {
-		return (surfaceW * surfaceH);
+		//return (surfaceW * surfaceH);
+		return surfaceSize;
 	}
 	inline SurfaceCell *getSurfaceCell(int sx, int sy) const {
 		int arrayIndex = sy * surfaceW + sx;
