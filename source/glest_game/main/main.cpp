@@ -4343,6 +4343,39 @@ int glestMain(int argc, char** argv) {
 				return 1;
 			}
 		}
+
+		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONNECT])) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONNECT]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CONNECT]),&foundParamIndIndex);
+			}
+			string serverToConnectTo = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(serverToConnectTo,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string autoConnectServer = paramPartTokens[1];
+				int port = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+				vector<string> paramPartTokens2;
+				Tokenize(autoConnectServer,paramPartTokens2,":");
+				autoConnectServer = paramPartTokens2[0];
+				if(paramPartTokens2.size() >= 2 && paramPartTokens2[1].length() > 0) {
+					port = strToInt(paramPartTokens2[1]);
+				}
+
+				printf("Connecting to host [%s] using port: %d\n",autoConnectServer.c_str(),port);
+				program->initClient(mainWindow, autoConnectServer,port);
+				gameInitialized = true;
+			}
+			else {
+
+				printf("\nInvalid host specified on commandline [%s] host [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(argv[0],foundInvalidArgs);
+				delete mainWindow;
+				return 1;
+			}
+		}
+
 		else if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT])) == true) {
 			int foundParamIndIndex = -1;
 			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CLIENT]) + string("="),&foundParamIndIndex);

@@ -71,7 +71,7 @@ private:
 	bool autoConnectToServer;
 
 public:
-	MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect= false, Ip serverIp= Ip());
+	MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect= false, Ip serverIp= Ip(),int portNumberOverride=-1);
 	virtual ~MenuStateJoinGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);

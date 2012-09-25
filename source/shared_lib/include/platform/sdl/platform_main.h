@@ -28,6 +28,7 @@ const char  *GAME_ARGS[] = {
 	"--autostart-lastgame",
 	"--load-saved-game",
 	"--auto-test",
+	"--connect",
 	"--connecthost",
 	"--starthost",
 	"--headless-server-mode",
@@ -96,6 +97,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_AUTOSTART_LASTGAME,
 	GAME_ARG_AUTOSTART_LAST_SAVED_GAME,
 	GAME_ARG_AUTO_TEST,
+	GAME_ARG_CONNECT,
 	GAME_ARG_CLIENT,
 	GAME_ARG_SERVER,
 	GAME_ARG_MASTERSERVER_MODE,
@@ -186,6 +188,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tIf y is not specified (or is empty) then auto test cycles through playing scenarios.");
 	printf("\n                     \t\tWhere z is the word exit indicating the game should exit after the game is finished or the time runs out.");
 	printf("\n                     \t\tIf z is not specified (or is empty) then auto test continues to cycle.");
+
+	printf("\n%s=x:y\t\t\tAuto connect to host server at IP or hostname x using port y",GAME_ARGS[GAME_ARG_CONNECT]);
+	printf("\n                     \t\tShortcut version of using %s and %s.",GAME_ARGS[GAME_ARG_CLIENT],GAME_ARGS[GAME_ARG_USE_PORTS]);
 
 	printf("\n%s=x\t\t\tAuto connect to host server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
 	printf("\n%s\t\t\tAuto create a host server.",GAME_ARGS[GAME_ARG_SERVER]);

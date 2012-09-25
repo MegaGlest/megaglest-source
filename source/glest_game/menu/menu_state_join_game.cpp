@@ -43,7 +43,8 @@ const int MenuStateJoinGame::foundServersIndex= 2;
 
 const string MenuStateJoinGame::serverFileName= "servers.ini";
 
-MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect, Ip serverIp):
+MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu,
+		bool connect, Ip serverIp,int portNumberOverride):
 	MenuState(program, mainMenu, "join-game")
 {
 	containerName = "JoinGame";
@@ -155,13 +156,23 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	playerIndex= -1;
 
 	//server ip
-	if(connect) 	{
-		labelServerIp.setText(serverIp.getString() + "_");
+	if(connect == true) 	{
+		string hostIP = serverIp.getString();
+		if(portNumberOverride > 0) {
+			hostIP += ":" + intToStr(portNumberOverride);
+		}
+
+		labelServerIp.setText(hostIP + "_");
 
 		autoConnectToServer = true;
 	}
 	else {
-		labelServerIp.setText(config.getString("ServerIp") + "_");
+		string hostIP = config.getString("ServerIp");
+		if(portNumberOverride > 0) {
+			hostIP += ":" + intToStr(portNumberOverride);
+		}
+
+		labelServerIp.setText(hostIP + "_");
 	}
 
 	host = labelServerIp.getText();
@@ -562,7 +573,7 @@ void MenuStateJoinGame::update()
 				}
 				string saveHost = Ip(host).getString();
 				if(hostPartsList.size() > 1) {
-					saveHost += ";" + hostPartsList[1];
+					saveHost += ":" + hostPartsList[1];
 				}
 
 				servers.setString(clientInterface->getServerName(), saveHost);
@@ -738,7 +749,7 @@ void MenuStateJoinGame::connectToServer() {
 
 		string saveHost = Ip(host).getString();
 		if(hostPartsList.size() > 1) {
-			saveHost += ";" + hostPartsList[1];
+			saveHost += ":" + hostPartsList[1];
 		}
 		servers.setString(clientInterface->getServerName(), saveHost);
 		servers.save(serversSavedFile);
