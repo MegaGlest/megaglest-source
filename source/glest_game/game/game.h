@@ -298,6 +298,9 @@ public:
 
 	bool factionLostGame(int factionIndex);
 
+	void addCellMarker(Vec2i cellPos, MarkedCell cellData);
+	void removeCellMarker(Vec2i surfaceCellPos, const Faction *faction);
+
 private:
 	//render
     void render3d();

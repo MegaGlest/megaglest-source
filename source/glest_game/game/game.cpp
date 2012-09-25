@@ -112,6 +112,7 @@ Game::Game() : ProgramState(NULL) {
 	lastRenderLog2d=0;
 	playerIndexDisconnect=0;
 	tickCount=0;
+	currentCameraFollowUnit=NULL;
 
 	popupMenu.setEnabled(false);
 	popupMenu.setVisible(false);
@@ -242,6 +243,7 @@ void Game::resetMembers() {
 	camUpButtonDown=false;
 	camDownButtonDown=false;
 
+	currentCameraFollowUnit=NULL;
 	currentAmbientSound=NULL;
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 
@@ -440,7 +442,7 @@ Texture2D * Game::findFactionLogoTexture(const GameSettings *settings, Logger *l
 		logoFilename = Game::findFactionLogoFile(settings, logger);
 	}
 
-	result = Renderer::findFactionLogoTexture(logoFilename);
+	result = Renderer::findTexture(logoFilename);
 
 	return result;
 }
@@ -695,7 +697,7 @@ void Game::loadHudTexture(const GameSettings *settings)
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
 							SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found HUD image [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,hudImageFileName.c_str());
 
-						Texture2D* texture= Renderer::findFactionLogoTexture(hudImageFileName);
+						Texture2D* texture= Renderer::findTexture(hudImageFileName);
 						gui.setHudTexture(texture);
 						hudFound = true;
 						//printf("Hud texture found! \n");
@@ -862,11 +864,11 @@ void Game::load(int loadTypes) {
 	loadHudTexture(&gameSettings);
 
 	const string markCellTextureFilename = data_path + "data/core/misc_textures/mark_cell.png";
-	markCellTexture = Renderer::findFactionLogoTexture(markCellTextureFilename);
+	markCellTexture = Renderer::findTexture(markCellTextureFilename);
 	const string unmarkCellTextureFilename = data_path + "data/core/misc_textures/unmark_cell.png";
-	unmarkCellTexture = Renderer::findFactionLogoTexture(unmarkCellTextureFilename);
+	unmarkCellTexture = Renderer::findTexture(unmarkCellTextureFilename);
 	const string highlightCellTextureFilename = data_path + "data/core/misc_textures/pointer.png";
-	highlightCellTexture = Renderer::findFactionLogoTexture(highlightCellTextureFilename);
+	highlightCellTexture = Renderer::findTexture(highlightCellTextureFilename);
 
     string scenarioDir = "";
     if(gameSettings.getScenarioDir() != "") {
@@ -1739,13 +1741,14 @@ void Game::updateNetworkMarkedCells() {
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
 		if(gameNetworkInterface != NULL &&
-				gameNetworkInterface->getMarkedCellList(false).empty() == false) {
-			//Lang &lang= Lang::getInstance();
+			gameNetworkInterface->getMarkedCellList(false).empty() == false) {
 
 			std::vector<MarkedCell> chatList = gameNetworkInterface->getMarkedCellList(true);
 			for(int idx = 0; idx < chatList.size(); idx++) {
 				MarkedCell mc = chatList[idx];
-				mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex()));
+				if(mc.getFactionIndex() >= 0) {
+					mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex()));
+				}
 
 				Map *map= world.getMap();
 				Vec2i surfaceCellPos = map->toSurfCoords(mc.getTargetPos());
@@ -2173,6 +2176,110 @@ void Game::startMarkCell() {
 	}
 }
 
+void Game::processInputText(string text, bool cancelled) {
+	isMarkCellTextEnabled = false;
+
+	if(cancelled == false) {
+		//printf("Note [%s]\n",text.c_str());
+
+		cellMarkedData.setNote(text);
+		addCellMarker(cellMarkedPos, cellMarkedData);
+
+//		if(text.find("\\n") != text.npos) {
+//			replaceAll(text, "\\n", "\n");
+//		}
+//		if(text.find("\\t") != text.npos) {
+//			replaceAll(text, "\\t", "\t");
+//		}
+//
+//		cellMarkedData.setNote(text);
+//		mapMarkedCellList[cellMarkedPos] = cellMarkedData;
+//
+//		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+//
+//		int factionIndex = -1;
+//		int playerIndex = -1;
+//		if(cellMarkedData.getFaction() != NULL) {
+//			factionIndex = cellMarkedData.getFaction()->getIndex();
+//			playerIndex = cellMarkedData.getFaction()->getStartLocationIndex();
+//		}
+//		gameNetworkInterface->sendMarkCellMessage(
+//				cellMarkedData.getTargetPos(),
+//				factionIndex,
+//				cellMarkedData.getNote(),
+//				playerIndex);
+//
+//		Renderer &renderer= Renderer::getInstance();
+//		renderer.forceQuadCacheUpdate();
+	}
+}
+
+void Game::addCellMarker(Vec2i cellPos, MarkedCell cellData) {
+	//printf("Note [%s]\n",text.c_str());
+
+	string text = cellData.getNote();
+	if(text.find("\\n") != text.npos) {
+		replaceAll(text, "\\n", "\n");
+	}
+	if(text.find("\\t") != text.npos) {
+		replaceAll(text, "\\t", "\t");
+	}
+
+	cellData.setNote(text);
+	mapMarkedCellList[cellPos] = cellData;
+
+	GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+
+	int factionIndex = -1;
+	int playerIndex = -1;
+	if(cellData.getFaction() != NULL) {
+		factionIndex = cellData.getFaction()->getIndex();
+		playerIndex = cellData.getFaction()->getStartLocationIndex();
+	}
+
+	//printf("Adding Cell marker pos [%s] factionIndex [%d] note [%s] playerIndex = %d\n",cellData.getTargetPos().getString().c_str(),factionIndex,cellData.getNote().c_str(),playerIndex);
+
+	gameNetworkInterface->sendMarkCellMessage(
+			cellData.getTargetPos(),
+			factionIndex,
+			cellData.getNote(),
+			playerIndex);
+
+	Renderer &renderer= Renderer::getInstance();
+	renderer.forceQuadCacheUpdate();
+}
+
+void Game::removeCellMarker(Vec2i surfaceCellPos, const Faction *faction) {
+	//Vec2i surfaceCellPos = map->toSurfCoords(Vec2i(xCell,yCell));
+	Map *map= world.getMap();
+	SurfaceCell *sc = map->getSurfaceCell(surfaceCellPos);
+	Vec3f vertex = sc->getVertex();
+	Vec2i targetPos(vertex.x,vertex.z);
+
+	//printf("Remove Cell marker lookup pos [%s] factionIndex [%d]\n",surfaceCellPos.getString().c_str(),(faction != NULL ? faction->getIndex() : -1));
+
+	if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
+		MarkedCell mc = mapMarkedCellList[surfaceCellPos];
+		if(mc.getFaction() == faction) {
+			mapMarkedCellList.erase(surfaceCellPos);
+			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+
+			int factionIndex = (faction != NULL ? faction->getIndex() : -1);
+
+			//printf("Remvoing Cell marker pos [%s] factionIndex [%d] note [%s]\n",mc.getTargetPos().getString().c_str(),factionIndex,mc.getNote().c_str());
+
+			gameNetworkInterface->sendUnMarkCellMessage(mc.getTargetPos(),factionIndex);
+		}
+	}
+	//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+
+	//isUnMarkCellEnabled = false;
+
+	Renderer &renderer= Renderer::getInstance();
+	//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
+	renderer.forceQuadCacheUpdate();
+}
+
 void Game::mouseDownLeft(int x, int y) {
 	if(this->masterserverMode == true) {
 		return;
@@ -2541,19 +2648,19 @@ void Game::mouseDownLeft(int x, int y) {
 						Vec3f vertex = sc->getVertex();
 						Vec2i targetPos(vertex.x,vertex.z);
 
-						//MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
-						//mapMarkedCellList[surfaceCellPos] = mc;
-						if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
-							MarkedCell mc = mapMarkedCellList[surfaceCellPos];
-							if(mc.getFaction() == world.getThisFaction()) {
-								mapMarkedCellList.erase(surfaceCellPos);
-								GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-								gameNetworkInterface->sendUnMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex());
-							}
-						}
-						//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+//						if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
+//							MarkedCell mc = mapMarkedCellList[surfaceCellPos];
+//							if(mc.getFaction() == world.getThisFaction()) {
+//								mapMarkedCellList.erase(surfaceCellPos);
+//								GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+//								gameNetworkInterface->sendUnMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex());
+//							}
+//						}
 
 						isUnMarkCellEnabled = false;
+
+						removeCellMarker(surfaceCellPos, world.getThisFaction());
+						//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 						Renderer &renderer= Renderer::getInstance();
 						//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
@@ -2600,10 +2707,6 @@ void Game::mouseDownLeft(int x, int y) {
 
 					MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note",world.getThisFaction()->getStartLocationIndex());
 					cellMarkedData = mc;
-					//mapMarkedCellList[surfaceCellPos] = mc;
-
-					//GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-					//gameNetworkInterface->sendMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex(),mc.getNote());
 
 					//printf("#2 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
@@ -2624,19 +2727,18 @@ void Game::mouseDownLeft(int x, int y) {
 					renderer.computePosition(screenPos, targetPos);
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
-					//MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
-					//mapMarkedCellList[surfaceCellPos] = mc;
-					if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
-						MarkedCell mc = mapMarkedCellList[surfaceCellPos];
-						if(mc.getFaction() == world.getThisFaction()) {
-							mapMarkedCellList.erase(surfaceCellPos);
-							GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-							gameNetworkInterface->sendUnMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex());
-						}
-					}
-					//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+//					if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
+//						MarkedCell mc = mapMarkedCellList[surfaceCellPos];
+//						if(mc.getFaction() == world.getThisFaction()) {
+//							mapMarkedCellList.erase(surfaceCellPos);
+//							GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+//							gameNetworkInterface->sendUnMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex());
+//						}
+//					}
 
 					isUnMarkCellEnabled = false;
+					removeCellMarker(surfaceCellPos, world.getThisFaction());
+					//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 					//Renderer &renderer= Renderer::getInstance();
 					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
@@ -3041,32 +3143,6 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
-	}
-}
-
-void Game::processInputText(string text, bool cancelled) {
-	isMarkCellTextEnabled = false;
-
-	if(cancelled == false) {
-		//printf("Note [%s]\n",text.c_str());
-
-		if(text.find("\\n") != text.npos) {
-			replaceAll(text, "\\n", "\n");
-		}
-		if(text.find("\\t") != text.npos) {
-			replaceAll(text, "\\t", "\t");
-		}
-
-		cellMarkedData.setNote(text);
-		//MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note");
-		//mapMarkedCellList[surfaceCellPos] = mc;
-		mapMarkedCellList[cellMarkedPos] = cellMarkedData;
-
-		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-		gameNetworkInterface->sendMarkCellMessage(cellMarkedData.getTargetPos(),cellMarkedData.getFaction()->getIndex(),cellMarkedData.getNote(),cellMarkedData.getFaction()->getStartLocationIndex());
-
-		Renderer &renderer= Renderer::getInstance();
-		renderer.forceQuadCacheUpdate();
 	}
 }
 

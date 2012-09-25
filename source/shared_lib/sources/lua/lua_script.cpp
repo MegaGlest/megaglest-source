@@ -631,13 +631,26 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 		throwLuaError("Can not get vec2i from Lua state, array size not 2");
 	}
 
+	//string stackString = getStackText();
+	//printf("Lua Stack:\n%s\n",stackString.c_str());
+
 	lua_rawgeti(luaState, argumentIndex, 1);
-	v.x= luaL_checkint(luaState, argumentIndex);
+	//printf("xa = %s argumentIndex = %d\n",lua_tostring(luaState, argumentIndex),argumentIndex);
+
+	//v.x= luaL_checkint(luaState, argumentIndex);
+	v.x= lua_tointeger(luaState, argumentIndex);
 	lua_pop(luaState, 1);
 
+	//printf("X = %d\n",v.x);
+
 	lua_rawgeti(luaState, argumentIndex, 2);
-	v.y= luaL_checkint(luaState, argumentIndex);
+	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
+
+	//v.y= luaL_checkint(luaState, argumentIndex);
+	v.y= lua_tointeger(luaState, argumentIndex);
 	lua_pop(luaState, 1);
+
+	//printf("Y = %d\n",v.y);
 
 	return v;
 }
@@ -740,7 +753,7 @@ void LuaArguments::returnVectorInt(const vector<int> &value) {
 	}
 }
 
-void LuaArguments::throwLuaError(const string &message) const{
+string LuaArguments::getStackText() const {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
 	string stackString;
@@ -756,11 +769,77 @@ void LuaArguments::throwLuaError(const string &message) const{
 			stackString+= "String: " + string(luaL_checkstring(luaState, -i));
 		}
 		else if(lua_istable(luaState, -i)){
+
+			int tableLen = 0;
 #if LUA_VERSION_NUM > 501
-			stackString+= "Table (" + intToStr(lua_rawlen(luaState, -i)) + ")";
+			tableLen = lua_rawlen(luaState, -i);
 #else
-			stackString+= "Table (" + intToStr(luaL_getn(luaState, -i)) + ")";
+			tableLen = luaL_getn(luaState, -i);
 #endif
+			stackString+= "Table (" + intToStr(tableLen) + ")\n";
+//			for(unsigned int j = 1; j < tableLen; ++j) {
+//				stackString+= "entry# " + intToStr(j) + ", value = " + lua_tostring(luaState, -i) + "\n";
+//			}
+
+
+//			int j = 1;
+//			lua_pushnil(luaState);  // The initial key for the traversal.
+//
+//			printf("start loop\n");
+//
+//			while (lua_next(luaState, -2)!=0) {
+//				printf("in loop j = %d\n",j);
+//
+//				const char* Param=lua_tostring(luaState, -1);
+//
+//				printf("passed in loop j = %d Param [%s]\n",j,(Param != NULL ? Param : "<nil>"));
+//
+//				if (Param!=NULL) {
+//					stackString+= "entry# " + intToStr(j) + ", value = " + Param + "\n";
+//				}
+//
+//				// Remove the value, keep the key for the next iteration.
+//				lua_pop(luaState, 1);
+//				j++;
+//			}
+
+//			const int len = lua_objlen( luaState, -i );
+//			printf("Table Len = %d\n",len);
+//
+//			for ( int j = 1; j <= len; ++j ) {
+//				printf("A Table\n");
+//
+//				lua_pushinteger( luaState, j );
+//
+//				printf("B Table\n");
+//
+//				lua_gettable( luaState, -2 );
+//
+//				printf("C Table\n");
+//
+//				//v.push_back( lua_tointeger( L, -1 ) );
+//				const char *value = lua_tostring( luaState, -1 );
+//				printf("D Table value = %s\n",(value != NULL ? value : "<nil>"));
+//
+//				//v.push_back( lua_tointeger( L, -1 ) );
+//				const char *value2 = lua_tostring( luaState, -2 );
+//				printf("E Table value2 = %s\n",(value2 != NULL ? value2 : "<nil>"));
+//
+//				value2 = lua_tostring( luaState, -3 );
+//				printf("F Table value2 = %s\n",(value2 != NULL ? value2 : "<nil>"));
+//
+//				value2 = lua_tostring( luaState, 0 );
+//				printf("G Table value2 = %s\n",(value2 != NULL ? value2 : "<nil>"));
+//
+//				value2 = lua_tostring( luaState, 1 );
+//				printf("H Table value2 = %s\n",(value2 != NULL ? value2 : "<nil>"));
+//
+//				stackString+= "entry# " + intToStr(j) + ", value = " + (value != NULL ? value : "<nil>") + "\n";
+//
+//				printf("E Table\n");
+//
+//				lua_pop( luaState, 1 );
+//			}
 		}
 		else
 		{
@@ -769,6 +848,12 @@ void LuaArguments::throwLuaError(const string &message) const{
 		stackString+= "\n";
 	}
 	
+	return stackString;
+}
+void LuaArguments::throwLuaError(const string &message) const{
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	string stackString = getStackText();
 	throw megaglest_runtime_error("Lua error: " + message + "\n\nLua Stack:\n" + stackString);
 }
 

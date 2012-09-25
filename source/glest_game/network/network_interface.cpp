@@ -38,6 +38,8 @@ bool NetworkInterface::allowGameDataSynchCheck  = false;
 bool NetworkInterface::allowDownloadDataSynch   = false;
 DisplayMessageFunction NetworkInterface::pCB_DisplayMessage = NULL;
 
+Vec3f MarkedCell::static_system_marker_color(MAGENTA.x,MAGENTA.y,MAGENTA.z);
+
 void NetworkInterface::sendMessage(const NetworkMessage* networkMessage){
 	Socket* socket= getSocket(false);
 

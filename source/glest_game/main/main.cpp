@@ -4716,7 +4716,7 @@ int glestMain(int argc, char** argv) {
 //					Texture2D * factionLogo = textureList[i];
 //					if(factionLogo != NULL) {
 //						printf("\n\n\n\n|||||||||||||||||||||||||| Load texture [%s]\n",factionLogo->getPath().c_str());
-//						//Renderer::findFactionLogoTexture(factionLogo);
+//						//Renderer::findTexture(factionLogo);
 //						renderer.initTexture(rsGlobal,factionLogo);
 //					}
 //				}

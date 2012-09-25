@@ -246,6 +246,9 @@ public:
 	Vec2i getUnitPosition(int unitId);
 	void setUnitPosition(int unitId, Vec2i pos);
 
+	void addCellMarker(Vec2i pos, int factionIndex, const string &note, const string textureFile);
+	void removeCellMarker(Vec2i pos, int factionIndex);
+
 	int getUnitFactionIndex(int unitId);
 	const string getUnitName(int unitId);
 	int getUnitCount(int factionIndex);

@@ -316,6 +316,8 @@ private:
 
 	void setUnitPosition(int unitId, Vec2i pos);
 
+	void addCellMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile);
+	void removeCellMarker(Vec2i pos, int factionIndex);
 
 	const string &getLastDeadUnitName();
 	int getLastDeadUnitId();
@@ -427,6 +429,9 @@ private:
 	static int getLastCreatedUnitId(LuaHandle* luaHandle);
 
 	static int setUnitPosition(LuaHandle* luaHandle);
+
+	static int addCellMarker(LuaHandle* luaHandle);
+	static int removeCellMarker(LuaHandle* luaHandle);
 
 	static int getLastDeadUnitName(LuaHandle* luaHandle);
 	static int getLastDeadUnitId(LuaHandle* luaHandle);

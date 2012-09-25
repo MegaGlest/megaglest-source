@@ -2152,7 +2152,7 @@ void MenuStateMods::render() {
 
 					if(tempImage != "" && fileExists(tempImage) == true) {
 						cleanupPreviewTexture();
-						modPreviewImage = Renderer::findFactionLogoTexture(tempImage);
+						modPreviewImage = Renderer::findTexture(tempImage);
 					}
 				}
 				if(modPreviewImage != NULL) {
