@@ -91,12 +91,17 @@ private:
 
 	string introVideoFilename;
 	string introVideoFilenameFallback;
+
 	string mainMenuVideoFilename;
 	string mainMenuVideoFilenameFallback;
+
 	string battleEndWinVideoFilename;
 	string battleEndWinVideoFilenameFallback;
+	string battleEndWinMusicFilename;
+
 	string battleEndLoseVideoFilename;
 	string battleEndLoseVideoFilenameFallback;
+	string battleEndLoseMusicFilename;
 
 public:
 
@@ -199,6 +204,8 @@ public:
     bool hasBattleEndVideoFilename(bool won) const;
     string getBattleEndVideoFilenameFallback(bool won) const { return won == true ? battleEndWinVideoFilenameFallback : battleEndLoseVideoFilenameFallback; }
     bool hasBattleEndVideoFilenameFallback(bool won) const;
+
+    string getBattleEndMusicFilename(bool won) const { return won == true ? battleEndWinMusicFilename : battleEndLoseMusicFilename; }
 
     void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0);
     bool loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);

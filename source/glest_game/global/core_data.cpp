@@ -83,8 +83,10 @@ CoreData::CoreData() {
 
 	battleEndWinVideoFilename="";
 	battleEndWinVideoFilenameFallback="";
+	battleEndWinMusicFilename="";
 	battleEndLoseVideoFilename="";
 	battleEndLoseVideoFilenameFallback="";
+	battleEndLoseMusicFilename="";
 }
 
 CoreData::~CoreData() {
@@ -483,6 +485,7 @@ void CoreData::load() {
 
 		battleEndWinVideoFilename = config.getString("BattleEndWinVideoURL","");
 		battleEndWinVideoFilenameFallback = config.getString("BattleEndWinVideoURLFallback","");
+
 		if(battleEndWinVideoFilename == "") {
 			string battleEndWinVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/battle_end_win.*";
 			vector<string> battleEndWinVideos;
@@ -515,8 +518,42 @@ void CoreData::load() {
 			}
 		}
 
+		battleEndWinMusicFilename = config.getString("BattleEndWinMusicFilename","");
+		if(battleEndWinMusicFilename == "") {
+			string battleEndWinPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/music/battle_end_win.*";
+			vector<string> battleEndWinMusic;
+			findAll(battleEndWinPath, battleEndWinMusic, false, false);
+			for(int i = 0; i < battleEndWinMusic.size(); ++i) {
+				string music = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/music/" + battleEndWinMusic[i];
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if battle end win music [%s] exists\n",music.c_str());
+
+				if(fileExists(music)) {
+					battleEndWinMusicFilename = music;
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND battle end win music [%s] will use this file\n",music.c_str());
+					break;
+				}
+			}
+
+			if(battleEndWinMusicFilename == "") {
+				battleEndWinPath = data_path + "data/core/menu/music/battle_end_win.*";
+				battleEndWinMusic.clear();
+				findAll(battleEndWinPath, battleEndWinMusic, false, false);
+				for(int i = 0; i < battleEndWinMusic.size(); ++i) {
+					string music = data_path + "data/core/menu/music/" + battleEndWinMusic[i];
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if battle end win music [%s] exists\n",music.c_str());
+
+					if(fileExists(music)) {
+						battleEndWinMusicFilename = music;
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND battle end music win [%s] will use this file\n",music.c_str());
+						break;
+					}
+				}
+			}
+		}
+
 		battleEndLoseVideoFilename = config.getString("BattleEndLoseVideoURL","");
 		battleEndLoseVideoFilenameFallback = config.getString("BattleEndLoseVideoURLFallback","");
+
 		if(battleEndLoseVideoFilename == "") {
 			string battleEndLoseVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/battle_end_lose.*";
 			vector<string> battleEndLoseVideos;
@@ -549,6 +586,38 @@ void CoreData::load() {
 			}
 		}
 
+		battleEndLoseMusicFilename = config.getString("BattleEndLoseMusicFilename","");
+		if(battleEndLoseMusicFilename == "") {
+			string battleEndLosePath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/music/battle_end_lose.*";
+			vector<string> battleEndLoseMusic;
+			findAll(battleEndLosePath, battleEndLoseMusic, false, false);
+			for(int i = 0; i < battleEndLoseMusic.size(); ++i) {
+				string music = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/music/" + battleEndLoseMusic[i];
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if battle end lose music [%s] exists\n",music.c_str());
+
+				if(fileExists(music)) {
+					battleEndLoseMusicFilename = music;
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND battle end lose music [%s] will use this file\n",music.c_str());
+					break;
+				}
+			}
+
+			if(battleEndLoseMusicFilename == "") {
+				battleEndLosePath = data_path + "data/core/menu/music/battle_end_lose.*";
+				battleEndLoseMusic.clear();
+				findAll(battleEndLosePath, battleEndLoseMusic, false, false);
+				for(int i = 0; i < battleEndLoseMusic.size(); ++i) {
+					string music = data_path + "data/core/menu/music/" + battleEndLoseMusic[i];
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if battle end lose music [%s] exists\n",music.c_str());
+
+					if(fileExists(music)) {
+						battleEndLoseMusicFilename = music;
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND battle end music lose [%s] will use this file\n",music.c_str());
+						break;
+					}
+				}
+			}
+		}
 	}
 }
 

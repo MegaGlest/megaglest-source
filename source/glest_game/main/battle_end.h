@@ -49,6 +49,7 @@ private:
 
 	Shared::Graphics::VideoPlayer *menuBackgroundVideo;
 	GameSettings *gameSettings;
+	StrSound battleEndMusic;
 
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
@@ -69,6 +70,8 @@ private:
 
 	void initBackgroundVideo();
 	std::pair<string,string> getBattleEndVideo(bool won);
+	string getBattleEndMusic(bool won);
+	void initBackgroundMusic();
 };
 
 }}//end namespace
