@@ -92,6 +92,8 @@ protected:
 	int aliveCount;
 
 public:
+	static Vec3f static_system_marker_color;
+
 	MarkedCell() {
 		faction = NULL;
 		factionIndex = -1;

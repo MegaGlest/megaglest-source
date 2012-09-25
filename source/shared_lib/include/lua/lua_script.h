@@ -92,7 +92,9 @@ public:
 	void returnVectorInt(const vector<int> &value);
 
 private:
+
 	void throwLuaError(const string &message) const;
+	string getStackText() const;
 };
 
 }}//end namespace

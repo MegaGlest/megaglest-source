@@ -328,7 +328,7 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 
 			if(scenarioLogo != "") {
 				cleanupPreviewTexture();
-				scenarioLogoTexture = Renderer::findFactionLogoTexture(scenarioLogo);
+				scenarioLogoTexture = Renderer::findTexture(scenarioLogo);
 			}
 			else {
 				cleanupPreviewTexture();

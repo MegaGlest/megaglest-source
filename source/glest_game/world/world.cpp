@@ -1307,6 +1307,41 @@ void World::setUnitPosition(int unitId, Vec2i pos) {
 	unit->setPos(pos,true);
 }
 
+void World::addCellMarker(Vec2i pos, int factionIndex, const string &note, const string textureFile) {
+	//Vec2i surfaceCellPos = map.toSurfCoords(pos);
+	//Vec2i surfaceCellPos = pos;
+	const Faction *faction = NULL;
+	if(factionIndex >= 0) {
+		faction = this->getFaction(factionIndex);
+	}
+
+	Vec2i surfaceCellPos = map.toSurfCoords(pos);
+	SurfaceCell *sc = map.getSurfaceCell(surfaceCellPos);
+	if(sc == NULL) {
+		throw megaglest_runtime_error("sc == NULL");
+	}
+	Vec3f vertex = sc->getVertex();
+	Vec2i targetPos(vertex.x,vertex.z);
+
+	//printf("pos [%s] scPos [%s][%p] targetPos [%s]\n",pos.getString().c_str(),surfaceCellPos.getString().c_str(),sc,targetPos.getString().c_str());
+
+	MarkedCell mc(targetPos,faction,note,(faction != NULL ? faction->getStartLocationIndex() : -1));
+	game->addCellMarker(surfaceCellPos, mc);
+}
+
+void World::removeCellMarker(Vec2i pos, int factionIndex) {
+	//Vec2i surfaceCellPos = map.toSurfCoords(pos);
+	//Vec2i surfaceCellPos = pos;
+	const Faction *faction = NULL;
+	if(factionIndex >= 0) {
+		faction = this->getFaction(factionIndex);
+	}
+
+	Vec2i surfaceCellPos = map.toSurfCoords(pos);
+
+	game->removeCellMarker(surfaceCellPos, faction);
+}
+
 int World::getUnitFactionIndex(int unitId) {
 	Unit* unit= findUnitById(unitId);
 	if(unit == NULL) {

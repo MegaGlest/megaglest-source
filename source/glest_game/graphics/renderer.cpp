@@ -5969,11 +5969,16 @@ void Renderer::renderMarkedCellsOnMinimap() {
 		for(std::map<Vec2i, MarkedCell>::iterator iterMap =markedCells.begin();
 				iterMap != markedCells.end(); ++iterMap) {
 			MarkedCell &bm = iterMap->second;
-			if(bm.getFaction() != NULL && bm.getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam()) {
+			if(bm.getPlayerIndex() < 0 ||
+				(bm.getFaction() != NULL &&
+				bm.getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam())) {
 				Vec2i pos= bm.getTargetPos() / Map::cellScale;
 				float size= 0.5f;
-				//Vec3f color=  bm.color;
-				Vec3f color=  bm.getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
+
+				Vec3f color(MarkedCell::static_system_marker_color);
+				if(bm.getFaction() != NULL) {
+					color=  bm.getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
+				}
 				float alpha = 0.65;
 
 				unit_colors[unitIdx] = Vec4f(color.x,color.y,color.z,alpha);
@@ -6024,7 +6029,9 @@ void Renderer::renderVisibleMarkedCells(bool renderTextHint,int x, int y) {
 		for(std::map<Vec2i, MarkedCell>::iterator iterMap =markedCells.begin();
 				iterMap != markedCells.end(); ++iterMap) {
 			MarkedCell &bm = iterMap->second;
-			if(bm.getFaction() != NULL && bm.getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam()) {
+			if(bm.getPlayerIndex() < 0 ||
+				(bm.getFaction() != NULL &&
+				 bm.getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam())) {
 				const Map *map= game->getWorld()->getMap();
 				std::pair<bool,Vec3f> bmVisible = posInCellQuadCache(
 						map->toSurfCoords(bm.getTargetPos()));
@@ -6105,11 +6112,14 @@ void Renderer::renderVisibleMarkedCells(bool renderTextHint,int x, int y) {
 						glEnable(GL_BLEND);
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-						Vec3f flagColor(bm.getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						Vec3f color(MarkedCell::static_system_marker_color);
+						if(bm.getFaction() != NULL) {
+							color = bm.getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0);
+						}
 
 						renderTextureQuad(
 								bmVisible.second.x,bmVisible.second.y + yOffset,
-								texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f,&flagColor);
+								texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f,&color);
 
 /*
 						glActiveTexture(GL_TEXTURE1);
@@ -9259,7 +9269,7 @@ Texture2D * Renderer::preloadTexture(string logoFilename) {
 	return result;
 }
 
-Texture2D * Renderer::findFactionLogoTexture(string logoFilename) {
+Texture2D * Renderer::findTexture(string logoFilename) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] logoFilename [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,logoFilename.c_str());
 
 	Texture2D *result = preloadTexture(logoFilename);

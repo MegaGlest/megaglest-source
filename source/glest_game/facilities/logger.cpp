@@ -110,7 +110,7 @@ void Logger::loadLoadingScreen(string filepath) {
 	}
 	else {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filepath = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filepath.c_str());
-		loadingTexture = Renderer::findFactionLogoTexture(filepath);
+		loadingTexture = Renderer::findTexture(filepath);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 }

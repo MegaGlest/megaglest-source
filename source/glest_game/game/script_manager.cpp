@@ -315,6 +315,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getUnitPosition, "unitPosition");
 	luaScript.registerFunction(setUnitPosition, "setUnitPosition");
 
+	luaScript.registerFunction(addCellMarker, "addCellMarker");
+	luaScript.registerFunction(removeCellMarker, "removeCellMarker");
+
 	luaScript.registerFunction(getUnitFaction, "unitFaction");
 	luaScript.registerFunction(getUnitName, "unitName");
 	luaScript.registerFunction(getResourceAmount, "resourceAmount");
@@ -1296,6 +1299,18 @@ void ScriptManager::setUnitPosition(int unitId, Vec2i pos) {
 	return world->setUnitPosition(unitId,pos);
 }
 
+void ScriptManager::addCellMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->addCellMarker(pos,factionIndex, note, textureFile);
+}
+
+void ScriptManager::removeCellMarker(Vec2i pos, int factionIndex) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->removeCellMarker(pos,factionIndex);
+}
+
 int ScriptManager::getIsUnitAlive(int unitId) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -1858,6 +1873,41 @@ int ScriptManager::getUnitPosition(LuaHandle* luaHandle){
 int ScriptManager::setUnitPosition(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->setUnitPosition(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::addCellMarker(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+
+	//printf("LUA addCellMarker --> START\n");
+
+	int factionIndex = luaArguments.getInt(-4);
+
+	//printf("LUA addCellMarker --> START 1\n");
+
+	Vec2i pos = luaArguments.getVec2i(-1);
+
+	//printf("LUA addCellMarker --> START 2\n");
+
+	string note = luaArguments.getString(-3);
+
+	//printf("LUA addCellMarker --> START 3\n");
+
+	string texture = luaArguments.getString(-2);
+
+	//printf("LUA addCellMarker --> faction [%d] pos [%s] note [%s] texture [%s]\n",factionIndex,pos.getString().c_str(),note.c_str(),texture.c_str());
+
+	thisScriptManager->addCellMarker(pos,factionIndex,note,texture);
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::removeCellMarker(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+
+	int factionIndex = luaArguments.getInt(-2);
+	Vec2i pos = luaArguments.getVec2i(-1);
+
+	thisScriptManager->removeCellMarker(pos,factionIndex);
 	return luaArguments.getReturnCount();
 }
 
