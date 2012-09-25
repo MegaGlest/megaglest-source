@@ -123,12 +123,23 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 
 	labelServerPort.registerGraphicComponent(containerName,"labelServerPort");
 	labelServerPort.init(465,430);
-	string port=intToStr(config.getInt("ServerPort"));
-	if(port != intToStr(GameConstants::serverPort)){
-		port=port +" ("+lang.get("NonStandardPort")+")";
+
+	string host = labelServerIp.getText();
+	int portNumber = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	std::vector<std::string> hostPartsList;
+	Tokenize(host,hostPartsList,":");
+	if(hostPartsList.size() > 1) {
+		host = hostPartsList[0];
+		replaceAll(hostPartsList[1],"_","");
+		portNumber = strToInt(hostPartsList[1]);
+	}
+
+	string port = intToStr(portNumber);
+	if(port != intToStr(config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()))) {
+		port = port + " (" + lang.get("NonStandardPort") + ")";
 	}
 	else {
-		port=port +" ("+lang.get("StandardPort")+")";
+		port = port + " (" + lang.get("StandardPort") + ")";
 	}
 	labelServerPort.setText(port);
 
@@ -144,16 +155,33 @@ MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool 
 	playerIndex= -1;
 
 	//server ip
-	if(connect)
-	{
+	if(connect) 	{
 		labelServerIp.setText(serverIp.getString() + "_");
 
 		autoConnectToServer = true;
 	}
-	else
-	{
+	else {
 		labelServerIp.setText(config.getString("ServerIp") + "_");
 	}
+
+	host = labelServerIp.getText();
+	portNumber = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	hostPartsList.clear();
+	Tokenize(host,hostPartsList,":");
+	if(hostPartsList.size() > 1) {
+		host = hostPartsList[0];
+		replaceAll(hostPartsList[1],"_","");
+		portNumber = strToInt(hostPartsList[1]);
+	}
+
+	port = intToStr(portNumber);
+	if(port != intToStr(config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()))) {
+		port = port + " (" + lang.get("NonStandardPort") + ")";
+	}
+	else {
+		port = port + " (" + lang.get("StandardPort") + ")";
+	}
+	labelServerPort.setText(port);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
@@ -182,12 +210,22 @@ void MenuStateJoinGame::reloadUI() {
 
 	labelServerPortLabel.setText(lang.get("ServerPort"));
 
-	string port=intToStr(config.getInt("ServerPort"));
-	if(port != intToStr(GameConstants::serverPort)) {
-		port = port +" ("+lang.get("NonStandardPort")+")";
+	string host = labelServerIp.getText();
+	int portNumber = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	std::vector<std::string> hostPartsList;
+	Tokenize(host,hostPartsList,":");
+	if(hostPartsList.size() > 1) {
+		host = hostPartsList[0];
+		replaceAll(hostPartsList[1],"_","");
+		portNumber = strToInt(hostPartsList[1]);
+	}
+
+	string port = intToStr(portNumber);
+	if(port != intToStr(config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()))) {
+		port = port + " (" + lang.get("NonStandardPort") + ")";
 	}
 	else {
-		port = port +" ("+lang.get("StandardPort")+")";
+		port = port + " (" + lang.get("StandardPort") + ")";
 	}
 	labelServerPort.setText(port);
 
@@ -267,6 +305,28 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				labelServerIp.setText(listBoxFoundServers.getText());
 			}
 		}
+
+		string host = labelServerIp.getText();
+		Config &config= Config::getInstance();
+		int portNumber = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+		std::vector<std::string> hostPartsList;
+		Tokenize(host,hostPartsList,":");
+		if(hostPartsList.size() > 1) {
+			host = hostPartsList[0];
+			replaceAll(hostPartsList[1],"_","");
+			portNumber = strToInt(hostPartsList[1]);
+		}
+
+		Lang &lang= Lang::getInstance();
+		string port = intToStr(portNumber);
+		if(port != intToStr(config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()))) {
+			port = port + " (" + lang.get("NonStandardPort") + ")";
+		}
+		else {
+			port = port + " (" + lang.get("StandardPort") + ")";
+		}
+		labelServerPort.setText(port);
+
 	}
 
 	//return
@@ -487,10 +547,25 @@ void MenuStateJoinGame::update()
 			console.update();
 
 			//intro
-			if(clientInterface->getIntroDone())
-			{
+			if(clientInterface->getIntroDone()) {
 				labelInfo.setText(lang.get("WaitingHost"));
-				servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
+
+				Config& config= Config::getInstance();
+				string host = labelServerIp.getText();
+				int port = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+				std::vector<std::string> hostPartsList;
+				Tokenize(host,hostPartsList,":");
+				if(hostPartsList.size() > 1) {
+					host = hostPartsList[0];
+					replaceAll(hostPartsList[1],"_","");
+					port = strToInt(hostPartsList[1]);
+				}
+				string saveHost = Ip(host).getString();
+				if(hostPartsList.size() > 1) {
+					saveHost += ";" + hostPartsList[1];
+				}
+
+				servers.setString(clientInterface->getServerName(), saveHost);
 			}
 
 			//launch
@@ -621,15 +696,24 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 void MenuStateJoinGame::connectToServer() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
-	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Config& config= Config::getInstance();
-	Ip serverIp(labelServerIp.getText());
+	string host = labelServerIp.getText();
+	int port = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	std::vector<std::string> hostPartsList;
+	Tokenize(host,hostPartsList,":");
+	if(hostPartsList.size() > 1) {
+		host = hostPartsList[0];
+		replaceAll(hostPartsList[1],"_","");
+		port = strToInt(hostPartsList[1]);
+	}
+	Ip serverIp(host);
 
-	clientInterface->connect(serverIp, Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()));
+	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
+	clientInterface->connect(serverIp, port);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] server - [%s]\n",__FILE__,__FUNCTION__,serverIp.getString().c_str());
 
-	labelServerIp.setText(serverIp.getString()+'_');
+	labelServerIp.setText(serverIp.getString() + '_');
 	labelInfo.setText("");
 
 	//save server ip
@@ -652,7 +736,11 @@ void MenuStateJoinGame::connectToServer() {
 	if( clientInterface->isConnected() == true &&
 		clientInterface->getIntroDone() == true) {
 
-		servers.setString(clientInterface->getServerName(), Ip(labelServerIp.getText()).getString());
+		string saveHost = Ip(host).getString();
+		if(hostPartsList.size() > 1) {
+			saveHost += ";" + hostPartsList[1];
+		}
+		servers.setString(clientInterface->getServerName(), saveHost);
 		servers.save(serversSavedFile);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] Using FTP port #: %d\n",__FILE__,__FUNCTION__,__LINE__,clientInterface->getServerFTPPort());
