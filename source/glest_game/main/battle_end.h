@@ -21,8 +21,13 @@
 #include "stats.h"
 #include "leak_dumper.h"
 
+namespace Shared { namespace Graphics {
+	class VideoPlayer;
+}}
+
 namespace Glest{ namespace Game{
 
+class GameSettings;
 // =====================================================
 // 	class BattleEnd  
 //
@@ -42,6 +47,9 @@ private:
 	ProgramState *originState;
 	const char *containerName;
 
+	Shared::Graphics::VideoPlayer *menuBackgroundVideo;
+	GameSettings *gameSettings;
+
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
 public:
@@ -58,6 +66,9 @@ public:
 
 private:
 	const string getTimeString(int frames);
+
+	void initBackgroundVideo();
+	std::pair<string,string> getBattleEndVideo(bool won);
 };
 
 }}//end namespace

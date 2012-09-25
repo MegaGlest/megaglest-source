@@ -80,6 +80,11 @@ CoreData::CoreData() {
 
 	introVideoFilename="";
 	mainMenuVideoFilename="";
+
+	battleEndWinVideoFilename="";
+	battleEndWinVideoFilenameFallback="";
+	battleEndLoseVideoFilename="";
+	battleEndLoseVideoFilenameFallback="";
 }
 
 CoreData::~CoreData() {
@@ -450,11 +455,11 @@ void CoreData::load() {
 			findAll(mainVideoPath, mainVideos, false, false);
 			for(int i = 0; i < mainVideos.size(); ++i) {
 				string video = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/" + mainVideos[i];
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if intro video [%s] exists\n",video.c_str());
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if mainmenu video [%s] exists\n",video.c_str());
 
 				if(fileExists(video)) {
 					mainMenuVideoFilename = video;
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND mainmenu video [%s] will use this file\n",video.c_str());
 					break;
 				}
 			}
@@ -465,16 +470,85 @@ void CoreData::load() {
 				findAll(mainVideoPath, mainVideos, false, false);
 				for(int i = 0; i < mainVideos.size(); ++i) {
 					string video = data_path + "data/core/menu/videos/" + mainVideos[i];
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if intro video [%s] exists\n",video.c_str());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if mainmenu video [%s] exists\n",video.c_str());
 
 					if(fileExists(video)) {
 						mainMenuVideoFilename = video;
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND intro video [%s] will use this file\n",video.c_str());
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND mainmenu video [%s] will use this file\n",video.c_str());
 						break;
 					}
 				}
 			}
 		}
+
+		battleEndWinVideoFilename = config.getString("BattleEndWinVideoURL","");
+		battleEndWinVideoFilenameFallback = config.getString("BattleEndWinVideoURLFallback","");
+		if(battleEndWinVideoFilename == "") {
+			string battleEndWinVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/battle_end_win.*";
+			vector<string> battleEndWinVideos;
+			findAll(battleEndWinVideoPath, battleEndWinVideos, false, false);
+			for(int i = 0; i < battleEndWinVideos.size(); ++i) {
+				string video = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/" + battleEndWinVideos[i];
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if battle end win video [%s] exists\n",video.c_str());
+
+				if(fileExists(video)) {
+					battleEndWinVideoFilename = video;
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND battle end win video [%s] will use this file\n",video.c_str());
+					break;
+				}
+			}
+
+			if(battleEndWinVideoFilename == "") {
+				battleEndWinVideoPath = data_path + "data/core/menu/videos/battle_end_win.*";
+				battleEndWinVideos.clear();
+				findAll(battleEndWinVideoPath, battleEndWinVideos, false, false);
+				for(int i = 0; i < battleEndWinVideos.size(); ++i) {
+					string video = data_path + "data/core/menu/videos/" + battleEndWinVideos[i];
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if battle end win video [%s] exists\n",video.c_str());
+
+					if(fileExists(video)) {
+						battleEndWinVideoFilename = video;
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND battle end video win [%s] will use this file\n",video.c_str());
+						break;
+					}
+				}
+			}
+		}
+
+		battleEndLoseVideoFilename = config.getString("BattleEndLoseVideoURL","");
+		battleEndLoseVideoFilenameFallback = config.getString("BattleEndLoseVideoURLFallback","");
+		if(battleEndLoseVideoFilename == "") {
+			string battleEndLoseVideoPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/battle_end_lose.*";
+			vector<string> battleEndLoseVideos;
+			findAll(battleEndLoseVideoPath, battleEndLoseVideos, false, false);
+			for(int i = 0; i < battleEndLoseVideos.size(); ++i) {
+				string video = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/videos/" + battleEndLoseVideos[i];
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if battle end lose video [%s] exists\n",video.c_str());
+
+				if(fileExists(video)) {
+					battleEndLoseVideoFilename = video;
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND battle end lose video [%s] will use this file\n",video.c_str());
+					break;
+				}
+			}
+
+			if(battleEndLoseVideoFilename == "") {
+				battleEndLoseVideoPath = data_path + "data/core/menu/videos/battle_end_lose.*";
+				battleEndLoseVideos.clear();
+				findAll(battleEndLoseVideoPath, battleEndLoseVideos, false, false);
+				for(int i = 0; i < battleEndLoseVideos.size(); ++i) {
+					string video = data_path + "data/core/menu/videos/" + battleEndLoseVideos[i];
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking if battle end lose video [%s] exists\n",video.c_str());
+
+					if(fileExists(video)) {
+						battleEndLoseVideoFilename = video;
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND battle end video lose [%s] will use this file\n",video.c_str());
+						break;
+					}
+				}
+			}
+		}
+
 	}
 }
 
@@ -487,6 +561,18 @@ bool CoreData::hasIntroVideoFilename() const {
 bool CoreData::hasMainMenuVideoFilename() const {
 	//bool result = (mainMenuVideoFilename != "" && fileExists(mainMenuVideoFilename) == true);
 	bool result = (mainMenuVideoFilename != "");
+	return result;
+}
+
+bool CoreData::hasBattleEndVideoFilename(bool won) const {
+	//bool result = (mainMenuVideoFilename != "" && fileExists(mainMenuVideoFilename) == true);
+	bool result = false;
+	if(won == true) {
+		result =(battleEndWinVideoFilename != "");
+	}
+	else {
+		result =(battleEndLoseVideoFilename != "");
+	}
 	return result;
 }
 

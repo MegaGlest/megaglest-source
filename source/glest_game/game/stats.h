@@ -73,6 +73,7 @@ private:
 	int maxConcurrentUnitCount;
 	int totalEndGameConcurrentUnitCount;
 	bool isMasterserverMode;
+	string techName;
 
 public:
 
@@ -88,9 +89,11 @@ public:
 		totalEndGameConcurrentUnitCount	= 0;
 		isMasterserverMode				= false;
 		timePlayed						= 0;
+		techName						= "";
 	}
 
-	void init(int factionCount, int thisFactionIndex, const string &description);
+	void init(int factionCount, int thisFactionIndex, const string &description,
+			const string techName);
 
 	string getDescription() const	{return description;}
 	int getThisFactionIndex() const	{return thisFactionIndex;}
@@ -145,6 +148,9 @@ public:
 	void setPlayerColor(int playerIndex, Vec3f value)	{playerStats[playerIndex].playerColor = value; }
 
 	void addFramesToCalculatePlaytime()  		{this->framesToCalculatePlaytime++; }
+
+	void setTechName(string name) { techName = name; }
+	string getTechName() const { return techName; }
 
 	string getStats() const;
 

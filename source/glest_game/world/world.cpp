@@ -1445,7 +1445,7 @@ void World::initFactionTypes(GameSettings *gs) {
 	}
 
 	//create stats
-	stats.init(gs->getFactionCount(), gs->getThisFactionIndex(), gs->getDescription());
+	stats.init(gs->getFactionCount(), gs->getThisFactionIndex(), gs->getDescription(),gs->getTech());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
