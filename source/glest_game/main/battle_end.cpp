@@ -73,6 +73,7 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	initBackgroundVideo();
+	initBackgroundMusic();
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
@@ -173,6 +174,82 @@ std::pair<string,string> BattleEnd::getBattleEndVideo(bool won) {
 	}
 
 	return result;
+}
+
+string BattleEnd::getBattleEndMusic(bool won) {
+	string result="";
+	string resultFallback="";
+
+	if(gameSettings != NULL) {
+		string currentTechName_factionPreview	 = gameSettings->getTech();
+		string currentFactionName_factionPreview = gameSettings->getFactionTypeName(stats.getThisFactionIndex());
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 tech [%s] faction [%s] won = %d\n",currentTechName_factionPreview.c_str(),currentFactionName_factionPreview.c_str(),won);
+
+		string factionDefinitionXML = Game::findFactionLogoFile(gameSettings, NULL,currentFactionName_factionPreview + ".xml");
+		if(factionDefinitionXML != "" && currentFactionName_factionPreview != GameConstants::RANDOMFACTION_SLOTNAME &&
+				currentFactionName_factionPreview != GameConstants::OBSERVER_SLOTNAME && fileExists(factionDefinitionXML) == true) {
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 tech [%s] faction [%s]\n",currentTechName_factionPreview.c_str(),currentFactionName_factionPreview.c_str());
+
+			XmlTree	xmlTree;
+			std::map<string,string> mapExtraTagReplacementValues;
+			xmlTree.load(factionDefinitionXML, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
+			const XmlNode *factionNode= xmlTree.getRootNode();
+			if(won == true) {
+				if(factionNode->hasAttribute("faction-battle-end-win-music") == true) {
+					result = factionNode->getAttribute("faction-battle-end-win-music")->getValue();
+				}
+			}
+			else {
+				if(factionNode->hasAttribute("faction-battle-end-lose-music") == true) {
+					result = factionNode->getAttribute("faction-battle-end-lose-music")->getValue();
+				}
+			}
+
+			if(won == true) {
+				resultFallback = Game::findFactionLogoFile(gameSettings, NULL,"battle_end_win_music.*");
+			}
+			else {
+				resultFallback = Game::findFactionLogoFile(gameSettings, NULL,"battle_end_lose_music.*");
+			}
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#3 result [%s] resultFallback [%s]\n",result.c_str(),resultFallback.c_str());
+
+			if(result == "") {
+				result = resultFallback;
+			}
+		}
+		//printf("currentFactionName_factionPreview [%s] random [%s] observer [%s] factionVideoUrl [%s]\n",currentFactionName_factionPreview.c_str(),GameConstants::RANDOMFACTION_SLOTNAME,GameConstants::OBSERVER_SLOTNAME,factionVideoUrl.c_str());
+	}
+
+	if(result == "") {
+		result = CoreData::getInstance().getBattleEndMusicFilename(won);
+	}
+
+	return result;
+}
+
+void BattleEnd::initBackgroundMusic() {
+	string music = "";
+
+	if(stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
+		if(stats.getVictory(stats.getThisFactionIndex())){
+			//header += lang.get("Victory");
+			music = getBattleEndMusic(true);
+		}
+		else{
+			//header += lang.get("Defeat");
+			music = getBattleEndMusic(false);
+		}
+
+		if(music != "" && fileExists(music) == true) {
+			battleEndMusic.open(music);
+
+			SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+			soundRenderer.playMusic(&battleEndMusic);
+		}
+	}
 }
 
 void BattleEnd::initBackgroundVideo() {
