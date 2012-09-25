@@ -254,13 +254,13 @@ void Program::initServer(WindowGl *window, GameSettings *settings) {
 	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, false, pNewGame, true, settings));
 }
 
-void Program::initClient(WindowGl *window, const Ip &serverIp) {
+void Program::initClient(WindowGl *window, const Ip &serverIp, int portNumber) {
 	MainMenu* mainMenu= NULL;
 
 	init(window);
 	mainMenu= new MainMenu(this);
 	setState(mainMenu);
-	mainMenu->setState(new MenuStateJoinGame(this, mainMenu, true, serverIp));
+	mainMenu->setState(new MenuStateJoinGame(this, mainMenu, true, serverIp,portNumber));
 }
 
 void Program::initScenario(WindowGl *window, string autoloadScenarioName) {
