@@ -108,10 +108,11 @@ string PlayerStats::getStats() const {
 // class Stats
 // =====================================================
 
-void Stats::init(int factionCount, int thisFactionIndex, const string& description){
+void Stats::init(int factionCount, int thisFactionIndex, const string& description, const string techName) {
 	this->thisFactionIndex= thisFactionIndex;
 	this->factionCount= factionCount;
 	this->description= description;
+	this->techName = techName;
 }
 
 void Stats::setVictorious(int playerIndex){

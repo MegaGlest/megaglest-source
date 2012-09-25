@@ -23,7 +23,9 @@
 #include "metrics.h"
 #include "stats.h"
 #include "auto_test.h"
-
+#include "video_player.h"
+#include "game.h"
+#include "game_settings.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -34,7 +36,8 @@ namespace Glest{ namespace Game{
 // 	class BattleEnd  
 // =====================================================
 
-BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originState): ProgramState(program) {
+BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originState) :
+		ProgramState(program), menuBackgroundVideo(NULL), gameSettings(NULL) {
 
 	containerName= "BattleEnd";
 
@@ -43,6 +46,13 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 	this->originState = originState;
 	if(stats != NULL) {
 		this->stats= *stats;
+	}
+	if(originState != NULL) {
+		Game *game = dynamic_cast<Game *>(originState);
+		if(game != NULL) {
+			gameSettings = new GameSettings();
+			*gameSettings = *(game->getGameSettings());
+		}
 	}
 	mouseX = 0;
 	mouseY = 0;
@@ -62,6 +72,8 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	initBackgroundVideo();
+
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
@@ -77,6 +89,15 @@ void BattleEnd::reloadUI() {
 BattleEnd::~BattleEnd() {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	if(menuBackgroundVideo != NULL) {
+		menuBackgroundVideo->closePlayer();
+		delete menuBackgroundVideo;
+		menuBackgroundVideo = NULL;
+	}
+
+	delete gameSettings;
+	gameSettings = NULL;
+
 	delete originState;
 	originState = NULL;
 
@@ -90,6 +111,126 @@ BattleEnd::~BattleEnd() {
 	renderToTexture = NULL;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+std::pair<string,string> BattleEnd::getBattleEndVideo(bool won) {
+	std::pair<string,string> result;
+
+	string factionVideoUrl = "";
+	string factionVideoUrlFallback = "";
+
+	if(gameSettings != NULL) {
+		string currentTechName_factionPreview	 = gameSettings->getTech();
+		string currentFactionName_factionPreview = gameSettings->getFactionTypeName(stats.getThisFactionIndex());
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 tech [%s] faction [%s] won = %d\n",currentTechName_factionPreview.c_str(),currentFactionName_factionPreview.c_str(),won);
+
+		string factionDefinitionXML = Game::findFactionLogoFile(gameSettings, NULL,currentFactionName_factionPreview + ".xml");
+		if(factionDefinitionXML != "" && currentFactionName_factionPreview != GameConstants::RANDOMFACTION_SLOTNAME &&
+				currentFactionName_factionPreview != GameConstants::OBSERVER_SLOTNAME && fileExists(factionDefinitionXML) == true) {
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 tech [%s] faction [%s]\n",currentTechName_factionPreview.c_str(),currentFactionName_factionPreview.c_str());
+
+			XmlTree	xmlTree;
+			std::map<string,string> mapExtraTagReplacementValues;
+			xmlTree.load(factionDefinitionXML, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
+			const XmlNode *factionNode= xmlTree.getRootNode();
+			if(won == true) {
+				if(factionNode->hasAttribute("faction-battle-end-win-video") == true) {
+					factionVideoUrl = factionNode->getAttribute("faction-battle-end-win-video")->getValue();
+				}
+			}
+			else {
+				if(factionNode->hasAttribute("faction-battle-end-lose-video") == true) {
+					factionVideoUrl = factionNode->getAttribute("faction-battle-end-lose-video")->getValue();
+				}
+			}
+
+			if(won == true) {
+				factionVideoUrlFallback = Game::findFactionLogoFile(gameSettings, NULL,"battle_end_win_video.*");
+			}
+			else {
+				factionVideoUrlFallback = Game::findFactionLogoFile(gameSettings, NULL,"battle_end_lose_video.*");
+			}
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#3 factionVideoUrl [%s] factionVideoUrlFallback [%s]\n",factionVideoUrl.c_str(),factionVideoUrlFallback.c_str());
+
+			if(factionVideoUrl == "") {
+				factionVideoUrl = factionVideoUrlFallback;
+				factionVideoUrlFallback = "";
+			}
+		}
+		//printf("currentFactionName_factionPreview [%s] random [%s] observer [%s] factionVideoUrl [%s]\n",currentFactionName_factionPreview.c_str(),GameConstants::RANDOMFACTION_SLOTNAME,GameConstants::OBSERVER_SLOTNAME,factionVideoUrl.c_str());
+	}
+
+	if(factionVideoUrl != "") {
+		result.first = factionVideoUrl;
+		result.second = factionVideoUrlFallback;
+	}
+	else {
+		result.first = CoreData::getInstance().getBattleEndVideoFilename(won);
+		result.second = CoreData::getInstance().getBattleEndVideoFilenameFallback(won);
+	}
+
+	return result;
+}
+
+void BattleEnd::initBackgroundVideo() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+
+		if(menuBackgroundVideo != NULL) {
+			menuBackgroundVideo->closePlayer();
+			delete menuBackgroundVideo;
+			menuBackgroundVideo = NULL;
+		}
+
+		string videoFile = "";
+		string videoFileFallback = "";
+
+		if(stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
+			if(stats.getVictory(stats.getThisFactionIndex())){
+				//header += lang.get("Victory");
+
+				//videoFile = CoreData::getInstance().getBattleEndVideoFilename(true);
+				//videoFileFallback = CoreData::getInstance().getBattleEndVideoFilenameFallback(true);
+				std::pair<string,string> wonVideos = getBattleEndVideo(true);
+				videoFile = wonVideos.first;
+				videoFileFallback = wonVideos.second;
+			}
+			else{
+				//header += lang.get("Defeat");
+				//videoFile = CoreData::getInstance().getBattleEndVideoFilename(false);
+				//videoFileFallback = CoreData::getInstance().getBattleEndVideoFilenameFallback(false);
+				std::pair<string,string> lostVideos = getBattleEndVideo(false);
+				videoFile = lostVideos.first;
+				videoFileFallback = lostVideos.second;
+			}
+		}
+		else {
+			//header += "Observer";
+		}
+
+		if(fileExists(videoFile) || fileExists(videoFileFallback)) {
+			Context *c= GraphicsInterface::getInstance().getCurrentContext();
+			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+
+			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
+			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
+			menuBackgroundVideo = new VideoPlayer(
+					&Renderer::getInstance(),
+					videoFile,
+					videoFileFallback,
+					screen,
+					0,0,
+					screen->w,
+					screen->h,
+					screen->format->BitsPerPixel,
+					vlcPluginsPath,
+					SystemFlags::VERBOSE_MODE_ENABLED);
+			menuBackgroundVideo->initPlayer();
+		}
+	}
 }
 
 const string BattleEnd::getTimeString(int frames) {
@@ -143,7 +284,7 @@ void BattleEnd::render() {
 	incrementFps();
 
 	//printf("In [%s::%s Line: %d] renderToTexture [%p]\n",__FILE__,__FUNCTION__,__LINE__,renderToTexture);
-	if(renderToTexture != NULL) {
+	if(menuBackgroundVideo == NULL && renderToTexture != NULL) {
 		//printf("Rendering from texture!\n");
 
 		renderer.clearBuffers();
@@ -166,7 +307,7 @@ void BattleEnd::render() {
 	else {
 		//printf("Rendering to texture!\n");
 
-		renderer.beginRenderToTexture(&renderToTexture);
+		if(menuBackgroundVideo == NULL) renderer.beginRenderToTexture(&renderToTexture);
 
 		TextRenderer2D *textRenderer2D	= renderer.getTextRenderer();
 		TextRenderer3D *textRenderer3D	= renderer.getTextRenderer3D();
@@ -185,8 +326,25 @@ void BattleEnd::render() {
 		renderer.reset3dMenu();
 		renderer.clearZBuffer();
 		renderer.reset2d();
-		renderer.renderBackground(CoreData::getInstance().getBackgroundTexture());
 		
+		if(menuBackgroundVideo != NULL) {
+			//printf("Rendering video not null!\n");
+
+			if(menuBackgroundVideo->isPlaying() == true) {
+				menuBackgroundVideo->playFrame(false);
+
+				//printf("Rendering video playing!\n");
+			}
+			else {
+				if(menuBackgroundVideo != NULL) {
+					initBackgroundVideo();
+				}
+			}
+		}
+		else {
+			renderer.renderBackground(CoreData::getInstance().getBackgroundTexture());
+		}
+
 		//int winnerIndex 	= -1;
 		int bestScore 		= -1;
 		//int mostKillsIndex 	= -1;
@@ -462,11 +620,11 @@ void BattleEnd::render() {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
-		if(renderToTexture == NULL) {
+		if(menuBackgroundVideo == NULL || renderToTexture == NULL) {
 			renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
 		}
 
-		renderer.endRenderToTexture(&renderToTexture);
+		if(menuBackgroundVideo == NULL) renderer.endRenderToTexture(&renderToTexture);
 	}
 
 	renderer.renderFPSWhenEnabled(lastFps);
