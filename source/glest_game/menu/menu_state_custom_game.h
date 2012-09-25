@@ -274,6 +274,8 @@ private:
 	int setupTechList(string scenario);
 	void reloadFactions(bool keepExistingSelectedItem, string scenario);
 	void setupTilesetList(string scenario);
+
+	void initFactionPreview(const GameSettings *gameSettings);
 };
 
 }}//end namespace

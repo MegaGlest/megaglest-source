@@ -1836,6 +1836,22 @@ void MenuStateCustomGame::render() {
 			if(factionVideo->isPlaying() == true) {
 				factionVideo->playFrame(false);
 			}
+			else {
+				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+					Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+					if(factionVideo != NULL) {
+						factionVideo->closePlayer();
+						delete factionVideo;
+						factionVideo = NULL;
+
+						NetworkManager &networkManager= NetworkManager::getInstance();
+						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+						if(serverInterface != NULL) {
+							initFactionPreview(serverInterface->getGameSettings());
+						}
+					}
+				}
+			}
 		}
 		if(mapPreviewTexture != NULL) {
 			renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
@@ -2634,97 +2650,7 @@ void MenuStateCustomGame::update() {
 				currentTechName_factionPreview=gameSettings.getTech();
 				currentFactionName_factionPreview=gameSettings.getFactionTypeName(gameSettings.getThisFactionIndex());
 
-				string factionVideoUrl = "";
-				string factionVideoUrlFallback = "";
-
-				string factionDefinitionXML = Game::findFactionLogoFile(&gameSettings, NULL,currentFactionName_factionPreview + ".xml");
-				if(factionDefinitionXML != "" && currentFactionName_factionPreview != GameConstants::RANDOMFACTION_SLOTNAME &&
-						currentFactionName_factionPreview != GameConstants::OBSERVER_SLOTNAME && fileExists(factionDefinitionXML) == true) {
-					XmlTree	xmlTree;
-					std::map<string,string> mapExtraTagReplacementValues;
-					xmlTree.load(factionDefinitionXML, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
-					const XmlNode *factionNode= xmlTree.getRootNode();
-					if(factionNode->hasAttribute("faction-preview-video") == true) {
-						factionVideoUrl = factionNode->getAttribute("faction-preview-video")->getValue();
-					}
-
-					factionVideoUrlFallback = Game::findFactionLogoFile(&gameSettings, NULL,"preview_video.*");
-					if(factionVideoUrl == "") {
-						factionVideoUrl = factionVideoUrlFallback;
-						factionVideoUrlFallback = "";
-					}
-				}
-				//printf("currentFactionName_factionPreview [%s] random [%s] observer [%s] factionVideoUrl [%s]\n",currentFactionName_factionPreview.c_str(),GameConstants::RANDOMFACTION_SLOTNAME,GameConstants::OBSERVER_SLOTNAME,factionVideoUrl.c_str());
-
-				if(factionVideoUrl != "") {
-					//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-					if(CoreData::getInstance().getMenuMusic()->getVolume() != 0) {
-						CoreData::getInstance().getMenuMusic()->setVolume(0);
-						factionVideoSwitchedOffVolume=true;
-					}
-
-					if(currentFactionLogo != factionVideoUrl) {
-						currentFactionLogo = factionVideoUrl;
-						if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-							Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
-
-							if(factionVideo != NULL) {
-								factionVideo->closePlayer();
-								delete factionVideo;
-								factionVideo = NULL;
-							}
-							string introVideoFile = factionVideoUrl;
-							string introVideoFileFallback = factionVideoUrlFallback;
-
-							Context *c= GraphicsInterface::getInstance().getCurrentContext();
-							SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
-
-							string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
-							//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
-							factionVideo = new VideoPlayer(
-									&Renderer::getInstance(),
-									introVideoFile,
-									introVideoFileFallback,
-									screen,
-									0,0,
-									screen->w,
-									screen->h,
-									screen->format->BitsPerPixel,
-									vlcPluginsPath,
-									SystemFlags::VERBOSE_MODE_ENABLED);
-							factionVideo->initPlayer();
-						}
-					}
-				}
-				else {
-					//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-					//switch on music again!!
-					Config &config = Config::getInstance();
-					float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
-					if(factionVideoSwitchedOffVolume){
-						if(CoreData::getInstance().getMenuMusic()->getVolume() != configVolume) {
-							CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
-						}
-						factionVideoSwitchedOffVolume=false;
-					}
-
-					if(factionVideo != NULL) {
-						factionVideo->closePlayer();
-						delete factionVideo;
-						factionVideo = NULL;
-					}
-				}
-
-				if(factionVideo == NULL) {
-					string factionLogo = Game::findFactionLogoFile(&gameSettings, NULL,"preview_screen.*");
-					if(factionLogo == "") {
-						factionLogo = Game::findFactionLogoFile(&gameSettings, NULL);
-					}
-					if(currentFactionLogo != factionLogo) {
-						currentFactionLogo = factionLogo;
-						loadFactionTexture(currentFactionLogo);
-					}
-				}
+				initFactionPreview(&gameSettings);
 			}
 		}
 
@@ -2755,6 +2681,101 @@ void MenuStateCustomGame::update() {
 
 		showGeneralError=true;
 		generalErrorToShow = szBuf;
+	}
+}
+
+void MenuStateCustomGame::initFactionPreview(const GameSettings *gameSettings) {
+	string factionVideoUrl = "";
+	string factionVideoUrlFallback = "";
+
+	string factionDefinitionXML = Game::findFactionLogoFile(gameSettings, NULL,currentFactionName_factionPreview + ".xml");
+	if(factionDefinitionXML != "" && currentFactionName_factionPreview != GameConstants::RANDOMFACTION_SLOTNAME &&
+			currentFactionName_factionPreview != GameConstants::OBSERVER_SLOTNAME && fileExists(factionDefinitionXML) == true) {
+		XmlTree	xmlTree;
+		std::map<string,string> mapExtraTagReplacementValues;
+		xmlTree.load(factionDefinitionXML, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
+		const XmlNode *factionNode= xmlTree.getRootNode();
+		if(factionNode->hasAttribute("faction-preview-video") == true) {
+			factionVideoUrl = factionNode->getAttribute("faction-preview-video")->getValue();
+		}
+
+		factionVideoUrlFallback = Game::findFactionLogoFile(gameSettings, NULL,"preview_video.*");
+		if(factionVideoUrl == "") {
+			factionVideoUrl = factionVideoUrlFallback;
+			factionVideoUrlFallback = "";
+		}
+	}
+	//printf("currentFactionName_factionPreview [%s] random [%s] observer [%s] factionVideoUrl [%s]\n",currentFactionName_factionPreview.c_str(),GameConstants::RANDOMFACTION_SLOTNAME,GameConstants::OBSERVER_SLOTNAME,factionVideoUrl.c_str());
+
+
+	if(factionVideoUrl != "") {
+		//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+		if(CoreData::getInstance().getMenuMusic()->getVolume() != 0) {
+			CoreData::getInstance().getMenuMusic()->setVolume(0);
+			factionVideoSwitchedOffVolume=true;
+		}
+
+		if(currentFactionLogo != factionVideoUrl) {
+			currentFactionLogo = factionVideoUrl;
+			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
+				Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+
+				if(factionVideo != NULL) {
+					factionVideo->closePlayer();
+					delete factionVideo;
+					factionVideo = NULL;
+				}
+				string introVideoFile = factionVideoUrl;
+				string introVideoFileFallback = factionVideoUrlFallback;
+
+				Context *c= GraphicsInterface::getInstance().getCurrentContext();
+				SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+
+				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
+				//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
+				factionVideo = new VideoPlayer(
+						&Renderer::getInstance(),
+						introVideoFile,
+						introVideoFileFallback,
+						screen,
+						0,0,
+						screen->w,
+						screen->h,
+						screen->format->BitsPerPixel,
+						vlcPluginsPath,
+						SystemFlags::VERBOSE_MODE_ENABLED);
+				factionVideo->initPlayer();
+			}
+		}
+	}
+	else {
+		//SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+		//switch on music again!!
+		Config &config = Config::getInstance();
+		float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+		if(factionVideoSwitchedOffVolume){
+			if(CoreData::getInstance().getMenuMusic()->getVolume() != configVolume) {
+				CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+			}
+			factionVideoSwitchedOffVolume=false;
+		}
+
+		if(factionVideo != NULL) {
+			factionVideo->closePlayer();
+			delete factionVideo;
+			factionVideo = NULL;
+		}
+	}
+
+	if(factionVideo == NULL) {
+		string factionLogo = Game::findFactionLogoFile(gameSettings, NULL,"preview_screen.*");
+		if(factionLogo == "") {
+			factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
+		}
+		if(currentFactionLogo != factionLogo) {
+			currentFactionLogo = factionLogo;
+			loadFactionTexture(currentFactionLogo);
+		}
 	}
 }
 
