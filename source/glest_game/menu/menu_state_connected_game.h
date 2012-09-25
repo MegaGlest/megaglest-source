@@ -258,6 +258,7 @@ private:
 	void setupTilesetList(string scenario);
 
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
+	void initFactionPreview(const GameSettings *gameSettings);
 };
 
 }}//end namespace
