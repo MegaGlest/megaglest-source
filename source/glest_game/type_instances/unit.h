@@ -456,7 +456,6 @@ private:
 	RandomGen random;
 	int pathFindRefreshCellCount;
 
-	bool cameraFollowUnit;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
@@ -470,9 +469,6 @@ public:
 
     void setCurrentPathFinderDesiredFinalPos(const Vec2i &finalPos) { currentPathFinderDesiredFinalPos = finalPos; }
     Vec2i getCurrentPathFinderDesiredFinalPos() const { return currentPathFinderDesiredFinalPos; }
-
-    bool getCameraFollowUnit() const;
-    void setCameraFollowUnit(bool value);
 
     //const std::pair<const SkillType *,std::vector<Unit *> > & getCurrentAttackBoostUnits() const { return currentAttackBoostUnits; }
     const UnitAttackBoostEffectOriginator & getAttackBoostOriginatorEffect() const { return currentAttackBoostOriginatorEffect; }

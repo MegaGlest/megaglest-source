@@ -401,7 +401,6 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
     this->unitPath = unitpath;
     this->unitPath->setMap(map);
 
-    this->cameraFollowUnit = false;
     //RandomGen random;
     random.init(id);
 	pathFindRefreshCellCount = random.randRange(10,20);
@@ -1043,19 +1042,6 @@ void Unit::setTarget(const Unit *unit){
 	targetRef= unit;
 }
 
-bool Unit::getCameraFollowUnit() const {
-	return cameraFollowUnit;
-}
-void Unit::setCameraFollowUnit(bool value) {
-	this->cameraFollowUnit = value;
-	if(this->cameraFollowUnit == true) {
-		game->getGameCameraPtr()->setClampDisabled(true);
-	}
-	else {
-		game->getGameCameraPtr()->setClampDisabled(false);
-	}
-}
-
 void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
 		throw megaglest_runtime_error("#3 Invalid path position = " + pos.getString());
@@ -1068,36 +1054,36 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	this->lastPos= this->pos;
 	this->pos= pos;
 
-  	// This code is initial code to make the camera 'follow' a unit
-	//if(this->getId() == 5) {
-	if(cameraFollowUnit == true) {
-		//printf("A fov [%f] [H [%f] [V [%f]\n",game->getGameCameraPtr()->getFov(),game->getGameCameraPtr()->getHAng(),game->getGameCameraPtr()->getVAng());
-
-		//game->getGameCameraPtr()->setClampDisabled(true);
-
-		//game->getGameCameraPtr()->setFov(45);
-		if(oldLastPos.x > pos.x) {
-			game->getGameCameraPtr()->setHAng(270);
-			game->getGameCameraPtr()->setVAng(-7.6);
-		}
-		else if(oldLastPos.x < pos.x) {
-			game->getGameCameraPtr()->setHAng(90);
-			game->getGameCameraPtr()->setVAng(1.4);
-		}
-		else if(oldLastPos.y > pos.y) {
-			game->getGameCameraPtr()->setHAng(180);
-			game->getGameCameraPtr()->setVAng(4.2);
-		}
-		else {
-			game->getGameCameraPtr()->setHAng(-2.4);
-			game->getGameCameraPtr()->setVAng(-1.4);
-		}
-
-		game->getGameCameraPtr()->setPos(getCurrVector());
-		game->getGameCameraPtr()->stop();
-
-		//printf("B fov [%f] [H [%f] [V [%f]\n",game->getGameCameraPtr()->getFov(),game->getGameCameraPtr()->getHAng(),game->getGameCameraPtr()->getVAng());
-	}
+//  	// This code is initial code to make the camera 'follow' a unit
+//	//if(this->getId() == 5) {
+//	if(cameraFollowUnit == true) {
+//		//printf("A fov [%f] [H [%f] [V [%f]\n",game->getGameCameraPtr()->getFov(),game->getGameCameraPtr()->getHAng(),game->getGameCameraPtr()->getVAng());
+//
+//		//game->getGameCameraPtr()->setClampDisabled(true);
+//
+//		//game->getGameCameraPtr()->setFov(45);
+//		if(oldLastPos.x > pos.x) {
+//			game->getGameCameraPtr()->setHAng(270);
+//			game->getGameCameraPtr()->setVAng(-7.6);
+//		}
+//		else if(oldLastPos.x < pos.x) {
+//			game->getGameCameraPtr()->setHAng(90);
+//			game->getGameCameraPtr()->setVAng(1.4);
+//		}
+//		else if(oldLastPos.y > pos.y) {
+//			game->getGameCameraPtr()->setHAng(180);
+//			game->getGameCameraPtr()->setVAng(4.2);
+//		}
+//		else {
+//			game->getGameCameraPtr()->setHAng(-2.4);
+//			game->getGameCameraPtr()->setVAng(-1.4);
+//		}
+//
+//		game->getGameCameraPtr()->setPos(getCurrVector());
+//		game->getGameCameraPtr()->stop();
+//
+//		//printf("B fov [%f] [H [%f] [V [%f]\n",game->getGameCameraPtr()->getFov(),game->getGameCameraPtr()->getHAng(),game->getGameCameraPtr()->getVAng());
+//	}
 
 	map->clampPos(this->pos);
 	this->meetingPos= pos - Vec2i(1);
