@@ -177,6 +177,9 @@ void MainMenu::render() {
 				if(menuBackgroundVideo->isPlaying() == true) {
 					menuBackgroundVideo->playFrame(false);
 				}
+				else {
+					menuBackgroundVideo->RestartVideo();
+				}
 			}
 		}
 		state->render();
