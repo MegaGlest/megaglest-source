@@ -147,6 +147,18 @@ std::pair<string,string> BattleEnd::getBattleEndVideo(bool won) {
 				}
 			}
 
+			string techTreePath = "";
+			string factionPath = "";
+			std::vector<std::string> factionPartsList;
+			Tokenize(factionDefinitionXML,factionPartsList,"factions/");
+			if(factionPartsList.size() > 1) {
+				techTreePath = factionPartsList[0];
+
+				string factionPath = techTreePath + "factions/" + currentFactionName_factionPreview;
+				endPathWithSlash(factionPath);
+				factionVideoUrl = factionPath + factionVideoUrl;
+			}
+
 			if(won == true) {
 				factionVideoUrlFallback = Game::findFactionLogoFile(gameSettings, NULL,"battle_end_win_video.*");
 			}
@@ -155,6 +167,7 @@ std::pair<string,string> BattleEnd::getBattleEndVideo(bool won) {
 			}
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#3 factionVideoUrl [%s] factionVideoUrlFallback [%s]\n",factionVideoUrl.c_str(),factionVideoUrlFallback.c_str());
+			printf("#3 factionVideoUrl [%s] factionVideoUrlFallback [%s]\n",factionVideoUrl.c_str(),factionVideoUrlFallback.c_str());
 
 			if(factionVideoUrl == "") {
 				factionVideoUrl = factionVideoUrlFallback;
@@ -245,6 +258,7 @@ void BattleEnd::initBackgroundMusic() {
 
 		if(music != "" && fileExists(music) == true) {
 			battleEndMusic.open(music);
+			battleEndMusic.setNext(&battleEndMusic);
 
 			SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 			soundRenderer.playMusic(&battleEndMusic);
