@@ -8,8 +8,8 @@
 skipbinarybuild=0
 
 VERSION=`./mg-version.sh --version`
-kernel=`uname -s`
-architecture=`uname -m`
+kernel=`uname -s | tr '[A-Z]' '[a-z]'`
+architecture=`uname -m  | tr '[A-Z]' '[a-z]'`
 
 RELEASENAME=megaglest-binary-$kernel-$architecture
 #PACKAGE="$RELEASENAME-$VERSION.7z"
