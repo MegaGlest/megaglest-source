@@ -105,9 +105,10 @@ public:
 	float getHAng() const		{return hAng;};
 	float getVAng() const		{return vAng;}
 	State getState() const		{return state;}
-	void setGameState() { state = sGame; }
-	void setUnitState() { state = sUnit; }
-	void setState(State value) { state = value; }
+
+	void setGameState();
+	void setUnitState();
+	void setFreeState();
 
 	const Vec3f &getPos() const	{return pos;}
 	float getFov() const 		{return fov;}
@@ -140,8 +141,7 @@ public:
     //other
     void update();
     Quad2i computeVisibleQuad();
-	void switchState();
-	void resetPosition();
+
 
 	void centerXZ(float x, float z);
 	void transitionXYZ(float x, float y, float z);
@@ -155,8 +155,6 @@ public:
 	void load(const XmlNode *node);
 	void save(XmlNode *node) const;
 
-	void setClampBounds(bool value) { clampBounds = value; }
-	void setClampDisabled(bool value) { clampDisable = value; };
 	void setMaxHeight(float value);
 	float getCalculatedDefault() const{ return calculatedDefault; }
 	void setCalculatedDefault(float calculatedDefault);
@@ -173,6 +171,9 @@ public:
 	void loadGame(const XmlNode *rootNode);
 
 private:
+	void setClampBounds(bool value) { clampBounds = value; }
+	void resetPosition();
+	void setClampDisabled(bool value) { clampDisable = value; };
 	void clampPosXYZ(float x1, float x2, float y1, float y2, float z1, float z2);
 	void clampPosXZ(float x1, float x2, float z1, float z2);
 	void clampAng();

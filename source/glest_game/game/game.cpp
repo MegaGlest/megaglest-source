@@ -1506,16 +1506,26 @@ void Game::update() {
 
 					if(currentCameraFollowUnit!=NULL){
 						Vec3f c=currentCameraFollowUnit->getCurrVector();
+						int rotation=currentCameraFollowUnit->getRotation();
+						float angle=rotation+180;
+
+
+#ifdef USE_STREFLOP
+						c.z=c.z+4*streflop::cosf(static_cast<streflop::Simple>(degToRad(angle)));
+						c.x=c.x+4*streflop::sinf(static_cast<streflop::Simple>(degToRad(angle)));
+#else
+						c.z=c.z+4*cosf(degToRad(angle));
+						c.x=c.x+4*sinf(degToRad(angle));
+#endif
 						c.y=c.y+currentCameraFollowUnit->getType()->getHeight()/2.f+2.0f;
+
 						getGameCameraPtr()->setPos(c);
 
-						int rotation=currentCameraFollowUnit->getRotation();
-						getGameCameraPtr()->rotateToVH(18.0f,(540-rotation)%360);
+						rotation=(540-rotation)%360;
+						getGameCameraPtr()->rotateToVH(18.0f,rotation);
 
 						if(currentCameraFollowUnit->isAlive()==false){
 							currentCameraFollowUnit=NULL;
-							gameCamera.resetPosition();
-							getGameCameraPtr()->setClampDisabled(false);
 							getGameCameraPtr()->setGameState();
 						}
 					}
@@ -1931,7 +1941,7 @@ void Game::render() {
 		isFirstRender = false;
 
 		if(this->loadGameNode == NULL) {
-			gameCamera.resetPosition();
+			gameCamera.setGameState();
 			this->restoreToStartXY();
 		}
 	}
@@ -2881,7 +2891,7 @@ void Game::mouseDownRight(int x, int y) {
 	}
 
  	if(mouseMoved == false) {
- 		gameCamera.resetPosition();
+ 		gameCamera.setGameState();
  	}
  	else {
  		mouseMoved = false;
@@ -3169,7 +3179,6 @@ void Game::startCameraFollowUnit() {
 		Unit *currentUnit = selection->getUnitPtr(0);
 		if(currentUnit != NULL) {
 			currentCameraFollowUnit = currentUnit;
-			getGameCameraPtr()->setClampDisabled(true);
 			getGameCameraPtr()->setUnitState();
 			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrVector());
 
@@ -3303,7 +3312,16 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//change camera mode
 			//else if(key == configKeys.getCharKey("FreeCameraMode")) {
 			else if(isKeyPressed(configKeys.getSDLKey("FreeCameraMode"),key, false) == true) {
-				gameCamera.switchState();
+				if(gameCamera.getState()==GameCamera::sFree)
+				{
+					gameCamera.setGameState();
+				}
+				else if(gameCamera.getState()==GameCamera::sGame)
+				{
+					gameCamera.setFreeState();
+				}
+				//else ignore!
+
 				string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
 				console.addLine(lang.get("CameraModeSet")+" "+ stateString);
 			}
@@ -3313,9 +3331,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				if(currentCameraFollowUnit != NULL) {
 					currentCameraFollowUnit = NULL;
 				}
-
-				gameCamera.resetPosition();
-				gameCamera.setClampDisabled(false);
+				gameCamera.setGameState();
 			}
 			//pause
 			//else if(key == configKeys.getCharKey("PauseGame")) {
