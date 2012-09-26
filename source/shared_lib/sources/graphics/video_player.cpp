@@ -140,7 +140,7 @@ namespace Shared{ namespace Graphics{
 bool VideoPlayer::disabled = false;
 
 // Load a texture
-static void loadTexture(class ctx *ctx) {
+static inline void loadTexture(class ctx *ctx) {
    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
 
    void *rawData = ctx->rawData;
@@ -1301,7 +1301,6 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 		return false;
 	}
 
-	//bool needToQuit = false;
 	int action = 0, pause = 0, n = 0;
 	if(successLoadingLib == true &&
 		ctxPtr != NULL && ctxPtr->isPlaying == true &&
@@ -1353,40 +1352,8 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_BLEND);
 
-			loadTexture(ctxPtr); // Loading the texture
-			// Square
-//			glBegin(GL_QUADS);
-//			 glTexCoord2d(0, 1);
-//			 glVertex2f(-0.85, 0.85);
-//			 glTexCoord2d(1, 1);
-//			 glVertex2f(0.85, 0.85);
-//			 glTexCoord2d(1, 0);
-//			 glVertex2f(0.85, -0.85);
-//			 glTexCoord2d(0, 0);
-//			 glVertex2f(-0.85, -0.85);
-//			glEnd();
-
-//			glBegin(GL_TRIANGLE_STRIP);
-//				glTexCoord2i(0, 1);
-//				glVertex2i(1, 1+600);
-//				glTexCoord2i(0, 0);
-//				glVertex2i(1, 1);
-//				glTexCoord2i(1, 1);
-//				glVertex2i(1+800, 1+600);
-//				glTexCoord2i(1, 0);
-//				glVertex2i(1+800, 600);
-//			glEnd();
-
-//			glBegin(GL_TRIANGLE_STRIP);
-//				glTexCoord2i(0, 1);
-//				glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height);
-//				glTexCoord2i(0, 0);
-//				glVertex2i(ctxPtr->x, ctxPtr->y);
-//				glTexCoord2i(1, 1);
-//				glVertex2i(ctxPtr->x + ctxPtr->width, ctxPtr->y + ctxPtr->height);
-//				glTexCoord2i(1, 0);
-//				glVertex2i(ctxPtr->x + ctxPtr->width, ctxPtr->y);
-//			glEnd();
+			// Loading the texture
+			loadTexture(ctxPtr);
 
 			if(ctxPtr->x == -1 || ctxPtr->y == -1) {
 				glBegin(GL_QUADS);
@@ -1401,24 +1368,9 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 				glEnd();
 			}
 			else {
-//				glBegin(GL_QUADS);
-//				 glTexCoord2d(0, 1);
-//				 glVertex2f(ctxPtr->x, ctxPtr->y + ctxPtr->height);
-//				 glTexCoord2d(1, 1);
-//				 glVertex2f(ctxPtr->x + ctxPtr->width, ctxPtr->y + ctxPtr->height);
-//				 glTexCoord2d(1, 0);
-//				 glVertex2f(ctxPtr->x + ctxPtr->width, ctxPtr->y);
-//				 glTexCoord2d(0, 0);
-//				 glVertex2f(ctxPtr->x, ctxPtr->y);
-//				glEnd();
-
 				const double HEIGHT_DEFAULT 	= 768;
 				const double WIDTH_DEFAULT 	= 1024;
 
-//				const double HEIGHT_MULTIPLIER 	= 0.80;
-//				const double WIDTH_MULTIPLIER 		= 0.60;
-//				const double HEIGHT_MULTIPLIER 	= 1.0;
-//				const double WIDTH_MULTIPLIER 		= 1.0;
 				const double HEIGHT_MULTIPLIER 	= HEIGHT_DEFAULT / ctxPtr->height;
 				const double WIDTH_MULTIPLIER 		= WIDTH_DEFAULT / ctxPtr->width;
 
