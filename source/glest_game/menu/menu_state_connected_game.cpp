@@ -1711,11 +1711,14 @@ void MenuStateConnectedGame::render() {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
-		if (!initialSettingsReceivedFromServer) return;
+		if (initialSettingsReceivedFromServer == false) {
+			return;
+		}
 
 		if(factionTexture != NULL) {
-			//renderer.renderTextureQuad(60+575+80,365,200,225,factionTexture,1);
-			renderer.renderTextureQuad(800,600,200,150,factionTexture,1);
+			if(factionVideo == NULL || factionVideo->isPlaying() == false) {
+				renderer.renderTextureQuad(800,600,200,150,factionTexture,1);
+			}
 		}
 		if(factionVideo != NULL) {
 			if(factionVideo->isPlaying() == true) {

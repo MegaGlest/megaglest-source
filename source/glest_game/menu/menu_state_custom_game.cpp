@@ -1830,7 +1830,9 @@ void MenuStateCustomGame::render() {
 		Renderer &renderer= Renderer::getInstance();
 
 		if(factionTexture != NULL) {
-			renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7f);
+			if(factionVideo == NULL || factionVideo->isPlaying() == false) {
+				renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7f);
+			}
 		}
 		if(factionVideo != NULL) {
 			if(factionVideo->isPlaying() == true) {
