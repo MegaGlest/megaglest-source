@@ -24,7 +24,7 @@ echo "Creating binary package in $RELEASEDIR"
 [[ -d "$RELEASEDIR" ]] && rm -rf "$RELEASEDIR"
 mkdir -p "$RELEASEDIR"
 
-if [ '$skipbinarybuild' = '0' ] 
+if [ $skipbinarybuild = 0 ] 
 then
 
 # build the binaries
