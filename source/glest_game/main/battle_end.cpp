@@ -137,26 +137,28 @@ std::pair<string,string> BattleEnd::getBattleEndVideo(bool won) {
 			xmlTree.load(factionDefinitionXML, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 			const XmlNode *factionNode= xmlTree.getRootNode();
 			if(won == true) {
-				if(factionNode->hasAttribute("faction-battle-end-win-video") == true) {
-					factionVideoUrl = factionNode->getAttribute("faction-battle-end-win-video")->getValue();
+				if(factionNode->hasAttribute("battle-end-win-video") == true) {
+					factionVideoUrl = factionNode->getAttribute("battle-end-win-video")->getValue();
 				}
 			}
 			else {
-				if(factionNode->hasAttribute("faction-battle-end-lose-video") == true) {
-					factionVideoUrl = factionNode->getAttribute("faction-battle-end-lose-video")->getValue();
+				if(factionNode->hasAttribute("battle-end-lose-video") == true) {
+					factionVideoUrl = factionNode->getAttribute("battle-end-lose-video")->getValue();
 				}
 			}
 
-			string techTreePath = "";
-			string factionPath = "";
-			std::vector<std::string> factionPartsList;
-			Tokenize(factionDefinitionXML,factionPartsList,"factions/");
-			if(factionPartsList.size() > 1) {
-				techTreePath = factionPartsList[0];
+			if(factionVideoUrl != "" && fileExists(factionVideoUrl) == false) {
+				string techTreePath = "";
+				string factionPath = "";
+				std::vector<std::string> factionPartsList;
+				Tokenize(factionDefinitionXML,factionPartsList,"factions/");
+				if(factionPartsList.size() > 1) {
+					techTreePath = factionPartsList[0];
 
-				string factionPath = techTreePath + "factions/" + currentFactionName_factionPreview;
-				endPathWithSlash(factionPath);
-				factionVideoUrl = factionPath + factionVideoUrl;
+					string factionPath = techTreePath + "factions/" + currentFactionName_factionPreview;
+					endPathWithSlash(factionPath);
+					factionVideoUrl = factionPath + factionVideoUrl;
+				}
 			}
 
 			if(won == true) {
@@ -167,7 +169,7 @@ std::pair<string,string> BattleEnd::getBattleEndVideo(bool won) {
 			}
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#3 factionVideoUrl [%s] factionVideoUrlFallback [%s]\n",factionVideoUrl.c_str(),factionVideoUrlFallback.c_str());
-			printf("#3 factionVideoUrl [%s] factionVideoUrlFallback [%s]\n",factionVideoUrl.c_str(),factionVideoUrlFallback.c_str());
+			//printf("#3 factionVideoUrl [%s] factionVideoUrlFallback [%s]\n",factionVideoUrl.c_str(),factionVideoUrlFallback.c_str());
 
 			if(factionVideoUrl == "") {
 				factionVideoUrl = factionVideoUrlFallback;
@@ -210,13 +212,27 @@ string BattleEnd::getBattleEndMusic(bool won) {
 			xmlTree.load(factionDefinitionXML, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 			const XmlNode *factionNode= xmlTree.getRootNode();
 			if(won == true) {
-				if(factionNode->hasAttribute("faction-battle-end-win-music") == true) {
-					result = factionNode->getAttribute("faction-battle-end-win-music")->getValue();
+				if(factionNode->hasAttribute("battle-end-win-music") == true) {
+					result = factionNode->getAttribute("battle-end-win-music")->getValue();
 				}
 			}
 			else {
-				if(factionNode->hasAttribute("faction-battle-end-lose-music") == true) {
-					result = factionNode->getAttribute("faction-battle-end-lose-music")->getValue();
+				if(factionNode->hasAttribute("battle-end-lose-music") == true) {
+					result = factionNode->getAttribute("battle-end-lose-music")->getValue();
+				}
+			}
+
+			if(result != "" && fileExists(result) == false) {
+				string techTreePath = "";
+				string factionPath = "";
+				std::vector<std::string> factionPartsList;
+				Tokenize(factionDefinitionXML,factionPartsList,"factions/");
+				if(factionPartsList.size() > 1) {
+					techTreePath = factionPartsList[0];
+
+					string factionPath = techTreePath + "factions/" + currentFactionName_factionPreview;
+					endPathWithSlash(factionPath);
+					result = factionPath + result;
 				}
 			}
 
@@ -228,6 +244,7 @@ string BattleEnd::getBattleEndMusic(bool won) {
 			}
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#3 result [%s] resultFallback [%s]\n",result.c_str(),resultFallback.c_str());
+			//printf("#3 result [%s] resultFallback [%s]\n",result.c_str(),resultFallback.c_str());
 
 			if(result == "") {
 				result = resultFallback;
@@ -257,6 +274,8 @@ void BattleEnd::initBackgroundMusic() {
 		}
 
 		if(music != "" && fileExists(music) == true) {
+			printf("music [%s] \n",music.c_str());
+
 			battleEndMusic.open(music);
 			battleEndMusic.setNext(&battleEndMusic);
 
@@ -303,6 +322,8 @@ void BattleEnd::initBackgroundVideo() {
 		}
 
 		if(fileExists(videoFile) || fileExists(videoFileFallback)) {
+			printf("videoFile [%s] videoFileFallback [%s]\n",videoFile.c_str(),videoFileFallback.c_str());
+
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
 			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
@@ -398,7 +419,9 @@ void BattleEnd::render() {
 	else {
 		//printf("Rendering to texture!\n");
 
-		if(menuBackgroundVideo == NULL) renderer.beginRenderToTexture(&renderToTexture);
+		if(menuBackgroundVideo == NULL) {
+			renderer.beginRenderToTexture(&renderToTexture);
+		}
 
 		TextRenderer2D *textRenderer2D	= renderer.getTextRenderer();
 		TextRenderer3D *textRenderer3D	= renderer.getTextRenderer3D();
@@ -715,7 +738,9 @@ void BattleEnd::render() {
 			renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
 		}
 
-		if(menuBackgroundVideo == NULL) renderer.endRenderToTexture(&renderToTexture);
+		if(menuBackgroundVideo == NULL) {
+			renderer.endRenderToTexture(&renderToTexture);
+		}
 	}
 
 	renderer.renderFPSWhenEnabled(lastFps);
