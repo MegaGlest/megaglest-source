@@ -287,20 +287,24 @@ Quad2i GameCamera::computeVisibleQuad() {
 	return result;
 }
 
-void GameCamera::switchState(){
-	if(state==sGame){
-		state= sFree;
-	}
-	else{
-		state= sGame;
-		destAng.x = startingVAng;
-		destAng.y = startingHAng;
-		destPos.y = calculatedDefault;
-	}
+void GameCamera::setGameState() {
+	state = sGame;
+	setClampDisabled(false);
+	resetPosition();
+}
+void GameCamera::setUnitState() {
+	state = sUnit;
+	setClampDisabled(true);
+}
+void GameCamera::setFreeState() {
+	state = sFree;
+	setClampDisabled(false);
+	resetPosition();
 }
 
+
+
 void GameCamera::resetPosition(){
-	state= sGame;
 	destAng.x = startingVAng;
 	destAng.y = startingHAng;
 	destPos.y = calculatedDefault;
