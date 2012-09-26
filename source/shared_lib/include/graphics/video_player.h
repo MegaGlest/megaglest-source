@@ -77,6 +77,8 @@ public:
 	bool isPlaying() const;
 
 	static bool hasBackEndVideoPlayer();
+
+	void RestartVideo();
 };
 
 }}

@@ -451,7 +451,8 @@ void BattleEnd::render() {
 			}
 			else {
 				if(menuBackgroundVideo != NULL) {
-					initBackgroundVideo();
+					//initBackgroundVideo();
+					menuBackgroundVideo->RestartVideo();
 				}
 			}
 		}

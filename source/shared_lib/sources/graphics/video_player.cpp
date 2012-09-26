@@ -436,6 +436,7 @@ void VideoPlayer::init() {
 	if(VideoPlayer::disabled == true) {
 		return;
 	}
+	cleanupPlayer();
 	ctxPtr = new ctx();
 	ctxPtr->loadingCB = loadingCB;
 	ctxPtr->x = x;
@@ -949,7 +950,7 @@ bool VideoPlayer::initPlayer() {
 				int progress = ((difftime(time(NULL),waitStart) / MAX_VIDEO_START_MILLISECONDS) * 100.0);
 				this->loadingCB->renderVideoLoading(progress);
 			}
-			SDL_Delay(1);
+			SDL_Delay(0);
 		}
 	}
 
@@ -973,7 +974,7 @@ bool VideoPlayer::initPlayer() {
 					int progress = ((difftime(time(NULL),waitStart) / MAX_VIDEO_START_MILLISECONDS) * 100.0);
 					this->loadingCB->renderVideoLoading(progress);
 				}
-				SDL_Delay(1);
+				SDL_Delay(0);
 			}
 		}
 	}
@@ -1309,7 +1310,8 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 
 		SDL_Event event;
 		/* Keys: enter (fullscreen), space (pause), escape (quit) */
-		while( SDL_PollEvent( &event ) ) {
+		//while( SDL_PollEvent( &event ) ) {
+		if( SDL_PollEvent( &event ) ) {
 			switch(event.type) {
 			case SDL_QUIT:
 				finished = true;
@@ -1444,6 +1446,14 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 	}
 
 	return ctxPtr->needToQuit;
+}
+
+void VideoPlayer::RestartVideo() {
+	this->stop = false;
+	this->finished = false;
+	this->successLoadingLib = false;
+
+	this->initPlayer();
 }
 
 }}
