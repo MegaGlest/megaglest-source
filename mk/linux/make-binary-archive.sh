@@ -32,6 +32,9 @@ echo "building binaries ..."
 cd $PROJDIR
 [[ -d "build" ]] && rm -rf "build"
 ./build-mg.sh
+
+else
+echo "SKIPPING build of binaries ..."
 fi
 
 cd $PROJDIR
