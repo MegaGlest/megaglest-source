@@ -54,7 +54,8 @@ public:
 public:
 	enum State{
 		sGame,
-		sFree
+		sFree,
+		sUnit
 	};
 
 private:
@@ -104,6 +105,10 @@ public:
 	float getHAng() const		{return hAng;};
 	float getVAng() const		{return vAng;}
 	State getState() const		{return state;}
+	void setGameState() { state = sGame; }
+	void setUnitState() { state = sUnit; }
+	void setState(State value) { state = value; }
+
 	const Vec3f &getPos() const	{return pos;}
 	float getFov() const 		{return fov;}
     //set
@@ -139,9 +144,10 @@ public:
 	void resetPosition();
 
 	void centerXZ(float x, float z);
-	void rotateHV(float h, float v);
 	void transitionXYZ(float x, float y, float z);
 	void transitionVH(float v, float h);
+	void rotateToVH(float v, float h);
+
 	void zoom(float dist);
 	void moveForwardH(float dist, float response);	// response: 1.0 for immediate, 0 for full inertia
 	void moveSideH(float dist, float response);
@@ -171,6 +177,8 @@ private:
 	void clampPosXZ(float x1, float x2, float z1, float z2);
 	void clampAng();
 	void moveUp(float dist);
+	void rotateHV(float h, float v);
+
 };
 
 }} //end namespace

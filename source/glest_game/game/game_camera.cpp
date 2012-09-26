@@ -142,7 +142,7 @@ void GameCamera::update(){
 	}
 
 	//free state
-	if(state==sFree){
+	if(state==sFree ){
 #ifdef USE_STREFLOP
 		if(streflop::fabs(static_cast<streflop::Simple>(rotate)) == 1){
 #else
@@ -322,6 +322,12 @@ void GameCamera::transitionVH(float v, float h) {
 	destAng.x -= v;
 	//destPos.y -= v * destPos.y / 100.f;
 	destAng.y -= h;
+	clampAng();
+}
+
+void GameCamera::rotateToVH(float v, float h) {
+	destAng.x = v;
+	destAng.y = h;
 	clampAng();
 }
 

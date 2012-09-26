@@ -1504,6 +1504,20 @@ void Game::update() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+					if(currentCameraFollowUnit!=NULL){
+						Vec3f c=currentCameraFollowUnit->getCurrVector();
+						c.y=c.y+currentCameraFollowUnit->getType()->getHeight()/2.f+2.f;
+						getGameCameraPtr()->setPos(c);
+
+						int rotation=currentCameraFollowUnit->getRotation();
+						getGameCameraPtr()->rotateToVH(0.0f,(180-rotation)%360);
+
+						if(currentCameraFollowUnit->isAlive()==false){
+							currentCameraFollowUnit==NULL;
+							gameCamera.resetPosition();
+						}
+					}
+
 					// Commander
 					//commander.updateNetwork();
 					commander.signalNetworkUpdate(this);
@@ -2991,8 +3005,9 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 				float xmult = 0.2f;
 
 				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-				gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
+				if(currentCameraFollowUnit==NULL){
+					gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
+				}
 				mouseX=lastMousePos.x;
 				mouseY=lastMousePos.y;
 				Shared::Platform::Window::revertMousePos();
@@ -3001,7 +3016,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 				return;
 			}
 		}
-		else {
+		else if(currentCameraFollowUnit==NULL) {
 			//if(Window::isKeyDown() == false)
 			if(!camLeftButtonDown && !camRightButtonDown && !camUpButtonDown && !camDownButtonDown)
 			{
@@ -3152,12 +3167,19 @@ void Game::startCameraFollowUnit() {
 		Unit *currentUnit = selection->getUnitPtr(0);
 		if(currentUnit != NULL) {
 			currentCameraFollowUnit = currentUnit;
-			currentCameraFollowUnit->setCameraFollowUnit(true);
+			getGameCameraPtr()->setClampDisabled(true);
+			getGameCameraPtr()->setUnitState();
+			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrVector());
+
+			int rotation=currentCameraFollowUnit->getRotation();
+			getGameCameraPtr()->stop();
+			getGameCameraPtr()->rotateToVH(0.0f,(180-rotation)%360);
+			getGameCameraPtr()->setHAng((180-rotation)%360);
+			getGameCameraPtr()->setVAng(0.0f);
 		}
 	}
 	else {
 		if(currentCameraFollowUnit != NULL) {
-			currentCameraFollowUnit->setCameraFollowUnit(false);
 			currentCameraFollowUnit = NULL;
 		}
 	}
@@ -3287,7 +3309,6 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//else if(key == configKeys.getCharKey("ResetCameraMode")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ResetCameraMode"),key, false) == true) {
 				if(currentCameraFollowUnit != NULL) {
-					currentCameraFollowUnit->setCameraFollowUnit(false);
 					currentCameraFollowUnit = NULL;
 				}
 
