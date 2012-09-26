@@ -1506,15 +1506,17 @@ void Game::update() {
 
 					if(currentCameraFollowUnit!=NULL){
 						Vec3f c=currentCameraFollowUnit->getCurrVector();
-						c.y=c.y+currentCameraFollowUnit->getType()->getHeight()/2.f+2.f;
+						c.y=c.y+currentCameraFollowUnit->getType()->getHeight()/2.f+2.0f;
 						getGameCameraPtr()->setPos(c);
 
 						int rotation=currentCameraFollowUnit->getRotation();
-						getGameCameraPtr()->rotateToVH(0.0f,(180-rotation)%360);
+						getGameCameraPtr()->rotateToVH(18.0f,(540-rotation)%360);
 
 						if(currentCameraFollowUnit->isAlive()==false){
-							currentCameraFollowUnit==NULL;
+							currentCameraFollowUnit=NULL;
 							gameCamera.resetPosition();
+							getGameCameraPtr()->setClampDisabled(false);
+							getGameCameraPtr()->setGameState();
 						}
 					}
 
@@ -3173,8 +3175,8 @@ void Game::startCameraFollowUnit() {
 
 			int rotation=currentCameraFollowUnit->getRotation();
 			getGameCameraPtr()->stop();
-			getGameCameraPtr()->rotateToVH(0.0f,(180-rotation)%360);
-			getGameCameraPtr()->setHAng((180-rotation)%360);
+			getGameCameraPtr()->rotateToVH(0.0f,(540-rotation)%360);
+			getGameCameraPtr()->setHAng((540-rotation)%360);
 			getGameCameraPtr()->setVAng(0.0f);
 		}
 	}
@@ -3313,6 +3315,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				}
 
 				gameCamera.resetPosition();
+				gameCamera.setClampDisabled(false);
 			}
 			//pause
 			//else if(key == configKeys.getCharKey("PauseGame")) {

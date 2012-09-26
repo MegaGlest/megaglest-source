@@ -396,7 +396,7 @@ void GameCamera::rotateHV(float h, float v){
 }
 
 void GameCamera::clampAng() {
-	if(clampDisable == true) {
+	if(clampDisable == true && state != sUnit ) {
 		return;
 	}
 
