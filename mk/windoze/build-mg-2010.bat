@@ -2,7 +2,8 @@
 
 rem change to the directory of this batch file
 ECHO --------------------------------
-ECHO Changing to build folder [%~dp0]
+ECHO Changing to build folder [%~dp0] p1 ["%1"] p2 ["%2"]
+rem pause
 cd /d "%~dp0"
 
 ECHO Checking for windows binary runtime tools...
