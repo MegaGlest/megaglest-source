@@ -3439,7 +3439,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//hotkeys
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameCamera.getState() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameCamera.getState());
 
-			if(gameCamera.getState() == GameCamera::sGame){
+			if(gameCamera.getState() != GameCamera::sFree){
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
 
 				gui.hotKey(key);
