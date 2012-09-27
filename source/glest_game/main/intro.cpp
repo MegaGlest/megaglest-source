@@ -526,6 +526,7 @@ Intro::Intro(Program *program):
 				screen->w,
 				screen->h,
 				screen->format->BitsPerPixel,
+				false,
 				vlcPluginsPath,
 				SystemFlags::VERBOSE_MODE_ENABLED);
 		player.PlayVideo();

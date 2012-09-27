@@ -412,7 +412,9 @@ VideoPlayer::VideoPlayer(VideoLoadingCallbackInterface *loadingCB,
 							string filenameFallback,
 							SDL_Surface *surface,
 							int x, int y,int width, int height,int colorBits,
-							string pluginsPath, bool verboseEnabled) : ctxPtr(NULL) {
+							bool loop, string pluginsPath, bool verboseEnabled)
+	: ctxPtr(NULL) {
+
 	this->loadingCB = loadingCB;
 	this->filename = filename;
 	this->filenameFallback = filenameFallback;
@@ -422,6 +424,7 @@ VideoPlayer::VideoPlayer(VideoLoadingCallbackInterface *loadingCB,
 	this->width = width;
 	this->height = height;
 	this->colorBits = colorBits;
+	this->loop = loop;
 	this->pluginsPath = pluginsPath;
 	//this->verboseEnabled = true;
 	this->verboseEnabled = verboseEnabled;
@@ -491,6 +494,11 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 	ctxPtr->vlc_argv.push_back("--no-xlib"); /* tell VLC to not use Xlib */
 	ctxPtr->vlc_argv.push_back("--no-video-title-show");
 	//ctxPtr->vlc_argv.push_back("--network-caching=10000");
+
+	if(loop == true) {
+		ctxPtr->vlc_argv.push_back("--loop");
+		ctxPtr->vlc_argv.push_back("--repeat");
+	}
 
 #if defined(LIBVLC_VERSION_PRE_2)
 	ctxPtr->vlc_argv_str.push_back("--plugin-path=" + pluginsPath);
@@ -658,6 +666,10 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 
 		/* Create a new item */
 		if(verboseEnabled) printf("In [%s] Line: %d, m [%p]\n",__FUNCTION__,__LINE__,ctxPtr->m);
+
+		if(loop == true) {
+			libvlc_media_add_option(ctxPtr->m, "input-repeat=-1");
+		}
 
 		if(mediaURL.find(HTTP_PREFIX) == 0) {
 			ctxPtr->mp = libvlc_media_player_new(ctxPtr->libvlc);
@@ -1401,6 +1413,21 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 }
 
 void VideoPlayer::RestartVideo() {
+	printf("Restart video\n");
+
+	this->stop = false;
+	this->finished = false;
+	ctxPtr->started = true;
+	ctxPtr->error = false;
+	ctxPtr->stopped = false;
+	ctxPtr->end_of_media = false;
+	ctxPtr->isPlaying = true;
+	ctxPtr->needToQuit = false;
+
+	return;
+
+	this->closePlayer();
+
 	this->stop = false;
 	this->finished = false;
 	this->successLoadingLib = false;

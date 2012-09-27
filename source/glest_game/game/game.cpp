@@ -4571,6 +4571,7 @@ void Game::playStreamingVideo(const string &playVideo) {
 					screen->w,
 					screen->h,
 					screen->format->BitsPerPixel,
+					false,
 					vlcPluginsPath,
 					SystemFlags::VERBOSE_MODE_ENABLED);
 		}
@@ -4596,6 +4597,7 @@ void Game::playStreamingVideo(const string &playVideo) {
 						screen->w,
 						screen->h,
 						screen->format->BitsPerPixel,
+						false,
 						vlcPluginsPath,
 						SystemFlags::VERBOSE_MODE_ENABLED);
 			}
