@@ -8123,12 +8123,13 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 }
 
 void Renderer::renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth,
-		string prefixLabel,bool centeredText) {
+		string prefixLabel,bool centeredText,int customHeight) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
-	int progressbarHeight	= 12;
+	// Makiong this smaller than 14 is a bad idea (since the font size is never smaller than that)
+	int progressbarHeight	= (customHeight > 0 ? customHeight : 14);
     int currentSize     	= size;
     int maxSize         	= maxProgressBar;
     string renderText   	= intToStr(static_cast<int>(size)) + "%";
