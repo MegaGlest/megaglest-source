@@ -1862,7 +1862,7 @@ string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 	return result;
 }
 
-bool executeShellCommand(string cmd, int expectedResult) {
+bool executeShellCommand(string cmd, int expectedResult, ShellCommandOutputCallbackInterface *cb) {
 	bool result = false;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"About to run [%s]", cmd.c_str());
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("About to run [%s]", cmd.c_str());
@@ -1882,6 +1882,10 @@ bool executeShellCommand(string cmd, int expectedResult) {
 			if(fgets( szBuf, 4095, file) != NULL) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+
+				if(cb != NULL) {
+					cb->ShellCommandOutput_CallbackEvent(cmd,szBuf,cb->getShellCommandOutput_UserData(cmd));
+				}
 			}
 		}
 #ifdef WIN32

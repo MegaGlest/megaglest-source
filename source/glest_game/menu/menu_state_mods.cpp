@@ -302,6 +302,8 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	console.setOnlyChatMessagesInStoredLines(false);
+
 	ftpClientThread = new FTPClientThread(-1,"",
 			mapsPath,tilesetsPath,techtreesPath,scenariosPath,
 			this,fileArchiveExtension,fileArchiveExtractCommand,
@@ -2556,6 +2558,22 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
             fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
             safeMutexFTPProgress.ReleaseLock();
         }
+    }
+    else if(type == ftp_cct_ExtractProgress) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP extract Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
+    	//printf("Got FTP extract Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
+
+    	if(userdata == NULL) {
+			char szBuf[8096]="";
+			sprintf(szBuf,lang.get("DataMissingExtractDownloadMod").c_str(),itemName.c_str());
+			//printf("%s\n",szBuf);
+			console.addLine(szBuf,true);
+    	}
+    	else {
+			char *szBuf = (char *)userdata;
+			//printf("%s\n",szBuf);
+			console.addLine(szBuf);
+    	}
     }
     else if(type == ftp_cct_File) {
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());

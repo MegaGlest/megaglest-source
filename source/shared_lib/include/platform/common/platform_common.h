@@ -82,6 +82,14 @@ const char vkDelete = -26;
 const char vkPrint = -27;
 const char vkPause = -29;
 
+class ShellCommandOutputCallbackInterface {
+public:
+	virtual ~ShellCommandOutputCallbackInterface() {}
+
+	virtual void * getShellCommandOutput_UserData(string cmd) = 0;
+    virtual void ShellCommandOutput_CallbackEvent(string cmd,char *output,void *userdata) = 0;
+};
+
 // =====================================================
 //	class PerformanceTimer
 // =====================================================
@@ -260,7 +268,7 @@ inline string trim (const string & s, const string & t = SPACES) {
 
 string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 		string fileArchiveExtractCommandParameters, string outputpath, string archivename);
-bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE);
+bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE,ShellCommandOutputCallbackInterface *cb=NULL);
 string executable_path(string exeName,bool includeExeNameInPath=false);
 
 bool valid_utf8_file(const char* file_name);
