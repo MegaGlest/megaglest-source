@@ -45,6 +45,7 @@ protected:
 
 	bool stop;
 	bool finished;
+	bool loop;
 
 	VideoLoadingCallbackInterface *loadingCB;
 	ctx *ctxPtr;
@@ -61,7 +62,7 @@ public:
 				 string filenameFallback,
 				 SDL_Surface *surface, int x, int y,
 				 int width, int height, int colorBits,
-				 string pluginsPath,bool verboseEnabled=false);
+				 bool loop, string pluginsPath,bool verboseEnabled=false);
 	virtual ~VideoPlayer();
 
 	static void setDisabled(bool value) { disabled = value; }

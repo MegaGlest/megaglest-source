@@ -338,6 +338,7 @@ void BattleEnd::initBackgroundVideo() {
 					screen->w,
 					screen->h,
 					screen->format->BitsPerPixel,
+					true,
 					vlcPluginsPath,
 					SystemFlags::VERBOSE_MODE_ENABLED);
 			menuBackgroundVideo->initPlayer();

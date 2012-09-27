@@ -3857,6 +3857,7 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 						screen->w,
 						screen->h,
 						screen->format->BitsPerPixel,
+						true,
 						vlcPluginsPath,
 						SystemFlags::VERBOSE_MODE_ENABLED);
 				factionVideo->initPlayer();
