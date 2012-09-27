@@ -4,6 +4,31 @@ MEGAGLEST CHANGELOG
 To see a timeline of detail changes please visit:
 http://sourceforge.net/apps/trac/megaglest/timeline
 
+v3.7.0
+- bugfixes reported in the bugs forum since 3.6.0.3
+- first person view allows you to follow a selected unit. Select one unit anf press f4 to enable (deselect anf f4 to disable).
+- cell markers allow players to create markers anywhere on the map and associate a note with them. All team players see the markers.
+- quick sonar signal to tell team players where the action is happening
+- admin player can disconnect other network players in game
+- saving / loading games.
+- when placing a new unit, we display a 'ghosted' model while units walk to the build location to show the space it will occupy
+- video playback support (using libvlc)
+- network multi-player scenarios
+- campaign scenarios
+- play a sound when player mentions your name in chat mode
+- more game data validation for commandline modders, see --help for more info
+- many new lua commands for scenario modders
+- enhanced AI management (logging and modding) and added more intellegence to decsions
+- enhanced unicode support for non-ascii characters
+- customizable unit, resource and upgrade language files
+- tilesets support animated models
+- scenario factions may now be 'neutral', meaning not on any players team.
+- new command action mouse cursors
+- resources are selectable showing info about the resource
+- particle colors are now affected by the time of day
+- new game hints are displayed while loading a new game
+- linked faction support (and new techtree MagiTech for classic Glest play)
+
 v3.6.0
 - bugfixes reported in the bugs forum from beta1 and 2
 - iso639-1 style language loading example: megaglest --use-language=zh and auto language detect on first time launch
