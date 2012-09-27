@@ -253,7 +253,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxTileset.init(xoffset+460, mapPos, 150);
     //listBoxTileset.setItems(results);
 	setupTilesetList("");
-    srand((unsigned int)time(NULL));
+    //srand((unsigned int)time(NULL));
+	Chrono seed(true);
+	srand(seed.getCurTicks());
+
 	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
 
     //tech Tree listBox
@@ -1556,7 +1559,10 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 				// Max 1000 tries to get a random, unused faction
 				for(int findRandomFaction = 1; findRandomFaction < 1000; ++findRandomFaction) {
-					srand((unsigned int)time(NULL) + findRandomFaction);
+					//srand((unsigned int)time(NULL) + findRandomFaction);
+					Chrono seed(true);
+					srand(seed.getCurTicks() + findRandomFaction);
+
 					int selectedFactionIndex = rand() % listBoxFactions[i].getItemCount();
 					string selectedFactionName = listBoxFactions[i].getItem(selectedFactionIndex);
 

@@ -341,7 +341,10 @@ void Ai::update() {
 		int factionSwitchTeamRequestCountCurrent = factionSwitchTeamRequestCount[vote->factionIndex];
 
 		//int allowJoinTeam = random.randRange(0, 100);
-		srand(time(NULL) + aiInterface->getMyFaction()->getIndex());
+		//srand(time(NULL) + aiInterface->getMyFaction()->getIndex());
+		Chrono seed(true);
+		srand(seed.getCurTicks() + aiInterface->getMyFaction()->getIndex());
+
 		int allowJoinTeam = rand() % 100;
 
 		SwitchTeamVote *voteResult = aiInterface->getMyFaction()->getSwitchTeamVote(vote->factionIndex);
