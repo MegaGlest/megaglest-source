@@ -563,13 +563,11 @@ void MenuStateJoinGame::update()
 
 				Config& config= Config::getInstance();
 				string host = labelServerIp.getText();
-				int port = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
 				std::vector<std::string> hostPartsList;
 				Tokenize(host,hostPartsList,":");
 				if(hostPartsList.size() > 1) {
 					host = hostPartsList[0];
 					replaceAll(hostPartsList[1],"_","");
-					port = strToInt(hostPartsList[1]);
 				}
 				string saveHost = Ip(host).getString();
 				if(hostPartsList.size() > 1) {
