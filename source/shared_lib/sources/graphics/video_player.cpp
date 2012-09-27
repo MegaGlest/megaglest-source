@@ -1413,18 +1413,18 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 }
 
 void VideoPlayer::RestartVideo() {
-	printf("Restart video\n");
+	//printf("Restart video\n");
 
-	this->stop = false;
-	this->finished = false;
-	ctxPtr->started = true;
-	ctxPtr->error = false;
-	ctxPtr->stopped = false;
-	ctxPtr->end_of_media = false;
-	ctxPtr->isPlaying = true;
-	ctxPtr->needToQuit = false;
+	//this->stop = false;
+	//this->finished = false;
+	//ctxPtr->started = true;
+	//ctxPtr->error = false;
+	//ctxPtr->stopped = false;
+	//ctxPtr->end_of_media = false;
+	//ctxPtr->isPlaying = true;
+	//ctxPtr->needToQuit = false;
 
-	return;
+	//return;
 
 	this->closePlayer();
 
