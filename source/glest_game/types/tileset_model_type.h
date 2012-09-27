@@ -51,21 +51,21 @@ public:
 	~TilesetModelType();
 
 	void addParticleSystem(ObjectParticleSystemType *particleSystem);
-	bool hasParticles()	const		{return particleTypes.empty() == false;}
-	ModelParticleSystemTypes* getParticleTypes()  { return &particleTypes ;}
+	inline bool hasParticles()	const		{return particleTypes.empty() == false;}
+	inline ModelParticleSystemTypes* getParticleTypes()  { return &particleTypes ;}
 
 
-	Model * getModel() const		{return model;}
-	void setModel(Model *model) 	{this->model=model;}
+	inline Model * getModel() const		{return model;}
+	inline void setModel(Model *model) 	{this->model=model;}
 
-	int getHeight() const			{return height;}
-	void setHeight(int height) 			{this->height=height;}
+	inline int getHeight() const			{return height;}
+	inline void setHeight(int height) 			{this->height=height;}
 
-	bool getRotationAllowed() const			{return rotationAllowed;}
-	void setRotationAllowed(bool rotationAllowed)	{this->rotationAllowed=rotationAllowed;}
+	inline bool getRotationAllowed() const			{return rotationAllowed;}
+	inline void setRotationAllowed(bool rotationAllowed)	{this->rotationAllowed=rotationAllowed;}
 
-	int getAnimSpeed() const			{return animSpeed;}
-	void setAnimSpeed(int value) {animSpeed = value;}
+	inline int getAnimSpeed() const			{return animSpeed;}
+	inline void setAnimSpeed(int value) {animSpeed = value;}
 };
 
 }}//end namespace

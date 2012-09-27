@@ -247,25 +247,25 @@ public:
 	virtual string toString() const;
     
 	//get
-	int getAttackStrength() const				{return attackStrength;}
-	int getAttackVar() const					{return attackVar;}
-	int getAttackRange() const					{return attackRange;}
-	const AttackType *getAttackType() const		{return attackType;}
-	bool getAttackField(Field field) const		{return attackFields[field];}
-	float getAttackStartTime() const			{return attackStartTime;}
-	string getSpawnUnit() const					{return spawnUnit;}
-	int getSpawnUnitCount() const				{return spawnUnitcount;}
+	inline int getAttackStrength() const				{return attackStrength;}
+	inline int getAttackVar() const					{return attackVar;}
+	inline int getAttackRange() const					{return attackRange;}
+	inline const AttackType *getAttackType() const		{return attackType;}
+	inline bool getAttackField(Field field) const		{return attackFields[field];}
+	inline float getAttackStartTime() const			{return attackStartTime;}
+	inline string getSpawnUnit() const					{return spawnUnit;}
+	inline int getSpawnUnitCount() const				{return spawnUnitcount;}
 
 	//get proj
-	bool getProjectile() const									{return projectile;}
-	ParticleSystemTypeProjectile * getProjParticleType() const	{return projectileParticleSystemType;}
-	StaticSound *getProjSound() const							{return projSounds.getRandSound();}
+	inline bool getProjectile() const									{return projectile;}
+	inline ParticleSystemTypeProjectile * getProjParticleType() const	{return projectileParticleSystemType;}
+	inline StaticSound *getProjSound() const							{return projSounds.getRandSound();}
 
 	//get splash
-	bool getSplash() const										{return splash;}
-	int getSplashRadius() const									{return splashRadius;}
-	bool getSplashDamageAll() const								{return splashDamageAll;}
-	ParticleSystemTypeSplash * getSplashParticleType() const	{return splashParticleSystemType;}
+	inline bool getSplash() const										{return splash;}
+	inline int getSplashRadius() const									{return splashRadius;}
+	inline bool getSplashDamageAll() const								{return splashDamageAll;}
+	inline ParticleSystemTypeSplash * getSplashParticleType() const	{return splashParticleSystemType;}
 	
 	//misc
 	int getTotalAttackStrength(const TotalUpgrade *totalUpgrade) const;
