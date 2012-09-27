@@ -490,7 +490,7 @@ public:
 	void renderText3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, bool centered);
 	void renderText3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, bool centered);
 	void renderTextShadow3D(const string &text, Font3D *font,const Vec4f &color, int x, int y, bool centered=false);
-	void renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth=-1, string prefixLabel="", bool centeredText=true);
+	void renderProgressBar3D(int size, int x, int y, Font3D *font, int customWidth=-1, string prefixLabel="", bool centeredText=true,int customHeight=-1);
 
 	Vec2f getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, int w, int h, bool centeredW, bool centeredH);
 	void renderTextBoundingBox3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, int w, int h, bool centeredW, bool centeredH, bool editModeEnabled, int maxEditWidth, int maxEditRenderWidth);
