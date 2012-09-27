@@ -15,7 +15,7 @@
 #include "base_thread.h"
 #include <vector>
 #include <string>
-
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -39,7 +39,8 @@ enum FTP_Client_CallbackType {
     ftp_cct_Techtree            = 2,
     ftp_cct_Scenario           	= 3,
     ftp_cct_File           		= 4,
-    ftp_cct_DownloadProgress    = 5
+    ftp_cct_DownloadProgress    = 5,
+    ftp_cct_ExtractProgress     = 6
 };
 
 class FTPClientCallbackInterface {
@@ -55,10 +56,12 @@ public:
     };
 
     virtual void FTPClient_CallbackEvent(string itemName,
-    		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result, void *userdata) = 0;
+    										 FTP_Client_CallbackType type,
+    										 pair<FTP_Client_ResultType,string> result,
+    										 void *userdata) = 0;
 };
 
-class FTPClientThread : public BaseThread
+class FTPClientThread : public BaseThread, public ShellCommandOutputCallbackInterface
 {
 protected:
     int portNumber;
@@ -110,6 +113,10 @@ protected:
     		pair<string,string> fileNameTitle,
     		string remotePath, string destFileSaveAs, string ftpUser,
     		string ftpUserPassword, vector <string> *wantDirListOnly=NULL);
+
+    string shellCommandCallbackUserData;
+    virtual void * getShellCommandOutput_UserData(string cmd);
+    virtual void ShellCommandOutput_CallbackEvent(string cmd,char *output,void *userdata);
 
 public:
 

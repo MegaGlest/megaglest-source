@@ -218,7 +218,11 @@ int file_progress(struct FtpFile *out,double download_total, double download_now
          static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
          MutexSafeWrapper safeMutex(out->ftpServer->getProgressMutex(),mutexOwnerId);
          out->ftpServer->getProgressMutex()->setOwnerId(mutexOwnerId);
-         out->ftpServer->getCallBackObject()->FTPClient_CallbackEvent(out->itemName, ftp_cct_DownloadProgress, make_pair(ftp_crt_SUCCESS,""), &stats);
+         out->ftpServer->getCallBackObject()->FTPClient_CallbackEvent(
+        		 out->itemName,
+        		 ftp_cct_DownloadProgress,
+        		 make_pair(ftp_crt_SUCCESS,""),
+        		 &stats);
   }
 
   return 0;
@@ -241,6 +245,7 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
     this->techtreesPath = techtreesPath;
     this->scenariosPath	= scenariosPath;
     this->pCBObject     = pCBObject;
+    this->shellCommandCallbackUserData = "";
 
     this->fileArchiveExtension = fileArchiveExtension;
     this->fileArchiveExtractCommand = fileArchiveExtractCommand;
@@ -294,8 +299,6 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getMapFromServer(pair<string
         false,
         ftp_cct_Map
     };
-
-    //curl_global_init(CURL_GLOBAL_DEFAULT);
 
     CURL *curl = SystemFlags::initHTTP();
     if(curl) {
@@ -385,7 +388,11 @@ void FTPClientThread::getMapFromServer(pair<string,string> mapFileName) {
     MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
     this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
-        this->pCBObject->FTPClient_CallbackEvent(mapFileName.first,ftp_cct_Map,result,NULL);
+        this->pCBObject->FTPClient_CallbackEvent(
+        		mapFileName.first,
+        		ftp_cct_Map,
+        		result,
+        		NULL);
     }
 }
 
@@ -440,7 +447,9 @@ void FTPClientThread::addFileToRequests(string fileName,string URL) {
 }
 
 void FTPClientThread::getTilesetFromServer(pair<string,string> tileSetName) {
-	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
+	bool findArchive = executeShellCommand(
+			this->fileArchiveExtractCommand,
+			this->fileArchiveExtractCommandSuccessResult);
 
 	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
 	if(tileSetName.second != "") {
@@ -466,180 +475,27 @@ void FTPClientThread::getTilesetFromServer(pair<string,string> tileSetName) {
     MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
     this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
-        this->pCBObject->FTPClient_CallbackEvent(tileSetName.first,ftp_cct_Tileset,result,NULL);
+        this->pCBObject->FTPClient_CallbackEvent(
+        		tileSetName.first,
+        		ftp_cct_Tileset,
+        		result,
+        		NULL);
     }
 }
 
-pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<string,string> tileSetName,
-		string tileSetNameSubfolder, string ftpUser, string ftpUserPassword,
-		bool findArchive) {
-
-/*
-    FTP_Client_ResultType result = ftp_crt_FAIL;
-    string destFile = this->tilesetsPath.second;
-
-    // Root folder for the tileset
-    string destRootArchiveFolder = "";
-    string destRootFolder = "";
-    if(tileSetNameSubfolder == "") {
-        destRootFolder = this->tilesetsPath.second;
-        endPathWithSlash(destRootFolder);
-
-        destRootArchiveFolder = destRootFolder;
-        destRootFolder += tileSetName;
-        endPathWithSlash(destRootFolder);
-
-        createDirectoryPaths(destRootFolder);
-    }
-
-    endPathWithSlash(destFile);
-    destFile += tileSetName;
-    endPathWithSlash(destFile);
-
-    if(tileSetNameSubfolder != "") {
-        destFile += tileSetNameSubfolder;
-        endPathWithSlash(destFile);
-    }
-
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s] findArchive = %d\n",destFile.c_str(),findArchive);
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s] findArchive = %d\n",destFile.c_str(),findArchive);
-
-    struct FtpFile ftpfile = {
-        tileSetName.c_str(),
-        destFile.c_str(), // name to store the file as if successful
-        destFile.c_str(),
-        NULL,
-        this,
-        "",
-        false
-    };
-
-    if(findArchive == true) {
-    	ftpfile.filepath = destRootArchiveFolder.c_str();
-    }
-
-    CURL *curl = SystemFlags::initHTTP();
-    if(curl) {
-        ftpfile.stream = NULL;
-
-        char szBuf[1024]="";
-        if(tileSetNameSubfolder == "") {
-            if(findArchive == true) {
-            	sprintf(szBuf,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str(),this->fileArchiveExtension.c_str());
-            }
-            else {
-            	sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str());
-            }
-        }
-        else {
-            sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str(),tileSetNameSubfolder.c_str());
-        }
-
-        curl_easy_setopt(curl, CURLOPT_URL,szBuf);
-        curl_easy_setopt(curl, CURLOPT_FTP_USE_EPSV, 0L);
-
-        // turn on wildcard matching
-        curl_easy_setopt(curl, CURLOPT_WILDCARDMATCH, 1L);
-
-        // callback is called before download of concrete file started
-        curl_easy_setopt(curl, CURLOPT_CHUNK_BGN_FUNCTION, file_is_comming);
-        // callback is called after data from the file have been transferred
-        curl_easy_setopt(curl, CURLOPT_CHUNK_END_FUNCTION, file_is_downloaded);
-
-        curl_easy_setopt(curl, CURLOPT_CHUNK_DATA, &ftpfile);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
-
-        // Define our callback to get called when there's data to be written
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
-        // Set a pointer to our struct to pass to the callback
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
-
-        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-        curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, file_progress);
-        curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &ftpfile);
-
-        // Max 10 minutes to transfer
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
-
-        // Switch on full protocol/debug output
-        if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
-        CURLcode res = curl_easy_perform(curl);
-
-        if(res != CURLE_OK) {
-          // we failed
-          printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer);
-          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer);
-
-          if(res == CURLE_PARTIAL_FILE || ftpfile.isValidXfer == true) {
-        	  result = ftp_crt_PARTIALFAIL;
-          }
-
-          if(destRootFolder != "") {
-              removeFolder(destRootFolder);
-          }
-        }
-        else {
-            result = ftp_crt_SUCCESS;
-
-            bool requireMoreFolders = false;
-
-            if(findArchive == false) {
-				if(tileSetNameSubfolder == "") {
-					tileSetNameSubfolder = "models";
-					requireMoreFolders = true;
-				}
-				else if(tileSetNameSubfolder == "models") {
-					tileSetNameSubfolder = "sounds";
-					requireMoreFolders = true;
-				}
-				else if(tileSetNameSubfolder == "sounds") {
-					tileSetNameSubfolder = "textures";
-					requireMoreFolders = true;
-				}
-				else if(tileSetNameSubfolder == "textures") {
-					tileSetNameSubfolder = "";
-					requireMoreFolders = false;
-				}
-            }
-
-            if(requireMoreFolders == true) {
-                result = getTilesetFromServer(tileSetName, tileSetNameSubfolder, ftpUser, ftpUserPassword, false);
-                if(result != ftp_crt_SUCCESS) {
-                  if(destRootFolder != "") {
-                      removeFolder(destRootFolder);
-                  }
-                }
-            }
-        }
-
-        SystemFlags::cleanupHTTP(&curl);
-    }
-
-    if(ftpfile.stream) {
-        fclose(ftpfile.stream);
-        ftpfile.stream = NULL;
-    }
-
-    // Extract the archive
-    if(findArchive == true && result == ftp_crt_SUCCESS) {
-        string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
-        		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
-        		destRootArchiveFolder + tileSetName + this->fileArchiveExtension);
-
-        if(executeShellCommand(extractCmd) == false) {
-        	result = ftp_crt_FAIL;
-        }
-    }
-
-    return result;
-*/
+pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(
+												pair<string,string> tileSetName,
+												string tileSetNameSubfolder,
+												string ftpUser,
+												string ftpUserPassword,
+												bool findArchive) {
 
 	string destFileSaveAsNewFile = "";
 	string destFileSaveAs = "";
 	string remotePath = "";
 	bool getFolderContents = false;
 	vector<string> wantDirListOnly;
+
     if(tileSetNameSubfolder == "") {
         if(findArchive == true) {
         	destFileSaveAs = this->tilesetsPath.second;
@@ -692,8 +548,14 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<st
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FTPClientThread::getTilesetFromServer [%s] remotePath [%s] destFileSaveAs [%s] getFolderContents = %d findArchive = %d\n",tileSetName.first.c_str(),remotePath.c_str(),destFileSaveAs.c_str(),getFolderContents,findArchive);
 
-    pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_Tileset,
-    		tileSetName, remotePath, destFileSaveAs,ftpUser, ftpUserPassword, pWantDirListOnly);
+    pair<FTP_Client_ResultType,string> result = getFileFromServer(
+    		ftp_cct_Tileset,
+    		tileSetName,
+    		remotePath,
+    		destFileSaveAs,
+    		ftpUser,
+    		ftpUserPassword,
+    		pWantDirListOnly);
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FTPClientThread::getTilesetFromServer [%s] remotePath [%s] destFileSaveAs [%s] getFolderContents = %d result.first = %d [%s] findArchive = %d\n",tileSetName.first.c_str(),remotePath.c_str(),destFileSaveAs.c_str(),getFolderContents,result.first,result.second.c_str(),findArchive);
 
@@ -703,13 +565,27 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<st
     	    string destRootArchiveFolder = this->tilesetsPath.second;
    	        endPathWithSlash(destRootArchiveFolder);
 
-			string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
-					this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+			string extractCmd = getFullFileArchiveExtractCommand(
+					this->fileArchiveExtractCommand,
+					this->fileArchiveExtractCommandParameters,
+					destRootArchiveFolder,
 					destRootArchiveFolder + tileSetName.first + this->fileArchiveExtension);
 
-			if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
+			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+		    this->getProgressMutex()->setOwnerId(mutexOwnerId);
+
+		    if(this->pCBObject != NULL) {
+		    	this->shellCommandCallbackUserData = tileSetName.first;
+		        this->pCBObject->FTPClient_CallbackEvent(
+		        		tileSetName.first,
+		        		ftp_cct_ExtractProgress,
+		        		make_pair(ftp_crt_SUCCESS,"extracting"),NULL);
+		    }
+
+			if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult,this) == false) {
 				result.first = ftp_crt_FAIL;
-				result.second = "failed to extract arhcive!";
+				result.second = "failed to extract archive!";
 			}
 
 			return result;
@@ -761,7 +637,9 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(pair<st
 
 void FTPClientThread::getTechtreeFromServer(pair<string,string> techtreeName) {
 	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
-	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
+	bool findArchive = executeShellCommand(
+			this->fileArchiveExtractCommand,
+			this->fileArchiveExtractCommandSuccessResult);
 	if(findArchive == true) {
 		if(techtreeName.second != "") {
 			result = getTechtreeFromServer(techtreeName, "", "");
@@ -778,138 +656,16 @@ void FTPClientThread::getTechtreeFromServer(pair<string,string> techtreeName) {
     MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
     this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
-        this->pCBObject->FTPClient_CallbackEvent(techtreeName.first,ftp_cct_Techtree,result,NULL);
+        this->pCBObject->FTPClient_CallbackEvent(
+        		techtreeName.first,
+        		ftp_cct_Techtree,
+        		result,
+        		NULL);
     }
 }
 
 pair<FTP_Client_ResultType,string>  FTPClientThread::getTechtreeFromServer(pair<string,string> techtreeName,
 		string ftpUser, string ftpUserPassword) {
-
-/*
-    FTP_Client_ResultType result = ftp_crt_FAIL;
-
-    string destFile = this->techtreesPath.second;
-
-    // Root folder for the techtree
-    string destRootArchiveFolder = "";
-    string destRootFolder = "";
-	destRootFolder = this->techtreesPath.second;
-	endPathWithSlash(destRootFolder);
-	destRootArchiveFolder = destRootFolder;
-	destRootFolder += techtreeName;
-	endPathWithSlash(destRootFolder);
-
-	createDirectoryPaths(destRootFolder);
-
-	endPathWithSlash(destFile);
-    destFile += techtreeName;
-    string destFileSaveAs = destFile + this->fileArchiveExtension;
-    endPathWithSlash(destFile);
-
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread about to try to RETR into [%s]\n",destFileSaveAs.c_str());
-    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread about to try to RETR into [%s]\n",destFileSaveAs.c_str());
-
-
-//    struct FtpFile ftpfile = {
-//    	techtreeName.c_str(),
-//        destFile.c_str(), // name to store the file as if succesful
-//        destFile.c_str(),
-//        NULL,
-//        this,
-//        "",
-//        false
-//    };
-//
-//   	ftpfile.filepath = destRootArchiveFolder.c_str();
-
-
-    struct FtpFile ftpfile = {
-    	techtreeName.c_str(),
-    	destFileSaveAs.c_str(), // name to store the file as if succesful
-    	NULL,
-        NULL,
-        this,
-        "",
-        false
-    };
-
-    CURL *curl = SystemFlags::initHTTP();
-    if(curl) {
-        ftpfile.stream = NULL;
-
-        char szBuf[1024]="";
-        sprintf(szBuf,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,techtreeName.c_str(),this->fileArchiveExtension.c_str());
-
-        curl_easy_setopt(curl, CURLOPT_URL,szBuf);
-        curl_easy_setopt(curl, CURLOPT_FTP_USE_EPSV, 0L);
-
-        // turn on wildcard matching
-        //curl_easy_setopt(curl, CURLOPT_WILDCARDMATCH, 1L);
-
-        // callback is called before download of concrete file started
-        //curl_easy_setopt(curl, CURLOPT_CHUNK_BGN_FUNCTION, file_is_comming);
-        // callback is called after data from the file have been transferred
-        //curl_easy_setopt(curl, CURLOPT_CHUNK_END_FUNCTION, file_is_downloaded);
-
-        //curl_easy_setopt(curl, CURLOPT_CHUNK_DATA, &ftpfile);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
-
-        // Define our callback to get called when there's data to be written
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
-        // Set a pointer to our struct to pass to the callback
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
-
-        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-        curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, file_progress);
-        curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &ftpfile);
-
-        // Max 10 minutes to transfer
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
-
-        // Switch on full protocol/debug output
-        if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
-        CURLcode res = curl_easy_perform(curl);
-
-        if(res != CURLE_OK) {
-          // we failed
-          printf("curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer);
-          SystemFlags::OutputDebug(SystemFlags::debugNetwork,"curl FAILED with: %d [%s] attempting to remove folder contents [%s] szBuf [%s] ftpfile.isValidXfer = %d\n", res,curl_easy_strerror(res),destRootFolder.c_str(),szBuf,ftpfile.isValidXfer);
-
-          if(res == CURLE_PARTIAL_FILE || ftpfile.isValidXfer == true) {
-        	  result = ftp_crt_PARTIALFAIL;
-          }
-
-          if(destRootFolder != "") {
-              removeFolder(destRootFolder);
-          }
-        }
-        else {
-            result = ftp_crt_SUCCESS;
-        }
-
-        SystemFlags::cleanupHTTP(&curl);
-    }
-
-    if(ftpfile.stream) {
-        fclose(ftpfile.stream);
-        ftpfile.stream = NULL;
-    }
-
-    // Extract the archive
-    if(result == ftp_crt_SUCCESS) {
-        string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
-        		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
-        		destRootArchiveFolder + techtreeName + this->fileArchiveExtension);
-
-        if(executeShellCommand(extractCmd) == false) {
-        	result = ftp_crt_FAIL;
-        }
-    }
-
-    return result;
-*/
-
 
     // Root folder for the techtree
     string destRootFolder = this->techtreesPath.second;
@@ -934,11 +690,24 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getTechtreeFromServer(pair<
 
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {
-        string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
-        		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+        string extractCmd = getFullFileArchiveExtractCommand(
+        		this->fileArchiveExtractCommand,
+        		this->fileArchiveExtractCommandParameters,
+        		destRootArchiveFolder,
         		destRootArchiveFolder + techtreeName.first + this->fileArchiveExtension);
 
-        if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+	    this->getProgressMutex()->setOwnerId(mutexOwnerId);
+	    if(this->pCBObject != NULL) {
+	    	this->shellCommandCallbackUserData = techtreeName.first;
+	        this->pCBObject->FTPClient_CallbackEvent(
+	        		techtreeName.first,
+	        		ftp_cct_ExtractProgress,
+	        		make_pair(ftp_crt_SUCCESS,"extracting"),NULL);
+	    }
+
+        if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult,this) == false) {
         	result.first = ftp_crt_FAIL;
         	result.second = "failed to extract archive!";
         }
@@ -950,7 +719,9 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getTechtreeFromServer(pair<
 
 void FTPClientThread::getScenarioFromServer(pair<string,string> fileName) {
 	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
-	bool findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
+	bool findArchive = executeShellCommand(
+			this->fileArchiveExtractCommand,
+			this->fileArchiveExtractCommandSuccessResult);
 	if(findArchive == true) {
 		result = getScenarioInternalFromServer(fileName);
 	}
@@ -959,7 +730,11 @@ void FTPClientThread::getScenarioFromServer(pair<string,string> fileName) {
     MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
     this->getProgressMutex()->setOwnerId(mutexOwnerId);
     if(this->pCBObject != NULL) {
-        this->pCBObject->FTPClient_CallbackEvent(fileName.first,ftp_cct_Scenario,result,NULL);
+        this->pCBObject->FTPClient_CallbackEvent(
+        		fileName.first,
+        		ftp_cct_Scenario,
+        		result,
+        		NULL);
     }
 }
 
@@ -987,11 +762,24 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getScenarioInternalFromServ
 
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {
-        string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
-        		this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+        string extractCmd = getFullFileArchiveExtractCommand(
+        		this->fileArchiveExtractCommand,
+        		this->fileArchiveExtractCommandParameters,
+        		destRootArchiveFolder,
         		destRootArchiveFolder + fileName.first + this->fileArchiveExtension);
 
-        if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+	    this->getProgressMutex()->setOwnerId(mutexOwnerId);
+	    if(this->pCBObject != NULL) {
+	    	this->shellCommandCallbackUserData = fileName.first;
+	        this->pCBObject->FTPClient_CallbackEvent(
+	        		fileName.first,
+	        		ftp_cct_ExtractProgress,
+	        		make_pair(ftp_crt_SUCCESS,"extracting"),NULL);
+	    }
+
+        if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult,this) == false) {
         	result.first = ftp_crt_FAIL;
         	result.second = "failed to extract archive!";
         }
@@ -1007,7 +795,9 @@ void FTPClientThread::getFileFromServer(pair<string,string> fileName) {
 	bool findArchive = true;
 	string ext = extractExtension(fileName.first);
 	if(("." + ext) == this->fileArchiveExtension) {
-		findArchive = executeShellCommand(this->fileArchiveExtractCommand,this->fileArchiveExtractCommandSuccessResult);
+		findArchive = executeShellCommand(
+				this->fileArchiveExtractCommand,
+				this->fileArchiveExtractCommandSuccessResult);
 	}
 	if(findArchive == true) {
 		result = getFileInternalFromServer(fileName);
@@ -1022,26 +812,8 @@ void FTPClientThread::getFileFromServer(pair<string,string> fileName) {
 }
 
 pair<FTP_Client_ResultType,string>  FTPClientThread::getFileInternalFromServer(pair<string,string> fileName) {
-    // Root folder for the techtree
-    //string destRootFolder = this->scenariosPath.second;
-	//endPathWithSlash(destRootFolder);
-	//string destRootArchiveFolder = destRootFolder;
-	//destRootFolder += fileName.first;
-	//endPathWithSlash(destRootFolder);
-
-	//string destFile = this->scenariosPath.second;
-	//endPathWithSlash(destFile);
-    //destFile += fileName.first;
-    //string destFileSaveAs = destFile + this->fileArchiveExtension;
-    //endPathWithSlash(destFile);
-
 	string destFile = fileName.first;
 	string destFileSaveAs = fileName.first;
-
-    //string remotePath = fileName.first + this->fileArchiveExtension;
-    //if(fileName.second != "") {
-    //	remotePath = fileName.second;
-    //}
 
 	string remotePath = fileName.second;
 
@@ -1053,8 +825,10 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileInternalFromServer(p
     	string ext = extractExtension(destFileSaveAs);
     	if(("." + ext) == fileArchiveExtension) {
     		string destRootArchiveFolder = extractDirectoryPathFromFile(destFileSaveAs);
-			string extractCmd = getFullFileArchiveExtractCommand(this->fileArchiveExtractCommand,
-					this->fileArchiveExtractCommandParameters, destRootArchiveFolder,
+			string extractCmd = getFullFileArchiveExtractCommand(
+					this->fileArchiveExtractCommand,
+					this->fileArchiveExtractCommandParameters,
+					destRootArchiveFolder,
 					destFileSaveAs);
 
 			if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
@@ -1209,8 +983,6 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
     return result;
 }
 
-
-
 FTPClientCallbackInterface * FTPClientThread::getCallBackObject() {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
     MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
@@ -1223,6 +995,22 @@ void FTPClientThread::setCallBackObject(FTPClientCallbackInterface *value) {
     MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
     this->getProgressMutex()->setOwnerId(mutexOwnerId);
     pCBObject = value;
+}
+
+void FTPClientThread::ShellCommandOutput_CallbackEvent(string cmd,char *output,void *userdata) {
+    if(this->pCBObject != NULL) {
+
+    	string &itemName = *static_cast<string *>(userdata);
+        this->pCBObject->FTPClient_CallbackEvent(
+        		itemName,
+        		ftp_cct_ExtractProgress,
+        		make_pair(ftp_crt_SUCCESS,"extracting"),
+        		output);
+    }
+}
+
+void * FTPClientThread::getShellCommandOutput_UserData(string cmd) {
+	return &shellCommandCallbackUserData;
 }
 
 void FTPClientThread::execute() {

@@ -3142,7 +3142,6 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result, void *userdata) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-    //Lang &lang= Lang::getInstance();
     if(type == ftp_cct_DownloadProgress) {
         FTPClientCallbackInterface::FtpProgressStats *stats = (FTPClientCallbackInterface::FtpProgressStats *)userdata;
         if(stats != NULL) {
@@ -3177,6 +3176,33 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             }
         }
     }
+    else if(type == ftp_cct_ExtractProgress) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP extract Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
+
+    	if(userdata == NULL) {
+			NetworkManager &networkManager= NetworkManager::getInstance();
+			ClientInterface* clientInterface= networkManager.getClientInterface();
+
+			Lang &lang= Lang::getInstance();
+			const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+			for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[1024]="";
+				if(lang.hasString("DataMissingExtractDownload",languageList[i]) == true) {
+					sprintf(szMsg,lang.get("DataMissingExtractDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+				}
+				else {
+					sprintf(szMsg,"Please wait, player: %s is extracting: %s",getHumanPlayerName().c_str(),itemName.c_str());
+				}
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] szMsg [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szMsg);
+				clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+			}
+    	}
+    	else {
+			char *szBuf = (char *)userdata;
+			//printf("%s\n",szBuf);
+			console.addLine(szBuf);
+    	}
+    }
     else if(type == ftp_cct_Map) {
         getMissingMapFromFTPServerInProgress = false;
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
@@ -3192,10 +3218,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         if(result.first == ftp_crt_SUCCESS) {
             // Clear the CRC file Cache
             Checksum::clearFileCache();
-            //lastCheckedCRCMapValue = -1;
     		Checksum checksum;
     		string file = Map::getMapPath(itemName,"",false);
-    		//console.addLine("Checking map CRC [" + file + "]");
     		checksum.addFile(file);
     		lastCheckedCRCMapValue = checksum.getSum();
 
@@ -3352,11 +3376,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             safeMutexFTPProgress.ReleaseLock();
             // END
 
-            // Reload tilesets for the UI
+            // Reload techs for the UI
             string scenarioDir = Scenario::getScenarioDir(dirList, gameSettings->getScenario());
             findDirs(Config::getInstance().getPathListForType(ptTechs,scenarioDir), techTreeFiles);
 
-            //int initialTechSelection=0;
             std::vector<string> techsFormatted = techTreeFiles;
         	for(int i= 0; i < techsFormatted.size(); i++){
         		techsFormatted.at(i)= formatString(techsFormatted.at(i));
