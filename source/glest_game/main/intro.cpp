@@ -234,8 +234,9 @@ Intro::Intro(Program *program):
 		if(showIntroModelsRandom == true) {
 			std::vector<Model *> modelList;
 
-			unsigned int seed = time(NULL);
-			srand(seed);
+			//unsigned int seed = time(NULL);
+			Chrono seed(true);
+			srand(seed.getCurTicks());
 			int failedLookups=0;
 			std::map<int,bool> usedIndex;
 			for(;modelList.size() < models.size();) {
@@ -243,14 +244,13 @@ Intro::Intro(Program *program):
 				if(usedIndex.find(index) != usedIndex.end()) {
 					failedLookups++;
 					seed = time(NULL) / failedLookups;
-					srand(seed);
+					srand(seed.getCurTicks());
 					continue;
 				}
 				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
 				modelList.push_back(models[index]);
 				usedIndex[index]=true;
-				seed = time(NULL) / modelList.size();
-				srand(seed);
+				srand(seed.getCurTicks() / modelList.size());
 			}
 			models = modelList;
 		}
@@ -425,23 +425,22 @@ Intro::Intro(Program *program):
 
 		std::vector<Texture2D *> intoTexList;
 		if(showIntroPicsRandom == true) {
-			unsigned int seed = time(NULL);
-			srand(seed);
+			//unsigned int seed = time(NULL);
+			Chrono seed(true);
+			srand(seed.getCurTicks());
 			int failedLookups=0;
 			std::map<int,bool> usedIndex;
 			for(;intoTexList.size() < showIntroPics;) {
 				int picIndex = rand() % coreData.getMiscTextureList().size();
 				if(usedIndex.find(picIndex) != usedIndex.end()) {
 					failedLookups++;
-					seed = time(NULL) / failedLookups;
-					srand(seed);
+					srand(seed.getCurTicks() / failedLookups);
 					continue;
 				}
 				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
 				intoTexList.push_back(coreData.getMiscTextureList()[picIndex]);
 				usedIndex[picIndex]=true;
-				seed = time(NULL) / intoTexList.size();
-				srand(seed);
+				srand(seed.getCurTicks() / intoTexList.size());
 			}
 		}
 		else {

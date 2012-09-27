@@ -250,7 +250,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	GraphicComponent::applyAllCustomProperties(containerName);
 
     char szIRCNick[80]="";
-    srand(time(NULL));
+    //srand(time(NULL));
+	Chrono seed(true);
+	srand(seed.getCurTicks());
+
     int randomNickId = rand() % 999;
     string netPlayerName=Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
     string ircname=netPlayerName.substr(0,9);
