@@ -311,10 +311,12 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 	    case libvlc_MediaParsedChanged:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaParsedChanged\n");
 	        break;
+
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 	    case libvlc_MediaPlayerVout:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaPlayerVout\n");
 	        break;
-
+#endif
 	    case libvlc_MediaListItemAdded:
 	    	if(ctx->verboseEnabled) printf("libvlc_MediaListItemAdded\n");
 	        break;
@@ -775,10 +777,12 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 //					printf("ERROR CANNOT ADD EVENT [libvlc_MediaParsedChanged]\n");
 //				}
 
+#if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 				event_added = libvlc_event_attach( eventManager, libvlc_MediaPlayerVout, callbacks, ctxPtr );
 				if(event_added != 0) {
 					printf("ERROR CANNOT ADD EVENT [libvlc_MediaPlayerVout]\n");
 				}
+#endif
 
 //				event_added = libvlc_event_attach( eventManager, libvlc_MediaListItemAdded, callbacks, ctxPtr );
 //				if(event_added != 0) {
