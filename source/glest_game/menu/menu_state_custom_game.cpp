@@ -1846,7 +1846,6 @@ void MenuStateCustomGame::render() {
 						delete factionVideo;
 						factionVideo = NULL;
 
-						NetworkManager &networkManager= NetworkManager::getInstance();
 						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 						if(serverInterface != NULL) {
 							initFactionPreview(serverInterface->getGameSettings());
