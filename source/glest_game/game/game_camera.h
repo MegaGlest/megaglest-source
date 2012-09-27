@@ -105,10 +105,8 @@ public:
 	float getHAng() const		{return hAng;};
 	float getVAng() const		{return vAng;}
 	State getState() const		{return state;}
-
-	void setGameState();
-	void setUnitState();
-	void setFreeState();
+	void  setState(State s);
+	void resetCamera() {setState(sGame);}
 
 	const Vec3f &getPos() const	{return pos;}
 	float getFov() const 		{return fov;}

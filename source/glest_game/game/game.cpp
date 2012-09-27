@@ -1526,7 +1526,7 @@ void Game::update() {
 
 						if(currentCameraFollowUnit->isAlive()==false){
 							currentCameraFollowUnit=NULL;
-							getGameCameraPtr()->setGameState();
+							getGameCameraPtr()->setState(GameCamera::sGame);
 						}
 					}
 
@@ -1941,7 +1941,7 @@ void Game::render() {
 		isFirstRender = false;
 
 		if(this->loadGameNode == NULL) {
-			gameCamera.setGameState();
+			gameCamera.setState(GameCamera::sGame);
 			this->restoreToStartXY();
 		}
 	}
@@ -2891,7 +2891,7 @@ void Game::mouseDownRight(int x, int y) {
 	}
 
  	if(mouseMoved == false) {
- 		gameCamera.setGameState();
+ 		gameCamera.setState(GameCamera::sGame);
  	}
  	else {
  		mouseMoved = false;
@@ -3179,7 +3179,7 @@ void Game::startCameraFollowUnit() {
 		Unit *currentUnit = selection->getUnitPtr(0);
 		if(currentUnit != NULL) {
 			currentCameraFollowUnit = currentUnit;
-			getGameCameraPtr()->setUnitState();
+			getGameCameraPtr()->setState(GameCamera::sUnit);
 			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrVector());
 
 			int rotation=currentCameraFollowUnit->getRotation();
@@ -3314,11 +3314,11 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			else if(isKeyPressed(configKeys.getSDLKey("FreeCameraMode"),key, false) == true) {
 				if(gameCamera.getState()==GameCamera::sFree)
 				{
-					gameCamera.setGameState();
+					gameCamera.setState(GameCamera::sGame);
 				}
 				else if(gameCamera.getState()==GameCamera::sGame)
 				{
-					gameCamera.setFreeState();
+					gameCamera.setState(GameCamera::sFree);
 				}
 				//else ignore!
 
@@ -3331,7 +3331,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				if(currentCameraFollowUnit != NULL) {
 					currentCameraFollowUnit = NULL;
 				}
-				gameCamera.setGameState();
+				gameCamera.setState(GameCamera::sGame);
 			}
 			//pause
 			//else if(key == configKeys.getCharKey("PauseGame")) {
