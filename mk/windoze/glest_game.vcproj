@@ -317,10 +317,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\glest_game\ai\fast_path_finder.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\source\glest_game\facilities\game_util.cpp"
 				>
 			</File>
@@ -334,14 +330,6 @@
 			</File>
 			<File
 				RelativePath="..\..\source\glest_game\facilities\logger.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\facilities\pos_iterator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\facilities\pos_iterator.h"
 				>
 			</File>
 		</Filter>
@@ -375,54 +363,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\glest_game\ai\annotated_map.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\annotated_map.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\cartographer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\cartographer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\cluster_map.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\cluster_map.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\fast_path_finder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\influence_map.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\IntrHashSet.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\IntrHeapHash.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\node_pool.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\node_pool.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\source\glest_game\ai\path_finder.cpp"
 				>
 			</File>
@@ -444,18 +384,6 @@
 			</File>
 			<File
 				RelativePath="..\..\source\shared_lib\include\xml\rapidxml\rapidxml_utils.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\route_planner.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\route_planner.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\ai\search_engine.h"
 				>
 			</File>
 		</Filter>
@@ -570,14 +498,6 @@
 		<Filter
 			Name="graphics"
 			>
-			<File
-				RelativePath="..\..\source\glest_game\graphics\debug_renderer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\glest_game\graphics\debug_renderer.h"
-				>
-			</File>
 			<File
 				RelativePath="..\..\source\glest_game\graphics\particle_type.cpp"
 				>

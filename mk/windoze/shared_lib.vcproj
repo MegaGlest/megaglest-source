@@ -1184,14 +1184,6 @@
 						RelativePath="..\..\source\shared_lib\include\platform\win32\platform_definitions.h"
 						>
 					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\include\platform\win32\platform_util.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\source\shared_lib\include\platform\win32\types.h"
-						>
-					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -1210,15 +1202,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\shared_lib\include\util\heap.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\source\shared_lib\include\util\leak_dumper.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\shared_lib\include\util\line.h"
 					>
 				</File>
 				<File
