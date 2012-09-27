@@ -66,13 +66,13 @@ public:
 	TilesetModelType* loadModel(const string &path, std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,
 			string parentLoader="");
 
-	TilesetModelType *getTilesetModelType(int i)			{return modeltypes[i];}
-	int getModelCount() const		{return modeltypes.size();}
-	const Vec3f &getColor() const	{return color;} 
-	int getClass() const			{return objectClass;}
-	bool getWalkable() const		{return walkable;}
-	int getHeight() const			{return height;}
-	bool isATree() const			{return objectClass==tree1 || objectClass==tree2;}
+	inline TilesetModelType *getTilesetModelType(int i)			{return modeltypes[i];}
+	inline int getModelCount() const		{return modeltypes.size();}
+	inline const Vec3f &getColor() const	{return color;}
+	inline int getClass() const			{return objectClass;}
+	inline bool getWalkable() const		{return walkable;}
+	inline int getHeight() const			{return height;}
+	inline bool isATree() const			{return objectClass==tree1 || objectClass==tree2;}
 	void deletePixels();
 };
 
