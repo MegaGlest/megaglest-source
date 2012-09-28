@@ -271,11 +271,12 @@ static void dumb_pager(const char *name, const char *data, size_t datalen)
                 printf("\n");
             } // else
         } while (!getout);
+
+        for (i = 0; i < linecount; i++)
+            free(lines[i]);
+        free(lines);
     } // while
 
-    for (i = 0; i < linecount; i++)
-        free(lines[i]);
-    free(lines);
     free(fmt);
 } // dumb_pager
 

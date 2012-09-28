@@ -2373,7 +2373,6 @@ static int compute_transparency(uint8 tc[3], int out_n)
    // already got 255 as the alpha value in the output
    assert(out_n == 2 || out_n == 4);
 
-   p = out;
    if (out_n == 2) {
       for (i=0; i < pixel_count; ++i) {
          p[1] = (p[0] == tc[0] ? 0 : 255);

@@ -876,7 +876,7 @@ local function serialize(obj, prefix, postfix)
         elseif objtype == "string" then
             addstr(string.format("%q", obj))
         elseif objtype == "function" then
-            addstr("loadstring(")
+            addstr("load(")
             addstr(string.format("%q", string.dump(obj)))
             addstr(")")
         elseif objtype == "table" then
@@ -956,9 +956,12 @@ local function install_control_app(desc, key)
         end
     end
 
-    local perms = "0755"  -- !!! FIXME
-    install_parent_dirs(dst, key)
-    install_file_from_filesystem(dst, src, perms, desc, key, maxbytes)
+    -- don't overwrite preexisting stuff.
+    if not MojoSetup.platform.exists(dst) then
+        local perms = "0755"  -- !!! FIXME
+        install_parent_dirs(dst, key)
+        install_file_from_filesystem(dst, src, perms, desc, key, maxbytes)
+    end
 
     -- Okay, now we need all the support files.
     if not MojoSetup.archive.enumerate(base) then
@@ -1270,6 +1273,7 @@ local function do_install(install)
     local skipeulas = MojoSetup.cmdline("i-agree-to-all-licenses")
     local skipreadmes = MojoSetup.cmdline("noreadme")
     local skipoptions = MojoSetup.cmdline("nooptions")
+    local skipprompt = MojoSetup.cmdline("noprompt")
 
     -- !!! FIXME: try to sanity check everything we can here
     -- !!! FIXME:  (unsupported URLs, bogus media IDs, etc.)
@@ -1792,9 +1796,11 @@ local function do_install(install)
     end
 
     -- Next stage: show results gui
-    stages[#stages+1] = function(thisstage, maxstage)
-        MojoSetup.gui.final(_("Installation was successful."))
-        return 1  -- go forward.
+    if not skipprompt then
+        stages[#stages+1] = function(thisstage, maxstage)
+            MojoSetup.gui.final(_("Installation was successful."))
+            return 1  -- go forward.
+        end
     end
 
     -- Now make all this happen.
@@ -2071,11 +2077,11 @@ local function uninstaller()
         local filelist = flatten_manifest(package.manifest, prepend_dest_dir)
         delete_files(filelist, callback, package.delete_error_is_fatal)
         run_config_defined_hook(package.postuninstall, package)
-        MojoSetup.gui.final(_("Uninstall complete"))
+        if not MojoSetup.cmdline("noprompt") then
+            MojoSetup.gui.final(_("Uninstall complete"))
+        end
         stop_gui()
     end
-
-    -- !!! FIXME: postuninstall hook?
 end
 
 

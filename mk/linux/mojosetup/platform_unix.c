@@ -124,7 +124,7 @@ char *MojoPlatform_readlink(const char *linkname)
             buf[len] = '\0';  // readlink() doesn't null-terminate!
             retval = xrealloc(buf, (size_t) (len+1));  // shrink it down.
         } // if
-    } while (len >= (alloclen-1));  // loop if we need a bigger buffer.
+    } while (len >= (((ssize_t)alloclen)-1));  // loop if we need bigger buf.
 
     return retval;  // caller must free() this.
 } // MojoPlatform_readlink
@@ -196,7 +196,6 @@ static char *realpathInternal(char *path, const char *cwd, int linkloop)
         else if (strcmp(path, ".") == 0)
         {
             retval[--len] = '\0';  // chop ending "/." bit
-            newlen = 0;
         } // else if
 
         else if (strcmp(path, "..") == 0)
@@ -214,7 +213,6 @@ static char *realpathInternal(char *path, const char *cwd, int linkloop)
                 *ptr = '\0';
                 len -= (size_t) ((retval+len)-ptr);
             } // else
-            newlen = 0;
         } // else if
 
         // it may be a symlink...check it.
@@ -299,7 +297,7 @@ char *MojoPlatform_realpath(const char *_path)
 static char *findBinaryInPath(const char *bin)
 {
     const char *_envr = getenv("PATH");
-    size_t alloc_size = 0;
+    size_t alloc_size = 64;
     char *envr = NULL;
     char *exe = NULL;
     char *start = NULL;
@@ -309,6 +307,7 @@ static char *findBinaryInPath(const char *bin)
         return NULL;
 
     envr = xstrdup(_envr);
+    exe = (char *) xmalloc(alloc_size);
     start = envr;
 
     do
@@ -342,12 +341,10 @@ static char *findBinaryInPath(const char *bin)
         start = ptr + 1;  // start points to beginning of next element.
     } while (ptr != NULL);
 
-    if (exe != NULL)
-        free(exe);
-
+    free(exe);
     free(envr);
 
-    return(NULL);  // doesn't exist in path.
+    return NULL;  // doesn't exist in path.
 } // findBinaryInPath
 
 
@@ -958,8 +955,9 @@ void *MojoPlatform_dlopen(const uint8 *img, size_t len)
     void *retval = NULL;
     int i = 0;
 
-    if (dlopen == NULL)   // weak symbol on older Mac OS X
-        return NULL;
+    #if PLATFORM_MACOSX
+    if (dlopen == NULL) return NULL;  // weak symbol on older Mac OS X
+    #endif
 
     #ifndef P_tmpdir  // glibc defines this, maybe others.
     #define P_tmpdir NULL
@@ -1057,7 +1055,9 @@ static int runScriptString(const char *str, boolean devnull, const char **_argv)
         failed |= (close(pipes[1]) == -1);
 
         // !!! FIXME: we need a GGui->pump() or something here if we'll block.
-        if (waitpid(pid, &status, 0) != -1)
+        failed |= (waitpid(pid, &status, 0) == -1);
+
+        if (!failed)
         {
             if (WIFEXITED(status))
                 retval = WEXITSTATUS(status);

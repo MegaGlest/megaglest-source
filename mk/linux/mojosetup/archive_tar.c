@@ -288,6 +288,8 @@ static MojoInput *MojoArchive_tar_openCurrentEntry(MojoArchive *ar)
     if (info->input != NULL)
         fatal("BUG: tar entry double open");
 
+    // !!! FIXME: replace this with MojoInput_newFromSubset()?
+
     opaque = (TARinput *) xmalloc(sizeof (TARinput));
     opaque->ar = ar;
     opaque->fsize = ar->prevEnum.filesize;

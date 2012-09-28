@@ -95,8 +95,6 @@ static void MojoSha1_transform(uint32 state[5], const uint8 buffer[64])
     state[2] += c;
     state[3] += d;
     state[4] += e;
-    /* Wipe variables */
-    a = b = c = d = e = 0;
 }
 
 
@@ -140,7 +138,7 @@ void MojoSha1_append(MojoSha1 *context, const uint8 *data, uint32 len)
 
 void MojoSha1_finish(MojoSha1 *context, uint8 digest[20])
 {
-    uint32 i, j;
+    uint32 i;
     uint8 finalcount[8];
 
     for (i = 0; i < 8; i++) {
@@ -157,7 +155,6 @@ void MojoSha1_finish(MojoSha1 *context, uint8 digest[20])
          ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
     /* Wipe variables */
-    i = j = 0;
     memset(context->buffer, 0, 64);
     memset(context->state, 0, 20);
     memset(context->count, 0, 8);

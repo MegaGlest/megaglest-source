@@ -44,10 +44,18 @@ struct MojoInput
     void *opaque;
 };
 
-// This copies the memory, so you may free (ptr) after this function returns.
+// If constant == 0, then this copies the memory, so you may free (ptr) after
+//  this function returns in that case.
 MojoInput *MojoInput_newFromMemory(const uint8 *ptr, uint32 len, int constant);
+
+// Get a MojoInput for a real file in the physical filesystem.
 MojoInput *MojoInput_newFromFile(const char *fname);
 
+// Make a subset range of (io) look like the entire file. This will take over
+//  control of (io), closing it when done, so never reference (io) directly
+//  again, if this call succeeds.
+MojoInput *MojoInput_newFromSubset(MojoInput *io, const uint64 start,
+                                   const uint64 end);
 
 typedef enum
 {
@@ -130,6 +138,12 @@ boolean MojoInput_readui16(MojoInput *io, uint16 *ui16);
 //  ahead 4 bytes. Returns true on successful read and fills the swapped
 //  value into (*ui32), false on i/o error or EOF.
 boolean MojoInput_readui32(MojoInput *io, uint32 *ui32);
+
+// Read a littleendian, unsigned 64-bit integer from (io), swapping it to
+//  the correct byteorder for the platform, and moving the file pointer
+//  ahead 8 bytes. Returns true on successful read and fills the swapped
+//  value into (*ui64), false on i/o error or EOF.
+boolean MojoInput_readui64(MojoInput *io, uint64 *ui64);
 
 // (Please note that there are not bigendian versions of MojoInput_readuiXX()
 //  at the moment, as we don't need them for our current feature set. However,
