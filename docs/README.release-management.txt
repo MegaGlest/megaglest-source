@@ -21,7 +21,7 @@ OLD_MG_VERSION=3.6.0.1
 MG_VERSION=3.6.0.2
 
 *Note: Please ensure the MG_VERSION variable matches the version set in the 
-MegaGlest binary, thius can be checked by running: ./megaglest --version
+MegaGlest binary, this can be checked by running: ./megaglest --version
 It is possible to have the mg-version.sh script NOT match the binary in cases
 where we are releasing binary compatible updates to the archives in which case 
 we typically use a forth digit in the version # (as seen above)
@@ -86,6 +86,14 @@ files repository and and announcement made to the community. The folder on
 sourceforge where these files belong would following this naming convention:
 
 http://sourceforge.net/projects/megaglest/files/megaglest_<VERSION>/
+
+#5 To produce a standalone gcc based binary and data archive you may run:
+./make-binary-archive.sh
+./make-data-archive.sh
+
+These will produce archives in the release folder name:
+megaglest-binary-*
+megaglest-standalone-data-*
 
 Linux Installer(s):
 =========================
