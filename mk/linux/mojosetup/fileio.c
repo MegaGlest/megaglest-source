@@ -15,6 +15,7 @@ MojoArchive *MojoArchive_createZIP(MojoInput *io);
 MojoArchive *MojoArchive_createTAR(MojoInput *io);
 MojoArchive *MojoArchive_createUZ2(MojoInput *io);
 MojoArchive *MojoArchive_createPCK(MojoInput *io);
+MojoArchive *MojoArchive_createPKG(MojoInput *io);
 
 typedef struct
 {
@@ -39,12 +40,13 @@ static const MojoArchiveType archives[] =
     { "txz", MojoArchive_createTAR, true },
     { "uz2", MojoArchive_createUZ2, false },
     { "pck", MojoArchive_createPCK, true },
+    { "pkg", MojoArchive_createPKG, true },
 };
 
 
 #if SUPPORT_GZIP
 
-#include "zlib/zlib.h"
+#include "miniz.h"
 
 #define GZIP_READBUFSIZE (128 * 1024)
 
@@ -167,7 +169,9 @@ static int64 MojoInput_gzip_read(MojoInput *io, void *buf, uint32 bufsize)
         rc = inflate(&info->stream, Z_SYNC_FLUSH);
         retval += (info->stream.total_out - before);
 
-        if (rc != Z_OK)  // !!! FIXME: Z_STREAM_END?
+        if ((rc == Z_STREAM_END) && (retval == 0))
+            return 0;
+        else if ((rc != Z_OK) && (rc != Z_STREAM_END))
             return -1;
     } // while
 
@@ -537,13 +541,11 @@ static int64 MojoInput_xz_read(MojoInput *io, void *buf, uint32 bufsize)
         const uint32 before = info->stream.total_out;
         lzma_ret rc;
 
-        lzma_action action = LZMA_FINISH;
         if (info->stream.avail_in == 0)
         {
             int64 br = origio->length(origio) - origio->tell(origio);
             if (br > 0)
             {
-                action = LZMA_RUN;
                 if (br > XZ_READBUFSIZE)
                     br = XZ_READBUFSIZE;
 
@@ -1061,6 +1063,125 @@ MojoInput *MojoInput_newFromMemory(const uint8 *ptr, uint32 len, int constant)
 } // MojoInput_newFromMemory
 
 
+// Put a limit on the range of an existing MojoInput.
+
+typedef struct
+{
+    MojoInput *io;  // original io we're a subset of.
+    uint64 pos;
+    uint64 start;
+    uint64 end;
+} MojoInputSubsetInstance;
+
+static boolean MojoInput_subset_ready(MojoInput *io)
+{
+    MojoInputSubsetInstance *inst = (MojoInputSubsetInstance *) io->opaque;
+    return inst->io->ready(inst->io);
+} // MojoInput_subset_ready
+
+static int64 MojoInput_subset_read(MojoInput *io, void *buf, uint32 bufsize)
+{
+    MojoInputSubsetInstance *inst = (MojoInputSubsetInstance *) io->opaque;
+    const uint32 avail = inst->end - inst->pos;
+    int64 rc;
+
+    assert(inst->pos < inst->end);
+    if (bufsize > avail)
+        bufsize = avail;
+    rc = inst->io->read(inst->io, buf, bufsize);
+    if (rc > 0)
+        inst->pos += rc;
+    return rc;
+} // MojoInput_subset_read
+
+static boolean MojoInput_subset_seek(MojoInput *io, uint64 pos)
+{
+    MojoInputSubsetInstance *inst = (MojoInputSubsetInstance *) io->opaque;
+    if (pos > (inst->end - inst->start))
+        return false;
+    else if (!inst->io->seek(inst->io, pos + inst->start))
+        return false;
+    inst->pos = pos;
+    return true;
+} // MojoInput_subset_seek
+
+static int64 MojoInput_subset_tell(MojoInput *io)
+{
+    MojoInputSubsetInstance *inst = (MojoInputSubsetInstance *) io->opaque;
+    return (int64) inst->pos;
+} // MojoInput_subset_tell
+
+static int64 MojoInput_subset_length(MojoInput *io)
+{
+    MojoInputSubsetInstance *inst = (MojoInputSubsetInstance *) io->opaque;
+    return (int64) (inst->end - inst->start);
+} // MojoInput_subset_length
+
+static MojoInput *MojoInput_subset_duplicate(MojoInput *io)
+{
+    MojoInputSubsetInstance *srcinst = (MojoInputSubsetInstance *) io->opaque;
+    MojoInput *dupio = io->duplicate(io);
+    MojoInput *retval = NULL;
+    MojoInputSubsetInstance *inst = NULL;
+
+    if (dupio == NULL)
+        return NULL;
+
+    if (!dupio->seek(dupio, 0))
+    {
+        dupio->close(dupio);
+        return NULL;
+    } // if
+
+    inst = (MojoInputSubsetInstance*) xmalloc(sizeof (MojoInputSubsetInstance));
+    memcpy(inst, srcinst, sizeof (MojoInputSubsetInstance));
+    inst->io = dupio;
+    inst->pos = 0;
+
+    retval = (MojoInput *) xmalloc(sizeof (MojoInput));
+    memcpy(retval, io, sizeof (MojoInput));
+    retval->opaque = inst;
+
+    return retval;
+} // MojoInput_subset_duplicate
+
+static void MojoInput_subset_close(MojoInput *io)
+{
+    MojoInputSubsetInstance *inst = (MojoInputSubsetInstance *) io->opaque;
+    inst->io->close(inst->io);
+    free(inst);
+    free(io);
+} // MojoInput_subset_close
+
+MojoInput *MojoInput_newFromSubset(MojoInput *_io, const uint64 start,
+                                   const uint64 end)
+{
+    MojoInput *io;
+    MojoInputSubsetInstance *inst;
+
+    assert(end > start);
+    if (!_io->seek(_io, start))
+        return NULL;
+
+    io = (MojoInput *) xmalloc(sizeof (MojoInput));
+    inst = (MojoInputSubsetInstance*)xmalloc(sizeof (MojoInputSubsetInstance));
+
+    inst->io = _io;
+    inst->pos = 0;
+    inst->start = start;
+    inst->end = end;
+
+    io->ready = MojoInput_subset_ready;
+    io->read = MojoInput_subset_read;
+    io->seek = MojoInput_subset_seek;
+    io->tell = MojoInput_subset_tell;
+    io->length = MojoInput_subset_length;
+    io->duplicate = MojoInput_subset_duplicate;
+    io->close = MojoInput_subset_close;
+    io->opaque = inst;
+
+    return io;
+} // MojoInput_newFromSubset
 
 
 // MojoArchives from directories on the OS filesystem.
@@ -1270,7 +1391,8 @@ boolean MojoInput_readui16(MojoInput *io, uint16 *ui16)
     if (io->read(io, buf, sizeof (buf)) != sizeof (buf))
         return false;
 
-    *ui16 = (buf[0] | (buf[1] << 8));
+    *ui16 = ( (((uint16) buf[0]) << 0) |
+              (((uint16) buf[1]) << 8) );
     return true;
 } // MojoInput_readui16
 
@@ -1281,9 +1403,31 @@ boolean MojoInput_readui32(MojoInput *io, uint32 *ui32)
     if (io->read(io, buf, sizeof (buf)) != sizeof (buf))
         return false;
 
-    *ui32 = (buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24));
+    *ui32 = ( (((uint32) buf[0]) << 0) |
+              (((uint32) buf[1]) << 8) |
+              (((uint32) buf[2]) << 16) |
+              (((uint32) buf[3]) << 24) );
+
     return true;
 } // MojoInput_readui32
+
+boolean MojoInput_readui64(MojoInput *io, uint64 *ui64)
+{
+    uint8 buf[sizeof (uint64)];
+    if (io->read(io, buf, sizeof (buf)) != sizeof (buf))
+        return false;
+
+    *ui64 = ( (((uint64) buf[0]) << 0) |
+              (((uint64) buf[1]) << 8) |
+              (((uint64) buf[2]) << 16) |
+              (((uint64) buf[3]) << 24) |
+              (((uint64) buf[4]) << 32) |
+              (((uint64) buf[5]) << 40) |
+              (((uint64) buf[6]) << 48) |
+              (((uint64) buf[7]) << 56) );
+
+    return true;
+} // MojoInput_readui64
 
 
 MojoArchive *GBaseArchive = NULL;
@@ -1327,7 +1471,29 @@ MojoArchive *MojoArchive_initBaseArchive(void)
             io = MojoInput_newFromFile(basepath);
 
             if (io != NULL)
+            {
+                // See if there's a MOJOBASE signature at the end of the
+                //  file. This means we appended an archive to the executable,
+                //  for a self-extracting installer. This method works with
+                //  any archive type, even if it wasn't specifically designed
+                //  to be appended.
+                uint8 buf[8];
+                uint64 size = 0;
+                const int64 flen = io->length(io) - 16;
+                if ( (flen > 0) && (io->seek(io, flen)) &&
+                     (io->read(io, buf, 8) == 8) &&
+                     (memcmp(buf, "MOJOBASE", 8) == 0) &&
+                     (MojoInput_readui64(io, &size)) &&
+                     (size < flen) )
+                {
+                    MojoInput *newio;
+                    newio = MojoInput_newFromSubset(io, flen - size, flen);
+                    if (newio != NULL)
+                        io = newio;
+                } // if
+
                 GBaseArchive = MojoArchive_newFromInput(io, basepath);
+            } // if
 
             if (GBaseArchive == NULL)
             {

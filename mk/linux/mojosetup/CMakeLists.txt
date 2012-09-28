@@ -185,21 +185,6 @@ ELSE(MOJOSETUP_IS_BIGENDIAN)
     ADD_DEFINITIONS(-DPLATFORM_LITTLEENDIAN=1)
 ENDIF(MOJOSETUP_IS_BIGENDIAN)
 
-SET(ZLIB_DIR zlib)
-SET(ZLIB_SRCS
-    ${ZLIB_DIR}/adler32.c
-    ${ZLIB_DIR}/compress.c
-    ${ZLIB_DIR}/crc32.c
-    ${ZLIB_DIR}/deflate.c
-    ${ZLIB_DIR}/infback.c
-    ${ZLIB_DIR}/inffast.c
-    ${ZLIB_DIR}/inflate.c
-    ${ZLIB_DIR}/inftrees.c
-    ${ZLIB_DIR}/trees.c
-    ${ZLIB_DIR}/uncompr.c
-    ${ZLIB_DIR}/zutil.c
-)
-
 SET(BZLIB_DIR bzip2)
 SET(BZLIB_SRCS
     ${BZLIB_DIR}/blocksort.c
@@ -279,6 +264,7 @@ SET(LUA_SRCS
     ${LUA_DIR}/src/lbaselib.c
     ${LUA_DIR}/src/lstrlib.c
     ${LUA_DIR}/src/ltablib.c
+    ${LUA_DIR}/src/lctype.c
 )
 
 SET(LUA_PARSER_SRCS
@@ -296,6 +282,7 @@ SET(MOJOSETUP_SRCS
     archive_tar.c
     archive_uz2.c
     archive_pck.c
+    archive_pkg.c
     checksum_crc32.c
     checksum_md5.c
     checksum_sha1.c
@@ -315,12 +302,14 @@ SET(MOJOLUAC_SRCS
     ${LUA_SRCS}
     ${LUA_PARSER_SRCS}
     ${LUA_DIR}/src/luac.c
-    ${LUA_DIR}/src/print.c
     ${LUA_DIR}/src/linit.c
+    ${LUA_DIR}/src/lctype.c
     ${LUA_DIR}/src/ldblib.c
     ${LUA_DIR}/src/liolib.c
     ${LUA_DIR}/src/lmathlib.c
     ${LUA_DIR}/src/loslib.c
+    ${LUA_DIR}/src/lbitlib.c
+    ${LUA_DIR}/src/lcorolib.c
     ${LUA_DIR}/src/loadlib.c
 )
 
@@ -398,6 +387,22 @@ IF(MOJOSETUP_LUALIB_PACKAGE)
     ADD_DEFINITIONS(-DSUPPORT_LUALIB_PACKAGE=1)
     SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} ${LUA_DIR}/src/loadlib.c)
 ENDIF(MOJOSETUP_LUALIB_PACKAGE)
+
+# BINARY SIZE += ?
+OPTION(MOJOSETUP_LUALIB_BIT "Add Lua 'bit' library" TRUE)
+MARK_AS_ADVANCED(MOJOSETUP_LUALIB_BIT)
+IF(MOJOSETUP_LUALIB_BIT)
+    ADD_DEFINITIONS(-DSUPPORT_LUALIB_BIT=1)
+    SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} ${LUA_DIR}/src/lbitlib.c)
+ENDIF(MOJOSETUP_LUALIB_BIT)
+
+# BINARY SIZE += ?
+OPTION(MOJOSETUP_LUALIB_CORO "Add Lua 'coro' library" TRUE)
+MARK_AS_ADVANCED(MOJOSETUP_LUALIB_CORO)
+IF(MOJOSETUP_LUALIB_CORO)
+    ADD_DEFINITIONS(-DSUPPORT_LUALIB_CORO=1)
+    SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} ${LUA_DIR}/src/lcorolib.c)
+ENDIF(MOJOSETUP_LUALIB_CORO)
 
 
 # Checksums...
@@ -496,8 +501,8 @@ IF(NOT MACOSX)
 #FIND_PACKAGE(PkgConfig)
 #PKGCONFIG(libgtk-2.0 LIBGTK_INCLUDE_DIR LIBGTK_LINK_DIR LIBGTK_LINK_FLAGS LIBGTK_CFLAGS)
 # !!! FIXME
-SET(LIBGTK_LINK_FLAGS "-lgtk-x11-2.0")
-SET(LIBGTK_CFLAGS "-DPNG_NO_MMX_CODE -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12")
+SET(LIBGTK_LINK_FLAGS "-lgtk-x11-2.0 -lgdk-x11-2.0 -lgmodule-2.0 -ldl -lgobject-2.0 -lffi -lglib-2.0 -lgdk_pixbuf-2.0 -lgio-2.0")
+SET(LIBGTK_CFLAGS "-DPNG_NO_MMX_CODE `pkg-config --cflags --libs gtk+-2.0` -I/usr/include/atk-1.0 `pkg-config --cflags --libs gdk-2.0` -I/usr/include/cairo -I/usr/include/pango-1.0 `pkg-config --cflags --libs glib-2.0` -I/usr/include/freetype2 -I/usr/include/libpng12")
 IF(NOT LIBGTK_LINK_FLAGS)
     MESSAGE(STATUS "Can't find GTK+v2 headers/libraries. Can't build GTK+ GUI.")
 ELSE(NOT LIBGTK_LINK_FLAGS)
@@ -584,6 +589,11 @@ IF(MOJOSETUP_ARCHIVE_PCK)
     ADD_DEFINITIONS(-DSUPPORT_PCK=1)
 	SET(MOJOSETUP_INPUT_GZIP TRUE)
 ENDIF(MOJOSETUP_ARCHIVE_PCK)
+
+OPTION(MOJOSETUP_ARCHIVE_PKG "Enable PKG support" FALSE)
+IF(MOJOSETUP_ARCHIVE_PKG)
+    ADD_DEFINITIONS(-DSUPPORT_PKG=1)
+ENDIF(MOJOSETUP_ARCHIVE_PKG)
 
 # Input decoders...
 
@@ -701,29 +711,7 @@ ENDIF(MOJOSETUP_USES_SOCKETS)
 # Middleware...
 
 IF(MOJOSETUP_NEED_ZLIB)
-    SET(HAVE_SYSTEM_ZLIB FALSE)
-    CHECK_INCLUDE_FILE(zlib.h HAVE_ZLIB_H)
-    IF(HAVE_ZLIB_H)
-        CHECK_LIBRARY_EXISTS("z" "inflate" "" HAVE_LIBZ)
-        IF(HAVE_LIBZ)
-            SET(HAVE_SYSTEM_ZLIB TRUE)
-        ENDIF(HAVE_LIBZ)
-    ENDIF(HAVE_ZLIB_H)
-
-    IF(HAVE_SYSTEM_ZLIB)
-        OPTION(MOJOSETUP_INTERNAL_ZLIB "Link own zlib instead of system library" FALSE)
-    ELSE(HAVE_SYSTEM_ZLIB)
-        SET(MOJOSETUP_INTERNAL_ZLIB TRUE)
-    ENDIF(HAVE_SYSTEM_ZLIB)
-
-    # BINARY SIZE += 50
-    IF(MOJOSETUP_INTERNAL_ZLIB)
-        INCLUDE_DIRECTORIES(${ZLIB_DIR})
-        ADD_DEFINITIONS(-DZ_PREFIX=1)
-        SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} ${ZLIB_SRCS})
-    ELSE(MOJOSETUP_INTERNAL_ZLIB)
-        SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} z)
-    ENDIF(MOJOSETUP_INTERNAL_ZLIB)
+    SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} miniz.c)
 ENDIF(MOJOSETUP_NEED_ZLIB)
 
 IF(MOJOSETUP_NEED_BZLIB)
@@ -834,6 +822,8 @@ ADD_EXECUTABLE(mojosetup ${USES_WINMAIN} ${MOJOSETUP_SRCS} ${OPTIONAL_SRCS})
 GET_TARGET_PROPERTY(MOJOSETUP_BINARY_LOCATION mojosetup LOCATION)
 TARGET_LINK_LIBRARIES(mojosetup ${OPTIONAL_LIBS})
 SET(MOJOSETUP_TARGETS "${MOJOSETUP_TARGETS};mojosetup")
+
+ADD_EXECUTABLE(make_self_extracting misc/make_self_extracting.c)
 
 # For cobbling together a skeleton installer...
 
