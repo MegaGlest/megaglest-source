@@ -94,6 +94,7 @@ Game::Game() : ProgramState(NULL) {
 	weatherParticleSystem=NULL;
 	isFirstRender=false;
 	quitTriggeredIndicator=false;
+	quitPendingIndicator=false;
 	original_updateFps=0;
 	original_cameraFps=0;
 	captureAvgTestStatus=false;
@@ -176,6 +177,7 @@ void Game::resetMembers() {
 
 	mouseMoved= false;
 	quitTriggeredIndicator = false;
+	quitPendingIndicator=false;
 	originalDisplayMsgCallback = NULL;
 	thisGamePtr = this;
 
@@ -1362,11 +1364,19 @@ void Game::update() {
 
 		// a) Updates non dependent on speed
 
-		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
-			NetworkManager::getInstance().getGameNetworkInterface()->getQuit() &&
-		   mainMessageBox.getEnabled() == false &&
-		   errorMessageBox.getEnabled() == false) {
+		bool pendingQuitError = (quitPendingIndicator == true ||
+								 (NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
+								  NetworkManager::getInstance().getGameNetworkInterface()->getQuit()));
+
+		//if(pendingQuitError) printf("#1 pendingQuitError = %d, quitPendingIndicator = %d, errorMessageBox.getEnabled() = %d\n",pendingQuitError,quitPendingIndicator,errorMessageBox.getEnabled());
+
+		if(pendingQuitError == true &&
+		   (this->masterserverMode == true ||
+		    (mainMessageBox.getEnabled() == false && errorMessageBox.getEnabled() == false))) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+			//printf("#2 pendingQuitError = %d, quitPendingIndicator = %d, errorMessageBox.getEnabled() = %d\n",pendingQuitError,quitPendingIndicator,errorMessageBox.getEnabled());
+
 			quitTriggeredIndicator = true;
 			return;
 		}
@@ -1447,7 +1457,7 @@ void Game::update() {
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 
-								aiInterfaces[j]->update();
+								if(pendingQuitError == false) aiInterfaces[j]->update();
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 							}
@@ -1500,7 +1510,7 @@ void Game::update() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 					//World
-					world.update();
+					if(pendingQuitError == false) world.update();
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
@@ -1532,7 +1542,7 @@ void Game::update() {
 
 					// Commander
 					//commander.updateNetwork();
-					commander.signalNetworkUpdate(this);
+					if(pendingQuitError == false) commander.signalNetworkUpdate(this);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -1562,7 +1572,7 @@ void Game::update() {
 		}
 		//else if(role == nrClient) {
 		else {
-			commander.signalNetworkUpdate(this);
+			if(pendingQuitError == false) commander.signalNetworkUpdate(this);
 
 			if(playingStaticVideo == true) {
 				if(videoPlayer->isPlaying() == false) {
@@ -1743,11 +1753,15 @@ void Game::update() {
 		}
 	}
 	catch(const exception &ex) {
+		quitPendingIndicator = true;
+
 		char szBuf[4096]="";
 		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		//printf("#100 quitPendingIndicator = %d, errorMessageBox.getEnabled() = %d\n",quitPendingIndicator,errorMessageBox.getEnabled());
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		if(networkManager.getGameNetworkInterface() != NULL) {
