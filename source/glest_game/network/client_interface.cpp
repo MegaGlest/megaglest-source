@@ -271,7 +271,14 @@ void ClientInterface::updateLobby() {
 
 					//send intro message
                 	Lang &lang= Lang::getInstance();
-					NetworkMessageIntro sendNetworkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHumanPlayerName(), -1, nmgstOk, this->getSocket()->getConnectedIPAddress(),serverFTPPort,lang.getLanguage());
+					NetworkMessageIntro sendNetworkMessageIntro(
+							sessionKey,getNetworkVersionSVNString(),
+							getHumanPlayerName(),
+							-1,
+							nmgstOk,
+							this->getSocket()->getConnectedIPAddress(),
+							serverFTPPort,
+							lang.getLanguage());
 					sendMessage(&sendNetworkMessageIntro);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

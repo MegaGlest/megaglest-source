@@ -118,6 +118,7 @@ private:
 	bool isFirstRender;
 
 	bool quitTriggeredIndicator;
+	bool quitPendingIndicator;
 
 	int original_updateFps;
 	int original_cameraFps;

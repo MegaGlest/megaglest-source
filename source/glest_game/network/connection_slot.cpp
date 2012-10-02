@@ -465,8 +465,16 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
 
 						//if(this->getSocket() != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHostName(), playerIndex, nmgstNoSlots, 0, ServerSocket::getFTPServerPort(),"");
-							sendMessage(&networkMessageIntro);
+						NetworkMessageIntro networkMessageIntro(
+								sessionKey,
+								getNetworkVersionSVNString(),
+								getHostName(),
+								playerIndex,
+								nmgstNoSlots,
+								0,
+								ServerSocket::getFTPServerPort(),
+								"");
+						sendMessage(&networkMessageIntro);
 						//}
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
@@ -477,8 +485,16 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
 						//if(this->getSocket() != NULL) {
-							NetworkMessageIntro networkMessageIntro(sessionKey,getNetworkVersionSVNString(), getHostName(), playerIndex, nmgstOk, 0, ServerSocket::getFTPServerPort(),"");
-							sendMessage(&networkMessageIntro);
+						NetworkMessageIntro networkMessageIntro(
+								sessionKey,
+								getNetworkVersionSVNString(),
+								getHostName(),
+								playerIndex,
+								nmgstOk,
+								0,
+								ServerSocket::getFTPServerPort(),
+								"");
+						sendMessage(&networkMessageIntro);
 
 							//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 						//}

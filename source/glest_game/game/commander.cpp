@@ -1076,6 +1076,10 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	//throw megaglest_runtime_error("Test missing command type!");
 
 	//validate command type
+
+    // !!!Test out of synch behaviour
+    //ct = NULL;
+
 	if(ct == NULL) {
 	    char szBuf[10400]="";
 	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find command type for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nUnit Type Info:\n[%s]\nNetwork unit type:\n[%s]\nGame out of synch.",
