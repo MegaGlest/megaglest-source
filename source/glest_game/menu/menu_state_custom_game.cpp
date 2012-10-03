@@ -686,10 +686,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	publishToMasterserverThread->start();
 
 	if(openNetworkSlots==true){
-		loadGameSettings(DEFAULT_NETWORKGAME_FILENAME);
+		if(fileExists(DEFAULT_NETWORKGAME_FILENAME) == true)
+			loadGameSettings(DEFAULT_NETWORKGAME_FILENAME);
 	}
 	else {
-		loadGameSettings(DEFAULT_GAME_FILENAME);
+		if(fileExists(DEFAULT_GAME_FILENAME) == true)
+			loadGameSettings(DEFAULT_GAME_FILENAME);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
