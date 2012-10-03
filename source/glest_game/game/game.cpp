@@ -3329,15 +3329,16 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				if(gameCamera.getState()==GameCamera::sFree)
 				{
 					gameCamera.setState(GameCamera::sGame);
+					string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
+					console.addLine(lang.get("CameraModeSet")+" "+ stateString);
 				}
 				else if(gameCamera.getState()==GameCamera::sGame)
 				{
 					gameCamera.setState(GameCamera::sFree);
+					string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
+					console.addLine(lang.get("CameraModeSet")+" "+ stateString);
 				}
 				//else ignore!
-
-				string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
-				console.addLine(lang.get("CameraModeSet")+" "+ stateString);
 			}
 			//reset camera mode to normal
 			//else if(key == configKeys.getCharKey("ResetCameraMode")) {
