@@ -9,16 +9,39 @@
 #  example, but invest effort in what it's trying to do, and what it produces.
 #  (make sure you don't build in features you don't need, etc).
 
-# below is the branch to build and installer from
+# below is the branch to build and installer from.
 
-megaglest_release_folder="trunk"
+megaglest_release_folder=""
+#megaglest_release_folder="trunk"
 #megaglest_release_folder="release-3.3.5.1"
 
 mg_installer_bin_name=megaglest-installer.run
 CURRENTDIR="$(dirname $(readlink -f $0))"
 
+if which zip >/dev/null; then
+    echo Compression tool 'zip' exists
+else
+    echo Compression tool 'zip' DOES NOT EXIST on this system, please install it
+    exit 1
+fi
+
+if which xz >/dev/null; then
+    echo Compression tool 'xz' exists
+else
+    echo Compression tool 'xz' DOES NOT EXIST on this system, please install it
+    exit 1
+fi
+
+if which tar >/dev/null; then
+    echo Compression tool 'tar' exists
+else
+    echo Compression tool 'tar' DOES NOT EXIST on this system, please install it
+    exit 1
+fi
+
 # below describe various folder paths relative to the installer root folder
-megaglest_project_root=../../../../../
+#megaglest_project_root=../../../../../
+megaglest_project_root=../../../../
 megaglest_data_path=${megaglest_project_root}${megaglest_release_folder}/data/glest_game/
 megaglest_linux_path=${megaglest_project_root}${megaglest_release_folder}/mk/linux/
 megaglest_linux_masterserverpath=${megaglest_project_root}${megaglest_release_folder}/source/masterserver/
