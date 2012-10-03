@@ -3157,6 +3157,11 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
     //for(int i=0; i<mapInfo.players; ++i)
 	int AIPlayerCount = 0;
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		if (listBoxControls[i].getSelectedItemIndex() == ctHuman && this->headlessServerMode == true) {
+			// switch slot to network, because no human in headless mode
+			listBoxControls[i].setSelectedItemIndex(ctNetwork) ;
+		}
+
 		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
 
 		if(forceCloseUnusedSlots == true && (ct == ctNetworkUnassigned || ct == ctNetwork)) {
@@ -3177,13 +3182,6 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 		if(ct != ctClosed) {
 			int slotIndex = factionCount;
-
-
-			if (ct == ctHuman && this->headlessServerMode == true) {
-				// switch slot to network, because no human in headless mode
-				ct = ctNetwork;
-			}
-
 			gameSettings->setFactionControl(slotIndex, ct);
 			if(ct == ctHuman) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, slotIndex = %d, getHumanPlayerName(i) [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,slotIndex,getHumanPlayerName(i).c_str());
