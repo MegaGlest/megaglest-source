@@ -599,6 +599,10 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 
 		const XmlNode *skillsNode= unitNode->getChild("skills");
 		skillTypes.resize(skillsNode->getChildCount());
+
+		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(name).c_str(),skillTypes.size());
+		Logger::getInstance().add(szBuf, true);
+
 		for(int i = 0; i < skillTypes.size(); ++i) {
 			const XmlNode *sn= skillsNode->getChild("skill", i);
 			const XmlNode *typeNode= sn->getChild("type");
@@ -607,6 +611,9 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 
 			skillType->load(sn, attackBoostsNode, dir, techTree, factionType, loadedFileList,sourceXMLFile);
 			skillTypes[i]= skillType;
+
+			//sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(name).c_str(),i+1,skillTypes.size());
+			//Logger::getInstance().add(szBuf, true);
 		}
 
 		//commands
