@@ -1794,6 +1794,7 @@ void MenuStateConnectedGame::render() {
 				labelPlayers[i].setVisible(true);
 				labelPlayerNames[i].setVisible(true);
 				listBoxControls[i].setVisible(true);
+				listBoxRMultiplier[i].setVisible(true);
 				listBoxFactions[i].setVisible(true);
 				listBoxTeams[i].setVisible(true);
 				labelNetStatus[i].setVisible(true);
@@ -3013,6 +3014,7 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 					labelPlayers[i].setVisible(i+1 <= mapInfo->players);
 					labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
 					listBoxControls[i].setVisible(i+1 <= mapInfo->players);
+					listBoxRMultiplier[i].setVisible(i+1 <= mapInfo->players);
 					listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
 					listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
 					labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
