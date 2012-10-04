@@ -9,6 +9,9 @@
 #  example, but invest effort in what it's trying to do, and what it produces.
 #  (make sure you don't build in features you don't need, etc).
 
+# To install the installer silently you may run it like this:
+# ./megaglest-installer.run --noprompt --i-agree-to-all-licenses --destination /home/softcoder/megaglest-temp-test --noreadme --ui=stdio
+
 # below is the branch to build and installer from.
 
 megaglest_release_folder=""
