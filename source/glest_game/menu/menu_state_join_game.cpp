@@ -264,10 +264,19 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	buttonAutoFindServers.setEnabled(true);
 	buttonConnect.setEnabled(true);
 	if(serverList.empty() == false) {
+		Config &config= Config::getInstance();
 		string bestIPMatch = "";
+		int serverGamePort = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
 		std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
 
 		for(int idx = 0; idx < serverList.size(); idx++) {
+
+			vector<string> paramPartPortsTokens;
+			Tokenize(serverList[idx],paramPartPortsTokens,":");
+			if(paramPartPortsTokens.size() >= 2 && paramPartPortsTokens[1].length() > 0) {
+				serverGamePort = strToInt(paramPartPortsTokens[1]);
+			}
+
 			bestIPMatch = serverList[idx];
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestIPMatch = [%s] localIPList[0] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,bestIPMatch.c_str(),localIPList[0].c_str());
@@ -277,6 +286,9 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 			}
 		}
 
+		if(bestIPMatch != "") {
+			bestIPMatch += ":" + intToStr(serverGamePort);
+		}
 		labelServerIp.setText(bestIPMatch);
 
 		if(serverList.size() > 1) {

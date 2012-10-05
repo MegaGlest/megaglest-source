@@ -220,9 +220,10 @@ class BroadCastSocketThread : public BaseThread
 private:
 	Mutex *mutexPauseBroadcast;
 	bool pauseBroadcast;
+	int boundPort;
 
 public:
-	BroadCastSocketThread();
+	BroadCastSocketThread(int boundPort);
 	virtual ~BroadCastSocketThread();
     virtual void execute();
     virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
