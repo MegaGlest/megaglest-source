@@ -1999,8 +1999,17 @@ void BroadCastClientSocketThread::execute() {
 						string fromIP = szHostFrom;
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"broadcast message received: [%s] from: [%s]\n", buff,fromIP.c_str() );
 
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Client got broadcast from server: [%s] data [%s]\n",fromIP.c_str(),buff);
+
+						int serverGamePort = Socket::getBroadCastPort();
+						vector<string> paramPartPortsTokens;
+						Tokenize(buff,paramPartPortsTokens,":");
+						if(paramPartPortsTokens.size() >= 3 && paramPartPortsTokens[2].length() > 0) {
+							serverGamePort = strToInt(paramPartPortsTokens[2]);
+						}
+
 						if(std::find(foundServers.begin(),foundServers.end(),fromIP) == foundServers.end()) {
-							foundServers.push_back(fromIP);
+							foundServers.push_back(fromIP + ":" + intToStr(serverGamePort));
 						}
 
 						// For now break as soon as we find a server
@@ -2144,7 +2153,7 @@ void ServerSocket::startBroadCastThread() {
 
 	stopBroadCastThread();
 
-	broadCastThread = new BroadCastSocketThread();
+	broadCastThread = new BroadCastSocketThread(this->boundPort);
 
 	//printf("Start broadcast thread [%p]\n",broadCastThread);
 
@@ -2672,10 +2681,11 @@ void UPNP_Tools::NETremRedirects(int ext_port) {
 // Description:		To be forked in its own thread to send out a broadcast to the local subnet
 //					the current broadcast message is <myhostname:my.ip.address.dotted>
 //
-BroadCastSocketThread::BroadCastSocketThread() : BaseThread() {
+BroadCastSocketThread::BroadCastSocketThread(int boundPort) : BaseThread() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	mutexPauseBroadcast = new Mutex();
 	setPauseBroadcast(false);
+	this->boundPort = boundPort;
 	//printf("new broadcast thread [%p]\n",this);
 }
 
@@ -2792,6 +2802,8 @@ void BroadCastSocketThread::execute() {
 						//sprintf(buff,"%s:%s",buff,ipList[idx1].c_str());
 						strcat(buff,":");
 						strcat(buff,ipList[idx1].c_str());
+						strcat(buff,":");
+						strcat(buff,intToStr(this->boundPort).c_str());
 					}
 
 					if(difftime((long int)time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
@@ -2801,6 +2813,9 @@ void BroadCastSocketThread::execute() {
 						if(pauseBroadCast == false) {
 							// Broadcast the packet to the subnet
 							//if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Server is sending broadcast data [%s]\n",buff);
+
 							ssize_t send_res = sendto( bcfd[idx], buff, buffMaxSize, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) );
 							if( send_res != buffMaxSize ) {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %s\n", getLastSocketErrorFormattedText().c_str());
