@@ -1100,8 +1100,8 @@ void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-			//listBoxRMultiplier[index].setEnabled(false);
-			listBoxRMultiplier[index].setEnabled(true);
+			listBoxRMultiplier[index].setEnabled(false);
+			//!!!listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 		{
@@ -3776,8 +3776,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			}
 
 			ControlType ct= gameSettings->getFactionControl(i);
-			//if (ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
-			if (ct == ctClosed) {
+			if (ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
+			//!!!if (ct == ctClosed) {
 				listBoxRMultiplier[slot].setEnabled(false);
 				listBoxRMultiplier[slot].setVisible(false);
 			}

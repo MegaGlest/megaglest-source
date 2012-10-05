@@ -1485,8 +1485,8 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-			//listBoxRMultiplier[index].setEnabled(false);
-			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
+			listBoxRMultiplier[index].setEnabled(false);
+			//!!!listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 		}
 		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 		{
@@ -1508,8 +1508,8 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 		}
 		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
-		//listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
-		listBoxRMultiplier[index].setVisible(ct != ctClosed);
+		listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
+		//listBoxRMultiplier[index].setVisible(ct != ctClosed);
 }
 
 void MenuStateCustomGame::loadGameSettings(std::string fileName) {
