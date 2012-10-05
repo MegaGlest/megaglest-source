@@ -1100,7 +1100,8 @@ void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(false);
+			//listBoxRMultiplier[index].setEnabled(false);
+			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 		{
@@ -3758,7 +3759,9 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			}
 
 			listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
-			listBoxRMultiplier[slot].setSelectedItemIndex((gameSettings->getResourceMultiplierIndex(i),errorOnMissingData));
+			//printf("Slot %d [%s] resource multiplier index: %d\n",slot,gameSettings->getNetworkPlayerName(i).c_str(),gameSettings->getResourceMultiplierIndex(i));
+			listBoxRMultiplier[slot].setSelectedItemIndex(gameSettings->getResourceMultiplierIndex(i),errorOnMissingData);
+
 			listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
 			//listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),errorOnMissingData);
 			listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);
@@ -3773,10 +3776,12 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			}
 
 			ControlType ct= gameSettings->getFactionControl(i);
-			if (ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
+			//if (ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
+			if (ct == ctClosed) {
 				listBoxRMultiplier[slot].setEnabled(false);
 				listBoxRMultiplier[slot].setVisible(false);
-			} else {
+			}
+			else {
 				listBoxRMultiplier[slot].setEnabled(true);
 				listBoxRMultiplier[slot].setVisible(true);
 			}

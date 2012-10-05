@@ -1163,11 +1163,15 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 					if(map->isNextTo(unit, store)) {
 
 						//update resources
+						int resourceMultiplierIndex=game->getGameSettings()->getResourceMultiplierIndex(unit->getFaction()->getIndex());
 						int resourceAmount= unit->getLoadCount();
-						if(unit->getFaction()->getCpuControl())
-						{
-							int resourceMultiplierIndex=game->getGameSettings()->getResourceMultiplierIndex(unit->getFaction()->getIndex());
+						//printf("Faction: %d - %s has resource multiplier: %d\n",unit->getFaction()->getStartLocationIndex(),unit->getFaction()->getType()->getName().c_str(),resourceMultiplierIndex);
+
+						//if(unit->getFaction()->getCpuControl())
+						if(resourceMultiplierIndex != 5) {
 							resourceAmount=(resourceAmount* (resourceMultiplierIndex +5))/10;
+
+							//printf("Resource Amount adjusted for Faction: %d - %s has resource multiplier: %d, original vs new amount: %d --> %d\n",unit->getFaction()->getStartLocationIndex(),unit->getFaction()->getType()->getName().c_str(),resourceMultiplierIndex,unit->getLoadCount(),resourceAmount);
 						}
 						unit->getFaction()->incResourceAmount(unit->getLoadType(), resourceAmount);
 						world->getStats()->harvest(unit->getFactionIndex(), resourceAmount);
