@@ -450,7 +450,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
         listBoxControls[i].init(xoffset+210, setupPos-30-i*rowHeight);
 
         buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
-        buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
+        //buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
+        buttonBlockPlayers[i].init(xoffset+250, setupPos-30-i*rowHeight, 70);
         buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
         buttonBlockPlayers[i].setFont(CoreData::getInstance().getDisplayFontSmall());
         buttonBlockPlayers[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
@@ -578,15 +579,17 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		if(this->headlessServerMode == true) {
 			listBoxControls[0].setSelectedItemIndex(ctNetwork);
+			updateResourceMultiplier(0);
 		}
 		else {
 			listBoxControls[0].setSelectedItemIndex(ctHuman);
+			updateResourceMultiplier(0);
 		}
 		labelPlayerNames[0].setText("");
 		labelPlayerNames[0].setText(getHumanPlayerName());
 
-		if(openNetworkSlots){
-			for(int i= 1; i<mapInfo.players; ++i){
+		if(openNetworkSlots == true) {
+			for(int i= 1; i< mapInfo.players; ++i){
 				listBoxControls[i].setSelectedItemIndex(ctNetwork);
 			}
 		}
@@ -1482,7 +1485,8 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(false);
+			//listBoxRMultiplier[index].setEnabled(false);
+			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 		}
 		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 		{
@@ -1504,7 +1508,8 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 		}
 		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
-		listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
+		//listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
+		listBoxRMultiplier[index].setVisible(ct != ctClosed);
 }
 
 void MenuStateCustomGame::loadGameSettings(std::string fileName) {
@@ -1937,15 +1942,6 @@ void MenuStateCustomGame::render() {
 					listBoxControls[i].getSelectedItemIndex() != ctClosed) {
 
 					renderer.renderLabel(&labelPlayerStatus[i]);
-
-					if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-						if( serverInterface != NULL &&
-							serverInterface->getSlot(i) != NULL &&
-		                    serverInterface->getSlot(i)->isConnected()) {
-							renderer.renderButton(&buttonBlockPlayers[i]);
-						}
-					}
 				}
 
 				if(crcPlayerTextureCache[i] != NULL) {
@@ -1970,6 +1966,21 @@ void MenuStateCustomGame::render() {
 				renderer.renderLabel(&labelPlayerNames[i]);
 
 				renderer.renderListBox(&listBoxControls[i]);
+
+				if( hasNetworkGameSettings() == true &&
+					listBoxControls[i].getSelectedItemIndex() != ctClosed) {
+
+					renderer.renderLabel(&labelPlayerStatus[i]);
+
+					if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+						if( serverInterface != NULL &&
+							serverInterface->getSlot(i) != NULL &&
+		                    serverInterface->getSlot(i)->isConnected()) {
+							renderer.renderButton(&buttonBlockPlayers[i]);
+						}
+					}
+				}
 
 				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
 					//if(listBoxAdvanced.getSelectedItemIndex() == 1){
@@ -3160,6 +3171,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		if (listBoxControls[i].getSelectedItemIndex() == ctHuman && this->headlessServerMode == true) {
 			// switch slot to network, because no human in headless mode
 			listBoxControls[i].setSelectedItemIndex(ctNetwork) ;
+			updateResourceMultiplier(i);
 		}
 
 		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
@@ -3195,6 +3207,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			else if(serverInterface->getSlot(i) != NULL) {
 				gameSettings->setNetworkPlayerLanguages(slotIndex, serverInterface->getSlot(i)->getNetworkPlayerLanguage());
 			}
+
+			//if(slotIndex == 0) printf("slotIndex = %d, i = %d, multiplier = %d\n",slotIndex,i,listBoxRMultiplier[i].getSelectedItemIndex());
+
 			gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
@@ -3638,8 +3653,15 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 			listBoxControls[slotIndex].setSelectedItemIndex(gameSettings.getFactionControl(i));
 		}
 
+		//if(slotIndex == 0) printf("#2 slotIndex = %d, i = %d, multiplier = %d\n",slotIndex,i,listBoxRMultiplier[i].getSelectedItemIndex());
+
 		updateResourceMultiplier(slotIndex);
+
+		//if(slotIndex == 0) printf("#3 slotIndex = %d, i = %d, multiplier = %d\n",slotIndex,i,listBoxRMultiplier[i].getSelectedItemIndex());
+
 		listBoxRMultiplier[slotIndex].setSelectedItemIndex(gameSettings.getResourceMultiplierIndex(i));
+
+		//if(slotIndex == 0) printf("#4 slotIndex = %d, i = %d, multiplier = %d\n",slotIndex,i,listBoxRMultiplier[i].getSelectedItemIndex());
 
 		listBoxTeams[slotIndex].setSelectedItemIndex(gameSettings.getTeam(i));
 
