@@ -78,79 +78,6 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 
-	#ifndef WIN32
-		string mg_icon_file = "";
-	#if defined(CUSTOM_DATA_INSTALL_PATH_VALUE)
-		if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.png")) {
-			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.png";
-		}
-		else if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.bmp")) {
-			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.bmp";
-		}
-
-	#endif
-
-		if(mg_icon_file == "" && fileExists("megaglest.png")) {
-			mg_icon_file = "megaglest.png";
-		}
-		else if(mg_icon_file == "" && fileExists("megaglest.bmp")) {
-			mg_icon_file = "megaglest.bmp";
-		}
-		else if(mg_icon_file == "" && fileExists("/usr/share/pixmaps/megaglest.png")) {
-			mg_icon_file = "/usr/share/pixmaps/megaglest.png";
-		}
-		else if(mg_icon_file == "" && fileExists("/usr/share/pixmaps/megaglest.bmp")) {
-			mg_icon_file = "/usr/share/pixmaps/megaglest.bmp";
-		}
-
-		if(mg_icon_file != "") {
-
-			if(icon != NULL) {
-				SDL_FreeSurface(icon);
-				icon = NULL;
-			}
-
-			//printf("Loading icon [%s]\n",mg_icon_file.c_str());
-			if(extractExtension(mg_icon_file) == "bmp") {
-				icon = SDL_LoadBMP(mg_icon_file.c_str());
-			}
-			else {
-				//printf("Loadng png icon\n");
-				Texture2D *texture2D = GraphicsInterface::getInstance().getFactory()->newTexture2D();
-				texture2D->load(mg_icon_file);
-				std::pair<SDL_Surface*,unsigned char*> result = texture2D->CreateSDLSurface(true);
-				icon = result.first;
-				delete texture2D;
-				delete [] result.second;
-			}
-
-		//SDL_Surface *icon = IMG_Load("megaglest.ico");
-
-
-	//#if !defined(MACOSX)
-		// Set Icon (must be done before any sdl_setvideomode call)
-		// But don't set it on OS X, as we use a nicer external icon there.
-	//#if WORDS_BIGENDIAN
-	//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,8,128,0xff000000,0x00ff0000,0x0000ff00,0);
-	//#else
-	//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,32,128,0x000000ff,0x0000ff00,0x00ff0000,0xff000000);
-	//#endif
-
-			//printf("In [%s::%s Line: %d] icon = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,icon);
-			if(icon == NULL) {
-				printf("Error: %s\n", SDL_GetError());
-			}
-			if(icon != NULL) {
-
-				//uint32 colorkey = SDL_MapRGB(icon->format, 255, 0, 255);
-				//SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey);
-				SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 0, 255));
-
-				SDL_WM_SetIcon(icon, NULL);
-			}
-		}
-	#endif
-
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,resW,resH,colorBits);
 
@@ -209,6 +136,83 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 				throw std::runtime_error(msg.str());
 			}
 		}
+
+#ifndef WIN32
+		string mg_icon_file = "";
+#if defined(CUSTOM_DATA_INSTALL_PATH_VALUE)
+		if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.png")) {
+			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.png";
+		}
+		else if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.bmp")) {
+			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.bmp";
+		}
+
+#endif
+
+		if(mg_icon_file == "" && fileExists("megaglest.png")) {
+			mg_icon_file = "megaglest.png";
+		}
+		else if(mg_icon_file == "" && fileExists("megaglest.bmp")) {
+			mg_icon_file = "megaglest.bmp";
+		}
+		else if(mg_icon_file == "" && fileExists("/usr/share/pixmaps/megaglest.png")) {
+			mg_icon_file = "/usr/share/pixmaps/megaglest.png";
+		}
+		else if(mg_icon_file == "" && fileExists("/usr/share/pixmaps/megaglest.bmp")) {
+			mg_icon_file = "/usr/share/pixmaps/megaglest.bmp";
+		}
+
+		if(mg_icon_file != "") {
+
+			if(icon != NULL) {
+				SDL_FreeSurface(icon);
+				icon = NULL;
+			}
+
+			//printf("Loading icon [%s]\n",mg_icon_file.c_str());
+			if(extractExtension(mg_icon_file) == "bmp") {
+				icon = SDL_LoadBMP(mg_icon_file.c_str());
+			}
+			else {
+				//printf("Loadng png icon\n");
+				Texture2D *texture2D = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+				texture2D->load(mg_icon_file);
+				std::pair<SDL_Surface*,unsigned char*> result = texture2D->CreateSDLSurface(true);
+				icon = result.first;
+				delete texture2D;
+				delete [] result.second;
+			}
+
+		//SDL_Surface *icon = IMG_Load("megaglest.ico");
+
+
+	//#if !defined(MACOSX)
+		// Set Icon (must be done before any sdl_setvideomode call)
+		// But don't set it on OS X, as we use a nicer external icon there.
+	//#if WORDS_BIGENDIAN
+	//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,8,128,0xff000000,0x00ff0000,0x0000ff00,0);
+	//#else
+	//	SDL_Surface* icon= SDL_CreateRGBSurfaceFrom((void*)logo,32,32,32,128,0x000000ff,0x0000ff00,0x00ff0000,0xff000000);
+	//#endif
+
+			//printf("In [%s::%s Line: %d] icon = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,icon);
+			if(icon == NULL) {
+				printf("Icon Load Error #1: %s\n", SDL_GetError());
+			}
+			if(icon != NULL) {
+
+				//uint32 colorkey = SDL_MapRGB(icon->format, 255, 0, 255);
+				//SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey);
+				if(SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 0, 255))) {
+					printf("Icon Load Error #2: %s\n", SDL_GetError());
+				}
+				else {
+					SDL_WM_SetIcon(icon, NULL);
+				}
+			}
+		}
+#endif
+
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
