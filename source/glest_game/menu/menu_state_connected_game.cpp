@@ -1212,10 +1212,15 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+                	//!! this must be done two times!""
                 	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
                 		listBoxControls[i].mouseClick(x, y);
                 	}
                 	if( (isHeadlessAdmin()==true) && (listBoxControls[i].getSelectedItemIndex() == ctHuman)){
+                		listBoxControls[i].mouseClick(x, y);
+                	}
+                	//!! this must be done two times!""
+                	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
                 		listBoxControls[i].mouseClick(x, y);
                 	}
 
