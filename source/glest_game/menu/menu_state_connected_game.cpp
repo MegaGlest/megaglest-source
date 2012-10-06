@@ -1506,7 +1506,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 		if(ct != ctClosed) {
 			int slotIndex = factionCount;
-
+			ControlType oldControlType=gameSettings->getFactionControl(slotIndex);
 			gameSettings->setFactionControl(slotIndex, ct);
 			if(ct == ctHuman) {
 				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, slotIndex = %d, getHumanPlayerName(i) [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,slotIndex,getHumanPlayerName(i).c_str());
@@ -1534,6 +1534,9 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			//printf("!!! setStartLocationIndex #1 slotIndex = %d, i = %d\n",slotIndex, i);
 
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+				if(oldControlType!=ctNetwork && oldControlType!=ctNetworkUnassigned ){
+					gameSettings->setNetworkPlayerName(slotIndex,"");
+				}
 			}
 			else if (listBoxControls[i].getSelectedItemIndex() != ctHuman) {
 				AIPlayerCount++;
@@ -2616,7 +2619,8 @@ void MenuStateConnectedGame::update() {
 			GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
 			int currentConnectionCount=0;
 			for(int i=0; i < GameConstants::maxPlayers; ++i) {
-				if(gameSettings->getNetworkPlayerName(i) != "" &&
+				if(gameSettings->getFactionControl(i)==ctNetwork &&
+						gameSettings->getNetworkPlayerName(i) != "" &&
 						gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)
 				{
 					currentConnectionCount++;
