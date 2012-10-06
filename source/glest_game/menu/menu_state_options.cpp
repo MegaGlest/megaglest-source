@@ -441,6 +441,23 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		labelNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		labelNetworkSettings.setText(lang.get("Network"));
+
+		// external server port
+		currentLine-=lineOffset;
+		labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
+		labelPublishServerExternalPort.init(currentLabelStart, currentLine, 150);
+		labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
+
+		labelExternalPort.init(currentColumnStart,currentLine);
+		string extPort= config.getString("PortExternal","not set");
+		if(extPort == "not set" || extPort == "0"){
+			extPort="   ---   ";
+		}
+		else{
+			extPort="!!! "+extPort+" !!!";
+		}
+		labelExternalPort.setText(extPort);
+
 		currentLine-=lineOffset;
 		// server port
 		labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
@@ -467,39 +484,6 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		}
 		listBoxServerPort.setSelectedItemIndex(portSelectionIndex);
 
-		// external server port
-		currentLine-=lineOffset;
-		labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
-		labelPublishServerExternalPort.init(currentLabelStart, currentLine, 150);
-		labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
-
-		labelExternalPort.init(currentColumnStart,currentLine);
-		string extPort= config.getString("PortExternal","not set");
-		if(extPort == "not set" || extPort == "0"){
-			extPort="   ---   ";
-		}
-		else{
-			extPort="!!! "+extPort+" !!!";
-		}
-
-		labelExternalPort.setText(extPort);
-		currentLine-=lineOffset;
-		// FTP Config - start
-		labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
-		labelEnableFTP.init(currentLabelStart ,currentLine);
-		labelEnableFTP.setText(lang.get("EnableFTP"));
-
-		checkBoxEnableFTP.registerGraphicComponent(containerName,"checkBoxEnableFTP");
-		checkBoxEnableFTP.init(currentColumnStart ,currentLine );
-		checkBoxEnableFTP.setValue(config.getBool("EnableFTPXfer","true"));
-		currentLine-=lineOffset;
-		labelEnableFTPServer.registerGraphicComponent(containerName,"labelEnableFTPServer");
-		labelEnableFTPServer.init(currentLabelStart ,currentLine);
-		labelEnableFTPServer.setText(lang.get("EnableFTPServer"));
-
-		checkBoxEnableFTPServer.registerGraphicComponent(containerName,"checkBoxEnableFTPServer");
-		checkBoxEnableFTPServer.init(currentColumnStart ,currentLine );
-		checkBoxEnableFTPServer.setValue(config.getBool("EnableFTPServer","true"));
 		currentLine-=lineOffset;
 		labelFTPServerPortLabel.registerGraphicComponent(containerName,"labelFTPServerPortLabel");
 		labelFTPServerPortLabel.init(currentLabelStart ,currentLine );
@@ -520,6 +504,23 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelFTPServerDataPorts.registerGraphicComponent(containerName,"labelFTPServerDataPorts");
 		labelFTPServerDataPorts.init(currentColumnStart,currentLine );
 		labelFTPServerDataPorts.setText(szBuf);
+		currentLine-=lineOffset;
+		labelEnableFTPServer.registerGraphicComponent(containerName,"labelEnableFTPServer");
+		labelEnableFTPServer.init(currentLabelStart ,currentLine);
+		labelEnableFTPServer.setText(lang.get("EnableFTPServer"));
+
+		checkBoxEnableFTPServer.registerGraphicComponent(containerName,"checkBoxEnableFTPServer");
+		checkBoxEnableFTPServer.init(currentColumnStart ,currentLine );
+		checkBoxEnableFTPServer.setValue(config.getBool("EnableFTPServer","true"));
+		currentLine-=lineOffset;
+		// FTP Config - start
+		labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
+		labelEnableFTP.init(currentLabelStart ,currentLine);
+		labelEnableFTP.setText(lang.get("EnableFTP"));
+
+		checkBoxEnableFTP.registerGraphicComponent(containerName,"checkBoxEnableFTP");
+		checkBoxEnableFTP.init(currentColumnStart ,currentLine );
+		checkBoxEnableFTP.setValue(config.getBool("EnableFTPXfer","true"));
 		currentLine-=lineOffset;
 
 		labelEnableFTPServerInternetTilesetXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTilesetXfer");
