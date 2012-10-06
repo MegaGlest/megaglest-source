@@ -268,7 +268,7 @@ void MenuStateRoot::render() {
 				logoMainW, logoMainH,
 				extraLogo, GraphicComponent::getFade());
 
-		//currentX += extraLogo->getPixmap()->getW();
+		currentX += extraLogo->getPixmap()->getW();
 	}
 
 	renderer.renderButton(&buttonNewGame);
