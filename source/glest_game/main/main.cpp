@@ -4355,6 +4355,7 @@ int glestMain(int argc, char** argv) {
 			Tokenize(serverToConnectTo,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string autoConnectServer = paramPartTokens[1];
+
 				int port = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
 				vector<string> paramPartTokens2;
 				Tokenize(autoConnectServer,paramPartTokens2,":");
@@ -4364,7 +4365,12 @@ int glestMain(int argc, char** argv) {
 				}
 
 				printf("Connecting to host [%s] using port: %d\n",autoConnectServer.c_str(),port);
-				program->initClient(mainWindow, autoConnectServer,port);
+				if(autoConnectServer == "auto-connect") {
+					program->initClientAutoFindHost(mainWindow);
+				}
+				else {
+					program->initClient(mainWindow, autoConnectServer,port);
+				}
 				gameInitialized = true;
 			}
 			else {
@@ -4388,7 +4394,12 @@ int glestMain(int argc, char** argv) {
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string autoConnectServer = paramPartTokens[1];
 
-				program->initClient(mainWindow, autoConnectServer);
+				if(autoConnectServer == "auto-connect") {
+					program->initClientAutoFindHost(mainWindow);
+				}
+				else {
+					program->initClient(mainWindow, autoConnectServer);
+				}
 				gameInitialized = true;
 			}
 			else {

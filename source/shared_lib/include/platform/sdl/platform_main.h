@@ -191,8 +191,13 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 	printf("\n%s=x:y\t\t\tAuto connect to host server at IP or hostname x using port y",GAME_ARGS[GAME_ARG_CONNECT]);
 	printf("\n                     \t\tShortcut version of using %s and %s.",GAME_ARGS[GAME_ARG_CLIENT],GAME_ARGS[GAME_ARG_USE_PORTS]);
+	printf("\n                     \t\t*NOTE: to automatically connect to the first LAN");
+	printf("\n                     \t\t       host you may use: %s=auto-connect",GAME_ARGS[GAME_ARG_CONNECT]);
 
 	printf("\n%s=x\t\t\tAuto connect to host server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
+	printf("\n                     \t\t*NOTE: to automatically connect to the first LAN");
+	printf("\n                     \t\t       host you may use: %s=auto-connect",GAME_ARGS[GAME_ARG_CLIENT]);
+
 	printf("\n%s\t\t\tAuto create a host server.",GAME_ARGS[GAME_ARG_SERVER]);
 
 	printf("\n%s=x,x\tRun as a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]);

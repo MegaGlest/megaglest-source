@@ -178,6 +178,7 @@ public:
 	void initServer(WindowGl *window, GameSettings *settings);
 	void initSavedGame(WindowGl *window,bool masterserverMode=false,string saveGameFile="");
 	void initClient(WindowGl *window, const Ip &serverIp,int portNumber=-1);
+	void initClientAutoFindHost(WindowGl *window);
 	void initScenario(WindowGl *window, string autoloadScenarioName);
 
 	//main

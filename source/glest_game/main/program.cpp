@@ -263,6 +263,17 @@ void Program::initClient(WindowGl *window, const Ip &serverIp, int portNumber) {
 	mainMenu->setState(new MenuStateJoinGame(this, mainMenu, true, serverIp,portNumber));
 }
 
+void Program::initClientAutoFindHost(WindowGl *window) {
+	MainMenu* mainMenu= NULL;
+
+	init(window);
+	mainMenu= new MainMenu(this);
+	setState(mainMenu);
+	bool autoFindHost = true;
+	mainMenu->setState(new MenuStateJoinGame(this, mainMenu, &autoFindHost));
+
+}
+
 void Program::initScenario(WindowGl *window, string autoloadScenarioName) {
 	MainMenu* mainMenu= NULL;
 
