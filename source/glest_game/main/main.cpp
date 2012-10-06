@@ -3204,6 +3204,8 @@ int glestMain(int argc, char** argv) {
 		Config &config = Config::getInstance();
 		setupGameItemPaths(argc, argv, &config);
 
+		Socket::setBroadCastPort(config.getBool("BroadcastPort",boolToStr(Socket::getBroadCastPort()).c_str()));
+
 		Socket::disableNagle = config.getBool("DisableNagle","false");
 		if(Socket::disableNagle) {
 			printf("*WARNING users wants to disable the socket nagle algorithm.\n");
