@@ -461,6 +461,8 @@ void ChatManager::updateNetwork() {
 							playerName = this->manualPlayerNameOverride;
 						}
 
+						//printf("Network chat msg from: [%d - %s] [%s]\n",msg.chatPlayerIndex,gameNetworkInterface->getHumanPlayerName().c_str(),this->manualPlayerNameOverride.c_str());
+
 			        	if(StartsWith(msg.chatText,"*")){
 			        		if(msg.chatText.find(playerName) != string::npos){
 			        			CoreData &coreData= CoreData::getInstance();
