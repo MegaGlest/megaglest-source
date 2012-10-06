@@ -40,6 +40,7 @@ SoundInfo::SoundInfo() {
 Sound::Sound() {
 	volume= 0.0f;
 	fileName = "";
+	soundFileLoader = 0;
 }
 
 // =====================================================

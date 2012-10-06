@@ -31,7 +31,9 @@ public:
 	Vec3f axis;
 	float angle;
 
-	AxisAngle(){};
+	AxisAngle() {
+		angle = 0.0f;
+	}
 	AxisAngle(const Vec3f &axis, float angle);
 };
 
@@ -43,7 +45,11 @@ class EulerAngles{
 public:
 	float x, y, z;
 
-	EulerAngles(){};
+	EulerAngles()	{
+		x = 0.0f;
+		y = 0.0f;
+		z = 0.0f;
+	}
 	EulerAngles(float x, float y, float z);
 };
 
