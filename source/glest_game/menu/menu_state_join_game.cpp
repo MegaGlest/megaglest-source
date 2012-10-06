@@ -146,7 +146,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	labelServerPort.init(465,430);
 
 	string host = labelServerIp.getText();
-	int portNumber = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	int portNumber = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 	std::vector<std::string> hostPartsList;
 	Tokenize(host,hostPartsList,":");
 	if(hostPartsList.size() > 1) {
@@ -156,7 +156,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	}
 
 	string port = intToStr(portNumber);
-	if(port != intToStr(config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()))) {
+	if(port != intToStr(config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str()))) {
 		port = port + " (" + lang.get("NonStandardPort") + ")";
 	}
 	else {
@@ -196,7 +196,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	}
 
 	host = labelServerIp.getText();
-	portNumber = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	portNumber = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 	hostPartsList.clear();
 	Tokenize(host,hostPartsList,":");
 	if(hostPartsList.size() > 1) {
@@ -206,7 +206,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	}
 
 	port = intToStr(portNumber);
-	if(port != intToStr(config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()))) {
+	if(port != intToStr(config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str()))) {
 		port = port + " (" + lang.get("NonStandardPort") + ")";
 	}
 	else {
@@ -242,7 +242,7 @@ void MenuStateJoinGame::reloadUI() {
 	labelServerPortLabel.setText(lang.get("ServerPort"));
 
 	string host = labelServerIp.getText();
-	int portNumber = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	int portNumber = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 	std::vector<std::string> hostPartsList;
 	Tokenize(host,hostPartsList,":");
 	if(hostPartsList.size() > 1) {
@@ -252,7 +252,7 @@ void MenuStateJoinGame::reloadUI() {
 	}
 
 	string port = intToStr(portNumber);
-	if(port != intToStr(config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()))) {
+	if(port != intToStr(config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str()))) {
 		port = port + " (" + lang.get("NonStandardPort") + ")";
 	}
 	else {
@@ -286,7 +286,7 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	if(serverList.empty() == false) {
 		Config &config= Config::getInstance();
 		string bestIPMatch = "";
-		int serverGamePort = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+		int serverGamePort = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 		std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
 
 		for(int idx = 0; idx < serverList.size(); idx++) {
@@ -351,7 +351,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 		string host = labelServerIp.getText();
 		Config &config= Config::getInstance();
-		int portNumber = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+		int portNumber = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 		std::vector<std::string> hostPartsList;
 		Tokenize(host,hostPartsList,":");
 		if(hostPartsList.size() > 1) {
@@ -362,7 +362,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 		Lang &lang= Lang::getInstance();
 		string port = intToStr(portNumber);
-		if(port != intToStr(config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str()))) {
+		if(port != intToStr(config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str()))) {
 			port = port + " (" + lang.get("NonStandardPort") + ")";
 		}
 		else {
@@ -738,7 +738,7 @@ void MenuStateJoinGame::connectToServer() {
 
 	Config& config= Config::getInstance();
 	string host = labelServerIp.getText();
-	int port = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	int port = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 	std::vector<std::string> hostPartsList;
 	Tokenize(host,hostPartsList,":");
 	if(hostPartsList.size() > 1) {
