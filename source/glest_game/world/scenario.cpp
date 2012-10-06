@@ -192,7 +192,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 
     for(int i= 0; i < GameConstants::maxPlayers; ++i) {
     	XmlNode* playerNode=NULL;
-    	string factionTypeName="";
+    	//string factionTypeName="";
     	ControlType factionControl;
 
     	if(playersNode->hasChildAtIndex("player",i)) {

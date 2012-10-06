@@ -1020,9 +1020,7 @@ string UnitType::getName(bool translatedValue) const {
 }
 
 std::string UnitType::toString() const {
-	std::string result = "";
-
-	result = "Unit Name: [" + name + "] id = " + intToStr(id);
+	std::string result = "Unit Name: [" + name + "] id = " + intToStr(id);
 	result += " maxHp = " + intToStr(maxHp);
 	result += " hpRegeneration = " + intToStr(hpRegeneration);
 	result += " maxEp = " + intToStr(maxEp);

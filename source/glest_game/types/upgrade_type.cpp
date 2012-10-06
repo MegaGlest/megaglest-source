@@ -611,7 +611,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		//resource requirements
 		int index = 0;
 		const XmlNode *resourceRequirementsNode= upgradeNode->getChild("resource-requirements");
-		hasDup = false;
+
 		costs.resize(resourceRequirementsNode->getChildCount());
 		for(int i = 0; i < costs.size(); ++i) {
 			const XmlNode *resourceNode= 	resourceRequirementsNode->getChild("resource", i);

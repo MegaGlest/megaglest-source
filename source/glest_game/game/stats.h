@@ -78,7 +78,7 @@ private:
 public:
 
 	Stats() {
-		description 		= "";
+		//description 		= "";
 		factionCount 		= 0;
 		thisFactionIndex 	= 0;
 
@@ -89,11 +89,11 @@ public:
 		totalEndGameConcurrentUnitCount	= 0;
 		isMasterserverMode				= false;
 		timePlayed						= 0;
-		techName						= "";
+		//techName						= "";
 	}
 
 	void init(int factionCount, int thisFactionIndex, const string &description,
-			const string techName);
+			const string &techName);
 
 	string getDescription() const	{return description;}
 	int getThisFactionIndex() const	{return thisFactionIndex;}

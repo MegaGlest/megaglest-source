@@ -2063,7 +2063,6 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 	  //lua_lock(luaHandle);
 	  //luaC_checkGC(luaHandle);
 
-	  const int max_args_allowed = 8;
 	  int args = lua_gettop(luaHandle);
 	  if(lua_checkstack(luaHandle, args+1)) {
 		LuaArguments luaArguments(luaHandle);
@@ -2073,6 +2072,7 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
 
+		const int max_args_allowed = 8;
 		if(args == 1) {
 			thisScriptManager->DisplayFormattedText(fmt.c_str());
 		}
@@ -2171,7 +2171,6 @@ if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags
 	  //lua_lock(luaHandle);
 	  //luaC_checkGC(luaHandle);
 
-	  const int max_args_allowed = 8;
 	  int args = lua_gettop(luaHandle);
 	  if(lua_checkstack(luaHandle, args+1)) {
 		LuaArguments luaArguments(luaHandle);
@@ -2181,6 +2180,7 @@ if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
 
+		const int max_args_allowed = 8;
 		if(args == 1) {
 			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str());
 		}
@@ -2252,7 +2252,6 @@ int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
 	  //lua_lock(luaHandle);
 	  //luaC_checkGC(luaHandle);
 
-	  const int max_args_allowed = 8;
 	  int args = lua_gettop(luaHandle);
 	  if(lua_checkstack(luaHandle, args+1)) {
 		LuaArguments luaArguments(luaHandle);
@@ -2262,6 +2261,7 @@ int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
 
+		const int max_args_allowed = 8;
 		if(args == 1) {
 			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str());
 		}

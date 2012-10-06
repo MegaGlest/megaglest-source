@@ -192,8 +192,6 @@ bool Object::getWalkable() const{
 
 void Object::setResource(const ResourceType *resourceType, const Vec2i &pos){
 	delete resource;
-	resource = NULL;
-
 	resource= new Resource();
 	resource->init(resourceType, pos);
 	initParticlesFromTypes(resourceType->getObjectParticleSystemTypes());

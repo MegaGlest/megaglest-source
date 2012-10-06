@@ -287,7 +287,7 @@ private:
 
 	//bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2);
 	inline bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
-		bool result = true;
+		//bool result = true;
 
 	//	std::map<int,std::map<Field,BadUnitNodeList> > &badCellList = factions[unit->getFactionIndex()].badCellList;
 	//	if(badCellList.find(unit->getType()->getSize()) != badCellList.end()) {
@@ -308,7 +308,7 @@ private:
 	//		}
 	//	}
 
-		result = map->aproxCanMoveSoon(unit, pos1, pos2);
+		bool result = map->aproxCanMoveSoon(unit, pos1, pos2);
 		return result;
 	}
 

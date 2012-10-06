@@ -353,7 +353,7 @@ const string BattleEnd::getTimeString(int frames) {
 	int minutes=(int) framesleft / (float)GameConstants::updateFps / 60.0;
 	framesleft=framesleft-minutes*60*GameConstants::updateFps;
 	int seconds=(int) framesleft / (float)GameConstants::updateFps;
-	framesleft=framesleft-seconds*GameConstants::updateFps;
+	//framesleft=framesleft-seconds*GameConstants::updateFps;
 
 	string hourstr=intToStr(hours);
 	if(hours<10) hourstr="0"+hourstr;

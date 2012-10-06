@@ -138,7 +138,7 @@ void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
 }
 
 Vec2i UnitPathBasic::pop(bool removeFrontPos) {
-	if(pathQueue.size() <= 0) {
+	if(pathQueue.empty() == true) {
 		throw megaglest_runtime_error("pathQueue.size() = " + intToStr(pathQueue.size()));
 	}
 	Vec2i p= pathQueue.front();
@@ -148,9 +148,7 @@ Vec2i UnitPathBasic::pop(bool removeFrontPos) {
 	return p;
 }
 std::string UnitPathBasic::toString() const {
-	std::string result = "";
-
-	result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(pathQueue.size());
+	std::string result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(pathQueue.size());
 	for(int idx = 0; idx < pathQueue.size(); ++idx) {
 		result += " index = " + intToStr(idx) + " " + pathQueue[idx].getString();
 	}
@@ -200,9 +198,7 @@ void WaypointPath::condense() {
 }
 
 std::string UnitPath::toString() const {
-	std::string result = "";
-
-	result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(size());
+	std::string result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(size());
 	result += " path = ";
 	for (const_iterator it = begin(); it != end(); ++it) {
 		result += " [" + intToStr(it->x) + "," + intToStr(it->y) + "]";
@@ -2084,7 +2080,7 @@ bool Unit::update() {
 						//printf("+ #2 APPLY ATTACK BOOST SELF PARTICLE to unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId());
 					}
 				}
-				else if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() <= 0) {
+				else if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == true) {
 					if(currentAttackBoostOriginatorEffect.currentAppliedEffect != NULL) {
 						delete currentAttackBoostOriginatorEffect.currentAppliedEffect;
 						currentAttackBoostOriginatorEffect.currentAppliedEffect = NULL;

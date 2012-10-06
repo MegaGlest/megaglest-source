@@ -1220,9 +1220,7 @@ void World::addConsoleTextWoLang(const string &text) {
 }
 
 const string World::getSystemMacroValue(const string key) {
-	string result = "";
-
-	result = key;
+	std::string result = key;
 	bool tagApplied = Properties::applyTagsToValue(result);
 	if(tagApplied == false) {
 		result = "";

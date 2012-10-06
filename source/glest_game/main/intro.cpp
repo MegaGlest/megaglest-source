@@ -216,7 +216,7 @@ Intro::Intro(Program *program):
 			}
 		}
 
-		if(models.size() == 0) {
+		if(models.empty() == true) {
 			introPath = data_path + "data/core/menu/main_model/intro*.g3d";
 			//vector<string> introModels;
 			findAll(introPath, introModels, false, false);

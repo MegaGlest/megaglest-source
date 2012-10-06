@@ -554,7 +554,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		checkBoxEnablePrivacy.registerGraphicComponent(containerName,"checkBoxEnablePrivacy");
 		checkBoxEnablePrivacy.init(currentColumnStart ,currentLine );
 		checkBoxEnablePrivacy.setValue(config.getBool("PrivacyPlease","false"));
-		currentLine-=lineOffset;
+		//currentLine-=lineOffset;
 		// end
 
 		// buttons

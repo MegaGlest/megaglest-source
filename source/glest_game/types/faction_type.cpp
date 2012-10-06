@@ -850,9 +850,7 @@ bool FactionType::factionUsesResourceType(const ResourceType *rt) const {
 }
 
 std::string FactionType::toString() const {
-	std::string result = "";
-
-	result = "Faction Name: " + name + "\n";
+	std::string result = "Faction Name: " + name + "\n";
 
 	result += "Unit Type List count = " + intToStr(this->getUnitTypeCount()) + "\n";
     for(int i=0; i<unitTypes.size();i++) {

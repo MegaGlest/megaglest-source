@@ -108,7 +108,7 @@ void MenuStateAbout::reloadUI() {
 	buttonReturn.setText(lang.get("Return"));
 	labelAdditionalCredits.setText(additionalCredits);
 
-	if(additionalCredits == "") {
+	//if(additionalCredits == "") {
 		for(int i= 0; i < aboutStringCount1; ++i){
 			labelAbout1[i].setText(getAboutString1(i));
 		}
@@ -116,16 +116,16 @@ void MenuStateAbout::reloadUI() {
 		for(int i= 0; i < aboutStringCount2; ++i){
 			labelAbout2[i].setText(getAboutString2(i));
 		}
-	}
-	else {
-		for(int i= 0; i < aboutStringCount1; ++i){
-			labelAbout1[i].setText(getAboutString1(i));
-		}
+	//}
+	//else {
+	//	for(int i= 0; i < aboutStringCount1; ++i){
+	//		labelAbout1[i].setText(getAboutString1(i));
+	//	}
 
-		for(int i= 0; i < aboutStringCount2; ++i){
-			labelAbout2[i].setText(getAboutString2(i));
-		}
-	}
+	//	for(int i= 0; i < aboutStringCount2; ++i){
+	//		labelAbout2[i].setText(getAboutString2(i));
+	//	}
+	//}
 
 	for(int i= 0; i < teammateCount; ++i) {
 		labelTeammateName[i].setText(getTeammateName(i));

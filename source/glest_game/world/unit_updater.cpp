@@ -1987,7 +1987,6 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	Renderer &renderer= Renderer::getInstance();
 
 	ProjectileParticleSystem *psProj = 0;
-	SplashParticleSystem *psSplash;
 
 	const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
 	ParticleSystemTypeProjectile *pstProj= ast->getProjParticleType();
@@ -2020,8 +2019,8 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	}
 
 	//splash
-	if(pstSplash!=NULL){
-		psSplash= pstSplash->create();
+	if(pstSplash != NULL) {
+		SplashParticleSystem *psSplash= pstSplash->create();
 		psSplash->setPos(endPos);
 		psSplash->setVisible(visible);
 		if(unit->getFaction()->getTexture()) {

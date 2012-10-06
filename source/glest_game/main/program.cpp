@@ -205,10 +205,8 @@ void Program::initNormal(WindowGl *window){
 }
 
 void Program::initSavedGame(WindowGl *window,bool masterserverMode, string saveGameFile) {
-	MainMenu* mainMenu= NULL;
-
 	init(window);
-	mainMenu= new MainMenu(this);
+	MainMenu *mainMenu= new MainMenu(this);
 	setState(mainMenu);
 
 	if(saveGameFile == "") {
@@ -237,38 +235,30 @@ void Program::initSavedGame(WindowGl *window,bool masterserverMode, string saveG
 
 void Program::initServer(WindowGl *window, bool autostart,bool openNetworkSlots,
 		bool masterserverMode) {
-	MainMenu* mainMenu= NULL;
-
 	//this->masterserverMode = masterserverMode;
 	init(window);
-	mainMenu= new MainMenu(this);
+	MainMenu *mainMenu= new MainMenu(this);
 	setState(mainMenu);
 	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, openNetworkSlots, pNewGame, autostart, NULL, masterserverMode));
 }
 
 void Program::initServer(WindowGl *window, GameSettings *settings) {
-	MainMenu* mainMenu= NULL;
-
 	init(window);
-	mainMenu= new MainMenu(this);
+	MainMenu *mainMenu= new MainMenu(this);
 	setState(mainMenu);
 	mainMenu->setState(new MenuStateCustomGame(this, mainMenu, false, pNewGame, true, settings));
 }
 
 void Program::initClient(WindowGl *window, const Ip &serverIp, int portNumber) {
-	MainMenu* mainMenu= NULL;
-
 	init(window);
-	mainMenu= new MainMenu(this);
+	MainMenu *mainMenu= new MainMenu(this);
 	setState(mainMenu);
 	mainMenu->setState(new MenuStateJoinGame(this, mainMenu, true, serverIp,portNumber));
 }
 
 void Program::initClientAutoFindHost(WindowGl *window) {
-	MainMenu* mainMenu= NULL;
-
 	init(window);
-	mainMenu= new MainMenu(this);
+	MainMenu *mainMenu= new MainMenu(this);
 	setState(mainMenu);
 	bool autoFindHost = true;
 	mainMenu->setState(new MenuStateJoinGame(this, mainMenu, &autoFindHost));
@@ -276,10 +266,8 @@ void Program::initClientAutoFindHost(WindowGl *window) {
 }
 
 void Program::initScenario(WindowGl *window, string autoloadScenarioName) {
-	MainMenu* mainMenu= NULL;
-
 	init(window);
-	mainMenu= new MainMenu(this);
+	MainMenu *mainMenu= new MainMenu(this);
 	setState(mainMenu);
 	mainMenu->setState(new MenuStateScenario(this, mainMenu, false,
 			Config::getInstance().getPathListForType(ptScenarios),autoloadScenarioName));

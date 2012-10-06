@@ -42,12 +42,14 @@ string getCrashDumpFileName(){
 }
 
 string getPlatformNameString() {
-	static string platform = "";
+	static string platform;
 	if(platform == "") {
 #if defined(WIN32)
-	platform = "Windows";
+
 	#if defined(__MINGW32__)
 	platform = "W-MINGW";
+	#else
+	platform = "Windows";
 	#endif
 
 #elif defined(__FreeBSD__)
@@ -55,9 +57,11 @@ string getPlatformNameString() {
 #elif defined(__APPLE__)
 	platform = "MacOSX";
 #elif defined(__GNUC__)
-	platform = "GNU";
+
 	#if defined(__MINGW32__)
 	platform = "L-MINGW";
+	#else
+	platform = "GNU";
 	#endif
 
 #else

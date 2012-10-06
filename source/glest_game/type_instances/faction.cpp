@@ -38,14 +38,14 @@ bool CommandGroupUnitSorterId::operator()(const int l, const int r) {
 		printf("Error lUnit == NULL for id = %d factionIndex = %d\n",l,faction->getIndex());
 
 		for(unsigned int i = 0; i < faction->getUnitCount(); ++i) {
-			printf("%d / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName().c_str());
+			printf("%u / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName().c_str());
 		}
 	}
 	if(!rUnit) {
 		printf("Error rUnit == NULL for id = %d factionIndex = %d\n",r,faction->getIndex());
 
 		for(unsigned int i = 0; i < faction->getUnitCount(); ++i) {
-			printf("%d / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName().c_str());
+			printf("%u / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName().c_str());
 		}
 	}
 
@@ -140,14 +140,14 @@ bool CommandGroupUnitSorter::compare(const Unit *l, const Unit *r) {
 //	}
 	else {
 		//Command *commandPeer = j.unit->getCurrrentCommandThreadSafe();
-		if( commandPeer != NULL && commandPeer->getCommandType() != NULL &&
-			(commandPeer->getCommandType()->getClass() != ccMove &&
-			 commandPeer->getCommandType()->getClass() != ccAttack)) {
-			result = l->getId() < r->getId();
-		}
-		else {
+		//if( commandPeer != NULL && commandPeer->getCommandType() != NULL &&
+		//	(commandPeer->getCommandType()->getClass() != ccMove &&
+		//	 commandPeer->getCommandType()->getClass() != ccAttack)) {
 			result = (l->getId() < r->getId());
-		}
+		//}
+		//else {
+		//	result = (l->getId() < r->getId());
+		//}
 	}
 
 	//printf("Sorting, unit [%d - %s] cmd [%s] | unit2 [%d - %s] cmd [%s] result = %d\n",this->unit->getId(),this->unit->getFullName().c_str(),(this->unit->getCurrCommand() == NULL ? "NULL" : this->unit->getCurrCommand()->toString().c_str()),j.unit->getId(),j.unit->getFullName().c_str(),(j.unit->getCurrCommand() == NULL ? "NULL" : j.unit->getCurrCommand()->toString().c_str()),result);
@@ -181,7 +181,7 @@ void Faction::sortUnitsByCommandGroups() {
 			printf("#1 Error unitId not found for id = %d [%s] factionIndex = %d\n",unitId,units[i]->getType()->getName().c_str(),this->getIndex());
 
 			for(unsigned int j = 0; j < units.size(); ++j) {
-				printf("%d / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
+				printf("%u / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
 			}
 		}
 		unitIds.push_back(unitId);
@@ -198,7 +198,7 @@ void Faction::sortUnitsByCommandGroups() {
 			printf("#2 Error unitId not found for id = %d factionIndex = %d\n",unitId,this->getIndex());
 
 			for(unsigned int j = 0; j < units.size(); ++j) {
-				printf("%d / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
+				printf("%u / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
 			}
 		}
 
@@ -389,6 +389,10 @@ void FactionThread::execute() {
 // =====================================================
 
 Faction::Faction() {
+	init();
+}
+
+void Faction::init() {
 	unitsMutex = new Mutex();
 	texture = NULL;
 	//lastResourceTargettListPurge = 0;
@@ -1866,9 +1870,7 @@ string Faction::getCacheStats() {
 }
 
 std::string Faction::toString() const {
-	std::string result = "";
-
-    result = "FactionIndex = " + intToStr(this->index) + "\n";
+	std::string result = "FactionIndex = " + intToStr(this->index) + "\n";
     result += "teamIndex = " + intToStr(this->teamIndex) + "\n";
     result += "startLocationIndex = " + intToStr(this->startLocationIndex) + "\n";
     result += "thisFaction = " + intToStr(this->thisFaction) + "\n";

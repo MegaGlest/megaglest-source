@@ -1278,7 +1278,7 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		World &world, bool purgeUnusedFiles,bool purgeDuplicateFiles,
 		bool showDuplicateFiles, bool svnPurgeFiles,double &purgedMegaBytes) {
-	string file = tilesetPath + tilesetName + "/" + tilesetName + ".xml";
+	//string file = tilesetPath + tilesetName + "/" + tilesetName + ".xml";
 	Checksum checksum;
 
 	bool techtree_errors = false;
@@ -1940,7 +1940,7 @@ void runTechValidationForPath(string techPath, string techName,
 								if(fileExt == "wav" || fileExt == "ogg") {
 									off_t fileSize = getFileSize(duplicateFile);
 
-									printf("#1 [%d / %lu] removing duplicate [%s]\n",idx,fileList.size(),duplicateFile.c_str());
+									printf("#1 [%u / %lu] removing duplicate [%s]\n",idx,fileList.size(),duplicateFile.c_str());
 
 									if(idx == 0) {
 										newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
@@ -2166,6 +2166,7 @@ void runTechValidationReport(int argc, char** argv) {
 
 	// Did the user pass a specific scenario to validate?
 	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) + string("=")) == true) {
+
         int foundParamIndIndex = -1;
         hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) + string("="),&foundParamIndIndex);
 
@@ -2174,7 +2175,7 @@ void runTechValidationReport(int argc, char** argv) {
         Tokenize(filterList,paramPartTokens,"=");
 
         if(paramPartTokens.size() >= 2) {
-        	vector<string> optionList;
+        	//vector<string> optionList;
             string validateScenarioName = paramPartTokens[1];
 
 			printf("Filtering scenario: %s\n",validateScenarioName.c_str());
@@ -2191,7 +2192,7 @@ void runTechValidationReport(int argc, char** argv) {
 
             bool scenarioFound = false;
             World world;
-            double purgedMegaBytes=0;
+            //double purgedMegaBytes=0;
             std::vector<string> filteredFactionList;
 
             vector<string> scenarioPaths = config.getPathListForType(ptScenarios);
@@ -2416,9 +2417,6 @@ void runTilesetValidationReport(int argc, char** argv) {
 	//disableBacktrace=true;
 	printf("====== Started Validation ======\n");
 
-	bool showDuplicateFiles = true;
-	bool purgeUnusedFiles = false;
-
 	//double purgedMegaBytes=0;
 	Config &config = Config::getInstance();
 
@@ -2432,11 +2430,12 @@ void runTilesetValidationReport(int argc, char** argv) {
         Tokenize(filterList,paramPartTokens,"=");
 
         if(paramPartTokens.size() >= 2) {
-        	vector<string> optionList;
+        	//vector<string> optionList;
             string validateTilesetName = paramPartTokens[1];
 
 			printf("Filtering tileset: %s\n",validateTilesetName.c_str());
 
+			bool purgeUnusedFiles = false;
             if(paramPartTokens.size() >= 3) {
             	if(paramPartTokens[2] == "purgeunused") {
             		purgeUnusedFiles = true;
@@ -2449,7 +2448,9 @@ void runTilesetValidationReport(int argc, char** argv) {
 
             World world;
             double purgedMegaBytes=0;
-            std::vector<string> filteredFactionList;
+    		bool showDuplicateFiles = true;
+
+            //std::vector<string> filteredFactionList;
 
             vector<string> tilesetPaths = config.getPathListForType(ptTilesets);
             for(int idx = 0; idx < tilesetPaths.size(); idx++) {
@@ -2622,7 +2623,7 @@ void CheckForDuplicateData() {
     string duplicateWarnings="";
 
     {
-  	vector<string> results;
+  	//vector<string> results;
 
   	string scenarioDir = "";
   	vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
@@ -3070,19 +3071,20 @@ int glestMain(int argc, char** argv) {
 //#	define STREFLOP_NO_DENORMALS
 //	streflop_init<streflop::Simple>();
 
-		const char *instruction_set = "[none]";
-		const char *denormals = "[denormals]";
-
 #if defined(STREFLOP_SSE)
-		instruction_set = "[SSE]";
+		const char *instruction_set = "[SSE]";
 #elif defined(STREFLOP_X87)
-		instruction_set = "[X87]";
+		const char *instruction_set = "[X87]";
 #elif defined(STREFLOP_SOFT)
-		instruction_set = "[SOFTFLOAT]";
+		const char *instruction_set = "[SOFTFLOAT]";
+#else
+		const char *instruction_set = "[none]";
 #endif
 
 #if defined(STREFLOP_NO_DENORMALS)
-		denormals = "[no-denormals]";
+		const char *denormals = "[no-denormals]";
+#else
+		const char *denormals = "[denormals]";
 #endif
 
 		printf(" - using STREFLOP %s - %s\n",instruction_set,denormals);
@@ -4526,7 +4528,7 @@ int glestMain(int argc, char** argv) {
 					renderer.clearBuffers();
 					renderer.clearZBuffer();
 					renderer.reset2d();
-				    sprintf(szTextBuf,"Please wait, converting models [%d of %lu] ...",i,(long int)models.size());
+				    sprintf(szTextBuf,"Please wait, converting models [%u of %lu] ...",i,(long int)models.size());
 
 				    if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
 						renderer.renderText3D(
@@ -4550,7 +4552,7 @@ int glestMain(int argc, char** argv) {
 
 					Model *model = renderer.newModel(rsGlobal);
 					try {
-						printf("About to load model [%s] [%d of %lu]\n",file.c_str(),i,(long int)models.size());
+						printf("About to load model [%s] [%u of %lu]\n",file.c_str(),i,(long int)models.size());
 						model->load(file);
 						modelLoadedOk = true;
 					}
@@ -4695,8 +4697,9 @@ int glestMain(int argc, char** argv) {
 				#endif
 					{
 
-						bool skip = true;
+
 #ifdef WIN32
+						bool skip = true;
 						DWORD nNumberOfCharsToRead = 1024;
 						DWORD nRead = 0;
 						INPUT_RECORD irInRec[1025];
@@ -4717,7 +4720,7 @@ int glestMain(int argc, char** argv) {
 							}
 						}
 #else
-						skip = false;
+						bool skip = false;
 #endif
 						if(skip == false) {
 							getline(cin, command);
