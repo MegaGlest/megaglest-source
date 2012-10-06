@@ -253,8 +253,7 @@ void FileCRCPreCacheThread::execute() {
 							if(results.empty() == true) {
 								for(unsigned int factionIdx = 0; factionIdx < results.size(); ++factionIdx) {
 									string factionName = results[factionIdx];
-									int32 factionCRC   = 0;
-									factionCRC   = getFolderTreeContentsCheckSumRecursively(techDataPaths, "/" + techName + "/factions/" + factionName + "/*", ".xml", NULL, true);
+									int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(techDataPaths, "/" + techName + "/factions/" + factionName + "/*", ".xml", NULL, true);
 								}
 							}
 

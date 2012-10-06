@@ -884,7 +884,7 @@ void clearFolderTreeContentsCheckSum(const string &path, const string filterFile
 	}
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	if(fileExists(crcCacheFile) == true) {
-		bool result = removeFile(crcCacheFile.c_str());
+		bool result = removeFile(crcCacheFile);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
 	}
 }
@@ -1058,7 +1058,7 @@ void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearch
 	}
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	if(fileExists(crcCacheFile) == true) {
-		bool result = removeFile(crcCacheFile.c_str());
+		bool result = removeFile(crcCacheFile);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
 	}
 }
@@ -1231,7 +1231,7 @@ void clearFolderTreeContentsCheckSumList(const string &path, const string filter
 	}
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	if(fileExists(crcCacheFile) == true) {
-		bool result = removeFile(crcCacheFile.c_str());
+		bool result = removeFile(crcCacheFile);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileitem [%s] result = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),result);
 	}
 }
