@@ -265,10 +265,10 @@ bool Checksum::addFileToSum(const string &path) {
 
 		// Determine the file length
 		ifs.seekg(0, ios::end);
-		std::size_t size=ifs.tellg();
+		std::streamoff size=ifs.tellg();
 		ifs.seekg(0, ios::beg);
 
-		int bufSize = size / sizeof(char);
+		unsigned int bufSize = (unsigned int)size / sizeof(char);
 		// Create a vector to store the data
 		std::vector<char> buf(bufSize);
 		// Load the data

@@ -1323,7 +1323,7 @@ void Map::clearUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 	}
 
 	const UnitType *ut= unit->getType();
-	bool currentField=unit->getCurrField();
+	Field currentField=unit->getCurrField();
 
 	if(ignoreSkill==false &&
 			unit->getCurrSkill() != NULL &&

@@ -963,7 +963,7 @@ bool VideoPlayer::initPlayer() {
 				break;
 			}
 			if(this->loadingCB != NULL) {
-				int progress = ((difftime(time(NULL),waitStart) / MAX_VIDEO_START_MILLISECONDS) * 100.0);
+				int progress = (int)((difftime(time(NULL),waitStart) / MAX_VIDEO_START_MILLISECONDS) * 100.0);
 				this->loadingCB->renderVideoLoading(progress);
 			}
 			SDL_Delay(0);
@@ -987,7 +987,7 @@ bool VideoPlayer::initPlayer() {
 					break;
 				}
 				if(this->loadingCB != NULL) {
-					int progress = ((difftime(time(NULL),waitStart) / MAX_VIDEO_START_MILLISECONDS) * 100.0);
+					int progress = (int)((difftime(time(NULL),waitStart) / MAX_VIDEO_START_MILLISECONDS) * 100.0);
 					this->loadingCB->renderVideoLoading(progress);
 				}
 				SDL_Delay(0);
@@ -1394,13 +1394,13 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 
 				glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2i(0, 1);
-					glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height * HEIGHT_MULTIPLIER);
+					glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height * (int)HEIGHT_MULTIPLIER);
 					glTexCoord2i(0, 0);
 					glVertex2i(ctxPtr->x, ctxPtr->y);
 					glTexCoord2i(1, 1);
-					glVertex2i(ctxPtr->x+ctxPtr->width * WIDTH_MULTIPLIER, ctxPtr->y+ctxPtr->height * HEIGHT_MULTIPLIER);
+					glVertex2i(ctxPtr->x+ctxPtr->width * (int)WIDTH_MULTIPLIER, ctxPtr->y+ctxPtr->height * (int)HEIGHT_MULTIPLIER);
 					glTexCoord2i(1, 0);
-					glVertex2i(ctxPtr->x+ctxPtr->width * WIDTH_MULTIPLIER, ctxPtr->y);
+					glVertex2i(ctxPtr->x+ctxPtr->width * (int)WIDTH_MULTIPLIER, ctxPtr->y);
 				glEnd();
 
 			}

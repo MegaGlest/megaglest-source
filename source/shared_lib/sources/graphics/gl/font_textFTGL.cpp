@@ -314,7 +314,7 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 			fflush(stdout);
 		}
 
-		result = box.Upper().Y()- box.Lower().Y();
+		result = box.Upper().Yf()- box.Lower().Yf();
 		if(result == 0) {
 			result = ftFont->LineHeight();
 
@@ -387,7 +387,7 @@ float TextFTGL::LineHeight(const wchar_t* str, const int len) {
 	static float result = -1000;
 	if(result == -1000) {
 		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
-		result = box.Upper().Y()- box.Lower().Y();
+		result = box.Upper().Yf()- box.Lower().Yf();
 		if(result == 0) {
 			result = ftFont->LineHeight();
 		}

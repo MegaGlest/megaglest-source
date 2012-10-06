@@ -243,7 +243,7 @@ Intro::Intro(Program *program):
 				int index = rand() % models.size();
 				if(usedIndex.find(index) != usedIndex.end()) {
 					failedLookups++;
-					seed = time(NULL) / failedLookups;
+					seed = (time(NULL) / failedLookups);
 					srand(seed.getCurTicks());
 					continue;
 				}
