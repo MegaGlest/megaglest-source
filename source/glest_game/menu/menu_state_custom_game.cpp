@@ -38,8 +38,8 @@ namespace Glest{ namespace Game{
 
 using namespace Shared::Util;
 
-const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS   	= 10;
-const int MASTERSERVER_BROADCAST_PUBLISH_SECONDS   	= 6;
+const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS   	= 15;
+const int MASTERSERVER_BROADCAST_PUBLISH_SECONDS   			= 6;
 const int BROADCAST_MAP_DELAY_SECONDS 	= 5;
 const int BROADCAST_SETTINGS_SECONDS  	= 4;
 static const char *SAVED_GAME_FILENAME 				= "lastCustomGameSettings.mgg";
