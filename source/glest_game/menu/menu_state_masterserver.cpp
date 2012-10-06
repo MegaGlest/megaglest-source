@@ -1048,7 +1048,7 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 	//Config& config= Config::getInstance();
 	Ip serverIp(ipString);
 
-	//int serverPort = Config::getInstance().getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+	//int serverPort = Config::getInstance().getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 	int serverPort = port;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] try to connect to [%s] serverPort = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,serverIp.getString().c_str(),serverPort);
 	clientInterface->connect(serverIp, serverPort);

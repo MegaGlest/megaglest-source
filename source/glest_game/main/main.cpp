@@ -3274,8 +3274,8 @@ int glestMain(int argc, char** argv) {
 
 					printf("Forcing internal port# %d, external port# %d\n",internalPort,externalPort);
 
-					config.setInt("ServerPort",internalPort,true);
-					config.setInt("MasterServerExternalPort",externalPort,true);
+					config.setInt("PortServer",internalPort,true);
+					config.setInt("PortExternal",externalPort,true);
 					config.setInt("FTPServerPort",internalPort+1,true);
 
 					if(paramPartPortsTokens.size() >= 3 && paramPartPortsTokens[2].length() > 0) {
@@ -4360,7 +4360,7 @@ int glestMain(int argc, char** argv) {
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				string autoConnectServer = paramPartTokens[1];
 
-				int port = config.getInt("ServerPort",intToStr(GameConstants::serverPort).c_str());
+				int port = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 				vector<string> paramPartTokens2;
 				Tokenize(autoConnectServer,paramPartTokens2,":");
 				autoConnectServer = paramPartTokens2[0];

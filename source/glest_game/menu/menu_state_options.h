@@ -81,7 +81,7 @@ private:
 	int mainMessageBoxState;
 
 	GraphicLabel labelPublishServerExternalPort;
-	GraphicListBox listBoxPublishServerExternalPort;
+	GraphicListBox listBoxServerPort;
 
 
 	GraphicLabel labelEnableFTP;
