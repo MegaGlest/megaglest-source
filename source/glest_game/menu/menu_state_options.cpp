@@ -860,7 +860,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 			// use the following ports for ftp
 			char szBuf[1024]="";
-			sprintf(szBuf,"%d - %d",selectedPort + 2, selectedPort + GameConstants::maxPlayers);
+			sprintf(szBuf,"%d - %d",selectedPort + 2, selectedPort + 1 + GameConstants::maxPlayers);
 			labelFTPServerPort.setText(intToStr(selectedPort+1));
 			labelFTPServerDataPorts.setText(szBuf);
 		}
