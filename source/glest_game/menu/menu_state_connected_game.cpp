@@ -1205,7 +1205,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 					broadcastServerSettingsDelayTimer=time(NULL);
 				}
 
-                //ensure thet only 1 human player is present
+                //ensure that only 1 human player is present
                 if(clientInterface != NULL && clientInterface->getGameSettings() != NULL &&
                 		clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxControls[i].mouseClick(x, y)) {
@@ -1213,6 +1213,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
                 	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+                		listBoxControls[i].mouseClick(x, y);
+                	}
+                	if(isHeadlessAdmin==true && listBoxControls[i].getSelectedItemIndex() == ctHuman){
                 		listBoxControls[i].mouseClick(x, y);
                 	}
 
