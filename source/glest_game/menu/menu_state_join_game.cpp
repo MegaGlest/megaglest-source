@@ -155,13 +155,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 		portNumber = strToInt(hostPartsList[1]);
 	}
 
-	string port = intToStr(portNumber);
-	if(port != intToStr(config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str()))) {
-		port = port + " (" + lang.get("NonStandardPort") + ")";
-	}
-	else {
-		port = port + " (" + lang.get("StandardPort") + ")";
-	}
+	string port = " ("+intToStr(portNumber)+")";
 	labelServerPort.setText(port);
 
 	labelStatus.registerGraphicComponent(containerName,"labelStatus");
@@ -205,13 +199,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 		portNumber = strToInt(hostPartsList[1]);
 	}
 
-	port = intToStr(portNumber);
-	if(port != intToStr(config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str()))) {
-		port = port + " (" + lang.get("NonStandardPort") + ")";
-	}
-	else {
-		port = port + " (" + lang.get("StandardPort") + ")";
-	}
+	port = " ("+intToStr(portNumber)+")";
 	labelServerPort.setText(port);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
@@ -251,13 +239,7 @@ void MenuStateJoinGame::reloadUI() {
 		portNumber = strToInt(hostPartsList[1]);
 	}
 
-	string port = intToStr(portNumber);
-	if(port != intToStr(config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str()))) {
-		port = port + " (" + lang.get("NonStandardPort") + ")";
-	}
-	else {
-		port = port + " (" + lang.get("StandardPort") + ")";
-	}
+	string port = " ("+intToStr(portNumber)+")";
 	labelServerPort.setText(port);
 
 	chatManager.init(&console, -1);
@@ -360,14 +342,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			portNumber = strToInt(hostPartsList[1]);
 		}
 
-		Lang &lang= Lang::getInstance();
-		string port = intToStr(portNumber);
-		if(port != intToStr(config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str()))) {
-			port = port + " (" + lang.get("NonStandardPort") + ")";
-		}
-		else {
-			port = port + " (" + lang.get("StandardPort") + ")";
-		}
+		string port = " ("+intToStr(portNumber)+")";
 		labelServerPort.setText(port);
 
 	}

@@ -685,15 +685,6 @@ void MenuStateOptions::reloadUI() {
 
 	labelServerPortLabel.setText(lang.get("ServerPort"));
 	Config &config= Config::getInstance();
-	string port = intToStr(config.getInt("PortServer"));
-	if(port != intToStr(GameConstants::serverPort).c_str()) {
-		port = port +" ("+lang.get("NonStandardPort")+"!!)";
-	}
-	else{
-		port = port +" ("+lang.get("StandardPort")+")";
-	}
-
-	labelExternalPort.setText(port);
 
 	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
 
