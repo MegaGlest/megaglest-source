@@ -446,23 +446,6 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
 		labelServerPortLabel.init(currentLabelStart,currentLine);
 		labelServerPortLabel.setText(lang.get("ServerPort"));
-		labelServerPort.init(currentColumnStart,currentLine);
-		string port=intToStr(config.getInt("PortServer"));
-		if(port != intToStr(GameConstants::serverPort)){
-			port=port +" ("+lang.get("NonStandardPort")+"!!)";
-		}
-		else{
-			port=port +" ("+lang.get("StandardPort")+")";
-		}
-
-		labelServerPort.setText(port);
-
-		// external server port
-		currentLine-=lineOffset;
-
-		labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
-		labelPublishServerExternalPort.init(currentLabelStart, currentLine, 150);
-		labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
 
 		listBoxServerPort.registerGraphicComponent(containerName,"listBoxPublishServerExternalPort");
 		listBoxServerPort.init(currentColumnStart, currentLine, 170);
@@ -471,19 +454,35 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		std::vector<std::string> portList;
 		Tokenize(portListString,portList,",");
 
-		string currentPort=config.getString("PortExternal", intToStr(GameConstants::serverPort).c_str());
-		int masterServerExternalPortSelectionIndex=0;
+		string currentPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
+		int portSelectionIndex=0;
 		for(int idx = 0; idx < portList.size(); idx++) {
 			if(portList[idx] != "" && IsNumeric(portList[idx].c_str(),false)) {
 				listBoxServerPort.pushBackItem(portList[idx]);
 				if(currentPort==portList[idx])
 				{
-					masterServerExternalPortSelectionIndex=idx;
+					portSelectionIndex=idx;
 				}
 			}
 		}
-		listBoxServerPort.setSelectedItemIndex(masterServerExternalPortSelectionIndex);
+		listBoxServerPort.setSelectedItemIndex(portSelectionIndex);
 
+		// external server port
+		currentLine-=lineOffset;
+		labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
+		labelPublishServerExternalPort.init(currentLabelStart, currentLine, 150);
+		labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
+
+		labelExternalPort.init(currentColumnStart,currentLine);
+		string extPort= config.getString("PortExternal","not set");
+		if(extPort == "not set" || extPort == "0"){
+			extPort="   ---   ";
+		}
+		else{
+			extPort="!!! "+extPort+" !!!";
+		}
+
+		labelExternalPort.setText(extPort);
 		currentLine-=lineOffset;
 		// FTP Config - start
 		labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
@@ -694,7 +693,7 @@ void MenuStateOptions::reloadUI() {
 		port = port +" ("+lang.get("StandardPort")+")";
 	}
 
-	labelServerPort.setText(port);
+	labelExternalPort.setText(port);
 
 	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
 
@@ -870,7 +869,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			// use the following ports for ftp
 			char szBuf[1024]="";
 			sprintf(szBuf,"%d - %d",selectedPort + 1, selectedPort + GameConstants::maxPlayers);
-			labelFTPServerPort.setText(intToStr(selectedPort));
+			labelFTPServerPort.setText(intToStr(selectedPort+1));
 			labelFTPServerDataPorts.setText(szBuf);
 		}
 
@@ -1054,7 +1053,7 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelScreenModes);
 		renderer.renderListBox(&listBoxScreenModes);
 		renderer.renderLabel(&labelServerPortLabel);
-		renderer.renderLabel(&labelServerPort);
+		renderer.renderLabel(&labelExternalPort);
 		renderer.renderListBox(&listFontSizeAdjustment);
 		renderer.renderLabel(&labelFontSizeAdjustment);
 		renderer.renderLabel(&labelFullscreenWindowed);
@@ -1150,8 +1149,8 @@ void MenuStateOptions::saveConfig(){
 	config.setString("FontSizeAdjustment", listFontSizeAdjustment.getSelectedItem());
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
 	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
-	config.setString("PortExternal", listBoxServerPort.getSelectedItem());
-	config.setInt("FTPServerPort",config.getInt("PortExternal")+1);
+	config.setString("PortServer", listBoxServerPort.getSelectedItem());
+	config.setInt("FTPServerPort",config.getInt("PortServer")+1);
     config.setBool("EnableFTPXfer", checkBoxEnableFTP.getValue());
     config.setBool("EnableFTPServer", checkBoxEnableFTPServer.getValue());
 

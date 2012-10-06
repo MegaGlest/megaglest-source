@@ -55,7 +55,7 @@ private:
 	GraphicLabel labelPlayerName;
 	GraphicLabel labelPlayerNameLabel;
 	GraphicLabel *activeInputLabel;
-	GraphicLabel labelServerPort;
+	GraphicLabel labelExternalPort;
 	GraphicLabel labelServerPortLabel;
 
 
