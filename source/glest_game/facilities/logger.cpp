@@ -39,6 +39,7 @@ const int Logger::logLineCount= 15;
 
 Logger::Logger() {
 	//masterserverMode = false;
+	progress = 0;
 	string logs_path = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
 	if(logs_path != "") {
 		fileName= logs_path + "log.txt";

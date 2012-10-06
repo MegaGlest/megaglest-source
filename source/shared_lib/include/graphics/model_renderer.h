@@ -52,7 +52,13 @@ protected:
 	MeshCallback *meshCallback;
 
 public:
-	ModelRenderer()	{meshCallback= NULL;}
+	ModelRenderer()	{
+		renderNormals = false;
+		renderTextures = false;
+		renderColors = false;
+
+		meshCallback= NULL;
+	}
 
 	virtual ~ModelRenderer(){};
 

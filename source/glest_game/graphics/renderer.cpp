@@ -38,15 +38,16 @@ using namespace Shared::Graphics;
 namespace Glest { namespace Game{
 
 uint32 Renderer::SurfaceData::nextUniqueId = 1;
-
 bool Renderer::renderText3DEnabled = true;
+
+const float SKIP_INTERPOLATION_DISTANCE = 20.0f;
+const string DEFAULT_CHAR_FOR_WIDTH_CALC = "V";
 
 // =====================================================
 // 	class MeshCallbackTeamColor
 // =====================================================
 
 bool MeshCallbackTeamColor::noTeamColors = false;
-const string DEFAULT_CHAR_FOR_WIDTH_CALC = "V";
 
 void MeshCallbackTeamColor::execute(const Mesh *mesh) {
 	//team color
@@ -4618,7 +4619,9 @@ void Renderer::renderObjects(const int renderFps) {
 		}
 
 		//objModel->updateInterpolationData(0.f, true);
-		objModel->updateInterpolationData(o->getAnimProgress(), true);
+		//if(this->gameCamera->getPos().dist(o->getPos()) <= SKIP_INTERPOLATION_DISTANCE) {
+			objModel->updateInterpolationData(o->getAnimProgress(), true);
+		//}
 		modelRenderer->render(objModel);
 
 		triangleCount+= objModel->getTriangleCount();
@@ -4975,7 +4978,11 @@ void Renderer::renderUnits(const int renderFps) {
 
 			//render
 			Model *model= unit->getCurrentModelPtr();
-			model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+			//printf("Rendering model [%d - %s]\n[%s]\nCamera [%s]\nDistance: %f\n",unit->getId(),unit->getType()->getName().c_str(),unit->getCurrVector().getString().c_str(),this->gameCamera->getPos().getString().c_str(),this->gameCamera->getPos().dist(unit->getCurrVector()));
+
+			//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
+				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+			//}
 
 			modelRenderer->render(model);
 			triangleCount+= model->getTriangleCount();
@@ -7401,7 +7408,9 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 
 			//render
 			Model *model= unit->getCurrentModelPtr();
-			model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+			//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
+				model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+			//}
 
 			if(colorPickingSelection == true) {
 				unit->setUniquePickingColor();
@@ -7507,7 +7516,9 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 
 			if(resourceOnly == false || o->getResource()!= NULL) {
 				Model *objModel= o->getModelPtr();
-				objModel->updateInterpolationData(o->getAnimProgress(), true);
+				//if(this->gameCamera->getPos().dist(o->getPos()) <= SKIP_INTERPOLATION_DISTANCE) {
+					objModel->updateInterpolationData(o->getAnimProgress(), true);
+				//}
 				const Vec3f &v= o->getConstPos();
 
 				if(colorPickingSelection == false) {

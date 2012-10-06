@@ -39,6 +39,7 @@ ProduceTask::ProduceTask() : Task() {
 	taskClass= tcProduce;
 	unitType= NULL;
 	resourceType= NULL;
+	unitClass = ucWarrior;
 }
 
 ProduceTask::ProduceTask(UnitClass unitClass) : Task() {
@@ -52,11 +53,13 @@ ProduceTask::ProduceTask(const UnitType *unitType) : Task() {
 	taskClass= tcProduce;
 	this->unitType= unitType;
 	resourceType= NULL;
+	unitClass = ucWarrior;
 }
 
 ProduceTask::ProduceTask(const ResourceType *resourceType) : Task() {
 	taskClass= tcProduce;
 	unitType= NULL;
+	unitClass = ucWarrior;
 	this->resourceType= resourceType;
 }
 
