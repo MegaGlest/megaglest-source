@@ -3262,7 +3262,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		}
 		else {
 			//gameSettings->setNetworkPlayerName("");
-			gameSettings->setNetworkPlayerStatuses(factionCount, npst_Disconnected);
+			gameSettings->setNetworkPlayerStatuses(factionCount, npst_None);
 			labelPlayerNames[i].setText("");
 		}
     }
