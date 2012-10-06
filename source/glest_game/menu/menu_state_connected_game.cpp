@@ -1568,7 +1568,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
-			gameSettings->setNetworkPlayerStatuses(slotIndex, npst_Disconnected);
+			gameSettings->setNetworkPlayerStatuses(slotIndex, npst_None);
 			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
 
 			closedCount++;
