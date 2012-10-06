@@ -391,7 +391,7 @@ void Ai::update() {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [ruleIdx = %d, before rule->test()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),ruleIdx);
 
-			//printf("???? Testing AI Faction # %d RULE Name[%s]\n",aiInterface->getFactionIndex(),rule->getName().c_str());
+			//printf("Testing AI Faction # %d RULE Name[%s]\n",aiInterface->getFactionIndex(),rule->getName().c_str());
 
 			if(rule->test()) {
 				if(outputAIBehaviourToConsole()) printf("\n\nYYYYY Executing AI Faction # %d RULE Name[%s]\n\n",aiInterface->getFactionIndex(),rule->getName().c_str());

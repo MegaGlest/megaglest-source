@@ -1965,6 +1965,9 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 			if(playerName != lineInfo->originalPlayerName && lineInfo->originalPlayerName != "") {
 				playerName = lineInfo->originalPlayerName;
 			}
+			if(playerName == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
+				playerName = lang.get("SystemUser");
+			}
 			//printf("playerName [%s], line [%s]\n",playerName.c_str(),line.c_str());
 
 			//string headerLine = "*" + playerName + ":";

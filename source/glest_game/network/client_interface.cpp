@@ -1564,6 +1564,8 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 string ClientInterface::getHumanPlayerName(int index) {
 	string  result = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
 
+	//printf("Client getHumanPlayerName index = %d, gameSettings.getThisFactionIndex() = %d\n",index,gameSettings.getThisFactionIndex());
+
 	if(index >= 0 || gameSettings.getThisFactionIndex() >= 0) {
 		if(index < 0) {
 			index = gameSettings.getThisFactionIndex();
