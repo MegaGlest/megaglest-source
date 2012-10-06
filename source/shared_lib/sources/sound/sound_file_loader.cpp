@@ -121,13 +121,13 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 		throw megaglest_runtime_error("Error reading samples: "+ path);
 	}
 
-	dataOffset= f.tellg();
+	dataOffset= (uint32)f.tellg();
 
 }
 
 uint32 WavSoundFileLoader::read(int8 *samples, uint32 size){
 	f.read(reinterpret_cast<char*> (samples), size);
-	return f.gcount();
+	return (uint32)f.gcount();
 }
 
 void WavSoundFileLoader::close(){

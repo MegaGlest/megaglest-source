@@ -291,9 +291,9 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 
         // Load data and add terminating 0
         vector<char> buffer;
-        buffer.resize(size + (streampos)1);
+        buffer.resize((unsigned int)size + 1);
         xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
-        buffer[size] = 0;
+        buffer[(unsigned int)size] = 0;
 
         // This is required because rapidxml seems to choke when we load lua
         // scenarios that have lua + xml style comments

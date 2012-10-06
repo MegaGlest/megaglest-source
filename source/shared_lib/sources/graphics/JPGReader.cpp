@@ -80,7 +80,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 		return NULL;
 	}
 	is.seekg(0, ios::beg);
-	uint8 *buffer = new uint8[length];
+	uint8 *buffer = new uint8[(unsigned int)length];
 	is.read((char*)buffer, (std::streamsize)length);
 	//Check buffer (weak jpeg check)
 	//if (buffer[0] != 0x46 || buffer[1] != 0xA0) {
@@ -102,7 +102,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 
 	jmp_buf error_buffer; //Used for saving/restoring context
 	// Set up data pointer
-	source.bytes_in_buffer = length;
+	source.bytes_in_buffer = (size_t)length;
 	source.next_input_byte = (JOCTET*)buffer;
 	cinfo.src = &source;
 

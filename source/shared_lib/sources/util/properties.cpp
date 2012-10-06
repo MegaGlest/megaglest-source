@@ -427,7 +427,7 @@ const string Properties::getRandomKey(const bool realrandom) const{
 	if(realrandom == true){
 		//srand((unsigned int)time(NULL));
 		Chrono seed(true);
-		srand(seed.getCurTicks());
+		srand((unsigned int)seed.getCurTicks());
 
 		randomIndex=rand()%max;
 	}

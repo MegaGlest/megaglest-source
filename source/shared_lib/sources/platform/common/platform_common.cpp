@@ -2166,9 +2166,9 @@ string getFileTextContents(string path) {
 
 	// Load data and add terminating 0
 	vector<char> buffer;
-	buffer.resize(size + (streampos)1);
+	buffer.resize((unsigned int)size + 1);
 	xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
-	buffer[size] = 0;
+	buffer[(unsigned int)size] = 0;
 
 	return &buffer.front();
 }
