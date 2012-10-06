@@ -1215,7 +1215,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
                 		listBoxControls[i].mouseClick(x, y);
                 	}
-                	if(isHeadlessAdmin==true && listBoxControls[i].getSelectedItemIndex() == ctHuman){
+                	if( (isHeadlessAdmin()==true) && (listBoxControls[i].getSelectedItemIndex() == ctHuman)){
                 		listBoxControls[i].mouseClick(x, y);
                 	}
 
