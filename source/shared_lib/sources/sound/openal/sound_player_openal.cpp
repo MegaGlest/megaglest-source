@@ -136,6 +136,7 @@ ALenum SoundSource::getFormat(Sound* sound)
 
 StaticSoundSource::StaticSoundSource() {
 	bufferAllocated = false;
+	buffer = 0;
 }
 
 StaticSoundSource::~StaticSoundSource() {
@@ -179,6 +180,8 @@ void StaticSoundSource::play(StaticSound* sound) {
 StreamSoundSource::StreamSoundSource()
 {
 	sound = 0;
+	fadeState = NoFading;
+	format = 0;
 	alGenBuffers(STREAMFRAGMENTS, buffers);
 	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 }
@@ -331,6 +334,7 @@ SoundPlayerOpenAL::SoundPlayerOpenAL() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	device = 0;
+	context = 0;
 	initOk = false;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);

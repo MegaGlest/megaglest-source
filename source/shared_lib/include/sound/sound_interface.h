@@ -26,7 +26,9 @@ private:
 	SoundFactory *soundFactory;
 
 private:
-	SoundInterface() {}
+	SoundInterface() {
+		soundFactory = 0;
+	}
 	SoundInterface(SoundInterface &);
 	void operator=(SoundInterface &);
 

@@ -26,6 +26,9 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 
 ShaderProgramGl::ShaderProgramGl(){
 	inited= false;
+	vertexShader=0;
+	fragmentShader=0;
+	handle=0;
 }
 
 void ShaderProgramGl::init(){
@@ -167,6 +170,7 @@ GLint ShaderProgramGl::getLocation(const string &name){
 
 ShaderGl::ShaderGl(){
 	inited= false;
+	handle = 0;
 }
 
 void ShaderGl::load(const string &path){

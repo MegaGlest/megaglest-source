@@ -357,6 +357,7 @@ AiRuleMassiveAttack::AiRuleMassiveAttack(Ai *ai):
 	AiRule(ai)
 {
 	ultraAttack=false;
+	field = fLand;
 }
 
 bool AiRuleMassiveAttack::test(){
