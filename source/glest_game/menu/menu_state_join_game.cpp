@@ -43,10 +43,30 @@ const int MenuStateJoinGame::foundServersIndex= 2;
 
 const string MenuStateJoinGame::serverFileName= "servers.ini";
 
+MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool *autoFindHost) :
+			MenuState(program, mainMenu, "join-game") {
+	CommonInit(false,Ip(),-1);
+
+	if(autoFindHost != NULL && *autoFindHost == true) {
+		//if(clientInterface->isConnected() == false) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			buttonAutoFindServers.setEnabled(false);
+			buttonConnect.setEnabled(false);
+
+			NetworkManager &networkManager= NetworkManager::getInstance();
+			ClientInterface* clientInterface= networkManager.getClientInterface();
+			clientInterface->discoverServers(this);
+		//}
+	}
+}
 MenuStateJoinGame::MenuStateJoinGame(Program *program, MainMenu *mainMenu,
-		bool connect, Ip serverIp,int portNumberOverride):
-	MenuState(program, mainMenu, "join-game")
-{
+		bool connect, Ip serverIp,int portNumberOverride) :
+	MenuState(program, mainMenu, "join-game") {
+	CommonInit(connect, serverIp,portNumberOverride);
+}
+
+void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverride) {
 	containerName = "JoinGame";
 	abortAutoFind = false;
 	autoConnectToServer = false;

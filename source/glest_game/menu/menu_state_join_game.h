@@ -72,6 +72,7 @@ private:
 
 public:
 	MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect= false, Ip serverIp= Ip(),int portNumberOverride=-1);
+	MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool *autoFindHost);
 	virtual ~MenuStateJoinGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
@@ -86,6 +87,8 @@ public:
     void reloadUI();
 
 private:
+
+    void CommonInit(bool connect, Ip serverIp,int portNumberOverride);
 	void connectToServer();
 	virtual void DiscoveredServers(std::vector<string> serverList);
 };
