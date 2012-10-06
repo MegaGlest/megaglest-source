@@ -2478,15 +2478,7 @@ void MenuStateCustomGame::update() {
 					labelNetStatus[i].setText(szBuf);
 				}
 				else {
-					string port = intToStr(config.getInt("PortServer"));
-					if(port != intToStr(GameConstants::serverPort)){
-						port = port + " " + lang.get("NonStandardPort") + "!)";
-					}
-					else
-					{
-						port = port + ")";
-					}
-					port = "(" + port;
+					string port = "("+intToStr(config.getInt("PortServer"))+")";
 					labelNetStatus[i].setText("--- " + port);
 				}
 			}
