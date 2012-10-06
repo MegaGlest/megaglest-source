@@ -408,6 +408,8 @@ Faction::Faction() {
 	loadWorldNode = NULL;
 	techTree = NULL;
 
+	control = ctClosed;
+
 	overridePersonalityType = fpt_EndCount;
 }
 

@@ -47,6 +47,8 @@ Mesh::Mesh() {
 	vertexCount= 0;
 	indexCount= 0;
 	texCoordFrameCount = 0;
+	opacity = 0.0f;
+	specularPower = 0.0f;
 
 	vertices= NULL;
 	normals= NULL;

@@ -173,6 +173,7 @@ void Program::ShowMessageProgramState::update() {
 
 Program::Program() {
 	//this->masterserverMode = false;
+	this->window = NULL;
 	this->shutdownApplicationEnabled = false;
 	this->skipRenderFrameCount = 0;
 	this->messageBoxIsSystemError = false;

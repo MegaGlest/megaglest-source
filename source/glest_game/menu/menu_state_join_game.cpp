@@ -593,7 +593,6 @@ void MenuStateJoinGame::update()
 			if(clientInterface->getIntroDone()) {
 				labelInfo.setText(lang.get("WaitingHost"));
 
-				Config& config= Config::getInstance();
 				string host = labelServerIp.getText();
 				std::vector<std::string> hostPartsList;
 				Tokenize(host,hostPartsList,":");
