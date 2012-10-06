@@ -257,7 +257,7 @@ std::string UpgradeManager::toString() const {
 }
 
 void UpgradeManager::saveGame(XmlNode *rootNode) {
-	std::map<string,string> mapTagReplacements;
+	//std::map<string,string> mapTagReplacements;
 	XmlNode *upgrademanagerNode = rootNode->addChild("UpgradeManager");
 
 	for(unsigned int i = 0; i < upgrades.size(); ++i) {

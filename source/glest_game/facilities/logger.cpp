@@ -281,7 +281,7 @@ void Logger::renderLoadingScreen() {
 void Logger::setCancelLoadingEnabled(bool value) {
 	Lang &lang= Lang::getInstance();
 	const Metrics &metrics= Metrics::getInstance();
-	string containerName = "logger";
+	//string containerName = "logger";
 	//buttonCancel.registerGraphicComponent(containerName,"buttonCancel");
 	buttonCancel.init((metrics.getVirtualW() / 2) - (125 / 2), 50 * metrics.getVirtualH() / 100, 125);
 	buttonCancel.setText(lang.get("Cancel"));

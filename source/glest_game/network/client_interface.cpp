@@ -122,12 +122,10 @@ ClientInterface::~ClientInterface() {
 void ClientInterface::connect(const Ip &ip, int port) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
-	delete clientSocket;
-	clientSocket = NULL;
-
 	this->ip    = ip;
 	this->port  = port;
 
+	delete clientSocket;
 	clientSocket= new ClientSocket();
 	clientSocket->setBlock(false);
 	clientSocket->connect(ip, port);

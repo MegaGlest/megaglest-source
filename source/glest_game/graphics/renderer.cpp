@@ -43,6 +43,11 @@ bool Renderer::renderText3DEnabled = true;
 const float SKIP_INTERPOLATION_DISTANCE = 20.0f;
 const string DEFAULT_CHAR_FOR_WIDTH_CALC = "V";
 
+enum PROJECTION_TO_INFINITY {
+	pti_D_IS_ZERO,
+	pti_N_OVER_D_IS_OUTSIDE
+};
+
 // =====================================================
 // 	class MeshCallbackTeamColor
 // =====================================================
@@ -1069,11 +1074,6 @@ void Renderer::loadCameraMatrix(const Camera *camera) {
 	glTranslatef(-position.x, -position.y, -position.z);
 }
 
-enum PROJECTION_TO_INFINITY {
-	D_IS_ZERO,
-	N_OVER_D_IS_OUTSIDE
-};
-
 static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble* projection,const GLint* viewport,const char* label=NULL) {
 	Vec3d a,b;
 	/*  note viewport[3] is height of window in pixels  */
@@ -1139,11 +1139,11 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 #else
 	if(fabs(d) < 0.00001)
 #endif
-		throw D_IS_ZERO;
+		throw pti_D_IS_ZERO;
 
 	const float nd = -(norm.x*w.x + norm.y*w.y + norm.z*w.z) / d;
 	if(nd < 0.0 || nd >= 1.0)
-		throw N_OVER_D_IS_OUTSIDE;
+		throw pti_N_OVER_D_IS_OUTSIDE;
 
 	const Vec3f i = start + u*nd;
 	//const Vec2i pos(i.x,i.z);
@@ -1521,7 +1521,7 @@ void Renderer::computeVisibleQuad() {
 			visibleQuad.p[3].x,visibleQuad.p[3].y);
 
 		for(unsigned int i = 0; i < quadCache.frustumData.size(); ++i) {
-			printf("\nFrustrum #%d [%lu]: ",i,quadCache.frustumData.size());
+			printf("\nFrustrum #%u [%lu]: ",i,quadCache.frustumData.size());
 			vector<float> &frustumDataInner = quadCache.frustumData[i];
 			for(unsigned int j = 0; j < frustumDataInner.size(); ++j) {
 				printf("[%f]",quadCache.frustumData[i][j]);
@@ -1704,14 +1704,12 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 		}
 	}
 
-	float color1 = 0.0, color2 = 0.0;
-
 	float fadeFactor = fade + 1.f;
 
 	anim= anim * 2 - maxMouse2dAnim;
 
-	color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
-	color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
+	float color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
+	float color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
 
 	glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
 		glEnable(GL_BLEND);
@@ -4914,10 +4912,9 @@ void Renderer::renderUnits(const int renderFps) {
 		//}
 	}
 
-	bool modelRenderStarted = false;
-
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitList.empty() == false) {
+		bool modelRenderStarted = false;
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
@@ -5861,8 +5858,8 @@ void Renderer::renderMinimap(){
 
     glEnable(GL_BLEND);
 
-    int x1 = 0;
-    int y1 = 0;
+    int x1;
+    int y1;
 #ifdef USE_STREFLOP
     x1 = mx + x + static_cast<int>(20*streflop::sin(static_cast<streflop::Simple>(ang-pi/5)));
 	y1 = my + mh - (y-static_cast<int>(20*streflop::cos(static_cast<streflop::Simple>(ang-pi/5))));
@@ -5871,8 +5868,8 @@ void Renderer::renderMinimap(){
 	y1 = my + mh - (y-static_cast<int>(20*cos(ang-pi/5)));
 #endif
 
-    int x2 = 0;
-    int y2 = 0;
+    int x2;
+    int y2;
 #ifdef USE_STREFLOP
     x2 = mx + x + static_cast<int>(20*streflop::sin(static_cast<streflop::Simple>(ang+pi/5)));
 	y2 = my + mh - (y-static_cast<int>(20*streflop::cos(static_cast<streflop::Simple>(ang+pi/5))));
@@ -7337,9 +7334,9 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 
 	//assertGl();
 
-	bool modelRenderStarted = false;
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitList.empty() == false) {
+		bool modelRenderStarted = false;
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
@@ -7467,10 +7464,9 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 
     assertGl();
 
-	bool modelRenderStarted = false;
-
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleObjectList.empty() == false) {
+		bool modelRenderStarted = false;
 		for(int visibleIndex = 0;
 				visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
 			Object *o = qCache.visibleObjectList[visibleIndex];
@@ -8149,9 +8145,9 @@ void Renderer::renderProgressBar3D(int size, int x, int y, Font3D *font, int cus
             currentSize     = (int)((double)customWidth * ((double)size / 100.0));
         }
         maxSize         = customWidth;
-        if(maxSize <= 0) {
-        	maxSize = maxProgressBar;
-        }
+        //if(maxSize <= 0) {
+        //	maxSize = maxProgressBar;
+        //}
     }
     if(prefixLabel != "") {
         renderText = prefixLabel + renderText;
@@ -8201,9 +8197,9 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
             currentSize     = (int)((double)customWidth * ((double)size / 100.0));
         }
         maxSize         = customWidth;
-        if(maxSize <= 0) {
-        	maxSize = maxProgressBar;
-        }
+        //if(maxSize <= 0) {
+        //	maxSize = maxProgressBar;
+        //}
     }
     if(prefixLabel != "") {
         renderText = prefixLabel + renderText;
@@ -8410,7 +8406,7 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 		return;
 	}
 
-	std::map<int,bool> unitRenderedList;
+	//std::map<int,bool> unitRenderedList;
 
 	if(visibleFrameUnitList.empty() == false) {
 		//printf("Render Unit titles ON\n");
@@ -8428,7 +8424,7 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 						renderText3D(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
 	#endif
 
-						unitRenderedList[unit->getId()] = true;
+						//unitRenderedList[unit->getId()] = true;
 					}
 					else {
 						string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
@@ -8473,7 +8469,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 		return;
 	}
 
-	std::map<int,bool> unitRenderedList;
+	//std::map<int,bool> unitRenderedList;
 
 	if(visibleFrameUnitList.empty() == false) {
 		//printf("Render Unit titles ON\n");
@@ -8490,7 +8486,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 					renderText(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
 #endif
 
-					unitRenderedList[unit->getId()] = true;
+					//unitRenderedList[unit->getId()] = true;
 				}
 				else {
 					string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
@@ -9457,16 +9453,13 @@ void Renderer::renderVideoLoading(int progressPercent) {
 
 	static Chrono cycle(true);
 	static float anim = 0.0f;
-	static bool animCycleUp = true;
 
 	if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
 
-		int renderX = 0;
-		int renderY = 0;
 		int w= metrics.getVirtualW();
-		renderX = (w / 2) - (CoreData::getInstance().getMenuFontBig3D()->getMetrics()->getTextWidth(textToRender) / 2);
+		int renderX = (w / 2) - (CoreData::getInstance().getMenuFontBig3D()->getMetrics()->getTextWidth(textToRender) / 2);
 		int h= metrics.getVirtualH();
-		renderY = (h / 2) + (CoreData::getInstance().getMenuFontBig3D()->getMetrics()->getHeight(textToRender) / 2);
+		int renderY = (h / 2) + (CoreData::getInstance().getMenuFontBig3D()->getMetrics()->getHeight(textToRender) / 2);
 
 		renderText3D(
 				textToRender,
@@ -9484,6 +9477,7 @@ void Renderer::renderVideoLoading(int progressPercent) {
     swapBuffers();
 
     if(cycle.getCurMillis() % 50 == 0) {
+    	static bool animCycleUp = true;
     	if(animCycleUp == true) {
 			anim += 0.1;
 			if(anim > 1.f) {

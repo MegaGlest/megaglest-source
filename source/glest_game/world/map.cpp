@@ -857,7 +857,7 @@ bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::m
 	}
 
 	bool isBadHarvestPos = false;
-	if(unit != NULL) {
+	//if(unit != NULL) {
 		Command *command= unit->getCurrCommand();
 		if(command != NULL) {
 			const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
@@ -865,7 +865,7 @@ bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::m
 				isBadHarvestPos = true;
 			}
 		}
-	}
+	//}
 
 	if(unit == NULL || isBadHarvestPos == true) {
 		if(lookupCache != NULL) {
@@ -952,7 +952,7 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 		}
 
 		bool isBadHarvestPos = false;
-		if(unit != NULL) {
+		//if(unit != NULL) {
 			Command *command= unit->getCurrCommand();
 			if(command != NULL) {
 				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
@@ -960,7 +960,7 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 					isBadHarvestPos = true;
 				}
 			}
-		}
+		//}
 
 		if(unit == NULL || isBadHarvestPos == true) {
 			if(lookupCache != NULL) {

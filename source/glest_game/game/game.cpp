@@ -768,7 +768,7 @@ vector<Texture2D *> Game::processTech(string techName) {
 	vector<Texture2D *> logoFiles;
 	bool enableFactionTexturePreview = Config::getInstance().getBool("FactionPreview","true");
 	if(enableFactionTexturePreview) {
-		string currentTechName_factionPreview = techName;
+		//string currentTechName_factionPreview = techName;
 
 		vector<string> factions;
 		vector<string> techPaths = Config::getInstance().getPathListForType(ptTechs);
@@ -780,10 +780,9 @@ vector<Texture2D *> Game::processTech(string techName) {
 			if(factions.empty() == false) {
 				for(unsigned int factionIdx = 0; factionIdx < factions.size(); ++factionIdx) {
 					bool loadingImageUsed = false;
-					string factionLogo = "";
 					string currentFactionName_factionPreview = factions[factionIdx];
 
-					factionLogo = Game::extractFactionLogoFile(
+					string factionLogo = Game::extractFactionLogoFile(
 							loadingImageUsed,
 							currentFactionName_factionPreview,
 							"",
@@ -1612,7 +1611,7 @@ void Game::update() {
 			bool keepFactions = world.getQueuedScenarioKeepFactions();
 			world.setQueuedScenario("",false);
 
-			vector<string> results;
+			//vector<string> results;
 			const vector<string> &dirList = Config::getInstance().getPathListForType(ptScenarios);
 			string scenarioFile = Scenario::getScenarioPath(dirList, name);
 
@@ -2491,34 +2490,34 @@ void Game::mouseDownLeft(int x, int y) {
 			popupMenuSwitchTeams.setEnabled(false);
 			popupMenuSwitchTeams.setVisible(false);
 
-			bool isNetworkGame = this->gameSettings.isNetworkGame();
+			//bool isNetworkGame = this->gameSettings.isNetworkGame();
 
 			int teamIndex = switchTeamIndexMap[result.first];
 			switch(teamIndex) {
 				case CREATE_NEW_TEAM:
 					{
 					int newTeam = getFirstUnusedTeamNumber();
-					if(isNetworkGame == true) {
+					//if(isNetworkGame == true) {
 						const Faction *faction = world.getThisFaction();
 						commander.trySwitchTeam(faction,newTeam);
-					}
-					else {
-						const Faction *faction = world.getThisFaction();
-						commander.trySwitchTeam(faction,newTeam);
-					}
+					//}
+					//else {
+					//	const Faction *faction = world.getThisFaction();
+					//	commander.trySwitchTeam(faction,newTeam);
+					//}
 					}
 					break;
 				case CANCEL_SWITCH_TEAM:
 					break;
 				default:
-					if(isNetworkGame == true) {
+					//if(isNetworkGame == true) {
 						const Faction *faction = world.getThisFaction();
 						commander.trySwitchTeam(faction,teamIndex);
-					}
-					else {
-						const Faction *faction = world.getThisFaction();
-						commander.trySwitchTeam(faction,teamIndex);
-					}
+					//}
+					//else {
+					//	const Faction *faction = world.getThisFaction();
+					//	commander.trySwitchTeam(faction,teamIndex);
+					//}
 
 					break;
 			}
@@ -2746,7 +2745,6 @@ void Game::mouseDownLeft(int x, int y) {
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 					MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note",world.getThisFaction()->getStartLocationIndex());
-					cellMarkedData = mc;
 
 					//printf("#2 ADDED in marked list pos [%s] markedCells.size() = %lu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
@@ -3027,11 +3025,12 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			{
 				//float ymult = Config::getInstance().getCameraInvertYAxis() ? -0.2f : 0.2f;
 				//float xmult = Config::getInstance().getCameraInvertXAxis() ? -0.2f : 0.2f;
-				float ymult = 0.2f;
-				float xmult = 0.2f;
 
 				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				if(currentCameraFollowUnit==NULL){
+					float ymult = 0.2f;
+					float xmult = 0.2f;
+
 					gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
 				}
 				mouseX=lastMousePos.x;

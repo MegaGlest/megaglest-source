@@ -343,13 +343,15 @@ bool Lang::hasString(const string &s, string uselanguage, bool fallbackToDefault
 			if(otherLanguageStrings.find(uselanguage) == otherLanguageStrings.end()) {
 				loadStrings(uselanguage, otherLanguageStrings[uselanguage], false);
 			}
-			string result2 = otherLanguageStrings[uselanguage].getString(s);
+			//string result2 = otherLanguageStrings[uselanguage].getString(s);
+			otherLanguageStrings[uselanguage].getString(s);
 			//printf("#b result2 [%s]\n",result2.c_str());
 
 			result = true;
 		}
 		else {
-			string result2 = strings.getString(s);
+			//string result2 = strings.getString(s);
+			strings.getString(s);
 			result = true;
 		}
 	}

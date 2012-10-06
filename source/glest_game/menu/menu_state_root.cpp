@@ -133,7 +133,8 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 		if(popupMenu.mouseClick(x, y)) {
-			std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
+			//std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
+			popupMenu.mouseClickedMenuItem(x, y);
 
 			//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
 		}
@@ -267,7 +268,7 @@ void MenuStateRoot::render() {
 				logoMainW, logoMainH,
 				extraLogo, GraphicComponent::getFade());
 
-		currentX += extraLogo->getPixmap()->getW();
+		//currentX += extraLogo->getPixmap()->getW();
 	}
 
 	renderer.renderButton(&buttonNewGame);

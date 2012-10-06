@@ -136,7 +136,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 					if(text.empty() == false) {
 
 						if(customCB == NULL) {
-							string playerName 	= gameNetworkInterface->getHumanPlayerName();
+							//string playerName 	= gameNetworkInterface->getHumanPlayerName();
 							int playerIndex 	= gameNetworkInterface->getHumanPlayerIndex();
 
 							if(this->manualPlayerNameOverride != "") {

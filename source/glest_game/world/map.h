@@ -435,7 +435,7 @@ public:
 			}
 
 			bool isBadHarvestPos = false;
-			if(unit != NULL) {
+			//if(unit != NULL) {
 				Command *command= unit->getCurrCommand();
 				if(command != NULL) {
 					const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
@@ -443,7 +443,7 @@ public:
 						isBadHarvestPos = true;
 					}
 				}
-			}
+			//}
 
 			if(unit == NULL || isBadHarvestPos == true) {
 

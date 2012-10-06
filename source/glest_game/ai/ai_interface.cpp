@@ -729,9 +729,9 @@ void AiInterface::loadGame(const XmlNode *rootNode, Faction *faction) {
 
 		timer = aiInterfaceNode->getAttribute("timer")->getIntValue();
 	//    int factionIndex;
-		factionIndex = aiInterfaceNode->getAttribute("factionIndex")->getIntValue();
+		//factionIndex = aiInterfaceNode->getAttribute("factionIndex")->getIntValue();
 	//    int teamIndex;
-		teamIndex = aiInterfaceNode->getAttribute("teamIndex")->getIntValue();
+		//teamIndex = aiInterfaceNode->getAttribute("teamIndex")->getIntValue();
 	//	//config
 	//	bool redir;
 		redir = aiInterfaceNode->getAttribute("redir")->getIntValue() != 0;

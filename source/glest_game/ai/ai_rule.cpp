@@ -921,8 +921,8 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				int currentProducerIndex = producers[i];
 				if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
 					char szBuf[1024]="";
-					printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
-					sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
+					printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,producers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
+					sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %u, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
 					throw megaglest_runtime_error(szBuf);
 				}
 
@@ -953,14 +953,14 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 					if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
 						char szBuf[1024]="";
-						printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
-						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
+						printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,producers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
+						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %u, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
 						throw megaglest_runtime_error(szBuf);
 					}
 					if(prIndex >= producers.size()) {
 						char szBuf[1024]="";
-						printf("In [%s::%s Line: %d] prIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %lu \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,(unsigned long)producers.size());
-						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %d,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,(unsigned long)producers.size());
+						printf("In [%s::%s Line: %d] prIndex >= producers.size(), currentProducerIndex = %d, i = %u,producers.size() = %lu \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,(unsigned long)producers.size());
+						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,(unsigned long)producers.size());
 						throw megaglest_runtime_error(szBuf);
 					}
 
@@ -1019,14 +1019,14 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 							if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
 								char szBuf[1024]="";
-								printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,backupProducers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)backupProducers.size());
-								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %d,backupProducers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)backupProducers.size());
+								printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)backupProducers.size());
+								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)backupProducers.size());
 								throw megaglest_runtime_error(szBuf);
 							}
 							if(prIndex >= backupProducers.size()) {
 								char szBuf[1024]="";
-								printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %d,backupProducers.size() = %lu \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,(unsigned long)backupProducers.size());
-								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %d,backupProducers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,(unsigned long)backupProducers.size());
+								printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = %lu \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,(unsigned long)backupProducers.size());
+								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,(unsigned long)backupProducers.size());
 								throw megaglest_runtime_error(szBuf);
 							}
 
@@ -1392,7 +1392,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 							if(ai->getAiInterface()->isFreeCells(tryPos - Vec2i(spacing), bt->getUnitType()->getSize() + spacing * 2, fLand)) {
 								enemies.clear();
 								ai->getAiInterface()->getWorld()->getUnitUpdater()->findEnemiesForCell(tryPos,bt->getUnitType()->getSize(),enemySightDistanceToAvoid,ai->getAiInterface()->getMyFaction(),enemies,true);
-								if(enemies.size() <= 0) {
+								if(enemies.empty() == true) {
 									searchPos = tryPos;
 								}
 							}
@@ -1408,7 +1408,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 							if(ai->getAiInterface()->isFreeCells(tryPos - Vec2i(spacing), bt->getUnitType()->getSize() + spacing * 2, fLand)) {
 								enemies.clear();
 								ai->getAiInterface()->getWorld()->getUnitUpdater()->findEnemiesForCell(tryPos,bt->getUnitType()->getSize(),enemySightDistanceToAvoid,ai->getAiInterface()->getMyFaction(),enemies,true);
-								if(enemies.size() <= 0) {
+								if(enemies.empty() == true) {
 									searchPos = tryPos;
 								}
 							}

@@ -1159,8 +1159,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					// just the 'wrong' amount of lag (but not enough to be horrible for a disconnect)
 					if(Config::getInstance().getBool("AutoClientLagCorrection","true") == true) {
 						double LAG_CHECK_GRACE_PERIOD 		= 15;
-						double maxFrameCountLagAllowed 		= 10;
-						double maxClientLagTimeAllowed 		= 8;
 
 						if(this->serverInterface->getGameStartTime() > 0 &&
 								difftime((long int)time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD) {
@@ -1168,6 +1166,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								double clientLag = this->serverInterface->getCurrentFrameCount() - this->getCurrentFrameCount();
 								double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
 								double clientLagTime = difftime((long int)time(NULL),this->getLastReceiveCommandListTime());
+
+								double maxFrameCountLagAllowed 		= 10;
+								double maxClientLagTimeAllowed 		= 8;
 
 								// New lag check
 								if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||

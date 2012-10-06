@@ -136,7 +136,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int aHeadPos=240;
 	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
-	int xoffset=0;
+	//int xoffset=0;
 
 	//state
 	labelStatus.registerGraphicComponent(containerName,"labelStatus");
@@ -163,7 +163,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	// fog - o - war
 	// @350 ? 300 ?
-	xoffset=70;
+	int xoffset=70;
 	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
 	labelFogOfWar.init(xoffset+100, aHeadPos, 130);
 	labelFogOfWar.setText(lang.get("FogOfWar"));
@@ -247,7 +247,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxPlayerStatus.setItems(playerStatuses);
 
 	// Network Frame Period
-	xoffset=0;
+	//xoffset=0;
 
 	xoffset=70;
     //map listBox

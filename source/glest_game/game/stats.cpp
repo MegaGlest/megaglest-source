@@ -18,7 +18,7 @@ namespace Glest{ namespace Game{
 PlayerStats::PlayerStats() {
 	control = ctClosed;
 	resourceMultiplier=1.0f;
-	factionTypeName = "";
+	//factionTypeName = "";
 	personalityType = fpt_Normal;
 	teamIndex = 0;
 	victory = false;
@@ -27,7 +27,7 @@ PlayerStats::PlayerStats() {
 	deaths = 0;
 	unitsProduced = 0;
 	resourcesHarvested = 0;
-	playerName = "";
+	//playerName = "";
 	playerLeftBeforeEnd = false;
 	timePlayerLeft = -1;
 	playerColor = Vec3f(0,0,0);
@@ -108,7 +108,7 @@ string PlayerStats::getStats() const {
 // class Stats
 // =====================================================
 
-void Stats::init(int factionCount, int thisFactionIndex, const string& description, const string techName) {
+void Stats::init(int factionCount, int thisFactionIndex, const string& description, const string &techName) {
 	this->thisFactionIndex= thisFactionIndex;
 	this->factionCount= factionCount;
 	this->description= description;

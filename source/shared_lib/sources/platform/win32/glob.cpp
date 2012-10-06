@@ -286,8 +286,10 @@ int glob(   char const  *pattern
                 if(new_buffer == NULL)
                 {
                     result = GLOB_NOSPACE;
-                    free(buffer);
-                    buffer = NULL;
+                    if(buffer) {
+                    	free(buffer);
+                    	buffer = NULL;
+                    }
                     break;
                 }
 
@@ -315,7 +317,10 @@ int glob(   char const  *pattern
             if(new_buffer == NULL)
             {
                 result = GLOB_NOSPACE;
-                free(buffer);
+                if(buffer) {
+                	free(buffer);
+                	buffer = NULL;
+                }
             }
             else
             {
@@ -402,7 +407,10 @@ int glob(   char const  *pattern
             if(NULL == pp)
             {
                 result = GLOB_NOSPACE;
-                free(buffer);
+                if(buffer) {
+                	free(buffer);
+                	buffer = NULL;
+                }
             }
             else
             {

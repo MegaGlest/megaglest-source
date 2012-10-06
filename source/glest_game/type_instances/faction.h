@@ -157,6 +157,15 @@ public:
 	Faction();
 	~Faction();
 
+	Faction(const Faction& obj) {
+		init();
+		throw megaglest_runtime_error("class Faction is NOT safe to copy!");
+	}
+	Faction & operator=(const Faction& obj) {
+		init();
+		throw megaglest_runtime_error("class Faction is NOT safe to assign!");
+	}
+
 	inline const bool * aproxCanMoveSoonCached(int size, Field field, const Vec2i &pos1, const Vec2i &pos2) const {
 		const bool *result = NULL;
 //		std::map<int,std::map<Field, std::map<Vec2i,bool> > >::const_iterator iterFind1 = mapSharedPathFinderCache.find(size);
@@ -319,6 +328,7 @@ public:
 	void loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *settings,World *world);
 
 private:
+	void init();
 	void resetResourceAmount(const ResourceType *rt);
 };
 

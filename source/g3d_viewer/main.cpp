@@ -804,7 +804,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 
 void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 	try {
-		string fileName;
+		//string fileName;
 		fileDialog->SetWildcard(wxT("G3D files (*.g3d)|*.g3d;*.G3D"));
 		fileDialog->SetMessage(wxT("Selecting Glest Model for current view."));
 
@@ -834,7 +834,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 
 void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 	try {
-		string fileName;
+		//string fileName;
 		fileDialog->SetWildcard(wxT("XML files (*.xml)|*.xml"));
 
 		if(isControlKeyPressed == true) {
@@ -868,7 +868,7 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 
 void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 	try {
-		string fileName;
+		//string fileName;
 		fileDialog->SetWildcard(wxT("XML files (*.xml)|*.xml"));
 
 		if(isControlKeyPressed == true) {
@@ -902,7 +902,7 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 
 void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 	try {
-		string fileName;
+		//string fileName;
 		fileDialog->SetWildcard(wxT("XML files (*.xml)|*.xml"));
 
 		if(isControlKeyPressed == true) {
@@ -1411,7 +1411,7 @@ void MainWindow::loadProjectileParticle(string path) {
 			int height = 1;
 
 			if(fileExists(unitXML) == true) {
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitXML.c_str(),idx);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitXML.c_str(),idx);
 
 				XmlTree xmlTree;
 				xmlTree.load(unitXML,Properties::getTagReplacementValues());
@@ -1427,7 +1427,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 			string particleFile = dir + folderDelimiter + particlePath;
 			{
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
 				XmlTree xmlTree;
 				xmlTree.load(particleFile,Properties::getTagReplacementValues());
 				//const XmlNode *particleSystemNode= xmlTree.getRootNode();
@@ -1435,7 +1435,7 @@ void MainWindow::loadProjectileParticle(string path) {
 				// std::cout << "Loaded successfully, loading values..." << std::endl;
 			}
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loading [%s] idx = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
 			std::map<string,vector<pair<string, string> > > loadedFileList;
 			ParticleSystemTypeProjectile *projectileParticleSystemType= new ParticleSystemTypeProjectile();
 			projectileParticleSystemType->load(NULL, dir, //### we don't know if there are overrides in the unit XML
@@ -1466,7 +1466,7 @@ void MainWindow::loadProjectileParticle(string path) {
 				renderer->manageParticleSystem(ps);
 			}
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loaded [%s] idx = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] loaded [%s] idx = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,particleFile.c_str(),idx);
 		}
 		SetTitle(ToUnicode(titlestring));
 
