@@ -328,7 +328,7 @@ GLint toCompressionFormatGl(GLint format) {
 	}
 
 	static std::vector<int> supportedCompressionFormats = getSupportCompressedTextureFormats();
-	if(supportedCompressionFormats.size() <= 0) {
+	if(supportedCompressionFormats.empty() == true) {
 		return format;
 	}
 
