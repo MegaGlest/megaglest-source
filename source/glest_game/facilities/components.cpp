@@ -492,6 +492,10 @@ GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objN
 
 GraphicMessageBox::~GraphicMessageBox(){
 	//remove buttons
+	removeButtons();
+}
+
+void GraphicMessageBox::removeButtons(){
 	while(!buttons.empty()){
 		delete buttons.back();
 		buttons.pop_back();
@@ -500,23 +504,13 @@ GraphicMessageBox::~GraphicMessageBox(){
 
 void GraphicMessageBox::init(const string &button1Str, const string &button2Str, int newWidth, int newHeight){
 	init(button1Str, newWidth, newHeight);
-	if(getButtonCount()>1){
-		getButton(1)->setText(button2Str);
-	}
-	else{
-		addButton(button2Str);
-	}
+	addButton(button2Str);
 }
 
 void GraphicMessageBox::init(const string &button1Str, int newWidth, int newHeight){
 	init(newWidth,newHeight);
-
-	if(getButtonCount()>0){
-			getButton(0)->setText(button1Str);
-		}
-	else{
-		addButton(button1Str);
-	}
+	removeButtons();
+	addButton(button1Str);
 }
 
 void GraphicMessageBox::init(int newWidth, int newHeight){
