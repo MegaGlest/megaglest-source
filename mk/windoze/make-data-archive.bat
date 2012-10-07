@@ -29,10 +29,11 @@ echo [%mg_version%]
 
 set RELEASENAME=megaglest-standalone-data
 set PACKAGE=%RELEASENAME%-%mg_version%.7z
-set RELEASEDIR=release\%RELEASENAME%-%mg_version%
+set RELEASEDIR=release-data\%RELEASENAME%-%mg_version%
 set PROJDIR=..\..\
 
-goto make_archive
+rem to debug creating the archive only
+rem goto make_archive
 
 echo Creating data package in [%RELEASEDIR%]
 
@@ -67,11 +68,11 @@ rem remove embedded data
 rem rm -rf "%RELEASEDIR%\data\core\fonts"
 rem END
 :make_archive
-echo Current directory[%CD%]
+rem echo Current directory[%CD%]
 echo creating data archive: %PACKAGE%
-if exist release\%PACKAGE% del release\%PACKAGE%
+if exist release-data%PACKAGE% del release-data%PACKAGE%
 cd /d %RELEASEDIR%
-echo Current directory[%CD%]
+rem echo Current directory[%CD%]
 
 ..\..\..\..\data\glest_game\7z.exe a -mmt -mx=9 -ms=on -mhc=on ..\%PACKAGE% *
 
