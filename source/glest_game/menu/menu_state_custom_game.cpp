@@ -3505,6 +3505,14 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
     try {
     	CoreData::getInstance().loadGameSettingsFromFile(fileName, &gameSettings);
+    	// correct game settings for headless:
+    	if(this->headlessServerMode == true) {
+    		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+    			if(gameSettings.getFactionControl(i)== ctHuman){
+    				gameSettings.setFactionControl(i,ctNetwork);
+    			}
+    		}
+    	}
 		setupUIFromGameSettings(gameSettings);
 	}
     catch(const exception &ex) {
