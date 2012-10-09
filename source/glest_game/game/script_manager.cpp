@@ -353,6 +353,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getUnitsForFaction, "getUnitsForFaction");
 	luaScript.registerFunction(getUnitCurrentField, "getUnitCurrentField");
 
+	luaScript.registerFunction(isFreeCellsOrHasUnit, "isFreeCellsOrHasUnit");
+	luaScript.registerFunction(isFreeCells, "isFreeCells");
+
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
 		const Script* script= scenario->getScript(i);
@@ -1480,6 +1483,22 @@ int ScriptManager::getUnitCurrentField(int unitId) {
 	return world->getUnitCurrentField(unitId);
 }
 
+bool ScriptManager::isFreeCellsOrHasUnit(Vec2i pos, int field, int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	Unit* unit= world->findUnitById(unitId);
+
+	return world->getMap()->isFreeCellsOrHasUnit(pos,unit->getType()->getSize(),static_cast<Field>(field),unit,NULL,true);
+}
+
+bool ScriptManager::isFreeCells(Vec2i pos, int unitSize, int field) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	return world->getMap()->isFreeCellsOrHasUnit(pos,unitSize,static_cast<Field>(field),NULL,NULL,true);
+}
+
 // ========================== lua callbacks ===============================================
 
 int ScriptManager::showMessage(LuaHandle* luaHandle){
@@ -2361,6 +2380,28 @@ int ScriptManager::getUnitCurrentField(LuaHandle* luaHandle) {
 int ScriptManager::getIsUnitAlive(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getIsUnitAlive(luaArguments.getInt(-1)));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::isFreeCellsOrHasUnit(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+
+	bool result= thisScriptManager->isFreeCellsOrHasUnit(
+			luaArguments.getVec2i(-3),
+			luaArguments.getInt(-2),
+			luaArguments.getInt(-1));
+	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::isFreeCells(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+
+	bool result= thisScriptManager->isFreeCells(
+			luaArguments.getVec2i(-3),
+			luaArguments.getInt(-2),
+			luaArguments.getInt(-1));
+	luaArguments.returnInt(result);
 	return luaArguments.getReturnCount();
 }
 

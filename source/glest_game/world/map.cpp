@@ -679,7 +679,7 @@ bool Map::isFreeCell(const Vec2i &pos, Field field) const {
 bool Map::isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const{
 	if(isInside(pos)){
 		Cell *c= getCell(pos);
-		if(c->getUnit(field)==unit){
+		if(c->getUnit(field) == unit && unit != NULL) {
 			return true;
 		}
 		else{
@@ -757,15 +757,15 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 }
 
 bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field,
-		const Unit *unit, const UnitType *munit) const {
-	if(unit == NULL) {
+		const Unit *unit, const UnitType *munit,bool allowNullUnit) const {
+	if(unit == NULL && allowNullUnit == false) {
 		throw megaglest_runtime_error("unit == NULL");
 	}
-	if(munit == NULL) {
+	if(munit == NULL && allowNullUnit == false) {
 		throw megaglest_runtime_error("munit == NULL");
 	}
-	for(int i=pos.x; i<pos.x+size; ++i) {
-		for(int j=pos.y; j<pos.y+size; ++j) {
+	for(int i = pos.x; i < pos.x + size; ++i) {
+		for(int j = pos.y; j < pos.y + size; ++j) {
 			if(isFreeCellOrHasUnit(Vec2i(i,j), field, unit) == false) {
 				return false;
 			}

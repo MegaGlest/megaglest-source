@@ -342,6 +342,10 @@ private:
 
 	void loadScenario(const string &name, bool keepFactions);
 
+	bool isFreeCellsOrHasUnit(Vec2i pos, int field, int unitId);
+	bool isFreeCells(Vec2i pos, int unitSize, int field);
+
+
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
 	static int networkShowMessageForTeam(LuaHandle* luaHandle);
@@ -459,6 +463,10 @@ private:
 
 	static int getUnitsForFaction(LuaHandle* luaHandle);
 	static int getUnitCurrentField(LuaHandle* luaHandle);
+
+	static int isFreeCellsOrHasUnit(LuaHandle* luaHandle);
+	static int isFreeCells(LuaHandle* luaHandle);
+
 };
 
 }}//end namespace
