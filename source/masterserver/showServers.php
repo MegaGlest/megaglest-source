@@ -58,6 +58,7 @@
 	echo '		<meta charset="UTF-8" />' . PHP_EOL;
 	echo '		<title>' . htmlspecialchars( PRODUCT_NAME ) . ' gameservers</title>' . PHP_EOL;
 	echo '		<link rel="stylesheet" type="text/css" href="style/screen.css" />' . PHP_EOL;
+	echo '		<link rel="shortcut icon" type="image/x-icon" href="' . htmlspecialchars( strtolower( PRODUCT_NAME ) ) . '.ico" />' . PHP_EOL;
 	echo '	</head>' . PHP_EOL;
 	echo '	<body>' . PHP_EOL;
 	echo '		<h1>' . htmlspecialchars( PRODUCT_NAME ) . ' gameservers</h1>' . PHP_EOL;
