@@ -896,9 +896,12 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     			//printf("nctPlayerStatusChange -> faction->getPersonalityType() = %d index [%d] control [%d] networkstatus [%d]\n",
     			//		world->getFaction(factionIndex)->getPersonalityType(),world->getFaction(factionIndex)->getIndex(),world->getFaction(factionIndex)->getControlType(),settings->getNetworkPlayerStatuses(factionIndex));
 
+    			settings->setFactionControl(factionIndex,ctCpuUltra);
+    			settings->setResourceMultiplierIndex(factionIndex,settings->getFallbackCpuMultiplier());
+
         		if(!world->getGame()->getGameOver()&& !this->world->getGame()->factionLostGame(factionIndex)){
         			// use the fallback multiplier here
-        			settings->setResourceMultiplierIndex(factionIndex,settings->getFallbackCpuMultiplier());
+
         			// mark player as "leaver"
         			this->world->getStats()->setPlayerLeftBeforeEnd(factionIndex,true);
         			// set disconnect time for endgame stats
