@@ -358,8 +358,8 @@ private:
 
 	void loadScenario(const string &name, bool keepFactions);
 
-	bool isFreeCellsOrHasUnit(Vec2i pos, int field, int unitId);
-	bool isFreeCells(Vec2i pos, int unitSize, int field);
+	int isFreeCellsOrHasUnit(int field, int unitId,Vec2i pos);
+	int isFreeCells(int unitSize, int field,Vec2i pos);
 
 
 	//callbacks, commands

@@ -1386,7 +1386,11 @@ Vec2i ScriptManager::getStartLocation(int factionIndex) {
 Vec2i ScriptManager::getUnitPosition(int unitId) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
-	return world->getUnitPosition(unitId);
+	Vec2i result = world->getUnitPosition(unitId);
+
+	printf("In [%s] unitId = %d, pos [%s]\n",__FUNCTION__,unitId,result.getString().c_str());
+
+	return result;
 }
 
 void ScriptManager::setUnitPosition(int unitId, Vec2i pos) {
@@ -1587,20 +1591,27 @@ int ScriptManager::getUnitCurrentField(int unitId) {
 	return world->getUnitCurrentField(unitId);
 }
 
-bool ScriptManager::isFreeCellsOrHasUnit(Vec2i pos, int field, int unitId) {
+int ScriptManager::isFreeCellsOrHasUnit(int field, int unitId, Vec2i pos) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
 	Unit* unit= world->findUnitById(unitId);
+	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unit->getType()->getSize(),static_cast<Field>(field),unit,NULL,true);
 
-	return world->getMap()->isFreeCellsOrHasUnit(pos,unit->getType()->getSize(),static_cast<Field>(field),unit,NULL,true);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s] unitId = %d, [%s] pos [%s] field = %d result = %d\n",__FUNCTION__,unitId,unit->getType()->getName().c_str(),pos.getString().c_str(),field,result);
+
+	return result;
 }
 
-bool ScriptManager::isFreeCells(Vec2i pos, int unitSize, int field) {
+int ScriptManager::isFreeCells(int unitSize, int field, Vec2i pos) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
-	return world->getMap()->isFreeCellsOrHasUnit(pos,unitSize,static_cast<Field>(field),NULL,NULL,true);
+	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unitSize,static_cast<Field>(field),NULL,NULL,true);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s] unitSize = %d, pos [%s] field = %d result = %d\n",__FUNCTION__,unitSize,pos.getString().c_str(),field,result);
+
+	return result;
 }
 
 // ========================== lua callbacks ===============================================
@@ -2522,10 +2533,11 @@ int ScriptManager::getIsUnitAlive(LuaHandle* luaHandle) {
 int ScriptManager::isFreeCellsOrHasUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	bool result= thisScriptManager->isFreeCellsOrHasUnit(
-			luaArguments.getVec2i(-3),
+	int result= thisScriptManager->isFreeCellsOrHasUnit(
+			luaArguments.getInt(-3),
 			luaArguments.getInt(-2),
-			luaArguments.getInt(-1));
+			luaArguments.getVec2i(-1));
+
 	luaArguments.returnInt(result);
 	return luaArguments.getReturnCount();
 }
@@ -2533,10 +2545,11 @@ int ScriptManager::isFreeCellsOrHasUnit(LuaHandle* luaHandle) {
 int ScriptManager::isFreeCells(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	bool result= thisScriptManager->isFreeCells(
-			luaArguments.getVec2i(-3),
+	int result= thisScriptManager->isFreeCells(
+			luaArguments.getInt(-3),
 			luaArguments.getInt(-2),
-			luaArguments.getInt(-1));
+			luaArguments.getVec2i(-1));
+
 	luaArguments.returnInt(result);
 	return luaArguments.getReturnCount();
 }
