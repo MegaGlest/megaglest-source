@@ -211,6 +211,8 @@ ScriptManager::ScriptManager() {
 	currentEventId = 0;
 	inCellTriggerEvent = false;
 	rootNode = NULL;
+	currentCellTriggeredEventAreaEntryUnitId = 0;
+	currentCellTriggeredEventAreaExitUnitId = 0;
 }
 
 ScriptManager::~ScriptManager() {
@@ -295,6 +297,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 
 	luaScript.registerFunction(registerCellAreaTriggerEventForUnitToLocation, "registerCellAreaTriggerEventForUnitToLocation");
 	luaScript.registerFunction(registerCellAreaTriggerEventForFactionToLocation, "registerCellAreaTriggerEventForFactionToLocation");
+	luaScript.registerFunction(registerCellAreaTriggerEvent, "registerCellAreaTriggerEvent");
 
 	luaScript.registerFunction(getCellTriggerEventCount, "getCellTriggerEventCount");
 	luaScript.registerFunction(unregisterCellTriggerEvent, "unregisterCellTriggerEvent");
@@ -305,6 +308,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getTimerEventSecondsElapsed, "timerEventSecondsElapsed");
 	luaScript.registerFunction(getCellTriggeredEventId, "triggeredCellEventId");
 	luaScript.registerFunction(getTimerTriggeredEventId, "triggeredTimerEventId");
+
+	luaScript.registerFunction(getCellTriggeredEventAreaEntryUnitId, "triggeredEventAreaEntryUnitId");
+	luaScript.registerFunction(getCellTriggeredEventAreaExitUnitId, "triggeredEventAreaExitUnitId");
 
 	luaScript.registerFunction(setRandomGenInit, "setRandomGenInit");
 	luaScript.registerFunction(getRandomGen, "getRandomGen");
@@ -599,6 +605,8 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 														__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(), event.sourceId,event.destId,event.destPos.getString().c_str());
 
 			bool triggerEvent = false;
+			currentCellTriggeredEventAreaEntryUnitId = 0;
+			currentCellTriggeredEventAreaExitUnitId = 0;
 
 			switch(event.type) {
 			case ctet_Unit:
@@ -710,6 +718,51 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 						}
 					}
 					triggerEvent = srcInDst;
+				}
+			}
+			break;
+
+			case ctet_AreaPos:
+			{
+				// Is the unit already in the cell range? If no check if they are entering it
+				if(event.eventStateInfo.find(movingUnit->getId()) == event.eventStateInfo.end()) {
+					//printf("ctet_FactionPos event.destPos = [%s], movingUnit->getPos() [%s]\n",event.destPos.getString().c_str(),movingUnit->getPos().getString().c_str());
+
+					bool srcInDst = false;
+					for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
+						for(int y = event.destPos.y; srcInDst == false && y <= event.destPosEnd.y; ++y) {
+
+							srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
+							if(srcInDst == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+								currentCellTriggeredEventAreaEntryUnitId = movingUnit->getId();
+								event.eventStateInfo[movingUnit->getId()] = Vec2i(x,y).getString();
+							}
+						}
+					}
+					triggerEvent = srcInDst;
+				}
+				// If unit is already in cell range check if they are leaving?
+				else {
+					bool srcInDst = false;
+					for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
+						for(int y = event.destPos.y; srcInDst == false && y <= event.destPosEnd.y; ++y) {
+
+							srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
+							if(srcInDst == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+								//event.eventStateInfo[movingUnit->getId()] = Vec2i(x,y);
+							}
+						}
+					}
+					triggerEvent = (srcInDst == false);
+					if(triggerEvent == true) {
+						currentCellTriggeredEventAreaExitUnitId = movingUnit->getId();
+
+						event.eventStateInfo.erase(movingUnit->getId());
+					}
 				}
 			}
 			break;
@@ -1126,6 +1179,23 @@ int ScriptManager::registerCellAreaTriggerEventForFactionToLocation(int sourceFa
 	return eventId;
 }
 
+int ScriptManager::registerCellAreaTriggerEvent(const Vec4i &pos) {
+	CellTriggerEvent trigger;
+	trigger.type = ctet_AreaPos;
+	trigger.sourceId = -1;
+	trigger.destPos.x = pos.x;
+	trigger.destPos.y = pos.y;
+	trigger.destPosEnd.x = pos.z;
+	trigger.destPosEnd.y = pos.w;
+
+	int eventId = currentEventId++;
+	CellTriggerEventList[eventId] = trigger;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] trigger cell event when reaching pos: %s, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),eventId);
+
+	return eventId;
+}
+
 int ScriptManager::getCellTriggerEventCount(int eventId) {
 	int result = 0;
 	if(CellTriggerEventList.find(eventId) != CellTriggerEventList.end()) {
@@ -1352,6 +1422,17 @@ int ScriptManager::getTimerTriggeredEventId() {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return currentTimerTriggeredEventId;
 }
+
+int ScriptManager::getCellTriggeredEventAreaEntryUnitId() {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return currentCellTriggeredEventAreaEntryUnitId;
+}
+
+int ScriptManager::getCellTriggeredEventAreaExitUnitId() {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return currentCellTriggeredEventAreaExitUnitId;
+}
+
 
 void ScriptManager::setRandomGenInit(int seed) {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -1796,6 +1877,13 @@ int ScriptManager::registerCellAreaTriggerEventForFactionToLocation(LuaHandle* l
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::registerCellAreaTriggerEvent(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	int result = thisScriptManager->registerCellAreaTriggerEvent(luaArguments.getVec4i(-1));
+	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
 int ScriptManager::getCellTriggerEventCount(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	int result = thisScriptManager->getCellTriggerEventCount(luaArguments.getInt(-1));
@@ -1970,6 +2058,18 @@ int ScriptManager::getCellTriggeredEventId(LuaHandle* luaHandle){
 int ScriptManager::getTimerTriggeredEventId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getTimerTriggeredEventId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getCellTriggeredEventAreaEntryUnitId(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaEntryUnitId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getCellTriggeredEventAreaExitUnitId(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaExitUnitId());
 	return luaArguments.getReturnCount();
 }
 
