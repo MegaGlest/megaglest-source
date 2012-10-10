@@ -241,6 +241,9 @@ private:
 	void networkShowMessageForFaction(const string &text, const string &header,int factionIndex);
 	void networkShowMessageForTeam(const string &text, const string &header,int teamIndex);
 
+	void networkSetCameraPositionForFaction(int factionIndex, const Vec2i &pos);
+	void networkSetCameraPositionForTeam(int teamIndex, const Vec2i &pos);
+
 	void showMessage(const string &text, const string &header);
 	void clearDisplayText();
 	void setDisplayText(const string &text);
@@ -362,6 +365,9 @@ private:
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
 	static int networkShowMessageForTeam(LuaHandle* luaHandle);
+
+	static int networkSetCameraPositionForFaction(LuaHandle* luaHandle);
+	static int networkSetCameraPositionForTeam(LuaHandle* luaHandle);
 
 	static int showMessage(LuaHandle* luaHandle);
 	static int setDisplayText(LuaHandle* luaHandle);
