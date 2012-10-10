@@ -102,7 +102,8 @@ enum CellTriggerEventType {
 	ctet_Faction,
 	ctet_FactionPos,
 	ctet_UnitAreaPos,
-	ctet_FactionAreaPos
+	ctet_FactionAreaPos,
+	ctet_AreaPos
 };
 
 class CellTriggerEvent {
@@ -115,6 +116,8 @@ public:
 	Vec2i destPosEnd;
 
 	int triggerCount;
+
+	std::map<int,string> eventStateInfo;
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
@@ -182,6 +185,10 @@ private:
 
 	int currentTimerTriggeredEventId;
 	int currentCellTriggeredEventId;
+
+	int currentCellTriggeredEventAreaEntryUnitId;
+	int currentCellTriggeredEventAreaExitUnitId;
+
 	int currentEventId;
 	std::map<int,CellTriggerEvent> CellTriggerEventList;
 	std::map<int,TimerTriggerEvent> TimerTriggerEventList;
@@ -280,6 +287,8 @@ private:
 	int registerCellAreaTriggerEventForUnitToLocation(int sourceUnitId, const Vec4i &pos);
 	int registerCellAreaTriggerEventForFactionToLocation(int sourceFactionId, const Vec4i &pos);
 
+	int registerCellAreaTriggerEvent(const Vec4i &pos);
+
 	int getCellTriggerEventCount(int eventId);
 	void unregisterCellTriggerEvent(int eventId);
 	int startTimerEvent();
@@ -287,8 +296,12 @@ private:
 	int resetTimerEvent(int eventId);
 	int stopTimerEvent(int eventId);
 	int getTimerEventSecondsElapsed(int eventId);
+
 	int getCellTriggeredEventId();
 	int getTimerTriggeredEventId();
+
+	int getCellTriggeredEventAreaEntryUnitId();
+	int getCellTriggeredEventAreaExitUnitId();
 
 	void setRandomGenInit(int seed);
 	int getRandomGen(int minVal, int maxVal);
@@ -400,6 +413,8 @@ private:
 	static int registerCellAreaTriggerEventForUnitToLocation(LuaHandle* luaHandle);
 	static int registerCellAreaTriggerEventForFactionToLocation(LuaHandle* luaHandle);
 
+	static int registerCellAreaTriggerEvent(LuaHandle* luaHandle);
+
 	static int getCellTriggerEventCount(LuaHandle* luaHandle);
 	static int unregisterCellTriggerEvent(LuaHandle* luaHandle);
 	static int startTimerEvent(LuaHandle* luaHandle);
@@ -410,6 +425,9 @@ private:
 
 	static int getCellTriggeredEventId(LuaHandle* luaHandle);
 	static int getTimerTriggeredEventId(LuaHandle* luaHandle);
+
+	static int getCellTriggeredEventAreaEntryUnitId(LuaHandle* luaHandle);
+	static int getCellTriggeredEventAreaExitUnitId(LuaHandle* luaHandle);
 
 	static int setRandomGenInit(LuaHandle* luaHandle);
 	static int getRandomGen(LuaHandle* luaHandle);
