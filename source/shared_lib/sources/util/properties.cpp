@@ -109,7 +109,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 		}
 
 		//process line if it it not a comment
-		if(lineBuffer[0] != ';') {
+		if(lineBuffer[0] != ';' && lineBuffer[0] != '#') {
 			//wstring wstr = lineBuffer;
 			//line.assign(wstr.begin(),wstr.end());
 
