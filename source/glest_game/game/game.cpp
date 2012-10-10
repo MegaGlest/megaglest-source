@@ -1451,11 +1451,15 @@ void Game::update() {
 					if(commander.hasReplayCommandListForFrame() == false) {
 						for(int j = 0; j < world.getFactionCount(); ++j) {
 							Faction *faction = world.getFaction(j);
+
+							//printf("Faction Index = %d enableServerControlledAI = %d, isNetworkGame = %d, role = %d isCPU player = %d scriptManager.getPlayerModifiers(j)->getAiEnabled() = %d\n",j,enableServerControlledAI,isNetworkGame,role,faction->getCpuControl(enableServerControlledAI,isNetworkGame,role),scriptManager.getPlayerModifiers(j)->getAiEnabled());
+
 							if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
 								scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 
+								//printf("Faction Index = %d telling AI to do something pendingQuitError = %d\n",j,pendingQuitError);
 								if(pendingQuitError == false) aiInterfaces[j]->update();
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());

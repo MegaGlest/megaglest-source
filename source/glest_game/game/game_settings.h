@@ -195,7 +195,8 @@ public:
 	bool isNetworkGame() const {
 		bool result = false;
 		for(int idx = 0; idx < GameConstants::maxPlayers; ++idx) {
-			if(factionControls[idx] == ctNetwork || factionControls[idx] == ctNetworkUnassigned) {
+			if(factionControls[idx] == ctNetwork || factionControls[idx] == ctNetworkUnassigned ||
+					networkPlayerStatuses[idx] == npst_Disconnected) {
 				result = true;
 				break;
 			}

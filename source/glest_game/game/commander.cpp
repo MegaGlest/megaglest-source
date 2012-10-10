@@ -889,6 +889,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"nctPlayerStatusChange factionIndex = %d playerStatus = %d\n",factionIndex,playerStatus);
 
+			//printf("#1 nctPlayerStatusChange factionIndex = %d playerStatus = %d\n",factionIndex,playerStatus);
+
 			GameSettings *settings = world->getGameSettingsPtr();
     		if(playerStatus == npst_Disconnected) {
     			settings->setNetworkPlayerStatuses(factionIndex,npst_Disconnected);
@@ -896,8 +898,13 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     			//printf("nctPlayerStatusChange -> faction->getPersonalityType() = %d index [%d] control [%d] networkstatus [%d]\n",
     			//		world->getFaction(factionIndex)->getPersonalityType(),world->getFaction(factionIndex)->getIndex(),world->getFaction(factionIndex)->getControlType(),settings->getNetworkPlayerStatuses(factionIndex));
 
+    			//printf("#2 nctPlayerStatusChange factionIndex = %d playerStatus = %d\n",factionIndex,playerStatus);
     			settings->setFactionControl(factionIndex,ctCpuUltra);
     			settings->setResourceMultiplierIndex(factionIndex,settings->getFallbackCpuMultiplier());
+    			//Game *game = this->world->getGame();
+    			//game->get
+    			Faction *faction = this->world->getFaction(factionIndex);
+    			faction->setControlType(ctCpuUltra);
 
         		if(!world->getGame()->getGameOver()&& !this->world->getGame()->factionLostGame(factionIndex)){
         			// use the fallback multiplier here
