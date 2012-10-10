@@ -243,6 +243,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(networkShowMessageForFaction, "networkShowMessageForFaction");
 	luaScript.registerFunction(networkShowMessageForTeam, "networkShowMessageForTeam");
 
+	luaScript.registerFunction(networkSetCameraPositionForFaction, "networkSetCameraPositionForFaction");
+	luaScript.registerFunction(networkSetCameraPositionForTeam, "networkSetCameraPositionForTeam");
+
 	luaScript.registerFunction(showMessage, "showMessage");
 	luaScript.registerFunction(setDisplayText, "setDisplayText");
 	luaScript.registerFunction(addConsoleText, "addConsoleText");
@@ -825,6 +828,26 @@ void ScriptManager::networkShowMessageForTeam(const string &text, const string &
 	teamIndex--;
 	messageQueue.push_back(ScriptManagerMessage(text, header, -1, teamIndex));
 	onMessageBoxOk(false);
+}
+
+void ScriptManager::networkSetCameraPositionForFaction(int factionIndex, const Vec2i &pos) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	if(factionIndex == this->world->getThisFactionIndex()) {
+		gameCamera->centerXZ(pos.x, pos.y);
+	}
+}
+
+void ScriptManager::networkSetCameraPositionForTeam(int teamIndex, const Vec2i &pos) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	if(teamIndex == this->world->getThisTeamIndex()) {
+		gameCamera->centerXZ(pos.x, pos.y);
+	}
 }
 
 void ScriptManager::showMessage(const string &text, const string &header){
@@ -1599,6 +1622,19 @@ int ScriptManager::networkShowMessageForTeam(LuaHandle* luaHandle){
 	thisScriptManager->networkShowMessageForTeam(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
+
+int ScriptManager::networkSetCameraPositionForFaction(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->networkSetCameraPositionForFaction(luaArguments.getInt(-2), luaArguments.getVec2i(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::networkSetCameraPositionForTeam(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->networkSetCameraPositionForTeam(luaArguments.getInt(-2), luaArguments.getVec2i(-1));
+	return luaArguments.getReturnCount();
+}
+
 
 int ScriptManager::setDisplayText(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
