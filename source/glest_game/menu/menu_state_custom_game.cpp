@@ -678,7 +678,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-	console.addLine(lang.get("To switch off music press") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
+	console.addLine(lang.get("ToSwitchOffMusicPress") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
 
 	chatManager.init(&console, -1,true);
 
@@ -884,7 +884,7 @@ void MenuStateCustomGame::reloadUI() {
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-	console.addLine(lang.get("To switch off music press") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
+	console.addLine(lang.get("ToSwitchOffMusicPress") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
 
 	chatManager.init(&console, -1,true);
 

@@ -245,7 +245,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
 
-	//console.addLine(lang.get("To switch off music press")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+	//console.addLine(lang.get("ToSwitchOffMusicPress")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
@@ -912,7 +912,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                 consoleIRC.addLine("---------------------------------------------");
                 // write hint to console:
                 Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-                consoleIRC.addLine(Lang::getInstance().get("To switch off music press")+" - \""+configKeys.getString("ToggleMusic")+"\"");
+                consoleIRC.addLine(Lang::getInstance().get("ToSwitchOffMusicPress")+" - \""+configKeys.getString("ToggleMusic")+"\"");
 
                 announcementLoaded=true;
             }
@@ -1058,7 +1058,7 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 
 		mainMessageBoxState=1;
 		Lang &lang= Lang::getInstance();
-		showMessageBox(lang.get("Couldnt connect"), lang.get("Connection failed"), false);
+		showMessageBox(lang.get("CouldNotConnect"), lang.get("ConnectionFailed"), false);
 		return false;
 
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
