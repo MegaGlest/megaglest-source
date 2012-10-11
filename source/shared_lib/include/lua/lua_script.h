@@ -42,11 +42,15 @@ private:
 	string sandboxWrapperFunctionName;
 	string sandboxCode;
 
+	static bool disableSandbox;
+
 	void DumpGlobals();
 
 public:
 	LuaScript();
 	~LuaScript();
+
+	static void setDisableSandbox(bool value) { disableSandbox = value; }
 
 	void loadCode(string code, string name);
 

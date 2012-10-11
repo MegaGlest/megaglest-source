@@ -411,20 +411,36 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	// Setup global functions and vars here
-	luaScript.beginCall("global");
-	luaScript.endCall();
-
-	//call startup function
-	if(this->rootNode == NULL) {
-		luaScript.beginCall("startup");
+	try {
+		// Setup global functions and vars here
+		luaScript.beginCall("global");
 		luaScript.endCall();
-	}
-	else {
-		loadGame(this->rootNode);
-		this->rootNode = NULL;
-	}
 
+		//call startup function
+		if(this->rootNode == NULL) {
+			luaScript.beginCall("startup");
+			luaScript.endCall();
+		}
+		else {
+			loadGame(this->rootNode);
+			this->rootNode = NULL;
+		}
+	}
+	catch(const megaglest_runtime_error &ex) {
+		string sErrBuf = "";
+		//if(ex.wantStackTrace() == true) {
+			char szErrBuf[8096]="";
+			sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		//}
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+		messageQueue.push_back(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		onMessageBoxOk(false);
+	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

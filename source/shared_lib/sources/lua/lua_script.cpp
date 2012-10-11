@@ -45,6 +45,8 @@ public:
 //	class LuaScript
 // =====================================================
 
+bool LuaScript::disableSandbox = false;
+
 LuaScript::LuaScript() {
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
@@ -56,11 +58,24 @@ LuaScript::LuaScript() {
 
 	luaL_openlibs(luaState);
 
-	if(luaState==NULL){
+	if(luaState == NULL) {
 		throw megaglest_runtime_error("Can not allocate lua state");
 	}
 
 	argumentCount= -1;
+
+	if(disableSandbox == false) {
+		lua_getglobal(luaState, "os");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "execute");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "rename");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "remove");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "exit");
+		lua_pop(luaState, 1);
+	}
 }
 
 void LuaScript::DumpGlobals()
