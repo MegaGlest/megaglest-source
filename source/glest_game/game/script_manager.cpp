@@ -1404,7 +1404,7 @@ Vec2i ScriptManager::getUnitPosition(int unitId) {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	Vec2i result = world->getUnitPosition(unitId);
 
-	printf("In [%s] unitId = %d, pos [%s]\n",__FUNCTION__,unitId,result.getString().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s] unitId = %d, pos [%s]\n",__FUNCTION__,unitId,result.getString().c_str());
 
 	return result;
 }
