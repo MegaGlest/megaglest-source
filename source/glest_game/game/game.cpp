@@ -103,6 +103,7 @@ Game::Game() : ProgramState(NULL) {
 	renderExtraTeamColor=0;
 	photoModeEnabled=false;
 	visibleHUD=false;
+	timeDisplay=false;
 	withRainEffect=false;
 	program=NULL;
 	gameStarted=false;
@@ -218,6 +219,7 @@ void Game::resetMembers() {
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
+	timeDisplay = Config::getInstance().getBool("TimeDisplay","true");
 	withRainEffect = Config::getInstance().getBool("RainEffect","true");
 	//MIN_RENDER_FPS_ALLOWED = Config::getInstance().getInt("MIN_RENDER_FPS_ALLOWED",intToStr(MIN_RENDER_FPS_ALLOWED).c_str());
 
@@ -4133,7 +4135,7 @@ void Game::render2d() {
 	}
 
 	// clock
-	if(photoModeEnabled == false) {
+	if(photoModeEnabled == false && timeDisplay == true) {
 		renderer.renderClock();
 	}
 
@@ -4832,6 +4834,10 @@ string Game::saveGame(string name) {
 	gameNode->addAttribute("photoModeEnabled",intToStr(photoModeEnabled), mapTagReplacements);
 	//bool visibleHUD;
 	gameNode->addAttribute("visibleHUD",intToStr(visibleHUD), mapTagReplacements);
+
+	//bool timeDisplay
+	gameNode->addAttribute("timeDisplay",intToStr(timeDisplay), mapTagReplacements);
+
 	//bool withRainEffect;
 	gameNode->addAttribute("withRainEffect",intToStr(withRainEffect), mapTagReplacements);
 	//Program *program;
@@ -5056,6 +5062,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	//bool visibleHUD;
 	//gameNode->addAttribute("visibleHUD",intToStr(visibleHUD), mapTagReplacements);
 	newGame->visibleHUD = gameNode->getAttribute("visibleHUD")->getIntValue() != 0;
+	newGame->timeDisplay = gameNode->getAttribute("timeDisplay")->getIntValue() != 0;
 	//bool withRainEffect;
 	//gameNode->addAttribute("withRainEffect",intToStr(withRainEffect), mapTagReplacements);
 	newGame->withRainEffect = gameNode->getAttribute("withRainEffect")->getIntValue() != 0;

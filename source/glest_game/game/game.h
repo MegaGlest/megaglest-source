@@ -133,6 +133,7 @@ private:
 
 	bool photoModeEnabled;
 	bool visibleHUD;
+	bool timeDisplay;
 	bool withRainEffect;
 	Program *program;
 

@@ -147,9 +147,9 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 							}
 
 							gameNetworkInterface->sendTextMessage("*"+text, teamMode? thisTeamIndex: -1, false, "");
-	//						if(inMenu == false) {
-	//							editEnabled= false;
-	//						}
+							if(inMenu == false && Config::getInstance().getBool("ChatStaysActive","false")==false ) {
+								editEnabled= false;
+							}
 						}
 					}
 					else {
