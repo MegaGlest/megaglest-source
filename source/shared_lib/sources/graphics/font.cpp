@@ -147,7 +147,7 @@ float FontMetrics::getTextWidth(const string &str) {
 		float width= 0.f;
 		for(unsigned int i=0; i< longestLine.size() && (int)i < Font::charCount; ++i){
 			if(longestLine[i] >= Font::charCount) {
-				string sError = "str[i] >= Font::charCount, [" + longestLine + "] i = " + intToStr(i);
+				string sError = "str[i] >= Font::charCount, [" + longestLine + "] i = " + uIntToStr(i);
 				throw megaglest_runtime_error(sError);
 			}
 			//Treat 2 byte characters as spaces
@@ -316,7 +316,7 @@ string findFontFamily(const char* font, const char *fontFamily) {
 		fs = FcFontSetCreate();
 		match = FcFontMatch(0, pat, &result);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Trying fontconfig for fontfamily [%s]\n",fontFamily);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Trying fontconfig for fontfamily [%s]\n",(fontFamily != NULL ? fontFamily : "null"));
 
 		if (match) FcFontSetAdd(fs, match);
 		if (pat) FcPatternDestroy(pat);
@@ -347,7 +347,7 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 		if( font == NULL && path != NULL && strlen(path) > 0 && fileExists(path) == true ) { \
 			font = strdup(path); \
 		} \
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",path,font); \
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",(path != NULL ? path : "null"),(font != NULL ? font : "null")); \
 		if( font != NULL && fontFamily != NULL && strlen(fontFamily) > 0) { \
 			string fileFound = findFontFamily(font, fontFamily); \
 			if(fileFound != "") { \
@@ -356,7 +356,7 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 					font = strdup(path); \
 				} \
 			} \
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font family [%s] result [%s]\n",fontFamily,font); \
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font family [%s] result [%s]\n",(fontFamily != NULL ? fontFamily : "null"),(font != NULL ? font : "null")); \
 		} \
 	}
 

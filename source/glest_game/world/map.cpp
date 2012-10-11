@@ -1294,7 +1294,9 @@ void Map::putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, 
 	                }
 				}
 				else {
-					throw megaglest_runtime_error("trying to move into occupied cell and field");
+					char szBuf[8096]="";
+					sprintf(szBuf,"Trying to move unit [%d - %s] into occupied cell [%s] and field = %d, unit already in cell [%d - %s] ",unit->getId(),unit->getType()->getName().c_str(),pos.getString().c_str(),field,getCell(currPos)->getUnit(field)->getId(),getCell(currPos)->getUnit(field)->getType()->getName().c_str());
+					throw megaglest_runtime_error(szBuf);
 				}
 
 			}
