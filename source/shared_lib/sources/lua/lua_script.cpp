@@ -74,6 +74,33 @@ LuaScript::LuaScript() {
 		lua_setfield(luaState, -2, "remove");
 		lua_pushnil(luaState);
 		lua_setfield(luaState, -2, "exit");
+
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "loadfile");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "dofile");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "getfenv");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "getmetatable");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "load");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "loadfile");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "loadstring");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "rawequal");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "rawget");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "rawset");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "setfenv");
+		lua_pushnil(luaState);
+		lua_setglobal(luaState, "setmetatable");
+
+
 		lua_pop(luaState, 1);
 	}
 }
