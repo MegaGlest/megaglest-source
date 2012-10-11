@@ -679,7 +679,7 @@ void BattleEnd::render() {
 			}
 		}
 
-		textRenderer->render("\n"+(lang.get("left at")), lm, bm+400);
+		textRenderer->render("\n"+(lang.get("LeftAt")), lm, bm+400);
 		textRenderer->render(lang.get("Result"), lm, bm+360);
 		textRenderer->render(lang.get("Control"), lm, bm+320);
 		textRenderer->render(lang.get("Faction"), lm, bm+280);
