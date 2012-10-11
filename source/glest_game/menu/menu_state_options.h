@@ -119,6 +119,10 @@ private:
 
 	GraphicLabel labelVisibleHud;
 	GraphicCheckBox checkBoxVisibleHud;
+	GraphicLabel labelTimeDisplay;
+	GraphicCheckBox checkBoxTimeDisplay;
+	GraphicLabel labelChatStaysActive;
+	GraphicCheckBox checkBoxChatStaysActive;
 
 	GraphicLabel labelRainEffect;
 	GraphicLabel labelRainEffectSeparator;

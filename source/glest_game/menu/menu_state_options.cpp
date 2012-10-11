@@ -44,15 +44,15 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 		int leftLabelStart=50;
 		int leftColumnStart=leftLabelStart+180;
-		int rightLabelStart=420;
-		int rightColumnStart=rightLabelStart+310;
+		int rightLabelStart=450;
+		int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=80;
 		int buttonStartPos=170;
 		int captionOffset=75;
 		int currentLabelStart=leftLabelStart;
 		int currentColumnStart=leftColumnStart;
 		int currentLine=700;
-		int lineOffset=27;
+		int lineOffset=26;
 
 		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 		mainMessageBox.init(lang.get("Ok"));
@@ -279,15 +279,6 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		checkBoxEnableTextureCompression.setValue(config.getBool("EnableTextureCompression","false"));
 		currentLine-=lineOffset;
 
-		labelVisibleHud.registerGraphicComponent(containerName,"lavelVisibleHud");
-		labelVisibleHud.init(currentLabelStart ,currentLine);
-		labelVisibleHud.setText(lang.get("VisibleHUD"));
-
-		checkBoxVisibleHud.registerGraphicComponent(containerName,"checkBoxVisibleHud");
-		checkBoxVisibleHud.init(currentColumnStart ,currentLine );
-		checkBoxVisibleHud.setValue(config.getBool("VisibleHud","true"));
-		currentLine-=lineOffset;
-
 		labelRainEffect.registerGraphicComponent(containerName,"labelRainEffect");
 		labelRainEffect.init(currentLabelStart ,currentLine);
 		labelRainEffect.setText(lang.get("RainEffectMenuGame"));
@@ -431,8 +422,36 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		checkBoxMouseMoveScrollsWorld.registerGraphicComponent(containerName,"checkBoxMouseMoveScrollsWorld");
 		checkBoxMouseMoveScrollsWorld.init(currentColumnStart ,currentLine );
 		checkBoxMouseMoveScrollsWorld.setValue(config.getBool("MouseMoveScrollsWorld","true"));
+		currentLine-=lineOffset;
+
+		labelVisibleHud.registerGraphicComponent(containerName,"lavelVisibleHud");
+		labelVisibleHud.init(currentLabelStart ,currentLine);
+		labelVisibleHud.setText(lang.get("VisibleHUD"));
+
+		checkBoxVisibleHud.registerGraphicComponent(containerName,"checkBoxVisibleHud");
+		checkBoxVisibleHud.init(currentColumnStart ,currentLine );
+		checkBoxVisibleHud.setValue(config.getBool("VisibleHud","true"));
 
 		currentLine-=lineOffset;
+
+		labelChatStaysActive.registerGraphicComponent(containerName,"labelChatStaysActive");
+		labelChatStaysActive.init(currentLabelStart ,currentLine);
+		labelChatStaysActive.setText(lang.get("ChatStaysActive"));
+
+		checkBoxChatStaysActive.registerGraphicComponent(containerName,"checkBoxChatStaysActive");
+		checkBoxChatStaysActive.init(currentColumnStart ,currentLine );
+		checkBoxChatStaysActive.setValue(config.getBool("ChatStaysActive","false"));
+
+		currentLine-=lineOffset;
+
+		labelTimeDisplay.registerGraphicComponent(containerName,"labelTimeDisplay");
+		labelTimeDisplay.init(currentLabelStart ,currentLine);
+		labelTimeDisplay.setText(lang.get("TimeDisplay"));
+
+		checkBoxTimeDisplay.registerGraphicComponent(containerName,"checkBoxTimeDisplay");
+		checkBoxTimeDisplay.init(currentColumnStart ,currentLine );
+		checkBoxTimeDisplay.setValue(config.getBool("TimeDisplay","true"));
+
 		currentLine-=lineOffset;
 		currentLine-=lineOffset;
 
@@ -656,6 +675,8 @@ void MenuStateOptions::reloadUI() {
 	labelEnableTextureCompression.setText(lang.get("EnableTextureCompression"));
 
 	labelVisibleHud.setText(lang.get("VisibleHUD"));
+	labelChatStaysActive.setText(lang.get("ChatStaysActive"));
+	labelTimeDisplay.setText(lang.get("TimeDisplay"));
 
 	labelRainEffect.setText(lang.get("RainEffect"));
 
@@ -880,6 +901,9 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         checkBoxDisableScreenshotConsoleText.mouseClick(x, y);
         checkBoxMouseMoveScrollsWorld.mouseClick(x, y);
         checkBoxVisibleHud.mouseClick(x, y);
+        checkBoxChatStaysActive.mouseClick(x, y);
+        checkBoxTimeDisplay.mouseClick(x, y);
+
         checkBoxRainEffect.mouseClick(x,y);
         checkBoxRainEffectMenu.mouseClick(x,y);
 
@@ -924,6 +948,8 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
 	checkBoxMouseMoveScrollsWorld.mouseMove(x, y);
 	checkBoxVisibleHud.mouseMove(x, y);
+    checkBoxChatStaysActive.mouseMove(x, y);
+    checkBoxTimeDisplay.mouseMove(x, y);
 	checkBoxRainEffect.mouseMove(x, y);
 	checkBoxRainEffectMenu.mouseMove(x, y);
 
@@ -1087,7 +1113,11 @@ void MenuStateOptions::render(){
         renderer.renderCheckBox(&checkBoxMouseMoveScrollsWorld);
 
         renderer.renderLabel(&labelVisibleHud);
+        renderer.renderLabel(&labelChatStaysActive);
+        renderer.renderLabel(&labelTimeDisplay);
         renderer.renderCheckBox(&checkBoxVisibleHud);
+        renderer.renderCheckBox(&checkBoxChatStaysActive);
+        renderer.renderCheckBox(&checkBoxTimeDisplay);
 
         renderer.renderLabel(&labelRainEffect);
         renderer.renderCheckBox(&checkBoxRainEffect);
@@ -1158,6 +1188,9 @@ void MenuStateOptions::saveConfig(){
     config.setBool("DisableScreenshotConsoleText", !checkBoxDisableScreenshotConsoleText.getValue());
     config.setBool("MouseMoveScrollsWorld", checkBoxMouseMoveScrollsWorld.getValue());
     config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
+    config.setBool("ChatStaysActive", checkBoxChatStaysActive.getValue());
+    config.setBool("TimeDisplay", checkBoxTimeDisplay.getValue());
+
     config.setBool("RainEffect", checkBoxRainEffect.getValue());
     config.setBool("RainEffectMenu", checkBoxRainEffectMenu.getValue());
 
