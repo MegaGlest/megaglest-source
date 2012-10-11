@@ -49,6 +49,7 @@
 #include <locale.h>
 #include "string_utils.h"
 #include "auto_test.h"
+#include "lua_script.h"
 
 // To handle signal catching
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -3205,6 +3206,10 @@ int glestMain(int argc, char** argv) {
 		// Attempt to read ini files
 		Config &config = Config::getInstance();
 		setupGameItemPaths(argc, argv, &config);
+
+		if(config.getBool("DisableLuaSandbox","false") == true) {
+			LuaScript::setDisableSandbox(true);
+		}
 
 		Socket::setBroadCastPort(config.getInt("BroadcastPort",intToStr(Socket::getBroadCastPort()).c_str()));
 
