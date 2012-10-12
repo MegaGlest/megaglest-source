@@ -75,6 +75,18 @@ LuaScript::LuaScript() {
 		lua_pushnil(luaState);
 		lua_setfield(luaState, -2, "exit");
 
+		lua_getglobal(luaState, "io");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "open");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "close");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "write");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "read");
+		lua_pushnil(luaState);
+		lua_setfield(luaState, -2, "flush");
+
 		lua_pushnil(luaState);
 		lua_setglobal(luaState, "loadfile");
 		lua_pushnil(luaState);
