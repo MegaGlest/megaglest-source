@@ -1302,7 +1302,9 @@ void World::setUnitPosition(int unitId, Vec2i pos) {
 	if(unit == NULL) {
 		throw megaglest_runtime_error("Can not find unit to set position unitId = " + intToStr(unitId));
 	}
-	unit->setPos(pos,true);
+	unit->setTargetPos(pos);
+	//unit->setPos(pos,true);
+	this->moveUnitCells(unit);
 }
 
 void World::addCellMarker(Vec2i pos, int factionIndex, const string &note, const string textureFile) {
