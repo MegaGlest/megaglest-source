@@ -3725,6 +3725,20 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 
 // ==================== PRIVATE ====================
 
+void Game::highlightUnit(int unitId,float radius, float thickness, Vec4f color) {
+	HighlightSpecialUnitInfo info;
+	info.radius = radius;
+	info.thickness = thickness;
+	info.color = color;
+	unitHighlightList[unitId] = info;
+}
+
+void Game::unhighlightUnit(int unitId) {
+	if(unitHighlightList.find(unitId) != unitHighlightList.end()) {
+		unitHighlightList.erase(unitId);
+	}
+}
+
 // ==================== render ====================
 
 void Game::render3d(){
@@ -3780,6 +3794,8 @@ void Game::render3d(){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 	}
+
+	renderer.renderSpecialHighlightUnits(unitHighlightList);
 
 	// renderTeamColorCircle
 	renderer.renderMorphEffects();

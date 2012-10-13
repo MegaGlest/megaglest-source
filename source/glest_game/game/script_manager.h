@@ -119,6 +119,8 @@ public:
 
 	std::map<int,string> eventStateInfo;
 
+	std::map<int,std::map<Vec2i, bool> > eventLookupCache;
+
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
 };
@@ -367,6 +369,8 @@ private:
 	int isFreeCells(int unitSize, int field,Vec2i pos);
 
 	int getHumanFactionId();
+	void highlightUnit(int unitId, float radius, float thickness, Vec4f color);
+	void unhighlightUnit(int unitId);
 
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
@@ -503,6 +507,8 @@ private:
 
 	static int getHumanFactionId(LuaHandle* luaHandle);
 
+	static int highlightUnit(LuaHandle* luaHandle);
+	static int unhighlightUnit(LuaHandle* luaHandle);
 };
 
 }}//end namespace

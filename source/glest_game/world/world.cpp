@@ -1367,6 +1367,23 @@ void World::showMarker(Vec2i pos, int factionIndex, const string &note, const st
 	game->showMarker(surfaceCellPos, mc);
 }
 
+void World::highlightUnit(int unitId,float radius, float thickness, Vec4f color) {
+	Unit* unit= findUnitById(unitId);
+	if(unit == NULL) {
+		throw megaglest_runtime_error("Can not find unit to set highlight unitId = " + intToStr(unitId));
+	}
+	game->highlightUnit(unitId,radius, thickness, color);
+}
+
+void World::unhighlightUnit(int unitId) {
+	Unit* unit= findUnitById(unitId);
+	if(unit == NULL) {
+		throw megaglest_runtime_error("Can not find unit to set highlight unitId = " + intToStr(unitId));
+	}
+	game->unhighlightUnit(unitId);
+}
+
+
 int World::getUnitFactionIndex(int unitId) {
 	Unit* unit= findUnitById(unitId);
 	if(unit == NULL) {
