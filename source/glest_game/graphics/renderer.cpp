@@ -4817,6 +4817,60 @@ void Renderer::renderTeamColorCircle(){
 	}
 }
 
+void Renderer::renderSpecialHighlightUnits(std::map<int,HighlightSpecialUnitInfo> unitHighlightList) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true || unitHighlightList.empty() == true) {
+		return;
+	}
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.empty() == false) {
+
+		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_TEXTURE_2D);
+		glDepthFunc(GL_ALWAYS);
+		glDisable(GL_STENCIL_TEST);
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glLineWidth(2.f);
+
+		for(int visibleUnitIndex = 0;
+							visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+
+				std::map<int,HighlightSpecialUnitInfo>::iterator iterFindSpecialUnit = unitHighlightList.find(unit->getId());
+				if(iterFindSpecialUnit != unitHighlightList.end()) {
+					Vec3f color=unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0);
+					float radius = 1.0f;
+					float thickness = 0.1f;
+					float alpha = 0.65f;
+
+					HighlightSpecialUnitInfo &specialInfo = iterFindSpecialUnit->second;
+					if(specialInfo.color.x >= 0) {
+						color.x = specialInfo.color.x;
+						color.y = specialInfo.color.y;
+						color.z = specialInfo.color.z;
+					}
+					if(specialInfo.color.w >= 0) {
+						alpha = specialInfo.color.w;
+					}
+					if(specialInfo.radius > 0) {
+						radius = specialInfo.radius;
+					}
+					if(specialInfo.thickness > 0) {
+						thickness = specialInfo.thickness;
+					}
+
+					glColor4f(color.x, color.y, color.z, alpha);
+
+					Vec3f currVec= unit->getCurrVectorFlat();
+					renderSelectionCircle(currVec, unit->getType()->getSize(), radius, thickness);
+				}
+		}
+		glPopAttrib();
+	}
+}
+
 void Renderer::renderTeamColorPlane(){
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;

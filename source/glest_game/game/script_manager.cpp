@@ -371,6 +371,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 
 	luaScript.registerFunction(getHumanFactionId, "humanFaction");
 
+	luaScript.registerFunction(highlightUnit, "highlightUnit");
+	luaScript.registerFunction(unhighlightUnit, "unhighlightUnit");
+
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
 		const Script* script= scenario->getScript(i);
@@ -683,12 +686,28 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 			{
 				if(movingUnit->getId() == event.sourceId) {
 					bool srcInDst = false;
-					for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
-						for(int y = event.destPos.y; srcInDst == false && y <= event.destPosEnd.y; ++y) {
-							srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s, srcInDst = %d\n",
-																__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId,Vec2i(x,y).getString().c_str(),srcInDst);
+
+					// Cache area lookup so for each unitsize and pos its done only once
+					bool foundInCache = false;
+					std::map<int,std::map<Vec2i,bool> >::iterator iterFind1 = event.eventLookupCache.find(movingUnit->getType()->getSize());
+					if(iterFind1 != event.eventLookupCache.end()) {
+						std::map<Vec2i,bool>::iterator iterFind2 = iterFind1->second.find(movingUnit->getPos());
+						if(iterFind2 != iterFind1->second.end()) {
+							foundInCache = true;
+							srcInDst = iterFind2->second;
 						}
+					}
+
+					if(foundInCache == false) {
+						for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
+							for(int y = event.destPos.y; srcInDst == false && y <= event.destPosEnd.y; ++y) {
+								srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %d, event.type = %d, movingUnit->getPos() = %s, event.sourceId = %d, event.destId = %d, event.destPos = %s, srcInDst = %d\n",
+																	__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId,Vec2i(x,y).getString().c_str(),srcInDst);
+							}
+						}
+
+						event.eventLookupCache[movingUnit->getType()->getSize()][movingUnit->getPos()] = srcInDst;
 					}
 
 					if(srcInDst == true) {
@@ -750,15 +769,32 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 					//if(event.sourceId == 1) printf("ctet_FactionPos event.destPos = [%s], movingUnit->getPos() [%s] Unit id = %d\n",event.destPos.getString().c_str(),movingUnit->getPos().getString().c_str(),movingUnit->getId());
 
 					bool srcInDst = false;
-					for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
-						for(int y = event.destPos.y; srcInDst == false && y <= event.destPosEnd.y; ++y) {
 
-							srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
-							if(srcInDst == true) {
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-							}
+					// Cache area lookup so for each unitsize and pos its done only once
+					bool foundInCache = false;
+					std::map<int,std::map<Vec2i,bool> >::iterator iterFind1 = event.eventLookupCache.find(movingUnit->getType()->getSize());
+					if(iterFind1 != event.eventLookupCache.end()) {
+						std::map<Vec2i,bool>::iterator iterFind2 = iterFind1->second.find(movingUnit->getPos());
+						if(iterFind2 != iterFind1->second.end()) {
+							foundInCache = true;
+							srcInDst = iterFind2->second;
 						}
 					}
+
+					if(foundInCache == false) {
+						for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
+							for(int y = event.destPos.y; srcInDst == false && y <= event.destPosEnd.y; ++y) {
+
+								srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
+								if(srcInDst == true) {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								}
+							}
+						}
+
+						event.eventLookupCache[movingUnit->getType()->getSize()][movingUnit->getPos()] = srcInDst;
+					}
+
 					triggerEvent = srcInDst;
 					if(triggerEvent == true) {
 						//printf("!!!UNIT IN AREA!!! Faction area pos, moving unit faction= %d, trigger faction = %d, unit id = %d\n",movingUnit->getFactionIndex(),event.sourceId,movingUnit->getId());
@@ -1678,6 +1714,20 @@ int ScriptManager::getHumanFactionId() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 	return this->world->getThisFactionIndex();
+}
+
+void ScriptManager::highlightUnit(int unitId, float radius, float thickness, Vec4f color) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	world->highlightUnit(unitId, radius, thickness, color);
+}
+
+void ScriptManager::unhighlightUnit(int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	world->unhighlightUnit(unitId);
 }
 
 // ========================== lua callbacks ===============================================
@@ -2656,6 +2706,18 @@ int ScriptManager::getHumanFactionId(LuaHandle* luaHandle) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getHumanFactionId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::highlightUnit(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->highlightUnit(luaArguments.getInt(-4), luaArguments.getFloat(-3), luaArguments.getFloat(-2), luaArguments.getVec4f(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::unhighlightUnit(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->unhighlightUnit(luaArguments.getInt(-1));
 	return luaArguments.getReturnCount();
 }
 

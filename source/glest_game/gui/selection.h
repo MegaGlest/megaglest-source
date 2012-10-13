@@ -28,6 +28,13 @@ namespace Glest{ namespace Game{
 class Gui;
 class World;
 
+class HighlightSpecialUnitInfo {
+public:
+	float radius;
+	float thickness;
+	Vec4f color;
+};
+
 // =====================================================
 // 	class Selection 
 //

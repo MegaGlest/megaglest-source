@@ -559,6 +559,7 @@ public:
 	inline Quad2i getVisibleQuad() const		{return visibleQuad;}
 	inline Quad2i getVisibleQuadFromCamera() const		{return visibleQuadFromCamera;}
 	void renderTeamColorPlane();
+	void renderSpecialHighlightUnits(std::map<int,HighlightSpecialUnitInfo> unitHighlightList);
 	void renderTeamColorCircle();
 	void renderMorphEffects();
 

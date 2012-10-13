@@ -28,6 +28,7 @@
 #include "game_settings.h"
 #include "network_interface.h"
 #include "data_types.h"
+#include "selection.h"
 #include "leak_dumper.h"
 
 using std::vector;
@@ -193,6 +194,8 @@ private:
 
 	Unit *currentCameraFollowUnit;
 
+	std::map<int,HighlightSpecialUnitInfo> unitHighlightList;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
@@ -303,6 +306,9 @@ public:
 	void addCellMarker(Vec2i cellPos, MarkedCell cellData);
 	void removeCellMarker(Vec2i surfaceCellPos, const Faction *faction);
 	void showMarker(Vec2i cellPos, MarkedCell cellData);
+
+	void highlightUnit(int unitId,float radius, float thickness, Vec4f color);
+	void unhighlightUnit(int unitId);
 
 private:
 	//render

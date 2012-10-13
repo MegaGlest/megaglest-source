@@ -258,6 +258,9 @@ public:
 	const string getSystemMacroValue(const string key);
 	const string getPlayerName(int factionIndex);
 
+	void highlightUnit(int unitId,float radius, float thickness, Vec4f color);
+	void unhighlightUnit(int unitId);
+
 	inline Game * getGame() { return game; }
 	const GameSettings * getGameSettings() const;
 

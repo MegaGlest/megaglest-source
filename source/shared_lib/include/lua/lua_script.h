@@ -22,6 +22,10 @@ using std::string;
 
 using Shared::Graphics::Vec2i;
 using Shared::Graphics::Vec4i;
+using Shared::Graphics::Vec2f;
+using Shared::Graphics::Vec3f;
+using Shared::Graphics::Vec4f;
+
 using Shared::Xml::XmlNode;
 
 namespace Shared { namespace Lua {
@@ -87,6 +91,12 @@ public:
 	void * getGenericData(int argumentIndex) const;
 	Vec2i getVec2i(int argumentIndex) const;
 	Vec4i getVec4i(int argumentIndex) const;
+
+	float getFloat(int argumentIndex) const;
+	Vec2f getVec2f(int argumentIndex) const;
+	Vec3f getVec3f(int argumentIndex) const;
+	Vec4f getVec4f(int argumentIndex) const;
+
 	int getReturnCount() const					{return returnCount;}
 
 	void returnInt(int value);

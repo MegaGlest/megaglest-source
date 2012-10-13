@@ -635,6 +635,159 @@ int LuaArguments::getInt(int argumentIndex) const{
 	return result;
 }
 
+float LuaArguments::getFloat(int argumentIndex) const {
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	if(!lua_isnumber(luaState, argumentIndex)) {
+		throwLuaError("Can not get int from Lua state");
+	}
+	float result = luaL_checknumber(luaState, argumentIndex);
+	return result;
+}
+Vec2f LuaArguments::getVec2f(int argumentIndex) const {
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	Vec2f v;
+
+	if(!lua_istable(luaState, argumentIndex)){
+		throwLuaError("Can not get vec2f from Lua state, value on the stack is not a table");
+	}
+
+#if LUA_VERSION_NUM > 501
+	if(lua_rawlen(luaState, argumentIndex)!=2){
+#else
+	if(luaL_getn(luaState, argumentIndex)!=2){
+#endif
+		throwLuaError("Can not get vec2f from Lua state, array size not 2");
+	}
+
+	//string stackString = getStackText();
+	//printf("Lua Stack:\n%s\n",stackString.c_str());
+
+	lua_rawgeti(luaState, argumentIndex, 1);
+	//printf("xa = %s argumentIndex = %d\n",lua_tostring(luaState, argumentIndex),argumentIndex);
+
+	//v.x= luaL_checkint(luaState, argumentIndex);
+	v.x= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	//printf("X = %d\n",v.x);
+
+	lua_rawgeti(luaState, argumentIndex, 2);
+	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
+
+	//v.y= luaL_checkint(luaState, argumentIndex);
+	v.y= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	//printf("Y = %d\n",v.y);
+
+	return v;
+}
+
+Vec3f LuaArguments::getVec3f(int argumentIndex) const {
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	Vec3f v;
+
+	if(!lua_istable(luaState, argumentIndex)){
+		throwLuaError("Can not get vec3f from Lua state, value on the stack is not a table");
+	}
+
+#if LUA_VERSION_NUM > 501
+	if(lua_rawlen(luaState, argumentIndex)!=3){
+#else
+	if(luaL_getn(luaState, argumentIndex)!=3){
+#endif
+		throwLuaError("Can not get vec3f from Lua state, array size not 3");
+	}
+
+	//string stackString = getStackText();
+	//printf("Lua Stack:\n%s\n",stackString.c_str());
+
+	lua_rawgeti(luaState, argumentIndex, 1);
+	//printf("xa = %s argumentIndex = %d\n",lua_tostring(luaState, argumentIndex),argumentIndex);
+
+	//v.x= luaL_checkint(luaState, argumentIndex);
+	v.x= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	//printf("X = %d\n",v.x);
+
+	lua_rawgeti(luaState, argumentIndex, 2);
+	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
+
+	//v.y= luaL_checkint(luaState, argumentIndex);
+	v.y= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	//printf("Y = %d\n",v.y);
+
+	lua_rawgeti(luaState, argumentIndex, 3);
+	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
+
+	//v.y= luaL_checkint(luaState, argumentIndex);
+	v.z= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	return v;
+}
+
+Vec4f LuaArguments::getVec4f(int argumentIndex) const {
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	Vec4f v;
+
+	if(!lua_istable(luaState, argumentIndex)){
+		throwLuaError("Can not get vec4f from Lua state, value on the stack is not a table");
+	}
+
+#if LUA_VERSION_NUM > 501
+	if(lua_rawlen(luaState, argumentIndex)!=4){
+#else
+	if(luaL_getn(luaState, argumentIndex)!=4){
+#endif
+		throwLuaError("Can not get vec4f from Lua state, array size not 4");
+	}
+
+	//string stackString = getStackText();
+	//printf("Lua Stack:\n%s\n",stackString.c_str());
+
+	lua_rawgeti(luaState, argumentIndex, 1);
+	//printf("xa = %s argumentIndex = %d\n",lua_tostring(luaState, argumentIndex),argumentIndex);
+
+	//v.x= luaL_checkint(luaState, argumentIndex);
+	v.x= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	//printf("X = %d\n",v.x);
+
+	lua_rawgeti(luaState, argumentIndex, 2);
+	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
+
+	//v.y= luaL_checkint(luaState, argumentIndex);
+	v.y= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	//printf("Y = %d\n",v.y);
+
+	lua_rawgeti(luaState, argumentIndex, 3);
+	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
+
+	//v.y= luaL_checkint(luaState, argumentIndex);
+	v.z= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	lua_rawgeti(luaState, argumentIndex, 4);
+	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
+
+	//v.y= luaL_checkint(luaState, argumentIndex);
+	v.w= lua_tonumber(luaState, argumentIndex);
+	lua_pop(luaState, 1);
+
+	return v;
+}
+
 string LuaArguments::getString(int argumentIndex) const{
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
