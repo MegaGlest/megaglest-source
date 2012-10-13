@@ -1844,7 +1844,7 @@ void Game::updateNetworkHighligtedCells() {
 		for(int idx = highlightedCells.size()-1; idx >= 0; idx--) {
 			MarkedCell *mc = &highlightedCells[idx];
 			mc->decrementAliveCount();
-			if(mc->getAliveCount()<0){
+			if(mc->getAliveCount() < 0) {
 				highlightedCells.erase(highlightedCells.begin()+idx);
 			}
 		}
@@ -1869,17 +1869,21 @@ void Game::updateNetworkHighligtedCells() {
 }
 
 void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
-	for(int i = highlightedCells.size()-1; i >= 0; i--) {
-		MarkedCell *currentMc = &highlightedCells[i];
-		if(currentMc->getFactionIndex()==mc.getFactionIndex()){
-			highlightedCells.erase(highlightedCells.begin()+i);
+	if(mc.getFactionIndex() >= 0) {
+		for(int i = highlightedCells.size()-1; i >= 0; i--) {
+			MarkedCell *currentMc = &highlightedCells[i];
+			if(currentMc->getFactionIndex() == mc.getFactionIndex()) {
+				highlightedCells.erase(highlightedCells.begin()+i);
+			}
 		}
 	}
-	mc.setAliveCount(200);
+	if(mc.getAliveCount() <= 0) {
+		mc.setAliveCount(200);
+	}
 	highlightedCells.push_back(mc);
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	if(mc.getFaction() != NULL && mc.getFaction()->getTeam() == getWorld()->getThisFaction()->getTeam()) {
+	if(mc.getFaction() == NULL || (mc.getFaction()->getTeam() == getWorld()->getThisFaction()->getTeam())) {
 		soundRenderer.playFx(coreData.getMarkerSound());
 	}
 }
@@ -2323,6 +2327,22 @@ void Game::removeCellMarker(Vec2i surfaceCellPos, const Faction *faction) {
 	Renderer &renderer= Renderer::getInstance();
 	//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
 	renderer.forceQuadCacheUpdate();
+}
+void Game::showMarker(Vec2i cellPos, MarkedCell cellData) {
+	//setMarker = true;
+	//if(setMarker) {
+		//Vec2i targetPos = cellData.targetPos;
+		//Vec2i screenPos(x,y-60);
+		//Renderer &renderer= Renderer::getInstance();
+		//renderer.computePosition(screenPos, targetPos);
+		//Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
+
+		//MarkedCell mc(targetPos,world.getThisFaction(),"none",world.getThisFaction()->getStartLocationIndex());
+		addOrReplaceInHighlightedCells(cellData);
+
+		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
+		gameNetworkInterface->sendHighlightCellMessage(cellData.getTargetPos(),cellData.getFactionIndex());
+	//}
 }
 
 void Game::mouseDownLeft(int x, int y) {

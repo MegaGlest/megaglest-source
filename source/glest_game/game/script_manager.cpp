@@ -208,6 +208,7 @@ ScriptManager::ScriptManager() {
 	gameWon = false;
 	currentTimerTriggeredEventId = 0;
 	currentCellTriggeredEventId = 0;
+	currentCellTriggeredEventUnitId = 0;
 	currentEventId = 0;
 	inCellTriggerEvent = false;
 	rootNode = NULL;
@@ -315,6 +316,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getCellTriggeredEventAreaEntryUnitId, "triggeredEventAreaEntryUnitId");
 	luaScript.registerFunction(getCellTriggeredEventAreaExitUnitId, "triggeredEventAreaExitUnitId");
 
+	luaScript.registerFunction(getCellTriggeredEventUnitId, "triggeredCellEventUnitId");
+
 	luaScript.registerFunction(setRandomGenInit, "setRandomGenInit");
 	luaScript.registerFunction(getRandomGen, "getRandomGen");
 	luaScript.registerFunction(getWorldFrameCount, "getWorldFrameCount");
@@ -326,6 +329,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 
 	luaScript.registerFunction(addCellMarker, "addCellMarker");
 	luaScript.registerFunction(removeCellMarker, "removeCellMarker");
+	luaScript.registerFunction(showMarker, "showMarker");
 
 	luaScript.registerFunction(getUnitFaction, "unitFaction");
 	luaScript.registerFunction(getUnitName, "unitName");
@@ -364,6 +368,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 
 	luaScript.registerFunction(isFreeCellsOrHasUnit, "isFreeCellsOrHasUnit");
 	luaScript.registerFunction(isFreeCells, "isFreeCells");
+
+	luaScript.registerFunction(getHumanFactionId, "humanFaction");
 
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
@@ -626,6 +632,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 			bool triggerEvent = false;
 			currentCellTriggeredEventAreaEntryUnitId = 0;
 			currentCellTriggeredEventAreaExitUnitId = 0;
+			currentCellTriggeredEventUnitId = 0;
 
 			switch(event.type) {
 			case ctet_Unit:
@@ -646,6 +653,9 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 														__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(), event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId, event.destPos.getString().c_str(), destUnit->getPos().getString().c_str(),srcInDst);
 						}
 						triggerEvent = srcInDst;
+						if(triggerEvent == true) {
+							currentCellTriggeredEventUnitId = movingUnit->getId();
+						}
 				   }
 				}
 			}
@@ -661,6 +671,10 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 					triggerEvent = srcInDst;
+
+					if(triggerEvent == true) {
+						currentCellTriggeredEventUnitId = movingUnit->getId();
+					}
 				}
 			}
 			break;
@@ -681,6 +695,9 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 					triggerEvent = srcInDst;
+					if(triggerEvent == true) {
+						currentCellTriggeredEventUnitId = movingUnit->getId();
+					}
 				}
 			}
 			break;
@@ -703,6 +720,9 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 														__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId,event.destPos.getString().c_str(),destUnit->getPos().getString().c_str(),srcInDst);
 					}
 					triggerEvent = srcInDst;
+					if(triggerEvent == true) {
+						currentCellTriggeredEventUnitId = movingUnit->getId();
+					}
 				}
 			}
 			break;
@@ -717,6 +737,9 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					}
 					triggerEvent = srcInDst;
+					if(triggerEvent == true) {
+						currentCellTriggeredEventUnitId = movingUnit->getId();
+					}
 				}
 			}
 			break;
@@ -724,7 +747,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 			case ctet_FactionAreaPos:
 			{
 				if(movingUnit->getFactionIndex() == event.sourceId) {
-					//printf("ctet_FactionPos event.destPos = [%s], movingUnit->getPos() [%s]\n",event.destPos.getString().c_str(),movingUnit->getPos().getString().c_str());
+					//if(event.sourceId == 1) printf("ctet_FactionPos event.destPos = [%s], movingUnit->getPos() [%s] Unit id = %d\n",event.destPos.getString().c_str(),movingUnit->getPos().getString().c_str(),movingUnit->getId());
 
 					bool srcInDst = false;
 					for(int x = event.destPos.x; srcInDst == false && x <= event.destPosEnd.x; ++x) {
@@ -737,6 +760,10 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 						}
 					}
 					triggerEvent = srcInDst;
+					if(triggerEvent == true) {
+						//printf("!!!UNIT IN AREA!!! Faction area pos, moving unit faction= %d, trigger faction = %d, unit id = %d\n",movingUnit->getFactionIndex(),event.sourceId,movingUnit->getId());
+						currentCellTriggeredEventUnitId = movingUnit->getId();
+					}
 				}
 			}
 			break;
@@ -761,6 +788,9 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 						}
 					}
 					triggerEvent = srcInDst;
+					if(triggerEvent == true) {
+						currentCellTriggeredEventUnitId = movingUnit->getId();
+					}
 				}
 				// If unit is already in cell range check if they are leaving?
 				else {
@@ -777,6 +807,10 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 						}
 					}
 					triggerEvent = (srcInDst == false);
+					if(triggerEvent == true) {
+						currentCellTriggeredEventUnitId = movingUnit->getId();
+					}
+
 					if(triggerEvent == true) {
 						currentCellTriggeredEventAreaExitUnitId = movingUnit->getId();
 
@@ -1427,6 +1461,12 @@ void ScriptManager::removeCellMarker(Vec2i pos, int factionIndex) {
 	return world->removeCellMarker(pos,factionIndex);
 }
 
+void ScriptManager::showMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile, int flashCount) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->showMarker(pos,factionIndex, note, textureFile, flashCount);
+}
+
 int ScriptManager::getIsUnitAlive(int unitId) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -1476,6 +1516,10 @@ int ScriptManager::getCellTriggeredEventAreaExitUnitId() {
 	return currentCellTriggeredEventAreaExitUnitId;
 }
 
+int ScriptManager::getCellTriggeredEventUnitId() {
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return currentCellTriggeredEventUnitId;
+}
 
 void ScriptManager::setRandomGenInit(int seed) {
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
@@ -1628,6 +1672,12 @@ int ScriptManager::isFreeCells(int unitSize, int field, Vec2i pos) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s] unitSize = %d, pos [%s] field = %d result = %d\n",__FUNCTION__,unitSize,pos.getString().c_str(),field,result);
 
 	return result;
+}
+
+int ScriptManager::getHumanFactionId() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return this->world->getThisFactionIndex();
 }
 
 // ========================== lua callbacks ===============================================
@@ -2081,6 +2131,32 @@ int ScriptManager::removeCellMarker(LuaHandle* luaHandle){
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::showMarker(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+
+	int flashCount = luaArguments.getInt(-5);
+	//printf("LUA addCellMarker --> START\n");
+
+	int factionIndex = luaArguments.getInt(-4);
+
+	//printf("LUA addCellMarker --> START 1\n");
+
+	Vec2i pos = luaArguments.getVec2i(-1);
+
+	//printf("LUA addCellMarker --> START 2\n");
+
+	string note = luaArguments.getString(-3);
+
+	//printf("LUA addCellMarker --> START 3\n");
+
+	string texture = luaArguments.getString(-2);
+
+	//printf("LUA addCellMarker --> faction [%d] pos [%s] note [%s] texture [%s]\n",factionIndex,pos.getString().c_str(),note.c_str(),texture.c_str());
+
+	thisScriptManager->showMarker(pos,factionIndex,note,texture,flashCount);
+	return luaArguments.getReturnCount();
+}
+
 int ScriptManager::getUnitFaction(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	int factionIndex= thisScriptManager->getUnitFaction(luaArguments.getInt(-1));
@@ -2133,6 +2209,12 @@ int ScriptManager::getCellTriggeredEventAreaEntryUnitId(LuaHandle* luaHandle){
 int ScriptManager::getCellTriggeredEventAreaExitUnitId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaExitUnitId());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getCellTriggeredEventUnitId(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getCellTriggeredEventUnitId());
 	return luaArguments.getReturnCount();
 }
 
@@ -2567,6 +2649,13 @@ int ScriptManager::isFreeCells(LuaHandle* luaHandle) {
 			luaArguments.getVec2i(-1));
 
 	luaArguments.returnInt(result);
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getHumanFactionId(LuaHandle* luaHandle) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getHumanFactionId());
 	return luaArguments.getReturnCount();
 }
 

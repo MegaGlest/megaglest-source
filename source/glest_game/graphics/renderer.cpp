@@ -5926,11 +5926,14 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 			static_cast<float>(mw)/ pixmap->getW()/2,
 			static_cast<float>(mh)/ pixmap->getH()/2);
 
-		for(int i=0;i<highlightedCells->size();i++) {
+		for(int i = 0;i < highlightedCells->size(); i++) {
 			const MarkedCell *mc=&highlightedCells->at(i);
-			if(mc->getFaction() != NULL && mc->getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam()) {
+			if(mc->getFaction() == NULL || (mc->getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam())) {
 				const Texture2D *texture= game->getHighlightCellTexture();
-				Vec3f color=  mc->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
+				Vec3f color(MarkedCell::static_system_marker_color);
+				if(mc->getFaction() != NULL) {
+					color=  mc->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
+				}
 				float alpha = 0.49f+0.5f/(mc->getAliveCount()%15);
 				Vec2i pos=mc->getTargetPos();
 				if(texture!=NULL){

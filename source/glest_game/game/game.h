@@ -302,6 +302,7 @@ public:
 
 	void addCellMarker(Vec2i cellPos, MarkedCell cellData);
 	void removeCellMarker(Vec2i surfaceCellPos, const Faction *faction);
+	void showMarker(Vec2i cellPos, MarkedCell cellData);
 
 private:
 	//render
