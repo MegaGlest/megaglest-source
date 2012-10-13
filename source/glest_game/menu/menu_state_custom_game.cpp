@@ -3213,18 +3213,28 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers + fpt_Observer));
 			}
 			else if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
-				if(lastSelectedTeamIndex[i] >= 0 && lastSelectedTeamIndex[i] + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
-					if(lastSelectedTeamIndex[i] == 0) {
-						lastSelectedTeamIndex[i] = GameConstants::maxPlayers-1;
-					}
-					else if(lastSelectedTeamIndex[i] == GameConstants::maxPlayers-1) {
-						lastSelectedTeamIndex[i] = 0;
-					}
 
-					listBoxTeams[i].setSelectedItemIndex(lastSelectedTeamIndex[i]);
+				//printf("Line: %d lastSelectedTeamIndex[i] = %d \n",__LINE__,lastSelectedTeamIndex[i]);
+
+				if((listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+				   listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega) &&
+						checkBoxScenario.getValue() == true) {
+
 				}
 				else {
-					listBoxTeams[i].setSelectedItem(intToStr(1));
+					if(lastSelectedTeamIndex[i] >= 0 && lastSelectedTeamIndex[i] + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+						if(lastSelectedTeamIndex[i] == 0) {
+							lastSelectedTeamIndex[i] = GameConstants::maxPlayers-1;
+						}
+						else if(lastSelectedTeamIndex[i] == GameConstants::maxPlayers-1) {
+							lastSelectedTeamIndex[i] = 0;
+						}
+
+						listBoxTeams[i].setSelectedItemIndex(lastSelectedTeamIndex[i]);
+					}
+					else {
+						listBoxTeams[i].setSelectedItem(intToStr(1));
+					}
 				}
 			}
 
@@ -4315,6 +4325,11 @@ void MenuStateCustomGame::processScenario() {
 						listBoxTeams[i].setSelectedItem(intToStr(scenarioInfo.teams[i]));
 						if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
 							if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+								lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+							}
+							// Alow Neutral cpu players
+							else if(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
+							 listBoxControls[i].getSelectedItemIndex() == ctCpuUltra || listBoxControls[i].getSelectedItemIndex() == ctCpuMega) {
 								lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
 							}
 						}

@@ -185,6 +185,7 @@ private:
 
 	int currentTimerTriggeredEventId;
 	int currentCellTriggeredEventId;
+	int currentCellTriggeredEventUnitId;
 
 	int currentCellTriggeredEventAreaEntryUnitId;
 	int currentCellTriggeredEventAreaExitUnitId;
@@ -306,6 +307,8 @@ private:
 	int getCellTriggeredEventAreaEntryUnitId();
 	int getCellTriggeredEventAreaExitUnitId();
 
+	int getCellTriggeredEventUnitId();
+
 	void setRandomGenInit(int seed);
 	int getRandomGen(int minVal, int maxVal);
 	int getWorldFrameCount();
@@ -335,6 +338,8 @@ private:
 	void addCellMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile);
 	void removeCellMarker(Vec2i pos, int factionIndex);
 
+	void showMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile, int flashCount);
+
 	const string &getLastDeadUnitName();
 	int getLastDeadUnitId();
 	int getLastDeadUnitCauseOfDeath();
@@ -361,6 +366,7 @@ private:
 	int isFreeCellsOrHasUnit(int field, int unitId,Vec2i pos);
 	int isFreeCells(int unitSize, int field,Vec2i pos);
 
+	int getHumanFactionId();
 
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
@@ -435,6 +441,8 @@ private:
 	static int getCellTriggeredEventAreaEntryUnitId(LuaHandle* luaHandle);
 	static int getCellTriggeredEventAreaExitUnitId(LuaHandle* luaHandle);
 
+	static int getCellTriggeredEventUnitId(LuaHandle* luaHandle);
+
 	static int setRandomGenInit(LuaHandle* luaHandle);
 	static int getRandomGen(LuaHandle* luaHandle);
 	static int getWorldFrameCount(LuaHandle* luaHandle);
@@ -460,6 +468,8 @@ private:
 
 	static int addCellMarker(LuaHandle* luaHandle);
 	static int removeCellMarker(LuaHandle* luaHandle);
+
+	static int showMarker(LuaHandle* luaHandle);
 
 	static int getLastDeadUnitName(LuaHandle* luaHandle);
 	static int getLastDeadUnitId(LuaHandle* luaHandle);
@@ -490,6 +500,8 @@ private:
 
 	static int isFreeCellsOrHasUnit(LuaHandle* luaHandle);
 	static int isFreeCells(LuaHandle* luaHandle);
+
+	static int getHumanFactionId(LuaHandle* luaHandle);
 
 };
 

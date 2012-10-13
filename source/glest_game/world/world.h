@@ -248,6 +248,7 @@ public:
 
 	void addCellMarker(Vec2i pos, int factionIndex, const string &note, const string textureFile);
 	void removeCellMarker(Vec2i pos, int factionIndex);
+	void showMarker(Vec2i pos, int factionIndex, const string &note, const string textureFile,int flashCount);
 
 	int getUnitFactionIndex(int unitId);
 	const string getUnitName(int unitId);
