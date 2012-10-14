@@ -1,0 +1,48 @@
+[main]
+host = https://www.transifex.com
+
+[megaglest.main-language-file]
+file_filter = data/glest_game/data/lang/<lang>.lng
+source_file = data/glest_game/data/lang/english.lng
+source_lang = english
+
+[megaglest.loading-screen-hints]
+file_filter = data/glest_game/data/lang/hint/hint_<lang>.lng
+source_file = data/glest_game/data/lang/hint/hint_english.lng
+source_lang = english
+
+[megaglest.tutorials-1-very-basic-tutorial]
+file_filter = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_<lang>.lng
+source_file = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_english.lng
+source_lang = english
+
+[megaglest.tutorials-2-basic-tutorial]
+file_filter = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_<lang>.lng
+source_file = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_english.lng
+source_lang = english
+
+[megaglest.tutorials-3-advanced-tutorial]
+file_filter = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_<lang>.lng
+source_file = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_english.lng
+source_lang = english
+
+[megaglest.scenarios-amazones]
+file_filter = data/glest_game/scenarios/amazones/amazones_<lang>.lng
+source_file = data/glest_game/scenarios/amazones/amazones_english.lng
+source_lang = english
+
+[megaglest.scenarios-amazones-light]
+file_filter = data/glest_game/scenarios/amazones_light/amazones_light_<lang>.lng
+source_file = data/glest_game/scenarios/amazones_light/amazones_light_english.lng
+source_lang = english
+
+[megaglest.scenarios-capture-enemy-flag]
+file_filter = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_<lang>.lng
+source_file = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_english.lng
+source_lang = english
+
+[megaglest.scenarios-storming]
+file_filter = data/glest_game/scenarios/storming/storming_<lang>.lng
+source_file = data/glest_game/scenarios/storming/storming_english.lng
+source_lang = english
+
