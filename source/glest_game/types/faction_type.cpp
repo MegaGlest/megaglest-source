@@ -88,6 +88,14 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 				endPathWithSlash(techTreePath);
 				techTreeName=linkedTechTreeName;
 
+				string linkedCurrentPath = techTreePath + "factions/" + factionName;
+				endPathWithSlash(linkedCurrentPath);
+				string linkedTmppath= linkedCurrentPath + factionName +".xml";
+
+				//printf("linkedTmppath [%s] linkedCurrentPath [%s]\n",linkedTmppath.c_str(),linkedCurrentPath.c_str());
+
+				loadedFileList[linkedTmppath].push_back(make_pair(linkedCurrentPath,linkedCurrentPath));
+				loadedFileList[tmppath].push_back(make_pair(currentPath,currentPath));
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"techTreePath [%s] techTreeName [%s]\n",techTreePath.c_str(),techTreeName.c_str());
 			}
 			else {

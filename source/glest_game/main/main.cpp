@@ -1368,7 +1368,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 
 		if(loadedFileList.find(foundFile) == loadedFileList.end()) {
 			if(foundUnusedFile == false) {
-				printf("\nWarning, unused files were detected - START:\n=====================\n");
+				printf("\nLine ref: %d, Warning, unused files were detected - START:\n=====================\n",__LINE__);
 			}
 			foundUnusedFile = true;
 
@@ -1402,7 +1402,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		if(purgedMegaBytes > 0) {
 			printf("Purged %.2f MB (%d) in files\n",purgedMegaBytes,purgeCount);
 		}
-		printf("\nWarning, unused files were detected - END:\n");
+		printf("\nLine ref: %d, Warning, unused files were detected - END:\n",__LINE__);
 	}
 
 	if(showDuplicateFiles == true) {
@@ -1808,7 +1808,7 @@ void runTechValidationForPath(string techPath, string techName,
 
 				if(loadedFileList.find(foundFile) == loadedFileList.end()) {
 					if(foundUnusedFile == false) {
-						printf("\nWarning, unused files were detected - START:\n=====================\n");
+						printf("\nLine ref: %d, Warning, unused files were detected - START:\n=====================\n",__LINE__);
 					}
 					foundUnusedFile = true;
 
@@ -1842,7 +1842,7 @@ void runTechValidationForPath(string techPath, string techName,
 				if(purgedMegaBytes > 0) {
 					printf("Purged %.2f MB (%d) in files\n",purgedMegaBytes,purgeCount);
 				}
-				printf("\nWarning, unused files were detected - END:\n");
+				printf("\nLine ref: %d, Warning, unused files were detected - END:\n",__LINE__);
 			}
 
 			if(showDuplicateFiles == true) {
