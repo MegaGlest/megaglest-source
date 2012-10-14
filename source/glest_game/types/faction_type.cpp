@@ -33,6 +33,7 @@ namespace Glest{ namespace Game{
 FactionType::FactionType() {
 	music			= NULL;
 	personalityType = fpt_Normal;
+	isLinked		= false;
 }
 
 //load a faction, given a directory
@@ -75,6 +76,9 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			const XmlNode *rootNode= xmlTree.getRootNode();
 
 			if(rootNode->getName()=="link") {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Faction [%s] is a linked faction\n",name.c_str());
+
+				isLinked = true;
 				const XmlNode *techTreeNode= rootNode->getChild("techtree");
 				const string linkedTechTreeName=techTreeNode->getAttribute("name")->getRestrictedValue();
 	//			const XmlNode *factionLinkNode= rootNode->getChild("faction");
@@ -83,6 +87,8 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 				techTreePath=linkedTechTreePath;
 				endPathWithSlash(techTreePath);
 				techTreeName=linkedTechTreeName;
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"techTreePath [%s] techTreeName [%s]\n",techTreePath.c_str(),techTreeName.c_str());
 			}
 			else {
 				// stop looking for new path, no more links ...
@@ -106,6 +112,8 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 	Logger::getInstance().add(szBuf, true);
 
 	if(personalityType == fpt_Normal) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Loading faction [%s] currentPath [%s]\n",path.c_str(),currentPath.c_str());
+
 		checksum->addFile(path);
 		techtreeChecksum->addFile(path);
 
@@ -173,6 +181,9 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		}
 
 		string tmppath= currentPath + factionName +".xml";
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Loading faction xml [%s]\n",tmppath.c_str());
+
 		std::map<string,string> mapExtraTagReplacementValues;
 		mapExtraTagReplacementValues["$COMMONDATAPATH"] = techTreePath + "/commondata/";
 		//printf("current $COMMONDATAPATH = %s\n",mapExtraTagReplacementValues["$COMMONDATAPATH"].c_str());
