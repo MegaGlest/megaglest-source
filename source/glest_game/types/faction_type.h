@@ -94,6 +94,8 @@ private:
 	std::vector<const UpgradeType*> vctAIBehaviorUpgrades;
 	std::map<AIBehaviorStaticValueCategory, int > mapAIBehaviorStaticOverrideValues;
 
+	bool isLinked;
+
 public:
 	//init
 	FactionType();
@@ -106,6 +108,7 @@ public:
 	int getAIBehaviorStaticOverideValue(AIBehaviorStaticValueCategory type) const;
 
     //get
+	bool getIsLinked() const { return isLinked; }
 	int getUnitTypeCount() const						{return unitTypes.size();}
 	int getUpgradeTypeCount() const						{return upgradeTypes.size();}
 	string getName() const								{return name;}

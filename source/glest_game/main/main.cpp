@@ -1550,7 +1550,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 										printf("foundText = %d\n",foundText);
 										if(foundText == false) {
 											char szBuf[4096]="";
-											sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
+											sprintf(szBuf,"Line ref = %d, Error finding text [%s] in file [%s]",__LINE__,searchText.c_str(),parentFile.c_str());
 											throw megaglest_runtime_error(szBuf);
 										}
 										mapUniqueParentList[parentFile]++;
@@ -1596,7 +1596,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 									if(foundText == false) {
 
 										char szBuf[8096]="";
-										sprintf(szBuf,"Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+										sprintf(szBuf,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
 										printf("\n\n=================================================\n%s",szBuf);
 
 										throw megaglest_runtime_error(szBuf);
@@ -1659,6 +1659,9 @@ void runTechValidationForPath(string techPath, string techName,
 			//vector<string> pathList = config.getPathListForType(ptTechs,"");
 			vector<string> pathList;
 			pathList.push_back(techPath);
+			Config &config = Config::getInstance();
+			vector<string> otherTechPaths = config.getPathListForType(ptTechs,"");
+			pathList.insert(pathList.end(), otherTechPaths.begin(), otherTechPaths.end());
 			world.loadTech(pathList, techName, factions, &checksum, loadedFileList);
 
 			// Fixup paths with ..
@@ -1878,7 +1881,7 @@ void runTechValidationForPath(string techPath, string techName,
 							printf("\nWarning, duplicate files were detected - START:\n=====================\n");
 						}
 
-						printf("----- START duplicate files for CRC [%d] count [%lu] first file is [%s]\n",iterMap->first,fileList.size(),fileList[0].c_str());
+						printf("----- START duplicate files for CRC [%u] count [%lu] first file is [%s]\n",iterMap->first,fileList.size(),fileList[0].c_str());
 
 						map<string,int> parentList;
 						for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
@@ -2048,7 +2051,7 @@ void runTechValidationForPath(string techPath, string techName,
 														//printf("Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
 
 														char szBuf[8096]="";
-														sprintf(szBuf,"Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+														sprintf(szBuf,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
 														printf("\n\n=================================================\n%s",szBuf);
 
 														throw megaglest_runtime_error(szBuf);
@@ -2115,11 +2118,15 @@ void runTechValidationForPath(string techPath, string techName,
 												if(foundText == false) {
 													//printf("Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
 
-													char szBuf[8096]="";
-													sprintf(szBuf,"Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
-													printf("\n\n=================================================\n%s",szBuf);
+													// Check if the sound file already references commandata
+													foundText = searchAndReplaceTextInFile(parentFile, newCommonFileName, newCommonFileName, true);
+													if(foundText == false) {
+														char szBuf[8096]="";
+														sprintf(szBuf,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+														printf("\n\n=================================================\n%s",szBuf);
 
-													throw megaglest_runtime_error(szBuf);
+														throw megaglest_runtime_error(szBuf);
+													}
 												}
 											}
 										}
