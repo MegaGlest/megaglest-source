@@ -137,17 +137,17 @@ public:
 	Texture2D *loadMeshTexture(int meshIndex, int textureIndex, TextureManager *textureManager, string textureFile,
 								int textureChannelCount, bool &textureOwned,
 								bool deletePixMapAfterLoad, std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,
-								string sourceLoader="");
+								string sourceLoader="",string modelFile="");
 
 	//load
 	void loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
-			bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,string sourceLoader="");
+			bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,string sourceLoader="",string modelFile="");
 	void loadV3(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
-			bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,string sourceLoader="");
-	void load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,string sourceLoader="");
+			bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,string sourceLoader="",string modelFile="");
+	void load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL,string sourceLoader="",string modelFile="");
 	void save(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
 			string convertTextureToFormat, std::map<string,int> &textureDeleteList,
-			bool keepsmallest);
+			bool keepsmallest,string modelFile);
 
 	void deletePixels();
 
