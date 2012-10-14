@@ -2,47 +2,112 @@
 host = https://www.transifex.com
 
 [megaglest.main-language-file]
-file_filter = data/glest_game/data/lang/<lang>.lng
 source_file = data/glest_game/data/lang/english.lng
-source_lang = english
+source_lang = en
+trans.ca = data/glest_game/data/lang/catalan.lng
+trans.cs = data/glest_game/data/lang/czech.lng
+trans.da = data/glest_game/data/lang/danish.lng
+trans.de = data/glest_game/data/lang/german.lng
+trans.el = data/glest_game/data/lang/greek.lng
+trans.es = data/glest_game/data/lang/spanish.lng
+trans.fr = data/glest_game/data/lang/french.lng
+trans.gd = data/glest_game/data/lang/gaelic.lng
+trans.gl = data/glest_game/data/lang/galician.lng
+trans.it = data/glest_game/data/lang/italian.lng
+trans.ja = data/glest_game/data/lang/japanese.lng
+trans.nl = data/glest_game/data/lang/dutch.lng
+trans.pl = data/glest_game/data/lang/polish.lng
+trans.pt = data/glest_game/data/lang/portuguese.lng
+trans.ru = data/glest_game/data/lang/russian.lng
+trans.uk = data/glest_game/data/lang/ukrainian.lng
+trans.zh = data/glest_game/data/lang/chinese.lng
 
 [megaglest.loading-screen-hints]
-file_filter = data/glest_game/data/lang/hint/hint_<lang>.lng
 source_file = data/glest_game/data/lang/hint/hint_english.lng
-source_lang = english
+source_lang = en
+trans.de = data/glest_game/data/lang/hint/hint_german.lng
+trans.ru = data/glest_game/data/lang/hint/hint_russian.lng
 
 [megaglest.tutorials-1-very-basic-tutorial]
-file_filter = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_<lang>.lng
 source_file = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_english.lng
-source_lang = english
+source_lang = en
+trans.fr = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_french.lng
+trans.gd = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_gaelic.lng
+trans.de = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_german.lng
+trans.el = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_greek.lng
+trans.it = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_italian.lng
+trans.pl = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_polish.lng
+trans.pt = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_portuguese.lng
+trans.ru = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_russian.lng
+trans.uk = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_ukrainian.lng
 
 [megaglest.tutorials-2-basic-tutorial]
-file_filter = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_<lang>.lng
 source_file = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_english.lng
-source_lang = english
+source_lang = en
+trans.fr = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_french.lng
+trans.gd = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_gaelic.lng
+trans.gl = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_galician.lng
+trans.de = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_german.lng
+trans.el = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_greek.lng
+trans.it = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_italian.lng
+trans.ja = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_japanese.lng
+trans.pl = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_polish.lng
+trans.pt = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_portuguese.lng
+trans.ru = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_russian.lng
+trans.es = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_spanish.lng
 
 [megaglest.tutorials-3-advanced-tutorial]
-file_filter = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_<lang>.lng
 source_file = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_english.lng
-source_lang = english
+source_lang = en
+trans.fr = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_french.lng
+trans.gd = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_gaelic.lng
+trans.gl = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_galician.lng
+trans.de = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_german.lng
+trans.el = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_greek.lng
+trans.it = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_italian.lng
+trans.pl = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_polish.lng
+trans.pt = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_portuguese.lng
+trans.ru = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_russian.lng
+trans.es = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_spanish.lng
 
 [megaglest.scenarios-amazones]
-file_filter = data/glest_game/scenarios/amazones/amazones_<lang>.lng
 source_file = data/glest_game/scenarios/amazones/amazones_english.lng
-source_lang = english
+source_lang = en
+trans.cs = data/glest_game/scenarios/amazones/amazones_czech.lng
+trans.gd = data/glest_game/scenarios/amazones/amazones_gaelic.lng
+trans.gl = data/glest_game/scenarios/amazones/amazones_galician.lng
+trans.el = data/glest_game/scenarios/amazones/amazones_greek.lng
+trans.it = data/glest_game/scenarios/amazones/amazones_italian.lng
+trans.pl = data/glest_game/scenarios/amazones/amazones_polish.lng
+trans.pt = data/glest_game/scenarios/amazones/amazones_portuguese.lng
+trans.ru = data/glest_game/scenarios/amazones/amazones_russian.lng
 
 [megaglest.scenarios-amazones-light]
-file_filter = data/glest_game/scenarios/amazones_light/amazones_light_<lang>.lng
 source_file = data/glest_game/scenarios/amazones_light/amazones_light_english.lng
-source_lang = english
+source_lang = en
+trans.cs = data/glest_game/scenarios/amazones_light/amazones_light_czech.lng
+trans.gd = data/glest_game/scenarios/amazones_light/amazones_light_gaelic.lng
+trans.gl = data/glest_game/scenarios/amazones_light/amazones_light_galician.lng
+trans.el = data/glest_game/scenarios/amazones_light/amazones_light_greek.lng
+trans.it = data/glest_game/scenarios/amazones_light/amazones_light_italian.lng
+trans.pl = data/glest_game/scenarios/amazones_light/amazones_light_polish.lng
+trans.pt = data/glest_game/scenarios/amazones_light/amazones_light_portuguese.lng
+trans.ru = data/glest_game/scenarios/amazones_light/amazones_light_russian.lng
 
 [megaglest.scenarios-capture-enemy-flag]
-file_filter = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_<lang>.lng
 source_file = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_english.lng
-source_lang = english
+source_lang = en
 
 [megaglest.scenarios-storming]
-file_filter = data/glest_game/scenarios/storming/storming_<lang>.lng
 source_file = data/glest_game/scenarios/storming/storming_english.lng
-source_lang = english
+source_lang = en
+trans.cs = data/glest_game/scenarios/storming/storming_czech.lng
+trans.gd = data/glest_game/scenarios/storming/storming_gaelic.lng
+trans.gl = data/glest_game/scenarios/storming/storming_galician.lng
+trans.el = data/glest_game/scenarios/storming/storming_greek.lng
+trans.it = data/glest_game/scenarios/storming/storming_italian.lng
+trans.pl = data/glest_game/scenarios/storming/storming_polish.lng
+trans.pt = data/glest_game/scenarios/storming/storming_portuguese.lng
+trans.ru = data/glest_game/scenarios/storming/storming_russian.lng
+trans.es = data/glest_game/scenarios/storming/storming_spanish.lng
 
