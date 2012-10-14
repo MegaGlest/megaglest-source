@@ -557,18 +557,22 @@ std::vector<std::string> FactionType::validateFactionType() {
 								 break;
 							}
 						}
+						if(foundUnit == true) {
+							break;
+						}
 					}
 
-	    			// Check if this is a morph command
-					if(cmdType->getClass() == ccMorph) {
-						const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
-						const UnitType *morphUnit = morph->getMorphUnit();
+	    			// Check if this is an attack command with spawned units on attack
+					if(cmdType->getClass() == ccAttack) {
+						const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(cmdType);
+						if( act != NULL && act->getAttackSkillType() != NULL &&
+							act->getAttackSkillType()->getSpawnUnit() != "" && act->getAttackSkillType()->getSpawnUnitCount() > 0) {
 
-						if( morphUnit != NULL &&
-							unitType.getId() != unitType2.getId() &&
-							unitType.getName() == morphUnit->getName()) {
-							 foundUnit = true;
-							 break;
+							if( unitType.getId() != unitType2.getId() &&
+								unitType.getName() == act->getAttackSkillType()->getSpawnUnit()) {
+								 foundUnit = true;
+								 break;
+							}
 						}
 					}
 	    		}

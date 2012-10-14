@@ -140,7 +140,7 @@ void Mesh::updateInterpolationVertices(float t, bool cycle) {
 void Mesh::BuildVBOs() {
 	if(getVBOSupported() == true) {
 		if(hasBuiltVBOs == false) {
-			//printf("In [%s::%s Line: %d] setting up a VBO...\n",__FILE__,__FUNCTION__,__LINE__);
+			//printf("In [%s::%s Line: %d] setting up a VBO...\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			// Generate And Bind The Vertex Buffer
 			glGenBuffersARB( 1,(GLuint*) &m_nVBOVertices );					// Get A Valid Name
@@ -218,7 +218,7 @@ string Mesh::findAlternateTexture(vector<string> conversionList, string textureF
 
 void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
 		bool deletePixMapAfterLoad, std::map<string,vector<pair<string, string> > > *loadedFileList,
-		string sourceLoader) {
+		string sourceLoader,string modelFile) {
 	this->textureManager = textureManager;
 	//read header
 	MeshHeaderV2 meshHeader;
@@ -227,13 +227,13 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
 		char szBuf[4096]="";
-		sprintf(szBuf,"Old v2 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex);
+		sprintf(szBuf,"Old v2 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d modelFile [%s]",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex,modelFile.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(meshHeader.texCoordFrameCount != 1) {
 		char szBuf[4096]="";
-		sprintf(szBuf,"Old v2 model: texture coord frame count is not 1 [t = %d] meshIndex = %d",meshHeader.texCoordFrameCount,meshIndex);
+		sprintf(szBuf,"Old v2 model: texture coord frame count is not 1 [t = %d] meshIndex = %d modelFile [%s]",meshHeader.texCoordFrameCount,meshIndex,modelFile.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -250,7 +250,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	customColor= false;
 	noSelect= false;
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d meshIndex = %d\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d meshIndex = %d modelFile [%s]\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex,modelFile.c_str());
 
 	textureFlags= 0;
 	if(meshHeader.hasTexture) {
@@ -289,7 +289,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 				}
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v2 model is missing texture [%s] meshIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,texPath.c_str(),meshIndex);
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v2 model is missing texture [%s] meshIndex = %d modelFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,texPath.c_str(),meshIndex,modelFile.c_str());
 			}
 		}
 	}
@@ -309,7 +309,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		TextureManager *textureManager,bool deletePixMapAfterLoad,
 		std::map<string,vector<pair<string, string> > > *loadedFileList,
-		string sourceLoader) {
+		string sourceLoader,string modelFile) {
 	this->textureManager = textureManager;
 
 	//read header
@@ -319,7 +319,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
 		char szBuf[4096]="";
-		sprintf(szBuf,"Old v3 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex);
+		sprintf(szBuf,"Old v3 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d modelFile [%s]",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex,modelFile.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -341,7 +341,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		textureFlags= 1;
 	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v3, this = %p Found meshHeader.properties = %d, textureFlags = %d, texName [%s] mtDiffuse = %d meshIndex = %d\n",this,meshHeader.properties,textureFlags,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v3, this = %p Found meshHeader.properties = %d, textureFlags = %d, texName [%s] mtDiffuse = %d meshIndex = %d modelFile [%s]\n",this,meshHeader.properties,textureFlags,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex,modelFile.c_str());
 
 	//texture
 	if((meshHeader.properties & mp3NoTexture) != mp3NoTexture && textureManager!=NULL){
@@ -378,7 +378,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 				}
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v3 model is missing texture [%s] meshHeader.properties = %d meshIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,texPath.c_str(),meshHeader.properties,meshIndex);
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v3 model is missing texture [%s] meshHeader.properties = %d meshIndex = %d modelFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,texPath.c_str(),meshHeader.properties,meshIndex,modelFile.c_str());
 			}
 		}
 	}
@@ -401,9 +401,9 @@ Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
 		TextureManager *textureManager, string textureFile,
 		int textureChannelCount, bool &textureOwned, bool deletePixMapAfterLoad,
 		std::map<string,vector<pair<string, string> > > *loadedFileList,
-		string sourceLoader) {
+		string sourceLoader,string modelFile) {
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #1 load texture [%s]\n",__FUNCTION__,textureFile.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #1 load texture [%s] modelFile [%s]\n",__FUNCTION__,textureFile.c_str(),modelFile.c_str());
 
 	Texture2D* texture = dynamic_cast<Texture2D*>(textureManager->getTexture(textureFile));
 	if(texture == NULL) {
@@ -441,8 +441,8 @@ Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
 			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] texture inited [%s]\n",__FUNCTION__,textureFile.c_str());
 		}
 		else {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #3 cannot load texture [%s]\n",__FUNCTION__,textureFile.c_str());
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v4 model is missing texture [%s] textureFlags = %d meshIndex = %d textureIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,textureFile.c_str(),textureFlags,meshIndex,textureIndex);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #3 cannot load texture [%s] modelFile [%s]\n",__FUNCTION__,textureFile.c_str(),modelFile.c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error v4 model is missing texture [%s] textureFlags = %d meshIndex = %d textureIndex = %d modelFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,textureFile.c_str(),textureFlags,meshIndex,textureIndex,modelFile.c_str());
 		}
 	}
 
@@ -451,7 +451,7 @@ Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
 
 void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
 				bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList,
-				string sourceLoader) {
+				string sourceLoader,string modelFile) {
 	this->textureManager = textureManager;
 
 	//read header
@@ -502,7 +502,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 
 			textures[i] = loadMeshTexture(meshIndex, i, textureManager, mapFullPath,
 					meshTextureChannelCount[i],texturesOwned[i],
-					deletePixMapAfterLoad, loadedFileList, sourceLoader);
+					deletePixMapAfterLoad, loadedFileList, sourceLoader,modelFile);
 		}
 		flag *= 2;
 	}
@@ -523,7 +523,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 
 void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textureManager,
 		string convertTextureToFormat, std::map<string,int> &textureDeleteList,
-		bool keepsmallest) {
+		bool keepsmallest,string modelFile) {
 	MeshHeader meshHeader;
 	memset(&meshHeader, 0, sizeof(struct MeshHeader));
 
@@ -636,7 +636,10 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 						texture = loadMeshTexture(meshIndex, i, textureManager,file,
 													meshTextureChannelCount[i],
 													texturesOwned[i],
-													false);
+													false,
+													NULL,
+													"",
+													modelFile);
 					}
 				}
 
@@ -826,7 +829,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		FILE *f=fopen(path.c_str(),"rb");
 #endif
 		if (f == NULL) {
-		    printf("In [%s::%s] cannot load file = [%s]\n",__FILE__,__FUNCTION__,path.c_str());
+		    printf("In [%s::%s] cannot load file = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str());
 			throw megaglest_runtime_error("Error opening g3d model file [" + path + "]");
 		}
 
@@ -842,7 +845,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		if(strncmp(reinterpret_cast<char*>(fileHeader.id), "G3D", 3) != 0) {
 			fclose(f);
 			f = NULL;
-		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",__FILE__,__FUNCTION__,path.c_str(),reinterpret_cast<char*>(fileHeader.id),fileHeader.id[0]);
+		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str(),reinterpret_cast<char*>(fileHeader.id),fileHeader.id[0]);
 			throw megaglest_runtime_error("Not a valid G3D model");
 		}
 		fileVersion= fileHeader.version;
@@ -866,7 +869,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			meshes= new Mesh[meshCount];
 			for(uint32 i = 0; i < meshCount; ++i) {
 				meshes[i].load(i, dir, f, textureManager,deletePixMapAfterLoad,
-						loadedFileList,sourceLoader);
+						loadedFileList,sourceLoader,path);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -879,7 +882,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			meshes= new Mesh[meshCount];
 			for(uint32 i = 0; i < meshCount; ++i) {
 				meshes[i].loadV3(i, dir, f, textureManager,deletePixMapAfterLoad,
-						loadedFileList,sourceLoader);
+						loadedFileList,sourceLoader,path);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -892,7 +895,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			meshes= new Mesh[meshCount];
 			for(uint32 i = 0; i < meshCount; ++i){
 				meshes[i].loadV2(i,dir, f, textureManager,deletePixMapAfterLoad,
-						loadedFileList,sourceLoader);
+						loadedFileList,sourceLoader,path);
 				meshes[i].buildInterpolationData();
 			}
 		}
@@ -903,7 +906,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		fclose(f);
     }
 	catch(exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Exception caught loading 3d file: " + path +"\n"+ e.what());
 	}
 }
@@ -946,7 +949,7 @@ void Model::saveG3d(const string &path, string convertTextureToFormat,
 		for(uint32 i = 0; i < meshCount; ++i) {
 			meshes[i].save(i,tempModelFilename, f, textureManager,
 					convertTextureToFormat,textureDeleteList,
-					keepsmallest);
+					keepsmallest,path);
 		}
 
 		removeFile(path);
@@ -1168,13 +1171,13 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 						const vector<BaseColorPickEntity *> &rendererModels) {
 	vector<int> pickedModels;
 
-	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//static auto_ptr<unsigned char> cachedPixels;
 	static auto_ptr<Pixmap2D> cachedPixels;
 	//static int cachedPixelsW = -1;
 	//static int cachedPixelsH = -1;
 
-	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	static Chrono lastSnapshot(true);
 	const int selectionMillisecondUpdate = 100;
@@ -1226,7 +1229,7 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 	// Enable screenshots to debug selection scene
 	//pixmapScreenShot->save("debug.png");
 
-	//printf("In [%s::%s] Line: %d x,y,w,h [%d,%d,%d,%d] pixels = %d\n",__FILE__,__FUNCTION__,__LINE__,x,y,w,h,pixmapScreenShot->getPixelByteCount());
+	//printf("In [%s::%s] Line: %d x,y,w,h [%d,%d,%d,%d] pixels = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,x,y,w,h,pixmapScreenShot->getPixelByteCount());
 
 	// now our picked screen pixel color is stored in pixel[3]
 	// so we search through our object list looking for the object that was selected
@@ -1268,10 +1271,10 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 		}
 	}
 
-	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//delete pixmapScreenShot;
 
-	//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	return pickedModels;
 }
 
