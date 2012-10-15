@@ -462,7 +462,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 		if(b1) {
 			bool bFound = false;
 			if(advanceToItemStartingWith != "") {
-				for(unsigned int i = selectedItemIndex - 1; i >= 0; --i) {
+				for(int i = selectedItemIndex - 1; i >= 0; --i) {
 					string item = items[i];
 					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 						bFound = true;
@@ -471,7 +471,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 					}
 				}
 				if(bFound == false) {
-					for(unsigned int i = items.size() - 1; i >= selectedItemIndex; --i) {
+					for(int i = items.size() - 1; i >= selectedItemIndex; --i) {
 						string item = items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 						if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
@@ -492,7 +492,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 		else if(b2) {
 			bool bFound = false;
 			if(advanceToItemStartingWith != "") {
-				for(unsigned int i = selectedItemIndex + 1; i < items.size(); ++i) {
+				for(int i = selectedItemIndex + 1; i < items.size(); ++i) {
 					string item = items[i];
 					//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
@@ -502,7 +502,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 					}
 				}
 				if(bFound == false) {
-					for(unsigned int i = 0; i <= selectedItemIndex; ++i) {
+					for(int i = 0; i <= selectedItemIndex; ++i) {
 						string item = items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 						if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
