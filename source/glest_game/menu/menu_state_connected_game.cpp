@@ -2051,14 +2051,17 @@ void MenuStateConnectedGame::update() {
 				pingCount >= 3 && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 3)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		    	Lang &lang= Lang::getInstance();
-		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
-		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-					//string playerNameStr = getHumanPlayerName();
-					clientInterface->sendTextMessage(lang.get("ConnectionTimedOut",languageList[i]),-1,false,languageList[i]);
-					sleep(1);
-					clientInterface->close();
-		    	}
+		        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+		        if(fileFTPProgressList.empty() == true) {
+					Lang &lang= Lang::getInstance();
+					const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+					for(unsigned int i = 0; i < languageList.size(); ++i) {
+						//string playerNameStr = getHumanPlayerName();
+						clientInterface->sendTextMessage(lang.get("ConnectionTimedOut",languageList[i]),-1,false,languageList[i]);
+						sleep(1);
+						clientInterface->close();
+					}
+		        }
 			}
 
 			pingCount++;
