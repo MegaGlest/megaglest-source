@@ -30,6 +30,32 @@ using Shared::Xml::XmlNode;
 
 namespace Glest{ namespace Game{
 
+enum ModType {
+    mt_None,
+    mt_Map,
+    mt_Tileset,
+    mt_Techtree,
+    mt_Scenario
+};
+
+// ===============================
+// 	class ModInfo
+// ===============================
+
+class ModInfo {
+public:
+	string name;
+	string url;
+	string imageUrl;
+	string description;
+	string count; // used for faction count for example
+	string crc;
+	string localCRC;
+	ModType type;
+public:
+	ModInfo();
+};
+
 // =====================================================
 //	class GameSettings
 // =====================================================
