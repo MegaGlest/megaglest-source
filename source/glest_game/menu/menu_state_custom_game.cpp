@@ -1849,9 +1849,11 @@ void MenuStateCustomGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
 
-		if(factionTexture != NULL) {
-			if(factionVideo == NULL || factionVideo->isPlaying() == false) {
-				renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7f);
+		if(mainMessageBox.getEnabled() == false) {
+			if(factionTexture != NULL) {
+				if(factionVideo == NULL || factionVideo->isPlaying() == false) {
+					renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7f);
+				}
 			}
 		}
 		if(factionVideo != NULL) {
@@ -1874,20 +1876,21 @@ void MenuStateCustomGame::render() {
 				}
 			}
 		}
-		if(mapPreviewTexture != NULL) {
-			renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
-			//printf("=================> Rendering map preview texture\n");
-		}
-
-		if(scenarioLogoTexture != NULL) {
-			renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
-			//renderer.renderBackground(scenarioLogoTexture);
-		}
 
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 		else {
+			if(mapPreviewTexture != NULL) {
+				renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
+				//printf("=================> Rendering map preview texture\n");
+			}
+
+			if(scenarioLogoTexture != NULL) {
+				renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
+				//renderer.renderBackground(scenarioLogoTexture);
+			}
+
 			renderer.renderButton(&buttonReturn);
 			renderer.renderButton(&buttonPlayNow);
 			renderer.renderButton(&buttonRestoreLastSettings);
@@ -2052,13 +2055,13 @@ void MenuStateCustomGame::render() {
 					renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
 				}
 			}
-		}
 
-		//renderer.renderLabel(&labelInfo);
-		renderer.renderCheckBox(&checkBoxScenario);
-		renderer.renderLabel(&labelScenario);
-		if(checkBoxScenario.getValue() == true) {
-			renderer.renderListBox(&listBoxScenario);
+			//renderer.renderLabel(&labelInfo);
+			renderer.renderCheckBox(&checkBoxScenario);
+			renderer.renderLabel(&labelScenario);
+			if(checkBoxScenario.getValue() == true) {
+				renderer.renderListBox(&listBoxScenario);
+			}
 		}
 
 		if(program != NULL) program->renderProgramMsgBox();
@@ -2074,8 +2077,10 @@ void MenuStateCustomGame::render() {
 		    }
 		}
 
-		if(hasNetworkGameSettings() == true) {
-			renderer.renderChatManager(&chatManager);
+		if(mainMessageBox.getEnabled() == false) {
+			if(hasNetworkGameSettings() == true) {
+				renderer.renderChatManager(&chatManager);
+			}
 		}
 		renderer.renderConsole(&console,showFullConsole,true);
 	}
