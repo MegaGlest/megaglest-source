@@ -561,6 +561,18 @@ std::vector<std::string> FactionType::validateFactionType() {
 							break;
 						}
 					}
+					// Check if this is a morph command
+					if(cmdType->getClass() == ccMorph) {
+							const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
+							const UnitType *morphUnit = morph->getMorphUnit();
+
+							if( morphUnit != NULL &&
+									unitType.getId() != unitType2.getId() &&
+									unitType.getName() == morphUnit->getName()) {
+									 foundUnit = true;
+									 break;
+							}
+					}
 
 	    			// Check if this is an attack command with spawned units on attack
 					if(cmdType->getClass() == ccAttack) {
@@ -580,6 +592,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 		}
 
 		if(foundUnit == false) {
+			//printf("Problem for unit [%s] unitTypes.size() = %lu\n",unitType.getName().c_str(),unitTypes.size());
+
 			char szBuf[4096]="";
 			sprintf(szBuf,"The Unit [%s] in Faction [%s] has no other units that can produce, build or morph into it in this faction!",unitType.getName().c_str(),this->getName().c_str());
 			results.push_back(szBuf);
