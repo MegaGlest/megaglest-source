@@ -3938,6 +3938,15 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					char szBuf[1024]="";
 					sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingTilesetQuestion").c_str(),gameSettings->getTileset().c_str());
 
+					// Is the item in the mod center?
+					if(tilesetCacheList.find(getMissingMapFromFTPServer) == tilesetCacheList.end()) {
+						ftpMessageBox.init(lang.get("Yes"),lang.get("NoDownload"));
+					}
+					else {
+						ftpMessageBox.init(lang.get("ModCenter"),lang.get("GameHost"));
+						ftpMessageBox.addButton(lang.get("NoDownload"));
+					}
+
 					ftpMissingDataType = ftpmsg_MissingTileset;
 					showFTPMessageBox(szBuf, lang.get("Question"), false);
 				}
@@ -4000,6 +4009,15 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 					char szBuf[1024]="";
 					sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingTechtreeQuestion").c_str(),gameSettings->getTech().c_str());
+
+					// Is the item in the mod center?
+					if(techCacheList.find(getMissingTechtreeFromFTPServer) == techCacheList.end()) {
+						ftpMessageBox.init(lang.get("Yes"),lang.get("NoDownload"));
+					}
+					else {
+						ftpMessageBox.init(lang.get("ModCenter"),lang.get("GameHost"));
+						ftpMessageBox.addButton(lang.get("NoDownload"));
+					}
 
 					ftpMissingDataType = ftpmsg_MissingTechtree;
 					showFTPMessageBox(szBuf, lang.get("Question"), false);
@@ -4078,6 +4096,16 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 					char szBuf[1024]="";
 					sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingMapQuestion").c_str(),currentMap.c_str());
+
+					// Is the item in the mod center?
+					if(mapCacheList.find(getMissingTechtreeFromFTPServer) == mapCacheList.end()) {
+						ftpMessageBox.init(lang.get("Yes"),lang.get("NoDownload"));
+					}
+					else {
+						ftpMessageBox.init(lang.get("ModCenter"),lang.get("GameHost"));
+						ftpMessageBox.addButton(lang.get("NoDownload"));
+					}
+
 					ftpMissingDataType = ftpmsg_MissingMap;
 					showFTPMessageBox(szBuf, lang.get("Question"), false);
 				}
