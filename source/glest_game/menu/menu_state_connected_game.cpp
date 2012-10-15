@@ -3223,7 +3223,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
     	else {
 			char *szBuf = (char *)userdata;
 			//printf("%s\n",szBuf);
-			console.addLine(szBuf);
+			//console.addLine(szBuf);
+			console.addLine(szBuf, false,"");
     	}
     }
     else if(type == ftp_cct_Map) {

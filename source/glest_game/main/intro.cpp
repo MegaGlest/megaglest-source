@@ -243,8 +243,7 @@ Intro::Intro(Program *program):
 				int index = rand() % models.size();
 				if(usedIndex.find(index) != usedIndex.end()) {
 					failedLookups++;
-					seed = (time(NULL) / failedLookups);
-					srand(seed.getCurTicks());
+					srand(seed.getCurTicks() / failedLookups);
 					continue;
 				}
 				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
