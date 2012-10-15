@@ -113,7 +113,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	//mainMessageBoxState=0;
 
     ftpMessageBox.registerGraphicComponent(containerName,"ftpMessageBox");
-	ftpMessageBox.init(lang.get("Yes"),lang.get("No"));
+	ftpMessageBox.init(lang.get("ModCenter"),lang.get("GameHost"));
+	ftpMessageBox.addButton(lang.get("NoDownload"));
 	ftpMessageBox.setEnabled(false);
 
 	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -534,6 +535,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         		fileArchiveExtractCommandParameters,fileArchiveExtractCommandSuccessResult);
         ftpClientThread->start();
     }
+	// Start http meta data thread
+	modHttpServerThread = new SimpleTaskThread(this,0,200);
+	modHttpServerThread->setUniqueID(__FILE__);
+	modHttpServerThread->start();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -544,7 +551,8 @@ void MenuStateConnectedGame::reloadUI() {
 
 	console.resetFonts();
 	mainMessageBox.init(lang.get("Ok"));
-	ftpMessageBox.init(lang.get("Yes"),lang.get("No"));
+	ftpMessageBox.init(lang.get("ModCenter"),lang.get("GameHost"));
+	ftpMessageBox.addButton(lang.get("NoDownload"));
 
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -678,6 +686,391 @@ MenuStateConnectedGame::~MenuStateConnectedGame() {
 	}
 }
 
+string MenuStateConnectedGame::refreshTilesetModInfo(string tilesetInfo) {
+	std::vector<std::string> tilesetInfoList;
+	Tokenize(tilesetInfo,tilesetInfoList,"|");
+	if(tilesetInfoList.size() >= 5) {
+		Config &config = Config::getInstance();
+		ModInfo modinfo;
+		modinfo.name = tilesetInfoList[0];
+		modinfo.crc = tilesetInfoList[1];
+		modinfo.description = tilesetInfoList[2];
+		modinfo.url = tilesetInfoList[3];
+		modinfo.imageUrl = tilesetInfoList[4];
+		modinfo.type = mt_Tileset;
+
+		string itemPath = config.getPathListForType(ptTilesets,"")[1] + "/" + modinfo.name + string("/*");
+		if(itemPath.empty() == false) {
+		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+		   uint32 crc = getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   if(crc == 0) {
+				itemPath = config.getPathListForType(ptTilesets,"")[0] + "/" + modinfo.name + string("/*");
+				if(itemPath.empty() == false) {
+				   forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+				   crc=getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+				}
+		   }
+		   modinfo.localCRC=uIntToStr(crc);
+		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+
+		   //printf("#1 refreshTilesetModInfo name [%s] modInfo.crc [%s] modInfo.localCRC [%s]\n",modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str());
+		}
+		else {
+			modinfo.localCRC="";
+
+			//printf("#2 refreshTilesetModInfo name [%s] modInfo.crc [%s] modInfo.localCRC [%s]\n",modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str());
+		}
+
+		tilesetCacheList[modinfo.name] = modinfo;
+		return modinfo.name;
+	}
+	return "";
+}
+
+string MenuStateConnectedGame::refreshTechModInfo(string techInfo) {
+	std::vector<std::string> techInfoList;
+	Tokenize(techInfo,techInfoList,"|");
+	if(techInfoList.size() >= 6) {
+		Config &config = Config::getInstance();
+		ModInfo modinfo;
+		modinfo.name = techInfoList[0];
+		modinfo.count = techInfoList[1];
+		modinfo.crc = techInfoList[2];
+		modinfo.description = techInfoList[3];
+		modinfo.url = techInfoList[4];
+		modinfo.imageUrl = techInfoList[5];
+		modinfo.type = mt_Techtree;
+
+		string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + modinfo.name + string("/*");
+		if(itemPath.empty() == false) {
+		   bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+		   uint32 crc = getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+		   if(crc == 0) {
+				itemPath = config.getPathListForType(ptTechs,"")[0] + "/" + modinfo.name + string("/*");
+				if(itemPath.empty() == false) {
+				   forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
+				   crc = getFolderTreeContentsCheckSumRecursively(itemPath, ".xml", NULL,forceRefresh);
+				}
+		   }
+		   modinfo.localCRC=uIntToStr(crc);
+		   //printf("itemPath='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		}
+		else {
+			modinfo.localCRC="";
+		}
+		techCacheList[modinfo.name] = modinfo;
+		return modinfo.name;
+	}
+	return "";
+}
+
+string MenuStateConnectedGame::getMapCRC(string mapName) {
+	Config &config = Config::getInstance();
+	vector<string> mappaths=config.getPathListForType(ptMaps,"");
+	string result="";
+	if(mappaths.empty() == false) {
+		Checksum checksum;
+		string itemPath = mappaths[1] + "/" + mapName;
+		if (fileExists(itemPath)){
+			checksum.addFile(itemPath);
+			uint32 crc=checksum.getSum();
+			result=uIntToStr(crc);
+			//printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+		}
+		else {
+			itemPath = mappaths[0] + "/" + mapName;
+			if (fileExists(itemPath)){
+				checksum.addFile(itemPath);
+				uint32 crc=checksum.getSum();
+				result=uIntToStr(crc);
+				//printf("itemPath='%s' modinfo.name='%s' remote crc:'%s'  local crc:'%s'   crc='%d' \n",itemPath.c_str(),modinfo.name.c_str(),modinfo.crc.c_str(),modinfo.localCRC.c_str(),crc);
+			}
+			else {
+				result="";
+			}
+		}
+	}
+	else {
+		result="";
+	}
+	return result;
+}
+
+string MenuStateConnectedGame::refreshMapModInfo(string mapInfo) {
+	std::vector<std::string> mapInfoList;
+	Tokenize(mapInfo,mapInfoList,"|");
+	if(mapInfoList.size() >= 6) {
+		//Config &config = Config::getInstance();
+		ModInfo modinfo;
+		modinfo.name = mapInfoList[0];
+		modinfo.count = mapInfoList[1];
+		modinfo.crc = mapInfoList[2];
+		modinfo.description = mapInfoList[3];
+		modinfo.url = mapInfoList[4];
+		modinfo.imageUrl = mapInfoList[5];
+		modinfo.type = mt_Map;
+		modinfo.localCRC=getMapCRC(modinfo.name);
+		mapCacheList[modinfo.name] = modinfo;
+		return modinfo.name;
+	}
+	return "";
+}
+
+void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid(),mutexOwnerId);
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+    callingThread->getMutexThreadOwnerValid()->setOwnerId(mutexOwnerId);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    Lang &lang= Lang::getInstance();
+    Config &config = Config::getInstance();
+//    string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
+//    int expectedResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
+//	bool findArchive = executeShellCommand(fileArchiveExtractCommand,expectedResult);
+//	if(findArchive == false) {
+//		mainMessageBoxState = ftpmsg_None;
+//		mainMessageBox.init(lang.get("Ok"),450);
+//		showMessageBox(lang.get("ModRequires7z"), lang.get("Notice"), true);
+//	}
+
+	std::string techsMetaData = "";
+	std::string tilesetsMetaData = "";
+	std::string mapsMetaData = "";
+	std::string scenariosMetaData = "";
+
+	//modMenuState=mmst_Loading;
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(config.getString("Masterserver","") != "") {
+		string baseURL = config.getString("Masterserver");
+		string phpVersionParam = config.getString("phpVersionParam","?version=0.1");
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] About to call first http url, base [%s]..\n",__FILE__,__FUNCTION__,__LINE__,baseURL.c_str());
+
+		CURL *handle = SystemFlags::initHTTP();
+		CURLcode curlResult = CURLE_OK;
+		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php"+phpVersionParam,handle,-1,&curlResult);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s] curlResult = %d\n",techsMetaData.c_str(),curlResult);
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
+	    if(curlResult != CURLE_OK) {
+			string curlError = curl_easy_strerror(curlResult);
+			char szBuf[1024]="";
+			sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+			console.addLine(string("#1 ") + szBuf,true);
+	    }
+
+		if(curlResult == CURLE_OK ||
+			(curlResult != CURLE_COULDNT_RESOLVE_HOST &&
+			 curlResult != CURLE_COULDNT_CONNECT)) {
+
+			tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php"+phpVersionParam,handle,-1,&curlResult);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
+
+		    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+		    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		        return;
+		    }
+
+		    if(curlResult != CURLE_OK) {
+				string curlError = curl_easy_strerror(curlResult);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				console.addLine(string("#2 ") + szBuf,true);
+		    }
+
+			mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php"+phpVersionParam,handle,-1,&curlResult);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
+
+		    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+		    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		        return;
+		    }
+
+		    if(curlResult != CURLE_OK) {
+				string curlError = curl_easy_strerror(curlResult);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				console.addLine(string("#3 ") + szBuf,true);
+		    }
+
+			scenariosMetaData = SystemFlags::getHTTP(baseURL + "showScenariosForGlest.php"+phpVersionParam,handle,-1,&curlResult);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("scenariosMetaData [%s]\n",scenariosMetaData.c_str());
+
+		    if(curlResult != CURLE_OK) {
+				string curlError = curl_easy_strerror(curlResult);
+				char szBuf[1024]="";
+				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				console.addLine(string("#4 ") + szBuf,true);
+		    }
+		}
+		SystemFlags::cleanupHTTP(&handle);
+	}
+	else {
+        console.addLine(lang.get("MasterServerMissing"),true);
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	tilesetListRemote.clear();
+	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
+
+	//modMenuState=mmst_CalculatingCRC;
+
+	//getTilesetsLocalList();
+	for(unsigned int i=0; i < tilesetListRemote.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
+		string result=refreshTilesetModInfo(tilesetListRemote[i]);
+//		if(result != "") {
+//			ModInfo modinfo;
+//			modinfo=tilesetCacheList[result];
+//			GraphicButton *button=new GraphicButton();
+//			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(modinfo.name);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//			keyTilesetButtons.push_back(button);
+//		}
+	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	techListRemote.clear();
+	Tokenize(techsMetaData,techListRemote,"\n");
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+	//getTechsLocalList();
+	for(unsigned int i=0; i < techListRemote.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
+		string result=refreshTechModInfo(techListRemote[i]);
+//		if(result != "") {
+//			ModInfo modinfo;
+//			modinfo=techCacheList[result];
+//
+//			GraphicButton *button=new GraphicButton();
+//			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(modinfo.name);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//
+//			keyTechButtons.push_back(button);
+//			GraphicLabel *label=new GraphicLabel();
+//			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
+//			label->setText(modinfo.count);
+//			labelsTech.push_back(label);
+//		}
+	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	mapListRemote.clear();
+	Tokenize(mapsMetaData,mapListRemote,"\n");
+
+	//getMapsLocalList();
+	for(unsigned int i=0; i < mapListRemote.size(); i++) {
+
+	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	        return;
+	    }
+
+		string result=refreshMapModInfo(mapListRemote[i]);
+//		if(result != "") {
+//			ModInfo modinfo;
+//			modinfo=mapCacheList[result];
+//
+//			GraphicButton *button=new GraphicButton();
+//			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+//			button->setText(modinfo.name);
+//			button->setUseCustomTexture(true);
+//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+//			keyMapButtons.push_back(button);
+//
+//			GraphicLabel *label=new GraphicLabel();
+//			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
+//			label->setText(modinfo.count);
+//			labelsMap.push_back(label);
+//		}
+	}
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//modMenuState=mmst_None;
+
+	if(modHttpServerThread != NULL) {
+		modHttpServerThread->signalQuit();
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 	CoreData &coreData= CoreData::getInstance();
@@ -700,7 +1093,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		if(ftpMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
 			ftpMessageBox.setEnabled(false);
-			if(button == 0) {
+
+			if(button == 0 || button == 1) {
 			    if(ftpMissingDataType == ftpmsg_MissingMap) {
                     getMissingMapFromFTPServerInProgress = true;
 
@@ -719,10 +1113,21 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	}
 
                     if(ftpClientThread != NULL) {
-                        ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
-                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-                        fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
-                        safeMutexFTPProgress.ReleaseLock();
+                    	if(button == 0) {
+							string mapName = getMissingMapFromFTPServer;
+							string mapURL = mapCacheList[mapName].url;
+
+							if(ftpClientThread != NULL) ftpClientThread->addMapToRequests(mapName,mapURL);
+                    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+                    		fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
+                    		safeMutexFTPProgress.ReleaseLock();
+                    	}
+                    	else {
+                    		ftpClientThread->addMapToRequests(getMissingMapFromFTPServer);
+                    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+                    		fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
+                    		safeMutexFTPProgress.ReleaseLock();
+                    	}
                     }
 			    }
 			    else if(ftpMissingDataType == ftpmsg_MissingTileset) {
@@ -743,10 +1148,21 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	}
 
                     if(ftpClientThread != NULL) {
-                        ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
-                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-                        fileFTPProgressList[getMissingTilesetFromFTPServer] = pair<int,string>(0,"");
-                        safeMutexFTPProgress.ReleaseLock();
+                    	if(button == 0) {
+    						string tilesetName = getMissingTilesetFromFTPServer;
+    						string tilesetURL = tilesetCacheList[tilesetName].url;
+
+    						if(ftpClientThread != NULL) ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
+                    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+                    		fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
+                    		safeMutexFTPProgress.ReleaseLock();
+                    	}
+                    	else {
+							ftpClientThread->addTilesetToRequests(getMissingTilesetFromFTPServer);
+							MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+							fileFTPProgressList[getMissingTilesetFromFTPServer] = pair<int,string>(0,"");
+							safeMutexFTPProgress.ReleaseLock();
+                    	}
                     }
 			    }
 			    else if(ftpMissingDataType == ftpmsg_MissingTechtree) {
@@ -767,10 +1183,21 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	}
 
                     if(ftpClientThread != NULL) {
-                        ftpClientThread->addTechtreeToRequests(getMissingTechtreeFromFTPServer);
-                        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-                        fileFTPProgressList[getMissingTechtreeFromFTPServer] = pair<int,string>(0,"");
-                        safeMutexFTPProgress.ReleaseLock();
+                    	if(button == 0) {
+    						string techName = getMissingTechtreeFromFTPServer;
+    						string techURL = techCacheList[techName].url;
+
+    						if(ftpClientThread != NULL) ftpClientThread->addTechtreeToRequests(techName,techURL);
+                    		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+                    		fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
+                    		safeMutexFTPProgress.ReleaseLock();
+                    	}
+                    	else {
+							ftpClientThread->addTechtreeToRequests(getMissingTechtreeFromFTPServer);
+							MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+							fileFTPProgressList[getMissingTechtreeFromFTPServer] = pair<int,string>(0,"");
+							safeMutexFTPProgress.ReleaseLock();
+                    	}
                     }
 			    }
 			}

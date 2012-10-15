@@ -47,7 +47,7 @@ enum FTPMessageType {
 // 	class MenuStateConnectedGame
 // ===============================
 
-class MenuStateConnectedGame: public MenuState, public FTPClientCallbackInterface {
+class MenuStateConnectedGame: public MenuState, public FTPClientCallbackInterface, public SimpleTaskCallbackInterface {
 private:
 	GraphicButton buttonDisconnect;
 	GraphicLabel labelControl;
@@ -155,6 +155,18 @@ private:
     FTPClientThread *ftpClientThread;
     FTPMessageType ftpMissingDataType;
 
+    SimpleTaskThread *modHttpServerThread;
+	std::vector<std::string> tilesetListRemote;
+	std::map<string, ModInfo> tilesetCacheList;
+	std::vector<std::string> techListRemote;
+	std::map<string, ModInfo> techCacheList;
+	std::vector<std::string> mapListRemote;
+	std::map<string, ModInfo> mapCacheList;
+
+	std::map<string,uint32> mapCRCUpdateList;
+
+
+
     string getMissingMapFromFTPServer;
     bool getMissingMapFromFTPServerInProgress;
 
@@ -259,6 +271,12 @@ private:
 
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	void initFactionPreview(const GameSettings *gameSettings);
+
+	virtual void simpleTask(BaseThread *callingThread);
+	string refreshTilesetModInfo(string tilesetInfo);
+	string refreshTechModInfo(string techInfo);
+	string refreshMapModInfo(string mapInfo);
+	string getMapCRC(string mapName);
 };
 
 }}//end namespace
