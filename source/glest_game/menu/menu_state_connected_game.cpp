@@ -669,6 +669,22 @@ void MenuStateConnectedGame::reloadUI() {
 }
 
 MenuStateConnectedGame::~MenuStateConnectedGame() {
+	if(modHttpServerThread != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		modHttpServerThread->signalQuit();
+		//modHttpServerThread->setThreadOwnerValid(false);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if( modHttpServerThread->canShutdown(true) == true &&
+			modHttpServerThread->shutdownAndWait() == true) {
+			delete modHttpServerThread;
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		modHttpServerThread = NULL;
+	}
+
 	if(ftpClientThread != NULL) {
 	    ftpClientThread->setCallBackObject(NULL);
 	    if(ftpClientThread->shutdownAndWait() == true) {
@@ -2083,6 +2099,22 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 void MenuStateConnectedGame::returnToJoinMenu() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	if(modHttpServerThread != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		modHttpServerThread->signalQuit();
+		//modHttpServerThread->setThreadOwnerValid(false);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if( modHttpServerThread->canShutdown(true) == true &&
+			modHttpServerThread->shutdownAndWait() == true) {
+			delete modHttpServerThread;
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		modHttpServerThread = NULL;
+	}
+
 	if(ftpClientThread != NULL) {
 	    ftpClientThread->setCallBackObject(NULL);
 	    if(ftpClientThread->shutdownAndWait() == true) {
@@ -3026,6 +3058,22 @@ void MenuStateConnectedGame::update() {
 					assert(clientInterface != NULL);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+					if(modHttpServerThread != NULL) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						modHttpServerThread->signalQuit();
+						//modHttpServerThread->setThreadOwnerValid(false);
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if( modHttpServerThread->canShutdown(true) == true &&
+							modHttpServerThread->shutdownAndWait() == true) {
+							delete modHttpServerThread;
+						}
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						modHttpServerThread = NULL;
+					}
 
                     if(ftpClientThread != NULL) {
                         ftpClientThread->setCallBackObject(NULL);
