@@ -450,23 +450,50 @@ bool GraphicListBox::mouseMove(int x, int y){
         graphButton2.mouseMove(x, y);
 }
 
-bool GraphicListBox::mouseClick(int x, int y){
+bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 	if(this->getVisible() == false) {
 		return false;
 	}
 
-	if(!items.empty()){
+	if(!items.empty()) {
 		bool b1= graphButton1.mouseClick(x, y);
 		bool b2= graphButton2.mouseClick(x, y);
 
-		if(b1){
-			selectedItemIndex--;
+		if(b1) {
+			bool bFound = false;
+			if(advanceToItemStartingWith != "") {
+				for(unsigned int i = 0; i < items.size(); ++i) {
+					string item = items[i];
+					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
+						bFound = true;
+						selectedItemIndex = i;
+						break;
+					}
+				}
+			}
+			if(bFound == false) {
+				selectedItemIndex--;
+			}
 			if(selectedItemIndex<0){
 				selectedItemIndex=items.size()-1;
 			}
 		}
-		else if(b2){
-			selectedItemIndex++;
+		else if(b2) {
+			bool bFound = false;
+			if(advanceToItemStartingWith != "") {
+				for(unsigned int i = 0; i < items.size(); ++i) {
+					string item = items[i];
+					//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
+					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
+						bFound = true;
+						selectedItemIndex = i;
+						break;
+					}
+				}
+			}
+			if(bFound == false) {
+				selectedItemIndex++;
+			}
 			if(selectedItemIndex>=items.size()){
 				selectedItemIndex=0;
 			}

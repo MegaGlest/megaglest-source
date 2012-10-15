@@ -138,6 +138,7 @@ public:
 	static void setIsFullScreen(bool value) { isFullScreen = value; }
 	//static SDL_keysym getKeystate() { return keystate; }
 	static bool isKeyStateModPressed(int mod);
+	static wchar_t extractLastKeyPressed();
 
 	Window();
 	virtual ~Window();

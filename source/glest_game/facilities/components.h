@@ -249,7 +249,7 @@ public:
 	virtual void setY(int y);
     
     virtual bool mouseMove(int x, int y);
-    virtual bool mouseClick(int x, int y);
+    virtual bool mouseClick(int x, int y, string advanceToItemStartingWith="");
 };
 
 // ===========================================================

@@ -1026,7 +1026,13 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
             }
         }
         else {
-			if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
+        	string advanceToItemStartingWith = "";
+        	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
+        		wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
+        		//printf("lastKey = %d [%c]\n",lastKey,lastKey);
+        		advanceToItemStartingWith = lastKey;
+        	}
+        	if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
 				setActiveInputLabel(NULL);
 			}
 			if(buttonReturn.mouseClick(x,y) || serverInitError == true) {
@@ -1054,7 +1060,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
 				RestoreLastGameSettings();
 			}
-			else if(listBoxMap.mouseClick(x, y)){
+			else if(listBoxMap.mouseClick(x, y,advanceToItemStartingWith)){
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1169,7 +1175,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			else if (listBoxAdvanced.mouseClick(x, y)) {
 				//TODO
 			}
-			else if(listBoxTileset.mouseClick(x, y)) {
+			else if(listBoxTileset.mouseClick(x, y,advanceToItemStartingWith)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
@@ -1204,7 +1210,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
-			else if(listBoxTechTree.mouseClick(x, y)){
+			else if(listBoxTechTree.mouseClick(x, y,advanceToItemStartingWith)){
 				reloadFactions(false,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
 
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
