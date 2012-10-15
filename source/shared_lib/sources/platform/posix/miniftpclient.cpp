@@ -582,6 +582,7 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(
 		        		ftp_cct_ExtractProgress,
 		        		make_pair(ftp_crt_SUCCESS,"extracting"),NULL);
 		    }
+		    safeMutex.ReleaseLock();
 
 			if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult,this) == false) {
 				result.first = ftp_crt_FAIL;
@@ -706,6 +707,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getTechtreeFromServer(pair<
 	        		ftp_cct_ExtractProgress,
 	        		make_pair(ftp_crt_SUCCESS,"extracting"),NULL);
 	    }
+	    safeMutex.ReleaseLock();
 
         if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult,this) == false) {
         	result.first = ftp_crt_FAIL;
@@ -778,6 +780,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getScenarioInternalFromServ
 	        		ftp_cct_ExtractProgress,
 	        		make_pair(ftp_crt_SUCCESS,"extracting"),NULL);
 	    }
+	    safeMutex.ReleaseLock();
 
         if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult,this) == false) {
         	result.first = ftp_crt_FAIL;
