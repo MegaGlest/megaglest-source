@@ -1855,7 +1855,9 @@ void Game::updateNetworkHighligtedCells() {
 			std::vector<MarkedCell> highlighList = gameNetworkInterface->getHighlightedCellList(true);
 			for(int idx = 0; idx < highlighList.size(); idx++) {
 				MarkedCell mc = highlighList[idx]; // I want a copy here
-				mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex())); // set faction pointer
+				if(mc.getFactionIndex() >= 0) {
+					mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex())); // set faction pointer
+				}
 				addOrReplaceInHighlightedCells(mc);
 			}
 		}
@@ -1883,7 +1885,14 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 	highlightedCells.push_back(mc);
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	if(mc.getFaction() == NULL || (mc.getFaction()->getTeam() == getWorld()->getThisFaction()->getTeam())) {
+
+	const Faction *faction = mc.getFaction();
+	if(getWorld()->getThisFaction() == NULL) {
+		throw megaglest_runtime_error("getWorld()->getThisFaction() == NULL");
+	}
+	//printf("faction [%p][%s]\n",faction,(faction != NULL ? faction->getType()->getName().c_str() : ""));
+	if((faction == NULL) ||
+			(faction->getTeam() == getWorld()->getThisFaction()->getTeam())) {
 		soundRenderer.playFx(coreData.getMarkerSound());
 	}
 }
