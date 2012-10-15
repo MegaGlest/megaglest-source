@@ -1518,7 +1518,7 @@ void World::initFactionTypes(GameSettings *gs) {
 	}
 
 	if(gs->getFactionCount() > map.getMaxPlayers()) {
-		throw megaglest_runtime_error("This map only supports "+intToStr(map.getMaxPlayers())+" players");
+		throw megaglest_runtime_error("This map only supports "+intToStr(map.getMaxPlayers())+" players, factionCount is " + intToStr(gs->getFactionCount()));
 	}
 
 	//create stats
