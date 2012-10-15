@@ -1094,7 +1094,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			soundRenderer.playFx(coreData.getClickSoundA());
 			ftpMessageBox.setEnabled(false);
 
-			if(button == 0 || button == 1) {
+			if(button == 0 || (button == 1 && ftpMessageBox.getButtonCount() == 3)) {
 			    if(ftpMissingDataType == ftpmsg_MissingMap) {
                     getMissingMapFromFTPServerInProgress = true;
 
@@ -1113,7 +1113,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	}
 
                     if(ftpClientThread != NULL) {
-                    	if(button == 0) {
+                    	if(button == 0 && ftpMessageBox.getButtonCount() == 3) {
 							string mapName = getMissingMapFromFTPServer;
 							string mapURL = mapCacheList[mapName].url;
 
@@ -1148,7 +1148,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	}
 
                     if(ftpClientThread != NULL) {
-                    	if(button == 0) {
+                    	if(button == 0 && ftpMessageBox.getButtonCount() == 3) {
     						string tilesetName = getMissingTilesetFromFTPServer;
     						string tilesetURL = tilesetCacheList[tilesetName].url;
 
@@ -1183,7 +1183,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	}
 
                     if(ftpClientThread != NULL) {
-                    	if(button == 0) {
+                    	if(button == 0 && ftpMessageBox.getButtonCount() == 3) {
     						string techName = getMissingTechtreeFromFTPServer;
     						string techURL = techCacheList[techName].url;
 
