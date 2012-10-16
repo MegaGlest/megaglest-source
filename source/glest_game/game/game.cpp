@@ -578,8 +578,20 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 							//printf("D factionXMLFile [%s] linkedTechTreeName [%s]\n",factionXMLFile.c_str(),linkedTechTreeName.c_str());
 
 							if(linkedTechTreeName != "") {
-								path = currentPath + linkedTechTreeName + "/" + "factions" + "/" + factionName;
+
+								string linkedTechTreePath=TechTree::findPath(linkedTechTreeName,pathList);
+								string techTreePath=linkedTechTreePath;
+								endPathWithSlash(techTreePath);
+
+								string linkedCurrentPath = techTreePath + "factions/" + factionName;
+								endPathWithSlash(linkedCurrentPath);
+								string linkedTmppath= linkedCurrentPath + factionName +".xml";
+
+								path = linkedCurrentPath;
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
+
+								//printf("D1 idx = %d\ncurrentPath [%s]\npath [%s]\npathList[idx] [%s]\n",idx,currentPath.c_str(),path.c_str(),pathList[idx].c_str());
+
 								if(isdir(path.c_str()) == true) {
 									endPathWithSlash(path);
 
