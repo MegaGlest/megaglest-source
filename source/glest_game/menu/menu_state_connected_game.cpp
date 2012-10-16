@@ -1171,7 +1171,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
     						if(ftpClientThread != NULL) ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
                     		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-                    		fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
+                    		fileFTPProgressList[getMissingTilesetFromFTPServer] = pair<int,string>(0,"");
                     		safeMutexFTPProgress.ReleaseLock();
                     	}
                     	else {
@@ -1206,7 +1206,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
     						if(ftpClientThread != NULL) ftpClientThread->addTechtreeToRequests(techName,techURL);
                     		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-                    		fileFTPProgressList[getMissingMapFromFTPServer] = pair<int,string>(0,"");
+                    		fileFTPProgressList[getMissingTechtreeFromFTPServer] = pair<int,string>(0,"");
                     		safeMutexFTPProgress.ReleaseLock();
                     	}
                     	else {
