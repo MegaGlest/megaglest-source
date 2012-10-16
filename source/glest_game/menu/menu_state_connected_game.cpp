@@ -3749,6 +3749,15 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	            	sprintf(szMsg,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+
+	            if(result.first == ftp_crt_HOST_NOT_ACCEPTING) {
+		            if(lang.hasString("HostNotAcceptingDataConnections",languageList[i]) == true) {
+		            	clientInterface->sendTextMessage(lang.get("DataMissingMapFailDownload",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            }
+		            else {
+		            	clientInterface->sendTextMessage("*Warning* the host is not accepting data connections.",-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            }
+	            }
 	    	}
 
             console.addLine(result.second,true);
@@ -3823,6 +3832,15 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	            	sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+
+	            if(result.first == ftp_crt_HOST_NOT_ACCEPTING) {
+		            if(lang.hasString("HostNotAcceptingDataConnections",languageList[i]) == true) {
+		            	clientInterface->sendTextMessage(lang.get("DataMissingMapFailDownload",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            }
+		            else {
+		            	clientInterface->sendTextMessage("*Warning* the host is not accepting data connections.",-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            }
+	            }
 	    	}
 
             console.addLine(result.second,true);
@@ -3899,6 +3917,15 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	            	sprintf(szMsg,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+
+	            if(result.first == ftp_crt_HOST_NOT_ACCEPTING) {
+		            if(lang.hasString("HostNotAcceptingDataConnections",languageList[i]) == true) {
+		            	clientInterface->sendTextMessage(lang.get("DataMissingMapFailDownload",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            }
+		            else {
+		            	clientInterface->sendTextMessage("*Warning* the host is not accepting data connections.",-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            }
+	            }
 	    	}
 
             console.addLine(result.second,true);
