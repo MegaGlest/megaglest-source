@@ -30,7 +30,8 @@ enum FTP_Client_ResultType {
     ftp_crt_SUCCESS 	= 0,
     ftp_crt_PARTIALFAIL = 1,
     ftp_crt_FAIL    	= 2,
-    ftp_crt_ABORTED 	= 3
+    ftp_crt_ABORTED 	= 3,
+    ftp_crt_HOST_NOT_ACCEPTING = 4
 };
 
 enum FTP_Client_CallbackType {

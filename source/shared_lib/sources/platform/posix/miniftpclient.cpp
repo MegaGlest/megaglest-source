@@ -338,6 +338,9 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getMapFromServer(pair<string
           if(res == CURLE_PARTIAL_FILE) {
         	  result.first = ftp_crt_PARTIALFAIL;
           }
+          else if(res == CURLE_COULDNT_CONNECT) {
+        	  result.first = ftp_crt_HOST_NOT_ACCEPTING;
+          }
         }
         else {
             result.first = ftp_crt_SUCCESS;
@@ -931,6 +934,10 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
             if(res == CURLE_PARTIAL_FILE || ftpfile.isValidXfer == true) {
         	    result.first = ftp_crt_PARTIALFAIL;
             }
+            else if(res == CURLE_COULDNT_CONNECT) {
+          	  result.first = ftp_crt_HOST_NOT_ACCEPTING;
+            }
+
 
             if(destRootFolder != "") {
             	if(pathCreated == true) {
