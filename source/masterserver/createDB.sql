@@ -41,49 +41,49 @@ CREATE TABLE IF NOT EXISTS `glestmaps` (
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL,
   `imageUrl` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `disabled` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`mapname`),
-  KEY `mapname` (`mapname`)
+  `disabled` int(11) NOT NULL DEFAULT '0',
+  `crcnew` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`mapname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `glesttilesets` (
-  `updatetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `glestversion` varchar(30) collate utf8_unicode_ci NOT NULL,
-  `tilesetname` varchar(100) collate utf8_unicode_ci NOT NULL,
-  `crc` varchar(100) collate utf8_unicode_ci NOT NULL,
-  `description` varchar(255) collate utf8_unicode_ci,
-  `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `glestversion` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `tilesetname` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `crc` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL,
   `imageUrl` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `disabled` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`tilesetname`),
-  KEY `tilesetname` (`tilesetname`)
+  `disabled` int(11) NOT NULL DEFAULT '0',
+  `crcnew` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`tilesetname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `glesttechs` (
-  `updatetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `glestversion` varchar(30) collate utf8_unicode_ci NOT NULL,
-  `techname` varchar(100) collate utf8_unicode_ci NOT NULL,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `glestversion` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `techname` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `factioncount` int(11) NOT NULL,
-  `crc` varchar(100) collate utf8_unicode_ci NOT NULL,
-  `description` varchar(255) collate utf8_unicode_ci,
-  `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `crc` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL,
   `imageUrl` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `disabled` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`techname`),
-  KEY `techname` (`techname`)
+  `disabled` int(11) NOT NULL DEFAULT '0',
+  `crcnew` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`techname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 CREATE TABLE IF NOT EXISTS `glestscenarios` (
-  `updatetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `glestversion` varchar(30) collate utf8_unicode_ci NOT NULL,
-  `scenarioname` varchar(100) collate utf8_unicode_ci NOT NULL,
-  `crc` varchar(100) collate utf8_unicode_ci NOT NULL,
-  `description` varchar(255) collate utf8_unicode_ci,
-  `url` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `glestversion` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `scenarioname` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `crc` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `url` varchar(1024) COLLATE utf8_unicode_ci NOT NULL,
   `imageUrl` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `disabled` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`scenarioname`),
-  KEY `scenarioname` (`scenarioname`)
+  `disabled` int(11) NOT NULL DEFAULT '0',
+  `crcnew` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`scenarioname`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
