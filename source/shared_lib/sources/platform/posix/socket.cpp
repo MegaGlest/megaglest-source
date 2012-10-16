@@ -2103,7 +2103,8 @@ ServerSocket::~ServerSocket() {
 
 		//printf("In [%s::%s] Line: %d UPNP_Tools::enabledUPNP = %d\n",__FILE__,__FUNCTION__,__LINE__,UPNP_Tools::enabledUPNP);
 		if (UPNP_Tools::enabledUPNP) {
-			UPNP_Tools::NETremRedirects(ServerSocket::externalPort);
+			//UPNP_Tools::NETremRedirects(ServerSocket::externalPort);
+			UPNP_Tools::NETremRedirects(this->getExternalPort());
 			//UPNP_Tools::enabledUPNP = false;
 		}
 
