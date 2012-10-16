@@ -81,7 +81,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	serverSocketAdmin->setBindPort(Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str()));
 	//serverSocketAdmin->setBindSpecificAddress("127.0.0.1");
 	serverSocketAdmin->setBindSpecificAddress(Config::getInstance().getString("ServerAdminBindAddress", "127.0.0.1"));
-	//serverSocketAdmin->listen(5);
+	serverSocketAdmin->listen(5);
 
 	maxFrameCountLagAllowed 				= Config::getInstance().getInt("MaxFrameCountLagAllowed", intToStr(maxFrameCountLagAllowed).c_str());
 	maxFrameCountLagAllowedEver 			= Config::getInstance().getInt("MaxFrameCountLagAllowedEver", intToStr(maxFrameCountLagAllowedEver).c_str());

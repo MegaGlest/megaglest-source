@@ -3324,6 +3324,9 @@ int glestMain(int argc, char** argv) {
         		clientSocket.receive(&szBuf[0],8095,false);
         		std::cout << szBuf << std::endl;
         	}
+        	else {
+        		std::cout << "Could not connect (possibly no clients connected) to host: " << ip.getString() << " port: " << port << std::endl;
+        	}
 
         	return 0;
         }
