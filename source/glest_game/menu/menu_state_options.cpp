@@ -827,7 +827,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 			luaMessageBoxState=1;
 			Lang &lang= Lang::getInstance();
-			showLuaMessageBox(lang.get("LuaDisableSecuritySandboxWaring"), lang.get("Question"), false);
+			showLuaMessageBox(lang.get("LuaDisableSecuritySandboxWarning"), lang.get("Question"), false);
 		}
 	}
 	else if(buttonOk.mouseClick(x, y)){
