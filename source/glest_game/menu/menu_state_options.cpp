@@ -453,7 +453,22 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		checkBoxTimeDisplay.setValue(config.getBool("TimeDisplay","true"));
 
 		currentLine-=lineOffset;
+
+		labelLuaDisableSecuritySandbox.registerGraphicComponent(containerName,"labelLuaDisableSecuritySandbox");
+		labelLuaDisableSecuritySandbox.init(currentLabelStart ,currentLine);
+		labelLuaDisableSecuritySandbox.setText(lang.get("LuaDisableSecuritySandbox"));
+
+		checkBoxLuaDisableSecuritySandbox.registerGraphicComponent(containerName,"checkBoxLuaDisableSecuritySandbox");
+		checkBoxLuaDisableSecuritySandbox.init(currentColumnStart ,currentLine );
+		checkBoxLuaDisableSecuritySandbox.setValue(config.getBool("DisableLuaSandbox","false"));
+
+		luaMessageBox.registerGraphicComponent(containerName,"luaMessageBox");
+		luaMessageBox.init(lang.get("Yes"),lang.get("No"));
+		luaMessageBox.setEnabled(false);
+		luaMessageBoxState=0;
+
 		currentLine-=lineOffset;
+
 
 		labelNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 		labelNetworkSettings.init(currentLabelStart+captionOffset, currentLine);
@@ -610,6 +625,7 @@ void MenuStateOptions::reloadUI() {
 
 	console.resetFonts();
 	mainMessageBox.init(lang.get("Ok"));
+	luaMessageBox.init(lang.get("Yes"),lang.get("No"));
 
 	labelAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	labelAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
@@ -677,6 +693,8 @@ void MenuStateOptions::reloadUI() {
 	labelVisibleHud.setText(lang.get("VisibleHUD"));
 	labelChatStaysActive.setText(lang.get("ChatStaysActive"));
 	labelTimeDisplay.setText(lang.get("TimeDisplay"));
+
+	labelLuaDisableSecuritySandbox.setText(lang.get("LuaDisableSecuritySandbox"));
 
 	labelRainEffect.setText(lang.get("RainEffect"));
 
@@ -751,7 +769,20 @@ void MenuStateOptions::showMessageBox(const string &text, const string &header, 
 	}
 }
 
+void MenuStateOptions::showLuaMessageBox(const string &text, const string &header, bool toggle) {
+	if(!toggle) {
+		luaMessageBox.setEnabled(false);
+	}
 
+	if(!luaMessageBox.getEnabled()){
+		luaMessageBox.setText(text);
+		luaMessageBox.setHeader(header);
+		luaMessageBox.setEnabled(true);
+	}
+	else{
+		luaMessageBox.setEnabled(false);
+	}
+}
 
 void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
@@ -775,6 +806,28 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 				else
 					mainMessageBox.setEnabled(false);
 			}
+		}
+	}
+	else if(luaMessageBox.getEnabled()){
+		int button= 0;
+		if(luaMessageBox.mouseClick(x, y, button)) {
+			checkBoxLuaDisableSecuritySandbox.setValue(false);
+			soundRenderer.playFx(coreData.getClickSoundA());
+			if(button == 0) {
+				if(luaMessageBoxState == 1) {
+					checkBoxLuaDisableSecuritySandbox.setValue(true);
+				}
+			}
+			luaMessageBox.setEnabled(false);
+		}
+	}
+	else if(checkBoxLuaDisableSecuritySandbox.mouseClick(x, y)) {
+		if(checkBoxLuaDisableSecuritySandbox.getValue() == true) {
+			checkBoxLuaDisableSecuritySandbox.setValue(false);
+
+			luaMessageBoxState=1;
+			Lang &lang= Lang::getInstance();
+			showLuaMessageBox(lang.get("LuaDisableSecuritySandboxWaring"), lang.get("Question"), false);
 		}
 	}
 	else if(buttonOk.mouseClick(x, y)){
@@ -904,6 +957,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         checkBoxChatStaysActive.mouseClick(x, y);
         checkBoxTimeDisplay.mouseClick(x, y);
 
+		checkBoxLuaDisableSecuritySandbox.mouseClick(x, y);
+
         checkBoxRainEffect.mouseClick(x,y);
         checkBoxRainEffectMenu.mouseClick(x,y);
 
@@ -913,8 +968,12 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	if (mainMessageBox.getEnabled()) {
-			mainMessageBox.mouseMove(x, y);
-		}
+		mainMessageBox.mouseMove(x, y);
+	}
+	if (luaMessageBox.getEnabled()) {
+		luaMessageBox.mouseMove(x, y);
+	}
+
 	buttonOk.mouseMove(x, y);
 	buttonAbort.mouseMove(x, y);
 	buttonAutoConfig.mouseMove(x, y);
@@ -950,6 +1009,9 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxVisibleHud.mouseMove(x, y);
     checkBoxChatStaysActive.mouseMove(x, y);
     checkBoxTimeDisplay.mouseMove(x, y);
+
+	checkBoxLuaDisableSecuritySandbox.mouseMove(x, y);
+
 	checkBoxRainEffect.mouseMove(x, y);
 	checkBoxRainEffectMenu.mouseMove(x, y);
 
@@ -1029,6 +1091,9 @@ void MenuStateOptions::render(){
 
 	if(mainMessageBox.getEnabled()){
 		renderer.renderMessageBox(&mainMessageBox);
+	}
+	else if(luaMessageBox.getEnabled()){
+		renderer.renderMessageBox(&luaMessageBox);
 	}
 	else
 	{
@@ -1115,6 +1180,10 @@ void MenuStateOptions::render(){
         renderer.renderLabel(&labelVisibleHud);
         renderer.renderLabel(&labelChatStaysActive);
         renderer.renderLabel(&labelTimeDisplay);
+
+        renderer.renderLabel(&labelLuaDisableSecuritySandbox);
+        renderer.renderCheckBox(&checkBoxLuaDisableSecuritySandbox);
+
         renderer.renderCheckBox(&checkBoxVisibleHud);
         renderer.renderCheckBox(&checkBoxChatStaysActive);
         renderer.renderCheckBox(&checkBoxTimeDisplay);
@@ -1191,6 +1260,8 @@ void MenuStateOptions::saveConfig(){
     config.setBool("ChatStaysActive", checkBoxChatStaysActive.getValue());
     config.setBool("TimeDisplay", checkBoxTimeDisplay.getValue());
 
+	config.setBool("DisableLuaSandbox", checkBoxLuaDisableSecuritySandbox.getValue());
+
     config.setBool("RainEffect", checkBoxRainEffect.getValue());
     config.setBool("RainEffectMenu", checkBoxRainEffectMenu.getValue());
 
@@ -1210,6 +1281,10 @@ void MenuStateOptions::saveConfig(){
 	}
 
 	config.save();
+
+	if(config.getBool("DisableLuaSandbox","false") == true) {
+		LuaScript::setDisableSandbox(true);
+	}
 
     SoundRenderer &soundRenderer= SoundRenderer::getInstance();
     soundRenderer.stopAllSounds();

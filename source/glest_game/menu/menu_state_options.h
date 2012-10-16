@@ -138,6 +138,12 @@ private:
 	GraphicLabel labelVideos;
 	GraphicCheckBox checkBoxVideos;
 
+	GraphicLabel labelLuaDisableSecuritySandbox;
+	GraphicCheckBox checkBoxLuaDisableSecuritySandbox;
+
+	GraphicMessageBox luaMessageBox;
+	int luaMessageBoxState;
+
 	map<string,string> languageList;
 
 public:
@@ -157,6 +163,7 @@ private:
 	void saveConfig();
 	void setActiveInputLable(GraphicLabel* newLable);
 	void showMessageBox(const string &text, const string &header, bool toggle);
+	void showLuaMessageBox(const string &text, const string &header, bool toggle);
 };
 
 }}//end namespace
