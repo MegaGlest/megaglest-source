@@ -868,12 +868,13 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 	if(config.getString("Masterserver","") != "") {
 		string baseURL = config.getString("Masterserver");
 		string phpVersionParam = config.getString("phpVersionParam","?version=0.1");
+		string gameVersion = "&glestVersion=" + SystemFlags::escapeURL(glestVersionString);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] About to call first http url, base [%s]..\n",__FILE__,__FUNCTION__,__LINE__,baseURL.c_str());
 
 		CURL *handle = SystemFlags::initHTTP();
 		CURLcode curlResult = CURLE_OK;
-		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php"+phpVersionParam,handle,-1,&curlResult);
+		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php"+phpVersionParam+gameVersion,handle,-1,&curlResult);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s] curlResult = %d\n",techsMetaData.c_str(),curlResult);
 
 	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -892,7 +893,7 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 			(curlResult != CURLE_COULDNT_RESOLVE_HOST &&
 			 curlResult != CURLE_COULDNT_CONNECT)) {
 
-			tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php"+phpVersionParam,handle,-1,&curlResult);
+			tilesetsMetaData = SystemFlags::getHTTP(baseURL + "showTilesetsForGlest.php"+phpVersionParam+gameVersion,handle,-1,&curlResult);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("tilesetsMetaData [%s]\n",tilesetsMetaData.c_str());
 
 		    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -907,7 +908,7 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 				console.addLine(string("#2 ") + szBuf,true);
 		    }
 
-			mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php"+phpVersionParam,handle,-1,&curlResult);
+			mapsMetaData = SystemFlags::getHTTP(baseURL + "showMapsForGlest.php"+phpVersionParam+gameVersion,handle,-1,&curlResult);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapsMetaData [%s]\n",mapsMetaData.c_str());
 
 		    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -922,7 +923,7 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 				console.addLine(string("#3 ") + szBuf,true);
 		    }
 
-			scenariosMetaData = SystemFlags::getHTTP(baseURL + "showScenariosForGlest.php"+phpVersionParam,handle,-1,&curlResult);
+			scenariosMetaData = SystemFlags::getHTTP(baseURL + "showScenariosForGlest.php"+phpVersionParam+gameVersion,handle,-1,&curlResult);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("scenariosMetaData [%s]\n",scenariosMetaData.c_str());
 
 		    if(curlResult != CURLE_OK) {
@@ -2181,6 +2182,8 @@ void MenuStateConnectedGame::render() {
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
+
+		renderer.renderButton(&buttonDisconnect);
 
 		if (initialSettingsReceivedFromServer == false) {
 			return;
