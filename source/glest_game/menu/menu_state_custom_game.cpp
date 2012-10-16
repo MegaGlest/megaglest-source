@@ -1879,6 +1879,8 @@ void MenuStateCustomGame::render() {
 
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
+
+			renderer.renderButton(&buttonReturn);
 		}
 		else {
 			if(mapPreviewTexture != NULL) {
