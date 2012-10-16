@@ -3752,7 +3752,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
 	            if(result.first == ftp_crt_HOST_NOT_ACCEPTING) {
 		            if(lang.hasString("HostNotAcceptingDataConnections",languageList[i]) == true) {
-		            	clientInterface->sendTextMessage(lang.get("DataMissingMapFailDownload",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            	clientInterface->sendTextMessage(lang.get("HostNotAcceptingDataConnections",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 		            }
 		            else {
 		            	clientInterface->sendTextMessage("*Warning* the host is not accepting data connections.",-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
@@ -3835,7 +3835,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
 	            if(result.first == ftp_crt_HOST_NOT_ACCEPTING) {
 		            if(lang.hasString("HostNotAcceptingDataConnections",languageList[i]) == true) {
-		            	clientInterface->sendTextMessage(lang.get("DataMissingMapFailDownload",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            	clientInterface->sendTextMessage(lang.get("HostNotAcceptingDataConnections",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 		            }
 		            else {
 		            	clientInterface->sendTextMessage("*Warning* the host is not accepting data connections.",-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
@@ -3920,7 +3920,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
 	            if(result.first == ftp_crt_HOST_NOT_ACCEPTING) {
 		            if(lang.hasString("HostNotAcceptingDataConnections",languageList[i]) == true) {
-		            	clientInterface->sendTextMessage(lang.get("DataMissingMapFailDownload",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            	clientInterface->sendTextMessage(lang.get("HostNotAcceptingDataConnections",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 		            }
 		            else {
 		            	clientInterface->sendTextMessage("*Warning* the host is not accepting data connections.",-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
