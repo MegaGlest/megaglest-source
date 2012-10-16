@@ -60,9 +60,12 @@ Checksum TechTree::loadTech(const string &techName,
     return techtreeChecksum;
 }
 
-string TechTree::findPath(const string &techName) const{
-    for(int idx = 0; idx < pathList.size(); idx++) {
-    	string currentPath = (pathList)[idx];
+string TechTree::findPath(const string &techName) const {
+	return findPath(techName,pathList);
+}
+string TechTree::findPath(const string &techName, const vector<string> &pathTechList) {
+    for(unsigned int idx = 0; idx < pathTechList.size(); ++idx) {
+    	string currentPath = (pathTechList)[idx];
     	endPathWithSlash(currentPath);
 
         string path = currentPath + techName;

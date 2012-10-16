@@ -59,6 +59,7 @@ public:
     void load(const string &dir, set<string> &factions, Checksum* checksum,
     		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
     string findPath(const string &techName) const;
+    static string findPath(const string &techName, const vector<string> &pathTechList);
 
     TechTree(const vector<string> pathList);
     ~TechTree();
