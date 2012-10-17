@@ -232,6 +232,10 @@ public:
 	Program *getProgram()					{return program;}
 
 	void removeUnitFromSelection(const Unit *unit);
+	bool addUnitToSelection(Unit *unit);
+	void addUnitToGroupSelection(Unit *unit,int groupIndex);
+	void removeUnitFromGroupSelection(int unitId,int groupIndex);
+	void recallGroupSelection(int groupIndex);
 
 	Uint64 getTickCount()					{return tickCount;}
 	bool getPaused();

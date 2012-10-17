@@ -80,6 +80,7 @@ World::World() {
 	perfTimerEnabled=false;
 	queuedScenarioName="";
 	queuedScenarioKeepFactions=false;
+	disableAttackEffects = false;
 
 	loadWorldNode = NULL;
 
@@ -788,8 +789,7 @@ void World::moveUnitCells(Unit *unit) {
 	scriptManager->onCellTriggerEvent(unit);
 }
 
-void World::addAttackEffects(const Unit *unit)
-{
+void World::addAttackEffects(const Unit *unit) {
 	attackEffects.addWaterSplash(
 					Vec2f(unit->getPos().x, unit->getPos().y),1);
 }
@@ -1055,6 +1055,63 @@ void World::givePositionCommand(int unitId, const string &commandName, const Vec
 	}
 }
 
+void World::giveStopCommand(int unitId) {
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL) {
+		const CommandType *ct = unit->getType()->getFirstCtOfClass(ccStop);
+		if(ct != NULL) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Unit [%s] will stop\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str());
+			unit->giveCommand(new Command(ct));
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		else {
+			throw megaglest_runtime_error("Invalid ct in giveStopCommand: " + intToStr(unitId));
+		}
+	}
+	else {
+		throw megaglest_runtime_error("Invalid unitId index in giveStopCommand: " + intToStr(unitId));
+	}
+}
+
+bool World::selectUnit(int unitId) {
+	bool result = false;
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL) {
+		result = game->addUnitToSelection(unit);
+	}
+
+	return result;
+}
+
+void World::unselectUnit(int unitId) {
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL) {
+		game->removeUnitFromSelection(unit);
+	}
+}
+
+void World::addUnitToGroupSelection(int unitId,int groupIndex) {
+	Unit* unit= findUnitById(unitId);
+	if(unit != NULL) {
+		game->addUnitToGroupSelection(unit,groupIndex);
+	}
+}
+
+void World::removeUnitFromGroupSelection(int unitId,int groupIndex) {
+	game->removeUnitFromGroupSelection(unitId,groupIndex);
+}
+
+void World::recallGroupSelection(int groupIndex) {
+	game->recallGroupSelection(groupIndex);
+}
+
+void World::setAttackWarningsEnabled(bool enabled) {
+	this->disableAttackEffects = !enabled;
+}
+bool World::getAttackWarningsEnabled() {
+	return (this->disableAttackEffects == false);
+}
 
 void World::giveAttackCommand(int unitId, int unitToAttackId) {
 	Unit* unit= findUnitById(unitId);
@@ -1612,6 +1669,10 @@ void World::initFactionTypes(GameSettings *gs) {
 		queuedScenarioName = loadWorldNode->getAttribute("queuedScenarioName")->getValue();
 	//	bool queuedScenarioKeepFactions;
 		queuedScenarioKeepFactions = loadWorldNode->getAttribute("queuedScenarioKeepFactions")->getIntValue() != 0;
+
+		if(loadWorldNode->hasAttribute("disableAttackEffects") == true) {
+			disableAttackEffects = loadWorldNode->getAttribute("disableAttackEffects")->getIntValue() != 0;
+		}
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2416,6 +2477,8 @@ void World::saveGame(XmlNode *rootNode) {
 	worldNode->addAttribute("queuedScenarioName",queuedScenarioName, mapTagReplacements);
 //	bool queuedScenarioKeepFactions;
 	worldNode->addAttribute("queuedScenarioKeepFactions",intToStr(queuedScenarioKeepFactions), mapTagReplacements);
+
+	worldNode->addAttribute("disableAttackEffects",intToStr(disableAttackEffects), mapTagReplacements);
 }
 
 void World::loadGame(const XmlNode *rootNode) {

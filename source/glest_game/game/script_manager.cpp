@@ -374,6 +374,15 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(highlightUnit, "highlightUnit");
 	luaScript.registerFunction(unhighlightUnit, "unhighlightUnit");
 
+	luaScript.registerFunction(giveStopCommand, "giveStopCommand");
+	luaScript.registerFunction(selectUnit, "selectUnit");
+	luaScript.registerFunction(unselectUnit, "unselectUnit");
+	luaScript.registerFunction(addUnitToGroupSelection, "addUnitToGroupSelection");
+	luaScript.registerFunction(recallGroupSelection, "recallGroupSelection");
+	luaScript.registerFunction(removeUnitFromGroupSelection, "removeUnitFromGroupSelection");
+	luaScript.registerFunction(setAttackWarningsEnabled, "setAttackWarningsEnabled");
+	luaScript.registerFunction(getAttackWarningsEnabled, "getAttackWarningsEnabled");
+
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
 		const Script* script= scenario->getScript(i);
@@ -1730,6 +1739,52 @@ void ScriptManager::unhighlightUnit(int unitId) {
 	world->unhighlightUnit(unitId);
 }
 
+void ScriptManager::giveStopCommand(int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->giveStopCommand(unitId);
+}
+
+bool ScriptManager::selectUnit(int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->selectUnit(unitId);
+}
+
+void ScriptManager::unselectUnit(int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->unselectUnit(unitId);
+}
+
+void ScriptManager::addUnitToGroupSelection(int unitId,int groupIndex) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->addUnitToGroupSelection(unitId,groupIndex);
+}
+void ScriptManager::recallGroupSelection(int groupIndex) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->recallGroupSelection(groupIndex);
+}
+void ScriptManager::removeUnitFromGroupSelection(int unitId,int groupIndex) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->removeUnitFromGroupSelection(unitId,groupIndex);
+}
+
+void ScriptManager::setAttackWarningsEnabled(bool enabled) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	world->setAttackWarningsEnabled(enabled);
+}
+
+bool ScriptManager::getAttackWarningsEnabled() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+	return world->getAttackWarningsEnabled();
+}
+
 // ========================== lua callbacks ===============================================
 
 int ScriptManager::showMessage(LuaHandle* luaHandle){
@@ -2718,6 +2773,53 @@ int ScriptManager::highlightUnit(LuaHandle* luaHandle) {
 int ScriptManager::unhighlightUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	thisScriptManager->unhighlightUnit(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::giveStopCommand(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->giveStopCommand(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::selectUnit(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->selectUnit(luaArguments.getInt(-1)));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::unselectUnit(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->unselectUnit(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::addUnitToGroupSelection(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->addUnitToGroupSelection(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::recallGroupSelection(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->recallGroupSelection(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::removeUnitFromGroupSelection(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->removeUnitFromGroupSelection(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::setAttackWarningsEnabled(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->setAttackWarningsEnabled(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::getAttackWarningsEnabled(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getAttackWarningsEnabled());
 	return luaArguments.getReturnCount();
 }
 

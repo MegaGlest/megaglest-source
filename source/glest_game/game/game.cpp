@@ -2112,6 +2112,97 @@ void Game::removeUnitFromSelection(const Unit *unit) {
 	}
 }
 
+bool Game::addUnitToSelection(Unit *unit) {
+	bool result = false;
+	try {
+		Selection *selection= gui.getSelectionPtr();
+		if(selection != NULL) {
+			result = selection->select(unit);
+		}
+	}
+	catch(const exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		if(errorMessageBox.getEnabled() == false) {
+            ErrorDisplayMessage(ex.what(),true);
+		}
+
+		//abort();
+	}
+
+	return result;
+}
+
+void Game::addUnitToGroupSelection(Unit *unit,int groupIndex) {
+	try {
+		Selection *selection= gui.getSelectionPtr();
+		if(selection != NULL) {
+			selection->addUnitToGroup(groupIndex,unit);
+		}
+	}
+	catch(const exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		if(errorMessageBox.getEnabled() == false) {
+            ErrorDisplayMessage(ex.what(),true);
+		}
+
+		//abort();
+	}
+}
+
+void Game::removeUnitFromGroupSelection(int unitId,int groupIndex) {
+	try {
+		Selection *selection= gui.getSelectionPtr();
+		if(selection != NULL) {
+			selection->removeUnitFromGroup(groupIndex,unitId);
+		}
+	}
+	catch(const exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		if(errorMessageBox.getEnabled() == false) {
+            ErrorDisplayMessage(ex.what(),true);
+		}
+
+		//abort();
+	}
+}
+
+void Game::recallGroupSelection(int groupIndex) {
+	try {
+		Selection *selection= gui.getSelectionPtr();
+		if(selection != NULL) {
+			selection->recallGroup(groupIndex);
+		}
+	}
+	catch(const exception &ex) {
+		char szBuf[4096]="";
+		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		if(errorMessageBox.getEnabled() == false) {
+            ErrorDisplayMessage(ex.what(),true);
+		}
+
+		//abort();
+	}
+}
+
 void Game::tick() {
 	ProgramState::tick();
 

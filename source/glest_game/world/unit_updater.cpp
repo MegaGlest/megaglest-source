@@ -2330,13 +2330,17 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	    	// add new attack
 	    	if(nearest == NULL) {
 	    		// no else!
+
 	    		AttackWarningData* awd= new AttackWarningData();
 	    		awd->lastFrameCount=world->getFrameCount();
 	    		awd->attackPosition.x=enemyFloatCenter.x;
 	    		awd->attackPosition.y=enemyFloatCenter.y;
 	    		attackWarnings.push_back(awd);
-	    		SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
-	    		world->addAttackEffects(enemyUnit);
+
+	    		if(world->getAttackWarningsEnabled() == true) {
+	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+	    			world->addAttackEffects(enemyUnit);
+	    		}
 	    	}
 		}
 	}

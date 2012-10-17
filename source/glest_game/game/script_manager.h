@@ -279,6 +279,7 @@ private:
 	void giveProductionCommand(int unitId, const string &producedName);
 	void giveAttackCommand(int unitId, int unitToAttackId);
 	void giveUpgradeCommand(int unitId, const string &upgradeName);
+	void giveStopCommand(int unitId);
 
 	void disableAi(int factionIndex);
 	void enableAi(int factionIndex);
@@ -371,6 +372,14 @@ private:
 	int getHumanFactionId();
 	void highlightUnit(int unitId, float radius, float thickness, Vec4f color);
 	void unhighlightUnit(int unitId);
+
+	bool selectUnit(int unitId);
+	void unselectUnit(int unitId);
+	void addUnitToGroupSelection(int unitId,int groupIndex);
+	void recallGroupSelection(int groupIndex);
+	void removeUnitFromGroupSelection(int unitId,int group);
+	void setAttackWarningsEnabled(bool enabled);
+	bool getAttackWarningsEnabled();
 
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
@@ -509,6 +518,16 @@ private:
 
 	static int highlightUnit(LuaHandle* luaHandle);
 	static int unhighlightUnit(LuaHandle* luaHandle);
+
+	static int giveStopCommand(LuaHandle* luaHandle);
+	static int selectUnit(LuaHandle* luaHandle);
+	static int unselectUnit(LuaHandle* luaHandle);
+	static int addUnitToGroupSelection(LuaHandle* luaHandle);
+	static int recallGroupSelection(LuaHandle* luaHandle);
+	static int removeUnitFromGroupSelection(LuaHandle* luaHandle);
+	static int setAttackWarningsEnabled(LuaHandle* luaHandle);
+	static int getAttackWarningsEnabled(LuaHandle* luaHandle);
+
 };
 
 }}//end namespace
