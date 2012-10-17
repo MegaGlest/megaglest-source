@@ -5019,6 +5019,20 @@ string Game::saveGame(string name) {
 	//time_t lastMasterServerGameStatsDump;
 	gameNode->addAttribute("lastMasterServerGameStatsDump",intToStr(lastMasterServerGameStatsDump), mapTagReplacements);
 
+	XmlNode *unitHighlightListNode = gameNode->addChild("unitHighlightList");
+	//for(unsigned int i = 0; i < unitHighlightList.size(); ++i) {
+	for(std::map<int,HighlightSpecialUnitInfo>::iterator iterMap = unitHighlightList.begin();
+			iterMap != unitHighlightList.end(); ++iterMap) {
+		HighlightSpecialUnitInfo &info = iterMap->second;
+		XmlNode *infoNode = unitHighlightListNode->addChild("info");
+		infoNode->addAttribute("unitid",intToStr(iterMap->first), mapTagReplacements);
+		infoNode->addAttribute("radius",floatToStr(info.radius), mapTagReplacements);
+		infoNode->addAttribute("thickness",floatToStr(info.thickness), mapTagReplacements);
+		infoNode->addAttribute("color",info.color.getString(), mapTagReplacements);
+	}
+
+	gameNode->addAttribute("timeDisplay",intToStr(timeDisplay), mapTagReplacements);
+
 	xmlTree.save(saveGameFile);
 
 	if(masterserverMode == false) {
@@ -5215,6 +5229,24 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	//gameNode->addAttribute("withRainEffect",intToStr(withRainEffect), mapTagReplacements);
 	newGame->withRainEffect = gameNode->getAttribute("withRainEffect")->getIntValue() != 0;
 	//Program *program;
+
+	if(gameNode->hasChild("unitHighlightList") == true) {
+		XmlNode *unitHighlightListNode = gameNode->getChild("unitHighlightList");
+		vector<XmlNode *> infoNodeList = unitHighlightListNode->getChildList("info");
+		for(unsigned int i = 0; i < infoNodeList.size(); ++i) {
+			XmlNode *infoNode = infoNodeList[i];
+
+			int unitId = infoNode->getAttribute("radius")->getIntValue();
+			HighlightSpecialUnitInfo info;
+			info.radius = infoNode->getAttribute("radius")->getFloatValue();
+			info.thickness = infoNode->getAttribute("thickness")->getFloatValue();
+			info.color = Vec4f::strToVec4(infoNode->getAttribute("color")->getValue());
+
+			newGame->unitHighlightList[unitId] = info;
+		}
+	}
+
+	newGame->timeDisplay = gameNode->getAttribute("timeDisplay")->getIntValue() != 0;
 
 	//bool gameStarted;
 	//gameNode->addAttribute("gameStarted",intToStr(gameStarted), mapTagReplacements);
