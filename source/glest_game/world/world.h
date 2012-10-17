@@ -148,6 +148,8 @@ private:
 	string queuedScenarioName;
 	bool queuedScenarioKeepFactions;
 
+	bool disableAttackEffects;
+
 	const XmlNode *loadWorldNode;
 
 public:
@@ -260,6 +262,17 @@ public:
 
 	void highlightUnit(int unitId,float radius, float thickness, Vec4f color);
 	void unhighlightUnit(int unitId);
+
+	void giveStopCommand(int unitId);
+
+	bool selectUnit(int unitId);
+	void unselectUnit(int unitId);
+	void addUnitToGroupSelection(int unitId,int groupIndex);
+	void removeUnitFromGroupSelection(int unitId,int groupIndex);
+	void recallGroupSelection(int groupIndex);
+	void setAttackWarningsEnabled(bool enabled);
+	bool getAttackWarningsEnabled();
+
 
 	inline Game * getGame() { return game; }
 	const GameSettings * getGameSettings() const;

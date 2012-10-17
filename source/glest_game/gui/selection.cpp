@@ -37,33 +37,34 @@ Selection::~Selection(){
 	clear();
 }
 
-void Selection::select(Unit *unit) {
+bool Selection::select(Unit *unit) {
+	bool result = false;
 	//check size
 	//if(selectedUnits.size() >= maxUnits){
 	if(selectedUnits.size() >= Config::getInstance().getInt("MaxUnitSelectCount",intToStr(maxUnits).c_str())) {
-		return;
+		return result;
 	}
 
 	//check if already selected
 	for(int i=0; i < selectedUnits.size(); ++i) {
 		if(selectedUnits[i ]== unit) {
-			return;
+			return true;
 		}
 	}
 
 	//check if dead
 	if(unit->isDead()) {
-		return;
+		return false;
 	}
 
 	//check if multisel
 	if(!unit->getType()->getMultiSelect() && !isEmpty()) {
-		return;
+		return false;
 	}
 
 	//check if enemy
 	if(unit->getFactionIndex() != factionIndex && !isEmpty()) {
-		return;
+		return false;
 	}
 
 	//check existing enemy
@@ -80,7 +81,10 @@ void Selection::select(Unit *unit) {
 
 	unit->addObserver(this);
 	selectedUnits.push_back(unit);
+	result = true;
 	gui->onSelectionChanged();
+
+	return result;
 }
 
 void Selection::select(const UnitContainer &units){
@@ -169,24 +173,68 @@ bool Selection::hasUnit(const Unit* unit) const{
 	return find(selectedUnits.begin(), selectedUnits.end(), unit)!=selectedUnits.end();
 }
 
-void Selection::assignGroup(int groupIndex){
+void Selection::assignGroup(int groupIndex,const UnitContainer *pUnits) {
+	if(groupIndex < 0 || groupIndex >= maxGroups) {
+		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
+	}
+
 	//clear group
 	groups[groupIndex].clear();
 
 	//assign new group
-	for(int i=0; i<selectedUnits.size(); ++i){
-		groups[groupIndex].push_back(selectedUnits[i]);
+	const UnitContainer *addUnits = &selectedUnits;
+	if(pUnits != NULL) {
+		addUnits = pUnits;
+	}
+	for(unsigned int i = 0; i < addUnits->size(); ++i) {
+		groups[groupIndex].push_back((*addUnits)[i]);
 	}
 }
 
+void Selection::addUnitToGroup(int groupIndex,Unit *unit) {
+	if(groupIndex < 0 || groupIndex >= maxGroups) {
+		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
+	}
+
+	if(unit != NULL) {
+		const UnitContainer &addUnits = selectedUnits;
+		groups[groupIndex].push_back(unit);
+	}
+}
+
+void Selection::removeUnitFromGroup(int groupIndex,int unitId) {
+	if(groupIndex < 0 || groupIndex >= maxGroups) {
+		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
+	}
+
+	for(unsigned int i = 0; i < groups[groupIndex].size(); ++i) {
+		Unit *unit = groups[groupIndex][i];
+		if(unit != NULL && unit->getId() == unitId) {
+			groups[groupIndex].erase(groups[groupIndex].begin() + i);
+			break;
+		}
+	}
+}
+
+vector<Unit*> Selection::getUnitsForGroup(int groupIndex) {
+	if(groupIndex < 0 || groupIndex >= maxGroups) {
+		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
+	}
+	return groups[groupIndex];
+}
+
 void Selection::recallGroup(int groupIndex){
+	if(groupIndex < 0 || groupIndex >= maxGroups) {
+		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
+	}
+
 	clear();
-	for(int i=0; i<groups[groupIndex].size(); ++i){
+	for(int i=0; i<groups[groupIndex].size(); ++i) {
 		select(groups[groupIndex][i]);
 	}
 }
 
-void Selection::unitEvent(UnitObserver::Event event, const Unit *unit){
+void Selection::unitEvent(UnitObserver::Event event, const Unit *unit) {
 
 	if(event==UnitObserver::eKill){
 

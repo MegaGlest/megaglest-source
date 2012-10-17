@@ -66,10 +66,10 @@ public:
 	void init(Gui *gui, int factionIndex, int teamIndex);
 	virtual ~Selection();
 
-	void select(Unit *unit);
+	bool select(Unit *unit);
 	void select(const UnitContainer &units);
-	void unSelect(int unitIndex);
 	void unSelect(const UnitContainer &units);
+	void unSelect(int unitIndex);
 	void clear();
 	
 	bool isEmpty() const				{return selectedUnits.empty();}
@@ -88,9 +88,12 @@ public:
 	Vec3f getRefPos() const;
 	bool hasUnit(const Unit* unit) const;
 	
-	void assignGroup(int groupIndex);
+	void assignGroup(int groupIndex,const UnitContainer *pUnits=NULL);
+	void addUnitToGroup(int groupIndex,Unit *unit);
+	void removeUnitFromGroup(int groupIndex,int UnitId);
 	void recallGroup(int groupIndex);
 
+	vector<Unit*> getUnitsForGroup(int groupIndex);
 
 	virtual void unitEvent(UnitObserver::Event event, const Unit *unit);
 
