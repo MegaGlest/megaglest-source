@@ -1387,20 +1387,20 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 				const double HEIGHT_DEFAULT 	= 768;
 				const double WIDTH_DEFAULT 	= 1024;
 
-				const double HEIGHT_MULTIPLIER 	= HEIGHT_DEFAULT / ctxPtr->height;
-				const double WIDTH_MULTIPLIER 		= WIDTH_DEFAULT / ctxPtr->width;
+				const double HEIGHT_MULTIPLIER 	= HEIGHT_DEFAULT / (double)ctxPtr->height;
+				const double WIDTH_MULTIPLIER 		= WIDTH_DEFAULT / (double)ctxPtr->width;
 
 				//printf("w x h = %d x %d\n",ctxPtr->width,ctxPtr->height);
 
 				glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2i(0, 1);
-					glVertex2i(ctxPtr->x, ctxPtr->y + ctxPtr->height * (int)HEIGHT_MULTIPLIER);
+					glVertex2i(ctxPtr->x, (int)((double)ctxPtr->y + (double)ctxPtr->height * HEIGHT_MULTIPLIER));
 					glTexCoord2i(0, 0);
 					glVertex2i(ctxPtr->x, ctxPtr->y);
 					glTexCoord2i(1, 1);
-					glVertex2i(ctxPtr->x+ctxPtr->width * (int)WIDTH_MULTIPLIER, ctxPtr->y+ctxPtr->height * (int)HEIGHT_MULTIPLIER);
+					glVertex2i((int)((double)ctxPtr->x + (double)ctxPtr->width * WIDTH_MULTIPLIER), (int)((double)ctxPtr->y + (double)ctxPtr->height * HEIGHT_MULTIPLIER));
 					glTexCoord2i(1, 0);
-					glVertex2i(ctxPtr->x+ctxPtr->width * (int)WIDTH_MULTIPLIER, ctxPtr->y);
+					glVertex2i((int)((double)ctxPtr->x + (double)ctxPtr->width * WIDTH_MULTIPLIER), ctxPtr->y);
 				glEnd();
 
 			}

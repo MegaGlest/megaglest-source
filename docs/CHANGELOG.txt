@@ -6,7 +6,7 @@ http://sourceforge.net/apps/trac/megaglest/timeline
 
 v3.7.0
 - bugfixes reported in the bugs forum since 3.6.0.3
-- first person view allows you to follow a selected unit. Select one unit anf press f4 to enable (deselect anf f4 to disable).
+- third person view allows you to follow a selected unit. Select one unit anf press f4 to enable (deselect anf f4 to disable).
 - cell markers allow players to create markers anywhere on the map and associate a note with them. All team players see the markers.
 - quick sonar signal to tell team players where the action is happening
 - admin player can disconnect other network players in game
@@ -19,6 +19,9 @@ v3.7.0
 - more game data validation for commandline modders, see --help for more info
 - many new lua commands for scenario modders
 - enhanced AI management (logging and modding) and added more intellegence to decsions
+- enhanced game data downloads now allow for downloading data from the mod center instead of game server if available.
+- Quick keys in game lobby, SHIFT+<letter>+listbox arrow to jump to that letter in a list
+  or Hold CTRL when clicking listbox for network control type to change all non human control values
 - enhanced unicode support for non-ascii characters
 - customizable unit, resource and upgrade language files
 - tilesets support animated models
