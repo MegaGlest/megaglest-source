@@ -224,10 +224,10 @@ float TextFreetypeGL::LineHeight(const char* str, const int len) {
 	//Font::scaleFontValueCenterHFactor = 30.0;
 	//Font::scaleFontValue = 1.0;
 
-	float result = 0;
+	//float result = 0;
 
 	//result = font->height - font->linegap;
-	result = font->ascender - font->descender - font->linegap;
+	float result = font->ascender - font->descender - font->linegap;
 	//printf("#2 LineHeight [%s] height = %f linegap = %f ascender = %f descender = %f\n",str,font->height,font->linegap,font->ascender,font->descender);
 
 	//result += (result * Font::scaleFontValue);
@@ -260,9 +260,9 @@ float TextFreetypeGL::LineHeight(const char* str, const int len) {
 float TextFreetypeGL::LineHeight(const wchar_t* str, const int len) {
 	//Font::scaleFontValueCenterHFactor = 2.0;
 
-	float result = 0;
+	//float result = 0;
 
-	result = font->height - font->linegap;
+	float result = font->height - font->linegap;
 
 //	if(wcslen(str) > 0) {
 //		TextureGlyph *glyph = texture_font_get_glyph( font, str[0] );

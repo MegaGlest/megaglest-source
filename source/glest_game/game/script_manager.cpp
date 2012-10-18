@@ -445,11 +445,11 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 		}
 	}
 	catch(const megaglest_runtime_error &ex) {
-		string sErrBuf = "";
+		//string sErrBuf = "";
 		//if(ex.wantStackTrace() == true) {
-			char szErrBuf[8096]="";
-			sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
-			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		char szErrBuf[8096]="";
+		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		//}
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());

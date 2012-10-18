@@ -724,7 +724,6 @@ void MenuStateOptions::reloadUI() {
 	labelNetworkSettings.setText(lang.get("Network"));
 
 	labelServerPortLabel.setText(lang.get("ServerPort"));
-	Config &config= Config::getInstance();
 
 	labelPublishServerExternalPort.setText(lang.get("PublishServerExternalPort"));
 

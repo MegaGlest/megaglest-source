@@ -88,11 +88,11 @@ void BaseThread::setThreadOwnerValid(bool value) {
 }
 
 bool BaseThread::getThreadOwnerValid() {
-	bool ret = false;
+	//bool ret = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexThreadOwnerValid,mutexOwnerId);
 	//mutexThreadOwnerValid.setOwnerId(mutexOwnerId);
-	ret = threadOwnerValid;
+	bool ret = threadOwnerValid;
 	safeMutex.ReleaseLock();
 
 	return ret;
@@ -115,22 +115,22 @@ void BaseThread::setQuitStatus(bool value) {
 }
 
 bool BaseThread::getQuitStatus() {
-	bool retval = false;
+	//bool retval = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexQuit,mutexOwnerId);
 	//mutexQuit.setOwnerId(mutexOwnerId);
-	retval = quit;
+	bool retval = quit;
 	safeMutex.ReleaseLock();
 
 	return retval;
 }
 
 bool BaseThread::getHasBeginExecution() {
-	bool retval = false;
+	//bool retval = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexBeginExecution,mutexOwnerId);
 	//mutexBeginExecution.setOwnerId(mutexOwnerId);
-	retval = hasBeginExecution;
+	bool retval = hasBeginExecution;
 	safeMutex.ReleaseLock();
 
 	return retval;
@@ -149,11 +149,11 @@ void BaseThread::setHasBeginExecution(bool value) {
 }
 
 bool BaseThread::getRunningStatus() {
-	bool retval = false;
+	//bool retval = false;
 
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexRunning,mutexOwnerId);
-	retval = running;
+	bool retval = running;
 	safeMutex.ReleaseLock();
 
 	if(retval == false) {
@@ -183,20 +183,20 @@ void BaseThread::setExecutingTask(bool value) {
 }
 
 bool BaseThread::getExecutingTask() {
-	bool retval = false;
+	//bool retval = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexExecutingTask,mutexOwnerId);
-	retval = executingTask;
+	bool retval = executingTask;
 	safeMutex.ReleaseLock();
 
 	return retval;
 }
 
 bool BaseThread::getDeleteSelfOnExecutionDone() {
-    bool retval = false;
+    //bool retval = false;
     static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
     MutexSafeWrapper safeMutex(&mutexDeleteSelfOnExecutionDone,mutexOwnerId);
-    retval = deleteSelfOnExecutionDone;
+    bool retval = deleteSelfOnExecutionDone;
     safeMutex.ReleaseLock();
 
     return retval;

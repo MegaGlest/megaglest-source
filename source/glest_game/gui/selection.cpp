@@ -197,7 +197,6 @@ void Selection::addUnitToGroup(int groupIndex,Unit *unit) {
 	}
 
 	if(unit != NULL) {
-		const UnitContainer &addUnits = selectedUnits;
 		groups[groupIndex].push_back(unit);
 	}
 }

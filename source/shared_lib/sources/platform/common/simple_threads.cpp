@@ -389,12 +389,12 @@ void SimpleTaskThread::setOverrideShutdownTask(taskFunctionCallback *ptr) {
 }
 
 bool SimpleTaskThread::isThreadExecutionLagging() {
-	bool result = false;
+	//bool result = false;
 	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
 	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
-	result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
+	bool result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
 	safeMutex.ReleaseLock();
 
 	return result;
@@ -507,12 +507,12 @@ void SimpleTaskThread::setTaskSignalled(bool value) {
 }
 
 bool SimpleTaskThread::getTaskSignalled() {
-	bool retval = false;
+	//bool retval = false;
 	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
 	mutexTaskSignaller.setOwnerId(mutexOwnerId);
-	retval = taskSignalled;
+	bool retval = taskSignalled;
 	safeMutex.ReleaseLock();
 
 	return retval;

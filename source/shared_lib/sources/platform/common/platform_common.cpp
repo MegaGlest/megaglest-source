@@ -443,7 +443,7 @@ bool fileExists(const string &path) {
 	return false;
 }
 
-void removeFolder(const string path) {
+void removeFolder(const string &path) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
     string deletePath = path;
@@ -1433,9 +1433,15 @@ void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bo
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     /* Get available fullscreen/hardware modes */
-    int flags = SDL_RESIZABLE;
+
     #if defined(WIN32) || defined(__APPLE__)
-    flags = 0;
+
+	int flags = 0;
+
+    #else
+
+    int flags = SDL_RESIZABLE;
+
     #endif
     if(isFullscreen) flags = SDL_FULLSCREEN;
     SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|flags);
@@ -1528,9 +1534,15 @@ void getFullscreenVideoModes(vector<ModeInfo> *modeinfos, bool isFullscreen) {
 			/* Get available fullscreen/hardware modes */
 			//SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|SDL_RESIZABLE);
 
-		    int flags = SDL_RESIZABLE;
+
 		    #if defined(WIN32) || defined(__APPLE__)
-		    flags = 0;
+
+			int flags = 0;
+
+		    #else
+
+		    int flags = SDL_RESIZABLE;
+
 		    #endif
 		    if(isFullscreen) flags = SDL_FULLSCREEN;
 			SDL_Rect**modes = SDL_ListModes(&format, SDL_OPENGL|flags);

@@ -167,11 +167,10 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	// #1
 	// First add the standard tags
 	//
-	char *homeDir = NULL;
 #ifdef WIN32
-	homeDir = getenv("USERPROFILE");
+	char *homeDir = getenv("USERPROFILE");
 #else
-	homeDir = getenv("HOME");
+	char *homeDir = getenv("HOME");
 #endif
 
 	mapTagReplacementValues["~/"] = (homeDir != NULL ? homeDir : "");
@@ -204,8 +203,8 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
    }
 #endif
 
-	char *username = NULL;
-	username = getenv("USERNAME");
+	//char *username = NULL;
+   char *username = getenv("USERNAME");
 
 	mapTagReplacementValues["$USERNAME"] = (username != NULL ? username : "");
 	mapTagReplacementValues["%%USERNAME%%"] = (username != NULL ? username : "");
@@ -257,11 +256,10 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 		}
 	}
 	else {
-	char *homeDir = NULL;
 #ifdef WIN32
-	homeDir = getenv("USERPROFILE");
+	char *homeDir = getenv("USERPROFILE");
 #else
-	homeDir = getenv("HOME");
+	char *homeDir = getenv("HOME");
 #endif
 
 	replaceAll(value, "~/", 			(homeDir != NULL ? homeDir : ""));
@@ -293,8 +291,8 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
    }
 #endif
 
-	char *username = NULL;
-	username = getenv("USERNAME");
+	//char *username = NULL;
+   char *username = getenv("USERNAME");
 	replaceAll(value, "$USERNAME", 		(username != NULL ? username : ""));
 	replaceAll(value, "%%USERNAME%%", 	(username != NULL ? username : ""));
 	replaceAll(value, "{USERNAME}", 	(username != NULL ? username : ""));
