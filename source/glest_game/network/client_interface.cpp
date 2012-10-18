@@ -379,7 +379,8 @@ void ClientInterface::updateLobby() {
 					if(this->getNetworkGameDataSynchCheckOkTech() == false) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-						vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),string("/") + networkMessageSynchNetworkGameData.getTech() + "/*", ".xml", NULL);
+						string pathSearchString = "/" + networkMessageSynchNetworkGameData.getTech() + "/*";
+						vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),pathSearchString, ".xml", NULL);
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

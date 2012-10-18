@@ -619,7 +619,7 @@ string getFormattedCRCCacheFileName(std::pair<string,string> cacheKeys) {
 	//printf("result [%s]\n",result.c_str());
 	return result;
 }
-std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt) {
+std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string &filterFileExt) {
 	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
 
 	string cacheKey = "";
@@ -753,7 +753,7 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue) {
 	}
 }
 
-void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchString, const string filterFileExt) {
+void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchString, const string &filterFileExt) {
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,uint32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,uint32> >(cacheLookupId);
@@ -775,7 +775,7 @@ void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchStri
 	}
 }
 
-time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> paths, string pathSearchString, const string filterFileExt) {
+time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> paths, string pathSearchString, const string &filterFileExt) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
@@ -807,7 +807,7 @@ time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> path
 }
 
 //finds all filenames like path and gets their checksum of all files combined
-uint32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string filterFileExt, Checksum *recursiveChecksum, bool forceNoCache) {
+uint32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string &filterFileExt, Checksum *recursiveChecksum, bool forceNoCache) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
@@ -866,14 +866,14 @@ uint32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pat
 	return result;
 }
 
-std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(const string &path, const string filterFileExt) {
+std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(const string &path, const string &filterFileExt) {
 	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2;
 
 	string cacheKey = path + "_" + filterFileExt;
 	return make_pair(cacheLookupId,cacheKey);
 }
 
-void clearFolderTreeContentsCheckSum(const string &path, const string filterFileExt) {
+void clearFolderTreeContentsCheckSum(const string &path, const string &filterFileExt) {
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(path,filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,uint32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,uint32> >(cacheLookupId);
@@ -1032,7 +1032,7 @@ uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string
 }
 
 
-std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, string pathSearchString, const string filterFileExt) {
+std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, string pathSearchString, const string &filterFileExt) {
 	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey1;
 
 	string cacheKey = "";
@@ -1043,7 +1043,7 @@ std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string
 	return make_pair(cacheLookupId,cacheKey);
 }
 
-void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearchString, const string filterFileExt) {
+void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearchString, const string &filterFileExt) {
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumListCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,vector<std::pair<string,uint32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,uint32> > > >(cacheLookupId);
@@ -1063,7 +1063,7 @@ void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearch
 	}
 }
 
-vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, string filterFileExt, vector<std::pair<string,uint32> > *recursiveMap) {
+vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, const string &filterFileExt, vector<std::pair<string,uint32> > *recursiveMap) {
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumListCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,vector<std::pair<string,uint32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,uint32> > > >(cacheLookupId);
@@ -1213,14 +1213,14 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
     return resultFiles;
 }
 
-std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(const string &path, const string filterFileExt) {
+std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(const string &path, const string &filterFileExt) {
 	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey2;
 
 	string cacheKey = path + "_" + filterFileExt;
 	return make_pair(cacheLookupId,cacheKey);
 }
 
-void clearFolderTreeContentsCheckSumList(const string &path, const string filterFileExt) {
+void clearFolderTreeContentsCheckSumList(const string &path, const string &filterFileExt) {
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumListCacheKey(path,filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,vector<std::pair<string,uint32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,uint32> > > >(cacheLookupId);
@@ -1800,7 +1800,7 @@ string replaceAll(string& context, const string& from, const string& to) {
 }
 
 vector<char> replaceAllBetweenTokens(vector<char>& context,
-		const string startToken, const string endToken, const string newText,
+		const string &startToken, const string &endToken, const string &newText,
 		bool removeTokens) {
 	string newValue(context.begin(),context.end());
 	replaceAllBetweenTokens(newValue,startToken,endToken,newText,removeTokens);
@@ -1808,8 +1808,8 @@ vector<char> replaceAllBetweenTokens(vector<char>& context,
 	return context;
 }
 
-string replaceAllBetweenTokens(string& context, const string startToken,
-		const string endToken, const string newText, bool removeTokens) {
+string replaceAllBetweenTokens(string& context, const string &startToken,
+		const string &endToken, const string &newText, bool removeTokens) {
     size_t lookHere = 0;
     size_t foundHere = 0;
     if((foundHere = context.find(startToken, lookHere)) != string::npos) {
