@@ -585,7 +585,7 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 
 								string linkedCurrentPath = techTreePath + "factions/" + factionName;
 								endPathWithSlash(linkedCurrentPath);
-								string linkedTmppath= linkedCurrentPath + factionName +".xml";
+								//string linkedTmppath= linkedCurrentPath + factionName +".xml";
 
 								path = linkedCurrentPath;
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] possible loading screen dir '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());

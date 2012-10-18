@@ -1134,11 +1134,11 @@ void BaseColorPickEntity::init(int bufferSize) {
 }
 
 string BaseColorPickEntity::getColorDescription() const {
-	string result = "";
+	//string result = "";
 	char szBuf[100]="";
 	//sprintf(szBuf,"%d.%d.%d.%d",uniqueColorID[0],uniqueColorID[1],uniqueColorID[2],uniqueColorID[3]);
 	sprintf(szBuf,"%d.%d.%d",uniqueColorID[0],uniqueColorID[1],uniqueColorID[2]);
-	result = szBuf;
+	string result = szBuf;
 	return result;
 }
 

@@ -183,9 +183,8 @@ ftpSession_S* ftpGetSession(int id)
 LOCAL int normalizePath(char* path)
 {
     char *in;
-    char *r = NULL;
+    char *r = path;
 
-    r = path;
     in = path;
 
     while((in = strchr(in, '/')))

@@ -977,11 +977,11 @@ string LuaArguments::getStackText() const {
 		}
 		else if(lua_istable(luaState, -i)){
 
-			int tableLen = 0;
+			//int tableLen = 0;
 #if LUA_VERSION_NUM > 501
-			tableLen = lua_rawlen(luaState, -i);
+			int tableLen = lua_rawlen(luaState, -i);
 #else
-			tableLen = luaL_getn(luaState, -i);
+			int tableLen = luaL_getn(luaState, -i);
 #endif
 			stackString+= "Table (" + intToStr(tableLen) + ")\n";
 //			for(unsigned int j = 1; j < tableLen; ++j) {

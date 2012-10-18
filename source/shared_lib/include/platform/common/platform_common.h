@@ -229,7 +229,7 @@ vector<char> replaceAllBetweenTokens(vector<char>& context, const string &startT
 string replaceAllBetweenTokens(string& context, const string &startToken, const string &endToken, const string &newText, bool removeTokens=true);
 bool removeFile(string file);
 bool renameFile(string oldFile, string newFile);
-void removeFolder(const string path);
+void removeFolder(const string &path);
 off_t getFileSize(string filename);
 bool searchAndReplaceTextInFile(string fileName, string findText, string replaceText, bool simulateOnly);
 void copyFileTo(string fromFileName, string toFileName);
