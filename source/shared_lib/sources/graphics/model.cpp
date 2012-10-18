@@ -81,10 +81,38 @@ Mesh::~Mesh() {
 }
 
 void Mesh::init() {
-	vertices= new Vec3f[frameCount*vertexCount];
-	normals= new Vec3f[frameCount*vertexCount];
-	texCoords= new Vec2f[vertexCount];
-	indices= new uint32[indexCount];
+	try {
+		vertices= new Vec3f[frameCount*vertexCount];
+	}
+	catch(bad_alloc& ba) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error on line: %d size: %d msg: %s\n",__LINE__,(frameCount*vertexCount),ba.what());
+		throw megaglest_runtime_error(szBuf);
+	}
+	try {
+		normals= new Vec3f[frameCount*vertexCount];
+	}
+	catch(bad_alloc& ba) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error on line: %d size: %d msg: %s\n",__LINE__,(frameCount*vertexCount),ba.what());
+		throw megaglest_runtime_error(szBuf);
+	}
+	try {
+		texCoords= new Vec2f[vertexCount];
+	}
+	catch(bad_alloc& ba) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error on line: %d size: %d msg: %s\n",__LINE__,vertexCount,ba.what());
+		throw megaglest_runtime_error(szBuf);
+	}
+	try {
+		indices= new uint32[indexCount];
+	}
+	catch(bad_alloc& ba) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error on line: %d size: %d msg: %s\n",__LINE__,indexCount,ba.what());
+		throw megaglest_runtime_error(szBuf);
+	}
 }
 
 void Mesh::end() {
@@ -226,14 +254,14 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 
 
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"Old v2 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d modelFile [%s]",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex,modelFile.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Old v2 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d modelFile [%s]",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex,modelFile.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	if(meshHeader.texCoordFrameCount != 1) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"Old v2 model: texture coord frame count is not 1 [t = %d] meshIndex = %d modelFile [%s]",meshHeader.texCoordFrameCount,meshIndex,modelFile.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Old v2 model: texture coord frame count is not 1 [t = %d] meshIndex = %d modelFile [%s]",meshHeader.texCoordFrameCount,meshIndex,modelFile.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -318,8 +346,8 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 
 
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"Old v3 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d modelFile [%s]",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex,modelFile.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Old v3 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d modelFile [%s]",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex,modelFile.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -674,7 +702,15 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 
 void Mesh::computeTangents(){
 	delete [] tangents;
-	tangents= new Vec3f[vertexCount];
+	try {
+		tangents= new Vec3f[vertexCount];
+	}
+	catch(bad_alloc& ba) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error on line: %d size: %d msg: %s\n",__LINE__,vertexCount,ba.what());
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	for(unsigned int i=0; i<vertexCount; ++i){
 		tangents[i]= Vec3f(0.f);
 	}
@@ -866,7 +902,15 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			}
 
 			//load meshes
-			meshes= new Mesh[meshCount];
+			try {
+				meshes= new Mesh[meshCount];
+			}
+			catch(bad_alloc& ba) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error on line: %d size: %d msg: %s\n",__LINE__,meshCount,ba.what());
+				throw megaglest_runtime_error(szBuf);
+			}
+
 			for(uint32 i = 0; i < meshCount; ++i) {
 				meshes[i].load(i, dir, f, textureManager,deletePixMapAfterLoad,
 						loadedFileList,sourceLoader,path);
@@ -879,7 +923,15 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %d\n",meshCount);
 
-			meshes= new Mesh[meshCount];
+			try {
+				meshes= new Mesh[meshCount];
+			}
+			catch(bad_alloc& ba) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error on line: %d size: %d msg: %s\n",__LINE__,meshCount,ba.what());
+				throw megaglest_runtime_error(szBuf);
+			}
+
 			for(uint32 i = 0; i < meshCount; ++i) {
 				meshes[i].loadV3(i, dir, f, textureManager,deletePixMapAfterLoad,
 						loadedFileList,sourceLoader,path);
@@ -892,7 +944,15 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %d\n",meshCount);
 
-			meshes= new Mesh[meshCount];
+			try {
+				meshes= new Mesh[meshCount];
+			}
+			catch(bad_alloc& ba) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error on line: %d size: %d msg: %s\n",__LINE__,meshCount,ba.what());
+				throw megaglest_runtime_error(szBuf);
+			}
+
 			for(uint32 i = 0; i < meshCount; ++i){
 				meshes[i].loadV2(i,dir, f, textureManager,deletePixMapAfterLoad,
 						loadedFileList,sourceLoader,path);
@@ -1137,7 +1197,7 @@ string BaseColorPickEntity::getColorDescription() const {
 	//string result = "";
 	char szBuf[100]="";
 	//sprintf(szBuf,"%d.%d.%d.%d",uniqueColorID[0],uniqueColorID[1],uniqueColorID[2],uniqueColorID[3]);
-	sprintf(szBuf,"%d.%d.%d",uniqueColorID[0],uniqueColorID[1],uniqueColorID[2]);
+	snprintf(szBuf,100,"%d.%d.%d",uniqueColorID[0],uniqueColorID[1],uniqueColorID[2]);
 	string result = szBuf;
 	return result;
 }
