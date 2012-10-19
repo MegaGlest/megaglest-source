@@ -481,8 +481,8 @@ void ParticleSystem::fade(){
 
 	if(particleObserver != NULL){
 		if(state != sPlay) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"state != sPlay, state = [%d]",state);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"state != sPlay, state = [%d]",state);
 			//throw megaglest_runtime_error(szBuf);
 			//printf(szBuf);
 			SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);

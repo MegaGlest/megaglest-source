@@ -61,8 +61,8 @@ void inline _assertGl(const char *file, int line, GLenum *forceErrorNumber = NUL
 
 		//if(error != GL_INVALID_ENUM) {
 			const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
-			char szBuf[4096]="";
-			sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",error,error,errorString,file,line);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",error,error,errorString,file,line);
 			//throw megaglest_runtime_error("OpenGL error #" + intToStr(error) + " : " + string(errorString) + " at file: " + string(file) + ", line " + intToStr(line));
 			throw megaglest_runtime_error(szBuf);
 		//}

@@ -134,8 +134,8 @@ void SurfaceAtlas::checkDimensions(const Pixmap2D *p) {
 		//printf("Setting surfaceSize = %d for pixmap [%s]\n",surfaceSize,p->getPath().c_str());
 	}
 	else if(p->getW() != surfaceSize || p->getH() != surfaceSize) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Bad surface texture dimensions, expected surfaceSize = %d, texture w = %d, h = %d",surfaceSize,p->getW(),p->getH());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Bad surface texture dimensions, expected surfaceSize = %d, texture w = %d, h = %d",surfaceSize,p->getW(),p->getH());
 		throw megaglest_runtime_error(szBuf);
 	}
 }

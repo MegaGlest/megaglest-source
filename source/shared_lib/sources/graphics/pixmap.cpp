@@ -915,8 +915,8 @@ void Pixmap2D::init(int w, int h, int components) {
 	deletePixels();
 
 	if(getPixelByteCount() <= 0 || (h <= 0 || w <= 0 || components <= 0)) {
-		char szBuf[1024];
-		sprintf(szBuf,"Invalid pixmap dimensions for [%s], h = %d, w = %d, components = %d\n",path.c_str(),h,w,components);
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap dimensions for [%s], h = %d, w = %d, components = %d\n",path.c_str(),h,w,components);
 		throw megaglest_runtime_error(szBuf);
 	}
 	pixels= new uint8[(std::size_t)getPixelByteCount()];

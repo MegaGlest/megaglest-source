@@ -777,15 +777,15 @@ bool Faction::applyCosts(const ProducibleType *p,const CommandType *ct) {
 		for(int i=0; i<p->getCostCount(); ++i) {
 			const Resource *r= p->getCost(i);
 			if(r == NULL) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName().c_str(),i,p->getCostCount());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName().c_str(),i,p->getCostCount());
 				throw megaglest_runtime_error(szBuf);
 			}
 
 			const ResourceType *rt= r->getType();
 			if(rt == NULL) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName().c_str(),i,p->getCostCount(),r->getDescription().c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName().c_str(),i,p->getCostCount(),r->getDescription().c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			int cost= r->getAmount();
@@ -1179,8 +1179,8 @@ void Faction::addResourceTargetToCache(const Vec2i &pos,bool incrementUseCounter
 			cacheResourceTargetList[pos] = 1;
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-				char szBuf[4096]="";
-				sprintf(szBuf,"[addResourceTargetToCache] pos [%s]cacheResourceTargetList.size() [%ld]",
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"[addResourceTargetToCache] pos [%s]cacheResourceTargetList.size() [%ld]",
 								pos.getString().c_str(),cacheResourceTargetList.size());
 
 				//unit->logSynchData(szBuf);
@@ -1202,8 +1202,8 @@ void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
 				cacheResourceTargetList.erase(pos);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-					char szBuf[4096]="";
-					sprintf(szBuf,"[removeResourceTargetFromCache] pos [%s]cacheResourceTargetList.size() [%ld]",
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[removeResourceTargetFromCache] pos [%s]cacheResourceTargetList.size() [%ld]",
 									pos.getString().c_str(),cacheResourceTargetList.size());
 
 					//unit->logSynchData(szBuf);
@@ -1346,8 +1346,8 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 
 			if(deleteList.empty() == false) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-					char szBuf[4096]="";
-								sprintf(szBuf,"[cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld] result [%s]",
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld] result [%s]",
 										deleteList.size(),cacheResourceTargetList.size(),result.getString().c_str());
 
 					unit->logSynchData(__FILE__,__LINE__,szBuf);
@@ -1456,19 +1456,6 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 					//}
 				}
 			}
-
-		  	//char szBuf[4096]="";
-		  	//sprintf(szBuf,"[%s::%s Line: %d] [looking for resource targets] result [%s] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld] foundCloseResource [%d]",
-			//	    			__FILE__,__FUNCTION__,__LINE__,result.getString().c_str(),deleteList.size(),cacheResourceTargetList.size(),foundCloseResource);
-
-		    //unit->logSynchData(szBuf);
-			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
-			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
-			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
-
-			//if(deleteList.empty() == false) {
-			//	cleanupResourceTypeTargetCache(&deleteList);
-			//}
 		}
 	}
 
@@ -1506,8 +1493,8 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 
 				if(deleteList.empty() == false) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-						char szBuf[4096]="";
-									sprintf(szBuf,"[cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld], needToCleanup [%d]",
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [%ld] cacheResourceTargetList.size() [%ld], needToCleanup [%d]",
 											deleteList.size(),cacheResourceTargetList.size(),needToCleanup);
 						//unit->logSynchData(szBuf);
 						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
@@ -1863,8 +1850,8 @@ string Faction::getCacheStats() {
 
 	totalBytes /= 1000;
 
-	char szBuf[1024]="";
-	sprintf(szBuf,"cache1Count [%d] cache2Count [%d] total KB: %s",cache1Count,cache2Count,formatNumber(totalBytes).c_str());
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,"cache1Count [%d] cache2Count [%d] total KB: %s",cache1Count,cache2Count,formatNumber(totalBytes).c_str());
 	result = szBuf;
 	return result;
 }

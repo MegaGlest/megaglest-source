@@ -392,11 +392,6 @@ bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInpu
 		if(isAllowedInputTextKey(key)) {
 			if(activeInputLabel->getText().size() < maxTextSize) {
 				string text= activeInputLabel->getText();
-				//text.insert(text.end()-1, key);
-
-				//char szCharText[20]="";
-				//sprintf(szCharText,"%c",key);
-				//char *utfStr = String::ConvertToUTF8(&szCharText[0]);
 
 				wchar_t keyW = extractKeyPressedUnicode(c);
 				wchar_t textAppend[] = { keyW, 0 };

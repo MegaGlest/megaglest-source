@@ -477,7 +477,7 @@ static void PrintNetworkInterfaceInfos()
          char buf[128];
          if (name == NULL)
          {
-            sprintf(buf, "unnamed-%i", i);
+            snprintf(buf, 128,"unnamed-%i", i);
             name = buf;
          }
 
@@ -617,10 +617,8 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
                next = next->Next;
             }
          }
-         //char buf[128]="";
          if (name == NULL)
          {
-            //sprintf(buf, "unnamed-%i", i);
             name = "";
          }
 
@@ -678,11 +676,6 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		//int ipIdx = 0;
 		//while (myhostent->h_addr_list[ipIdx] != 0) {
 		for(int ipIdx = 0; myhostent->h_addr_list[ipIdx] != NULL; ++ipIdx) {
-		   //sprintf(myhostaddr, "%s",inet_ntoa(*(struct in_addr *)myhostent->h_addr_list[ipIdx]));
-			//struct sockaddr_in SockAddr;
-			//memcpy(&(SockAddr.sin_addr),&myhostent->h_addr[ipIdx],myhostent->h_length);
-			//SockAddr.sin_family = myhostent->h_addrtype;
-			//Inet_NtoA(SockAddrToUint32((sockaddr *)&SockAddr), myhostaddr);
 			Ip::Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
 
 		   //printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
@@ -723,7 +716,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 
 			/* I want IP address attached to "eth0" */
 			char szBuf[100]="";
-			sprintf(szBuf,"%s%d",intfName.c_str(),idx);
+			snprintf(szBuf,100,"%s%d",intfName.c_str(),idx);
 			int maxIfNameLength = std::min((int)strlen(szBuf),IFNAMSIZ-1);
 
 			strncpy(ifr.ifr_name, szBuf, maxIfNameLength);
@@ -738,7 +731,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			if(result_ifaddrr >= 0) {
 				struct sockaddr_in *pSockAddr = (struct sockaddr_in *)&ifr.ifr_addr;
 				if(pSockAddr != NULL) {
-					//sprintf(myhostaddr, "%s",inet_ntoa(pSockAddr->sin_addr));
+
 					Ip::Inet_NtoA(SockAddrToUint32(&pSockAddr->sin_addr), myhostaddr);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
 
@@ -2219,11 +2212,11 @@ void ServerSocket::bind(int port) {
 
 	int err= ::bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 	if(err < 0) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf, "In [%s::%s] Error binding socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
+	    char szBuf[8096]="";
+	    snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
 
-	    sprintf(szBuf, "Error binding socket sock = %d, err = %d, error = %s\n",sock,err,getLastSocketErrorFormattedText().c_str());
+	    snprintf(szBuf, 8096,"Error binding socket sock = %d, err = %d, error = %s\n",sock,err,getLastSocketErrorFormattedText().c_str());
 	    throw megaglest_runtime_error(szBuf);
 	}
 	portBound = true;
@@ -2256,8 +2249,8 @@ void ServerSocket::listen(int connectionQueueSize) {
 
 		int err= ::listen(sock, connectionQueueSize);
 		if(err < 0) {
-			char szBuf[1024]="";
-			sprintf(szBuf, "In [%s::%s] Error listening socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf, 8096,"In [%s::%s] Error listening socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
 			throwException(szBuf);
 		}
 	}
@@ -2303,8 +2296,8 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 		safeMutex.ReleaseLock();
 
 		if(isSocketValid(&newSock) == false) {
-			char szBuf[1024]="";
-			sprintf(szBuf, "In [%s::%s Line: %d] Error accepting socket connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf, 8096,"In [%s::%s Line: %d] Error accepting socket connection sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 			int lastSocketError = getLastSocketError();
@@ -2326,8 +2319,6 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 		}
 		else {
 			Ip::Inet_NtoA(SockAddrToUint32((struct sockaddr *)&cli_addr), client_host);
-			//printf("client_host [%s]\n",client_host);
-			//sprintf(client_host, "%s",inet_ntoa(cli_addr.sin_addr));
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got connection, newSock = %d client_host [%s]\n",__FILE__,__FUNCTION__,__LINE__,newSock,client_host);
 		}
 		if(isIPAddressBlocked((client_host[0] != '\0' ? client_host : "")) == true) {
@@ -2495,14 +2486,14 @@ int UPNP_Tools::upnp_init(void *param) {
 					free (descXML); descXML = 0;
 					GetUPNPUrls (&urls, &data, dev->descURL);
 				}
-				sprintf(buf, "UPnP device found: %s %s LAN address %s", dev->descURL, dev->st, lanaddr);
+				snprintf(buf, 255,"UPnP device found: %s %s LAN address %s", dev->descURL, dev->st, lanaddr);
 
 				freeUPNPDevlist(devlist);
 				devlist = NULL;
 			}
 
 			if (!urls.controlURL || urls.controlURL[0] == '\0')	{
-				sprintf(buf, "controlURL not available, UPnP disabled");
+				snprintf(buf, 255,"controlURL not available, UPnP disabled");
 				if(callback) {
 					safeMutexUPNP.ReleaseLock();
 				    callback->UPNPInitStatus(false);
@@ -2531,7 +2522,7 @@ int UPNP_Tools::upnp_init(void *param) {
 		}
 
 		if(result == -1) {
-			sprintf(buf, "UPnP device not found.");
+			snprintf(buf, 255,"UPnP device not found.");
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"No UPnP devices found.\n");
 
@@ -2543,7 +2534,7 @@ int UPNP_Tools::upnp_init(void *param) {
 		}
 	}
 	else {
-		sprintf(buf, "UPnP detection routine disabled by user.");
+		snprintf(buf, 255,"UPnP detection routine disabled by user.");
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP detection routine disabled by user.\n");
 
         if(callback) {
@@ -2798,9 +2789,8 @@ void BroadCastSocketThread::execute() {
 			if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
-					sprintf(buff,"%s",myhostname);
+					snprintf(buff,1024,"%s",myhostname);
 					for(unsigned int idx1 = 0; idx1 < ipList.size(); idx1++) {
-						//sprintf(buff,"%s:%s",buff,ipList[idx1].c_str());
 						strcat(buff,":");
 						strcat(buff,ipList[idx1].c_str());
 						strcat(buff,":");

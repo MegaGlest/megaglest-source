@@ -1037,7 +1037,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 					if(chrono.getMillis() % 100 == 0) {
 						lastMillisCheck = (chrono.getMillis() / 1000);
 
-						char szBuf[1024]="";
+						char szBuf[8096]="";
 						string updateTextFormat = "Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)";
 						if(lang.hasString("NetworkGameClientLoadStatus") == true) {
 							updateTextFormat =  lang.get("NetworkGameClientLoadStatus");
@@ -1112,14 +1112,14 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 						if(waitForHosts == "") {
 							waitForHosts = lang.get("Server");
 						}
-						sprintf(szBuf,updateTextFormat.c_str(),(long long int)lastMillisCheck,int(readyWaitTimeout / 1000));
+						snprintf(szBuf,8096,updateTextFormat.c_str(),(long long int)lastMillisCheck,int(readyWaitTimeout / 1000));
 
-						char szBuf1[1024]="";
+						char szBuf1[8096]="";
 						string statusTextFormat =  "Waiting for players: %s";
 						if(lang.hasString("NetworkGameStatusWaiting") == true) {
 							statusTextFormat = lang.get("NetworkGameStatusWaiting");
 						}
-						sprintf(szBuf1,statusTextFormat.c_str(),waitForHosts.c_str());
+						snprintf(szBuf1,8096,statusTextFormat.c_str(),waitForHosts.c_str());
 
 						logger.add(szBuf, true, szBuf1);
 
@@ -1288,9 +1288,8 @@ void ClientInterface::sendPingMessage(int32 pingFrequency, int64 pingTime) {
 string ClientInterface::getNetworkStatus() {
 	std::string label = Lang::getInstance().get("Server") + ": " + serverName;
 	//float pingTime = getThreadedPingMS(getServerIpAddress().c_str());
-	char szBuf[1024]="";
-	//sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
-	sprintf(szBuf,"%s",label.c_str());
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,"%s",label.c_str());
 
 	return szBuf;
 }

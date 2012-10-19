@@ -1032,7 +1032,7 @@ void Game::init(bool initForPreviewOnly) {
 		string sErrBuf = "";
 		if(ex.wantStackTrace() == true) {
 			char szErrBuf[8096]="";
-			sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+			snprintf(szErrBuf,8096,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
 			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		}
 		else {
@@ -1047,7 +1047,7 @@ void Game::init(bool initForPreviewOnly) {
 	}
 	catch(const exception &ex) {
 		char szErrBuf[8096]="";
-		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
 		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
@@ -1132,8 +1132,8 @@ void Game::init(bool initForPreviewOnly) {
 				if(loadGameNode != NULL) {
 					aiInterfaces[i]->loadGame(loadGameNode,faction);
 				}
-				char szBuf[1024]="";
-				sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 				logger.add(szBuf, true);
 			}
 			else {
@@ -1401,12 +1401,12 @@ void Game::update() {
 
 				Lang &lang= Lang::getInstance();
 
-				char szBuf[1024]="";
+				char szBuf[8096]="";
 				if(lang.hasString("AllowPlayerJoinTeam") == true) {
-					sprintf(szBuf,lang.get("AllowPlayerJoinTeam").c_str(),settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+					snprintf(szBuf,8096,lang.get("AllowPlayerJoinTeam").c_str(),settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
 				}
 				else {
-					sprintf(szBuf,"Allow player [%s] to join your team\n(changing from team# %d to team# %d)?",settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+					snprintf(szBuf,8096,"Allow player [%s] to join your team\n(changing from team# %d to team# %d)?",settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
 				}
 
 				switchTeamConfirmMessageBox.setText(szBuf);
@@ -1489,8 +1489,8 @@ void Game::update() {
 							renderer.clearZBuffer();
 							renderer.reset2d();
 
-							char szBuf[4096]="";
-							sprintf(szBuf,"Please wait, loading game with replay [%d / %d]...",replayCommandsPlayed,replayTotal);
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"Please wait, loading game with replay [%d / %d]...",replayCommandsPlayed,replayTotal);
 							string text = szBuf;
 							if(Renderer::renderText3DEnabled) {
 								Font3D *font = CoreData::getInstance().getMenuFontBig3D();
@@ -1700,7 +1700,7 @@ void Game::update() {
 				}
 				catch(const exception &ex) {
 					char szBuf[8096]="";
-					sprintf(szBuf,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+					snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 					SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -1772,8 +1772,8 @@ void Game::update() {
 	catch(const exception &ex) {
 		quitPendingIndicator = true;
 
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -1814,8 +1814,8 @@ void Game::updateNetworkMarkedCells() {
 		}
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
@@ -1841,8 +1841,8 @@ void Game::updateNetworkUnMarkedCells() {
 		}
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
@@ -1875,8 +1875,8 @@ void Game::updateNetworkHighligtedCells() {
 		}
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
@@ -1932,19 +1932,19 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 
 					Lang &lang= Lang::getInstance();
 
-					char szBuf[4096]="";
+					char szBuf[8096]="";
 					if(faction->getPersonalityType() != fpt_Observer) {
 						//faction->setControlType(ctCpuUltra);
 						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
-						sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
+						snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 						logger.add(szBuf, true);
 
 						string msg = "Player #%d [%s] has disconnected, switching player to AI mode!";
 						if(lang.hasString("GameSwitchPlayerToAI")) {
 							msg = lang.get("GameSwitchPlayerToAI");
 						}
-						sprintf(szBuf,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 
 						commander.tryNetworkPlayerDisconnected(i);
 					}
@@ -1953,7 +1953,7 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						if(lang.hasString("GameSwitchPlayerObserverToAI")) {
 							msg = lang.get("GameSwitchPlayerObserverToAI");
 						}
-						sprintf(szBuf,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 					}
 
 					const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
@@ -2098,8 +2098,8 @@ void Game::removeUnitFromSelection(const Unit *unit) {
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -2121,8 +2121,8 @@ bool Game::addUnitToSelection(Unit *unit) {
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -2145,8 +2145,8 @@ void Game::addUnitToGroupSelection(Unit *unit,int groupIndex) {
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -2167,8 +2167,8 @@ void Game::removeUnitFromGroupSelection(int unitId,int groupIndex) {
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -2189,8 +2189,8 @@ void Game::recallGroupSelection(int groupIndex) {
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -2508,12 +2508,12 @@ void Game::mouseDownLeft(int x, int y) {
 					if(faction->getPersonalityType() != fpt_Observer &&
 						world.getThisFaction()->getIndex() != faction->getIndex() &&
 						world.getThisFaction()->getTeam() != faction->getTeam()) {
-						char szBuf[1024]="";
+						char szBuf[8096]="";
 						if(lang.hasString("JoinPlayerTeam") == true) {
-							sprintf(szBuf,lang.get("JoinPlayerTeam").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+							snprintf(szBuf,8096,lang.get("JoinPlayerTeam").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
 						}
 						else {
-							sprintf(szBuf,"Join player #%d - %s on Team: %d",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+							snprintf(szBuf,8096,"Join player #%d - %s on Team: %d",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
 						}
 
 						menuItems.push_back(szBuf);
@@ -2549,12 +2549,12 @@ void Game::mouseDownLeft(int x, int y) {
 						faction->getControlType() == ctNetwork &&
 						this->gameSettings.getNetworkPlayerStatuses(i) != npst_Disconnected) {
 
-						char szBuf[1024]="";
+						char szBuf[8096]="";
 						if(lang.hasString("DisconnectNetorkPlayerIndex") == true) {
-							sprintf(szBuf,lang.get("DisconnectNetorkPlayerIndex").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+							snprintf(szBuf,8096,lang.get("DisconnectNetorkPlayerIndex").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 						else {
-							sprintf(szBuf,"Disconnect player #%d - %s:",faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+							snprintf(szBuf,8096,"Disconnect player #%d - %s:",faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 
 						menuItems.push_back(szBuf);
@@ -2689,12 +2689,12 @@ void Game::mouseDownLeft(int x, int y) {
 					GameSettings *settings = world.getGameSettingsPtr();
 					Lang &lang= Lang::getInstance();
 
-					char szBuf[1024]="";
+					char szBuf[8096]="";
 					if(lang.hasString("DisconnectNetorkPlayerIndexConfirm") == true) {
-						sprintf(szBuf,lang.get("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,lang.get("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 					else {
-						sprintf(szBuf,"Confirm disconnection for player #%d - %s?",factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,"Confirm disconnection for player #%d - %s?",factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 
 					disconnectPlayerConfirmMessageBox.setText(szBuf);
@@ -2708,12 +2708,12 @@ void Game::mouseDownLeft(int x, int y) {
 						Lang &lang= Lang::getInstance();
 						const vector<string> languageList = settings->getUniqueNetworkPlayerLanguages();
 						for(unsigned int i = 0; i < languageList.size(); ++i) {
-							char szMsg[1024]="";
+							char szMsg[8096]="";
 							if(lang.hasString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]) == true) {
-								sprintf(szMsg,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+								snprintf(szMsg,8096,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
 							}
 							else {
-								sprintf(szMsg,"Notice - Admin is warning to disconnect player #%d - %s!",factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+								snprintf(szMsg,8096,"Notice - Admin is warning to disconnect player #%d - %s!",factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
 							}
 							bool localEcho = lang.isLanguageLocal(languageList[i]);
 							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -2951,8 +2951,8 @@ void Game::mouseDownLeft(int x, int y) {
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -3009,8 +3009,8 @@ void Game::mouseDownRight(int x, int y) {
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s] x = %d y = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),x,y);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s] x = %d y = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),x,y);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -3066,8 +3066,8 @@ void Game::mouseUpLeft(int x, int y) {
 		gui.mouseUpLeftGraphics(x, y);
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -3112,8 +3112,8 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 		gui.mouseDoubleClickLeftGraphics(x, y);
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -3273,8 +3273,8 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		renderer.computePosition(Vec2i(mouseX, mouseY), mouseCellPos);
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -3307,8 +3307,8 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 		//gameCamera.setMoveY(1);
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -3627,8 +3627,8 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 		//throw megaglest_runtime_error("Test Error!");
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -3712,8 +3712,8 @@ void Game::keyUp(SDL_KeyboardEvent key) {
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
@@ -4793,7 +4793,7 @@ void Game::saveGame(){
 	string file = this->saveGame(GameConstants::saveGameFilePattern);
 	char szBuf[8096]="";
 	Lang &lang= Lang::getInstance();
-	sprintf(szBuf,lang.get("GameSaved","",true).c_str(),file.c_str());
+	snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
 	console.addLine(szBuf);
 
 	Config &config= Config::getInstance();
@@ -4811,7 +4811,7 @@ string Game::saveGame(string name) {
 	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",loctime);
 
 		char szBuf[8096]="";
-		sprintf(szBuf,name.c_str(),szBuf2);
+		snprintf(szBuf,8096,name.c_str(),szBuf2);
 		name = szBuf;
 	}
 	else if(name == GameConstants::saveGameFileAutoTestDefault) {
@@ -4821,7 +4821,7 @@ string Game::saveGame(string name) {
 	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",loctime);
 
 		char szBuf[8096]="";
-		sprintf(szBuf,name.c_str(),szBuf2);
+		snprintf(szBuf,8096,name.c_str(),szBuf2);
 		name = szBuf;
 	}
 
@@ -5065,8 +5065,8 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 		Lang &lang= Lang::getInstance();
 		string gameVer = versionNode->getAttribute("version")->getValue();
 		if(gameVer != glestVersionString) {
-			char szBuf[4096]="";
-			sprintf(szBuf,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -5126,8 +5126,8 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	Lang &lang= Lang::getInstance();
 	string gameVer = versionNode->getAttribute("version")->getValue();
 	if(gameVer != glestVersionString) {
-		char szBuf[4096]="";
-		sprintf(szBuf,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 

@@ -176,11 +176,11 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 			else {
 				bool lastCharacterWasSpecial = true;
 				vector<string> parts;
-				char szBuf[4096]="";
+				char szBuf[8096]="";
 
 				for (int i=0; renderText[i] != '\0'; ++i) {
 					szBuf[0] = '\0';
-					sprintf(szBuf,"%c",renderText[i]);
+					snprintf(szBuf,8096,"%c",renderText[i]);
 
 					switch(renderText[i]) {
 						case '\t':
@@ -272,11 +272,11 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 			else {
 				bool lastCharacterWasSpecial = true;
 				vector<string> parts;
-				char szBuf[4096]="";
+				char szBuf[8096]="";
 
 				for (int i=0; renderText[i] != '\0'; ++i) {
 					szBuf[0] = '\0';
-					sprintf(szBuf,"%c",renderText[i]);
+					snprintf(szBuf,8096,"%c",renderText[i]);
 
 					switch(renderText[i]) {
 						case '\t':
@@ -571,11 +571,11 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 			int line=0;
 			bool lastCharacterWasSpecial = true;
 			vector<string> parts;
-			char szBuf[4096]="";
+			char szBuf[8096]="";
 
 			for (int i=0; renderText[i] != '\0'; ++i) {
 				szBuf[0] = '\0';
-				sprintf(szBuf,"%c",renderText[i]);
+				snprintf(szBuf,8096,"%c",renderText[i]);
 
 				switch(renderText[i]) {
 					case '\t':

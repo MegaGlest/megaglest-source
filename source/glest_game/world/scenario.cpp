@@ -50,8 +50,8 @@ Checksum Scenario::load(const string &path) {
 
 		string name= cutLastExt(lastDir(path));
 
-		char szBuf[1024]="";
-		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingScenario","",true).c_str(),formatString(name).c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingScenario","",true).c_str(),formatString(name).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		Scenario::loadScenarioInfo(path, &info);
@@ -71,7 +71,7 @@ Checksum Scenario::load(const string &path) {
 	//Exception handling (conversions and so on);
 	catch(const exception &ex) {
 	    char szBuf[8096]="";
-	    sprintf(szBuf,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
+	    snprintf(szBuf,8096,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
 	    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -165,28 +165,28 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 
     const XmlNode *scenarioNode= xmlTree.getRootNode();
     if(scenarioNode == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"scenarioNode == NULL for file [%s]\n",file.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"scenarioNode == NULL for file [%s]\n",file.c_str());
 		throw std::runtime_error(szBuf);
     }
 	const XmlNode *difficultyNode= scenarioNode->getChild("difficulty");
     if(difficultyNode == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"difficultyNode == NULL for file [%s]\n",file.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"difficultyNode == NULL for file [%s]\n",file.c_str());
 		throw std::runtime_error(szBuf);
     }
 
 	scenarioInfo->difficulty = difficultyNode->getAttribute("value")->getIntValue();
 	if( scenarioInfo->difficulty < dVeryEasy || scenarioInfo->difficulty > dInsane ) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"Invalid difficulty value specified in scenario: %d must be between %d and %d",scenarioInfo->difficulty,dVeryEasy,dInsane);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Invalid difficulty value specified in scenario: %d must be between %d and %d",scenarioInfo->difficulty,dVeryEasy,dInsane);
 		throw std::runtime_error(szBuf);
 	}
 
 	const XmlNode *playersNode= scenarioNode->getChild("players");
     if(playersNode == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"playersNode == NULL for file [%s]\n",file.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"playersNode == NULL for file [%s]\n",file.c_str());
 		throw std::runtime_error(szBuf);
     }
 
@@ -198,8 +198,8 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
     	if(playersNode->hasChildAtIndex("player",i)) {
         	playerNode = playersNode->getChild("player", i);
             if(playerNode == NULL) {
-        		char szBuf[4096]="";
-        		sprintf(szBuf,"playerNode == NULL for index = %d for file [%s]\n",i,file.c_str());
+        		char szBuf[8096]="";
+        		snprintf(szBuf,8096,"playerNode == NULL for index = %d for file [%s]\n",i,file.c_str());
         		throw std::runtime_error(szBuf);
             }
 
@@ -234,8 +234,8 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
             int teamIndex = playerNode->getAttribute("team")->getIntValue();
 
             if( teamIndex < 1 || teamIndex > GameConstants::maxPlayers  + GameConstants::specialFactions) {
-        		char szBuf[4096]="";
-        		sprintf(szBuf,"Invalid team value specified in scenario: %d must be between %d and %d",teamIndex,1,GameConstants::maxPlayers);
+        		char szBuf[8096]="";
+        		snprintf(szBuf,8096,"Invalid team value specified in scenario: %d must be between %d and %d",teamIndex,1,GameConstants::maxPlayers);
         		throw std::runtime_error(szBuf);
             }
 
@@ -248,33 +248,33 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
         }
 
         if(scenarioNode->getChild("map") == NULL) {
-    		char szBuf[4096]="";
-    		sprintf(szBuf,"map == NULL for file [%s]\n",file.c_str());
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"map == NULL for file [%s]\n",file.c_str());
     		throw std::runtime_error(szBuf);
         }
         if(scenarioNode->getChild("tileset") == NULL) {
-    		char szBuf[4096]="";
-    		sprintf(szBuf,"tileset == NULL for file [%s]\n",file.c_str());
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"tileset == NULL for file [%s]\n",file.c_str());
     		throw std::runtime_error(szBuf);
         }
         if(scenarioNode->getChild("tech-tree") == NULL) {
-    		char szBuf[4096]="";
-    		sprintf(szBuf,"tech-tree == NULL for file [%s]\n",file.c_str());
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"tech-tree == NULL for file [%s]\n",file.c_str());
     		throw std::runtime_error(szBuf);
         }
         if(scenarioNode->getChild("default-units") == NULL) {
-    		char szBuf[4096]="";
-    		sprintf(szBuf,"default-units == NULL for file [%s]\n",file.c_str());
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"default-units == NULL for file [%s]\n",file.c_str());
     		throw std::runtime_error(szBuf);
         }
         if(scenarioNode->getChild("default-resources") == NULL) {
-    		char szBuf[4096]="";
-    		sprintf(szBuf,"default-resources == NULL for file [%s]\n",file.c_str());
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"default-resources == NULL for file [%s]\n",file.c_str());
     		throw std::runtime_error(szBuf);
         }
         if(scenarioNode->getChild("default-victory-conditions") == NULL) {
-    		char szBuf[4096]="";
-    		sprintf(szBuf,"default-victory-conditions == NULL for file [%s]\n",file.c_str());
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"default-victory-conditions == NULL for file [%s]\n",file.c_str());
     		throw std::runtime_error(szBuf);
         }
 
@@ -353,8 +353,8 @@ ControlType Scenario::strToControllerType(const string &str) {
 	    return ctNetwork;
     }
 
-	char szBuf[4096]="";
-	sprintf(szBuf,"Invalid controller value specified in scenario: [%s] must be one of the following: closed, cpu-easy, cpu, cpu-ultra, cpu-mega, human",str.c_str());
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,"Invalid controller value specified in scenario: [%s] must be one of the following: closed, cpu-easy, cpu, cpu-ultra, cpu-mega, human",str.c_str());
 	throw std::runtime_error(szBuf);
 }
 

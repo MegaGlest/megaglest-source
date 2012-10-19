@@ -136,7 +136,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	catch(const std::exception &ex) {
 		serverInitError = true;
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nNetwork init error:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nNetwork init error:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -657,7 +657,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		}
 		catch(const std::exception &ex) {
 		    char szBuf[8096]="";
-		    sprintf(szBuf,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
+		    snprintf(szBuf,8096,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
 		    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -701,7 +701,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 	catch(const std::exception &ex) {
 	    char szBuf[8096]="";
-	    sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+	    snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 	    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -915,8 +915,8 @@ void MenuStateCustomGame::cleanup() {
     			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     		}
     		else {
-    			char szBuf[4096]="";
-    			sprintf(szBuf,"In [%s::%s %d] Error cannot shutdown publishToMasterserverThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    			char szBuf[8096]="";
+    			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown publishToMasterserverThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
     			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
     			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
@@ -934,8 +934,8 @@ void MenuStateCustomGame::cleanup() {
         		delete publishToMasterserverThread;
         	}
     		else {
-    			char szBuf[4096]="";
-    			sprintf(szBuf,"In [%s::%s %d] Error cannot shutdown publishToMasterserverThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    			char szBuf[8096]="";
+    			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown publishToMasterserverThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
     			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
     			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
@@ -1370,12 +1370,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 									Lang &lang= Lang::getInstance();
 									const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 									for(unsigned int j = 0; j < languageList.size(); ++j) {
-										char szMsg[1024]="";
+										char szMsg[8096]="";
 										if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
-											sprintf(szMsg,lang.get("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i)->getIpAddress().c_str());
+											snprintf(szMsg,8096,lang.get("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i)->getIpAddress().c_str());
 										}
 										else {
-											sprintf(szMsg,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i)->getIpAddress().c_str());
+											snprintf(szMsg,8096,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i)->getIpAddress().c_str());
 										}
 
 										serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
@@ -1471,7 +1471,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -1654,13 +1654,11 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 			mainMessageBoxState=1;
 
 			Lang &lang= Lang::getInstance();
-			char szMsg[1024]="";
+			char szMsg[8096]="";
 			if(lang.hasString("NetworkSlotUnassignedErrorUI") == true) {
-				//sprintf(szMsg,lang.get("NetworkSlotUnassignedErrorUI").c_str());
 				strcpy(szMsg,lang.get("NetworkSlotUnassignedErrorUI").c_str());
 			}
 			else {
-				//sprintf(szMsg,"Cannot start game.\nSome player(s) are not in a network game slot!");
 				strcpy(szMsg,"Cannot start game.\nSome player(s) are not in a network game slot!");
 			}
 
@@ -1668,13 +1666,11 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 	    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int j = 0; j < languageList.size(); ++j) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 				if(lang.hasString("NetworkSlotUnassignedError",languageList[j]) == true) {
-					//sprintf(szMsg,lang.get("NetworkSlotUnassignedError").c_str());
 					strcpy(szMsg,lang.get("NetworkSlotUnassignedError").c_str());
 				}
 				else {
-					//sprintf(szMsg,"Cannot start game, some player(s) are not in a network game slot!");
 					strcpy(szMsg,"Cannot start game, some player(s) are not in a network game slot!");
 				}
 
@@ -2088,7 +2084,7 @@ void MenuStateCustomGame::render() {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		//throw megaglest_runtime_error(szBuf);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
@@ -2484,9 +2480,8 @@ void MenuStateCustomGame::update() {
 					}
 
 					//float pingTime = serverInterface->getSlot(i)->getThreadedPingMS(serverInterface->getSlot(i)->getIpAddress().c_str());
-					char szBuf[1024]="";
-					//sprintf(szBuf,"%s, ping = %.2fms",label.c_str(),pingTime);
-					sprintf(szBuf,"%s",label.c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"%s",label.c_str());
 
 					labelNetStatus[i].setText(szBuf);
 				}
@@ -2701,7 +2696,7 @@ void MenuStateCustomGame::update() {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -3070,7 +3065,7 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -3755,7 +3750,7 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -3873,7 +3868,7 @@ void MenuStateCustomGame::updateControlers() {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
@@ -3900,7 +3895,7 @@ void MenuStateCustomGame::closeUnusedSlots(){
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
@@ -3931,8 +3926,8 @@ void MenuStateCustomGame::updateNetworkSlots() {
 					serverInterface->addSlot(i);
 				}
 				catch(const std::exception &ex) {
-					char szBuf[4096]="";
-					sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 					SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 					showGeneralError=true;
@@ -3976,7 +3971,7 @@ void MenuStateCustomGame::updateNetworkSlots() {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 		//throw megaglest_runtime_error(szBuf);
@@ -4390,7 +4385,7 @@ void MenuStateCustomGame::processScenario() {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4444,7 +4439,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4490,8 +4485,8 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
 
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
@@ -4520,7 +4515,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4560,7 +4555,7 @@ int MenuStateCustomGame::setupTechList(string scenario) {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4639,7 +4634,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4665,7 +4660,7 @@ void MenuStateCustomGame::setupTilesetList(string scenario) {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 

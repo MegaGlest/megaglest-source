@@ -395,7 +395,7 @@ void Renderer::init() {
 
 	if(glActiveTexture == NULL) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"Error: glActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!");
+		snprintf(szBuf,8096,"Error: glActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!");
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1797,18 +1797,18 @@ void Renderer::renderMouse3d() {
 	}
 
 	if(game == NULL) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d game == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s] Line: %d game == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	else if(game->getGui() == NULL) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui() == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s] Line: %d game->getGui() == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	else if(game->getGui()->getMouse3d() == NULL) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d game->getGui()->getMouse3d() == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s] Line: %d game->getGui()->getMouse3d() == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1816,8 +1816,8 @@ void Renderer::renderMouse3d() {
 	const Mouse3d *mouse3d= gui->getMouse3d();
 	const Map *map= game->getWorld()->getMap();
 	if(map == NULL) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s] Line: %d map == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2275,14 +2275,13 @@ void Renderer::renderClock() {
 	const World *world = game->getWorld();
 	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
 
-	//sprintf(szBuf,"%s %.2d:%.2d %s %s",lang.get("GameTime","",true).c_str(),hours,minutes,lang.get("LocalTime","",true).c_str(),szBuf2);
 	if(config.getBool("InGameClock","true") == true) {
 		int hours = world->getTimeFlow()->getTime();
 		int minutes = (world->getTimeFlow()->getTime() - hours) * 100 * 0.6; // scale 100 to 60
 
 		Lang &lang= Lang::getInstance();
 		char szBuf[200]="";
-		sprintf(szBuf,"%s %.2d:%.2d",lang.get("GameTime","",true).c_str(),hours,minutes);
+		snprintf(szBuf,200,"%s %.2d:%.2d",lang.get("GameTime","",true).c_str(),hours,minutes);
 		if(str != "") {
 			str += " ";
 		}
@@ -2297,7 +2296,7 @@ void Renderer::renderClock() {
 
 		Lang &lang= Lang::getInstance();
 		char szBuf[200]="";
-		sprintf(szBuf,"%s %s",lang.get("LocalTime","",true).c_str(),szBuf2);
+		snprintf(szBuf,200,"%s %s",lang.get("LocalTime","",true).c_str(),szBuf2);
 		if(str != "") {
 			str += " ";
 		}
@@ -3616,7 +3615,7 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 	}
 	catch(const exception &e) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
 
@@ -4904,8 +4903,8 @@ void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,Cardin
 	//const Mouse3d *mouse3d= gui->getMouse3d();
 	const Map *map= game->getWorld()->getMap();
 	if(map == NULL) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d map == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s] Line: %d map == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -6772,8 +6771,8 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 	GLint renderModeResult = glRenderMode(GL_SELECT);
 	if(renderModeResult < 0) {
 		const char *errorString= reinterpret_cast<const char*>(gluErrorString(renderModeResult));
-		char szBuf[4096]="";
-		sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",renderModeResult,renderModeResult,errorString,extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",renderModeResult,renderModeResult,errorString,extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 
 		printf("%s\n",szBuf);
 	}
@@ -6824,8 +6823,8 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 	}
 	else if(selCount < 0) {
 		const char *errorString= reinterpret_cast<const char*>(gluErrorString(selCount));
-		char szBuf[4096]="";
-		sprintf(szBuf,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",selCount,selCount,errorString,extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",selCount,selCount,errorString,extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 
 		printf("%s\n",szBuf);
 	}
@@ -7881,7 +7880,7 @@ void Renderer::render2dMenuSetup() {
 	}
 	else {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s] Line: %d\nglActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		snprintf(szBuf,8096,"In [%s::%s] Line: %d\nglActiveTexture == NULL\nglActiveTexture is only supported if the GL version is 1.3 or greater,\nor if the ARB_multitexture extension is supported!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 

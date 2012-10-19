@@ -331,8 +331,8 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 		}
 	}
 	else {
-		char szBuf[4096] = "";
-		sprintf(szBuf, "Unsupported target [%s] specified for attack boost for skill [%s] in [%s]", targetType.c_str(), name.c_str(), parentLoader.c_str());
+		char szBuf[8096] = "";
+		snprintf(szBuf, 8096,"Unsupported target [%s] specified for attack boost for skill [%s] in [%s]", targetType.c_str(), name.c_str(), parentLoader.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -417,8 +417,8 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		}
 	}
 	if(animations.empty() == true) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -733,8 +733,8 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
     attackVar= sn->getChild("attack-var")->getAttribute("value")->getIntValue();
 
     if(attackVar < 0) {
-        char szBuf[4096]="";
-        sprintf(szBuf,"The attack skill has an INVALID attack var value which is < 0 [%d] in file [%s]!",attackVar,dir.c_str());
+        char szBuf[8096]="";
+        snprintf(szBuf,8096,"The attack skill has an INVALID attack var value which is < 0 [%d] in file [%s]!",attackVar,dir.c_str());
         throw megaglest_runtime_error(szBuf);
     }
 

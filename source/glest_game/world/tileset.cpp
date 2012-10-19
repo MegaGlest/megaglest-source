@@ -161,8 +161,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 	checksumValue.addFile(path);
 
 	try {
-		char szBuf[1024]="";
-		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingTileset","",true).c_str(),formatString(name).c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingTileset","",true).c_str(),formatString(name).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		Renderer &renderer= Renderer::getInstance();

@@ -157,25 +157,25 @@ CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *comm
 	assert(this->gameSettings != NULL);
 
 	if(unit == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unit in AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unit in AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
     const UnitType* unitType= unit->getType();
 	if(unitType == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unittype with unit id: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unit->getId(),factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unittype with unit id: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unit->getId(),factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
 	if(commandType == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] commandType == NULL, unit id: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unit->getId(),factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] commandType == NULL, unit id: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unit->getId(),factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
     const CommandType* ct= unit->getType()->findCommandTypeById(commandType->getId());
 	if(ct == NULL) {
-	    char szBuf[4096]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
             unit->getFaction()->getIndex());
@@ -211,20 +211,20 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 	const Unit *unit = getMyUnit(unitIndex);
 	if(unit == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unit with index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unit with index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
     const UnitType* unitType= unit->getType();
 	if(unitType == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unittype with unit index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unittype with unit index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
     const CommandType* ct= unit->getType()->findCommandTypeById(commandType->getId());
 	if(ct == NULL) {
-	    char szBuf[4096]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
             unit->getFaction()->getIndex());
@@ -258,20 +258,20 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 	const Unit *unit = getMyUnit(unitIndex);
 	if(unit == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unit with index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unit with index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
     const UnitType* unitType= unit->getType();
 	if(unitType == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unittype with unit index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unittype with unit index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
     const CommandType* ct= unit->getType()->findCommandTypeById(commandType->getId());
 	if(ct == NULL) {
-	    char szBuf[4096]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
             unit->getFaction()->getIndex());
@@ -305,20 +305,20 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 	const Unit *unit = getMyUnit(unitIndex);
 	if(unit == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unit with index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unit with index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
     const UnitType* unitType= unit->getType();
 	if(unitType == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find AI unittype with unit index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unittype with unit index: %d, AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,unitIndex,factionIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
     const CommandType* ct= (commandType != NULL ? unit->getType()->findCommandTypeById(commandType->getId()) : NULL);
 	if(ct == NULL) {
-	    char szBuf[4096]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
             unit->getFaction()->getIndex());
@@ -399,8 +399,8 @@ const Resource *AiInterface::getResource(const ResourceType *rt){
 
 Unit *AiInterface::getMyUnitPtr(int unitIndex) {
 	if(unitIndex >= world->getFaction(factionIndex)->getUnitCount()) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] unitIndex >= world->getFaction(factionIndex)->getUnitCount(), unitIndex = %d, world->getFaction(factionIndex)->getUnitCount() = %d",__FILE__,__FUNCTION__,__LINE__,unitIndex,world->getFaction(factionIndex)->getUnitCount());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] unitIndex >= world->getFaction(factionIndex)->getUnitCount(), unitIndex = %d, world->getFaction(factionIndex)->getUnitCount() = %d",__FILE__,__FUNCTION__,__LINE__,unitIndex,world->getFaction(factionIndex)->getUnitCount());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -493,15 +493,6 @@ bool AiInterface::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i
 					if(r->getType() == rt) {
 						resourcePos= pos + Vec2i(i,j);
 
-						//if(faction != NULL) {
-						//	char szBuf[4096]="";
-						//				sprintf(szBuf,"[%s::%s Line: %d] [isresourcenear] pos [%s] resourcePos [%s] fallbackToPeersHarvestingSameResource [%d] rt [%s]",
-						//						__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),resourcePos.getString().c_str(),fallbackToPeersHarvestingSameResource,rt->getName().c_str());
-
-						//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",faction->getFrameCount());
-						//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
-						//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",faction->getFrameCount());
-						//}
 						return true;
 					}
 				}

@@ -36,9 +36,8 @@ bool PlatformExceptionHandler::disableBacktrace = false;
 
 // This was the simplest, most portable solution i could find in 5 mins for linux
 int MessageBox(int handle, const char *msg, const char *title, int buttons) {
-    char cmd[1024]="";
-    //sprintf(cmd, "xmessage -center \"%s\"", msg);
-    sprintf(cmd, "gdialog --title \"%s\" --msgbox \"%s\"", title, msg);
+    char cmd[8096]="";
+    snprintf(cmd, 8096,"gdialog --title \"%s\" --msgbox \"%s\"", title, msg);
 
     //if(fork()==0){
         //close(1); close(2);
@@ -72,14 +71,13 @@ void exceptionMessage(const exception &excp) {
 static int getFileAndLine(char *function, void *address, char *file, size_t flen) {
         int line=-1;
         if(PlatformExceptionHandler::application_binary != "") {
-			const int maxbufSize = 8094;
+			const int maxbufSize = 8096;
 			char buf[maxbufSize+1]="";
 			//char *p=NULL;
 
 			// prepare command to be executed
 			// our program need to be passed after the -e parameter
-			//sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
-			sprintf(buf, "addr2line -C -e %s -f -i %p",PlatformExceptionHandler::application_binary.c_str(),address);
+			snprintf(buf, 8096,"addr2line -C -e %s -f -i %p",PlatformExceptionHandler::application_binary.c_str(),address);
 
 			FILE* f = popen (buf, "r");
 			if (f == NULL) {
@@ -224,17 +222,15 @@ string PlatformExceptionHandler::getStackTrace() {
                 }
                 //fprintf(out, "    %s:%s\n", stack.strings[i], function);
 
-                //sprintf(szBuf,"%s:%s address [%p]",stack_strings[i],function,lineAddress);
                 strBuf = string(stack_strings[i]) + ":" + string(function);
-                sprintf(szBuf,"address [%p]",lineAddress);
+                snprintf(szBuf,8096,"address [%p]",lineAddress);
                 strBuf += szBuf;
             }
             else {
                 // didn't find the mangled name, just print the whole line
                 //fprintf(out, "    %s\n", stack.strings[i]);
-                //sprintf(szBuf,"%s address [%p]",stack_strings[i],lineAddress);
             	strBuf = stack_strings[i];
-                sprintf(szBuf,"address [%p]",lineAddress);
+                snprintf(szBuf,8096,"address [%p]",lineAddress);
                 strBuf += szBuf;
             }
 

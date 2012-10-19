@@ -139,8 +139,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 //	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"[findPath] unit->getPos() [%s] finalPos [%s]",
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[findPath] unit->getPos() [%s] finalPos [%s]",
 				unit->getPos().getString().c_str(),finalPos.getString().c_str());
 		unit->logSynchData(__FILE__,__LINE__,szBuf);
 	}
@@ -157,8 +157,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			if(command != NULL && command->getCommandType() != NULL) {
 				commandDesc = command->getCommandType()->toString();
 			}
-			char szBuf[1024]="";
-			sprintf(szBuf,"State: arrived#1 at pos: %s, command [%s]",finalPos.getString().c_str(),commandDesc.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"State: arrived#1 at pos: %s, command [%s]",finalPos.getString().c_str(),commandDesc.c_str());
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
@@ -242,8 +242,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				if(minorDebugPathfinder) printf("Pathfind Unit [%d - %s] START BAILOUT ATTEMPT frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-					char szBuf[4096]="";
-					sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] ts [%d]",
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[attempting to BAIL OUT] finalPos [%s] ts [%d]",
 							finalPos.getString().c_str(),ts);
 					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
@@ -293,8 +293,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 									bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-										char szBuf[4096]="";
-										sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
 												finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
 										unit->logSynchData(__FILE__,__LINE__,szBuf);
 									}
@@ -316,8 +316,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 									bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-										char szBuf[4096]="";
-										sprintf(szBuf,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"[attempting to BAIL OUT] finalPos [%s] newFinalPos [%s] ts [%d] canUnitMove [%d]",
 												finalPos.getString().c_str(),newFinalPos.getString().c_str(),ts,canUnitMove);
 										unit->logSynchData(__FILE__,__LINE__,szBuf);
 									}
@@ -917,8 +917,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-										char szBuf[4096]="";
-										sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 												factions[unitFactionIndex].openNodesList.size(),factions[unitFactionIndex].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 										unit->logSynchData(__FILE__,__LINE__,szBuf);
 									}
@@ -930,8 +930,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 											commandDesc = command->getCommandType()->toString();
 										}
 
-										char szBuf[1024]="";
-										sprintf(szBuf,"State: moving, cmd [%s] pos: %s dest pos: %s, Queue= %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),path->getQueueCount());
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"State: moving, cmd [%s] pos: %s dest pos: %s, Queue= %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),path->getQueueCount());
 										unit->setCurrentUnitTitle(szBuf);
 									}
 
@@ -974,8 +974,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-										char szBuf[4096]="";
-										sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 												factions[unitFactionIndex].openNodesList.size(),factions[unitFactionIndex].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 										unit->logSynchData(__FILE__,__LINE__,szBuf);
 									}
@@ -987,8 +987,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 											commandDesc = command->getCommandType()->toString();
 										}
 
-										char szBuf[1024]="";
-										sprintf(szBuf,"State: moving, cmd [%s] pos: %s dest pos: %s, Queue= %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),path->getQueueCount());
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"State: moving, cmd [%s] pos: %s dest pos: %s, Queue= %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),path->getQueueCount());
 										unit->setCurrentUnitTitle(szBuf);
 									}
 
@@ -1176,8 +1176,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 			std::pair<Vec2i,int> lastHarvest = unit->getLastHarvestResourceTarget();
 
-			char szBuf[1024]="";
-			sprintf(szBuf,"State: blocked, cmd [%s] pos: [%s], dest pos: [%s], lastHarvest = [%s - %d], reason A= %d, B= %d, C= %d, D= %d, E= %d, F = %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),lastHarvest.first.getString().c_str(),lastHarvest.second, pathFound,(lastNode == firstNode),path->getBlockCount(), path->isBlocked(), nodeLimitReached,path->isStuck());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"State: blocked, cmd [%s] pos: [%s], dest pos: [%s], lastHarvest = [%s - %d], reason A= %d, B= %d, C= %d, D= %d, E= %d, F = %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),lastHarvest.first.getString().c_str(),lastHarvest.second, pathFound,(lastNode == firstNode),path->getBlockCount(), path->isBlocked(), nodeLimitReached,path->isStuck());
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
@@ -1191,8 +1191,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"[path for unit BLOCKED] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[path for unit BLOCKED] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					factions[unitFactionIndex].openNodesList.size(),factions[unitFactionIndex].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
 		}
@@ -1267,8 +1267,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					factions[unitFactionIndex].openNodesList.size(),factions[unitFactionIndex].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
 
@@ -1281,7 +1281,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				pathToTake += pos.getString();
 			}
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
-			sprintf(szBuf,"Path for unit to take = %s",pathToTake.c_str());
+			snprintf(szBuf,8096,"Path for unit to take = %s",pathToTake.c_str());
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
@@ -1291,8 +1291,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				commandDesc = command->getCommandType()->toString();
 			}
 
-			char szBuf[1024]="";
-			sprintf(szBuf,"State: moving, cmd [%s] pos: %s dest pos: %s, Queue= %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),path->getQueueCount());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"State: moving, cmd [%s] pos: %s dest pos: %s, Queue= %d",commandDesc.c_str(),unit->getPos().getString().c_str(), targetPos.getString().c_str(),path->getQueueCount());
 			unit->setCurrentUnitTitle(szBuf);
 		}
 

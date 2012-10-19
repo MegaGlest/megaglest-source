@@ -327,8 +327,8 @@ void Map::end(){
 
 Vec2i Map::getStartLocation(int locationIndex) const {
 	if(locationIndex >= maxPlayers) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"locationIndex >= maxPlayers [%d] [%d]",locationIndex, maxPlayers);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"locationIndex >= maxPlayers [%d] [%d]",locationIndex, maxPlayers);
 		printf("%s\n",szBuf);
 		throw megaglest_runtime_error(szBuf);
 		//assert(locationIndex < maxPlayers);
@@ -574,8 +574,8 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 				resourcePos = result;
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-					char szBuf[4096]="";
-								sprintf(szBuf,"[found peer harvest pos] pos [%s] resourcePos [%s] unit->getFaction()->getCacheResourceTargetListSize() [%d]",
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[found peer harvest pos] pos [%s] resourcePos [%s] unit->getFaction()->getCacheResourceTargetListSize() [%d]",
 										pos.getString().c_str(),resourcePos.getString().c_str(),unit->getFaction()->getCacheResourceTargetListSize());
 					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
@@ -1295,7 +1295,7 @@ void Map::putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, 
 				}
 				else {
 					char szBuf[8096]="";
-					sprintf(szBuf,"Trying to move unit [%d - %s] into occupied cell [%s] and field = %d, unit already in cell [%d - %s] ",unit->getId(),unit->getType()->getName().c_str(),pos.getString().c_str(),field,getCell(currPos)->getUnit(field)->getId(),getCell(currPos)->getUnit(field)->getType()->getName().c_str());
+					snprintf(szBuf,8096,"Trying to move unit [%d - %s] into occupied cell [%s] and field = %d, unit already in cell [%d - %s] ",unit->getId(),unit->getType()->getName().c_str(),pos.getString().c_str(),field,getCell(currPos)->getUnit(field)->getId(),getCell(currPos)->getUnit(field)->getType()->getName().c_str());
 					throw megaglest_runtime_error(szBuf);
 				}
 

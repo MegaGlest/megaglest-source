@@ -428,8 +428,8 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	    if(curlResult != CURLE_OK) {
 			string curlError = curl_easy_strerror(curlResult);
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
 			console.addLine(string("#1 ") + szBuf,true);
 	    }
 
@@ -447,8 +447,8 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 		    if(curlResult != CURLE_OK) {
 				string curlError = curl_easy_strerror(curlResult);
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
 				console.addLine(string("#2 ") + szBuf,true);
 		    }
 
@@ -462,8 +462,8 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 		    if(curlResult != CURLE_OK) {
 				string curlError = curl_easy_strerror(curlResult);
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
 				console.addLine(string("#3 ") + szBuf,true);
 		    }
 
@@ -472,8 +472,8 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 		    if(curlResult != CURLE_OK) {
 				string curlError = curl_easy_strerror(curlResult);
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
 				console.addLine(string("#4 ") + szBuf,true);
 		    }
 		}
@@ -1253,8 +1253,8 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(fileFTPProgressList.empty() == false) {
 			mainMessageBoxState = ftpmsg_Quit;
 			mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadInProgressCancelQuestion").c_str(),fileFTPProgressList.size());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadInProgressCancelQuestion").c_str(),fileFTPProgressList.size());
 			showMessageBox(szBuf, lang.get("Question"), true);
 		}
 		else {
@@ -1544,15 +1544,15 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 						mainMessageBoxState = ftpmsg_ReplaceTechtree;
 						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
-						char szBuf[1024]="";
-						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTechName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,lang.get("ModLocalRemoteMismatch").c_str(),selectedTechName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					else {
 						mainMessageBoxState = ftpmsg_None;
 						mainMessageBox.init(lang.get("Ok"),450);
-						char szBuf[1024]="";
-						sprintf(szBuf,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,lang.get("ModTechAlreadyInstalled").c_str(),selectedTechName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					mapCRCUpdateList[itemPath] = true;
@@ -1584,16 +1584,16 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			if(alreadyHasTech == true) {
 				mainMessageBoxState = ftpmsg_GetTechtree;
 
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModRemoveTechConfirm").c_str(),selectedTechName.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModRemoveTechConfirm").c_str(),selectedTechName.c_str());
 				showMessageBox(szBuf, lang.get("Question"), true);
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"),450);
 
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModCannotRemoveTechNotInstalled").c_str(),selectedTechName.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModCannotRemoveTechNotInstalled").c_str(),selectedTechName.c_str());
 				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 		}
@@ -1625,15 +1625,15 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 						mainMessageBoxState = ftpmsg_ReplaceTileset;
 						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
-						char szBuf[1024]="";
-						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedTilesetName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,lang.get("ModLocalRemoteMismatch").c_str(),selectedTilesetName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					else {
 						mainMessageBoxState = ftpmsg_None;
 						mainMessageBox.init(lang.get("Ok"),450);
-						char szBuf[1024]="";
-						sprintf(szBuf,lang.get("ModTilesetAlreadyInstalled").c_str(),selectedTilesetName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,lang.get("ModTilesetAlreadyInstalled").c_str(),selectedTilesetName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 				}
@@ -1664,16 +1664,16 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			if(alreadyHasTileset == true) {
 				mainMessageBoxState = ftpmsg_GetTileset;
 
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModRemoveTilesetConfirm").c_str(),selectedTilesetName.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModRemoveTilesetConfirm").c_str(),selectedTilesetName.c_str());
 				showMessageBox(szBuf, lang.get("Question"), true);
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"),450);
 
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModCannotRemoveTilesetNotInstalled").c_str(),selectedTilesetName.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModCannotRemoveTilesetNotInstalled").c_str(),selectedTilesetName.c_str());
 				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 		}
@@ -1695,15 +1695,15 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 					if( modInfo.crc != modInfo.localCRC ) {
 						mainMessageBoxState = ftpmsg_ReplaceMap;
 						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
-						char szBuf[1024]="";
-						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedMapName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,lang.get("ModLocalRemoteMismatch").c_str(),selectedMapName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					else {
 						mainMessageBoxState = ftpmsg_None;
 						mainMessageBox.init(lang.get("Ok"),450);
-						char szBuf[1024]="";
-						sprintf(szBuf,lang.get("ModMapAlreadyInstalled").c_str(),selectedMapName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,lang.get("ModMapAlreadyInstalled").c_str(),selectedMapName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 				}
@@ -1734,16 +1734,16 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			if(alreadyHasMap == true) {
 				mainMessageBoxState = ftpmsg_GetMap;
 
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModRemoveMapConfirm").c_str(),selectedMapName.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModRemoveMapConfirm").c_str(),selectedMapName.c_str());
 				showMessageBox(szBuf, lang.get("Question"), true);
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"),450);
 
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModCannotRemoveMapNotInstalled").c_str(),selectedMapName.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModCannotRemoveMapNotInstalled").c_str(),selectedMapName.c_str());
 				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 		}
@@ -1774,15 +1774,15 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 
 						mainMessageBoxState = ftpmsg_ReplaceScenario;
 						mainMessageBox.init(lang.get("Yes"),lang.get("No"),450);
-						char szBuf[1024]="";
-						sprintf(szBuf,lang.get("ModLocalRemoteMismatch").c_str(),selectedScenarioName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,lang.get("ModLocalRemoteMismatch").c_str(),selectedScenarioName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 					else {
 						mainMessageBoxState = ftpmsg_None;
 						mainMessageBox.init(lang.get("Ok"),450);
-						char szBuf[1024]="";
-						sprintf(szBuf,lang.get("ModScenarioAlreadyInstalled").c_str(),selectedScenarioName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,lang.get("ModScenarioAlreadyInstalled").c_str(),selectedScenarioName.c_str());
 						showMessageBox(szBuf, lang.get("Notice"), true);
 					}
 				}
@@ -1815,16 +1815,16 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 			if(alreadyHasScenario == true) {
 				mainMessageBoxState = ftpmsg_GetScenario;
 
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModRemoveScenarioConfirm").c_str(),selectedScenarioName.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModRemoveScenarioConfirm").c_str(),selectedScenarioName.c_str());
 				showMessageBox(szBuf, lang.get("Question"), true);
 			}
 			else {
 				mainMessageBoxState = ftpmsg_None;
 				mainMessageBox.init(lang.get("Ok"),450);
 
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModCannotRemoveScenarioNotInstalled").c_str(),selectedScenarioName.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModCannotRemoveScenarioNotInstalled").c_str(),selectedScenarioName.c_str());
 				showMessageBox(szBuf, lang.get("Notice"), true);
 			}
 		}
@@ -2299,8 +2299,8 @@ void MenuStateMods::render() {
 			for(int i = keyScenarioScrollBar.getVisibleStart();
 					i <= keyScenarioScrollBar.getVisibleEnd(); ++i) {
 				if(i >= keyScenarioButtons.size()) {
-					char szBuf[1024]="";
-					sprintf(szBuf,"i >= keyScenarioButtons.size(), i = %d keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"i >= keyScenarioButtons.size(), i = %d keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
 					throw megaglest_runtime_error(szBuf);
 				}
 				bool alreadyHasScenario = (std::find(scenarioFiles.begin(),scenarioFiles.end(),keyScenarioButtons[i]->getText()) != scenarioFiles.end());
@@ -2422,8 +2422,8 @@ void MenuStateMods::render() {
 
 	}
 	catch(const std::exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
@@ -2440,8 +2440,8 @@ void MenuStateMods::update() {
 		for (int i = keyTechScrollBar.getVisibleStart();
 				i <= keyTechScrollBar.getVisibleEnd(); ++i) {
 			if(i >= keyTechButtons.size()) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"i >= keyTechButtons.size(), i = %d, keyTechButtons.size() = %d",i,(int)keyTechButtons.size());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"i >= keyTechButtons.size(), i = %d, keyTechButtons.size() = %d",i,(int)keyTechButtons.size());
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -2457,8 +2457,8 @@ void MenuStateMods::update() {
 		for (int i = keyTilesetScrollBar.getVisibleStart();
 				i <= keyTilesetScrollBar.getVisibleEnd(); ++i) {
 			if(i >= keyTilesetButtons.size()) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"i >= keyTilesetButtons.size(), i = %d, keyTilesetButtons.size() = %d",i,(int)keyTilesetButtons.size());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"i >= keyTilesetButtons.size(), i = %d, keyTilesetButtons.size() = %d",i,(int)keyTilesetButtons.size());
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -2473,8 +2473,8 @@ void MenuStateMods::update() {
 		for (int i = keyMapScrollBar.getVisibleStart();
 				i <= keyMapScrollBar.getVisibleEnd(); ++i) {
 			if(i >= keyMapButtons.size()) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"i >= keyMapButtons.size(), i = %d, keyMapButtons.size() = %d",i,(int)keyMapButtons.size());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"i >= keyMapButtons.size(), i = %d, keyMapButtons.size() = %d",i,(int)keyMapButtons.size());
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -2490,8 +2490,8 @@ void MenuStateMods::update() {
 		for (int i = keyScenarioScrollBar.getVisibleStart();
 				i <= keyScenarioScrollBar.getVisibleEnd(); ++i) {
 			if(i >= keyScenarioButtons.size()) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"i >= keyScenarioButtons.size(), i = %d, keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"i >= keyScenarioButtons.size(), i = %d, keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -2566,7 +2566,7 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
     	if(userdata == NULL) {
 			char szBuf[8096]="";
-			sprintf(szBuf,lang.get("DataMissingExtractDownloadMod").c_str(),itemName.c_str());
+			snprintf(szBuf,8096,lang.get("DataMissingExtractDownloadMod").c_str(),itemName.c_str());
 			//printf("%s\n",szBuf);
 			console.addLine(szBuf,true);
     	}
@@ -2588,16 +2588,8 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         //printf("### downloaded file [%s] result = %d\n",itemName.c_str(),result.first);
 
         if(result.first == ftp_crt_SUCCESS) {
-        	//displayModPreviewImage = true;
         	displayModPreviewImage[itemName] = true;
         }
-//        else {
-//            curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
-//
-//			char szBuf[1024]="";
-//			sprintf(szBuf,lang.get("ModDownloadMapFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
-//            console.addLine(szBuf,true);
-//        }
     }
 
     else if(type == ftp_cct_Map) {
@@ -2613,15 +2605,15 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
         if(result.first == ftp_crt_SUCCESS) {
         	refreshMaps();
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadMapSuccess").c_str(),itemName.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadMapSuccess").c_str(),itemName.c_str());
             console.addLine(szBuf,true);
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadMapFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadMapFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
             console.addLine(szBuf,true);
         }
     }
@@ -2640,16 +2632,16 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         if(result.first == ftp_crt_SUCCESS) {
         	refreshTilesets();
 
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadTilesetSuccess").c_str(),itemName.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadTilesetSuccess").c_str(),itemName.c_str());
            	console.addLine(szBuf,true);
             // END
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadTilesetFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadTilesetFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
            	console.addLine(szBuf,true);
         }
     }
@@ -2667,8 +2659,8 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
         if(result.first == ftp_crt_SUCCESS) {
 
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadTechSuccess").c_str(),itemName.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadTechSuccess").c_str(),itemName.c_str());
            	console.addLine(szBuf,true);
 
             // START
@@ -2693,8 +2685,8 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadTechFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadTechFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
            	console.addLine(szBuf,true);
         }
     }
@@ -2711,8 +2703,8 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         buttonInstallScenario.setEnabled(true);
 
         if(result.first == ftp_crt_SUCCESS) {
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadScenarioSuccess").c_str(),itemName.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadScenarioSuccess").c_str(),itemName.c_str());
            	console.addLine(szBuf,true);
 
             // START
@@ -2739,8 +2731,8 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModDownloadScenarioFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModDownloadScenarioFail").c_str(),itemName.c_str(),curlVersion->version,result.second.c_str());
            	console.addLine(szBuf,true);
         }
     }

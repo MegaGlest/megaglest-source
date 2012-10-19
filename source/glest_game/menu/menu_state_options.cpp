@@ -532,8 +532,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelFTPServerDataPortsLabel.init(currentLabelStart ,currentLine );
 		labelFTPServerDataPortsLabel.setText(lang.get("FTPServerDataPort"));
 
-		char szBuf[1024]="";
-		sprintf(szBuf,"%d - %d",FTPPort + 1, FTPPort + GameConstants::maxPlayers);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"%d - %d",FTPPort + 1, FTPPort + GameConstants::maxPlayers);
 
 		labelFTPServerDataPorts.registerGraphicComponent(containerName,"labelFTPServerDataPorts");
 		labelFTPServerDataPorts.init(currentColumnStart,currentLine );
@@ -932,8 +932,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 				selectedPort=GameConstants::serverPort;
 			}
 			// use the following ports for ftp
-			char szBuf[1024]="";
-			sprintf(szBuf,"%d - %d",selectedPort + 2, selectedPort + 1 + GameConstants::maxPlayers);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"%d - %d",selectedPort + 2, selectedPort + 1 + GameConstants::maxPlayers);
 			labelFTPServerPort.setText(intToStr(selectedPort+1));
 			labelFTPServerDataPorts.setText(szBuf);
 		}
@@ -1047,31 +1047,6 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 	if(activeInputLabel != NULL) {
 	    //printf("[%d]\n",c); fflush(stdout);
 		if(&labelPlayerName == activeInputLabel) {
-			/*
-			SDLKey key = extractKeyPressed(c);
-			if((key>='0' && key<='9')||(key>='a' && key<='z')||(key>='A' && key<='Z')||
-				 (key>=(192-256) && key<=(255-256))||
-				 (key=='-')||(key=='_')||(key=='(')||(key==')')){
-			//if(isAllowedInputTextKey(key)) {
-				const int maxTextSize= activeInputLabel->getMaxEditWidth();
-				if(activeInputLabel->getText().size()<maxTextSize){
-					string text= activeInputLabel->getText();
-					//text.insert(text.end()-1, key);
-					char szCharText[20]="";
-					sprintf(szCharText,"%c",key);
-					char *utfStr = String::ConvertToUTF8(&szCharText[0]);
-					if(text.size() > 0) {
-						text.insert(text.end() -1, utfStr[0]);
-					}
-					else {
-						text = utfStr[0];
-					}
-					delete [] utfStr;
-
-					activeInputLabel->setText(text);
-				}
-			}
-			*/
 			keyPressEditLabel(c, &activeInputLabel);
 		}
 	}

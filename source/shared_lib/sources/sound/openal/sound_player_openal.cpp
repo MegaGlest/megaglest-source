@@ -622,8 +622,8 @@ StreamSoundSource* SoundPlayerOpenAL::findStreamSoundSource() {
 void SoundPlayerOpenAL::checkAlcError(string message) {
 	int err = alcGetError(device);
 	if(err != ALC_NO_ERROR) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"%s [%s]",message.c_str(),alcGetString(device, err));
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"%s [%s]",message.c_str(),alcGetString(device, err));
 
 		//std::stringstream msg;
 		//msg << message.c_str() << alcGetString(device, err);
@@ -635,8 +635,8 @@ void SoundPlayerOpenAL::checkAlcError(string message) {
 void SoundPlayerOpenAL::checkAlError(string message) {
 	int err = alGetError();
 	if(err != AL_NO_ERROR) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"%s [%s]",message.c_str(),alGetString(err));
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"%s [%s]",message.c_str(),alGetString(err));
 		//std::stringstream msg;
 		//msg << message.c_str() << alGetString(err);
 		printf("openal error [%s]\n",szBuf);

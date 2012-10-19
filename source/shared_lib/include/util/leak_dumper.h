@@ -92,7 +92,7 @@ public:
 				// prepare command to be executed
 				// our program need to be passed after the -e parameter
 				//sprintf (buf, "/usr/bin/addr2line -C -e ./a.out -f -i %lx", addr);
-				sprintf(buf, "addr2line -C -e %s -f -i %p",AllocInfo::get_application_binary().c_str(),address);
+				snprintf(buf, 8096,"addr2line -C -e %s -f -i %p",AllocInfo::get_application_binary().c_str(),address);
 
 				FILE* f = popen (buf, "r");
 				if (f == NULL) {
@@ -231,12 +231,12 @@ public:
 						}
 						//fprintf(out, "    %s:%s\n", stack.strings[i], function);
 
-						sprintf(szBuf,"%s:%s address [%p]",stack_strings[i],function,lineAddress);
+						snprintf(szBuf,8096,"%s:%s address [%p]",stack_strings[i],function,lineAddress);
 					}
 					else {
 						// didn't find the mangled name, just print the whole line
 						//fprintf(out, "    %s\n", stack.strings[i]);
-						sprintf(szBuf,"%s address [%p]",stack_strings[i],lineAddress);
+						snprintf(szBuf,8096,"%s address [%p]",stack_strings[i],lineAddress);
 					}
 
 					errMsg += string(szBuf);
@@ -246,7 +246,7 @@ public:
 						int line = getFileAndLine(function, lineAddress, file, 8096);
 						if(line >= 0) {
 							char lineBuf[1024]="";
-							sprintf(lineBuf,"%d",line);
+							snprintf(lineBuf,1024,"%d",line);
 							errMsg += " line: " + string(lineBuf);
 						}
 					}

@@ -49,8 +49,8 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
         networkManager.init(nrServer);
     }
 	catch(const std::exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -128,8 +128,8 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
         GraphicComponent::applyAllCustomProperties(containerName);
     }
 	catch(const std::exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -205,8 +205,8 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
         	}
         }
         catch(const std::exception &ex) {
-            char szBuf[4096]="";
-            sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            char szBuf[8096]="";
+            snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
             SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -340,13 +340,13 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){
 	if(listBoxScenario.getSelectedItemIndex() < 0) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"listBoxScenario.getSelectedItemIndex() < 0, = %d",listBoxScenario.getSelectedItemIndex());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() < 0, = %d",listBoxScenario.getSelectedItemIndex());
 		throw megaglest_runtime_error(szBuf);
 	}
 	else if(listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size()) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 		throw megaglest_runtime_error(szBuf);
 	}
 

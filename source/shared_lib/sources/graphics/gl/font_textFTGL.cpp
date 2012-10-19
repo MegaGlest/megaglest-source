@@ -93,8 +93,8 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 	}
 
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error setting face size, #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error setting face size, #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 	//ftFont->UseDisplayList(false);
@@ -105,8 +105,8 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 	}
 
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error setting encoding, #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error setting encoding, #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 }
@@ -172,8 +172,8 @@ void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
 	}
 
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error setting face size, #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error setting face size, #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -184,8 +184,8 @@ void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
 		throw megaglest_runtime_error("FTGL: error setting encoding");
 	}
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error setting encoding, #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error setting encoding, #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -201,8 +201,8 @@ void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
 	}
 
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error advancing(a), #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error advancing(a), #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 }
@@ -217,8 +217,8 @@ void TextFTGL::SetFaceSize(int value) {
 	}
 
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error setting face size, #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error setting face size, #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 }
@@ -247,8 +247,8 @@ void TextFTGL::Render(const char* str, const int len) {
 		}
 
 		if(ftFont->Error())	{
-			char szBuf[1024]="";
-			sprintf(szBuf,"FTGL: error trying to render, #%d",ftFont->Error());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"FTGL: error trying to render, #%d",ftFont->Error());
 			throw megaglest_runtime_error(szBuf);
 		}
 	}
@@ -264,8 +264,8 @@ float TextFTGL::Advance(const char* str, const int len) {
 	}
 
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error trying to advance(b), #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error trying to advance(b), #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 	return result;
@@ -349,8 +349,8 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 //		printf("Height for [%s] result [%d] [%d]\n",str,result,newresult);
 //	}
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error trying to get lineheight, #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error trying to get lineheight, #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -394,8 +394,8 @@ float TextFTGL::LineHeight(const wchar_t* str, const int len) {
 		//printf("ftFont->BBox(''yW'')%f\n",result);
 	}
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error trying to get lineheight, #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error trying to get lineheight, #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -411,8 +411,8 @@ void TextFTGL::Render(const wchar_t* str, const int len) {
 		ftFont->Render(str, len);
 
 		if(ftFont->Error())	{
-			char szBuf[1024]="";
-			sprintf(szBuf,"FTGL: error trying to render, #%d",ftFont->Error());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"FTGL: error trying to render, #%d",ftFont->Error());
 			throw megaglest_runtime_error(szBuf);
 		}
 	}
@@ -421,8 +421,8 @@ void TextFTGL::Render(const wchar_t* str, const int len) {
 float TextFTGL::Advance(const wchar_t* str, const int len) {
 	float result = ftFont->Advance(str, len);
 	if(ftFont->Error())	{
-		char szBuf[1024]="";
-		sprintf(szBuf,"FTGL: error trying to advance(c), #%d",ftFont->Error());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"FTGL: error trying to advance(c), #%d",ftFont->Error());
 		throw megaglest_runtime_error(szBuf);
 	}
 
