@@ -257,7 +257,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     int randomNickId = rand() % 999;
     string netPlayerName=Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
     string ircname=netPlayerName.substr(0,9);
-    sprintf(szIRCNick,"MG_%s_%d",ircname.c_str(),randomNickId);
+    snprintf(szIRCNick,80,"MG_%s_%d",ircname.c_str(),randomNickId);
     normalizeNick(szIRCNick);
 
     currentIrcNick=ircname;
@@ -394,8 +394,8 @@ void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* orig
         else if(evt == IRC_evt_chatText) {
             //printf ("===> IRC: '%s' said in channel %s: %s\n",origin ? origin : "someone",params[0], params[1] );
 
-            char szBuf[4096]="";
-            sprintf(szBuf,"%s: %s",origin ? origin : "someone",params[1]);
+            char szBuf[8096]="";
+            snprintf(szBuf,8096,"%s: %s",origin ? origin : "someone",params[1]);
             string helpSTr=szBuf;
         	if(helpSTr.find(currentIrcNick)!=string::npos){
         		CoreData &coreData= CoreData::getInstance();
@@ -1002,9 +1002,8 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 					//printf("Getting Ping time for host %s\n",masterServerInfo->getIpAddress().c_str());
 					//float pingTime = Socket::getAveragePingMS(masterServerInfo->getIpAddress().c_str(),1);
 					//printf("Ping time = %f\n",pingTime);
-					char szBuf[1024]="";
-					//sprintf(szBuf,"%s, %.2fms",masterServerInfo->getServerTitle().c_str(),pingTime);
-					sprintf(szBuf,"%s",masterServerInfo->getServerTitle().c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"%s",masterServerInfo->getServerTitle().c_str());
 					masterServerInfo->setServerTitle(szBuf);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

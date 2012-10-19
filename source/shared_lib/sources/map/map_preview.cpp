@@ -526,27 +526,27 @@ bool MapPreview::inside(int x, int y) {
 
 void MapPreview::reset(int w, int h, float alt, MapSurfaceType surf) {
 	if (w < MIN_MAP_CELL_DIMENSION || h < MIN_MAP_CELL_DIMENSION) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
 		throw megaglest_runtime_error(szBuf);
 		//return;
 	}
 
 	if (w > MAX_MAP_CELL_DIMENSION || h > MAX_MAP_CELL_DIMENSION) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Size of map can be at most %dx%d",MAX_MAP_CELL_DIMENSION,MAX_MAP_CELL_DIMENSION);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Size of map can be at most %dx%d",MAX_MAP_CELL_DIMENSION,MAX_MAP_CELL_DIMENSION);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	if (alt < MIN_MAP_CELL_HEIGHT || alt > MAX_MAP_CELL_HEIGHT) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Height must be in the range %d-%d",MIN_MAP_CELL_HEIGHT,MAX_MAP_CELL_HEIGHT);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Height must be in the range %d-%d",MIN_MAP_CELL_HEIGHT,MAX_MAP_CELL_HEIGHT);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	if (surf < st_Grass || surf > st_Ground) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Surface must be in the range %d-%d",st_Grass,st_Ground);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Surface must be in the range %d-%d",st_Grass,st_Ground);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -579,27 +579,27 @@ void MapPreview::reset(int w, int h, float alt, MapSurfaceType surf) {
 
 void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
 	if (w < MIN_MAP_CELL_DIMENSION || h < MIN_MAP_CELL_DIMENSION) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
 		throw megaglest_runtime_error(szBuf);
 		//return;
 	}
 
 	if (w > MAX_MAP_CELL_DIMENSION || h > MAX_MAP_CELL_DIMENSION) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Size of map can be at most %dx%d",MAX_MAP_CELL_DIMENSION,MAX_MAP_CELL_DIMENSION);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Size of map can be at most %dx%d",MAX_MAP_CELL_DIMENSION,MAX_MAP_CELL_DIMENSION);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	if (alt < MIN_MAP_CELL_HEIGHT || alt > MAX_MAP_CELL_HEIGHT) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Height must be in the range %d-%d",MIN_MAP_CELL_HEIGHT,MAX_MAP_CELL_HEIGHT);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Height must be in the range %d-%d",MIN_MAP_CELL_HEIGHT,MAX_MAP_CELL_HEIGHT);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	if (surf < st_Grass || surf > st_Ground) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Surface must be in the range %d-%d",st_Grass,st_Ground);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Surface must be in the range %d-%d",st_Grass,st_Ground);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -656,8 +656,8 @@ void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
 
 void MapPreview::resetFactions(int maxPlayers) {
 	if (maxPlayers < MIN_MAP_FACTIONCOUNT || maxPlayers > MAX_MAP_FACTIONCOUNT) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"Max Players must be in the range %d-%d",MIN_MAP_FACTIONCOUNT,MAX_MAP_FACTIONCOUNT);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Max Players must be in the range %d-%d",MIN_MAP_FACTIONCOUNT,MAX_MAP_FACTIONCOUNT);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -987,8 +987,8 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 			validMap = false;
 
 			if(errorOnInvalidMap == true) {
-				char szBuf[4096]="";
-				sprintf(szBuf,"In [%s::%s Line: %d]\nfile [%s]\nreadBytes != sizeof(MapFileHeader) [%lu] [%lu]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),readBytes,sizeof(MapFileHeader));
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In [%s::%s Line: %d]\nfile [%s]\nreadBytes != sizeof(MapFileHeader) [%lu] [%lu]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),readBytes,sizeof(MapFileHeader));
 				SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 
 				throw megaglest_runtime_error(szBuf);

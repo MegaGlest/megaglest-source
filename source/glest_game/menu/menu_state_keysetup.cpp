@@ -149,8 +149,8 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		keyScrollBar.setVisibleStart(0);
 	}
 	catch(const std::exception &ex) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -422,12 +422,11 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 //	}
 
 	char szCharText[20]="";
-	sprintf(szCharText,"%c",hotkeyChar);
+	snprintf(szCharText,20,"%c",hotkeyChar);
 	char *utfStr = String::ConvertToUTF8(&szCharText[0]);
 
-	char szBuf[1024] = "";
-	//sprintf(szBuf,"%s [%d][%d]",keyName.c_str(),key.keysym.sym,keysym);
-	sprintf(szBuf,"%s [%s][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.unicode);
+	char szBuf[8096] = "";
+	snprintf(szBuf,8096,"%s [%s][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.unicode);
 	labelTestValue.setText(szBuf);
 
 	delete [] utfStr;

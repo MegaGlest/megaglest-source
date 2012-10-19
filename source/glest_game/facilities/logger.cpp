@@ -247,7 +247,7 @@ void Logger::renderLoadingScreen() {
 		Lang &lang= Lang::getInstance();
 		string hintText = lang.get("Hint","",true);
 		char szBuf[8096]="";
-		sprintf(szBuf,hintText.c_str(),gameHintToShow.c_str());
+		snprintf(szBuf,8096,hintText.c_str(),gameHintToShow.c_str());
 		hintText = szBuf;
 
 		if(Renderer::renderText3DEnabled) {

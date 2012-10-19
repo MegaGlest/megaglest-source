@@ -591,7 +591,7 @@ bool AiRuleProduceResourceProducer::test(){
 		if(ai->outputAIBehaviourToConsole()) printf("CONSUMABLE [%s][%d] Testing AI RULE Name[%s]\n",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
 		//aiInterface->printLog(4, "CONSUMABLE [%s][%d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
 		char szBuf[8096]="";
-		sprintf(szBuf,"CONSUMABLE [%s][%d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
+		snprintf(szBuf,8096,"CONSUMABLE [%s][%d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
 		aiInterface->printLog(4, szBuf);
 
 		bool factionUsesResourceType = aiInterface->factionUsesResourceType(aiInterface->getMyFactionType(), rt);
@@ -615,7 +615,7 @@ bool AiRuleProduceResourceProducer::test(){
 
 		if(ai->outputAIBehaviourToConsole()) printf("STATIC [%s][%d] [min %d] Testing AI RULE Name[%s]\n",rt->getName().c_str(), r->getAmount(), targetStaticResourceCount, this->getName().c_str());
 		char szBuf[8096]="";
-		sprintf(szBuf,"STATIC resource check [%s][%d] [min %d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getAmount(), targetStaticResourceCount, this->getName().c_str());
+		snprintf(szBuf,8096,"STATIC resource check [%s][%d] [min %d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getAmount(), targetStaticResourceCount, this->getName().c_str());
 		aiInterface->printLog(4, szBuf);
 
 		if(rt->getClass() == rcStatic && r->getAmount() < targetStaticResourceCount) {
@@ -667,7 +667,7 @@ void AiRuleProduce::execute() {
 		if(ai->outputAIBehaviourToConsole()) printf("AiRuleProduce producing [%s]\n",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
 		//aiInterface->printLog(4, "AiRuleProduce producing [%s]",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
 		char szBuf[8096]="";
-		sprintf(szBuf,"AiRuleProduce producing [%s]",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
+		snprintf(szBuf,8096,"AiRuleProduce producing [%s]",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
 		aiInterface->printLog(4, szBuf);
 
 		//generic produce task, produce random unit that has the skill or produces the resource
@@ -816,7 +816,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 	if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]\n",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
 	char szBuf[8096]="";
-	sprintf(szBuf,"produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
+	snprintf(szBuf,8096,"produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
 	aiInterface->printLog(4, szBuf);
 
 	//if unit meets requirements
@@ -860,12 +860,12 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 		}
 
 		if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]\n",aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck), this->getName().c_str());
-		sprintf(szBuf,"produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]",aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck), this->getName().c_str());
+		snprintf(szBuf,8096,"produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]",aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck), this->getName().c_str());
 		aiInterface->printLog(4, szBuf);
 
 		//if unit doesnt meet resources retry
 		if(aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck) == false) {
-			sprintf(szBuf,"Check costs FAILED.");
+			snprintf(szBuf,8096,"Check costs FAILED.");
 			aiInterface->printLog(4, szBuf);
 
 			ai->retryTask(pt);
@@ -912,7 +912,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 			if(ai->outputAIBehaviourToConsole()) printf("produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]\n",producers.empty(), this->getName().c_str());
 			//aiInterface->printLog(4, "produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]",producers.empty(), this->getName().c_str());
-			sprintf(szBuf,"produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]",producers.empty(), this->getName().c_str());
+			snprintf(szBuf,8096,"produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]",producers.empty(), this->getName().c_str());
 			aiInterface->printLog(4, szBuf);
 
 			// Narrow down producers list to those who are not busy if possible
@@ -920,9 +920,9 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 			for(unsigned int i = 0; i < producers.size(); ++i) {
 				int currentProducerIndex = producers[i];
 				if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
-					char szBuf[1024]="";
+					char szBuf[8096]="";
 					printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,producers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
-					sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %u, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
+					snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %u, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
 					throw megaglest_runtime_error(szBuf);
 				}
 
@@ -952,15 +952,15 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					currentProducerIndex=producers[prIndex];
 
 					if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
-						char szBuf[1024]="";
+						char szBuf[8096]="";
 						printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,producers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
-						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %u, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
+						snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %u, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)producers.size());
 						throw megaglest_runtime_error(szBuf);
 					}
 					if(prIndex >= producers.size()) {
-						char szBuf[1024]="";
+						char szBuf[8096]="";
 						printf("In [%s::%s Line: %d] prIndex >= producers.size(), currentProducerIndex = %d, i = %u,producers.size() = %lu \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,(unsigned long)producers.size());
-						sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,(unsigned long)producers.size());
+						snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %u,producers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,(unsigned long)producers.size());
 						throw megaglest_runtime_error(szBuf);
 					}
 
@@ -1018,15 +1018,15 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							currentProducerIndex=backupProducers[prIndex];
 
 							if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
-								char szBuf[1024]="";
+								char szBuf[8096]="";
 								printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = %lu\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)backupProducers.size());
-								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)backupProducers.size());
+								snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,(unsigned long)backupProducers.size());
 								throw megaglest_runtime_error(szBuf);
 							}
 							if(prIndex >= backupProducers.size()) {
-								char szBuf[1024]="";
+								char szBuf[8096]="";
 								printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = %lu \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,(unsigned long)backupProducers.size());
-								sprintf(szBuf,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,(unsigned long)backupProducers.size());
+								snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = %lu",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,(unsigned long)backupProducers.size());
 								throw megaglest_runtime_error(szBuf);
 							}
 
@@ -1062,7 +1062,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 						if(ai->outputAIBehaviourToConsole()) printf("mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
 						//aiInterface->printLog(4, "mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
-						sprintf(szBuf,"mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
+						snprintf(szBuf,8096,"mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
 						aiInterface->printLog(4, szBuf);
 
 						aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
@@ -1082,7 +1082,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 						if(ai->outputAIBehaviourToConsole()) printf("mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 						//aiInterface->printLog(4, "mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-						sprintf(szBuf,"mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+						snprintf(szBuf,8096,"mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 						aiInterface->printLog(4, szBuf);
 
 						aiInterface->giveCommand(bestIndex, defCt);
@@ -1105,7 +1105,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 						if(ai->outputAIBehaviourToConsole()) printf("mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 						//aiInterface->printLog(4, "mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-						sprintf(szBuf,"mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+						snprintf(szBuf,8096,"mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 						aiInterface->printLog(4, szBuf);
 
 						aiInterface->giveCommand(bestIndex, defCt);
@@ -1123,7 +1123,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					}
 					if(ai->outputAIBehaviourToConsole()) printf("mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 					//aiInterface->printLog(4, "mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-					sprintf(szBuf,"mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+					snprintf(szBuf,8096,"mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 					aiInterface->printLog(4, szBuf);
 
 					aiInterface->giveCommand(bestIndex, defCt);
@@ -1147,7 +1147,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 				if(ai->outputAIBehaviourToConsole()) printf("produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 				//aiInterface->printLog(4, "produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-				sprintf(szBuf,"produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+				snprintf(szBuf,8096,"produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 				aiInterface->printLog(4, szBuf);
 
 				aiInterface->giveCommand(producerIndex, defCt);

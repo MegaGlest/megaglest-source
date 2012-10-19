@@ -90,8 +90,8 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	treePath = currentPath;
 	name= lastDir(currentPath);
 
-	char szBuf[1024]="";
-	sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingTechtree","",true).c_str(),formatString(name).c_str());
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingTechtree","",true).c_str(),formatString(name).c_str());
 	Logger::getInstance().add(szBuf, true);
 
 	vector<string> filenames;
@@ -201,8 +201,8 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
 			string factionName = *it;
 
-		    char szBuf[1024]="";
-		    sprintf(szBuf,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),
+		    char szBuf[8096]="";
+		    snprintf(szBuf,8096,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),
 		    		Lang::getInstance().get("Faction").c_str(),
 		    		i+1,
 		    		(int)factions.size(),
@@ -293,8 +293,8 @@ std::vector<std::string> TechTree::validateResourceTypes() {
 
 		for (unsigned int i = 0; i < resourceTypesNotUsed.size(); ++i) {
 			const ResourceType &rt = resourceTypesNotUsed[i];
-			char szBuf[4096]="";
-			sprintf(szBuf,"The Resource type [%s] is not used by any units in this techtree!",rt.getName().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"The Resource type [%s] is not used by any units in this techtree!",rt.getName().c_str());
 			results.push_back(szBuf);
 		}
 	}
@@ -346,7 +346,7 @@ const ResourceType *TechTree::getFirstTechResourceType() const{
      }
 
      char szBuf[8096]="";
-     sprintf(szBuf,"The referenced tech tree [%s] is either missing or has no resources defined but at least one resource is required.",this->name.c_str());
+     snprintf(szBuf,8096,"The referenced tech tree [%s] is either missing or has no resources defined but at least one resource is required.",this->name.c_str());
 	 //throw megaglest_runtime_error("This tech tree has no resources defined, at least one is required");
      throw megaglest_runtime_error(szBuf);
 }

@@ -51,8 +51,8 @@ BaseThread::~BaseThread() {
 
 	MutexSafeWrapper safeMutexMasterList(&mutexMasterThreadList);
 	if(masterThreadList.find(this) == masterThreadList.end()) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"invalid thread delete for ptr: %p",this);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"invalid thread delete for ptr: %p",this);
 		throw megaglest_runtime_error(szBuf);
 	}
 	masterThreadList[this]--;

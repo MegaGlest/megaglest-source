@@ -158,47 +158,6 @@ string PlatformExceptionHandler::getStackTrace() {
 		 return result;
 	 }
 #ifndef __MINGW32__
-/*
-	 unsigned int   i;
-	 const int max_stack_count = 25;
-     void         * stack[ max_stack_count ];
-     unsigned short frames;
-     SYMBOL_INFO  * symbol;
-     HANDLE         process;
-
-     process = GetCurrentProcess();
-
-     SymInitialize( process, NULL, TRUE );
-
-     frames               = CaptureStackBackTrace( 0, max_stack_count, stack, NULL );
-     symbol               = ( SYMBOL_INFO * )calloc( sizeof( SYMBOL_INFO ) + 256 * sizeof( char ), 1 );
-     symbol->MaxNameLen   = 255;
-     symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
-
-     IMAGEHLP_LINE li = { sizeof( IMAGEHLP_LINE ) };
-
-	 char szBuf[8096]="";
-     for( i = 0; i < frames; i++ ) {
-         DWORD off=0;
-   	     DWORD dwDisp=0;
-
-         SymFromAddr( process, ( DWORD64 )( stack[ i ] ), 0, symbol );
-		 SymGetLineFromAddr(process, ( DWORD64 )( stack[ i ] ), &dwDisp, &li);
-
-        //if( SymGetSymFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &off, &si.sym) &&
-		//	SymGetLineFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &dwDisp, &li)) {
-        char *del = strrchr(li.FileName, '\\');
-        //formatstring(t)("%s - %s [%d]\n", symbol.sym.Name, del ? del + 1 : li.FileName, li.LineNumber+dwDisp);
-        //concatstring(out, t);
-        
-		 
-         //sprintf(szBuf,"%i: %s - 0x%0X\n", frames - i - 1, symbol->Name, symbol->Address );
-		 sprintf(szBuf,"%s - %s [%d]\n", symbol->Name, del ? del + 1 : li.FileName, li.LineNumber+dwDisp);
-		 result += szBuf;
-     }
-
-     free( symbol );
-*/
 
     CONTEXT context = { 0 };
     context.ContextFlags = CONTEXT_FULL;
@@ -245,7 +204,7 @@ string PlatformExceptionHandler::getStackTrace() {
 			// RetAddr Arg1 Arg2 Arg3 module!funtion FileName(line)+offset
 
 			char szBuf[8096]="";
-            sprintf(szBuf,"%08lx %08lx %08lx %08lx %s!%s %s(%lu) %+ld\n",
+            snprintf(szBuf,8096,"%08lx %08lx %08lx %08lx %s!%s %s(%lu) %+ld\n",
                    stackframe.AddrReturn.Offset,
                    stackframe.Params[0],
                    stackframe.Params[1],

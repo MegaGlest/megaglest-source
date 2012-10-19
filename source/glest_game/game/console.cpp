@@ -110,8 +110,8 @@ void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textCo
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
@@ -144,8 +144,8 @@ void Console::addLine(string line, bool playSound, string playerName, Vec3f text
 		}
 	}
 	catch(const exception &ex) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}

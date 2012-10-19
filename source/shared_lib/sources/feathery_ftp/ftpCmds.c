@@ -65,14 +65,14 @@ int ftpSendMsg(msgmode_E mode, int sessionId, int ret, const char* msg)
 
 	if(mode == MSG_QUOTE)
 	{
-		sprintf((char*)buf, "%03d \"", ret);
+		snprintf((char*)buf, 6,"%03d \"", ret);
 		sentlen += ftpSend(ftpGetSession(sessionId)->ctrlSocket, buf, 5);
 		sentlen += ftpSend(ftpGetSession(sessionId)->ctrlSocket, msg, len);
 		sentlen += ftpSend(ftpGetSession(sessionId)->ctrlSocket, "\"\r\n", 3);
 	}
 	else
 	{
-		sprintf((char*)buf, "%03d ", ret);
+		snprintf((char*)buf, 6,"%03d ", ret);
 		sentlen += ftpSend(ftpGetSession(sessionId)->ctrlSocket, buf, 4);
 		sentlen += ftpSend(ftpGetSession(sessionId)->ctrlSocket, msg, len);
 		sentlen += ftpSend(ftpGetSession(sessionId)->ctrlSocket, "\r\n", 2);
@@ -330,7 +330,7 @@ LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int 
 
 					if(currTime.year == fileInfo.mTime.year)
 					{
-						len = sprintf((char*)&scratchBuf[1], "rwxrwxrwx %4u %-8s %-8s %8u %s %02d %02d:%02d %s\r\n",
+						len = snprintf((char*)&scratchBuf[1], LEN_SCRATCHBUF-1,"rwxrwxrwx %4u %-8s %-8s %8u %s %02d %02d:%02d %s\r\n",
 								fileInfo.links,
 								fileInfo.user,
 								fileInfo.group,
@@ -343,7 +343,7 @@ LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int 
 					}
 					else
 					{
-						len = sprintf((char*)&scratchBuf[1], "rwxrwxrwx %4u %-8s %-8s %8u %s %02d %5d %s\r\n",
+						len = snprintf((char*)&scratchBuf[1], LEN_SCRATCHBUF-1,"rwxrwxrwx %4u %-8s %-8s %8u %s %02d %5d %s\r\n",
 								fileInfo.links,
 								fileInfo.user,
 								fileInfo.group,
@@ -358,32 +358,32 @@ LOCAL int sendListing(socket_t dataSocket, int sessionId, const char* path, int 
 				}
 				else if(format & NLST)
 				{
-					len = sprintf((char*)scratchBuf, "%s\r\n", dirEntry);
+					len = snprintf((char*)scratchBuf, LEN_SCRATCHBUF,"%s\r\n", dirEntry);
 					ftpSend(dataSocket, scratchBuf, len);
 					haveAnySuccessfulFiles = 1;
 				}
 				else if(format & MLSD)
 				{
 					if(!strcmp("..", dirEntry))
-						len = sprintf((char*)scratchBuf, "Type=pdir");
+						len = snprintf((char*)scratchBuf, LEN_SCRATCHBUF,"Type=pdir");
 					else
 					{
 						switch(fileInfo.type)
 						{
 						default:
 						case TYPE_FILE:
-							len = sprintf((char*)scratchBuf, "Type=file");
+							len = snprintf((char*)scratchBuf, LEN_SCRATCHBUF,"Type=file");
 							break;
 						case TYPE_DIR:
-							len = sprintf((char*)scratchBuf, "Type=dir");
+							len = snprintf((char*)scratchBuf, LEN_SCRATCHBUF,"Type=dir");
 							break;
 						case TYPE_LINK:
-							len = sprintf((char*)scratchBuf, "Type=OS.unix=slink");
+							len = snprintf((char*)scratchBuf, LEN_SCRATCHBUF,"Type=OS.unix=slink");
 							break;
 						}
 					}
 					ftpSend(dataSocket, scratchBuf, len);
-					len = sprintf((char*)scratchBuf, ";Size=%u;Modify=%04d%02d%02d%02d%02d%02d;Perm=r; %s\r\n",
+					len = snprintf((char*)scratchBuf, LEN_SCRATCHBUF,";Size=%u;Modify=%04d%02d%02d%02d%02d%02d;Perm=r; %s\r\n",
 							fileInfo.size,
 							fileInfo.mTime.year,
 							fileInfo.mTime.month,
@@ -756,7 +756,7 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
 
         remoteFTPServerIp = ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp);
 
-        sprintf(str, "%s (%d,%d,%d,%d,%d,%d)",
+        snprintf(str, 50,"%s (%d,%d,%d,%d,%d,%d)",
                 ftpMsg029,
                 (remoteFTPServerIp >> 24) & 0xFF,
                 (remoteFTPServerIp >> 16) & 0xFF,
@@ -770,7 +770,7 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
     }
     else
     {
-        sprintf(str, "%s (%d,%d,%d,%d,%d,%d)",
+        snprintf(str, 50,"%s (%d,%d,%d,%d,%d,%d)",
                 ftpMsg029,
                 (ip >> 24) & 0xFF,
                 (ip >> 16) & 0xFF,
@@ -820,7 +820,7 @@ LOCAL int ftpCmdSize(int sessionId, const char* args, int len)
         return 2;
     }
 
-    sprintf(str, "%d", fileInfo.size);
+    snprintf(str, 12,"%d", fileInfo.size);
    	ftpSendMsg(MSG_NORMAL, sessionId, 213, str);
 
 
@@ -841,7 +841,7 @@ LOCAL int ftpCmdMdtm(int sessionId, const char* args, int len)
         return 2;
     }
 
-    sprintf(str, "%04d%02d%02d%02d%02d%02d", fileInfo.mTime.year,
+    snprintf(str, 15,"%04d%02d%02d%02d%02d%02d", fileInfo.mTime.year,
 											 fileInfo.mTime.month,
 											 fileInfo.mTime.day,
 											 fileInfo.mTime.hour,

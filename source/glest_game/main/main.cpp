@@ -934,12 +934,12 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 #endif
 					if(f == NULL) {
 						Lang &lang= Lang::getInstance();
-						char szBuf[1024]="";
+						char szBuf[8096]="";
 						if(lang.get("ScreenshotSavedTo").length() > 0 && lang.get("ScreenshotSavedTo")[0] != '?') {
-							sprintf(szBuf,lang.get("ScreenshotSavedTo").c_str(),path.c_str());
+							snprintf(szBuf,8096,lang.get("ScreenshotSavedTo").c_str(),path.c_str());
 						}
 						else {
-							sprintf(szBuf,"Screenshot will be saved to: %s",path.c_str());
+							snprintf(szBuf,8096,"Screenshot will be saved to: %s",path.c_str());
 						}
 
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
@@ -1385,8 +1385,8 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 				purgeCount++;
 
 				if(svnPurgeFiles == true) {
-					char szBuf[4096]="";
-					sprintf(szBuf,"svn delete \"%s\"",foundFile.c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"svn delete \"%s\"",foundFile.c_str());
 					bool svnOk = executeShellCommand(szBuf,0);
 					if(svnOk == false) {
 						throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
@@ -1488,8 +1488,8 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 								if(svnPurgeFiles == true) {
 									copyFileTo(duplicateFile, expandedNewCommonFileName);
 
-									char szBuf[4096]="";
-									sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
+									char szBuf[8096]="";
+									snprintf(szBuf,8096,"svn delete \"%s\"",duplicateFile.c_str());
 									bool svnOk = executeShellCommand(szBuf,0);
 									if(svnOk == false) {
 										throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
@@ -1500,9 +1500,9 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 									//int result = 0;
 									int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 									if(result != 0) {
-										char szBuf[4096]="";
+										char szBuf[8096]="";
 										char *errmsg = strerror(errno);
-										sprintf(szBuf,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+										snprintf(szBuf,8096,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 										throw megaglest_runtime_error(szBuf);
 									}
 									else {
@@ -1512,8 +1512,8 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 							}
 							else {
 								if(svnPurgeFiles == true) {
-									char szBuf[4096]="";
-									sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
+									char szBuf[8096]="";
+									snprintf(szBuf,8096,"svn delete \"%s\"",duplicateFile.c_str());
 									bool svnOk = executeShellCommand(szBuf,0);
 									if(svnOk == false) {
 										throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
@@ -1549,8 +1549,8 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 										bool foundText = searchAndReplaceTextInFile(parentFile, searchText, newCommonFileName, false);
 										printf("foundText = %d\n",foundText);
 										if(foundText == false) {
-											char szBuf[4096]="";
-											sprintf(szBuf,"Line ref = %d, Error finding text [%s] in file [%s]",__LINE__,searchText.c_str(),parentFile.c_str());
+											char szBuf[8096]="";
+											snprintf(szBuf,8096,"Line ref = %d, Error finding text [%s] in file [%s]",__LINE__,searchText.c_str(),parentFile.c_str());
 											throw megaglest_runtime_error(szBuf);
 										}
 										mapUniqueParentList[parentFile]++;
@@ -1596,7 +1596,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 									if(foundText == false) {
 
 										char szBuf[8096]="";
-										sprintf(szBuf,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+										snprintf(szBuf,8096,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
 										printf("\n\n=================================================\n%s",szBuf);
 
 										throw megaglest_runtime_error(szBuf);
@@ -1825,8 +1825,8 @@ void runTechValidationForPath(string techPath, string techName,
 						purgeCount++;
 
 						if(svnPurgeFiles == true) {
-							char szBuf[4096]="";
-							sprintf(szBuf,"svn delete \"%s\"",foundFile.c_str());
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"svn delete \"%s\"",foundFile.c_str());
 							bool svnOk = executeShellCommand(szBuf,0);
 							if(svnOk == false) {
 								throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
@@ -1855,8 +1855,8 @@ void runTechValidationForPath(string techPath, string techName,
 					checksum.addFile(fileName);
 					uint32 crcValue = checksum.getSum();
 					if(crcValue == 0) {
-						char szBuf[4096]="";
-						sprintf(szBuf,"Error calculating CRC for file [%s]",fileName.c_str());
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"Error calculating CRC for file [%s]",fileName.c_str());
 						throw megaglest_runtime_error(szBuf);
 					}
 	//				else {
@@ -1965,8 +1965,8 @@ void runTechValidationForPath(string techPath, string techName,
 										if(svnPurgeFiles == true) {
 											copyFileTo(duplicateFile, expandedNewCommonFileName);
 
-											char szBuf[4096]="";
-											sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
+											char szBuf[8096]="";
+											snprintf(szBuf,8096,"svn delete \"%s\"",duplicateFile.c_str());
 											bool svnOk = executeShellCommand(szBuf,0);
 											if(svnOk == false) {
 												throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
@@ -1979,9 +1979,9 @@ void runTechValidationForPath(string techPath, string techName,
 
 											int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 											if(result != 0) {
-												char szBuf[4096]="";
+												char szBuf[8096]="";
 												char *errmsg = strerror(errno);
-												sprintf(szBuf,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+												snprintf(szBuf,8096,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 												throw megaglest_runtime_error(szBuf);
 											}
 											else {
@@ -1991,8 +1991,8 @@ void runTechValidationForPath(string techPath, string techName,
 									}
 									else {
 										if(svnPurgeFiles == true) {
-											char szBuf[4096]="";
-											sprintf(szBuf,"svn delete \"%s\"",duplicateFile.c_str());
+											char szBuf[8096]="";
+											snprintf(szBuf,8096,"svn delete \"%s\"",duplicateFile.c_str());
 											bool svnOk = executeShellCommand(szBuf,0);
 											if(svnOk == false) {
 												throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
@@ -2051,15 +2051,11 @@ void runTechValidationForPath(string techPath, string techName,
 														//printf("Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
 
 														char szBuf[8096]="";
-														sprintf(szBuf,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+														snprintf(szBuf,8096,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
 														printf("\n\n=================================================\n%s",szBuf);
 
 														throw megaglest_runtime_error(szBuf);
 													}
-
-													//char szBuf[4096]="";
-													//sprintf(szBuf,"Error finding text [%s] in file [%s]",searchText.c_str(),parentFile.c_str());
-													//throw megaglest_runtime_error(szBuf);
 												}
 												mapUniqueParentList[parentFile]++;
 											}
@@ -2122,7 +2118,7 @@ void runTechValidationForPath(string techPath, string techName,
 													foundText = searchAndReplaceTextInFile(parentFile, newCommonFileName, newCommonFileName, true);
 													if(foundText == false) {
 														char szBuf[8096]="";
-														sprintf(szBuf,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
+														snprintf(szBuf,8096,"Line ref = %d, Error finding text\n[%s]\nin file\n[%s]\nnew Common File [%s]\n",__LINE__,searchText.c_str(),parentFile.c_str(),newCommonFileName.c_str());
 														printf("\n\n=================================================\n%s",szBuf);
 
 														throw megaglest_runtime_error(szBuf);
@@ -2645,8 +2641,8 @@ void CheckForDuplicateData() {
 	else if(invalidMapList.empty() == false) {
 		string errorMsg = "Warning invalid maps were detected (will be ignored):\n";
 		for(int i = 0; i < invalidMapList.size(); ++i) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"map [%s]\n",invalidMapList[i].c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"map [%s]\n",invalidMapList[i].c_str());
 
 			errorMsg += szBuf;
 		}
@@ -2682,15 +2678,15 @@ void CheckForDuplicateData() {
 			newFile = newFile.substr( 0, newFile.length()-ext.length()-1);
 			newFile = newFile + "_custom." + ext;
 
-			char szBuf[4096]="";
+			char szBuf[8096]="";
 			int result = rename(oldFile.c_str(),newFile.c_str());
 			if(result != 0) {
 				char *errmsg = strerror(errno);
-				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
+				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			else {
-				sprintf(szBuf,"map [%s] in [%s]\nwas renamed to [%s]",duplicateMapsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
+				snprintf(szBuf,8096,"map [%s] in [%s]\nwas renamed to [%s]",duplicateMapsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
 			}
 			errorMsg += szBuf;
 		}
@@ -2733,15 +2729,15 @@ void CheckForDuplicateData() {
 			string newFile = currentPath + duplicateTilesetsToRename[i];
 			newFile = newFile + "_custom";
 
-			char szBuf[4096]="";
+			char szBuf[8096]="";
 			int result = rename(oldFile.c_str(),newFile.c_str());
 			if(result != 0) {
 				char *errmsg = strerror(errno);
-				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
+				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			else {
-				sprintf(szBuf,"tileset [%s] in [%s]\nwas renamed to [%s]",duplicateTilesetsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
+				snprintf(szBuf,8096,"tileset [%s] in [%s]\nwas renamed to [%s]",duplicateTilesetsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
 
 				string tilesetName = extractFileFromDirectoryPath(oldFile);
 				oldFile = newFile + "/" + tilesetName + ".xml";
@@ -2789,15 +2785,15 @@ void CheckForDuplicateData() {
 			string newFile = currentPath + duplicateTechtreesToRename[i];
 			newFile = newFile + "_custom";
 
-			char szBuf[4096]="";
+			char szBuf[8096]="";
 			int result = rename(oldFile.c_str(),newFile.c_str());
 			if(result != 0) {
 				char *errmsg = strerror(errno);
-				sprintf(szBuf,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
+				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			else {
-				sprintf(szBuf,"techtree [%s] in [%s]\nwas renamed to [%s]",duplicateTechtreesToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
+				snprintf(szBuf,8096,"techtree [%s] in [%s]\nwas renamed to [%s]",duplicateTechtreesToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
 
 				string tilesetName = extractFileFromDirectoryPath(oldFile);
 				oldFile = newFile + "/" + tilesetName + ".xml";
@@ -4293,7 +4289,7 @@ int glestMain(int argc, char** argv) {
 
 					if(fileExists(fileName) == false) {
 						char szBuf[8096]="";
-						sprintf(szBuf,"File specified for loading a saved game cannot be found: [%s]",fileName.c_str());
+						snprintf(szBuf,8096,"File specified for loading a saved game cannot be found: [%s]",fileName.c_str());
 						printf("\n\n======================================================================================\n%s\n======================================================================================\n\n\n",szBuf);
 
 						throw megaglest_runtime_error(szBuf);
@@ -4535,7 +4531,7 @@ int glestMain(int argc, char** argv) {
 				SDL_PumpEvents();
 
 				int result = 0;
-				char szTextBuf[1024]="";
+				char szTextBuf[8096]="";
 				for(unsigned int i =0; i < models.size(); ++i) {
 					string &file = models[i];
 					bool modelLoadedOk = false;
@@ -4543,7 +4539,7 @@ int glestMain(int argc, char** argv) {
 					renderer.clearBuffers();
 					renderer.clearZBuffer();
 					renderer.reset2d();
-				    sprintf(szTextBuf,"Please wait, converting models [%u of %lu] ...",i,(long int)models.size());
+				    snprintf(szTextBuf,8096,"Please wait, converting models [%u of %lu] ...",i,(long int)models.size());
 
 				    if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
 						renderer.renderText3D(
@@ -4910,8 +4906,8 @@ int glestMain(int argc, char** argv) {
 
 #if defined(__GNUC__)  && !defined(__FreeBSD__) && !defined(BSD)
 void handleSIGSEGV(int sig) {
-    char szBuf[4096]="";
-    sprintf(szBuf, "In [%s::%s Line: %d] Error detected: signal %d:\n",__FILE__,__FUNCTION__,__LINE__, sig);
+    char szBuf[8096]="";
+    snprintf(szBuf, 8096,"In [%s::%s Line: %d] Error detected: signal %d:\n",__FILE__,__FUNCTION__,__LINE__, sig);
     printf("%s",szBuf);
     //abort();
 

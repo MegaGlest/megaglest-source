@@ -167,8 +167,8 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 	try {
 		//Lang &lang= Lang::getInstance();
 
-		char szBuf[1024]="";
-		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingUnitType","",true).c_str(),formatString(name).c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUnitType","",true).c_str(),formatString(name).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		//file load
@@ -600,7 +600,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		const XmlNode *skillsNode= unitNode->getChild("skills");
 		skillTypes.resize(skillsNode->getChildCount());
 
-		sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(name).c_str(),skillTypes.size());
+		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(name).c_str(),skillTypes.size());
 		Logger::getInstance().add(szBuf, true);
 
 		for(int i = 0; i < skillTypes.size(); ++i) {
@@ -612,8 +612,6 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 			skillType->load(sn, attackBoostsNode, dir, techTree, factionType, loadedFileList,sourceXMLFile);
 			skillTypes[i]= skillType;
 
-			//sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(name).c_str(),i+1,skillTypes.size());
-			//Logger::getInstance().add(szBuf, true);
 		}
 
 		//commands
@@ -980,8 +978,8 @@ const CommandType* UnitType::findCommandTypeById(int id) const{
 
 const CommandType *UnitType::getCommandType(int i) const {
 	if(i >= commandTypes.size()) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = %lu",__FILE__,__FUNCTION__,__LINE__,i,(unsigned long)commandTypes.size());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = %lu",__FILE__,__FUNCTION__,__LINE__,i,(unsigned long)commandTypes.size());
 		throw megaglest_runtime_error(szBuf);
 	}
 	return commandTypes[i];

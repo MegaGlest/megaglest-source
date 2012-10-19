@@ -448,7 +448,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 		//string sErrBuf = "";
 		//if(ex.wantStackTrace() == true) {
 		char szErrBuf[8096]="";
-		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
 		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		//}
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
@@ -2495,8 +2495,8 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 					luaArguments.getGenericData(-args+7));
 		}
 		else {
-			char szBuf[1024]="";
-			sprintf(szBuf,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -2603,8 +2603,8 @@ if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags
 					luaArguments.getGenericData(-args+7));
 		}
 		else {
-			char szBuf[1024]="";
-			sprintf(szBuf,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -2684,8 +2684,8 @@ int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
 					luaArguments.getGenericData(-args+7));
 		}
 		else {
-			char szBuf[1024]="";
-			sprintf(szBuf,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
 			throw megaglest_runtime_error(szBuf);
 		}
 

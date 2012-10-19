@@ -466,7 +466,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		}
 		catch(const std::exception &ex) {
 		    char szBuf[8096]="";
-		    sprintf(szBuf,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
+		    snprintf(szBuf,8096,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
 		    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -884,8 +884,8 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 
 	    if(curlResult != CURLE_OK) {
 			string curlError = curl_easy_strerror(curlResult);
-			char szBuf[1024]="";
-			sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
 			console.addLine(string("#1 ") + szBuf,true);
 	    }
 
@@ -903,8 +903,8 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 
 		    if(curlResult != CURLE_OK) {
 				string curlError = curl_easy_strerror(curlResult);
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
 				console.addLine(string("#2 ") + szBuf,true);
 		    }
 
@@ -918,8 +918,8 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 
 		    if(curlResult != CURLE_OK) {
 				string curlError = curl_easy_strerror(curlResult);
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
 				console.addLine(string("#3 ") + szBuf,true);
 		    }
 
@@ -928,8 +928,8 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 
 		    if(curlResult != CURLE_OK) {
 				string curlError = curl_easy_strerror(curlResult);
-				char szBuf[1024]="";
-				sprintf(szBuf,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,lang.get("ModErrorGettingServerData").c_str(),curlError.c_str());
 				console.addLine(string("#4 ") + szBuf,true);
 		    }
 		}
@@ -1118,12 +1118,12 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	Lang &lang= Lang::getInstance();
     		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
     		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-						char szMsg[1024]="";
+						char szMsg[8096]="";
 						if(lang.hasString("DataMissingMapNowDownloading",languageList[i]) == true) {
-							sprintf(szMsg,lang.get("DataMissingMapNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
+							snprintf(szMsg,8096,lang.get("DataMissingMapNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
 						}
 						else {
-							sprintf(szMsg,"Player: %s is attempting to download the map: %s",getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
+							snprintf(szMsg,8096,"Player: %s is attempting to download the map: %s",getHumanPlayerName().c_str(),getMissingMapFromFTPServer.c_str());
 						}
 						bool localEcho = lang.isLanguageLocal(languageList[i]);
 						clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -1153,12 +1153,12 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	Lang &lang= Lang::getInstance();
     		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
     		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-						char szMsg[1024]="";
+						char szMsg[8096]="";
 						if(lang.hasString("DataMissingTilesetNowDownloading",languageList[i]) == true) {
-							sprintf(szMsg,lang.get("DataMissingTilesetNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
+							snprintf(szMsg,8096,lang.get("DataMissingTilesetNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
 						}
 						else {
-							sprintf(szMsg,"Player: %s is attempting to download the tileset: %s",getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
+							snprintf(szMsg,8096,"Player: %s is attempting to download the tileset: %s",getHumanPlayerName().c_str(),getMissingTilesetFromFTPServer.c_str());
 						}
 						bool localEcho = lang.isLanguageLocal(languageList[i]);
 						clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -1188,12 +1188,12 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		    	Lang &lang= Lang::getInstance();
     		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
     		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-						char szMsg[1024]="";
+						char szMsg[8096]="";
 						if(lang.hasString("DataMissingTechtreeNowDownloading",languageList[i]) == true) {
-							sprintf(szMsg,lang.get("DataMissingTechtreeNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
+							snprintf(szMsg,8096,lang.get("DataMissingTechtreeNowDownloading",languageList[i]).c_str(),getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
 						}
 						else {
-							sprintf(szMsg,"Player: %s is attempting to download the techtree: %s",getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
+							snprintf(szMsg,8096,"Player: %s is attempting to download the techtree: %s",getHumanPlayerName().c_str(),getMissingTechtreeFromFTPServer.c_str());
 						}
 						bool localEcho = lang.isLanguageLocal(languageList[i]);
 						clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -1292,12 +1292,12 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 	            if(lang.hasString("CancelDownloadsMsg",languageList[i]) == true) {
-	            	sprintf(szMsg,lang.get("CancelDownloadsMsg",languageList[i]).c_str(),getHumanPlayerName().c_str());
+	            	snprintf(szMsg,8096,lang.get("CancelDownloadsMsg",languageList[i]).c_str(),getHumanPlayerName().c_str());
 	            }
 	            else {
-	            	sprintf(szMsg,"Player: %s cancelled all file downloads.",getHumanPlayerName().c_str());
+	            	snprintf(szMsg,8096,"Player: %s cancelled all file downloads.",getHumanPlayerName().c_str());
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
@@ -1707,7 +1707,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -1849,12 +1849,12 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
     	ClientInterface *clientInterface = networkManager.getClientInterface();
     	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
-			char szMsg[1024]="";
+			char szMsg[8096]="";
 			if(lang.hasString("DataMissingMap=Player",languageList[i]) == true) {
-				sprintf(szMsg,lang.get("DataMissingMap=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxMap.getSelectedItem().c_str());
+				snprintf(szMsg,8096,lang.get("DataMissingMap=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxMap.getSelectedItem().c_str());
 			}
 			else {
-				sprintf(szMsg,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),listBoxMap.getSelectedItem().c_str());
+				snprintf(szMsg,8096,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),listBoxMap.getSelectedItem().c_str());
 			}
 			bool localEcho = lang.isLanguageLocal(languageList[i]);
 			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -1872,12 +1872,12 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
     	ClientInterface *clientInterface = networkManager.getClientInterface();
     	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
-			char szMsg[1024]="";
+			char szMsg[8096]="";
 			if(lang.hasString("DataMissingTileset=Player",languageList[i]) == true) {
-				sprintf(szMsg,lang.get("DataMissingTileset=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxTileset.getSelectedItem().c_str());
+				snprintf(szMsg,8096,lang.get("DataMissingTileset=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxTileset.getSelectedItem().c_str());
 			}
 			else {
-				sprintf(szMsg,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),listBoxTileset.getSelectedItem().c_str());
+				snprintf(szMsg,8096,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),listBoxTileset.getSelectedItem().c_str());
 			}
 			bool localEcho = lang.isLanguageLocal(languageList[i]);
 			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -1892,12 +1892,12 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
     	ClientInterface *clientInterface = networkManager.getClientInterface();
     	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
-			char szMsg[1024]="";
+			char szMsg[8096]="";
 			if(lang.hasString("DataMissingTechtree=Player",languageList[i]) == true) {
-				sprintf(szMsg,lang.get("DataMissingTechtree=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxTechTree.getSelectedItem().c_str());
+				snprintf(szMsg,8096,lang.get("DataMissingTechtree=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxTechTree.getSelectedItem().c_str());
 			}
 			else {
-				sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),listBoxTechTree.getSelectedItem().c_str());
+				snprintf(szMsg,8096,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),listBoxTechTree.getSelectedItem().c_str());
 			}
 			bool localEcho = lang.isLanguageLocal(languageList[i]);
 			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -2456,7 +2456,7 @@ void MenuStateConnectedGame::render() {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
@@ -2926,14 +2926,6 @@ void MenuStateConnectedGame::update() {
                 label += " - data synch is ok";
             }
 
-            //std::string networkFrameString = lang.get("NetworkFramePeriod") + " " + intToStr(clientInterface->getGameSettings()->getNetworkFramePeriod());
-			//float pingTime = clientInterface->getThreadedPingMS(clientInterface->getServerIpAddress().c_str());
-			//char szBuf[1024]="";
-			//sprintf(szBuf,"%s, ping = %.2fms, %s",label.c_str(),pingTime,networkFrameString.c_str());
-			//sprintf(szBuf,"%s, %s",label.c_str(),networkFrameString.c_str());
-
-
-            //labelStatus.setText(szBuf);
             labelStatus.setText(label);
 		}
 		else {
@@ -2965,13 +2957,6 @@ void MenuStateConnectedGame::update() {
                 label += " - data synch is ok";
             }
 
-            //std::string networkFrameString = lang.get("NetworkFramePeriod") + " " + intToStr(clientInterface->getGameSettings()->getNetworkFramePeriod());
-			//float pingTime = clientInterface->getThreadedPingMS(clientInterface->getServerIpAddress().c_str());
-			//char szBuf[1024]="";
-			//sprintf(szBuf,"%s, ping = %.2fms, %s",label.c_str(),pingTime,networkFrameString.c_str());
-			//sprintf(szBuf,"%s, %s",label.c_str(),networkFrameString.c_str());
-
-            //labelStatus.setText(szBuf);
             labelStatus.setText(label);
 		}
 
@@ -3126,7 +3111,7 @@ void MenuStateConnectedGame::update() {
 		}
 		catch(const runtime_error &ex) {
 			char szBuf[8096]="";
-			sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+			snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
 			//throw megaglest_runtime_error(szBuf);
@@ -3185,12 +3170,12 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 
-					char szMsg[1024]="";
+					char szMsg[8096]="";
 					if(lang.hasString("DataMissingTechtree",languageList[i]) == true) {
-						sprintf(szMsg,lang.get("DataMissingTechtree",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+						snprintf(szMsg,8096,lang.get("DataMissingTechtree",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
 					}
 					else {
-						sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+						snprintf(szMsg,8096,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
 					}
 					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 		    	}
@@ -3256,7 +3241,7 @@ bool MenuStateConnectedGame::hasNetworkGameSettings()
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
 		showMessageBox( szBuf, "Error", false);
@@ -3343,48 +3328,6 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 
 void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
 	if(activeInputLabel != NULL) {
-		/*
-		int maxTextSize= activeInputLabel->getMaxEditWidth();
-	    for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-			if(&labelPlayerNames[i] == activeInputLabel) {
-				SDLKey key = extractKeyPressed(c);
-				if(isKeyPressed(SDLK_ESCAPE,c,false) == true || isKeyPressed(SDLK_RETURN,c,false) == true )
-				{
-					setActiveInputLabel(NULL);
-					return;
-				}
-
-				//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
-				//   (c=='-') || (c=='(') || (c==')')) {
-				if(isAllowedInputTextKey(key)) {
-					if(activeInputLabel->getText().size() < maxTextSize) {
-						string text= activeInputLabel->getText();
-
-						char szCharText[20]="";
-						sprintf(szCharText,"%c",key);
-						char *utfStr = String::ConvertToUTF8(&szCharText[0]);
-						if(utfStr != NULL) {
-							if(text.size() > 0) {
-								text.insert(text.end() -1, utfStr[0]);
-							}
-							else {
-								text = utfStr[0];
-							}
-
-							delete [] utfStr;
-
-							activeInputLabel->setText(text);
-
-							switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
-				            needToSetChangedGameSettings = true;
-				            lastSetChangedGameSettings   = time(NULL);
-						}
-					}
-				}
-			}
-	    }
-	    */
-
 		bool handled = keyPressEditLabel(c, &activeInputLabel);
 		if(handled == true) {
 			switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
@@ -3548,12 +3491,12 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 				const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 				for(unsigned int i = 0; i < languageList.size(); ++i) {
 
-					char szMsg[1024]="";
+					char szMsg[8096]="";
 					if(lang.hasString("DataMissingMap",languageList[i]) == true) {
-						sprintf(szMsg,lang.get("DataMissingMap",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+						snprintf(szMsg,8096,lang.get("DataMissingMap",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
 					}
 					else {
-						sprintf(szMsg,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
+						snprintf(szMsg,8096,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),gameSettings->getMap().c_str());
 					}
 					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 				}
@@ -3664,12 +3607,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		    	Lang &lang= Lang::getInstance();
 		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-					char szMsg[1024]="";
+					char szMsg[8096]="";
 		            if(lang.hasString("FileDownloadProgress",languageList[i]) == true) {
-		            	sprintf(szMsg,lang.get("FileDownloadProgress",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
+		            	snprintf(szMsg,8096,lang.get("FileDownloadProgress",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
 		            }
 		            else {
-		            	sprintf(szMsg,"Player: %s download progress for [%s] is %d %%",getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
+		            	snprintf(szMsg,8096,"Player: %s download progress for [%s] is %d %%",getHumanPlayerName().c_str(),itemName.c_str(),fileProgress);
 		            }
 		            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] szMsg [%s] lastProgress.first = %d, fileProgress = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szMsg,lastProgress.first,fileProgress);
 		            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
@@ -3687,12 +3630,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 			Lang &lang= Lang::getInstance();
 			const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 			for(unsigned int i = 0; i < languageList.size(); ++i) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 				if(lang.hasString("DataMissingExtractDownload",languageList[i]) == true) {
-					sprintf(szMsg,lang.get("DataMissingExtractDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+					snprintf(szMsg,8096,lang.get("DataMissingExtractDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
 				}
 				else {
-					sprintf(szMsg,"Please wait, player: %s is extracting: %s",getHumanPlayerName().c_str(),itemName.c_str());
+					snprintf(szMsg,8096,"Please wait, player: %s is extracting: %s",getHumanPlayerName().c_str(),itemName.c_str());
 				}
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] szMsg [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szMsg);
 				clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
@@ -3728,12 +3671,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingMapSuccessDownload",languageList[i]) == true) {
-	            	sprintf(szMsg,lang.get("DataMissingMapSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+	            	snprintf(szMsg,8096,lang.get("DataMissingMapSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
 	            }
 	            else {
-	            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),itemName.c_str());
+	            	snprintf(szMsg,8096,"Player: %s SUCCESSFULLY downloaded the map: %s",getHumanPlayerName().c_str(),itemName.c_str());
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
@@ -3744,12 +3687,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingMapFailDownload",languageList[i]) == true) {
-	            	sprintf(szMsg,lang.get("DataMissingMapFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,lang.get("DataMissingMapFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            else {
-	            	sprintf(szMsg,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,"Player: %s FAILED to download the map: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 
@@ -3783,12 +3726,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingTilesetSuccessDownload",languageList[i]) == true) {
-	            	sprintf(szMsg,lang.get("DataMissingTilesetSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+	            	snprintf(szMsg,8096,lang.get("DataMissingTilesetSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
 	            }
 	            else {
-	            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),itemName.c_str());
+	            	snprintf(szMsg,8096,"Player: %s SUCCESSFULLY downloaded the tileset: %s",getHumanPlayerName().c_str(),itemName.c_str());
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
@@ -3827,12 +3770,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingTilesetFailDownload",languageList[i]) == true) {
-	            	sprintf(szMsg,lang.get("DataMissingTilesetFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,lang.get("DataMissingTilesetFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            else {
-	            	sprintf(szMsg,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 
@@ -3866,12 +3809,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingTechtreeSuccessDownload",languageList[i]) == true) {
-	            	sprintf(szMsg,lang.get("DataMissingTechtreeSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+	            	snprintf(szMsg,8096,lang.get("DataMissingTechtreeSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
 	            }
 	            else {
-	            	sprintf(szMsg,"Player: %s SUCCESSFULLY downloaded the techtree: %s",getHumanPlayerName().c_str(),itemName.c_str());
+	            	snprintf(szMsg,8096,"Player: %s SUCCESSFULLY downloaded the techtree: %s",getHumanPlayerName().c_str(),itemName.c_str());
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
@@ -3912,12 +3855,12 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-				char szMsg[1024]="";
+				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingTechtreeFailDownload",languageList[i]) == true) {
-	            	sprintf(szMsg,lang.get("DataMissingTechtreeFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,lang.get("DataMissingTechtreeFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            else {
-	            	sprintf(szMsg,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 
@@ -4013,8 +3956,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					getMissingTilesetFromFTPServer = gameSettings->getTileset();
 					Lang &lang= Lang::getInstance();
 
-					char szBuf[1024]="";
-					sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingTilesetQuestion").c_str(),gameSettings->getTileset().c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"%s %s ?",lang.get("DownloadMissingTilesetQuestion").c_str(),gameSettings->getTileset().c_str());
 
 					// Is the item in the mod center?
 					if(tilesetCacheList.find(getMissingMapFromFTPServer) == tilesetCacheList.end()) {
@@ -4045,12 +3988,12 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 				for(unsigned int i = 0; i < languageList.size(); ++i) {
 
-					char szMsg[1024]="";
+					char szMsg[8096]="";
 					if(lang.hasString("DataMissingTileset",languageList[i]) == true) {
-						sprintf(szMsg,lang.get("DataMissingTileset",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+						snprintf(szMsg,8096,lang.get("DataMissingTileset",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
 					}
 					else {
-						sprintf(szMsg,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
+						snprintf(szMsg,8096,"Player: %s is missing the tileset: %s",getHumanPlayerName().c_str(),gameSettings->getTileset().c_str());
 					}
 					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 				}
@@ -4085,8 +4028,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					getMissingTechtreeFromFTPServer = gameSettings->getTech();
 					Lang &lang= Lang::getInstance();
 
-					char szBuf[1024]="";
-					sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingTechtreeQuestion").c_str(),gameSettings->getTech().c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"%s %s ?",lang.get("DownloadMissingTechtreeQuestion").c_str(),gameSettings->getTech().c_str());
 
 					// Is the item in the mod center?
 					if(techCacheList.find(getMissingTechtreeFromFTPServer) == techCacheList.end()) {
@@ -4117,12 +4060,12 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 				for(unsigned int i = 0; i < languageList.size(); ++i) {
 
-					char szMsg[1024]="";
+					char szMsg[8096]="";
 					if(lang.hasString("DataMissingTechtree",languageList[i]) == true) {
-						sprintf(szMsg,lang.get("DataMissingTechtree",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+						snprintf(szMsg,8096,lang.get("DataMissingTechtree",languageList[i]).c_str(),getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
 					}
 					else {
-						sprintf(szMsg,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
+						snprintf(szMsg,8096,"Player: %s is missing the techtree: %s",getHumanPlayerName().c_str(),gameSettings->getTech().c_str());
 					}
 					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 				}
@@ -4172,8 +4115,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					getMissingMapFromFTPServer = currentMap;
 					Lang &lang= Lang::getInstance();
 
-					char szBuf[1024]="";
-					sprintf(szBuf,"%s %s ?",lang.get("DownloadMissingMapQuestion").c_str(),currentMap.c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"%s %s ?",lang.get("DownloadMissingMapQuestion").c_str(),currentMap.c_str());
 
 					// Is the item in the mod center?
 					if(mapCacheList.find(getMissingTechtreeFromFTPServer) == mapCacheList.end()) {
@@ -4537,8 +4480,8 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
 
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
@@ -4565,7 +4508,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4605,7 +4548,7 @@ int MenuStateConnectedGame::setupTechList(string scenario) {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -4633,7 +4576,7 @@ void MenuStateConnectedGame::setupTilesetList(string scenario) {
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 

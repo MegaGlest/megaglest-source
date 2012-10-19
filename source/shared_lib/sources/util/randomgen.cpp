@@ -62,8 +62,8 @@ int RandomGen::rand() {
 int RandomGen::randRange(int min, int max){
 	assert(min<=max);
 	if(min > max) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] min > max, min = %d, max = %d",__FILE__,__FUNCTION__,__LINE__,min,max);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] min > max, min = %d, max = %d",__FILE__,__FUNCTION__,__LINE__,min,max);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -75,8 +75,8 @@ int RandomGen::randRange(int min, int max){
 //#endif
 	assert(res>=min && res<=max);
 	if(res < min || res > max) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] res < min || res > max, min = %d, max = %d, res = %d",__FILE__,__FUNCTION__,__LINE__,min,max,res);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %d, max = %d, res = %d",__FILE__,__FUNCTION__,__LINE__,min,max,res);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -88,8 +88,8 @@ int RandomGen::randRange(int min, int max){
 float RandomGen::randRange(float min, float max){
 	assert(min<=max);
 	if(min > max) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] min > max, min = %f, max = %f",__FILE__,__FUNCTION__,__LINE__,min,max);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] min > max, min = %f, max = %f",__FILE__,__FUNCTION__,__LINE__,min,max);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -102,8 +102,8 @@ float RandomGen::randRange(float min, float max){
 
 	assert(res>=min && res<=max);
 	if(res < min || res > max) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] res < min || res > max, min = %f, max = %f, res = %f",__FILE__,__FUNCTION__,__LINE__,min,max,res);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %f, max = %f, res = %f",__FILE__,__FUNCTION__,__LINE__,min,max,res);
 		throw megaglest_runtime_error(szBuf);
 	}
 

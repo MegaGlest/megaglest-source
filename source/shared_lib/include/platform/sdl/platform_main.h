@@ -487,8 +487,8 @@ int mainSetup(int argc, char **argv) {
 
     const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
     if(knownArgCount != GAME_ARG_END) {
-    	char szBuf[1024]="";
-    	sprintf(szBuf,"Internal arg count mismatch knownArgCount = %d, GAME_ARG_END = %d",knownArgCount,GAME_ARG_END);
+    	char szBuf[8096]="";
+    	snprintf(szBuf,8096,"Internal arg count mismatch knownArgCount = %d, GAME_ARG_END = %d",knownArgCount,GAME_ARG_END);
     	throw megaglest_runtime_error(szBuf);
     }
 

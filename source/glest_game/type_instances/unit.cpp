@@ -253,8 +253,8 @@ void UnitReference::loadGame(const XmlNode *rootNode,World *world) {
 	if(unitRefNode->hasAttribute("factionIndex") == true) {
 		int factionIndex = unitRefNode->getAttribute("factionIndex")->getIntValue();
 		if(factionIndex >= world->getFactionCount()) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"factionIndex >= world->getFactionCount() [%d] : [%d]",factionIndex,world->getFactionCount());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"factionIndex >= world->getFactionCount() [%d] : [%d]",factionIndex,world->getFactionCount());
 			throw megaglest_runtime_error(szBuf);
 		}
 		faction = world->getFaction(factionIndex);
@@ -595,8 +595,8 @@ void Unit::setModelFacing(CardinalDir value) {
 
 Vec2i Unit::getCenteredPos() const {
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -605,8 +605,8 @@ Vec2i Unit::getCenteredPos() const {
 
 Vec2f Unit::getFloatCenteredPos() const {
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -615,8 +615,8 @@ Vec2f Unit::getFloatCenteredPos() const {
 
 Vec2i Unit::getCellPos() const {
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -746,8 +746,8 @@ float Unit::getProgressRatio() const{
 
 float Unit::getHpRatio() const {
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -756,8 +756,8 @@ float Unit::getHpRatio() const {
 
 float Unit::getEpRatio() const {
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -771,8 +771,8 @@ float Unit::getEpRatio() const {
 
 const Level *Unit::getNextLevel() const{
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -809,8 +809,8 @@ bool Unit::isOperative() const{
 
 bool Unit::isAnimProgressBound() const{
 	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -844,8 +844,8 @@ bool Unit::isAnimProgressBound() const{
 
 bool Unit::isBeingBuilt() const{
 	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -891,8 +891,8 @@ UnitBuildInfo Unit::getBuildCommandPendingInfo() const {
 
 bool Unit::isAlly(const Unit *unit) const {
 	if(unit == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -901,8 +901,8 @@ bool Unit::isAlly(const Unit *unit) const {
 
 bool Unit::isDamaged() const {
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -911,8 +911,8 @@ bool Unit::isDamaged() const {
 
 bool Unit::isInteresting(InterestingUnitType iut) const {
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -945,13 +945,13 @@ bool Unit::isInteresting(InterestingUnitType iut) const {
 
 void Unit::setCurrSkill(const SkillType *currSkill) {
 	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	if(this->currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: this->currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: this->currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1013,8 +1013,8 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 
 void Unit::setCurrSkill(SkillClass sc) {
 	if(getType() == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1024,8 +1024,8 @@ void Unit::setCurrSkill(SkillClass sc) {
 void Unit::setTarget(const Unit *unit){
 
 	if(unit == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1170,8 +1170,8 @@ void Unit::setVisible(const bool visible) {
 
 Model *Unit::getCurrentModelPtr() {
 	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1188,8 +1188,8 @@ Model *Unit::getCurrentModelPtr() {
 
 const Model *Unit::getCurrentModel() {
 	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1231,8 +1231,8 @@ bool Unit::checkModelStateInfoForNewHpValue() {
 
 Vec3f Unit::getCurrVector() const{
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1570,8 +1570,8 @@ void Unit::create(bool startingUnit) {
 
 void Unit::born(const CommandType *ct) {
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1670,8 +1670,8 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
 
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1706,8 +1706,8 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 bool Unit::needToUpdate() {
 	assert(progress <= 1.f);
 	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1806,8 +1806,8 @@ bool Unit::update() {
 	}
 
 	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2114,8 +2114,8 @@ bool Unit::unitHasAttackBoost(const AttackBoost *boost, const Unit *source) cons
 
 bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	if(boost == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2228,8 +2228,8 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	if(boost == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2320,8 +2320,8 @@ void Unit::tick() {
 
 	if(isAlive()) {
 		if(type == NULL) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -2425,8 +2425,8 @@ int Unit::update2() {
 bool Unit::computeEp() {
 
 	if(currSkill == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2441,8 +2441,8 @@ bool Unit::computeEp() {
 	addItemToVault(&this->ep,this->ep);
 
 	if(getType() == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2454,47 +2454,11 @@ bool Unit::computeEp() {
     return false;
 }
 
-//bool Unit::computeHp() {
-//
-//	if(currSkill == NULL) {
-//		char szBuf[4096]="";
-//		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
-//		throw megaglest_runtime_error(szBuf);
-//	}
-//
-//	if(isBeingBuilt() == false) {
-//			//cost hp
-//		if(currSkill->getHpCost() > 0) {
-//			bool decHpResult = decHp(currSkill->getHpCost());
-//            if(decHpResult) {
-//
-//            	this->setCauseOfDeath(???);
-//
-//                Unit::game->getWorld()->getStats()->die(getFactionIndex());
-//                game->getScriptManager()->onUnitDied(this);
-//            }
-//		}
-//		// If we have negative costs then add life
-//		else {
-//			checkItemInVault(&this->hp,this->hp);
-//            hp += -currSkill->getHpCost();
-//            if(hp > type->getTotalMaxHp(&totalUpgrade)) {
-//                hp = type->getTotalMaxHp(&totalUpgrade);
-//            }
-//        	addItemToVault(&this->hp,this->hp);
-//
-//		}
-//	}
-//
-//
-//    return true;
-//}
-
 bool Unit::repair(){
 
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2529,8 +2493,8 @@ bool Unit::decHp(int i) {
 	checkModelStateInfoForNewHpValue();
 
 	if(type == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2669,8 +2633,8 @@ string Unit::getDesc() const {
 
 void Unit::applyUpgrade(const UpgradeType *upgradeType){
 	if(upgradeType == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: upgradeType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: upgradeType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2717,16 +2681,16 @@ void Unit::checkUnitLevel() {
 bool Unit::morph(const MorphCommandType *mct){
 
 	if(mct == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: mct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: mct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	const UnitType *morphUnitType= mct->getMorphUnit();
 
 	if(morphUnitType == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: morphUnitType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: morphUnitType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2849,8 +2813,8 @@ void Unit::deleteQueuedCommand(Command *command) {
 
 CommandResult Unit::checkCommand(Command *command) const {
 	if(command == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2880,8 +2844,8 @@ CommandResult Unit::checkCommand(Command *command) const {
 
 	//check produced
 	if(command->getCommandType() == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2902,8 +2866,8 @@ CommandResult Unit::checkCommand(Command *command) const {
 		const UnitType *builtUnit= command->getUnitType();
 
 		if(builtUnit == NULL) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: builtUnit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: builtUnit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -2919,8 +2883,8 @@ CommandResult Unit::checkCommand(Command *command) const {
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 
 		if(uct == NULL) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -2935,13 +2899,13 @@ CommandResult Unit::checkCommand(Command *command) const {
 
 void Unit::applyCommand(Command *command){
 	if(command == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	else if(command->getCommandType() == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2960,8 +2924,8 @@ void Unit::applyCommand(Command *command){
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 
 		if(uct == NULL) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -2972,13 +2936,13 @@ void Unit::applyCommand(Command *command){
 CommandResult Unit::undoCommand(Command *command){
 
 	if(command == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	else if(command->getCommandType() == NULL) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -3005,8 +2969,8 @@ CommandResult Unit::undoCommand(Command *command){
 	if(command->getCommandType()->getClass() == ccUpgrade){
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
         if(uct == NULL) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -3287,9 +3251,9 @@ void Unit::exploreCells() {
 void Unit::logSynchData(string file,int line,string source) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 
-	    char szBuf[4096]="";
+	    char szBuf[8096]="";
 
-	    sprintf(szBuf,
+	    snprintf(szBuf,8096,
 	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [%f], progress2 [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
 	    		id,
@@ -3308,26 +3272,6 @@ void Unit::logSynchData(string file,int line,string source) {
 				progress2,
 				(unitPath != NULL ? unitPath->toString().c_str() : "NULL"));
 
-/*
-	    sprintf(szBuf,
-	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, lastRotation [%f], targetRotation [%f], rotation [%f], progress [%f], progress2 [%d]\nUnit Path [%s]\n",
-	    		getFrameCount(),
-	    		id,
-				getFullName().c_str(),
-				faction->getType()->getName().c_str(),
-				//getDesc().c_str(),
-				pos.getString().c_str(),
-				lastPos.getString().c_str(),
-				targetPos.getString().c_str(),
-				targetVec.getString().c_str(),
-				meetingPos.getString().c_str(),
-				lastRotation,
-				targetRotation,
-				rotation,
-				progress,
-				progress2,
-				(unitPath != NULL ? unitPath->toString().c_str() : "NULL"));
-*/
 	    if( lastSynchDataString != string(szBuf) ||
 	    	lastFile != file ||
 	    	lastLine != line ||
@@ -3380,8 +3324,8 @@ void Unit::cleanupOldBadHarvestPos() {
 		}
 
 		if(purgeList.empty() == false) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"[cleaning old bad harvest targets] purgeList.size() [%ld]",purgeList.size());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[cleaning old bad harvest targets] purgeList.size() [%ld]",purgeList.size());
 			logSynchData(__FILE__,__LINE__,szBuf);
 
 			for(int i = 0; i < purgeList.size(); ++i) {

@@ -115,8 +115,8 @@ void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
 	map<const UpgradeType *,int>::iterator iterFind = upgradesLookup.find(upgradeType);
 	if(iterFind != upgradesLookup.end()) {
 		if(iterFind->second >= upgrades.size()) {
-			char szBuf[1024]="";
-			sprintf(szBuf,"Error canceling upgrade, iterFind->second >= upgrades.size() - [%d] : [%d]",iterFind->second,(int)upgrades.size());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Error canceling upgrade, iterFind->second >= upgrades.size() - [%d] : [%d]",iterFind->second,(int)upgrades.size());
 			throw megaglest_runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
 		}
 		int eraseIndex = iterFind->second;

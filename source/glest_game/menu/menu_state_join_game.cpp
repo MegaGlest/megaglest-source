@@ -674,7 +674,7 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 				string text= labelServerIp.getText();
 				//text.insert(text.end()-1, key);
 				char szCharText[20]="";
-				sprintf(szCharText,"%c",key);
+				snprintf(szCharText,20,"%c",key);
 				char *utfStr = String::ConvertToUTF8(&szCharText[0]);
 				if(text.size() > 0) {
 					text.insert(text.end() -1, utfStr[0]);

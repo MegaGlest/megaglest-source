@@ -168,7 +168,7 @@ XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplaceme
 	}
 	catch(const DOMException &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 
 		throw megaglest_runtime_error(szBuf);
@@ -310,7 +310,7 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
-		sprintf(szBuf,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 
 		throw megaglest_runtime_error(szBuf);

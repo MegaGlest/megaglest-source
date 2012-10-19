@@ -304,13 +304,13 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getMapFromServer(pair<string
     if(curl) {
         ftpfile.stream = NULL;
 
-        char szBuf[1024]="";
+        char szBuf[8096]="";
         if(mapFileName.second != "") {
-        	sprintf(szBuf,"%s",mapFileName.second.c_str());
+        	snprintf(szBuf,8096,"%s",mapFileName.second.c_str());
         	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
         }
         else {
-        	sprintf(szBuf,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,mapFileName.first.c_str(),destFileExt.c_str());
+        	snprintf(szBuf,8096,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,mapFileName.first.c_str(),destFileExt.c_str());
         }
 
         curl_easy_setopt(curl, CURLOPT_URL,szBuf);
@@ -511,8 +511,6 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(
             else {
             	remotePath = tileSetName.first + this->fileArchiveExtension;
             }
-        	//sprintf(szBuf,"ftp://%s:%s@%s:%d/%s%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,
-        	//		tileSetName.c_str(),this->fileArchiveExtension.c_str());
         }
         else {
         	getFolderContents = true;
@@ -523,8 +521,6 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(
             destFileSaveAsNewFile = destFileSaveAs;
             endPathWithSlash(destFileSaveAsNewFile);
             destFileSaveAs += ".tmp";
-
-        	//sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,tileSetName.c_str());
         }
     }
     else {
@@ -539,9 +535,6 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(
         destFileSaveAsNewFile = destFileSaveAs;
         endPathWithSlash(destFileSaveAsNewFile);
         destFileSaveAs += ".tmp";
-
-        //sprintf(szBuf,"ftp://%s:%s@%s:%d/%s/%s/*",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,
-        //		tileSetName.c_str(),tileSetNameSubfolder.c_str());
     }
 
     vector <string> *pWantDirListOnly = NULL;
@@ -882,13 +875,13 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
     if(curl) {
         ftpfile.stream = NULL;
 
-        char szBuf[1024]="";
+        char szBuf[8096]="";
         if(fileNameTitle.second != "") {
-        	sprintf(szBuf,"%s",fileNameTitle.second.c_str());
+        	snprintf(szBuf,8096,"%s",fileNameTitle.second.c_str());
         	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
         }
         else {
-        	sprintf(szBuf,"ftp://%s:%s@%s:%d/%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,remotePath.c_str());
+        	snprintf(szBuf,8096,"ftp://%s:%s@%s:%d/%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,remotePath.c_str());
         }
 
         curl_easy_setopt(curl, CURLOPT_URL,szBuf);

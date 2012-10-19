@@ -189,8 +189,8 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
 	catch(exception &e) {
-		char szBuf[1024]="";
-		sprintf(szBuf,"In [%s::%s Line: %d]\nError in menu event:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError in menu event:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		showErrorMessageBox(szBuf, "", true);
 	}

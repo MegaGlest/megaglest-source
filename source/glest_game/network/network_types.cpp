@@ -88,8 +88,8 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
 
 
 string NetworkCommand::toString() const {
-    char szBuf[1024]="";
-    sprintf(szBuf,"networkCommandType = %d\nunitId = %d\ncommandTypeId = %d\npositionX = %d\npositionY = %d\nunitTypeId = %d\ntargetId = %d\nwantQueue= %d\nfromFactionIndex = %d\nunitFactionUnitCount = %d\nunitFactionIndex = %d, commandStateType = %d, commandStateValue = %d, unitCommandGroupId = %d",
+    char szBuf[8096]="";
+    snprintf(szBuf,8096,"networkCommandType = %d\nunitId = %d\ncommandTypeId = %d\npositionX = %d\npositionY = %d\nunitTypeId = %d\ntargetId = %d\nwantQueue= %d\nfromFactionIndex = %d\nunitFactionUnitCount = %d\nunitFactionIndex = %d, commandStateType = %d, commandStateValue = %d, unitCommandGroupId = %d",
         networkCommandType,unitId,commandTypeId,positionX,positionY,unitTypeId,targetId,wantQueue,
         fromFactionIndex,unitFactionUnitCount,unitFactionIndex,commandStateType,commandStateValue,
         unitCommandGroupId);

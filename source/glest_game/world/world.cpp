@@ -257,7 +257,7 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 		gotError = true;
 		if(ex.wantStackTrace() == true) {
 			char szErrBuf[8096]="";
-			sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+			snprintf(szErrBuf,8096,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
 			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		}
 		else {
@@ -269,7 +269,7 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	catch(const std::exception &ex) {
 		gotError = true;
 		char szErrBuf[8096]="";
-		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
 		sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 	}
@@ -1746,8 +1746,8 @@ void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, b
 		delete unit;
 		unit = NULL;
 
-		char szBuf[4096]="";
-		sprintf(szBuf,"Unit: [%s] can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #%d name: [%s]",
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Unit: [%s] can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #%d name: [%s]",
 				unitName.c_str(),unitFactionIndex,unitFactionName.c_str());
 		throw megaglest_runtime_error(szBuf,false);
 	}
@@ -1802,7 +1802,7 @@ void World::initUnits() {
 		gotError = true;
 		if(ex.wantStackTrace() == true) {
 			char szErrBuf[8096]="";
-			sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+			snprintf(szErrBuf,8096,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
 			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		}
 		else {
@@ -1814,7 +1814,7 @@ void World::initUnits() {
 	catch(const std::exception &ex) {
 		gotError = true;
 		char szErrBuf[8096]="";
-		sprintf(szErrBuf,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
 		sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 	}
@@ -2259,8 +2259,8 @@ string World::getExploredCellsLookupItemCacheStats() {
 
 	totalBytes /= 1000;
 
-	char szBuf[1024]="";
-	sprintf(szBuf,"pos [%d] sight [%d] [%d][%d] total KB: %s",posCount,sightCount,exploredCellCount,visibleCellCount,formatNumber(totalBytes).c_str());
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,"pos [%d] sight [%d] [%d][%d] total KB: %s",posCount,sightCount,exploredCellCount,visibleCellCount,formatNumber(totalBytes).c_str());
 	result = szBuf;
 	return result;
 }
@@ -2292,8 +2292,8 @@ string World::getFowAlphaCellsLookupItemCacheStats() {
 
 	totalBytes /= 1000;
 
-	char szBuf[1024]="";
-	sprintf(szBuf,"pos [%d] sight [%d] [%d][%d] total KB: %s",posCount,sightCount,surfPosCount,alphaListCount,formatNumber(totalBytes).c_str());
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,"pos [%d] sight [%d] [%d][%d] total KB: %s",posCount,sightCount,surfPosCount,alphaListCount,formatNumber(totalBytes).c_str());
 	result = szBuf;
 	return result;
 }
@@ -2312,8 +2312,8 @@ string World::getAllFactionsCacheStats() {
 		totalCache2Size += cache2Size;
 	}
 
-	char szBuf[1024]="";
-	sprintf(szBuf,"totalCache1Size [%lu] totalCache1Size [%lu] total KB: %s",totalCache1Size,totalCache2Size,formatNumber(totalBytes).c_str());
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,"totalCache1Size [%lu] totalCache1Size [%lu] total KB: %s",totalCache1Size,totalCache2Size,formatNumber(totalBytes).c_str());
 	result = szBuf;
 	return result;
 }

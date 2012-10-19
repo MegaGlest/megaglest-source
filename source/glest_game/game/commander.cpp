@@ -520,12 +520,12 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 		networkCommand->getNetworkCommandType() != nctDisconnectNetworkPlayer) {
 		unit= world->findUnitById(networkCommand->getUnitId());
 		if(unit == NULL) {
-			char szBuf[1024]="";
-			sprintf(szBuf,"In [%s::%s - %d] Command refers to non existent unit id = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s - %d] Command refers to non existent unit id = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 			if(gameNetworkInterface != NULL) {
-				char szMsg[1024]="";
-				sprintf(szMsg,"Player detected an error: Command refers to non existent unit id = %d. Game out of synch.",networkCommand->getUnitId());
+				char szMsg[8096]="";
+				snprintf(szMsg,8096,"Player detected an error: Command refers to non existent unit id = %d. Game out of synch.",networkCommand->getUnitId());
 				gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
 			}
 			throw megaglest_runtime_error(szBuf);
@@ -677,12 +677,12 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 	    		    	Lang &lang= Lang::getInstance();
 	    		    	const vector<string> languageList = settings->getUniqueNetworkPlayerLanguages();
 	    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-							char szMsg[1024]="";
+							char szMsg[8096]="";
 							if(lang.hasString("PlayerSwitchedTeam",languageList[i]) == true) {
-								sprintf(szMsg,lang.get("PlayerSwitchedTeam",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,newTeam);
+								snprintf(szMsg,8096,lang.get("PlayerSwitchedTeam",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,newTeam);
 							}
 							else {
-								sprintf(szMsg,"Player %s switched from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,newTeam);
+								snprintf(szMsg,8096,"Player %s switched from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,newTeam);
 							}
 							bool localEcho = lang.isLanguageLocal(languageList[i]);
 							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -770,12 +770,12 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 	    		    	Lang &lang= Lang::getInstance();
 	    		    	const vector<string> languageList = settings->getUniqueNetworkPlayerLanguages();
 	    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-							char szMsg[1024]="";
+							char szMsg[8096]="";
 							if(lang.hasString("PlayerSwitchedTeam",languageList[i]) == true) {
-								sprintf(szMsg,lang.get("PlayerSwitchedTeam",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
+								snprintf(szMsg,8096,lang.get("PlayerSwitchedTeam",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
 							}
 							else {
-								sprintf(szMsg,"Player %s switched from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
+								snprintf(szMsg,8096,"Player %s switched from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
 							}
 							bool localEcho = lang.isLanguageLocal(languageList[i]);
 							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -795,12 +795,12 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 	    		    	Lang &lang= Lang::getInstance();
 	    		    	const vector<string> languageList = settings->getUniqueNetworkPlayerLanguages();
 	    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-							char szMsg[1024]="";
+							char szMsg[8096]="";
 							if(lang.hasString("PlayerSwitchedTeamDenied",languageList[i]) == true) {
-								sprintf(szMsg,lang.get("PlayerSwitchedTeamDenied",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
+								snprintf(szMsg,8096,lang.get("PlayerSwitchedTeamDenied",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
 							}
 							else {
-								sprintf(szMsg,"Player %s was denied the request to switch from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
+								snprintf(szMsg,8096,"Player %s was denied the request to switch from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
 							}
 							bool localEcho = lang.isLanguageLocal(languageList[i]);
 							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -830,22 +830,6 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
 				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 				if(gameNetworkInterface != NULL) {
-//
-//					Lang &lang= Lang::getInstance();
-//					const vector<string> languageList = settings->getUniqueNetworkPlayerLanguages();
-//					for(unsigned int i = 0; i < languageList.size(); ++i) {
-//						char szMsg[1024]="";
-//						if(lang.hasString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]) == true) {
-//							sprintf(szMsg,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),playerIndex,settings->getNetworkPlayerName(factionIndex).c_str());
-//						}
-//						else {
-//							sprintf(szMsg,"Notice - Admin is disconnecting player #%d - %s",playerIndex,settings->getNetworkPlayerName(factionIndex).c_str());
-//						}
-//						bool localEcho = lang.isLanguageLocal(languageList[i]);
-//						gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
-//					}
-//
-//					sleep(10);
 					ServerInterface *server = networkManager.getServerInterface();
 					if(server->isClientConnected(playerIndex) == true) {
 						ConnectionSlot *slot = server->getSlot(playerIndex);
@@ -995,8 +979,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkCommand [%s]\n",__FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str());
 
 	if(world == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] world == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] world == NULL for unit with id: %d",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1006,15 +990,15 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	//validate unit
 	if(unit == NULL) {
-	    char szBuf[1024]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d] Can not find unit with id: %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find unit with id: %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,networkCommand->getUnitId());
 	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
         if(gameNetworkInterface != NULL) {
-            char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Can not find unit with id: %d. Game out of synch.",networkCommand->getUnitId());
+            char szMsg[8096]="";
+            snprintf(szMsg,8096,"Player detected an error: Can not find unit with id: %d. Game out of synch.",networkCommand->getUnitId());
             gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
         }
 
@@ -1025,8 +1009,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	if(unit->getFaction()->getIndex() != networkCommand->getUnitFactionIndex()) {
 
-	    char szBuf[10400]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d]\nUnit / Faction mismatch for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nUnit / Faction mismatch for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex());
 
 	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
@@ -1036,49 +1020,24 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
         if(gameNetworkInterface != NULL && gameNetworkInterface->isConnected() == true) {
-            char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Unit / Faction mismatch for unitId: %d",networkCommand->getUnitId());
+            char szMsg[8096]="";
+            snprintf(szMsg,8096,"Player detected an error: Unit / Faction mismatch for unitId: %d",networkCommand->getUnitId());
             gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
-            sprintf(szMsg,"Local faction index = %d, remote index = %d. Game out of synch.",unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
+            snprintf(szMsg,8096,"Local faction index = %d, remote index = %d. Game out of synch.",unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
             gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
 
         }
         else if(gameNetworkInterface != NULL) {
-            char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Connection lost, possible Unit / Faction mismatch for unitId: %d",networkCommand->getUnitId());
+            char szMsg[8096]="";
+            snprintf(szMsg,8096,"Player detected an error: Connection lost, possible Unit / Faction mismatch for unitId: %d",networkCommand->getUnitId());
             gameNetworkInterface->sendTextMessage(szMsg,-1, true,"");
-            sprintf(szMsg,"Local faction index = %d, remote index = %d. Game out of synch.",unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
+            snprintf(szMsg,8096,"Local faction index = %d, remote index = %d. Game out of synch.",unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
             gameNetworkInterface->sendTextMessage(szMsg,-1, true,"");
         }
 
 	    std::string sError = "Error [#1]: Game is out of sync (Unit / Faction mismatch)\nplease check log files for details.";
 		throw megaglest_runtime_error(sError);
 	}
-/*
-    I don't think we can validate in unit type since it can be different for certain commands (like attack and build etc)
-
-	else if(networkCommand->getUnitTypeId() >= 0 &&
-            unit->getType()->getId() != networkCommand->getUnitTypeId() &&
-            ct->getClass() != ccBuild) {
-	    char szBuf[4096]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d]\nUnit / Type mismatch for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nactual local unitTypeId = %d.\nGame out of synch.",
-            __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex(),unit->getType()->getId());
-
-	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
-	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
-	    std::string worldLog = world->DumpWorldToLog();
-
-        GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-        if(gameNetworkInterface != NULL) {
-            char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Unit / Faction mismatch for unitId: %d, Local faction index = %d, remote idnex = %d. Game out of synch.",networkCommand->getUnitId(),unit->getFaction()->getIndex(),networkCommand->getUnitFactionIndex());
-            gameNetworkInterface->sendTextMessage(szMsg,-1, true);
-        }
-
-	    std::string sError = "Error [#2]: Game is out of sync (unit type mismatch)\nplease check log files for details.";
-		throw megaglest_runtime_error(sError);
-	}
-*/
 
     const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
 
@@ -1091,8 +1050,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
     //ct = NULL;
 
 	if(ct == NULL) {
-	    char szBuf[10400]="";
-	    sprintf(szBuf,"In [%s::%s Line: %d]\nCan not find command type for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nUnit Type Info:\n[%s]\nNetwork unit type:\n[%s]\nGame out of synch.",
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find command type for network command = [%s]\n%s\nfor unit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nUnit Type Info:\n[%s]\nNetwork unit type:\n[%s]\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,networkCommand->toString().c_str(),unit->getType()->getCommandTypeListDesc().c_str(),
             unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),unit->getFaction()->getIndex(),unit->getType()->toString().c_str(),
             (unitType != NULL ? unitType->getName().c_str() : "null"));
@@ -1104,8 +1063,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
         if(gameNetworkInterface != NULL) {
-            char szMsg[1024]="";
-            sprintf(szMsg,"Player detected an error: Can not find command type: %d for unitId: %d [%s]. Game out of synch.",networkCommand->getCommandTypeId(),networkCommand->getUnitId(),(unitType != NULL ? unitType->getName().c_str() : "null"));
+            char szMsg[8096]="";
+            snprintf(szMsg,8096,"Player detected an error: Can not find command type: %d for unitId: %d [%s]. Game out of synch.",networkCommand->getCommandTypeId(),networkCommand->getUnitId(),(unitType != NULL ? unitType->getName().c_str() : "null"));
             gameNetworkInterface->sendTextMessage(szMsg,-1, true, "");
         }
 
@@ -1119,8 +1078,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	if (ct->getClass() == ccBuild) {
 		//assert(networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4);
 		if(networkCommand->getTargetId() < 0 || networkCommand->getTargetId() >= 4) {
-			char szBuf[1024]="";
-			sprintf(szBuf,"networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4, [%s]",networkCommand->toString().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4, [%s]",networkCommand->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 		facing = CardinalDir(networkCommand->getTargetId());

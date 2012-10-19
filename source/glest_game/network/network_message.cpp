@@ -67,8 +67,8 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const 
 		int sendResult = socket->send(data, dataSize);
 		if(sendResult != dataSize) {
 			if(socket != NULL && socket->getSocketId() > 0) {
-				char szBuf[1024]="";
-				sprintf(szBuf,"Error sending NetworkMessage, sendResult = %d, dataSize = %d",sendResult,dataSize);
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error sending NetworkMessage, sendResult = %d, dataSize = %d",sendResult,dataSize);
 				throw megaglest_runtime_error(szBuf);
 			}
 			else {

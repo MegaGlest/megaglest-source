@@ -208,7 +208,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			Lang &lang= Lang::getInstance();
 			char szBuf[8096]="";
-			sprintf(szBuf,lang.get("LoadGameDeletingFile","",true).c_str(),filename.c_str());
+			snprintf(szBuf,8096,lang.get("LoadGameDeletingFile","",true).c_str(),filename.c_str());
 			console.addLineOnly(szBuf);
 
 			for(int i = 0; i < slots.size(); i++) {
@@ -242,7 +242,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			Lang &lang= Lang::getInstance();
 			char szBuf[8096]="";
-			sprintf(szBuf,lang.get("LoadGameLoadingFile","",true).c_str(),filename.c_str());
+			snprintf(szBuf,8096,lang.get("LoadGameLoadingFile","",true).c_str(),filename.c_str());
 			console.addLineOnly(szBuf);
 
 			Game::loadGame(filename,program,false);
@@ -290,8 +290,8 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 						const XmlNode *versionNode= rootNode;
 						string gameVer = versionNode->getAttribute("version")->getValue();
 						if(gameVer != glestVersionString) {
-							char szBuf[4096]="";
-							sprintf(szBuf,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 							infoTextLabel.setText(szBuf);
 						}
 						else {
@@ -300,8 +300,8 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 							newGameSettings.loadGame(gameNode);
 
 							//LoadSavedGameInfo=Map: %s\nTileset: %s\nTech: %s\nScenario: %s\n# players: %d\nFaction: %s
-							char szBuf[4096]="";
-							sprintf(szBuf,lang.get("LoadSavedGameInfo").c_str(),
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,lang.get("LoadSavedGameInfo").c_str(),
 									newGameSettings.getMap().c_str(),
 									newGameSettings.getTileset().c_str(),
 									newGameSettings.getTech().c_str(),

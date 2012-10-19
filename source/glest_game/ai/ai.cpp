@@ -370,7 +370,7 @@ void Ai::update() {
 		}
 
 		char szBuf[8096]="";
-		sprintf(szBuf,"AI for faction# %d voted %s [%d] CountCurrent [%d] PercentChance [%d]",aiInterface->getMyFaction()->getIndex(),(voteResult->allowSwitchTeam ? "Yes" : "No"),allowJoinTeam,factionSwitchTeamRequestCountCurrent,settings->getAiAcceptSwitchTeamPercentChance());
+		snprintf(szBuf,8096,"AI for faction# %d voted %s [%d] CountCurrent [%d] PercentChance [%d]",aiInterface->getMyFaction()->getIndex(),(voteResult->allowSwitchTeam ? "Yes" : "No"),allowJoinTeam,factionSwitchTeamRequestCountCurrent,settings->getAiAcceptSwitchTeamPercentChance());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 		aiInterface->printLog(3, szBuf);
@@ -460,7 +460,7 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
 
 		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable) {
 			char szBuf[8096]="";
-			sprintf(szBuf,"Examining resource [%s] amount [%d] (previous amount [%d]",rt->getName().c_str(),r->getAmount(),amount);
+			snprintf(szBuf,8096,"Examining resource [%s] amount [%d] (previous amount [%d]",rt->getName().c_str(),r->getAmount(),amount);
 			aiInterface->printLog(3, szBuf);
 		}
 
@@ -487,9 +487,9 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
     }
 
     char szBuf[8096]="";
-    sprintf(szBuf,"Unit [%d - %s] looking for resources (not static or consumable)",unit->getId(),unit->getType()->getName().c_str());
+    snprintf(szBuf,8096,"Unit [%d - %s] looking for resources (not static or consumable)",unit->getId(),unit->getType()->getName().c_str());
     aiInterface->printLog(3, szBuf);
-    sprintf(szBuf,"[resource type count %d] Needed resource [%s].",tt->getResourceTypeCount(),(neededResource != NULL ? neededResource->getName().c_str() : "<none>"));
+    snprintf(szBuf,8096,"[resource type count %d] Needed resource [%s].",tt->getResourceTypeCount(),(neededResource != NULL ? neededResource->getName().c_str() : "<none>"));
     aiInterface->printLog(3, szBuf);
 
     return neededResource;
@@ -504,14 +504,14 @@ bool Ai::isStableBase() {
 	UnitClass ucWorkerType = ucWorker;
     if(getCountOfClass(ucWarrior,&ucWorkerType) > minWarriors) {
         char szBuf[8096]="";
-        sprintf(szBuf,"Base is stable [minWarriors = %d found = %d]",minWarriors,ucWorkerType);
+        snprintf(szBuf,8096,"Base is stable [minWarriors = %d found = %d]",minWarriors,ucWorkerType);
         aiInterface->printLog(4, szBuf);
 
         return true;
     }
     else{
         char szBuf[8096]="";
-        sprintf(szBuf,"Base is NOT stable [minWarriors = %d found = %d]",minWarriors,ucWorkerType);
+        snprintf(szBuf,8096,"Base is NOT stable [minWarriors = %d found = %d]",minWarriors,ucWorkerType);
         aiInterface->printLog(4, szBuf);
 
         return false;

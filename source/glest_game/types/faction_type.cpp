@@ -115,8 +115,8 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 	    }
 	}
 
-	char szBuf[1024]="";
-	sprintf(szBuf,Lang::getInstance().get("LogScreenGameLoadingFactionType","",true).c_str(),formatString(name).c_str());
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingFactionType","",true).c_str(),formatString(name).c_str());
 	Logger::getInstance().add(szBuf, true);
 
 	if(personalityType == fpt_Normal) {
@@ -345,8 +345,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 	const uint32 MAX_BITRATE_WARNING = 200000;
 	StrSound *factionMusic = getMusic();
 	if(factionMusic != NULL && factionMusic->getInfo()->getBitRate() > MAX_BITRATE_WARNING) {
-		char szBuf[4096]="";
-		sprintf(szBuf,"The Faction [%s] has the music [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",this->getName().c_str(),factionMusic->getFileName().c_str(),factionMusic->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"The Faction [%s] has the music [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",this->getName().c_str(),factionMusic->getFileName().c_str(),factionMusic->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
 		results.push_back(szBuf);
 	}
 
@@ -356,16 +356,16 @@ std::vector<std::string> FactionType::validateFactionType() {
     	for(int i = 0; i < unitType.getSelectionSounds().getSounds().size(); ++i) {
     		StaticSound *sound = unitType.getSelectionSounds().getSounds()[i];
     		if(sound != NULL && sound->getInfo()->getBitRate() > MAX_BITRATE_WARNING) {
-				char szBuf[4096]="";
-				sprintf(szBuf,"The Unit [%s] in Faction [%s] has the sound [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",unitType.getName().c_str(),this->getName().c_str(),sound->getFileName().c_str(),sound->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the sound [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",unitType.getName().c_str(),this->getName().c_str(),sound->getFileName().c_str(),sound->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
 				results.push_back(szBuf);
     		}
     	}
     	for(int i = 0; i < unitType.getCommandSounds().getSounds().size(); ++i) {
     		StaticSound *sound = unitType.getCommandSounds().getSounds()[i];
     		if(sound != NULL && sound->getInfo()->getBitRate() > MAX_BITRATE_WARNING) {
-				char szBuf[4096]="";
-				sprintf(szBuf,"The Unit [%s] in Faction [%s] has the sound [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",unitType.getName().c_str(),this->getName().c_str(),sound->getFileName().c_str(),sound->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the sound [%s]\nwhich has a bitrate of [%u] which may cause some sound drivers to crash, please use a bitrate of %d or less!",unitType.getName().c_str(),this->getName().c_str(),sound->getFileName().c_str(),sound->getInfo()->getBitRate(),MAX_BITRATE_WARNING);
 				results.push_back(szBuf);
     		}
     	}
@@ -398,8 +398,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 						}
 
 						if(foundUpgraderUnit == false) {
-							char szBuf[4096]="";
-							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich has upgrade requirement [%s] but there are no units able to perform the upgrade!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),upgradeType->getName().c_str());
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich has upgrade requirement [%s] but there are no units able to perform the upgrade!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),upgradeType->getName().c_str());
 							results.push_back(szBuf);
 						}
 					}
@@ -422,8 +422,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 								// Now also validate the the unit to be built
 								// has a be_built_skill
 						    	if(buildUnit->hasSkillClass(scBeBuilt) == false) {
-									char szBuf[4096]="";
-									sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can build the Unit [%s] but the Unit to be built\ndoes not have the skill class [be_built_skill] in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),buildUnit->getName().c_str());
+									char szBuf[8096]="";
+									snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can build the Unit [%s] but the Unit to be built\ndoes not have the skill class [be_built_skill] in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),buildUnit->getName().c_str());
 									results.push_back(szBuf);
 						    	}
 
@@ -432,8 +432,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 						}
 
 						if(foundUnit == false) {
-							char szBuf[4096]="";
-							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can build the Unit [%s] but the Unit to be built does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),buildUnit->getName().c_str());
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can build the Unit [%s] but the Unit to be built does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),buildUnit->getName().c_str());
 							results.push_back(szBuf);
 						}
 					}
@@ -456,8 +456,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 						}
 
 						if(foundUnit == false) {
-							char szBuf[4096]="";
-							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can repair the Unit [%s] but the Unit to be repaired does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),repairUnit->getName().c_str());
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can repair the Unit [%s] but the Unit to be repaired does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),repairUnit->getName().c_str());
 							results.push_back(szBuf);
 						}
 					}
@@ -482,8 +482,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 						}
 
 						if(foundUnit == false) {
-							char szBuf[4096]="";
-							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can morph into the Unit [%s] but the Unit to be morphed to does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),morphUnit->getName().c_str());
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the command [%s]\nwhich can morph into the Unit [%s] but the Unit to be morphed to does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),morphUnit->getName().c_str());
 							results.push_back(szBuf);
 						}
 					}
@@ -493,8 +493,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 
     	const int maxMorphsAllowed = 6;
 		if(morphCommandCount > maxMorphsAllowed) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"The Unit [%s] in Faction [%s] has more than %d morph commands which is too many to display in the UI!",unitType.getName().c_str(),this->getName().c_str(),maxMorphsAllowed);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has more than %d morph commands which is too many to display in the UI!",unitType.getName().c_str(),this->getName().c_str(),maxMorphsAllowed);
 			results.push_back(szBuf);
 		}
 
@@ -515,8 +515,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 				}
 
 				if(foundUnit == false) {
-					char szBuf[4096]="";
-					sprintf(szBuf,"The Unit [%s] in Faction [%s] has the required Unit [%s]\nbut the required unit does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),unitType2->getName().c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the required Unit [%s]\nbut the required unit does not exist in this faction!",unitType.getName().c_str(),this->getName().c_str(),unitType2->getName().c_str());
 					results.push_back(szBuf);
 				}
 			}
@@ -594,8 +594,8 @@ std::vector<std::string> FactionType::validateFactionType() {
 		if(foundUnit == false) {
 			//printf("Problem for unit [%s] unitTypes.size() = %lu\n",unitType.getName().c_str(),unitTypes.size());
 
-			char szBuf[4096]="";
-			sprintf(szBuf,"The Unit [%s] in Faction [%s] has no other units that can produce, build or morph into it in this faction!",unitType.getName().c_str(),this->getName().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has no other units that can produce, build or morph into it in this faction!",unitType.getName().c_str(),this->getName().c_str());
 			results.push_back(szBuf);
 		}
 
@@ -606,8 +606,8 @@ std::vector<std::string> FactionType::validateFactionType() {
                 if(st != NULL && dynamic_cast<const AttackSkillType *>(st) != NULL) {
                     const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(st);
                     if(ast->getAttackVar() < 0) {
-                        char szBuf[4096]="";
-                        sprintf(szBuf,"The Unit [%s] in Faction [%s] has the skill [%s] with an INVALID attack var value which is < 0 [%d]!",unitType.getName().c_str(),this->getName().c_str(),ast->getName().c_str(),ast->getAttackVar());
+                        char szBuf[8096]="";
+                        snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the skill [%s] with an INVALID attack var value which is < 0 [%d]!",unitType.getName().c_str(),this->getName().c_str(),ast->getName().c_str(),ast->getAttackVar());
                         results.push_back(szBuf);
                     }
                 }
@@ -618,8 +618,8 @@ std::vector<std::string> FactionType::validateFactionType() {
         // Check if the unit has both be_built and harvest skills, this may cause issues
         // with the AI
         if(unitType.hasSkillClass(scBeBuilt) == true && unitType.hasSkillClass(scHarvest) == true) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"The Unit [%s] in Faction [%s] has both a bebuilt and harvest skill which will cause AI problems for CPU players!",unitType.getName().c_str(),this->getName().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has both a bebuilt and harvest skill which will cause AI problems for CPU players!",unitType.getName().c_str(),this->getName().c_str());
 			results.push_back(szBuf);
         }
         // end
@@ -627,8 +627,8 @@ std::vector<std::string> FactionType::validateFactionType() {
         // Check if the unit has harvest skills but not move, meaning they cannot
         // harvest the resource
         if(unitType.hasSkillClass(scHarvest) == true && unitType.hasSkillClass(scMove) == false) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"The Unit [%s] in Faction [%s] has a harvest skill but no move skill so it cannot harvest!",unitType.getName().c_str(),this->getName().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has a harvest skill but no move skill so it cannot harvest!",unitType.getName().c_str(),this->getName().c_str());
 			results.push_back(szBuf);
         }
         // end
@@ -661,8 +661,8 @@ std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<Re
 				}
 
 				if(foundResourceType == false) {
-					char szBuf[4096]="";
-					sprintf(szBuf,"The Unit [%s] in Faction [%s] has the resource req [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),r->getType()->getName().c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the resource req [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),r->getType()->getName().c_str());
 					results.push_back(szBuf);
 				}
     		}
@@ -685,8 +685,8 @@ std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<Re
 				}
 
 				if(foundResourceType == false) {
-					char szBuf[4096]="";
-					sprintf(szBuf,"The Unit [%s] in Faction [%s] has the stored resource [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),r->getType()->getName().c_str());
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the stored resource [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),r->getType()->getName().c_str());
 					results.push_back(szBuf);
 				}
 			}
@@ -714,8 +714,8 @@ std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<Re
 						}
 
 						if(foundResourceType == false) {
-							char szBuf[4096]="";
-							sprintf(szBuf,"The Unit [%s] in Faction [%s] has the command [%s] which can harvest the resource [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),harvestResource->getName().c_str());
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the command [%s] which can harvest the resource [%s]\nbut there are no such resources in this tech!",unitType.getName().c_str(),this->getName().c_str(),cmdType->getName().c_str(),harvestResource->getName().c_str());
 							results.push_back(szBuf);
 						}
 					}
@@ -760,8 +760,8 @@ std::vector<std::string> FactionType::validateFactionTypeUpgradeTypes() {
 	    }
 
 		if(foundUnit == false) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"The Upgrade Type [%s] in Faction [%s] has no Unit able to produce this upgrade in this faction!",upgradeType.getName().c_str(),this->getName().c_str());
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"The Upgrade Type [%s] in Faction [%s] has no Unit able to produce this upgrade in this faction!",upgradeType.getName().c_str(),this->getName().c_str());
 			results.push_back(szBuf);
 		}
 	}

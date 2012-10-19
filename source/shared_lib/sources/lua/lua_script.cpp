@@ -325,7 +325,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 						value_string += "|||";
 					}
 					char szBuf[8096]="";
-					sprintf(szBuf,"[%s] [%s]",key.c_str(),value.c_str());
+					snprintf(szBuf,8096,"[%s] [%s]",key.c_str(),value.c_str());
 					//value_string += szBuf;
 					//vector<pair<pair<int,string>, pair<int,string>> > tableList;
 					tableList.push_back(make_pair(make_pair(tableKeyType,key),make_pair(tableValueType,value)));

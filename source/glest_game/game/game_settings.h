@@ -181,16 +181,16 @@ public:
 	const string &getScenarioDir() const							{return scenarioDir;}
 	const string &getFactionTypeName(int factionIndex) const {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 		return factionTypeNames[factionIndex];
 	}
 	string getNetworkPlayerName(int factionIndex) const  {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -202,8 +202,8 @@ public:
 	}
 	const int    getNetworkPlayerStatuses(int factionIndex) const {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -211,8 +211,8 @@ public:
 	}
 	const string getNetworkPlayerLanguages(int factionIndex) const {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -221,8 +221,8 @@ public:
 
 	const int    getNetworkPlayerGameStatus(int factionIndex) const {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -256,8 +256,8 @@ public:
 	}
 	ControlType getFactionControl(int factionIndex) const {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -265,8 +265,8 @@ public:
 	}
 	int getResourceMultiplierIndex(int factionIndex) const	{
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -288,8 +288,8 @@ public:
 	int getFactionCount() const							{return factionCount;}
 	int getTeam(int factionIndex) const					{
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -298,8 +298,8 @@ public:
 
 	int getStartLocationIndex(int factionIndex) const {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -335,8 +335,8 @@ public:
 
 	void setFactionTypeName(int factionIndex, const string& factionTypeName) {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -344,8 +344,8 @@ public:
 	}
 	void setNetworkPlayerName(int factionIndex,const string& playername) {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -353,8 +353,8 @@ public:
 	}
 	void setNetworkPlayerStatuses(int factionIndex,int status) {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -363,8 +363,8 @@ public:
 
 	void setNetworkPlayerGameStatus(int factionIndex,int status) {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -372,8 +372,8 @@ public:
 	}
 	void setNetworkPlayerLanguages(int factionIndex, string language) {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -382,8 +382,8 @@ public:
 
 	void setFactionControl(int factionIndex, ControlType controller) {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -391,8 +391,8 @@ public:
 	}
 	void setResourceMultiplierIndex(int factionIndex, int multiplierIndex)	{
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -405,8 +405,8 @@ public:
 	void setFactionCount(int factionCount)									{this->factionCount= factionCount;}
 	void setTeam(int factionIndex, int team)	{
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -414,8 +414,8 @@ public:
 	}
 	void setStartLocationIndex(int factionIndex, int startLocationIndex) {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
-			char szBuf[4096]="";
-			sprintf(szBuf,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
 			throw megaglest_runtime_error(szBuf);
 		}
 

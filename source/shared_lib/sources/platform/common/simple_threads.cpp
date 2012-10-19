@@ -656,8 +656,8 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
             safeMutex.Lock();
             if(logList.size() > 0) {
 				if(logList.size() < logCount) {
-					char szBuf[1024]="";
-					sprintf(szBuf,"logList.size() <= logCount [%lld][%lld]",(long long int)logList.size(),(long long int)logCount);
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"logList.size() <= logCount [%lld][%lld]",(long long int)logList.size(),(long long int)logCount);
 					throw megaglest_runtime_error(szBuf);
 				}
 				logList.erase(logList.begin(),logList.begin() + logCount);

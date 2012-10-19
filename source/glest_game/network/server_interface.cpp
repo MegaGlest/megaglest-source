@@ -1674,19 +1674,19 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 						waitForHosts += waitingForHosts[i];
 					}
 
-					char szBuf[1024]="";
+					char szBuf[8096]="";
 					string updateTextFormat = lang.get("NetworkGameServerLoadStatus");
 					if(updateTextFormat == "" || updateTextFormat[0] == '?') {
 						updateTextFormat =  "Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)";
 					}
-					sprintf(szBuf,updateTextFormat.c_str(),(long long int)(chrono.getMillis() / 1000),int(readyWaitTimeout / 1000));
+					snprintf(szBuf,8096,updateTextFormat.c_str(),(long long int)(chrono.getMillis() / 1000),int(readyWaitTimeout / 1000));
 
-					char szBuf1[1024]="";
+					char szBuf1[8096]="";
 					string statusTextFormat = lang.get("NetworkGameStatusWaiting");
 					if(statusTextFormat == "" || statusTextFormat[0] == '?') {
 						statusTextFormat =  "Waiting for players: %s";
 					}
-					sprintf(szBuf1,statusTextFormat.c_str(),waitForHosts.c_str());
+					snprintf(szBuf1,8096,statusTextFormat.c_str(),waitForHosts.c_str());
 
 					logger.add(szBuf, true, szBuf1);
 
@@ -1943,9 +1943,8 @@ string ServerInterface::getNetworkStatus() {
 				int clientLagCount 					= connectionSlot->getCurrentLagCount();
 				double lastClientCommandListTimeLag = difftime((long int)time(NULL),connectionSlot->getLastReceiveCommandListTime());
 				//float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
-				char szBuf[1024]="";
-				//sprintf(szBuf,", lag = %d [%.2f], ping = %.2fms",clientLagCount,lastClientCommandListTimeLag,pingTime);
-				sprintf(szBuf,", lag = %d [%.2f]",clientLagCount,lastClientCommandListTimeLag);
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,", lag = %d [%.2f]",clientLagCount,lastClientCommandListTimeLag);
 				str+= connectionSlot->getName() + string(szBuf);
 			}
 		}

@@ -87,8 +87,8 @@ GameCamera::~GameCamera() {
 }
 
 std::string GameCamera::getCameraMovementKey() const {
-	char szBuf[1024]="";
-	sprintf(szBuf,"%s_%f_%f_%f_%s,%f",pos.getString().c_str(),hAng,vAng,rotate,move.getString().c_str(),fov);
+	char szBuf[8096]="";
+	snprintf(szBuf,8096,"%s_%f_%f_%f_%s,%f",pos.getString().c_str(),hAng,vAng,rotate,move.getString().c_str(),fov);
 	return szBuf;
 }
 
