@@ -17,6 +17,7 @@
 #include "game_constants.h"
 #include "xml_parser.h"
 #include "conversion.h"
+#include "platform_common.h"
 #include "leak_dumper.h"
 
 

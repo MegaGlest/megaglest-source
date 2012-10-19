@@ -60,6 +60,11 @@ typedef uint16_t port_t;
 #define TRUE 1
 #endif
 
+#if (defined WIN32) && !(defined snprintf)
+#define snprintf _snprintf
+#endif
+
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
