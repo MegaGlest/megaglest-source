@@ -26,22 +26,20 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class Command
 // =====================================================
-Command::Command() {
+Command::Command() : unitRef() {
     this->commandType= NULL;
-    this->unitRef= NULL;
 	unitType= NULL;
 	stateType			= cst_None;
 	stateValue 			= -1;
 	unitCommandGroupId	= -1;
 }
 
-Command::Command(const CommandType *ct, const Vec2i &pos){
+Command::Command(const CommandType *ct, const Vec2i &pos) :unitRef() {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ct = [%p]\n",__FILE__,__FUNCTION__,__LINE__,ct);
 
     this->commandType= ct;
     this->pos= pos;
     this->originalPos = this->pos;
-    this->unitRef= NULL;
 	unitType= NULL;
 	stateType			= cst_None;
 	stateValue 			= -1;
@@ -63,11 +61,10 @@ Command::Command(const CommandType *ct, Unit* unit) {
 	unitCommandGroupId	= -1;
 }
 
-Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing) {
+Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing) : unitRef() {
     this->commandType= ct;
     this->pos= pos;
     this->originalPos = this->pos;
-    this->unitRef= NULL;
 	this->unitType= unitType;
 	this->facing = facing;
 	stateType			= cst_None;

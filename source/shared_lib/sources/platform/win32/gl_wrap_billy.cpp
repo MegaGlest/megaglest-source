@@ -108,8 +108,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 	dwErrorGL = GetLastError();
 	assertGl();
 
-	BOOL err= 0;
-	err= wglUseFontBitmaps(dc, 0, charCount, base);
+	BOOL err= wglUseFontBitmaps(dc, 0, charCount, base);
 	dwErrorGL = GetLastError();
 
 /*

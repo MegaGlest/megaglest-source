@@ -125,7 +125,7 @@ bool Window::handleEvent() {
 	SDL_Event event;
 	SDL_GetMouseState(&oldX,&oldY);
 
-	codeLocation = "b";
+	//codeLocation = "b";
 
 	while(SDL_PollEvent(&event)) {
 		try {

@@ -802,43 +802,6 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 }
 
 MapInfo MenuStateMods::loadMapInfo(string file) {
-
-
-/*
-	Lang &lang= Lang::getInstance();
-
-	MapInfo mapInfo;
-	//memset(&mapInfo,0,sizeof(mapInfo));
-	try{
-#ifdef WIN32
-		FILE *f= _wfopen(utf8_decode(file).c_str(), L"rb");
-#else
-		FILE *f= fopen(file.c_str(), "rb");
-#endif
-		if(f != NULL) {
-
-			MapFileHeader header;
-			size_t readBytes = fread(&header, sizeof(MapFileHeader), 1, f);
-
-			mapInfo.size.x= header.width;
-			mapInfo.size.y= header.height;
-			mapInfo.players= header.maxFactions;
-
-			mapInfo.desc= lang.get("MaxPlayers")+": "+intToStr(mapInfo.players)+"\n";
-			mapInfo.desc+=lang.get("Size")+": "+intToStr(mapInfo.size.x) + " x " + intToStr(mapInfo.size.y);
-
-			fclose(f);
-		}
-	}
-	catch(exception &e) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what(),file.c_str());
-		throw megaglest_runtime_error("Error loading map file: [" + file + "] msg: " + e.what());
-	}
-
-	return mapInfo;
-*/
-
-	//memset(&mapInfo,0,sizeof(mapInfo));
 	try{
 		Lang &lang= Lang::getInstance();
 		// Not painting properly so this is on hold
