@@ -120,6 +120,11 @@ void PixmapIoTga::openRead(const string &path) {
 	//read header
 	TargaFileHeader fileHeader;
 	size_t readBytes = fread(&fileHeader, sizeof(TargaFileHeader), 1, file);
+	if(readBytes != 1) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		throw megaglest_runtime_error(szBuf);
+	}
 
 	//check that we can load this tga file
 	if(fileHeader.idLength != 0) {
@@ -150,6 +155,12 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 
 		if(this->components == 1) {
 			size_t readBytes = fread(&l, 1, 1, file);
+			if(readBytes != 1) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				throw megaglest_runtime_error(szBuf);
+			}
+
 			r= l;
 			g= l;
 			b= l;
@@ -157,10 +168,34 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 		}
 		else {
 			size_t readBytes = fread(&b, 1, 1, file);
+			if(readBytes != 1) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				throw megaglest_runtime_error(szBuf);
+			}
+
 			readBytes = fread(&g, 1, 1, file);
+			if(readBytes != 1) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				throw megaglest_runtime_error(szBuf);
+			}
+
 			readBytes = fread(&r, 1, 1, file);
+			if(readBytes != 1) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				throw megaglest_runtime_error(szBuf);
+			}
+
 			if(this->components == 4) {
 				readBytes = fread(&a, 1, 1, file);
+				if(readBytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
+
 			}
 			else {
 				a= 255;
@@ -256,6 +291,12 @@ void PixmapIoBmp::openRead(const string &path){
 	//read file header
     BitmapFileHeader fileHeader;
     size_t readBytes = fread(&fileHeader, sizeof(BitmapFileHeader), 1, file);
+	if(readBytes != 1) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
 		throw megaglest_runtime_error(path +" is not a bitmap");
 	}
@@ -263,6 +304,12 @@ void PixmapIoBmp::openRead(const string &path){
 	//read info header
 	BitmapInfoHeader infoHeader;
 	readBytes = fread(&infoHeader, sizeof(BitmapInfoHeader), 1, file);
+	if(readBytes != 1) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	if(infoHeader.bitCount!=24){
         throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
 	}
@@ -280,8 +327,26 @@ void PixmapIoBmp::read(uint8 *pixels, int components) {
     for(int i=0; i<h*w*components; i+=components) {
 		uint8 r, g, b;
 		size_t readBytes = fread(&b, 1, 1, file);
+		if(readBytes != 1) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+			throw megaglest_runtime_error(szBuf);
+		}
+
 		readBytes = fread(&g, 1, 1, file);
+		if(readBytes != 1) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+			throw megaglest_runtime_error(szBuf);
+		}
+
 		readBytes = fread(&r, 1, 1, file);
+		if(readBytes != 1) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+			throw megaglest_runtime_error(szBuf);
+		}
+
 
 		switch(components){
 		case 1:
@@ -365,69 +430,16 @@ PixmapIoPng::~PixmapIoPng() {
 }
 
 void PixmapIoPng::openRead(const string &path) {
-
 	throw megaglest_runtime_error("PixmapIoPng::openRead not implemented!");
-
-/*
-    file= fopen(path.c_str(),"rb");
-	if (file==NULL){
-		throw megaglest_runtime_error("Can't open BMP file: "+ path);
-	}
-
-	//read file header
-    BitmapFileHeader fileHeader;
-    size_t readBytes = fread(&fileHeader, sizeof(BitmapFileHeader), 1, file);
-	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
-		throw megaglest_runtime_error(path +" is not a bitmap");
-	}
-
-	//read info header
-	BitmapInfoHeader infoHeader;
-	readBytes = fread(&infoHeader, sizeof(BitmapInfoHeader), 1, file);
-	if(infoHeader.bitCount!=24){
-        throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
-	}
-
-    h= infoHeader.height;
-    w= infoHeader.width;
-	components= 3;
-*/
 }
 
 void PixmapIoPng::read(uint8 *pixels) {
 	throw megaglest_runtime_error("PixmapIoPng::read not implemented!");
-	//read(pixels, 3);
 }
 
 void PixmapIoPng::read(uint8 *pixels, int components) {
 
 	throw megaglest_runtime_error("PixmapIoPng::read #2 not implemented!");
-
-/*
-    for(int i=0; i<h*w*components; i+=components) {
-		uint8 r, g, b;
-		size_t readBytes = fread(&b, 1, 1, file);
-		readBytes = fread(&g, 1, 1, file);
-		readBytes = fread(&r, 1, 1, file);
-
-		switch(components){
-		case 1:
-			pixels[i]= (r+g+b)/3;
-			break;
-		case 3:
-			pixels[i]= r;
-			pixels[i+1]= g;
-			pixels[i+2]= b;
-			break;
-		case 4:
-			pixels[i]= r;
-			pixels[i+1]= g;
-			pixels[i+2]= b;
-			pixels[i+3]= 255;
-			break;
-		}
-    }
-*/
 }
 
 void PixmapIoPng::openWrite(const string &path, int w, int h, int components) {

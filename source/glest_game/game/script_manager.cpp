@@ -44,9 +44,7 @@ public:
 	}
 };
 
-ScriptManagerMessage::ScriptManagerMessage() {
-	this->text= "";
-	this->header= "";
+ScriptManagerMessage::ScriptManagerMessage() : text(""), header("") {
 	this->factionIndex=-1;
 	this->teamIndex=-1;
 }

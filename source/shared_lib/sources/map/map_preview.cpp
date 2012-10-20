@@ -763,6 +763,11 @@ void MapPreview::loadFromFile(const string &path) {
 		//read header
 		MapFileHeader header;
 		size_t bytes = fread(&header, sizeof(MapFileHeader), 1, f1);
+		if(bytes != 1) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+			throw megaglest_runtime_error(szBuf);
+		}
 
 		heightFactor = header.heightFactor;
 		waterLevel = header.waterLevel;
@@ -782,7 +787,19 @@ void MapPreview::loadFromFile(const string &path) {
 		resetFactions(header.maxFactions);
 		for (int i = 0; i < maxFactions; ++i) {
 			bytes = fread(&startLocations[i].x, sizeof(int32), 1, f1);
+			if(bytes != 1) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+				throw megaglest_runtime_error(szBuf);
+			}
+
 			bytes = fread(&startLocations[i].y, sizeof(int32), 1, f1);
+			if(bytes != 1) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+				throw megaglest_runtime_error(szBuf);
+			}
+
 		}
 
 		//read Heights
@@ -790,6 +807,11 @@ void MapPreview::loadFromFile(const string &path) {
 		for (int j = 0; j < h; ++j) {
 			for (int i = 0; i < w; ++i) {
 				bytes = fread(&cells[i][j].height, sizeof(float), 1, f1);
+				if(bytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
 			}
 		}
 
@@ -797,6 +819,11 @@ void MapPreview::loadFromFile(const string &path) {
 		for (int j = 0; j < h; ++j) {
 			for (int i = 0; i < w; ++i) {
 				bytes = fread(&cells[i][j].surface, sizeof(int8), 1, f1);
+				if(bytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
 			}
 		}
 
@@ -805,6 +832,12 @@ void MapPreview::loadFromFile(const string &path) {
 			for (int i = 0; i < w; ++i) {
 				int8 obj;
 				bytes = fread(&obj, sizeof(int8), 1, f1);
+				if(bytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
+
 				if (obj <= 10) {
 					cells[i][j].object = obj;
 				}

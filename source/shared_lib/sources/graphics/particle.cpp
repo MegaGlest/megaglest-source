@@ -1482,14 +1482,14 @@ void ProjectileParticleSystem::update(){
 
 		//printf("Update particle targetVector [%s][%f] currentVector [%s][%f] relative = %f\n",targetVector.getString().c_str(),targetVector.length(),currentVector.getString().c_str(),currentVector.length(),relative);
 
-#ifdef USE_STREFLOP
-		float absolute= clamp(streflop::fabs(static_cast<streflop::Simple>(currentVector.length())), 0.0f, 1.0f);
-#else
-		float absolute= clamp(fabs(currentVector.length()), 0.0f, 1.0f);
-#endif
+//#ifdef USE_STREFLOP
+//		float absolute= clamp(streflop::fabs(static_cast<streflop::Simple>(currentVector.length())), 0.0f, 1.0f);
+//#else
+//		float absolute= clamp(fabs(currentVector.length()), 0.0f, 1.0f);
+//#endif
 
 		//printf("#a currentVector.length() = %f, targetVector.length() = %f, relative = %f, absolute = %f, trajectorySpeed = %f\n",currentVector.length(),targetVector.length(),relative,absolute,trajectorySpeed);
-		absolute = relative;
+		float absolute = relative;
 
 		setTween(relative,absolute);
 

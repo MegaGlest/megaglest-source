@@ -403,7 +403,19 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			for(int i=0; i < maxPlayers; ++i) {
 				int x=0, y=0;
 				readBytes = fread(&x, sizeof(int32), 1, f);
+				if(readBytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
+
 				readBytes = fread(&y, sizeof(int32), 1, f);
+				if(readBytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
+
 				startLocations[i]= Vec2i(x, y)*cellScale;
 			}
 
@@ -416,6 +428,12 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 				for(int i = 0; i < surfaceW; ++i) {
 					float32 alt=0;
 					readBytes = fread(&alt, sizeof(float32), 1, f);
+					if(readBytes != 1) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+						throw megaglest_runtime_error(szBuf);
+					}
+
 					SurfaceCell *sc= getSurfaceCell(i, j);
 					sc->setVertex(Vec3f(i*mapScale, alt / heightFactor, j*mapScale));
 				}
@@ -426,6 +444,12 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 				for(int i = 0; i < surfaceW; ++i) {
 					int8 surf=0;
 					readBytes = fread(&surf, sizeof(int8), 1, f);
+					if(readBytes != 1) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+						throw megaglest_runtime_error(szBuf);
+					}
+
 					getSurfaceCell(i, j)->setSurfaceType(surf-1);
 				}
 			}
@@ -436,6 +460,12 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 
 					int8 objNumber=0;
 					readBytes = fread(&objNumber, sizeof(int8), 1, f);
+					if(readBytes != 1) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+						throw megaglest_runtime_error(szBuf);
+					}
+
 					SurfaceCell *sc= getSurfaceCell(toSurfCoords(Vec2i(i, j)));
 					if(objNumber == 0) {
 						sc->setObject(NULL);

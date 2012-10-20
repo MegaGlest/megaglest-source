@@ -247,9 +247,7 @@ void GameNetworkInterface::requestCommand(const NetworkCommand *networkCommand, 
 const int32 SEND_FILE = 0x20;
 const int32 ACK       = 0x47;
 
-FileTransferSocketThread::FileTransferSocketThread(FileTransferInfo fileInfo)
-{
-    this->info = fileInfo;
+FileTransferSocketThread::FileTransferSocketThread(FileTransferInfo fileInfo) : info(fileInfo) {
     this->info.serverPort += 100;
 }
 

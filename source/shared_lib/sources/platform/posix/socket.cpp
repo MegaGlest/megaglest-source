@@ -841,7 +841,7 @@ Socket::Socket() {
 		socklen_t optlen = sizeof(bufsize);
 
 		int ret = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char *)&bufsize, &optlen);
-		printf("Original setsockopt(SO_SNDBUF) = [%d] new will be [%d]\n",bufsize,Socket::DEFAULT_SOCKET_SENDBUF_SIZE);
+		printf("Original setsockopt(SO_SNDBUF) = [%d] new will be [%d] ret = %d\n",bufsize,Socket::DEFAULT_SOCKET_SENDBUF_SIZE,ret);
 
 		ret = setsockopt( sock, SOL_SOCKET, SO_SNDBUF, (char *) &Socket::DEFAULT_SOCKET_SENDBUF_SIZE, sizeof( int ) );
 		if (ret == -1) {
@@ -854,7 +854,7 @@ Socket::Socket() {
 		socklen_t optlen = sizeof(bufsize);
 
 		int ret = getsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char *)&bufsize, &optlen);
-		printf("Original setsockopt(SO_RCVBUF) = [%d] new will be [%d]\n",bufsize,Socket::DEFAULT_SOCKET_RECVBUF_SIZE);
+		printf("Original setsockopt(SO_RCVBUF) = [%d] new will be [%d] ret = %d\n",bufsize,Socket::DEFAULT_SOCKET_RECVBUF_SIZE,ret);
 
 		ret = setsockopt( sock, SOL_SOCKET, SO_RCVBUF, (char *) &Socket::DEFAULT_SOCKET_RECVBUF_SIZE, sizeof( int ) );
 		if (ret == -1) {
