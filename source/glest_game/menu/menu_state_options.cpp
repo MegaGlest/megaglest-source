@@ -986,6 +986,11 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 
 				if(data_path != "") {
+
+					string txnURLFileListMapping = Config::getInstance().getString("TranslationGetURLFileListMapping");
+					vector<string> languageFileMappings;
+					Tokenize(txnURLFileListMapping,languageFileMappings,"|");
+
 					Config &config = Config::getInstance();
 
 					// Cleanup Scenarios
@@ -1007,9 +1012,20 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 								string removeLngFile = scenarioPath + scenario + "/" + testLanguage;
 
 								if(EndsWith(testLanguage,language + ".lng") == true) {
-									printf("About to delete file [%s]\n",removeLngFile.c_str());
-									removeFile(removeLngFile);
-									foundFilesToDelete = true;
+
+									for(unsigned int k = 0; k < languageFileMappings.size(); ++k) {
+										string mapping = languageFileMappings[k];
+										replaceAll(mapping,"$language",language);
+
+										//printf("Comparing found [%s] with [%s]\n",removeLngFile.c_str(),mapping.c_str());
+
+										if(EndsWith(removeLngFile,mapping) == true) {
+											printf("About to delete file [%s]\n",removeLngFile.c_str());
+											removeFile(removeLngFile);
+											foundFilesToDelete = true;
+											break;
+										}
+									}
 								}
 							}
 						}
@@ -1033,28 +1049,56 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 								string removeLngFile = tutorialPath + tutorial + "/" + testLanguage;
 								if(EndsWith(testLanguage,language + ".lng") == true) {
-									printf("About to delete file [%s]\n",removeLngFile.c_str());
-									removeFile(removeLngFile);
-									foundFilesToDelete = true;
+
+
+									for(unsigned int k = 0; k < languageFileMappings.size(); ++k) {
+										string mapping = languageFileMappings[k];
+										replaceAll(mapping,"$language",language);
+
+										//printf("Comparing found [%s] with [%s]\n",removeLngFile.c_str(),mapping.c_str());
+
+										if(EndsWith(removeLngFile,mapping) == true) {
+											printf("About to delete file [%s]\n",removeLngFile.c_str());
+											removeFile(removeLngFile);
+											foundFilesToDelete = true;
+											break;
+										}
+									}
 								}
 							}
 						}
 					}
 
-
 					// Cleanup main and hint language files
 					string mainLngFile = data_path + "data/lang/" + language + ".lng";
 					if(fileExists(mainLngFile) == true) {
-						printf("About to delete file [%s]\n",mainLngFile.c_str());
-						removeFile(mainLngFile);
-						foundFilesToDelete = true;
+
+						for(unsigned int k = 0; k < languageFileMappings.size(); ++k) {
+							string mapping = languageFileMappings[k];
+							replaceAll(mapping,"$language",language);
+
+							if(EndsWith(mainLngFile,mapping) == true) {
+								printf("About to delete file [%s]\n",mainLngFile.c_str());
+								removeFile(mainLngFile);
+								foundFilesToDelete = true;
+								break;
+							}
+						}
 					}
 
 					string hintLngFile = data_path + "data/lang/hint/hint_" + language + ".lng";
 					if(fileExists(hintLngFile) == true) {
-						printf("About to delete file [%s]\n",hintLngFile.c_str());
-						removeFile(hintLngFile);
-						foundFilesToDelete = true;
+						for(unsigned int k = 0; k < languageFileMappings.size(); ++k) {
+							string mapping = languageFileMappings[k];
+							replaceAll(mapping,"$language",language);
+
+							if(EndsWith(hintLngFile,mapping) == true) {
+								printf("About to delete file [%s]\n",hintLngFile.c_str());
+								removeFile(hintLngFile);
+								foundFilesToDelete = true;
+								break;
+							}
+						}
 					}
 				}
 
