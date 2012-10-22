@@ -2980,19 +2980,25 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 			textPos= Vec2i(x, y+h/4);
 		}
 
+		string renderTextStr = lines[i];
+		if(label->getIsPassword() == true) {
+			renderTextStr = "*****";
+		}
+
 		if(color != NULL) {
 			if(renderText3DEnabled == true) {
 				//renderText3D(lines[i], label->getFont3D(), (*color), textPos.x, textPos.y, label->getCentered());
 				//printf("Text Render3D [%s] font3d [%p]\n",lines[i].c_str(),label->getFont3D());
 				//printf("Label render C\n");
-				renderTextBoundingBox3D(lines[i], label->getFont3D(), (*color),
+
+				renderTextBoundingBox3D(renderTextStr, label->getFont3D(), (*color),
 						x, y, w, h, label->getCenteredW(),label->getCenteredH(),
 						label->getEditModeEnabled(),label->getMaxEditWidth(),
 						label->getMaxEditRenderWidth());
 			}
 			else {
 				//printf("Label render D\n");
-				renderText(lines[i], label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
+				renderText(renderTextStr, label->getFont(), (*color), textPos.x, textPos.y, label->getCentered());
 			}
 		}
 		else {
@@ -3000,7 +3006,7 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 				//renderText3D(lines[i], label->getFont3D(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
 				//printf("Text Render3D [%s] font3d [%p]\n",lines[i].c_str(),label->getFont3D());
 				//printf("Label render E\n");
-				renderTextBoundingBox3D(lines[i], label->getFont3D(),
+				renderTextBoundingBox3D(renderTextStr, label->getFont3D(),
 						GraphicComponent::getFade(), x, y, w, h,
 						label->getCenteredW(),label->getCenteredH(),
 						label->getEditModeEnabled(),label->getMaxEditWidth(),
@@ -3008,7 +3014,7 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 			}
 			else {
 				//printf("Label render F\n");
-				renderText(lines[i], label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
+				renderText(renderTextStr, label->getFont(), GraphicComponent::getFade(), textPos.x, textPos.y, label->getCentered());
 			}
 		}
 	}
