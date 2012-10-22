@@ -648,7 +648,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelTransifexPwd.setIsPassword(true);
 		labelTransifexPwd.setMaxEditWidth(60);
 		labelTransifexPwd.setMaxEditRenderWidth(120);
-		labelTransifexPwd.setText(config.getString("TranslationGetURLPassword","<none>"));
+		labelTransifexPwd.setText(config.getString("TranslationGetURLPassword",""));
 
 		labelTransifexI18NLabel.registerGraphicComponent(containerName,"labelTransifexI18NLabel");
 		labelTransifexI18NLabel.init(buttonStartPos + 360 ,buttonRowPos - 20);
@@ -1122,15 +1122,14 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 		bool gotDownloads = false;
 		string orig_txnURLUser = Config::getInstance().getString("TranslationGetURLUser");
-		string orig_txnURLPwd = Config::getInstance().getString("TranslationGetURLPassword");
+		//string orig_txnURLPwd = Config::getInstance().getString("TranslationGetURLPassword","");
 		string orig_txnURLLang = Config::getInstance().getString("TranslationGetURLLanguage");
 
 		Config::getInstance().setString("TranslationGetURLUser",labelTransifexUser.getText());
-		Config::getInstance().setString("TranslationGetURLPassword",labelTransifexPwd.getText());
+		Config::getInstance().setString("TranslationGetURLPassword",labelTransifexPwd.getText(),true);
 		Config::getInstance().setString("TranslationGetURLLanguage",labelTransifexI18N.getText());
 
 		bool saveChanges = (orig_txnURLUser != labelTransifexUser.getText() ||
-				orig_txnURLPwd != labelTransifexPwd.getText() ||
 				orig_txnURLLang != labelTransifexI18N.getText());
 
 		string txnURL = Config::getInstance().getString("TranslationGetURL");
