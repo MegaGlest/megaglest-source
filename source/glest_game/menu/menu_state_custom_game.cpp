@@ -289,11 +289,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
 	labelAllowObservers.setText(lang.get("AllowObservers"));
 
-	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
-	listBoxAllowObservers.init(xoffset+310, aPos, 80);
-	listBoxAllowObservers.pushBackItem(lang.get("No"));
-	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
-	listBoxAllowObservers.setSelectedItemIndex(0);
+//	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
+//	listBoxAllowObservers.init(xoffset+310, aPos, 80);
+//	listBoxAllowObservers.pushBackItem(lang.get("No"));
+//	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
+//	listBoxAllowObservers.setSelectedItemIndex(0);
+	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
+	checkBoxAllowObservers.init(xoffset+310, aPos);
+	checkBoxAllowObservers.setValue(false);
 
 	for(int i=0; i<45; ++i){
 		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
@@ -323,11 +326,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
-	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
-	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45, 80);
-	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
-	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
-	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
+//	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
+//	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45, 80);
+//	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
+//	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
+//	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
+	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
+	checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
+	checkBoxEnableSwitchTeamMode.setValue(false);
 
 	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
 	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+45, 80);
@@ -355,11 +361,15 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelAdvanced.init(810, 80, 80);
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
 
-	listBoxAdvanced.registerGraphicComponent(containerName,"listBoxAdvanced");
-	listBoxAdvanced.init(810,  80-labelOffset, 80);
-	listBoxAdvanced.pushBackItem(lang.get("No"));
-	listBoxAdvanced.pushBackItem(lang.get("Yes"));
-	listBoxAdvanced.setSelectedItemIndex(0);
+//	listBoxAdvanced.registerGraphicComponent(containerName,"listBoxAdvanced");
+//	listBoxAdvanced.init(810,  80-labelOffset, 80);
+//	listBoxAdvanced.pushBackItem(lang.get("No"));
+//	listBoxAdvanced.pushBackItem(lang.get("Yes"));
+//	listBoxAdvanced.setSelectedItemIndex(0);
+
+	checkBoxAdvanced.registerGraphicComponent(containerName,"checkBoxAdvanced");
+	checkBoxAdvanced.init(810,  80-labelOffset);
+	checkBoxAdvanced.setValue(false);
 
 	// network things
 	// PublishServer
@@ -369,16 +379,25 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelPublishServer.init(50, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
 
-	listBoxPublishServer.registerGraphicComponent(containerName,"listBoxPublishServer");
-	listBoxPublishServer.init(50, networkPos, 100);
-	listBoxPublishServer.pushBackItem(lang.get("Yes"));
-	listBoxPublishServer.pushBackItem(lang.get("No"));
+//	listBoxPublishServer.registerGraphicComponent(containerName,"listBoxPublishServer");
+//	listBoxPublishServer.init(50, networkPos, 100);
+//	listBoxPublishServer.pushBackItem(lang.get("Yes"));
+//	listBoxPublishServer.pushBackItem(lang.get("No"));
+//	if(this->headlessServerMode == true ||
+//		(openNetworkSlots == true && parentMenuState != pLanGame)) {
+//		listBoxPublishServer.setSelectedItemIndex(0);
+//	}
+//	else {
+//		listBoxPublishServer.setSelectedItemIndex(1);
+//	}
+	checkBoxPublishServer.registerGraphicComponent(containerName,"checkBoxPublishServer");
+	checkBoxPublishServer.init(50, networkPos);
 	if(this->headlessServerMode == true ||
 		(openNetworkSlots == true && parentMenuState != pLanGame)) {
-		listBoxPublishServer.setSelectedItemIndex(0);
+		checkBoxPublishServer.setValue(true);
 	}
 	else {
-		listBoxPublishServer.setSelectedItemIndex(1);
+		checkBoxPublishServer.setValue(false);
 	}
 
 	labelGameNameLabel.registerGraphicComponent(containerName,"labelGameNameLabel");
@@ -415,11 +434,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelNetworkPauseGameForLaggedClients.init(xoffset+380, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
 
-	listBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"listBoxNetworkPauseGameForLaggedClients");
-	listBoxNetworkPauseGameForLaggedClients.init(xoffset+380, networkPos, 80);
-	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
-	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
-	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("Yes"));
+//	listBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"listBoxNetworkPauseGameForLaggedClients");
+//	listBoxNetworkPauseGameForLaggedClients.init(xoffset+380, networkPos, 80);
+//	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
+//	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
+//	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("Yes"));
+	checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
+	checkBoxNetworkPauseGameForLaggedClients.init(xoffset+380, networkPos);
+	checkBoxNetworkPauseGameForLaggedClients.setValue(true);
 
 	// Enable Server Controlled AI
 	//labelEnableServerControlledAI.registerGraphicComponent(containerName,"labelEnableServerControlledAI");
@@ -762,10 +784,10 @@ void MenuStateCustomGame::reloadUI() {
 	// Allow Observers
 	labelAllowObservers.setText(lang.get("AllowObservers"));
 
-	listBoxData.clear();
-	listBoxData.push_back(lang.get("No"));
-	listBoxData.push_back(lang.get("Yes"));
-	listBoxAllowObservers.setItems(listBoxData);
+	//listBoxData.clear();
+	//listBoxData.push_back(lang.get("No"));
+	//listBoxData.push_back(lang.get("Yes"));
+	//listBoxAllowObservers.setItems(listBoxData);
 
 	// View Map At End Of Game
 	//listBoxData.clear();
@@ -776,10 +798,10 @@ void MenuStateCustomGame::reloadUI() {
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
-	listBoxData.clear();
-	listBoxData.push_back(lang.get("Yes"));
-	listBoxData.push_back(lang.get("No"));
-	listBoxEnableSwitchTeamMode.setItems(listBoxData);
+	//listBoxData.clear();
+	//listBoxData.push_back(lang.get("Yes"));
+	//listBoxData.push_back(lang.get("No"));
+	//listBoxEnableSwitchTeamMode.setItems(listBoxData);
 
 	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
 
@@ -792,17 +814,17 @@ void MenuStateCustomGame::reloadUI() {
 	// Advanced Options
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
 
-	listBoxData.clear();
-	listBoxData.push_back(lang.get("No"));
-	listBoxData.push_back(lang.get("Yes"));
-	listBoxAdvanced.setItems(listBoxData);
+	//listBoxData.clear();
+	//listBoxData.push_back(lang.get("No"));
+	//listBoxData.push_back(lang.get("Yes"));
+	//listBoxAdvanced.setItems(listBoxData);
 
 	labelPublishServer.setText(lang.get("PublishServer"));
 
-	listBoxData.clear();
-	listBoxData.push_back(lang.get("Yes"));
-	listBoxData.push_back(lang.get("No"));
-	listBoxPublishServer.setItems(listBoxData);
+	//listBoxData.clear();
+	//listBoxData.push_back(lang.get("Yes"));
+	//listBoxData.push_back(lang.get("No"));
+	//listBoxPublishServer.setItems(listBoxData);
 
 	labelGameNameLabel.setText(lang.get("MGGameTitle")+":");
 
@@ -817,10 +839,10 @@ void MenuStateCustomGame::reloadUI() {
 
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
 
-	listBoxData.clear();
-	listBoxData.push_back(lang.get("No"));
-	listBoxData.push_back(lang.get("Yes"));
-	listBoxNetworkPauseGameForLaggedClients.setItems(listBoxData);
+	//listBoxData.clear();
+	//listBoxData.push_back(lang.get("No"));
+	//listBoxData.push_back(lang.get("Yes"));
+	//listBoxNetworkPauseGameForLaggedClients.setItems(listBoxData);
 
     for(int i=0; i < GameConstants::maxPlayers; ++i) {
         buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
@@ -1070,7 +1092,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				updateControlers();
 				updateNetworkSlots();
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 
@@ -1080,11 +1102,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					mapPublishingDelayTimer=time(NULL);
 				}
 			}
-			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
+			//else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
+			else if (checkBoxAdvanced.getValue() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				cleanupMapPreviewTexture();
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 
@@ -1093,10 +1116,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
-			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAllowObservers.mouseClick(x, y)) {
+			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowObservers.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 
@@ -1107,23 +1130,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
-//			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableObserverMode.mouseClick(x, y)) {
-//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-//
-//				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//					needToRepublishToMasterserver = true;
-//				}
-//
-//				if(hasNetworkGameSettings() == true)
-//				{
-//					needToSetChangedGameSettings = true;
-//					lastSetChangedGameSettings   = time(NULL);
-//				}
-//			}
-			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
+			else if (checkBoxAdvanced.getValue() == 1 && checkBoxEnableSwitchTeamMode.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 
@@ -1133,10 +1143,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
-			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
+			else if (checkBoxAdvanced.getValue() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 
@@ -1146,10 +1156,10 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
-			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFallbackCpuMultiplier.getEditable() == true && listBoxFallbackCpuMultiplier.mouseClick(x, y)) {
+			else if (checkBoxAdvanced.getValue() == 1 && listBoxFallbackCpuMultiplier.getEditable() == true && listBoxFallbackCpuMultiplier.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 
@@ -1159,26 +1169,13 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
-//			else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxPathFinderType.mouseClick(x, y)) {
-//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-//
-//				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-//					needToRepublishToMasterserver = true;
-//				}
-//
-//				if(hasNetworkGameSettings() == true)
-//				{
-//					needToSetChangedGameSettings = true;
-//					lastSetChangedGameSettings   = time(NULL);
-//				}
-//			}
-			else if (listBoxAdvanced.mouseClick(x, y)) {
+			else if (checkBoxAdvanced.mouseClick(x, y)) {
 				//TODO
 			}
 			else if(listBoxTileset.mouseClick(x, y,advanceToItemStartingWith)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 				if(hasNetworkGameSettings() == true)
@@ -1200,7 +1197,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				updateControlers();
 				updateNetworkSlots();
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 
@@ -1215,7 +1212,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 
@@ -1225,21 +1222,21 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
-			else if(listBoxPublishServer.mouseClick(x, y) && listBoxPublishServer.getEditable()) {
+			else if(checkBoxPublishServer.mouseClick(x, y) && checkBoxPublishServer.getEditable()) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				needToRepublishToMasterserver = true;
 				soundRenderer.playFx(coreData.getClickSoundC());
 
 				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-				serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
+				serverInterface->setPublishEnabled(checkBoxPublishServer.getValue() == true);
 			}
-			else if(labelGameName.mouseClick(x, y) && listBoxPublishServer.getEditable()){
+			else if(labelGameName.mouseClick(x, y) && checkBoxPublishServer.getEditable()){
 				setActiveInputLabel(&labelGameName);
 			}
-			else if(listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)){
+			else if(checkBoxAdvanced.getValue() == 1 && checkBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-				if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
 				}
 				if(hasNetworkGameSettings() == true)
@@ -1257,11 +1254,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				for(int i = 0; i < mapInfo.players; ++i) {
 					MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-					//if (listBoxAdvanced.getSelectedItemIndex() == 1) {
-						// set multiplier
-						if(listBoxRMultiplier[i].mouseClick(x, y)) {
-						}
-					//}
+					// set multiplier
+					if(listBoxRMultiplier[i].mouseClick(x, y)) {
+					}
 
 					//ensure thet only 1 human player is present
 					ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
@@ -1337,7 +1332,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 							}
 							updateNetworkSlots();
 
-							if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+							if(checkBoxPublishServer.getValue() == true) {
 								needToRepublishToMasterserver = true;
 							}
 
@@ -1395,7 +1390,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						}
 						//
 
-						if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+						if(checkBoxPublishServer.getValue() == true) {
 							needToRepublishToMasterserver = true;
 						}
 
@@ -1416,7 +1411,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 							lastSelectedTeamIndex[i] = -1;
 						}
 
-						if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+						if(checkBoxPublishServer.getValue() == true) {
 							needToRepublishToMasterserver = true;
 						}
 
@@ -1459,7 +1454,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-            if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+            if(checkBoxPublishServer.getValue() == true) {
                 needToRepublishToMasterserver = true;
             }
 
@@ -1533,7 +1528,7 @@ void MenuStateCustomGame::loadGameSettings(std::string fileName) {
 
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-	if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+	if(checkBoxPublishServer.getValue() == true) {
 		needToRepublishToMasterserver = true;
 	}
 
@@ -1738,15 +1733,15 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 		}
 
 		// Tell the server Interface whether or not to publish game status updates to masterserver
-		serverInterface->setNeedToRepublishToMasterserver(listBoxPublishServer.getSelectedItemIndex() == 0);
+		serverInterface->setNeedToRepublishToMasterserver(checkBoxPublishServer.getValue() == true);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		bool bOkToStart = serverInterface->launchGame(&gameSettings);
 		if(bOkToStart == true) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-			if( listBoxPublishServer.getEditable() &&
-				listBoxPublishServer.getSelectedItemIndex() == 0) {
+			if( checkBoxPublishServer.getEditable() &&
+					checkBoxPublishServer.getValue() == true) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1799,20 +1794,20 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
     }
 
 	listBoxMap.mouseMove(x, y);
-	if(listBoxAdvanced.getSelectedItemIndex() == 1) {
+	if(checkBoxAdvanced.getValue() == 1) {
 		listBoxFogOfWar.mouseMove(x, y);
-		listBoxAllowObservers.mouseMove(x, y);
+		checkBoxAllowObservers.mouseMove(x, y);
 		//listBoxEnableObserverMode.mouseMove(x, y);
 		//listBoxEnableServerControlledAI.mouseMove(x, y);
 		//labelNetworkFramePeriod.mouseMove(x, y);
 		//listBoxNetworkFramePeriod.mouseMove(x, y);
 
-		listBoxEnableSwitchTeamMode.mouseMove(x, y);
+		checkBoxEnableSwitchTeamMode.mouseMove(x, y);
 		listBoxAISwitchTeamAcceptPercent.mouseMove(x, y);
 		listBoxFallbackCpuMultiplier.mouseMove(x, y);
 
 		labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
-		listBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
+		checkBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
 
 		//labelPathFinderType.mouseMove(x, y);
 		//listBoxPathFinderType.mouseMove(x, y);
@@ -1820,9 +1815,9 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 	listBoxTileset.mouseMove(x, y);
 	listBoxMapFilter.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
-	listBoxPublishServer.mouseMove(x, y);
+	checkBoxPublishServer.mouseMove(x, y);
 
-	listBoxAdvanced.mouseMove(x, y);
+	checkBoxAdvanced.mouseMove(x, y);
 
 	checkBoxScenario.mouseMove(x, y);
 	listBoxScenario.mouseMove(x, y);
@@ -1991,9 +1986,8 @@ void MenuStateCustomGame::render() {
 				}
 
 				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
-					//if(listBoxAdvanced.getSelectedItemIndex() == 1){
-						renderer.renderListBox(&listBoxRMultiplier[i]);
-					//}
+					renderer.renderListBox(&listBoxRMultiplier[i]);
+
 					renderer.renderListBox(&listBoxFactions[i]);
 					renderer.renderListBox(&listBoxTeams[i]);
 					renderer.renderLabel(&labelNetStatus[i]);
@@ -2004,7 +1998,7 @@ void MenuStateCustomGame::render() {
 			renderer.renderLabel(&labelLocalIP);
 			renderer.renderLabel(&labelMap);
 
-			if(listBoxAdvanced.getSelectedItemIndex() == 1) {
+			if(checkBoxAdvanced.getValue() == 1) {
 				renderer.renderLabel(&labelFogOfWar);
 				renderer.renderLabel(&labelAllowObservers);
 				renderer.renderLabel(&labelFallbackCpuMultiplier);
@@ -2014,11 +2008,11 @@ void MenuStateCustomGame::render() {
 				renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
 
 				renderer.renderListBox(&listBoxFogOfWar);
-				renderer.renderListBox(&listBoxAllowObservers);
+				renderer.renderCheckBox(&checkBoxAllowObservers);
 				//renderer.renderListBox(&listBoxEnableObserverMode);
 				//renderer.renderListBox(&listBoxPathFinderType);
 
-				renderer.renderListBox(&listBoxEnableSwitchTeamMode);
+				renderer.renderCheckBox(&checkBoxEnableSwitchTeamMode);
 				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
 				renderer.renderListBox(&listBoxFallbackCpuMultiplier);
 			}
@@ -2036,21 +2030,22 @@ void MenuStateCustomGame::render() {
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxMapFilter);
 			renderer.renderListBox(&listBoxTechTree);
-			renderer.renderListBox(&listBoxAdvanced);
+			//renderer.renderListBox(&listBoxAdvanced);
+			renderer.renderCheckBox(&checkBoxAdvanced);
 
-			if(listBoxPublishServer.getEditable())
+			if(checkBoxPublishServer.getEditable())
 			{
-				renderer.renderListBox(&listBoxPublishServer);
+				renderer.renderCheckBox(&checkBoxPublishServer);
 				renderer.renderLabel(&labelPublishServer);
 				renderer.renderLabel(&labelGameName);
 				renderer.renderLabel(&labelGameNameLabel);
-				if(listBoxAdvanced.getSelectedItemIndex() == 1) {
+				if(checkBoxAdvanced.getValue() == 1) {
 					//renderer.renderListBox(&listBoxEnableServerControlledAI);
 					//renderer.renderLabel(&labelEnableServerControlledAI);
 					//renderer.renderLabel(&labelNetworkFramePeriod);
 					//renderer.renderListBox(&listBoxNetworkFramePeriod);
 					renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
-					renderer.renderListBox(&listBoxNetworkPauseGameForLaggedClients);
+					renderer.renderCheckBox(&checkBoxNetworkPauseGameForLaggedClients);
 				}
 			}
 
@@ -2272,11 +2267,11 @@ void MenuStateCustomGame::update() {
 			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
 
 			if(this->headlessServerMode == false) {
-				listBoxPublishServer.setSelectedItemIndex(1);
+				checkBoxPublishServer.setValue(false);
 			}
 
             ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-            serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
+            serverInterface->setPublishEnabled(checkBoxPublishServer.getValue() == true);
 		}
 		else if(showGeneralError) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -2325,7 +2320,7 @@ void MenuStateCustomGame::update() {
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
-		listBoxAISwitchTeamAcceptPercent.setEnabled(listBoxEnableSwitchTeamMode.getSelectedItemIndex() == 0);
+		listBoxAISwitchTeamAcceptPercent.setEnabled(checkBoxEnableSwitchTeamMode.getValue() == 1);
 
 		int factionCount = 0;
 		for(int i= 0; i< mapInfo.players; ++i) {
@@ -2550,10 +2545,10 @@ void MenuStateCustomGame::update() {
 
 		if(this->headlessServerMode == true || hasOneNetworkSlotOpen == true) {
 			if(this->headlessServerMode == true) {
-				listBoxPublishServer.setSelectedItemIndex(0);
+				checkBoxPublishServer.setValue(true);
 			}
 			listBoxFallbackCpuMultiplier.setEditable(true);
-			listBoxPublishServer.setEditable(true);
+			checkBoxPublishServer.setEditable(true);
 			//listBoxEnableServerControlledAI.setEditable(true);
 
 			// Masterserver always needs one network slot
@@ -2580,27 +2575,27 @@ void MenuStateCustomGame::update() {
 			}
 		}
 		else {
-			listBoxPublishServer.setSelectedItemIndex(1);
-			listBoxPublishServer.setEditable(false);
+			checkBoxPublishServer.setValue(false);
+			checkBoxPublishServer.setEditable(false);
 			listBoxFallbackCpuMultiplier.setEditable(false);
 			listBoxFallbackCpuMultiplier.setSelectedItemIndex(5);
 
             ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-            serverInterface->setPublishEnabled(listBoxPublishServer.getSelectedItemIndex() == 0);
+            serverInterface->setPublishEnabled(checkBoxPublishServer.getValue() == true);
 			//listBoxEnableServerControlledAI.setEditable(false);
 		}
 
 		bool republishToMaster = (difftime((long int)time(NULL),lastMasterserverPublishing) >= MASTERSERVER_BROADCAST_PUBLISH_SECONDS);
 
 		if(republishToMaster == true) {
-			if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			if(checkBoxPublishServer.getValue() == true) {
 				needToRepublishToMasterserver = true;
 				lastMasterserverPublishing = time(NULL);
 			}
 		}
 
-		bool callPublishNow = (listBoxPublishServer.getEditable() &&
-							   listBoxPublishServer.getSelectedItemIndex() == 0 &&
+		bool callPublishNow = (checkBoxPublishServer.getEditable() &&
+								checkBoxPublishServer.getValue() == true &&
 							   needToRepublishToMasterserver == true);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -3137,7 +3132,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
    	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0 ||
 								listBoxFogOfWar.getSelectedItemIndex() == 1 );
 
-	gameSettings->setAllowObservers(listBoxAllowObservers.getSelectedItemIndex() == 1);
+	gameSettings->setAllowObservers(checkBoxAllowObservers.getValue() == 1);
 
 	uint32 valueFlags1 = gameSettings->getFlagTypes1();
 	if(listBoxFogOfWar.getSelectedItemIndex() == 1 ||
@@ -3155,7 +3150,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	//gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
 	valueFlags1 = gameSettings->getFlagTypes1();
-	if(listBoxEnableSwitchTeamMode.getSelectedItemIndex() == 0) {
+	if(checkBoxEnableSwitchTeamMode.getValue() == 0) {
         valueFlags1 |= ft1_allow_team_switching;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
@@ -3311,7 +3306,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	Config &config = Config::getInstance();
 	gameSettings->setEnableServerControlledAI(config.getBool("ServerControlledAI","true"));
 	gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
-	gameSettings->setNetworkPauseGameForLaggedClients(((listBoxNetworkPauseGameForLaggedClients.getSelectedItemIndex() != 0)));
+	gameSettings->setNetworkPauseGameForLaggedClients(((checkBoxNetworkPauseGameForLaggedClients.getValue() == true)));
 
 	if(hasNetworkGameSettings() == true) {
 		if( gameSettings->getTileset() != "") {
@@ -3442,74 +3437,8 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 
 	GameSettings gameSettings;
 	loadGameSettings(&gameSettings);
-	CoreData::getInstance().saveGameSettingsToFile(fileName, &gameSettings,listBoxAdvanced.getSelectedItemIndex());
+	CoreData::getInstance().saveGameSettingsToFile(fileName, &gameSettings,checkBoxAdvanced.getValue());
 
-//    Config &config = Config::getInstance();
-//    string userData = config.getString("UserData_Root","");
-//    if(userData != "") {
-//    	endPathWithSlash(userData);
-//    }
-//    fileName = userData + fileName;
-//
-//    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,fileName.c_str());
-//
-//	GameSettings gameSettings;
-//	loadGameSettings(&gameSettings);
-//
-//#if defined(WIN32) && !defined(__MINGW32__)
-//	FILE *fp = _wfopen(utf8_decode(fileName).c_str(), L"w");
-//	std::ofstream saveGameFile(fp);
-//#else
-//    std::ofstream saveGameFile;
-//    saveGameFile.open(fileName.c_str(), ios_base::out | ios_base::trunc);
-//#endif
-//
-//	//int factionCount= 0;
-//	//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-//
-//	saveGameFile << "Description=" << gameSettings.getDescription() << std::endl;
-//
-//	saveGameFile << "MapFilterIndex=" << gameSettings.getMapFilterIndex() << std::endl;
-//	saveGameFile << "Map=" << gameSettings.getMap() << std::endl;
-//	saveGameFile << "Tileset=" << gameSettings.getTileset() << std::endl;
-//	saveGameFile << "TechTree=" << gameSettings.getTech() << std::endl;
-//	saveGameFile << "DefaultUnits=" << gameSettings.getDefaultUnits() << std::endl;
-//	saveGameFile << "DefaultResources=" << gameSettings.getDefaultResources() << std::endl;
-//	saveGameFile << "DefaultVictoryConditions=" << gameSettings.getDefaultVictoryConditions() << std::endl;
-//	saveGameFile << "FogOfWar=" << gameSettings.getFogOfWar() << std::endl;
-//	saveGameFile << "AdvancedIndex=" << listBoxAdvanced.getSelectedItemIndex() << std::endl;
-//
-//	saveGameFile << "AllowObservers=" << gameSettings.getAllowObservers() << std::endl;
-//
-//	saveGameFile << "FlagTypes1=" << gameSettings.getFlagTypes1() << std::endl;
-//
-//	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings.getEnableObserverModeAtEndGame() << std::endl;
-//
-//	saveGameFile << "AiAcceptSwitchTeamPercentChance=" << gameSettings.getAiAcceptSwitchTeamPercentChance() << std::endl;
-//
-//	saveGameFile << "PathFinderType=" << gameSettings.getPathFinderType() << std::endl;
-//	saveGameFile << "EnableServerControlledAI=" << gameSettings.getEnableServerControlledAI() << std::endl;
-//	saveGameFile << "NetworkFramePeriod=" << gameSettings.getNetworkFramePeriod() << std::endl;
-//	saveGameFile << "NetworkPauseGameForLaggedClients=" << gameSettings.getNetworkPauseGameForLaggedClients() << std::endl;
-//
-//	saveGameFile << "FactionThisFactionIndex=" << gameSettings.getThisFactionIndex() << std::endl;
-//	saveGameFile << "FactionCount=" << gameSettings.getFactionCount() << std::endl;
-//
-//    //for(int i = 0; i < gameSettings.getFactionCount(); ++i) {
-//	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-//		int slotIndex = gameSettings.getStartLocationIndex(i);
-//
-//		saveGameFile << "FactionControlForIndex" 		<< slotIndex << "=" << gameSettings.getFactionControl(i) << std::endl;
-//		saveGameFile << "ResourceMultiplierIndex" 			<< slotIndex << "=" << gameSettings.getResourceMultiplierIndex(i) << std::endl;
-//		saveGameFile << "FactionTeamForIndex" 			<< slotIndex << "=" << gameSettings.getTeam(i) << std::endl;
-//		saveGameFile << "FactionStartLocationForIndex" 	<< slotIndex << "=" << gameSettings.getStartLocationIndex(i) << std::endl;
-//		saveGameFile << "FactionTypeNameForIndex" 		<< slotIndex << "=" << gameSettings.getFactionTypeName(i) << std::endl;
-//		saveGameFile << "FactionPlayerNameForIndex" 	<< slotIndex << "=" << gameSettings.getNetworkPlayerName(i) << std::endl;
-//    }
-//
-//#if defined(WIN32) && !defined(__MINGW32__)
-//	fclose(fp);
-//#endif
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
@@ -3641,10 +3570,10 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	//printf("In [%s::%s line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	listBoxAllowObservers.setSelectedItem(gameSettings.getAllowObservers() == true ? lang.get("Yes") : lang.get("No"));
+	checkBoxAllowObservers.setValue(gameSettings.getAllowObservers() == true ? true : false);
 	//listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
 
-	listBoxEnableSwitchTeamMode.setSelectedItem((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching ? lang.get("Yes") : lang.get("No"));
+	checkBoxEnableSwitchTeamMode.setValue((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching ? true : false);
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
 	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings.getFallbackCpuMultiplier());
 
@@ -3658,7 +3587,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	listBoxNetworkPauseGameForLaggedClients.setSelectedItemIndex(gameSettings.getNetworkPauseGameForLaggedClients());
+	checkBoxNetworkPauseGameForLaggedClients.setValue(gameSettings.getNetworkPauseGameForLaggedClients());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -3710,10 +3639,6 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	updateControlers();
 	updateNetworkSlots();
-
-	//if(listBoxPublishServer.getSelectedItemIndex() == 0) {
-	//	needToRepublishToMasterserver = true;
-	//}
 
 	if(hasNetworkGameSettings() == true)
 	{
@@ -4346,7 +4271,7 @@ void MenuStateCustomGame::processScenario() {
 						}
 					}
 
-					if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+					if(checkBoxPublishServer.getValue() == true) {
 						needToRepublishToMasterserver = true;
 					}
 
@@ -4361,7 +4286,7 @@ void MenuStateCustomGame::processScenario() {
 			updateNetworkSlots();
 
 			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-			if(listBoxPublishServer.getSelectedItemIndex() == 0) {
+			if(checkBoxPublishServer.getValue() == true) {
 				needToRepublishToMasterserver = true;
 			}
 			if(hasNetworkGameSettings() == true) {
@@ -4405,9 +4330,9 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 				listBoxTeams[i].setEditable(false);
 			}
 			listBoxFogOfWar.setEditable(false);
-			listBoxAllowObservers.setEditable(false);
+			checkBoxAllowObservers.setEditable(false);
 			//listBoxPathFinderType.setEditable(false);
-			listBoxEnableSwitchTeamMode.setEditable(false);
+			checkBoxEnableSwitchTeamMode.setEditable(false);
 			listBoxAISwitchTeamAcceptPercent.setEditable(false);
 			listBoxFallbackCpuMultiplier.setEditable(false);
 			listBoxMap.setEditable(false);
@@ -4425,9 +4350,9 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 				listBoxTeams[i].setEditable(true);
 			}
 			listBoxFogOfWar.setEditable(true);
-			listBoxAllowObservers.setEditable(true);
+			checkBoxAllowObservers.setEditable(true);
 			//listBoxPathFinderType.setEditable(true);
-			listBoxEnableSwitchTeamMode.setEditable(true);
+			checkBoxEnableSwitchTeamMode.setEditable(true);
 			listBoxAISwitchTeamAcceptPercent.setEditable(true);
 			listBoxFallbackCpuMultiplier.setEditable(true);
 			listBoxMap.setEditable(true);
@@ -4597,7 +4522,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 		results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
 
 		// Add special Observer Faction
-		if(listBoxAllowObservers.getSelectedItemIndex() == 1) {
+		if(checkBoxAllowObservers.getValue() == 1) {
 			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
 		}
 
@@ -4615,7 +4540,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 
 			listBoxFactions[i].setItems(results);
 			if( keepExistingSelectedItem == false ||
-				(listBoxAllowObservers.getSelectedItemIndex() == 0 &&
+				(checkBoxAllowObservers.getValue() == 0 &&
 						originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
 
 				listBoxFactions[i].setSelectedItemIndex(i % results.size());
