@@ -89,7 +89,8 @@ private:
 	GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
 
 	GraphicLabel labelAllowObservers;
-	GraphicListBox listBoxAllowObservers;
+	//GraphicListBox listBoxAllowObservers;
+	GraphicCheckBox checkBoxAllowObservers;
 
 	GraphicLabel *activeInputLabel;
 
@@ -188,7 +189,9 @@ private:
     GraphicButton buttonCancelDownloads;
 
 	GraphicLabel labelEnableSwitchTeamMode;
-	GraphicListBox listBoxEnableSwitchTeamMode;
+	//GraphicListBox listBoxEnableSwitchTeamMode;
+	GraphicCheckBox checkBoxEnableSwitchTeamMode;
+
 	GraphicLabel labelAISwitchTeamAcceptPercent;
 	GraphicListBox listBoxAISwitchTeamAcceptPercent;
 	GraphicLabel labelFallbackCpuMultiplier;

@@ -182,12 +182,16 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
 	labelAllowObservers.setText(lang.get("AllowObservers"));
 
-	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
-	listBoxAllowObservers.init(xoffset+310, aPos, 80);
-	listBoxAllowObservers.pushBackItem(lang.get("No"));
-	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
-	listBoxAllowObservers.setSelectedItemIndex(0);
-	listBoxAllowObservers.setEditable(false);
+//	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
+//	listBoxAllowObservers.init(xoffset+310, aPos, 80);
+//	listBoxAllowObservers.pushBackItem(lang.get("No"));
+//	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
+//	listBoxAllowObservers.setSelectedItemIndex(0);
+//	listBoxAllowObservers.setEditable(false);
+	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
+	checkBoxAllowObservers.init(xoffset+310, aPos);
+	checkBoxAllowObservers.setValue(false);
+	checkBoxAllowObservers.setEditable(false);
 
 	for(int i=0; i<45; ++i){
 		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
@@ -208,12 +212,16 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
-	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
-	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45, 80);
-	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
-	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
-	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
-	listBoxEnableSwitchTeamMode.setEditable(false);
+//	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
+//	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45, 80);
+//	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
+//	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
+//	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
+//	listBoxEnableSwitchTeamMode.setEditable(false);
+	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
+	checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
+	checkBoxEnableSwitchTeamMode.setValue(false);
+	checkBoxEnableSwitchTeamMode.setEditable(false);
 
 	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
 	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+45, 80);
@@ -573,17 +581,17 @@ void MenuStateConnectedGame::reloadUI() {
 	labelAllowObservers.setText(lang.get("AllowObservers"));
 	labelFallbackCpuMultiplier.setText(lang.get("FallbackCpuMultiplier"));
 
-	vector<string> observerItems;
-	observerItems.push_back(lang.get("No"));
-	observerItems.push_back(lang.get("Yes"));
-	listBoxAllowObservers.setItems(observerItems);
+	//vector<string> observerItems;
+	//observerItems.push_back(lang.get("No"));
+	//observerItems.push_back(lang.get("Yes"));
+	//listBoxAllowObservers.setItems(observerItems);
 
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
-	vector<string> switchteamModeItems;
-	switchteamModeItems.push_back(lang.get("Yes"));
-	switchteamModeItems.push_back(lang.get("No"));
-	listBoxEnableSwitchTeamMode.setItems(switchteamModeItems);
+	//vector<string> switchteamModeItems;
+	//switchteamModeItems.push_back(lang.get("Yes"));
+	//switchteamModeItems.push_back(lang.get("No"));
+	//listBoxEnableSwitchTeamMode.setItems(switchteamModeItems);
 
 	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
 
@@ -1603,12 +1611,12 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-        else if(listBoxAllowObservers.mouseClick(x, y)) {
+        else if(checkBoxAllowObservers.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-        else if (listBoxEnableSwitchTeamMode.mouseClick(x, y)) {
+        else if (checkBoxEnableSwitchTeamMode.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
@@ -1772,7 +1780,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
 
     // Add special Observer Faction
     //Lang &lang= Lang::getInstance();
-    if(listBoxAllowObservers.getSelectedItemIndex() == 1) {
+    if(checkBoxAllowObservers.getValue() == false) {
     	results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
     }
 
@@ -1793,7 +1801,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
 
     	listBoxFactions[i].setItems(results);
         if( keepExistingSelectedItem == false ||
-        	(listBoxAllowObservers.getSelectedItemIndex() == 0 &&
+        	(checkBoxAllowObservers.getValue() == true &&
         			originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
         	listBoxFactions[i].setSelectedItemIndex(i % results.size());
 
@@ -1913,7 +1921,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setFogOfWar(listBoxFogOfWar.getSelectedItemIndex() == 0 ||
 								listBoxFogOfWar.getSelectedItemIndex() == 1 );
 
-	gameSettings->setAllowObservers(listBoxAllowObservers.getSelectedItemIndex() == 1);
+	gameSettings->setAllowObservers(checkBoxAllowObservers.getValue() == true);
 
 	uint32 valueFlags1 = gameSettings->getFlagTypes1();
 	if(listBoxFogOfWar.getSelectedItemIndex() == 1 ||
@@ -1931,7 +1939,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 	//gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
 	valueFlags1 = gameSettings->getFlagTypes1();
-	if(listBoxEnableSwitchTeamMode.getSelectedItemIndex() == 0) {
+	if(checkBoxEnableSwitchTeamMode.getValue() == true) {
         valueFlags1 |= ft1_allow_team_switching;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
@@ -2155,7 +2163,7 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 
 	listBoxMap.mouseMove(x, y);
 	listBoxFogOfWar.mouseMove(x, y);
-	listBoxAllowObservers.mouseMove(x, y);
+	checkBoxAllowObservers.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPlayerStatus.mouseMove(x,y);
@@ -2367,7 +2375,7 @@ void MenuStateConnectedGame::render() {
 
 		renderer.renderListBox(&listBoxMap);
 		renderer.renderListBox(&listBoxFogOfWar);
-		renderer.renderListBox(&listBoxAllowObservers);
+		renderer.renderCheckBox(&checkBoxAllowObservers);
 		renderer.renderListBox(&listBoxTileset);
 		renderer.renderListBox(&listBoxTechTree);
 
@@ -2380,7 +2388,7 @@ void MenuStateConnectedGame::render() {
 		//renderer.renderListBox(&listBoxEnableObserverMode);
 		//renderer.renderListBox(&listBoxPathFinderType);
 
-		renderer.renderListBox(&listBoxEnableSwitchTeamMode);
+		renderer.renderCheckBox(&checkBoxEnableSwitchTeamMode);
 		renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
 		renderer.renderListBox(&listBoxFallbackCpuMultiplier);
 
@@ -2484,12 +2492,12 @@ void MenuStateConnectedGame::update() {
 		buttonRestoreLastSettings.setVisible(isHeadlessAdmin());
 		listBoxTechTree.setEditable(isHeadlessAdmin());
 		listBoxTileset.setEditable(isHeadlessAdmin());
-		listBoxEnableSwitchTeamMode.setEditable(isHeadlessAdmin());
+		checkBoxEnableSwitchTeamMode.setEditable(isHeadlessAdmin());
 		listBoxAISwitchTeamAcceptPercent.setEditable(isHeadlessAdmin());
 		listBoxFallbackCpuMultiplier.setEditable(isHeadlessAdmin());
 		listBoxFogOfWar.setEditable(isHeadlessAdmin());
 		//listBoxEnableObserverMode.setEditable(isMasterserverAdmin());
-		listBoxAllowObservers.setEditable(isHeadlessAdmin());
+		checkBoxAllowObservers.setEditable(isHeadlessAdmin());
 
 		if(isHeadlessAdmin() == true) {
 			for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
@@ -4162,18 +4170,18 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 	// Allow Observers
 	if(gameSettings->getAllowObservers()) {
-		listBoxAllowObservers.setSelectedItemIndex(1);
+		checkBoxAllowObservers.setValue(true);
 	}
 	else
 	{
-		listBoxAllowObservers.setSelectedItemIndex(0);
+		checkBoxAllowObservers.setValue(false);
 	}
 
 	if((gameSettings->getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching){
-		listBoxEnableSwitchTeamMode.setSelectedItemIndex(0);
+		checkBoxEnableSwitchTeamMode.setValue(true);
 	}
 	else {
-		listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
+		checkBoxEnableSwitchTeamMode.setValue(false);
 	}
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings->getAiAcceptSwitchTeamPercentChance()));
 	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings->getFallbackCpuMultiplier());

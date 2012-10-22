@@ -2320,7 +2320,7 @@ void MenuStateCustomGame::update() {
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
-		listBoxAISwitchTeamAcceptPercent.setEnabled(checkBoxEnableSwitchTeamMode.getValue() == 1);
+		listBoxAISwitchTeamAcceptPercent.setEnabled(checkBoxEnableSwitchTeamMode.getValue());
 
 		int factionCount = 0;
 		for(int i= 0; i< mapInfo.players; ++i) {
@@ -3150,7 +3150,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	//gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
 	valueFlags1 = gameSettings->getFlagTypes1();
-	if(checkBoxEnableSwitchTeamMode.getValue() == 0) {
+	if(checkBoxEnableSwitchTeamMode.getValue() == true) {
         valueFlags1 |= ft1_allow_team_switching;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
