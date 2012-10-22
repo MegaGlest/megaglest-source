@@ -144,11 +144,19 @@ private:
 	int maxEditWidth;
 	int maxEditRenderWidth;
 
+	vector<int> textCharLength;
+
 public:
 	GraphicLabel();
 	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=GraphicComponent::customTextColor, bool wordWrap=false);
 
 	virtual bool mouseMove(int x, int y);
+
+	vector<int> getTextCharLengthList() const { return textCharLength; }
+	void setTextCharLengthList(vector<int> value) { textCharLength = value; }
+	void clearTextCharLengthList() { textCharLength.clear(); }
+	void addTextCharLengthToList(int length) { textCharLength.push_back(length); }
+	void deleteTextCharLengthFromList() { textCharLength.pop_back(); }
 
 	bool getCentered() const	{return centered;}
 	void setCentered(bool centered)	{this->centered= centered;}

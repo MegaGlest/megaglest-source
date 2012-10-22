@@ -103,7 +103,7 @@ protected:
 	const char *containerName;
 	Console console;
 
-	vector<int> textCharLength;
+	//vector<int> textCharLength;
 
 protected:
 
