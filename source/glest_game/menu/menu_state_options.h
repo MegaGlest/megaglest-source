@@ -146,6 +146,18 @@ private:
 
 	map<string,string> languageList;
 
+	GraphicLabel labelCustomTranslation;
+	GraphicCheckBox checkBoxCustomTranslation;
+
+	GraphicButton buttonGetNewLanguageFiles;
+	GraphicButton buttonDeleteNewLanguageFiles;
+	GraphicLabel labelTransifexUserLabel;
+	GraphicLabel labelTransifexUser;
+	GraphicLabel labelTransifexPwdLabel;
+	GraphicLabel labelTransifexPwd;
+	GraphicLabel labelTransifexI18NLabel;
+	GraphicLabel labelTransifexI18N;
+
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
 
@@ -164,6 +176,8 @@ private:
 	void setActiveInputLable(GraphicLabel* newLable);
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	void showLuaMessageBox(const string &text, const string &header, bool toggle);
+
+	void setupTransifexUI();
 };
 
 }}//end namespace

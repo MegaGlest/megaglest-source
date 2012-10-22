@@ -209,6 +209,24 @@ bool Lang::isUTF8Language() const {
 void Lang::loadScenarioStrings(string scenarioDir, string scenarioName){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scenarioDir = [%s] scenarioName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());
 
+	// First try to find scenario lng file in userdata
+	Config &config = Config::getInstance();
+    vector<string> scenarioPaths = config.getPathListForType(ptScenarios);
+    if(scenarioPaths.size() > 1) {
+        string &scenarioPath = scenarioPaths[1];
+		endPathWithSlash(scenarioPath);
+
+		string currentPath = scenarioPath;
+		endPathWithSlash(currentPath);
+		string scenarioFolder = currentPath + scenarioName + "/";
+		string path = scenarioFolder + scenarioName + "_" + language + ".lng";
+
+		//try to load the current language first
+		if(fileExists(path)) {
+			scenarioDir = scenarioPath;
+		}
+    }
+
 	string currentPath = scenarioDir;
 	endPathWithSlash(currentPath);
 	string scenarioFolder = currentPath + scenarioName + "/";
