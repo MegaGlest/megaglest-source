@@ -640,21 +640,22 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelTransifexUser.setText(config.getString("TranslationGetURLUser","<none>"));
 
 		labelTransifexPwdLabel.registerGraphicComponent(containerName,"labelTransifexPwdLabel");
-		labelTransifexPwdLabel.init(buttonStartPos + 160 ,buttonRowPos - 20);
+		labelTransifexPwdLabel.init(buttonStartPos + 200 ,buttonRowPos - 20);
 		labelTransifexPwdLabel.setText(lang.get("TransifexPwd"));
 
 		labelTransifexPwd.registerGraphicComponent(containerName,"labelTransifexPwd");
-		labelTransifexPwd.init(buttonStartPos + 160 ,buttonRowPos - 40);
+		labelTransifexPwd.init(buttonStartPos + 200 ,buttonRowPos - 40);
+		labelTransifexPwd.setIsPassword(true);
 		labelTransifexPwd.setMaxEditWidth(60);
 		labelTransifexPwd.setMaxEditRenderWidth(120);
 		labelTransifexPwd.setText(config.getString("TranslationGetURLPassword","<none>"));
 
 		labelTransifexI18NLabel.registerGraphicComponent(containerName,"labelTransifexI18NLabel");
-		labelTransifexI18NLabel.init(buttonStartPos + 300 ,buttonRowPos - 20);
+		labelTransifexI18NLabel.init(buttonStartPos + 360 ,buttonRowPos - 20);
 		labelTransifexI18NLabel.setText(lang.get("TransifexI18N"));
 
 		labelTransifexI18N.registerGraphicComponent(containerName,"labelTransifexI18N");
-		labelTransifexI18N.init(buttonStartPos + 300 ,buttonRowPos - 40);
+		labelTransifexI18N.init(buttonStartPos + 360 ,buttonRowPos - 40);
 		labelTransifexI18N.setMaxEditWidth(3);
 		labelTransifexI18N.setText(config.getString("TranslationGetURLLanguage","en"));
 
@@ -1240,6 +1241,9 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 					replaceAll(fileData,"\\n","\n");
 					replaceAll(fileData,"$requires-newline$","\\n");
 
+					replaceAll(fileData,"&quot;","\"");
+
+
 					printf("PARSED Language text\n[%s]\n",fileData.c_str());
 
 					//vector<string> languageName;
@@ -1688,6 +1692,13 @@ void MenuStateOptions::saveConfig(){
 
 void MenuStateOptions::setActiveInputLable(GraphicLabel *newLable) {
 	MenuState::setActiveInputLabel(newLable,&activeInputLabel);
+
+	if(newLable == &labelTransifexPwd) {
+		labelTransifexPwd.setIsPassword(false);
+	}
+	else {
+		labelTransifexPwd.setIsPassword(true);
+	}
 }
 
 }}//end namespace

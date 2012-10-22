@@ -145,6 +145,7 @@ private:
 	int maxEditRenderWidth;
 
 	vector<int> textCharLength;
+	bool isPassword;
 
 public:
 	GraphicLabel();
@@ -157,6 +158,9 @@ public:
 	void clearTextCharLengthList() { textCharLength.clear(); }
 	void addTextCharLengthToList(int length) { textCharLength.push_back(length); }
 	void deleteTextCharLengthFromList() { textCharLength.pop_back(); }
+
+	bool getIsPassword() const { return isPassword; }
+	void setIsPassword(bool value) { isPassword = value; }
 
 	bool getCentered() const	{return centered;}
 	void setCentered(bool centered)	{this->centered= centered;}
