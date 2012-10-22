@@ -1241,7 +1241,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 					replaceAll(fileData,"\\n","\n");
 					replaceAll(fileData,"$requires-newline$","\\n");
 
-					replaceAll(fileData,"&quot;","\"");
+					//replaceAll(fileData,"&quot;","\"");
+					replaceAllHTMLEntities(fileData);
 
 
 					printf("PARSED Language text\n[%s]\n",fileData.c_str());

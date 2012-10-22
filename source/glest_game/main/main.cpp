@@ -2587,7 +2587,12 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
                     printf("\t");
                 }
 
-                printf("Value [%s]\n",nameValue.second.c_str());
+                string displayValue = nameValue.second;
+                if(nameValue.first == "TranslationGetURLPassword") {
+                	displayValue = "*****";
+                }
+
+                printf("Value [%s]\n",displayValue.c_str());
             }
         }
 
