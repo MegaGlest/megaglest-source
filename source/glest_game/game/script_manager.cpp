@@ -2812,7 +2812,7 @@ int ScriptManager::removeUnitFromGroupSelection(LuaHandle* luaHandle) {
 
 int ScriptManager::setAttackWarningsEnabled(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->setAttackWarningsEnabled(luaArguments.getInt(-1));
+	thisScriptManager->setAttackWarningsEnabled((luaArguments.getInt(-1) == 0 ? false : true));
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getAttackWarningsEnabled(LuaHandle* luaHandle) {
