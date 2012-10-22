@@ -2093,6 +2093,32 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 	return replacedText;
 }
 
+void saveDataToFile(string filename, string data) {
+	//Open an input and output stream in binary mode
+#if defined(WIN32) && !defined(__MINGW32__)
+	FILE *fp2 = _wfopen(utf8_decode(filename).c_str(), L"wb");
+	ofstream out(fp2);
+#else
+	ofstream out(filename.c_str(),ios::binary);
+#endif
+
+	if(out.is_open()) {
+		out<< data;
+	}
+	else if(out.is_open() == false) {
+		throw megaglest_runtime_error("cannot open input file [" + filename + "]");
+	}
+
+	//Close file
+	out.close();
+
+#if defined(WIN32) && !defined(__MINGW32__)
+	if(fp2) {
+		fclose(fp2);
+	}
+#endif
+}
+
 void copyFileTo(string fromFileName, string toFileName) {
 	//Open an input and output stream in binary mode
 #if defined(WIN32) && !defined(__MINGW32__)

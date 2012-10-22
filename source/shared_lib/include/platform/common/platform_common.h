@@ -271,6 +271,8 @@ string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE,ShellCommandOutputCallbackInterface *cb=NULL);
 string executable_path(string exeName,bool includeExeNameInPath=false);
 
+void saveDataToFile(string filename, string data);
+
 bool valid_utf8_file(const char* file_name);
 
 string getFileTextContents(string path);

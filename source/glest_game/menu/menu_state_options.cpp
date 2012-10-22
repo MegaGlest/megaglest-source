@@ -612,6 +612,49 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
 		buttonKeyboardSetup.init(buttonStartPos+520, buttonRowPos, 145);
 
+		// Transifex related UI
+		labelCustomTranslation.registerGraphicComponent(containerName,"labelCustomTranslation");
+		labelCustomTranslation.init(currentColumnStart ,700);
+		labelCustomTranslation.setText(lang.get("CustomTranslation"));
+
+		checkBoxCustomTranslation.registerGraphicComponent(containerName,"checkBoxCustomTranslation");
+		checkBoxCustomTranslation.init(currentColumnStart + 200 ,700 );
+		checkBoxCustomTranslation.setValue(false);
+
+		buttonGetNewLanguageFiles.registerGraphicComponent(containerName,"buttonGetNewLanguageFiles");
+		buttonGetNewLanguageFiles.init(buttonStartPos, buttonRowPos - 60, 200);
+		buttonGetNewLanguageFiles.setText(lang.get("TransifexGetLanguageFiles"));
+
+		buttonDeleteNewLanguageFiles.registerGraphicComponent(containerName,"buttonDeleteNewLanguageFiles");
+		buttonDeleteNewLanguageFiles.init(buttonStartPos + 230, buttonRowPos - 60, 200);
+		buttonDeleteNewLanguageFiles.setText(lang.get("TransifexDeleteLanguageFiles"));
+
+		labelTransifexUserLabel.registerGraphicComponent(containerName,"labelTransifexUserLabel");
+		labelTransifexUserLabel.init(buttonStartPos ,buttonRowPos - 20);
+		labelTransifexUserLabel.setText(lang.get("TransifexUserName"));
+
+		labelTransifexUser.registerGraphicComponent(containerName,"labelTransifexUser");
+		labelTransifexUser.init(buttonStartPos ,buttonRowPos - 40);
+		labelTransifexUser.setText(config.getString("TranslationGetURLUser","<none>"));
+
+		labelTransifexPwdLabel.registerGraphicComponent(containerName,"labelTransifexPwdLabel");
+		labelTransifexPwdLabel.init(buttonStartPos + 160 ,buttonRowPos - 20);
+		labelTransifexPwdLabel.setText(lang.get("TransifexPwd"));
+
+		labelTransifexPwd.registerGraphicComponent(containerName,"labelTransifexPwd");
+		labelTransifexPwd.init(buttonStartPos + 160 ,buttonRowPos - 40);
+		labelTransifexPwd.setText(config.getString("TranslationGetURLPassword","<none>"));
+
+		labelTransifexI18NLabel.registerGraphicComponent(containerName,"labelTransifexI18NLabel");
+		labelTransifexI18NLabel.init(buttonStartPos + 300 ,buttonRowPos - 20);
+		labelTransifexI18NLabel.setText(lang.get("TransifexI18N"));
+
+		labelTransifexI18N.registerGraphicComponent(containerName,"labelTransifexI18N");
+		labelTransifexI18N.init(buttonStartPos + 300 ,buttonRowPos - 40);
+		labelTransifexI18N.setText(config.getString("TranslationGetURLLanguage","en"));
+
+		setupTransifexUI();
+
 		GraphicComponent::applyAllCustomProperties(containerName);
 	}
 	catch(exception &e) {
@@ -750,7 +793,25 @@ void MenuStateOptions::reloadUI() {
 
 	buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
 
+	labelCustomTranslation.setText(lang.get("CustomTranslation"));
+	buttonGetNewLanguageFiles.setText(lang.get("TransifexGetLanguageFiles"));
+	buttonDeleteNewLanguageFiles.setText(lang.get("TransifexDeleteLanguageFiles"));
+	labelTransifexUserLabel.setText(lang.get("TransifexUserName"));
+	labelTransifexPwdLabel.setText(lang.get("TransifexPwd"));
+	labelTransifexI18NLabel.setText(lang.get("TransifexI18N"));
+
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+}
+
+void MenuStateOptions::setupTransifexUI() {
+	buttonGetNewLanguageFiles.setEnabled(checkBoxCustomTranslation.getValue());
+	buttonDeleteNewLanguageFiles.setEnabled(checkBoxCustomTranslation.getValue());
+	labelTransifexUserLabel.setEnabled(checkBoxCustomTranslation.getValue());
+	labelTransifexUser.setEnabled(checkBoxCustomTranslation.getValue());
+	labelTransifexPwdLabel.setEnabled(checkBoxCustomTranslation.getValue());
+	labelTransifexPwd.setEnabled(checkBoxCustomTranslation.getValue());
+	labelTransifexI18NLabel.setEnabled(checkBoxCustomTranslation.getValue());
+	labelTransifexI18N.setEnabled(checkBoxCustomTranslation.getValue());
 }
 
 void MenuStateOptions::showMessageBox(const string &text, const string &header, bool toggle){
@@ -898,8 +959,305 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		//showMessageBox("Not implemented yet", "Keyboard setup", false);
 		return;
 	}
+	else if(checkBoxCustomTranslation.mouseClick(x, y)) {
+		setupTransifexUI();
+	}
+	else if(buttonDeleteNewLanguageFiles.mouseClick(x, y)) {
+		soundRenderer.playFx(coreData.getClickSoundA());
+
+		setActiveInputLable(NULL);
+
+		if(labelTransifexI18N.getText() != "") {
+			Lang &lang= Lang::getInstance();
+			string language = lang.getLanguageFile(labelTransifexI18N.getText());
+
+			if(language != "") {
+				bool foundFilesToDelete = false;
+
+				Config &config = Config::getInstance();
+				string data_path = config.getString("UserData_Root","");
+				if(data_path != "") {
+					endPathWithSlash(data_path);
+				}
+
+				if(data_path != "") {
+					Config &config = Config::getInstance();
+
+					// Cleanup Scenarios
+					vector<string> scenarioPaths = config.getPathListForType(ptScenarios);
+					if(scenarioPaths.size() > 1) {
+						string &scenarioPath = scenarioPaths[1];
+						endPathWithSlash(scenarioPath);
+
+						vector<string> scenarioList;
+						findDirs(scenarioPath, scenarioList, false,false);
+						for(unsigned int i = 0; i < scenarioList.size(); ++i) {
+							string scenario = scenarioList[i];
+
+							vector<string> langResults;
+							findAll(scenarioPath + scenario + "/*.lng", langResults, false, false);
+							for(unsigned int j = 0; j < langResults.size(); ++j) {
+								string testLanguage = langResults[j];
+
+								string removeLngFile = scenarioPath + scenario + "/" + testLanguage;
+
+								if(EndsWith(testLanguage,language + ".lng") == true) {
+									printf("About to delete file [%s]\n",removeLngFile.c_str());
+									removeFile(removeLngFile);
+									foundFilesToDelete = true;
+								}
+							}
+						}
+					}
+
+					// Cleanup tutorials
+					vector<string> tutorialPaths = config.getPathListForType(ptTutorials);
+					if(tutorialPaths.size() > 1) {
+						string &tutorialPath = tutorialPaths[1];
+						endPathWithSlash(tutorialPath);
+
+						vector<string> tutorialList;
+						findDirs(tutorialPath, tutorialList, false, false);
+						for(unsigned int i = 0; i < tutorialList.size(); ++i) {
+							string tutorial = tutorialList[i];
+
+							vector<string> langResults;
+							findAll(tutorialPath + tutorial + "/*.lng", langResults, false, false);
+							for(unsigned int j = 0; j < langResults.size(); ++j) {
+								string testLanguage = langResults[j];
+
+								string removeLngFile = tutorialPath + tutorial + "/" + testLanguage;
+								if(EndsWith(testLanguage,language + ".lng") == true) {
+									printf("About to delete file [%s]\n",removeLngFile.c_str());
+									removeFile(removeLngFile);
+									foundFilesToDelete = true;
+								}
+							}
+						}
+					}
+
+
+					// Cleanup main and hint language files
+					string mainLngFile = data_path + "data/lang/" + language + ".lng";
+					if(fileExists(mainLngFile) == true) {
+						printf("About to delete file [%s]\n",mainLngFile.c_str());
+						removeFile(mainLngFile);
+						foundFilesToDelete = true;
+					}
+
+					string hintLngFile = data_path + "data/lang/hint/hint_" + language + ".lng";
+					if(fileExists(hintLngFile) == true) {
+						printf("About to delete file [%s]\n",hintLngFile.c_str());
+						removeFile(hintLngFile);
+						foundFilesToDelete = true;
+					}
+				}
+
+				if(lang.isLanguageLocal(toLower(language)) == true) {
+					lang.loadStrings(toLower(language));
+				}
+
+				if(foundFilesToDelete == true) {
+					mainMessageBoxState=0;
+					Lang &lang= Lang::getInstance();
+					showMessageBox(lang.get("TransifexDeleteSuccess"), lang.get("Notice"), false);
+				}
+			}
+		}
+	}
+	else if(buttonGetNewLanguageFiles.mouseClick(x, y)) {
+		soundRenderer.playFx(coreData.getClickSoundA());
+
+		setActiveInputLable(NULL);
+
+		bool gotDownloads = false;
+		string orig_txnURLUser = Config::getInstance().getString("TranslationGetURLUser");
+		string orig_txnURLPwd = Config::getInstance().getString("TranslationGetURLPassword");
+		string orig_txnURLLang = Config::getInstance().getString("TranslationGetURLLanguage");
+
+		Config::getInstance().setString("TranslationGetURLUser",labelTransifexUser.getText());
+		Config::getInstance().setString("TranslationGetURLPassword",labelTransifexPwd.getText());
+		Config::getInstance().setString("TranslationGetURLLanguage",labelTransifexI18N.getText());
+
+		bool saveChanges = (orig_txnURLUser != labelTransifexUser.getText() ||
+				orig_txnURLPwd != labelTransifexPwd.getText() ||
+				orig_txnURLLang != labelTransifexI18N.getText());
+
+		string txnURL = Config::getInstance().getString("TranslationGetURL");
+		string txnURLUser = Config::getInstance().getString("TranslationGetURLUser");
+		string txnURLPwd = Config::getInstance().getString("TranslationGetURLPassword");
+		string txnURLLang = Config::getInstance().getString("TranslationGetURLLanguage");
+		string txnURLFileList = Config::getInstance().getString("TranslationGetURLFileList");
+		string txnURLFileListMapping = Config::getInstance().getString("TranslationGetURLFileListMapping");
+
+		string txnURLDetails = Config::getInstance().getString("TranslationGetURLDetails");
+
+		string credentials = txnURLUser + ":" + txnURLPwd;
+
+		printf("URL1 [%s] credentials [%s]\n",txnURL.c_str(),credentials.c_str());
+
+		//txnURLUser = SystemFlags::escapeURL(txnURLUser,handle);
+		//replaceAll(txnURL,"$user",txnURLUser);
+
+		//printf("URL2 [%s]\n",txnURL.c_str());
+
+		//txnURLPwd = SystemFlags::escapeURL(txnURLPwd,handle);
+		//replaceAll(txnURL,"$password",txnURLPwd);
+
+		//printf("URL3 [%s]\n",txnURL.c_str());
+
+		replaceAll(txnURL,"$language",txnURLLang);
+
+		printf("URL4 [%s]\n",txnURL.c_str());
+
+		//txnURLFileList
+		vector<string> languageFiles;
+		Tokenize(txnURLFileList,languageFiles,"|");
+
+		vector<string> languageFileMappings;
+		Tokenize(txnURLFileListMapping,languageFileMappings,"|");
+
+		printf("URL5 file count = %lu, %lu [%s]\n",languageFiles.size(),languageFileMappings.size(),(languageFiles.size() > 0 ? languageFiles[0].c_str() : ""));
+
+		if(languageFiles.size() > 0) {
+
+			bool reloadLanguage = false;
+			string langName = "";
+
+			CURL *handle = SystemFlags::initHTTP();
+			for(unsigned int i = 0; i < languageFiles.size(); ++i) {
+				string fileURL = txnURL;
+				replaceAll(fileURL,"$file",languageFiles[i]);
+
+				if(langName == "") {
+					// Get language name for file
+					string fileURLDetails = txnURLDetails;
+					replaceAll(fileURLDetails,"$file",languageFiles[0]);
+
+					printf(" i = %u Trying [%s]\n",i,fileURLDetails.c_str());
+					curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
+					curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
+					curl_easy_setopt(handle, CURLOPT_USERPWD, credentials.c_str());
+					std::string fileDataDetails = SystemFlags::getHTTP(fileURLDetails,handle);
+
+					//		 "available_languages": [
+					//		        {
+					//		            "code_aliases": " ",
+					//		            "code": "ca",
+					//		            "name": "Catalan"
+					//		        },
+					//		        {
+					//		            "code_aliases": " ",
+					//		            "code": "zh",
+					//		            "name": "Chinese"
+					//		        },
+					// curl -i -L --user softcoder -X GET https://www.transifex.com/api/2/project/megaglest/resource/main-language-file/?details
+
+					string search_detail_key = "\"code\": \"" + txnURLLang + "\"";
+					size_t posDetails = fileDataDetails.find( search_detail_key, 0 );
+					if( posDetails != fileDataDetails.npos ) {
+						posDetails = fileDataDetails.find( "\"name\": \"", posDetails+search_detail_key.length() );
+
+						if( posDetails != fileDataDetails.npos ) {
+
+							size_t posDetailsEnd = fileDataDetails.find( "\"", posDetails + 9 );
+
+							langName = fileDataDetails.substr(posDetails + 9, posDetailsEnd - (posDetails + 9));
+						}
+
+						printf("PARSED Language filename [%s]\n",langName.c_str());
+					}
+				}
+
+				printf("i = %u Trying [%s]\n",i,fileURL.c_str());
+				curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
+				curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
+				curl_easy_setopt(handle, CURLOPT_USERPWD, credentials.c_str());
+				std::string fileData = SystemFlags::getHTTP(fileURL,handle);
+
+				// "content": "
+				// ",
+				// "mimetype": "text/plain"
+				size_t pos = fileData.find( "\"content\": \"", 0 );
+				if( pos != fileData.npos ) {
+					fileData = fileData.substr(pos+12, fileData.length());
+
+					pos = fileData.find( "\",\n", 0 );
+					if( pos != fileData.npos ) {
+						fileData = fileData.substr(0, pos);
+					}
+
+					replaceAll(fileData,"\\\\n","$requires-newline$");
+					replaceAll(fileData,"\\n","\n");
+					replaceAll(fileData,"$requires-newline$","\\n");
+
+					printf("PARSED Language text\n[%s]\n",fileData.c_str());
+
+					//vector<string> languageName;
+					//Tokenize(fileData,languageName," ");
+					//printf("PARSED Language Name guessed to be [%s]\n",languageName[1].c_str());
+
+					//string data_path= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+					//if(data_path != ""){
+						//endPathWithSlash(data_path);
+					//}
+					Config &config = Config::getInstance();
+					string data_path = config.getString("UserData_Root","");
+					if(data_path != "") {
+						endPathWithSlash(data_path);
+					}
+
+					string outputFile = languageFileMappings[i];
+					replaceAll(outputFile,"$language",toLower(langName));
+					//string lngFile = getGameCustomCoreDataPath(data_path, "data/lang/" + toLower(languageName[1]) + ".lng");
+					string lngFile = getGameCustomCoreDataPath(data_path, outputFile);
+
+					string lngPath = extractDirectoryPathFromFile(lngFile);
+					createDirectoryPaths(lngPath);
+
+					printf("Save data to Language Name [%s]\n",lngFile.c_str());
+					saveDataToFile(lngFile, fileData);
+					gotDownloads = true;
+
+					reloadLanguage = true;
+					if(saveChanges == true) {
+						saveChanges = false;
+						config.save();
+					}
+				}
+				else {
+					printf("UNPARSED Language text\n[%s]\n",fileData.c_str());
+				}
+			}
+
+			SystemFlags::cleanupHTTP(&handle);
+
+			if(reloadLanguage == true && langName != "") {
+				Lang &lang= Lang::getInstance();
+				if(lang.isLanguageLocal(toLower(langName)) == true) {
+					lang.loadStrings(toLower(langName));
+				}
+			}
+
+			if(gotDownloads == true) {
+				mainMessageBoxState=0;
+				Lang &lang= Lang::getInstance();
+				showMessageBox(lang.get("TransifexDownloadSuccess"), lang.get("Notice"), false);
+			}
+		}
+		return;
+	}
 	else if(labelPlayerName.mouseClick(x, y) && ( activeInputLabel != &labelPlayerName )){
 			setActiveInputLable(&labelPlayerName);
+	}
+	else if(labelTransifexUser.mouseClick(x, y) && ( activeInputLabel != &labelTransifexUser )){
+			setActiveInputLable(&labelTransifexUser);
+	}
+	else if(labelTransifexPwd.mouseClick(x, y) && ( activeInputLabel != &labelTransifexPwd )){
+			setActiveInputLable(&labelTransifexPwd);
+	}
+	else if(labelTransifexI18N.mouseClick(x, y) && ( activeInputLabel != &labelTransifexI18N )){
+			setActiveInputLable(&labelTransifexI18N);
 	}
 	else
 	{
@@ -978,6 +1336,8 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	buttonAutoConfig.mouseMove(x, y);
 	buttonVideoInfo.mouseMove(x, y);
 	buttonKeyboardSetup.mouseMove(x, y);
+	buttonGetNewLanguageFiles.mouseMove(x, y);
+	buttonDeleteNewLanguageFiles.mouseMove(x, y);
 	listBoxLang.mouseMove(x, y);
 	listBoxSoundFactory.mouseMove(x, y);
 	listBoxVolumeFx.mouseMove(x, y);
@@ -1015,6 +1375,8 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxRainEffectMenu.mouseMove(x, y);
 
 	checkBoxVideos.mouseMove(x, y);
+
+	checkBoxCustomTranslation.mouseMove(x, y);
 }
 
 bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
@@ -1023,22 +1385,6 @@ bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
 
 void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 	if(activeInputLabel != NULL) {
-		/*
-		string text= activeInputLabel->getText();
-		if(isKeyPressed(SDLK_BACKSPACE,key) == true && text.length() > 0) {
-			size_t found = text.find_last_of("_");
-			if (found == string::npos) {
-				text.erase(text.end() - 1);
-			}
-			else {
-				if(text.size() > 1) {
-					text.erase(text.end() - 2);
-				}
-			}
-
-			activeInputLabel->setText(text);
-		}
-		*/
 		keyDownEditLabel(key, &activeInputLabel);
 	}
 }
@@ -1046,7 +1392,10 @@ void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 	if(activeInputLabel != NULL) {
 	    //printf("[%d]\n",c); fflush(stdout);
-		if(&labelPlayerName == activeInputLabel) {
+		if( &labelPlayerName 	== activeInputLabel ||
+			&labelTransifexUser == activeInputLabel ||
+			&labelTransifexPwd == activeInputLabel ||
+			&labelTransifexI18N == activeInputLabel) {
 			keyPressEditLabel(c, &activeInputLabel);
 		}
 	}
@@ -1076,6 +1425,19 @@ void MenuStateOptions::render(){
 		renderer.renderButton(&buttonAutoConfig);
 		renderer.renderButton(&buttonVideoInfo);
 		renderer.renderButton(&buttonKeyboardSetup);
+
+		renderer.renderLabel(&labelCustomTranslation);
+		renderer.renderCheckBox(&checkBoxCustomTranslation);
+
+		if(buttonGetNewLanguageFiles.getEnabled()) renderer.renderButton(&buttonGetNewLanguageFiles);
+		if(buttonDeleteNewLanguageFiles.getEnabled()) renderer.renderButton(&buttonDeleteNewLanguageFiles);
+		if(labelTransifexUserLabel.getEnabled()) renderer.renderLabel(&labelTransifexUserLabel);
+		if(labelTransifexPwdLabel.getEnabled()) renderer.renderLabel(&labelTransifexPwdLabel);
+		if(labelTransifexI18NLabel.getEnabled()) renderer.renderLabel(&labelTransifexI18NLabel);
+		if(labelTransifexUser.getEnabled()) renderer.renderLabel(&labelTransifexUser);
+		if(labelTransifexPwd.getEnabled()) renderer.renderLabel(&labelTransifexPwd);
+		if(labelTransifexI18N.getEnabled()) renderer.renderLabel(&labelTransifexI18N);
+
 		renderer.renderListBox(&listBoxLang);
 		renderer.renderListBox(&listBoxShadows);
 		renderer.renderCheckBox(&checkBoxTextures3D);
@@ -1276,34 +1638,6 @@ void MenuStateOptions::saveConfig(){
 }
 
 void MenuStateOptions::setActiveInputLable(GraphicLabel *newLable) {
-	/*
-	if(newLable!=NULL){
-		string text= newLable->getText();
-		size_t found;
-		found=text.find_last_of("_");
-		if (found==string::npos)
-		{
-			text=text+"_";
-		}
-		newLable->setText(text);
-	}
-	if(activeInputLabel!=NULL && !activeInputLabel->getText().empty()){
-		string text= activeInputLabel->getText();
-		size_t found;
-		found=text.find_last_of("_");
-		if (found!=string::npos)
-		{
-			text=text.substr(0,found);
-		}
-		activeInputLabel->setText(text);
-		activeInputLabel->setEditModeEnabled(false);
-	}
-	activeInputLabel=newLable;
-	if(activeInputLabel != NULL) {
-		activeInputLabel->setEditModeEnabled(true);
-	}
-	*/
-
 	MenuState::setActiveInputLabel(newLable,&activeInputLabel);
 }
 
