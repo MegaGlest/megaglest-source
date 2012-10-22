@@ -224,6 +224,7 @@ void trimPathWithStartingSlash(string &path);
 void updatePathClimbingParts(string &path);
 string formatPath(string path);
 
+string replaceAllHTMLEntities(string& context);
 string replaceAll(string& context, const string& from, const string& to);
 vector<char> replaceAllBetweenTokens(vector<char>& context, const string &startToken, const string &endToken, const string &newText, bool removeTokens=true);
 string replaceAllBetweenTokens(string& context, const string &startToken, const string &endToken, const string &newText, bool removeTokens=true);
