@@ -86,7 +86,8 @@ private:
 	GraphicButton buttonClearBlockedPlayers;
 
 	GraphicLabel labelPublishServer;
-	GraphicListBox listBoxPublishServer;
+	//GraphicListBox listBoxPublishServer;
+	GraphicCheckBox checkBoxPublishServer;
 
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
@@ -95,7 +96,8 @@ private:
 	//GraphicLabel labelNetworkFramePeriod;
 
 	GraphicLabel labelNetworkPauseGameForLaggedClients;
-	GraphicListBox listBoxNetworkPauseGameForLaggedClients;
+	//GraphicListBox listBoxNetworkPauseGameForLaggedClients;
+	GraphicCheckBox checkBoxNetworkPauseGameForLaggedClients;
 
 	//GraphicLabel labelPathFinderType;
 	//GraphicListBox listBoxPathFinderType;
@@ -104,10 +106,12 @@ private:
 	GraphicListBox listBoxMapFilter;
 
 	GraphicLabel labelAdvanced;
-	GraphicListBox listBoxAdvanced;
+	//GraphicListBox listBoxAdvanced;
+	GraphicCheckBox checkBoxAdvanced;
 
 	GraphicLabel labelAllowObservers;
-	GraphicListBox listBoxAllowObservers;
+	//GraphicListBox listBoxAllowObservers;
+	GraphicCheckBox checkBoxAllowObservers;
 
 	GraphicLabel *activeInputLabel;
 
@@ -115,7 +119,9 @@ private:
 	GraphicListBox listBoxPlayerStatus;
 
 	GraphicLabel labelEnableSwitchTeamMode;
-	GraphicListBox listBoxEnableSwitchTeamMode;
+	//GraphicListBox listBoxEnableSwitchTeamMode;
+	GraphicCheckBox checkBoxEnableSwitchTeamMode;
+
 	GraphicLabel labelAISwitchTeamAcceptPercent;
 	GraphicListBox listBoxAISwitchTeamAcceptPercent;
 	GraphicLabel labelFallbackCpuMultiplier;
