@@ -635,6 +635,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 		labelTransifexUser.registerGraphicComponent(containerName,"labelTransifexUser");
 		labelTransifexUser.init(buttonStartPos ,buttonRowPos - 40);
+		labelTransifexUser.setMaxEditWidth(60);
+		labelTransifexUser.setMaxEditRenderWidth(120);
 		labelTransifexUser.setText(config.getString("TranslationGetURLUser","<none>"));
 
 		labelTransifexPwdLabel.registerGraphicComponent(containerName,"labelTransifexPwdLabel");
@@ -643,6 +645,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 		labelTransifexPwd.registerGraphicComponent(containerName,"labelTransifexPwd");
 		labelTransifexPwd.init(buttonStartPos + 160 ,buttonRowPos - 40);
+		labelTransifexPwd.setMaxEditWidth(60);
+		labelTransifexPwd.setMaxEditRenderWidth(120);
 		labelTransifexPwd.setText(config.getString("TranslationGetURLPassword","<none>"));
 
 		labelTransifexI18NLabel.registerGraphicComponent(containerName,"labelTransifexI18NLabel");
@@ -651,6 +655,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 		labelTransifexI18N.registerGraphicComponent(containerName,"labelTransifexI18N");
 		labelTransifexI18N.init(buttonStartPos + 300 ,buttonRowPos - 40);
+		labelTransifexI18N.setMaxEditWidth(2);
 		labelTransifexI18N.setText(config.getString("TranslationGetURLLanguage","en"));
 
 		setupTransifexUI();
