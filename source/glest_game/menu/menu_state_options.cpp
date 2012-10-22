@@ -655,7 +655,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 		labelTransifexI18N.registerGraphicComponent(containerName,"labelTransifexI18N");
 		labelTransifexI18N.init(buttonStartPos + 300 ,buttonRowPos - 40);
-		labelTransifexI18N.setMaxEditWidth(2);
+		labelTransifexI18N.setMaxEditWidth(3);
 		labelTransifexI18N.setText(config.getString("TranslationGetURLLanguage","en"));
 
 		setupTransifexUI();
