@@ -2982,7 +2982,9 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 
 		string renderTextStr = lines[i];
 		if(label->getIsPassword() == true) {
-			renderTextStr = "*****";
+			if(renderTextStr != "") {
+				renderTextStr = "*****";
+			}
 		}
 
 		if(color != NULL) {
