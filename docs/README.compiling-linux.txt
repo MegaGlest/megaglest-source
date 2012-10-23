@@ -39,6 +39,12 @@ start compiling it:
 * OpenGL
   http://dri.freedesktop.org/wiki/libGL
 
+* libvlc
+  http://www.videolan.org/vlc/libvlc.html
+
+* libcurl
+  http://curl.haxx.se/libcurl/
+
 * wxWidgets
   http://wxwidgets.org/
 
@@ -90,6 +96,8 @@ To build the game simply invoke the build script:
 
 ./build-mg.sh
 
+*NOTE: We have produced a script that tries to install build dependencies
+on many Linux distros. The script is located in mk/linux/setupBuildDeps.sh
 
 2.3 Installation
 

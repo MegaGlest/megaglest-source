@@ -1,4 +1,3 @@
-===================
 MEGAGLEST CHANGELOG
 ===================
 To see a timeline of detail changes please visit:
@@ -15,6 +14,7 @@ v3.7.0
 - video playback support (using libvlc)
 - network multi-player scenarios
 - campaign scenarios
+- Integrated language translation support (translate / update your favorite language @ https://www.transifex.com/projects/p/megaglest and pull the files into the game via advanced translation options to test your changes)
 - play a sound when player mentions your name in chat mode
 - more game data validation for commandline modders, see --help for more info
 - many new lua commands for scenario modders

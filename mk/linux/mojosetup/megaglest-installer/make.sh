@@ -18,8 +18,21 @@ megaglest_release_folder=""
 #megaglest_release_folder="trunk"
 #megaglest_release_folder="release-3.3.5.1"
 
-mg_installer_bin_name=megaglest-installer.run
 CURRENTDIR="$(dirname $(readlink -f $0))"
+# below describe various folder paths relative to the installer root folder
+#megaglest_project_root=../../../../../
+megaglest_project_root=../../../../
+megaglest_data_path=${megaglest_project_root}${megaglest_release_folder}/data/glest_game/
+megaglest_linux_path=${megaglest_project_root}${megaglest_release_folder}/mk/linux/
+megaglest_linux_masterserverpath=${megaglest_project_root}${megaglest_release_folder}/source/masterserver/
+megaglest_linux_toolspath=${megaglest_project_root}${megaglest_release_folder}/source/tools/
+
+VERSION=`$CURRENTDIR/${megaglest_linux_path}/mg-version.sh --version`
+kernel=`uname -s | tr '[A-Z]' '[a-z]'`
+architecture=`uname -m  | tr '[A-Z]' '[a-z]'`
+mg_installer_bin_name=MegaGlest-Installer-${VERSION}_${architecture}_${kernel}.run
+#echo $mg_installer_bin_name
+#exit 1
 
 if which zip >/dev/null; then
     echo Compression tool 'zip' exists
@@ -41,14 +54,6 @@ else
     echo Compression tool 'tar' DOES NOT EXIST on this system, please install it
     exit 1
 fi
-
-# below describe various folder paths relative to the installer root folder
-#megaglest_project_root=../../../../../
-megaglest_project_root=../../../../
-megaglest_data_path=${megaglest_project_root}${megaglest_release_folder}/data/glest_game/
-megaglest_linux_path=${megaglest_project_root}${megaglest_release_folder}/mk/linux/
-megaglest_linux_masterserverpath=${megaglest_project_root}${megaglest_release_folder}/source/masterserver/
-megaglest_linux_toolspath=${megaglest_project_root}${megaglest_release_folder}/source/tools/
 
 # Below is the name of the archive to create and tack onto the installer.
 # *NOTE: The filename's extension is of critical importance as the installer
@@ -83,7 +88,6 @@ megaglest_archivefilename="mgpkg.zip"
 # Grab the version #
 #
 echo "Linux project root path [$CURRENTDIR/${megaglest_linux_path}]"
-VERSION=`$CURRENTDIR/${megaglest_linux_path}/mg-version.sh --version`
 
 echo "About to build Installer for $VERSION"
 # Stop if anything produces an error.
@@ -376,6 +380,7 @@ fi
 set +e
 set +x
 echo "Successfully built!"
+ls -la ${mg_installer_bin_name}
 
 if [ "$DEBUG" = "1" ]; then
     echo

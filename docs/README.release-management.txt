@@ -111,6 +111,7 @@ cmake ../
 make
 cd ../
 
+-----------------------
 -- deprecation start --
 NOTE this part is now deprecated as it is handled by the synch script above
 but the info is left here for education
@@ -120,7 +121,8 @@ but the info is left here for education
 - config.lua
 local GAME_INSTALL_SIZE = 680000000;
 local GAME_VERSION = "3.6.0";
--- deprecation start --
+-- deprecation end --
+---------------------
 
 Now in a terminal session from inside the megaglest-installer folder run:
 
@@ -129,7 +131,7 @@ Now in a terminal session from inside the megaglest-installer folder run:
 When complete this will produce the platform specific installer in the same
 folder called: 
 
-megaglest-installer.run
+MegaGlest-Installer_<architecture>_<kernel>.run
 
 This is a native binary installer that wil install MegaGlest on the same 
 platform as was sued to build it. (ie: 32 or 64 bit Linux)
