@@ -1212,6 +1212,16 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 							size_t posDetailsEnd = fileDataDetails.find( "\"", posDetails + 9 );
 
 							langName = fileDataDetails.substr(posDetails + 9, posDetailsEnd - (posDetails + 9));
+							replaceAll(langName,",","");
+							replaceAll(langName,"\\","");
+							replaceAll(langName,"/","");
+							replaceAll(langName,"?","");
+							replaceAll(langName,":","");
+							replaceAll(langName,"@","");
+							replaceAll(langName,"!","");
+							replaceAll(langName,"*","");
+							langName = trim(langName);
+							replaceAll(langName," ","-");
 						}
 
 						printf("PARSED Language filename [%s]\n",langName.c_str());
@@ -1295,7 +1305,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			if(gotDownloads == true) {
 				mainMessageBoxState=0;
 				Lang &lang= Lang::getInstance();
-				showMessageBox(lang.get("TransifexDownloadSuccess"), lang.get("Notice"), false);
+				showMessageBox(lang.get("TransifexDownloadSuccess") + "\n" + langName, lang.get("Notice"), false);
 			}
 		}
 		return;
