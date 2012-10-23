@@ -9,8 +9,8 @@
 
 1. Architecture
 
-Developed on Windows with Microsoft Visual C++ 2008 Express (free version),
-little endian CPU. Compiling using the mingw32 toolset is now possible, which
+Developed on Windows with Microsoft Visual C++ 2010 Express (free version),
+little endian CPU. Compiling using the mingw32 toolset is experimental, which
 also allows for cross compiling.
 
 On debian systems please find license information in: /usr/share/common-licenses
@@ -23,12 +23,12 @@ On debian systems please find license information in: /usr/share/common-licenses
 The game depends on some tools and libraries to be present, before you can
 start compiling it. Here's a list of them:
 
-* Microsoft Visual C++ Express 2008
+* Microsoft Visual C++ Express 2010
 OR
 * mingw32
 
 * MegaGlest Windows 32 bit dependencies for building with VC++:
-  http://sourceforge.net/projects/megaglest/files/win32_deps.7z/download
+  http://sourceforge.net/projects/megaglest/files/windows_deps.7z/download
 OR
 * MegaGlest Windows 32 bit dependencies for building with mingw:
   http://sourceforge.net/projects/megaglest/files/win32_deps_mingw.7z/download
@@ -38,6 +38,8 @@ These include:
   http://xerces.apache.org/xerces-c/
 * wxWidgets
   http://wxwidgets.org/
+And many more.
+
 * For a more verbose list, please inspect the archive contents and refer to the
   Linux build instructions.
 
@@ -46,19 +48,37 @@ These include:
 
 To build and install the game use the following steps:
 
+Option A) (recommended) Automatic Building through commandline: 
+
+1. Open a command prompt and navigate to the root folder where you have acquired the source code.
+
+2. cd mk\windoze
+
+3. build-mg-2010.bat
+
+4. CopyWindowsRuntimeDlls_2010.bat
+
+5. cd ..\..\data\glest_game
+
+6. megaglest.exe --version
+
+7. megaglest.exe
+
+Option B) USing VC++ IDE:
+
 1. Download the dependencies archive listed above and decompress its contents
    into the 'source' directory (where you see glest_game, g3d_viewer, etc).
    This should create a subdirectory called "win32_deps" with many files and
    subdirectories in it.
 
-2. Open the VC++ 2008 Solution file in trunk\mk\windoze called Glest.sln within
+2. Open the VC++ 2010 Solution file in trunk\mk\windoze called Glest-2010.sln within
    the Visual C++ IDE.
 
 3. Right Click on the top level Glest node in Solution Explorer and select
    'Rebuild All'.
 
 If you had no errors all binaries will be created in trunk\data\glest_game.
-Before running MegaGlest you must run the CopyWindowsRuntimeDlls.bat batch.
+Before running MegaGlest you must run the CopyWindowsRuntimeDlls_2010.bat batch.
 You should now be able to just run glest_game.exe.
 
 

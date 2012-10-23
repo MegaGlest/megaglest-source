@@ -45,6 +45,8 @@ This product includes the following 3rd party software:
 - modified version of Feathery FTP by Andreas Martin
   (https://sourceforge.net/projects/feathery/)
 
+- libvlc (http://www.videolan.org/vlc/libvlc.html)
+
 - libcurl (http://curl.haxx.se/libcurl/)
 
 - libpng (http://www.libpng.org/pub/png/libpng.html)

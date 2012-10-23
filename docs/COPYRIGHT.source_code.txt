@@ -10,7 +10,7 @@ http://www.gnu.org/licenses/gpl.html
 Except where otherwise noted, all of the documentation, multimedia and software
 included in the MegaGlest setup package is copyrighted by The MegaGlest Team.
 
-Copyright (C) 2001-2011 The MegaGlest Team. All rights reserved.
+Copyright (C) 2001-2012 The MegaGlest Team. All rights reserved.
 
 This software is provided without any express or implied warranty. In no event
 shall the author be held liable for any damages arising from the use of this
@@ -26,46 +26,6 @@ On debian systems please find license information in:
 /usr/share/common-licenses/GPL-2+
 /usr/share/common-licenses/GPL-3
 /usr/share/common-licenses/GPL-3+
-
-==============================
-MD5 Model License permission
-==============================
-
-Permission has been granted to modify the Copyright text in files used related
-tp MD5 Model format from David Henry in order to be compatible with Debian's 
-DSFG requirements, the email exchanged is pasted below:
-
-From: 	HENRY David <tfc.duke@gmail.com>
-To: 	mark_vejvoda@hotmail.com
-Subject: 	Re: megaglest using your md5 code, need permission to use proper license
-Date: 	Sun, 18 Dec 2011 09:59:57 +0100 (11-12-18 12:59:57 AM)
-
-
-Hello,
-
-Yes, I give you permission to do it.
-
-Yours,
-
-David.
-
-Le samedi 17 décembre 2011 à 15:00 -0800, Mark Vejvoda a écrit :
-> Hello, I am using your md5 code from your website:
-> http://tfc.duke.free.fr/ in our open source game megaglest (see
-> megaglest.org). I am working on getting our game into Debian Linux, and
-> they require a license that allows modification of the source code.
-> While the source files mention MIT license they do not link to the MIT
-> license that you mention on your website (not does the copyright state
-> the code can be changed). Do you give me permission to change the
-> copyright in our project to mentionthat the code can be changed and link
-> to the MIT license:
-> 
-> http://www.opensource.org/licenses/mit-license.php
-> 
-> Thanks
-> 
-> 
-> 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 MegaGlest is a fork of Glest, so Glests' license terms also apply to MegaGlest.
