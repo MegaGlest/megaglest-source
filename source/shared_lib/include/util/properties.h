@@ -42,6 +42,9 @@ public:
 private:
 	PropertyVector propertyVector;
 	PropertyMap propertyMap;
+	PropertyVector propertyVectorTmp;
+	PropertyMap propertyMapTmp;
+
 	string path;
 	static string applicationPath;
 	static string gameVersion;
@@ -57,9 +60,9 @@ public:
 	void load(const string &path,bool clearCurrentProperties=true);
 	void save(const string &path);
 
-	int getPropertyCount() const	{return (int)propertyVector.size();}
-	string getKey(int i) const	    {return propertyVector[i].first;}
-	string getString(int i) const	{return propertyVector[i].second;}
+	int getPropertyCount() const;
+	string getKey(int i) const;
+	string getString(int i) const;
 
 	bool getBool(const string &key, const char *defaultValueIfNotFound=NULL) const;
 	int getInt(const string &key, const char *defaultValueIfNotFound=NULL) const;
