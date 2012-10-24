@@ -50,7 +50,7 @@ string Properties::gameVersion = "";
 void Properties::load(const string &path, bool clearCurrentProperties) {
 
 	char lineBuffer[maxLine]="";
-	string line, key, value;
+	string line, key, value, original_value;
 	size_t pos=0;
 	this->path= path;
 
@@ -74,6 +74,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 
 	if(clearCurrentProperties == true) {
 		propertyMap.clear();
+		propertyMapTmp.clear();
 	}
 
 	while(fileStream.eof() == false) {
@@ -125,25 +126,30 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 			if(pos != string::npos){
 				key= line.substr(0, pos);
 				value= line.substr(pos+1);
+				original_value = value;
 
 				if(applyTagsToValue(value) == true) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Property key [%s] now has value [%s]\n",key.c_str(),value.c_str());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Property key [%s] now has value [%s] original_value [%s]\n",key.c_str(),value.c_str(),original_value.c_str());
 				}
 
 				bool replaceExisting = false;
 				if(propertyMap.find(key) != propertyMap.end()) {
 					replaceExisting = true;
 				}
-				propertyMap[key] = value;
+				propertyMap[key] = original_value;
+				propertyMapTmp[key] = value;
 
 				if(replaceExisting == false) {
-					propertyVector.push_back(PropertyPair(key, value));
+					propertyVector.push_back(PropertyPair(key, original_value));
+					propertyVectorTmp.push_back(PropertyPair(key, value));
 				}
 				else {
 					for(unsigned int i = 0; i < propertyVector.size(); ++i) {
 						PropertyPair &currentPair = propertyVector[i];
 						if(currentPair.first == key) {
-							currentPair.second = value;
+							currentPair.second = original_value;
+
+							propertyVectorTmp[i].second = value;
 							break;
 						}
 					}
@@ -345,7 +351,19 @@ void Properties::save(const string &path){
 
 void Properties::clear(){
 	propertyMap.clear();
+	propertyMapTmp.clear();
 	propertyVector.clear();
+	propertyVectorTmp.clear();
+}
+
+int Properties::getPropertyCount() const {
+	return (int)propertyVectorTmp.size();
+}
+string Properties::getKey(int i) const {
+	return propertyVectorTmp[i].first;
+}
+string Properties::getString(int i) const {
+	return propertyVectorTmp[i].second;
 }
 
 bool Properties::getBool(const string &key, const char *defaultValueIfNotFound) const{
@@ -401,9 +419,8 @@ float Properties::getFloat(const string &key, float min, float max, const char *
 }
 
 const string Properties::getString(const string &key, const char *defaultValueIfNotFound) const{
-	PropertyMap::const_iterator it;
-	it= propertyMap.find(key);
-	if(it==propertyMap.end()){
+	PropertyMap::const_iterator it = propertyMapTmp.find(key);
+	if(it == propertyMapTmp.end()) {
 	    if(defaultValueIfNotFound != NULL) {
 	        //printf("In [%s::%s - %d]defaultValueIfNotFound = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,defaultValueIfNotFound);
 	        return string(defaultValueIfNotFound);
@@ -438,9 +455,8 @@ const string Properties::getRandomKey(const bool realrandom) const{
 }
 
 bool Properties::hasString(const string &key) const {
-	PropertyMap::const_iterator it;
-	it= propertyMap.find(key);
-	if(it == propertyMap.end()) {
+	PropertyMap::const_iterator it = propertyMapTmp.find(key);
+	if(it == propertyMapTmp.end()) {
 		return false;
 	}
 	return true;
@@ -461,12 +477,16 @@ void Properties::setFloat(const string &key, float value){
 void Properties::setString(const string &key, const string &value){
 	propertyMap.erase(key);
 	propertyMap.insert(PropertyPair(key, value));
+
+	propertyMapTmp.erase(key);
+	propertyMapTmp.insert(PropertyPair(key, value));
+
 }
 
 string Properties::toString(){
 	string rStr;
 
-	for(PropertyMap::iterator pi= propertyMap.begin(); pi!=propertyMap.end(); ++pi)
+	for(PropertyMap::iterator pi= propertyMapTmp.begin(); pi!=propertyMapTmp.end(); ++pi)
 		rStr+= pi->first + "=" + pi->second + "\n";
 
 	return rStr;
@@ -509,9 +529,8 @@ float Properties::getFloat(const char *key, const char *defaultValueIfNotFound) 
 }
 
 const string Properties::getString(const char *key, const char *defaultValueIfNotFound) const{
-	PropertyMap::const_iterator it;
-	it= propertyMap.find(key);
-	if(it==propertyMap.end()){
+	PropertyMap::const_iterator it = propertyMapTmp.find(key);
+	if(it == propertyMapTmp.end()) {
 	    if(defaultValueIfNotFound != NULL) {
 	        //printf("In [%s::%s - %d]defaultValueIfNotFound = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,defaultValueIfNotFound);
 	        return string(defaultValueIfNotFound);
