@@ -409,15 +409,15 @@ bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInpu
 				}
 				else if (newKey < 0x800) {
 					buf[0] = (0xC0 | newKey >> 6);
-					buf[1] = (0x80 | newKey & 0x3F);
+					buf[1] = (0x80 | (newKey & 0x3F));
 					//textCharLength.push_back(2);
 					activeInputLabel->addTextCharLengthToList(2);
 					//printf("2 char, textCharLength = %d\n",textCharLength.size());
 				}
 				else {
 					buf[0] = (0xE0 | newKey >> 12);
-					buf[1] = (0x80 | newKey >> 6 & 0x3F);
-					buf[2] = (0x80 | newKey & 0x3F);
+					buf[1] = (0x80 | (newKey >> 6 & 0x3F));
+					buf[2] = (0x80 | (newKey & 0x3F));
 					//textCharLength.push_back(3);
 					activeInputLabel->addTextCharLengthToList(3);
 					//printf("3 char, textCharLength = %d\n",textCharLength.size());

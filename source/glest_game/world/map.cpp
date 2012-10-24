@@ -921,6 +921,9 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 		return false;
 	}
 
+	if(unit == NULL) {
+		throw megaglest_runtime_error("unit == NULL");
+	}
 	int size= unit->getType()->getSize();
 	int teamIndex= unit->getTeam();
 	Field field= unit->getCurrField();
@@ -1038,17 +1041,15 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 		}
 
 		bool isBadHarvestPos = false;
-		if(unit != NULL) {
-			Command *command= unit->getCurrCommand();
-			if(command != NULL) {
-				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
-				if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
-					isBadHarvestPos = true;
-				}
+		Command *command= unit->getCurrCommand();
+		if(command != NULL) {
+			const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+			if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+				isBadHarvestPos = true;
 			}
 		}
 
-		if(unit == NULL || isBadHarvestPos == true) {
+		if(isBadHarvestPos == true) {
 			if(lookupCache != NULL) {
 				(*lookupCache)[pos1][pos2][teamIndex][size][field]=false;
 			}

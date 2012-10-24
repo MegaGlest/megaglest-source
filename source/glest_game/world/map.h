@@ -399,6 +399,10 @@ public:
 			return false;
 		}
 
+		if(unit == NULL) {
+			throw megaglest_runtime_error("unit == NULL");
+		}
+
 		int size= unit->getType()->getSize();
 		int teamIndex= unit->getTeam();
 		Field field= unit->getCurrField();
@@ -481,17 +485,15 @@ public:
 			}
 
 			bool isBadHarvestPos = false;
-			if(unit != NULL) {
-				Command *command= unit->getCurrCommand();
-				if(command != NULL) {
-					const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
-					if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
-						isBadHarvestPos = true;
-					}
+			Command *command= unit->getCurrCommand();
+			if(command != NULL) {
+				const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+				if(hct != NULL && unit->isBadHarvestPos(pos2) == true) {
+					isBadHarvestPos = true;
 				}
 			}
 
-			if(unit == NULL || isBadHarvestPos == true) {
+			if(isBadHarvestPos == true) {
 
 				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 				unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);

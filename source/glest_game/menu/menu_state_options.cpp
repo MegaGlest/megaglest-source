@@ -1120,7 +1120,6 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 		setActiveInputLable(NULL);
 
-		bool gotDownloads = false;
 		string orig_txnURLUser = Config::getInstance().getString("TranslationGetURLUser");
 		//string orig_txnURLPwd = Config::getInstance().getString("TranslationGetURLPassword","");
 		string orig_txnURLLang = Config::getInstance().getString("TranslationGetURLLanguage");
@@ -1166,10 +1165,11 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		vector<string> languageFileMappings;
 		Tokenize(txnURLFileListMapping,languageFileMappings,"|");
 
-		printf("URL5 file count = %lu, %lu [%s]\n",languageFiles.size(),languageFileMappings.size(),(languageFiles.size() > 0 ? languageFiles[0].c_str() : ""));
+		printf("URL5 file count = %lu, %lu [%s]\n",languageFiles.size(),languageFileMappings.size(),(languageFiles.empty() == false ? languageFiles[0].c_str() : ""));
 
-		if(languageFiles.size() > 0) {
+		if(languageFiles.empty() == false) {
 
+			bool gotDownloads = false;
 			bool reloadLanguage = false;
 			string langName = "";
 

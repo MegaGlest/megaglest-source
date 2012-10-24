@@ -3552,8 +3552,6 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	//gameSettings->setDefaultResources(true);
 	//gameSettings->setDefaultVictoryConditions(true);
 
-	Lang &lang= Lang::getInstance();
-
 	//FogOfWar
 	if(checkBoxScenario.getValue() == false) {
 		listBoxFogOfWar.setSelectedItemIndex(0); // default is 0!
