@@ -204,6 +204,42 @@ template<> struct FloatConverter<N_SPECIALIZED, double, 8> {
     }
 };
 
+// Specialization for floatx80 when C long double type size is 8 (there is 16 bit padding, endian dependent)
+template<> struct FloatConverter<N_SPECIALIZED, long double, 8> {
+// Little endian OK: both address are the same
+#if __FLOAT_WORD_ORDER == 1234
+    static inline SF_TYPE
+    convert_from_float(const long double a_float) {
+        return SF_APPEND(floatx80_to_)(*reinterpret_cast<const floatx80*>(&a_float));
+    }
+    static inline long double convert_to_float(SF_TYPE value) {
+        // avoid invalid memory access: must return a 8-bytes value from a 10-byte type
+        // do it this way, by declaring the 8-byte on the stack
+        long double holder;
+        // And use that space for the result using the softfloat memory bit pattern equivalence property
+        *reinterpret_cast<floatx80*>(&holder) = SF_PREPEND(_to_floatx80)(value);
+        return holder;
+    }
+// big endian needs address modification, but for what architecture?
+#elif __FLOAT_WORD_ORDER == 4321
+#warning You are using a completely UNTESTED new architecture. Please check that the 8-byte long double containing a 10-byte float is properly aligned in memory so that softfloat may correctly read the bit pattern. If this works for you, remove this warning and please consider sending a patch!
+    static inline SF_TYPE
+    convert_from_float(const long double a_float) {
+        return SF_APPEND(floatx80_to_)(*reinterpret_cast<const floatx80*>(reinterpret_cast<const char*>(&a_float)-2));
+    }
+    static inline long double convert_to_float(SF_TYPE value) {
+        // avoid invalid memory access: must return a 8-bytes value from a 10-byte type
+        // do it this way, by declaring the 8-byte on the stack
+        long double holder;
+        // And use that space for the result using the softfloat memory bit pattern equivalence property
+        *reinterpret_cast<floatx80*>(reinterpret_cast<const char*>(&holder)-2) = SF_PREPEND(_to_floatx80)(value);
+        return holder;
+    }
+#else
+#error Unknown byte order
+#endif
+};
+
 // Specialization for floatx80 when C long double type size is 12 (there is 16 bit padding, endian dependent)
 template<> struct FloatConverter<N_SPECIALIZED, long double, 12> {
 // Little endian OK: both address are the same
