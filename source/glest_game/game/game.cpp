@@ -1265,6 +1265,8 @@ void Game::init(bool initForPreviewOnly) {
 		logger.add(Lang::getInstance().get("LogScreenGameLoadingLaunchGame","",true));
 	}
 
+	//throw "test";
+
 	logger.setCancelLoadingEnabled(false);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"================ STARTING GAME ================\n");
@@ -1775,6 +1777,7 @@ void Game::update() {
 			}
 			catch(const exception &ex) {
 				gameStarted = true;
+				totalRenderFps++;
 
 				throw;
 			}
@@ -2479,7 +2482,7 @@ void Game::mouseDownLeft(int x, int y) {
 	}
 
 	try {
-		if(gameStarted == false) {
+		if(gameStarted == false || totalRenderFps <= 0) {
 			Logger::getInstance().handleMouseClick(x, y);
 			return;
 		}
@@ -2990,7 +2993,7 @@ void Game::mouseDownRight(int x, int y) {
 	}
 
 	try {
-		if(gameStarted == false) {
+		if(gameStarted == false || totalRenderFps <= 0) {
 			Logger::getInstance().handleMouseClick(x, y);
 			return;
 		}
@@ -3042,7 +3045,7 @@ void Game::mouseDownRight(int x, int y) {
 		return;
 	}
 
-	if(gameStarted == false) {
+	if(gameStarted == false || totalRenderFps <= 0) {
 		return;
 	}
 
@@ -3065,7 +3068,7 @@ void Game::mouseUpLeft(int x, int y) {
 	}
 
 	try {
-		if(gameStarted == false) {
+		if(gameStarted == false || totalRenderFps <= 0) {
 			return;
 		}
 
@@ -3100,7 +3103,7 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 	}
 
 	try {
-		if(gameStarted == false) {
+		if(gameStarted == false || totalRenderFps <= 0) {
 			return;
 		}
 		if(currentUIState != NULL) {
@@ -3146,7 +3149,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 	}
 
 	try {
-		if(gameStarted == false) {
+		if(gameStarted == false || totalRenderFps <= 0) {
 			return;
 		}
 		if(currentUIState != NULL) {
@@ -3365,7 +3368,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d] gameStarted [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym, gameStarted);
-		if(gameStarted == false) {
+		if(gameStarted == false || totalRenderFps <= 0) {
 			return;
 		}
 		if(currentUIState != NULL) {
@@ -3661,7 +3664,7 @@ void Game::keyUp(SDL_KeyboardEvent key) {
 	}
 
 	try {
-		if(gameStarted == false) {
+		if(gameStarted == false || totalRenderFps <= 0) {
 			return;
 		}
 		if(currentUIState != NULL) {
@@ -3767,7 +3770,7 @@ void Game::keyPress(SDL_KeyboardEvent c) {
 		return;
 	}
 
-	if(gameStarted == false) {
+	if(gameStarted == false || totalRenderFps <= 0) {
 		return;
 	}
 	if(currentUIState != NULL) {
