@@ -3140,6 +3140,16 @@ int glestMain(int argc, char** argv) {
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) == true) {
 	    curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 		printf("CURL version: %s [%s] SSL enabled: %d\n", curlVersion->version,(curlVersion->ssl_version != NULL ? curlVersion->ssl_version : ""),(curlVersion->features & CURL_VERSION_SSL == CURL_VERSION_SSL ? true : false));
+		if(curlVersion->protocols != NULL && curlVersion->protocols[0] != NULL) {
+			printf("protocols: ");
+			for(unsigned int i = 0; curlVersion->protocols != NULL && curlVersion->protocols[i] != NULL; ++i) {
+					printf("%s ", curlVersion->protocols[i]);
+					if(i > 0 && i % 10 == 0) {
+						printf("\n           ");
+					}
+			}
+			printf("\n");
+		}
 	}
 
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_XERCES_INFO]) == true) {
