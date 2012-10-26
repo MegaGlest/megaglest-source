@@ -4,6 +4,7 @@ host = https://www.transifex.com
 [megaglest.main-language-file]
 source_file = data/glest_game/data/lang/english.lng
 source_lang = en
+trans.af = data/glest_game/data/lang/afrikaans.lng
 trans.ar = data/glest_game/data/lang/arabic.lng
 trans.ca = data/glest_game/data/lang/catalan.lng
 trans.cs = data/glest_game/data/lang/czech.lng
@@ -26,6 +27,7 @@ trans.zh = data/glest_game/data/lang/chinese.lng
 [megaglest.loading-screen-hints]
 source_file = data/glest_game/data/lang/hint/hint_english.lng
 source_lang = en
+trans.af = data/glest_game/data/lang/hint/hint_afrikaans.lng
 trans.ar = data/glest_game/data/lang/hint/hint_arabic.lng
 trans.ca = data/glest_game/data/lang/hint/hint_catalan.lng
 trans.cs = data/glest_game/data/lang/hint/hint_czech.lng
@@ -48,6 +50,7 @@ trans.zh = data/glest_game/data/lang/hint/hint_chinese.lng
 [megaglest.tutorials-1-very-basic-tutorial]
 source_file = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_english.lng
 source_lang = en
+trans.af = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_afrikaans.lng
 trans.ar = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_arabic.lng
 trans.ca = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_catalan.lng
 trans.cs = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_czech.lng
@@ -70,6 +73,7 @@ trans.zh = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial
 [megaglest.tutorials-2-basic-tutorial]
 source_file = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_english.lng
 source_lang = en
+trans.af = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_afrikaans.lng
 trans.ar = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_arabic.lng
 trans.ca = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_catalan.lng
 trans.cs = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_czech.lng
@@ -92,6 +96,7 @@ trans.zh = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_chinese.l
 [megaglest.tutorials-3-advanced-tutorial]
 source_file = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_english.lng
 source_lang = en
+trans.af = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_afrikaans.lng
 trans.ar = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_arabic.lng
 trans.ca = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_catalan.lng
 trans.cs = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_czech.lng
@@ -114,6 +119,7 @@ trans.zh = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_chi
 [megaglest.scenarios-amazones]
 source_file = data/glest_game/scenarios/amazones/amazones_english.lng
 source_lang = en
+trans.af = data/glest_game/scenarios/amazones/amazones_afrikaans.lng
 trans.ar = data/glest_game/scenarios/amazones/amazones_arabic.lng
 trans.ca = data/glest_game/scenarios/amazones/amazones_catalan.lng
 trans.cs = data/glest_game/scenarios/amazones/amazones_czech.lng
@@ -136,6 +142,7 @@ trans.zh = data/glest_game/scenarios/amazones/amazones_chinese.lng
 [megaglest.scenarios-amazones-light]
 source_file = data/glest_game/scenarios/amazones_light/amazones_light_english.lng
 source_lang = en
+trans.af = data/glest_game/scenarios/amazones_light/amazones_light_afrikaans.lng
 trans.ar = data/glest_game/scenarios/amazones_light/amazones_light_arabic.lng
 trans.ca = data/glest_game/scenarios/amazones_light/amazones_light_catalan.lng
 trans.cs = data/glest_game/scenarios/amazones_light/amazones_light_czech.lng
@@ -158,6 +165,7 @@ trans.zh = data/glest_game/scenarios/amazones_light/amazones_light_chinese.lng
 [megaglest.scenarios-capture-enemy-flag]
 source_file = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_english.lng
 source_lang = en
+trans.af = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_afrikaans.lng
 trans.ar = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_arabic.lng
 trans.ca = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_catalan.lng
 trans.cs = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_czech.lng
@@ -180,6 +188,7 @@ trans.zh = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_chine
 [megaglest.scenarios-storming]
 source_file = data/glest_game/scenarios/storming/storming_english.lng
 source_lang = en
+trans.af = data/glest_game/scenarios/storming/storming_afrikaans.lng
 trans.ar = data/glest_game/scenarios/storming/storming_arabic.lng
 trans.ca = data/glest_game/scenarios/storming/storming_catalan.lng
 trans.cs = data/glest_game/scenarios/storming/storming_czech.lng
