@@ -116,13 +116,17 @@ MegaGlest can be configured in two ways:
 DO NOT directly edit glest.ini and glestkeys.ini but rather edit glestuser.ini
 and glestuserkeys.ini and create your user over-ride values in these files.
 
-On Linux, these files are located in ~/.megaglest/. On Windows, these files are
-stored at %AppData%\megaglest (Windows XP) or %AppData%\roaming\megaglest (any
-later version). '%AppData%' is an environment variable which may point to a 
-different location depending on your login name and Windows version. The 
-MegaGlest installer places a shortcut to this directory in your start menu.
-Alternatively, you may access this location by pasting the above location
-(keeping the '%AppData%' variable as is) into Windows Explorers' location bar.
+On Linux, these files are located in ~/.megaglest/ (note the leading dot, this
+is a hidden directory). 
+
+On Windows, these files are stored at %AppData%\megaglest. '%AppData%' is an
+environment variable which points to a different location depending on your
+login name and Windows version. The MegaGlest installer places a shortcut to
+this directory in your start menu. Alternatively, you may access this location
+by pasting "%AppData%\megaglest" (omitting the quotation marks and keeping the
+'%AppData%' variable unmodified) into Windows Explorers' location bar. To
+activate the location bar in Windows Explorer, you need to click ony any of the
+buttons indicating your current location on top of the Explorer window.
 
 The entire list of glestuser.ini options is available at
 http://wiki.megaglest.org/INI
