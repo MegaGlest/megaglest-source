@@ -109,9 +109,8 @@ Please refer to the packagers' installation guides.
 
 3. Configuration
 
-MegaGlest can be configured in three ways:
+MegaGlest can be configured in two ways:
 - in-game config menu: most options
-- using the separate MegaGlest Configurator
 - manual editing of glestuser.ini (options) and glestuserkeys.ini (hotkeys)
 
 DO NOT directly edit glest.ini and glestkeys.ini but rather edit glestuser.ini

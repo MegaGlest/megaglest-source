@@ -45,7 +45,6 @@ svn export --force "$CURRENTDIR/../../data/glest_game/megaglest.ico" $RELEASEDIR
 svn export --force "$CURRENTDIR/../../data/glest_game/g3dviewer.ico" $RELEASEDIR/g3dviewer.ico
 svn export --force "$CURRENTDIR/../../data/glest_game/editor.ico" $RELEASEDIR/editor.ico
 svn export --force "$CURRENTDIR/start_megaglest" $RELEASEDIR/start_megaglest
-svn export --force "$CURRENTDIR/start_megaglest_configurator" $RELEASEDIR/start_megaglest_configurator
 svn export --force "$CURRENTDIR/start_megaglest_g3dviewer" $RELEASEDIR/start_megaglest_g3dviewer
 svn export --force "$CURRENTDIR/start_megaglest_mapeditor" $RELEASEDIR/start_megaglest_mapeditor
 svn export --force "$CURRENTDIR/../../CMakeLists.txt" $RELEASEDIR/CMakeLists.txt
