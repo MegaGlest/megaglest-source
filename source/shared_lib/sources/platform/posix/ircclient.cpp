@@ -315,7 +315,7 @@ void irc_event_dcc_chat(irc_session_t * session, const char * nick, const char *
 
 void irc_event_dcc_send(irc_session_t * session, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid) {
 	FILE * fp;
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC send [%d] requested from '%s' (%s): %s (%lu bytes)\n", dccid, nick, addr, filename, size);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("DCC send [%d] requested from '%s' (%s): %s (%zu bytes)\n", dccid, nick, addr, filename, size);
 
 	if ( (fp = fopen ("file", "wb")) == 0 ) {
 		abort();

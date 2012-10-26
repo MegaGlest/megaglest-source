@@ -765,7 +765,7 @@ void MapPreview::loadFromFile(const string &path) {
 		size_t bytes = fread(&header, sizeof(MapFileHeader), 1, f1);
 		if(bytes != 1) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -789,14 +789,14 @@ void MapPreview::loadFromFile(const string &path) {
 			bytes = fread(&startLocations[i].x, sizeof(int32), 1, f1);
 			if(bytes != 1) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
 			bytes = fread(&startLocations[i].y, sizeof(int32), 1, f1);
 			if(bytes != 1) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -809,7 +809,7 @@ void MapPreview::loadFromFile(const string &path) {
 				bytes = fread(&cells[i][j].height, sizeof(float), 1, f1);
 				if(bytes != 1) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 			}
@@ -821,7 +821,7 @@ void MapPreview::loadFromFile(const string &path) {
 				bytes = fread(&cells[i][j].surface, sizeof(int8), 1, f1);
 				if(bytes != 1) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 			}
@@ -834,7 +834,7 @@ void MapPreview::loadFromFile(const string &path) {
 				bytes = fread(&obj, sizeof(int8), 1, f1);
 				if(bytes != 1) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",bytes,__LINE__);
+					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 
@@ -1021,7 +1021,7 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 
 			if(errorOnInvalidMap == true) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"In [%s::%s Line: %d]\nfile [%s]\nreadBytes != sizeof(MapFileHeader) [%lu] [%lu]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),readBytes,sizeof(MapFileHeader));
+				snprintf(szBuf,8096,"In [%s::%s Line: %d]\nfile [%s]\nreadBytes != sizeof(MapFileHeader) [%zu] [%zu]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str(),readBytes,sizeof(MapFileHeader));
 				SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 
 				throw megaglest_runtime_error(szBuf);

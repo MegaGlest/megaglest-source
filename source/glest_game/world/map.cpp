@@ -405,14 +405,14 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 				readBytes = fread(&x, sizeof(int32), 1, f);
 				if(readBytes != 1) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 
 				readBytes = fread(&y, sizeof(int32), 1, f);
 				if(readBytes != 1) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 
@@ -430,7 +430,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					readBytes = fread(&alt, sizeof(float32), 1, f);
 					if(readBytes != 1) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
 
@@ -446,7 +446,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					readBytes = fread(&surf, sizeof(int8), 1, f);
 					if(readBytes != 1) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
 
@@ -462,7 +462,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					readBytes = fread(&objNumber, sizeof(int8), 1, f);
 					if(readBytes != 1) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
 

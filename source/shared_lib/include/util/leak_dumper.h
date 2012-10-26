@@ -324,7 +324,7 @@ public:
 		//if(info.line == 0) return;
 
 		MutexSafeWrapper safeMutexMasterList(mutex);
-		//printf("ALLOCATE.\tfile: %s, line: %d, bytes: %lu, array: %d inuse: %d\n", info.file, info.line, info.bytes, info.array, info.inuse);
+		//printf("ALLOCATE.\tfile: %s, line: %d, bytes: %zu, array: %d inuse: %d\n", info.file, info.line, info.bytes, info.array, info.inuse);
 
 		if(info.line > 0) {
 			++allocCount;
@@ -339,7 +339,7 @@ public:
 			}
 		}
 
-		printf("ALLOCATE NOT MONITORED.\tfile: %s, line: %d, ptr [%p], bytes: %lu, array: %d inuse: %d, \n%s\n", info.file, info.line, info.ptr, info.bytes, info.array, info.inuse, info.stack.c_str());
+		printf("ALLOCATE NOT MONITORED.\tfile: %s, line: %d, ptr [%p], bytes: %zu, array: %d inuse: %d, \n%s\n", info.file, info.line, info.ptr, info.bytes, info.array, info.inuse, info.stack.c_str());
 
 		++nonMonitoredCount;
 		nonMonitoredBytes+= info.bytes;
