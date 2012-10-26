@@ -1521,7 +1521,7 @@ void Renderer::computeVisibleQuad() {
 			visibleQuad.p[3].x,visibleQuad.p[3].y);
 
 		for(unsigned int i = 0; i < quadCache.frustumData.size(); ++i) {
-			printf("\nFrustrum #%u [%lu]: ",i,quadCache.frustumData.size());
+			printf("\nFrustrum #%u [%zu]: ",i,quadCache.frustumData.size());
 			vector<float> &frustumDataInner = quadCache.frustumData[i];
 			for(unsigned int j = 0; j < frustumDataInner.size(); ++j) {
 				printf("[%f]",quadCache.frustumData[i][j]);
@@ -4468,7 +4468,7 @@ void Renderer::renderSurface(const int renderFps) {
 		    	std::pair<Chrono, std::vector<SurfaceData> > &surfaceCacheEntity = mapSurfaceData[snapshotOfvisibleQuad.getString()];
 		    	surface = &surfaceCacheEntity.second;
 
-		    	//printf("Surface Cache Size for Rendering using VA's = %lu\n",mapSurfaceData.size());
+		    	//printf("Surface Cache Size for Rendering using VA's = %zu\n",mapSurfaceData.size());
 		    }
 
 		    glEnableClientState(GL_VERTEX_ARRAY);
@@ -8796,14 +8796,14 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 							if(markedCells.empty() == false) {
 								if(markedCells.find(pos) != markedCells.end()) {
-									//printf("#1 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = %lu\n",pos.getString().c_str(),markedCells.size());
+									//printf("#1 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = %zu\n",pos.getString().c_str(),markedCells.size());
 								//if(markedCells.empty() == false) {
 									//SurfaceCell *sc = map->getSurfaceCell(pos);
 									//quadCache.visibleScaledCellToScreenPosList[pos]=computeScreenPosition(sc->getVertex());
 									updateMarkedCellScreenPosQuadCache(pos);
 								}
 								else {
-									//printf("#1 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = %lu\n",pos.getString().c_str(),markedCells.size());
+									//printf("#1 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = %zu\n",pos.getString().c_str(),markedCells.size());
 								}
 							}
 						}
@@ -8818,13 +8818,13 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 								if(markedCells.empty() == false) {
 									if(markedCells.find(pos) != markedCells.end()) {
-										//printf("#2 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = %lu\n",pos.getString().c_str(),markedCells.size());
+										//printf("#2 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = %zu\n",pos.getString().c_str(),markedCells.size());
 									//if(markedCells.empty() == false) {
 										//quadCache.visibleScaledCellToScreenPosList[pos]=computeScreenPosition(sc->getVertex());
 										updateMarkedCellScreenPosQuadCache(pos);
 									}
 									else {
-										//printf("#2 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = %lu\n",pos.getString().c_str(),markedCells.size());
+										//printf("#2 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = %zu\n",pos.getString().c_str(),markedCells.size());
 									}
 								}
 							}

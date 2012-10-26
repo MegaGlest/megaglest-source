@@ -3390,7 +3390,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());
 						gameSettings->setMasterserver_admin_faction_index(serverInterface->getSlot(i)->getPlayerIndex());
 						labelGameName.setText(serverInterface->getSlot(i)->getName()+" controls");
-						//printf("slot = %d, admin key [%d] slot connected time[%lu] clientConnectedTime [%lu]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
+						//printf("slot = %d, admin key [%d] slot connected time[%zu] clientConnectedTime [%zu]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
 					}
 					if(serverInterface->getSlot(i)->getSessionKey() == gameSettings->getMasterserver_admin()){
 						masterserver_admin_found=true;
@@ -3414,7 +3414,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i)->getSessionKey());
 						gameSettings->setMasterserver_admin_faction_index(serverInterface->getSlot(i)->getPlayerIndex());
 						labelGameName.setText(serverInterface->getSlot(i)->getName()+" controls");
-						//printf("slot = %d, admin key [%d] slot connected time[%lu] clientConnectedTime [%lu]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
+						//printf("slot = %d, admin key [%d] slot connected time[%zu] clientConnectedTime [%zu]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
 					}
 					if(serverInterface->getSlot(i)->getSessionKey() == gameSettings->getMasterserver_admin()){
 						masterserver_admin_found=true;

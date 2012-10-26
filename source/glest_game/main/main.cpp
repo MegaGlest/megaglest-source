@@ -173,13 +173,13 @@ static void cleanupProcessObjects() {
 	SystemFlags::Close();
 	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("start running threads = %lu\n",Thread::getThreadList().size());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("start running threads = %zu\n",Thread::getThreadList().size());
 	time_t elapsed = time(NULL);
     for(;Thread::getThreadList().size() > 0 &&
     	 difftime((long int)time(NULL),elapsed) <= 10;) {
     	//sleep(0);
     }
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("end running threads = %lu\n",Thread::getThreadList().size());
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("end running threads = %zu\n",Thread::getThreadList().size());
 
 	std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
 	//deleteMapValues(crcPlayerTextureCache.begin(),crcPlayerTextureCache.end());
@@ -190,10 +190,10 @@ static void cleanupProcessObjects() {
 	crcFactionPreviewTextureCache.clear();
 
 	std::map<string, vector<FileReader<Pixmap2D> const * >* > &list2d = FileReader<Pixmap2D>::getFileReadersMap();
-	//printf("list2d = %lu\n",list2d.size());
+	//printf("list2d = %zu\n",list2d.size());
 	deleteMapValues(list2d.begin(),list2d.end());
 	std::map<string, vector<FileReader<Pixmap3D> const * >* > &list3d = FileReader<Pixmap3D>::getFileReadersMap();
-	//printf("list3d = %lu\n",list3d.size());
+	//printf("list3d = %zu\n",list3d.size());
 	deleteMapValues(list3d.begin(),list3d.end());
 
 	XmlIo::getInstance().cleanup();
@@ -1356,7 +1356,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		}
 	}
 
-	printf("Found tileset filecount = %lu, used = %lu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
+	printf("Found tileset filecount = %zu, used = %zu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
 
 	int purgeCount = 0;
 	bool foundUnusedFile = false;
@@ -1578,7 +1578,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 						}
 					}
 
-					//printf("\nPurge Duplicate Files #2 DISABLED [%lu] - START:\n=====================\n",fileList.size());
+					//printf("\nPurge Duplicate Files #2 DISABLED [%zu] - START:\n=====================\n",fileList.size());
 
 					for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 						string duplicateFile = fileList[idx];
@@ -1787,7 +1787,7 @@ void runTechValidationForPath(string techPath, string techName,
 				}
 			}
 
-			printf("Found techtree filecount = %lu, used = %lu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
+			printf("Found techtree filecount = %zu, used = %zu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
 
 //                        for( std::map<string,vector<string> >::iterator iterMap = loadedFileList.begin();
 //                        	iterMap != loadedFileList.end(); ++iterMap) {
@@ -1881,7 +1881,7 @@ void runTechValidationForPath(string techPath, string techName,
 							printf("\nWarning, duplicate files were detected - START:\n=====================\n");
 						}
 
-						printf("----- START duplicate files for CRC [%u] count [%lu] first file is [%s]\n",iterMap->first,fileList.size(),fileList[0].c_str());
+						printf("----- START duplicate files for CRC [%u] count [%zu] first file is [%s]\n",iterMap->first,fileList.size(),fileList[0].c_str());
 
 						map<string,int> parentList;
 						for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
@@ -1921,7 +1921,7 @@ void runTechValidationForPath(string techPath, string techName,
 							//}
 						}
 
-						printf("----- Finding parents for duplicate files [%lu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+						printf("----- Finding parents for duplicate files [%zu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 
 						for(map<string,int>::iterator iterMap1 = parentList.begin();
 								iterMap1 != parentList.end(); ++iterMap1) {
@@ -1935,7 +1935,7 @@ void runTechValidationForPath(string techPath, string techName,
 						if(purgeDuplicateFiles == true) {
 							//printf("\nPurge Duplicate Files detected - START:\n=====================\n");
 
-							printf("----- move / remove duplicate files [%lu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+							printf("----- move / remove duplicate files [%zu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 							// First move first duplicate to commondata and delete all other copies
 							string newCommonFileName = "";
 							for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
@@ -1944,7 +1944,7 @@ void runTechValidationForPath(string techPath, string techName,
 								if(fileExt == "wav" || fileExt == "ogg") {
 									off_t fileSize = getFileSize(duplicateFile);
 
-									printf("#1 [%u / %lu] removing duplicate [%s]\n",idx,fileList.size(),duplicateFile.c_str());
+									printf("#1 [%u / %zu] removing duplicate [%s]\n",idx,fileList.size(),duplicateFile.c_str());
 
 									if(idx == 0) {
 										newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
@@ -2012,7 +2012,7 @@ void runTechValidationForPath(string techPath, string techName,
 								}
 							}
 
-							printf("----- update XML files for duplicate files [%lu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+							printf("----- update XML files for duplicate files [%zu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 							std::map<string,int> mapUniqueParentList;
 
 							// Update the XML files to point to the new single copy in commondata
@@ -2082,7 +2082,7 @@ void runTechValidationForPath(string techPath, string techName,
 								}
 							}
 
-							//printf("\nPurge Duplicate Files #2 DISABLED [%lu] - START:\n=====================\n",fileList.size());
+							//printf("\nPurge Duplicate Files #2 DISABLED [%zu] - START:\n=====================\n",fileList.size());
 
 							for(unsigned int idx = 0; idx < fileList.size(); ++idx) {
 								string duplicateFile = fileList[idx];
@@ -2134,7 +2134,7 @@ void runTechValidationForPath(string techPath, string techName,
 						}
 
 
-						printf("----- END duplicate files [%lu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
+						printf("----- END duplicate files [%zu] first file is [%s]\n",fileList.size(),fileList[0].c_str());
 					}
 				}
 				if(foundDuplicates == true) {
@@ -3951,7 +3951,7 @@ int glestMain(int argc, char** argv) {
 				string mapName = maps[i];
 				printf("%s\n",mapName.c_str());
 			}
-			printf("===========================================\nTotal: %lu\n",maps.size());
+			printf("===========================================\nTotal: %zu\n",maps.size());
 
             return 0;
     	}
@@ -4012,13 +4012,13 @@ int glestMain(int argc, char** argv) {
 								string name2 = results2[k];
 								printf("--> %s\n",name2.c_str());
 							}
-							printf("--> Total Factions: %lu\n",results2.size());
+							printf("--> Total Factions: %zu\n",results2.size());
 							break;
 						}
 					}
 				}
 			}
-			printf("===========================================\nTotal Techtrees: %lu\n",results.size());
+			printf("===========================================\nTotal Techtrees: %zu\n",results.size());
 
             return 0;
     	}
@@ -4061,7 +4061,7 @@ int glestMain(int argc, char** argv) {
 				string name = results[i];
 				printf("%s\n",name.c_str());
 			}
-			printf("===========================================\nTotal: %lu\n",results.size());
+			printf("===========================================\nTotal: %zu\n",results.size());
 
             return 0;
     	}
@@ -4125,7 +4125,7 @@ int glestMain(int argc, char** argv) {
 					}
 				}
 			}
-			printf("===========================================\nTotal: %lu\n",results.size());
+			printf("===========================================\nTotal: %zu\n",results.size());
 
             return 0;
     	}
@@ -4189,7 +4189,7 @@ int glestMain(int argc, char** argv) {
 					}
 				}
 			}
-			printf("===========================================\nTotal: %lu\n",results.size());
+			printf("===========================================\nTotal: %zu\n",results.size());
 
             return 0;
     	}
@@ -4544,7 +4544,7 @@ int glestMain(int argc, char** argv) {
 					renderer.clearBuffers();
 					renderer.clearZBuffer();
 					renderer.reset2d();
-				    snprintf(szTextBuf,8096,"Please wait, converting models [%u of %lu] ...",i,(long int)models.size());
+				    snprintf(szTextBuf,8096,"Please wait, converting models [%u of %zu] ...",i,(long int)models.size());
 
 				    if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
 						renderer.renderText3D(
@@ -4568,7 +4568,7 @@ int glestMain(int argc, char** argv) {
 
 					Model *model = renderer.newModel(rsGlobal);
 					try {
-						printf("About to load model [%s] [%u of %lu]\n",file.c_str(),i,(long int)models.size());
+						printf("About to load model [%s] [%u of %zu]\n",file.c_str(),i,(long int)models.size());
 						model->load(file);
 						modelLoadedOk = true;
 					}

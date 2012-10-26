@@ -108,9 +108,9 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
 
     size_t result = fwrite(buffer, size, nmemb, out->stream);
     if(result != nmemb) {
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Client thread FAILED to write data chunk to file [%s] nmemb = %lu, result = %lu\n",fullFilePath.c_str(),nmemb,result);
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread FAILED to write data chunk to file [%s] nmemb = %lu, result = %lu\n",fullFilePath.c_str(),nmemb,result);
-        SystemFlags::OutputDebug(SystemFlags::debugError,"===> FTP Client thread FAILED to write data chunk to file [%s] nmemb = %lu, result = %lu\n",fullFilePath.c_str(),nmemb,result);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("===> FTP Client thread FAILED to write data chunk to file [%s] nmemb = %zu, result = %zu\n",fullFilePath.c_str(),nmemb,result);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"===> FTP Client thread FAILED to write data chunk to file [%s] nmemb = %zu, result = %zu\n",fullFilePath.c_str(),nmemb,result);
+        SystemFlags::OutputDebug(SystemFlags::debugError,"===> FTP Client thread FAILED to write data chunk to file [%s] nmemb = %zu, result = %zu\n",fullFilePath.c_str(),nmemb,result);
         //return -1; /* failure, can't open file to write */
     }
     return result;

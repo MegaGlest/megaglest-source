@@ -132,7 +132,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 //	if(frameIndex != factions[unit->getFactionIndex()].lastFromToNodeListFrame) {
 //		if(factions[unit->getFactionIndex()].mapFromToNodeList.size() > 0) {
-//			printf("clear duplicate list = %lu for faction = %d frameIndex = %d\n",factions[unit->getFactionIndex()].mapFromToNodeList.size(),unit->getFactionIndex(),frameIndex);
+//			printf("clear duplicate list = %zu for faction = %d frameIndex = %d\n",factions[unit->getFactionIndex()].mapFromToNodeList.size(),unit->getFactionIndex(),frameIndex);
 //			factions[unit->getFactionIndex()].mapFromToNodeList.clear();
 //		}
 //		factions[unit->getFactionIndex()].lastFromToNodeListFrame = frameIndex;
@@ -918,7 +918,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 										char szBuf[8096]="";
-										snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+										snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%zu] openPosList.size() [%zu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 												factions[unitFactionIndex].openNodesList.size(),factions[unitFactionIndex].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 										unit->logSynchData(__FILE__,__LINE__,szBuf);
 									}
@@ -975,7 +975,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 										char szBuf[8096]="";
-										snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+										snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%zu] openPosList.size() [%zu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 												factions[unitFactionIndex].openNodesList.size(),factions[unitFactionIndex].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 										unit->logSynchData(__FILE__,__LINE__,szBuf);
 									}
@@ -1192,7 +1192,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"[path for unit BLOCKED] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+			snprintf(szBuf,8096,"[path for unit BLOCKED] openNodesList.size() [%zu] openPosList.size() [%zu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					factions[unitFactionIndex].openNodesList.size(),factions[unitFactionIndex].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
 		}
@@ -1268,7 +1268,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%lu] openPosList.size() [%lu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
+			snprintf(szBuf,8096,"[Setting new path for unit] openNodesList.size() [%zu] openPosList.size() [%zu] finalPos [%s] targetPos [%s] inBailout [%d] ts [%d]",
 					factions[unitFactionIndex].openNodesList.size(),factions[unitFactionIndex].openPosList.size(),finalPos.getString().c_str(),targetPos.getString().c_str(),inBailout,ts);
 			unit->logSynchData(__FILE__,__LINE__,szBuf);
 

@@ -122,7 +122,7 @@ void PixmapIoTga::openRead(const string &path) {
 	size_t readBytes = fread(&fileHeader, sizeof(TargaFileHeader), 1, file);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -157,7 +157,7 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 			size_t readBytes = fread(&l, 1, 1, file);
 			if(readBytes != 1) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -170,21 +170,21 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 			size_t readBytes = fread(&b, 1, 1, file);
 			if(readBytes != 1) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
 			readBytes = fread(&g, 1, 1, file);
 			if(readBytes != 1) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
 			readBytes = fread(&r, 1, 1, file);
 			if(readBytes != 1) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -192,7 +192,7 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 				readBytes = fread(&a, 1, 1, file);
 				if(readBytes != 1) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 
@@ -293,7 +293,7 @@ void PixmapIoBmp::openRead(const string &path){
     size_t readBytes = fread(&fileHeader, sizeof(BitmapFileHeader), 1, file);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -306,7 +306,7 @@ void PixmapIoBmp::openRead(const string &path){
 	readBytes = fread(&infoHeader, sizeof(BitmapInfoHeader), 1, file);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -329,21 +329,21 @@ void PixmapIoBmp::read(uint8 *pixels, int components) {
 		size_t readBytes = fread(&b, 1, 1, file);
 		if(readBytes != 1) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
 
 		readBytes = fread(&g, 1, 1, file);
 		if(readBytes != 1) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
 
 		readBytes = fread(&r, 1, 1, file);
 		if(readBytes != 1) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
 

@@ -253,7 +253,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeaderV2), 1, f);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -331,14 +331,14 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	readBytes = fread(vertices, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	readBytes = fread(normals, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -346,21 +346,21 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 		readBytes = fread(texCoords, sizeof(Vec2f)*vertexCount, 1, f);
 		if(readBytes != 1 && vertexCount != 0) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+			snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
 	}
 	readBytes = fread(&diffuseColor, sizeof(Vec3f), 1, f);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	readBytes = fread(&opacity, sizeof(float32), 1, f);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -368,7 +368,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 	if(readBytes != 1 && indexCount != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u] on line: %d.",readBytes,indexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,indexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 }
@@ -384,7 +384,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeaderV3), 1, f);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -459,14 +459,14 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	readBytes = fread(vertices, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	readBytes = fread(normals, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -475,7 +475,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 			readBytes = fread(texCoords, sizeof(Vec2f)*vertexCount, 1, f);
 			if(readBytes != 1 && vertexCount != 0) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 		}
@@ -483,14 +483,14 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	readBytes = fread(&diffuseColor, sizeof(Vec3f), 1, f);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	readBytes = fread(&opacity, sizeof(float32), 1, f);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -498,7 +498,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 	if(readBytes != 1 && indexCount != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u] on line: %d.",readBytes,indexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,indexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 }
@@ -565,7 +565,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeader), 1, f);
 	if(readBytes != 1) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -603,7 +603,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 			readBytes = fread(cMapPath, mapPathSize, 1, f);
 			if(readBytes != 1 && mapPathSize != 0) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu [%u] on line: %d.",readBytes,mapPathSize,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,mapPathSize,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -628,14 +628,14 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	readBytes = fread(vertices, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	readBytes = fread(normals, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -643,7 +643,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 		readBytes = fread(texCoords, sizeof(Vec2f)*vertexCount, 1, f);
 		if(readBytes != 1 && vertexCount != 0) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"fread returned wrong size = %lu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
+			snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -651,7 +651,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 	if(readBytes != 1 && indexCount != 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = %lu [%u] on line: %d.",readBytes,indexCount,__LINE__);
+		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,indexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -994,7 +994,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		if(readBytes != 1) {
 			fclose(f);
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -1015,7 +1015,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			readBytes = fread(&modelHeader, sizeof(ModelHeader), 1, f);
 			if(readBytes != 1) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu on line: %d.",readBytes,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -1048,7 +1048,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			readBytes = fread(&meshCount, sizeof(meshCount), 1, f);
 			if(readBytes != 1 && meshCount != 0) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu [%u] on line: %d.",readBytes,meshCount,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,meshCount,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
@@ -1075,7 +1075,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			readBytes = fread(&meshCount, sizeof(meshCount), 1, f);
 			if(readBytes != 1 && meshCount != 0) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = %lu [%u] on line: %d.",readBytes,meshCount,__LINE__);
+				snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,meshCount,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
 
