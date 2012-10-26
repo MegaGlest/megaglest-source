@@ -54,8 +54,26 @@ string getPlatformNameString() {
 
 #elif defined(__FreeBSD__)
 	platform = "FreeBSD";
+#elif defined(__NetBSD__)
+	platform = "NetBSD";
+#elif defined(__OpenBSD__)
+	platform = "OpenBSD";
+
 #elif defined(__APPLE__)
 	platform = "MacOSX";
+#elif defined(_AIX)
+	platform = "AIX";
+#elif defined(__ANDROID__)
+	platform = "ANDROID";
+#elif defined(__BEOS__)
+	platform = "BEOS";
+#elif defined(__BEOS__)
+	platform = "BEOS";
+#elif defined(__gnu_linux__)
+	platform = "GNU_LINUX";
+#elif defined(__sun)
+	platform = "SOLARIS";
+
 #elif defined(__GNUC__)
 
 	#if defined(__MINGW32__)
@@ -68,8 +86,21 @@ string getPlatformNameString() {
 	platform = "???";
 #endif
 
-#if defined(_M_X64) || defined(_M_IA64) || defined(_M_AMD64) || defined(__x86_64__) || defined(_WIN64)
-	platform += "_64bit";
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__) || defined(_WIN64)
+	platform += "_x64";
+#elif defined(_M_ALPHA) || defined(__alpha__)
+	platform += "_ALPHA";
+#elif defined(_M_IA64) || defined(__ia64__)
+	platform += "_IA64";
+#elif defined(_M_MRX000) || defined(__mips__)
+	platform += "_MIPS";
+#elif defined(_M_PPC) || defined(__powerpc__)
+	platform += "_POWERPC";
+#elif defined(__sparc__)
+	platform += "_SPARC";
+#elif defined(_M_ARM_FP) || defined(__arm__) || defined(_M_ARM)
+	platform += "_ARM";
+
 #endif
 	}
 	return platform;
