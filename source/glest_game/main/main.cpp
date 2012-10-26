@@ -1356,7 +1356,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		}
 	}
 
-	printf("Found tileset filecount = %zu, used = %zu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
+	printf("Found tileset filecount = %zu, used = %zu\n",foundFileList.size(),loadedFileList.size());
 
 	int purgeCount = 0;
 	bool foundUnusedFile = false;
@@ -1787,7 +1787,7 @@ void runTechValidationForPath(string techPath, string techName,
 				}
 			}
 
-			printf("Found techtree filecount = %zu, used = %zu\n",(unsigned long)foundFileList.size(),(unsigned long)loadedFileList.size());
+			printf("Found techtree filecount = %zu, used = %zu\n",foundFileList.size(),loadedFileList.size());
 
 //                        for( std::map<string,vector<string> >::iterator iterMap = loadedFileList.begin();
 //                        	iterMap != loadedFileList.end(); ++iterMap) {
@@ -4544,7 +4544,7 @@ int glestMain(int argc, char** argv) {
 					renderer.clearBuffers();
 					renderer.clearZBuffer();
 					renderer.reset2d();
-				    snprintf(szTextBuf,8096,"Please wait, converting models [%u of %zu] ...",i,(long int)models.size());
+				    snprintf(szTextBuf,8096,"Please wait, converting models [%u of %zu] ...",i,models.size());
 
 				    if(CoreData::getInstance().getMenuFontBig3D() != NULL) {
 						renderer.renderText3D(
@@ -4568,7 +4568,7 @@ int glestMain(int argc, char** argv) {
 
 					Model *model = renderer.newModel(rsGlobal);
 					try {
-						printf("About to load model [%s] [%u of %zu]\n",file.c_str(),i,(long int)models.size());
+						printf("About to load model [%s] [%u of %zu]\n",file.c_str(),i,models.size());
 						model->load(file);
 						modelLoadedOk = true;
 					}
