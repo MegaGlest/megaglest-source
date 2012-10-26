@@ -2313,7 +2313,7 @@ string World::getAllFactionsCacheStats() {
 	}
 
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,"totalCache1Size [%zu] totalCache1Size [%zu] total KB: %s",totalCache1Size,totalCache2Size,formatNumber(totalBytes).c_str());
+	snprintf(szBuf,8096,"totalCache1Size [%lu] totalCache1Size [%lu] total KB: %s",totalCache1Size,totalCache2Size,formatNumber(totalBytes).c_str());
 	result = szBuf;
 	return result;
 }
