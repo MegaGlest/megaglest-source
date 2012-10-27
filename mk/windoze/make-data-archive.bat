@@ -79,4 +79,5 @@ rem echo Current directory[%CD%]
 dir "..\%PACKAGE%"
 cd /d "%~dp0"
 
-pause
+rem pause execution so we can see the output before the batch file exits
+if not "%1" == "nopause" pause
