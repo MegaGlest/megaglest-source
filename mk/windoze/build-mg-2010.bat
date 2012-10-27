@@ -34,7 +34,7 @@ if NOT "%7ztestdep%" == "0" goto getDepFile
 goto processBuildStageA
 
 :processBuildStageA
-call CopyWindowsRuntimeDlls.bat nopause
+call CopyWindowsRuntimeDlls_2010.bat nopause
 
 rem setup the Visual Studio 2010 environment
 ECHO --------------------------------
