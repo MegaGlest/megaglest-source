@@ -73,6 +73,7 @@
       </PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>wxbase28d.lib;wxbase28d_net.lib;wxbase28d_xml.lib;wxexpatd.lib;wxjpegd.lib;wxmsw28d_adv.lib;wxmsw28d_aui.lib;wxmsw28d_core.lib;wxmsw28d_gl.lib;wxmsw28d_html.lib;wxmsw28d_media.lib;wxmsw28d_qa.lib;wxmsw28d_richtext.lib;wxmsw28d_xrc.lib;wxregexd.lib;wxtiffd.lib;wxzlibd.lib;winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;Dbghelp.lib;sdl.lib;sdlmain.lib;dxguid.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;xerces-c_3d.lib;libpng.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -101,6 +102,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>wxbase29u.lib;wxbase29u_net.lib;wxbase29u_xml.lib;wxexpat.lib;wxjpeg.lib;wxtiff.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_core.lib;wxmsw29u_gl.lib;wxmsw29u_html.lib;wxmsw29u_media.lib;wxmsw29u_qa.lib;wxmsw29u_richtext.lib;wxmsw29u_xrc.lib;wxregexu.lib;winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;Dbghelp.lib;sdl.lib;sdlmain.lib;dxguid.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;xerces-c_static_3.lib;libpng15.lib;jpeg.lib;ftgl_static.lib;freetype244MT.lib;glew32s.lib;zlibstat.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -135,6 +137,7 @@
       <PrecompiledHeaderOutputFile>c:\temp\release\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>wxbase28.lib;wxbase28_net.lib;wxbase28_xml.lib;wxexpat.lib;wxjpeg.lib;wxmsw28_adv.lib;wxmsw28_aui.lib;wxmsw28_core.lib;wxmsw28_gl.lib;wxmsw28_html.lib;wxmsw28_media.lib;wxmsw28_qa.lib;wxmsw28_richtext.lib;wxmsw28_xrc.lib;wxregex.lib;wxtiff.lib;wxzlib.lib;winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;Dbghelp.lib;sdl.lib;sdlmain.lib;dxguid.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;xerces-c_3.lib;libpng.lib;%(AdditionalDependencies)</AdditionalDependencies>
