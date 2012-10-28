@@ -74,7 +74,7 @@ if exist release-data%PACKAGE% del release-data%PACKAGE%
 cd /d %RELEASEDIR%
 rem echo Current directory[%CD%]
 
-..\..\..\..\data\glest_game\7z.exe a -mmt -mx=9 -ms=on -mhc=on ..\%PACKAGE% *
+..\..\..\..\data\glest_game\7z.exe a -mmt -mx=9 %7Z_MG_COMPRESS_PARAMS% -ms=on -mhc=on ..\%PACKAGE% *
 
 dir "..\%PACKAGE%"
 cd /d "%~dp0"
