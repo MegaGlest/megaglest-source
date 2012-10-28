@@ -36,7 +36,11 @@ cd /d ..\..\data\glest_game\
 
 echo creating [%PACKAGE%] ...
 if exist "%PACKAGE%" del "%PACKAGE%"
-7z a -mmt -mx=9 %7Z_MG_COMPRESS_PARAMS% -ms=on -mhc=on "%PACKAGE%" megaglest.exe megaglest_g3dviewer.exe megaglest_editor.exe xerces-c_3_0.dll libvlc.dll libvlccore.dll lua plugins 7z.exe 7z.dll xml2g.exe openal32.dll g2xml.exe glest.ini glestkeys.ini servers.ini
+set custom_sevenZ_params=
+if not "%SEVENZ_MG_COMPRESS_PARAMS%." == "." set custom_sevenZ_params=%SEVENZ_MG_COMPRESS_PARAMS%
+echo custom_sevenZ_params [%custom_sevenZ_params%] ...
+
+7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "%PACKAGE%" megaglest.exe megaglest_g3dviewer.exe megaglest_editor.exe xerces-c_3_0.dll libvlc.dll libvlccore.dll lua plugins 7z.exe 7z.dll xml2g.exe openal32.dll g2xml.exe glest.ini glestkeys.ini servers.ini
 
 dir "%PACKAGE%"
 cd /d "%~dp0"

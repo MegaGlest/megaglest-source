@@ -74,7 +74,11 @@ if exist release-data%PACKAGE% del release-data%PACKAGE%
 cd /d %RELEASEDIR%
 rem echo Current directory[%CD%]
 
-..\..\..\..\data\glest_game\7z.exe a -mmt -mx=9 %7Z_MG_COMPRESS_PARAMS% -ms=on -mhc=on ..\%PACKAGE% *
+set custom_sevenZ_params=
+if not "%SEVENZ_MG_COMPRESS_PARAMS%." == "." set custom_sevenZ_params=%SEVENZ_MG_COMPRESS_PARAMS%
+echo custom_sevenZ_params [%custom_sevenZ_params%] ...
+
+..\..\..\..\data\glest_game\7z.exe a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on ..\%PACKAGE% *
 
 dir "..\%PACKAGE%"
 cd /d "%~dp0"
