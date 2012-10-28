@@ -2,12 +2,21 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_game", "glest_game.vcxproj", "{6B0C65F1-D031-46AF-AC0D-7C38892D2952}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141} = {CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libglest", "shared_lib.vcxproj", "{8DAA0C24-95CD-4F66-B4C5-19ABDD771746}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_editor", "glest_editor.vcxproj", "{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141} = {CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3d_viewer", "g3d_viewer.vcxproj", "{FE5C7C7C-F109-44F5-8329-25A4E24F162C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141} = {CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libstreflop", "libstreflop.vcxproj", "{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}"
 EndProject
@@ -100,24 +109,6 @@ Global
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Release+MT with error catching|Win32.Build.0 = Release|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Syncdebug|Win32.ActiveCfg = Release|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Syncdebug|Win32.Build.0 = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Debug|Win32.Build.0 = Debug|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Debug+MT|Win32.ActiveCfg = Debug|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Debug+MT|Win32.Build.0 = Debug|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Debug-MT|Win32.ActiveCfg = Debug|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Debug-MT|Win32.Build.0 = Debug|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.No debug|Win32.ActiveCfg = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.No debug|Win32.Build.0 = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release with error catching|Win32.ActiveCfg = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release with error catching|Win32.Build.0 = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release_NO_STREFLOP|Win32.ActiveCfg = Release_NO_STREFLOP|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release_NO_STREFLOP|Win32.Build.0 = Release_NO_STREFLOP|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release|Win32.ActiveCfg = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release|Win32.Build.0 = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release+MT with error catching|Win32.ActiveCfg = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Release+MT with error catching|Win32.Build.0 = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Syncdebug|Win32.ActiveCfg = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-19A4E24F162D}.Syncdebug|Win32.Build.0 = Release|Win32
 		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}.Debug|Win32.Build.0 = Debug|Win32
 		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}.Debug+MT|Win32.ActiveCfg = Debug|Win32

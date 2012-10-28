@@ -86,6 +86,7 @@
       <WarningLevel>Level2</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4018;4244;4250;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>dsound.lib;dxguid.lib;glew32s.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;opengl32.lib;glu32.lib;wsock32.lib;libglest.lib;mmc.lib;lua.lib;xerces-c_static_3D.lib;Dbghelp.lib;libpng15.lib;jpeg.lib;zlibstat.lib;sdl.lib;sdlmain.lib;winmm.lib;openal32.lib;iphlpapi.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;libircclient.lib;freetype244MT_D.lib;ftgl_static_D.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -126,6 +127,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4018;4244;4250;4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>dsound.lib;dxguid.lib;glew32s.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;opengl32.lib;glu32.lib;wsock32.lib;libglest.lib;mmc.lib;lua.lib;xerces-c_static_3.lib;Dbghelp.lib;libpng15.lib;jpeg.lib;zlibstat.lib;sdl.lib;sdlmain.lib;winmm.lib;openal32.lib;iphlpapi.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;libircclient.lib;freetype244MT.lib;ftgl_static.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -168,6 +170,7 @@
       <FloatingPointModel>Precise</FloatingPointModel>
       <WarningLevel>Level2</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>dsound.lib;dxguid.lib;ogg_static.lib;vorbis_static.lib;vorbisfile_static.lib;opengl32.lib;glu32.lib;wsock32.lib;libglest.lib;mmc.lib;lua5.1.lib;xerces-c_3.lib;Dbghelp.lib;libpng.lib;jpeg.lib;zlib.lib;sdl.lib;sdlmain.lib;winmm.lib;openal32.lib;iphlpapi.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
