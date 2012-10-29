@@ -190,20 +190,8 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	        # Installation of the program desktop file
                 INSTALL(FILES
-	          "${PROJECT_SOURCE_DIR}/megaglest_g3dviewer.desktop"
+	          "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer.desktop"
 	          DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
-
-	        # Installation of the program config and image files
-	        #INSTALL(FILES 
-	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
-	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
-	        #  "${PROJECT_SOURCE_DIR}/data/glest_game/g3dviewer.ico"
-	        #  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
-
-	        # Installation of the program desktop icon file
-	        #INSTALL(FILES 
-	        #  "${PROJECT_SOURCE_DIR}/data/glest_game/g3dviewer.ico"
-	        #  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 
         ENDIF()
 ENDIF()
