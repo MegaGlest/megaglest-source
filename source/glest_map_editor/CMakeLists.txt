@@ -185,19 +185,8 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	        # Installation of the program desktop file
 	        INSTALL(FILES
-	          "${PROJECT_SOURCE_DIR}/megaglest_editor.desktop"
+	          "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_editor.desktop"
 	          DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
-
-	        #INSTALL(FILES 
-	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
-	        #  "${PROJECT_SOURCE_DIR}/mk/linux/glestkeys.ini"
-                #  "${PROJECT_SOURCE_DIR}/data/glest_game/editor.ico"
-	        #  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
-
-	        # Installation of the program desktop icon file
-	        #INSTALL(FILES 
-	        #  "${PROJECT_SOURCE_DIR}/data/glest_game/editor.ico"
-	        #  DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 
         ENDIF()
 ENDIF()
