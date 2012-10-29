@@ -563,7 +563,7 @@ int mainSetup(int argc, char **argv) {
     	snprintf(szBuf,8096,"Error detected, your CPU does not seem to support SSE: [%d]\n",has_SSE);
     	throw megaglest_runtime_error(szBuf);
 	}
-#elif defined (__GNUC__)
+#elif defined (__GNUC__) && !defined(__APPLE__)
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] About to validate SSE support\n",__FILE__,__FUNCTION__,__LINE__);
 
