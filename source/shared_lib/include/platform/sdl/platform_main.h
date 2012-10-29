@@ -86,6 +86,7 @@ const char  *GAME_ARGS[] = {
 	"--disable-videos",
 
 	"--disable-opengl-checks",
+	"--disable-streflop-checks",
 
 	"--verbose"
 
@@ -157,6 +158,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_VIDEOS,
 
 	GAME_ARG_DISABLE_OPENGL_CAPS_CHECK,
+	GAME_ARG_DISABLE_STREFLOP_CAPS_CHECK,
 
 	GAME_ARG_VERBOSE_MODE,
 
@@ -498,6 +500,72 @@ int mainSetup(int argc, char **argv) {
     }
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+
+	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DISABLE_STREFLOP_CAPS_CHECK])) == false) {
+// Ensure at runtime that the client has SSE
+#if defined(STREFLOP_SSE)	
+#if defined(WIN32)	
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] About to validate SSE support\n",__FILE__,__FUNCTION__,__LINE__);
+
+	int has_x64     = false;
+	int has_MMX     = false;
+	int has_SSE     = false;
+	int has_SSE2    = false;
+	int has_SSE3    = false;
+	int has_SSSE3   = false;
+	int has_SSE41   = false;
+	int has_SSE42   = false;
+	int has_SSE4a   = false;
+	int has_AVX     = false;
+	int has_XOP     = false;
+	int has_FMA3    = false;
+	int has_FMA4    = false;
+
+	int info[4];
+	__cpuid(info, 0);
+	int nIds = info[0];
+
+	__cpuid(info, 0x80000000);
+	int nExIds = info[0];
+
+	//  Detect Instruction Set
+	if (nIds >= 1){
+		__cpuid(info,0x00000001);
+		has_MMX   = (info[3] & ((int)1 << 23)) != 0;
+		has_SSE   = (info[3] & ((int)1 << 25)) != 0;
+		has_SSE2  = (info[3] & ((int)1 << 26)) != 0;
+		has_SSE3  = (info[2] & ((int)1 <<  0)) != 0;
+
+		has_SSSE3 = (info[2] & ((int)1 <<  9)) != 0;
+		has_SSE41 = (info[2] & ((int)1 << 19)) != 0;
+		has_SSE42 = (info[2] & ((int)1 << 20)) != 0;
+
+		has_AVX   = (info[2] & ((int)1 << 28)) != 0;
+		has_FMA3  = (info[2] & ((int)1 << 12)) != 0;
+	}
+
+	if (nExIds >= 0x80000001){
+		__cpuid(info,0x80000001);
+		has_x64   = (info[3] & ((int)1 << 29)) != 0;
+		has_SSE4a = (info[2] & ((int)1 <<  6)) != 0;
+		has_FMA4  = (info[2] & ((int)1 << 16)) != 0;
+		has_XOP   = (info[2] & ((int)1 << 11)) != 0;
+	}	
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sse check got [%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]\n",__FILE__,__FUNCTION__,__LINE__,has_x64,has_MMX,has_SSE,has_SSE2,has_SSE3,has_SSSE3,has_SSE41,has_SSE42,has_SSE4a,has_AVX,has_XOP,has_FMA3,has_FMA4);
+
+	if(	has_SSE	  == false && has_SSE2	== false && has_SSE3 == false &&
+		has_SSSE3 == false && has_SSE41	== false &&	has_SSE42 == false &&
+		has_SSE4a == false) {
+    	char szBuf[8096]="";
+    	snprintf(szBuf,8096,"Error detected, your CPU does not seem to support SSE: [%d]\n",has_SSE);
+    	throw megaglest_runtime_error(szBuf);
+	}
+#endif
+#endif
+	}
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
