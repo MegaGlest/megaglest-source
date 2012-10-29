@@ -563,6 +563,28 @@ int mainSetup(int argc, char **argv) {
     	snprintf(szBuf,8096,"Error detected, your CPU does not seem to support SSE: [%d]\n",has_SSE);
     	throw megaglest_runtime_error(szBuf);
 	}
+#elif defined (__GNUC__)
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] About to validate SSE support\n",__FILE__,__FUNCTION__,__LINE__);
+
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
+
+#define cpuid(func,ax,bx,cx,dx)\
+	__asm__ __volatile__ ("cpuid":\
+	"=a" (ax), "=b" (bx), "=c" (cx), "=d" (dx) : "a" (func));
+
+	int ax=0,bx=0,cx=0,dx=0;
+	cpuid(0x0000001,ax,bx,cx,dx)
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sse check got [%d,%d,%d,%d]\n",__FILE__,__FUNCTION__,__LINE__,ax,bx,cx,dx);
+
+	// Check SSE, SSE2 and SSE3 support (if all 3 fail throw exception)
+	if(	!CHECK_BIT(dx,25) && !CHECK_BIT(dx,26) && !CHECK_BIT(cx,0) ) {
+    	char szBuf[8096]="";
+    	snprintf(szBuf,8096,"Error detected, your CPU does not seem to support SSE: [%d]\n",CHECK_BIT(dx,25));
+    	throw megaglest_runtime_error(szBuf);
+	}
+
 #endif
 #endif
 	}
