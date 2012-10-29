@@ -225,7 +225,6 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\glestkeys.ini"
   File "..\..\..\data\glest_game\servers.ini"
   File "..\..\..\data\glest_game\openal32.dll"
-  File "..\..\..\data\glest_game\xerces-c_3_0.dll"
   
   File "..\..\..\data\glest_game\libvlccore.dll"
   File "..\..\..\data\glest_game\libvlc.dll"
@@ -236,12 +235,6 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\xml2g.exe"
   File "..\..\..\data\glest_game\g2xml.exe"
   File /r /x .svn /x mydata "..\..\..\source\tools\glexemel\*.*"
-#  File "..\..\..\data\glest_game\xml2g.exe"
-#  File "..\..\..\data\glest_game\g2xml.exe"
-#  File "..\..\..\source\tools\glexemel\g3d_support.py"
-#  File "..\..\..\source\tools\glexemel\g3d_xml_exporter.py"
-#  File "..\..\..\source\tools\glexemel\g3d.dtd"
-#  File "..\..\..\source\tools\glexemel\g3d_logo.png"
   SetOutPath $INSTDIR
 
   File /r /x .svn /x mydata "..\..\..\data\glest_game\data"
@@ -251,7 +244,6 @@ Section "${APNAME} (required)"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\techs"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\tilesets"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
-#  File /r /x .svn "..\..\..\data\glest_game\screens"
 
   SetOutPath "$INSTDIR\docs\"
   File /r /x .svn /x mydata "..\..\..\docs\*.*"
@@ -278,7 +270,6 @@ Section "${APNAME} (required)"
   CreateDirectory $INSTDIR\techs
   CreateDirectory $INSTDIR\tilesets
   CreateDirectory $INSTDIR\tutorials
-#  CreateDirectory $INSTDIR\screens
   CreateDirectory $INSTDIR\blender
 
   AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
@@ -322,7 +313,6 @@ Section "Uninstall"
   Delete "$INSTDIR\glestkeys.ini"
   Delete "$INSTDIR\servers.ini"
   Delete "$INSTDIR\openal32.dll"
-  Delete "$INSTDIR\xerces-c_3_0.dll"
   Delete "$INSTDIR\*.log"
 
   Delete "$INSTDIR\data\*.*"
