@@ -189,8 +189,13 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
 	        # Installation of the program desktop file
+                SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer.desktop)
+                IF(NOT EXISTS ${MG_DESKTOP_FILE})
+                        SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/megaglest_g3dviewer.desktop)
+                ENDIF()
+
                 INSTALL(FILES
-	          "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer.desktop"
+	          "${MG_DESKTOP_FILE}"
 	          DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
 
         ENDIF()

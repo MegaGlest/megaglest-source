@@ -184,8 +184,13 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
 	        # Installation of the program desktop file
+                SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/mk/linux/megaglest_editor.desktop)
+                IF(NOT EXISTS ${MG_DESKTOP_FILE})
+                        SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/megaglest_editor.desktop)
+                ENDIF()
+
 	        INSTALL(FILES
-	          "${PROJECT_SOURCE_DIR}/mk/linux/megaglest_editor.desktop"
+	          "${MG_DESKTOP_FILE}"
 	          DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
 
         ENDIF()
