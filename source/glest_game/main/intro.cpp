@@ -434,7 +434,19 @@ Intro::Intro(Program *program):
 				if(usedIndex.find(picIndex) != usedIndex.end()) {
 					failedLookups++;
 					srand(seed.getCurTicks() / failedLookups);
-					continue;
+
+					if(failedLookups > 10000) {
+						for(unsigned int i = 0;
+								i < coreData.getMiscTextureList().size(); ++i) {
+							if(usedIndex.find(i) == usedIndex.end()) {
+								picIndex = i;
+								break;
+							}
+						}
+					}
+					else {
+						continue;
+					}
 				}
 				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
 				intoTexList.push_back(coreData.getMiscTextureList()[picIndex]);
