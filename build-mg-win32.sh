@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/bin/sh
+#
+# Use this script to compile using mingw compiler (experimental script)
+# ----------------------------------------------------------------------------
+# Originally written by Mark Vejvoda <mark_vejvoda@hotmail.com>
+# Copyright (c) 2012 Mark Vejvoda under GNU GPL v3.0
 
 NUMCORES=`cat /proc/cpuinfo | grep -cE '^processor'`
 

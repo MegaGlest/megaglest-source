@@ -3,6 +3,9 @@
 # Clean up translations pulled from Transifex
 # Should be applied only to resources in the 'Joomla' format
 # (Currently that's the case for all resources.)
+# ----------------------------------------------------------------------------
+# Written by Tom Reynolds <tomreyn@megaglest.org>
+# Copyright (c) 2012 Tom Reynolds under GNU GPL v3.0
 
 for file in `find . -type f -name *.lng`
 do
