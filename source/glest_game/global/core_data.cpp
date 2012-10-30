@@ -748,6 +748,7 @@ void CoreData::loadFonts() {
 	string menuFontNameNormalPrefix		= config.getString("FontMenuNormalPrefix");
 	string menuFontNameNormalPostfix	= config.getString("FontMenuNormalPostfix");
 	int menuFontNameNormalSize			= computeFontSize(config.getInt("FontMenuNormalBaseSize"));
+	//printf("#1 menuFontNameNormalSize = %d\n",menuFontNameNormalSize);
 
 	if(lang.hasString("FontMenuNormalPrefix") == true) {
 		menuFontNameNormalPrefix = lang.get("FontMenuNormalPrefix");
@@ -756,7 +757,8 @@ void CoreData::loadFonts() {
 		menuFontNameNormalPostfix = lang.get("FontMenuNormalPostfix");
 	}
 	if(lang.hasString("FontMenuNormalBaseSize") == true) {
-		menuFontNameNormalSize = strToInt(lang.get("FontMenuNormalBaseSize"));
+		menuFontNameNormalSize = computeFontSize(strToInt(lang.get("FontMenuNormalBaseSize")));
+		//printf("#2 menuFontNameNormalSize = %d\n",menuFontNameNormalSize);
 	}
 
 	string menuFontNameNormal= menuFontNameNormalPrefix + intToStr(menuFontNameNormalSize) + menuFontNameNormalPostfix;
