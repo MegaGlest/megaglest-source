@@ -3,6 +3,11 @@
 /// \file       delta_private.h
 /// \brief      Private common stuff for Delta encoder and decoder
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

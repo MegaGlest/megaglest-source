@@ -1,3 +1,4 @@
+// ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa

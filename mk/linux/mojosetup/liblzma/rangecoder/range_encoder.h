@@ -3,6 +3,11 @@
 /// \file       range_encoder.h
 /// \brief      Range Encoder
 ///
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 //  Authors:    Igor Pavlov
 //              Lasse Collin
 //

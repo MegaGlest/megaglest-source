@@ -3,6 +3,11 @@
 /// \file       block_header.c
 /// \brief      Utility functions to handle lzma_block
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

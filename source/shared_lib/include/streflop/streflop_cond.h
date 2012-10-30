@@ -1,4 +1,12 @@
-/* Copyright (C) 2008 Tobi Vollebregt */
+/* Copyright (C) 2008 Tobi Vollebregt
+				 2010 Mark Vejvoda
+
+	You can redistribute this code and/or modify it under
+	the terms of the GNU General Public License as published
+	by the Free Software Foundation; either version 2 of the
+	License, or (at your option) any later version
+ ==============================================================
+*/
 
 /* Conditionally include streflop depending on STREFLOP_* #defines:
    If one of those is present, #include "streflop.h", otherwise #include <math.h>

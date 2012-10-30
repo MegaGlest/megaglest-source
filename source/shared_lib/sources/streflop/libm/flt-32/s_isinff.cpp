@@ -1,7 +1,7 @@
 /* See the import.pl script for potential modifications */
 /*
- * Written by J.T. Conklin <jtc@netbsd.org>.
- * Public domain.
+ * Copyright 2012 J.T. Conklin <jtc@netbsd.org>.
+ * Public domain
  */
 
 #if defined(LIBM_SCCS) && !defined(lint)

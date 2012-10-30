@@ -7,7 +7,10 @@ CHANGES:
     Added variable to control the sending of real system traps
     Protect this header by a #define
     pack the fields of floatx80, just in case (should be useless)
-Nicolas Brodu, 2006
+
+    Copyright 2006 Nicolas Brodu
+              2012 Mark Vejvoda
+
 =============================================================================*/
 #ifdef STREFLOP_SOFT
 

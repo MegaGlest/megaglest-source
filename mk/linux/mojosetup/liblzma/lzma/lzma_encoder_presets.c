@@ -3,6 +3,10 @@
 /// \file       lzma_encoder_presets.c
 /// \brief      Encoder presets
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

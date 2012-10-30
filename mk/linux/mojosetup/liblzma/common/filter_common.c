@@ -3,6 +3,11 @@
 /// \file       filter_common.c
 /// \brief      Filter-specific stuff common for both encoder and decoder
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

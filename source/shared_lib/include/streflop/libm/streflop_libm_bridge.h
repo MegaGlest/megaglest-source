@@ -12,7 +12,8 @@
     It is included by the libm converted files to produce the streflop binary,
     that will be linked by the user program instead of the system libm.
 
-    Nicolas Brodu, 2006
+    Copyright 2006 Nicolas Brodu
+    		  2010 Mark Vejvoda
     Code released according to the GNU Lesser General Public License
 */
 

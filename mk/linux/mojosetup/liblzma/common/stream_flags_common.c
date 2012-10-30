@@ -3,6 +3,11 @@
 /// \file       stream_flags_common.c
 /// \brief      Common stuff for Stream flags coders
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

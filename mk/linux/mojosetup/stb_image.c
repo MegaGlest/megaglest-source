@@ -1,6 +1,12 @@
 // (Changes to this code are wrapped in __MOJOSETUP__ sections.  --ryan.)
 // (Changes to JUST THIS FILE are also public domain. The rest of MojoSetup
 //  falls under different licensing terms. --ryan.)
+/*
+Copyright (c) 2006-2010 Ryan C. Gordon and others.
+
+  Public Domain.
+       Ryan C. Gordon <icculus@icculus.org>
+/*
 #if !__MOJOSETUP__
 #error This file is probably miscompiled.
 #endif

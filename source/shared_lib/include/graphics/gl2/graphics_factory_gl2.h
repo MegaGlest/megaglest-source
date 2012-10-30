@@ -14,8 +14,8 @@
 
 #include "texture_manager.h"
 #include "model_manager.h"
+#include "particle_manager.h"
 #include "font_manager.h"
-#include "particle.h"
 #include "graphics_factory.h"
 #include "text_renderer_gl.h"
 #include "model_renderer_gl.h"
@@ -25,8 +25,6 @@
 #include "texture_gl.h"
 #include "font_gl.h"
 #include "shader_gl.h"
-#include "shader_manager.h"
-#include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{ namespace Gl{
 
@@ -34,7 +32,7 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 //	class GraphicsFactoryGl
 // =====================================================
 
-class GraphicsFactoryGl2: public GraphicsFactory{
+class GraphicsFactoryGl: public GraphicsFactory{
 public:
 	//context
 	virtual Context *newContext()					{return new ContextGl();}
@@ -63,7 +61,7 @@ public:
 	virtual ParticleRenderer *newParticleRenderer()	{return new ParticleRendererGl();}
 
 	//shaders
-	virtual ShaderManager *newShaderManager()		{return new ShaderManager();}
+	virtual Shadermanager *newShadermanager()		{return new ShaderManager();}
 	virtual ShaderProgram *newShaderProgram()		{return new ShaderProgramGl();}
 	virtual VertexShader *newVertexShader()			{return new VertexShaderGl();}
 	virtual FragmentShader *newFragmentShader()		{return new FragmentShaderGl();}

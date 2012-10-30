@@ -1,6 +1,6 @@
 //	This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Marti�o Figueroa
+//	Copyright (C) 2001-2008 Martiño Figueroa
 //
 //	You can redistribute this code and/or modify it under
 //	the terms of the GNU General Public License as published
@@ -3131,6 +3131,8 @@ int glestMain(int argc, char** argv) {
         // Prints the run-time version
         ver = *SDL_Linked_Version();
         print_SDL_version("SDL runtime version", &ver);
+        //const SDL_VideoInfo *vidInfo = SDL_GetVideoInfo();
+        //printf("Video card Memory: %u\n",vidInfo->video_mem);
 	}
 
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) == true) {

@@ -1,4 +1,10 @@
 #!/bin/sh
+#
+# Use this script to install build dependencies on a number of Linux platforms
+# ----------------------------------------------------------------------------
+# Originally written by Mark Vejvoda <mark_vejvoda@hotmail.com>
+# Rewritten by Tom Reynolds <tomreyn@megaglest.org>
+# Copyright (c) 2012 Mark Vejvoda, Tom Reynolds under GNU GPL v3.0
 
 OSTYPE=`uname -m`
 echo "Detected distro: [$OSTYPE]"

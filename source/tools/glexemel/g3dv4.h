@@ -1,14 +1,18 @@
+// ==============================================================
+//	This file is part of Glest Shared Library (www.glest.org)
+//
+//	Copyright (C) 2001-2008 Martiño Figueroa
+//
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
+//	License, or (at your option) any later version
+// ==============================================================
 /**
  * File:   g3dv4.h
  *
  * Description:
  *   Data types used by the G3D format.
- *
- * This file is copied from portions of the Glest project:
- *   http://www.glest.org
- *
- * This file may be distributed under the terms of the GNU General Public
- * License.
  */
 
 #ifndef G3DV4_HEADER

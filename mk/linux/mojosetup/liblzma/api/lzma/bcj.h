@@ -3,6 +3,11 @@
  * \brief       Branch/Call/Jump conversion filters
  */
 
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 /*
  * Author: Lasse Collin
  *

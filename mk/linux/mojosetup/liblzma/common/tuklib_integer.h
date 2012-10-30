@@ -30,6 +30,11 @@
 /// The above bit scan operations return 0-31. If num is zero,
 /// the result is undefined.
 //
+//
+// Copyright 2012 Lasse Collin and Joachim Henke
+// Public Domain
+//
+
 //  Authors:    Lasse Collin
 //              Joachim Henke
 //

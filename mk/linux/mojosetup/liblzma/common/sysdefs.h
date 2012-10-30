@@ -6,6 +6,11 @@
 /// This file is used also by the lzma command line tool, that's why this
 /// file is separate from common.h.
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

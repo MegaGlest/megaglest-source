@@ -3,6 +3,11 @@
 /// \file       stream_flags_decoder.c
 /// \brief      Decodes Stream Header and Stream Footer from .xz files
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

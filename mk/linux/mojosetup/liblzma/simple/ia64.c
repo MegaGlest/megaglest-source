@@ -3,6 +3,11 @@
 /// \file       ia64.c
 /// \brief      Filter for IA64 (Itanium) binaries
 ///
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 //  Authors:    Igor Pavlov
 //              Lasse Collin
 //

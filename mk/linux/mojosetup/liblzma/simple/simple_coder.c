@@ -6,6 +6,11 @@
 /// Simple filters don't change the size of the data i.e. number of bytes
 /// in equals the number of bytes out.
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

@@ -3,6 +3,10 @@
 /// \file       lzma_decoder.h
 /// \brief      LZMA decoder API
 ///
+//
+// Copyright 2012 Igor Pavlov and Lasse Collin
+// Public Domain
+//
 //  Authors:    Igor Pavlov
 //              Lasse Collin
 //

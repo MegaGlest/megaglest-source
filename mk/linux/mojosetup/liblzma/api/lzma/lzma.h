@@ -3,6 +3,11 @@
  * \brief       LZMA1 and LZMA2 filters
  */
 
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 /*
  * Author: Lasse Collin
  *

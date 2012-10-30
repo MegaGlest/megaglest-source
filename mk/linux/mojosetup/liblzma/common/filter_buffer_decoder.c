@@ -3,6 +3,11 @@
 /// \file       filter_buffer_decoder.c
 /// \brief      Single-call raw decoding
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

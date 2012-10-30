@@ -1,7 +1,12 @@
 /*
     streflop: STandalone REproducible FLOating-Point
-    Nicolas Brodu, 2006
-    Code released according to the GNU Lesser General Public License
+    Copyright 2006 Nicolas Brodu
+    		  2012 Mark Vejvoda
+
+	You can redistribute this code and/or modify it under
+	the terms of the GNU General Public License as published
+	by the Free Software Foundation; either version 2 of the
+	License, or (at your option) any later version
 
     Heavily relies on GNU Libm, itself depending on netlib fplibm, GNU MP, and IBM MP lib.
     Uses SoftFloat too.

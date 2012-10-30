@@ -1,11 +1,9 @@
 #!/usr/bin/perl -w
 
-
 # utility for megaglest, probably works for glest and GAE too
 # merge new language variables from the main language (english) to all other language files
-# by olaus, 20101222
+# Copyright 2011 olaus, 20101222
 # license: GPL v3
-
 
 ##########################################
 

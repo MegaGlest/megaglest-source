@@ -3,6 +3,11 @@
  * \brief       Data types and functions used in many places in liblzma API
  */
 
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 /*
  * Author: Lasse Collin
  *

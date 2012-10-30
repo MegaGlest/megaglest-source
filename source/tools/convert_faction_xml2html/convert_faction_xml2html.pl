@@ -2,6 +2,7 @@
 
 # script to create HTML-pages and diagrams from the glest-factions techtree
 # 20110120, bugs & feedback to olaus@rupp.de
+# Copyright 2011 olaus
 # license: GPLv3 or newer
 
 our $version = "0.8 beta";

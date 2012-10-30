@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+# Copyright 2011 olaus
+# license: GPLv3 or newer
 # show xpath in file, google xpath for syntax
 
 
