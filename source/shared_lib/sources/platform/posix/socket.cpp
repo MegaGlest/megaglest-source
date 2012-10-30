@@ -2213,10 +2213,10 @@ void ServerSocket::bind(int port) {
 	int err= ::bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 	if(err < 0) {
 	    char szBuf[8096]="";
-	    snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = %d, err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,err,getLastSocketErrorFormattedText().c_str());
+	    snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = %d, address [%s] port = %d err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
 
-	    snprintf(szBuf, 8096,"Error binding socket sock = %d, err = %d, error = %s\n",sock,err,getLastSocketErrorFormattedText().c_str());
+	    snprintf(szBuf, 8096,"Error binding socket sock = %d, address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
 	    throw megaglest_runtime_error(szBuf);
 	}
 	portBound = true;
