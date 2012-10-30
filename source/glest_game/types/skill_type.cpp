@@ -536,9 +536,8 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 
 				if(foundSpecificAnimation == false) {
 					//int modelIndex = random.randRange(0,animations.size()-1);
-					//srand(time(NULL) + unit->getId());
 					Chrono seed(true);
-					srand(seed.getCurTicks() + unit->getId());
+					srand((unsigned int)seed.getCurTicks() + unit->getId());
 
 					modelIndex = rand() % animations.size();
 
@@ -546,9 +545,8 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 					//printf("SELECTING RANDOM Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",modelIndex,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
 				}
 				else {
-					//srand(time(NULL) + unit->getId());
 					Chrono seed(true);
-					srand(seed.getCurTicks() + unit->getId());
+					srand((unsigned int)seed.getCurTicks() + unit->getId());
 
 					int filteredModelIndex = rand() % filteredAnimations.size();
 					modelIndex = filteredAnimations[filteredModelIndex];

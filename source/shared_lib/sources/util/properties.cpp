@@ -440,7 +440,6 @@ const string Properties::getRandomKey(const bool realrandom) const{
 	int max=getPropertyCount();
 	int randomIndex=-1;
 	if(realrandom == true){
-		//srand((unsigned int)time(NULL));
 		Chrono seed(true);
 		srand((unsigned int)seed.getCurTicks());
 
