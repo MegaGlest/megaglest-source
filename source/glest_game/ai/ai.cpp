@@ -346,7 +346,7 @@ void Ai::update() {
 		//int allowJoinTeam = random.randRange(0, 100);
 		//srand(time(NULL) + aiInterface->getMyFaction()->getIndex());
 		Chrono seed(true);
-		srand(seed.getCurTicks() + aiInterface->getMyFaction()->getIndex());
+		srand((unsigned int)seed.getCurTicks() + aiInterface->getMyFaction()->getIndex());
 
 		int allowJoinTeam = rand() % 100;
 

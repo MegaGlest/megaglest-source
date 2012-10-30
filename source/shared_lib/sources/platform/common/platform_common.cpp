@@ -734,7 +734,7 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue) {
 	if(fp != NULL) {
 		//RandomGen random;
 		//int offset = random.randRange(5, 15);
-	    srand((unsigned long)time(NULL) + (unsigned long)crcCacheFile.length());
+	    srand((unsigned int)time(NULL) + (unsigned long)crcCacheFile.length());
 	    int offset = rand() % 15;
 	    if(offset == 0) {
 	    	offset = 3;

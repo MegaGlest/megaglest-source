@@ -453,9 +453,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 					if(this->isConnected() == true) {
 					//RandomGen random;
 					//sessionKey = random.randRange(-100000, 100000);
-					//srand((unsigned int)time(NULL) / (this->playerIndex + 1));
 					Chrono seed(true);
-					srand(seed.getCurTicks() / (this->playerIndex + 1));
+					srand((unsigned int)seed.getCurTicks() / (this->playerIndex + 1));
 
 					sessionKey = rand() % 1000000;
 
