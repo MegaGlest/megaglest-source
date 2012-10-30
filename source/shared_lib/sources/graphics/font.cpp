@@ -346,6 +346,7 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 		path = filename; \
 		if( font == NULL && path != NULL && strlen(path) > 0 && fileExists(path) == true ) { \
 			font = strdup(path); \
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 candidate font file [%s]\n",(font != NULL ? font : "null")); \
 		} \
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",(path != NULL ? path : "null"),(font != NULL ? font : "null")); \
 		if( font != NULL && fontFamily != NULL && strlen(fontFamily) > 0) { \
@@ -353,7 +354,9 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 			if(fileFound != "") { \
 				path = fileFound.c_str(); \
 				if( font != NULL && path && strlen(path) > 0 && fileExists(path) == true ) { \
+					free((void*)font); \
 					font = strdup(path); \
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file [%s]\n",(font != NULL ? font : "null")); \
 				} \
 			} \
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font family [%s] result [%s]\n",(fontFamily != NULL ? fontFamily : "null"),(font != NULL ? font : "null")); \
