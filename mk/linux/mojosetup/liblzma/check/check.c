@@ -3,6 +3,11 @@
 /// \file       check.c
 /// \brief      Single API to access different integrity checks
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

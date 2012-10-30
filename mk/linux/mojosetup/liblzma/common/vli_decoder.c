@@ -3,6 +3,10 @@
 /// \file       vli_decoder.c
 /// \brief      Decodes variable-length integers
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

@@ -3,6 +3,11 @@
 /// \file       x86.c
 /// \brief      Filter for x86 binaries (BCJ filter)
 ///
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 //  Authors:    Igor Pavlov
 //              Lasse Collin
 //

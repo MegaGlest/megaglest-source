@@ -3,6 +3,11 @@
  * \brief       .xz Stream Header and Stream Footer encoder and decoder
  */
 
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 /*
  * Author: Lasse Collin
  *

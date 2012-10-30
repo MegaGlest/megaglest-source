@@ -3,10 +3,9 @@ PROMINENT NOTICE: THIS IS A DERIVATIVE WORK OF THE ORIGINAL SOFTFLOAT CODE
 CHANGES:
     Renamed file to softfloat.cpp
     Make use of namespaces
-Nicolas Brodu, 2006
-=============================================================================*/
 
-/*============================================================================
+    Copyright 2006 Nicolas Brodu
+    		  2012 Mark Vejvoda
 
 This C source file is part of the SoftFloat IEC/IEEE Floating-point Arithmetic
 Package, Release 2b.

@@ -3,6 +3,11 @@
 /// \file       filter_flags_decoder.c
 /// \brief      Decodes a Filter Flags field
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

@@ -3,6 +3,11 @@
 /// \file       crc_macros.h
 /// \brief      Some endian-dependent macros for CRC32 and CRC64
 //
+//
+// Copyright 2012 Lasse Collin
+// Public Domain
+//
+
 //  Author:     Lasse Collin
 //
 //  This file has been put into the public domain.

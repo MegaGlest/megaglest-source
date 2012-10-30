@@ -3,6 +3,11 @@
  * \brief       Version number
  */
 
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 /*
  * Author: Lasse Collin
  *

@@ -6,14 +6,16 @@
 # change the variables as required (I build from my local system). Commented out 
 # below for example are wget calls to get source and data from the official
 # sourceforge links
+# Originally written by Mark Vejvoda <mark_vejvoda@hotmail.com>
+# Copyright (c) 2012 Mark Vejvoda under GNU GPL v3.0
 
 #
 # Start changes here
 #
-SOURCE_PACKAGE_VER=3.6.0.1
+SOURCE_PACKAGE_VER=3.7.0.1
 DATA_PACKAGE_VER=$SOURCE_PACKAGE_VER
 
-SOURCE_PACKAGE_RPM_VER=3.6.0
+SOURCE_PACKAGE_RPM_VER=3.7.0
 DATA_PACKAGE_RPM_VER=$SOURCE_PACKAGE_RPM_VER
 
 SOURCE_COPY_CMD="cp /media/dlinknas/games/MegaGlest/megaglest-source-$SOURCE_PACKAGE_VER.tar.xz ./"
@@ -78,6 +80,6 @@ sudo cp megaglest-data-$DATA_PACKAGE_RPM_VER.tar.bz2 /home/makerpm/rpmbuild/SOUR
 
 # now build the binary and data rpms
 echo "building rpms..."
-su - makerpm -c "rpmdev-setuptree; cd rpmbuild/; tar xvf ../megaglest-rpm-meta.tar.bz2; cd SPECS/; rpmbuild -ba megaglest.spec; cd ../; cp RPMS/x86/*.rpm /media/dlinknas/games/MegaGlest/; $SOURCE_PUBLISH_CMD; mv SOURCES/megaglest-data-3.6.0.tar.bz2 ./; rm -f SOURCES/*; mv megaglest-data-3.6.0.tar.bz2 SOURCES/; rm -f SPECS/*; mv megaglest-data.spec SPECS/; cd SPECS/; rpmbuild -ba megaglest-data.spec; cd ../; $DATA_PUBLISH_CMD; rm -f SOURCES/*; rm -f SPECS/*;"
+su - makerpm -c "rpmdev-setuptree; cd rpmbuild/; tar xvf ../megaglest-rpm-meta.tar.bz2; cd SPECS/; rpmbuild -ba megaglest.spec; cd ../; cp RPMS/x86/*.rpm /media/dlinknas/games/MegaGlest/; $SOURCE_PUBLISH_CMD; mv SOURCES/megaglest-data-$SOURCE_PACKAGE_RPM_VER.tar.bz2 ./; rm -f SOURCES/*; mv megaglest-data-$SOURCE_PACKAGE_RPM_VER.tar.bz2 SOURCES/; rm -f SPECS/*; mv megaglest-data.spec SPECS/; cd SPECS/; rpmbuild -ba megaglest-data.spec; cd ../; $DATA_PUBLISH_CMD; rm -f SOURCES/*; rm -f SPECS/*;"
 
 echo "DONE building rpms"

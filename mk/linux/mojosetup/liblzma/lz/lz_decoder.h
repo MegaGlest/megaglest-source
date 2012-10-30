@@ -3,6 +3,11 @@
 /// \file       lz_decoder.h
 /// \brief      LZ out window
 ///
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 //  Authors:    Igor Pavlov
 //              Lasse Collin
 //

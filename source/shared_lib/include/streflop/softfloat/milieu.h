@@ -3,7 +3,10 @@ PROMINENT NOTICE: THIS IS A DERIVATIVE WORK OF THE ORIGINAL SOFTFLOAT CODE
 CHANGES:
     Removed processors include
     This file serves as a bridge to the streflop system
-Nicolas Brodu, 2006
+
+    Copyright 2006 Nicolas Brodu
+              2012 Mark Vejvoda
+
 =============================================================================*/
 
 /*============================================================================

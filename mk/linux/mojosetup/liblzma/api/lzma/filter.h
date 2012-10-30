@@ -3,6 +3,11 @@
  * \brief       Common filter related types and functions
  */
 
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 /*
  * Author: Lasse Collin
  *

@@ -3,6 +3,11 @@
 /// \file       sparc.c
 /// \brief      Filter for SPARC binaries
 ///
+//
+// Copyright 2012 Lasse Collin and Igor Pavlov
+// Public Domain
+//
+
 //  Authors:    Igor Pavlov
 //              Lasse Collin
 //

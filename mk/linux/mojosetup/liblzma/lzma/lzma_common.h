@@ -3,6 +3,10 @@
 /// \file       lzma_common.h
 /// \brief      Private definitions common to LZMA encoder and decoder
 ///
+//
+// Copyright 2012 Igor Pavlov and Lasse Collin
+// Public Domain
+//
 //  Authors:    Igor Pavlov
 //              Lasse Collin
 //
