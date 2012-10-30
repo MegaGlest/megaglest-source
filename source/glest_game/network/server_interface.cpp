@@ -60,6 +60,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	broadcastMessageQueueThreadAccessor = new Mutex();
 	inBroadcastMessageThreadAccessor = new Mutex();
 
+	serverSocketAdmin				= NULL;
 	nextEventId 					= 1;
 	gameHasBeenInitiated 			= false;
 	exitServer 						= false;
@@ -76,12 +77,13 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 
 	// This is an admin port listening only on the localhost intended to
 	// give current connection status info
+#ifndef __APPLE__
 	serverSocketAdmin				= new ServerSocket(true);
 	serverSocketAdmin->setBlock(false);
 	serverSocketAdmin->setBindPort(Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str()));
-	//serverSocketAdmin->setBindSpecificAddress("127.0.0.1");
 	serverSocketAdmin->setBindSpecificAddress(Config::getInstance().getString("ServerAdminBindAddress", "127.0.0.1"));
 	serverSocketAdmin->listen(5);
+#endif
 
 	maxFrameCountLagAllowed 				= Config::getInstance().getInt("MaxFrameCountLagAllowed", intToStr(maxFrameCountLagAllowed).c_str());
 	maxFrameCountLagAllowedEver 			= Config::getInstance().getInt("MaxFrameCountLagAllowedEver", intToStr(maxFrameCountLagAllowedEver).c_str());
@@ -373,7 +375,7 @@ void ServerInterface::addSlot(int playerIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(playerIndex >= 0 && playerIndex < GameConstants::maxPlayers);
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
-	if(serverSocketAdmin->isSocketValid() == false) {
+	if(serverSocketAdmin != NULL && serverSocketAdmin->isSocketValid() == false) {
 		serverSocketAdmin->listen(5);
 	}
 	if(serverSocket.isPortBound() == false) {
@@ -2484,13 +2486,15 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 	}
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		//printf("Attempt Accept\n");
-		Socket *cli = serverSocketAdmin->accept(false);
-		if(cli != NULL) {
-			printf("Got status request connection, dumping info...\n");
+		if(serverSocketAdmin != NULL) {
+			Socket *cli = serverSocketAdmin->accept(false);
+			if(cli != NULL) {
+				printf("Got status request connection, dumping info...\n");
 
-			string data = DumpStatsToLog(true);
-			cli->send(data.c_str(),data.length());
-			cli->disconnectSocket();
+				string data = DumpStatsToLog(true);
+				cli->send(data.c_str(),data.length());
+				cli->disconnectSocket();
+			}
 		}
 	}
 }
