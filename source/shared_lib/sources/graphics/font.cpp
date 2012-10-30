@@ -457,6 +457,8 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 	CHECK_FONT_PATH("\\windows\\fonts\\arial.ttf",NULL)
 #endif
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Final selection of font file is [%s]\n",(font != NULL ? font : "null")); \
+
 	return font;
 }
 
