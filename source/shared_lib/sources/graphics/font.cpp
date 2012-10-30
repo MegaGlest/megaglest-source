@@ -24,6 +24,9 @@ using namespace Shared::Graphics::Gl;
 #include "font_text_freetypegl.h"
 #endif
 
+// If your compiler has a version older than 2.4.1 of fontconfig, you can tell cmake to
+// disable trying to use fontconfig via passing this to cmake:
+// -DWANT_FONTCONFIG=Off
 #ifdef HAVE_FONTCONFIG
 #include <fontconfig/fontconfig.h>
 #endif
@@ -292,6 +295,11 @@ Font3D::Font3D(FontTextHandlerType type) : Font(type) {
 
 string findFontFamily(const char* font, const char *fontFamily) {
 	string resultFile = "";
+
+	// If your compiler has a version older than 2.4.1 of fontconfig, you can tell cmake to
+	// disable trying to use fontconfig via passing this to cmake:
+	// -DWANT_FONTCONFIG=Off
+
 #ifdef HAVE_FONTCONFIG
 	// Get default font via fontconfig
 	if( !font && FcInit() && fontFamily)	{
@@ -328,6 +336,9 @@ string findFontFamily(const char* font, const char *fontFamily) {
 			}
 			FcFontSetDestroy(fs);
 		}
+		// If your compiler has a version older than 2.4.1 of fontconfig, you can tell cmake to
+		// disable trying to use fontconfig via passing this to cmake:
+		// -DWANT_FONTCONFIG=Off
 		FcFini();
 	}
 #else

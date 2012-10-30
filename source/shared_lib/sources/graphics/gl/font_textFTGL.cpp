@@ -20,10 +20,6 @@
 #include <sys/stat.h>
 #include <FTGL/ftgl.h>
 
-#ifdef HAVE_FONTCONFIG
-#include <fontconfig/fontconfig.h>
-#endif
-
 #include "platform_common.h"
 #include "util.h"
 

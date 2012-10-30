@@ -17,10 +17,6 @@
 #include <stdexcept>
 #include <sys/stat.h>
 
-#ifdef HAVE_FONTCONFIG
-#include <fontconfig/fontconfig.h>
-#endif
-
 #include "platform_common.h"
 #include "util.h"
 #include "font.h"
