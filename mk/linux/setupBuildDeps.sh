@@ -202,6 +202,23 @@ case $distribution in
 		esac
 		;;
 
+	LinuxMint) 
+		case $release in
+
+			13)
+				apt-get install build-essential subversion automake autoconf autogen cmake
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libvlc-dev
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				;;
+			*)
+				alternative='apt-get install build-essential subversion automake autoconf autogen cmake; apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libvlc-dev'
+				unsupported_release
+				exit 1
+				;;
+		esac
+		;;
+
 	SuSE|Opensuse) 
 		case $release in
 			11.2|11.3|11.4)
@@ -217,6 +234,7 @@ case $distribution in
 				;;
 		esac
 		;;
+
 
 	Fedora) 
 		case $release in
