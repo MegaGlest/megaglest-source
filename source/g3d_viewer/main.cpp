@@ -182,12 +182,12 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a g3d filename to load separated with a");
 	printf("\n                     \t\tcomma and one or more skill names to try loading:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/tech/units/battle_machine,attack_skill,stop_skill",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
+	printf("\n %s\n %s=techs/megapack/factions/tech/units/battle_machine,attack_skill,stop_skill",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_UNIT]));
 
 	printf("\n%s=x\t\t\tAuto load the model specified in path/filename x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 	printf("\n                     \t\tWhere x is a g3d filename to load:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n %s\n %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 
 	printf("\n%s=x\tAnimation value when loading a model",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL_ANIMATION_VALUE]));
 	printf("\n                     \t\tWhere x is a decimal value from -1.0 to 1.0:");
@@ -204,14 +204,14 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tenable_normals, disable_grid, disable_wireframe,");
 	printf("\n                     \t\tdisable_normals, saveas-<filename>, resize-wxh");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=transparent,disable_grid,saveas-test.png,resize-800x600 %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
+	printf("\n %s\n %s=transparent,disable_grid,saveas-test.png,resize-800x600\n %s=techs/megapack/factions/tech/units/battle_machine/models/battle_machine_dying.g3d",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_AUTO_SCREENSHOT]),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_MODEL]));
 
 	//     "================================================================================"
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
 	printf("\n                     \t\tAuto load the particle specified in path/filename x");
 	printf("\n                     \t\tWhere x is a Particle XML filename to load:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/persian/units/genie/glow_particles.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
+	printf("\n %s\n %s=techs/megapack/factions/persian/units/genie/glow_particles.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE]));
 
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]));
 	printf("\n                     \t\tAuto load the projectile particle specified in");
@@ -219,7 +219,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a Projectile Particle Definition XML");
 	printf("\n                     \t\t        filename to load:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/persian/units/genie/particle_proj.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]));
+	printf("\n %s\n %s=techs/megapack/factions/persian/units/genie/particle_proj.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_PROJECTILE]));
 
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]));
 	printf("\n                     \t\tAuto load the splash particle specified in");
@@ -227,7 +227,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a Splash Particle Definition XML");
 	printf("\n                     \t\t        filename to load:");
 	printf("\n                     \t\texample:");
-	printf("\n %s %s=techs/megapack/factions/persian/units/genie/particle_splash.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]));
+	printf("\n %s\n %s=techs/megapack/factions/persian/units/genie/particle_splash.xml",extractFileFromDirectoryPath(argv0).c_str(),(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_SPLASH]));
 
 	printf("\n%s=x",(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_LOAD_PARTICLE_LOOP_VALUE]));
 	printf("\n                     \t\tParticle loop value when loading one or more");
