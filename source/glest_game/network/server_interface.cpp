@@ -11,7 +11,7 @@
 
 #include "server_interface.h"
 
-#include <cassert>
+//#include <cassert>
 #include <stdexcept>
 
 #include "platform_util.h"
@@ -373,7 +373,12 @@ void ServerInterface::addClientToServerIPAddress(uint32 clientIp, uint32 ServerI
 
 void ServerInterface::addSlot(int playerIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	assert(playerIndex >= 0 && playerIndex < GameConstants::maxPlayers);
+	//assert(playerIndex >= 0 && playerIndex < GameConstants::maxPlayers);
+	if(playerIndex < 0 || playerIndex >= GameConstants::maxPlayers) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] playerIndex is invalid = %d",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex);
+		throw megaglest_runtime_error(szBuf);
+	}
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
 	if(serverSocketAdmin != NULL && serverSocketAdmin->isSocketValid() == false) {
 		serverSocketAdmin->listen(5);
@@ -404,8 +409,20 @@ void ServerInterface::addSlot(int playerIndex) {
 bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	bool result = false;
-	assert(fromPlayerIndex >= 0 && fromPlayerIndex < GameConstants::maxPlayers);
-	assert(toPlayerIndex >= 0 && toPlayerIndex < GameConstants::maxPlayers);
+	//assert(fromPlayerIndex >= 0 && fromPlayerIndex < GameConstants::maxPlayers);
+	if(fromPlayerIndex < 0 || fromPlayerIndex >= GameConstants::maxPlayers) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] fromPlayerIndex is invalid = %d",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,fromPlayerIndex);
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	//assert(toPlayerIndex >= 0 && toPlayerIndex < GameConstants::maxPlayers);
+	if(toPlayerIndex < 0 || toPlayerIndex >= GameConstants::maxPlayers) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] toPlayerIndex is invalid = %d",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,toPlayerIndex);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	if(fromPlayerIndex == toPlayerIndex) {
 		return false;
 	}
